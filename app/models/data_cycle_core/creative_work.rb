@@ -1,5 +1,5 @@
 module DataCycleCore
-  class CreativeWork < ActiveRecord::Base
+  class CreativeWork < ApplicationRecord
 
     # handle translations with gem Globalize
     translates :content, :properties

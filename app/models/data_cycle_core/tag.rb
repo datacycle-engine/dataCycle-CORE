@@ -1,5 +1,5 @@
 module DataCycleCore
-  class Tag < ActiveRecord::Base
+  class Tag < ApplicationRecord
 
     include DataSetter
 

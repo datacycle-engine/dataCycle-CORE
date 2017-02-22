@@ -1,7 +1,7 @@
 module DataCycleCore
-  class Overlay < ActiveRecord::Base
+  class Overlay < ApplicationRecord
 
     include DataSetter
 
   end
-end 
+end

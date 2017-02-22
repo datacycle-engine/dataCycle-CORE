@@ -3,6 +3,7 @@ module DataCycleCore
 
     class DownloadCategory
       include Mongoid::Document
+      store_in collection: "download_categories"
 
       field :name,      type: String
       field :parent_id, type: String

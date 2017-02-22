@@ -1,5 +1,5 @@
 module DataCycleCore
-  class Place < ActiveRecord::Base
+  class Place < ApplicationRecord
 
     # handle translations with gem Globalize
     translates :name, :description, :addressLocality, :streetAddress,

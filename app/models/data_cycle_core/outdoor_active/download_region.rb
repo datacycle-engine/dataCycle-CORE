@@ -3,6 +3,7 @@ module DataCycleCore
 
     class DownloadRegion
       include Mongoid::Document
+      store_in collection: "download_regions"
 
       field :name,          type: String
       field :region_id,     type: String

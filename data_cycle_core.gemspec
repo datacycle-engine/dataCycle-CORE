@@ -24,7 +24,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'rgeo'
   #mongoDB driver
   s.add_dependency 'mongoid'
-  s.add_dependency 'mongoid-geospatial'
   # REST Client
   s.add_dependency 'faraday'
   # JSON Parser

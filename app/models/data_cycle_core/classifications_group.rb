@@ -1,5 +1,5 @@
 module DataCycleCore
-  class ClassificationsGroup < ActiveRecord::Base
+  class ClassificationsGroup < ApplicationRecord
 
     include DataSetter
 

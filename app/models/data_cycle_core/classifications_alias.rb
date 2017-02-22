@@ -1,5 +1,5 @@
 module DataCycleCore
-  class ClassificationsAlias < ActiveRecord::Base
+  class ClassificationsAlias < ApplicationRecord
 
     include DataSetter
 

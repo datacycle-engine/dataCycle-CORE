@@ -1,5 +1,5 @@
 module DataCycleCore
-  class ClassificationsTreesLabel < ActiveRecord::Base
+  class ClassificationsTreesLabel < ApplicationRecord
 
     include DataSetter
 

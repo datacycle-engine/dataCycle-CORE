@@ -1,5 +1,5 @@
 module DataCycleCore
-  class ClassificationsCreativeWork < ActiveRecord::Base
+  class ClassificationsCreativeWork < ApplicationRecord
     include DataSetter
   end
 end

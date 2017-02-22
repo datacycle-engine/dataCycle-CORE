@@ -9,7 +9,7 @@ module DataCycleCore
         @download_page_size = page_size
         @verbose = verbose
         @incremental_update = incremental_update
-        @log = OutdoorActive::Logger.new('outdooractive_import')
+        @log = DataCycleCore::OutdoorActive::Logger.new('outdooractive_import')
         init_db(uuid)
       end
 
@@ -65,7 +65,7 @@ module DataCycleCore
 
       def import
         Mongoid.override_database(nil) #reset to default
-        Mongoid.override_database("#{OutdoorActive::DownloadPoi.database_name}_#{@external_source_id}")
+        Mongoid.override_database("#{DownloadPoi.database_name}_#{@external_source_id}")
 
         import_logging do
           import_category
@@ -80,7 +80,7 @@ module DataCycleCore
 
       def import_category
         import_classification_logging ('category') do
-          OutdoorActive::DownloadCategory.all.each do |loaded_category|
+          DownloadCategory.all.each do |loaded_category|
             ActiveRecord::Base.transaction do
               data_hash = {
                 'external_source_id' => @external_source_id,
@@ -97,7 +97,7 @@ module DataCycleCore
 
       def import_region
         import_classification_logging ('region') do
-          OutdoorActive::DownloadRegion.all.each do |load_region|
+          DownloadRegion.all.each do |load_region|
             ActiveRecord::Base.transaction do
               bbox = convert_bbox(load_region.bbox)
               region_hash = {
@@ -119,14 +119,14 @@ module DataCycleCore
         import_poi_logging do
 
           if @incremental_update
-            indexes = OutdoorActive::DownloadPoiUpsert.all.map {|index| index.id }
+            indexes = DownloadPoiUpsert.all.map {|index| index.id }
           else
-            indexes = OutdoorActive::DownloadPoi.all.map {|index| index.id }
+            indexes = DownloadPoi.all.map {|index| index.id }
           end
           updates = indexes.count
 
           print " " * 40 + "loading"
-          OutdoorActive::DownloadPoi.in(_id: indexes).each do |load_poi|
+          DownloadPoi.in(_id: indexes).each do |load_poi|
             print '.' if (updates % @download_page_size) == 0
             updates-=1
             to_update_place = Place
@@ -149,7 +149,7 @@ module DataCycleCore
             end
           end
           puts "\n"
-          OutdoorActive::DownloadPoiUpsert.delete_all if @incremental_update
+          DownloadPoiUpsert.delete_all if @incremental_update
         end
       end
 
@@ -466,7 +466,7 @@ module DataCycleCore
         start_time = Time.zone.now
         @log.info "BEGIN IMPORT : " + start_time.to_s
         @log.info 'OutdoorActive Importer:'
-        @log.info "MongoDB: #{OutdoorActive::DownloadPoi.database_name}"
+        @log.info "MongoDB: #{DownloadPoi.database_name}"
 
         save_logger_level = Rails.logger.level
         Rails.logger.level = 4 unless @verbose
@@ -488,8 +488,8 @@ module DataCycleCore
         classifications_groups = ClassificationsGroup.where(external_source_id: @external_source_id).count
         classifications_alias = ClassificationsGroup.joins("INNER JOIN classifications_aliases ON classifications_groups.classifications_alias_id = classifications_aliases.id").count
         classifications_trees_present = ClassificationsTree.where(external_source_id: @external_source_id).count
-        downloaded = OutdoorActive::DownloadCategory.count if name == 'category'
-        downloaded = OutdoorActive::DownloadRegion.count if name == 'region'
+        downloaded = DownloadCategory.count if name == 'category'
+        downloaded = DownloadRegion.count if name == 'region'
         @log.info "  -- before: #{classifications_present}[class.]|#{classifications_groups}[class.group]|#{classifications_alias}[class.alias]|#{classifications_trees_present}[class.tree]"
         @log.info "  -- to import: #{downloaded}"
 
@@ -499,8 +499,8 @@ module DataCycleCore
         classifications_groups = ClassificationsGroup.where(external_source_id: @external_source_id).count
         classifications_alias = ClassificationsGroup.joins("INNER JOIN classifications_aliases ON classifications_groups.classifications_alias_id = classifications_aliases.id").count
         classifications_trees_present = ClassificationsTree.where(external_source_id: @external_source_id).count
-        downloaded = OutdoorActive::DownloadCategory.count if name == 'category'
-        downloaded = OutdoorActive::DownloadRegion.count if name == 'region'
+        downloaded = DownloadCategory.count if name == 'category'
+        downloaded = DownloadRegion.count if name == 'region'
         @log.info "  -- after : #{classifications_present}[class.]|#{classifications_groups}[class.group]|#{classifications_alias}[class.alias]|#{classifications_trees_present}[class.tree]"
         @log.info "  -- to import: #{downloaded}"
         end_time = Time.zone.now
@@ -511,8 +511,8 @@ module DataCycleCore
         start_time = Time.zone.now
         places_present = Place.where(external_source_id: @external_source_id).count
         places_classifications_present = ClassificationsPlace.where(external_source_id: @external_source_id).count
-        pois_imported = OutdoorActive::DownloadPoi.count
-        pois_upsert_imported = OutdoorActive::DownloadPoiUpsert.count
+        pois_imported = DownloadPoi.count
+        pois_upsert_imported = DownloadPoiUpsert.count
         #images_present = Image.where(external_source_id: @external_source_id).count
         #images_place_present = ImagesPlace.where(external_source_id: @external_source_id).count
         @log.info "  importing pois into places"

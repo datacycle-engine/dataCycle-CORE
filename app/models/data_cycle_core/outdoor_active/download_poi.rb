@@ -3,6 +3,7 @@ module DataCycleCore
 
     class DownloadPoi
       include Mongoid::Document
+      store_in collection: "download_pois"
 
       field :title,        type: String
       field :lastModified, type: DateTime

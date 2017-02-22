@@ -1,5 +1,5 @@
 module DataCycleCore
-  class ExternalSource < ActiveRecord::Base
+  class ExternalSource < ApplicationRecord
     has_many :places
     has_many :classifications_regions
   end
