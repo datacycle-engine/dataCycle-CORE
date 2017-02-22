@@ -1,0 +1,2 @@
+class UseCase < ApplicationRecord
+end
