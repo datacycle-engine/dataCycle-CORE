@@ -1,9 +1,10 @@
 module DataCycleCore
   module OutdoorActive
 
-    class Test
+    class Test2
       def test(message)
-        message
+        temp = Test.new
+        temp.test("msg from Test, not Test2")
       end
     end
 
