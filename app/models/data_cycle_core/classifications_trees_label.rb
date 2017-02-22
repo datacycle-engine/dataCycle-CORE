@@ -1,9 +1,11 @@
-class ClassificationsTreesLabel < ActiveRecord::Base
+module DataCycleCore
+  class ClassificationsTreesLabel < ActiveRecord::Base
 
-  include DataSetter
+    include DataSetter
 
-  belongs_to :external_sources
+    belongs_to :external_sources
 
-  has_many :classifications_trees
+    has_many :classifications_trees
 
+  end
 end

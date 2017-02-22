@@ -1,2 +1,4 @@
-class UseCase < ApplicationRecord
-end
+module DataCycleCore
+  class UseCase < ApplicationRecord
+  end
+end 

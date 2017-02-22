@@ -9,15 +9,15 @@ module DataCycleCore
         @uuid = uuid
         @download_page_size = page_size
         @verbose = verbose
-        @log = OutdoorActive::Logger.new("outdooractive_download")
+        @log = Logger.new("outdooractive_download")
         external_source = ExternalSource.where(id: uuid).first
         credentials = external_source.credentials
-        @connRestClient = OutdoorActive::RestClient.new(credentials['project'], credentials['key'], verbose)
+        @connRestClient = RestClient.new(credentials['project'], credentials['key'], verbose)
       end
 
       def download
         Mongoid.override_database(nil) #reset to default
-        Mongoid.override_database("#{OutdoorActive::DownloadPoi.database_name}_#{@uuid}")
+        Mongoid.override_database("#{DownloadPoi.database_name}_#{@uuid}")
 
         download_logging do
           download_category
@@ -60,9 +60,9 @@ module DataCycleCore
       end
 
       def save_category(category_hash, parent_id)
-        processed_category = OutdoorActive::DownloadCategory.find({id: category_hash['id']})
+        processed_category = DownloadCategory.find({id: category_hash['id']})
         if processed_category.nil?
-          processed_category = OutdoorActive::DownloadCategory.new
+          processed_category = DownloadCategory.new
           processed_category.id = category_hash['id']
           processed_category.parent_id = parent_id unless parent_id.nil?
           processed_category.created_at = Time.zone.now
@@ -98,9 +98,9 @@ module DataCycleCore
 
       def save_region (regions, parent_id)
         unless parent_id == regions['id']  # inconsistent data
-          processed_region = OutdoorActive::DownloadRegion.find({id: "#{parent_id}/#{regions['id']}"})
+          processed_region = DownloadRegion.find({id: "#{parent_id}/#{regions['id']}"})
           if processed_region.nil?
-            processed_region = OutdoorActive::DownloadRegion.new
+            processed_region = DownloadRegion.new
             processed_region.id = "#{parent_id}/#{regions['id']}"
             processed_region.region_id = regions['id']
             processed_region.parent_id = parent_id
@@ -129,7 +129,7 @@ module DataCycleCore
           if @incremental_update
             @log.info "  -- check for inserts/updates"
             determine_poi_upserts(response.body, end_point)
-            indexes = OutdoorActive::DownloadPoiUpsert.all.sort.map { |x| x.id }
+            indexes = DownloadPoiUpsert.all.sort.map { |x| x.id }
           else
             indexes = JSON.parse(response.body)['data'].collect { |selected_poi| selected_poi['id']}
           end
@@ -141,13 +141,13 @@ module DataCycleCore
         new_pois = 0
         updated_pois = 0
         @log.info "  -- download indexes for #{end_point}"
-        @log.info "  -- pending upserts before download: #{OutdoorActive::DownloadPoiUpsert.count}"
+        @log.info "  -- pending upserts before download: #{DownloadPoiUpsert.count}"
 
         JSON.parse(pois)['data'].each do |selected_poi|
-          old_poi = OutdoorActive::DownloadPoi.find({id: selected_poi['id']})
+          old_poi = DownloadPoi.find({id: selected_poi['id']})
           if old_poi.nil?
             new_pois += 1
-            insert_poi = OutdoorActive::DownloadPoiUpsert.new
+            insert_poi = DownloadPoiUpsert.new
             insert_poi.id = selected_poi['id']
             insert_poi.insert
           else
@@ -204,7 +204,7 @@ module DataCycleCore
           download_poi_details_lang(end_point, index_lang, lang)
         end
         @log.info "       uniqe: #{indexes.count} #{end_point}"
-        @log.info "  -- processed: #{OutdoorActive::DownloadPoi.count}"
+        @log.info "  -- processed: #{DownloadPoi.count}"
       end
 
       def download_poi_details_lang(end_point, indexes, lang)
@@ -234,9 +234,9 @@ module DataCycleCore
       end
 
       def save_poi_details(poi_data, lang)
-        processed_poi = OutdoorActive::DownloadPoi.find({id: poi_data['id']})
+        processed_poi = DownloadPoi.find({id: poi_data['id']})
         if processed_poi.nil?
-          processed_poi = OutdoorActive::DownloadPoi.new
+          processed_poi = DownloadPoi.new
           processed_poi.id = poi_data['id']
           processed_poi.created_at = Time.zone.now
         end
@@ -255,7 +255,7 @@ module DataCycleCore
         start_timestamp = Time.zone.now
         @log.info "BEGIN DOWNLOAD : " + start_timestamp.to_s
         @log.info 'OutdoorActive Download:'
-        @log.info "MongoDb: #{OutdoorActive::DownloadPoi.database_name}"
+        @log.info "MongoDb: #{DownloadPoi.database_name}"
 
         save_logger_level = Rails.logger.level
         Rails.logger.level = 4 unless @verbose
@@ -276,27 +276,27 @@ module DataCycleCore
 
       def download_category_logging
         @log.info "  download: categories"
-        @log.info "  -- Categories before Update:    #{OutdoorActive::DownloadCategory.count}"
+        @log.info "  -- Categories before Update:    #{DownloadCategory.count}"
         start_time = Time.zone.now
 
         yield
 
         end_time = Time.zone.now
         @log.info "  -- download/update time:            #{(end_time-start_time).round(2)} [s]"
-        @log.info "  -- Categories after  Update:    #{OutdoorActive::DownloadCategory.count}"
+        @log.info "  -- Categories after  Update:    #{DownloadCategory.count}"
       end
 
 
       def download_region_logging
         @log.info "  download: regions"
-        @log.info "  -- Regions before Update:       #{OutdoorActive::DownloadRegion.count}"
+        @log.info "  -- Regions before Update:       #{DownloadRegion.count}"
         start_time = Time.zone.now
 
         yield
 
         end_time = Time.zone.now
         @log.info "  -- download/update time:            #{(end_time-start_time).round(2)} [s]"
-        @log.info "  -- Regions after  Update:       #{OutdoorActive::DownloadRegion.count}"
+        @log.info "  -- Regions after  Update:       #{DownloadRegion.count}"
 
       end
 

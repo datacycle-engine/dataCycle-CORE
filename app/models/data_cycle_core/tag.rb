@@ -1,5 +1,7 @@
-class Tag < ActiveRecord::Base
+module DataCycleCore
+  class Tag < ActiveRecord::Base
 
-  include DataSetter
+    include DataSetter
 
+  end
 end

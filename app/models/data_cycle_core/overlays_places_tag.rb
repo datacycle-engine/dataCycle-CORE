@@ -1,5 +1,7 @@
-class OverlaysPlacesTag < ActiveRecord::Base
+module DataCycleCore
+  class OverlaysPlacesTag < ActiveRecord::Base
 
-  include DataSetter
+    include DataSetter
 
+  end
 end

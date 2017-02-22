@@ -1,27 +1,29 @@
-class CreativeWork < ActiveRecord::Base
+module DataCycleCore
+  class CreativeWork < ActiveRecord::Base
 
-  # handle translations with gem Globalize
-  translates :content, :properties
+    # handle translations with gem Globalize
+    translates :content, :properties
 
-  # callbacks
-  before_destroy :destroy_translations, prepend: true
+    # callbacks
+    before_destroy :destroy_translations, prepend: true
 
-  # associations
-  belongs_to :primaryImage, class_name: 'Place', primary_key: 'id', foreign_key: 'photo'
+    # associations
+    belongs_to :primaryImage, class_name: 'Place', primary_key: 'id', foreign_key: 'photo'
 
-  # custom setter
-  include DataSetter
+    # custom setter
+    include DataSetter
 
-  # to cash also translated values (comming from gem Globalize)
-  def cache_key
-    super + '-' + Globalize.locale.to_s
+    # to cash also translated values (comming from gem Globalize)
+    def cache_key
+      super + '-' + Globalize.locale.to_s
+    end
+
+
+    private
+
+    def destroy_translations
+      self.translations.delete_all
+    end
+
   end
-
-
-  private
-
-  def destroy_translations
-    self.translations.delete_all
-  end
-
 end

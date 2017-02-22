@@ -1,7 +1,8 @@
 require "data_cycle_core/engine"
-require "faraday"
-require "logging"
 
 module DataCycleCore
-  # Your code goes here...
+
+  # This will prevent the Rails Engine from generating all table prefixes with the engines name
+  def self.table_name_prefix
+  end
 end
