@@ -1,7 +1,5 @@
 module DataCycleCore
   module OutdoorActive
-    #     new usage: OutdoorActive::Import.new('549b9531-dc52-4305-98eb-8c8eb669d156').import
-    #                OutdoorActive::Import.new(ExternalSource.first.id).import
 
     class Import
 

@@ -1,0 +1,12 @@
+<div class="card" style="width: 300px; background-color:white;">
+  <div class="card-divider">
+    <h5><i class='material-icons'>sync</i> queued data jobs</h5>
+  </div>
+  <div class="card-section">
+    <ul>
+    <% @statJobQueue.each do |job| %>
+      <%= content_tag(:li, "#{job['status']}<br/> #{job['job']}-#{truncate(job['ref_id'],  length: 12)} <br/> #{job['created_at']}".html_safe)%>
+    <% end %>
+    </ul>
+  </div>
+</div>

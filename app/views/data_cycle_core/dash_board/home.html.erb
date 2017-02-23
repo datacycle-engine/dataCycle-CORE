@@ -1,0 +1,44 @@
+<section>
+
+  <div class="row">
+    <div class="small-12 columns">
+      <h2>
+        data overview:
+      </h2>
+      <%= link_to 'update dash-board', root_path, class: 'button small' %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="small-12 columns">
+      <h4>
+        <br/>main_db:<br/>&nbsp;
+      </h4>
+    </div>
+  </div>
+  <div class="row small-up-2 medium-up-3">
+    <div class="small-12 columns">
+      <%= render 'pg_total_stats' %>
+    </div>
+    <div class="small-12 columns">
+      <%= render 'job_queue_stats' unless @statJobQueue.count == 0 %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="small-12 columns">
+      <br/></br>
+      <h4>
+        import modules:<br/>&nbsp;
+      </h4>
+    </div>
+  </div>
+  <div class="row small-up-2 medium-up-3">
+    <% @statOutdoorActive.import_modules.each do |import_modules| %>
+      <div class="small-12 columns">
+        <%= render 'import_modules', locals: {import_data: import_modules} %>
+      </div>
+    <% end %>
+  </div>
+
+</section>

@@ -12,4 +12,7 @@
  *
  *= require_tree .
  *= require_self
+ *= require data_cycle_core/foundation_and_overrides
+ *= require devise_foundation_views_scss
+ *= require material_icons
  */

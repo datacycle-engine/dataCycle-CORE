@@ -1,8 +1,6 @@
 module DataCycleCore
   module OutdoorActive
-    #     new usage: OutdoorActive::Download.new('549b9531-dc52-4305-98eb-8c8eb669d156').download (Kärnten)
-    #                OutdoorActive::Download.new('61db5968-4005-4f21-9af4-ce013eb856e2').download (Vorarlberg)
-    #                OutdoorActive::Download.new(ExternalSource.first.id).download
+
     class Download
 
       def initialize ( uuid, incremental_update = false, page_size = 300, verbose = false )

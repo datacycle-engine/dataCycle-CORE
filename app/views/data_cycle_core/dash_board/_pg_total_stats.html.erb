@@ -1,0 +1,23 @@
+<div class="card" style="width: 300px; background-color: white;">
+  <div class="card-divider">
+    <%=content_tag(:h5, "<i class='material-icons'>all_inclusive</i> #{@statOutdoorActive.pg_name}".html_safe)%>
+  </div>
+  <div class="card-section">
+    Total-size:
+    <ul>
+      <%=content_tag(:li, "size: #{number_to_human_size(@statOutdoorActive.pg_size)}")%>
+    </ul>
+  </div>
+  <div class="card-section">
+    Total:
+    <ul>
+      <%=content_tag(:li, "Places: #{@statOutdoorActive.pg_places}")%>
+      <%=content_tag(:li, "Classifications: #{@statOutdoorActive.pg_classifications}")%>
+      <%=content_tag(:li, "ClassPlaces: #{@statOutdoorActive.pg_classifications_places}")%>
+      <%=content_tag(:li, "CreativeWorks: #{@statOutdoorActive.pg_creative_works}")%>
+      <%=content_tag(:li, "CWorkPlaces: #{@statOutdoorActive.pg_creative_works_places}")%>
+      <%=content_tag(:li, "ClassCWork: #{@statOutdoorActive.pg_creative_works_classification}")%>
+      <%=content_tag(:li, "Overlays: #{@statOutdoorActive.pg_overlays}")%>
+    </ul>
+  </div>
+</div>

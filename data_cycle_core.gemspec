@@ -17,7 +17,10 @@ Gem::Specification.new do |s|
   s.files = Dir["{app,config,db,lib}/**/*", "LICENSE", "Rakefile", "README.md"]
 
   # rails
-  s.add_dependency "rails", "~> 5.0.0", ">= 5.0.0.1"
+  s.add_dependency 'rails', '~> 5.0.0', '>= 5.0.0.1'
+  s.add_dependency 'sass-rails', '~> 5.0'
+  # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
+  s.add_dependency 'turbolinks', '~> 5'
   # database
   s.add_dependency 'pg'
   s.add_dependency 'activerecord-postgis-adapter'
@@ -29,18 +32,20 @@ Gem::Specification.new do |s|
   # JSON Parser
   s.add_dependency 'multi_json'
   # SOAP Client
-  s.add_dependency 'savon', '~> 2.0'
+  #s.add_dependency 'savon', '~> 2.0'
   # XML Parser
   s.add_dependency 'nokogiri'
-  s.add_dependency 'activemodel-serializers-xml'
+  #s.add_dependency 'activemodel-serializers-xml'
   # authentication
   s.add_dependency 'devise'
   # authorization
   s.add_dependency 'cancancan'
   # foundation helper
-  s.add_dependency 'foundation-rails', '~> 6.0'
+  s.add_dependency 'foundation-rails', '~> 6.2.4' # 23.2.17 -> bug in  6.3.0 (prevents precompile the SCSS asset)
   s.add_dependency 'foundation_rails_helper', '>= 3.0.0.rc2', '< 4.0'
   s.add_dependency 'devise-foundation-views'
+  # google material icons wrapper
+  s.add_dependency 'material_icons'
   # pagination
   s.add_dependency 'kaminari'
   # simple logger for import/load
