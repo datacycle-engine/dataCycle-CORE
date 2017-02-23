@@ -11,9 +11,9 @@
     <ul class="menu">
       <% if user_signed_in? %>
         <li><%= current_user.email %></li>
-        <li><%=link_to 'logout', destroy_user_session_path, method: :delete %></li>
+        <li><%=link_to 'logout', data_cycle_core.destroy_user_session_path, method: :delete %></li>
       <% else %>
-        <li><%=link_to 'login', new_user_session_path %></li>
+        <li><%=link_to 'login', data_cycle_core.new_user_session_path %></li>
       <% end %>
     </ul>
   </div>

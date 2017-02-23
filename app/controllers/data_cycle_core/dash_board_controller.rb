@@ -4,9 +4,8 @@ module DataCycleCore
     #load_and_authorize_resource         # from cancancan (authorize)
 
     def home
-      byebug
       @statOutdoorActive = StatsDatabase.new(current_user.id)
-      @statJobQueue = StatsJobQueue.new.update
+      #@statJobQueue = StatsJobQueue.new.update
     end
 
     def download

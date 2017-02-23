@@ -21,7 +21,6 @@ Devise.setup do |config|
   config.sign_out_via = :delete
 end
 
-
 # authorization
 require 'cancancan'
 # foundation helper
@@ -38,11 +37,10 @@ module DataCycleCore
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
 
-
+    config.assets.precompile += ['data_cycle_core/*']
     # initializer 'any_login.assets_precompile', :group => :all do |app|
-    #   app.config.assets.precompile += ['data_cycle_core/*']
+    #  app.config.assets.precompile += ['data_cycle_core/*']
     # end
-
 
     require 'pg'
     require 'activerecord-postgis-adapter'
