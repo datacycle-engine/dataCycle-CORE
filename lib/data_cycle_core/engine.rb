@@ -1,28 +1,21 @@
+# rails essentials
 require 'rails'
 require 'sass-rails'
 require 'turbolinks'
 require 'jquery-rails'
+
+# Databases
+require 'pg'
+require 'activerecord-postgis-adapter'
+require 'rgeo'
+require 'mongoid'
+
 # authentication
 require 'devise'
-Devise.setup do |config|
-  config.router_name = :data_cycle_core #"DataCycleCore::User"
-  config.parent_controller = 'DataCycleCore::ApplicationController'
-  config.mailer_sender = 'webmaster@pixelpoint.at'
-  require 'devise/orm/active_record'
-  config.case_insensitive_keys = [:email]
-  config.strip_whitespace_keys = [:email]
-  config.skip_session_storage = [:http_auth]
-  config.stretches = Rails.env.test? ? 1 : 11
-  config.reconfirmable = true
-  config.expire_all_remember_me_on_sign_out = true
-  config.password_length = 6..128
-  config.email_regexp = /\A[^@\s]+@[^@\s]+\z/
-  config.reset_password_within = 6.hours
-  config.sign_out_via = :delete
-end
 
 # authorization
 require 'cancancan'
+
 # foundation helper
 require 'foundation-rails'
 require 'foundation_rails_helper'
@@ -33,80 +26,38 @@ require 'material_icons'
 # pagination
 require 'kaminari'
 
+# backgound-jobs
 require 'delayed_job'
 require 'delayed_job_active_record'
 
-Delayed::Worker.destroy_failed_jobs = false
-Delayed::Worker.max_run_time = 60.minutes
-Delayed::Worker.max_attempts = 1
-Delayed::Worker.sleep_delay = 60
+# REST-client
+require 'faraday'
+# simple logger
+require 'logging'
 
-# to execute all jobs immediately without queue: false
-Delayed::Worker.delay_jobs = !Rails.env.test? #false #!Rails.env.test?#
-
-Delayed::Worker.default_queue_name = 'default'
-Delayed::Worker.raise_signal_exceptions = :term
-
-#Delayed::Worker.logger = Logger.new(File.join(Rails.root, 'log', 'delayed_job.log'))
-
-
-
-# config/initializers/dj_rails5_patches.rb
-# RAILS 5 patches for delayed_job
-# TODO: REMOVE WHEN upstream is updated
-
-module DelayedWorkerPatches
-  def reload!
-    return unless self.class.reload_app?
-    if defined?(ActiveSupport::Reloader)
-      Rails.application.reloader.reload!
-    else
-      ActionDispatch::Reloader.cleanup!
-      ActionDispatch::Reloader.prepare!
-    end
-  end
-end
-
-module Delayed
-  class Worker
-    prepend DelayedWorkerPatches
-  end
-end
-
+# i18n for db
+require 'globalize'
 
 module DataCycleCore
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
 
     config.assets.precompile += ['data_cycle_core/*']
-    # initializer 'any_login.assets_precompile', :group => :all do |app|
-    #  app.config.assets.precompile += ['data_cycle_core/*']
-    # end
-
-    require 'pg'
-    require 'activerecord-postgis-adapter'
-    require 'rgeo'
-    require 'mongoid'
 
     # use active_record as orm (!not mongoid)
     config.app_generators.orm = :active_record
     config.active_record.schema_format = :sql
 
-    # REST-client
-    require 'faraday'
-    # simple logger
-    require 'logging'
+    # backend for active_job is delayed_job
+    config.active_job.queue_adapter = :delayed_job
 
-    # config i18n for db and UI
-    require 'globalize'
+    # set default language and no errors for non standard languages
     config.i18n.enforce_available_locales = false
     config.i18n.default_locale = :de
     # fallbacks for i18n and Globalize
     config.i18n.fallbacks = true
-    # add specific fallbacks for Globalize
-    Globalize.fallbacks = {en: [:de], de: [:en]}
 
-    # db-viewer only in development environment
+    # load db-viewer only in development environment
     if Rails.env == "development"
 
       require 'rails_db'
@@ -118,8 +69,6 @@ module DataCycleCore
       end
 
     end
-
-    config.active_job.queue_adapter = :delayed_job
 
     # include rake_tasks
     rake_tasks do
