@@ -33,6 +33,47 @@ require 'material_icons'
 # pagination
 require 'kaminari'
 
+require 'delayed_job'
+require 'delayed_job_active_record'
+
+Delayed::Worker.destroy_failed_jobs = false
+Delayed::Worker.max_run_time = 60.minutes
+Delayed::Worker.max_attempts = 1
+Delayed::Worker.sleep_delay = 60
+
+# to execute all jobs immediately without queue: false
+Delayed::Worker.delay_jobs = !Rails.env.test? #false #!Rails.env.test?#
+
+Delayed::Worker.default_queue_name = 'default'
+Delayed::Worker.raise_signal_exceptions = :term
+
+#Delayed::Worker.logger = Logger.new(File.join(Rails.root, 'log', 'delayed_job.log'))
+
+
+
+# config/initializers/dj_rails5_patches.rb
+# RAILS 5 patches for delayed_job
+# TODO: REMOVE WHEN upstream is updated
+
+module DelayedWorkerPatches
+  def reload!
+    return unless self.class.reload_app?
+    if defined?(ActiveSupport::Reloader)
+      Rails.application.reloader.reload!
+    else
+      ActionDispatch::Reloader.cleanup!
+      ActionDispatch::Reloader.prepare!
+    end
+  end
+end
+
+module Delayed
+  class Worker
+    prepend DelayedWorkerPatches
+  end
+end
+
+
 module DataCycleCore
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
@@ -77,6 +118,8 @@ module DataCycleCore
       end
 
     end
+
+    config.active_job.queue_adapter = :delayed_job
 
   end
 end
