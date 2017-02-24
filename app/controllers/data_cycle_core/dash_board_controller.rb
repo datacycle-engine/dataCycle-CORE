@@ -5,7 +5,7 @@ module DataCycleCore
 
     def home
       @statOutdoorActive = StatsDatabase.new(current_user.id)
-      #@statJobQueue = StatsJobQueue.new.update
+      @statJobQueue = StatsJobQueue.new.update
     end
 
     def download
