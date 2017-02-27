@@ -55,6 +55,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'delayed_job_active_record'
   # deamon for delayed_job
   s.add_dependency 'daemons'
+  # rails_db admin interface
+  s.add_dependency 'rails_db'
   # development tools
   s.add_development_dependency 'web-console'
   s.add_development_dependency 'better_errors'

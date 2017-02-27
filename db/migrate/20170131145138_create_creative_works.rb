@@ -3,7 +3,7 @@ class CreateCreativeWorks < ActiveRecord::Migration[5.0]
   def up
 
     I18n.with_locale(:de) do
-      Place.create_translation_table!({
+      DataCycleCore::Place.create_translation_table!({
         name: :string,
         description: :string,
         addressLocality: :string,
@@ -54,7 +54,7 @@ class CreateCreativeWorks < ActiveRecord::Migration[5.0]
     drop_table :classifications_creative_works
     drop_table :creative_works_places
     drop_table :creative_works
-    Place.drop_translation_table! :migrate_data => true
+    DataCycleCore::Place.drop_translation_table! :migrate_data => true
   end
 
 end

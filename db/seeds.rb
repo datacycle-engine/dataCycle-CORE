@@ -3,7 +3,7 @@
 
 
 # insert dummy admin
-User.create!(
+DataCycleCore::User.create!(
   name: "Test Admin",
   email: "test@pixelpoint.at",
   admin: true,
