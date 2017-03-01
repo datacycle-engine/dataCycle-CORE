@@ -7,6 +7,7 @@ require 'jquery-rails'
 # Databases
 require 'pg'
 require 'activerecord-postgis-adapter'
+require 'acts_as_tree'
 require 'rgeo'
 require 'mongoid'
 
