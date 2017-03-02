@@ -6,10 +6,16 @@ the description for the core PostgreSQL database with all data- and table-defini
 ## Setup
 To setup a new DataCycle project, download and include the DataCycleCore engine.
 
-At the moment DataCycleCore is no packaged gem-file. Therefore is has to be installed separately on your local disc and included in your Gemfile.
+At the moment DataCycleCore is no packaged gem-file. Therefore it has to be installed separately on your local disc and included in your Gemfile.
 
 ```ruby
 gem 'data_cycle_core', path: 'your_local_path to data_cycle_core'
+```
+
+Additionally you also have to include the globalize gem to your local Gemfile because it cannot be added as a dependecy to the gemspec file since the required version is only available via git.
+
+```ruby
+gem 'globalize', github: 'globalize/globalize'
 ```
 
 Database config files for the PostgreSQL (/config/database.yml) and MongoDB
@@ -34,7 +40,7 @@ note: as for now the DataCyleCore Engines comes with a basic dashboard at
 ### Database Migrations:
 Execute:
 ```bash
-$ rails DataCyleCore:install:migrations
+$ rails data_cycle_core:install:migrations
 ```
 
 This will copy all migrations to your "/db/migrate/" folder. If a newer version of
