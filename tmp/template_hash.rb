@@ -142,7 +142,7 @@ template_hash = {
           data: {
             metadata: {
               template_name: "test-template",
-              type: "leaf2"
+              type: "leaf2/leaf2"
             },
             headline: "this is a test-template/leaf2/leaf2",
             description: "this is a test for the import function of templates",
