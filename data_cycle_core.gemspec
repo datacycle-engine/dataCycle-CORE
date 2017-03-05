@@ -49,6 +49,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'material_icons'
   # pagination
   s.add_dependency 'kaminari'
+  # print formatting for e.g. hashes
+  s.add_dependency 'awesome_print'
   # simple logger for import/load
   s.add_dependency 'logging'
   # background-jobs

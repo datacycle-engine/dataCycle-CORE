@@ -2,7 +2,11 @@ template_hash = {
   data: {
     metadata: {
       template_name: "test-template",
-      type: "root"
+      type: "root",
+      data_cycle: {
+        validation: {
+        }
+      }
     },
     headline: "this is a test-template",
     description: "this is a test for the import function of templates",
@@ -234,3 +238,5 @@ simple_hash = {
       property2: "test2"
     }
 }
+
+json-schema

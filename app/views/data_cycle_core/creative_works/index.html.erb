@@ -1,0 +1,31 @@
+<section>
+  <div class="row">
+    <div class="small-12 columns">
+      <h2>creative works:</br>&nbsp;</h2>
+    </div>
+  </div>
+  <div class="row">
+    <div class="small-12 columns">
+      <%= paginate @creativeWorks %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="small-12 columns">
+      <table>
+        <% @creativeWorks.each do |creativeWork| %>
+          <tr>
+            <td><%= creativeWork.id %></td>
+            <td><%= creativeWork.headline %></td>
+            <td><%= creativeWork.created_at %></td>
+            <td><%= link_to "show", creativeWork, class: "button tiny" %></td>
+          </tr>
+        <% end %>
+      </table>
+    </div>
+  </div>
+  <div class="row">
+    <div class="small-12 columns">
+      <%= paginate @creativeWorks %>
+    </div>
+  </div>
+</section>

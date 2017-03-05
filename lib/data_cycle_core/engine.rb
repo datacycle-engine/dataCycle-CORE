@@ -26,6 +26,8 @@ require 'devise-foundation-views'
 require 'material_icons'
 # pagination
 require 'kaminari'
+# print formatting for e.g. hashes
+require 'awesome_print'
 
 # backgound-jobs
 require 'delayed_job'

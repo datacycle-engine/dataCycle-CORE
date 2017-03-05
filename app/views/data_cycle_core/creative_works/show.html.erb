@@ -1,0 +1,85 @@
+<section>
+  <div class="row">
+    <div class="small-12 columns">
+      <h4><%= @creativeWork.id %></h4>
+      <% @creativeWork.walk_tree do |page, level| %>
+        <%= link_to "#{"&nbsp;"*(level*5)+'|'+'__'}#{page.id}".html_safe, creative_work_path(page.id) %><br/>
+      <% end %>
+      <br/>&nbsp;
+    </div>
+  </div>
+  <div class="row">
+    <div class="small-4 columns">
+      headline:
+    </div>
+    <div class="small-8 columns">
+      <%= @creativeWork.headline%>
+    </div>
+  </div>
+  <div class="row">
+    <div class="small-4 columns">
+      description:
+    </div>
+    <div class="small-8 columns">
+      <%= @creativeWork.description %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="small-4 columns">
+      position:
+    </div>
+    <div class="small-8 columns">
+      <%= @creativeWork.position %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="small-4 columns">
+      isPartOf:
+    </div>
+    <div class="small-8 columns">
+      <%= link_to @creativeWork.isPartOf, @creativeWork.isPartOf unless @creativeWork.isPartOf.nil?%>
+    </div>
+  </div>
+  <div class="row">
+    <div class="small-4 columns">
+      metadata:
+    </div>
+    <div class="small-8 columns">
+      <%= String.new(ap @creativeWork.metadata).html_safe %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="small-12 columns">
+      <h4>translations: </br>&nbsp;</h4>
+    </div>
+  </div>
+  <% @creativeWork.translations.each do |language| %>
+    <div class="row">
+      <div class="small-1 columns">
+        <%= language.locale.to_s+":" %>
+      </div>
+      <div class="small-3 columns">
+        <%= "content:" %>
+      </div>
+      <div class="small-8 columns">
+        <%= String.new(ap language.content).html_safe%>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-1 columns">
+        &nbsp;
+      </div>
+      <div class="small-3 columns">
+        <%= "properties:" %>
+      </div>
+      <div class="small-8 columns">
+        <%= String.new(ap language.properties).html_safe %>
+      </div>
+    </div>
+  <% end %>
+  <div class="row">
+    <div class="small-12 columns">
+      <%= link_to "back", creative_works_path, class: "button" %>
+    </div>
+  </div>
+</section>
