@@ -5,12 +5,53 @@ template_hash = {
       type: "root",
       data_cycle: {
         validation: {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "object",
+              "properties": {
+                "headline": { "type": "string" },
+                "position": { "type": "integer", "minimum": 0, "maximum": 32767 },
+                "metadata": {
+                  "type": "object",
+                  "properties": {
+                    "external_key": { "type": "string" }
+                  }
+                },
+                "translations": {
+                  "type": "object",
+                  "properties": {
+                    "de": {
+                      "type": "object",
+                      "properties": {
+                        "content": { "type": "object",
+                          "properties": {
+                            "url": { "type": "string", "format": "uri" }
+                          }
+                        },
+                        "properties": {
+                          "type": "object",
+                          "properties": {
+                            "gallery": {
+                              "type": "string",
+                              "pattern": "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
     headline: "this is a test-template",
     description: "this is a test for the import function of templates",
     position: 0,
+    template: true,
     translations: {
       de: {
         content: {
@@ -46,6 +87,7 @@ template_hash = {
         headline: "this is a test-template/leaf1",
         description: "this is a test for the import function of templates",
         position: 0,
+        template: true,
         translations: {
           de: {
             content: {
@@ -81,6 +123,7 @@ template_hash = {
         headline: "this is a test-template/leaf2",
         description: "this is a test for the import function of templates",
         position: 1,
+        template: true,
         translations: {
           de: {
             content: {
@@ -116,6 +159,7 @@ template_hash = {
             headline: "this is a test-template/leaf2/leaf1",
             description: "this is a test for the import function of templates",
             position: 0,
+            template: true,
             translations: {
               de: {
                 content: {
@@ -151,6 +195,7 @@ template_hash = {
             headline: "this is a test-template/leaf2/leaf2",
             description: "this is a test for the import function of templates",
             position: 1,
+            template: true,
             translations: {
               de: {
                 content: {
@@ -238,5 +283,3 @@ simple_hash = {
       property2: "test2"
     }
 }
-
-json-schema

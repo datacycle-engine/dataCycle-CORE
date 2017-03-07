@@ -12,10 +12,18 @@
   <div class="row">
     <div class="small-12 columns">
       <table>
+        <tr>
+          <th>uuid</th>
+          <th>headline</th>
+          <th>template?</th>
+          <th>created at</th>
+          <th></th>
+        </tr>
         <% @creativeWorks.each do |creativeWork| %>
           <tr>
             <td><%= creativeWork.id %></td>
             <td><%= creativeWork.headline %></td>
+            <td><%= creativeWork.template %></td>
             <td><%= creativeWork.created_at %></td>
             <td><%= link_to "show", creativeWork, class: "button tiny" %></td>
           </tr>

@@ -30,6 +30,27 @@ module DataCycleCore
       walk_load_tree(self)
     end
 
+    def self.validate? (template_hash)
+      # check if validation is present
+      validate_status = false
+      template_hash.deep_symbolize_keys!
+      unless template_hash.empty?
+        if template_hash.has_key?(:data)
+          if template_hash[:data].has_key?(:metadata)
+            if template_hash[:data][:metadata].has_key?(:data_cycle)
+              if template_hash[:data][:metadata][:data_cycle].has_key?(:validation)
+                validate_status = JSON::Validator.validate(
+                  template_hash[:data][:metadata][:data_cycle][:validation],
+                  template_hash
+                )
+              end
+            end
+          end
+        end
+      end
+      return validate_status
+    end
+
     private
 
     def self.walk_template_tree(template_hash, parent)
@@ -103,7 +124,7 @@ module DataCycleCore
     end
 
     def destroy_translations
-      self.translations.delete_all
+      self.translations.destroy_all
     end
 
   end

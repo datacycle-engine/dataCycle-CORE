@@ -32,7 +32,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'faraday'
   # JSON Parser
   s.add_dependency 'multi_json'
-  # SOAP Client
+    # SOAP Client
   #s.add_dependency 'savon', '~> 2.0'
   # XML Parser
   s.add_dependency 'nokogiri'
@@ -51,6 +51,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'kaminari'
   # print formatting for e.g. hashes
   s.add_dependency 'awesome_print'
+  # validator for json data
+  s.add_dependency 'json-schema'
   # simple logger for import/load
   s.add_dependency 'logging'
   # background-jobs

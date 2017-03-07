@@ -28,7 +28,8 @@ require 'material_icons'
 require 'kaminari'
 # print formatting for e.g. hashes
 require 'awesome_print'
-
+# validator for json data
+require 'json-schema'
 # backgound-jobs
 require 'delayed_job'
 require 'delayed_job_active_record'
@@ -59,6 +60,16 @@ module DataCycleCore
     config.i18n.default_locale = :de
     # fallbacks for i18n and Globalize
     config.i18n.fallbacks = true
+
+
+    # append engine migration path -> no installation of migrations required
+    initializer :append_migrations do |app|
+      unless app.root.to_s.match root.to_s
+        config.paths["db/migrate"].expanded.each do |expanded_path|
+          app.config.paths["db/migrate"] << expanded_path
+        end
+      end
+    end
 
     # load db-viewer only in development environment
     if Rails.env == "development"
