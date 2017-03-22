@@ -30,22 +30,24 @@ Rails.application.routes.draw do
   mount DataCycleCore::Engine => "/dcc"
 end
 ```
+
+Additionally you also have to include the globalize gem to your local Gemfile because it cannot be added as a dependecy to the gemspec file since the required version is only available via git.
+
+```ruby
+gem 'globalize', github: 'globalize/globalize'
+```
+
 This line will mount the engine at "/dcc" in the application. Making it accessible at http://localhost:3000/dcc when the application runs with rails server.
 
 Replace "/dcc" with the route you desire.
 
-note: as for now the DataCyleCore Engines comes with a basic dashboard at
-"(root::Engine)/", and a database view/manipulation tool at "(root::Engine)/db/". For safety this is only available in development environment.
-
 ### Database Migrations:
-Execute:
+Execute as usual:
 ```bash
-$ rails data_cycle_core:install:migrations
+$ rails db:migrate
 ```
 
-This will copy all migrations to your "/db/migrate/" folder. If a newer version of
-the Engine with additional migrations is available, run the command again and only
-the pending migrations are copied over.
+This will execute all local and engine migrations.
 
 ### Database Seeding:
 In order to use the default Rails seed-task add the following line of code to your
