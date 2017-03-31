@@ -22,7 +22,7 @@ Database config files for the PostgreSQL (/config/database.yml) and MongoDB
 (/config/mongoid.yml)
 
 ## Usage
-### Rooting:
+### Routing:
 mount the Engine to an endpoint of you liking.
 
 ```ruby
