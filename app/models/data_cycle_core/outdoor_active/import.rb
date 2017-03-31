@@ -74,7 +74,7 @@ module DataCycleCore
         Mongoid.override_database(nil) #reset to default
       end
 
-    #private
+    private
 
       def import_category
         import_classification_logging ('category') do
