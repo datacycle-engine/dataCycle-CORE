@@ -1,0 +1,50 @@
+<header>
+  <div class="top-bar">
+    <div class="top-bar-title">
+      <span data-responsive-toggle="main-menu" data-hide-for="medium">
+        <button class="menu-icon dark" type="button" data-toggle></button>
+      </span>
+      <span class="logo">
+        <%= link_to image_tag("data_cycle_core/datacycle.png", alt: "DataCycle"), '#' %>
+      </span>
+      <span class="title">DataCycle</span>
+    </div>
+    <div class="top-bar-right" id="main-menu">
+      <ul class="menu">
+        <li>
+          <%= link_to '#' do %>
+            <i class="material-icons">info_outline</i> Info
+          <% end %>
+        </li>
+        <% if user_signed_in? %>
+          <li>
+            <%= link_to '#' do %>
+              <i class="material-icons">settings</i> Einstellungen
+            <% end %>
+          </li>
+          <li>
+            <%= link_to '#' do %>
+              <i class="material-icons">insert_emoticon</i> <%= current_user.email %>
+            <% end %>
+          </li>
+          <li>
+            <%= link_to data_cycle_core.destroy_user_session_path, method: :delete do %>
+              <i class="material-icons">exit_to_app</i>
+            <% end %>
+          </li>
+        <% else %>
+          <li>
+            <%= link_to '#' do %>
+              <i class="material-icons">settings</i> Registrieren
+            <% end %>
+          </li>
+          <li>
+            <%= link_to data_cycle_core.new_user_session_path do %>
+              <i class="material-icons">insert_emoticon</i> Login
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</header>

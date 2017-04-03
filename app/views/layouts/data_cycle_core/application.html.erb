@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html  lang="en">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- <title>Data cycle core</title> -->
-  <title><%= content_for?(:title) ? yield(:title) : "DataCycle DashBoard" %></title>
+  <title><%= full_title %></title>
 
   <%= stylesheet_link_tag    "data_cycle_core/application", media: "all" %>
   <%= javascript_include_tag "data_cycle_core/application" %>
@@ -13,11 +12,13 @@
 </head>
 <body>
 
-  <%= render 'data_cycle_core/shared/menu' %>
+  <%= render 'data_cycle_core/shared/header' %>
 
   <%= display_flash_messages_new %>
 
   <%= yield %>
+
+  <%= render 'data_cycle_core/shared/footer' %>
 
 </body>
 </html>
