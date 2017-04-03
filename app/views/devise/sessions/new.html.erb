@@ -1,0 +1,43 @@
+
+<div class="callout home">
+  <h1>Willkommen</h1>
+  <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+</div>
+
+<div class="row">
+  <div class="columns large-6 small-12">
+    <h2> <i class="material-icons">insert_emoticon</i> Login</h2>
+
+    <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+      <div class="form-inputs">
+        <%= f.input :email, required: false, autofocus: true %>
+        <%= f.input :password, required: false %>
+        <%= f.input :remember_me, as: :boolean if devise_mapping.rememberable? %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.button :submit, "Log in" %>
+      </div>
+    <% end %>
+  </div>
+  <div class="columns large-6 small-12">
+    <h2>Registrieren</h2>
+
+    <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+      <%= f.error_notification %>
+
+      <div class="form-inputs">
+        <%= f.input :email, required: true, autofocus: true %>
+        <%= f.input :password, required: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length) %>
+        <%= f.input :password_confirmation, required: true %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.button :submit, "Sign up" %>
+      </div>
+    <% end %>
+
+  </div>
+</div>
+
+<%= render "devise/shared/links" %>
