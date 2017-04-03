@@ -1,16 +1,19 @@
 module DataCycleCore
   module OutdoorActive
 
-    class RestClient
+    class RestClient < DataCycleCore::RestClient
 
-      def initialize(project,key,verbose=false)
-        @project=project
-        @key=key
-        @conn=Faraday.new(:url => 'http://www.outdooractive.com/') do |faraday|
-          faraday.response :logger if verbose       # write requests to STDOUT
-          faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+      def setup_credentials(credentials)
+        # implement credentials setup and store values for later usage
+        verification = false
+        unless credentials.blank?
+          if credentials.has_key?('project') && credentials.has_key?('key')
+            verification = true
+            @project=credentials['project']
+            @key=credentials['key']
+          end
         end
-        return self
+        return verification
       end
 
       def get_category_tree

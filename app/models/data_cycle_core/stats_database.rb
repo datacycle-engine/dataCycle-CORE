@@ -70,6 +70,7 @@ module DataCycleCore
           mongo_categories = OutdoorActive::DownloadCategory.count
           mongo_pois = OutdoorActive::DownloadPoi.count
           mongo_regions = OutdoorActive::DownloadRegion.count
+          mongo_creative_works = Jsonld::DownloadCreativeWork.count
 
           if external_source.last_import.nil?
             last_import = "never"
@@ -91,7 +92,8 @@ module DataCycleCore
               tables: {
                 pois: mongo_pois,
                 categories: mongo_categories,
-                regions: mongo_regions
+                regions: mongo_regions,
+                creative_work: mongo_creative_works
               },
               last_import: last_import,
               last_download: last_download

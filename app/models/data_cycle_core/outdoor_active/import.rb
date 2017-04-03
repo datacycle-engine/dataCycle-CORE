@@ -7,7 +7,7 @@ module DataCycleCore
         @download_page_size = page_size
         @verbose = verbose
         @incremental_update = incremental_update
-        @log = DataCycleCore::OutdoorActive::Logger.new('outdooractive_import')
+        @log = DataCycleCore::Logger.new('outdooractive_import')
         init_db(uuid)
       end
 

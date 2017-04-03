@@ -7,9 +7,10 @@ module DataCycleCore
         @uuid = uuid
         @download_page_size = page_size
         @verbose = verbose
-        @log = DataCycleCore::OutdoorActive::Logger.new("jsonld_download")
+        @log = DataCycleCore::Logger.new("jsonld_download")
         external_source = ExternalSource.where(id: uuid).first
-        @connRestClient = RestClient.new("http://localhost:3000",verbose)
+        credentials = external_source.credentials
+        @connRestClient = RestClient.new("http://localhost:3000", credentials, verbose)
       end
 
       def download

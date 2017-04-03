@@ -8,7 +8,7 @@ module DataCycleCore
         @download_page_size = page_size
         @verbose = verbose
         @incremental_update = incremental_update
-        @log = DataCycleCore::OutdoorActive::Logger.new('jsonld_import')
+        @log = DataCycleCore::Logger.new('jsonld_import')
         init_db
       end
 
