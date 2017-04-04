@@ -1,2 +1,49 @@
 <% content_for(:title, "FrontEnd") %>
-<h1>FrontEnd goes here</h1>
+
+<%= render 'data_cycle_core/front_end/breadcrumb' %>
+
+
+<h2>creative works:</br>&nbsp;</h2>
+
+<section>
+
+  <div class="row">
+    <div class="small-12 columns">
+      <%= paginate @creativeWorks %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="small-12 columns">
+    <div class="grid">
+      <div class="grid-sizer"></div>
+      <div class="gutter-sizer"></div>
+        <% (0..5).to_a.each do |chr| %>
+          <% @creativeWorks.shuffle.each do |creativeWork| %>
+            <div class="grid-item layout-<%= rand(0..5) %>">
+              <div class="">
+                <%= creativeWork.id %>
+              </div>
+              <div class="">
+                <%= creativeWork.headline %>
+              </div>
+              <div class="">
+                <%= creativeWork.template %>
+              </div>
+              <div class="">
+                <%= creativeWork.created_at %>
+              </div>
+              <div class="">
+                <%= link_to "show", creativeWork, class: "button tiny" %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="small-12 columns">
+      <%= paginate @creativeWorks %>
+    </div>
+  </div>
+</section>

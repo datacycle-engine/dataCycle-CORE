@@ -1,20 +1,147 @@
-
 @import 'settings';
-/*
-$light-gray: #e6e6e6;
-$medium-gray: #cacaca;
-$dark-gray: #8a8a8a;
-*/
-body{
-  background-color: $light-gray;
+
+
+/* override settings */
+$black: #333333;
+$medium-gray: #e5e5e5;
+$dark-gray: #9d9d9d;
+$body-font-color: $black;
+
+/* Foundation overrides */
+.top-bar, .top-bar ul{
+  background: transparent;
 }
+
+
+body{
+  background-color: $white;
+}
+
+/* Headings */
+h2{
+  &.form-heading{
+    text-align: center;
+    font-size: 2rem;
+    padding: 4rem 0;
+    i{
+      font-size: 2rem;
+    }
+  }
+}
+
+/* structure */
+
+header{
+  .top-bar{
+    background-color: $black;
+    .logo{
+      display: inline-block;
+      img{
+        max-height: 50px;
+        width: auto;
+      }
+    }
+    .title{
+      color: $white;
+      font-size: 2rem;
+      display: inline-block;
+      position: relative;
+      top: 0.3rem;
+      left: 1rem;
+    }
+  }
+  ul.menu{
+    padding-top: 0.3rem;
+    li{
+      a{
+        color: $white;
+        font-size: 1.3rem;
+        padding: 0.7rem 2rem;
+      }
+    }
+  }
+}
+
+.breadcrumb{
+  background-color: $dark-gray;
+  ul{
+    list-style: none;
+    li{
+      a{
+        color: $white;
+        font-size: 2rem;
+        i{
+          font-size: 2rem;
+        }
+      }
+    }
+  }
+}
+
+/* Home */
 .callout{
   &.home{
     background-color: $medium-gray;
+    border: 0;
+    padding: 5rem;
+    margin-top: 1rem;
+    text-align: center;
+    color: $black;
+    h1{
+      padding-bottom: 2rem;
+    }
+    p{
+      font-size: 1.2rem;
+    }
   }
 }
-header{
-  .top-bar{
-    background-color: $dark-gray;
+.home-login{
+  padding-bottom: 1rem;
+  > div{
+    padding: 1rem 3rem 5rem 3rem;
+  }
+  .right{
+    border-left: 1px solid $black;
+  }
+}
+
+/* Forms */
+form {
+  label{
+    font-size: 1rem;
+  }
+  input{
+    font-size: 1rem;
+  }
+  button[type="submit"]{
+    &.button{
+      padding: 0.2rem 3.5rem;
+      i{
+        font-size: 3rem;
+      }
+    }
+  }
+}
+
+/* Masonry */
+.grid-sizer{
+  width: 31.33%
+}
+.gutter-sizer{
+  width: 2%
+}
+.grid-item {
+  width: 31.33%;
+  border: 1px solid $dark-gray;
+  padding: 1rem;
+  margin-bottom: 2%;
+  &.layout-1, &.layout-3{
+    padding-bottom: 1rem;
+  }
+  &.layout-0, &.layout-5{
+    padding-bottom: 10rem;
+  }
+  &.layout-2, &.layout-4{
+    padding-bottom: 20rem;
   }
 }

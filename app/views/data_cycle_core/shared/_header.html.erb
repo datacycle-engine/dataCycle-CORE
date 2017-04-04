@@ -13,18 +13,18 @@
       <ul class="menu">
         <li>
           <%= link_to '#' do %>
-            <i class="material-icons">info_outline</i> Info
+            <i class="material-icons">info_outline</i><span>Info</span>
           <% end %>
         </li>
         <% if user_signed_in? %>
           <li>
             <%= link_to '#' do %>
-              <i class="material-icons">settings</i> Einstellungen
+              <i class="material-icons">settings</i><span>Einstellungen</span>
             <% end %>
           </li>
           <li>
             <%= link_to '#' do %>
-              <i class="material-icons">insert_emoticon</i> <%= current_user.email %>
+              <i class="material-icons">insert_emoticon</i><span><%= current_user.email %></span>
             <% end %>
           </li>
           <li>
@@ -35,12 +35,12 @@
         <% else %>
           <li>
             <%= link_to '#' do %>
-              <i class="material-icons">settings</i> Registrieren
+              <i class="material-icons">settings</i><span>Registrieren</span>
             <% end %>
           </li>
           <li>
             <%= link_to data_cycle_core.new_user_session_path do %>
-              <i class="material-icons">insert_emoticon</i> Login
+              <i class="material-icons">insert_emoticon</i><span>Login</span>
             <% end %>
           </li>
         <% end %>
