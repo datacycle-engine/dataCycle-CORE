@@ -4,7 +4,7 @@ module DataCycleCore
     #load_and_authorize_resource         # from cancancan (authorize)
 
     def index
-      @creativeWorks = CreativeWork.order(created_at: :desc).page(params[:page])
+      @creativeWorks = CreativeWork.order(updated_at: :desc).page(params[:page])
     end
 
     def show

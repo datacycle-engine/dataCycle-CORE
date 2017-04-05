@@ -16,7 +16,7 @@
           <th>uuid</th>
           <th>headline</th>
           <th>template?</th>
-          <th>created at</th>
+          <th>updated at</th>
           <th></th>
         </tr>
         <% @creativeWorks.each do |creativeWork| %>
@@ -24,7 +24,7 @@
             <td><%= creativeWork.id %></td>
             <td><%= creativeWork.headline %></td>
             <td><%= creativeWork.template %></td>
-            <td><%= creativeWork.created_at %></td>
+            <td><%= creativeWork.updated_at %></td>
             <td><%= link_to "show", creativeWork, class: "button tiny" %></td>
           </tr>
         <% end %>

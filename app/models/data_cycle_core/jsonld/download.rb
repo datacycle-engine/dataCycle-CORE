@@ -10,7 +10,9 @@ module DataCycleCore
         @log = DataCycleCore::Logger.new("jsonld_download")
         external_source = ExternalSource.where(id: uuid).first
         credentials = external_source.credentials
-        @connRestClient = RestClient.new("http://localhost:3000", credentials, verbose)
+        @host = external_source.config["host"]
+        @end_point = external_source.config["end_point"]
+        @connRestClient = RestClient.new(@host, credentials, verbose)
       end
 
       def download
@@ -27,14 +29,14 @@ module DataCycleCore
     private
 
       def download_creative_works
-        response = @connRestClient.get('/api/v1/media.json',1,1)
+        response = @connRestClient.get(@end_point,1,1)
         @log.error "  could not load JSON-LD end-point, HTTP-Response = #{response.status}" unless response.status == 200
         initial_download = JSON.parse(response.body)
         total_items = initial_download['count'].to_i
         pages = total_items.fdiv(@download_page_size).ceil
 
         print "downloading: "
-        (pages-1).times do |i|
+        pages.times do |i|
           print "."
           response = @connRestClient.get('/api/v1/media.json', i+1, @download_page_size)
           @log.error "  could not load JSON-LD end-point, HTTP-Response = #{response.status}" unless response.status == 200
