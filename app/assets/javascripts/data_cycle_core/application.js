@@ -18,8 +18,16 @@
 
 $(function(){
   $(document).foundation();
-  if ($('.grid') != undefined){
-    $('.grid').masonry({
+
+  document.addEventListener("turbolinks:load", function() {
+    init_masonry();
+  })
+
+});
+
+function init_masonry(){
+  if($('.grid') != undefined){
+    var $grid = $('.grid').masonry({
       // options
       // set itemSelector so .grid-sizer is not used in layout
       itemSelector: '.grid-item',
@@ -29,4 +37,4 @@ $(function(){
       percentPosition: true
     });
   }
-});
+}
