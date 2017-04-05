@@ -16,6 +16,9 @@
 //= require turbolinks
 //= require_tree .
 
+// Pull compiled from /public/assets/javascripts
+//= require global
+
 $(function(){
   $(document).foundation();
 

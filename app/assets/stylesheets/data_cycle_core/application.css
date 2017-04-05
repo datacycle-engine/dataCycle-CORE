@@ -17,4 +17,7 @@
  *= require devise_foundation_views_scss
  *= require material_icons
  *= require data_cycle_core/frontend
+ *
+ * Pull compiled from /public/assets/stylesheets
+ *= require global
  */

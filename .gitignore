@@ -6,3 +6,5 @@ test/dummy/db/*.sqlite3-journal
 test/dummy/log/*.log
 test/dummy/tmp/
 tmp/
+
+node_modules/
