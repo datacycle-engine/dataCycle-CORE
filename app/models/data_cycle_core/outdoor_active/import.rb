@@ -407,9 +407,11 @@ module DataCycleCore
         altitude = data.has_key?('altitude') ? data['altitude'] : nil
         lon,lat,_ = data['geometry'].split(/[, ]/,3)
         location = RGeo::Geographic.spherical_factory(srid: 4326).point(lon, lat)
+        line = data.has_key?('geometry') ? convert_tour_geometry(data['geometry']) : nil
 
         address_locality = data.has_key?('address') && data['address'].has_key?('town') ? data['address']['town'].strip : nil
-        street_address = data.has_key?('address') && data['address'].has_key?('street') ? data['address']['street'].strip : nil
+
+        address = data.has_key?('addrss') && data['address'].has_key?('street') ? data['address']['street'].strip : nil
         street_address = !street_address.nil? && data.has_key?('address') && data['address'].has_key?('housenumber') ? street_address+=' '+ data['address']['housenumber'].strip : street_address
         postal_code = data.has_key?('address') && data['address'].has_key?('zipcode') ? data['address']['zipcode'].strip : nil
         address_country = data.has_key?('countryCode') ? data['countryCode'].strip : nil
@@ -429,6 +431,7 @@ module DataCycleCore
           'longitude' => lon.to_f,
           'latitude' => lat.to_f,
           'location' => location,
+          'line' => line,
           'addressLocality' => address_locality,
           'streetAddress' => street_address,
           'postalCode' => postal_code,
@@ -451,12 +454,19 @@ module DataCycleCore
       def convert_bbox(bbox)
         lon1,lat1,lon2,lat2 = bbox.split(/[, ]/)
         factory = RGeo::Geographic.spherical_factory(srid: 4326)
-        point1 = factory.point(lat1,lon1)
-        point2 = factory.point(lat2,lon1)
-        point3 = factory.point(lat2,lon2)
-        point4 = factory.point(lat1,lon2)
+        point1 = factory.point(lon1,lat1)
+        point2 = factory.point(lon1,lat2)
+        point3 = factory.point(lon2,lat2)
+        point4 = factory.point(lon2,lat1)
         line = factory.line_string([point1, point2, point3, point4, point1])
         return factory.polygon(line)
+      end
+
+      def convert_tour_geometry(geometry_string)
+        geometry = geometry_string.split(" ").map!{|point| point.split(',').map!(&:to_f)}
+        factory = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
+        geometry_points = geometry.map{|point| factory.point(point[0],point[1],point[2])}
+        return factory.line_string(geometry_points)
       end
 
     # logging ceremony for import logic

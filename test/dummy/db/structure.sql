@@ -351,7 +351,9 @@ CREATE TABLE places (
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    photo uuid
+    photo uuid,
+    line geography(LineStringZ,4326),
+    content jsonb
 );
 
 
@@ -764,6 +766,7 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170209101956'),
 ('20170209115919'),
 ('20170213144933'),
-('20170307094512');
+('20170307094512'),
+('20170406115252');
 
 
