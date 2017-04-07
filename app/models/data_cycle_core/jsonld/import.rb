@@ -23,15 +23,10 @@ module DataCycleCore
       end
 
       def init_or_create_classifications_trees_label(label)
-        if ClassificationsTreesLabel.where(name: label, external_source_id: @external_source_id).count < 1
-          ClassificationsTreesLabel
-            .new(name: label, seen_at: Time.zone.now, external_source_id: @external_source_id)
-            .save
-        end
-        ClassificationsTreesLabel
-          .where(name: label, external_source_id: @external_source_id)
-          .first
-          .id
+        classifications_trees_label = ClassificationsTreesLabel.find_or_initialize_by(name: label, external_source_id: @external_source_id)
+        classifications_trees_label.seen_at = Time.zone.now
+        classifications_trees_label.save
+        classifications_trees_label.id
       end
 
       def check_for_tree_entry_with_classification_alias(label)

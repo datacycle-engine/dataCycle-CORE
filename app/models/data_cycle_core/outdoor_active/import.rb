@@ -4,63 +4,68 @@ module DataCycleCore
     class Import
 
       def initialize ( uuid , incremental_update = false, page_size = 300, verbose = false )
+        @external_source_id = uuid
         @download_page_size = page_size
         @verbose = verbose
         @incremental_update = incremental_update
         @log = DataCycleCore::Logger.new('outdooractive_import')
-        init_db(uuid)
+        init_db
       end
 
-      def init_db(uuid)
-        external_source = ExternalSource.where(id: uuid).first
-        credentials = external_source.credentials
-        @external_source_id = uuid
+      def init_db
+        @classifications_trees_label_id = init_or_create_classifications_trees_label('imported')
+        @tree_label_id_creative_work =    init_or_create_classifications_trees_label('CreativeWork')
 
-        if ClassificationsTreesLabel.where(name: 'imported', external_source_id: @external_source_id).count < 1
+        @creative_works_classification_alias_id = check_for_tree_entry_with_classification_alias('ImageObject')
+        if @creative_works_classification_alias_id.nil?
+          @creative_works_classification_alias_id = insert_classification_alias_and_tree_entry('ImageObject', @tree_label_id_creative_work)
+        end
+      end
+
+      def init_or_create_classifications_trees_label(label)
+        if ClassificationsTreesLabel.where(name: label, external_source_id: @external_source_id).count < 1
           ClassificationsTreesLabel
-            .new(name: 'imported', seen_at: Time.zone.now, external_source_id: @external_source_id)
+            .new(name: label, seen_at: Time.zone.now, external_source_id: @external_source_id)
             .save
         end
-        @classifications_trees_label_id = ClassificationsTreesLabel
-          .where(name: 'imported', external_source_id: @external_source_id)
+        ClassificationsTreesLabel
+          .where(name: label, external_source_id: @external_source_id)
           .first
           .id
+      end
 
-        if ClassificationsTreesLabel.where(name: 'CreativeWork', external_source_id: @external_source_id).count < 1
-          ClassificationsTreesLabel
-            .new(name: 'CreativeWork', seen_at: Time.zone.now, external_source_id: @external_source_id)
-            .save
-        end
-        tree_label_id_creative_work = ClassificationsTreesLabel
-          .where(name: 'CreativeWork', external_source_id: @external_source_id)
-          .first
-          .id
+      def check_for_tree_entry_with_classification_alias(label)
+        classification_alias_id = nil
         top_level_classifications_tree_entries = ClassificationsTree
           .where(
             external_source_id: @external_source_id,
-            classifications_trees_label_id: tree_label_id_creative_work,
+            classifications_trees_label_id: @tree_label_id_creative_work,
             parent_classifications_alias_id: nil
           )
         top_level_classifications_tree_entries.each do |item|
-          if item.sub_classifications_alias.name == 'ImageObject'
-            @creative_works_classification_alias_id = item.sub_classifications_alias.id
+          if item.sub_classifications_alias.name == label
+            classification_alias_id = item.sub_classifications_alias.id
           end
         end
-        if @creative_works_classification_alias_id.nil?
-          classification_alias = ClassificationsAlias.new(name: 'ImageObject', seen_at: Time.zone.now)
-          classification_alias.save
-          @creative_works_classification_alias_id = classification_alias.id
-          ClassificationsTree
-            .new(
-              external_source_id: @external_source_id,
-              classifications_alias_id: @creative_works_classification_alias_id,
-              classifications_trees_label_id: tree_label_id_creative_work,
-              seen_at: Time.zone.now
-            )
-            .save
-        end
+        classification_alias_id
       end
 
+      def insert_classification_alias_and_tree_entry(label, tree_label)
+        classification_alias = ClassificationsAlias.new(name: label, seen_at: Time.zone.now)
+        classification_alias.save
+        creative_works_classification_alias_id = classification_alias.id
+        ClassificationsTree
+          .new(
+            external_source_id: @external_source_id,
+            classifications_alias_id: creative_works_classification_alias_id,
+            classifications_trees_label_id: tree_label,
+            seen_at: Time.zone.now
+          )
+          .save
+        creative_works_classification_alias_id
+      end
+
+    # main import functionality
       def import
         Mongoid.override_database(nil) #reset to default
         Mongoid.override_database("#{DownloadPoi.database_name}_#{@external_source_id}")
