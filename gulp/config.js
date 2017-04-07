@@ -12,15 +12,14 @@ module.exports = {
     src: sourceFiles + "/stylesheets/**/*.{sass,scss}",
     dest: publicAssets + "/stylesheets",
     settings: {
-      indentedSyntax: true, // Enable .sass syntax!
       imagePath: '/assets/images' // Used by the image-url helper
     }
   },
   browserify: {
     bundleConfigs: [{
-      entries: sourceFiles + '/javascripts/global.coffee',
+      entries: sourceFiles + '/javascripts/app.js',
       dest: publicAssets + '/javascripts',
-      outputName: 'global.js',
+      outputName: 'app.js',
       extensions: ['.js','.coffee']
     }]
   }

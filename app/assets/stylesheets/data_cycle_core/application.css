@@ -11,13 +11,13 @@
  * It is generally better to create a new file per style scope.
  *
  *= require_self
- *= require data_cycle_core/_settings
- *= require data_cycle_core/logs
- *= require data_cycle_core/foundation_and_overrides
- *= require devise_foundation_views_scss
+ * require data_cycle_core/_settings
+ * require data_cycle_core/logs
+ * require data_cycle_core/foundation_and_overrides
+ * require devise_foundation_views_scss
  *= require material_icons
- *= require data_cycle_core/frontend
+ * require data_cycle_core/frontend
  *
  * Pull compiled from /public/assets/stylesheets
- *= require global
+ *= require app
  */

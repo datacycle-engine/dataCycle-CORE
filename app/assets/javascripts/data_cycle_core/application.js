@@ -10,34 +10,12 @@
 // Read Sprockets README (https://github.com/rails/sprockets#sprockets-directives) for details
 // about supported directives.
 //
-//= require jquery
-//= require jquery_ujs
-//= require foundation
-//= require turbolinks
-//= require_tree .
+// require_self
+// require jquery
+// require jquery_ujs
+// require foundation
+// require turbolinks
+// require_tree .
 
 // Pull compiled from /public/assets/javascripts
-//= require global
-
-$(function(){
-  $(document).foundation();
-
-  document.addEventListener("turbolinks:load", function() {
-    init_masonry();
-  })
-
-});
-
-function init_masonry(){
-  if($('.grid') != undefined){
-    var $grid = $('.grid').masonry({
-      // options
-      // set itemSelector so .grid-sizer is not used in layout
-      itemSelector: '.grid-item',
-      // use element for option
-      columnWidth: '.grid-sizer',
-      gutter: '.gutter-sizer',
-      percentPosition: true
-    });
-  }
-}
+//= require app
