@@ -71,8 +71,6 @@ module DataCycleCore
       end
     end
 
-<<<<<<< 8bf56baaefaa7bd9fa594e1ead55fd226812a403
-=======
     # load db-viewer only in development environment
     # if Rails.env == "development"
     #
@@ -86,7 +84,6 @@ module DataCycleCore
     #
     # end
 
->>>>>>> add origin to classifications
     # include rake_tasks
     rake_tasks do
       Dir[File.join(File.dirname(__FILE__),'tasks/*.rake')].each { |f| load f }
