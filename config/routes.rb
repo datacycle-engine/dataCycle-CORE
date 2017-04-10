@@ -8,4 +8,6 @@ DataCycleCore::Engine.routes.draw do
 
   get  '/download', to: 'dash_board#download'
   get  '/import', to: 'dash_board#import'
+
+  #mount RailsDb::Engine => '/db', :as => 'db'
 end

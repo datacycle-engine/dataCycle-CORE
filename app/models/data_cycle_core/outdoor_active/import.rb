@@ -147,6 +147,7 @@ module DataCycleCore
               create_classification_place_category( load_poi.dump[load_poi.dump.keys.first]['category'], to_update_place.id )
               create_classification_from_bool( 'winterActivity', load_poi.dump[load_poi.dump.keys.first]['winterActivity'], to_update_place.id )
               create_classification_from_string( 'frontendtype', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id )
+              create_classification_from_string( 'source', load_poi.dump[load_poi.dump.keys.first]['meta']['source']['name'], to_update_place.id )
               create_creative_works_place( load_poi.dump[load_poi.dump.keys.first]['images'], to_update_place.id )
               set_primary_image( load_poi.dump[load_poi.dump.keys.first]['primaryImage'], to_update_place.id )
             end

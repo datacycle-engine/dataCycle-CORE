@@ -71,6 +71,22 @@ module DataCycleCore
       end
     end
 
+<<<<<<< 8bf56baaefaa7bd9fa594e1ead55fd226812a403
+=======
+    # load db-viewer only in development environment
+    # if Rails.env == "development"
+    #
+    #   require 'rails_db'
+    #   if Object.const_defined?('RailsDb')
+    #     RailsDb.setup do |config|
+    #       config.black_list_tables = ['spatial_ref_sys', 'ar_internal_metadata']
+    #       #config.verify_access_proc = proc { |controller| controller.current_user.admin? }
+    #     end
+    #   end
+    #
+    # end
+
+>>>>>>> add origin to classifications
     # include rake_tasks
     rake_tasks do
       Dir[File.join(File.dirname(__FILE__),'tasks/*.rake')].each { |f| load f }
