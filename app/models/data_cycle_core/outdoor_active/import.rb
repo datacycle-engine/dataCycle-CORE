@@ -248,6 +248,31 @@ module DataCycleCore
         classification_id = get_id(Classification, :external_key, external_key)
         unless classification_id.nil?
           create_classification_place(classification_id, place_id)
+          create_classification_place_for_ancestors(classification_id, place_id)
+        end
+      end
+
+      def create_classification_place_for_ancestors(classification_id, place_id)
+        classification_alias = ClassificationsAlias
+          .joins(:classifications_groups)
+          .where("classifications_groups.classification_id = ? AND classifications_groups.external_source_id= ?", classification_id, @external_source_id)
+          .first
+        tree_ancestors = ClassificationsTree
+          .where(
+            classifications_alias_id: classification_alias.id,
+            external_source_id: @external_source_id,
+            classifications_trees_label_id: @classifications_trees_label_id
+            )
+            .first
+            .ancestors
+        tree_ancestors.each do |tree_entry|
+          ancestor_classification_alias_id = tree_entry.classifications_alias_id
+          ancestor_classification_id = Classification
+            .joins(:classifications_groups)
+            .where("classifications_groups.classifications_alias_id = ? AND classifications_groups.external_source_id= ?", ancestor_classification_alias_id, @external_source_id)
+            .first
+            .id
+          create_classification_place(ancestor_classification_id, place_id)
         end
       end
 
