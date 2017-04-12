@@ -6,7 +6,7 @@
 
 <div class="row home-login">
   <div class="columns large-6 small-12 left">
-    <h2 class="form-heading"> <i class="material-icons">insert_emoticon</i> <span>Login</span></h2>
+    <h2 class="form-heading"> <i class="fa fa-smile-o" aria-hidden="true"></i><span>Login</span></h2>
 
     <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
 
@@ -41,7 +41,7 @@
         <div class="small-7 small-offset-5 columns end">
           <div class="form-actions">
             <%= f.button :button, class:"button",type:"submit" do %>
-              <i class="material-icons">keyboard_arrow_right</i>
+              <i class="fa fa-angle-right" aria-hidden="true"></i>
             <% end %>
           </div>
         </div>
@@ -50,7 +50,7 @@
     <% end %>
   </div>
   <div class="columns large-6 small-12 right">
-    <h2 class="form-heading"><i class="material-icons">settings</i><span>Registrieren</span></h2>
+    <h2 class="form-heading"><i class="fa fa-cogs" aria-hidden="true"></i><span>Registrieren</span></h2>
 
     <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
       <%= f.error_notification %>
@@ -86,7 +86,7 @@
         <div class="small-7 small-offset-3 columns">
           <div class="form-actions">
             <%= f.button :button, class:"button",type:"submit", disabled: true do %>
-              <i class="material-icons">keyboard_arrow_right</i>
+              <i class="fa fa-angle-right" aria-hidden="true"></i>
             <% end %>
           </div>
         </div>

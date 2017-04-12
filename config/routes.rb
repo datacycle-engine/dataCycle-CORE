@@ -2,7 +2,9 @@ DataCycleCore::Engine.routes.draw do
 
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise
 
-  root to: 'front_end#index'
+  root to: 'backend#index'
+
+  get  '/vuejs',    to: 'backend#vue'
 
   #root to: 'dash_board#home'
 

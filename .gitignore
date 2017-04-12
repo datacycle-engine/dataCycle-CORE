@@ -8,3 +8,4 @@ test/dummy/tmp/
 tmp/
 
 node_modules/
+public/assets

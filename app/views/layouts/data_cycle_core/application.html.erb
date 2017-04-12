@@ -14,11 +14,11 @@
 
   <%= render 'data_cycle_core/shared/header' %>
 
-  <%= render 'data_cycle_core/front_end/breadcrumb' if user_signed_in? %>
+  <%= render 'data_cycle_core/backend/breadcrumb' if user_signed_in? %>
 
-  <%= render 'data_cycle_core/front_end/filter' if user_signed_in? %>
+  <%= render 'data_cycle_core/backend/filter' if user_signed_in? %>
 
-  <%= render 'data_cycle_core/front_end/views' if user_signed_in? %>
+  <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
 
   <%= display_flash_messages_new %>
 

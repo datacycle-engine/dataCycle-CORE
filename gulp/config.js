@@ -1,6 +1,9 @@
 var publicAssets = "./public/assets";
 var sourceFiles  = "./gulp/assets";
 
+var nodeModulesSource = "./node_modules";
+var iconDest = "./app/assets/fonts";
+
 module.exports = {
   publicAssets: publicAssets,
   browserSync: {
@@ -14,6 +17,11 @@ module.exports = {
     settings: {
       imagePath: '/assets/images' // Used by the image-url helper
     }
+  },
+  icons: {
+    src: nodeModulesSource + "/font-awesome/fonts/**.*",
+    // dest: publicAssets + "/fonts",
+    dest: iconDest,
   },
   browserify: {
     bundleConfigs: [{

@@ -7,6 +7,7 @@ var gulp         = require('gulp');
 var handleErrors = require('../util/handleErrors');
 var source       = require('vinyl-source-stream');
 var watchify     = require('watchify');
+var vueify       = require('vueify');
 
 var browserifyTask = function(callback, devMode) {
 
@@ -25,6 +26,7 @@ var browserifyTask = function(callback, devMode) {
       bundleLogger.start(bundleConfig.outputName);
 
       return b
+        .transform(vueify)
         .bundle()
         .on('error', handleErrors)
         .pipe(source(bundleConfig.outputName))

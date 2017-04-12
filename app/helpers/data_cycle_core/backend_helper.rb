@@ -1,6 +1,6 @@
 module DataCycleCore
-  module FrontEndHelper
+  module BackendHelper
 
-    
+
   end
 end
