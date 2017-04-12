@@ -476,7 +476,7 @@ module DataCycleCore
     def set_street_address(data)
       street_address = data.has_key?('address') && data['address'].has_key?('street') ? data['address']['street'].strip : nil
       if !street_address.nil? && data.has_key?('address') && data['address'].has_key?('housenumber')
-        if street_address.reverse.to_i != 0 #sometimes the address already includes the housenumber and in addition a housenumber is given
+        if street_address.reverse.to_i == 0 #sometimes the address already includes the housenumber and in addition a housenumber is given
           street_address+=' '+ data['address']['housenumber'].strip
         end
       end
