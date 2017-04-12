@@ -385,7 +385,7 @@ module DataCycleCore
             'creative_work_id' => to_update_image.id,
             'seen_at' => Time.zone.now
           }
-          to_update_place_creative_work = CreativeWorksPlace
+          to_update_place_creative_work = CreativeWorkPlace
             .where(
               external_source_id: @external_source_id,
               place_id: place_id,
@@ -482,6 +482,7 @@ module DataCycleCore
       end
       street_address
     end
+
     # small helper
       def get_id(object, symbol, value)
         return nil if value.nil?

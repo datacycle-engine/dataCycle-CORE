@@ -143,6 +143,21 @@ CREATE TABLE classifications_trees_labels (
 
 
 --
+-- Name: creative_work_places; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE creative_work_places (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    creative_work_id uuid,
+    place_id uuid,
+    external_source_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: creative_work_translations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -196,21 +211,6 @@ CREATE TABLE creative_works (
 
 
 --
--- Name: creative_works_places; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE creative_works_places (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    creative_work_id uuid,
-    place_id uuid,
-    external_source_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
 -- Name: delayed_jobs; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -257,11 +257,26 @@ ALTER SEQUENCE delayed_jobs_id_seq OWNED BY delayed_jobs.id;
 
 CREATE TABLE external_sources (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    external_name character varying,
+    name character varying,
     credentials jsonb,
     config jsonb,
     last_download timestamp without time zone,
     last_import timestamp without time zone
+);
+
+
+--
+-- Name: overlay_place_tags; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE overlay_place_tags (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    overlay_id uuid,
+    place_id uuid,
+    tag_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -272,21 +287,6 @@ CREATE TABLE external_sources (
 CREATE TABLE overlays (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
     overlay_data jsonb,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: overlays_places_tags; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE overlays_places_tags (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    overlay_id uuid,
-    place_id uuid,
-    tag_id uuid,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
@@ -517,10 +517,10 @@ ALTER TABLE ONLY creative_works
 
 
 --
--- Name: creative_works_places creative_works_places_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: creative_work_places creative_works_places_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY creative_works_places
+ALTER TABLE ONLY creative_work_places
     ADD CONSTRAINT creative_works_places_pkey PRIMARY KEY (id);
 
 
@@ -549,10 +549,10 @@ ALTER TABLE ONLY overlays
 
 
 --
--- Name: overlays_places_tags overlays_places_tags_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: overlay_place_tags overlays_places_tags_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY overlays_places_tags
+ALTER TABLE ONLY overlay_place_tags
     ADD CONSTRAINT overlays_places_tags_pkey PRIMARY KEY (id);
 
 
@@ -767,6 +767,7 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170209115919'),
 ('20170213144933'),
 ('20170307094512'),
-('20170406115252');
+('20170406115252'),
+('20170412124816');
 
 

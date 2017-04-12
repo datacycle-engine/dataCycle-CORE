@@ -32,7 +32,7 @@ module DataCycleCore
       @pg_places = Place.count
       @pg_classifications_places = ClassificationsPlace.count
       @pg_creative_works = CreativeWork.count
-      @pg_creative_works_places = CreativeWorksPlace.count
+      @pg_creative_works_places = CreativeWorkPlace.count
       @pg_creative_works_classification = ClassificationsCreativeWork.count
       @pg_overlays = Overlay.count
     end
@@ -44,7 +44,7 @@ module DataCycleCore
       UseCase.where(user_id: user_id).each do |use_case|
         external_source_id = use_case.external_source_id
         external_source = ExternalSource.where(id: external_source_id).first
-        import_name = external_source.external_name
+        import_name = external_source.name
 
         Mongoid.override_database(nil)
         mongo_database = "#{OutdoorActive::DownloadPoi.database_name}_#{external_source_id}"
