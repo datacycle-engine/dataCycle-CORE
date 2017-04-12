@@ -1,5 +1,5 @@
 module DataCycleCore
-  class ClassificationsPlace < ApplicationRecord
+  class ClassificationPlace < ApplicationRecord
 
     include DataSetter
 

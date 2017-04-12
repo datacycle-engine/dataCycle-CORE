@@ -13,22 +13,22 @@ module DataCycleCore
       end
 
       def init_db
-        @classifications_trees_label_id = init_or_create_classifications_trees_label('imported')
-        @tree_label_id_creative_work =    init_or_create_classifications_trees_label('CreativeWork')
+        @classification_tree_label_id = init_or_create_classification_tree_label('imported')
+        @tree_label_id_creative_work =    init_or_create_classification_tree_label('CreativeWork')
 
-        @creative_works_classification_alias_id = check_for_tree_entry_with_classification_alias('ImageObject')
-        if @creative_works_classification_alias_id.nil?
-          @creative_works_classification_alias_id = insert_classification_alias_and_tree_entry('ImageObject', @tree_label_id_creative_work)
+        @creative_work_classification_alias_id = check_for_tree_entry_with_classification_alias('ImageObject')
+        if @creative_work_classification_alias_id.nil?
+          @creative_work_classification_alias_id = insert_classification_alias_and_tree_entry('ImageObject', @tree_label_id_creative_work)
         end
       end
 
-      def init_or_create_classifications_trees_label(label)
-        if ClassificationsTreesLabel.where(name: label, external_source_id: @external_source_id).count < 1
-          ClassificationsTreesLabel
+      def init_or_create_classification_tree_label(label)
+        if ClassificationTreeLabel.where(name: label, external_source_id: @external_source_id).count < 1
+          ClassificationTreeLabel
             .new(name: label, seen_at: Time.zone.now, external_source_id: @external_source_id)
             .save
         end
-        ClassificationsTreesLabel
+        ClassificationTreeLabel
           .where(name: label, external_source_id: @external_source_id)
           .first
           .id
@@ -36,33 +36,33 @@ module DataCycleCore
 
       def check_for_tree_entry_with_classification_alias(label)
         classification_alias_id = nil
-        top_level_classifications_tree_entries = ClassificationsTree
+        top_level_classification_tree_entries = ClassificationTree
           .where(
             external_source_id: @external_source_id,
-            classifications_trees_label_id: @tree_label_id_creative_work,
-            parent_classifications_alias_id: nil
+            classification_tree_label_id: @tree_label_id_creative_work,
+            parent_classification_alias_id: nil
           )
-        top_level_classifications_tree_entries.each do |item|
-          if item.sub_classifications_alias.name == label
-            classification_alias_id = item.sub_classifications_alias.id
+        top_level_classification_tree_entries.each do |item|
+          if item.sub_classification_alias.name == label
+            classification_alias_id = item.sub_classification_alias.id
           end
         end
         classification_alias_id
       end
 
       def insert_classification_alias_and_tree_entry(label, tree_label)
-        classification_alias = ClassificationsAlias.new(name: label, seen_at: Time.zone.now)
+        classification_alias = ClassificationAlias.new(name: label, seen_at: Time.zone.now)
         classification_alias.save
-        creative_works_classification_alias_id = classification_alias.id
-        ClassificationsTree
+        creative_work_classification_alias_id = classification_alias.id
+        ClassificationTree
           .new(
             external_source_id: @external_source_id,
-            classifications_alias_id: creative_works_classification_alias_id,
-            classifications_trees_label_id: tree_label,
+            classification_alias_id: creative_work_classification_alias_id,
+            classification_tree_label_id: tree_label,
             seen_at: Time.zone.now
           )
           .save
-        creative_works_classification_alias_id
+        creative_work_classification_alias_id
       end
 
     # main import functionality
@@ -148,7 +148,7 @@ module DataCycleCore
               create_classification_from_bool( 'winterActivity', load_poi.dump[load_poi.dump.keys.first]['winterActivity'], to_update_place.id )
               create_classification_from_string( 'frontendtype', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id )
               create_classification_from_string( 'source', load_poi.dump[load_poi.dump.keys.first]['meta']['source']['name'], to_update_place.id )
-              create_creative_works_place( load_poi.dump[load_poi.dump.keys.first]['images'], to_update_place.id )
+              create_creative_work_place( load_poi.dump[load_poi.dump.keys.first]['images'], to_update_place.id )
               set_primary_image( load_poi.dump[load_poi.dump.keys.first]['primaryImage'], to_update_place.id )
             end
           end
@@ -183,50 +183,50 @@ module DataCycleCore
       end
 
       def upsert_classification_group_alias (classification_id, name)
-        classification_group = ClassificationsGroup
+        classification_group = ClassificationGroup
           .where(external_source_id: @external_source_id, classification_id: classification_id)
           .first_or_initialize
-        classifications_alias_id = classification_group.classifications_alias_id
+        classification_alias_id = classification_group.classification_alias_id
 
-        if classifications_alias_id.nil?
-          classifications_alias = ClassificationsAlias.new
-          classifications_alias.set_data({'name' => name, 'seen_at' => Time.zone.now}).save
-          classifications_alias_id = classifications_alias.id
+        if classification_alias_id.nil?
+          classification_alias = ClassificationAlias.new
+          classification_alias.set_data({'name' => name, 'seen_at' => Time.zone.now}).save
+          classification_alias_id = classification_alias.id
         end
         classification_group.set_data({
           'classification_id' => classification_id,
-          'classifications_alias_id' => classifications_alias_id,
+          'classification_alias_id' => classification_alias_id,
           'seen_at' => Time.zone.now
         }).save
-        return classifications_alias_id
+        return classification_alias_id
       end
 
-      def get_parent_classifications_alias_id(parent_external_key)
+      def get_parent_classification_alias_id(parent_external_key)
         unless parent_external_key.nil?
           parent_classification_id = get_id(Classification, :external_key, parent_external_key)
-          parent_classifications_alias_id = ClassificationsGroup
+          parent_classification_alias_id = ClassificationGroup
             .where(external_source_id: @external_source_id, classification_id: parent_classification_id)
             .first
-            .classifications_alias_id
+            .classification_alias_id
         else
-          parent_classifications_alias_id = nil
+          parent_classification_alias_id = nil
         end
-        return parent_classifications_alias_id
+        return parent_classification_alias_id
       end
 
-      def upsert_classification_tree (classifications_alias_id, parent_classifications_alias_id)
+      def upsert_classification_tree (classification_alias_id, parent_classification_alias_id)
         data_tree_hash = {
           'external_source_id' => @external_source_id,
-          'classifications_alias_id' => classifications_alias_id,
-          'parent_classifications_alias_id' => parent_classifications_alias_id,
+          'classification_alias_id' => classification_alias_id,
+          'parent_classification_alias_id' => parent_classification_alias_id,
           'seen_at' => Time.zone.now
         }
-        classification_tree = ClassificationsTree
+        classification_tree = ClassificationTree
           .where(
             external_source_id: @external_source_id,
-            classifications_alias_id: classifications_alias_id,
-            parent_classifications_alias_id: parent_classifications_alias_id,
-            classifications_trees_label_id: @classifications_trees_label_id
+            classification_alias_id: classification_alias_id,
+            parent_classification_alias_id: parent_classification_alias_id,
+            classification_tree_label_id: @classification_tree_label_id
           )
           .first_or_initialize
         classification_tree.set_data(data_tree_hash).save
@@ -253,23 +253,23 @@ module DataCycleCore
       end
 
       def create_classification_place_for_ancestors(classification_id, place_id)
-        classification_alias = ClassificationsAlias
-          .joins(:classifications_groups)
-          .where("classifications_groups.classification_id = ? AND classifications_groups.external_source_id= ?", classification_id, @external_source_id)
+        classification_alias = ClassificationAlias
+          .joins(:classification_groups)
+          .where("classification_groups.classification_id = ? AND classification_groups.external_source_id= ?", classification_id, @external_source_id)
           .first
-        tree_ancestors = ClassificationsTree
+        tree_ancestors = ClassificationTree
           .where(
-            classifications_alias_id: classification_alias.id,
+            classification_alias_id: classification_alias.id,
             external_source_id: @external_source_id,
-            classifications_trees_label_id: @classifications_trees_label_id
+            classification_tree_label_id: @classification_tree_label_id
             )
             .first
             .ancestors
         tree_ancestors.each do |tree_entry|
-          ancestor_classification_alias_id = tree_entry.classifications_alias_id
+          ancestor_classification_alias_id = tree_entry.classification_alias_id
           ancestor_classification_id = Classification
-            .joins(:classifications_groups)
-            .where("classifications_groups.classifications_alias_id = ? AND classifications_groups.external_source_id= ?", ancestor_classification_alias_id, @external_source_id)
+            .joins(:classification_groups)
+            .where("classification_groups.classification_alias_id = ? AND classification_groups.external_source_id= ?", ancestor_classification_alias_id, @external_source_id)
             .first
             .id
           create_classification_place(ancestor_classification_id, place_id)
@@ -325,16 +325,16 @@ module DataCycleCore
         end
         classification.set_data(data_hash).save
 
-        classifications_alias_id = upsert_classification_group_alias(classification.id, data_hash['name'])
+        classification_alias_id = upsert_classification_group_alias(classification.id, data_hash['name'])
         if parent_classification_id.nil?
-          parent_classifications_alias_id = nil
+          parent_classification_alias_id = nil
         else
-          parent_classifications_alias_id = ClassificationsGroup
+          parent_classification_alias_id = ClassificationGroup
             .where(classification_id: parent_classification_id, external_source_id: @external_source_id)
             .first
-            .classifications_alias_id
+            .classification_alias_id
         end
-        upsert_classification_tree(classifications_alias_id, parent_classifications_alias_id)
+        upsert_classification_tree(classification_alias_id, parent_classification_alias_id)
         return classification.id
       end
 
@@ -345,17 +345,17 @@ module DataCycleCore
           'place_id' => place_id,
           'classification_id' => classification_id
         }
-        to_update_classifications_place = ClassificationsPlace
+        to_update_classification_place = ClassificationPlace
           .where(
             external_source_id: @external_source_id,
             place_id: place_id,
             classification_id: classification_id
           )
           .first_or_initialize
-        to_update_classifications_place.set_data(data_hash).save
+        to_update_classification_place.set_data(data_hash).save
       end
 
-      def create_creative_works_place( images, place_id)
+      def create_creative_work_place( images, place_id)
         return if images.nil? || images.empty?
         images['image'].each do |record|
           # save image
@@ -379,7 +379,7 @@ module DataCycleCore
           to_update_image.save
 
           # relation to place
-          data_creative_works_place = {
+          data_creative_work_place = {
             'external_source_id' => @external_source_id,
             'place_id_id' => place_id,
             'creative_work_id' => to_update_image.id,
@@ -392,21 +392,21 @@ module DataCycleCore
               creative_work_id: to_update_image.id
             )
             .first_or_initialize
-            .set_data(data_creative_works_place)
+            .set_data(data_creative_work_place)
             .save
 
           # relation to classification
           data_classifications_creative_work = {
             'creative_work_id' => to_update_image.id,
-            'classifications_alias_id' => @creative_works_classification_alias_id,
+            'classification_alias_id' => @creative_work_classification_alias_id,
             'tag' => false,
             'classification' => false,
             'seen_at' => Time.zone.now
           }
-          ClassificationsCreativeWork
+          ClassificationCreativeWork
             .where(
               creative_work_id: to_update_image.id,
-              classifications_alias_id: @creative_works_classification_alias_id
+              classification_alias_id: @creative_work_classification_alias_id
             )
             .first_or_initialize
             .set_data(data_classifications_creative_work)
@@ -532,23 +532,23 @@ module DataCycleCore
         start_time = Time.zone.now
         @log.info "  importing #{name} into classifications"
         classifications_present = Classification.where(external_source_id: @external_source_id).count
-        classifications_groups = ClassificationsGroup.where(external_source_id: @external_source_id).count
-        classifications_alias = ClassificationsGroup.joins("INNER JOIN classifications_aliases ON classifications_groups.classifications_alias_id = classifications_aliases.id").count
-        classifications_trees_present = ClassificationsTree.where(external_source_id: @external_source_id).count
+        classification_groups = ClassificationGroup.where(external_source_id: @external_source_id).count
+        classification_alias = ClassificationGroup.joins("INNER JOIN classification_aliases ON classification_groups.classification_alias_id = classification_aliases.id").count
+        classification_tree_present = ClassificationTree.where(external_source_id: @external_source_id).count
         downloaded = DownloadCategory.count if name == 'category'
         downloaded = DownloadRegion.count if name == 'region'
-        @log.info "  -- before: #{classifications_present}[class.]|#{classifications_groups}[class.group]|#{classifications_alias}[class.alias]|#{classifications_trees_present}[class.tree]"
+        @log.info "  -- before: #{classifications_present}[class.]|#{classification_groups}[class.group]|#{classification_alias}[class.alias]|#{classification_tree_present}[class.tree]"
         @log.info "  -- to import: #{downloaded}"
 
         yield
 
         classifications_present = Classification.where(external_source_id: @external_source_id).count
-        classifications_groups = ClassificationsGroup.where(external_source_id: @external_source_id).count
-        classifications_alias = ClassificationsGroup.joins("INNER JOIN classifications_aliases ON classifications_groups.classifications_alias_id = classifications_aliases.id").count
-        classifications_trees_present = ClassificationsTree.where(external_source_id: @external_source_id).count
+        classification_groups = ClassificationGroup.where(external_source_id: @external_source_id).count
+        classification_alias = ClassificationGroup.joins("INNER JOIN classification_aliases ON classification_groups.classification_alias_id = classification_aliases.id").count
+        classification_tree_present = ClassificationTree.where(external_source_id: @external_source_id).count
         downloaded = DownloadCategory.count if name == 'category'
         downloaded = DownloadRegion.count if name == 'region'
-        @log.info "  -- after : #{classifications_present}[class.]|#{classifications_groups}[class.group]|#{classifications_alias}[class.alias]|#{classifications_trees_present}[class.tree]"
+        @log.info "  -- after : #{classifications_present}[class.]|#{classification_groups}[class.group]|#{classification_alias}[class.alias]|#{classification_tree_present}[class.tree]"
         @log.info "  -- to import: #{downloaded}"
         end_time = Time.zone.now
         @log.info "  end ( #{(end_time-start_time).round(2)} [s] )"
@@ -557,7 +557,7 @@ module DataCycleCore
       def import_poi_logging
         start_time = Time.zone.now
         places_present = Place.where(external_source_id: @external_source_id).count
-        places_classifications_present = ClassificationsPlace.where(external_source_id: @external_source_id).count
+        places_classifications_present = ClassificationPlace.where(external_source_id: @external_source_id).count
         pois_imported = DownloadPoi.count
         pois_upsert_imported = DownloadPoiUpsert.count
         #images_present = Image.where(external_source_id: @external_source_id).count
@@ -570,7 +570,7 @@ module DataCycleCore
         yield
 
         places_present = Place.where(external_source_id: @external_source_id).count
-        places_classifications_present = ClassificationsPlace.where(external_source_id: @external_source_id).count
+        places_classifications_present = ClassificationPlace.where(external_source_id: @external_source_id).count
         #images_present = Image.where(external_source_id: @external_source_id).count
         #images_place_present = ImagesPlace.where(external_source_id: @external_source_id).count
         @log.info "  -- after : Places: #{places_present} / PlacesClassifications: #{places_classifications_present}"

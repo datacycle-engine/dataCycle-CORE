@@ -16,14 +16,14 @@ module DataCycleCore
         @classifications_trees_label_id = init_or_create_classifications_trees_label('imported')
         @tree_label_id_creative_work =    init_or_create_classifications_trees_label('CreativeWork')
 
-        @creative_works_classification_alias_id = check_for_tree_entry_with_classification_alias('ImageObject')
-        if @creative_works_classification_alias_id.nil?
-          @creative_works_classification_alias_id = insert_classification_alias_and_tree_entry('ImageObject', @tree_label_id_creative_work)
+        @creative_work_classification_alias_id = check_for_tree_entry_with_classification_alias('ImageObject')
+        if @creative_work_classification_alias_id.nil?
+          @creative_work_classification_alias_id = insert_classification_alias_and_tree_entry('ImageObject', @tree_label_id_creative_work)
         end
       end
 
       def init_or_create_classifications_trees_label(label)
-        classifications_trees_label = ClassificationsTreesLabel.find_or_initialize_by(name: label, external_source_id: @external_source_id)
+        classifications_trees_label = ClassificationTreeLabel.find_or_initialize_by(name: label, external_source_id: @external_source_id)
         classifications_trees_label.seen_at = Time.zone.now
         classifications_trees_label.save
         classifications_trees_label.id
@@ -31,33 +31,33 @@ module DataCycleCore
 
       def check_for_tree_entry_with_classification_alias(label)
         classification_alias_id = nil
-        top_level_classifications_tree_entries = ClassificationsTree
+        top_level_classifications_tree_entries = ClassificationTree
           .where(
             external_source_id: @external_source_id,
-            classifications_trees_label_id: @tree_label_id_creative_work,
-            parent_classifications_alias_id: nil
+            classification_tree_label_id: @tree_label_id_creative_work,
+            parent_classification_alias_id: nil
           )
         top_level_classifications_tree_entries.each do |item|
-          if item.sub_classifications_alias.name == label
-            classification_alias_id = item.sub_classifications_alias.id
+          if item.sub_classification_alias.name == label
+            classification_alias_id = item.sub_classification_alias.id
           end
         end
         classification_alias_id
       end
 
       def insert_classification_alias_and_tree_entry(label, tree_label)
-        classification_alias = ClassificationsAlias.new(name: label, seen_at: Time.zone.now)
+        classification_alias = ClassificationAlias.new(name: label, seen_at: Time.zone.now)
         classification_alias.save
-        creative_works_classification_alias_id = classification_alias.id
-        ClassificationsTree
+        creative_work_classification_alias_id = classification_alias.id
+        ClassificationTree
           .new(
             external_source_id: @external_source_id,
-            classifications_alias_id: creative_works_classification_alias_id,
-            classifications_trees_label_id: tree_label,
+            classification_alias_id: creative_work_classification_alias_id,
+            classification_tree_label_id: tree_label,
             seen_at: Time.zone.now
           )
           .save
-        creative_works_classification_alias_id
+        creative_work_classification_alias_id
       end
 
     # main import functionality
@@ -95,10 +95,10 @@ module DataCycleCore
               if classification_alias_id.nil?
                 classification_alias_id = insert_classification_alias_and_tree_entry(keyword, @tree_label_id_creative_work)
               end
-              updated_ccw = ClassificationsCreativeWork
+              updated_ccw = ClassificationCreativeWork
                 .find_or_create_by(
                   creative_work_id: to_update_image.id,
-                  classifications_alias_id: classification_alias_id,
+                  classification_alias_id: classification_alias_id,
                   tag: true
                 )
               updated_ccw.seen_at = Time.zone.now

@@ -61,7 +61,7 @@
       keywords:
     </div>
     <div class="small-8 columns">
-      <%= @creativeWork.classifications_aliases.to_a.map{|item| item.name}.join("<br/>").html_safe %>
+      <%= @creativeWork.classification_aliases.to_a.map{|item| item.name}.join("<br/>").html_safe %>
     </div>
   </div>
   <div class="row">
