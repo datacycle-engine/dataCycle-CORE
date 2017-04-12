@@ -443,7 +443,7 @@ module DataCycleCore
         address_locality = data.has_key?('address') && data['address'].has_key?('town') ? data['address']['town'].strip : nil
 
         street_address = data.has_key?('address') && data['address'].has_key?('street') ? data['address']['street'].strip : nil
-        street_address = !street_address.nil? && data.has_key?('address') && data['address'].has_key?('housenumber') ? street_address+=' '+ data['address']['housenumber'].strip : street_address
+        #street_address = !street_address.nil? && data.has_key?('address') && data['address'].has_key?('housenumber') ? street_address+=' '+ data['address']['housenumber'].strip : street_address
         postal_code = data.has_key?('address') && data['address'].has_key?('zipcode') ? data['address']['zipcode'].strip : nil
         address_country = data.has_key?('countryCode') ? data['countryCode'].strip : nil
         fax_number = data.has_key?('fax') ? data['fax'].strip : nil
