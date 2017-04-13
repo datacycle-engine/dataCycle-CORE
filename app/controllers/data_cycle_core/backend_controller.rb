@@ -5,10 +5,17 @@ module DataCycleCore
 
     def index
       @creativeWorks = CreativeWork.order(created_at: :desc).page(params[:page])
+
+      if params[:mode].nil?
+        @mode = "flex"
+      else
+        @mode = params[:mode].to_s
+      end
+      
     end
 
     def vue
-      
+
     end
 
   end

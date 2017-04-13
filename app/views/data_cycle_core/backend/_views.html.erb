@@ -7,24 +7,25 @@
   <div class="columns small-6 text-right">
     <div class="view-icons">
       <span class="view-icon">
-        <a href="#" class="active">
-          <i class="material-icons">dashboard</i>
+          <%= link_to root_path(:mode => 'flex'), class: (@mode == 'flex' ? "active" : "") do %>
+            <i class="material-icons">dashboard</i>
+          <% end %>
         </a>
       </span>
       <span class="view-icon">
-        <a href="#">
+        <%= link_to root_path(:mode => 'grid-large'), class: (@mode == 'grid-large' ? "active" : "") do %>
           <i class="material-icons">view_module</i>
-        </a>
+        <% end %>
       </span>
       <span class="view-icon">
-        <a href="#">
+        <%= link_to root_path(:mode => 'grid-small'), class: (@mode == 'grid-small' ? "active" : "") do %>
           <i class="material-icons">view_comfy</i>
-        </a>
+        <% end %>
       </span>
       <span class="view-icon">
-        <a href="#">
+        <%= link_to root_path(:mode => 'list'), class: (@mode == 'list' ? "active" : "") do %>
           <i class="material-icons">view_list</i>
-        </a>
+        <% end %>
       </span>
     </div>
   </div>
