@@ -1,0 +1,52 @@
+
+/* Filter */
+
+.filters{
+  border-bottom: 2px solid $dark-gray;
+  padding-bottom: 2rem;
+  strong{
+    color: map-get($foundation-palette, primary);
+  }
+  .filter{
+    padding: 2.6rem;
+    font-size: 1.5rem;
+    i{
+      font-size: 2rem;
+      /* line-height: 1; */
+      position: relative;
+      top: 0.3rem;
+    }
+  }
+  .search{
+    .input-group{
+      background-color: $medium-gray;
+      padding: 0.5rem;
+      margin-bottom: 0;
+      > * {
+        background-color: transparent;
+      }
+      .input-group-field, .input-group-button{
+        border: $search-border;
+        padding: 0.3rem;
+        color: $black;
+        border: 0;
+      }
+      .input-group-field{
+        height: 3.3rem;
+        font-size: 1.6rem;
+        box-shadow: none;
+        &:hover,&:focus,&:active{
+          box-shadow: none;
+        }
+      }
+      .input-group-button{
+        padding: 0.3rem 0.5rem;
+        i{
+          font-size: 2.2rem;
+          line-height: 1.2;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+}

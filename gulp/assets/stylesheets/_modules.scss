@@ -4,6 +4,22 @@
 // load font-awesome
 @import "modules/font-awesome";
 
-//load modules
-@import "modules/logs";
+// load overrides
+@import "modules/foundation-overrides";
+@import "modules/font-awesome-overrides";
+
+// load application modules
 @import "modules/base";
+@import "modules/structure";
+@import "modules/responsive";
+
+// load components
+@import "modules/components/breadcrumb";
+@import "modules/components/filters";
+@import "modules/components/views";
+@import "modules/components/masonry";
+@import "modules/components/data-cycle-objects";
+@import "modules/components/offcanvas";
+
+//load logs
+@import "modules/logs";

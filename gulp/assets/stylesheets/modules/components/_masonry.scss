@@ -1,0 +1,26 @@
+
+/* Masonry */
+.grid-sizer{
+  width: 32%
+}
+.gutter-sizer{
+  width: 2%
+}
+.grid-item {
+  width: 32%;
+  border: 2px solid $dark-gray;
+  padding: 1rem;
+  margin-bottom: 2%;
+
+  /* testing */
+  &.layout-1, &.layout-3{
+    padding-bottom: 1rem;
+  }
+  &.layout-0, &.layout-5{
+    padding-bottom: 10rem;
+  }
+  &.layout-2, &.layout-4{
+    padding-bottom: 20rem;
+  }
+  /* testing */
+}

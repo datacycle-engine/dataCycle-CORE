@@ -1,0 +1,29 @@
+
+/* Views */
+.views{
+  > div{
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  .view-heading{
+    padding-top: 1rem;
+    font-size: 1.5rem;
+  }
+}
+.view-icons{
+  .view-icon{
+    a{
+      border:2px solid $dark-gray;
+      display: inline-block;
+      margin-left: 0.6rem;
+      color:$black;
+      &:hover, &.active{
+        color: map-get($foundation-palette, primary);
+        border-color: map-get($foundation-palette, primary);
+      }
+      i{
+        font-size: 4rem;
+      }
+    }
+  }
+}

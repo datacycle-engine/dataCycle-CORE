@@ -14,21 +14,33 @@
 
   <%= render 'data_cycle_core/shared/header' %>
 
-  <%= render 'data_cycle_core/backend/breadcrumb' if user_signed_in? %>
+  <div class="off-canvas-wrapper">
 
-  <%= render 'data_cycle_core/backend/filter' if user_signed_in? %>
+    <%= render 'data_cycle_core/backend/user-settings' if user_signed_in? %>
 
-  <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
+    <div class="off-canvas-content" data-off-canvas-content>
 
-  <%= display_flash_messages_new %>
+      <%= render 'data_cycle_core/backend/breadcrumb' if user_signed_in? %>
 
-  <div class="expanded row">
-    <div class="column">
-      <%= yield %>
+      <%= render 'data_cycle_core/backend/filter' if user_signed_in? %>
+
+      <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
+
+      <%= display_flash_messages_new %>
+
+      <div class="expanded row">
+        <div class="column">
+          <%= yield %>
+        </div>
+      </div>
+
+      <%= render 'data_cycle_core/shared/footer' %>
+
+      <%= render 'data_cycle_core/shared/newObject' if user_signed_in? %>
+
     </div>
-  </div>
 
-  <%= render 'data_cycle_core/shared/footer' %>
+  </div>
 
 </body>
 </html>

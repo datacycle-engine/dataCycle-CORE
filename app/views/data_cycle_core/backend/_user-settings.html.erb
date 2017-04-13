@@ -1,0 +1,47 @@
+<div class="off-canvas position-right" id="settings-off-canvas" data-off-canvas data-content-overlay="false">
+  <div class="settings-row">
+    <div class="row column">
+      <%= link_to data_cycle_core.destroy_user_session_path, method: :delete do %>
+        <span class="icon"><i class="fa fa-sign-out" aria-hidden="true"></i></span>
+        <span class="title">Ausloggen</span>
+      <% end %>
+    </div>
+    <div class="row columns">
+      <%= link_to '#' do %>
+        <span class="icon"><i class="fa fa-cogs" aria-hidden="true"></i></span>
+        <span class="title">Einstellungen</span>
+      <% end %>
+    </div>
+  </div>
+  <div class="settings-row">
+    <div class="row column">
+      <div class="heading">Meine letzten Suchen</div>
+      <div class="inner-content">
+        <div class="item">
+          Content goes here
+        </div>
+        <div class="item">
+          Content goes here
+        </div>
+        <div class="more">
+          <i class="fa fa-angle-down" aria-hidden="true"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="settings-row">
+    <div class="row column">
+      <div class="heading">Gespeicherte Suchen</div>
+    </div>
+  </div>
+  <div class="settings-row">
+    <div class="row column">
+      <div class="heading">Meine Recherchen</div>
+    </div>
+  </div>
+  <div class="settings-row">
+    <div class="row column">
+      <div class="heading">Meine Inhalte</div>
+    </div>
+  </div>
+</div>

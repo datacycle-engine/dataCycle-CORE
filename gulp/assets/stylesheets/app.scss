@@ -1,7 +1,10 @@
 @charset "UTF-8";
 
-// load settings
+// load foundation settings
 @import "settings";
+
+// load additional variables
+@import "variables";
 
 // load foundation
 @import "modules";
