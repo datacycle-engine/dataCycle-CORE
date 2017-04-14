@@ -1,0 +1,51 @@
+
+  <div class="list-item data-cycle-object">
+    <div class="row expanded">
+      <div class="columns small-8">
+        <div class="type">
+          <div class="infoRow">
+            <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+            <span class="title">Veranstaltung</span>
+          </div>
+        </div>
+        <div class="title">
+          <%= link_to item do %>
+            <%= item.headline %>
+          <% end %>
+        </div>
+        <div class="description">
+          <%= item.description %>
+          <%= item.id %>
+        </div>
+        <div class="tags">
+          <span class="tag"><a href="#">Charity</a></span>
+          <span class="tag"><a href="#">Wien</a></span>
+          <span class="tag"><a href="#">Party</a></span>
+          <span class="tag"><a href="#">Gala</a></span>
+        </div>
+      </div>
+      <div class="columns small-4">
+        <div class="info">
+          <div class="infoRow">
+            <span class="icon"><i class="fa fa-align-left" aria-hidden="true"></i></span>
+            <span class="title"><strong>8</strong> Texte</span>
+          </div>
+          <div class="infoRow">
+            <span class="icon"><i class="fa fa-picture-o" aria-hidden="true"></i></span>
+            <span class="title"><strong>63</strong> Bilder</span>
+          </div>
+          <div class="infoRow">
+            <span class="icon"><i class="fa fa-play" aria-hidden="true"></i></span>
+            <span class="title"><strong>1</strong> Video</span>
+          </div>
+          <div class="infoRow">
+            <span class="icon"><i class="fa fa-comment" aria-hidden="true"></i></span>
+            <span class="title">de, en, ru, it, pl, si <strong>+5</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- <div>
+        <%= item.metadata %>
+    </div> -->
+  </div>

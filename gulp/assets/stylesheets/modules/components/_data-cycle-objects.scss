@@ -1,15 +1,6 @@
 
-
-
-/* structure */
-
-
-
-
-
-
 /* CreativeWorks */
-
+/* gridItems */
 .data-cycle-object{
   > div{
     padding-bottom: 1rem;
@@ -70,4 +61,18 @@
       }
     }
   }
+}
+
+/* listItems */
+
+.data-cycle-object.list-item{
+  border: 2px solid $dark-gray;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+    > div{
+      padding-bottom: 0;
+      > div > div{
+          padding-bottom: 1rem;
+      }
+    }
 }
