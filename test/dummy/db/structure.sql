@@ -605,6 +605,34 @@ ALTER TABLE ONLY users
 
 
 --
+-- Name: by_ctl_esi; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX by_ctl_esi ON classification_tree_labels USING btree (external_source_id);
+
+
+--
+-- Name: by_cwp_esi; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX by_cwp_esi ON creative_work_places USING btree (external_source_id);
+
+
+--
+-- Name: by_cwt_cwi_locale; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX by_cwt_cwi_locale ON creative_work_translations USING btree (creative_work_id, locale);
+
+
+--
+-- Name: by_pt_p_locale; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX by_pt_p_locale ON place_translations USING btree (place_id, locale);
+
+
+--
 -- Name: child_parent_index; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -640,6 +668,48 @@ CREATE INDEX delayed_jobs_queue ON delayed_jobs USING btree (queue);
 
 
 --
+-- Name: index_classification_aliases_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_classification_aliases_on_id ON classification_aliases USING btree (id);
+
+
+--
+-- Name: index_classification_creative_works_on_classification_alias_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_creative_works_on_classification_alias_id ON classification_creative_works USING btree (classification_alias_id);
+
+
+--
+-- Name: index_classification_creative_works_on_creative_work_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_creative_works_on_creative_work_id ON classification_creative_works USING btree (creative_work_id);
+
+
+--
+-- Name: index_classification_groups_on_classification_alias_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_groups_on_classification_alias_id ON classification_groups USING btree (classification_alias_id);
+
+
+--
+-- Name: index_classification_groups_on_classification_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_groups_on_classification_id ON classification_groups USING btree (classification_id);
+
+
+--
+-- Name: index_classification_groups_on_external_source_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_groups_on_external_source_id ON classification_groups USING btree (external_source_id);
+
+
+--
 -- Name: index_classification_places_on_classification_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -654,6 +724,13 @@ CREATE INDEX index_classification_places_on_place_id ON classification_places US
 
 
 --
+-- Name: index_classification_tree_labels_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_classification_tree_labels_on_id ON classification_tree_labels USING btree (id);
+
+
+--
 -- Name: index_classification_trees_on_classification_alias_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -665,6 +742,34 @@ CREATE INDEX index_classification_trees_on_classification_alias_id ON classifica
 --
 
 CREATE INDEX index_classification_trees_on_parent_classification_alias_id ON classification_trees USING btree (parent_classification_alias_id);
+
+
+--
+-- Name: index_classifications_on_external_source_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classifications_on_external_source_id ON classifications USING btree (external_source_id);
+
+
+--
+-- Name: index_classifications_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_classifications_on_id ON classifications USING btree (id);
+
+
+--
+-- Name: index_creative_work_places_on_creative_work_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_creative_work_places_on_creative_work_id ON creative_work_places USING btree (creative_work_id);
+
+
+--
+-- Name: index_creative_work_places_on_place_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_creative_work_places_on_place_id ON creative_work_places USING btree (place_id);
 
 
 --
@@ -689,10 +794,59 @@ CREATE INDEX index_creative_works_on_external_key ON creative_works USING btree 
 
 
 --
+-- Name: index_creative_works_on_external_source_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_creative_works_on_external_source_id ON creative_works USING btree (external_source_id);
+
+
+--
+-- Name: index_creative_works_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_creative_works_on_id ON creative_works USING btree (id);
+
+
+--
+-- Name: index_creative_works_on_isPartOf; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "index_creative_works_on_isPartOf" ON creative_works USING btree ("isPartOf");
+
+
+--
 -- Name: index_external_sources_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_external_sources_on_id ON external_sources USING btree (id);
+
+
+--
+-- Name: index_overlay_place_tags_on_overlay_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_overlay_place_tags_on_overlay_id ON overlay_place_tags USING btree (overlay_id);
+
+
+--
+-- Name: index_overlay_place_tags_on_place_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_overlay_place_tags_on_place_id ON overlay_place_tags USING btree (place_id);
+
+
+--
+-- Name: index_overlay_place_tags_on_tag_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_overlay_place_tags_on_tag_id ON overlay_place_tags USING btree (tag_id);
+
+
+--
+-- Name: index_overlays_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_overlays_on_id ON overlays USING btree (id);
 
 
 --
@@ -724,10 +878,59 @@ CREATE UNIQUE INDEX index_places_on_external_source_id_and_external_key ON place
 
 
 --
+-- Name: index_places_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_places_on_id ON places USING btree (id);
+
+
+--
+-- Name: index_places_on_location; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_places_on_location ON places USING gist (location);
+
+
+--
+-- Name: index_tags_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_tags_on_id ON tags USING btree (id);
+
+
+--
+-- Name: index_use_cases_on_external_source_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_use_cases_on_external_source_id ON use_cases USING btree (external_source_id);
+
+
+--
+-- Name: index_use_cases_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_use_cases_on_id ON use_cases USING btree (id);
+
+
+--
+-- Name: index_use_cases_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_use_cases_on_user_id ON use_cases USING btree (user_id);
+
+
+--
 -- Name: index_users_on_email; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_users_on_email ON users USING btree (email);
+
+
+--
+-- Name: index_users_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_users_on_id ON users USING btree (id);
 
 
 --
@@ -768,6 +971,7 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170213144933'),
 ('20170307094512'),
 ('20170406115252'),
-('20170412124816');
+('20170412124816'),
+('20170418141539');
 
 
