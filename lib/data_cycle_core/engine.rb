@@ -10,6 +10,7 @@ require 'activerecord-postgis-adapter'
 require 'acts_as_tree'
 require 'rgeo'
 require 'mongoid'
+#require 'arel-helpers'
 
 # authentication
 require 'devise'
