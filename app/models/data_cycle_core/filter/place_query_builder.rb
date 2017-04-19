@@ -2,21 +2,19 @@ module DataCycleCore
   module Filter
     class PlaceQueryBuilder
       extend Forwardable
+      include Enumerable
 
       attr_reader :query,:uuid
-      def_delegator :@query, :to_sql
+      def_delegators :@query, :to_a, :to_sql, :each
+      TERMINAL_METHODS = [:count, :pluck, :order,
+        :first, :second, :third, :fourth, :fifth, :forty_two, :last]
+      def_delegators :@query, *TERMINAL_METHODS
 
-      def initialize(uuid, query = nil)
+      def initialize(uuid, query = nil, translation = false, classification_alias = false)
+        @translation = translation
+        @classification_alias = classification_alias
         @uuid = uuid
-        @query = query || place.project(Arel.star).where(place[:external_source_id].eq(uuid))
-      end
-
-      def execute
-        Place.find_by_sql(@query.to_sql)
-      end
-
-      def count
-        Place.find_by_sql(@query.to_sql).count
+        @query = query || Place.where(place[:external_source_id].eq(uuid)).distinct
       end
 
     # helper for paging
@@ -39,42 +37,51 @@ module DataCycleCore
       end
 
     # filters
-      def with_name_locale(name, locale=I18n.locale.to_s)
+      def with_name_locale(name)
+        unless @translation # see if joins are necessary
+          @query = join_place_translation
+          @translation = true
+        end
         reflect(
-          join_place_translation.where(
-            place_translation[:locale].eq(locale)
-            .and(place_translation[:name].matches("%#{name}%"))
+          @query.where(
+            place_translation[:name].matches("%#{name}%")
           )
         )
       end
 
-      def with_classification_id(id)
+      def within_area(longitude1, latitude1, longitude2, latitude2)
+        bbox = Arel::Nodes::NamedFunction.new("ST_MakeBox2D", [get_point(longitude1, latitude1), get_point(longitude2, latitude2)])
+        contains = Arel::Nodes::InfixOperation.new("@", place[:location], bbox)
         reflect(
-          join_classification_place.where(
-            classification_place[:external_source_id].eq(@uuid)
-            .and(classification_place[:classification_id].eq(id))
-          )
+          @query.where(contains)
         )
       end
 
-      def with_classification(name)
+      def within_distance(longitude, latitude, distance_km)
+        distance = distance_km * 180 / Math::PI / 6378.137
+        st_distance = Arel::Nodes::NamedFunction.new("ST_Distance", [place[:location], get_point(longitude,latitude)])
         reflect(
-          join_classification.where(
-            classification_place[:external_source_id].eq(@uuid)
-            .and(classification[:name].matches("%#{name}%"))
-          )
+          @query.where(st_distance.lt(distance))
         )
       end
 
       def with_classification_alias(name)
+        unless @classification_alias # see if joins are necessary
+          @query = join_classification_alias
+          @classification_alias = true
+        end
         reflect(
-          join_classification_alias.where(
+          @query.where(
             classification_alias[:name].matches("%#{name}%")
           )
         )
       end
 
       def with_classification_alias_ids(ids = nil)
+        unless @classification_alias # see if joins are necessary
+          @query = join_classification_alias
+          @classification_alias = true
+        end
         # ids = ['0543d553-3c2d-4f49-bf19-5d2e59a15d82', '5ae2c5f2-1534-4800-b1fb-216b789cf9cb']
         ids_string = "('"+ids.join("', '")+"')"
         sql = <<-eos
@@ -89,9 +96,9 @@ module DataCycleCore
           SELECT * FROM children;
         eos
         result = ActiveRecord::Base.connection.execute(sql)
-        classification_ids = result.map{|item| item["top_id"]} # including children
+        classification_ids = ids + result.map{|item| item["top_id"]} # parents + children
         reflect(
-          join_classification_alias.where(
+          @query.where(
             classification_alias[:id].in(classification_ids)
           )
         )
@@ -99,35 +106,50 @@ module DataCycleCore
 
     private
 
+    # custom function helper
+      def get_point(longitude,latitude)
+        Arel::Nodes::NamedFunction.new("ST_GeomFromEWKT", ["SRID=4326;POINT (#{longitude} #{latitude})"])
+      end
+
     # joins
       def join_place_translation
-        @query.join(place_translation)
+        @query.joins(place.join(place_translation)
           .on(place[:id].eq(place_translation[:place_id]))
+          .join_sources
+        )
       end
 
       def join_classification_place
-        @query.join(classification_place)
+        @query.joins(place.join(classification_place)
           .on(place[:id].eq(classification_place[:place_id]))
+          .join_sources
+        )
       end
 
       def join_classification
-        join_classification_place.join(classification)
+        join_classification_place.joins(classification_place.join(classification)
           .on(classification_place[:classification_id].eq(classification[:id]))
+          .join_sources
+        )
       end
 
       def join_classification_group
-        join_classification.join(classification_group)
-          .on(classification_group[:classification_id].eq(classification[:id]))
+        join_classification.joins(classification.join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join_sources
+        )
       end
 
       def join_classification_alias
-        join_classification_group.join(classification_alias)
+        join_classification_group.joins(classification_group.join(classification_alias)
           .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .join_sources
+        )
       end
 
     # chain method for Builder pattern
       def reflect(query)
-        self.class.new(@uuid, query)
+        self.class.new(@uuid, query, @translation, @classification_alias)
       end
 
     # define Arel-tables
@@ -154,6 +176,7 @@ module DataCycleCore
       def classification_alias
         ClassificationAlias.arel_table
       end
+
     end
   end
 end
