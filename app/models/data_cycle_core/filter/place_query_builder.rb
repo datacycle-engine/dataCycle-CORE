@@ -5,8 +5,8 @@ module DataCycleCore
       include Enumerable
 
       attr_reader :query,:uuid
-      def_delegators :@query, :to_a, :to_sql, :each
-      TERMINAL_METHODS = [:count, :pluck, :order,
+      def_delegators :@query, :to_a, :to_sql, :each, :order
+      TERMINAL_METHODS = [:count, :pluck,
         :first, :second, :third, :fourth, :fifth, :forty_two, :last]
       def_delegators :@query, *TERMINAL_METHODS
 
@@ -14,7 +14,7 @@ module DataCycleCore
         @translation = translation
         @classification_alias = classification_alias
         @uuid = uuid
-        @query = query || Place.where(place[:external_source_id].eq(uuid)).distinct
+        @query = query || Place.unscoped.where(place[:external_source_id].eq(uuid)).distinct
       end
 
     # helper for paging
@@ -23,6 +23,7 @@ module DataCycleCore
           @query.take(number)
         )
       end
+
       def limit(number)
         take(number)
       end
@@ -37,7 +38,7 @@ module DataCycleCore
       end
 
     # filters
-      def with_name_locale(name)
+      def with_name(name)
         unless @translation # see if joins are necessary
           @query = join_place_translation
           @translation = true
@@ -50,18 +51,16 @@ module DataCycleCore
       end
 
       def within_area(longitude1, latitude1, longitude2, latitude2)
-        bbox = Arel::Nodes::NamedFunction.new("ST_MakeBox2D", [get_point(longitude1, latitude1), get_point(longitude2, latitude2)])
-        contains = Arel::Nodes::InfixOperation.new("@", place[:location], bbox)
+        bbox = get_box(get_point(longitude1, latitude1), get_point(longitude2, latitude2))
         reflect(
-          @query.where(contains)
+          @query.where(contains(place[:location], bbox))
         )
       end
 
       def within_distance(longitude, latitude, distance_km)
         distance = distance_km * 180 / Math::PI / 6378.137
-        st_distance = Arel::Nodes::NamedFunction.new("ST_Distance", [place[:location], get_point(longitude,latitude)])
         reflect(
-          @query.where(st_distance.lt(distance))
+          @query.where(st_distance(place[:location], get_point(longitude,latitude)).lt(distance))
         )
       end
 
@@ -109,6 +108,18 @@ module DataCycleCore
     # custom function helper
       def get_point(longitude,latitude)
         Arel::Nodes::NamedFunction.new("ST_GeomFromEWKT", ["SRID=4326;POINT (#{longitude} #{latitude})"])
+      end
+
+      def get_box(point1, point2)
+        Arel::Nodes::NamedFunction.new("ST_MakeBox2D", [point1, point2])
+      end
+
+      def st_distance(point1, point2)
+        Arel::Nodes::NamedFunction.new("ST_Distance", [point1, point2])
+      end
+
+      def contains(geo1, geo2)
+        Arel::Nodes::InfixOperation.new("@", geo1, geo2)
       end
 
     # joins
