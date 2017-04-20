@@ -148,6 +148,7 @@ module DataCycleCore
               create_classification_from_bool( 'winterActivity', load_poi.dump[load_poi.dump.keys.first]['winterActivity'], to_update_place.id )
               create_classification_from_string( 'frontendtype', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id )
               create_classification_from_string( 'source', load_poi.dump[load_poi.dump.keys.first]['meta']['source']['name'], to_update_place.id )
+              create_classifications_from_array('properties', load_poi.dump[load_poi.dump.keys.first]['properties']['property'], 'text', to_update_place.id) if load_poi.dump[load_poi.dump.keys.first].has_key?('properties')
               create_creative_work_place( load_poi.dump[load_poi.dump.keys.first]['images'], to_update_place.id )
               set_primary_image( load_poi.dump[load_poi.dump.keys.first]['primaryImage'], to_update_place.id )
             end
@@ -317,6 +318,35 @@ module DataCycleCore
         create_classification_place(classification_id, place_id)
       end
 
+      def create_classifications_from_array(name, array, field_name, place_id)
+        parent_classification_id = get_id(Classification, :name, name)
+        if parent_classification_id.nil?
+          parent_data_hash = {
+            'external_source_id' => @external_source_id,
+            'external_type' => 'array_name extracted from POI',
+            'name' => name,
+            'seen_at' => Time.zone.now
+          }
+          parent_classification_id = upsert_classification_from_id(nil,nil, parent_data_hash)
+        end
+        create_classification_place(parent_classification_id, place_id)
+        array.each do |item|
+          if item.has_key?(field_name)
+            classification_id = get_id(Classification, :name, item[field_name])
+            if classification_id.nil?
+              child_data_hash = {
+                'external_source_id' => @external_source_id,
+                'external_type' => 'array_item extracted from POI',
+                'name' => item[field_name],
+                'seen_at' => Time.zone.now
+              }
+              classification_id = upsert_classification_from_id(nil, parent_classification_id, child_data_hash)
+            end
+            create_classification_place(classification_id, place_id)
+          end
+        end
+      end
+
       def upsert_classification_from_id(classification_id, parent_classification_id, data_hash)
         if classification_id.nil?
           classification = Classification.new
@@ -450,6 +480,16 @@ module DataCycleCore
         url = data.has_key?('homepage') ? data['homepage'].strip : nil
         hours_available = data.has_key?('businessHours') ? data['businessHours'].strip : nil
 
+        author = data.has_key?('meta') && data['meta'].has_key?('author') ? data['meta']['author'].strip : nil
+        duration = data.has_key?('time') && data['time'].has_key?('min') ? data['time']['min'] : nil
+        difficulty = data.has_key?('rating') && data['rating'].has_key?('difficulty') ? data['rating']['difficulty'] : nil
+        content_hash = {
+          'author' => author,
+          'duration' => duration,
+          'difficulty' => difficulty
+        }.compact
+        content_hash = nil if content_hash.blank?
+
         return {
           'external_source_id' => @external_source_id,
           'external_key' => data['id'],
@@ -469,7 +509,8 @@ module DataCycleCore
           'telephone' => telephone,
           'email' => email,
           'url' => url,
-          'hoursAvailable' => hours_available
+          'hoursAvailable' => hours_available,
+          'content' => content_hash
         }
       end
 
