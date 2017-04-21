@@ -34,6 +34,7 @@ module DataCycleCore
           @query.skip(number)
         )
       end
+
       def offset(number)
         skip(number)
       end
@@ -46,7 +47,7 @@ module DataCycleCore
         end
         reflect(
           @query.where(
-            classification_alias[:name].matches("%#{name}%")
+            tsmatch(to_tsvector(classification_alias[:name]), to_tsquery(quoted(name)))
           )
         )
       end
@@ -99,6 +100,22 @@ module DataCycleCore
 
       def contains(geo1, geo2)
         Arel::Nodes::InfixOperation.new("@", geo1, geo2)
+      end
+
+      def to_tsvector(field)
+        Arel::Nodes::NamedFunction.new("to_tsvector", [field]) #[quoted("german"), field])
+      end
+
+      def to_tsquery(string)
+        Arel::Nodes::NamedFunction.new("to_tsquery", [string]) #[quoted("german"), string])
+      end
+
+      def tsmatch(tsvector, tsquery)
+        Arel::Nodes::InfixOperation.new("@@", tsvector, tsquery)
+      end
+
+      def quoted(string)
+        Arel::Nodes.build_quoted(string)
       end
 
     # chain method for Builder pattern
