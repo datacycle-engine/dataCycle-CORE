@@ -1,5 +1,5 @@
 module DataCycleCore
-  class CreativeWorksPlace < ApplicationRecord
+  class CreativeWorkPlace < ApplicationRecord
     include DataSetter
 
     belongs_to :creative_work

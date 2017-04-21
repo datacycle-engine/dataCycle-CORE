@@ -1,11 +1,11 @@
 module DataCycleCore
-  class ClassificationsTreesLabel < ApplicationRecord
+  class ClassificationTreeLabel < ApplicationRecord
 
     include DataSetter
 
     belongs_to :external_sources
 
-    has_many :classifications_trees
+    has_many :classification_trees
 
   end
 end

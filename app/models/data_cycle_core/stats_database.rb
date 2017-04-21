@@ -2,8 +2,8 @@ module DataCycleCore
   class StatsDatabase
 
     attr_accessor :stat_update, :pg_name,
-                  :pg_classifications, :pg_places, :pg_classifications_places, :pg_size,
-                  :pg_creative_works, :pg_creative_works_places, :pg_creative_works_classification, :pg_overlays,
+                  :pg_classifications, :pg_places, :pg_classification_places, :pg_size,
+                  :pg_creative_works, :pg_creative_work_places, :pg_creative_work_classification, :pg_overlays,
                   :mongo_categories, :mongo_pois, :mongo_regions,
                   :import_modules
 
@@ -30,10 +30,10 @@ module DataCycleCore
       @pg_size = ActiveRecord::Base.connection.execute(sql).first['pg_database_size']
       @pg_classifications = Classification.count
       @pg_places = Place.count
-      @pg_classifications_places = ClassificationsPlace.count
+      @pg_classification_places = ClassificationPlace.count
       @pg_creative_works = CreativeWork.count
-      @pg_creative_works_places = CreativeWorksPlace.count
-      @pg_creative_works_classification = ClassificationsCreativeWork.count
+      @pg_creative_work_places = CreativeWorkPlace.count
+      @pg_creative_work_classification = ClassificationCreativeWork.count
       @pg_overlays = Overlay.count
     end
 
@@ -44,7 +44,7 @@ module DataCycleCore
       UseCase.where(user_id: user_id).each do |use_case|
         external_source_id = use_case.external_source_id
         external_source = ExternalSource.where(id: external_source_id).first
-        import_name = external_source.external_name
+        import_name = external_source.name
 
         Mongoid.override_database(nil)
         mongo_database = "#{OutdoorActive::DownloadPoi.database_name}_#{external_source_id}"
@@ -70,6 +70,7 @@ module DataCycleCore
           mongo_categories = OutdoorActive::DownloadCategory.count
           mongo_pois = OutdoorActive::DownloadPoi.count
           mongo_regions = OutdoorActive::DownloadRegion.count
+          mongo_creative_works = Jsonld::DownloadCreativeWork.count
 
           if external_source.last_import.nil?
             last_import = "never"
@@ -91,7 +92,8 @@ module DataCycleCore
               tables: {
                 pois: mongo_pois,
                 categories: mongo_categories,
-                regions: mongo_regions
+                regions: mongo_regions,
+                creative_work: mongo_creative_works
               },
               last_import: last_import,
               last_download: last_download

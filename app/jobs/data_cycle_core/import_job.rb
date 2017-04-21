@@ -16,7 +16,7 @@ module DataCycleCore
         store_job_id_to_externalSource.config.merge!({"last_import_job_id" => @provider_job_id})
       end
       store_job_id_to_externalSource.save
-      job_record.delayed_reference_type = 'OutdoorActive::Import'
+      job_record.delayed_reference_type = store_job_id_to_externalSource.config['import']
       job_record.save!
     end
 
@@ -35,7 +35,8 @@ module DataCycleCore
     end
 
     def perform(uuid)
-      OutdoorActive::Import.new(uuid).import
+      config = ExternalSource.where(id: uuid).first.config
+      "DataCycleCore::#{config['import']}".constantize.new(uuid).import
     end
   end
 end

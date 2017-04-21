@@ -5,10 +5,10 @@ module DataCycleCore
 
     belongs_to :external_sources
 
-    has_many :classifications_places
-    has_many :places, through: :classifications_places
+    has_many :classification_places
+    has_many :places, through: :classification_places
 
-    has_many :classifications_groups
-    has_many :classifications_aliases, through: :classifications_groups
+    has_many :classification_groups
+    has_many :classification_aliases, through: :classification_groups
   end
 end

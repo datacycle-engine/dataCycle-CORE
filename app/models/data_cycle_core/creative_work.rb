@@ -11,6 +11,8 @@ module DataCycleCore
 
     # associations
     belongs_to :primaryImage, class_name: 'Place', primary_key: 'id', foreign_key: 'photo'
+    has_many :classification_creative_works
+    has_many :classification_aliases, through: :classification_creative_works
 
     acts_as_tree order: "position", foreign_key: "isPartOf"
 

@@ -7,10 +7,10 @@ module DataCycleCore
         @uuid = uuid
         @download_page_size = page_size
         @verbose = verbose
-        @log = DataCycleCore::OutdoorActive::Logger.new("outdooractive_download")
+        @log = DataCycleCore::Logger.new("outdooractive_download")
         external_source = ExternalSource.where(id: uuid).first
         credentials = external_source.credentials
-        @connRestClient = RestClient.new(credentials['project'], credentials['key'], verbose)
+        @connRestClient = RestClient.new('http://www.outdooractive.com/', credentials, verbose)
       end
 
       def download

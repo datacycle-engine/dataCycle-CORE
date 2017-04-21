@@ -11,7 +11,7 @@ module DataCycleCore
     def download
       @uuid = params[:uuid]
       DownloadJob.perform_later(@uuid)
-      name = ExternalSource.where(id: @uuid).first.external_name
+      name = ExternalSource.where(id: @uuid).first.name
       flash[:notice] = "added #{name}/#{@uuid} to job-queue"
       redirect_to root_path
     end
@@ -19,7 +19,7 @@ module DataCycleCore
     def import
       @uuid = params[:uuid]
       ImportJob.perform_later(@uuid)
-      name = ExternalSource.where(id: @uuid).first.external_name
+      name = ExternalSource.where(id: @uuid).first.name
       flash[:notice] = "added #{name}/#{@uuid} to job-queue"
       redirect_to root_path
     end

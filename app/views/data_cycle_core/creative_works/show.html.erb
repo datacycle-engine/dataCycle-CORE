@@ -56,11 +56,27 @@
       <%= String.new(ap @creativeWork.metadata).html_safe %>
     </div>
   </div>
-  <div class="row">
-    <div class="small-12 columns">
-      <h4>translations: </br>&nbsp;</h4>
+  <div class = "row">
+    <div class="small-4 columns">
+      keywords:
+    </div>
+    <div class="small-8 columns">
+      <%= @creativeWork.classification_aliases.to_a.map{|item| item.name}.join("<br/>").html_safe %>
     </div>
   </div>
+  <div class="row">
+    &nbsp;
+  </div>
+  <div class="row">
+    <div class="small-12 columns">
+      <h4>translations: <%="(#{@creativeWork.translations.map{|i| i.locale}.join(',')})" if @creativeWork.translations.count > 0%></br>&nbsp;</h4>
+    </div>
+  </div>
+  <!-- <div class="row">
+    <div class="small-12 columns" >
+      <% String.new(ap @creativeWork.translations).html_safe %>
+    </div>
+  </div> -->
   <% @creativeWork.translations.each do |language| %>
     <div class="row">
       <div class="small-1 columns">

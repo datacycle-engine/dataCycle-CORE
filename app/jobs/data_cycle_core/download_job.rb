@@ -16,7 +16,7 @@ module DataCycleCore
         store_job_id_to_externalSource.config.merge!({"last_download_job_id" => @provider_job_id})
       end
       store_job_id_to_externalSource.save
-      job_record.delayed_reference_type = 'OutdoorActive::Download'
+      job_record.delayed_reference_type = store_job_id_to_externalSource.config['download']
       job_record.save!
     end
 
@@ -36,7 +36,8 @@ module DataCycleCore
 
 
     def perform(uuid)
-      OutdoorActive::Download.new(uuid).download
+      config = ExternalSource.where(id: uuid).first.config
+      "DataCycleCore::#{config['download']}".constantize.new(uuid).download
     end
 
   end

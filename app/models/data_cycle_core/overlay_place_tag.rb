@@ -1,5 +1,5 @@
 module DataCycleCore
-  class OverlaysPlacesTag < ApplicationRecord
+  class OverlayPlaceTag < ApplicationRecord
 
     include DataSetter
 
