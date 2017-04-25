@@ -27,7 +27,7 @@
     </ul>
   </div>
 </div>
-<%= link_to('download', download_path(uuid: locals[:import_data][:uuid]), class: 'button small') %>
+<%= link_to('download', admin_download_path(uuid: locals[:import_data][:uuid]), class: 'button small') %>
 <% unless locals[:import_data][:db_size] == 0%>
-  <%= link_to('import', import_path(uuid: locals[:import_data][:uuid]), class: 'button small') %>
+  <%= link_to('import', admin_import_path(uuid: locals[:import_data][:uuid]), class: 'button small') %>
 <% end %>
