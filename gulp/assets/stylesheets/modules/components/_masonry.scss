@@ -1,0 +1,60 @@
+
+/* Masonry */
+.grid{
+  .grid-sizer{
+    width: 32%
+  }
+  .gutter-sizer{
+    width: 2%
+  }
+  .grid-item {
+    width: 32%;
+    border: 2px solid $dark-gray;
+    padding: 1rem;
+    margin-bottom: 2%;
+    overflow: hidden;
+
+    /* testing */
+    &.layout-1, &.layout-3{
+      padding-bottom: 1rem;
+    }
+    &.layout-0, &.layout-5{
+      padding-bottom: 10rem;
+    }
+    &.layout-2, &.layout-4{
+      padding-bottom: 20rem;
+    }
+    /* testing */
+  }
+}
+
+.grid.large{
+  .grid-item{
+    height: 500px;
+
+      /* reset testing */
+      &.layout-1, &.layout-3, &.layout-0, &.layout-5, &.layout-2, &.layout-4{
+        padding-bottom: 1rem;
+      }
+      /* testing */
+  }
+}
+
+.grid.small{
+  .grid-sizer{
+    width: 23.5%
+  }
+  .gutter-sizer{
+    width: 2%
+  }
+  .grid-item{
+    width: 23.5%;
+    height: 300px;
+
+      /* reset testing */
+      &.layout-1, &.layout-3, &.layout-0, &.layout-5, &.layout-2, &.layout-4{
+        padding-bottom: 1rem;
+      }
+      /* testing */
+  }
+}

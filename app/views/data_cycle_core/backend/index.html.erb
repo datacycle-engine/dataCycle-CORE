@@ -1,0 +1,24 @@
+<% content_for(:title, "Backend") %>
+
+<h3>Die aktuellen Themen</h3>
+
+<section>
+
+  <div class="row">
+    <div class="small-12 columns">
+      <%= paginate @dataCycleObjects %>
+    </div>
+  </div>
+
+    <% if @mode == 'list' %>
+      <%= render 'data_cycle_core/backend/partials/list' %>
+    <% else %>
+      <%= render 'data_cycle_core/backend/partials/grid' %>
+    <% end %>
+
+  <div class="row">
+    <div class="small-12 columns">
+      <%= paginate @dataCycleObjects %>
+    </div>
+  </div>
+</section>

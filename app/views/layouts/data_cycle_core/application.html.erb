@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html  lang="en">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- <title>Data cycle core</title> -->
-  <title><%= content_for?(:title) ? yield(:title) : "DataCycle DashBoard" %></title>
+  <title><%= full_title %></title>
 
   <%= stylesheet_link_tag    "data_cycle_core/application", media: "all" %>
   <%= javascript_include_tag "data_cycle_core/application" %>
@@ -13,11 +12,35 @@
 </head>
 <body>
 
-  <%= render 'data_cycle_core/shared/menu' %>
+  <%= render 'data_cycle_core/shared/header' %>
 
-  <%= display_flash_messages_new %>
+  <div class="off-canvas-wrapper">
 
-  <%= yield %>
+    <%= render 'data_cycle_core/backend/user-settings' if user_signed_in? %>
+
+    <div class="off-canvas-content" data-off-canvas-content>
+
+      <%= render 'data_cycle_core/backend/breadcrumb' if user_signed_in? %>
+
+      <%= render 'data_cycle_core/backend/filter' if user_signed_in? %>
+
+      <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
+
+      <%= display_flash_messages_new %>
+
+      <div class="expanded row">
+        <div class="column">
+          <%= yield %>
+        </div>
+      </div>
+
+      <%= render 'data_cycle_core/shared/footer' %>
+
+      <%= render 'data_cycle_core/shared/newObject' if user_signed_in? %>
+
+    </div>
+
+  </div>
 
 </body>
 </html>

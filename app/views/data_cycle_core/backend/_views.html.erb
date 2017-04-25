@@ -1,0 +1,32 @@
+<section class="views row expanded">
+  <div class="columns small-6">
+    <div class="view-heading">
+      <strong>4</strong> Themen entsprechen Ihren Filterkriterien
+    </div>
+  </div>
+  <div class="columns small-6 text-right">
+    <div class="view-icons">
+      <span class="view-icon">
+          <%= link_to root_path(:mode => 'flex'), class: (@mode == 'flex' ? "active" : "") do %>
+            <i class="material-icons">dashboard</i>
+          <% end %>
+        </a>
+      </span>
+      <span class="view-icon">
+        <%= link_to root_path(:mode => 'large'), class: (@mode == 'large' ? "active" : "") do %>
+          <i class="material-icons">view_module</i>
+        <% end %>
+      </span>
+      <span class="view-icon">
+        <%= link_to root_path(:mode => 'small'), class: (@mode == 'small' ? "active" : "") do %>
+          <i class="material-icons">view_comfy</i>
+        <% end %>
+      </span>
+      <span class="view-icon">
+        <%= link_to root_path(:mode => 'list'), class: (@mode == 'list' ? "active" : "") do %>
+          <i class="material-icons">view_list</i>
+        <% end %>
+      </span>
+    </div>
+  </div>
+</section>

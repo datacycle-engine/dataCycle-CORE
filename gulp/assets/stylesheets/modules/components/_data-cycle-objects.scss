@@ -1,0 +1,78 @@
+
+/* CreativeWorks */
+/* gridItems */
+.data-cycle-object{
+  > div{
+    padding-bottom: 1rem;
+  }
+  a{
+    color: $white;
+  }
+  i.material-icons{
+    font-size: 1.8rem;
+    line-height: 2.3rem;
+    margin-right: 0.5rem;
+  }
+  /* Icon Rows */
+  .infoRow{
+    margin-bottom: 0.6rem;
+    > span{
+      display: inline-block;;
+    }
+    .icon{
+      width: 3rem;
+      display: inline-block;
+      position: relative;
+      top:0.3rem;
+    }
+    .title{
+      font-size: 1.2rem;
+      display: inline-block;
+    }
+  }
+  .type{
+    color: orange;
+    font-size: 1.5rem;
+    font-weight: normal;
+    .title{
+      font-size: inherit;
+    }
+    i.material-icons{
+      margin-right: 0;
+    }
+  }
+  .title{
+    font-size: 1.8rem;
+    line-height: 1.1;
+    a{
+      color:$black;
+    }
+  }
+  .description{
+
+  }
+  .tags{
+    .tag{
+      a{
+        display: inline-block;
+        background-color: $black;
+        padding: 0.3rem 0.5rem;
+        border-radius: $object-border-radius;
+      }
+    }
+  }
+}
+
+/* listItems */
+
+.data-cycle-object.list-item{
+  border: 2px solid $dark-gray;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+    > div{
+      padding-bottom: 0;
+      > div > div{
+          padding-bottom: 1rem;
+      }
+    }
+}

@@ -35,6 +35,18 @@ module DataCycleCore
 
     end
 
+    # Returns the full title on a per-page basis.
+    def full_title
+      base_title = "DataCycle"
+
+      if content_for(:title).nil? || content_for(:title).empty?
+        base_title
+      else
+        content_for(:title) + " | " + base_title
+      end
+
+    end
+
     private
 
     def alert_box(value, alert_class, closable)

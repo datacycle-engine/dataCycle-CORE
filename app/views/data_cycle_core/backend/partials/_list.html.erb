@@ -1,0 +1,8 @@
+
+<div class="list">
+  <% (0..5).to_a.each do |chr| %>
+    <% @dataCycleObjects.shuffle.each do |dataCycleObject| %>
+      <%= render "data_cycle_core/backend/partials/render/listItem", item: dataCycleObject %>
+    <% end %>
+  <% end %>
+</div>
