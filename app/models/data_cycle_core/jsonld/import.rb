@@ -81,13 +81,13 @@ module DataCycleCore
 
       def import_creative_work
         i = 0
-        page_size=300
+        page_size=50
         total_items=DownloadCreativeWork.count
         pages = total_items.fdiv(page_size).ceil
         pages.times do |index|
           DownloadCreativeWork.all.extras(:limit => page_size, :skip => (index*page_size)).each do |data_set|
             ActiveRecord::Base.transaction do
-              puts "#{i.to_s.ljust(5)} | #{data_set.dump['@id'].ljust(51)}| #{Time.zone.now}" if (i % 100) == 0
+              puts "#{i.to_s.ljust(5)} | #{data_set.dump['@id'].ljust(51)}| #{Time.zone.now}" if (i % 50) == 0
               i += 1
               data_image = non_translated_attributes(data_set.dump)
               to_update_image = CreativeWork
