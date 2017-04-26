@@ -1,3 +1,4 @@
+<!--<%= debug(@creativeWork) %>-->
 <section>
   <div class="row">
     <div class="small-12 columns">
@@ -69,7 +70,7 @@
   </div>
   <div class="row">
     <div class="small-12 columns">
-      <h4>translations: <%="(#{@creativeWork.translations.map{|i| i.locale}.join(',')})" if @creativeWork.translations.count > 0%></br>&nbsp;</h4>
+      <h4>translations: <%= "(#{@creativeWork.translations.map{|i| i.locale}.join(',')})" if @creativeWork.translations.count > 0 %></br>&nbsp;</h4>
     </div>
   </div>
   <!-- <div class="row">
