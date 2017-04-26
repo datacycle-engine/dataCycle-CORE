@@ -2,9 +2,7 @@
 <div class="grid <%= @mode %>">
   <div class="grid-sizer"></div>
   <div class="gutter-sizer"></div>
-  <% (0..5).to_a.each do |chr| %>
-    <% @dataCycleObjects.shuffle.each do |dataCycleObject| %>
+    <% @dataCycleObjects.each do |dataCycleObject| %>
       <%= render "data_cycle_core/backend/partials/render/grid#{@mode.camelcase}Item", item: dataCycleObject %>
     <% end %>
-  <% end %>
 </div>
