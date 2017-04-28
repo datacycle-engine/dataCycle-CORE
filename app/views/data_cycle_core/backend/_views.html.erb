@@ -7,23 +7,23 @@
   <div class="columns small-6 text-right">
     <div class="view-icons">
       <span class="view-icon">
-          <%= link_to root_path(:mode => 'flex'), class: (@mode == 'flex' ? "active" : "") do %>
+          <%= link_to params.merge(:mode => 'flex').permit!, class: (@mode == 'flex' ? "active" : "") do %>
             <i class="material-icons">dashboard</i>
           <% end %>
         </a>
       </span>
       <span class="view-icon">
-        <%= link_to root_path(:mode => 'large'), class: (@mode == 'large' ? "active" : "") do %>
+        <%= link_to params.merge(:mode => 'large').permit!, class: (@mode == 'large' ? "active" : "") do %>
           <i class="material-icons">view_module</i>
         <% end %>
       </span>
       <span class="view-icon">
-        <%= link_to root_path(:mode => 'small'), class: (@mode == 'small' ? "active" : "") do %>
+        <%= link_to params.merge(:mode => 'small').permit!, class: (@mode == 'small' ? "active" : "") do %>
           <i class="material-icons">view_comfy</i>
         <% end %>
       </span>
       <span class="view-icon">
-        <%= link_to root_path(:mode => 'list'), class: (@mode == 'list' ? "active" : "") do %>
+        <%= link_to params.merge(:mode => 'list').permit!, class: (@mode == 'list' ? "active" : "") do %>
           <i class="material-icons">view_list</i>
         <% end %>
       </span>
