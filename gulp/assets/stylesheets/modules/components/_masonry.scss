@@ -30,13 +30,16 @@
 
 .grid.large{
   .grid-item{
-    height: 500px;
-
-      /* reset testing */
-      &.layout-1, &.layout-3, &.layout-0, &.layout-5, &.layout-2, &.layout-4{
-        padding-bottom: 1rem;
-      }
-      /* testing */
+    .inner{
+      height: 500px;
+      max-height: 500px;
+      overflow: hidden;
+    }
+    /* reset testing */
+    &.layout-1, &.layout-3, &.layout-0, &.layout-5, &.layout-2, &.layout-4{
+      padding-bottom: 1rem;
+    }
+    /* testing */
   }
 }
 
@@ -49,7 +52,11 @@
   }
   .grid-item{
     width: 23.5%;
-    height: 300px;
+    .inner{
+      height: 300px;
+      max-height: 300px;
+      overflow: hidden;
+    }
 
       /* reset testing */
       &.layout-1, &.layout-3, &.layout-0, &.layout-5, &.layout-2, &.layout-4{

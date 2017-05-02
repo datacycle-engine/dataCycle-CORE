@@ -2,10 +2,15 @@
 /* CreativeWorks */
 /* gridItems */
 .data-cycle-object{
-  > div{
-    padding-bottom: 1rem;
+  .inner {
+    position: relative;
+    overflow: hidden;
+    > div{
+      padding-bottom: 1rem;
+    }
   }
   a{
+    //da
     color: $white;
   }
   i.material-icons{
@@ -59,6 +64,17 @@
         padding: 0.3rem 0.5rem;
         border-radius: $object-border-radius;
       }
+    }
+  }
+  .image{
+    position: relative;
+    height: 300px;
+    max-height: 300px;
+    display: block;
+    overflow: hidden;
+    img{
+      width: 100%;
+      height: auto;
     }
   }
 }
