@@ -20,16 +20,16 @@
       <%= item.description %>
       <!--<%= item.id %>-->
     </div>
-    <div class="tags">
-      <% item.classification_aliases.each do |classificationAlias| %>
-          <span class="tag"><a href="#"><%= classificationAlias.name %></a></span>
-      <% end %>
-    </div>
     <% if !item.metadata['url'].nil? %>
         <div class="image">
           <img src="<%= item.metadata['url'] %>" alt="<%= item.headline %>" />
         </div>
     <% end %>
+    <div class="tags">
+      <% item.classification_aliases.each do |classificationAlias| %>
+          <span class="tag"><a href="#"><%= classificationAlias.name %></a></span>
+      <% end %>
+    </div>
     <!--<div class="info">-->
     <!--<div class="infoRow">-->
     <!--<span class="icon"><i class="fa fa-align-left" aria-hidden="true"></i></span>-->

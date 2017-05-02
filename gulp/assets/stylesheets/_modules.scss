@@ -8,6 +8,9 @@
 @import "modules/foundation-overrides";
 @import "modules/font-awesome-overrides";
 
+// load quilljs
+@import "modules/quilljs";
+
 // load application modules
 @import "modules/base";
 @import "modules/structure";
