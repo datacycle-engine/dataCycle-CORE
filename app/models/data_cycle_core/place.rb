@@ -11,6 +11,9 @@ module DataCycleCore
 
     # custom setter
     include DataSetter
+    # # Arel Helper
+    # include ArelHelpers::ArelTable
+    # include ArelHelpers::JoinAssociation
 
     # associations
     belongs_to :external_sources

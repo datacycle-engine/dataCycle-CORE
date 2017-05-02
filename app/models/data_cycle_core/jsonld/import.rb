@@ -13,6 +13,9 @@ module DataCycleCore
       end
 
       def init_db
+        save_logger_level = Rails.logger.level
+        Rails.logger.level = 4 unless @verbose
+
         @classifications_trees_label_id = init_or_create_classifications_trees_label('imported')
         @tree_label_id_creative_work =    init_or_create_classifications_trees_label('CreativeWork')
 
@@ -20,6 +23,8 @@ module DataCycleCore
         if @creative_work_classification_alias_id.nil?
           @creative_work_classification_alias_id = insert_classification_alias_and_tree_entry('ImageObject', @tree_label_id_creative_work)
         end
+
+        Rails.logger.level = save_logger_level
       end
 
       def init_or_create_classifications_trees_label(label)
@@ -75,34 +80,42 @@ module DataCycleCore
     private
 
       def import_creative_work
-        DownloadCreativeWork.all.each do |data_set|
-          ActiveRecord::Base.transaction do
-            data_image = non_translated_attributes(data_set.dump)
-            to_update_image = CreativeWork
-              .where(
-                "metadata ->> 'external_key' = ? AND external_source_id = ?",
-                data_set.dump['@id'],
-                @external_source_id
-              )
-              .first_or_initialize
-              .set_data(data_image)
-            to_update_image.content_translations = translated_attributes(data_set.dump, to_update_image.content_translations)
-            to_update_image.save
-
-            # create relation for keywords
-            data_set.dump['keywords'].each do |keyword|
-              classification_alias_id = check_for_tree_entry_with_classification_alias(keyword)
-              if classification_alias_id.nil?
-                classification_alias_id = insert_classification_alias_and_tree_entry(keyword, @tree_label_id_creative_work)
-              end
-              updated_ccw = ClassificationCreativeWork
-                .find_or_create_by(
-                  creative_work_id: to_update_image.id,
-                  classification_alias_id: classification_alias_id,
-                  tag: true
+        i = 0
+        page_size=50
+        total_items=DownloadCreativeWork.count
+        pages = total_items.fdiv(page_size).ceil
+        pages.times do |index|
+          DownloadCreativeWork.all.extras(:limit => page_size, :skip => (index*page_size)).each do |data_set|
+            ActiveRecord::Base.transaction do
+              puts "#{i.to_s.ljust(5)} | #{data_set.dump['@id'].ljust(51)}| #{Time.zone.now}" if (i % 50) == 0
+              i += 1
+              data_image = non_translated_attributes(data_set.dump)
+              to_update_image = CreativeWork
+                .where(
+                  "metadata ->> 'external_key' = ? AND external_source_id = ?",
+                  data_set.dump['@id'],
+                  @external_source_id
                 )
-              updated_ccw.seen_at = Time.zone.now
-              updated_ccw.save
+                .first_or_initialize
+                .set_data(data_image)
+              to_update_image.content_translations = translated_attributes(data_set.dump, to_update_image.content_translations)
+              to_update_image.save
+
+              # create relation for keywords
+              data_set.dump['keywords'].each do |keyword|
+                classification_alias_id = check_for_tree_entry_with_classification_alias(keyword)
+                if classification_alias_id.nil?
+                  classification_alias_id = insert_classification_alias_and_tree_entry(keyword, @tree_label_id_creative_work)
+                end
+                updated_ccw = ClassificationCreativeWork
+                  .find_or_create_by(
+                    creative_work_id: to_update_image.id,
+                    classification_alias_id: classification_alias_id,
+                    tag: true
+                  )
+                updated_ccw.seen_at = Time.zone.now
+                updated_ccw.save
+              end
             end
           end
         end

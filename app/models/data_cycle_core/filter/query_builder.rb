@@ -1,0 +1,150 @@
+module DataCycleCore
+  module Filter
+    class QueryBuilder
+      extend Forwardable
+      include Enumerable
+
+      attr_reader :query
+      def_delegators :@query, :to_a, :to_sql, :each
+      TERMINAL_METHODS = [:count, :pluck,
+        :first, :second, :third, :fourth, :fifth, :forty_two, :last]
+      def_delegators :@query, *TERMINAL_METHODS
+
+      def initialize(uuid, query = nil, translation = false, classification_alias = false)
+        @translation = translation
+        @classification_alias = classification_alias
+        @uuid = uuid
+        @query = query
+      end
+
+    # helper for paging
+      def limit(number)
+        reflect(@query.limit(number))
+      end
+
+      def take(number)
+        reflect(@query.limit(number))
+      end
+
+      def offset(number)
+        reflect(@query.offset(number))
+      end
+
+      def skip(number)
+        reflect(@query.offset(number))
+      end
+
+    # continue queries
+      def where(*params)
+        reflect(@query.where(*params))
+      end
+
+      def order(*params)
+        reflect(@query.order(*params))
+      end
+
+      def group(*params)
+        reflect(@query.group(*params))
+      end
+
+      def having(*params)
+        reflect(@query.having(*params))
+      end
+
+    # different filters
+      def with_classification_alias(name)
+        unless @classification_alias # see if joins are necessary
+          @query = join_classification_alias
+          @classification_alias = true
+        end
+        reflect(
+          @query.where(
+            tsmatch(to_tsvector(classification_alias[:name]), to_tsquery(quoted(name)))
+          )
+        )
+      end
+
+      def with_classification_alias_ids(ids = nil)
+        # ids = ['0543d553-3c2d-4f49-bf19-5d2e59a15d82', '5ae2c5f2-1534-4800-b1fb-216b789cf9cb']
+        unless @classification_alias # see if joins are necessary
+          @query = join_classification_alias
+          @classification_alias = true
+        end
+
+        children = Arel::Table.new(:children)
+        recursive_term = Arel::SelectManager.new
+          .from(classification_tree)
+          .project(Arel.star)
+          .where(classification_tree[:parent_classification_alias_id].in(ids))
+        non_recursive_term = Arel::SelectManager.new
+          .project(classification_tree[Arel.star])
+          .from(classification_tree).join(children)
+          .on(classification_tree[:parent_classification_alias_id].eq(children[:classification_alias_id]))
+        union = recursive_term.union(:all, non_recursive_term)
+        cte_as_statement = Arel::Nodes::As.new(children, union)
+        select_manager = Arel::SelectManager.new(ActiveRecord::Base).freeze
+        manager = select_manager
+          .with(:recursive, cte_as_statement)
+          .from(children)
+          .project(children[:classification_alias_id])
+
+        # get everything including parents (or-clause)
+        reflect(
+          @query.where(
+            classification_alias[:id].in(manager)
+            .or(classification_alias[:id].in(ids))
+          )
+        )
+      end
+
+    private
+    # custom function helper
+      def get_point(longitude,latitude)
+        Arel::Nodes::NamedFunction.new("ST_GeomFromEWKT", ["SRID=4326;POINT (#{longitude} #{latitude})"])
+      end
+
+      def get_box(point1, point2)
+        Arel::Nodes::NamedFunction.new("ST_MakeBox2D", [point1, point2])
+      end
+
+      def st_distance(point1, point2)
+        Arel::Nodes::NamedFunction.new("ST_Distance", [point1, point2])
+      end
+
+      def contains(geo1, geo2)
+        Arel::Nodes::InfixOperation.new("@", geo1, geo2)
+      end
+
+      def to_tsvector(field)
+        Arel::Nodes::NamedFunction.new("to_tsvector", [field]) #[quoted("german"), field])
+      end
+
+      def to_tsquery(string)
+        Arel::Nodes::NamedFunction.new("to_tsquery", [string]) #[quoted("german"), string])
+      end
+
+      def tsmatch(tsvector, tsquery)
+        Arel::Nodes::InfixOperation.new("@@", tsvector, tsquery)
+      end
+
+      def quoted(string)
+        Arel::Nodes.build_quoted(string)
+      end
+
+    # define Arel-tables
+      def classification_alias
+        ClassificationAlias.arel_table
+      end
+
+      def classification_tree
+        ClassificationTree.arel_table
+      end
+
+    # chain method for Builder pattern
+      def reflect(query)
+        self.class.new(@uuid, query, @translation, @classification_alias)
+      end
+
+    end
+  end
+end
