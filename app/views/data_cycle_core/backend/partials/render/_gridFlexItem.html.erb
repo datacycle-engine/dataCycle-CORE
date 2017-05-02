@@ -27,7 +27,7 @@
       </div>
       <% if !item.metadata['url'].nil? %>
           <div class="image">
-            <img src="<%= item.metadata['url'] %>" alt="item.headline" />
+            <img src="<%= item.metadata['url'] %>" alt="<%= item.headline %>" />
           </div>
       <% end %>
       <!--<div class="info">-->
