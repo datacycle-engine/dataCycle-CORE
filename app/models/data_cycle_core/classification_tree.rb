@@ -3,7 +3,8 @@ module DataCycleCore
 
     include DataSetter
 
-    belongs_to :external_sources
+    belongs_to :external_source
+    belongs_to :classification_tree_label
 
     belongs_to :sub_classification_alias, class_name: 'ClassificationAlias', foreign_key: 'classification_alias_id'
     belongs_to :parent_classification_alias, class_name: 'ClassificationAlias', foreign_key: 'parent_classification_alias_id'
