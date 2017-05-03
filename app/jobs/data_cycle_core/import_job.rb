@@ -38,5 +38,9 @@ module DataCycleCore
       config = ExternalSource.where(id: uuid).first.config
       "DataCycleCore::#{config['import']}".constantize.new(uuid).import
     end
+
+    def max_run_time
+      60*60*24*7 # seconds
+    end
   end
 end
