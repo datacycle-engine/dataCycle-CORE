@@ -39,13 +39,11 @@ module DataCycleCore
       unless template_hash.empty?
         if template_hash.has_key?(:data)
           if template_hash[:data].has_key?(:metadata)
-            if template_hash[:data][:metadata].has_key?(:data_cycle)
-              if template_hash[:data][:metadata][:data_cycle].has_key?(:validation)
-                validate_status = JSON::Validator.validate(
-                  template_hash[:data][:metadata][:data_cycle][:validation],
-                  template_hash
-                )
-              end
+            if template_hash[:data][:metadata].has_key?(:validation)
+              validate_status = JSON::Validator.validate(
+                template_hash[:data][:metadata][:validation],
+                template_hash
+              )
             end
           end
         end
