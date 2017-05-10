@@ -4,7 +4,7 @@ module DataCycleCore
 
       def import(filename)
         begin
-          data_templates = YAML.load(File.open(filename))
+          data_templates = YAML.load(File.open(filename.to_s))
           iterate_templates(data_templates)
         rescue Exception => e
           puts "could not access the file: #{filename}"

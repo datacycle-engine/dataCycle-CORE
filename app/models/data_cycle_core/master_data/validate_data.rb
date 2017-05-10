@@ -9,7 +9,7 @@ module DataCycleCore
         return self
       end
 
-      def valid?(data, data_type, strict = false)
+      def valid?(data, data_type, strict = false, verbose = false)
         if data.blank?
           @error[:error].push("No data given.")
           return @error
@@ -26,6 +26,9 @@ module DataCycleCore
           @error[:error].push("Data and template have different types.")
           return @error
         end
+
+        ap data if verbose
+        ap validation_hash if verbose
 
         validation_object = Validators::Object.new(data,validation_hash['properties'])
         @error = validation_object.error

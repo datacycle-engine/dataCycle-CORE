@@ -3,8 +3,8 @@ module DataCycleCore
     module Validators
       class String < BasicValidator
 
-        @@string_keywords = ['minLength', 'maxLength', 'format']
-        @@String_formats = ['date_time']
+        @@string_keywords = ['minLength', 'maxLength', 'format', 'pattern']
+        @@string_formats = ['date_time', 'date', 'uuid']
 
 
         def validate(data, template)
@@ -21,6 +21,8 @@ module DataCycleCore
           return @error
         end
 
+      # given string validations
+
         def minLength(data,value)
           if data.length < value.to_i
             @error[:error].push "#{data} length not long enough, should be #{value.to_i}, but is only #{data.length} long."
@@ -33,8 +35,47 @@ module DataCycleCore
           end
         end
 
-        def date_time(data, template)
-          puts "date_time"
+        def pattern(data, expression)
+          regex = /#{expression[1..expression.length-2]}/
+          matched = data.match(regex)
+          if matched.nil? || matched.offset(0) != [0,data.size]
+            @error[:error].push "Expecting #{data} match format-string: #{expression}"
+          end
+        end
+
+        def format(data, format_string)
+          if @@string_formats.include?(format_string)
+            self.method(format_string).call(data)
+          else
+            @error[:error].push "format-string #{format_string} given for #{data} unknown."
+          end
+        end
+
+      # check string for given format
+
+        def uuid(data)
+          data.downcase!
+          uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
+          check_uuid = data.length == 36 && !(data=~uuid).nil?
+          unless check_uuid
+            @error[:error].push "Expecting uuid for #{data}. format: 12345678-9abc-def0-1234-56789abcdef0"
+          end
+        end
+
+        def date_time(data)
+          begin
+            data.to_datetime
+          rescue
+            @error[:error].push "Failed to convert #{data} to date_time format."
+          end
+        end
+
+        def date(data)
+          begin
+            data.to_date
+          rescue
+            @error[:error].push "Failed to convert #{data} to date format."
+          end
         end
 
       end
