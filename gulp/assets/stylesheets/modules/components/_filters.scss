@@ -2,25 +2,28 @@
 /* Filter */
 
 .filters{
-  border-bottom: 2px solid $dark-gray;
-  padding-bottom: 2rem;
+  background: $white;
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
+  padding-bottom: 1.2rem;
   strong{
     color: map-get($foundation-palette, primary);
   }
   .filter{
-    padding: 2.6rem;
-    font-size: 1.5rem;
+    padding: 1.6rem 2.6rem;
+    font-size: 1.2rem;
     i{
-      font-size: 2rem;
+      font-size: 1.8rem;
       /* line-height: 1; */
       position: relative;
       top: 0.3rem;
+      margin-right: 0.2rem;
     }
   }
   .search{
     .input-group{
-      background-color: $medium-gray;
-      padding: 0.5rem;
+      background-color: lighten($light-gray, 9%); 
+      padding:  0 2.6rem;
+      transition: background ease-in-out 0.2s;
       margin-bottom: 0;
       > * {
         background-color: transparent;
@@ -32,20 +35,26 @@
         border: 0;
       }
       .input-group-field{
-        height: 3.3rem;
-        font-size: 1.6rem;
+        padding: 1.5rem 0.2rem;
+        font-size: 1.2rem;
         box-shadow: none;
+        &::placeholder {
+          font-weight: 200;
+          color: $dark-gray;
+        }
         &:hover,&:focus,&:active{
           box-shadow: none;
         }
       }
       .input-group-button{
-        padding: 0.3rem 0.5rem;
         i{
-          font-size: 2.2rem;
+          font-size: 1.8rem;
           line-height: 1.2;
           font-weight: bold;
         }
+      }
+      &:hover, &:focus, &:active {
+        background-color: $medium-gray; 
       }
     }
   }

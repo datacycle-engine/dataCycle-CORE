@@ -32,3 +32,32 @@ form {
     }
   }
 }
+
+
+
+
+.pagination {
+  a, button {
+    border-radius: 0; 
+    line-height: inherit;
+    line-height: 30px;
+    &:hover {
+      text-decoration: underline;
+      background: none;
+      color: $primary-color;
+    }
+  }
+  .current {
+      border-radius: 30px;
+      width: 30px;
+      height: 30px;
+      background: $light-gray;
+
+      a { 
+        padding: 0; 
+        color: $dark-gray; 
+        cursor: default; 
+        text-decoration: none;
+      }
+  }
+}
