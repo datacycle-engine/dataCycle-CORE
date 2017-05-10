@@ -9,21 +9,13 @@ module DataCycleCore
         return self
       end
 
-      def valid?(data, data_type, strict = false, verbose = false)
+      def validate(data, validation_hash, strict = false, verbose = false)
         if data.blank?
           @error[:error].push("No data given.")
           return @error
         end
-
-        template = DataCycleCore::CreativeWork.where(headline: data_type, template: true).first # ? oder definition ist direkt im Datensatz abgespeichert
-        if template.blank?
-          @error[:error].push("No template found.")
-          return @error
-        end
-
-        validation_hash = template.metadata['validation']
-        unless validation_hash['name'] == data_type
-          @error[:error].push("Data and template have different types.")
+        if validation_hash.blank?
+          @error[:error].push("No validation data given.")
           return @error
         end
 
@@ -32,7 +24,10 @@ module DataCycleCore
 
         validation_object = Validators::Object.new(data,validation_hash['properties'])
         @error = validation_object.error
+      end
 
+      def valid?(data, validation_hash, strict = false, verbose = false)
+        validate(data, validation_hash, strict, verbose)
         if strict
           return (@error[:error].length+@error[:warning].length)==0
         else

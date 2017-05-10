@@ -8,19 +8,27 @@ module DataCycleCore
 
 
         def validate(data, template)
-          @error[:error].push "#{data} is not a String" unless data.is_a?(::String)
-          if template.has_key?("validations")
-            template["validations"].keys.each do |key|
-              if @@string_keywords.include?(key)
-                self.method(key).call(data, template["validations"][key])
-              else
-                @error[:warning].push "#{key} is not a known keyword for a String. Found for #{data} in #{template}" unless key == "type"
+          if data.is_a?(::String)
+            if template.has_key?("validations")
+              template["validations"].keys.each do |key|
+                if @@string_keywords.include?(key)
+                  self.method(key).call(data, template["validations"][key])
+                else
+                  @error[:warning].push "#{key} is not a known keyword for a String. Found for #{data} in #{template}" unless key == "type"
+                end
               end
+            end
+          else
+            if data.blank?
+              @error[:warning].push "No data given for #{template["label"]}."
+            else
+              @error[:error].push "#{template["label"]} is not a String, but #{data.class}."
             end
           end
           return @error
         end
 
+      private
       # given string validations
 
         def minLength(data,value)

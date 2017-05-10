@@ -59,7 +59,7 @@ module DataCycleCore
     config.i18n.enforce_available_locales = false
     config.i18n.default_locale = :de
     # fallbacks for i18n and Globalize
-    config.i18n.fallbacks = true
+    #config.i18n.fallbacks = true
 
 
     # append engine migration path -> no installation of migrations required
@@ -89,7 +89,7 @@ module DataCycleCore
       Dir[File.join(File.dirname(__FILE__),'tasks/*.rake')].each { |f| load f }
     end
 
-    config.to_prepare do      
+    config.to_prepare do
       Dir.glob(Rails.root + "app/decorators/**/*_decorator*.rb").each do |c|
         require_dependency(c)
       end
