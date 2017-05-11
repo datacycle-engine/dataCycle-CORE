@@ -21,6 +21,10 @@ module DataCycleCore
 
     end
 
+    def settings
+
+    end
+
     def vue
 
     end
