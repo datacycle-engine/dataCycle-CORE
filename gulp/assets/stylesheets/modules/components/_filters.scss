@@ -2,6 +2,9 @@
 /* Filter */
 
 .filters{
+  .main-filters{
+    display: none;
+  }
   background: $white;
   box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
   padding-bottom: 1.2rem;
@@ -20,6 +23,7 @@
     }
   }
   .search{
+    margin-top: 1rem;
     .input-group{
       background-color: lighten($light-gray, 9%); 
       padding:  0 2.6rem;
