@@ -5,6 +5,8 @@ DataCycleCore::Engine.routes.draw do
   root to: 'backend#index'
 
   get  '/vuejs',    to: 'backend#vue'
+  get  '/info',    to: 'frontend#info'
+  get  '/settings',    to: 'backend#settings'
 
   #root to: 'dash_board#home'
 
