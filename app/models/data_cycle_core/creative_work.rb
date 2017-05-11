@@ -56,6 +56,10 @@ module DataCycleCore
       super + '-' + Globalize.locale.to_s
     end
 
+    def self.search(search)
+      where("headline LIKE ? OR description LIKE ?", "%#{search}%", "%#{search}%")
+    end
+
     private
 
     def get_relation_ids(storage_location, tree_label)

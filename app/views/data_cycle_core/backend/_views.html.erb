@@ -1,7 +1,9 @@
 <section class="views row expanded">
   <div class="columns small-6">
     <div class="view-heading">
-      <strong>4</strong> Themen entsprechen Ihren Filterkriterien
+      <% if @allDataCycleObjects %>
+          <strong><%= @allDataCycleObjects.count %></strong> Themen entsprechen Ihren Filterkriterien
+      <% end %>
     </div>
   </div>
   <div class="columns small-6 text-right">
