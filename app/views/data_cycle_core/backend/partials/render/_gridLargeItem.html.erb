@@ -1,5 +1,6 @@
 
 <div class="grid-item data-cycle-object">
+  <%= link_to item do %>
   <div class="inner">
     <div class="type">
       <div class="infoRow">
@@ -12,9 +13,7 @@
     </div>
 
     <div class="title">
-      <%= link_to item do %>
-          <%= item.headline %>
-      <% end %>
+      <%= item.headline %>
     </div>
     <div class="description">
       <%= item.description %>
@@ -52,4 +51,5 @@
           <%= item.metadata %>
       </div> -->
   </div>
+  <% end %>
 </div>

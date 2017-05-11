@@ -9,10 +9,10 @@
   }
   .grid-item {
     width: 32%;
-    border: 2px solid $dark-gray;
     padding: 1rem;
-    margin-bottom: 2%;
+    margin-bottom: 1%;
     overflow: hidden;
+    z-index: 1;
 
     /* testing */
     &.layout-1, &.layout-3{
@@ -34,6 +34,17 @@
       height: 500px;
       max-height: 500px;
       overflow: hidden;
+      img {
+        max-height: 350px;
+      }
+    }
+    &:hover, &:focus {
+      z-index: 2;
+      .inner {
+        max-height: none;
+        min-height: 500px;
+        height: auto;
+      }
     }
     /* reset testing */
     &.layout-1, &.layout-3, &.layout-0, &.layout-5, &.layout-2, &.layout-4{
@@ -45,19 +56,33 @@
 
 .grid.small{
   .grid-sizer{
-    width: 23.5%
+    width: 23.3%
   }
   .gutter-sizer{
     width: 2%
   }
   .grid-item{
-    width: 23.5%;
+    width: 23.3%;
     .inner{
-      height: 300px;
-      max-height: 300px;
+      height: 250px;
+      max-height: 250px;
       overflow: hidden;
+      img {
+        max-height: 150px;
+      }
+      > .title {
+        font-size: 0.9rem;
+        font-style: italic;
+      }
     }
-
+    &:hover, &:focus {
+      z-index: 2;
+      .inner {
+        max-height: none;
+        min-height: 250px;
+        height: auto;
+      }
+    }
       /* reset testing */
       &.layout-1, &.layout-3, &.layout-0, &.layout-5, &.layout-2, &.layout-4{
         padding-bottom: 1rem;
@@ -65,3 +90,64 @@
       /* testing */
   }
 }
+
+  @include breakpoint(large) {
+
+
+    .grid{
+      .grid-sizer{
+        width: 23.7%
+      }
+      .gutter-sizer{
+        width: 1.5%
+      }
+      .grid-item {
+        width: 23.7%;
+      }
+    }
+
+    .grid.small{
+      .grid-sizer{
+        width: 15.3%
+      }
+      .gutter-sizer{
+        width: 1.5%
+      }
+      .grid-item{
+        width: 15.3%;
+      }
+    }
+
+
+
+  }
+
+  @include breakpoint(xlarge) {
+
+
+    .grid{
+      .grid-sizer{
+        width: 19.2%
+      }
+      .gutter-sizer{
+        width: 1%
+      }
+      .grid-item {
+        width: 19.2%;
+      }
+    }
+
+   .grid.small{
+      .grid-sizer{
+        width: 10.2%
+      }
+      .gutter-sizer{
+        width: 1%
+      }
+      .grid-item{
+        width: 10.2%;
+      }
+    }
+
+
+  }

@@ -2,56 +2,62 @@
 /* CreativeWorks */
 /* gridItems */
 .data-cycle-object{
+
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  transition: all ease-in-out 0.2s;
+  background: $white;
+
+  &:hover, &:focus {
+    box-shadow: 0 0px 1px rgba(0, 0, 0, 0.3);
+    background: $primary-color;
+    transform: scale(1.02);
+    a, .type, .inner > .title, .infoRow .title { color: white; }
+  }
+
   .inner {
     position: relative;
     overflow: hidden;
     > div{
-      padding-bottom: 1rem;
+      padding-bottom: 0.5rem;
     }
   }
-  a{
-    //da
-    color: $white;
-  }
   i.material-icons{
-    font-size: 1.8rem;
+    font-size: 1.2rem;
     line-height: 2.3rem;
     margin-right: 0.5rem;
   }
   /* Icon Rows */
   .infoRow{
-    margin-bottom: 0.6rem;
+
+    //margin-bottom: 0.6rem;
     > span{
-      display: inline-block;;
+      display: inline-block;
     }
     .icon{
-      width: 3rem;
+      width: 1.5rem;
       display: inline-block;
       position: relative;
-      top:0.3rem;
     }
     .title{
       font-size: 1.2rem;
       display: inline-block;
+      color: green;
+      font-style: normal;
     }
   }
   .type{
     color: green;
     font-size: 1.5rem;
     font-weight: normal;
-    .title{
-      font-size: inherit;
-    }
     i.material-icons{
       margin-right: 0;
     }
   }
-  .title{
-    font-size: 1.8rem;
-    line-height: 1.1;
-    a{
-      color:$black;
-    }
+  .inner > .title{
+    font-size: 1.2rem;
+    line-height: 1.2; 
+    font-weight: 200;
+    color:$black;
   }
   .description{
 
@@ -67,16 +73,14 @@
     }
   }
   .image{
-    position: relative;
-    height: 300px;
-    max-height: 300px;
-    display: block;
-    overflow: hidden;
+    //height: 300px;
+    //max-height: 300px;
+    //overflow: hidden;
     img{
-      width: 100%;
-      height: auto;
+      //width: 100%;
+      //height: auto;
     }
-    margin-bottom: 1rem;
+    //margin-bottom: 1rem;
   }
 }
 

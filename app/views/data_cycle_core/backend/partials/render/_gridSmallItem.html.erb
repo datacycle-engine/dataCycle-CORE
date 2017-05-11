@@ -1,5 +1,6 @@
 
 <div class="grid-item data-cycle-object">
+  <%= link_to item do %>
   <div class="inner">
     <div class="type">
       <div class="infoRow">
@@ -10,16 +11,19 @@
         <span class="title">Bild</span>
       </div>
     </div>
-
+        <% if !item.metadata['url'].nil? %>
+        <div class="image">
+          <img src="<%= item.metadata['url'] %>" alt="<%= item.headline %>" />
+        </div>
+    <% end %>
     <div class="title">
-      <%= link_to item do %>
-          <%= item.headline %>
-      <% end %>
+      <%= item.headline %>
     </div>
     <div class="description">
       <%= item.description %>
       <!--<%= item.id %>-->
     </div>
+
     <div class="tags">
       <% item.classification_aliases.each do |classificationAlias| %>
           <span class="tag"><a href="#"><%= classificationAlias.name %></a></span>
@@ -47,4 +51,5 @@
         <%= item.metadata %>
     </div> -->
   </div>
+  <% end %>
 </div>
