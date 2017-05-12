@@ -80,13 +80,24 @@ module DataCycleCore
         pluck(:classification_alias_id)
     end
 
-    def set_relation_ids(storage_location, ids)
+    def set_relation_ids(storage_location, ids, tree_label)
+      # insert missing ids
       ids.each do |location_id|
         DataCycleCore::ClassificationCreativeWork.
           find_or_create_by(
             creative_work_id: self.id,
             classification_alias_id: location_id
           )
+      end
+      # delete missing ids 
+      found_ids = get_relation_ids(storage_location, tree_label)
+      to_delete = found_ids - ids
+      if to_delete.size > 0
+        ap DataCycleCore::ClassificationCreativeWork.
+          where(
+            creative_work_id: self.id,
+            classification_alias_id: to_delete
+          ).destroy_all
       end
     end
 
@@ -112,7 +123,7 @@ module DataCycleCore
           self.method(properties[key]['storage_location']).call[key] = build_hash
           next
         end
-        storage_cases_set(key, data_hash[key_label], properties[key]) unless data_hash[key_label].blank?
+        storage_cases_set(key, data_hash[key_label], properties[key])
       end
     end
 
@@ -133,29 +144,29 @@ module DataCycleCore
 
     def storage_cases_set(key, value, properties)
       puts " key ----> #{key} | value: #{value} | #{properties}"
-      case properties["storage_location"]
-      when "column"
+      case properties['storage_location']
+      when 'column'
         self.method("#{key}=").call(value)
-      when "content"
+      when 'content'
         if self.content.blank?
           self.content = { key => value }
         else
           self.content[key] = value
         end
-      when "metadata"
+      when 'metadata'
         if self.metadata.blank?
           self.metadata = { key => value }
         else
           self.metadata[key] = value
         end
-      when "properties"
+      when 'properties'
         if self.properties.blank?
           self.properties = { key => value }
         else
           self.properties[key] = value
         end
-      when "classification_creative_works"
-        set_relation_ids(properties["storage_location"], value)
+      when 'classification_creative_works'
+        set_relation_ids(properties['storage_location'], value, properties['type_name'])
       end
     end
 

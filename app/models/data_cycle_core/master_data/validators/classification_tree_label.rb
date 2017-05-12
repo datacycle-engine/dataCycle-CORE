@@ -9,7 +9,7 @@ module DataCycleCore
               find_classification_alias = DataCycleCore::ClassificationTree
                 .joins(:classification_tree_label)
                 .where(classification_alias_id: key)
-                .where("classification_tree_labels.name = ?", template['label'])
+                .where("classification_tree_labels.name = ?", template['type_name'])
               if find_classification_alias.count < 1
                 @error[:error].push "In classification_tree with label: \"#{template['label']}\". No respective ClassificationAlias found for #{key}."
               end
