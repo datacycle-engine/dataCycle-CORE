@@ -63,6 +63,7 @@ module DataCycleCore
             @error[:error].push "Data: #{data} is not an Float."
           end
         end
+
       end
     end
   end
