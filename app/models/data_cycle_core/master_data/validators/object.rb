@@ -7,7 +7,6 @@ module DataCycleCore
             'object' => Validators::Object,
             'string' => Validators::String,
             'number' => Validators::Number,
-            'pattern' => Validators::Pattern,
             'classificationTreeLabel' => Validators::ClassificationTreeLabel
         }
 
