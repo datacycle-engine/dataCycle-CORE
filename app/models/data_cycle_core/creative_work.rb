@@ -37,7 +37,7 @@ module DataCycleCore
       data_hash = collect_template_data(data_type['properties'])
     end
 
-    # set data as specified in the data template    
+    # set data as specified in the data template
     def set_data_type(data_hash)
       template_hash = metadata['validation']
       unless validate?(data_hash)
@@ -83,6 +83,7 @@ module DataCycleCore
 
     def set_relation_ids(storage_location, ids, tree_label)
       # insert missing ids
+      return if ids.nil?
       ids.each do |location_id|
         DataCycleCore::ClassificationCreativeWork.
           find_or_create_by(
@@ -116,7 +117,6 @@ module DataCycleCore
     end
 
     def set_template_data(properties, data_hash)
-      puts "set_template_data"
       properties.each do |key,value|
         key_label = properties[key]['label']
         if properties[key]['type'] == 'object'
@@ -144,7 +144,7 @@ module DataCycleCore
     end
 
     def storage_cases_set(key, value, properties)
-      puts " key ----> #{key} | value: #{value} | #{properties}"
+      #puts " key ----> #{key} | value: #{value} | #{properties}"
       case properties['storage_location']
       when 'column'
         self.method("#{key}=").call(value)
@@ -173,6 +173,7 @@ module DataCycleCore
 
     def walk_data_tree(data_definitions, data)
       data_hash = {}
+      return if data.blank?
       data_definitions.each do |key,value|
         key_label = data_definitions[key]['label']
         unless data_definitions[key]['type'] == 'object'
@@ -186,6 +187,7 @@ module DataCycleCore
 
     def set_data_tree(data_definitions, data)
       data_hash = {}
+      return if data.blank?
       data_definitions.each do |key,value|
         key_label = data_definitions[key]['label']
         unless data_definitions[key]['type'] == 'object'
