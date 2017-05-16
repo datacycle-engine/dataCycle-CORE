@@ -2,6 +2,10 @@
 <div class="grid <%= @mode %>">
   <div class="grid-sizer"></div>
   <div class="gutter-sizer"></div>
+  	<div class="grid-loading">
+  		<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+		<span class="sr-only">Loading...</span>
+	</div>
     <% @dataCycleObjects.each do |dataCycleObject| %>
       <%= render "data_cycle_core/backend/partials/render/grid#{@mode.camelcase}Item", item: dataCycleObject %>
     <% end %>

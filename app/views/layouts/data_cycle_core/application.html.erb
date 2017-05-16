@@ -22,21 +22,25 @@
 
     <div class="off-canvas-content" data-off-canvas-content>
 
-      <%= render 'data_cycle_core/backend/breadcrumb' if user_signed_in? %>
+      <div class="canvas-content-wrapper">
 
-      <%= render 'data_cycle_core/backend/filter' if user_signed_in? %>
+        <%= render 'data_cycle_core/backend/breadcrumb' if user_signed_in? %>
 
-      <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
+        <%= render 'data_cycle_core/backend/filter' if user_signed_in? %>
 
-      <%= display_flash_messages_new %>
+        <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
 
-      <div class="expanded row">
-        <div class="column">
-          <%= yield %>
+        <%= display_flash_messages_new %>
+
+        <div class="expanded row">
+          <div class="column">
+            <%= yield %>
+          </div>
         </div>
-      </div>
 
-      <%= render 'data_cycle_core/shared/footer' %>
+        <%= render 'data_cycle_core/shared/footer' %>
+
+      </div>
 
       <%= render 'data_cycle_core/shared/newObject' if user_signed_in? %>
 
