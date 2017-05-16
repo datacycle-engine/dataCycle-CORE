@@ -17,10 +17,12 @@
       <%= item.description %>
       <!--<%= item.id %>-->
     </div>
-    <% if !item.metadata['url'].nil? %>
-        <div class="image">
-          <img src="<%= item.metadata['url'] %>" alt="<%= item.headline %>" />
-        </div>
+    <% if !item.metadata.nil? %>
+      <% if !item.metadata['url'].nil? %>
+          <div class="image">
+            <img src="<%= item.metadata['url'] %>" alt="<%= item.headline %>" />
+          </div>
+      <% end %>
     <% end %>
     <div class="tags">
       <% item.classification_aliases.each do |classificationAlias| %>
