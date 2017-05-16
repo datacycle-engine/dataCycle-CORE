@@ -35,5 +35,23 @@ module DataCycleCore
       assert_equal(data_set.get_data_type.compact,expected_hash)
     end
 
+    test "save CreativeWork with only Titel" do
+      template = DataCycleCore::CreativeWork.where(template: true).first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      data_set.set_data_type({"Titel" => "Dies ist ein Test!"})
+      data_set.save
+      expected_hash = {
+        "Tags" => [],
+        "Bundesland" => [],
+        "Titel" => "Dies ist ein Test!",
+        "Themenbereiche" => [],
+        "Zielmarkt" => []
+      }
+      assert_equal(data_set.get_data_type.compact,expected_hash)
+    end
+
   end
 end
