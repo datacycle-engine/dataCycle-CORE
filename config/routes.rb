@@ -15,6 +15,7 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin', to: 'dash_board#home'
   get  '/admin/download', to: 'dash_board#download'
   get  '/admin/import', to: 'dash_board#import'
-
+  get  'admin/import_templates', to: 'dash_board#import_templates'
+  get  'admin/import_classifications', to: 'dash_board#import_classifications'
   #mount RailsDb::Engine => '/db', :as => 'db'
 end

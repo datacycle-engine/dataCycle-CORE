@@ -19,6 +19,5 @@ module DataCycleCore
     end
 
 
-
   end
 end

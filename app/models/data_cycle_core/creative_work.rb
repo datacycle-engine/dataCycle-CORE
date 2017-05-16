@@ -37,6 +37,7 @@ module DataCycleCore
       data_hash = collect_template_data(data_type['properties'])
     end
 
+    # set data as specified in the data template    
     def set_data_type(data_hash)
       template_hash = metadata['validation']
       unless validate?(data_hash)
@@ -89,7 +90,7 @@ module DataCycleCore
             classification_alias_id: location_id
           )
       end
-      # delete missing ids 
+      # delete missing ids
       found_ids = get_relation_ids(storage_location, tree_label)
       to_delete = found_ids - ids
       if to_delete.size > 0
