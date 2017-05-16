@@ -6,12 +6,18 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   transition: all ease-in-out 0.2s;
   background: $white;
+  -webkit-filter: blur(0);
 
   &:hover, &:focus {
     box-shadow: 0 0px 1px rgba(0, 0, 0, 0.3);
     background: $primary-color;
-    transform: scale(1.02);
-    a, .type, .inner > .title, .infoRow .title { color: white; }
+    transform: perspective(1px) scale(1.029);
+    z-index: 2;
+    a, .type, .inner > .title, .row { color: white; }
+    .tags .tag {
+      background: rgba($white, 0.3);
+      color: rgba($white, 0.8);
+    }
   }
 
   .inner {
@@ -21,37 +27,11 @@
       padding-bottom: 0.5rem;
     }
   }
-  i.material-icons{
-    font-size: 1.2rem;
-    line-height: 2.3rem;
-    margin-right: 0.5rem;
-  }
-  /* Icon Rows */
-  .infoRow{
 
-    //margin-bottom: 0.6rem;
-    > span{
-      display: inline-block;
-    }
-    .icon{
-      width: 1.5rem;
-      display: inline-block;
-      position: relative;
-    }
-    .title{
-      font-size: 1.2rem;
-      display: inline-block;
-      color: green;
-      font-style: normal;
-    }
-  }
   .type{
     color: green;
-    font-size: 1.5rem;
+    font-size: 1rem;
     font-weight: normal;
-    i.material-icons{
-      margin-right: 0;
-    }
   }
   .inner > .title{
     font-size: 1.2rem;
@@ -59,29 +39,27 @@
     font-weight: 200;
     color:$black;
   }
-  .description{
 
-  }
   .tags{
     .tag{
-      a{
         display: inline-block;
-        background-color: $black;
-        padding: 0.3rem 0.5rem;
+        background-color: rgba($primary-color, 0.5);
+        font-size: 0.8rem;
+        color: $white;
+        padding: 0 0.3rem;
+        margin: 0 0.1rem;
         border-radius: $object-border-radius;
-      }
     }
   }
-  .image{
-    //height: 300px;
-    //max-height: 300px;
-    //overflow: hidden;
-    img{
-      //width: 100%;
-      //height: auto;
+
+  /* Icon Rows */
+  .row{
+    .column {
+      padding: 0;
     }
-    //margin-bottom: 1rem;
+    color: $dark-gray;
   }
+
 }
 
 /* listItems */
@@ -97,3 +75,13 @@
       }
     }
 }
+
+
+
+  @include breakpoint(xxxlarge) {
+
+    .row .large-6 {
+        width: 33%;
+    }
+
+  }

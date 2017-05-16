@@ -37,6 +37,8 @@ form {
 
 
 .pagination {
+  border-radius: 30px;
+  background: lighten($light-gray, 6%);
   a, button {
     border-radius: 0; 
     line-height: inherit;

@@ -1,6 +1,20 @@
 
 /* Masonry */
 .grid{
+
+  .grid-loading {
+    margin: 50px auto;
+    text-align: center;
+    display: none;
+    .fa {
+        font-size: 3rem;
+        color: $light-gray;
+    }
+    &.show {
+      display: block;
+    }
+  }
+
   .grid-sizer{
     width: 32%
   }
@@ -13,7 +27,10 @@
     margin-bottom: 1%;
     overflow: hidden;
     z-index: 1;
-
+    opacity: 0;
+    &.show {
+      opacity: 1;
+    }
     /* testing */
     &.layout-1, &.layout-3{
       padding-bottom: 1rem;
