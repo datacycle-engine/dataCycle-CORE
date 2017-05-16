@@ -1,0 +1,143 @@
+---
+- :data:
+    :name: Content-Einheit
+    :description: CreativeWork
+    :type: object
+    :properties:
+      :title:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :validations:
+          :minLength: 10
+          :maxLength: 50
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_type: text
+        :storage_location: column
+      :topics:
+        :label: Themenbereiche
+        :type: classificationTreeLabel
+        :type_name: Themenbereiche
+        :storage_type: classification_creative_works
+        :storage_location: classification_creative_works
+      :markets:
+        :label: Zielmarkt
+        :type: classificationTreeLabel
+        :type_name: Märkte
+        :storage_type: classification_creative_works
+        :storage_location: classification_creative_works
+      :tags:
+        :label: Tags
+        :type: classificationTreeLabel
+        :type_name: Sonstiges
+        :storage_type: classification_creative_works
+        :storage_location: classification_creative_works
+      :state:
+        :label: Bundesland
+        :type: classificationTreeLabel
+        :type_name: Bundesländer
+        :storage_type: classification_creative_works
+        :storage_location: classification_creative_works
+      :validityPeriod:
+        :label: Gültigkeitszeitraum
+        :type: object
+        :storage_location: metadata
+        :properties:
+          :validFrom:
+            :label: Gültig von
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+          :validUntil:
+            :label: Gültig bis
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+
+# - :data:
+#     :validation:
+#       :title: Recherchequellen
+#       :description: CreativeWork
+#       :type: object
+#       :properties:
+#         :Linktext:
+#           :type: string
+#         :Link:
+#           :type: string
+#           :format: uri
+# - :data:
+#     :validation:
+#       :title: Recherche
+#       :description: CreativeWork
+#       :type: object
+#       :properties:
+#         :Bilder:
+#           :type: array
+#           :items:
+#             :type: Bild
+#         :Video:
+#           :type: array
+#           :items:
+#             :type: Video
+#         :Recherchedaten:
+#           :type: string
+#         :Recherchequellen:
+#           :type: string
+# - :data:
+#     :validation:
+#       :title: Bild
+#       :description: ImageObject
+#       :type: object
+#       :properties:
+#         :fileFormat:
+#           :type: string
+#         :height:
+#           :type: number
+#         :width:
+#           :type: number
+#         :contentSize:
+#           :type: number
+#         :license:
+#           :type: string
+#         :url:
+#           :type: string
+#           :format: uri
+#         :contentLocation:
+#           :type: object
+#           :properties:
+#             :geo:
+#               :type: object
+#               :properties:
+#                 :latitude: number
+#                 :longitude: number
+#             :address:
+#               :type: string
+#         :identifier:
+#           :type: string
+#         :dateModified:
+#           :type: string
+#           :format: date-time
+#         :dateCreated:
+#           :type: string
+#           :format: date-time
