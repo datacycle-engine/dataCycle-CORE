@@ -3,6 +3,23 @@
   <div class="reveal" id="new-object" data-reveal data-append-to="#new-object-circle" data-v-offset="auto">
     <div class="option color-scheme-1"><a href="#">Themenvorschlag einbringen</a></div>
     <div class="option color-scheme-2"><a href="#">Recherche beginnen</a></div>
-    <div class="option color-scheme-3 last"><a href="#">Neues Thema erstellen</a></div>
+    <div class="option color-scheme-3 last"><a href="">Neues Thema erstellen</a></div>
+    <div class="option color-scheme-1 last"><a data-open="newCreativeWork">Neue Content-Einheit erstellen</a></div>
   </div>
+</div>
+
+<div class="reveal" id="newCreativeWork" data-reveal>
+  <h3>Neues Objekt hinzufügen</h3>
+
+  <%= form_for(@creativeWork) do |f| %>
+
+      <%= f.text_field :headline, class: 'form-control' %>
+
+      <%= f.submit "Erstellen", class: "btn btn-primary" %>
+
+  <% end %>
+
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
 </div>

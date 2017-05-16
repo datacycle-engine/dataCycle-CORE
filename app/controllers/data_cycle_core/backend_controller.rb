@@ -19,6 +19,9 @@ module DataCycleCore
         @mode = params[:mode].to_s
       end
 
+      @creativeWork = CreativeWork.new
+
+
     end
 
     def settings

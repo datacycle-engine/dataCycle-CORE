@@ -8,6 +8,7 @@ FE-Editor:
 <h3>Description</h3>
 
 
+<!--<%= debug @creativeWork %>-->
 
 
 <%= form_for(@creativeWork) do |f| %>
@@ -15,5 +16,5 @@ FE-Editor:
     <%= f.label :headline %>
     <%= f.text_field :headline, class: 'form-control' %>
 
-    <%= f.submit "Create my account", class: "btn btn-primary" %>
+    <%= f.submit "Erstellen", class: "btn btn-primary" %>
 <% end %>
