@@ -63,3 +63,78 @@ form {
       }
   }
 }
+
+
+
+
+.detail-header {
+
+  position: relative;
+  background: $light-gray;
+  text-align: center;
+  padding: 4rem;
+  margin-bottom: 1rem;
+
+  > .title {
+    font-size: 2rem;
+    font-weight: 200;
+  }
+
+  .type {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+  }
+
+  .bookmark {
+    position: absolute;
+    right: 1rem;
+    top: -4px;
+    color: $dark-gray;
+    .bookmarkinfo {
+      font-size: 0.8rem;
+      font-style: italic;
+    }
+    &:hover {
+      color: $primary-color;
+    }
+  }
+
+}
+
+
+
+.detail-content {
+  .row {
+    margin-bottom: 1rem;
+  }
+
+  .infolist li { display: inline-block; margin-right: 1rem; }
+  .image { 
+    margin: 2rem 0 0 0; 
+    text-align: center; 
+    background: repeating-linear-gradient( -55deg,  lighten($light-gray, 8%), lighten($light-gray, 8%) 10px, #fff 10px, #fff 20px );
+  }
+}
+
+
+.type{
+  color: green;
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+.tags{
+  .tag{
+      display: inline-block;
+      background-color: rgba($primary-color, 0.5);
+      font-size: 0.8rem;
+      color: $white;
+      padding: 0 0.3rem;
+      margin: 0 0.1rem;
+      border-radius: $object-border-radius;
+  }
+  a.tag:hover {
+      background-color: rgba($primary-color, 0.8);
+  }
+}

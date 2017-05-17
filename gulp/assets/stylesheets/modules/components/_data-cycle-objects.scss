@@ -13,7 +13,7 @@
     background: $primary-color;
     transform: perspective(1px) scale(1.029);
     z-index: 2;
-    a, .type, .inner > .title, .row { color: white; }
+    a, .type, .inner > .title, .row, .description { color: white; }
     .tags .tag {
       background: rgba($white, 0.3);
       color: rgba($white, 0.8);
@@ -28,11 +28,6 @@
     }
   }
 
-  .type{
-    color: green;
-    font-size: 1rem;
-    font-weight: normal;
-  }
   .inner > .title{
     font-size: 1.2rem;
     line-height: 1.2; 
@@ -40,16 +35,8 @@
     color:$black;
   }
 
-  .tags{
-    .tag{
-        display: inline-block;
-        background-color: rgba($primary-color, 0.5);
-        font-size: 0.8rem;
-        color: $white;
-        padding: 0 0.3rem;
-        margin: 0 0.1rem;
-        border-radius: $object-border-radius;
-    }
+  .description{
+    color:$black;
   }
 
   /* Icon Rows */
