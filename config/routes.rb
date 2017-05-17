@@ -10,7 +10,7 @@ DataCycleCore::Engine.routes.draw do
 
   #root to: 'dash_board#home'
 
-  resources :creative_works, only: [:index, :show, :new, :create]
+  resources :creative_works, only: [:index, :show, :new, :create, :edit, :update]
 
   get  '/admin', to: 'dash_board#home'
   get  '/admin/download', to: 'dash_board#download'

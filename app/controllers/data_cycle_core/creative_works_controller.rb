@@ -36,10 +36,24 @@ module DataCycleCore
       end
     end
 
+    def edit
+      @creativeWork = CreativeWork.find(params[:id])
+    end
+
+    def update
+      @creativeWork = CreativeWork.find(params[:id])
+      if @creativeWork.update_attributes(creative_work_params)
+        flash[:success] = "CreativeWork updated"
+        redirect_to @creativeWork
+      else
+        render 'edit'
+      end
+    end
+
     private
 
       def creative_work_params
-        params.require(:creative_work).permit(:headline)
+        params.require(:creative_work).permit(:headline, :description)
       end
 
   end
