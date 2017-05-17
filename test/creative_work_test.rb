@@ -1,15 +1,13 @@
 require 'test_helper'
 
+# load template, classifications for all tests
+template_yaml = Rails.root.join('..','setup_data','templates.yml')
+DataCycleCore::MasterData::ImportTemplates.new.import(template_yaml)
+classification_yaml = Rails.root.join('..','setup_data','classifications.yml')
+DataCycleCore::MasterData::ImportClassifications.new.import(classification_yaml)
+
 module DataCycleCore
   class CreativeWorkTest < ActiveSupport::TestCase
-
-    def setup
-      # load template, classifications
-      template_yaml = Rails.root.join('..','setup_data','templates.yml')
-      DataCycleCore::MasterData::ImportTemplates.new.import(template_yaml)
-      classification_yaml = Rails.root.join('..','setup_data','classifications.yml')
-      DataCycleCore::MasterData::ImportClassifications.new.import(classification_yaml)
-    end
 
     test "CreativeWork exists" do
       data = DataCycleCore::CreativeWork.new
@@ -32,7 +30,7 @@ module DataCycleCore
         "Zielmarkt" => [],
         "Beschreibung" => "wtf is going on???"
       }
-      assert_equal(data_set.get_data_type.compact,expected_hash)
+      assert_equal(expected_hash, data_set.get_data_type.compact)
     end
 
     test "save CreativeWork with only Titel" do
@@ -50,7 +48,7 @@ module DataCycleCore
         "Themenbereiche" => [],
         "Zielmarkt" => []
       }
-      assert_equal(data_set.get_data_type.compact,expected_hash)
+      assert_equal(expected_hash, data_set.get_data_type.compact)
     end
 
   end

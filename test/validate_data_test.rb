@@ -10,7 +10,7 @@ module DataCycleCore
       test "initialize" do
         validate_object = DataCycleCore::MasterData::ValidateData.new
         init_error_hash = { error: [], warning: []}
-        assert_equal(validate_object.error, init_error_hash)
+        assert_equal(init_error_hash, validate_object.error)
       end
 
 

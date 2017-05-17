@@ -15,7 +15,7 @@ module DataCycleCore
             "storage_location" => "content"
           }
           validator = Number.new(10,template_hash)
-          assert_equal(validator.error, error_hash)
+          assert_equal(error_hash, validator.error)
         end
 
         test "error when data with wrong class" do
@@ -26,8 +26,8 @@ module DataCycleCore
             "storage_location" => "content"
           }
           validator = Number.new("10",template_hash)
-          assert_equal(validator.error[:error].size, 1)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "warning when no data given" do
@@ -38,8 +38,8 @@ module DataCycleCore
             "storage_location" => "content"
           }
           validator = Number.new(nil,template_hash)
-          assert_equal(validator.error[:error].size, 0)
-          assert_equal(validator.error[:warning].size, 1)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(1, validator.error[:warning].size)
         end
 
         test "no error with min, max validations correct" do
@@ -55,8 +55,8 @@ module DataCycleCore
             }
           }
           validator = Number.new(50.55,template_hash)
-          assert_equal(validator.error[:error].size, 0)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "error when number too small" do
@@ -70,8 +70,8 @@ module DataCycleCore
             }
           }
           validator = Number.new(1,template_hash)
-          assert_equal(validator.error[:error].size, 1)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "error when number too big" do
@@ -85,8 +85,8 @@ module DataCycleCore
             }
           }
           validator = Number.new(5,template_hash)
-          assert_equal(validator.error[:error].size, 1)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "error when data format not supported" do
@@ -100,8 +100,8 @@ module DataCycleCore
             }
           }
           validator = Number.new(5.333 ,template_hash)
-          assert_equal(validator.error[:error].size, 1)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "error when data not fulfill integer format option" do
@@ -115,8 +115,8 @@ module DataCycleCore
             }
           }
           validator = Number.new(5.333 ,template_hash)
-          assert_equal(validator.error[:error].size, 1)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "error when data not fulfill float format option" do
@@ -130,8 +130,8 @@ module DataCycleCore
             }
           }
           validator = Number.new("5.333E-4" ,template_hash)
-          assert_equal(validator.error[:error].size, 1)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
       end

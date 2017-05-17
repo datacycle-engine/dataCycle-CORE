@@ -27,7 +27,7 @@ module DataCycleCore
               "test_number" => 5
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
-          assert_equal(validator.error, error_hash)
+          assert_equal( error_hash, validator.error)
         end
 
         test "error wrong type in object validator" do
@@ -43,8 +43,8 @@ module DataCycleCore
               "test_string" => "Hello World!"
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
-          assert_equal(validator.error[:error].size, 1)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "no error/ignore additional data given" do
@@ -68,8 +68,8 @@ module DataCycleCore
               "xxx" => "xxx"
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
-          assert_equal(validator.error[:error].size, 0)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "warning data missing" do
@@ -91,8 +91,8 @@ module DataCycleCore
               "test_string" => "Hello World!"
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
-          assert_equal(validator.error[:error].size, 0)
-          assert_equal(validator.error[:warning].size, 1)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(1, validator.error[:warning].size)
         end
 
         test "error object definition missing" do
@@ -114,8 +114,8 @@ module DataCycleCore
               "test_number" => 5
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
-          assert_equal(validator.error[:error].size, 1)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "error collecting" do
@@ -155,8 +155,8 @@ module DataCycleCore
               }
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
-          assert_equal(validator.error[:error].size, 3)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(3, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
           data_hash = {
               "test_string" => 0,
               "test_number" => {
@@ -164,8 +164,8 @@ module DataCycleCore
               }
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
-          assert_equal(validator.error[:error].size, 2)
-          assert_equal(validator.error[:warning].size, 1)
+          assert_equal(2, validator.error[:error].size)
+          assert_equal(1, validator.error[:warning].size)
         end
 
       end

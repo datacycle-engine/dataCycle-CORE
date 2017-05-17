@@ -4,18 +4,34 @@ module DataCycleCore
       class ClassificationTreeLabel < BasicValidator
 
         def validate(data, template)
-          data.each do |key|
-            if uuid?(key)
-              find_classification_alias = DataCycleCore::ClassificationTree
-                .joins(:classification_tree_label)
-                .where(classification_alias_id: key)
-                .where("classification_tree_labels.name = ?", template['type_name'])
-              if find_classification_alias.count < 1
-                @error[:error].push "In classification_tree with label: \"#{template['label']}\". No respective ClassificationAlias found for #{key}."
+          if data.blank?
+            @error[:warning].push "No data given for #{template['label']}."
+          elsif data.is_a?(::Array)
+            data.each do |key|
+              if key.is_a?(::String)
+                check_reference(key,template)
+              else
+                @error[:error].push "Elements of the data-array given for #{template['label']} have the wrong format (#{key})."
               end
             end
+          elsif data.is_a?(::String)
+            check_reference(data,template)
+          else
+            @error[:error].push "Wrong data type given for #{template['label']} (#{data}). Expected an UUID or an array of UUID's."
           end
           return @error
+        end
+
+        def check_reference(key, template)
+          if uuid?(key)
+            find_classification_alias = DataCycleCore::ClassificationTree
+              .joins(:classification_tree_label)
+              .where(classification_alias_id: key)
+              .where("classification_tree_labels.name = ?", template['type_name'])
+            if find_classification_alias.count < 1
+              @error[:error].push "In classification_tree with label: \"#{template['label']}\" and tree-label \"#{template['type_name']}\". No respective ClassificationAlias found for #{key}."
+            end
+          end
         end
 
         def uuid?(data)

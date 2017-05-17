@@ -15,7 +15,7 @@ module DataCycleCore
             "storage_location" => "content"
           }
           validator = DataCycleCore::MasterData::Validators::String.new("test-string",template_hash)
-          assert_equal(validator.error, error_hash)
+          assert_equal(error_hash, validator.error)
         end
 
         test "error when data with wrong class" do
@@ -26,8 +26,8 @@ module DataCycleCore
             "storage_location" => "content"
           }
           validator = DataCycleCore::MasterData::Validators::String.new(10,template_hash)
-          assert_equal(validator.error[:error].size, 1)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "warning when no data given" do
@@ -38,8 +38,8 @@ module DataCycleCore
             "storage_location" => "content"
           }
           validator = DataCycleCore::MasterData::Validators::String.new(nil,template_hash)
-          assert_equal(validator.error[:error].size, 0)
-          assert_equal(validator.error[:warning].size, 1)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(1, validator.error[:warning].size)
         end
 
         test "no error with all validations correct" do
@@ -56,8 +56,8 @@ module DataCycleCore
             }
           }
           validator = DataCycleCore::MasterData::Validators::String.new("0001824b-3e51-499c-a088-02db5b5e5cf7",template_hash)
-          assert_equal(validator.error[:error].size, 0)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "error when string not long enough" do
@@ -71,8 +71,8 @@ module DataCycleCore
             }
           }
           validator = DataCycleCore::MasterData::Validators::String.new("x",template_hash)
-          assert_equal(validator.error[:error].size, 1)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "error when string too long" do
@@ -86,8 +86,8 @@ module DataCycleCore
             }
           }
           validator = DataCycleCore::MasterData::Validators::String.new("xxxxx",template_hash)
-          assert_equal(validator.error[:error].size, 1)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "error when string does not fit to pattern" do
@@ -101,11 +101,11 @@ module DataCycleCore
             }
           }
           validator = DataCycleCore::MasterData::Validators::String.new("g111-1111",template_hash)
-          assert_equal(validator.error[:error].size, 1)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
           validator = DataCycleCore::MasterData::Validators::String.new("f111-111",template_hash)
-          assert_equal(validator.error[:error].size, 1)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "pass when string does fit to pattern" do
@@ -119,8 +119,8 @@ module DataCycleCore
             }
           }
           validator = DataCycleCore::MasterData::Validators::String.new("abcd-ef01",template_hash)
-          assert_equal(validator.error[:error].size, 0)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "error when data format not supported" do
@@ -134,8 +134,8 @@ module DataCycleCore
             }
           }
           validator = DataCycleCore::MasterData::Validators::String.new("Hello World!" ,template_hash)
-          assert_equal(validator.error[:error].size, 1)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "error when data not fulfill date_time format option" do
@@ -149,8 +149,8 @@ module DataCycleCore
             }
           }
           validator = DataCycleCore::MasterData::Validators::String.new("2017-20-20" ,template_hash)
-          assert_equal(validator.error[:error].size, 1)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "pass for Time.now and Time.zone.now for format date_time" do
@@ -164,12 +164,12 @@ module DataCycleCore
             }
           }
           validator = DataCycleCore::MasterData::Validators::String.new(Time.now.to_s ,template_hash)
-          assert_equal(validator.error[:error].size, 0)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
 
           validator = DataCycleCore::MasterData::Validators::String.new(Time.zone.now.to_s ,template_hash)
-          assert_equal(validator.error[:error].size, 0)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "pass for time-string for format date_time" do
@@ -183,8 +183,8 @@ module DataCycleCore
             }
           }
           validator = DataCycleCore::MasterData::Validators::String.new("2017-04-04 15:16:38 +0200" ,template_hash)
-          assert_equal(validator.error[:error].size, 0)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "error when data not fulfill date format option" do
@@ -198,8 +198,8 @@ module DataCycleCore
             }
           }
           validator = DataCycleCore::MasterData::Validators::String.new("2017-13-13" ,template_hash)
-          assert_equal(validator.error[:error].size, 1)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "error when data does not fulfill uuid format option" do
@@ -213,8 +213,8 @@ module DataCycleCore
             }
           }
           validator = DataCycleCore::MasterData::Validators::String.new("2017-13-13" ,template_hash)
-          assert_equal(validator.error[:error].size, 1)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
         test "pass when data does fulfill uuid format option" do
@@ -228,8 +228,8 @@ module DataCycleCore
             }
           }
           validator = DataCycleCore::MasterData::Validators::String.new("0001824b-3e51-499c-a088-02db5b5e5cf7" ,template_hash)
-          assert_equal(validator.error[:error].size, 0)
-          assert_equal(validator.error[:warning].size, 0)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
         end
 
       end
