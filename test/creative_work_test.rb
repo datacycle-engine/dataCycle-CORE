@@ -51,5 +51,32 @@ module DataCycleCore
       assert_equal(expected_hash, data_set.get_data_type.compact)
     end
 
+    test "save CreativeWork link to user_id" do
+      template = DataCycleCore::CreativeWork.where(template: true).first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      DataCycleCore::User.create!(
+        name: "Test",
+        email: "test@pixelpoint.at",
+        admin: false,
+        password:"password"
+      )
+      uuid = DataCycleCore::User.first.id
+      data_set.set_data_type({"Titel" => "Dies ist ein Test!", "Ersteller" => uuid})
+      data_set.save
+      expected_hash = {
+        "Tags" => [],
+        "Bundesland" => [],
+        "Titel" => "Dies ist ein Test!",
+        "Themenbereiche" => [],
+        "Zielmarkt" => [],
+        "Ersteller" => uuid
+      }
+      #ap data_set.get_data_type.compact
+      assert_equal(expected_hash, data_set.get_data_type.compact)
+    end
+
   end
 end
