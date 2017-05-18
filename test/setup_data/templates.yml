@@ -60,7 +60,7 @@
             :storage_location: metadata
             :validations:
               :format: date_time
-      :creator:   # person table not implemented yet
+      :creator:
         :label: Ersteller
         :type: embeddedLink
         :type_name: users
@@ -82,32 +82,27 @@
           :format: date_time
 
 - :data:
-    :validation:
-      :name: Recherche
-      :description: CreativeWork
-      :type: object
-      :properties:
-        :image:
-          :label: Bilder
-          :type: creativeWorkRef
-          :type_name: Bild
-          :storage_type: array
-          :storage_location: metadata
-          :validations:
-            :format: uuid
-        :video:
-          :label: Videos
-          :type: creativeWorkRef
-          :type_name: Video
-          :storage_type: array
-          :storage_location: metadata
-          :validations:
-            :format: uuid
-        :text:
-          :label: Text
-          :type: string
-          :storage_type: string
-          :storage_location: metadata
+    :name: Recherche
+    :description: CreativeWork
+    :type: object
+    :properties:
+      :image:
+        :label: Bilder
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+      :video:
+        :label: Videos
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+      :text:
+        :label: Text
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
 #
 # - :data:
 #     :validation:
