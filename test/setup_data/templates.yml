@@ -99,45 +99,47 @@
         :storage_type: array
         :storage_location: metadata
       :text:
-        :label: Text
+        :label: Recherchedaten
         :type: string
         :storage_type: string
-        :storage_location: metadata
-#
+        :storage_location: content
+
 # - :data:
-#     :validation:
-#       :title: Bild
-#       :description: ImageObject
-#       :type: object
-#       :properties:
-#         :fileFormat:
-#           :type: string
-#         :height:
-#           :type: number
-#         :width:
-#           :type: number
-#         :contentSize:
-#           :type: number
-#         :license:
-#           :type: string
-#         :url:
-#           :type: string
-#           :format: uri
-#         :contentLocation:
-#           :type: object
-#           :properties:
-#             :geo:
-#               :type: object
-#               :properties:
-#                 :latitude: number
-#                 :longitude: number
-#             :address:
-#               :type: string
-#         :identifier:
-#           :type: string
-#         :dateModified:
-#           :type: string
-#           :format: date-time
-#         :dateCreated:
-#           :type: string
-#           :format: date-time
+#     :name: Bild
+#     :description: ImageObject
+#     :type: object
+#     :properties:
+#       :name:
+#         :label: Titel
+#         :type: string
+#         :storage_type: string
+#         :storage_location: content
+#       :height:
+#         :type: number
+#       :width:
+#         :type: number
+#       :contentSize:
+#         :type: number
+#       :license:
+#         :type: string
+#       :url:
+#         :type: string
+#         :format: uri
+#       :contentLocation:
+#         :type: object
+#         :properties:
+#           :geo:
+#             :type: object
+#             :properties:
+#               :latitude: number
+#               :longitude: number
+#           :address:
+#             :type: string
+#       :identifier:
+#         :type: string
+#       :dateModified:
+#         :type: string
+#         :format: date-time
+#       :dateCreated:
+#         :type: string
+#         :format: date-time

@@ -79,9 +79,7 @@ module DataCycleCore
 
     test "save Recherche and read back" do
       template = DataCycleCore::CreativeWork.where(template: true, headline: "Recherche", description: "CreativeWork").first
-      ap template
       validation = template.metadata['validation']
-      ap validation
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
@@ -89,10 +87,10 @@ module DataCycleCore
       uuid = DataCycleCore::CreativeWork.where(headline: "Test").first.id
       DataCycleCore::CreativeWork.create!(headline: "Test2")
       uuid2 = DataCycleCore::CreativeWork.where(headline: "Test2").first.id
-      data_set.set_data_type({"Text" => "Dies ist ein Test!", "Bilder" => [uuid,uuid2]})
+      data_set.set_data_type({"Recherchedaten" => "Dies ist ein Test!", "Bilder" => [uuid,uuid2]})
       data_set.save
       expected_hash = {
-        "Text" => "Dies ist ein Test!",
+        "Recherchedaten" => "Dies ist ein Test!",
         "Bilder" => [uuid,uuid2]
       }
       assert_equal(expected_hash, data_set.get_data_type.compact)
