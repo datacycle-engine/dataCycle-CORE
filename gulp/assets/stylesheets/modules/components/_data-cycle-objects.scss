@@ -9,14 +9,14 @@
   -webkit-filter: blur(0);
 
   &:hover, &:focus {
-    box-shadow: 0 0px 1px rgba(0, 0, 0, 0.3);
-    background: $primary-color;
+    box-shadow: 0px 1px 25px rgba(0, 0, 0, 0.3);
+    //background: $primary-color;
     transform: perspective(1px) scale(1.029);
     z-index: 2;
-    a, .type, .inner > .title, .row { color: white; }
+    //a, .type, .inner > .title, .row, .description { color: white; }
     .tags .tag {
-      background: rgba($white, 0.3);
-      color: rgba($white, 0.8);
+      //background: rgba($white, 0.3);
+     // color: rgba($white, 0.8);
     }
   }
 
@@ -43,16 +43,8 @@
     color:$black;
   }
 
-  .tags{
-    .tag{
-        display: inline-block;
-        background-color: rgba($primary-color, 0.5);
-        font-size: 0.8rem;
-        color: $white;
-        padding: 0 0.3rem;
-        margin: 0 0.1rem;
-        border-radius: $object-border-radius;
-    }
+  .description{
+    color:$black;
   }
 
   /* Icon Rows */

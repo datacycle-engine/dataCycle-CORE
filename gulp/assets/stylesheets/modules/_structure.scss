@@ -92,7 +92,16 @@ header{
   	height: 5rem;
     text-align: center;
     z-index: 1006;
-    filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.6));
+    outline: none;
+    box-shadow: 1px 3px 5px 0px rgba(0, 1, 1, 0.38);
+    transition: all ease-in-out 0.1s;
+    &:hover {
+      background-color: lighten($primary-color, 10%);
+    }
+    &:active {
+      top: 2px;
+      box-shadow: 0 0 1px 0px rgba(0, 1, 1, 0.18);
+    }
     i{
       color: $white;
       position: relative;
@@ -104,47 +113,55 @@ header{
 }
 #new-object.reveal{
   position: absolute;
-  bottom: 8rem;
+  overflow: initial;
+  bottom: 9rem;
   right: 1rem;
   top: auto !important;
-  padding: 0 0 1.5rem 0;
+  padding: 0;
   border: 0;
-  background-color: transparent;
+  background-color: white;
   max-width: 28rem;
+  box-shadow: 1px 4px 2px 0px rgba(0, 1, 1, 0.20);
   &:focus, &:active{
     border: 0;
     outline: 0;
   }
-  div.option{
-    margin-bottom:0.5rem;
-    border: 3px solid $white;
-    box-shadow: 2px 4px 35px -15px rgba(0, 0, 0, 0.75);
-    &.last{
-      margin-bottom: 0;
-    }
-    &.color-scheme-1{
-      background-color: #63C0B6;
-    }
-    &.color-scheme-2{
-      background-color: #91C062;
-    }
-    &.color-scheme-3{
-      background-color: #C0A262;
-    }
-    a{
-      display: block;
-      padding: 0.5rem 1rem;
-      color:$black;
+  a.option{
+    border-bottom: 1px solid $light-gray;
+    padding: 0.5rem;
+    display: block;
+    padding: 1rem;
+    color: $black;
+    font-size: 1.5rem;
+    font-weight: 200;
+    transition: all ease-in-out 0.1s;
+    .fa {
       font-size: 1.5rem;
+      width: 2rem;
+      margin-right: 1rem;
+      text-align: center;
     }
+    &.last{
+       border-bottom: 0;
+       &:after{
+          transition: all ease-in-out 0.1s;
+        @include css-triangle(1.5rem, $white, 'down');
+        position: absolute;
+        bottom: -1.5rem;
+        right: 1rem;
+        filter: drop-shadow(1px 4px 2px rgba(0, 1, 1, 0.20));
+      }
+      &:hover:after {
+        @include css-triangle(1.5rem, $primary-color, 'down');
+      }
+    }
+    &:hover {
+      background: $primary-color;
+      color: white;
+    }
+
   }
-  &:after{
-    @include css-triangle(1.5rem, $white, 'down');
-    position: absolute;
-    bottom: 0;
-    right: 1rem;
-    filter: drop-shadow(0px 2px 1px rgba(0, 0, 0, 0.1));
-  }
+
 }
 
 /* Home */
