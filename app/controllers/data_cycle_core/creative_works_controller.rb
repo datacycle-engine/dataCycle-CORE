@@ -50,6 +50,15 @@ module DataCycleCore
       end
     end
 
+    #dev views for michi
+    def demotopic
+
+    end
+
+    def demoarticle
+
+    end
+
     private
 
       def creative_work_params
