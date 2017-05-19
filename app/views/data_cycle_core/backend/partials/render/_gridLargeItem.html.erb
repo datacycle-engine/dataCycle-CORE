@@ -33,7 +33,9 @@
       <%= item.headline %>
     </div>
     <div class="description">
-      <%= item.description %>
+      <% if !item.description.nil? %>
+        <%= item.description.html_safe %>
+      <% end %>
       <!--<%= item.id %>-->
     </div>
     <% if !item.metadata.nil? %>

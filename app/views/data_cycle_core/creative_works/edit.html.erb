@@ -1,9 +1,11 @@
 
 <% content_for :top_content do %>
    <div class="top-content text-center">
-     <h2><%= @creativeWork.headline%></h2>
+     <h2><%= @creativeWork.headline.html_safe %></h2>
      <div class="description">
-       <%= @creativeWork.description %>
+       <% if !@creativeWork[:description].nil? %>
+        <%= @creativeWork.description.html_safe %>
+       <% end %>
      </div>
      <div class="tags">
        <% @creativeWork.classification_aliases.each do |classificationAlias| %>
@@ -18,11 +20,21 @@
 
     <%= f.text_field :headline, class: 'form-control' %>
 
-    <%= f.text_area :description, class: 'form-control' %>
 
-    <!--<div class="quill-editor" data-hidden-field-id="creative_work_description">-->
+    <div class="editor-block">
+      <%= f.hidden_field :description %>
+      <%= f.fields_for :description do |form|%>
 
-    <!--</div>-->
+          <div class="quill-editor" data-hidden-field-id="<%= "#{form.object_name}".gsub(/(\])?\[/, "_").chop %>">
+            <% if !@creativeWork[:description].nil? %>
+              <%= @creativeWork[:description].html_safe %>
+            <% end %>
+
+          </div>
+
+      <% end %>
+
+    </div>
 
     <%= f.submit "Update", class: "button primary" %>
 <% end %>
