@@ -113,15 +113,28 @@ form {
   .image { 
     margin: 2rem 0 0 0; 
     text-align: center; 
+    position: relative;
+    border-top: 5px solid #fff;
     background: repeating-linear-gradient( -55deg,  lighten($light-gray, 8%), lighten($light-gray, 8%) 10px, #fff 10px, #fff 20px );
+    &:before {
+      content: " ";
+      position: absolute;
+      z-index: -1;
+      left: 0;
+      top: -6px;
+      border: 1px solid $light-gray;
+      width: 100%;
+    }
   }
 }
 
 
 .type{
-  color: green;
   font-size: 1rem;
   font-weight: normal;
+  &.bilder {
+      color: #efa367;
+  }
 }
 
 .tags{
@@ -136,5 +149,17 @@ form {
   }
   a.tag:hover {
       background-color: rgba($primary-color, 0.8);
+  }
+}
+
+.reveal-overlay {
+  background: none;
+}
+.reveal-blur {
+    
+  &.show {
+    transition: all ease-out 0.1s;
+    filter: blur(3px);
+    opacity: 0.3;
   }
 }
