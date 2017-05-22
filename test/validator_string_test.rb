@@ -232,6 +232,132 @@ module DataCycleCore
           assert_equal(0, validator.error[:warning].size)
         end
 
+        test "fail when data does not fulfill url format option" do
+          template_hash = {
+            "label" => "Test",
+            "type" => "string",
+            "storage_type" => "string",
+            "storage_location" => "content",
+            "validations" => {
+              "format" => "url"
+            }
+          }
+          validator = DataCycleCore::MasterData::Validators::String.new("!test" ,template_hash)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+          validator = DataCycleCore::MasterData::Validators::String.new("test/franz" ,template_hash)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+          validator = DataCycleCore::MasterData::Validators::String.new("html://test/franz" ,template_hash)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+          validator = DataCycleCore::MasterData::Validators::String.new("httpx://test/franz" ,template_hash)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+          validator = DataCycleCore::MasterData::Validators::String.new("http://test.com/franz:aöslkfj" ,template_hash)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+          validator = DataCycleCore::MasterData::Validators::String.new(8 ,template_hash)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+          validator = DataCycleCore::MasterData::Validators::String.new(:test ,template_hash)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+        end
+
+        test "pass when data does fulfill url format option" do
+          template_hash = {
+            "label" => "Test",
+            "type" => "string",
+            "storage_type" => "string",
+            "storage_location" => "content",
+            "validations" => {
+              "format" => "url"
+            }
+          }
+          validator = DataCycleCore::MasterData::Validators::String.new("http://www.example.com" ,template_hash)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+          validator = DataCycleCore::MasterData::Validators::String.new("https://www.example.com" ,template_hash)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+          validator = DataCycleCore::MasterData::Validators::String.new("http://www.example.com/xxx/yyy" ,template_hash)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+          validator = DataCycleCore::MasterData::Validators::String.new("http://www.example.com/xxx?test=hallo" ,template_hash)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+          validator = DataCycleCore::MasterData::Validators::String.new("http://test.com/franz:3000" ,template_hash)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+        end
+
+        test "passed edge cases for url format option" do
+          template_hash = {
+            "label" => "Test",
+            "type" => "string",
+            "storage_type" => "string",
+            "storage_location" => "content",
+            "validations" => {
+              "format" => "url"
+            }
+          }
+          validator = DataCycleCore::MasterData::Validators::String.new("https://www.....example.com" ,template_hash)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+          validator = DataCycleCore::MasterData::Validators::String.new("http://test.com/franz:99999999999999999" ,template_hash)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+        end
+
+        test "fail when data does not fulfill boolean format option" do
+          template_hash = {
+            "label" => "Test",
+            "type" => "string",
+            "storage_type" => "string",
+            "storage_location" => "content",
+            "validations" => {
+              "format" => "boolean"
+            }
+          }
+          validator = DataCycleCore::MasterData::Validators::String.new("!test" ,template_hash)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+          validator = DataCycleCore::MasterData::Validators::String.new("test/franz" ,template_hash)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+          validator = DataCycleCore::MasterData::Validators::String.new("true     s" ,template_hash)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+          validator = DataCycleCore::MasterData::Validators::String.new("true_" ,template_hash)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+          validator = DataCycleCore::MasterData::Validators::String.new(5 ,template_hash)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+        end
+
+        test "pass when data does fulfill boolean format option" do
+          template_hash = {
+            "label" => "Test",
+            "type" => "string",
+            "storage_type" => "string",
+            "storage_location" => "content",
+            "validations" => {
+              "format" => "boolean"
+            }
+          }
+          validator = DataCycleCore::MasterData::Validators::String.new("true" ,template_hash)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+          validator = DataCycleCore::MasterData::Validators::String.new("false" ,template_hash)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+          validator = DataCycleCore::MasterData::Validators::String.new(" false  " ,template_hash)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+        end
+
       end
 
     end

@@ -21,7 +21,7 @@ module DataCycleCore
 
     # get data as specified in the data template
     # data hash with keys named as in schema.org
-    def get_data_type_schema
+    def get_data_hash
       data_type = metadata['validation']
       data_hash = {}
       data_type['properties'].each do |key,value|

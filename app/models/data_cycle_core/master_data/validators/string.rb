@@ -4,7 +4,7 @@ module DataCycleCore
       class String < BasicValidator
 
         @@string_keywords = ['minLength', 'maxLength', 'format', 'pattern']
-        @@string_formats = ['date_time', 'date', 'uuid']
+        @@string_formats = ['date_time', 'date', 'uuid', 'boolean', 'url']
 
 
         def validate(data, template)
@@ -83,6 +83,23 @@ module DataCycleCore
             data.to_date
           rescue
             @error[:error].push "Failed to convert #{data} to date format."
+          end
+        end
+
+        def boolean(data)
+          unless data.squish == "true" || data.squish == "false"
+            @error[:error].push "Failed to convert #{data} to boolean format. (only 'true' or 'false' allowed)"
+          end
+        end
+
+        def url(data)
+          begin
+            uri = URI.parse data
+            unless uri.kind_of? URI::HTTP
+              @error[:error].push "Failed to convert #{data} to url."
+            end
+          rescue URI::InvalidURIError
+            @error[:error].push "Failed to convert #{data} to url."
           end
         end
 
