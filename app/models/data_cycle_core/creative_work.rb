@@ -30,6 +30,25 @@ module DataCycleCore
       data_hash
     end
 
+    def set_data_hash(data_hash)
+      template_hash = metadata['validation']
+      unless validate?(data_hash)
+        return validate(data_hash)
+      end
+      ActiveRecord::Base.transaction do
+        set_template_data_hash(template_hash['properties'], data_hash)
+      end
+    end
+
+    def validate(data = collect_data)
+      template_hash = metadata["validation"]
+      DataCycleCore::MasterData::ValidateData.new.validate(data, template_hash)
+    end
+
+    def validate?(data = collect_data, strict = false)
+      template_hash = metadata['validation']
+      DataCycleCore::MasterData::ValidateData.new.valid?(data, template_hash, strict)
+    end
     # get data as specified in the data template
     # data hash with key names as specified in the template
     def get_data_type
@@ -40,8 +59,8 @@ module DataCycleCore
     # set data as specified in the data template
     def set_data_type(data_hash)
       template_hash = metadata['validation']
-      unless validate?(data_hash)
-        return validate(data_hash)
+      unless validate_hash?(data_hash)
+        return validate_hash(data_hash)
       end
       ActiveRecord::Base.transaction do
         set_template_data(template_hash['properties'], data_hash)
@@ -50,16 +69,16 @@ module DataCycleCore
 
     # validates given data-hash (key names as specified in the template)
     # and returns true/false
-    def validate?(data = collect_data, strict = false)
+    def validate_hash?(data = collect_data, strict = false)
       template_hash = metadata['validation']
-      DataCycleCore::MasterData::ValidateData.new.valid?(data, template_hash, strict)
+      DataCycleCore::MasterData::ValidateData.new.valid_hash?(data, template_hash, strict)
     end
 
     # validates given data_hash (key names as specified in the template)
     # returns error-hash including all errors/warnings
-    def validate(data = collect_data)
+    def validate_hash(data = collect_data)
       template_hash = metadata["validation"]
-      DataCycleCore::MasterData::ValidateData.new.validate(data, template_hash)
+      DataCycleCore::MasterData::ValidateData.new.validate_hash(data, template_hash)
     end
 
     # to cash also translated values (comming from gem Globalize)
@@ -114,6 +133,12 @@ module DataCycleCore
         data_hash[key_label] = storage_cases_get(key, properties[key])
       end
       data_hash
+    end
+
+    def set_template_data_hash(properties, data_hash)
+      properties.each do |key,value|
+        storage_cases_set(key, data_hash[key], properties[key])
+      end
     end
 
     def set_template_data(properties, data_hash)
@@ -194,6 +219,19 @@ module DataCycleCore
           data_hash[key] = data[key_label]
         else
           data_hash[key] = set_data_tree(data_definitions[key]['properties'],data[key_label])
+        end
+      end
+      data_hash
+    end
+
+    def set_data_tree_hash(data_definitions, data)
+      data_hash = {}
+      return if data.blank?
+      data_definitions.each do |key,value|
+        unless data_definitions[key]['type'] == 'object'
+          data_hash[key] = data[key]
+        else
+          data_hash[key] = set_data_tree(data_definitions[key]['properties'],data[key])
         end
       end
       data_hash
