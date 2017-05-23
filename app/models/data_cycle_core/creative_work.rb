@@ -32,6 +32,8 @@ module DataCycleCore
       data_hash
     end
 
+    # set data as specified in the data template
+    # data hash with keys named as in schema.org
     def set_data_hash(data_hash)
       template_hash = metadata['validation']
       unless validate?(data_hash)
@@ -42,15 +44,18 @@ module DataCycleCore
       end
     end
 
-    def validate(data = collect_data)
+    def validate(data)
       template_hash = metadata["validation"]
-      DataCycleCore::MasterData::ValidateData.new.validate(data, template_hash)
+      validator = DataCycleCore::MasterData::ValidateData.new
+      validator.validate(data, template_hash)
     end
 
-    def validate?(data = collect_data, strict = false)
+    def validate?(data, strict = false)
       template_hash = metadata['validation']
-      DataCycleCore::MasterData::ValidateData.new.valid?(data, template_hash, strict)
+      validator = DataCycleCore::MasterData::ValidateData.new
+      validator.valid?(data, template_hash, strict)
     end
+
     # get data as specified in the data template
     # data hash with key names as specified in the template
     def get_data_type
@@ -73,14 +78,16 @@ module DataCycleCore
     # and returns true/false
     def validate_hash?(data = collect_data, strict = false)
       template_hash = metadata['validation']
-      DataCycleCore::MasterData::ValidateData.new.valid_hash?(data, template_hash, strict)
+      validator = DataCycleCore::MasterData::ValidateData.new
+      validator.valid_hash?(data, template_hash, strict)
     end
 
     # validates given data_hash (key names as specified in the template)
     # returns error-hash including all errors/warnings
     def validate_hash(data = collect_data)
       template_hash = metadata["validation"]
-      DataCycleCore::MasterData::ValidateData.new.validate_hash(data, template_hash)
+      validator = DataCycleCore::MasterData::ValidateData.new
+      validator.validate_hash(data, template_hash)
     end
 
     # to cash also translated values (comming from gem Globalize)
