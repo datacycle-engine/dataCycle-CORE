@@ -71,7 +71,17 @@ module DataCycleCore
         }
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact)
-      ap data_set.get_data_hash.compact
+    end
+
+    test "save CreativeWork with sub-properties and invalid data" do
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Content-Einheit", description: "CreativeWork").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      error = data_set.set_data_hash({"title" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validTo" => "2017-16-01"}})
+      assert_equal(1, error[:error].count)
+      assert_equal(8, error[:warning].count)
     end
 
     test "save CreativeWork link to user_id" do
