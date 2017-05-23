@@ -4,30 +4,31 @@ module DataCycleCore
     #load_and_authorize_resource         # from cancancan (authorize)
 
     def index
-      @creativeWork = CreativeWork.new
-      @creativeWorks = CreativeWork.order(updated_at: :desc).page(params[:page])
+      @creativeWork = DataCycleCore::CreativeWork.new
+      @creativeWorks = DataCycleCore::CreativeWork.order(updated_at: :desc).page(params[:page])
     end
 
     def show
-      @creativeWork = CreativeWork.find_by(id: params[:id])
+      @creativeWork = DataCycleCore::CreativeWork.find_by(id: params[:id])
       if @creativeWork.nil?
         redirect_to root
       end
     end
 
     def new
-      @creativeWork = CreativeWork.new
+      @creativeWork = DataCycleCore::CreativeWork.new
       render layout: "data_cycle_core/creative_works_new"
     end
 
     def create
-      @creativeWork = CreativeWork.new(creative_work_params)    # Not the final implementation!
+      @creativeWork = DataCycleCore::CreativeWork.new(creative_work_params)    # Not the final implementation!
 
       #Testing
       template = DataCycleCore::CreativeWork.where(template: true).first
       validation = template.metadata['validation']
       @creativeWork.metadata = { 'validation' => validation }
-
+      @creativeWork.set_data_type({"Titel" => creative_work_params[:headline]})
+      #validate ?
       if @creativeWork.save
         flash[:success] = "Successfully added new creativeWork!"
         redirect_to @creativeWork
@@ -37,12 +38,24 @@ module DataCycleCore
     end
 
     def edit
-      @creativeWork = CreativeWork.find(params[:id])
+      @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
+      @data = @creativeWork.get_data_type
+      @dataSchema = @creativeWork.get_data_hash
+
+      #testing classifications
+
+
     end
 
     def update
-      @creativeWork = CreativeWork.find(params[:id])
-      if @creativeWork.update_attributes(creative_work_params)
+      @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
+      @creativeWork.update_attributes(creative_work_params)
+      # @creativeWork.set_data_type({"Titel" => creative_work_params[:headline], "Beschreibung" => creative_work_params[:description]})
+
+      @creativeWork.set_data_hash(creative_work_params[:datahash])
+      test = creative_work_params
+
+      if @creativeWork.save
         flash[:success] = "CreativeWork updated"
         redirect_to @creativeWork
       else
@@ -62,7 +75,8 @@ module DataCycleCore
     private
 
       def creative_work_params
-        params.require(:creative_work).permit(:headline, :description)
+        params.require(:creative_work).permit(:headline, :datahash => [:title,:description])
+        # params.require(:creative_work).permit!
       end
 
   end

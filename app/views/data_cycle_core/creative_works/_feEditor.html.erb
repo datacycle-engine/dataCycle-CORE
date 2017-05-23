@@ -1,0 +1,14 @@
+<div class="editor-block">
+
+    <%= hidden_field_tag key,value,options %>
+
+    <div class="quill-editor" data-hidden-field-id="<%= sanitize_to_id(key) %>">
+
+        <% if !value.nil? %>
+            <%= value.html_safe %>
+        <% end %>
+
+    </div>
+
+
+</div>

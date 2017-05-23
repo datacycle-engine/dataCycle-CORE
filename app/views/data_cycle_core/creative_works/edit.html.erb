@@ -3,60 +3,102 @@
 
     <div class="detail-header">
 
-      <div class="type thema">
+        <div class="type thema">
           <span class="icon">
-            <i class="fa fa-folder-open-o" aria-hidden="true"></i>
+              <i class="fa fa-folder-open-o" aria-hidden="true"></i>
           </span>
-        <span class="title">Thema</span>
-      </div>
+            <span class="title">Thema</span>
+        </div>
 
-      <a class="bookmark" href="#">
-        <span class="bookmarkinfo">zur Recherche hinzufügen</span>
-        <i class="fa fa-bookmark-o" aria-hidden="true"></i>
-      </a>
+        <a class="bookmark" href="#">
+            <span class="bookmarkinfo">zur Recherche hinzufügen</span>
+            <i class="fa fa-bookmark-o" aria-hidden="true"></i>
+        </a>
 
-      <div class="title">
-        <%= @creativeWork.headline %>
-      </div>
-      <div class="description">
-        <% if !@creativeWork[:description].nil? %>
-            <%= @creativeWork.description.html_safe %>
-        <% end %>
-      </div>
+        <div class="title">
+            <%= @creativeWork.headline %>
+        </div>
+        <div class="description">
+            <% if !@creativeWork[:description].nil? %>
+                <%= @creativeWork.description.html_safe %>
+            <% end %>
+        </div>
 
-      <div class="tags">
-        <% @creativeWork.classification_aliases.each do |classificationAlias| %>
-            <span class="tag"><a href="#"><%= classificationAlias.name %></a></span>
-        <% end %>
-      </div>
+        <div class="tags">
+            <% @creativeWork.classification_aliases.each do |classificationAlias| %>
+                <span class="tag"><a href="#"><%= classificationAlias.name %></a></span>
+            <% end %>
+        </div>
 
-      <div class="edit">
-        <%= link_to 'Bearbeiten >', edit_creative_work_path(@creativeWork), class:'button primary' %>
-      </div>
+        <div class="edit">
+            <%= link_to 'Bearbeiten >', edit_creative_work_path(@creativeWork), class:'button primary' %>
+        </div>
 
     </div>
 
 <% end %>
 
+<!--
 <%= form_for(@creativeWork) do |f| %>
 
     <%= f.text_field :headline, class: 'form-control' %>
 
-
     <div class="editor-block">
-      <%= f.hidden_field :description %>
-      <%= f.fields_for :description do |form|%>
+        <%= f.hidden_field :description %>
+        <%= f.fields_for :description do |form| %>
 
-          <div class="quill-editor" data-hidden-field-id="<%= "#{form.object_name}".gsub(/(\])?\[/, "_").chop %>">
-            <% if !@creativeWork[:description].nil? %>
-              <%= @creativeWork[:description].html_safe %>
-            <% end %>
+            <div class="quill-editor" data-hidden-field-id="<%= "#{form.object_name}".gsub(/(\])?\[/, "_").chop %>">
 
-          </div>
+                <% if !@creativeWork[:description].nil? %>
+                    <%= @creativeWork[:description].html_safe %>
+                <% end %>
 
-      <% end %>
+            </div>
+
+        <% end %>
 
     </div>
 
     <%= f.submit "Update", class: "button primary" %>
+
 <% end %>
+-->
+
+
+<%= form_for @creativeWork, builder: DataCycleCore::CreativeWorksHelper::DataCycleFormBuilder do |f| %>
+
+    <%= f.text_field :headline, class: 'form-control' %>
+
+    <% if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? %>
+        <% validation = @creativeWork.metadata['validation'] %>
+        <!--<h2><%= "#{validation['name']} - #{validation['description']} - #{validation['type']}" %></h2>-->
+
+        <% if !validation['properties'].nil? %>
+            <% properties = validation['properties'] %>
+
+            <% properties.each do |key, prop| %>
+
+                <%= "key: #{key}" %> <br />
+                <%= "label: #{prop['label']}" %> <br />
+
+                <% if @dataSchema.key?(key) %>
+                    <%= "value: #{@dataSchema[key]}" %> <br />
+                <% end %>
+
+                <%= data_cycle_field key, prop, @dataSchema[key], class: 'form-control' %>
+
+                <hr />
+
+            <% end %>
+
+        <% end %>
+    <% end %>
+
+
+    <%= f.submit "Update", class: "button primary" %>
+
+<% end %>
+
+<%= debug(@dataSchema) %>
+<%= debug(@data) %>
+<%= debug(@creativeWork) %>

@@ -19,6 +19,8 @@ module DataCycleCore
     # custom setter
     include DataSetter
 
+    attr_accessor :datahash
+
     # get data as specified in the data template
     # data hash with keys named as in schema.org
     def get_data_hash
