@@ -43,23 +43,27 @@ module DataCycleCore
       @dataSchema = @creativeWork.get_data_hash
 
       #testing classifications
-
-
     end
 
     def update
-
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       datahash = creative_work_params[:datahash]
+
+      # add creator id
+      datahash[:creator] = current_user[:id]
+      valid = @creativeWork.validate(datahash)
+
+      if valid.key?(:error) && !valid[:error].empty?
+        flash[:error] = valid[:error]
+        redirect_to edit_creative_work_path(@creativeWork)
+        return
+      end
+
+      @creativeWork.set_data_hash(datahash)
 
       # needed because headline != title
       update_params = {:headline => datahash[:title]}
       @creativeWork.update_attributes(update_params)
-
-      # add creator id
-      datahash[:creator] = current_user[:id]
-
-      @creativeWork.set_data_hash(datahash)
 
       if @creativeWork.save
         flash[:success] = "CreativeWork updated"
@@ -81,7 +85,7 @@ module DataCycleCore
     private
 
       def creative_work_params
-        params.require(:creative_work).permit(:datahash => [:title,:description])
+        params.require(:creative_work).permit(:datahash => [:title,:description,:validityPeriod => [:validFrom, :validUntil] ])
         # params.require(:creative_work).permit!
       end
 

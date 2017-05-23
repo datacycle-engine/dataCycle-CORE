@@ -41,34 +41,40 @@
 <%= form_for @creativeWork, builder: DataCycleCore::CreativeWorksHelper::DataCycleFormBuilder do |f| %>
 
     <% if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? %>
+
         <% validation = @creativeWork.metadata['validation'] %>
         <!--<h2><%= "#{validation['name']} - #{validation['description']} - #{validation['type']}" %></h2>-->
 
         <% if !validation['properties'].nil? %>
-            <% properties = validation['properties'] %>
 
-            <% properties.each do |key, prop| %>
+            <% validation['properties'].each do |key, prop| %>
 
-                <!--
-                <%= "key: #{key}" %> <br />
-                <%= "label: #{prop['label']}" %> <br />
-
-                <% if @dataSchema.key?(key) %>
-                    <%= "value: #{@dataSchema[key]}" %> <br />
+                <% if prop['type'] == 'object' && !prop['properties'].nil? %>
+                    <div class="data-object">
+                        <div class="object-title"><strong><%= prop['label'] %></strong></div>
+                        <div class="object-inner row expanded">
+                            <% prop['properties'].each do |object_key, object_property| %>
+                                <div class="columns medium-12 large-6">
+                                    <%= data_cycle_field object_key, object_property, @dataSchema[key][object_key], {class: 'form-control'}, [key] %>
+                                </div>
+                            <% end %>
+                        </div>
+                    </div>
+                <% else %>
+                    <%= data_cycle_field key, prop, @dataSchema[key], class: 'form-control' %>
                 <% end %>
-                -->
-                <%= data_cycle_field key, prop, @dataSchema[key], class: 'form-control' %>
 
             <% end %>
 
         <% end %>
+
+            <%= f.submit "Update", class: "button primary" %>
     <% end %>
-
-
-    <%= f.submit "Update", class: "button primary" %>
 
 <% end %>
 
+<!--
 <%= debug(@dataSchema) %>
 <%= debug(@data) %>
 <%= debug(@creativeWork) %>
+-->
