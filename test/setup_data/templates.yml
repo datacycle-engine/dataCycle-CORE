@@ -180,6 +180,7 @@
 #     :type: object
 #     :properties:
 
+
 - :data:
     :name: Bild
     :description: ImageObject
@@ -200,7 +201,7 @@
         :type: string
         :storage_type: string
         :storage_location: content
-      :author:
+      :creator:
         :label: Fotograf
         :type: string
         :storage_type: string
@@ -259,21 +260,21 @@
         :type: object
         :storage_location: metadata
         :properties:
-          :validFrom:
+          :datePublished:
             :label: Gültig von
             :type: string
             :storage_type: string
             :storage_location: metadata
             :validations:
               :format: date_time
-          :validTo:
+          :expires:
             :label: Gültig bis
             :type: string
             :storage_type: string
             :storage_location: metadata
             :validations:
               :format: date_time
-      :creator:
+      :accountablePerson:
         :label: Ersteller
         :type: embeddedLink
         :type_name: users
@@ -293,7 +294,7 @@
         :storage_location: metadata
         :validations:
           :format: date_time
-      :receivedFrom:
+      :source:
         :label: Erhalten von
         :type: string
         :storage_type: string
@@ -314,3 +315,24 @@
         :type_name: Rechte
         :storage_type: classification_creative_works
         :storage_location: classification_creative_works
+      :contentUrl:
+        :label: Bild URL
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
+      :thumbnailUrl:
+        :label: Thumbnail URL
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
+      :url:
+        :label: URL
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
