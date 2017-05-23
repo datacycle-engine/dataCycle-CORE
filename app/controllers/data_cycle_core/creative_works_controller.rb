@@ -48,12 +48,18 @@ module DataCycleCore
     end
 
     def update
-      @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
-      @creativeWork.update_attributes(creative_work_params)
-      # @creativeWork.set_data_type({"Titel" => creative_work_params[:headline], "Beschreibung" => creative_work_params[:description]})
 
-      @creativeWork.set_data_hash(creative_work_params[:datahash])
-      test = creative_work_params
+      @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
+      datahash = creative_work_params[:datahash]
+
+      # needed because headline != title
+      update_params = {:headline => datahash[:title]}
+      @creativeWork.update_attributes(update_params)
+
+      # add creator id
+      datahash[:creator] = current_user[:id]
+
+      @creativeWork.set_data_hash(datahash)
 
       if @creativeWork.save
         flash[:success] = "CreativeWork updated"
@@ -75,7 +81,7 @@ module DataCycleCore
     private
 
       def creative_work_params
-        params.require(:creative_work).permit(:headline, :datahash => [:title,:description])
+        params.require(:creative_work).permit(:datahash => [:title,:description])
         # params.require(:creative_work).permit!
       end
 

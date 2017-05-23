@@ -38,36 +38,7 @@
 
 <% end %>
 
-<!--
-<%= form_for(@creativeWork) do |f| %>
-
-    <%= f.text_field :headline, class: 'form-control' %>
-
-    <div class="editor-block">
-        <%= f.hidden_field :description %>
-        <%= f.fields_for :description do |form| %>
-
-            <div class="quill-editor" data-hidden-field-id="<%= "#{form.object_name}".gsub(/(\])?\[/, "_").chop %>">
-
-                <% if !@creativeWork[:description].nil? %>
-                    <%= @creativeWork[:description].html_safe %>
-                <% end %>
-
-            </div>
-
-        <% end %>
-
-    </div>
-
-    <%= f.submit "Update", class: "button primary" %>
-
-<% end %>
--->
-
-
 <%= form_for @creativeWork, builder: DataCycleCore::CreativeWorksHelper::DataCycleFormBuilder do |f| %>
-
-    <%= f.text_field :headline, class: 'form-control' %>
 
     <% if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? %>
         <% validation = @creativeWork.metadata['validation'] %>
@@ -78,16 +49,15 @@
 
             <% properties.each do |key, prop| %>
 
+                <!--
                 <%= "key: #{key}" %> <br />
                 <%= "label: #{prop['label']}" %> <br />
 
                 <% if @dataSchema.key?(key) %>
                     <%= "value: #{@dataSchema[key]}" %> <br />
                 <% end %>
-
+                -->
                 <%= data_cycle_field key, prop, @dataSchema[key], class: 'form-control' %>
-
-                <hr />
 
             <% end %>
 

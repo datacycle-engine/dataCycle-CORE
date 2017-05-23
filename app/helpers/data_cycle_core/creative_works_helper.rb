@@ -10,6 +10,11 @@ module DataCycleCore
     end
 
     def data_cycle_field(key, prop, value = nil, options = {})
+      unless prop['editor']
+        # return "No properties for editor set"
+        return
+      end
+
       object_key = get_object_key(key)
       data_type = prop['type']
 
@@ -21,11 +26,12 @@ module DataCycleCore
     end
 
     def render_string_field(key, prop, value=nil, options={})
-      if !prop['storage_type'].nil?
-        case prop['storage_type']
-          when 'string'
+
+      if !prop['editor']['type'].nil?
+        case prop['editor']['type']
+          when 'input'
             text_field_tag(key, value, options)
-          when 'text'
+          when 'rte'
             render_fe_editor(key, value, options)
         end
       else
