@@ -27,7 +27,7 @@ module DataCycleCore
       template = DataCycleCore::CreativeWork.where(template: true).first
       validation = template.metadata['validation']
       @creativeWork.metadata = { 'validation' => validation }
-      @creativeWork.set_data_type({"Titel" => creative_work_params[:headline]})
+      @creativeWork.set_data_hash({:title => creative_work_params[:headline]})
       #validate ?
       if @creativeWork.save
         flash[:success] = "Successfully added new creativeWork!"
@@ -35,6 +35,7 @@ module DataCycleCore
       else
         render 'new'
       end
+
     end
 
     def edit
@@ -85,7 +86,7 @@ module DataCycleCore
     private
 
       def creative_work_params
-        params.require(:creative_work).permit(:datahash => [:title,:description,:validityPeriod => [:validFrom, :validUntil] ])
+        params.require(:creative_work).permit(:headline, :datahash => [:title,:description,:validityPeriod => [:validFrom, :validUntil] ])
         # params.require(:creative_work).permit!
       end
 
