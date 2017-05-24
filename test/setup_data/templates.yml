@@ -1,0 +1,338 @@
+---
+- :data:
+    :name: Content-Einheit
+    :description: CreativeWork
+    :type: object
+    :properties:
+      :title:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :validations:
+          :minLength: 10
+          :maxLength: 50
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_type: text
+        :storage_location: column
+      :topics:
+        :label: Themenbereiche
+        :type: classificationTreeLabel
+        :type_name: Themenbereiche
+        :storage_type: classification_creative_works
+        :storage_location: classification_creative_works
+      :markets:
+        :label: Zielmarkt
+        :type: classificationTreeLabel
+        :type_name: Märkte
+        :storage_type: classification_creative_works
+        :storage_location: classification_creative_works
+      :tags:
+        :label: Tags
+        :type: classificationTreeLabel
+        :type_name: Sonstiges
+        :storage_type: classification_creative_works
+        :storage_location: classification_creative_works
+      :state:
+        :label: Bundesland
+        :type: classificationTreeLabel
+        :type_name: Bundesländer
+        :storage_type: classification_creative_works
+        :storage_location: classification_creative_works
+      :validityPeriod:
+        :label: Gültigkeitszeitraum
+        :type: object
+        :storage_location: metadata
+        :properties:
+          :validFrom:
+            :label: Gültig von
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+          :validTo:
+            :label: Gültig bis
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+
+- :data:
+    :name: Recherche
+    :description: CreativeWork
+    :type: object
+    :properties:
+      :image:
+        :label: Bilder
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+      :video:
+        :label: Videos
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+      :text:
+        :label: Recherchedaten
+        :type: string
+        :storage_type: string
+        :storage_location: content
+
+# - :data:
+#     :name: Standard-Artikel
+#     :description: CreativeWork
+#     :type: object
+#     :properties:
+#       :name:
+#         :label: Titel
+#         :type: string
+#         :storage_type: string
+#         :storage_location: content
+#       :alternativeHeadline:
+#         :label: Subüberschrift
+#         :type: string
+#         :storage_type: string
+#         :storage_location: content
+#       :description:
+#         :label: Teasertext
+#         :type: string
+#         :storage_type: string
+#         :storage_location: content
+#       :name:
+#         :label: Linktext
+#         :type: string
+#         :storage_type: string
+#         :storage_location: content
+#       :image:
+#         :label: Bilder
+#         :type: embeddedLinkArray
+#         :type_name: creative_works
+#         :storage_type: array
+#         :storage_location: metadata
+#       :video:
+#         :label: Videos
+#         :type: embeddedLinkArray
+#         :type_name: creative_works
+#         :storage_type: array
+#         :storage_location: metadata
+#       :text:
+#         :label: Fließtext
+#         :type: string
+#         :storage_type: string
+#         :storage_location: content
+#       :hasPart:
+#         :label: Zitat
+#         :type: embeddedLinkArray
+#         :type_name: creative_works
+#         :storage_type: array
+#         :storage_location: metadata
+#       :metaTitle:
+#         :label: Meta-Titel
+#         :type: string
+#         :storage_type: string
+#         :storage_location: content
+#       :metaDescription:
+#         :label: Meta-Description
+#         :type: string
+#         :storage_type: string
+#         :storage_location: content
+#       :keywords:
+#         :label: SEO Keywords
+#         :type: string
+#         :storage_type: string
+#         :storage_location: metadata
+#       :sameAs:
+#         :label: Canonical Tag
+#         :type: string
+#         :storage_type: string
+#         :storage_location: content
+#         :validations:
+#           :format: url
+# - :data:
+#     :name: Zitat
+#     :description: CreativeWork
+#     :type: object
+#     :properties:
+
+
+- :data:
+    :name: Bild
+    :description: ImageObject
+    :type: object
+    :properties:
+      :name:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+      :caption:
+        :label: Alt-Label
+        :type: string
+        :storage_type: string
+        :storage_location: content
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_type: string
+        :storage_location: content
+      :creator:
+        :label: Fotograf
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+      :license:
+        :label: Copyright / Lizenz
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+      :mandatoryLicense:
+        :label: Copyright Nennung verpflichtend
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: boolean
+      :contentLocation:
+        :label: Ort
+        :type: embeddedLink
+        :type_name: places
+        :storage_type: string
+        :storage_location: metadata
+      :width:
+        :label: Breite
+        :type: number
+        :storage_type: number
+        :storage_location: metadata
+        :validations:
+          :format: integer
+      :height:
+        :label: Höhe
+        :type: number
+        :storage_type: number
+        :storage_location: metadata
+        :validations:
+          :format: integer
+      :contentSize:
+        :label: Dateigröße
+        :type: number
+        :storage_type: number
+        :storage_location: metadata
+        :validations:
+          :format: integer
+      :fileFormat:
+        :label: Dateiformat
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+      :comment:
+        :label: Kommentar
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+      :validityPeriod:
+        :label: Gültigkeitszeitraum
+        :type: object
+        :storage_location: metadata
+        :properties:
+          :datePublished:
+            :label: Gültig von
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+          :expires:
+            :label: Gültig bis
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+      :accountablePerson:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :source:
+        :label: Erhalten von
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+      :imageId:
+        :label: Bildnummer
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+      :visibility:
+        :label: Sichtbarkeit
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+      :access:
+        :label: Rechte/Einsatzgebiet
+        :type: classificationTreeLabel
+        :type_name: Rechte
+        :storage_type: classification_creative_works
+        :storage_location: classification_creative_works
+      :contentUrl:
+        :label: Bild URL
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
+      :thumbnailUrl:
+        :label: Thumbnail URL
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
+      :url:
+        :label: URL
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: url

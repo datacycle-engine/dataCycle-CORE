@@ -27,16 +27,16 @@
 </div>
 <div class="search row expanded">
   <div class="column">
-      <div class="search">
-        <form action="">
+    <div class="search">
+      <%= form_tag(root_path, :method => "get", id: "search-form") do %>
           <div class="input-group">
             <div class="input-group-button">
               <button type="submit" class="search_icon "><i class="fa fa-search" aria-hidden="true"></i></button>
             </div>
-            <input class="input-group-field" type="text" placeholder="Suchbegriff">
+            <%= text_field_tag :search, params[:search], placeholder: "Suchbegriff",class:"input-group-field" %>
           </div>
-        </form>
-      </div>
+      <% end %>
+    </div>
   </div>
 </div>
 </section>

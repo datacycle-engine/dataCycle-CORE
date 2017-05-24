@@ -24,6 +24,19 @@ module DataCycleCore
       redirect_to admin_path
     end
 
+    def import_templates
+      path = Rails.root.join('config','templates.yml')
+      puts path
+      MasterData::ImportTemplates.new.import(path.to_s)
+      redirect_to admin_path
+    end
+
+    def import_classifications
+      path = Rails.root.join('config','classifications.yml')
+      MasterData::ImportClassifications.new.import(path.to_s)
+      redirect_to admin_path
+    end
+
     def logs
       @dataname = params[:dataname]
     end

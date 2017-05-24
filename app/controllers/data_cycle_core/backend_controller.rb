@@ -4,13 +4,27 @@ module DataCycleCore
     #load_and_authorize_resource         # from cancancan (authorize)
 
     def index
-      @dataCycleObjects = CreativeWork.order(created_at: :desc).page(params[:page])
+
+      if params[:search]
+        @allDataCycleObjects = CreativeWork.search(params[:search]).order(created_at: :desc)
+      else
+        @allDataCycleObjects = CreativeWork.order(created_at: :desc)
+      end
+
+      @dataCycleObjects = @allDataCycleObjects.page(params[:page])
 
       if params[:mode].nil?
         @mode = "flex"
       else
         @mode = params[:mode].to_s
       end
+
+      @creativeWork = CreativeWork.new
+
+
+    end
+
+    def settings
 
     end
 

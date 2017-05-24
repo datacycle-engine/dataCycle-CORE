@@ -1,5 +1,5 @@
 Delayed::Worker.destroy_failed_jobs = false
-Delayed::Worker.max_run_time = 60.minutes
+Delayed::Worker.max_run_time = 7.days
 Delayed::Worker.max_attempts = 1
 Delayed::Worker.sleep_delay = 60
 # to execute all jobs immediately without queue: false

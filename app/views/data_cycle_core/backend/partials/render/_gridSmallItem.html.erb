@@ -2,25 +2,49 @@
 <div class="grid-item data-cycle-object">
   <%= link_to item do %>
   <div class="inner">
-    <div class="type bilder">
-      <div class="infoRow">
-        <span class="icon">
-          <i class="fa fa-picture-o" aria-hidden="true"></i>
-          <!--<i class="fa fa-calendar" aria-hidden="true"></i>-->
-        </span>
-        <span class="title">Bild</span>
-      </div>
-    </div>
-        <% if !item.metadata['url'].nil? %>
+
+    <% if !item.metadata.nil? && !item.metadata['validation'].nil? %>
+
+        <div class="type thema">
+          <div class="infoRow">
+            <span class="icon">
+              <i class="fa fa-folder-open-o" aria-hidden="true"></i>
+              <!--<i class="fa fa-calendar" aria-hidden="true"></i>-->
+            </span>
+            <span class="title">Thema</span>
+          </div>
+        </div>
+
+    <% else %>
+
+        <div class="type bilder">
+          <div class="infoRow">
+            <span class="icon">
+              <i class="fa fa-picture-o" aria-hidden="true"></i>
+              <!--<i class="fa fa-calendar" aria-hidden="true"></i>-->
+            </span>
+            <span class="title">Bild</span>
+          </div>
+        </div>
+
+    <% end %>
+
+
+    <% if !item.metadata.nil? %>
+      <% if !item.metadata['url'].nil? %>
         <div class="image">
           <img src="<%= item.metadata['url'] %>" alt="<%= item.headline %>" />
         </div>
+      <% end %>
     <% end %>
+
     <div class="title">
       <%= item.headline %>
     </div>
     <div class="description">
-      <%= item.description %>
+      <% if !item.description.nil? %>
+        <%= item.description.html_safe %>
+      <% end %>
       <!--<%= item.id %>-->
     </div>
 
@@ -29,24 +53,24 @@
           <span class="tag"><%= classificationAlias.name %></span>
       <% end %>
     </div>
-      <div class="info row">
-        <div class="column small-12 large-6">
-                <span class="icon"><i class="fa fa-align-left" aria-hidden="true"></i></span>
-                <span class="title" alt="Texte"><strong>8</strong> </span>
-        </div>
-        <div class="column small-4 large-6">
-                <span class="icon"><i class="fa fa-picture-o" aria-hidden="true"></i></span>
-                <span class="title"" title="Bilder"><strong>63</strong></span>
-         </div>
-        <div class="column small-4 large-6 end">
-                <span class="icon"><i class="fa fa-play" aria-hidden="true"></i></span>
-                <span class="title"" title="Video"><strong>1</strong></span>
-        </div>
-        <div class="column small-12">
-                <span class="icon"><i class="fa fa-comment" aria-hidden="true"></i></span>
-                <span class="title">de, en, ru, it, pl, si <strong>+5</strong></span>
-        </div>
-      </div>
+    <!--<div class="info row">-->
+      <!--<div class="column small-12 large-6">-->
+              <!--<span class="icon"><i class="fa fa-align-left" aria-hidden="true"></i></span>-->
+              <!--<span class="title" alt="Texte"><strong>8</strong> </span>-->
+      <!--</div>-->
+      <!--<div class="column small-4 large-6">-->
+              <!--<span class="icon"><i class="fa fa-picture-o" aria-hidden="true"></i></span>-->
+              <!--<span class="title" title="Bilder"><strong>63</strong></span>-->
+       <!--</div>-->
+      <!--<div class="column small-4 large-6 end">-->
+              <!--<span class="icon"><i class="fa fa-play" aria-hidden="true"></i></span>-->
+              <!--<span class="title" title="Video"><strong>1</strong></span>-->
+      <!--</div>-->
+      <!--<div class="column small-12">-->
+              <!--<span class="icon"><i class="fa fa-comment" aria-hidden="true"></i></span>-->
+              <!--<span class="title">de, en, ru, it, pl, si <strong>+5</strong></span>-->
+      <!--</div>-->
+    <!--</div>-->
          
         <!--<div><%= item.metadata %></div> -->
   </div>

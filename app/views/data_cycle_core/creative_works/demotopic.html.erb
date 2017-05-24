@@ -1,0 +1,41 @@
+
+<% content_for :top_content do %>
+
+    <div class="detail-header">
+
+      <div class="type thema">
+          <span class="icon">
+            <i class="fa fa-folder-open-o" aria-hidden="true"></i>
+          </span>
+      <span class="title">Thema</span>
+      </div>
+
+      <a class="bookmark" href="#">
+        <span class="bookmarkinfo">zur Recherche hinzufügen</span>
+        <i class="fa fa-bookmark-o" aria-hidden="true"></i>
+      </a>
+
+      <div class="title">
+        Pistenspaß im Winter
+      </div>
+      <div class="description">
+        Egal, ob Pistenspaß im Winter oder Wandertour im Sommer: Finkenberg im Zillertal hat für jedermann etwas zu bieten!
+      </div>
+
+      <div class="tags">
+        <span class="tag"><a href="#">Advent</a></span>
+        <span class="tag"><a href="#">Wien</a></span>
+        <span class="tag"><a href="#">Aktivität</a></span>
+      </div>
+
+      <div class="edit">
+        <a href="#" class="button primary">Bearbeiten</a>
+      </div>
+
+    </div>
+
+    <%= render 'data_cycle_core/creative_works/filter' if user_signed_in? %>
+
+    <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
+
+<% end %>

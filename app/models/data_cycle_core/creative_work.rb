@@ -19,110 +19,229 @@ module DataCycleCore
     # custom setter
     include DataSetter
 
+    # get data as specified in the data template
+    # data hash with keys named as in schema.org
+    def get_data_hash
+      data_type = metadata['validation']
+      data_hash = {}
+      data_type['properties'].each do |key,value|
+        data_hash[key] = storage_cases_get(key,data_type['properties'][key])
+      end
+      data_hash
+    end
+
+    # set data as specified in the data template
+    # data hash with keys named as in schema.org
+    def set_data_hash(data_hash)
+      template_hash = metadata['validation']
+      unless validate?(data_hash)
+        return validate(data_hash)
+      end
+      ActiveRecord::Base.transaction do
+        set_template_data_hash(template_hash['properties'], data_hash)
+      end
+    end
+
+    def validate(data)
+      template_hash = metadata["validation"]
+      validator = DataCycleCore::MasterData::ValidateData.new
+      validator.validate(data, template_hash)
+    end
+
+    def validate?(data, strict = false)
+      template_hash = metadata['validation']
+      validator = DataCycleCore::MasterData::ValidateData.new
+      validator.valid?(data, template_hash, strict)
+    end
+
+    # get data as specified in the data template
+    # data hash with key names as specified in the template
+    def get_data_type
+      data_type = metadata['validation']
+      data_hash = collect_template_data(data_type['properties'])
+    end
+
+    # set data as specified in the data template
+    def set_data_type(data_hash)
+      template_hash = metadata['validation']
+      unless validate_hash?(data_hash)
+        return validate_hash(data_hash)
+      end
+      ActiveRecord::Base.transaction do
+        set_template_data(template_hash['properties'], data_hash)
+      end
+    end
+
+    # validates given data-hash (key names as specified in the template)
+    # and returns true/false
+    def validate_hash?(data = collect_data, strict = false)
+      template_hash = metadata['validation']
+      validator = DataCycleCore::MasterData::ValidateData.new
+      validator.valid_hash?(data, template_hash, strict)
+    end
+
+    # validates given data_hash (key names as specified in the template)
+    # returns error-hash including all errors/warnings
+    def validate_hash(data = collect_data)
+      template_hash = metadata["validation"]
+      validator = DataCycleCore::MasterData::ValidateData.new
+      validator.validate_hash(data, template_hash)
+    end
+
     # to cash also translated values (comming from gem Globalize)
     def cache_key
       super + '-' + Globalize.locale.to_s
     end
 
-    def self.save_template (template_hash)
-      walk_template_tree(template_hash, nil)
-    end
-
-    def load_template
-      walk_load_tree(self)
-    end
-
-    def self.validate? (template_hash)
-      # check if validation is present
-      validate_status = false
-      template_hash.deep_symbolize_keys!
-      unless template_hash.empty?
-        if template_hash.has_key?(:data)
-          if template_hash[:data].has_key?(:metadata)
-            if template_hash[:data][:metadata].has_key?(:data_cycle)
-              if template_hash[:data][:metadata][:data_cycle].has_key?(:validation)
-                validate_status = JSON::Validator.validate(
-                  template_hash[:data][:metadata][:data_cycle][:validation],
-                  template_hash
-                )
-              end
-            end
-          end
-        end
-      end
-      return validate_status
+    def self.search(search)
+      where("headline LIKE ? OR description LIKE ?", "%#{search}%", "%#{search}%")
     end
 
     private
 
-    def self.walk_template_tree(template_hash, parent)
-      return nil if template_hash.empty?
-      if parent.nil?
-        parent_id = nil
-      else
-        parent_id = parent.id
+    def get_relation_ids(storage_location, tree_label)
+      DataCycleCore::ClassificationCreativeWork.
+        where(creative_work_id: id).
+        joins(classification_alias: [classification_trees: [:classification_tree_label]]).
+        where("classification_tree_labels.name = ?", tree_label).
+        pluck(:classification_alias_id)
+    end
+
+    def set_relation_ids(storage_location, ids, tree_label)
+      # insert missing ids
+      return if ids.nil?
+      ids.each do |location_id|
+        DataCycleCore::ClassificationCreativeWork.
+          find_or_create_by(
+            creative_work_id: self.id,
+            classification_alias_id: location_id
+          )
       end
-      node_object = save_data_with_translations(CreativeWork.new, template_hash[:data], parent_id)
-      if template_hash.has_key?(:nodes)
-        template_hash[:nodes].each do |node|
-          walk_template_tree(node, node_object)
+      # delete missing ids
+      found_ids = get_relation_ids(storage_location, tree_label)
+      to_delete = found_ids - ids
+      if to_delete.size > 0
+        ap DataCycleCore::ClassificationCreativeWork.
+          where(
+            creative_work_id: self.id,
+            classification_alias_id: to_delete
+          ).destroy_all
+      end
+    end
+
+    def collect_template_data(properties)
+      data_hash = {}
+      properties.each do |key,value|
+        key_label = properties[key]['label']
+        if properties[key]['type'] == 'object'
+          data_hash[key_label] = walk_data_tree(properties[key]['properties'], self.method(properties[key]['storage_location']).call[key])
+          next
+        end
+        data_hash[key_label] = storage_cases_get(key, properties[key])
+      end
+      data_hash
+    end
+
+    def set_template_data_hash(properties, data_hash)
+      properties.each do |key,value|
+        storage_cases_set(key, data_hash[key], properties[key])
+      end
+    end
+
+    def set_template_data(properties, data_hash)
+      properties.each do |key,value|
+        key_label = properties[key]['label']
+        if properties[key]['type'] == 'object'
+          build_hash = set_data_tree(properties[key]['properties'], data_hash[key_label])
+          self.method(properties[key]['storage_location']).call[key] = build_hash
+          next
+        end
+        storage_cases_set(key, data_hash[key_label], properties[key])
+      end
+    end
+
+    def storage_cases_get(key, properties)
+      case properties["storage_location"]
+      when "column"
+        self.method(key).call
+      when "content"
+        self.content[key]
+      when "metadata"
+        self.metadata[key]
+      when "properties"
+        self.properties[key]
+      when "classification_creative_works"
+        get_relation_ids(properties["storage_location"], properties["type_name"])
+      end
+    end
+
+    def storage_cases_set(key, value, properties)
+      #puts " key ----> #{key} | value: #{value} | #{properties}"
+      case properties['storage_location']
+      when 'column'
+        self.method("#{key}=").call(value)
+      when 'content'
+        if self.content.blank?
+          self.content = { key => value }
+        else
+          self.content[key] = value
+        end
+      when 'metadata'
+        if self.metadata.blank?
+          self.metadata = { key => value }
+        else
+          self.metadata[key] = value
+        end
+      when 'properties'
+        if self.properties.blank?
+          self.properties = { key => value }
+        else
+          self.properties[key] = value
+        end
+      when 'classification_creative_works'
+        set_relation_ids(properties['storage_location'], value, properties['type_name'])
+      end
+    end
+
+    def walk_data_tree(data_definitions, data)
+      data_hash = {}
+      return if data.blank?
+      data_definitions.each do |key,value|
+        key_label = data_definitions[key]['label']
+        unless data_definitions[key]['type'] == 'object'
+          data_hash[key_label] = data[key]
+        else
+          data_hash[key_label] = walk_data_tree(data_definitions[key]['properties'],data[key])
         end
       end
-      return node_object
+      data_hash
     end
 
-    def self.save_data_with_translations(node, input_hash, parent_id)
-      data_hash = input_hash.except(:translations)
-      if input_hash.has_key?(:translations)
-        input_hash[:translations].each do |language, translated_data|
-          I18n.with_locale(language) do
-            save_data_hash = data_hash.merge(translated_data).merge({seen_at: Time.zone.now, isPartOf: parent_id})
-            node.set_data(save_data_hash).save
-          end
+    def set_data_tree(data_definitions, data)
+      data_hash = {}
+      return if data.blank?
+      data_definitions.each do |key,value|
+        key_label = data_definitions[key]['label']
+        unless data_definitions[key]['type'] == 'object'
+          data_hash[key] = data[key_label]
+        else
+          data_hash[key] = set_data_tree(data_definitions[key]['properties'],data[key_label])
         end
-      else
-        node.set_data(data_hash.merge({isPartOf: parent_id})).save
       end
-      return node
+      data_hash
     end
 
-    def walk_load_tree(node)
-      node_hash = load_data_with_translations(node)
-      children_hash = []
-      CreativeWork.where(isPartOf: node.id).order(position: :asc).each do |child_node|
-        child_hash = walk_load_tree(child_node)
-        children_hash.push(child_hash)
+    def set_data_tree_hash(data_definitions, data)
+      data_hash = {}
+      return if data.blank?
+      data_definitions.each do |key,value|
+        unless data_definitions[key]['type'] == 'object'
+          data_hash[key] = data[key]
+        else
+          data_hash[key] = set_data_tree(data_definitions[key]['properties'],data[key])
+        end
       end
-      if children_hash.count == 0
-        hash = node_hash
-      else
-        hash = node_hash.deep_merge({nodes: children_hash})
-      end
-      return hash
-    end
-
-    def load_data_with_translations(node)
-      language_hash = {}
-      node.translations.each do |language|
-        language_name = language.locale.to_sym
-        language_hash.deep_merge!({
-          language_name => {
-            content: language.content,
-            properties: language.properties
-          }
-        })
-      end
-      return {
-        data: {
-          headline: node.headline,
-          description: node.description,
-          position: node.position,
-          metadata: node.metadata,
-          isPartOf: node.isPartOf,
-          translations: language_hash
-        }
-      }
-
+      data_hash
     end
 
     def destroy_translations

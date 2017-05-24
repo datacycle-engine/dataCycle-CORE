@@ -1,0 +1,176 @@
+--- # classifications for oew top-classification is label for classificationstree
+- Inhaltstypen:
+  - Text:
+    - Artikel
+    - Zeitleiste
+    - Portrait
+    - Rezept
+    - Linktipps
+    - Interview
+    - Social Media Posting
+    - Zitat
+  - Angebot
+  - App
+  - Quiz
+  - Voting
+  - Statistik
+  - Veranstaltung
+  - Firma
+  - Person:
+    - Autor
+  - Foto
+  - Video
+  - Audio
+
+- Inhaltspools:
+  - Themenvorschläge
+  - Recherche
+  - Aktuelle Themen
+  - Archiv
+
+- Ausgabekanäle:
+  - Web:
+    - CMS
+    - Online Magazin
+    - Online Presseportal
+  - Social Media:
+    - Facebook
+    - Twitter
+  - Print
+
+- Bundesländer:
+  - Wien
+  - Niederösterreich
+  - Burgenland
+  - Steiermark
+  - Kärnten
+  - Oberösterreich
+  - Tirol
+  - Salzburg
+  - Vorarlberg
+  - Osttirol
+
+- Themenbereiche:
+  - Sommer:
+    - Radfahren:
+      - Genussradeln
+      - Rennrad
+      - Mountainbike
+      - Radrundreise
+      - E-Bike
+    - Golf
+    - Reiten
+    - Tennis
+    - Laufen, Walking
+    - Paragliding
+    - Erlebnisparks
+    - Natur:
+      - Nationalparks, Biosphärenparks, unberührte Natur
+      - Tier- und Pflanzenbeobachtungen
+      - Naturerlebnis
+    - Wasser:
+      - Fischen
+      - Schwimmen
+      - Tauchen
+      - Wasserski/ Kiten
+      - Segeln
+      - Rudern
+      - Kanu/Kajak
+      - Canyoning/ Rafting
+      - Wasserspaß, -action
+    - Wandern:
+      - Hochseilgärten
+      - Klettern + Bergsteigen
+      - Gipfelwandern
+      - Seilbahnen/Aussichtsplattformen
+      - Pilgern/Gehen
+      - Weitwandern / Höhenwege
+      - Themenwege
+      - Wanderguides, Bergführer
+      - Naturlehrpfade
+  - Rundreisen:
+    - Themenstraßen
+    - Städtereisen
+  - Stadt und Kultur:
+    - Architektur/Design
+    - Brauchtum/Tradition
+    - Museen / Ausstellungen / Gallerien
+    - Literatur
+    - Musik:
+      - Klassische Musik
+      - Konzerte
+      - Festivals
+      - Festspiele
+    - Manufaktur / Handwerk / Betriebe
+    - Sehenswürdigkeiten:
+      - Burgen / Schlösser
+      - POIs
+      - Kirchen / Klöster
+    - Stadt und Stadtleben
+  - Wellness:
+    - Gesundheit / Kur
+    - Anwendungen
+    - Spa / Thermen
+    - Erholung / Regeneration
+    - Sanfte Bewegung
+  - Essen und Trinken:
+    - Wein
+    - Bier
+    - Most
+    - Schnaps
+    - Süßspeisen
+    - Regionale Spezialitäten
+    - Rezepte
+    - Nachhaltigkeit, Bio
+    - Restaurant:
+      - Gasthaus
+      - Heuriger / Buschenschank
+      - Kaffeehaus
+      - Hütte
+      - Haubenküche
+  - Sonstiges:
+    - Praktische Hinweise
+    - Feiertage
+    - Geschichte/Fahnen
+    - Trends
+    - Persönlichkeiten
+    - Frühling
+    - Herbst
+    - Destinationen
+    - Bundesländer Cards
+    - Urlaub mit dem Hund
+    - Barrierefrei
+  - Ski und Winter:
+    - Sanfter Winter:
+      - Brauchtum
+      - Winterwandern
+      - Fackelwandern
+      - Schneeschuhwandern
+      - Kutschenfahrten
+      - Advent, Weihnachtsmärkte
+    - Aktiv im Winter:
+      - Skifahren
+      - Langlaufen
+      - Skitouren
+      - Snowboarden
+      - Eislaufen
+      - Eisstockschießen
+      - Rodeln
+      - Tourenski
+      - Fun und Actionsport
+    - Sonnenskilauf
+  - Unterkünfte:
+    - Hütten, Chalets
+    - Dörfer
+    - Hotels, Gasthof
+    - Bauernhof
+    - Camping
+    - Ferienwohnung, Privat
+    - Luxushotel
+  - Anreise:
+    - Auto
+    - Bahn
+    - Schiff
+    - Bus
+    - Flugzeug
+  - Familie

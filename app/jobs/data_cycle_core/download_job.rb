@@ -39,9 +39,5 @@ module DataCycleCore
       "DataCycleCore::#{config['download']}".constantize.new(uuid).download
     end
 
-    def max_run_time
-      60*60*24*7 # seconds
-    end
-    
   end
 end
