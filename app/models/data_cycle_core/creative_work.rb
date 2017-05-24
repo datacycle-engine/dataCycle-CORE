@@ -14,6 +14,9 @@ module DataCycleCore
     has_many :classification_creative_works
     has_many :classifications, through: :classification_creative_works
 
+    has_many :creative_work_places
+    has_many :places, through: :creative_work_places
+
     acts_as_tree order: "position", foreign_key: "isPartOf"
 
     # custom setter
@@ -22,12 +25,16 @@ module DataCycleCore
     # get data as specified in the data template
     # data hash with keys named as in schema.org
     def get_data_hash
-      data_type = metadata['validation']
-      data_hash = {}
-      data_type['properties'].each do |key,value|
-        data_hash[key] = storage_cases_get(key,data_type['properties'][key])
+      if translated_locales.include?(I18n.locale)
+        data_type = metadata['validation']
+        data_hash = {}
+        data_type['properties'].each do |key,value|
+          data_hash[key] = storage_cases_get(key,data_type['properties'][key])
+        end
+        data_hash
+      else
+        return nil
       end
-      data_hash
     end
 
     # set data as specified in the data template
@@ -58,8 +65,12 @@ module DataCycleCore
     # get data as specified in the data template
     # data hash with key names as specified in the template
     def get_data_type
-      data_type = metadata['validation']
-      data_hash = collect_template_data(data_type['properties'])
+      if translated_locales.include?(I18n.locale)
+        data_type = metadata['validation']
+        data_hash = collect_template_data(data_type['properties'])
+      else
+        return nil
+      end
     end
 
     # set data as specified in the data template

@@ -4,7 +4,7 @@ module DataCycleCore
     # handle translations with gem Globalize
     translates :name, :description, :addressLocality, :streetAddress,
       :postalCode, :addressCountry, :faxNumber, :telephone, :email,
-      :url, :hoursAvailable
+      :url, :hoursAvailable, :address
 
     # callbacks
     before_destroy :destroy_translations, prepend: true

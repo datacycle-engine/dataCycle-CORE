@@ -58,7 +58,8 @@ CREATE TABLE classification_creative_works (
     classification boolean DEFAULT false NOT NULL,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    external_source_id uuid
 );
 
 
@@ -314,7 +315,8 @@ CREATE TABLE place_translations (
     telephone character varying,
     email character varying,
     url character varying,
-    "hoursAvailable" character varying
+    "hoursAvailable" character varying,
+    address character varying
 );
 
 
@@ -975,6 +977,7 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170412124816'),
 ('20170418141539'),
 ('20170523115242'),
-('20170524132123');
+('20170524132123'),
+('20170524144644');
 
 

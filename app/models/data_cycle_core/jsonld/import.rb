@@ -33,31 +33,29 @@ module DataCycleCore
         classification = Classification.find_or_initialize_by(name: keyword, external_source_id: @external_source_id, external_type: "keyword") do |data_set|
           data_set.seen_at = Time.zone.now
         end
-        ap classification
         classification.save
-        puts "classification: #{classification.inspect}"
-        # check if entries up to tree with label 'import' exists
+
+        # check if entries up to tree with label 'imported' exist
         class_group = ClassificationGroup.
           joins(classification_alias: [classification_trees: [:classification_tree_label]]).
           where("classification_groups.classification_id = ?", classification.id).
-          where("classification_tree.external_source_id = ?", @external_source_id).
+          where("classification_trees.external_source_id = ?", @external_source_id).
           where("classification_tree_labels.name = ?", 'imported')
-        puts "class_group: #{class_group.inspect}"
+
         if class_group.count < 1
           classification_alias = ClassificationAlias.find_or_initialize_by(name: keyword, external_source_id: @external_source_id) do |data_set|
             data_set.seen_at = Time.zone.now
           end
           classification_alias.save
-          classification_group = ClassificationGroup.
+          ClassificationGroup.
             find_or_initialize_by(
               classification_id: classification.id,
               classification_alias_id: classification_alias.id,
               external_source_id: @external_source_id
             ) do |data_set|
               data_set.seen_at = Time.zone.now
-          end
-          classification_group.save
-          classification_tree = ClassificationTree.
+          end.save
+          ClassificationTree.
             find_or_initialize_by(
               classification_alias_id: classification_alias.id,
               external_source_id: @external_source_id,
@@ -65,8 +63,7 @@ module DataCycleCore
               parent_classification_alias_id: nil
             ) do |data_set|
               data_set.seen_at = Time.zone.now
-          end
-          classification_tree.save
+          end.save
         end
         return classification.id
       end
@@ -94,7 +91,7 @@ module DataCycleCore
         page_size = 1#50 #avoid timeout from Mongo-cursor!!!
         total_items=DownloadCreativeWork.count
         #pages = total_items.fdiv(page_size).ceil
-        pages = 3
+        pages = 10
         pages.times do |index|
           DownloadCreativeWork.all.extras(:limit => page_size, :skip => (index*page_size)).each do |data_set|
             ActiveRecord::Base.transaction do
@@ -116,11 +113,15 @@ module DataCycleCore
               data_set.dump.each do |lang, data_hash|
                 puts "#{i.to_s.ljust(5)} | #{data_set.id.ljust(51)}| #{Time.zone.now}" if (i % 50) == 0
                 i += 1
-                #ap data_hash
+## TODO: visibility when its properly defined
                 data = data_hash.except("@context", "@type", "visibility", "keywords", "contentLocation")
+                contentLocation = data_hash["contentLocation"]
                 I18n.with_locale(lang) do
                   errors = to_update_image.set_data_hash(data)
                   to_update_image.save
+                  unless contentLocation.blank?
+                    save_location(to_update_image.id, lang, contentLocation)
+                  end
                 end
               end
 
@@ -135,18 +136,38 @@ module DataCycleCore
                     .find_or_create_by(
                       creative_work_id: to_update_image.id,
                       classification_id: classification_id,
+                      external_source_id: @external_source_id,
                       tag: true
                     )
                   updated_ccw.seen_at = Time.zone.now
                   updated_ccw.save
                 end
               end
-              # insert place if needed
 
             end
           end
         end
       end
+
+      def save_location(creative_work_id, lang, data_hash)
+        puts creative_work_id, lang, data_hash
+        set_data = {}
+        if !data_hash["name"].blank? && !data_hash["name"][lang].blank?
+          set_data["name"] = data_hash["name"][lang]
+        end
+        set_data["address"] = data_hash["address"]
+        set_data["longitude"] = data_hash["geo"]["longitude"] unless data_hash["geo"].blank?
+        set_data["latitude"] = data_hash["geo"]["latitude"] unless data_hash["geo"].blank?
+        set_data["external_source_id"] = @external_source_id
+        place = Place.find_or_create_by(set_data) do |data_set|
+          data_set.seen_at = Time.zone.now
+        end
+        place.save
+        CreativeWorkPlace.find_or_create_by(place_id: place.id, creative_work_id: creative_work_id, external_source_id: @external_source_id) do |data_set|
+          data_set.seen_at = Time.zone.now
+        end.save
+      end
+
 
     # logging ceremony for import logic
       def import_logging
