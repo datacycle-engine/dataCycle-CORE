@@ -132,6 +132,14 @@ module DataCycleCore
       end
 
     # define Arel-tables
+      def classification
+        Classification.arel_table
+      end
+
+      def classification_group
+        ClassificationGroup.arel_table
+      end
+
       def classification_alias
         ClassificationAlias.arel_table
       end

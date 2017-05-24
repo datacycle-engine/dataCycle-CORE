@@ -6,7 +6,7 @@ module DataCycleCore
         @translation = translation
         @classification_alias = classification_alias
         @uuid = uuid
-        @query = query || CreativeWork.unscoped.distinct
+        @query = query || CreativeWork.unscoped.where(creative_work[:external_source_id].eq(uuid)).distinct
       end
 
     # filters
@@ -39,9 +39,24 @@ module DataCycleCore
         )
       end
 
+
+      def join_classification
+        join_classification_creative_work.joins(classification_creative_work.join(classification)
+          .on(classification_creative_work[:classification_id].eq(classification[:id]))
+          .join_sources
+        )
+      end
+
+      def join_classification_group
+        join_classification.joins(classification.join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join_sources
+        )
+      end
+
       def join_classification_alias
-        join_classification_creative_work.joins(classification_creative_work.join(classification_alias)
-          .on(classification_creative_work[:classification_alias_id].eq(classification_alias[:id]))
+        join_classification_group.joins(classification_group.join(classification_alias)
+          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
           .join_sources
         )
       end
