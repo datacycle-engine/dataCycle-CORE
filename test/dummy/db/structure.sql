@@ -41,7 +41,8 @@ CREATE TABLE classification_aliases (
     name character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    external_source_id uuid
 );
 
 
@@ -973,6 +974,7 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170406115252'),
 ('20170412124816'),
 ('20170418141539'),
-('20170523115242');
+('20170523115242'),
+('20170524132123');
 
 

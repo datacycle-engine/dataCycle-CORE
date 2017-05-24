@@ -21,38 +21,44 @@ module DataCycleCore
         Rails.logger.level = save_logger_level
       end
 
-      def init_or_create_classifications_trees_label(label)
-        classifications_trees_label = ClassificationTreeLabel.find_or_initialize_by(name: label, external_source_id: @external_source_id)
+      def init_or_create_classifications_trees_label(label_string)
+        classifications_trees_label = ClassificationTreeLabel.find_or_initialize_by(name: label_string, external_source_id: @external_source_id)
         classifications_trees_label.seen_at = Time.zone.now
         classifications_trees_label.save
         classifications_trees_label.id
       end
 
       def check_for_classification_keyword(keyword)
-        classification = Classification.first_or_initialize(name: keyword, external_source_id: @external_source_id, external_type: "keyword") do |data_set|
+        puts "keyword: #{keyword}"
+        classification = Classification.find_or_initialize_by(name: keyword, external_source_id: @external_source_id, external_type: "keyword") do |data_set|
           data_set.seen_at = Time.zone.now
         end
+        ap classification
         classification.save
+        puts "classification: #{classification.inspect}"
         # check if entries up to tree with label 'import' exists
         class_group = ClassificationGroup.
           joins(classification_alias: [classification_trees: [:classification_tree_label]]).
           where("classification_groups.classification_id = ?", classification.id).
+          where("classification_tree.external_source_id = ?", @external_source_id).
           where("classification_tree_labels.name = ?", 'imported')
+        puts "class_group: #{class_group.inspect}"
         if class_group.count < 1
-          classification_alias = ClassificationAlias.first_or_initialize(name: keyword) do |data_set|
+          classification_alias = ClassificationAlias.find_or_initialize_by(name: keyword, external_source_id: @external_source_id) do |data_set|
             data_set.seen_at = Time.zone.now
           end
           classification_alias.save
-          ClassificationGroup.
-            first_or_initialize(
+          classification_group = ClassificationGroup.
+            find_or_initialize_by(
               classification_id: classification.id,
               classification_alias_id: classification_alias.id,
               external_source_id: @external_source_id
             ) do |data_set|
               data_set.seen_at = Time.zone.now
           end
-          ClassificationTree.
-            first_or_initialize(
+          classification_group.save
+          classification_tree = ClassificationTree.
+            find_or_initialize_by(
               classification_alias_id: classification_alias.id,
               external_source_id: @external_source_id,
               classification_tree_label_id: @classifications_tree_label_id,
@@ -60,7 +66,9 @@ module DataCycleCore
             ) do |data_set|
               data_set.seen_at = Time.zone.now
           end
+          classification_tree.save
         end
+        return classification.id
       end
 
     # main import functionality
@@ -103,20 +111,22 @@ module DataCycleCore
                 to_update_image.metadata['validation'] = validation
               end
               to_update_image.metadata['external_key'] = data_set.id
+              to_update_image.external_source_id = @external_source_id
 
               data_set.dump.each do |lang, data_hash|
                 puts "#{i.to_s.ljust(5)} | #{data_set.id.ljust(51)}| #{Time.zone.now}" if (i % 50) == 0
                 i += 1
-                data = data_hash.except("@context", "@type", "visibility", "keywords")
+                #ap data_hash
+                data = data_hash.except("@context", "@type", "visibility", "keywords", "contentLocation")
                 I18n.with_locale(lang) do
                   errors = to_update_image.set_data_hash(data)
+                  to_update_image.save
                 end
               end
-              to_update_image.save
 
               # read data for relations (keywords,places)
               #create relation for keywords
-              puts "keywords = #{data_set.dump.each.first[1]['keywords']}"
+              puts "id: #{to_update_image.id} | keywords = #{data_set.dump.each.first[1]['keywords']}"
               keywords = data_set.dump.each.first[1]['keywords']
               unless keywords.nil?
                 keywords.each do |keyword|
