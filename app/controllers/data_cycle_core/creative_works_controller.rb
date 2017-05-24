@@ -74,6 +74,17 @@ module DataCycleCore
       end
     end
 
+    def validate_single_data
+      @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
+      params.inspect
+
+      datahash = creative_work_params[:datahash]
+      valid = @creativeWork.validate(datahash)
+
+      render :json => valid.to_json
+      # render :json => {:name => "David"}.to_json
+    end
+
     #dev views for michi
     def demotopic
 
