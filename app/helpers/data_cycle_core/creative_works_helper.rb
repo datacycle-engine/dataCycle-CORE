@@ -1,6 +1,9 @@
 module DataCycleCore
   module CreativeWorksHelper
 
+    @@partials_path = "data_cycle_core/creative_works/partials/editor/"
+    @@key_prefix = "creative_work[datahash]"
+
     class DataCycleFormBuilder < ActionView::Helpers::FormBuilder
 
       # def text_field(attribute, options={})
@@ -64,18 +67,21 @@ module DataCycleCore
     end
 
     def render_fe_editor(key, value=nil, options={})
-      render partial: "feEditor", locals: {key: key, value: value, options: options}
+      render partial: "#{@@partials_path}feEditor", locals: {key: key, value: value, options: options}
+    end
+
+    def render_input_text_field(key, value=nil, options={})
+      render partial: "#{@@partials_path}input", locals: {key: key, value: value, options: options}
     end
 
     private
 
       def get_object_key(key, parents = [])
-        key_prefix = "creative_work[datahash]"
         parent_keys = ''
         if !parents.empty?
           parent_keys = parents.map{ |parent| "[#{parent}]" }.join('')
         end
-        object_key = "#{key_prefix}#{parent_keys}[#{key}]"
+        object_key = "#{@@key_prefix}#{parent_keys}[#{key}]"
       end
 
   end
