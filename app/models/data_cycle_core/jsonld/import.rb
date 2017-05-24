@@ -16,13 +16,7 @@ module DataCycleCore
         save_logger_level = Rails.logger.level
         Rails.logger.level = 4 unless @verbose
 
-        @classifications_trees_label_id = init_or_create_classifications_trees_label('imported')
-        @tree_label_id_creative_work =    init_or_create_classifications_trees_label('CreativeWork')
-
-        @creative_work_classification_alias_id = check_for_tree_entry_with_classification_alias('ImageObject')
-        if @creative_work_classification_alias_id.nil?
-          @creative_work_classification_alias_id = insert_classification_alias_and_tree_entry('ImageObject', @tree_label_id_creative_work)
-        end
+        @classifications_tree_label_id = init_or_create_classifications_trees_label('imported')
 
         Rails.logger.level = save_logger_level
       end
@@ -34,35 +28,39 @@ module DataCycleCore
         classifications_trees_label.id
       end
 
-      def check_for_tree_entry_with_classification_alias(label)
-        classification_alias_id = nil
-        top_level_classifications_tree_entries = ClassificationTree
-          .where(
-            external_source_id: @external_source_id,
-            classification_tree_label_id: @tree_label_id_creative_work,
-            parent_classification_alias_id: nil
-          )
-        top_level_classifications_tree_entries.each do |item|
-          if item.sub_classification_alias.name == label
-            classification_alias_id = item.sub_classification_alias.id
+      def check_for_classification_keyword(keyword)
+        classification = Classification.first_or_initialize(name: keyword, external_source_id: @external_source_id, external_type: "keyword") do |data_set|
+          data_set.seen_at = Time.zone.now
+        end
+        classification.save
+        # check if entries up to tree with label 'import' exists
+        class_group = ClassificationGroup.
+          joins(classification_alias: [classification_trees: [:classification_tree_label]]).
+          where("classification_groups.classification_id = ?", classification.id).
+          where("classification_tree_labels.name = ?", 'imported')
+        if class_group.count < 1
+          classification_alias = ClassificationAlias.first_or_initialize(name: keyword) do |data_set|
+            data_set.seen_at = Time.zone.now
+          end
+          classification_alias.save
+          ClassificationGroup.
+            first_or_initialize(
+              classification_id: classification.id,
+              classification_alias_id: classification_alias.id,
+              external_source_id: @external_source_id
+            ) do |data_set|
+              data_set.seen_at = Time.zone.now
+          end
+          ClassificationTree.
+            first_or_initialize(
+              classification_alias_id: classification_alias.id,
+              external_source_id: @external_source_id,
+              classification_tree_label_id: @classifications_tree_label_id,
+              parent_classification_alias_id: nil
+            ) do |data_set|
+              data_set.seen_at = Time.zone.now
           end
         end
-        classification_alias_id
-      end
-
-      def insert_classification_alias_and_tree_entry(label, tree_label)
-        classification_alias = ClassificationAlias.new(name: label, seen_at: Time.zone.now)
-        classification_alias.save
-        creative_work_classification_alias_id = classification_alias.id
-        ClassificationTree
-          .new(
-            external_source_id: @external_source_id,
-            classification_alias_id: creative_work_classification_alias_id,
-            classification_tree_label_id: tree_label,
-            seen_at: Time.zone.now
-          )
-          .save
-        creative_work_classification_alias_id
       end
 
     # main import functionality
@@ -80,87 +78,64 @@ module DataCycleCore
     private
 
       def import_creative_work
+        data_template = CreativeWork.
+          where(template: true, headline: "Bild", description: "ImageObject").
+          first
+        validation = data_template.metadata['validation']
         i = 0
-        page_size=50
+        page_size = 1#50 #avoid timeout from Mongo-cursor!!!
         total_items=DownloadCreativeWork.count
-        pages = total_items.fdiv(page_size).ceil
+        #pages = total_items.fdiv(page_size).ceil
+        pages = 3
         pages.times do |index|
           DownloadCreativeWork.all.extras(:limit => page_size, :skip => (index*page_size)).each do |data_set|
             ActiveRecord::Base.transaction do
-              puts "#{i.to_s.ljust(5)} | #{data_set.dump['@id'].ljust(51)}| #{Time.zone.now}" if (i % 50) == 0
-              i += 1
-              data_image = non_translated_attributes(data_set.dump)
+
               to_update_image = CreativeWork
                 .where(
                   "metadata ->> 'external_key' = ? AND external_source_id = ?",
-                  data_set.dump['@id'],
+                  data_set.id,
                   @external_source_id
-                )
-                .first_or_initialize
-                .set_data(data_image)
-              to_update_image.content_translations = translated_attributes(data_set.dump, to_update_image.content_translations)
+                ).first_or_initialize
+              if to_update_image.metadata.nil?
+                to_update_image.metadata = { "validation" => validation }
+              else
+                to_update_image.metadata['validation'] = validation
+              end
+              to_update_image.metadata['external_key'] = data_set.id
+
+              data_set.dump.each do |lang, data_hash|
+                puts "#{i.to_s.ljust(5)} | #{data_set.id.ljust(51)}| #{Time.zone.now}" if (i % 50) == 0
+                i += 1
+                data = data_hash.except("@context", "@type", "visibility", "keywords")
+                I18n.with_locale(lang) do
+                  errors = to_update_image.set_data_hash(data)
+                end
+              end
               to_update_image.save
 
-              # create relation for keywords
-              data_set.dump['keywords'].each do |keyword|
-                classification_alias_id = check_for_tree_entry_with_classification_alias(keyword)
-                if classification_alias_id.nil?
-                  classification_alias_id = insert_classification_alias_and_tree_entry(keyword, @tree_label_id_creative_work)
+              # read data for relations (keywords,places)
+              #create relation for keywords
+              puts "keywords = #{data_set.dump.each.first[1]['keywords']}"
+              keywords = data_set.dump.each.first[1]['keywords']
+              unless keywords.nil?
+                keywords.each do |keyword|
+                  classification_id = check_for_classification_keyword(keyword)
+                  updated_ccw = ClassificationCreativeWork
+                    .find_or_create_by(
+                      creative_work_id: to_update_image.id,
+                      classification_id: classification_id,
+                      tag: true
+                    )
+                  updated_ccw.seen_at = Time.zone.now
+                  updated_ccw.save
                 end
-                updated_ccw = ClassificationCreativeWork
-                  .find_or_create_by(
-                    creative_work_id: to_update_image.id,
-                    classification_alias_id: classification_alias_id,
-                    tag: true
-                  )
-                updated_ccw.seen_at = Time.zone.now
-                updated_ccw.save
               end
+              # insert place if needed
+
             end
           end
         end
-      end
-
-      def non_translated_attributes(record)
-        if record["headline"].values.count > 0
-          headline = record["headline"].values.first
-        else
-          headline = nil
-        end
-        { 'headline' => headline,
-          'content' => {},
-          'metadata' => {
-            type: record["@type"],
-            external_key: record["@id"],
-            url: record["image"],
-            fileFormat: record["fileFormat"],
-            width: record["width"],
-            height: record["height"],
-            contentSize: record["contentSize"],
-            contentLocation: record["contentLocation"],
-            license: record["license"],
-            identifier: record["identifier"],
-            dateCreated: record["dateCreated"],
-            dateModified: record["dateModified"]
-          },
-          'seen_at' => Time.zone.now,
-          'position' => 0,
-          'external_source_id' => @external_source_id
-        }
-      end
-
-      def translated_attributes(record, translation_hash)
-        translation_hash = {} if translation_hash.nil?
-        translation_hash.deep_merge!(get_translations("headline",record)){|key,oldval,newval| newval}
-        translation_hash.deep_merge!(get_translations("description",record)){|key,oldval,newval| newval}
-      end
-
-      def get_translations(attrib, record)
-        trans_hash = {}
-        record[attrib].each do |language, attrib_value|
-          trans_hash.deep_merge!({language => {attrib => attrib_value}})
-        end
-        trans_hash
       end
 
     # logging ceremony for import logic

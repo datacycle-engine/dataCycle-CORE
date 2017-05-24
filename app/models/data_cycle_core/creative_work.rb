@@ -12,7 +12,7 @@ module DataCycleCore
     # associations
     belongs_to :primaryImage, class_name: 'Place', primary_key: 'id', foreign_key: 'photo'
     has_many :classification_creative_works
-    has_many :classification_aliases, through: :classification_creative_works
+    has_many :classifications, through: :classification_creative_works
 
     acts_as_tree order: "position", foreign_key: "isPartOf"
 
@@ -35,11 +35,12 @@ module DataCycleCore
     def set_data_hash(data_hash)
       template_hash = metadata['validation']
       unless validate?(data_hash)
-        return validate(data_hash)
+        return validate(data_hash) # return error from validation
       end
       ActiveRecord::Base.transaction do
         set_template_data_hash(template_hash['properties'], data_hash)
       end
+      return {error: [], warning: []} # validation was successful
     end
 
     def validate(data)
@@ -102,9 +103,9 @@ module DataCycleCore
     def get_relation_ids(storage_location, tree_label)
       DataCycleCore::ClassificationCreativeWork.
         where(creative_work_id: id).
-        joins(classification_alias: [classification_trees: [:classification_tree_label]]).
+        joins(classification: [classification_groups: [classification_alias: [classification_trees: [:classification_tree_label]]]]).
         where("classification_tree_labels.name = ?", tree_label).
-        pluck(:classification_alias_id)
+        pluck(:classification_id)
     end
 
     def set_relation_ids(storage_location, ids, tree_label)
@@ -114,7 +115,7 @@ module DataCycleCore
         DataCycleCore::ClassificationCreativeWork.
           find_or_create_by(
             creative_work_id: self.id,
-            classification_alias_id: location_id
+            classification_id: location_id
           )
       end
       # delete missing ids
@@ -124,7 +125,7 @@ module DataCycleCore
         ap DataCycleCore::ClassificationCreativeWork.
           where(
             creative_work_id: self.id,
-            classification_alias_id: to_delete
+            classification_id: to_delete
           ).destroy_all
       end
     end
