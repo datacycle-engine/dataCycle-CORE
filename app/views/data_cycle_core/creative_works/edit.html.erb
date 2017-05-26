@@ -61,25 +61,29 @@
                             <% prop['properties'].each do |object_key, object_property| %>
                                 <div class="columns medium-12 large-6">
                                     <% object_value = @dataSchema[key].nil? ? "" : @dataSchema[key][object_key] %>
-                                    <%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [key] %>
+                                    <div class="form-element">
+                                        <%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [key] %>
+                                    </div>
                                 </div>
                             <% end %>
                         </div>
                     </div>
                 <% else %>
-                    <%= data_cycle_field key, prop, @dataSchema[key], class: 'form-control' %>
+                    <div class="form-element">
+                        <%= data_cycle_field key, prop, @dataSchema[key], class: 'form-control' %>
+                    </div>
                 <% end %>
 
             <% end %>
 
         <% end %>
 
-            <%= f.submit "Update", class: "button primary" %>
+            <%= f.submit "Update", class: "button primary", :data => { disable_with: false } %>
     <% end %>
 
 <% end %>
 
 
-<%= debug(@dataSchema) %>
-<%= debug(@data) %>
-<%= debug(@creativeWork) %>
+<!--<%= debug(@dataSchema) %>-->
+<!--<%= debug(@data) %>-->
+<!--<%= debug(@creativeWork) %>-->
