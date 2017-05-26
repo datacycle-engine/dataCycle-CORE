@@ -39,6 +39,11 @@
 <% end %>
 
 <%= form_for @creativeWork, builder: DataCycleCore::CreativeWorksHelper::DataCycleFormBuilder do |f| %>
+    <%= hidden_field_tag 'uuid', @creativeWork.id %>
+
+    <div id="validation_errors">
+
+    </div>
 
     <% if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? %>
 
