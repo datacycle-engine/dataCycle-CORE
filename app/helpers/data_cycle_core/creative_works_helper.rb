@@ -56,12 +56,12 @@ module DataCycleCore
       if !prop['editor'].nil? && !prop['editor']['type'].nil?
         case prop['editor']['type']
           when 'input'
-            text_field_tag(key, value, options)
+            render_input_text_field(key, value, options)
           when 'rte'
             render_fe_editor(key, value, options)
         end
       else
-        text_field_tag(key, value, options)
+        render_input_text_field(key, value, options)
       end
 
     end
