@@ -3,7 +3,7 @@ module DataCycleCore
 
     class Download
 
-      def initialize(uuid, incremental_update = false, page_size = 300, verbose = false )
+      def initialize(uuid, incremental_update = false, page_size = 100, verbose = false )
         @uuid = uuid
         @download_page_size = page_size
         @verbose = verbose

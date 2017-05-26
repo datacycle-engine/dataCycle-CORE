@@ -29,18 +29,17 @@ module DataCycleCore
       end
 
       def check_for_classification_keyword(keyword)
-        puts "keyword: #{keyword}"
-        classification = Classification.find_or_initialize_by(name: keyword, external_source_id: @external_source_id, external_type: "keyword") do |data_set|
+        classification = Classification.find_or_initialize_by(name: keyword, external_source_id: @external_source_id, external_type: 'keyword') do |data_set|
           data_set.seen_at = Time.zone.now
         end
         classification.save
 
-        # check if entries up to tree with label 'imported' exist
+        # check if entries up to classification_tree with label 'imported' exist
         class_group = ClassificationGroup.
           joins(classification_alias: [classification_trees: [:classification_tree_label]]).
-          where("classification_groups.classification_id = ?", classification.id).
-          where("classification_trees.external_source_id = ?", @external_source_id).
-          where("classification_tree_labels.name = ?", 'imported')
+          where('classification_groups.classification_id = ?', classification.id).
+          where('classification_trees.external_source_id = ?', @external_source_id).
+          where('classification_tree_labels.name = ?', 'imported')
 
         if class_group.count < 1
           classification_alias = ClassificationAlias.find_or_initialize_by(name: keyword, external_source_id: @external_source_id) do |data_set|
@@ -84,14 +83,13 @@ module DataCycleCore
 
       def import_creative_work
         data_template = CreativeWork.
-          where(template: true, headline: "Bild", description: "ImageObject").
+          where(template: true, headline: 'Bild', description: 'ImageObject').
           first
         validation = data_template.metadata['validation']
         i = 0
-        page_size = 1#50 #avoid timeout from Mongo-cursor!!!
+        page_size = 50 #avoid timeout from Mongo-cursor!!!
         total_items=DownloadCreativeWork.count
-        #pages = total_items.fdiv(page_size).ceil
-        pages = 10
+        pages = total_items.fdiv(page_size).ceil
         pages.times do |index|
           DownloadCreativeWork.all.extras(:limit => page_size, :skip => (index*page_size)).each do |data_set|
             ActiveRecord::Base.transaction do
@@ -103,7 +101,7 @@ module DataCycleCore
                   @external_source_id
                 ).first_or_initialize
               if to_update_image.metadata.nil?
-                to_update_image.metadata = { "validation" => validation }
+                to_update_image.metadata = { 'validation' => validation }
               else
                 to_update_image.metadata['validation'] = validation
               end
@@ -111,10 +109,10 @@ module DataCycleCore
               to_update_image.external_source_id = @external_source_id
 
               data_set.dump.each do |lang, data_hash|
-                puts "#{i.to_s.ljust(5)} | #{data_set.id.ljust(51)}| #{Time.zone.now}" if (i % 50) == 0
+                puts "#{i.to_s.ljust(5)} | #{data_set.id.ljust(51)}| #{Time.zone.now}" if (i % 250) == 0
                 i += 1
 ## TODO: visibility when its properly defined
-                data = data_hash.except("@context", "@type", "visibility", "keywords", "contentLocation")
+                data = data_hash.except('@context', '@type', 'visibility', 'keywords', 'contentLocation')
                 contentLocation = data_hash["contentLocation"]
                 I18n.with_locale(lang) do
                   errors = to_update_image.set_data_hash(data)
@@ -127,7 +125,7 @@ module DataCycleCore
 
               # read data for relations (keywords,places)
               #create relation for keywords
-              puts "id: #{to_update_image.id} | keywords = #{data_set.dump.each.first[1]['keywords']}"
+              #puts "id: #{to_update_image.id} | keywords = #{data_set.dump.each.first[1]['keywords']}"
               keywords = data_set.dump.each.first[1]['keywords']
               unless keywords.nil?
                 keywords.each do |keyword|
@@ -150,15 +148,17 @@ module DataCycleCore
       end
 
       def save_location(creative_work_id, lang, data_hash)
-        puts creative_work_id, lang, data_hash
         set_data = {}
-        if !data_hash["name"].blank? && !data_hash["name"][lang].blank?
-          set_data["name"] = data_hash["name"][lang]
+        if !data_hash['name'].blank? && !data_hash['name'][lang].blank?
+          set_data['name'] = data_hash['name'][lang]
         end
-        set_data["address"] = data_hash["address"]
-        set_data["longitude"] = data_hash["geo"]["longitude"] unless data_hash["geo"].blank?
-        set_data["latitude"] = data_hash["geo"]["latitude"] unless data_hash["geo"].blank?
-        set_data["external_source_id"] = @external_source_id
+        set_data['address'] = data_hash['address']
+        set_data['longitude'] = data_hash['geo']['longitude'] unless data_hash['geo'].blank?
+        set_data['latitude'] = data_hash['geo']['latitude'] unless data_hash['geo'].blank?
+        unless set_data['longitude'].blank? || set_data['latitude']
+          set_data['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(set_data['longitude'].to_f, set_data['latitude'].to_f)
+        end
+        set_data['external_source_id'] = @external_source_id
         place = Place.find_or_create_by(set_data) do |data_set|
           data_set.seen_at = Time.zone.now
         end
@@ -172,7 +172,7 @@ module DataCycleCore
     # logging ceremony for import logic
       def import_logging
         start_time = Time.zone.now
-        @log.info "BEGIN IMPORT : " + start_time.to_s
+        @log.info 'BEGIN IMPORT : ' + start_time.to_s
         @log.info 'JSON-LD Importer:'
         @log.info "MongoDB: #{DownloadCreativeWork.database_name}"
 
@@ -184,7 +184,7 @@ module DataCycleCore
         end_time = Time.zone.now
         @log.info "  total import time: #{(end_time-start_time).round(2)} [s]"
         @log.info 'end'
-        @log.info "END IMPORT : " + end_time.to_s
+        @log.info 'END IMPORT : ' + end_time.to_s
 
         Rails.logger.level = save_logger_level
       end

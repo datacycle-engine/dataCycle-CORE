@@ -10,10 +10,12 @@ module DataCycleCore
     before_destroy :destroy_translations, prepend: true
 
     # associations
-    belongs_to :primaryImage, class_name: 'Place', primary_key: 'id', foreign_key: 'photo'
     has_many :classification_creative_works
     has_many :classifications, through: :classification_creative_works
+    has_many :classification_groups, through: :classifications
+    has_many :classification_aliases, through: :classification_groups
 
+    belongs_to :primaryImage, class_name: 'Place', primary_key: 'id', foreign_key: 'photo'
     has_many :creative_work_places
     has_many :places, through: :creative_work_places
 

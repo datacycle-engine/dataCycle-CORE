@@ -30,7 +30,8 @@
       <% end %>
 
       <div class="title">
-        <%= item.headline %>
+        <%= "test"%>
+        <%= item.content["name"] unless item.content.blank?%>
       </div>
       <div class="description">
         <% if !item.description.nil? %>
@@ -41,9 +42,9 @@
 
       <% if !item.metadata.nil? %>
 
-        <% if !item.metadata['url'].nil? %>
+        <% if !item.metadata['contentUrl'].nil? %>
             <div class="image">
-              <img src="<%= item.metadata['url'] %>" alt="<%= item.headline %>" />
+              <img src="<%= item.metadata['contentUrl'] %>" alt="<%= item.content['name'] unless item.content.blank?%>" />
             </div>
         <% end %>
       <% end %>
@@ -73,9 +74,9 @@
                 <!--<span class="title">de, en, ru, it, pl, si <strong>+5</strong></span>-->
         <!--</div>-->
       <!--</div>-->
-         
+
         <!--<div><%= item.metadata %></div> -->
-      
+
     </div>
     <% end %>
   </div>

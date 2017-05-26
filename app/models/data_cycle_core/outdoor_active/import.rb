@@ -15,11 +15,7 @@ module DataCycleCore
       def init_db
         @classification_tree_label_id = init_or_create_classification_tree_label('imported')
         @tree_label_id_creative_work =    init_or_create_classification_tree_label('CreativeWork')
-
-        @creative_work_classification_alias_id = check_for_tree_entry_with_classification_alias('ImageObject')
-        if @creative_work_classification_alias_id.nil?
-          @creative_work_classification_alias_id = insert_classification_alias_and_tree_entry('ImageObject', @tree_label_id_creative_work)
-        end
+        @creative_work_classification_id = check_for_classification('ImageObject')
       end
 
       def init_or_create_classification_tree_label(label)
@@ -34,35 +30,43 @@ module DataCycleCore
           .id
       end
 
-      def check_for_tree_entry_with_classification_alias(label)
-        classification_alias_id = nil
-        top_level_classification_tree_entries = ClassificationTree
-          .where(
-            external_source_id: @external_source_id,
-            classification_tree_label_id: @tree_label_id_creative_work,
-            parent_classification_alias_id: nil
-          )
-        top_level_classification_tree_entries.each do |item|
-          if item.sub_classification_alias.name == label
-            classification_alias_id = item.sub_classification_alias.id
-          end
+      def check_for_classification(keyword)
+        classification = Classification.find_or_initialize_by(name: keyword, external_source_id: @external_source_id, external_type: "place") do |data_set|
+          data_set.seen_at = Time.zone.now
         end
-        classification_alias_id
-      end
+        classification.save
 
-      def insert_classification_alias_and_tree_entry(label, tree_label)
-        classification_alias = ClassificationAlias.new(name: label, seen_at: Time.zone.now)
-        classification_alias.save
-        creative_work_classification_alias_id = classification_alias.id
-        ClassificationTree
-          .new(
-            external_source_id: @external_source_id,
-            classification_alias_id: creative_work_classification_alias_id,
-            classification_tree_label_id: tree_label,
-            seen_at: Time.zone.now
-          )
-          .save
-        creative_work_classification_alias_id
+        # check if entries up to classification_tree with label 'imported' exist
+        class_group = ClassificationGroup.
+          joins(classification_alias: [classification_trees: [:classification_tree_label]]).
+          where("classification_groups.classification_id = ?", classification.id).
+          where("classification_trees.external_source_id = ?", @external_source_id).
+          where("classification_tree_labels.name = ?", 'imported')
+
+        if class_group.count < 1
+          classification_alias = ClassificationAlias.find_or_initialize_by(name: keyword, external_source_id: @external_source_id) do |data_set|
+            data_set.seen_at = Time.zone.now
+          end
+          classification_alias.save
+          ClassificationGroup.
+            find_or_initialize_by(
+              classification_id: classification.id,
+              classification_alias_id: classification_alias.id,
+              external_source_id: @external_source_id
+            ) do |data_set|
+              data_set.seen_at = Time.zone.now
+          end.save
+          ClassificationTree.
+            find_or_initialize_by(
+              classification_alias_id: classification_alias.id,
+              external_source_id: @external_source_id,
+              classification_tree_label_id: @classification_tree_label_id,
+              parent_classification_alias_id: nil
+            ) do |data_set|
+              data_set.seen_at = Time.zone.now
+          end.save
+        end
+        return classification.id
       end
 
     # main import functionality
@@ -191,7 +195,7 @@ module DataCycleCore
 
         if classification_alias_id.nil?
           classification_alias = ClassificationAlias.new
-          classification_alias.set_data({'name' => name, 'seen_at' => Time.zone.now}).save
+          classification_alias.set_data({'name' => name, 'seen_at' => Time.zone.now, 'external_source_id' => @external_source_id}).save
           classification_alias_id = classification_alias.id
         end
         classification_group.set_data({
@@ -428,7 +432,7 @@ module DataCycleCore
           # relation to classification
           data_classifications_creative_work = {
             'creative_work_id' => to_update_image.id,
-            'classification_alias_id' => @creative_work_classification_alias_id,
+            'classification_id' => @creative_work_classification_id,
             'tag' => false,
             'classification' => false,
             'seen_at' => Time.zone.now
@@ -436,7 +440,7 @@ module DataCycleCore
           ClassificationCreativeWork
             .where(
               creative_work_id: to_update_image.id,
-              classification_alias_id: @creative_work_classification_alias_id
+              classification_id: @creative_work_classification_id
             )
             .first_or_initialize
             .set_data(data_classifications_creative_work)
