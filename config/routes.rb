@@ -17,6 +17,8 @@ DataCycleCore::Engine.routes.draw do
   get  'admin/import_classifications', to: 'dash_board#import_classifications'
   #mount RailsDb::Engine => '/db', :as => 'db'
 
+  match '/validatetest(/:id)', to: 'creative_works#validate_single_data', via: [:patch, :post]
+
   #dev routes for michi
   get '/demoarticle', to: 'creative_works#demoarticle'
   get '/demotopic', to: 'creative_works#demotopic'

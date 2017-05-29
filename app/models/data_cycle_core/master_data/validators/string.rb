@@ -71,6 +71,14 @@ module DataCycleCore
         end
 
         def date_time(data)
+          # byebug
+          # test = data.to_datetime
+          # test2 = data.to_datetime.to_s
+          # if data == test2
+          #   isvalid = true
+          # else
+          #   isvalid = false
+          # end
           begin
             data.to_datetime
           rescue
