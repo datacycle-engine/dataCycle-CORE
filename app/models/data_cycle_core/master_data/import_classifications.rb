@@ -33,17 +33,17 @@ module DataCycleCore
 
       def save_data(data, parent)
         if parent.nil?
-          find_alias = DataCycleCore::ClassificationAlias
-            .joins(:classification_trees)
-            .where("classification_trees.classification_tree_label_id = ?", @label_id)
-            .where("classification_aliases.name = ?", data)
-            .where("classification_trees.parent_classification_alias_id is NULL")
+          find_alias = DataCycleCore::ClassificationAlias.
+            joins(:classification_trees).
+            where("classification_trees.classification_tree_label_id = ?", @label_id).
+            where("classification_aliases.name = ?", data).
+            where("classification_trees.parent_classification_alias_id is NULL")
         else
-          find_alias = DataCycleCore::ClassificationAlias
-            .joins(:classification_trees)
-            .where("classification_trees.classification_tree_label_id = ?", @label_id)
-            .where("classification_aliases.name = ?", data)
-            .where("classification_trees.parent_classification_alias_id = ?", parent)
+          find_alias = DataCycleCore::ClassificationAlias.
+            joins(:classification_trees).
+            where("classification_trees.classification_tree_label_id = ?", @label_id).
+            where("classification_aliases.name = ?", data).
+            where("classification_trees.parent_classification_alias_id = ?", parent)
         end
         if find_alias.count > 0
           updated_data = find_alias.first
@@ -58,12 +58,33 @@ module DataCycleCore
               tree_entry.seen_at = Time.zone.now
           end
         end
+        upsert_classification(data, updated_data.id)
         updated_data.id
       end
 
       def get_label(label)
         DataCycleCore::ClassificationTreeLabel.find_or_create_by(name: label, external_source_id: nil) do |label_data|
           label_data.seen_at = Time.zone.now
+        end
+      end
+
+      def upsert_classification(data, classification_alias_id)
+        find_classification = DataCycleCore::Classification.
+          joins(classification_groups: [:classification_alias]).
+          where("classification_aliases.id = ? ", classification_alias_id).
+          where("classification_aliases.name = ? ", data)
+        if find_classification.count < 1
+          classification = DataCycleCore::Classification.find_or_create_by(name: data, external_source_id: nil) do |item|
+            item.seen_at = Time.zone.now
+          end
+          DataCycleCore::ClassificationGroup.find_or_create_by(classification_id: classification.id, classification_alias_id: classification_alias_id, external_source_id: nil) do |group|
+            group.seen_at = Time.zone.now
+          end
+        else
+          classification = find_classification.first
+          classification.name = data
+          classification.seen_at = Time.zone.now
+          classification.save
         end
       end
 

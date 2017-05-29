@@ -4,7 +4,7 @@ module DataCycleCore
     include DataSetter
 
     belongs_to :creative_work
-    belongs_to :classification_alias
+    belongs_to :classification
 
   end
 end

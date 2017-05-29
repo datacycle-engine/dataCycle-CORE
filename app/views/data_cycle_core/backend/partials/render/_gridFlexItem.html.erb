@@ -1,59 +1,64 @@
-
-  <div class="grid-item data-cycle-object">
+<div class="grid-item data-cycle-object">
     <%= link_to item do %>
-    <div class="inner">
+        <div class="inner">
 
-      <% if !item.metadata.nil? && !item.metadata['validation'].nil? %>
+            <% if !item.metadata.nil? && !item.metadata['validation'].nil? %>
 
-        <div class="type thema">
-          <div class="infoRow">
-            <span class="icon">
-              <i class="fa fa-folder-open-o" aria-hidden="true"></i>
-              <!--<i class="fa fa-calendar" aria-hidden="true"></i>-->
-            </span>
-            <span class="title">Thema</span>
-          </div>
-        </div>
+                <div class="type thema">
+                    <div class="infoRow">
+                        <span class="icon">
+                        <i class="fa fa-folder-open-o" aria-hidden="true"></i>
+                        <!--<i class="fa fa-calendar" aria-hidden="true"></i>-->
+                        </span>
+                        <span class="title">Thema</span>
+                    </div>
+                </div>
 
-      <% else %>
+            <% else %>
 
-        <div class="type bilder">
-          <div class="infoRow">
-            <span class="icon">
-              <i class="fa fa-picture-o" aria-hidden="true"></i>
-              <!--<i class="fa fa-calendar" aria-hidden="true"></i>-->
-            </span>
-            <span class="title">Bild</span>
-          </div>
-        </div>
+                <div class="type bilder">
+                    <div class="infoRow">
+                        <span class="icon">
+                        <i class="fa fa-picture-o" aria-hidden="true"></i>
+                        </span>
+                        <span class="title">Bild</span>
+                    </div>
+                </div>
 
-      <% end %>
+            <% end %>
 
-      <div class="title">
-        <%= item.headline %>
-      </div>
-      <div class="description">
-        <% if !item.description.nil? %>
-          <%= item.description.html_safe %>
-        <% end %>
-        <!--<%= item.id %>-->
-      </div>
-
-      <% if !item.metadata.nil? %>
-
-        <% if !item.metadata['url'].nil? %>
-            <div class="image">
-              <img src="<%= item.metadata['url'] %>" alt="<%= item.headline %>" />
+            <div class="title">
+                <!--headline ?-->
+                <%= item.content["name"] unless item.content.blank? %>
             </div>
-        <% end %>
-      <% end %>
-      <!--<div class="tags">-->
-      <!--<span class="tag">paar</span><span class="tag">pool</span><span class="tag">st martins therme</span><span class="tag">lodge</span><span class="tag">burgenland</span><span class="tag">st martins therme</span><span class="tag">lodge</span>-->
-        <!--<% item.classification_aliases.each do |classificationAlias| %>-->
-            <!--<span class="tag"><%= classificationAlias.name %></span>-->
-        <!--<% end %>-->
-      <!--</div>-->
-      <!--<div class="info row">-->
+
+
+            <% unless item.description.nil? %>
+                <div class="description">
+                    <%= item.description.html_safe %>
+                </div>
+            <% end %>
+
+            <% unless item.metadata.nil? %>
+
+                <% unless item.metadata['contentUrl'].nil? %>
+                    <div class="image">
+                        <img src="<%= item.metadata['contentUrl'] %>" alt="<%= item.content['name'] unless item.content.blank?%>" />
+                    </div>
+                <% end %>
+
+            <% end %>
+
+            <% unless item.classification_aliases.nil? %>
+                <div class="tags">
+                    <% item.classification_aliases.each do |classificationAlias| %>
+                        <span class="tag"><%= classificationAlias.name %></span>
+                    <% end %>
+                </div>
+            <% end %>
+
+
+        <!--<div class="info row">-->
         <!--<div class="column small-12 large-6">-->
                 <!--<span class="icon"><i class="fa fa-align-left" aria-hidden="true"></i></span>-->
                 <!--<span class="title"><strong>8</strong> Texte</span>-->
@@ -73,9 +78,9 @@
                 <!--<span class="title">de, en, ru, it, pl, si <strong>+5</strong></span>-->
         <!--</div>-->
       <!--</div>-->
-         
+
         <!--<div><%= item.metadata %></div> -->
-      
-    </div>
+
+        </div>
     <% end %>
-  </div>
+</div>

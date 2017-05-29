@@ -24,12 +24,13 @@ module DataCycleCore
 
         def check_reference(key, template)
           if uuid?(key)
-            find_classification_alias = DataCycleCore::ClassificationTree
-              .joins(:classification_tree_label)
-              .where(classification_alias_id: key)
-              .where("classification_tree_labels.name = ?", template['type_name'])
+            find_classification_alias = DataCycleCore::ClassificationTree.
+              joins(:classification_tree_label).
+              joins(sub_classification_alias: [classification_groups: [:classification]]).
+              where("classifications.id = ? ", key).
+              where("classification_tree_labels.name = ?", template['type_name'])
             if find_classification_alias.count < 1
-              @error[:error].push "In classification_tree with label: \"#{template['label']}\" and tree-label \"#{template['type_name']}\". No respective ClassificationAlias found for #{key}."
+              @error[:error].push "In classification_tree with label: \"#{template['label']}\" and tree-label \"#{template['type_name']}\". No respective Classification found for #{key}."
             end
           end
         end

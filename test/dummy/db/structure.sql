@@ -41,7 +41,8 @@ CREATE TABLE classification_aliases (
     name character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    external_source_id uuid
 );
 
 
@@ -52,12 +53,13 @@ CREATE TABLE classification_aliases (
 CREATE TABLE classification_creative_works (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
     creative_work_id uuid,
-    classification_alias_id uuid,
+    classification_id uuid,
     tag boolean DEFAULT false NOT NULL,
     classification boolean DEFAULT false NOT NULL,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    external_source_id uuid
 );
 
 
@@ -313,7 +315,8 @@ CREATE TABLE place_translations (
     telephone character varying,
     email character varying,
     url character varying,
-    "hoursAvailable" character varying
+    "hoursAvailable" character varying,
+    address character varying
 );
 
 
@@ -675,10 +678,10 @@ CREATE UNIQUE INDEX index_classification_aliases_on_id ON classification_aliases
 
 
 --
--- Name: index_classification_creative_works_on_classification_alias_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_classification_creative_works_on_classification_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_classification_creative_works_on_classification_alias_id ON classification_creative_works USING btree (classification_alias_id);
+CREATE INDEX index_classification_creative_works_on_classification_id ON classification_creative_works USING btree (classification_id);
 
 
 --
@@ -972,6 +975,9 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170307094512'),
 ('20170406115252'),
 ('20170412124816'),
-('20170418141539');
+('20170418141539'),
+('20170523115242'),
+('20170524132123'),
+('20170524144644');
 
 

@@ -87,14 +87,6 @@ module DataCycleCore
         ClassificationPlace.arel_table
       end
 
-      def classification
-        Classification.arel_table
-      end
-
-      def classification_group
-        ClassificationGroup.arel_table
-      end
-
     end
   end
 end

@@ -20,7 +20,7 @@ module DataCycleCore
             "storage_type" => "classification_creative_works",
             "storage_location" => "classification_creative_works"
           }
-          uuid = DataCycleCore::ClassificationAlias.where(name: "Kärnten").first.id
+          uuid = DataCycleCore::Classification.where(name: "Kärnten").first.id
           validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new([uuid],template_hash)
           assert_equal(error_hash, validator.error)
         end
@@ -50,7 +50,7 @@ module DataCycleCore
             "storage_type" => "classification_creative_works",
             "storage_location" => "classification_creative_works"
           }
-          uuid = DataCycleCore::ClassificationAlias.where(name: "Kärnten").first.id
+          uuid = DataCycleCore::Classification.where(name: "Kärnten").first.id
           validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new(uuid,template_hash)
           assert_equal(error_hash, validator.error)
         end
@@ -64,9 +64,9 @@ module DataCycleCore
             "storage_type" => "classification_creative_works",
             "storage_location" => "classification_creative_works"
           }
-          uuid = DataCycleCore::ClassificationAlias.where(name: "Kärnten").first.id
-          uuid2 = DataCycleCore::ClassificationAlias.where(name: "Steiermark").first.id
-          uuid3 = DataCycleCore::ClassificationAlias.where(name: "Tirol").first.id
+          uuid = DataCycleCore::Classification.where(name: "Kärnten").first.id
+          uuid2 = DataCycleCore::Classification.where(name: "Steiermark").first.id
+          uuid3 = DataCycleCore::Classification.where(name: "Tirol").first.id
           validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new([uuid,uuid2,uuid3],template_hash)
           assert_equal(error_hash, validator.error)
         end
@@ -80,9 +80,9 @@ module DataCycleCore
             "storage_type" => "classification_creative_works",
             "storage_location" => "classification_creative_works"
           }
-          uuid = DataCycleCore::ClassificationAlias.where(name: "Kärnten").first.id
-          uuid2 = DataCycleCore::ClassificationAlias.where(name: "Steiermark").first.id
-          uuid3 = DataCycleCore::ClassificationAlias.where(name: "Tirol").first.id
+          uuid = DataCycleCore::Classification.where(name: "Kärnten").first.id
+          uuid2 = DataCycleCore::Classification.where(name: "Steiermark").first.id
+          uuid3 = DataCycleCore::Classification.where(name: "Tirol").first.id
           validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new([uuid,uuid2,3,uuid3],template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
@@ -97,7 +97,7 @@ module DataCycleCore
             "storage_type" => "classification_creative_works",
             "storage_location" => "classification_creative_works"
           }
-          uuid = DataCycleCore::ClassificationAlias.where(name: "Kärnten").first.id
+          uuid = DataCycleCore::Classification.where(name: "Kärnten").first.id
           validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new(uuid,template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
@@ -118,7 +118,7 @@ module DataCycleCore
           validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new(["abcde"],template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          uuid = DataCycleCore::ClassificationAlias.where(name: "Kärnten").first.id
+          uuid = DataCycleCore::Classification.where(name: "Kärnten").first.id
           validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new([uuid,"abcde"],template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
@@ -133,8 +133,8 @@ module DataCycleCore
             "storage_type" => "classification_creative_works",
             "storage_location" => "classification_creative_works"
           }
-          uuid = DataCycleCore::ClassificationAlias.where(name: "Kärnten").first.id
-          uuid2 = DataCycleCore::ClassificationAlias.where(name: "Steiermark").first.id
+          uuid = DataCycleCore::Classification.where(name: "Kärnten").first.id
+          uuid2 = DataCycleCore::Classification.where(name: "Steiermark").first.id
           validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new([uuid,"abcde","asödflkjasdfölkj", uuid2, "aöslkfjasdöflj", 3, "asödlkfasödkfj"],template_hash)
           assert_equal(5, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
