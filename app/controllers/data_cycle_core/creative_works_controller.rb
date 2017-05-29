@@ -49,7 +49,7 @@ module DataCycleCore
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       @data = @creativeWork.get_data_type
       @dataSchema = @creativeWork.get_data_hash
-
+      render layout: "data_cycle_core/creative_works_show"
       #testing classifications
     end
 
