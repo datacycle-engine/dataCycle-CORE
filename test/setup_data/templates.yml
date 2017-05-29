@@ -186,7 +186,7 @@
     :description: ImageObject
     :type: object
     :properties:
-      :name:
+      :headline:
         :label: Titel
         :type: string
         :storage_type: string

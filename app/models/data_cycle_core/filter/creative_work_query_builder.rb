@@ -2,11 +2,10 @@ module DataCycleCore
   module Filter
     class CreativeWorkQueryBuilder < QueryBuilder
 
-      def initialize(uuid, query = nil, translation = false, classification_alias = false)
+      def initialize(query = nil, translation = false, classification_alias = false)
         @translation = translation
         @classification_alias = classification_alias
-        @uuid = uuid
-        @query = query || CreativeWork.unscoped.where(creative_work[:external_source_id].eq(uuid)).distinct
+        @query = query || CreativeWork.unscoped.distinct
       end
 
     # filters
@@ -22,6 +21,30 @@ module DataCycleCore
         )
       end
 
+      def fulltext_search(name)
+        unless @translation # see if joins are necessary
+          @query = join_creative_work_translation
+          @translation = true
+        end
+        # change from "name" to "headline"
+        reflect(
+          @query.where(
+            tsmatch(
+              to_tsvector(
+                concatinate(
+                  concatinate(
+                    coalesce(json_element(creative_work_translation[:content], quoted('caption')), quoted(' ')),
+                    coalesce(json_element(creative_work_translation[:content], quoted('description')),quoted(''))
+                  ),
+                  coalesce(json_element(creative_work_translation[:content], quoted('name')), quoted(' ')),
+                )
+              ),
+              to_tsquery(quoted(name))
+            )
+          )
+        )
+      end
+
     private
 
     # joins
@@ -29,7 +52,7 @@ module DataCycleCore
         @query.joins(creative_work.join(creative_work_translation)
           .on(creative_work[:id].eq(creative_work_translation[:creative_work_id]))
           .join_sources
-        )
+        ).where(creative_work_translation[:locale].eq(quoted(I18n.locale.to_s)))
       end
 
       def join_classification_creative_work

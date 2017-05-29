@@ -5,15 +5,14 @@ module DataCycleCore
       include Enumerable
 
       attr_reader :query
-      def_delegators :@query, :to_a, :to_sql, :each
+      def_delegators :@query, :to_a, :to_sql, :each, :page
       TERMINAL_METHODS = [:count, :pluck,
         :first, :second, :third, :fourth, :fifth, :forty_two, :last]
       def_delegators :@query, *TERMINAL_METHODS
 
-      def initialize(uuid, query = nil, translation = false, classification_alias = false)
+      def initialize(query = nil, translation = false, classification_alias = false)
         @translation = translation
         @classification_alias = classification_alias
-        @uuid = uuid
         @query = query
       end
 
@@ -119,6 +118,10 @@ module DataCycleCore
         Arel::Nodes::NamedFunction.new("to_tsvector", [field]) #[quoted("german"), field])
       end
 
+      def coalesce(field1, field2)
+        Arel::Nodes::NamedFunction.new("coalesce", [field1, field2])
+      end
+
       def to_tsquery(string)
         Arel::Nodes::NamedFunction.new("to_tsquery", [string]) #[quoted("german"), string])
       end
@@ -127,8 +130,16 @@ module DataCycleCore
         Arel::Nodes::InfixOperation.new("@@", tsvector, tsquery)
       end
 
+      def concatinate(string1, string2)
+        Arel::Nodes::InfixOperation.new("||", string1, string2)
+      end
+
       def quoted(string)
         Arel::Nodes.build_quoted(string)
+      end
+
+      def json_element(field, element)
+        Arel::Nodes::InfixOperation.new("->>", field, element)
       end
 
     # define Arel-tables
@@ -150,7 +161,7 @@ module DataCycleCore
 
     # chain method for Builder pattern
       def reflect(query)
-        self.class.new(@uuid, query, @translation, @classification_alias)
+        self.class.new(query, @translation, @classification_alias)
       end
 
     end

@@ -2,11 +2,10 @@ module DataCycleCore
   module Filter
     class PlaceQueryBuilder < QueryBuilder
 
-      def initialize(uuid, query = nil, translation = false, classification_alias = false)
+      def initialize(query = nil, translation = false, classification_alias = false)
         @translation = translation
         @classification_alias = classification_alias
-        @uuid = uuid
-        @query = query || Place.unscoped.where(place[:external_source_id].eq(uuid)).distinct
+        @query = query || Place.unscoped.distinct
       end
 
     # filters
