@@ -4,8 +4,10 @@ module DataCycleCore
     #load_and_authorize_resource         # from cancancan (authorize)
 
     def index
+      @language = params[:language]
+      @language ||= "de" #default-language
 
-      query = DataCycleCore::Filter::CreativeWorkQueryBuilder.new.order(updated_at: :desc)
+      query = DataCycleCore::Filter::CreativeWorkQueryBuilder.new(@language).order(updated_at: :desc)
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       @dataCycleObjects = query.page(params[:page])
