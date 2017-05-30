@@ -22,7 +22,6 @@ module DataCycleCore
     end
 
     def create
-      byebug
       @creativeWork = DataCycleCore::CreativeWork.new(creative_work_params)    # Not the final implementation!
 
       #Testing
@@ -49,8 +48,8 @@ module DataCycleCore
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       @data = @creativeWork.get_data_type
       @dataSchema = @creativeWork.get_data_hash
+
       render layout: "data_cycle_core/creative_works_show"
-      #testing classifications
     end
 
     def update
@@ -102,7 +101,7 @@ module DataCycleCore
     private
 
       def creative_work_params
-        params.require(:creative_work).permit(:headline, :datahash => [:headline,:description,:validityPeriod => [:validFrom, :validUntil] ])
+        params.require(:creative_work).permit(:headline, :datahash => [:headline,:description,:state => [],:topics => [],:markets => [],:tags => [], :validityPeriod => [:validFrom, :validUntil] ])
         # params.require(:creative_work).permit!
       end
 
