@@ -10,10 +10,10 @@ module DataCycleCore
         :first, :second, :third, :fourth, :fifth, :forty_two, :last]
       def_delegators :@query, *TERMINAL_METHODS
 
-      def initialize(query = nil, translation = false, classification_alias = false)
-        @translation = translation
+      def initialize(language ="de", query = nil, classification_alias = false)
         @classification_alias = classification_alias
         @query = query
+        @locale = language
       end
 
     # helper for paging
@@ -161,7 +161,7 @@ module DataCycleCore
 
     # chain method for Builder pattern
       def reflect(query)
-        self.class.new(query, @translation, @classification_alias)
+        self.class.new(@locale, query, @classification_alias)
       end
 
     end

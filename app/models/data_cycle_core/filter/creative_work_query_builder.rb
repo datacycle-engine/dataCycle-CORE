@@ -2,18 +2,18 @@ module DataCycleCore
   module Filter
     class CreativeWorkQueryBuilder < QueryBuilder
 
-      def initialize(query = nil, translation = false, classification_alias = false)
-        @translation = translation
+      def initialize(language = "de", query = nil, classification_alias = false)
         @classification_alias = classification_alias
-        @query = query || CreativeWork.unscoped.distinct
+        @locale = language
+        @query = query || CreativeWork.unscoped.distinct.
+                            joins(creative_work.join(creative_work_translation).
+                            on(creative_work[:id].eq(creative_work_translation[:creative_work_id])).
+                            join_sources
+                          ).where(creative_work_translation[:locale].eq(quoted(@locale)))
       end
 
     # filters
       def with_highlight(name)
-        unless @translation # see if joins are necessary
-          @query = join_creative_work_translation
-          @translation = true
-        end
         reflect(
           @query.where(
             creative_work[:headline].matches("%#{name}%")
@@ -22,10 +22,6 @@ module DataCycleCore
       end
 
       def fulltext_search(name)
-        unless @translation # see if joins are necessary
-          @query = join_creative_work_translation
-          @translation = true
-        end
         # change from "name" to "headline"
         reflect(
           @query.where(
@@ -48,12 +44,12 @@ module DataCycleCore
     private
 
     # joins
-      def join_creative_work_translation
-        @query.joins(creative_work.join(creative_work_translation)
-          .on(creative_work[:id].eq(creative_work_translation[:creative_work_id]))
-          .join_sources
-        ).where(creative_work_translation[:locale].eq(quoted(I18n.locale.to_s)))
-      end
+      # def join_creative_work_translation
+      #   @query.joins(creative_work.join(creative_work_translation)
+      #     .on(creative_work[:id].eq(creative_work_translation[:creative_work_id]))
+      #     .join_sources
+      #   ).where(creative_work_translation[:locale].eq(quoted(@locale)))
+      # end
 
       def join_classification_creative_work
         @query.joins(creative_work.join(classification_creative_work)
