@@ -2,19 +2,19 @@ module DataCycleCore
   module Filter
     class PlaceQueryBuilder < QueryBuilder
 
-      def initialize(uuid, query = nil, translation = false, classification_alias = false)
-        @translation = translation
+      def initialize(query = nil, locale = "de", classification_alias = false)
         @classification_alias = classification_alias
-        @uuid = uuid
-        @query = query || Place.unscoped.where(place[:external_source_id].eq(uuid)).distinct
+        @locale = locale
+        @query = query || Place.unscoped.distinct.
+                            joins(place.join(place_translation).
+                            on(place[:id].eq(place_translation[:place_id])).
+                            join_sources
+                          ).where(place_translation[:locale].eq(quoted(@locale)))
+
       end
 
     # filters
       def with_name(name)
-        unless @translation # see if joins are necessary
-          @query = join_place_translation
-          @translation = true
-        end
         reflect(
           @query.where(
             place_translation[:name].matches("%#{name}%")
@@ -39,12 +39,12 @@ module DataCycleCore
     private
 
     # joins
-      def join_place_translation
-        @query.joins(place.join(place_translation)
-          .on(place[:id].eq(place_translation[:place_id]))
-          .join_sources
-        )
-      end
+      # def join_place_translation
+      #   @query.joins(place.join(place_translation)
+      #     .on(place[:id].eq(place_translation[:place_id]))
+      #     .join_sources
+      #   )
+      # end
 
       def join_classification_place
         @query.joins(place.join(classification_place)
@@ -85,14 +85,6 @@ module DataCycleCore
 
       def classification_place
         ClassificationPlace.arel_table
-      end
-
-      def classification
-        Classification.arel_table
-      end
-
-      def classification_group
-        ClassificationGroup.arel_table
       end
 
     end

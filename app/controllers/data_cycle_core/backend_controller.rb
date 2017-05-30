@@ -4,14 +4,13 @@ module DataCycleCore
     #load_and_authorize_resource         # from cancancan (authorize)
 
     def index
+      @language = params[:language]
+      @language ||= "de" #default-language
 
-      if params[:search]
-        @allDataCycleObjects = CreativeWork.search(params[:search]).order(created_at: :desc)
-      else
-        @allDataCycleObjects = CreativeWork.order(created_at: :desc)
-      end
+      query = DataCycleCore::Filter::CreativeWorkQueryBuilder.new(@language).order(updated_at: :desc)
+      query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
-      @dataCycleObjects = @allDataCycleObjects.page(params[:page])
+      @dataCycleObjects = query.page(params[:page])
 
       if params[:mode].nil?
         @mode = "flex"
@@ -20,7 +19,6 @@ module DataCycleCore
       end
 
       @creativeWork = CreativeWork.new
-
 
     end
 

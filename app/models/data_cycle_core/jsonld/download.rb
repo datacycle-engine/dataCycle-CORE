@@ -3,7 +3,7 @@ module DataCycleCore
 
     class Download
 
-      def initialize(uuid, incremental_update = false, page_size = 300, verbose = false )
+      def initialize(uuid, incremental_update = false, page_size = 100, verbose = false )
         @uuid = uuid
         @download_page_size = page_size
         @verbose = verbose
@@ -43,10 +43,10 @@ module DataCycleCore
           data = JSON.parse(response.body)['CreativeWorks']
 
           data.each do |data_set|
-            old_creative_work = DownloadCreativeWork.find(id: data_set["@id"])
+            old_creative_work = DownloadCreativeWork.find(id: data_set.each.first[1]["url"])
             if old_creative_work.nil?
               creative_work = DownloadCreativeWork.new
-              creative_work.id = data_set["@id"]
+              creative_work.id = data_set.each.first[1]["url"]
               creative_work.created_at = Time.zone.now
             else
               creative_work = old_creative_work
@@ -65,6 +65,7 @@ module DataCycleCore
         start_timestamp = Time.zone.now
         @log.info "BEGIN DOWNLOAD : " + start_timestamp.to_s
         @log.info 'JSON-LD Download:'
+        @log.info "downloading from #{@host+@end_point}"
         @log.info "MongoDb: #{DownloadCreativeWork.database_name}"
 
         save_logger_level = Rails.logger.level
