@@ -84,31 +84,7 @@ header{
   bottom: 2rem;
   right: 2rem;
   > a{
-    position: relative;
-    display: block;
-    background-color: map-get($foundation-palette, primary);
-    border-radius: 50%;
-  	width: 5rem;
-  	height: 5rem;
-    text-align: center;
     z-index: 1006;
-    outline: none;
-    box-shadow: 1px 3px 5px 0px rgba(0, 1, 1, 0.38);
-    transition: all ease-in-out 0.1s;
-    &:hover {
-      background-color: lighten($primary-color, 10%);
-    }
-    &:active {
-      top: 2px;
-      box-shadow: 0 0 1px 0px rgba(0, 1, 1, 0.18);
-    }
-    i{
-      color: $white;
-      position: relative;
-      display: block;
-      line-height: 5rem;
-      font-size: 3rem;
-    }
   }
 }
 #new-object.reveal{
@@ -164,6 +140,42 @@ header{
 
 }
 
+a.button-prime {
+    position: relative;
+    display: block;
+    text-align: center;
+    background-color: map-get($foundation-palette, primary);
+    border-radius: 50%;
+    outline: none;
+    box-shadow: 1px 3px 5px 0px rgba(0, 1, 1, 0.38);
+    transition: all ease-in-out 0.1s;
+    width: 5rem;
+    height: 5rem;
+    i{
+      color: $white;
+      position: relative;
+      display: block;
+      line-height: 5rem;
+      font-size: 3rem;
+    }
+    &:hover {
+      background-color: lighten($primary-color, 10%);
+    }
+    &:active {
+      top: 2px;
+      box-shadow: 0 0 1px 0px rgba(0, 1, 1, 0.18);
+    }
+    &.small {
+      height: 50px;      
+      width: 50px;
+      i {
+        line-height: 3rem;
+        font-size: 1.5rem;
+      }
+    }
+}
+
+
 /* Home */
 .callout{
   &.home{
@@ -180,6 +192,19 @@ header{
       font-size: 1.2rem;
     }
   }
+  &.success {
+    position: fixed;
+    left: 50%;
+    right: 50%;
+    width: 60%;
+    margin-left: -30%;
+    z-index: 10;
+    border: 0;
+    background: #7e9d6d;
+    max-height: 100px;  
+    delay: 5s;
+    transition: max-height ease-in-out 0.2s;
+  }
 }
 .home-login{
   padding-bottom: 1rem;
@@ -190,3 +215,5 @@ header{
     border-left: 1px solid $black;
   }
 }
+
+

@@ -72,8 +72,8 @@ form {
   position: relative;
   background: $light-gray;
   text-align: center;
-  padding: 4rem;
-  margin-bottom: 1rem;
+  padding: 5rem;
+  margin: 1rem 0;
 
   > .title {
     font-size: 2rem;
@@ -84,6 +84,13 @@ form {
     position: absolute;
     left: 1rem;
     top: 1rem;
+    &:nth-child(2) { left: 7rem; }
+    &:nth-child(3) { left: 14rem; }
+    &:nth-child(4) { left: 21rem; }
+    &:nth-child(5) { left: 27rem; }
+    &:nth-child(6) { left: 37rem; }
+    &:nth-child(7) { left: 44rem; }
+    &:nth-child(8) { left: 51rem; }
   }
 
   .bookmark {
@@ -98,33 +105,72 @@ form {
     &:hover {
       color: $primary-color;
     }
+    &.marked {
+      color: $primary-color;
+      i:before {
+        content: "\f02e";
+      }
+    }
+  }
+
+  .tags {
+    bottom: 1rem;
+    left: 1rem;
+    position: absolute;
+    .icon {
+      color: $dark-gray;
+    }
+  }
+
+  .edit {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    a span { display: block; text-indent: -9999px; }
   }
 
 }
 
 
+.detail-header-wrapper {
+  background: $white;
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
 
-.detail-content {
-  .row {
+  .infolist {
+    margin: 0;
+    li { display: inline-block; margin-right: 1rem; }
+  }
+    .row {
     margin-bottom: 1rem;
   }
 
-  .infolist li { display: inline-block; margin-right: 1rem; }
+}
+
+.detail-content {
+
   .image { 
+    img {
+      max-width: 100%; 
+      border: solid 4px #fefefe;
+      border-radius: 0;
+       box-shadow: 0 0 0 1px rgba(51, 51, 51, 0.2);
+    }
+  }
+  .video video {
+    max-width: 100%;
+    border: solid 4px #fefefe;
+    border-radius: 0;
+    box-shadow: 0 0 0 1px rgba(51, 51, 51, 0.2);
+  }
+  .stripes { 
     margin: 2rem 0 0 0; 
     text-align: center; 
     position: relative;
-    border-top: 5px solid #fff;
-    background: repeating-linear-gradient( -55deg,  lighten($light-gray, 8%), lighten($light-gray, 8%) 10px, #fff 10px, #fff 20px );
-    &:before {
-      content: " ";
-      position: absolute;
-      z-index: -1;
-      left: 0;
-      top: -6px;
-      border: 1px solid $light-gray;
-      width: 100%;
-    }
+    background: repeating-linear-gradient( 45deg,  #fff, #fff 10px,  lighten($light-gray, 8%) 10px,  lighten($light-gray, 8%) 20px );
+  }
+  .images {
+    max-width: 900px;
+    margin: 2rem auto;
   }
 }
 
@@ -133,7 +179,28 @@ form {
   font-size: 1rem;
   font-weight: normal;
   &.bilder {
-      color: #efa367;
+      color: $ccpicture;
+  }
+  &.website {
+      color: $ccwebsite;
+  }
+  &.video {
+      color: $ccvideo;
+  }
+  &.text {
+      color: $cctext;
+  }
+  &.social {
+      color: $ccsocial;
+  }
+  &.print {
+      color: $ccprint;
+  }
+  &.event {
+      color: $ccevent;
+  }
+  &.thema {
+      color: $ccthema;
   }
 }
 
@@ -150,6 +217,11 @@ form {
   a.tag:hover {
       background-color: rgba($primary-color, 0.8);
   }
+}
+
+.longtext {
+  max-width: 900px; 
+  margin: 0 auto;
 }
 
 .reveal-overlay {
