@@ -65,6 +65,38 @@ form {
 }
 
 
+.edit-header {
+  background-color: rgba($primary-color, 0.2);
+  padding: 0.5rem;
+  .edit-headline {
+    color: $primary-color;
+    position: absolute;
+    left: 1.5rem;
+    line-height: 2.6rem;
+    i { margin-right: 0.5rem; }
+  }
+
+  ul{
+    text-align: right;
+    margin: 0;
+    list-style: none;
+    li{
+      display: inline-block;
+      position: relative;
+      margin: 0 1rem 0 1rem;
+      input {
+        margin: 0;
+      }
+      &.submit {
+        width: 5rem;
+        .button-prime {
+          position: absolute;
+          top: -3rem;
+        }
+      }
+    }
+  }
+}
 
 
 .detail-header {
@@ -72,12 +104,27 @@ form {
   position: relative;
   background: $light-gray;
   text-align: center;
-  padding: 5rem;
+  padding: 4rem 0 1rem 0;
   margin: 1rem 0;
 
-  > .title {
+
+  > .title, > .headline input {
     font-size: 2rem;
     font-weight: 200;
+    padding: 1rem 5rem 0 5rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .headline{
+    position: relative;
+    &:hover label { opacity: 1; }
+  }
+
+  > .description {
+    position: relative;
+    padding: 0 5rem 3rem 5rem;
+    &:hover label { opacity: 1; }
   }
 
   .type {
@@ -113,13 +160,18 @@ form {
     }
   }
 
-  .tags {
-    bottom: 1rem;
-    left: 1rem;
-    position: absolute;
+  .tags, .dateModified, .gueltigkeit {
+    text-align: left;
+    margin: 0 0 0 1rem;
     .icon {
       color: $dark-gray;
     }
+  }
+  .dateModified span.bis, .dateModified span.icon, .gueltigkeit span.bis, .gueltigkeit span.icon  {
+      color: $dark-gray;
+  }
+    .dateModified span.bis,.gueltigkeit span.bis  {
+      font-style: italic;
   }
 
   .edit {
@@ -129,7 +181,122 @@ form {
     a span { display: block; text-indent: -9999px; }
   }
 
+  label {
+    opacity: 0;
+    position: absolute;
+    position: absolute;
+    top: 0.2rem;
+    left: 1rem;
+    z-index: 12;
+    color: $primary-color;
+    transition: opacity ease-in-out 0.25s;
+  }
+
+  input, .ql-editor, .dateModified {
+    background: $light-gray;
+    outline: none;
+    height: auto;
+    line-height: 1;
+    margin: 0;
+    border-color: $light-gray;
+    box-shadow: 0 0 2px $dark-gray;
+    position: relative;
+    z-index: 1;
+    transition: box-shadow 0.5s, border-color 0.25s ease-in-out;
+    &:hover {
+      box-shadow: 0 0 7px $primary-color;
+      z-index: 10;
+    }
+    &:focus {
+      border-color: $primary-color;
+      background: white;
+      z-index: 10;
+    }
+  }
+  .dateModified:hover span {
+     color: $primary-color;
+  }
+
+  &.editor {
+    padding: 0;
+    margin-top: 3rem;
+      .type  {
+        top: -2rem;
+        opacity: 0.5;
+        color: $dark-gray;
+        left: 0.5rem;
+      }
+      .bookmark {
+        display: none;
+      }
+      .headline input {
+        padding: 1rem 5rem;
+      }
+      .description {
+        padding: 0;
+      }
+      .dateModified {
+        padding: 1rem;
+        .form-element {
+          display: inline-block;
+          input {
+            box-shadow: none !important;
+            border: 0 !important;
+          }
+          .single_error {
+            left: 1rem;
+            top: -2rem;
+            right: auto;
+          }
+        }
+      }
+  }
+
 }
+
+.editor-block {
+  position: relative;
+  .ql-toolbar {
+      position: absolute;
+      z-index: 12;
+      right: 0;
+      border: 0;
+  }
+  .ql-editor {
+    padding-top: 3rem;
+    font-size: 1rem;
+    text-align: center;
+  }
+  .ql-container.ql-snow {
+    border: 0;
+  }
+}
+
+span.single_error {
+    position: absolute;
+    top: -3.3rem; 
+    right: 2rem;
+    background-color: map-get($foundation-palette, alert);
+    padding: 0.5rem 1rem;
+    color: white;
+    border-radius: 5px;
+    white-space: nowrap;
+    z-index: 100;
+    -webkit-transition: all 0.4s ease;
+  }
+  span.single_error:before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-top: 20px solid map-get($foundation-palette, alert);
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    -webkit-transition: all 0.4s ease;
+    -moz-transition   : all 0.4s ease;
+    left: 30%;
+    bottom: -50%;
+  }
 
 
 .detail-header-wrapper {

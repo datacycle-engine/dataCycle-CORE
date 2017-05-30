@@ -142,7 +142,7 @@ header{
 
 }
 
-a.button-prime {
+a.button-prime, button.button-prime {
     position: relative;
     display: block;
     text-align: center;
@@ -194,18 +194,27 @@ a.button-prime {
       font-size: 1.2rem;
     }
   }
-  &.success {
-    position: fixed;
-    left: 50%;
-    right: 50%;
-    width: 60%;
-    margin-left: -30%;
+  &.alert, &.success {
+    line-height: 4rem;
+    margin: 0;
+    padding: 0.1rem 1rem;
+    left: 0;
+    right: 0;
+    width: 100%;
     z-index: 10;
     border: 0;
-    background: #7e9d6d;
-    max-height: 100px;  
-    delay: 5s;
-    transition: max-height ease-in-out 0.2s;
+    color: white;
+    .close-button, .close-button.medium {
+        line-height: 3rem;
+        color: white;
+    }
+  }
+  &.success {
+    position: fixed;
+    background: map-get($foundation-palette, success);
+  }
+  &.alert {
+    background: map-get($foundation-palette, alert);
   }
 }
 .home-login{

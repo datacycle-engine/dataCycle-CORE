@@ -1,11 +1,30 @@
 
 <% content_for :top_content do %>
 
-    <div class="detail-header">
+ 
+
+<%= form_for @creativeWork, builder: DataCycleCore::CreativeWorksHelper::DataCycleFormBuilder do |f| %>
+    <%= hidden_field_tag 'uuid', @creativeWork.id %>
+
+<section class="edit-header"><div class="row expanded"><div class="column">
+<div class="edit-headline"><i class="fa fa-pencil" aria-hidden="true"></i> Thema bearbeiten</div>
+  <ul>
+    <li>
+      <%= f.submit "Update", class: "button primary", :data => { disable_with: false } %>
+    </li>
+    <li class="submit">
+     <button class="button-prime"><i class="fa fa-check" aria-hidden="true"></i></button>
+     </li>
+  </ul></div></div>
+</section>
+
+<div class="row"><div class="column">
+
+    <div class="detail-header editor">
 
         <div class="type thema">
           <span class="icon">
-              <i class="fa fa-folder-open-o" aria-hidden="true"></i>
+              <i class="fa fa-folder-open" aria-hidden="true"></i>
           </span>
             <span class="title">Thema</span>
         </div>
@@ -15,31 +34,11 @@
             <i class="fa fa-bookmark-o" aria-hidden="true"></i>
         </a>
 
-        <div class="title">
-            <%= @creativeWork.headline %>
-        </div>
-        <div class="description">
-            <% if !@creativeWork[:description].nil? %>
-                <%= @creativeWork.description.html_safe %>
-            <% end %>
-        </div>
-
         <div class="tags">
             <% @creativeWork.classification_aliases.each do |classificationAlias| %>
                 <span class="tag"><a href="#"><%= classificationAlias.name %></a></span>
             <% end %>
         </div>
-
-        <div class="edit">
-            <%= link_to 'Bearbeiten >', edit_creative_work_path(@creativeWork), class:'button primary' %>
-        </div>
-
-    </div>
-
-<% end %>
-
-<%= form_for @creativeWork, builder: DataCycleCore::CreativeWorksHelper::DataCycleFormBuilder do |f| %>
-    <%= hidden_field_tag 'uuid', @creativeWork.id %>
 
     <div id="validation_errors">
 
@@ -69,7 +68,7 @@
                         </div>
                     </div>
                 <% else %>
-                    <div class="form-element">
+                    <div class="form-element <%= key %>">
                         <%= data_cycle_field key, prop, @dataSchema[key], class: 'form-control' %>
                     </div>
                 <% end %>
@@ -78,10 +77,24 @@
 
         <% end %>
 
-            <%= f.submit "Update", class: "button primary", :data => { disable_with: false } %>
     <% end %>
 
 <% end %>
+
+        <div class="dateModified">
+            <span class="icon"><i class="fa fa-clock-o" aria-hidden="true"></i> Gültigkeit</span>
+            <div class="form-element">
+                <label for="validFrom">Gültig von</label><input type="date" name="creative_work[datahash][validityPeriod][validFrom]" id="creative_work_datahash_validityPeriod_validFrom" value="2017-01-03" class="form-control" data-type="datepicker">
+                </div> <span class="bis">bis</span> <div class="form-element">
+                <label for="validFrom">Gültig von</label><input type="date" name="creative_work[datahash][validityPeriod][validFrom]" id="creative_work_datahash_validityPeriod_validFrom" value="2017-01-03" class="form-control" data-type="datepicker">
+            </div>
+        </div>
+
+</div>
+</div></div>
+<% end %>
+
+
 
 
 <!--<%= debug(@dataSchema) %>-->
