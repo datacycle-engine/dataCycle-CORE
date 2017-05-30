@@ -22,7 +22,6 @@ module DataCycleCore
     end
 
     def create
-      byebug
       @creativeWork = DataCycleCore::CreativeWork.new(creative_work_params)    # Not the final implementation!
 
       #Testing
