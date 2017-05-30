@@ -22,7 +22,11 @@ module DataCycleCore
       end
 
       def fulltext_search(name)
-        # change from "name" to "headline"
+        unless @classification_alias # see if joins are necessary
+          @query = join_classification_alias
+          @classification_alias = true
+        end
+
         reflect(
           @query.where(
             tsmatch(
@@ -32,7 +36,7 @@ module DataCycleCore
                     coalesce(json_element(creative_work_translation[:content], quoted('caption')), quoted(' ')),
                     coalesce(json_element(creative_work_translation[:content], quoted('description')),quoted(''))
                   ),
-                  coalesce(json_element(creative_work_translation[:content], quoted('name')), quoted(' ')),
+                  coalesce(json_element(creative_work_translation[:content], quoted('headline')), quoted(' ')),
                 )
               ),
               to_tsquery(quoted(name))

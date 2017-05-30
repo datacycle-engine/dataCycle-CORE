@@ -1,5 +1,5 @@
 <div class="grid-item data-cycle-object">
-
+  <% I18n.with_locale(@language) do %>
     <%= link_to item do %>
 
         <div class="inner">
@@ -71,5 +71,5 @@
         </div>
 
     <% end %>
-
+  <% end %>
 </div>
