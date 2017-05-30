@@ -18,6 +18,14 @@ module DataCycleCore
 
         @classifications_tree_label_id = init_or_create_classifications_trees_label('imported')
 
+        @image_classification = DataCycleCore::Classification.where(name: 'Bild').
+          joins(classification_groups: [classification_alias: [classification_trees: [:classification_tree_label]]]).
+          where('classification_aliases.name = ?', 'Bild').
+          where('classification_trees.parent_classification_alias_id IS NULL').
+          where('classification_tree_labels.name = ?', 'Inhaltstypen').
+          first.id
+
+
         Rails.logger.level = save_logger_level
       end
 
@@ -123,7 +131,16 @@ module DataCycleCore
                 end
               end
 
-              # read data for relations (keywords,places)
+              # save image with classification 'Bild' and treelabel 'Inhaltstypen'
+              ClassificationCreativeWork
+                .find_or_initialize_by(
+                  creative_work_id: to_update_image.id,
+                  classification_id: @image_classification,
+                  external_source_id: @external_source_id
+                ) do |relation|
+                  relation.seen_at = Time.zone.now
+              end.save
+
               #create relation for keywords
               #puts "id: #{to_update_image.id} | keywords = #{data_set.dump.each.first[1]['keywords']}"
               keywords = data_set.dump.each.first[1]['keywords']
