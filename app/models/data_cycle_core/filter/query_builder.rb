@@ -123,7 +123,7 @@ module DataCycleCore
       end
 
       def to_tsquery(string)
-        Arel::Nodes::NamedFunction.new("to_tsquery", [string]) #[quoted("german"), string])
+        Arel::Nodes::NamedFunction.new("plainto_tsquery", [string]) #[quoted("german"), string])
       end
 
       def tsmatch(tsvector, tsquery)
