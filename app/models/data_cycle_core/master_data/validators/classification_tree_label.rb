@@ -4,12 +4,13 @@ module DataCycleCore
       class ClassificationTreeLabel < BasicValidator
 
         def validate(data, template)
+          puts "---> validate classificationTreeLabel, data:'#{data}'"
           if data.blank?
             @error[:warning].push "No data given for #{template['label']}."
           elsif data.is_a?(::Array)
             data.each do |key|
               if key.is_a?(::String)
-                check_reference(key,template)
+                check_reference(key,template) unless key.blank?
               else
                 @error[:error].push "Elements of the data-array given for #{template['label']} have the wrong format (#{key})."
               end
