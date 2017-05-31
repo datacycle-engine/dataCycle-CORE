@@ -18,8 +18,10 @@
           <!--<%= item.id %>-->
         </div>
         <div class="tags">
-          <% item.classification_aliases.each do |classificationAlias| %>
-              <span class="tag"><a href="#"><%= classificationAlias.name %></a></span>
+          <% unless item.classification_aliases.nil? %>
+            <% item.classification_aliases.each do |classificationAlias| %>
+                <span class="tag"><a href="#"><%= classificationAlias.name %></a></span>
+            <% end %>
           <% end %>
         </div>
       </div>

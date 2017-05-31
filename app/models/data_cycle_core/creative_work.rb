@@ -109,7 +109,15 @@ module DataCycleCore
       super + '-' + Globalize.locale.to_s
     end
 
-    def self.search(search)
+    def tags
+      DataCycleCore::ClassificationAlias.
+        joins(classifications: [:creative_works]).
+        where("creative_works.id = ?", self.id).
+        where("classification_creative_works.tag = ?", true)
+    end
+
+    # was replaced by QueryBuilders
+    def search(search)
       where("headline LIKE ? OR description LIKE ?", "%#{search}%", "%#{search}%")
     end
 

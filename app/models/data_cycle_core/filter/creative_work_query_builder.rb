@@ -22,11 +22,6 @@ module DataCycleCore
       end
 
       def fulltext_search(name)
-        unless @classification_alias # see if joins are necessary
-          @query = join_classification_alias
-          @classification_alias = true
-        end
-
         reflect(
           @query.where(
             tsmatch(
