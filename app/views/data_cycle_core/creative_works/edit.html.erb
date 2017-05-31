@@ -42,29 +42,32 @@
 
     <div id="validation_errors">
 
-    </div>
+        <div id="validation_errors">
 
-    <% if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? %>
+        </div>
 
-        <% validation = @creativeWork.metadata['validation'] %>
-        <!--<h2><%= "#{validation['name']} - #{validation['description']} - #{validation['type']}" %></h2>-->
+        <% if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? %>
 
-        <% if !validation['properties'].nil? %>
+            <% validation = @creativeWork.metadata['validation'] %>
+            <!--<h2><%= "#{validation['name']} - #{validation['description']} - #{validation['type']}" %></h2>-->
 
-            <% validation['properties'].each do |key, prop| %>
+            <% if !validation['properties'].nil? %>
 
-                <% if prop['type'] == 'object' && !prop['properties'].nil? %>
-                    <div class="data-object">
-                        <div class="object-title"><strong><%= prop['label'] %></strong></div>
-                        <div class="object-inner row expanded">
-                            <% prop['properties'].each do |object_key, object_property| %>
-                                <div class="columns medium-12 large-6">
-                                    <% object_value = @dataSchema[key].nil? ? "" : @dataSchema[key][object_key] %>
-                                    <div class="form-element">
-                                        <%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [key] %>
+                <% validation['properties'].each do |key, prop| %>
+
+                    <% if prop['type'] == 'object' && !prop['properties'].nil? %>
+                        <div class="data-object">
+                            <div class="object-title"><strong><%= prop['label'] %></strong></div>
+                            <div class="object-inner row expanded">
+                                <% prop['properties'].each do |object_key, object_property| %>
+                                    <div class="columns medium-12 large-6">
+                                        <% object_value = @dataSchema[key].nil? ? "" : @dataSchema[key][object_key] %>
+                                        <div class="form-element">
+                                            <%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [key] %>
+                                        </div>
                                     </div>
-                                </div>
-                            <% end %>
+                                <% end %>
+                            </div>
                         </div>
                     </div>
                 <% else %>
@@ -75,11 +78,13 @@
 
             <% end %>
 
+            <%= f.submit "Update", class: "button primary", :data => { disable_with: false } %>
+
         <% end %>
 
     <% end %>
 
-<% end %>
+</div>
 
         <div class="dateModified">
             <span class="icon"><i class="fa fa-clock-o" aria-hidden="true"></i> Gültigkeit</span>

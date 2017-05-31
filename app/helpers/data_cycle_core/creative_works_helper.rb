@@ -12,6 +12,33 @@ module DataCycleCore
 
     end
 
+    def get_classifications_for_name(prop)
+
+      unless prop['type_name'].nil?
+          unless (DataCycleCore::ClassificationTreeLabel.find_by name: prop['type_name']).nil?
+            @classification_tree_label =  DataCycleCore::ClassificationTreeLabel.find_by name: prop['type_name']
+          end
+      end
+
+    end
+
+    def get_selected_values_for_classification(options, value)
+      if value.nil?
+        return nil
+      end
+
+      @selected_values = []
+      value.each do |v|
+        options.each do |o|
+          if o['value'][0] == v
+            @selected_values.push(o)
+          end
+        end
+      end
+      @selected_values
+
+    end
+
     def data_cycle_field(key, prop, value = nil, options = {}, parents=[])
       unless prop['editor'] || prop['type'] == 'object'
         # return "No properties for editor set"
@@ -33,6 +60,15 @@ module DataCycleCore
         # send('render_'+ data_type +'_field', object_key, prop, value, options)
       else
          "Unknown data_type: #{prop['type']}"
+      end
+
+    end
+
+    def render_classificationTreeLabel_field(key, prop, value=nil, options={})
+      if !prop['editor'].nil? && !prop['editor']['type'].nil?
+        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options}
+      else
+        'no juhu'
       end
 
     end
