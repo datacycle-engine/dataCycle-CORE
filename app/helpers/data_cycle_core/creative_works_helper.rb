@@ -23,10 +23,12 @@ module DataCycleCore
     end
 
     def get_selected_values_for_classification(options, value)
+
       if value.nil?
         return nil
       end
 
+      #todo: make this more fancy
       @selected_values = []
       value.each do |v|
         options.each do |o|
@@ -51,7 +53,7 @@ module DataCycleCore
       end
       data_type = prop['type']
 
-      if !prop['editor']['options'].nil?
+      unless prop['editor']['options'].nil?
         options.merge!(prop['editor']['options'])
       end
 
@@ -75,7 +77,7 @@ module DataCycleCore
 
     def render_object_field(key, prop, value=nil, options={})
       #raise prop.inspect
-      if !prop['properties'].nil?
+      unless prop['properties'].nil?
         output = []
 
         prop['properties'].each do |object_key, object_property|

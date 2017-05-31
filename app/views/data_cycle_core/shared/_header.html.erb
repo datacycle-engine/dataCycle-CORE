@@ -18,11 +18,6 @@
         </li>
         <% if user_signed_in? %>
           <li>
-            <%= link_to vuejs_path do %>
-              <i class="fa fa-cogs" aria-hidden="true"></i><span>Vue.js</span>
-            <% end %>
-          </li>
-          <li>
             <button type="button" class="button" data-toggle="settings-off-canvas">
               <span><%= current_user.email %></span><i class="fa fa-smile-o icon-right" aria-hidden="true"></i>
             </button>
