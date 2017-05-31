@@ -25,7 +25,7 @@ module DataCycleCore
       @creativeWork = DataCycleCore::CreativeWork.new(creative_work_params)    # Not the final implementation!
 
       #Testing
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Content-Einheit", description: "CreativeWork").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Thema", description: "CreativeWork").first
       validation = template.metadata['validation']
 
       @creativeWork.metadata = { 'validation' => validation }
