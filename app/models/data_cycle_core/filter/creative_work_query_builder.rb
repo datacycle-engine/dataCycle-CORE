@@ -6,6 +6,7 @@ module DataCycleCore
         @classification_alias = classification_alias
         @locale = language
         @query = query || CreativeWork.unscoped.distinct.
+                            where(template: false).
                             joins(creative_work.join(creative_work_translation).
                             on(creative_work[:id].eq(creative_work_translation[:creative_work_id])).
                             join_sources
