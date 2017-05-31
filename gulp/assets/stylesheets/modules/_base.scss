@@ -345,7 +345,7 @@ span.single_error {
 .type{
   font-size: 1rem;
   font-weight: normal;
-  &.bilder {
+  &.bild {
       color: $ccpicture;
   }
   &.website {
@@ -366,7 +366,7 @@ span.single_error {
   &.event {
       color: $ccevent;
   }
-  &.thema {
+  &.content-einheit {
       color: $ccthema;
   }
 }

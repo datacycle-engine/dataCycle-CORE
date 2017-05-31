@@ -93,6 +93,8 @@ module DataCycleCore
         case prop['editor']['type']
           when 'input'
             render_input_text_field(key, value, options)
+          when 'datetime'
+            render_datetime_input_text_field(key, value, options)
           when 'rte'
             render_fe_editor(key, value, options)
         end
@@ -108,6 +110,10 @@ module DataCycleCore
 
     def render_input_text_field(key, value=nil, options={})
       render partial: "#{@@partials_path}input", locals: {key: key, value: value, options: options}
+    end
+
+    def render_datetime_input_text_field(key, value=nil, options={})
+      render partial: "#{@@partials_path}datetimeInput", locals: {key: key, value: value, options: options}
     end
 
     private
