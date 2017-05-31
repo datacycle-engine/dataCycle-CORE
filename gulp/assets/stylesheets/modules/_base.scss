@@ -67,12 +67,12 @@ form {
 
 .edit-header {
   background-color: rgba($primary-color, 0.2);
-  padding: 0.5rem;
+  height: 3.5rem;
+  line-height: 3.5rem;
   .edit-headline {
     color: $primary-color;
     position: absolute;
     left: 1.5rem;
-    line-height: 2.6rem;
     i { margin-right: 0.5rem; }
   }
 
@@ -80,15 +80,39 @@ form {
     text-align: right;
     margin: 0;
     list-style: none;
+    line-height: 3.5rem;
     li{
       display: inline-block;
       position: relative;
-      margin: 0 1rem 0 1rem;
-      input {
+      margin: 0;
+      .button {
         margin: 0;
+        background: none;
+        outline: none;
+        color: rgba($primary-color, 0.5);
+        &.has-tip { border-bottom: none; cursor: pointer;}
+        i {
+          font-size: 1.5rem;
+        }
+        &:hover, &:focus {
+          color: $primary-color;
+        }
+        &.discard {
+          color: rgba($black, 0.5);
+           &:hover, &:focus {
+            color: $black;
+          }
+        }
+        &.delete {
+          color:  rgba(map-get($foundation-palette, alert), 0.5);
+          &:hover, &:focus {
+            color: map-get($foundation-palette, alert);
+          }
+        }
       }
       &.submit {
         width: 5rem;
+        margin: 0 1rem;
         .button-prime {
           position: absolute;
           top: -3rem;
@@ -170,8 +194,21 @@ form {
   .dateModified span.bis, .dateModified span.icon, .gueltigkeit span.bis, .gueltigkeit span.icon  {
       color: $dark-gray;
   }
-    .dateModified span.bis,.gueltigkeit span.bis  {
+  .dateModified span.bis,.gueltigkeit span.bis  {
       font-style: italic;
+  }
+  .dateModified {
+    &.focus {
+      border-color: $primary-color;
+      background: white;
+      z-index: 10;
+      input { 
+        background: $white
+       }
+    }
+    &:hover span {
+     color: $primary-color;
+    }
   }
 
   .edit {
@@ -193,6 +230,7 @@ form {
   }
 
   input, .ql-editor, .dateModified {
+    border: 1px solid $light-gray;
     background: $light-gray;
     outline: none;
     height: auto;
@@ -213,9 +251,7 @@ form {
       z-index: 10;
     }
   }
-  .dateModified:hover span {
-     color: $primary-color;
-  }
+
 
   &.editor {
     padding: 0;
@@ -270,6 +306,7 @@ form {
   .ql-container.ql-snow {
     border: 0;
   }
+  .ql-tooltip { z-index: 12; }
 }
 
 span.single_error {
