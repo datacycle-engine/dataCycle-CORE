@@ -160,7 +160,8 @@ form {
     }
   }
 
-  .tags, .dateModified, .gueltigkeit {
+  //.tags, .gueltigkeit {
+  .gueltigkeit {
     text-align: left;
     margin: 0 0 0 1rem;
     .icon {
@@ -236,7 +237,7 @@ form {
         padding: 0;
       }
       .dateModified {
-        padding: 1rem;
+        //padding: 1rem;
         .form-element {
           display: inline-block;
           input {
@@ -253,6 +254,18 @@ form {
   }
 
 }
+
+
+.custom-select-title{
+  padding-top: 0.5rem;
+}
+.custom-select{
+  padding: 0 1rem 1rem 1rem;
+  .v-select .selected-tag{
+    background-color: rgba($primary-color, 0.2);
+  }
+}
+
 
 .editor-block {
   position: relative;

@@ -4,6 +4,8 @@
 
     <% options = @classification_tree_label.classification_trees.map { |classification| {"value" => classification.sub_classification_alias.classifications.ids , "label" => classification.sub_classification_alias.name }} %>
     <% selected_values = get_selected_values_for_classification options, value %>
+
+    <div class="custom-select-title"><%= prop['label'] %></div>
     <custom-select hidden-field-id="<%= key %>[]" :custom-options="<%= options.to_json %>" :selected-values="<%= selected_values.to_json %>"></custom-select>
 
 <% end %>
