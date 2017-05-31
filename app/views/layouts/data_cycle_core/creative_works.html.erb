@@ -15,21 +15,32 @@
 
         <%= render 'data_cycle_core/backend/breadcrumb' if user_signed_in? %>
 
-        <%= yield :top_content %>
+        <%= render 'data_cycle_core/shared/newObject' if user_signed_in? %>
 
-        <%= display_flash_messages_new %>
+        <div class="reveal-blur">
+            <div class="row expanded">
 
-        <div class="expanded row">
-            <div class="column">
-
-                <%= yield %>
+                <%= yield :top_content %>
 
             </div>
+            <div class="row expanded">
+                <div class="columns">
+
+                    <%= display_flash_messages_new %>
+
+                    <div class="expanded row">
+                        <div class="column">
+
+                            <%= yield %>
+
+                        </div>
+                    </div>
+
+                    <%= render 'data_cycle_core/shared/footer' %>
+
+                </div>
+            </div>
         </div>
-
-        <%= render 'data_cycle_core/shared/footer' %>
-
-        <%= render 'data_cycle_core/shared/newObject' if user_signed_in? %>
 
     </div>
 
