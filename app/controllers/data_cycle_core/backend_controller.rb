@@ -30,7 +30,7 @@ module DataCycleCore
     end
 
     def settings
-
+      render layout: "data_cycle_core/frontend"
     end
 
     def vue
