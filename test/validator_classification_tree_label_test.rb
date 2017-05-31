@@ -140,6 +140,20 @@ module DataCycleCore
           assert_equal(0, validator.error[:warning].size)
         end
 
+        test "warning when empty string in array is given as input" do
+          error_hash = { error: [], warning: []}
+          template_hash = {
+            "label" => "Bundesland",
+            "type" => "classificationTreeLabel",
+            "type_name" => "Bundesländer",
+            "storage_type" => "classification_creative_works",
+            "storage_location" => "classification_creative_works"
+          }
+          validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new([""],template_hash)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(1, validator.error[:warning].size)
+        end
+
       end
 
     end
