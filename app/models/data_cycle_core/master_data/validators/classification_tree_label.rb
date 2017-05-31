@@ -4,13 +4,12 @@ module DataCycleCore
       class ClassificationTreeLabel < BasicValidator
 
         def validate(data, template)
-          puts "---> validate classificationTreeLabel, data:'#{data}'"
-          if data.blank?
+          if is_blank?(data)
             @error[:warning].push "No data given for #{template['label']}."
           elsif data.is_a?(::Array)
             data.each do |key|
               if key.is_a?(::String)
-                check_reference(key,template) unless key.blank?
+                check_reference(key,template)
               else
                 @error[:error].push "Elements of the data-array given for #{template['label']} have the wrong format (#{key})."
               end
@@ -36,6 +35,7 @@ module DataCycleCore
           end
         end
 
+      private
         def uuid?(data)
           data.downcase!
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
@@ -44,6 +44,14 @@ module DataCycleCore
             @error[:error].push "Expecting uuid for #{data}. format: 12345678-9abc-def0-1234-56789abcdef0"
           end
           check_uuid
+        end
+
+        def is_blank?(data)
+          return true if data.blank?
+          if data.is_a?(::Array)
+            return true if data.length == 1 && data[0].blank?
+          end
+          return false
         end
 
       end
