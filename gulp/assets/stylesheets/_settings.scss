@@ -52,7 +52,7 @@ $global-lineheight: 1.5;
 $foundation-palette: (
   primary: #1779ba,
   secondary: #767676,
-  success: #3adb76,
+  success: #90c062,
   warning: #ffae00,
   alert: #cc4b37,
 );
@@ -66,16 +66,25 @@ $body-font-color: $black;
 $body-font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 $body-antialiased: true;
 $global-margin: 1rem;
-$global-padding: 1rem;
+$global-padding: 1rem; 
 $global-weight-light: 200;
 $global-weight-normal: normal;
 $global-weight-bold: bold;
 $global-radius: 0;
 $global-text-direction: ltr;
 $global-flexbox: false;
-$print-transparent-backgrounds: true;
+$print-transparent-backgrounds: true; 
 
 @include add-foundation-colors;
+
+$ccwebsite: #4a5869;
+$ccpicture: #d7ac40;
+$ccvideo: #69a195;
+$cctext: #ea725d;
+$ccsocial: #7e9d6d;
+$ccprint: #866993;
+$ccevent: #e2a677;
+$ccthema: $primary-color; 
 
 // 2. Breakpoints
 // --------------
