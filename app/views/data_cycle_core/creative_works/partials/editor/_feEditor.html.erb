@@ -1,14 +1,18 @@
-<div class="editor-block">
+<div class="form-element <%= key.split('[').last[0...-1] %>">
+    <%= label_tag(key, label) %>
+    <div class="editor-block">
 
-    <%= hidden_field_tag key,value,options %>
+        <%= hidden_field_tag key, value, options %>
 
-    <div class="quill-editor" data-hidden-field-id="<%= sanitize_to_id(key) %>">
+        <% options.merge!({'data-hidden-field-id' => sanitize_to_id(key),:class => 'quill-editor'}) %>
 
-        <% if !value.nil? %>
-            <%= value.html_safe %>
+        <%= content_tag :div, options do %>
+
+            <% if !value.nil? %>
+                <%= value.html_safe %>
+            <% end %>
+
         <% end %>
 
     </div>
-
-
 </div>

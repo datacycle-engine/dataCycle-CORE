@@ -74,7 +74,8 @@ module DataCycleCore
 
       if @creativeWork.save
         flash[:success] = "CreativeWork updated"
-        redirect_to @creativeWork
+        # redirect_to @creativeWork
+        redirect_to edit_creative_work_path(@creativeWork)
       else
         render 'edit'
       end
