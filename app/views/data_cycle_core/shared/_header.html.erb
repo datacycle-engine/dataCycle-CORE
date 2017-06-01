@@ -1,40 +1,40 @@
 <header>
-  <div class="top-bar">
-    <div class="top-bar-title">
-      <!-- <span data-responsive-toggle="main-menu" data-hide-for="medium">
-        <button class="menu-icon dark" type="button" data-toggle></button>
-      </span> -->
-      <span class="logo">
-        <%= link_to image_tag("data_cycle_core/datacycle.png", alt: "DataCycle"), '' %>
-      </span>
-      <span class="title">DataCycle</span>
+    <div class="top-bar">
+        <div class="top-bar-title">
+            <!-- <span data-responsive-toggle="main-menu" data-hide-for="medium">
+              <button class="menu-icon dark" type="button" data-toggle></button>
+            </span> -->
+            <span class="logo">
+                <%= link_to image_tag("data_cycle_core/datacycle.png", alt: "DataCycle"), '' %>
+            </span>
+            <span class="title">DataCycle</span>
+        </div>
+        <div class="top-bar-right" id="main-menu">
+            <ul class="menu">
+                <li>
+                    <%= link_to '#' do %>
+                        <i class="fa fa-question" aria-hidden="true"></i><span>Info</span>
+                    <% end %>
+                </li>
+                <% if user_signed_in? %>
+                    <li>
+                        <button type="button" class="button" data-toggle="settings-off-canvas">
+                            <span><%= current_user.email %></span><i class="fa fa-smile-o icon-right" aria-hidden="true"></i>
+                        </button>
+                    </li>
+                <% else %>
+                    <li>
+                        <%= link_to '#' do %>
+                            <span>Registrieren</span><i class="fa fa-cogs icon-right" aria-hidden="true"></i>
+                        <% end %>
+                    </li>
+                    <li>
+                        <%= link_to data_cycle_core.new_user_session_path do %>
+                            <span>Login</span><i class="fa fa-smile-o icon-right" aria-hidden="true"></i>
+                        <% end %>
+                    </li>
+                <% end %>
+            </ul>
+        </div>
     </div>
-    <div class="top-bar-right" id="main-menu">
-      <ul class="menu">
-        <li>
-          <%= link_to '#' do %>
-            <i class="fa fa-question" aria-hidden="true"></i><span>Info</span>
-          <% end %>
-        </li>
-        <% if user_signed_in? %>
-          <li>
-            <button type="button" class="button" data-toggle="settings-off-canvas">
-              <span><%= current_user.email %></span><i class="fa fa-smile-o icon-right" aria-hidden="true"></i>
-            </button>
-          </li>
-        <% else %>
-          <li>
-            <%= link_to '#' do %>
-              <span>Registrieren</span><i class="fa fa-cogs icon-right" aria-hidden="true"></i>
-            <% end %>
-          </li>
-          <li>
-            <%= link_to data_cycle_core.new_user_session_path do %>
-              <span>Login</span><i class="fa fa-smile-o icon-right" aria-hidden="true"></i>
-            <% end %>
-          </li>
-        <% end %>
-      </ul>
-    </div>
-  </div>
 </header>

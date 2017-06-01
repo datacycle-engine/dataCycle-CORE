@@ -5,32 +5,32 @@
 </head>
 <body>
 
-<%= render 'data_cycle_core/shared/header' %>
+    <%= render 'data_cycle_core/shared/header' %>
 
-<div class="off-canvas-wrapper">
+    <div class="off-canvas-wrapper">
 
-    <%= render 'data_cycle_core/backend/user-settings' if user_signed_in? %>
+        <%= render 'data_cycle_core/backend/user-settings' if user_signed_in? %>
 
-    <div class="off-canvas-content" data-off-canvas-content>
+        <div class="off-canvas-content" data-off-canvas-content>
 
-        <%= render 'data_cycle_core/backend/breadcrumb' if user_signed_in? %>
+            <%= render 'data_cycle_core/backend/breadcrumb' if user_signed_in? %>
 
-        <%= yield :top_content %>
+            <%= yield :top_content %>
 
-        <%= display_flash_messages_new %>
+            <%= display_flash_messages_new %>
 
-        <div class="expanded row">
-            <div class="column">
-                <%= yield %>
+            <div class="expanded row">
+                <div class="column">
+                    <%= yield %>
 
+                </div>
             </div>
+
+            <%= render 'data_cycle_core/shared/footer' %>
+
         </div>
 
-        <%= render 'data_cycle_core/shared/footer' %>
-
     </div>
-
-</div>
 
 </body>
 </html>

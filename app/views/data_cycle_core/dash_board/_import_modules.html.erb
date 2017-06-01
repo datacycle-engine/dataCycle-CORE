@@ -1,33 +1,33 @@
 <div class="card" style="width: 300px; background-color:white;">
-  <div class="card-divider">
-    <h5><%= "<i class='material-icons'>public</i> #{locals[:import_data][:name]}".html_safe %></h5>
-  </div>
-  <div class="card-section">
-    <%= truncate(locals[:import_data][:database], length: 35)%>
-    <ul>
-    <%= content_tag(:li, "size: #{number_to_human_size(locals[:import_data][:db_size])}")%>
-    </ul>
-  </div>
-  <div class="card-section">
-    Collections: <br />
-    <ul>
-      <% locals[:import_data][:tables].each do |key, value| %>
-        <%=content_tag(:li, "#{key.capitalize}: #{value}")%>
-      <% end %>
-    </ul>
-  </div>
-  <div class="card-section">
-    last download:
-    <ul>
-      <%= content_tag(:li, "#{locals[:import_data][:last_download]}".html_safe) %>
-    </ul>
-    last import:
-    <ul>
-      <%= content_tag(:li, "#{locals[:import_data][:last_import]}".html_safe) %>
-    </ul>
-  </div>
+    <div class="card-divider">
+        <h5><%= "<i class='material-icons'>public</i> #{locals[:import_data][:name]}".html_safe %></h5>
+    </div>
+    <div class="card-section">
+        <%= truncate(locals[:import_data][:database], length: 35)%>
+        <ul>
+            <%= content_tag(:li, "size: #{number_to_human_size(locals[:import_data][:db_size])}")%>
+        </ul>
+    </div>
+    <div class="card-section">
+        Collections: <br />
+        <ul>
+            <% locals[:import_data][:tables].each do |key, value| %>
+                <%=content_tag(:li, "#{key.capitalize}: #{value}")%>
+            <% end %>
+        </ul>
+    </div>
+    <div class="card-section">
+        last download:
+        <ul>
+            <%= content_tag(:li, "#{locals[:import_data][:last_download]}".html_safe) %>
+        </ul>
+        last import:
+        <ul>
+            <%= content_tag(:li, "#{locals[:import_data][:last_import]}".html_safe) %>
+        </ul>
+    </div>
 </div>
 <%= link_to('download', admin_download_path(uuid: locals[:import_data][:uuid]), class: 'button small') %>
 <% unless locals[:import_data][:db_size] == 0%>
-  <%= link_to('import', admin_import_path(uuid: locals[:import_data][:uuid]), class: 'button small') %>
+    <%= link_to('import', admin_import_path(uuid: locals[:import_data][:uuid]), class: 'button small') %>
 <% end %>

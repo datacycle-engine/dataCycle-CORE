@@ -1,38 +1,38 @@
 <%= form_tag(root_path, :method => "get", id: "search-form") do %>
-<section class="filters">
-<div class="main-filters row expanded">
-  <div class="column">
-    <div class="row">
-      <!-- <div class="filter area columns small-3">
-        <span class="icon"><i class="fa fa-dropbox" aria-hidden="true"></i></span>
-        <span class="title">Bereich <strong>(3)</strong></span>
-        <span class="icon"><i class="fa fa-angle-down" aria-hidden="true"></i></span>
-      </div> -->
-      <!-- <div class="filter categories columns small-3">
-        <span class="icon"><i class="fa fa-sitemap" aria-hidden="true"></i></span>
-        <span class="title">Kategorien <strong>(3)</strong></span>
-        <span class="icon"><i class="fa fa-angle-down" aria-hidden="true"></i></span>
-      </div> -->
-      <%# classification_alias_id = DataCycleCore::ClassificationAlias.joins(classification_trees: [:classification_tree_label]).where("classification_tree_labels.name = ?", 'Sonstiges').where("classification_aliases.name = ?",'Auslagenthema (Sehnsuchtsthema)').first.id %>
-      <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Themenbereiche', display_label: 'Thema', classification_alias_id: nil %>
-      <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Bundesländer', display_label: 'Bundesland', classification_alias_id: nil %>
-      <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Märkte', display_label: 'Zielmarkt', classification_alias_id: nil %>
-      <%= render 'data_cycle_core/backend/partials/filter/sprache'%>
-    </div>
-  </div>
-</div>
-<div class="search row expanded">
-  <div class="column">
-    <div class="search">
-      <div class="input-group">
-        <div class="input-group-button">
-          <button type="submit" class="search_icon "><i class="fa fa-search" aria-hidden="true"></i></button>
+    <section class="filters">
+        <div class="main-filters row expanded">
+            <div class="column">
+                <div class="row">
+                    <!-- <div class="filter area columns small-3">
+                      <span class="icon"><i class="fa fa-dropbox" aria-hidden="true"></i></span>
+                      <span class="title">Bereich <strong>(3)</strong></span>
+                      <span class="icon"><i class="fa fa-angle-down" aria-hidden="true"></i></span>
+                    </div> -->
+                    <!-- <div class="filter categories columns small-3">
+                      <span class="icon"><i class="fa fa-sitemap" aria-hidden="true"></i></span>
+                      <span class="title">Kategorien <strong>(3)</strong></span>
+                      <span class="icon"><i class="fa fa-angle-down" aria-hidden="true"></i></span>
+                    </div> -->
+                    <%# classification_alias_id = DataCycleCore::ClassificationAlias.joins(classification_trees: [:classification_tree_label]).where("classification_tree_labels.name = ?", 'Sonstiges').where("classification_aliases.name = ?",'Auslagenthema (Sehnsuchtsthema)').first.id %>
+                    <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Themenbereiche', display_label: 'Thema', classification_alias_id: nil %>
+                    <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Bundesländer', display_label: 'Bundesland', classification_alias_id: nil %>
+                    <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Märkte', display_label: 'Zielmarkt', classification_alias_id: nil %>
+                    <%= render 'data_cycle_core/backend/partials/filter/sprache'%>
+                </div>
+            </div>
         </div>
-        <%= text_field_tag :search, params[:search], placeholder: "Suchbegriff",class:"input-group-field" %>
-      </div>
-    </div>
-  </div>
-</div>
-</section>
+        <div class="search row expanded">
+            <div class="column">
+                <div class="search">
+                    <div class="input-group">
+                        <div class="input-group-button">
+                            <button type="submit" class="search_icon "><i class="fa fa-search" aria-hidden="true"></i></button>
+                        </div>
+                        <%= text_field_tag :search, params[:search], placeholder: "Suchbegriff",class:"input-group-field" %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
 <% end %>

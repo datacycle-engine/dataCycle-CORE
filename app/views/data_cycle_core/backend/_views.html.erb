@@ -1,34 +1,33 @@
 <section class="views row expanded">
-  <div class="columns small-6">
-    <div class="view-heading">
-      <% if @allDataCycleObjects %>
-          <strong><%= @allDataCycleObjects.count %></strong> Themen entsprechen Ihren Filterkriterien
-      <% end %>
+    <div class="columns small-6">
+        <div class="view-heading">
+            <% if @allDataCycleObjects %>
+                <strong><%= @allDataCycleObjects.count %></strong> Themen entsprechen Ihren Filterkriterien
+            <% end %>
+        </div>
     </div>
-  </div>
-  <div class="columns small-6 text-right">
-    <div class="view-icons">
-      <span class="view-icon">
-          <%= link_to params.merge(:mode => 'flex').permit!, class: (@mode == 'flex' ? "active" : "") do %>
-            <i class="material-icons">dashboard</i>
-          <% end %>
-        </a>
-      </span>
-      <span class="view-icon">
-        <%= link_to params.merge(:mode => 'large').permit!, class: (@mode == 'large' ? "active" : "") do %>
-          <i class="material-icons">view_module</i>
-        <% end %>
-      </span>
-      <span class="view-icon">
-        <%= link_to params.merge(:mode => 'small').permit!, class: (@mode == 'small' ? "active" : "") do %>
-          <i class="material-icons">view_comfy</i>
-        <% end %>
-      </span>
-      <!--<span class="view-icon">
-        <%= link_to params.merge(:mode => 'list').permit!, class: (@mode == 'list' ? "active" : "") do %>
-          <i class="material-icons">view_list</i>
-        <% end %>
-      </span>-->
+    <div class="columns small-6 text-right">
+        <div class="view-icons">
+            <span class="view-icon">
+                <%= link_to params.merge(:mode => 'flex').permit!, class: (@mode == 'flex' ? "active" : "") do %>
+                    <i class="material-icons">dashboard</i>
+                <% end %>
+            </span>
+            <span class="view-icon">
+                <%= link_to params.merge(:mode => 'large').permit!, class: (@mode == 'large' ? "active" : "") do %>
+                    <i class="material-icons">view_module</i>
+                <% end %>
+            </span>
+            <span class="view-icon">
+                <%= link_to params.merge(:mode => 'small').permit!, class: (@mode == 'small' ? "active" : "") do %>
+                    <i class="material-icons">view_comfy</i>
+                <% end %>
+            </span>
+            <!--<span class="view-icon">
+                <%= link_to params.merge(:mode => 'list').permit!, class: (@mode == 'list' ? "active" : "") do %>
+                    <i class="material-icons">view_list</i>
+                <% end %>
+            </span>-->
+        </div>
     </div>
-  </div>
 </section>

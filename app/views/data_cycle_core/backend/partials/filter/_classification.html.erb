@@ -1,11 +1,11 @@
 <div class="filter type columns small-3">
-  <ul>
-    <% parent_string = classification_alias_id.nil? ? "IS NULL" : " = '#{classification_alias_id}'" %>
-    <% types = DataCycleCore::ClassificationAlias.joins(classification_trees: [:classification_tree_label]).where("classification_tree_labels.name = ?", tree_label).where("classification_trees.parent_classification_alias_id #{parent_string}") %>
-    <span class="icon"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
-    <span class="title"><%=display_label%> <strong>(<%=types.count%>)</strong></span>
-    <% types.sort{|a,b| a.name <=> b.name}.each do |item| %>
-      <%= render 'data_cycle_core/backend/partials/filter/classification_items', item: item %>
-    <% end %>
-  </ul>
+    <ul>
+        <% parent_string = classification_alias_id.nil? ? "IS NULL" : " = '#{classification_alias_id}'" %>
+        <% types = DataCycleCore::ClassificationAlias.joins(classification_trees: [:classification_tree_label]).where("classification_tree_labels.name = ?", tree_label).where("classification_trees.parent_classification_alias_id #{parent_string}") %>
+        <span class="icon"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
+        <span class="title"><%=display_label%> <strong>(<%=types.count%>)</strong></span>
+        <% types.sort{|a,b| a.name <=> b.name}.each do |item| %>
+            <%= render 'data_cycle_core/backend/partials/filter/classification_items', item: item %>
+        <% end %>
+    </ul>
 </div>
