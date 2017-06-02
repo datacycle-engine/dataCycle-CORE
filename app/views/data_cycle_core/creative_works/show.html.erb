@@ -88,31 +88,13 @@
 
                 </div>
 
-
                 <div class="description">
                     <% if !@creativeWork[:description].nil? %>
                         <%= @creativeWork.description.html_safe %>
                     <% end %>
                 </div>
 
-                <% unless @creativeWork.metadata.nil? && @creativeWork.metadata['validityPeriod'].nil? && @creativeWork.metadata['validityPeriod'].empty? %>
-                    <div class="gueltigkeit">
-
-                        <span class="icon">
-                            <i class="fa fa-clock-o" aria-hidden="true"></i> Gültigkeit
-                        </span>
-
-                        <% unless @creativeWork.metadata['validityPeriod']['validFrom'].nil? || @creativeWork.metadata['validityPeriod']['validFrom'].blank? %>
-                            <%= @creativeWork.metadata['validityPeriod']['validFrom'] %>
-                        <% end %>
-
-                        <% unless @creativeWork.metadata['validityPeriod']['validUntil'].nil? || @creativeWork.metadata['validityPeriod']['validUntil'].blank? %>
-                            <span class="bis">bis</span>
-                            <%= @creativeWork.metadata['validityPeriod']['validUntil'] %>
-                        <% end %>
-
-                    </div>
-                <% end %>
+                <%= render 'data_cycle_core/creative_works/partials/render/validityPeriod' %>
 
                 <% unless @creativeWork.classification_aliases.empty? %>
                     <div class="tags">
