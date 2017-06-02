@@ -2,8 +2,10 @@
 /* Filter */
 
 .filters{
+  z-index: 3;
+  position: relative;
   .main-filters{
-    display: none;
+    //display: none;
   }
   background: $white;
   box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
@@ -23,7 +25,7 @@
     }
   }
   .search{
-    margin-top: 1rem;
+    padding-top: 0.5rem;
     .input-group{
       background-color: lighten($light-gray, 9%); 
       padding:  0 2.6rem;
@@ -66,4 +68,111 @@
 
 .detail-header-wrapper .filters {
     box-shadow: none;
+}
+#primary_nav_wrap {
+  margin-top: 15px;
+  .your-choice {
+    padding: 0 1rem 1rem 1rem;
+    font-style: italic;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    li {
+      position: relative;
+      float: left;
+      margin: 0;
+      padding: 0;
+      input {
+        margin: 0 0.1rem 0 0.7rem;
+      }
+      &.current-menu-item {
+        background: #ddd;
+      }
+      &:hover {
+        background: $light-gray;
+        box-shadow: 0 5px 3px rgba(0, 0, 0, 0.3);
+      }
+      > div {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: $light-gray;
+        width: 100%;
+        padding: 1rem 0;
+        box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
+      }
+    }
+    ul {
+      display: none;
+      padding: 0;
+      position: relative;
+      li {
+        float: none;
+        width: 18rem;
+        position: initial;
+        padding: 0.3rem 0.5rem;
+        &:hover {
+          box-shadow: none;
+          background: lighten($light-gray, 4%);
+        }
+        i {
+          position: absolute;
+          left: 16rem;
+        }
+      }
+      a {
+        line-height: 120%;
+        padding: 10px 15px;
+      }
+      ul {
+        top: 0;
+        left: 18rem;
+        position: absolute;
+        background: lighten( $light-gray, 4%);
+        li:hover {
+          background: lighten($light-gray, 7%);
+        }
+        ul {
+          background: lighten( $light-gray, 7%);
+          li:hover {
+            background: lighten($light-gray, 10%);
+          }
+          ul {
+            background: lighten( $light-gray, 10%);
+          }
+        }
+      }
+    }
+    li:hover > {
+      div, ul, div > ul {
+        display: block;
+      }
+    }
+  }
+  > ul {
+    display: table;
+    position: relative;
+    width: 100%;
+    > li {
+      width: 25%;
+      padding: 1rem;
+      float: none;
+      position: initial;
+      display: table-cell;
+    }
+  }
+
+  .split-list ul{
+    float: left; 
+    display: block;
+    position: initial;
+    padding-left: 0;
+  }
+  .split-list li{
+    background: $light-gray;
+   }
+
 }

@@ -84,13 +84,13 @@ form {
     li{
       display: inline-block;
       position: relative;
-      margin: 0;
+      button.has-tip { border-bottom: none; cursor: pointer;}
       .button {
         margin: 0;
+        display: block;
         background: none;
         outline: none;
         color: rgba($primary-color, 0.5);
-        &.has-tip { border-bottom: none; cursor: pointer;}
         i {
           font-size: 1.5rem;
         }
