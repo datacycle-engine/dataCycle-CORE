@@ -39,8 +39,9 @@
         border: 0;
       }
       .input-group-field{
-        padding: 1.5rem 0.2rem;
         font-size: 1.2rem;
+        line-height: 1.2rem;
+        margin-top: 0.3rem;
         box-shadow: none;
         &::placeholder {
           font-weight: 200;
