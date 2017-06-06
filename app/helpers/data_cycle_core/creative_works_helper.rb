@@ -12,6 +12,27 @@ module DataCycleCore
 
     end
 
+    def get_ordered_validation_properties(validation)
+
+      ordered_properties = ActiveSupport::OrderedHash.new
+
+      validation['properties'].each do |prop|
+
+        if !prop[1]['editor'].nil?
+
+          if !prop[1]['editor']['sorting'].nil?
+            ordered_properties[prop[1]['editor']['sorting'].to_i] = prop
+          else
+            # ordered_properties[]
+          end
+        end
+
+      end
+
+      return ordered_properties.sort.map { |k,v| v}
+
+    end
+
     def get_classifications_for_name(prop)
 
       unless prop['type_name'].nil?
