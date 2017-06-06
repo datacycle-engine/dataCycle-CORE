@@ -5,6 +5,7 @@ module DataCycleCore
 
     def index
       # still not final!! external_source_id identified via 'Administrator-account'
+      # external_source sub-query
       external_source_id = Arel::SelectManager.new.
         project(DataCycleCore::ExternalSource.arel_table[:id]).
         from(DataCycleCore::ExternalSource.arel_table).
@@ -14,13 +15,14 @@ module DataCycleCore
           on(DataCycleCore::UseCase.arel_table[:user_id].eq(DataCycleCore::User.arel_table[:id])).
         where(DataCycleCore::User.arel_table[:name].eq(Arel::Nodes.build_quoted('Administrator')))
 
-
+      # lables sub-query
       lables = Arel::SelectManager.new.
         project(DataCycleCore::ClassificationTreeLabel.arel_table[:name]).
         from(DataCycleCore::ClassificationTreeLabel.arel_table).
         where(DataCycleCore::ClassificationTreeLabel.arel_table[:external_source_id].eq(nil).
-        or(DataCycleCore::ClassificationTreeLabel.arel_table[:external_source_id].in(external_source_id)))
+          or(DataCycleCore::ClassificationTreeLabel.arel_table[:external_source_id].in(external_source_id)))
 
+      # main query
       query = DataCycleCore::ClassificationTree.
         joins(:classification_tree_label, :sub_classification_alias).
         joins(DataCycleCore::ClassificationTree.arel_table.join(DataCycleCore::ClassificationAlias.arel_table).
