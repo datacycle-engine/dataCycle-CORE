@@ -15,6 +15,7 @@ module DataCycleCore
     def get_ordered_validation_properties(validation)
 
       ordered_properties = ActiveSupport::OrderedHash.new
+      unordered_properties = []
 
       validation['properties'].each do |prop|
 
@@ -23,13 +24,15 @@ module DataCycleCore
           if !prop[1]['editor']['sorting'].nil?
             ordered_properties[prop[1]['editor']['sorting'].to_i] = prop
           else
-            # ordered_properties[]
+            unordered_properties.push(prop)
           end
+
         end
 
       end
 
-      return ordered_properties.sort.map { |k,v| v}
+      properties = Hash[ordered_properties.sort.map{ |k,v| v}]
+      return properties.merge(Hash[unordered_properties])
 
     end
 
@@ -58,7 +61,8 @@ module DataCycleCore
           end
         end
       end
-      @selected_values
+
+      return @selected_values
 
     end
 
@@ -91,7 +95,7 @@ module DataCycleCore
       if !prop['editor'].nil? && !prop['editor']['type'].nil?
         render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options}
       else
-        'no juhu'
+        # 'editor not set'
       end
 
     end
