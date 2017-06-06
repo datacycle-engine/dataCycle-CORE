@@ -93,7 +93,19 @@ module DataCycleCore
       else
         'no juhu'
       end
+    end
 
+    def render_embeddedLinkArray_field(key, prop, value=nil, options={})
+      var_string = "key=#{key} <br/> prop=#{prop} <br/> value=#{value} <br/> options=#{options}<br/><br/>".html_safe
+
+      object = ("DataCycleCore::"+("#{prop['type_name']}".classify)).constantize
+      unless value.blank?
+        value.each do |item|
+          image = object.where(id: item).first
+          render partial: "#{@@partials_path}#{image['validation']['name']}"
+        end
+      end
+      render_input_text_field(key, value, prop['label'], options)
     end
 
     def render_object_field(key, prop, value=nil, options={})
