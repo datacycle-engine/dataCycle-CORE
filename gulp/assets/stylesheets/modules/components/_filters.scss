@@ -73,7 +73,9 @@
   margin-top: 15px;
   .your-choice {
     padding: 0 1rem 1rem 1rem;
-    font-style: italic;
+    .icon {
+      color: $dark-gray;
+    }
   }
   ul {
     list-style: none;
@@ -84,9 +86,58 @@
       float: left;
       margin: 0;
       padding: 0;
-      input {
-        margin: 0 0.1rem 0 0.7rem;
+      cursor: pointer;
+
+      label {
+        display: block;
+        padding: 0.3rem 0.5rem 0.3rem 2.5rem;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        margin: 0;
+        font-size: 1rem;
       }
+      label:before {
+        content: 'o';
+        text-align: center;
+        font-size: 1.2rem;
+        color: $black;
+        width:40px;
+        height:100%; 
+        position: absolute;
+        top:0;
+        left:0;
+        transition: all 0.4s ease;
+        opacity: 1;
+      }
+      label:hover:before {
+        opacity: .3;
+      }
+      input {
+        display: none;
+      }
+
+      /* :: CHECKED :: */
+      input:checked ~ label {
+        background-color: $primary-color;
+        color: white;
+      }
+      input:checked ~ label:before {
+        animation: throw 0.2s linear;
+        top:0px;
+        color: white;
+        opacity: 1;
+        content: '✓';
+        line-height: 2.3rem;
+      }
+      @keyframes throw {
+         0% {top: 0;content: 'o';}
+         63% {top: 100%;content: '✓';}
+         100% {top: 0;content: '✓';}
+      }
+
+
       &.current-menu-item {
         background: #ddd;
       }
@@ -113,14 +164,21 @@
         float: none;
         width: 18rem;
         position: initial;
-        padding: 0.3rem 0.5rem;
+        //padding: 0.3rem 0.5rem;
         &:hover {
           box-shadow: none;
           background: lighten($light-gray, 4%);
+          > label i {
+            left: 16.7rem;
+          }
+        }
+        i {
+          left: 16.5rem;
         }
         i {
           position: absolute;
-          left: 16rem;
+          line-height: 1.5em;
+          transition: all ease-in-out 0.1s;
         }
       }
       a {

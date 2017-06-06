@@ -417,6 +417,10 @@ span.single_error {
       padding: 0 0.3rem;
       margin: 0 0.1rem;
       border-radius: $object-border-radius;
+      i {
+        font-size: 0.8rem;
+        margin-left: 0.2rem;
+      }
   }
   a.tag:hover {
       background-color: rgba($primary-color, 0.8);
