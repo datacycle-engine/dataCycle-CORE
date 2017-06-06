@@ -12,6 +12,7 @@ module DataCycleCore
 
       def initialize(language ="de", query = nil, classification_alias = false)
         @classification_alias = classification_alias
+        @fulltext = fulltext
         @query = query
         @locale = language
       end
@@ -123,11 +124,15 @@ module DataCycleCore
       end
 
       def to_tsquery(string)
-        Arel::Nodes::NamedFunction.new("to_tsquery", [string]) #[quoted("german"), string])
+        Arel::Nodes::NamedFunction.new("plainto_tsquery", [string]) #[quoted("german"), string])
       end
 
       def tsmatch(tsvector, tsquery)
         Arel::Nodes::InfixOperation.new("@@", tsvector, tsquery)
+      end
+
+      def trgm_match(text1, text2)
+        Arel::Nodes::InfixOperation.new("%", text1, text2)
       end
 
       def concatinate(string1, string2)

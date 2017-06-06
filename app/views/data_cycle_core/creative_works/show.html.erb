@@ -1,155 +1,257 @@
 
 <% content_for :top_content do %>
 
-    <div class="detail-header">
+    <% if @creativeWork.metadata['validation']['name'] == "Bild" %>
 
-      <div class="type thema">
-          <span class="icon">
-            <i class="fa fa-folder-open-o" aria-hidden="true"></i>
-          </span>
-        <span class="title">Thema</span>
-      </div>
+        <div class="column detail-header-wrapper">
 
-      <a class="bookmark" href="#">
-        <span class="bookmarkinfo">zur Recherche hinzufügen</span>
-        <i class="fa fa-bookmark-o" aria-hidden="true"></i>
-      </a>
+            <div class="detail-header">
 
-      <div class="title">
-        <%= @creativeWork.headline %>
-      </div>
-      <div class="description">
-        <% if !@creativeWork[:description].nil? %>
-            <%= @creativeWork.description.html_safe %>
-        <% end %>
-      </div>
+                <div class="type bild">
+                    <span class="icon">
+                        <i class="fa fa-picture-o" aria-hidden="true"></i>
+                    </span>
+                    <span class="title">Bild</span>
+                </div>
 
-      <div class="tags">
-        <% @creativeWork.classification_aliases.each do |classificationAlias| %>
-            <span class="tag"><a href="#"><%= classificationAlias.name %></a></span>
-        <% end %>
-      </div>
+                <a class="bookmark marked" href="#">
+                    <span class="bookmarkinfo">zur Recherche hinzugefügt</span>
+                    <i class="fa fa-bookmark-o" aria-hidden="true"></i>
+                </a>
 
-      <div class="edit">
-        <%= link_to 'Bearbeiten >', edit_creative_work_path(@creativeWork), class:'button primary' %>
-      </div>
+                <div class="title">
+
+                    <% if !@creativeWork.content.nil? && !@creativeWork.content['name'].blank? %>
+                        <%= @creativeWork.content['name'] %>
+                    <% elsif  !@creativeWork.content.nil? && !@creativeWork.content['headline'].blank? %>
+                        <%= @creativeWork.content['headline'] %>
+                    <% end %>
+
+                </div>
+
+
+                <div class="description">
+                    <% if !@creativeWork[:description].nil? %>
+                        <%= @creativeWork.description.html_safe %>
+                    <% end %>
+                </div>
+
+                <div class="gueltigkeit">
+                    <span class="icon">
+                        <i class="fa fa-clock-o" aria-hidden="true"></i> Gültigkeit
+                    </span>
+                    13.03.2017 <span class="bis">bis</span> 21.09.2017
+                </div>
+
+                <% unless @creativeWork.classification_aliases.empty? %>
+                    <div class="tags">
+                        <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i> </span>
+
+                        <% @creativeWork.classification_aliases.each do |classificationAlias| %>
+                            <span class="tag"><a href="#"><%= classificationAlias.name %></a></span>
+                        <% end %>
+                    </div>
+                <% end %>
+
+            </div>
+
+            <%= render 'data_cycle_core/creative_works/filter' if user_signed_in? %>
+
+        </div>
+
+
+    <% else %>
+
+        <div class="column detail-header-wrapper">
+
+            <div class="detail-header">
+
+                <div class="type thema">
+                    <span class="icon">
+                        <i class="fa fa-folder-open" aria-hidden="true"></i>
+                    </span>
+                    <span class="title">Thema</span>
+                </div>
+
+                <a class="bookmark marked" href="#">
+                    <span class="bookmarkinfo">zur Recherche hinzugefügt</span>
+                    <i class="fa fa-bookmark-o" aria-hidden="true"></i>
+                </a>
+
+                <div class="title">
+
+                    <% if !@creativeWork.content.nil? && !@creativeWork.content['name'].blank? %>
+                        <%= @creativeWork.content['name'] %>
+                    <% elsif  !@creativeWork.content.nil? && !@creativeWork.content['headline'].blank? %>
+                        <%= @creativeWork.content['headline'] %>
+                    <% end %>
+
+                </div>
+
+                <div class="description">
+                    <% if !@creativeWork[:description].nil? %>
+                        <%= @creativeWork.description.html_safe %>
+                    <% end %>
+                </div>
+
+                <%= render 'data_cycle_core/creative_works/partials/render/validityPeriod' %>
+
+                <% unless @creativeWork.classification_aliases.empty? %>
+                    <div class="tags">
+                        <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i></span>
+
+                        <% @creativeWork.classification_aliases.each do |classificationAlias| %>
+                            <span class="tag"><a href="#"><%= classificationAlias.name %></a></span>
+                        <% end %>
+                    </div>
+                <% end %>
+
+                <div class="edit">
+                    <%= link_to edit_creative_work_path(@creativeWork), class:'button-prime small' do %>
+                        <i class="fa fa-pencil" aria-hidden="true"></i><span>Bearbeiten</span>
+                    <% end %>
+                </div>
+
+            </div>
+
+            <%= render 'data_cycle_core/creative_works/filter' if user_signed_in? %>
+
+        </div>
+
+        <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
+    <% end %>
+
+<% end %>
+<%= debug(@creativeWork.metadata) %>
+<% if @creativeWork.metadata['validation']['name'] == "Bild" %>
+
+    <div class="detail-content">
+        <div class="row">
+
+            <% unless @creativeWork.metadata.nil? %>
+
+                <% unless @creativeWork.metadata['contentUrl'].nil? %>
+
+                    <div class="image stripes">
+                        <img src="<%= @creativeWork.metadata['contentUrl'] %>" alt="<%= @creativeWork.content['name'] unless @creativeWork.content.blank?%>" />
+                    </div>
+
+                <% end %>
+
+            <% end %>
+
+        </div>
 
     </div>
 
-    <%= render 'data_cycle_core/creative_works/filter' if user_signed_in? %>
-
-    <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
-
 <% end %>
 
-
-<!--<%= debug(@creativeWork) %>-->
 <section>
-  <!--<div class="row">-->
+    <!--<div class="row">-->
     <!--<div class="small-12 columns">-->
-      <!--<h4><%= @creativeWork.id %></h4>-->
-      <!--<% @creativeWork.walk_tree do |page, level| %>-->
+    <!--<h4><%= @creativeWork.id %></h4>-->
+    <!--<% @creativeWork.walk_tree do |page, level| %>-->
         <%= link_to "#{"&nbsp;"*(level*5)+'|'+'__'}#{page.id}".html_safe, creative_work_path(page.id) %><br/>
-      <!--<% end %>-->
-      <!--<br/>&nbsp;-->
+        <!--<% end %>-->
+    <!--<br/>&nbsp;-->
     <!--</div>-->
-  <!--</div>-->
-  <!--<div class="row">-->
+    <!--</div>-->
+    <!--<div class="row">-->
     <!--<div class="small-4 columns">-->
-      <!--headline:-->
+    <!--headline:-->
     <!--</div>-->
     <!--<div class="small-8 columns">-->
-      <!--<%= @creativeWork.headline%>-->
+    <!--<%= @creativeWork.headline%>-->
     <!--</div>-->
-  <!--</div>-->
-  <!--<div class="row">-->
+    <!--</div>-->
+    <!--<div class="row">-->
     <!--<div class="small-4 columns">-->
-      <!--description:-->
+    <!--description:-->
     <!--</div>-->
     <!--<div class="small-8 columns">-->
-      <!--<%= @creativeWork.description %>-->
+    <!--<%= @creativeWork.description %>-->
     <!--</div>-->
-  <!--</div>-->
-  <!--<div class="row">-->
+    <!--</div>-->
+    <!--<div class="row">-->
     <!--<div class="small-4 columns">-->
-      <!--position:-->
+    <!--position:-->
     <!--</div>-->
     <!--<div class="small-8 columns">-->
-      <!--<%= @creativeWork.position %>-->
+    <!--<%= @creativeWork.position %>-->
     <!--</div>-->
-  <!--</div>-->
-  <!--<div class="row">-->
+    <!--</div>-->
+    <!--<div class="row">-->
     <!--<div class="small-4 columns">-->
-      <!--isPartOf:-->
+    <!--isPartOf:-->
     <!--</div>-->
     <!--<div class="small-8 columns">-->
-      <!--<%= link_to @creativeWork.isPartOf, @creativeWork.isPartOf unless @creativeWork.isPartOf.nil?%>-->
+    <!--<%= link_to @creativeWork.isPartOf, @creativeWork.isPartOf unless @creativeWork.isPartOf.nil?%>-->
     <!--</div>-->
-  <!--</div>-->
-  <!--<div class="row">-->
+    <!--</div>-->
+    <!--<div class="row">-->
     <!--<div class="small-4 columns">-->
-      <!--template?-->
+    <!--template?-->
     <!--</div>-->
     <!--<div class="small-8 columns">-->
-      <!--<%= @creativeWork.template %>-->
+    <!--<%= @creativeWork.template %>-->
     <!--</div>-->
-  <!--</div>-->
-  <!--<div class="row">-->
+    <!--</div>-->
+    <!--<div class="row">-->
     <!--<div class="small-4 columns">-->
-      <!--metadata:-->
+    <!--metadata:-->
     <!--</div>-->
     <!--<div class="small-8 columns">-->
-      <!--<%= String.new(ap @creativeWork.metadata).html_safe %>-->
+    <!--<%= String.new(ap @creativeWork.metadata).html_safe %>-->
     <!--</div>-->
-  <!--</div>-->
-  <!--<div class = "row">-->
+    <!--</div>-->
+    <!--<div class = "row">-->
     <!--<div class="small-4 columns">-->
-      <!--keywords:-->
+    <!--keywords:-->
     <!--</div>-->
     <!--<div class="small-8 columns">-->
-      <!--<%= @creativeWork.classification_aliases.to_a.map{|item| item.name}.join("<br/>").html_safe %>-->
+    <!--<%= @creativeWork.classification_aliases.to_a.map{|item| item.name}.join("<br/>").html_safe %>-->
     <!--</div>-->
-  <!--</div>-->
-  <!--<div class="row">-->
+    <!--</div>-->
+    <!--<div class="row">-->
     <!--&nbsp;-->
-  <!--</div>-->
-  <!--<div class="row">-->
-    <!--<div class="small-12 columns">-->
-      <!--<h4>translations: <%= "(#{@creativeWork.translations.map{|i| i.locale}.join(',')})" if @creativeWork.translations.count > 0 %></br>&nbsp;</h4>-->
     <!--</div>-->
-  <!--</div>-->
-  <!--&lt;!&ndash; <div class="row">-->
+    <!--<div class="row">-->
+    <!--<div class="small-12 columns">-->
+    <!--<h4>translations: <%= "(#{@creativeWork.translations.map{|i| i.locale}.join(',')})" if @creativeWork.translations.count > 0 %></br>&nbsp;</h4>-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--&lt;!&ndash; <div class="row">-->
     <!--<div class="small-12 columns" >-->
-      <!--<% String.new(ap @creativeWork.translations).html_safe %>-->
+    <!--<% String.new(ap @creativeWork.translations).html_safe %>-->
     <!--</div>-->
-  <!--</div> &ndash;&gt;-->
-  <!--<% @creativeWork.translations.each do |language| %>-->
-    <!--<div class="row">-->
-      <!--<div class="small-1 columns">-->
+    <!--</div> &ndash;&gt;-->
+    <!--<% @creativeWork.translations.each do |language| %>-->
+        <!--<div class="row">-->
+        <!--<div class="small-1 columns">-->
         <!--<%= language.locale.to_s+":" %>-->
-      <!--</div>-->
-      <!--<div class="small-3 columns">-->
+        <!--</div>-->
+        <!--<div class="small-3 columns">-->
         <!--<%= "content:" %>-->
-      <!--</div>-->
-      <!--<div class="small-8 columns">-->
+        <!--</div>-->
+        <!--<div class="small-8 columns">-->
         <!--<%= String.new(ap language.content).html_safe%>-->
-      <!--</div>-->
-    <!--</div>-->
-    <!--<div class="row">-->
-      <!--<div class="small-1 columns">-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--<div class="row">-->
+        <!--<div class="small-1 columns">-->
         <!--&nbsp;-->
-      <!--</div>-->
-      <!--<div class="small-3 columns">-->
+        <!--</div>-->
+        <!--<div class="small-3 columns">-->
         <!--<%= "properties:" %>-->
-      <!--</div>-->
-      <!--<div class="small-8 columns">-->
+        <!--</div>-->
+        <!--<div class="small-8 columns">-->
         <!--<%= String.new(ap language.properties).html_safe %>-->
-      <!--</div>-->
-    <!--</div>-->
-  <!--<% end %>-->
-  <!--<div class="row">-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--<% end %>-->
+    <!--<div class="row">-->
     <!--<div class="small-12 columns">-->
-      <!--<%= link_to "back", creative_works_path, class: "button" %>-->
+    <!--<%= link_to "back", creative_works_path, class: "button" %>-->
     <!--</div>-->
-  <!--</div>-->
+    <!--</div>-->
 </section>

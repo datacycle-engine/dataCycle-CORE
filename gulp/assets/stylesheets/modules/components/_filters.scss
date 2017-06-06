@@ -3,7 +3,7 @@
 
 .filters{
   .main-filters{
-    display: none;
+    //display: none;
   }
   background: $white;
   box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
@@ -39,8 +39,9 @@
         border: 0;
       }
       .input-group-field{
-        padding: 1.5rem 0.2rem;
         font-size: 1.2rem;
+        line-height: 1.2rem;
+        margin-top: 0.3rem;
         box-shadow: none;
         &::placeholder {
           font-weight: 200;
@@ -62,4 +63,8 @@
       }
     }
   }
+}
+
+.detail-header-wrapper .filters {
+    box-shadow: none;
 }

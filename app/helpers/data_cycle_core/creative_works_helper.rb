@@ -23,10 +23,12 @@ module DataCycleCore
     end
 
     def get_selected_values_for_classification(options, value)
+
       if value.nil?
         return nil
       end
 
+      #todo: make this more fancy
       @selected_values = []
       value.each do |v|
         options.each do |o|
@@ -51,12 +53,12 @@ module DataCycleCore
       end
       data_type = prop['type']
 
-      if !prop['editor']['options'].nil?
+      unless prop['editor']['options'].nil?
         options.merge!(prop['editor']['options'])
       end
 
       if respond_to?('render_'+ data_type +'_field')
-        label_tag(key, prop['label']) + send('render_'+ data_type +'_field', object_key, prop, value, options)
+        send('render_'+ data_type +'_field', object_key, prop, value, options)
         # send('render_'+ data_type +'_field', object_key, prop, value, options)
       else
          "Unknown data_type: #{prop['type']}"
@@ -75,7 +77,7 @@ module DataCycleCore
 
     def render_object_field(key, prop, value=nil, options={})
       #raise prop.inspect
-      if !prop['properties'].nil?
+      unless prop['properties'].nil?
         output = []
 
         prop['properties'].each do |object_key, object_property|
@@ -92,22 +94,28 @@ module DataCycleCore
       if !prop['editor'].nil? && !prop['editor']['type'].nil?
         case prop['editor']['type']
           when 'input'
-            render_input_text_field(key, value, options)
-          when 'rte'
-            render_fe_editor(key, value, options)
+            render_input_text_field(key, value, prop['label'], options)
+          when 'date'
+            render_date_input_text_field(key, value, prop['label'], options)
+          when 'quillEditor'
+            render_fe_editor(key, value, prop['label'], options)
         end
       else
-        render_input_text_field(key, value, options)
+        render_input_text_field(key, value, prop['label'], options)
       end
 
     end
 
-    def render_fe_editor(key, value=nil, options={})
-      render partial: "#{@@partials_path}feEditor", locals: {key: key, value: value, options: options}
+    def render_fe_editor(key, value=nil, label=nil, options={})
+      render partial: "#{@@partials_path}feEditor", locals: {key: key, value: value, label: label, options: options}
     end
 
-    def render_input_text_field(key, value=nil, options={})
-      render partial: "#{@@partials_path}input", locals: {key: key, value: value, options: options}
+    def render_input_text_field(key, value=nil, label=nil, options={})
+      render partial: "#{@@partials_path}input", locals: {key: key, value: value, label: label, options: options}
+    end
+
+    def render_date_input_text_field(key, value=nil, label=nil, options={})
+      render partial: "#{@@partials_path}dateInput", locals: {key: key, value: value, label: label, options: options}
     end
 
     private

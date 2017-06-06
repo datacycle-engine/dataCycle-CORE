@@ -16,13 +16,13 @@
   }
 
   .grid-sizer{
-    width: 32%
+    width: 98%
   }
   .gutter-sizer{
     width: 2%
   }
   .grid-item {
-    width: 32%;
+    width: 98%;
     padding: 1rem;
     margin-bottom: 1%;
     overflow: hidden;
@@ -69,13 +69,13 @@
 
 .grid.small{
   .grid-sizer{
-    width: 23.3%
+    width: 49%
   }
   .gutter-sizer{
     width: 2%
   }
   .grid-item{
-    width: 23.3%;
+    width: 49%;
     .inner{
       height: 250px;
       max-height: 250px;
@@ -136,7 +136,55 @@
 .grid.large .grid-item:after { color: $light-gray; }
 
 
+@include breakpoint(medium) {
+
+
+    .grid{
+      .grid-sizer{
+        width: 49%
+      }
+      .gutter-sizer{
+        width: 2%
+      }
+      .grid-item {
+        width: 49%;
+      }
+    }
+
+    .grid.small{
+      .grid-sizer{
+        width: 23.3%
+      }
+      .gutter-sizer{
+        width: 2%
+      }
+      .grid-item{
+        width: 23.3%;
+      }
+    }
+
+  }
+
 @include breakpoint(large) {
+
+
+    .grid{
+      .grid-sizer{
+        width: 32%
+      }
+      .gutter-sizer{
+        width: 2%
+      }
+      .grid-item {
+        width: 32%;
+      }
+    }
+
+
+  }
+
+
+@include breakpoint(xlarge) {
 
 
     .grid{
@@ -167,7 +215,7 @@
 
   }
 
-  @include breakpoint(xlarge) {
+  @include breakpoint(xxlarge) {
 
 
     .grid{

@@ -1,0 +1,17 @@
+<% selected = (@classification_array && @classification_array.include?(item.id)) ? "checked" : "" %>
+<li>
+    <input type="checkbox" name="classification[][selected]" value=<%= item.id %> <%= selected %> >
+    <!-- <span class="icon"><i class="fa fa-file-text-o" aria-hidden="true"></i></span> -->
+    <span class="title"><%= item.name%> <strong><%="("+item.sub_classification_alias.count.to_s+")" if item.sub_classification_alias.count > 0 %></strong></span>
+    <% if item.sub_classification_alias.count > 0 %>
+        <span class="icon"><i class="fa fa-angle-down" aria-hidden="true"></i></span>
+    <% end %>
+    <% if item.sub_classification_alias.count > 0 %>
+        <ul>
+            <% item.sub_classification_alias.sort{|a,b| a.name <=> b.name}.each do |sub_item| %>
+                <%= render 'data_cycle_core/backend/partials/filter/classification_items', item: sub_item %>
+            <% end %>
+        </ul>
+    <% end %>
+    </input>
+</li>

@@ -65,6 +65,62 @@ form {
 }
 
 
+.edit-header {
+  background-color: rgba($primary-color, 0.2);
+  height: 3.5rem;
+  line-height: 3.5rem;
+  .edit-headline {
+    color: $primary-color;
+    position: absolute;
+    left: 1.5rem;
+    i { margin-right: 0.5rem; }
+  }
+
+  ul{
+    text-align: right;
+    margin: 0;
+    list-style: none;
+    line-height: 3.5rem;
+    li{
+      display: inline-block;
+      position: relative;
+      margin: 0;
+      .button {
+        margin: 0;
+        background: none;
+        outline: none;
+        color: rgba($primary-color, 0.5);
+        &.has-tip { border-bottom: none; cursor: pointer;}
+        i {
+          font-size: 1.5rem;
+        }
+        &:hover, &:focus {
+          color: $primary-color;
+        }
+        &.discard {
+          color: rgba($black, 0.5);
+           &:hover, &:focus {
+            color: $black;
+          }
+        }
+        &.delete {
+          color:  rgba(map-get($foundation-palette, alert), 0.5);
+          &:hover, &:focus {
+            color: map-get($foundation-palette, alert);
+          }
+        }
+      }
+      &.submit {
+        width: 5rem;
+        margin: 0 1rem;
+        .button-prime {
+          position: absolute;
+          top: -3rem;
+        }
+      }
+    }
+  }
+}
 
 
 .detail-header {
@@ -72,18 +128,40 @@ form {
   position: relative;
   background: $light-gray;
   text-align: center;
-  padding: 4rem;
-  margin-bottom: 1rem;
+  padding: 4rem 0 1rem 0;
+  margin: 1rem 0;
 
-  > .title {
+
+  > .title, > .headline input {
     font-size: 2rem;
     font-weight: 200;
+    padding: 1rem 5rem 0 5rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .headline{
+    position: relative;
+    &:hover label { opacity: 1; }
+  }
+
+  > .description {
+    position: relative;
+    padding: 0 5rem 3rem 5rem;
+    &:hover label { opacity: 1; }
   }
 
   .type {
     position: absolute;
     left: 1rem;
     top: 1rem;
+    &:nth-child(2) { left: 7rem; }
+    &:nth-child(3) { left: 14rem; }
+    &:nth-child(4) { left: 21rem; }
+    &:nth-child(5) { left: 27rem; }
+    &:nth-child(6) { left: 37rem; }
+    &:nth-child(7) { left: 44rem; }
+    &:nth-child(8) { left: 51rem; }
   }
 
   .bookmark {
@@ -98,33 +176,226 @@ form {
     &:hover {
       color: $primary-color;
     }
+    &.marked {
+      color: $primary-color;
+      i:before {
+        content: "\f02e";
+      }
+    }
+  }
+
+  //.tags, .gueltigkeit {
+  .gueltigkeit {
+    text-align: left;
+    margin: 0 0 0 1rem;
+    .icon {
+      color: $dark-gray;
+    }
+  }
+  .daterange span.bis, .daterange span.icon, .gueltigkeit span.bis, .gueltigkeit span.icon  {
+      color: $dark-gray;
+  }
+  .daterange span.bis,.gueltigkeit span.bis  {
+      font-style: italic;
+  }
+  .daterange {
+    &.focus {
+      border-color: $primary-color;
+      background: white;
+      z-index: 10;
+      input { 
+        background: $white
+       }
+    }
+    &:hover span {
+     color: $primary-color;
+    }
+  }
+
+  .edit {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    a span { display: block; text-indent: -9999px; }
+  }
+
+  label {
+    opacity: 0;
+    position: absolute;
+    position: absolute;
+    top: 0.2rem;
+    left: 1rem;
+    z-index: 12;
+    color: $primary-color;
+    transition: opacity ease-in-out 0.25s;
+  }
+
+  input, .ql-editor, .daterange {
+    border: 1px solid $light-gray;
+    background: $light-gray;
+    outline: none;
+    height: auto;
+    line-height: 1;
+    margin: 0;
+    border-color: $light-gray;
+    box-shadow: 0 0 2px $dark-gray;
+    position: relative;
+    z-index: 1;
+    transition: box-shadow 0.5s, border-color 0.25s ease-in-out;
+    &:hover {
+      box-shadow: 0 0 7px $primary-color;
+      z-index: 10;
+    }
+    &:focus {
+      border-color: $primary-color;
+      background: white;
+      z-index: 10;
+    }
+  }
+
+  .ql-editor {
+    min-height: 375px;
+  }
+
+  &.editor {
+    padding: 0;
+    margin-top: 3rem;
+      .type  {
+        top: -2rem;
+        opacity: 0.5;
+        color: $dark-gray;
+        left: 0.5rem;
+      }
+      .bookmark {
+        display: none;
+      }
+      .headline input {
+        padding: 1rem 5rem;
+      }
+      .description {
+        padding: 0;
+      }
+      .daterange {
+        .icon.validUntil {
+          i {
+            display: none;
+          }
+        }
+        //padding: 1rem;
+        .form-element {
+          display: inline-block;
+          input {
+            box-shadow: none !important;
+            border: 0 !important;
+          }
+          .single_error {
+            left: 1rem;
+            top: -2rem;
+            right: auto;
+          }
+        }
+      }
   }
 
 }
 
 
+.custom-select-title{
+  padding-top: 0.5rem;
+}
+.custom-select{
+  padding: 0 1rem 1rem 1rem;
+  .v-select .selected-tag{
+    background-color: rgba($primary-color, 0.2);
+  }
+}
 
-.detail-content {
-  .row {
+
+.editor-block {
+  position: relative;
+  .ql-toolbar {
+      position: absolute;
+      z-index: 12;
+      right: 0;
+      border: 0;
+  }
+  .ql-editor {
+    padding-top: 3rem;
+    font-size: 1rem;
+    text-align: center;
+  }
+  .ql-container.ql-snow {
+    border: 0;
+  }
+  .ql-tooltip { z-index: 12; }
+}
+
+span.single_error {
+    position: absolute;
+    top: -3.3rem; 
+    right: 2rem;
+    background-color: map-get($foundation-palette, alert);
+    padding: 0.5rem 1rem;
+    color: white;
+    border-radius: 5px;
+    white-space: nowrap;
+    z-index: 100;
+    -webkit-transition: all 0.4s ease;
+  }
+  span.single_error:before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-top: 20px solid map-get($foundation-palette, alert);
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    -webkit-transition: all 0.4s ease;
+    -moz-transition   : all 0.4s ease;
+    left: 30%;
+    bottom: -50%;
+  }
+
+
+.detail-header-wrapper {
+  background: $white;
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
+
+  .infolist {
+    margin: 0;
+    li { display: inline-block; margin-right: 1rem; }
+  }
+    .row {
     margin-bottom: 1rem;
   }
 
-  .infolist li { display: inline-block; margin-right: 1rem; }
+}
+
+.detail-content {
+
   .image { 
+    img {
+      max-width: 100%; 
+      border: solid 4px #fefefe;
+      border-radius: 0;
+       box-shadow: 0 0 0 1px rgba(51, 51, 51, 0.2);
+    }
+  }
+  .video video {
+    max-width: 100%;
+    border: solid 4px #fefefe;
+    border-radius: 0;
+    box-shadow: 0 0 0 1px rgba(51, 51, 51, 0.2);
+  }
+  .stripes { 
     margin: 2rem 0 0 0; 
     text-align: center; 
     position: relative;
-    border-top: 5px solid #fff;
-    background: repeating-linear-gradient( -55deg,  lighten($light-gray, 8%), lighten($light-gray, 8%) 10px, #fff 10px, #fff 20px );
-    &:before {
-      content: " ";
-      position: absolute;
-      z-index: -1;
-      left: 0;
-      top: -6px;
-      border: 1px solid $light-gray;
-      width: 100%;
-    }
+    background: repeating-linear-gradient( 45deg,  #fff, #fff 10px,  lighten($light-gray, 8%) 10px,  lighten($light-gray, 8%) 20px );
+  }
+  .images {
+    max-width: 900px;
+    margin: 2rem auto;
   }
 }
 
@@ -132,8 +403,29 @@ form {
 .type{
   font-size: 1rem;
   font-weight: normal;
-  &.bilder {
-      color: #efa367;
+  &.bild {
+      color: $ccpicture;
+  }
+  &.website {
+      color: $ccwebsite;
+  }
+  &.video {
+      color: $ccvideo;
+  }
+  &.text {
+      color: $cctext;
+  }
+  &.social {
+      color: $ccsocial;
+  }
+  &.print {
+      color: $ccprint;
+  }
+  &.event {
+      color: $ccevent;
+  }
+  &.content-einheit {
+      color: $ccthema;
   }
 }
 
@@ -150,6 +442,11 @@ form {
   a.tag:hover {
       background-color: rgba($primary-color, 0.8);
   }
+}
+
+.longtext {
+  max-width: 900px; 
+  margin: 0 auto;
 }
 
 .reveal-overlay {
