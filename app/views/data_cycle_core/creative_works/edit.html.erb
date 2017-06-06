@@ -51,11 +51,13 @@
                         <% if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? %>
 
                             <% validation = @creativeWork.metadata['validation'] %>
+                            <% validation_properties = get_ordered_validation_properties(@creativeWork.metadata['validation']) %>
+
                             <!--<h2><%= "#{validation['name']} - #{validation['description']} - #{validation['type']}" %></h2>-->
 
-                            <% if !validation['properties'].nil? %>
+                            <% if !validation_properties.nil? %>
 
-                                <% validation['properties'].each do |key, prop| %>
+                                <% validation_properties.each do |key, prop| %>
 
                                     <% if prop['type'] == 'object' && !prop['properties'].nil? %>
 
