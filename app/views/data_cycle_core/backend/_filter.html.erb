@@ -3,13 +3,13 @@
 
 <section class="filters">
 
-    <div class="main-filters row expanded">
+    <div class="main-filters row expanded" style="display:none;">
         <div class="column">
             <div class="row">
 
                 <nav id="primary_nav_wrap">
                     <ul>
-                        
+
                         <%# classification_alias_id = DataCycleCore::ClassificationAlias.joins(classification_trees: [:classification_tree_label]).where("classification_tree_labels.name = ?", 'Sonstiges').where("classification_aliases.name = ?",'Auslagenthema (Sehnsuchtsthema)').first.id %>
                         <%= render 'data_cycle_core/backend/partials/filter/themenbereiche', tree_label: 'Themenbereiche', display_label: 'Thema', classification_alias_id: nil %>
 
@@ -24,7 +24,6 @@
             </div>
         </div>
     </div>
-
     <div class="search row expanded">
         <div class="column">
             <div class="search">
