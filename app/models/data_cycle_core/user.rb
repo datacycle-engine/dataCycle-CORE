@@ -5,6 +5,7 @@ module DataCycleCore
     devise :database_authenticatable, :registerable,
            :recoverable, :rememberable, :trackable, :validatable
 
+    has_many :use_cases
 
     def admin?
       self.admin
