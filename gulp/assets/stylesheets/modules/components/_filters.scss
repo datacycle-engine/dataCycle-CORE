@@ -2,6 +2,8 @@
 /* Filter */
 
 .filters{
+  z-index: 3;
+  position: relative;
   .main-filters{
     //display: none;
   }
@@ -23,7 +25,7 @@
     }
   }
   .search{
-    margin-top: 1rem;
+    padding-top: 0.5rem;
     .input-group{
       background-color: lighten($light-gray, 9%); 
       padding:  0 2.6rem;
@@ -67,4 +69,169 @@
 
 .detail-header-wrapper .filters {
     box-shadow: none;
+}
+#primary_nav_wrap {
+  margin-top: 15px;
+  .your-choice {
+    padding: 0 1rem 1rem 1rem;
+    .icon {
+      color: $dark-gray;
+    }
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    li {
+      position: relative;
+      float: left;
+      margin: 0;
+      padding: 0;
+      cursor: pointer;
+
+      label {
+        display: block;
+        padding: 0.3rem 0.5rem 0.3rem 2.5rem;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        margin: 0;
+        font-size: 1rem;
+      }
+      label:before {
+        content: 'o';
+        text-align: center;
+        font-size: 1.2rem;
+        color: $black;
+        width:40px;
+        height:100%; 
+        position: absolute;
+        top:0;
+        left:0;
+        transition: all 0.4s ease;
+        opacity: 1;
+      }
+      label:hover:before {
+        opacity: .3;
+      }
+      input {
+        display: none;
+      }
+
+      /* :: CHECKED :: */
+      input:checked ~ label {
+        background-color: $primary-color;
+        color: white;
+      }
+      input:checked ~ label:before {
+        animation: throw 0.2s linear;
+        top:0px;
+        color: white;
+        opacity: 1;
+        content: '✓';
+        line-height: 2.3rem;
+      }
+      @keyframes throw {
+         0% {top: 0;content: 'o';}
+         63% {top: 100%;content: '✓';}
+         100% {top: 0;content: '✓';}
+      }
+
+
+      &.current-menu-item {
+        background: #ddd;
+      }
+      &:hover {
+        background: $light-gray;
+        box-shadow: 0 5px 3px rgba(0, 0, 0, 0.3);
+      }
+      > div {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: $light-gray;
+        width: 100%;
+        padding: 1rem 0;
+        box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
+      }
+    }
+    ul {
+      display: none;
+      padding: 0;
+      position: relative;
+      li {
+        float: none;
+        width: 18rem;
+        position: initial;
+        //padding: 0.3rem 0.5rem;
+        &:hover {
+          box-shadow: none;
+          background: lighten($light-gray, 4%);
+          > label i {
+            left: 16.7rem;
+          }
+        }
+        i {
+          left: 16.5rem;
+        }
+        i {
+          position: absolute;
+          line-height: 1.5em;
+          transition: all ease-in-out 0.1s;
+        }
+      }
+      a {
+        line-height: 120%;
+        padding: 10px 15px;
+      }
+      ul {
+        top: 0;
+        left: 18rem;
+        position: absolute;
+        background: lighten( $light-gray, 4%);
+        li:hover {
+          background: lighten($light-gray, 7%);
+        }
+        ul {
+          background: lighten( $light-gray, 7%);
+          li:hover {
+            background: lighten($light-gray, 10%);
+          }
+          ul {
+            background: lighten( $light-gray, 10%);
+          }
+        }
+      }
+    }
+    li:hover > {
+      div, ul, div > ul {
+        display: block;
+      }
+    }
+  }
+  > ul {
+    display: table;
+    position: relative;
+    width: 100%;
+    > li {
+      width: 25%;
+      padding: 1rem;
+      float: none;
+      position: initial;
+      display: table-cell;
+    }
+  }
+
+  .split-list ul{
+    float: left; 
+    display: block;
+    position: initial;
+    padding-left: 0;
+  }
+  .split-list li{
+    background: $light-gray;
+   }
+
 }
