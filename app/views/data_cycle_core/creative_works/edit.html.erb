@@ -10,7 +10,7 @@
                 <div class="row expanded">
                     <div class="column">
                         <div class="edit-headline">
-                            <i class="fa fa-pencil" aria-hidden="true"></i> Thema bearbeiten
+                            <i class="fa fa-pencil" aria-hidden="true"></i> <%=@creativeWork.metadata['validation']['name']%> bearbeiten
                         </div>
                         <ul>
                             <li>
@@ -36,7 +36,7 @@
                             <span class="icon">
                                 <i class="fa fa-folder-open" aria-hidden="true"></i>
                             </span>
-                            <span class="title">Thema</span>
+                            <span class="title"><%=@creativeWork.metadata['validation']['name']%></span>
                         </div>
 
                         <a class="bookmark" href="#">
@@ -54,7 +54,7 @@
                             <% validation_properties = get_ordered_validation_properties(@creativeWork.metadata['validation']) %>
 
                             <!--<h2><%= "#{validation['name']} - #{validation['description']} - #{validation['type']}" %></h2>-->
-
+                            <%#= @creativeWork.get_data_hash %>
                             <% if !validation_properties.nil? %>
 
                                 <% validation_properties.each do |key, prop| %>
@@ -96,6 +96,6 @@
 
 <% end %>
 
-<!--<%= debug(@dataSchema) %> -->
-<!--<%= debug(@data) %>-->
-<!--<%= debug(@creativeWork) %>-->
+<%= debug(@dataSchema) %>
+<%= debug(@data) %>
+<%= debug(@creativeWork) %>

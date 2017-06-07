@@ -25,7 +25,7 @@ module DataCycleCore
       @creativeWork = DataCycleCore::CreativeWork.new(creative_work_params)    # Not the final implementation!
 
       #todo: make this generic
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Thema", description: "CreativeWork").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: params[:template], description: "CreativeWork").first
       validation = template.metadata['validation']
 
       @creativeWork.metadata = { 'validation' => validation }
@@ -66,6 +66,8 @@ module DataCycleCore
         return
       end
 
+      puts "data -------> #{datahash.awesome_inspect}"
+
       @creativeWork.set_data_hash(datahash)
 
       # needed because headline != title
@@ -102,7 +104,7 @@ module DataCycleCore
     private
 
       def creative_work_params
-        params.require(:creative_work).permit(:headline, :datahash => [:headline,:description,:state => [],:topics => [],:markets => [],:tags => [], :validityPeriod => [:validFrom, :validUntil] ])
+        params.require(:creative_work).permit(:template, :headline, :datahash => [:headline,:text,:description,:state => [],:topics => [],:markets => [],:tags => [], :validityPeriod => [:validFrom, :validUntil], :image => [], :video => []])
         # params.require(:creative_work).permit!
       end
 

@@ -15,7 +15,7 @@
         <h3>Neues Thema erstellen</h3>
 
         <%= form_for(@creativeWork) do |f| %>
-
+            <%= hidden_field_tag 'template', 'Thema' %>
             <%= f.text_field :headline, class: 'form-control', readonly: true, value:params[:search] %>
             <% if params[:search].present? %>
                 <%= f.submit "Erstellen", class: "button primary" %>
@@ -36,10 +36,9 @@
     <div class="reveal" id="recherche" data-reveal>
         <h3>Neue Recherche beginnen</h3>
 
-        <%= form_tag(new_recherche_path, method: "get") do  %>
-
-            <%= label_tag :headline%>
-            <%= text_field_tag(:headline, params[:search], class: 'form-control', readonly: true) %>
+        <%= form_for(@creativeWork) do |f| %>
+            <%= hidden_field_tag 'template', 'Recherche' %>
+            <%= f.text_field :headline, class: 'form-control', readonly: true, value:params[:search] %>
             <% if params[:search].present? %>
                 <%= submit_tag "Erstellen", class: "button primary" %>
             <% end %>
