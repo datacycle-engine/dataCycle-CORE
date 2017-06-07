@@ -36,12 +36,28 @@ module DataCycleCore
 
     end
 
-    def get_classifications_for_name(prop)
+    #todo refactor
+    def get_classifications_for_name(name)
 
-      unless prop['type_name'].nil?
-          unless (DataCycleCore::ClassificationTreeLabel.find_by name: prop['type_name']).nil?
-            @classification_tree_label =  DataCycleCore::ClassificationTreeLabel.find_by name: prop['type_name']
+      if !name.nil? && !name.blank?
+          unless (DataCycleCore::ClassificationTreeLabel.find_by name: name).nil?
+            @classification_tree_label =  DataCycleCore::ClassificationTreeLabel.find_by name: name
           end
+      end
+
+    end
+
+    #todo refactor
+    def get_classifications_for_id(uids, treeLabel = nil)
+
+      unless uids.nil?
+        if !treeLabel.nil?
+          allowed_classifications = get_classifications_for_name(treeLabel).classification_trees.map { |classification| classification.sub_classification_alias.id }
+          allowed_uids = uids.select {|uid| allowed_classifications.include?(uid)}
+          @selected_classifications = DataCycleCore::ClassificationAlias.find(allowed_uids) rescue return
+        else
+          @selected_classifications = DataCycleCore::ClassificationAlias.find(uids) rescue return
+        end
       end
 
     end
