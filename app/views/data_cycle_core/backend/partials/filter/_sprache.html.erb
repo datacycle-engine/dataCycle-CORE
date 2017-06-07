@@ -8,10 +8,10 @@
         <ul class="split-list">
             <% language_hash.each do |key,value| %>
                 <li>
-                    <input type="radio"  name="language" value=<%= key %> <%= "checked" if key.to_s == params[:language]%> />
-                    <label>
+                    <input type="radio"  name="language" value="<%= key.to_s %>" id="<%= key.to_s %>" <%= "checked" if key.to_s == params[:language]%> />
+                    <label for="<%= key.to_s %>">
                         <span class="title">
-                            <!--<%=key.to_s%> -->
+                            <%=key.to_s%>
                             <strong><%=value%></strong>
                         </span>
                     </label>
