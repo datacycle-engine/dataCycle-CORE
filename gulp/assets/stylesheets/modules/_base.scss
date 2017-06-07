@@ -39,6 +39,9 @@ form {
 .pagination {
   border-radius: 30px;
   background: lighten($light-gray, 6%);
+  li.unavailable{
+    padding: 0 0.625rem;
+  }
   a, button {
     border-radius: 0; 
     line-height: inherit;
