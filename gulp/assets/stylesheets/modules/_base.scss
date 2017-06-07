@@ -199,6 +199,10 @@ form {
       font-style: italic;
   }
   .daterange {
+    padding: 1rem;
+    text-align: left;
+    label { width: 0; height: 0; overflow: hidden; }
+    input { min-width: 100px; }
     &.focus {
       border-color: $primary-color;
       background: white;
@@ -219,9 +223,9 @@ form {
     a span { display: block; text-indent: -9999px; }
   }
 
-  label {
+  label, .custom-select-title {
     opacity: 0;
-    position: absolute;
+    text-align: left;
     position: absolute;
     top: 0.2rem;
     left: 1rem;
@@ -230,7 +234,7 @@ form {
     transition: opacity ease-in-out 0.25s;
   }
 
-  input, .ql-editor, .daterange {
+  input, .ql-editor, .daterange, .v-select {
     border: 1px solid $light-gray;
     background: $light-gray;
     outline: none;
@@ -242,6 +246,7 @@ form {
     position: relative;
     z-index: 1;
     transition: box-shadow 0.5s, border-color 0.25s ease-in-out;
+    min-width: 280px;
     &:hover {
       box-shadow: 0 0 7px $primary-color;
       z-index: 10;
@@ -251,6 +256,16 @@ form {
       background: white;
       z-index: 10;
     }
+    &::placeholder {
+        font-weight: 200;
+        color: $dark-gray;
+    }
+  }
+  .focus .v-select {
+      border-color: $primary-color;
+      background: white;
+      z-index: 10;
+
   }
 
   .ql-editor {
@@ -260,6 +275,21 @@ form {
   &.editor {
     padding: 0;
     margin-top: 3rem;
+       .form-element {
+          position: relative;
+          z-index: 1;
+          .custom-select-title{
+            padding-top: 0.5rem;
+            opacity: 1;
+            color: rgba($dark-gray, 50%);
+          }
+          &:hover {
+            z-index: 2;
+            .custom-select-title{
+                color: $primary-color;
+            }  
+          }
+        }
       .type  {
         top: -2rem;
         opacity: 0.5;
@@ -299,15 +329,11 @@ form {
 
 }
 
-
-.custom-select-title{
-  padding-top: 0.5rem;
-}
-.custom-select{
-  padding: 0 1rem 1rem 1rem;
-  .v-select .selected-tag{
-    background-color: rgba($primary-color, 0.2);
-  }
+.v-select{
+  padding: 2rem 1rem 1rem 1rem;
+  .dropdown-toggle { border: 0 !important; }
+  .dropdown-menu { z-index: 10; }
+  &:hover { .custom-select-title{ color: $primary-color; } }
 }
 
 
@@ -429,21 +455,29 @@ span.single_error {
   }
 }
 
-.tags{
-  .tag{
+.tags, .v-select {
+  .tag, .selected-tag{
       display: inline-block;
       background-color: rgba($primary-color, 0.5);
       font-size: 0.8rem;
       color: $white;
       padding: 0 0.3rem;
       margin: 0 0.1rem;
+      line-height: 1.2rem;
       border-radius: $object-border-radius;
       i {
         font-size: 0.8rem;
         margin-left: 0.2rem;
       }
+      .close {
+          font-size: 1.2rem;
+          color: white;
+          text-shadow:none;
+          opacity: .7;
+      }
   }
-  a.tag:hover {
+  .selected-tag { float: left; margin-top: 5px; font-family: $body-font-family}
+  a.tag:hover, a.selected-tag:hover {
       background-color: rgba($primary-color, 0.8);
   }
 }
