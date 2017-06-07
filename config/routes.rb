@@ -19,6 +19,12 @@ DataCycleCore::Engine.routes.draw do
 
   match '/validatetest(/:id)', to: 'creative_works#validate_single_data', via: [:patch, :post]
 
+  namespace :api do
+    namespace :v1 do
+      resources :classification, only: [:index]
+    end
+  end
+  
   #dev routes for michi
   get '/demoarticle', to: 'creative_works#demoarticle'
   get '/demotopic', to: 'creative_works#demotopic'

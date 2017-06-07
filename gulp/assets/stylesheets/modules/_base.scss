@@ -39,6 +39,9 @@ form {
 .pagination {
   border-radius: 30px;
   background: lighten($light-gray, 6%);
+  li.unavailable{
+    padding: 0 0.625rem;
+  }
   a, button {
     border-radius: 0; 
     line-height: inherit;
@@ -84,13 +87,13 @@ form {
     li{
       display: inline-block;
       position: relative;
-      margin: 0;
+      button.has-tip { border-bottom: none; cursor: pointer;}
       .button {
         margin: 0;
+        display: block;
         background: none;
         outline: none;
         color: rgba($primary-color, 0.5);
-        &.has-tip { border-bottom: none; cursor: pointer;}
         i {
           font-size: 1.5rem;
         }
@@ -192,13 +195,13 @@ form {
       color: $dark-gray;
     }
   }
-  .dateModified span.bis, .dateModified span.icon, .gueltigkeit span.bis, .gueltigkeit span.icon  {
+  .daterange span.bis, .daterange span.icon, .gueltigkeit span.bis, .gueltigkeit span.icon  {
       color: $dark-gray;
   }
-  .dateModified span.bis,.gueltigkeit span.bis  {
+  .daterange span.bis,.gueltigkeit span.bis  {
       font-style: italic;
   }
-  .dateModified {
+  .daterange {
     &.focus {
       border-color: $primary-color;
       background: white;
@@ -230,7 +233,7 @@ form {
     transition: opacity ease-in-out 0.25s;
   }
 
-  input, .ql-editor, .dateModified {
+  input, .ql-editor, .daterange {
     border: 1px solid $light-gray;
     background: $light-gray;
     outline: none;
@@ -275,7 +278,12 @@ form {
       .description {
         padding: 0;
       }
-      .dateModified {
+      .daterange {
+        .icon.validUntil {
+          i {
+            display: none;
+          }
+        }
         //padding: 1rem;
         .form-element {
           display: inline-block;
@@ -433,6 +441,10 @@ span.single_error {
       padding: 0 0.3rem;
       margin: 0 0.1rem;
       border-radius: $object-border-radius;
+      i {
+        font-size: 0.8rem;
+        margin-left: 0.2rem;
+      }
   }
   a.tag:hover {
       background-color: rgba($primary-color, 0.8);

@@ -1,10 +1,10 @@
 <div id="new-object-circle">
-  <a data-toggle="new-object" class="button-prime"><i class="fa fa-plus" aria-hidden="true"></i></a>
-  <div class="reveal" id="new-object" data-reveal data-append-to="#new-object-circle" data-v-offset="auto">
-    <!--<a class="option" href="#"><i class="fa fa-commenting" aria-hidden="true"></i>Themenvorschlag einbringen</a>-->
-    <!--<a class="option" href="#"><i class="fa fa-lightbulb-o" aria-hidden="true"></i>Recherche beginnen</a>-->
-    <a class="option last" href="#" data-open="newCreativeWork"><i class="fa fa-folder-open-o" aria-hidden="true"></i>Neues Thema erstellen</a>
-  </div>
+    <a data-toggle="new-object" class="button-prime"><i class="fa fa-plus" aria-hidden="true"></i></a>
+    <div class="reveal" id="new-object" data-reveal data-append-to="#new-object-circle" data-v-offset="auto">
+        <!--<a class="option" href="#"><i class="fa fa-commenting" aria-hidden="true"></i>Themenvorschlag einbringen</a>-->
+        <!--<a class="option" href="#"><i class="fa fa-lightbulb-o" aria-hidden="true"></i>Recherche beginnen</a>-->
+        <a class="option last" href="#" data-open="newCreativeWork"><i class="fa fa-folder-open-o" aria-hidden="true"></i>Neues Thema erstellen</a>
+    </div>
 </div>
 
 <!-- testing -->
@@ -12,19 +12,19 @@
 <% if !@creativeWork.nil? %>
 
     <div class="reveal" id="newCreativeWork" data-reveal>
-  <h3>Neues Thema erstellen</h3>
+        <h3>Neues Thema erstellen</h3>
 
-  <%= form_for(@creativeWork) do |f| %>
+        <%= form_for(@creativeWork) do |f| %>
 
-      <%= f.text_field :headline, class: 'form-control', readonly: true, value:params[:search] %>
-      <% if params[:search].present? %>
-        <%= f.submit "Erstellen", class: "button primary" %>
-      <% end %>
-  <% end %>
+            <%= f.text_field :headline, class: 'form-control', readonly: true, value:params[:search] %>
+            <% if params[:search].present? %>
+                <%= f.submit "Erstellen", class: "button primary" %>
+            <% end %>
+        <% end %>
 
-  <button class="close-button" data-close aria-label="Close modal" type="button">
-    <span aria-hidden="true">&times;</span>
-  </button>
-</div>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
 
 <% end %>

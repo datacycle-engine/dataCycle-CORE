@@ -1,15 +1,22 @@
 <%# LANGUAGES = %w(de en ar bg cs da es fr it hu hr ja ko nl pt pl ro ru sl sk sv tr uk de-CH) %>
 <% language_hash = {de: "deutsch", en: "englisch", ar: "arabisch", bg: "bulgarisch", cs: "tschechisch", da: "dänisch", es: "spanisch", fr: "französisch", it: "italienisch", hu: "ungarisch", hr: "kroatisch", ja: "japanisch", ko: "koreanisch", nl: "holländisch", pt: "portugiesisch", pl: "polnisch", ru: "russisch", sl: "slowenisch", sk: "slowakisch", sv: "schwedisch", tr: "türkisch", uk: "ukrainisch", "de-CH" => "schweizer-deutsch"} %>
-<div class="filter language columns small-3">
-  <ul>
-    <% language_hash.each do |key,value| %>
-      <li>
-        <input type="radio"  name="language" value=<%= key %> <%= "checked" if key.to_s == params[:language]%> >
-          <span class="icon"><i class="fa fa-comment" aria-hidden="true"></i></span>
-          <span class="title"><%=key.to_s%> <strong><%=value%></strong></span>
-          <!-- <span class="icon"><i class="fa fa-angle-down" aria-hidden="true"></i></span> -->
-        </input>
-      </li>
-    <% end %>
-  </ul>
-</div>
+
+<li>
+    <span class="icon"><i class="fa fa-comment" aria-hidden="true"></i></span>
+    <span class="title">Sprache</span>
+    <div>
+        <ul class="split-list">
+            <% language_hash.each do |key,value| %>
+                <li>
+                    <input type="radio"  name="language" value=<%= key %> <%= "checked" if key.to_s == params[:language]%> />
+                    <label>
+                        <span class="title">
+                            <!--<%=key.to_s%> -->
+                            <strong><%=value%></strong>
+                        </span>
+                    </label>
+                </li>
+            <% end %>
+        </ul>
+    </div>
+</li>

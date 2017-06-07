@@ -124,6 +124,11 @@ module DataCycleCore
                 contentLocation = data_hash["contentLocation"]
                 I18n.with_locale(lang) do
                   errors = to_update_image.set_data_hash(data)
+                  # check if data is set and validations are correct
+                  if errors[:error].size > 0
+                    @log.error "received wrong data for id:#{data_set.id}, language: #{lang}, data: #{data} (skipping)"
+                    next
+                  end
                   to_update_image.save
                   unless contentLocation.blank?
                     save_location(to_update_image.id, lang, contentLocation)
@@ -131,31 +136,33 @@ module DataCycleCore
                 end
               end
 
-              # save image with classification 'Bild' and treelabel 'Inhaltstypen'
-              ClassificationCreativeWork
-                .find_or_initialize_by(
-                  creative_work_id: to_update_image.id,
-                  classification_id: @image_classification,
-                  external_source_id: @external_source_id
-                ) do |relation|
-                  relation.seen_at = Time.zone.now
-              end.save
+              unless to_update_image.id.nil?
+                # save image with classification 'Bild' and treelabel 'Inhaltstypen'
+                ClassificationCreativeWork
+                  .find_or_initialize_by(
+                    creative_work_id: to_update_image.id,
+                    classification_id: @image_classification,
+                    external_source_id: @external_source_id
+                  ) do |relation|
+                    relation.seen_at = Time.zone.now
+                end.save
 
-              #create relation for keywords
-              #puts "id: #{to_update_image.id} | keywords = #{data_set.dump.each.first[1]['keywords']}"
-              keywords = data_set.dump.each.first[1]['keywords']
-              unless keywords.nil?
-                keywords.each do |keyword|
-                  classification_id = check_for_classification_keyword(keyword)
-                  updated_ccw = ClassificationCreativeWork
-                    .find_or_create_by(
-                      creative_work_id: to_update_image.id,
-                      classification_id: classification_id,
-                      external_source_id: @external_source_id,
-                      tag: true
-                    )
-                  updated_ccw.seen_at = Time.zone.now
-                  updated_ccw.save
+                #create relation for keywords
+                #puts "id: #{to_update_image.id} | keywords = #{data_set.dump.each.first[1]['keywords']}"
+                keywords = data_set.dump.each.first[1]['keywords']
+                unless keywords.nil?
+                  keywords.each do |keyword|
+                    classification_id = check_for_classification_keyword(keyword)
+                    updated_ccw = ClassificationCreativeWork
+                      .find_or_create_by(
+                        creative_work_id: to_update_image.id,
+                        classification_id: classification_id,
+                        external_source_id: @external_source_id,
+                        tag: true
+                      )
+                    updated_ccw.seen_at = Time.zone.now
+                    updated_ccw.save
+                  end
                 end
               end
 

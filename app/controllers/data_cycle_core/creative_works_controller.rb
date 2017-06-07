@@ -4,8 +4,7 @@ module DataCycleCore
     #load_and_authorize_resource         # from cancancan (authorize)
 
     def index
-      @creativeWork = DataCycleCore::CreativeWork.new
-      @creativeWorks = DataCycleCore::CreativeWork.order(updated_at: :desc).page(params[:page])
+
     end
 
     def show
@@ -17,6 +16,7 @@ module DataCycleCore
     end
 
     def new
+      #only for testing
       @creativeWork = DataCycleCore::CreativeWork.new
       render layout: "data_cycle_core/creative_works_show"
     end
@@ -24,7 +24,7 @@ module DataCycleCore
     def create
       @creativeWork = DataCycleCore::CreativeWork.new(creative_work_params)    # Not the final implementation!
 
-      #Testing
+      #todo: make this generic
       template = DataCycleCore::CreativeWork.where(template: true, headline: "Thema", description: "CreativeWork").first
       validation = template.metadata['validation']
 
@@ -74,7 +74,8 @@ module DataCycleCore
 
       if @creativeWork.save
         flash[:success] = "CreativeWork updated"
-        redirect_to @creativeWork
+        # redirect_to @creativeWork
+        redirect_to edit_creative_work_path(@creativeWork)
       else
         render 'edit'
       end

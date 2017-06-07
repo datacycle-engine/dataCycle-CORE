@@ -1,0 +1,24 @@
+<% if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validityPeriod'].nil? && !@creativeWork.metadata['validityPeriod'].empty? %>
+
+    <% if (!@creativeWork.metadata['validityPeriod']['validFrom'].nil? && !@creativeWork.metadata['validityPeriod']['validFrom'].blank?) || (!@creativeWork.metadata['validityPeriod']['validUntil'].nil? && !@creativeWork.metadata['validityPeriod']['validUntil'].blank?) %>
+
+    <div class="gueltigkeit">
+
+        <span class="icon">
+            <i class="fa fa-clock-o" aria-hidden="true"></i> Gültigkeit
+        </span>
+
+        <% if !@creativeWork.metadata['validityPeriod']['validFrom'].nil? && !@creativeWork.metadata['validityPeriod']['validFrom'].blank? %>
+            <%= @creativeWork.metadata['validityPeriod']['validFrom'].to_datetime.to_s(:german_date_format) %>
+        <% end %>
+
+        <% if !@creativeWork.metadata['validityPeriod']['validUntil'].nil? && !@creativeWork.metadata['validityPeriod']['validUntil'].blank? %>
+            <span class="bis">bis</span>
+            <%= @creativeWork.metadata['validityPeriod']['validUntil'].to_datetime.to_s(:german_date_format) %>
+        <% end %>
+
+    </div>
+
+    <% end %>
+
+<% end %>
