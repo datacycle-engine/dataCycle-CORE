@@ -29,7 +29,7 @@ module DataCycleCore
     # get data as specified in the data template
     # data hash with keys named as in schema.org
     def get_data_hash
-      if translated_locales.include?(I18n.locale)
+      if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with preloaded data in it
         data_type = metadata['validation']
         data_hash = {}
         data_type['properties'].each do |key,value|
@@ -69,7 +69,7 @@ module DataCycleCore
     # get data as specified in the data template
     # data hash with key names as specified in the template
     def get_data_type
-      if translated_locales.include?(I18n.locale)
+      if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with preloaded data in it
         data_type = metadata['validation']
         data_hash = collect_template_data(data_type['properties'])
       else

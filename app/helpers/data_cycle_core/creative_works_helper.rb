@@ -113,7 +113,12 @@ module DataCycleCore
       else
         # 'editor not set'
       end
+    end
 
+    def render_embeddedLinkArray_field(key, prop, value=nil, options={})
+      if !prop.blank? && !prop['type_name'].blank?
+        render partial: "#{@@partials_path}#{prop['type']}", locals: {key: key, prop: prop, value: value, options: options}
+      end
     end
 
     def render_object_field(key, prop, value=nil, options={})

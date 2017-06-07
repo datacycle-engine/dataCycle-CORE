@@ -1,0 +1,14 @@
+<% object = ("DataCycleCore::"+("#{prop['type_name']}".classify)).constantize %>
+<% unless value.blank? %>
+  <% value.each do |item| %>
+    <% image = object.where(id: item).first %>
+    <div class="form-element <%= key.split('[').last[0...-1] %>">
+      <%= label_tag(key, prop['label']) %>
+      <%= text_field_tag key,value,options %>
+    </div>
+  <% end %>
+<% end %>
+<div class="form-element <%= key.split('[').last[0...-1] %>">
+  <%= label_tag(key, prop['label']) %>
+  <%= text_field_tag key, value, options %>
+</div>
