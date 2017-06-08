@@ -43,7 +43,7 @@
                         <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i> </span>
 
                         <% @creativeWork.classification_aliases.each do |classificationAlias| %>
-                            <span class="tag"><a href="#"><%= classificationAlias.name %></a></span>
+                            <span class="tag"><%= classificationAlias.name %></span>
                         <% end %>
                     </div>
                 <% end %>
@@ -96,7 +96,7 @@
                         <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i></span>
 
                         <% @creativeWork.classification_aliases.each do |classificationAlias| %>
-                            <span class="tag"><a href="#"><%= classificationAlias.name %></a></span>
+                            <span class="tag"><%= classificationAlias.name %></span>
                         <% end %>
                     </div>
                 <% end %>
