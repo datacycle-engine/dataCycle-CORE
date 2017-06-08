@@ -32,6 +32,25 @@ module DataCycleCore
       @creativeWork.save
 
       datahash = {'headline' => creative_work_params[:headline], 'creator' => current_user[:id]}
+
+      #add data_pool
+      unless validation['properties']['data_pool'].nil?
+        data_pool_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
+            .where("classification_tree_labels.name = ?", validation['properties']['data_pool']['type_name'])
+            .where("classification_aliases.name = ?", validation['properties']['data_pool']['default_value']).first
+
+        datahash['data_pool'] = [data_pool_classification.id] unless data_pool_classification.nil?
+      end
+
+      #add data_type
+      unless validation['properties']['data_type'].nil?
+        data_type_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
+            .where("classification_tree_labels.name = ?", validation['properties']['data_type']['type_name'])
+            .where("classification_aliases.name = ?", validation['properties']['data_type']['default_value']).first
+
+        datahash['data_type'] = [data_type_classification.id] unless data_type_classification.nil?
+      end
+
       @creativeWork.set_data_hash(datahash)
 
       #validate ?
