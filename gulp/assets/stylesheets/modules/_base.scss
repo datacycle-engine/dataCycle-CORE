@@ -222,6 +222,11 @@ form {
     a span { display: block; text-indent: -9999px; }
   }
 
+  .form-element{
+    position: relative;
+    &:hover label { opacity: 1; }
+  }
+
   label {
     opacity: 0;
     position: absolute;
