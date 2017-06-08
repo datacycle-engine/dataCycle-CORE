@@ -114,15 +114,28 @@
         </div>
 
 
-        <!--<%= render 'data_cycle_core/backend/views' if user_signed_in? %>-->
+        <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
 
     <% end %>
 
 <% end %>
 
-<!--
-<%= debug(@creativeWork.metadata) %>
--->
+<section>
+
+    <% contentData = [] %>
+
+    <% @creativeWork.walk_tree do |content, level| %>
+        <% contentData.push(content) %>
+    <% end %>
+
+    <% if @mode == 'list' %>
+        <%= render 'data_cycle_core/backend/partials/list', dataCycleObjects: contentData  %>
+    <% else %>
+        <%= render 'data_cycle_core/backend/partials/grid', dataCycleObjects: contentData %>
+    <% end %>
+
+
+</section>
 
 <% if @creativeWork.metadata['validation']['name'] == "Bild" %>
 
@@ -151,9 +164,9 @@
     <!--<div class="row">-->
     <!--<div class="small-12 columns">-->
     <!--<h4><%= @creativeWork.id %></h4>-->
-    <!--<% @creativeWork.walk_tree do |page, level| %>-->
+    <!--<% @creativeWork.walk_tree do |page, level| %>
         <%= link_to "#{"&nbsp;"*(level*5)+'|'+'__'}#{page.id}".html_safe, creative_work_path(page.id) %><br/>
-        <!--<% end %>-->
+        <% end %>-->
     <!--<br/>&nbsp;-->
     <!--</div>-->
     <!--</div>-->

@@ -12,6 +12,13 @@ module DataCycleCore
       if @creativeWork.nil?
         redirect_to root
       end
+
+      if params[:mode].nil?
+        @mode = "flex"
+      else
+        @mode = params[:mode].to_s
+      end
+
       render layout: "data_cycle_core/creative_works_show"
     end
 
@@ -22,7 +29,20 @@ module DataCycleCore
     end
 
     def create
+
       @creativeWork = DataCycleCore::CreativeWork.new(creative_work_params)    # Not the final implementation!
+
+      if params[:template] != "Thema"
+        if params['parent'].nil? || params['parent'].blank?
+          #create new thema
+          raise @creativeWork.inspect
+        else
+          #set as parent
+          @creativeWork.isPartOf = params['parent']
+        end
+        #create Recherche
+      end
+
 
       #todo: make this generic
       template = DataCycleCore::CreativeWork.where(template: true, headline: params[:template], description: "CreativeWork").first
@@ -123,7 +143,7 @@ module DataCycleCore
     private
 
       def creative_work_params
-        params.require(:creative_work).permit(:template, :headline, :datahash => [:headline,:text,:description,:state => [],:topics => [],:markets => [],:tags => [], :validityPeriod => [:validFrom, :validUntil], :image => [], :video => []])
+        params.require(:creative_work).permit(:headline, :datahash => [:headline,:text,:description,:state => [],:topics => [],:markets => [],:tags => [], :validityPeriod => [:validFrom, :validUntil], :image => [], :video => []])
         # params.require(:creative_work).permit!
       end
 
