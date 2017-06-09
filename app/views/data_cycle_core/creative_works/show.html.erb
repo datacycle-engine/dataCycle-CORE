@@ -1,93 +1,44 @@
 
 <% content_for :top_content do %>
 
-    <% if @creativeWork.metadata['validation']['name'] == "Bild" %>
+    <div class="column detail-header-wrapper">
 
-        <div class="column detail-header-wrapper">
+        <div class="detail-header">
 
-            <div class="detail-header">
+            <div class="type <%= @creativeWork.metadata['validation']['name'].downcase %>">
+                <%= render 'data_cycle_core/creative_works/partials/render/icon', icon_type: @creativeWork.metadata['validation']['name'].downcase %>
+                <span class="title"><%= @creativeWork.metadata['validation']['name'] %></span>
+            </div>
 
-                <div class="type bild">
-                    <span class="icon">
-                        <i class="fa fa-picture-o" aria-hidden="true"></i>
-                    </span>
-                    <span class="title">Bild</span>
-                </div>
+            <!--<a class="bookmark marked" href="#">-->
+            <!--<span class="bookmarkinfo">zur Recherche hinzugefügt</span>-->
+            <!--<i class="fa fa-bookmark-o" aria-hidden="true"></i>-->
+            <!--</a>-->
 
-                <!--<a class="bookmark marked" href="#">-->
-                    <!--<span class="bookmarkinfo">zur Recherche hinzugefügt</span>-->
-                    <!--<i class="fa fa-bookmark-o" aria-hidden="true"></i>-->
-                <!--</a>-->
+            <div class="title">
 
-                <div class="title">
-
-                    <% if !@creativeWork.content.nil? && !@creativeWork.content['name'].blank? %>
-                        <%= @creativeWork.content['name'] %>
-                    <% elsif  !@creativeWork.content.nil? && !@creativeWork.content['headline'].blank? %>
-                        <%= @creativeWork.content['headline'] %>
-                    <% end %>
-
-                </div>
-
-
-                <div class="description">
-                    <% if !@creativeWork[:description].nil? %>
-                        <%= @creativeWork.description.html_safe %>
-                    <% end %>
-                </div>
-
-                <%= render 'data_cycle_core/creative_works/partials/render/validityPeriod' %>
-
-                <%= render 'data_cycle_core/creative_works/partials/render/classificationAliases' %>
-                
-                <%= render 'data_cycle_core/creative_works/partials/render/metaData' %>
+                <% if !@creativeWork.content.nil? && !@creativeWork.content['name'].blank? %>
+                    <%= @creativeWork.content['name'] %>
+                <% elsif  !@creativeWork.content.nil? && !@creativeWork.content['headline'].blank? %>
+                    <%= @creativeWork.content['headline'] %>
+                <% end %>
 
             </div>
 
-            <!--<%= render 'data_cycle_core/creative_works/filter' if user_signed_in? %>-->
+            <div class="description">
+                <% if !@creativeWork[:description].nil? %>
+                    <%= @creativeWork.description.html_safe %>
+                <% end %>
+            </div>
 
-        </div>
+            <%= render 'data_cycle_core/creative_works/partials/render/classificationAliases' %>
+
+            <%= render 'data_cycle_core/creative_works/partials/render/validityPeriod' %>
+
+            <%= render 'data_cycle_core/creative_works/partials/render/metaData' %>
 
 
-    <% else %>
-
-        <div class="column detail-header-wrapper">
-
-            <div class="detail-header">
-
-                <div class="type thema">
-                    <span class="icon">
-                        <i class="fa fa-folder-open" aria-hidden="true"></i>
-                    </span>
-                    <span class="title"><%= @creativeWork.metadata['validation']['name'] %></span>
-                </div>
-
-                <!--<a class="bookmark marked" href="#">-->
-                    <!--<span class="bookmarkinfo">zur Recherche hinzugefügt</span>-->
-                    <!--<i class="fa fa-bookmark-o" aria-hidden="true"></i>-->
-                <!--</a>-->
-
-                <div class="title">
-
-                    <% if !@creativeWork.content.nil? && !@creativeWork.content['name'].blank? %>
-                        <%= @creativeWork.content['name'] %>
-                    <% elsif  !@creativeWork.content.nil? && !@creativeWork.content['headline'].blank? %>
-                        <%= @creativeWork.content['headline'] %>
-                    <% end %>
-
-                </div>
-
-                <div class="description">
-                    <% if !@creativeWork[:description].nil? %>
-                        <%= @creativeWork.description.html_safe %>
-                    <% end %>
-                </div>
-
-                <%= render 'data_cycle_core/creative_works/partials/render/classificationAliases' %>
-
-                <%= render 'data_cycle_core/creative_works/partials/render/validityPeriod' %>
-
-                <%= render 'data_cycle_core/creative_works/partials/render/metaData' %>
+            <% if @creativeWork.metadata['validation']['name'] != "Bild" %>
 
                 <div class="edit">
                     <%= link_to edit_creative_work_path(@creativeWork), class:'button-prime small' do %>
@@ -95,12 +46,15 @@
                     <% end %>
                 </div>
 
-            </div>
-
-            <!--<%= render 'data_cycle_core/creative_works/filter' if user_signed_in? %>-->
+            <% end %>
 
         </div>
 
+        <!--<%= render 'data_cycle_core/creative_works/filter' if user_signed_in? %>-->
+
+    </div>
+
+    <% if @creativeWork.metadata['validation']['name'] != "Bild" %>
 
         <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
 
