@@ -12,6 +12,7 @@ module DataCycleCore
 
     end
 
+
     def get_ordered_validation_properties(validation)
 
       ordered_properties = ActiveSupport::OrderedHash.new
