@@ -92,13 +92,38 @@
                 <%= render 'data_cycle_core/creative_works/partials/render/validityPeriod' %>
 
                 <% unless @creativeWork.classification_aliases.empty? %>
-                    <div class="tags">
-                        <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i></span>
 
-                        <% @creativeWork.classification_aliases.each do |classificationAlias| %>
-                            <span class="tag"><%= classificationAlias.name %></span>
+                     <div class="tags">
+
+                        <% if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? %>
+
+                            <% validation_properties = get_ordered_validation_properties(@creativeWork.metadata['validation']) %>
+
+                            <% if !validation_properties.nil? %>
+
+                                <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i></span>
+
+                                <% validation_properties.each do |key, prop| %>
+
+                                    <% if prop['type'] == 'classificationTreeLabel' %>
+
+                                        <span class="tag-group-header"><%= prop['label'] %></span>
+
+                                        <% unless @dataSchema[key].nil? %>
+                                            <% get_classificationAliases_for_classificationIDs(@dataSchema[key]).each do |classificationAlias| %>
+                                                <span class="tag"><%= classificationAlias.name %></span>
+                                            <% end %>
+                                        <% end %>
+
+                                    <% end %>
+
+                                <% end %>
+
+                            <% end %>
                         <% end %>
+
                     </div>
+
                 <% end %>
 
                 <div class="edit">
