@@ -8,18 +8,23 @@
 
             <% if !validation_properties.nil? %>
 
-                <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i></span>
-
                 <% validation_properties.each do |key, prop| %>
 
                     <% if prop['type'] == 'classificationTreeLabel' %>
 
-                        <span class="tag-group-header"><%= prop['label'] %></span>
 
-                        <% unless @dataSchema[key].nil? %>
-                            <% get_classificationAliases_for_classificationIDs(@dataSchema[key]).each do |classificationAlias| %>
-                                <span class="tag"><%= classificationAlias.name %></span>
-                            <% end %>
+                        <% if !@dataSchema[key].nil? && !@dataSchema[key].empty? %>
+                            <div class="tag-group-wrapper">
+
+                                <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i></span>
+
+                                <span class="tag-group-header"><%= prop['label'] %></span>
+
+                                <% get_classificationAliases_for_classificationIDs(@dataSchema[key]).each do |classificationAlias| %>
+                                    <span class="tag"><%= classificationAlias.name %></span>
+                                <% end %>
+
+                            </div>
                         <% end %>
 
                     <% end %>
