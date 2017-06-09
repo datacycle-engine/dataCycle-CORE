@@ -30,7 +30,7 @@ module DataCycleCore
 
     def create
 
-      @creativeWork = create_creative_work(params[:template])
+      @creativeWork = create_internal(params[:template])
 
       if @creativeWork.nil?
         render 'new'
@@ -40,7 +40,7 @@ module DataCycleCore
       if params[:template] != "Thema"
         if params['parent'].nil? || params['parent'].blank?
           #create new thema
-          thema = create_creative_work("Thema")
+          thema = create_internal("Thema")
           @creativeWork.isPartOf = thema.id unless thema.nil?
         else
           #set as parent
@@ -122,7 +122,7 @@ module DataCycleCore
         # params.require(:creative_work).permit!
       end
 
-      def create_creative_work(template)
+      def create_internal(template)
 
         creative_work = DataCycleCore::CreativeWork.new(creative_work_params)
 
