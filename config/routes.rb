@@ -9,7 +9,6 @@ DataCycleCore::Engine.routes.draw do
   get  '/settings',    to: 'backend#settings'
 
   resources :creative_works, only: [:index, :show, :new, :create, :edit, :update]
-  resources :recherche, only: [:show, :new, :create, :edit, :update]
 
   get  '/admin', to: 'dash_board#home'
   get  '/admin/download', to: 'dash_board#download'
@@ -20,9 +19,17 @@ DataCycleCore::Engine.routes.draw do
 
   match '/validatetest(/:id)', to: 'creative_works#validate_single_data', via: [:patch, :post]
 
-  namespace :api do
-    namespace :v1 do
-      resources :classification, only: [:index]
+
+  defaults format: :json do
+    namespace :api do
+      namespace :v1 do
+
+        resources :classification, only: [:index]
+
+        get 'images/search', to: 'images#search'
+        resources :images, only: [:index, :show]
+
+      end
     end
   end
 
