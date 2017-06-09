@@ -27,7 +27,7 @@
 
         </div>
 
-        <ul>
+        <ul class="clearfix">
             <% types.sort{|a,b| a.name <=> b.name}.each do |item| %>
                 <%= render 'data_cycle_core/backend/partials/filter/classification_items', item: item %>
             <% end %>

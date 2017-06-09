@@ -5,7 +5,7 @@
     <span class="icon"><i class="fa fa-comment" aria-hidden="true"></i></span>
     <span class="title">Sprache</span>
     <div>
-        <ul class="split-list">
+        <ul class="split-list clearfix">
             <% language_hash.each do |key,value| %>
                 <li>
                     <input type="radio" name="language" value="<%= key.to_s %>" id="<%= key.to_s %>" <%= "checked" if key.to_s == "de" || key.to_s == params[:language]%> />
