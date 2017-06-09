@@ -3,13 +3,7 @@
     <% parent_string = classification_alias_id.nil? ? "IS NULL" : " = '#{classification_alias_id}'" %>
     <% types = DataCycleCore::ClassificationAlias.joins(classification_trees: [:classification_tree_label]).where("classification_tree_labels.name = ?", tree_label).where("classification_trees.parent_classification_alias_id #{parent_string}") %>
 
-    <% case tree_label %>
-        <% when "Bundesländer" %>
-            <span class="icon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
-        <% when "Märkte" %>
-            <span class="icon"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></span>
-    <% end %>
-
+    <%= render 'data_cycle_core/creative_works/partials/render/icon', icon_type: tree_label.downcase %>
 
     <span class="title"><%=display_label%> <strong>(<%=types.count%>)</strong></span>
     <div>
