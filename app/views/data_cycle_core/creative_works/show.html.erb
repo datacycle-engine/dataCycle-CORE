@@ -38,15 +38,9 @@
 
                 <%= render 'data_cycle_core/creative_works/partials/render/validityPeriod' %>
 
-                <% unless @creativeWork.classification_aliases.empty? %>
-                    <div class="tags">
-                        <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i> </span>
-
-                        <% @creativeWork.classification_aliases.each do |classificationAlias| %>
-                            <span class="tag"><%= classificationAlias.name %></span>
-                        <% end %>
-                    </div>
-                <% end %>
+                <%= render 'data_cycle_core/creative_works/partials/render/classificationAliases' %>
+                
+                <%= render 'data_cycle_core/creative_works/partials/render/metaData' %>
 
             </div>
 
@@ -91,40 +85,9 @@
 
                 <%= render 'data_cycle_core/creative_works/partials/render/validityPeriod' %>
 
-                <% unless @creativeWork.classification_aliases.empty? %>
+                <%= render 'data_cycle_core/creative_works/partials/render/classificationAliases' %>
 
-                     <div class="tags">
-
-                        <% if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? %>
-
-                            <% validation_properties = get_ordered_validation_properties(@creativeWork.metadata['validation']) %>
-
-                            <% if !validation_properties.nil? %>
-
-                                <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i></span>
-
-                                <% validation_properties.each do |key, prop| %>
-
-                                    <% if prop['type'] == 'classificationTreeLabel' %>
-
-                                        <span class="tag-group-header"><%= prop['label'] %></span>
-
-                                        <% unless @dataSchema[key].nil? %>
-                                            <% get_classificationAliases_for_classificationIDs(@dataSchema[key]).each do |classificationAlias| %>
-                                                <span class="tag"><%= classificationAlias.name %></span>
-                                            <% end %>
-                                        <% end %>
-
-                                    <% end %>
-
-                                <% end %>
-
-                            <% end %>
-                        <% end %>
-
-                    </div>
-
-                <% end %>
+                <%= render 'data_cycle_core/creative_works/partials/render/metaData' %>
 
                 <div class="edit">
                     <%= link_to edit_creative_work_path(@creativeWork), class:'button-prime small' do %>
