@@ -19,6 +19,7 @@ module DataCycleCore
         @mode = params[:mode].to_s
       end
 
+      @dataSchema = @creativeWork.get_data_hash
       render layout: "data_cycle_core/creative_works_show"
     end
 

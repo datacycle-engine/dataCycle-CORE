@@ -38,15 +38,9 @@
 
                 <%= render 'data_cycle_core/creative_works/partials/render/validityPeriod' %>
 
-                <% unless @creativeWork.classification_aliases.empty? %>
-                    <div class="tags">
-                        <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i> </span>
-
-                        <% @creativeWork.classification_aliases.each do |classificationAlias| %>
-                            <span class="tag"><a href="#"><%= classificationAlias.name %></a></span>
-                        <% end %>
-                    </div>
-                <% end %>
+                <%= render 'data_cycle_core/creative_works/partials/render/classificationAliases' %>
+                
+                <%= render 'data_cycle_core/creative_works/partials/render/metaData' %>
 
             </div>
 
@@ -91,15 +85,9 @@
 
                 <%= render 'data_cycle_core/creative_works/partials/render/validityPeriod' %>
 
-                <% unless @creativeWork.classification_aliases.empty? %>
-                    <div class="tags">
-                        <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i></span>
+                <%= render 'data_cycle_core/creative_works/partials/render/classificationAliases' %>
 
-                        <% @creativeWork.classification_aliases.each do |classificationAlias| %>
-                            <span class="tag"><a href="#"><%= classificationAlias.name %></a></span>
-                        <% end %>
-                    </div>
-                <% end %>
+                <%= render 'data_cycle_core/creative_works/partials/render/metaData' %>
 
                 <div class="edit">
                     <%= link_to edit_creative_work_path(@creativeWork), class:'button-prime small' do %>
