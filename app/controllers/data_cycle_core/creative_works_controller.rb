@@ -20,6 +20,7 @@ module DataCycleCore
       end
 
       @dataSchema = @creativeWork.get_data_hash
+      @data = @creativeWork.get_data_type
       render layout: "data_cycle_core/creative_works_show"
     end
 

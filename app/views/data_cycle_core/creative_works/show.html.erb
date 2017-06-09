@@ -82,19 +82,10 @@
 <% if @creativeWork.metadata['validation']['name'] == "Bild" %>
 
     <div class="detail-content">
+
         <div class="row">
 
-            <% unless @creativeWork.metadata.nil? %>
-
-                <% unless @creativeWork.metadata['contentUrl'].nil? %>
-
-                    <div class="image stripes">
-                        <img src="<%= @creativeWork.metadata['contentUrl'] %>" alt="<%= @creativeWork.content['name'] unless @creativeWork.content.blank?%>" />
-                    </div>
-
-                <% end %>
-
-            <% end %>
+            <%= render 'data_cycle_core/creative_works/partials/show/bild' %>
 
         </div>
 
