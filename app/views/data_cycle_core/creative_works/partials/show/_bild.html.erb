@@ -1,0 +1,45 @@
+
+<% unless @creativeWork.metadata.nil? %>
+
+    <% unless @creativeWork.metadata['contentUrl'].nil? %>
+
+        <div class="image stripes">
+            <img src="<%= @creativeWork.metadata['contentUrl'] %>" alt="<%= @creativeWork.content['name'] unless @creativeWork.content.blank?%>" />
+        </div>
+
+    <% end %>
+
+    <% unless @creativeWork.content['caption'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['caption']['label'],
+                   value: @creativeWork.content['caption'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['creator'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['creator']['label'],
+                   value: @creativeWork.metadata['creator'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['license'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['license']['label'],
+                   value: @creativeWork.metadata['license'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['mandatoryLicense'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/boolean',
+                   label: @creativeWork.metadata['validation']['properties']['mandatoryLicense']['label'],
+                   value: @creativeWork.metadata['mandatoryLicense'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['contentLocation'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/place',
+                   label: @creativeWork.metadata['validation']['properties']['contentLocation']['label'],
+                   value: @creativeWork.metadata['contentLocation'] %>
+    <% end %>
+
+
+    <%= debug(@data) %>
+
+<% end %>
