@@ -29,7 +29,7 @@ module DataCycleCore
     # get data as specified in the data template
     # data hash with keys named as in schema.org
     def get_data_hash
-      if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with preloaded data in it
+      if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with pending data in it
         data_type = metadata['validation']
         data_hash = {}
         data_type['properties'].each do |key,value|
@@ -45,13 +45,12 @@ module DataCycleCore
     # data hash with keys named as in schema.org
     def set_data_hash(data_hash)
       template_hash = metadata['validation']
-      unless validate?(data_hash)
-        return validate(data_hash) # return error from validation
+      if validate?(data_hash)
+        ActiveRecord::Base.transaction do
+          set_template_data_hash(template_hash['properties'], data_hash)
+        end
       end
-      ActiveRecord::Base.transaction do
-        set_template_data_hash(template_hash['properties'], data_hash)
-      end
-      return {error: [], warning: []} # validation was successful
+      validate(data_hash) # return error/warnings from validation
     end
 
     def validate(data)
@@ -80,12 +79,12 @@ module DataCycleCore
     # set data as specified in the data template
     def set_data_type(data_hash)
       template_hash = metadata['validation']
-      unless validate_hash?(data_hash)
-        return validate_hash(data_hash)
+      if validate_hash?(data_hash)
+        ActiveRecord::Base.transaction do
+          set_template_data(template_hash['properties'], data_hash)
+        end
       end
-      ActiveRecord::Base.transaction do
-        set_template_data(template_hash['properties'], data_hash)
-      end
+      validate_hash(data_hash)
     end
 
     # validates given data-hash (key names as specified in the template)
@@ -205,25 +204,26 @@ module DataCycleCore
       when 'column'
         self.method("#{key}=").call(value)
       when 'content'
-        if self.content.blank?
-          self.content = { key => value }
-        else
-          self.content[key] = value
-        end
+        save_to_jsonb(key, value, properties, 'content')
       when 'metadata'
-        if self.metadata.blank?
-          self.metadata = { key => value }
-        else
-          self.metadata[key] = value
-        end
+        save_to_jsonb(key, value, properties, 'metadata')
       when 'properties'
-        if self.properties.blank?
-          self.properties = { key => value }
-        else
-          self.properties[key] = value
-        end
+        save_to_jsonb(key, value, properties, 'properties')
       when 'classification_creative_works'
         set_relation_ids(properties['storage_location'], value, properties['type_name'])
+      end
+    end
+
+    def save_to_jsonb(key, data, properties, location)
+      # parse tree in json, to only set data specified in the data definitions
+      if data.is_a?(::Hash)
+        data = set_data_tree_hash(data, properties['properties'])
+      end
+      # set to json field (could be empty)
+      if self.method("#{location}").call.blank?
+        self.method("#{location}=").call({ key => data })
+      else
+        self.method("#{location}").call.method("[]=").call(key,data)
       end
     end
 
@@ -255,14 +255,14 @@ module DataCycleCore
       data_hash
     end
 
-    def set_data_tree_hash(data_definitions, data)
+    def set_data_tree_hash(data, data_definitions)
       data_hash = {}
       return if data.blank?
       data_definitions.each do |key,value|
         unless data_definitions[key]['type'] == 'object'
           data_hash[key] = data[key]
         else
-          data_hash[key] = set_data_tree(data_definitions[key]['properties'],data[key])
+          data_hash[key] = set_data_tree_hash(data[key], data_definitions[key]['properties'])
         end
       end
       data_hash

@@ -20,7 +20,9 @@ module DataCycleCore
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
+      puts "all good"
       data_set.set_data_hash({"title" => "Dies ist ein Test!", "description" => "wtf is going on???"})
+      puts "after set"
       data_set.save
       expected_hash = {
         "tags" => [],
@@ -82,6 +84,29 @@ module DataCycleCore
       error = data_set.set_data_hash({"title" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validTo" => "2017-16-01"}})
       assert_equal(1, error[:error].count)
       assert_equal(8, error[:warning].count)
+    end
+
+    test "save CreativeWork with sub-properties with wrong name and valid data" do
+
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_hash = {"headline" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validTo" => "2017-06-01"}}
+      error = data_set.set_data_hash(data_hash)
+      puts data_set.get_data_hash.compact
+
+      assert_equal(0, error[:error].count)
+      assert_equal(23, error[:warning].count)
+      expected_hash = {
+        "headline" => "Dies ist ein Test!",
+        "access" => [],
+        "validityPeriod" => {
+          "datePublished" => nil,
+          "expires" => nil
+        }
+      }
+      assert_equal(expected_hash, data_set.get_data_hash.compact)
     end
 
     test "save CreativeWork link to user_id" do

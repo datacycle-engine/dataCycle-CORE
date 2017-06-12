@@ -5,7 +5,7 @@ module DataCycleCore
 
     # method to get all Images in all available languages
     def index
-      query = DataCycleCore::Filter::ImageQueryBuilder.new.only_images
+      query = DataCycleCore::Filter::ImageQueryBuilder.new.only_images.in_validity_period
 
       @per = params[:per] unless params[:per].blank?
       @per ||= @@default_per
@@ -27,7 +27,7 @@ module DataCycleCore
       @language = params[:language] unless params[:language].blank?
       @language ||= "de"
 
-      query = DataCycleCore::Filter::ImageQueryBuilder.new.only_images
+      query = DataCycleCore::Filter::ImageQueryBuilder.new.only_images.in_validity_period
       query = query.with_locale(@language)
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
 

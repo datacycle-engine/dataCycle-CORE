@@ -25,6 +25,32 @@ module DataCycleCore
         )
       end
 
+      def in_validity_period(current_date = Time.now)
+        reflect (
+          @query.where(
+            # Arel::Nodes::Between.new(
+            #   sql_date(quoted(current_date)),
+            #   Arel::Nodes::And.new(
+            #     [
+            #       sql_date(json_path(creative_work[:metadata], quoted('{ validityPeriod, datePublished }'))),
+            #       sql_date(json_path(creative_work[:metadata], quoted('{ validityPeriod, expires }')))
+            #     ]
+            #   )
+            # )
+            sql_date(json_path(creative_work[:metadata], quoted('{ validityPeriod, datePublished }'))).eq(nil).
+              or(
+                sql_date(json_path(creative_work[:metadata], quoted('{ validityPeriod, datePublished }'))).lteq(sql_date(quoted(current_date)))
+            ).
+            and(
+              sql_date(json_path(creative_work[:metadata], quoted('{ validityPeriod, expires }'))).eq(nil).
+              or(
+                sql_date(json_path(creative_work[:metadata], quoted('{ validityPeriod, expires }'))).gteq(sql_date(quoted(current_date)))
+              )
+            )
+          )
+        )
+      end
+
       def fulltext_search(name)
         # include textsearch on classification_aliases.name
         query = join_classification_alias2

@@ -4,6 +4,7 @@
     - Artikel
     - Zeitleiste
     - Portrait
+    - Biografie
     - Rezept
     - Linktipps
     - Interview
@@ -18,7 +19,7 @@
   - Firma
   - Person:
     - Autor
-  - Foto
+  - Bild
   - Video
   - Audio
 
@@ -33,6 +34,7 @@
     - CMS
     - Online Magazin
     - Online Presseportal
+    - Newsletter
   - Social Media:
     - Facebook
     - Twitter
@@ -174,3 +176,99 @@
     - Bus
     - Flugzeug
   - Familie
+
+- Märkte:
+  - Vereinigte Arabische Emirate
+  - Österreich
+  - Australien
+  - Belgien
+  - Brasilien
+  - Schweiz
+  - China
+  - Tschechien
+  - Deutschland
+  - Dänemark
+  - Spanien
+  - Frankreich
+  - Kroatien
+  - Ungarn
+  - Indien
+  - Italien
+  - Japan
+  - Südkorea
+  - Niederlande
+  - Polen
+  - Rumänien
+  - Russische Föderation
+  - Saudi-Arabien
+  - Schweden
+  - Slowenien
+  - Slowakei
+  - Türkei
+  - Taiwan
+  - Ukraine
+  - Großbritannien
+  - USA
+
+- Rezept-Gänge:
+  - Vorspeise
+  - Hauptspeise
+  - Dessert & Süßes
+  - Suppe
+
+- Rezept-Kategorien:
+  - Fleischgerichte
+  - Fischgerichte
+  - Vegetarische Speisen
+  - Süßspeisen
+
+- Sonstiges:
+  - Inhaltsart:
+    - Basiscontent
+    - Wissensbasis
+    - Tagesaktueller Content
+    - User Generated Content
+    - Auslagenthema (Sehnsuchtsthema):
+      - Den Winter aktiv erleben
+      - Spuren ziehen
+      - Winterzauber
+      - Legenden des Winters
+      - Wintersonne
+      - Am Puls der Zeit
+      - Kulturelles Erbe
+      - Leidenschaft für Tradition
+      - Stadtleben
+      - Weltbühne
+      - Alpines Lebensgefühl
+      - Magie des Gehens
+      - Einfach wandern
+      - Gipfel erobern
+      - Kulinarischer Treffpunkt Europas
+      - Feines aus der Region
+      - Kulinarische Hochkultur
+      - Es wird ein Wein sein
+      - Auf Entdeckungsreise durchs Land
+      - Rad POIs
+      - Red Entdeckungsreise
+      - Tempo machen
+      - Mädelstag deluxe
+      - Der Natur auf der Spur
+      - See Grandezza
+      - Einfach staunen
+      - Eins mit dem Wasser
+      - Endlich Regenwetter
+      - We are family
+      - Erlebnis Schnee = familie
+    - Kampagne:
+      - Hauptkampagne:
+        - Name der jeweiligen Kampagne
+    - Besondere Empfehlung
+    - ICM Content
+  - Partner:
+    - Name des jeweiligen Partner (CRM)
+  - Jahreszeiten:
+    - Frühling
+    - Sommer
+    - Herbst
+    - Winter
+    - Ganzjahr

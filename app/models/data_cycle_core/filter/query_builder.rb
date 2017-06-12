@@ -111,6 +111,10 @@ module DataCycleCore
         Arel::Nodes::NamedFunction.new("ST_Distance", [point1, point2])
       end
 
+      def current_date
+        Arel::Nodes::NamedFunction.new("CURRENT_DATE",[])
+      end
+
       def contains(geo1, geo2)
         Arel::Nodes::InfixOperation.new("@", geo1, geo2)
       end
@@ -145,6 +149,14 @@ module DataCycleCore
 
       def json_element(field, element)
         Arel::Nodes::InfixOperation.new("->>", field, element)
+      end
+
+      def json_path(field, path)
+        Arel::Nodes::InfixOperation.new("#>>", field, path)
+      end
+
+      def sql_date(field)
+        Arel::Nodes::NamedFunction.new("date", [field])
       end
 
     # define Arel-tables

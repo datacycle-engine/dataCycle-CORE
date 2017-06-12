@@ -1,13 +1,7 @@
 json.images @images do |item|
   item.translated_locales.each do |language|
     I18n.with_locale(language) do
-      data_hash = {
-        "@context" => "http://www.schema.org/ImageObject",
-        "@id" => item.id,
-        keywords: item.classification_aliases.pluck(:name)
-      }      
-      data_hash.merge!(item.get_data_hash.compact)
-      json.set! language, data_hash
+      json.partial! 'image', locals: {language: language, image: item }
     end
   end
 end
