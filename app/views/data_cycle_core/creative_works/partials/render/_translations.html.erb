@@ -1,0 +1,27 @@
+<!-- todo: use translation file -->
+<% language_hash = {de: "deutsch", en: "englisch", ar: "arabisch", bg: "bulgarisch", cs: "tschechisch", da: "dänisch", es: "spanisch", fr: "französisch", it: "italienisch", hu: "ungarisch", hr: "kroatisch", ja: "japanisch", ko: "koreanisch", nl: "holländisch", pt: "portugiesisch", pl: "polnisch", ru: "russisch", sl: "slowenisch", sk: "slowakisch", sv: "schwedisch", tr: "türkisch", uk: "ukrainisch", "de-CH" => "schweizer-deutsch"} %>
+
+<% if !language.nil? && language == "de" %>
+
+    <% german = @creativeWork.translations.select{|l| l['locale'] == language}.first %>
+    <%= render 'data_cycle_core/creative_works/partials/render/translation_item', translation: german %>
+
+<% else %>
+
+    <% languages = @creativeWork.translations.select{|l| l['locale'] != 'de'} %>
+
+    <% if languages.count > 0 %>
+
+        <h3>Übersetzungen</h3>
+
+        <% languages.each do |translation| %>
+
+            <h4><%= "#{language_hash[translation.locale]} (#{translation.locale})" %></h4>
+
+            <%= render 'data_cycle_core/creative_works/partials/render/translation_item', translation: translation %>
+
+        <% end %>
+
+    <% end %>
+
+<% end %>
