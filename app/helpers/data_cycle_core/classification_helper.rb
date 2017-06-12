@@ -47,7 +47,7 @@ module DataCycleCore
       @selected_values = []
       value.each do |v|
         options.each do |o|
-          if o['value'][0] == v
+          if o[:value] == v
             @selected_values.push(o)
           end
         end
@@ -57,8 +57,23 @@ module DataCycleCore
 
     end
 
-    def test_function
-      test = 'lala'
+    def get_custom_select_values(classification_alias)
+      res = walk_classification_tree(classification_alias).flatten
+    end
+
+
+
+    def walk_classification_tree(classification_alias,level=0)
+      classification_tree = []
+      return if classification_alias.nil?
+      classification_alias.each do |value|
+        classification_tree.push({:value=>value.classifications.ids.first, :label=> "--"*level + " #{value.name}"})
+        if value.sub_classification_alias.count > 0
+          level += 1
+          classification_tree.push(walk_classification_tree(value.sub_classification_alias, level))
+        end
+      end
+      classification_tree
     end
 
   end
