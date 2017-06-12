@@ -65,28 +65,6 @@ module DataCycleCore
       validator.valid?(data, template_hash, strict)
     end
 
-    # get data as specified in the data template
-    # data hash with key names as specified in the template
-    def get_data_type
-      if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with preloaded data in it
-        data_type = metadata['validation']
-        data_hash = collect_template_data(data_type['properties'])
-      else
-        return nil
-      end
-    end
-
-    # set data as specified in the data template
-    def set_data_type(data_hash)
-      template_hash = metadata['validation']
-      if validate_hash?(data_hash)
-        ActiveRecord::Base.transaction do
-          set_template_data(template_hash['properties'], data_hash)
-        end
-      end
-      validate_hash(data_hash)
-    end
-
     # validates given data-hash (key names as specified in the template)
     # and returns true/false
     def validate_hash?(data = collect_data, strict = false)
@@ -152,34 +130,9 @@ module DataCycleCore
       end
     end
 
-    def collect_template_data(properties)
-      data_hash = {}
-      properties.each do |key,value|
-        key_label = properties[key]['label']
-        if properties[key]['type'] == 'object'
-          data_hash[key_label] = walk_data_tree(properties[key]['properties'], self.method(properties[key]['storage_location']).call[key])
-          next
-        end
-        data_hash[key_label] = storage_cases_get(key, properties[key])
-      end
-      data_hash
-    end
-
     def set_template_data_hash(properties, data_hash)
       properties.each do |key,value|
         storage_cases_set(key, data_hash[key], properties[key])
-      end
-    end
-
-    def set_template_data(properties, data_hash)
-      properties.each do |key,value|
-        key_label = properties[key]['label']
-        if properties[key]['type'] == 'object'
-          build_hash = set_data_tree(properties[key]['properties'], data_hash[key_label])
-          self.method(properties[key]['storage_location']).call[key] = build_hash
-          next
-        end
-        storage_cases_set(key, data_hash[key_label], properties[key])
       end
     end
 
@@ -225,34 +178,6 @@ module DataCycleCore
       else
         self.method("#{location}").call.method("[]=").call(key,data)
       end
-    end
-
-    def walk_data_tree(data_definitions, data)
-      data_hash = {}
-      return if data.blank?
-      data_definitions.each do |key,value|
-        key_label = data_definitions[key]['label']
-        unless data_definitions[key]['type'] == 'object'
-          data_hash[key_label] = data[key]
-        else
-          data_hash[key_label] = walk_data_tree(data_definitions[key]['properties'],data[key])
-        end
-      end
-      data_hash
-    end
-
-    def set_data_tree(data_definitions, data)
-      data_hash = {}
-      return if data.blank?
-      data_definitions.each do |key,value|
-        key_label = data_definitions[key]['label']
-        unless data_definitions[key]['type'] == 'object'
-          data_hash[key] = data[key_label]
-        else
-          data_hash[key] = set_data_tree(data_definitions[key]['properties'],data[key_label])
-        end
-      end
-      data_hash
     end
 
     def set_data_tree_hash(data, data_definitions)
