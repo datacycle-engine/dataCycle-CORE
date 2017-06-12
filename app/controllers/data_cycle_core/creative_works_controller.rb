@@ -20,7 +20,6 @@ module DataCycleCore
       end
 
       @dataSchema = @creativeWork.get_data_hash
-      @data = @creativeWork.get_data_type
       render layout: "data_cycle_core/creative_works_show"
     end
 
@@ -62,7 +61,6 @@ module DataCycleCore
 
     def edit
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
-      @data = @creativeWork.get_data_type
       @dataSchema = @creativeWork.get_data_hash
 
       render layout: "data_cycle_core/creative_works_show"
