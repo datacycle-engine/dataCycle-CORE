@@ -31,7 +31,21 @@
                 <% end %>
             </div>
 
-            <%= render 'data_cycle_core/creative_works/partials/render/classificationAliases' %>
+
+            <% if @creativeWork.metadata['validation']['name'] == "Bild" %>
+                <% unless @creativeWork.classification_aliases.empty? %>
+                    <div class="tags">
+                        <div class="tag-group-wrapper">
+                            <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i></span>
+                            <% @creativeWork.classification_aliases.each do |classificationAlias| %>
+                                <span class="tag"><%= classificationAlias.name %></span>
+                            <% end %>
+                        </div>
+                    </div>
+                <% end %>
+            <% else %>
+                <%= render 'data_cycle_core/creative_works/partials/render/classificationAliases' %>
+            <% end %>
 
             <%= render 'data_cycle_core/creative_works/partials/render/validityPeriod' %>
 
