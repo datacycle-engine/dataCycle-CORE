@@ -20,7 +20,13 @@ module DataCycleCore
       end
 
       @dataSchema = @creativeWork.get_data_hash
-      render layout: "data_cycle_core/creative_works_show"
+
+      #todo: add readonly property
+      if @creativeWork.metadata['validation']['name'] == 'Bild'
+        render layout: "data_cycle_core/creative_works_edit"
+      else
+        render layout: "data_cycle_core/creative_works_show"
+      end
     end
 
     def new
@@ -63,7 +69,7 @@ module DataCycleCore
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       @dataSchema = @creativeWork.get_data_hash
 
-      render layout: "data_cycle_core/creative_works_show"
+      render layout: "data_cycle_core/creative_works_edit"
     end
 
     def update
