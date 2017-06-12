@@ -1,0 +1,31 @@
+<% unless translation.nil? %>
+
+    <% unless translation.content.nil? %>
+
+        <% translation.content.each do | translated_key, translated_content | %>
+
+            <% unless translated_content.nil? %>
+                <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                           label: @creativeWork.metadata['validation']['properties'][translated_key]['label'],
+                           value: translated_content %>
+            <% end %>
+
+        <% end %>
+
+    <% end %>
+
+    <% unless translation.properties.nil? %>
+
+        <% translation.properties.each do | translated_key, translated_property | %>
+
+            <% unless translated_content.nil? %>
+                <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                           label: @creativeWork.metadata['validation']['properties'][translated_key]['label'],
+                           value: translated_property %>
+            <% end %>
+
+        <% end %>
+
+    <% end %>
+
+<% end %>

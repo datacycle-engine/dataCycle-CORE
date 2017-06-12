@@ -71,7 +71,7 @@
     <% end %>
 
     <% if @mode == 'list' %>
-        <%= render 'data_cycle_core/backend/partials/list', dataCycleObjects: contentData  %>
+        <%= render 'data_cycle_core/backend/partials/list', dataCycleObjects: contentData %>
     <% else %>
         <%= render 'data_cycle_core/backend/partials/grid', dataCycleObjects: contentData %>
     <% end %>
@@ -85,120 +85,14 @@
 
         <div class="row">
 
+            <%= render 'data_cycle_core/creative_works/partials/render/translations', language: 'de' %>
+
             <%= render 'data_cycle_core/creative_works/partials/show/bild' %>
+
+            <%= render 'data_cycle_core/creative_works/partials/render/translations', language: nil %>
 
         </div>
 
     </div>
 
 <% end %>
-
-<section>
-    <!--<div class="row">-->
-    <!--<div class="small-12 columns">-->
-    <!--<h4><%= @creativeWork.id %></h4>-->
-    <!--<% @creativeWork.walk_tree do |page, level| %>
-        <%= link_to "#{"&nbsp;"*(level*5)+'|'+'__'}#{page.id}".html_safe, creative_work_path(page.id) %><br/>
-        <% end %>-->
-    <!--<br/>&nbsp;-->
-    <!--</div>-->
-    <!--</div>-->
-    <!--<div class="row">-->
-    <!--<div class="small-4 columns">-->
-    <!--headline:-->
-    <!--</div>-->
-    <!--<div class="small-8 columns">-->
-    <!--<%= @creativeWork.headline%>-->
-    <!--</div>-->
-    <!--</div>-->
-    <!--<div class="row">-->
-    <!--<div class="small-4 columns">-->
-    <!--description:-->
-    <!--</div>-->
-    <!--<div class="small-8 columns">-->
-    <!--<%= @creativeWork.description %>-->
-    <!--</div>-->
-    <!--</div>-->
-    <!--<div class="row">-->
-    <!--<div class="small-4 columns">-->
-    <!--position:-->
-    <!--</div>-->
-    <!--<div class="small-8 columns">-->
-    <!--<%= @creativeWork.position %>-->
-    <!--</div>-->
-    <!--</div>-->
-    <!--<div class="row">-->
-    <!--<div class="small-4 columns">-->
-    <!--isPartOf:-->
-    <!--</div>-->
-    <!--<div class="small-8 columns">-->
-    <!--<%= link_to @creativeWork.isPartOf, @creativeWork.isPartOf unless @creativeWork.isPartOf.nil?%>-->
-    <!--</div>-->
-    <!--</div>-->
-    <!--<div class="row">-->
-    <!--<div class="small-4 columns">-->
-    <!--template?-->
-    <!--</div>-->
-    <!--<div class="small-8 columns">-->
-    <!--<%= @creativeWork.template %>-->
-    <!--</div>-->
-    <!--</div>-->
-    <!--<div class="row">-->
-    <!--<div class="small-4 columns">-->
-    <!--metadata:-->
-    <!--</div>-->
-    <!--<div class="small-8 columns">-->
-    <!--<%= String.new(ap @creativeWork.metadata).html_safe %>-->
-    <!--</div>-->
-    <!--</div>-->
-    <!--<div class = "row">-->
-    <!--<div class="small-4 columns">-->
-    <!--keywords:-->
-    <!--</div>-->
-    <!--<div class="small-8 columns">-->
-    <!--<%= @creativeWork.classification_aliases.to_a.map{|item| item.name}.join("<br/>").html_safe %>-->
-    <!--</div>-->
-    <!--</div>-->
-    <!--<div class="row">-->
-    <!--&nbsp;-->
-    <!--</div>-->
-    <!--<div class="row">-->
-    <!--<div class="small-12 columns">-->
-    <!--<h4>translations: <%= "(#{@creativeWork.translations.map{|i| i.locale}.join(',')})" if @creativeWork.translations.count > 0 %></br>&nbsp;</h4>-->
-    <!--</div>-->
-    <!--</div>-->
-    <!--&lt;!&ndash; <div class="row">-->
-    <!--<div class="small-12 columns" >-->
-    <!--<% String.new(ap @creativeWork.translations).html_safe %>-->
-    <!--</div>-->
-    <!--</div> &ndash;&gt;-->
-    <!--<% @creativeWork.translations.each do |language| %>-->
-        <!--<div class="row">-->
-        <!--<div class="small-1 columns">-->
-        <!--<%= language.locale.to_s+":" %>-->
-        <!--</div>-->
-        <!--<div class="small-3 columns">-->
-        <!--<%= "content:" %>-->
-        <!--</div>-->
-        <!--<div class="small-8 columns">-->
-        <!--<%= String.new(ap language.content).html_safe%>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--<div class="row">-->
-        <!--<div class="small-1 columns">-->
-        <!--&nbsp;-->
-        <!--</div>-->
-        <!--<div class="small-3 columns">-->
-        <!--<%= "properties:" %>-->
-        <!--</div>-->
-        <!--<div class="small-8 columns">-->
-        <!--<%= String.new(ap language.properties).html_safe %>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--<% end %>-->
-    <!--<div class="row">-->
-    <!--<div class="small-12 columns">-->
-    <!--<%= link_to "back", creative_works_path, class: "button" %>-->
-    <!--</div>-->
-    <!--</div>-->
-</section>

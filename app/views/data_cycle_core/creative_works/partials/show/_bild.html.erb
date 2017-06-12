@@ -9,11 +9,7 @@
 
     <% end %>
 
-    <% unless @creativeWork.content['caption'].nil? %>
-        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                   label: @creativeWork.metadata['validation']['properties']['caption']['label'],
-                   value: @creativeWork.content['caption'] %>
-    <% end %>
+    <%= @creativeWork.classification_aliases.to_a.map{|item| item.name}.join("<br/>").html_safe %>
 
     <% unless @creativeWork.metadata['creator'].nil? %>
         <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
@@ -117,6 +113,16 @@
                    value: @creativeWork.metadata['access'] %>
     <% end %>
 
-    <%= debug(@data) %>
+    <% unless @creativeWork.metadata['dateCreated'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/datetime',
+                   label: @creativeWork.metadata['validation']['properties']['dateCreated']['label'],
+                   value: @creativeWork.metadata['dateCreated'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['dateModified'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/datetime',
+                   label: @creativeWork.metadata['validation']['properties']['dateModified']['label'],
+                   value: @creativeWork.metadata['dateModified'] %>
+    <% end %>
 
 <% end %>
