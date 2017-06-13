@@ -56,10 +56,10 @@
 
                 <% end %>
 
-                <% unless item.classification_aliases.nil? %>
+                <% unless item.display_classification_aliases.nil? %>
 
                     <div class="tags">
-                        <% item.classification_aliases.each do |classificationAlias| %>
+                        <% item.display_classification_aliases.each do |classificationAlias| %>
                             <span class="tag"><%= classificationAlias.name %></span>
                         <% end %>
                     </div>

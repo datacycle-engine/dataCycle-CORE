@@ -14,6 +14,7 @@ module DataCycleCore
     has_many :classifications, through: :classification_creative_works
     has_many :classification_groups, through: :classifications
     has_many :classification_aliases, through: :classification_groups
+    has_many :display_classification_aliases, -> { where("classification_aliases.internal = ?", false) }, through: :classification_groups, source: :classification_alias
 
     belongs_to :primaryImage, class_name: 'Place', primary_key: 'id', foreign_key: 'photo'
     has_many :creative_work_places
@@ -63,22 +64,6 @@ module DataCycleCore
       template_hash = metadata['validation']
       validator = DataCycleCore::MasterData::ValidateData.new
       validator.valid?(data, template_hash, strict)
-    end
-
-    # validates given data-hash (key names as specified in the template)
-    # and returns true/false
-    def validate_hash?(data = collect_data, strict = false)
-      template_hash = metadata['validation']
-      validator = DataCycleCore::MasterData::ValidateData.new
-      validator.valid_hash?(data, template_hash, strict)
-    end
-
-    # validates given data_hash (key names as specified in the template)
-    # returns error-hash including all errors/warnings
-    def validate_hash(data = collect_data)
-      template_hash = metadata["validation"]
-      validator = DataCycleCore::MasterData::ValidateData.new
-      validator.validate_hash(data, template_hash)
     end
 
     # to cash also translated values (comming from gem Globalize)
