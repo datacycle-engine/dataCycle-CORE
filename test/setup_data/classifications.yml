@@ -1,27 +1,27 @@
 --- # classifications for oew top-classification is label for classificationstree
 - Inhaltstypen:
-  - Text:
-    - Artikel
-    - Zeitleiste
-    - Portrait
-    - Biografie
-    - Rezept
-    - Linktipps
-    - Interview
-    - Social Media Posting
-    - Zitat
-  - Angebot
-  - App
-  - Quiz
-  - Voting
-  - Statistik
-  - Veranstaltung
-  - Firma
-  - Person:
-    - Autor
-  - Bild
-  - Video
-  - Audio
+  - $$Text:
+    - $$Artikel
+    - $$Zeitleiste
+    - $$Portrait
+    - $$Biografie
+    - $$Rezept
+    - $$Linktipps
+    - $$Interview
+    - $$Social Media Posting
+    - $$Zitat
+  - $$Angebot
+  - $$App
+  - $$Quiz
+  - $$Voting
+  - $$Statistik
+  - $$Veranstaltung
+  - $$Firma
+  - $$Person:
+    - $$Autor
+  - $$Bild
+  - $$Video
+  - $$Audio
 
 - Inhaltspools:
   - Themenvorschläge
