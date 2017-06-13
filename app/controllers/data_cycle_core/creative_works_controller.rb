@@ -22,7 +22,7 @@ module DataCycleCore
       @dataSchema = @creativeWork.get_data_hash
 
       #todo: add readonly property
-      if @creativeWork.metadata['validation']['name'] == 'Bild'
+      if @creativeWork.metadata['validation']['name'] != 'Thema'
         render layout: "data_cycle_core/creative_works_edit"
       else
         render layout: "data_cycle_core/creative_works_show"
