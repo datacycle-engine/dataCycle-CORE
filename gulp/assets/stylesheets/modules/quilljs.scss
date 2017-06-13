@@ -2,3 +2,15 @@
 $fa-font-path: "/assets";
 
 @import "../../../../node_modules/quill/dist/quill.snow";
+
+
+/* Word Counter Module */
+.editor-block {
+	#counter {
+		position: absolute;
+		right: 5px;
+		bottom: 3px;
+		z-index: 99;
+		text-align: right;
+	}
+}
