@@ -55,6 +55,42 @@ module DataCycleCore
           assert_equal(error_hash, validator.error)
         end
 
+        test "failure more uuids given than allowed" do
+          template_hash = {
+            "label" => "Bundesland",
+            "type" => "classificationTreeLabel",
+            "type_name" => "Bundesländer",
+            "storage_type" => "classification_creative_works",
+            "storage_location" => "classification_creative_works",
+            "validations" => {
+              "max" => 1
+            }
+          }
+          uuid = DataCycleCore::Classification.where(name: "Kärnten").first.id
+          uuid2 = DataCycleCore::Classification.where(name: "Steiermark").first.id
+          validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new([uuid,uuid2],template_hash)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+        end
+
+        test "failure not enough uuids given" do
+          template_hash = {
+            "label" => "Bundesland",
+            "type" => "classificationTreeLabel",
+            "type_name" => "Bundesländer",
+            "storage_type" => "classification_creative_works",
+            "storage_location" => "classification_creative_works",
+            "validations" => {
+              "min" => 3
+            }
+          }
+          uuid = DataCycleCore::Classification.where(name: "Kärnten").first.id
+          uuid2 = DataCycleCore::Classification.where(name: "Steiermark").first.id
+          validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new([uuid,uuid2],template_hash)
+          assert_equal(1, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+        end
+
         test "successful validation several uuid's given" do
           error_hash = { error: [], warning: []}
           template_hash = {
@@ -63,6 +99,26 @@ module DataCycleCore
             "type_name" => "Bundesländer",
             "storage_type" => "classification_creative_works",
             "storage_location" => "classification_creative_works"
+          }
+          uuid = DataCycleCore::Classification.where(name: "Kärnten").first.id
+          uuid2 = DataCycleCore::Classification.where(name: "Steiermark").first.id
+          uuid3 = DataCycleCore::Classification.where(name: "Tirol").first.id
+          validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new([uuid,uuid2,uuid3],template_hash)
+          assert_equal(error_hash, validator.error)
+        end
+
+        test "successful validation several uuid's given with min, max validations" do
+          error_hash = { error: [], warning: []}
+          template_hash = {
+            "label" => "Bundesland",
+            "type" => "classificationTreeLabel",
+            "type_name" => "Bundesländer",
+            "storage_type" => "classification_creative_works",
+            "storage_location" => "classification_creative_works",
+            "validations" => {
+              "min" => 1,
+              "max" => 5
+            }
           }
           uuid = DataCycleCore::Classification.where(name: "Kärnten").first.id
           uuid2 = DataCycleCore::Classification.where(name: "Steiermark").first.id

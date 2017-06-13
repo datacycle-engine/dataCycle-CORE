@@ -59,6 +59,8 @@
         :type_name: Bundesländer
         :storage_type: classification_creative_works
         :storage_location: classification_creative_works
+        :validations:
+          :max: 1
         :editor:
           :type: classificationSelector
           :sorting: 6
@@ -93,6 +95,13 @@
               :type: date
               :options:
                 :data-type: datepicker
+      :data_pool:
+        :label: Inhaltspool
+        :type: classificationTreeLabel
+        :type_name: Inhaltspools
+        :storage_type: classification_creative_works
+        :storage_location: classification_creative_works
+        :default_value: "Aktuelle Themen"
       :creator:
         :label: Ersteller
         :type: embeddedLink
@@ -157,12 +166,40 @@
           :sorting: 2
           :options:
             :size: full
+      :data_pool:
+        :label: Inhaltspool
+        :type: classificationTreeLabel
+        :type_name: Inhaltspools
+        :storage_type: classification_creative_works
+        :storage_location: classification_creative_works
+        :default_value: "Recherche"
+#      :data_type:
+#        :label: Inhaltstype
+#        :type: classificationTreeLabel
+#        :type_name: Inhaltstypen
+#        :storage_type: classification_creative_works
+#        :storage_location: classification_creative_works
+#        :default_value: "Aktuelle Themen"
       :creator:
         :label: Ersteller
         :type: embeddedLink
         :type_name: users
         :storage_type: string
         :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
 
 - :data:
     :name: Bild
