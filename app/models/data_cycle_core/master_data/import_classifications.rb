@@ -22,16 +22,26 @@ module DataCycleCore
 
       def walk_tree(data_tree, parent)
         data_tree.each do |data|
+          internal = false
           if data.kind_of?(String)
-            save_data(data, parent)
+            if data.starts_with?('$$')            # '$$' präfix for interal classifications
+              data = data[2..(data.length-1)]
+              internal = true
+            end
+            save_data(data, parent, internal)
           elsif data.kind_of?(Hash)
-            parent_id = save_data(data.keys.first, parent)
+            parent_name = data.keys.first
+            if data.keys.first.starts_with?('$$') # '$$' präfix for interal classifications
+              parent_name = data.keys.first[2..(data.keys.first.length-1)]
+              internal = true
+            end
+            parent_id = save_data(parent_name, parent, internal)
             walk_tree(data[data.keys.first], parent_id)
           end
         end
       end
 
-      def save_data(data, parent)
+      def save_data(data, parent, internal)
         if parent.nil?
           find_alias = DataCycleCore::ClassificationAlias.
             joins(:classification_trees).
@@ -47,10 +57,10 @@ module DataCycleCore
         end
         if find_alias.count > 0
           updated_data = find_alias.first
-          updated_data.set_data({seen_at: Time.zone.now}).save
+          updated_data.set_data({seen_at: Time.zone.now, internal: internal}).save
         else
           # new Alias, create respective tree-entry
-          updated_data = DataCycleCore::ClassificationAlias.create(name: data, seen_at: Time.zone.now)
+          updated_data = DataCycleCore::ClassificationAlias.create(name: data, internal: internal, seen_at: Time.zone.now)
           DataCycleCore::ClassificationTree.find_or_create_by(
             classification_alias_id: updated_data.id,
             parent_classification_alias_id: parent,

@@ -182,22 +182,6 @@ module DataCycleCore
         ClassificationCreativeWork.arel_table
       end
 
-      def classification_creative_work2
-        classification_creative_work.alias("classification_creative_work2")
-      end
-
-      def classification2
-        classification.alias("classification2")
-      end
-
-      def classification_group2
-        classification_group.alias("classification_group2")
-      end
-
-      def classification_alias2
-        classification_alias.alias("classification_alias2")
-      end
-
     end
   end
 end

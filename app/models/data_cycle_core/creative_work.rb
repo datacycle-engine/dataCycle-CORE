@@ -14,6 +14,7 @@ module DataCycleCore
     has_many :classifications, through: :classification_creative_works
     has_many :classification_groups, through: :classifications
     has_many :classification_aliases, through: :classification_groups
+    has_many :display_classification_aliases, -> { where("classification_aliases.internal = ?", false) }, through: :classification_groups, source: :classification_alias
 
     belongs_to :primaryImage, class_name: 'Place', primary_key: 'id', foreign_key: 'photo'
     has_many :creative_work_places
@@ -29,7 +30,7 @@ module DataCycleCore
     # get data as specified in the data template
     # data hash with keys named as in schema.org
     def get_data_hash
-      if translated_locales.include?(I18n.locale)
+      if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with pending data in it
         data_type = metadata['validation']
         data_hash = {}
         data_type['properties'].each do |key,value|
@@ -45,13 +46,12 @@ module DataCycleCore
     # data hash with keys named as in schema.org
     def set_data_hash(data_hash)
       template_hash = metadata['validation']
-      unless validate?(data_hash)
-        return validate(data_hash) # return error from validation
+      if validate?(data_hash)
+        ActiveRecord::Base.transaction do
+          set_template_data_hash(template_hash['properties'], data_hash)
+        end
       end
-      ActiveRecord::Base.transaction do
-        set_template_data_hash(template_hash['properties'], data_hash)
-      end
-      return {error: [], warning: []} # validation was successful
+      validate(data_hash) # return error/warnings from validation
     end
 
     def validate(data)
@@ -64,44 +64,6 @@ module DataCycleCore
       template_hash = metadata['validation']
       validator = DataCycleCore::MasterData::ValidateData.new
       validator.valid?(data, template_hash, strict)
-    end
-
-    # get data as specified in the data template
-    # data hash with key names as specified in the template
-    def get_data_type
-      if translated_locales.include?(I18n.locale)
-        data_type = metadata['validation']
-        data_hash = collect_template_data(data_type['properties'])
-      else
-        return nil
-      end
-    end
-
-    # set data as specified in the data template
-    def set_data_type(data_hash)
-      template_hash = metadata['validation']
-      unless validate_hash?(data_hash)
-        return validate_hash(data_hash)
-      end
-      ActiveRecord::Base.transaction do
-        set_template_data(template_hash['properties'], data_hash)
-      end
-    end
-
-    # validates given data-hash (key names as specified in the template)
-    # and returns true/false
-    def validate_hash?(data = collect_data, strict = false)
-      template_hash = metadata['validation']
-      validator = DataCycleCore::MasterData::ValidateData.new
-      validator.valid_hash?(data, template_hash, strict)
-    end
-
-    # validates given data_hash (key names as specified in the template)
-    # returns error-hash including all errors/warnings
-    def validate_hash(data = collect_data)
-      template_hash = metadata["validation"]
-      validator = DataCycleCore::MasterData::ValidateData.new
-      validator.validate_hash(data, template_hash)
     end
 
     # to cash also translated values (comming from gem Globalize)
@@ -153,34 +115,9 @@ module DataCycleCore
       end
     end
 
-    def collect_template_data(properties)
-      data_hash = {}
-      properties.each do |key,value|
-        key_label = properties[key]['label']
-        if properties[key]['type'] == 'object'
-          data_hash[key_label] = walk_data_tree(properties[key]['properties'], self.method(properties[key]['storage_location']).call[key])
-          next
-        end
-        data_hash[key_label] = storage_cases_get(key, properties[key])
-      end
-      data_hash
-    end
-
     def set_template_data_hash(properties, data_hash)
       properties.each do |key,value|
         storage_cases_set(key, data_hash[key], properties[key])
-      end
-    end
-
-    def set_template_data(properties, data_hash)
-      properties.each do |key,value|
-        key_label = properties[key]['label']
-        if properties[key]['type'] == 'object'
-          build_hash = set_data_tree(properties[key]['properties'], data_hash[key_label])
-          self.method(properties[key]['storage_location']).call[key] = build_hash
-          next
-        end
-        storage_cases_set(key, data_hash[key_label], properties[key])
       end
     end
 
@@ -205,64 +142,37 @@ module DataCycleCore
       when 'column'
         self.method("#{key}=").call(value)
       when 'content'
-        if self.content.blank?
-          self.content = { key => value }
-        else
-          self.content[key] = value
-        end
+        save_to_jsonb(key, value, properties, 'content')
       when 'metadata'
-        if self.metadata.blank?
-          self.metadata = { key => value }
-        else
-          self.metadata[key] = value
-        end
+        save_to_jsonb(key, value, properties, 'metadata')
       when 'properties'
-        if self.properties.blank?
-          self.properties = { key => value }
-        else
-          self.properties[key] = value
-        end
+        save_to_jsonb(key, value, properties, 'properties')
       when 'classification_creative_works'
         set_relation_ids(properties['storage_location'], value, properties['type_name'])
       end
     end
 
-    def walk_data_tree(data_definitions, data)
-      data_hash = {}
-      return if data.blank?
-      data_definitions.each do |key,value|
-        key_label = data_definitions[key]['label']
-        unless data_definitions[key]['type'] == 'object'
-          data_hash[key_label] = data[key]
-        else
-          data_hash[key_label] = walk_data_tree(data_definitions[key]['properties'],data[key])
-        end
+    def save_to_jsonb(key, data, properties, location)
+      # parse tree in json, to only set data specified in the data definitions
+      if data.is_a?(::Hash)
+        data = set_data_tree_hash(data, properties['properties'])
       end
-      data_hash
+      # set to json field (could be empty)
+      if self.method("#{location}").call.blank?
+        self.method("#{location}=").call({ key => data })
+      else
+        self.method("#{location}").call.method("[]=").call(key,data)
+      end
     end
 
-    def set_data_tree(data_definitions, data)
-      data_hash = {}
-      return if data.blank?
-      data_definitions.each do |key,value|
-        key_label = data_definitions[key]['label']
-        unless data_definitions[key]['type'] == 'object'
-          data_hash[key] = data[key_label]
-        else
-          data_hash[key] = set_data_tree(data_definitions[key]['properties'],data[key_label])
-        end
-      end
-      data_hash
-    end
-
-    def set_data_tree_hash(data_definitions, data)
+    def set_data_tree_hash(data, data_definitions)
       data_hash = {}
       return if data.blank?
       data_definitions.each do |key,value|
         unless data_definitions[key]['type'] == 'object'
           data_hash[key] = data[key]
         else
-          data_hash[key] = set_data_tree(data_definitions[key]['properties'],data[key])
+          data_hash[key] = set_data_tree_hash(data[key], data_definitions[key]['properties'])
         end
       end
       data_hash

@@ -5,14 +5,9 @@ module DataCycleCore
 
         attr_reader :error
 
-        def initialize(data,template, schema=true)
+        def initialize(data,template)
           @error = { error: [], warning: []}
-          @schema = schema
-          if schema
-            validate(data,template)
-          else
-            validate_hash(data,template)
-          end
+          validate(data,template)
         end
 
         def validate(data,template)

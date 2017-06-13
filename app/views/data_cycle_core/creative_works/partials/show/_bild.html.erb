@@ -1,0 +1,128 @@
+
+<% unless @creativeWork.metadata.nil? %>
+
+    <% unless @creativeWork.metadata['contentUrl'].nil? %>
+
+        <div class="image stripes">
+            <img src="<%= @creativeWork.metadata['contentUrl'] %>" alt="<%= @creativeWork.content['name'] unless @creativeWork.content.blank?%>" />
+        </div>
+
+    <% end %>
+
+    <!--<%= @creativeWork.classification_aliases.to_a.map{|item| item.name}.join("<br/>").html_safe %>-->
+
+    <% unless @creativeWork.metadata['creator'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['creator']['label'],
+                   value: @creativeWork.metadata['creator'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['license'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['license']['label'],
+                   value: @creativeWork.metadata['license'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['mandatoryLicense'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/boolean',
+                   label: @creativeWork.metadata['validation']['properties']['mandatoryLicense']['label'],
+                   value: @creativeWork.metadata['mandatoryLicense'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['contentLocation'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/place',
+                   label: @creativeWork.metadata['validation']['properties']['contentLocation']['label'],
+                   value: @creativeWork.metadata['contentLocation'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['width'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['width']['label'],
+                   value: "#{@creativeWork.metadata['width']} px" %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['height'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['height']['label'],
+                   value: "#{@creativeWork.metadata['height']} px" %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['contentSize'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['contentSize']['label'],
+                   value: "#{@creativeWork.metadata['contentSize']} B" %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['fileFormat'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['fileFormat']['label'],
+                   value: @creativeWork.metadata['fileFormat'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['comment'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['comment']['label'],
+                   value: @creativeWork.metadata['comment'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['accountablePerson'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/person',
+                   label: @creativeWork.metadata['validation']['properties']['accountablePerson']['label'],
+                   value: @creativeWork.metadata['accountablePerson'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['source'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['source']['label'],
+                   value: @creativeWork.metadata['source'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['imageId'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['imageId']['label'],
+                   value: @creativeWork.metadata['imageId'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['visibility'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['visibility']['label'],
+                   value: @creativeWork.metadata['visibility'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['contentUrl'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['contentUrl']['label'],
+                   value: @creativeWork.metadata['contentUrl'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['thumbnailUrl'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['thumbnailUrl']['label'],
+                   value: @creativeWork.metadata['thumbnailUrl'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['url'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['url']['label'],
+                   value: @creativeWork.metadata['url'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['access'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['access']['label'],
+                   value: @creativeWork.metadata['access'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['dateCreated'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/datetime',
+                   label: @creativeWork.metadata['validation']['properties']['dateCreated']['label'],
+                   value: @creativeWork.metadata['dateCreated'] %>
+    <% end %>
+
+    <% unless @creativeWork.metadata['dateModified'].nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/datetime',
+                   label: @creativeWork.metadata['validation']['properties']['dateModified']['label'],
+                   value: @creativeWork.metadata['dateModified'] %>
+    <% end %>
+
+<% end %>

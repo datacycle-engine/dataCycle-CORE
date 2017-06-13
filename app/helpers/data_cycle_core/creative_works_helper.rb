@@ -12,6 +12,7 @@ module DataCycleCore
 
     end
 
+
     def get_ordered_validation_properties(validation)
 
       ordered_properties = ActiveSupport::OrderedHash.new
@@ -33,36 +34,6 @@ module DataCycleCore
 
       properties = Hash[ordered_properties.sort.map{ |k,v| v}]
       return properties.merge(Hash[unordered_properties])
-
-    end
-
-    def get_classifications_for_name(prop)
-
-      unless prop['type_name'].nil?
-          unless (DataCycleCore::ClassificationTreeLabel.find_by name: prop['type_name']).nil?
-            @classification_tree_label =  DataCycleCore::ClassificationTreeLabel.find_by name: prop['type_name']
-          end
-      end
-
-    end
-
-    def get_selected_values_for_classification(options, value)
-
-      if value.nil?
-        return nil
-      end
-
-      #todo: make this more fancy
-      @selected_values = []
-      value.each do |v|
-        options.each do |o|
-          if o['value'][0] == v
-            @selected_values.push(o)
-          end
-        end
-      end
-
-      return @selected_values
 
     end
 
@@ -97,7 +68,12 @@ module DataCycleCore
       else
         # 'editor not set'
       end
+    end
 
+    def render_embeddedLinkArray_field(key, prop, value=nil, options={})
+      if !prop.blank? && !prop['type_name'].blank?
+        render partial: "#{@@partials_path}#{prop['type']}", locals: {key: key, prop: prop, value: value, options: options}
+      end
     end
 
     def render_object_field(key, prop, value=nil, options={})

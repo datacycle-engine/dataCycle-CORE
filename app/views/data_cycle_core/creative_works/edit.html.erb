@@ -10,19 +10,19 @@
                 <div class="row expanded">
                     <div class="column">
                         <div class="edit-headline">
-                            <i class="fa fa-pencil" aria-hidden="true"></i> Thema bearbeiten
+                            <i class="fa fa-pencil" aria-hidden="true"></i> <%=@creativeWork.metadata['validation']['name']%> bearbeiten
                         </div>
                         <ul>
-                            <li>
-                                <button type="button" class="button delete top" data-tooltip aria-haspopup="true" data-disable-hover="false" title="Löschen"><i class="fa fa-trash" aria-hidden="true"></i></button>
-                            </li>
+                            <!--<li>-->
+                                <!--<button type="button" class="button delete top" data-tooltip aria-haspopup="true" data-disable-hover="false" title="Löschen"><i class="fa fa-trash" aria-hidden="true"></i></button>-->
+                            <!--</li>-->
                             <li>
                                 <%= link_to @creativeWork do %>
                                     <button type="button" class="button discard top" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
                                 <% end %>
                             </li>
                             <li class="submit">
-                                <button class="button-prime"  data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
+                                <button class="button-prime" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
                             </li>
                         </ul>
                     </div>
@@ -36,8 +36,10 @@
                             <span class="icon">
                                 <i class="fa fa-folder-open" aria-hidden="true"></i>
                             </span>
-                            <span class="title">Thema</span>
+                            <span class="title"><%=@creativeWork.metadata['validation']['name']%></span>
                         </div>
+
+                        <%= render 'data_cycle_core/creative_works/partials/render/metaData' %>
 
                         <a class="bookmark" href="#">
                             <span class="bookmarkinfo">zur Recherche hinzufügen</span>
@@ -54,7 +56,7 @@
                             <% validation_properties = get_ordered_validation_properties(@creativeWork.metadata['validation']) %>
 
                             <!--<h2><%= "#{validation['name']} - #{validation['description']} - #{validation['type']}" %></h2>-->
-
+                            <%#= @creativeWork.get_data_hash %>
                             <% if !validation_properties.nil? %>
 
                                 <% validation_properties.each do |key, prop| %>
@@ -70,7 +72,6 @@
                                                 <% object_value = @dataSchema[key].nil? ? "" : @dataSchema[key][object_key] %>
 
                                                 <%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [key] %>
-
                                             <% end %>
                                         <% end %>
 
@@ -92,10 +93,18 @@
 
         <% end %>
 
+        <div class="full reveal" id="mediabrowser" data-reveal>
+          <h1>Mediabrowser</h1>
+          <div id="media-content"></div>
+          <button class="close-button" data-close aria-label="Close reveal" type="button">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
     </div>
 
 <% end %>
 
-<!--<%= debug(@dataSchema) %> -->
+<!--<%= debug(@dataSchema) %>-->
 <!--<%= debug(@data) %>-->
 <!--<%= debug(@creativeWork) %>-->

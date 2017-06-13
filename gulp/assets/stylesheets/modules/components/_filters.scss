@@ -89,29 +89,6 @@
       padding: 0;
       cursor: pointer;
 
-      label {
-        display: block;
-        padding: 0.3rem 0.5rem 0.3rem 2.5rem;
-        transition: all 0.4s ease;
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
-        margin: 0;
-        font-size: 1rem;
-      }
-      label:before {
-        content: 'o';
-        text-align: center;
-        font-size: 1.2rem;
-        color: $black;
-        width:40px;
-        height:100%; 
-        position: absolute;
-        top:0;
-        left:0;
-        transition: all 0.4s ease;
-        opacity: 1;
-      }
       label:hover:before {
         opacity: .3;
       }
@@ -123,6 +100,9 @@
       input:checked ~ label {
         background-color: $primary-color;
         color: white;
+        strong{
+          color: white;
+        }
       }
       input:checked ~ label:before {
         animation: throw 0.2s linear;
@@ -161,6 +141,31 @@
       display: none;
       padding: 0;
       position: relative;
+
+      label {
+        display: block;
+        padding: 0.3rem 0.5rem 0.3rem 2.5rem;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        margin: 0;
+        font-size: 1rem;
+      }
+      label:before {
+        content: 'o';
+        text-align: center;
+        font-size: 1.2rem;
+        color: $black;
+        width:40px;
+        height:100%;
+        position: absolute;
+        top:0;
+        left:0;
+        transition: all 0.4s ease;
+        opacity: 1;
+      }
+
       li {
         float: none;
         width: 18rem;
@@ -233,5 +238,14 @@
   .split-list li{
     background: $light-gray;
    }
+
+  .your-choice.tags{
+    label{
+      font-size: inherit;
+      line-height: inherit;
+      color: white;
+      display: inline-block;
+    }
+  }
 
 }

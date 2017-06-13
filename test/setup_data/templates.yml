@@ -1,65 +1,98 @@
 ---
 - :data:
-    :name: Content-Einheit
+    :name: Thema
     :description: CreativeWork
     :type: object
     :properties:
-      :title:
+      :headline:
         :label: Titel
         :type: string
         :storage_type: string
         :storage_location: content
         :validations:
-          :minLength: 10
-          :maxLength: 50
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 1
+          :options:
+            :data-validate: text
       :description:
         :label: Beschreibung
         :type: string
         :storage_type: text
         :storage_location: column
+        :editor:
+          :type: quillEditor
+          :sorting: 2
+          :options:
+            :data-size: full
       :topics:
         :label: Themenbereiche
         :type: classificationTreeLabel
         :type_name: Themenbereiche
         :storage_type: classification_creative_works
         :storage_location: classification_creative_works
+        :editor:
+          :type: classificationSelector
+          :sorting: 3
       :markets:
         :label: Zielmarkt
         :type: classificationTreeLabel
         :type_name: Märkte
         :storage_type: classification_creative_works
         :storage_location: classification_creative_works
+        :editor:
+          :type: classificationSelector
+          :sorting: 4
       :tags:
         :label: Tags
         :type: classificationTreeLabel
         :type_name: Sonstiges
         :storage_type: classification_creative_works
         :storage_location: classification_creative_works
+        :editor:
+          :type: classificationSelector
+          :sorting: 5
       :state:
         :label: Bundesland
         :type: classificationTreeLabel
         :type_name: Bundesländer
         :storage_type: classification_creative_works
         :storage_location: classification_creative_works
+        :editor:
+          :type: classificationSelector
+          :sorting: 6
       :validityPeriod:
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
+        :editor:
+          :sorting: 7
+          :options:
+            :class: daterange
         :properties:
           :validFrom:
-            :label: Gültig von
+            :label: Gültigkeit
             :type: string
             :storage_type: string
             :storage_location: metadata
             :validations:
               :format: date_time
-          :validTo:
-            :label: Gültig bis
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
+          :validUntil:
+            :label: bis
             :type: string
             :storage_type: string
             :storage_location: metadata
             :validations:
               :format: date_time
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
       :creator:
         :label: Ersteller
         :type: embeddedLink
@@ -86,100 +119,50 @@
     :description: CreativeWork
     :type: object
     :properties:
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 1
+          :options:
+            :data-validate: text
       :image:
         :label: Bilder
         :type: embeddedLinkArray
         :type_name: creative_works
         :storage_type: array
         :storage_location: metadata
+        :editor:
+          :sorting: 3
       :video:
         :label: Videos
         :type: embeddedLinkArray
         :type_name: creative_works
         :storage_type: array
         :storage_location: metadata
+        :editor:
+          :sorting: 4
       :text:
         :label: Recherchedaten
         :type: string
-        :storage_type: string
+        :storage_type: text
         :storage_location: content
-
-# - :data:
-#     :name: Standard-Artikel
-#     :description: CreativeWork
-#     :type: object
-#     :properties:
-#       :name:
-#         :label: Titel
-#         :type: string
-#         :storage_type: string
-#         :storage_location: content
-#       :alternativeHeadline:
-#         :label: Subüberschrift
-#         :type: string
-#         :storage_type: string
-#         :storage_location: content
-#       :description:
-#         :label: Teasertext
-#         :type: string
-#         :storage_type: string
-#         :storage_location: content
-#       :name:
-#         :label: Linktext
-#         :type: string
-#         :storage_type: string
-#         :storage_location: content
-#       :image:
-#         :label: Bilder
-#         :type: embeddedLinkArray
-#         :type_name: creative_works
-#         :storage_type: array
-#         :storage_location: metadata
-#       :video:
-#         :label: Videos
-#         :type: embeddedLinkArray
-#         :type_name: creative_works
-#         :storage_type: array
-#         :storage_location: metadata
-#       :text:
-#         :label: Fließtext
-#         :type: string
-#         :storage_type: string
-#         :storage_location: content
-#       :hasPart:
-#         :label: Zitat
-#         :type: embeddedLinkArray
-#         :type_name: creative_works
-#         :storage_type: array
-#         :storage_location: metadata
-#       :metaTitle:
-#         :label: Meta-Titel
-#         :type: string
-#         :storage_type: string
-#         :storage_location: content
-#       :metaDescription:
-#         :label: Meta-Description
-#         :type: string
-#         :storage_type: string
-#         :storage_location: content
-#       :keywords:
-#         :label: SEO Keywords
-#         :type: string
-#         :storage_type: string
-#         :storage_location: metadata
-#       :sameAs:
-#         :label: Canonical Tag
-#         :type: string
-#         :storage_type: string
-#         :storage_location: content
-#         :validations:
-#           :format: url
-# - :data:
-#     :name: Zitat
-#     :description: CreativeWork
-#     :type: object
-#     :properties:
-
+        :editor:
+          :type: quillEditor
+          :sorting: 2
+          :options:
+            :size: full
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
 
 - :data:
     :name: Bild

@@ -1,0 +1,15 @@
+<% if !@creativeWork.metadata.nil? && !@creativeWork.metadata['creator'].nil? %>
+    <% creator = get_user_for_id(@creativeWork.metadata['creator']) %>
+    <span class="metadata">
+        <span><strong>Erstellt von:</strong></span>
+        <span><%= "#{creator.name} (#{creator.email})" %></span>
+    </span>
+<% end %>
+<span class="metadata">
+    <span><strong>Erstellt:</strong></span>
+    <span><%= @creativeWork.created_at.to_s(:german_datetime_format) %></span>
+</span>
+<span class="metadata">
+    <span><strong>Bearbeitet:</strong></span>
+    <span><%= @creativeWork.updated_at.to_s(:german_datetime_format) %></span>
+</span>

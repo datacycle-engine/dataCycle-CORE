@@ -9,9 +9,9 @@
     </div>
 
     <% if @mode == 'list' %>
-        <%= render 'data_cycle_core/backend/partials/list' %>
+        <%= render 'data_cycle_core/backend/partials/list', dataCycleObjects: @dataCycleObjects %>
     <% else %>
-        <%= render 'data_cycle_core/backend/partials/grid' %>
+        <%= render 'data_cycle_core/backend/partials/grid', dataCycleObjects: @dataCycleObjects %>
     <% end %>
 
     <div class="row">
@@ -19,4 +19,5 @@
             <%= paginate @dataCycleObjects %>
         </div>
     </div>
+
 </section>

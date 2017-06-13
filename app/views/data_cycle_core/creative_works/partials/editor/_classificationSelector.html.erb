@@ -1,11 +1,15 @@
 <div class="form-element <%= key.split('[').last[0...-1] %>">
-    <% @classification_tree_label = get_classifications_for_name prop %>
+
+    <% @classification_tree_label = get_classifications_for_name prop['type_name'] unless prop['type_name'].nil? %>
+
+    <% types = DataCycleCore::ClassificationAlias.joins(classification_trees: [:classification_tree_label]).where("classification_tree_labels.name = ?", prop['type_name']).where("classification_trees.parent_classification_alias_id IS NULL") %>
+    <% options = get_custom_select_values(types) %>
 
     <% unless @classification_tree_label.nil? %>
 
-        <% options = @classification_tree_label.classification_trees.map { |classification| {"value" => classification.sub_classification_alias.classifications.ids , "label" => classification.sub_classification_alias.name }} %>
-        <% selected_values = get_selected_values_for_classification options, value %>
+        <%# options = @classification_tree_label.classification_trees.map { |classification| {:value => classification.sub_classification_alias.classifications.ids.first , :label => classification.sub_classification_alias.name }} %>
 
+        <% selected_values = get_selected_values_for_classification options, value %>
         <div class="custom-select-title"><%= prop['label'] %></div>
         <%= label_tag(key, prop['label']) %>
         <custom-select hidden-field-id="<%= key %>[]" :custom-options="<%= options.to_json %>" :selected-values="<%= selected_values.to_json %>"></custom-select>
