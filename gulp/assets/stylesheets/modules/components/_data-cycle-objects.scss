@@ -79,3 +79,36 @@
     }
 
   }
+
+
+  /* Media Browser */
+
+  button.mediabrowser {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    z-index: 99;
+    margin: 0px;
+    i.fa {
+      font-size: 1em;
+    }
+  }
+  .object-browser {
+    .thumbs {
+      .item {
+        max-width: 250px;
+        display: inline-block;
+      }
+    }
+  }
+  #mediabrowser {
+    .media {
+      &.add {
+        figure {
+          img {
+            border: 4px solid $primary-color;
+          }
+        }
+      }
+    }
+  }

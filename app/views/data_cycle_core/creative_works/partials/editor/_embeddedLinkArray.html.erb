@@ -1,14 +1,23 @@
 <% object = ("DataCycleCore::"+("#{prop['type_name']}".classify)).constantize %>
-<% unless value.blank? %>
-  <% value.each do |item| %>
-    <% image = object.where(id: item).first %>
-    <div class="form-element <%= key.split('[').last[0...-1] %>">
-      <%= label_tag(key, prop['label']) %>
-      <%= text_field_tag key,value,options %>
-    </div>
-  <% end %>
-<% end %>
 <div class="form-element <%= key.split('[').last[0...-1] %>">
-  <%= label_tag(key, prop['label']) %>
-  <%= text_field_tag key, value, options %>
+	<div class="object-browser" id="<%= sanitize_to_id(key) %>">
+	  <%= label_tag(key, prop['label']) %>
+	  <input type="text" disabled="disabled" />
+	  <% if prop['label'] == 'Bilder' %>
+	  	<button class="button mediabrowser" data-media-type="<%= prop['label'] %>"><i class="fa fa-plus"></i></button>
+	  <% end %>
+	  <div class="thumbs">
+		<% unless value.blank? %>
+		  <% value.each do |item| %>
+		  	<div class="item">
+			    <% image = object.where(id: item).first %>
+			    <a class="delete-item" href="#"><i aria-hidden="true" class="fa fa-times"></i></a>
+			    <strong><%= !image.content.nil? ? image.content['name'] : "" %></strong><br />
+			    <img src="<%= image.metadata['thumbnailUrl'] %>">
+			    <input type="hidden" name="<%= key %>[]" value="<%= image.id %>">
+		    </div>
+		  <% end %>
+		<% end %>
+		</div>
+  </div>
 </div>

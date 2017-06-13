@@ -22,7 +22,7 @@
                                 <% end %>
                             </li>
                             <li class="submit">
-                                <button class="button-prime"  data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
+                                <button class="button-prime" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
                             </li>
                         </ul>
                     </div>
@@ -72,7 +72,6 @@
                                                 <% object_value = @dataSchema[key].nil? ? "" : @dataSchema[key][object_key] %>
 
                                                 <%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [key] %>
-
                                             <% end %>
                                         <% end %>
 
@@ -93,6 +92,14 @@
             </div>
 
         <% end %>
+
+        <div class="full reveal" id="mediabrowser" data-reveal>
+          <h1>Mediabrowser</h1>
+          <div id="media-content"></div>
+          <button class="close-button" data-close aria-label="Close reveal" type="button">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
 
     </div>
 
