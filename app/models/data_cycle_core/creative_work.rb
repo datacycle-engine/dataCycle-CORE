@@ -66,22 +66,6 @@ module DataCycleCore
       validator.valid?(data, template_hash, strict)
     end
 
-    # validates given data-hash (key names as specified in the template)
-    # and returns true/false
-    def validate_hash?(data = collect_data, strict = false)
-      template_hash = metadata['validation']
-      validator = DataCycleCore::MasterData::ValidateData.new
-      validator.valid_hash?(data, template_hash, strict)
-    end
-
-    # validates given data_hash (key names as specified in the template)
-    # returns error-hash including all errors/warnings
-    def validate_hash(data = collect_data)
-      template_hash = metadata["validation"]
-      validator = DataCycleCore::MasterData::ValidateData.new
-      validator.validate_hash(data, template_hash)
-    end
-
     # to cash also translated values (comming from gem Globalize)
     def cache_key
       super + '-' + Globalize.locale.to_s
