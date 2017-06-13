@@ -3,37 +3,15 @@
     <% @classification_tree_label = get_classifications_for_name prop['type_name'] unless prop['type_name'].nil? %>
 
     <% types = DataCycleCore::ClassificationAlias.joins(classification_trees: [:classification_tree_label]).where("classification_tree_labels.name = ?", prop['type_name']).where("classification_trees.parent_classification_alias_id IS NULL") %>
-    <!--<% test = get_custom_select_values(types) %>-->
+    <% options = get_custom_select_values(types) %>
 
     <% unless @classification_tree_label.nil? %>
 
-        <% options = @classification_tree_label.classification_trees.map { |classification| {:value => classification.sub_classification_alias.classifications.ids.first , :label => classification.sub_classification_alias.name }} %>
-
-        <%# options = test %>
+        <%# options = @classification_tree_label.classification_trees.map { |classification| {:value => classification.sub_classification_alias.classifications.ids.first , :label => classification.sub_classification_alias.name }} %>
 
         <% selected_values = get_selected_values_for_classification options, value %>
         <div class="custom-select-title"><%= prop['label'] %></div>
         <%= label_tag(key, prop['label']) %>
-
-        <!-- testing start -->
-
-
-        <!--<%= debug(types.count) %>-->
-        <!--<% types.each do |t| %>-->
-            <!--<%= debug(t.sub_classification_alias) %>-->
-        <!--<% end %>-->
-
-        <!--<%= debug(@classification_tree_label.classification_trees.count) %>-->
-        <!--<% @classification_tree_label.classification_trees.each do | classification_tree | %>-->
-            <!--<%#= debug(classification_tree) %>-->
-        <!--<% end %>-->
-        <!--<%#= debug(options) %>-->
-        <!--<%= debug(@classification_tree_label.classification_trees.first.sub_classification_alias) %>-->
-        <!--<%# types = DataCycleCore::ClassificationAlias.joins(classification_trees: [:classification_tree_label]).where("classification_tree_labels.name = ?", tree_label).where("classification_trees.parent_classification_alias_id #{parent_string}") %>-->
-
-        <!-- testing end -->
-        <!--<%= debug(selected_values.to_json) %>-->
-        <!--<%= debug(options.to_json) %>-->
         <custom-select hidden-field-id="<%= key %>[]" :custom-options="<%= options.to_json %>" :selected-values="<%= selected_values.to_json %>"></custom-select>
 
     <% end %>
