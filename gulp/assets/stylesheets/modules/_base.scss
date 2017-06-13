@@ -39,9 +39,6 @@ form {
 .pagination {
   border-radius: 30px;
   background: lighten($light-gray, 6%);
-  li.unavailable{
-    padding: 0 0.625rem;
-  }
   a, button {
     border-radius: 0; 
     line-height: inherit;
@@ -226,16 +223,7 @@ form {
     a span { display: block; text-indent: -9999px; }
   }
 
-<<<<<<< HEAD
   label, .custom-select-title {
-=======
-  .form-element{
-    position: relative;
-    &:hover label { opacity: 1; }
-  }
-
-  label {
->>>>>>> develop
     opacity: 0;
     text-align: left;
     position: absolute;
@@ -287,7 +275,6 @@ form {
   &.editor {
     padding: 0;
     margin-top: 3rem;
-<<<<<<< HEAD
        .form-element {
           position: relative;
           z-index: 1;
@@ -303,10 +290,6 @@ form {
             }  
           }
         }
-=======
-    /* todo: fixme*/
-    margin-bottom: 15rem;
->>>>>>> develop
       .type  {
         top: -2rem;
         opacity: 0.5;
