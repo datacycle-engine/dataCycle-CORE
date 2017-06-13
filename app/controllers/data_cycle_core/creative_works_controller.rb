@@ -116,6 +116,31 @@ module DataCycleCore
 
     end
 
+    def mediabrowser
+      @@default_per = 50
+
+      @language = 'de'
+
+      query = DataCycleCore::Filter::ImageQueryBuilder.new
+      query = query.with_locale(@language)
+
+      @per = params[:per] unless params[:per].blank?
+      @per ||= @@default_per
+
+      total = query.count
+      pages = total.fdiv(@per.to_i).ceil
+
+      unless params[:page].blank?
+        @page = params[:page]
+        @page = pages if params[:page].to_i > pages
+      end
+      @page ||= 1
+
+      @images = query.page(@page).per(@per)
+
+      render :json => @images
+    end
+
     private
 
       def creative_work_params
