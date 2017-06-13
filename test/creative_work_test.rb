@@ -171,7 +171,8 @@ module DataCycleCore
       data_set.save
       expected_hash = {
         "text" => "Dies ist ein Test!",
-        "image" => [uuid,uuid2]
+        "image" => [uuid,uuid2],
+        "data_pool" => []
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact)
     end
