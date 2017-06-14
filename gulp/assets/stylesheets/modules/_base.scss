@@ -142,26 +142,29 @@ form {
 
   .headline{
     position: relative;
-    &:hover label { opacity: 1; }
   }
 
   > .description {
     position: relative;
     padding: 0 5rem 3rem 5rem;
-    &:hover label { opacity: 1; }
   }
 
-  .type {
+  .topleftinfo {
     position: absolute;
     left: 1rem;
     top: 1rem;
-    &:nth-child(2) { left: 7rem; }
-    &:nth-child(3) { left: 14rem; }
-    &:nth-child(4) { left: 21rem; }
-    &:nth-child(5) { left: 27rem; }
-    &:nth-child(6) { left: 37rem; }
-    &:nth-child(7) { left: 44rem; }
-    &:nth-child(8) { left: 51rem; }
+    .type {
+      display: inline-block;
+      transition: opacity ease-in-out 0.25s;
+    }
+    .metadata {
+      display: inline-block;
+      opacity: 0.3;
+      transition: opacity ease-in-out 0.25s;
+    }
+    &:hover .metadata {
+        opacity: 1;
+    }
   }
 
   .bookmark {
@@ -183,6 +186,8 @@ form {
       }
     }
   }
+
+
 
   //.tags, .gueltigkeit {
   .gueltigkeit {
@@ -223,15 +228,14 @@ form {
     a span { display: block; text-indent: -9999px; }
   }
 
-  label, .custom-select-title {
-    opacity: 0;
+  label {
     text-align: left;
     position: absolute;
     top: 0.2rem;
     left: 1rem;
     z-index: 12;
-    color: $primary-color;
-    transition: opacity ease-in-out 0.25s;
+    color: rgba($dark-gray, 50%);
+    transition: color ease-in-out 0.25s;
   }
 
   input, .ql-editor, .daterange, .v-select {
@@ -275,27 +279,35 @@ form {
   &.editor {
     padding: 0;
     margin-top: 3rem;
+    background: none;
        .form-element {
           position: relative;
           z-index: 1;
-          .custom-select-title{
+          margin-bottom: 1rem;
+          .custom-select-title { display: none; }
+          label {
             padding-top: 0.5rem;
             opacity: 1;
             color: rgba($dark-gray, 50%);
           }
           &:hover {
             z-index: 2;
-            .custom-select-title{
+            label {
                 color: $primary-color;
             }  
           }
         }
-      .type  {
+      .topleftinfo {
         top: -2rem;
-        opacity: 0.5;
-        color: $dark-gray;
         left: 0.5rem;
+        .type  {
+          opacity: 0.3;
+        }
+        &:hover .type {
+            opacity: 1;
+        }
       }
+
       .bookmark {
         display: none;
       }
@@ -333,7 +345,6 @@ form {
   padding: 2rem 1rem 1rem 1rem;
   .dropdown-toggle { border: 0 !important; }
   .dropdown-menu { z-index: 10; }
-  &:hover { .custom-select-title{ color: $primary-color; } }
 }
 
 
@@ -429,7 +440,7 @@ span.single_error {
 .type{
   font-size: 1rem;
   font-weight: normal;
-  &.bild {
+  &.bild, &.bilder {
       color: $ccpicture;
   }
   &.website {
@@ -450,12 +461,15 @@ span.single_error {
   &.event {
       color: $ccevent;
   }
-  &.content-einheit {
+  &.content-einheit, &.thema {
       color: $ccthema;
+  }
+  &.recherche {
+      color: $ccrecherche;
   }
 }
 
-.tags, .v-select {
+.tags, body .v-select {
   .tag, .selected-tag{
       display: inline-block;
       background-color: rgba($primary-color, 0.5);
@@ -465,6 +479,7 @@ span.single_error {
       margin: 0 0.1rem;
       line-height: 1.2rem;
       border-radius: $object-border-radius;
+
       i {
         font-size: 0.8rem;
         margin-left: 0.2rem;
@@ -476,11 +491,33 @@ span.single_error {
           opacity: .7;
       }
   }
+  .selected-tag { 
+    float: left; 
+    margin-top: 5px; 
+    font-family: $body-font-family;
+    border: 0;
+    height: auto;
+    position: relative;
+    padding-right: 20px;
+    .close {
+      width: 100%;
+      position: absolute;
+      top: 0;
+      right: 0;
+      text-align: right;
+      padding-right: 5px;
+    }
+  }
   .selected-tag { float: left; margin-top: 5px; font-family: $body-font-family}
   a.tag:hover, a.selected-tag:hover {
       background-color: rgba($primary-color, 0.8);
   }
+  .selected-tag:hover {
+      background-color: rgba(map-get($foundation-palette, alert), 0.5);
+  }
+  span.tag { background-color: rgba($dark-gray, 0.8);  }
 }
+
 
 .longtext {
   max-width: 900px; 
