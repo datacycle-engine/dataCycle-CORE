@@ -1,2 +1,16 @@
 /* todo: merge styles */
 /* dev styles */
+
+.thumbs {
+	.item {
+		margin: 0.3rem;
+	  text-align: right;			
+		img {
+			max-height: 10rem;
+		}
+		.delete-item {
+	    position: relative;
+	    display: inline-block;
+		}
+	}
+}
