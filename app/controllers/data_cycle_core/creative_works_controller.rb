@@ -86,8 +86,6 @@ module DataCycleCore
         return
       end
 
-      puts "data -------> #{datahash.awesome_inspect}"
-
       @creativeWork.set_data_hash(datahash)
 
       # needed because headline != title

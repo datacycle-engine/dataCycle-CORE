@@ -6,7 +6,6 @@ module DataCycleCore
 
       def initialize
         @error = { error: [], warning: []}
-        return self
       end
 
       # keys of the data-hash defined as keys in the template

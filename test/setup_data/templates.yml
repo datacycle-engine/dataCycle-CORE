@@ -68,6 +68,10 @@
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
+        :validations:
+          :daterange:
+            :from: validFrom
+            :to: validUntil
         :editor:
           :sorting: 7
           :options:
@@ -279,6 +283,10 @@
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
+        :validations:
+          :daterange:
+            :from: datePublished
+            :to: expires
         :properties:
           :datePublished:
             :label: Gültig von

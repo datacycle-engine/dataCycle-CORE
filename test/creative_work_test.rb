@@ -115,10 +115,10 @@ module DataCycleCore
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
-      data_hash = {"headline" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validTo" => "2017-06-01"}}
+      data_hash = {"headline" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validUntil" => "2017-06-01"}}
       error = data_set.set_data_hash(data_hash)
 
-      assert_equal(0, error[:error].count)
+      assert_equal(1, error[:error].count)
       assert_equal(23, error[:warning].count)
       expected_hash = {
         "headline" => "Dies ist ein Test!",
