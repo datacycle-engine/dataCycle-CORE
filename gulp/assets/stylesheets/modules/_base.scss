@@ -279,9 +279,11 @@ form {
   &.editor {
     padding: 0;
     margin-top: 3rem;
+    background: none;
        .form-element {
           position: relative;
           z-index: 1;
+          margin-bottom: 1rem;
           .custom-select-title { display: none; }
           label {
             padding-top: 0.5rem;
