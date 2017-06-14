@@ -3,23 +3,43 @@ module DataCycleCore
     module Validators
       class ClassificationTreeLabel < BasicValidator
 
+        @@keywords = ['min', 'max']
+
         def validate(data, template)
           if is_blank?(data)
             @error[:warning].push "No data given for #{template['label']}."
           elsif data.is_a?(::Array)
-            data.each do |key|
-              if key.is_a?(::String)
-                check_reference(key,template)
-              else
-                @error[:error].push "Elements of the data-array given for #{template['label']} have the wrong format (#{key})."
-              end
-            end
+            check_reference_array(data, template)
           elsif data.is_a?(::String)
-            check_reference(data,template)
+            check_reference_array([data],template)
           else
             @error[:error].push "Wrong data type given for #{template['label']} (#{data}). Expected an UUID or an array of UUID's."
           end
           return @error
+        end
+
+      private
+
+        def check_reference_array(data, template)
+          # check given validations
+          if template.has_key?('validations')
+            template['validations'].keys.each do |key|
+              if @@keywords.include?(key)
+                self.method(key).call(data, template['validations'][key])
+              else
+                @error[:warning].push "#{key} is not a known keyword for a ClassificationTreeLabel reference List."
+              end
+            end
+          end
+
+          # validate references themself
+          data.each do |key|
+            if key.is_a?(::String)
+              check_reference(key,template)
+            else
+              @error[:error].push "Elements of the data-array given for #{template['label']} have the wrong format (#{key})."
+            end
+          end
         end
 
         def check_reference(key, template)
@@ -35,7 +55,6 @@ module DataCycleCore
           end
         end
 
-      private
         def uuid?(data)
           data.downcase!
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
@@ -52,6 +71,18 @@ module DataCycleCore
             return true if data.length == 1 && data[0].blank?
           end
           return false
+        end
+
+        def min(data, value)
+          if data.size < value
+            @error[:error].push "Number of references given (#{data.size}) is smaller than expected. Should be at least #{value}."
+          end
+        end
+
+        def max(data, value)
+          if data.size > value
+            @error[:error].push "Too many references given (#{data.size}). Only a maximum of #{value} is allowed."
+          end
         end
 
       end
