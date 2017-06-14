@@ -39,9 +39,6 @@ form {
 .pagination {
   border-radius: 30px;
   background: lighten($light-gray, 6%);
-  li.unavailable{
-    padding: 0 0.625rem;
-  }
   a, button {
     border-radius: 0; 
     line-height: inherit;
@@ -145,26 +142,29 @@ form {
 
   .headline{
     position: relative;
-    &:hover label { opacity: 1; }
   }
 
   > .description {
     position: relative;
     padding: 0 5rem 3rem 5rem;
-    &:hover label { opacity: 1; }
   }
 
-  .type {
+  .topleftinfo {
     position: absolute;
     left: 1rem;
     top: 1rem;
-    &:nth-child(2) { left: 7rem; }
-    &:nth-child(3) { left: 14rem; }
-    &:nth-child(4) { left: 21rem; }
-    &:nth-child(5) { left: 27rem; }
-    &:nth-child(6) { left: 37rem; }
-    &:nth-child(7) { left: 44rem; }
-    &:nth-child(8) { left: 51rem; }
+    .type {
+      display: inline-block;
+      transition: opacity ease-in-out 0.25s;
+    }
+    .metadata {
+      display: inline-block;
+      opacity: 0.3;
+      transition: opacity ease-in-out 0.25s;
+    }
+    &:hover .metadata {
+        opacity: 1;
+    }
   }
 
   .bookmark {
@@ -187,6 +187,8 @@ form {
     }
   }
 
+
+
   //.tags, .gueltigkeit {
   .gueltigkeit {
     text-align: left;
@@ -202,6 +204,10 @@ form {
       font-style: italic;
   }
   .daterange {
+    padding: 1rem;
+    text-align: left;
+    label { width: 0; height: 0; overflow: hidden; }
+    input { min-width: 100px; }
     &.focus {
       border-color: $primary-color;
       background: white;
@@ -222,23 +228,17 @@ form {
     a span { display: block; text-indent: -9999px; }
   }
 
-  .form-element{
-    position: relative;
-    &:hover label { opacity: 1; }
-  }
-
   label {
-    opacity: 0;
-    position: absolute;
+    text-align: left;
     position: absolute;
     top: 0.2rem;
     left: 1rem;
     z-index: 12;
-    color: $primary-color;
-    transition: opacity ease-in-out 0.25s;
+    color: rgba($dark-gray, 50%);
+    transition: color ease-in-out 0.25s;
   }
 
-  input, .ql-editor, .daterange {
+  input, .ql-editor, .daterange, .v-select {
     border: 1px solid $light-gray;
     background: $light-gray;
     outline: none;
@@ -250,6 +250,7 @@ form {
     position: relative;
     z-index: 1;
     transition: box-shadow 0.5s, border-color 0.25s ease-in-out;
+    min-width: 280px;
     &:hover {
       box-shadow: 0 0 7px $primary-color;
       z-index: 10;
@@ -259,6 +260,16 @@ form {
       background: white;
       z-index: 10;
     }
+    &::placeholder {
+        font-weight: 200;
+        color: $dark-gray;
+    }
+  }
+  .focus .v-select {
+      border-color: $primary-color;
+      background: white;
+      z-index: 10;
+
   }
 
   .ql-editor {
@@ -268,14 +279,33 @@ form {
   &.editor {
     padding: 0;
     margin-top: 3rem;
-    /* todo: fixme*/
-    margin-bottom: 15rem;
-      .type  {
+       .form-element {
+          position: relative;
+          z-index: 1;
+          .custom-select-title { display: none; }
+          label {
+            padding-top: 0.5rem;
+            opacity: 1;
+            color: rgba($dark-gray, 50%);
+          }
+          &:hover {
+            z-index: 2;
+            label {
+                color: $primary-color;
+            }  
+          }
+        }
+      .topleftinfo {
         top: -2rem;
-        opacity: 0.5;
-        color: $dark-gray;
         left: 0.5rem;
+        .type  {
+          opacity: 0.3;
+        }
+        &:hover .type {
+            opacity: 1;
+        }
       }
+
       .bookmark {
         display: none;
       }
@@ -309,15 +339,10 @@ form {
 
 }
 
-
-.custom-select-title{
-  padding-top: 0.5rem;
-}
-.custom-select{
-  padding: 0 1rem 1rem 1rem;
-  .v-select .selected-tag{
-    background-color: rgba($primary-color, 0.2);
-  }
+.v-select{
+  padding: 2rem 1rem 1rem 1rem;
+  .dropdown-toggle { border: 0 !important; }
+  .dropdown-menu { z-index: 10; }
 }
 
 
@@ -413,7 +438,7 @@ span.single_error {
 .type{
   font-size: 1rem;
   font-weight: normal;
-  &.bild {
+  &.bild, &.bilder {
       color: $ccpicture;
   }
   &.website {
@@ -434,29 +459,62 @@ span.single_error {
   &.event {
       color: $ccevent;
   }
-  &.content-einheit {
+  &.content-einheit, &.thema {
       color: $ccthema;
+  }
+  &.recherche {
+      color: $ccrecherche;
   }
 }
 
-.tags{
-  .tag{
+.tags, body .v-select {
+  .tag, .selected-tag{
       display: inline-block;
       background-color: rgba($primary-color, 0.5);
       font-size: 0.8rem;
       color: $white;
       padding: 0 0.3rem;
       margin: 0 0.1rem;
+      line-height: 1.2rem;
       border-radius: $object-border-radius;
+
       i {
         font-size: 0.8rem;
         margin-left: 0.2rem;
       }
+      .close {
+          font-size: 1.2rem;
+          color: white;
+          text-shadow:none;
+          opacity: .7;
+      }
+  }
+  .selected-tag { 
+    float: left; 
+    margin-top: 5px; 
+    font-family: $body-font-family;
+    border: 0;
+    height: auto;
+    position: relative;
+    padding-right: 20px;
+    .close {
+      width: 100%;
+      position: absolute;
+      top: 0;
+      right: 0;
+      text-align: right;
+      padding-right: 5px;
+    }
   }
   a.tag:hover {
       background-color: rgba($primary-color, 0.8);
   }
+  .selected-tag:hover {
+      background-color: rgba(map-get($foundation-palette, alert), 0.5);
+  }
+  span.tag { background-color: rgba($dark-gray, 0.8);  }
 }
+
 
 .longtext {
   max-width: 900px; 

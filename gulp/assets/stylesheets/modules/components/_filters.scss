@@ -133,8 +133,22 @@
         left: 0;
         background: $light-gray;
         width: 100%;
-        padding: 1rem 0;
+        padding: 1rem 0 0 0;
         box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
+      }
+      .filterbutton {
+        clear: both;
+        background: darken($light-gray, 7%);
+        width: 100%;
+        text-align: center;
+        margin-top: 0.5rem;
+        div {
+          padding: 0.5rem 1rem;
+        }
+        .button {
+          margin: 0;
+          padding: 0.85em 2em;
+        }
       }
     }
     ul {

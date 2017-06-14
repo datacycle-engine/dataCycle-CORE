@@ -32,14 +32,16 @@
             <div class="row">
                 <div class="column">
                     <div class="detail-header editor">
-                        <div class="type thema">
-                            <span class="icon">
-                                <i class="fa fa-folder-open" aria-hidden="true"></i>
-                            </span>
-                            <span class="title"><%=@creativeWork.metadata['validation']['name']%></span>
+                    
+                        <div class="topleftinfo">
+                            <div class="type thema">
+                                <span class="icon">
+                                    <i class="fa fa-folder-open" aria-hidden="true"></i>
+                                </span>
+                                <span class="title"><%=@creativeWork.metadata['validation']['name']%></span>
+                            </div>
+                            <%= render 'data_cycle_core/creative_works/partials/render/metaData' %>
                         </div>
-
-                        <%= render 'data_cycle_core/creative_works/partials/render/metaData' %>
 
                         <a class="bookmark" href="#">
                             <span class="bookmarkinfo">zur Recherche hinzufügen</span>
