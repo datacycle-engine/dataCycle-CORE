@@ -71,6 +71,7 @@ module DataCycleCore
         if value.sub_classification_alias.count > 0
           level += 1
           classification_tree.push(walk_classification_tree(value.sub_classification_alias, level))
+          level -= 1
         end
       end
       classification_tree
