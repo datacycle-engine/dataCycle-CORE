@@ -11,9 +11,9 @@
 		  <% value.each do |item| %>
 		  	<div class="item">
 			    <% image = object.where(id: item).first %>
-			    <a class="delete-item" href="#"><i aria-hidden="true" class="fa fa-times"></i></a>
-			    <strong><%= !image.content.nil? ? image.content['name'] : "" %></strong><br />
-			    <img src="<%= image.metadata['thumbnailUrl'] %>">
+			    <a class="delete-item" href="#"><i aria-hidden="true" class="fa fa-times"></i></a><br />
+			    <!--<strong><%= !image.content.nil? ? image.content['name'] : "" %></strong><br />-->
+			    <img class="thumbnail" src="<%= image.metadata['thumbnailUrl'] %>">
 			    <input type="hidden" name="<%= key %>[]" value="<%= image.id %>">
 		    </div>
 		  <% end %>
