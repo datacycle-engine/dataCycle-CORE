@@ -1,5 +1,10 @@
   # attribute-map.yml
 
+  # "urn:mace:dir:attribute-def:uid": "user_name"
+  # "urn:mace:dir:attribute-def:email": "email"
+  # "urn:mace:dir:attribute-def:name": "last_name"
+  # "urn:mace:dir:attribute-def:givenName": "name"
+
   "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn": "user_name"
   "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress": "email"
   "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname": "last_name"

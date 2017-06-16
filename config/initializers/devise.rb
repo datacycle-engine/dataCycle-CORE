@@ -32,7 +32,7 @@ Devise.setup do |config|
 
   # You can set this value to use Subject or SAML assertation as info to which email will be compared.
   # If you don't set it then email will be extracted from SAML assertation attributes.
-  config.saml_use_subject = true
+  config.saml_use_subject = false
 
   # You can support multiple IdPs by setting this value to a class that implements a #settings method which takes
   # an IdP entity id as an argument and returns a hash of idp settings for the corresponding IdP.
@@ -48,13 +48,24 @@ Devise.setup do |config|
 
   # Configure with your SAML settings (see [ruby-saml][] for more information).
   config.saml_configure do |settings|
-    settings.assertion_consumer_service_url     = "https://views.austria.info/users/saml/metadata"
+    settings.assertion_consumer_service_url     = "http://localhost:3000/users/saml/auth"
     settings.assertion_consumer_service_binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-    settings.name_identifier_format             = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient"
-    settings.issuer                             = "views.austria.info"#{}"http://localhost:3000/saml/metadata"
-    settings.authn_context                      = ""
-    settings.idp_slo_target_url                 = "https://adfs.austria.info/adfs/ls/"
-    settings.idp_sso_target_url                 = "https://adfs.austria.info/adfs/ls/"
+    settings.issuer =                         "http://adfs.austria.info/adfs/services/trust"
+    settings.name_identifier_format =         "urn:oasis:names:tc:SAML:2.0:nameid-format:transient"
+    settings.idp_sso_target_url =             "https://adfs.austria.info/adfs/ls/"
+    settings.idp_cert_fingerprint_algorithm = XMLSecurity::Document::SHA256
+    settings.security[:digest_method]    = XMLSecurity::Document::SHA256
+    settings.security[:signature_method] = XMLSecurity::Document::SHA256
+
+    settings.security[:embed_sign]        = false
+
+    # settings.assertion_consumer_service_url     = "http://localhost:3000/users/saml/auth"
+    # settings.assertion_consumer_service_binding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+    # settings.name_identifier_format             = "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress" #"urn:oasis:names:tc:SAML:2.0:nameid-format:transient"
+    # settings.issuer                             = "http://localhost:3000/users/saml/metadata"
+    # settings.authn_context                      = ""
+    # settings.idp_slo_target_url                 = "https://adfs.austria.info/adfs/ls/"
+    # settings.idp_sso_target_url                 = "https://adfs.austria.info/adfs/ls/"
     settings.idp_cert                           = <<-CERT.chomp
 -----BEGIN CERTIFICATE-----
 MIIC3jCCAcagAwIBAgIQds2c3D+//JRPLwRR4y8MKzANBgkqhkiG9w0BAQsFADAr
