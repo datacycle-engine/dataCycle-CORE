@@ -13,6 +13,7 @@ require 'mongoid'
 
 # authentication
 require 'devise'
+require 'devise_saml_authenticatable'
 
 # authorization
 require 'cancancan'

@@ -40,6 +40,7 @@ Gem::Specification.new do |s|
   #s.add_dependency 'activemodel-serializers-xml'
   # authentication
   s.add_dependency 'devise'
+  s.add_dependency 'devise_saml_authenticatable'
   # authorization
   s.add_dependency 'cancancan'
   # foundation helper
