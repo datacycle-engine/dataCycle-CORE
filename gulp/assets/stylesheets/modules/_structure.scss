@@ -9,7 +9,7 @@ html, body {
     height: inherit;
     width: 100%;
     position: absolute;
-    padding-top: 4rem;
+    padding-top: 4.2rem;
     top: 0;
 }
 .off-canvas-content {
@@ -29,6 +29,8 @@ button, input, optgroup, select, textarea {
 header{
    z-index: 3;
    position: relative;
+   max-height: 4.2rem;
+   overflow: hidden;
   .top-bar{
     padding: 0;
     background-color: $black;
