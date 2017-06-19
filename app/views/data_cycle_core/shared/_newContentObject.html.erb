@@ -1,8 +1,8 @@
 <div id="new-object-circle">
     <a data-toggle="new-object" class="button-prime"><i class="fa fa-plus" aria-hidden="true"></i></a>
     <div class="reveal" id="new-object" data-reveal data-append-to="#new-object-circle" data-v-offset="auto">
-        <a class="option last" href="#" data-open="recherche"><i class="fa fa-lightbulb-o" aria-hidden="true"></i>Recherche beginnen</a>
-        <!--<a class="option last" href="#" data-open="newContent"><i class="fa fa-folder-open-o" aria-hidden="true"></i>Neuen Inhalt erstellen</a>-->
+        <a class="option" href="#" data-open="recherche"><i class="fa fa-lightbulb-o" aria-hidden="true"></i>Recherche beginnen</a>
+        <a class="option last" href="#" data-open="newContent"><i class="fa fa-folder-open-o" aria-hidden="true"></i>Neuen Inhalt erstellen</a>
     </div>
 </div>
 
@@ -13,10 +13,11 @@
     <div class="reveal" id="newContent" data-reveal>
         <h3>Neuen Inhalt erstellen</h3>
 
-        <%= form_for(@creativeWork) do |f| %>
-            <%= hidden_field_tag 'template', 'Thema' %>
+        <%= form_for :creative_work, :url => {:action => "create"} do |f| %>
+            <%= hidden_field_tag 'template', 'Standard-Artikel' %>
+            <%= hidden_field_tag 'parent', @creativeWork.id %>
             <%= f.text_field :headline, class: 'form-control', value:'' %>
-            <%= f.submit "Erstellen", class: "button primary" %>
+            <%= submit_tag "Erstellen", class: "button primary" %>
         <% end %>
 
         <button class="close-button" data-close aria-label="Close modal" type="button">

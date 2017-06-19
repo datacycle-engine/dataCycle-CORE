@@ -40,27 +40,43 @@ module DataCycleCore
       @creativeWork = create_internal(params[:template])
 
       if @creativeWork.nil?
-        render 'new'
+        redirect_to :back
         return
       end
 
       if params[:template] != "Thema"
         if params['parent'].nil? || params['parent'].blank?
           #create new thema
-          thema = create_internal("Thema")
-          @creativeWork.isPartOf = thema.id unless thema.nil?
+          if params[:template] == "Recherche"
+            thema = create_internal("Thema")
+            @creativeWork.isPartOf = thema.id unless thema.nil?
+          else
+            flash[:error] = "invalid parent object"
+            redirect_to :back
+            return
+          end
         else
           #set as parent
           @creativeWork.isPartOf = params['parent']
+          #get inherit attributes
+          inherit_datahash = get_inherit_datahash(@creativeWork)
+          if inherit_datahash.nil?
+            flash[:error] = "invalid parent attributes"
+            redirect_to :back
+            return
+          end
+
+          @creativeWork.set_data_hash(inherit_datahash)
         end
       end
 
       #validate ?
-      if @creativeWork.nil? || @creativeWork.save
+      if !@creativeWork.nil? && @creativeWork.save
         flash[:success] = "Successfully added new creativeWork!"
         redirect_to @creativeWork
       else
-        render 'new'
+        redirect_to :back
+        return
       end
 
     end
@@ -147,7 +163,7 @@ module DataCycleCore
     private
 
       def creative_work_params
-        params.require(:creative_work).permit(:headline, :datahash => [:headline,:text,:description,:state => [],:topics => [],:markets => [],:tags => [], :validityPeriod => [:validFrom, :validUntil], :image => [], :video => []])
+        params.require(:creative_work).permit(:headline, :datahash => [:headline, :alternativeHeadline, :name, :text,:description, :metaTitle, :metaDescription, :state => [],:topics => [],:markets => [],:tags => [], :validityPeriod => [:validFrom, :validUntil], :image => [], :video => []])
         # params.require(:creative_work).permit!
       end
 
@@ -191,5 +207,33 @@ module DataCycleCore
 
       end
 
+      def get_inherit_datahash(creativeWork)
+
+        data_hash = creativeWork.get_data_hash
+
+        if creativeWork.isPartOf.nil? || creativeWork.blank?
+          return nil
+        end
+
+        parent = DataCycleCore::CreativeWork.find_by(id: creativeWork.isPartOf)
+
+        if parent.nil?
+          return nil
+        end
+
+        parent_data_hash = parent.get_data_hash
+
+        #topics
+        data_hash['topics'] = parent_data_hash['topics']
+        #markets
+        data_hash['markets'] = parent_data_hash['markets']
+        #tags
+        data_hash['tags'] = parent_data_hash['tags']
+        #state
+        data_hash['state'] = parent_data_hash['state']
+
+        return data_hash.compact!
+
+      end
   end
 end
