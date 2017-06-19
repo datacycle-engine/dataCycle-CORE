@@ -524,11 +524,10 @@ span.single_error {
   margin: 0 auto;
 }
 
-.reveal-overlay {
+.reveal-overlay, .reveal.without-overlay {
   background: none;
 }
 .reveal-blur {
-    
   &.show {
     transition: all ease-out 0.1s;
     filter: blur(3px);

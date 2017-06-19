@@ -1,6 +1,8 @@
 
 <% content_for :top_content do %>
 
+<div class="reveal-blur">
+
     <div id="edit-form">
 
         <%= form_for @creativeWork, builder: DataCycleCore::CreativeWorksHelper::DataCycleFormBuilder do |f| %>
@@ -95,15 +97,29 @@
 
         <% end %>
 
-        <div class="full reveal" id="mediabrowser" data-reveal>
-          <h1>Mediabrowser</h1>
+        <div class="reveal full" id="mediabrowser" data-reveal data-overlay="false">
+          <h4>
+            <i class="fa fa-files-o" aria-hidden="true"></i>Medien hinzufügen
+            <button class="close-button" data-close aria-label="Close reveal" type="button"><span aria-hidden="true"><i aria-hidden="true" class="fa fa-times"></i></span></button>
+          </h4>
           <div id="media-content"></div>
-          <button class="close-button" data-close aria-label="Close reveal" type="button">
-            <span aria-hidden="true">&times;</span>
-          </button>
+          <div id="media-info">
+               <h5>Details</h5>
+                <dl>
+                  <dt></dt>
+                  <dd id="media-display"></dd>
+
+                  <dt>Dateiname</dt>
+                  <dd id="media-filename"></dd>
+
+                  <dt>Caption</dt>
+                  <dd id="media-caption"></dd>
+                </dl>
+          </div>
         </div>
 
     </div>
+</div>
 
 <% end %>
 

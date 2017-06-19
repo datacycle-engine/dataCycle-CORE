@@ -3,20 +3,18 @@
 	<div class="object-browser" id="<%= sanitize_to_id(key) %>">
 	  <%= label_tag(key, prop['label']) %>
 	  <input type="text" disabled="disabled" />
-	  <% if prop['label'] == 'Bilder' %>
-	  	<button class="button mediabrowser" data-media-type="<%= prop['label'] %>"><i class="fa fa-plus"></i></button>
-	  <% end %>
-	  <div class="thumbs">
+	  <div class="media-thumbs">
 		<% unless value.blank? %>
 		  <% value.each do |item| %>
-		  	<div class="item">
-			    <% image = object.where(id: item).first %>
-			    <a class="delete-item" href="#"><i aria-hidden="true" class="fa fa-times"></i></a>
-			    <strong><%= !image.content.nil? ? image.content['name'] : "" %></strong><br />
-			    <img src="<%= image.metadata['thumbnailUrl'] %>">
-			    <input type="hidden" name="<%= key %>[]" value="<%= image.id %>">
+		  	<% image = object.where(id: item).first %>
+		  	<div class="media thumbnail" style="background-image: url(<%= image.metadata['thumbnailUrl'] %>);">
+			    <a class="delete-thumbnail" href="#"><i aria-hidden="true" class="fa fa-times"></i></a>
+			    <span class="caption"></span><input type="hidden" name="<%= key %>[]" value="<%= image.id %>">
 		    </div>
 		  <% end %>
+		<% end %>
+		<% if prop['label'] == 'Bilder' %>
+		  	<button class="button mediabrowser" data-media-type="<%= prop['label'] %>"><i class="fa fa-plus"></i></button>
 		<% end %>
 		</div>
   </div>
