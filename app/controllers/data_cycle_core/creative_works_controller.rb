@@ -161,7 +161,7 @@ module DataCycleCore
     private
 
       def creative_work_params
-        params.require(:creative_work).permit(:headline, :datahash => [:headline, :alternativeHeadline, :name, :text,:description, :metaTitle, :metaDescription, :state => [],:topics => [],:markets => [],:tags => [], :validityPeriod => [:validFrom, :validUntil], :image => [], :video => []])
+        params.require(:creative_work).permit(:headline, :datahash => [:headline, :alternativeHeadline, :name, :text,:description, :metaTitle, :metaDescription, :keywords, :sameAs, :state => [],:topics => [],:markets => [],:tags => [], :validityPeriod => [:validFrom, :validUntil], :image => [], :video => []])
         # params.require(:creative_work).permit!
       end
 
