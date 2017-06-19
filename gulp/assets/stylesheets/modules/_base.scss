@@ -311,7 +311,10 @@ form {
       .bookmark {
         display: none;
       }
-      .headline input {
+    .input input{
+      padding: 3rem 1rem;
+    }
+    .headline input {
         padding: 1rem 5rem;
       }
       .description {
