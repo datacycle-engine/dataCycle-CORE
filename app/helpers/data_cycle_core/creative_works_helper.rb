@@ -13,6 +13,10 @@ module DataCycleCore
     end
 
 
+    def get_allowed_content_types
+      allowed_content_types = {'Artikel' => 'Standard-Artikel'}
+    end
+
     def get_ordered_validation_properties(validation)
 
       ordered_properties = ActiveSupport::OrderedHash.new

@@ -43,7 +43,6 @@ module DataCycleCore
         redirect_to :back
         return
       end
-
       if params[:template] != "Thema"
         if params['parent'].nil? || params['parent'].blank?
           #create new thema
@@ -65,7 +64,6 @@ module DataCycleCore
             redirect_to :back
             return
           end
-
           @creativeWork.set_data_hash(inherit_datahash)
         end
       end
@@ -210,11 +208,6 @@ module DataCycleCore
       def get_inherit_datahash(creativeWork)
 
         data_hash = creativeWork.get_data_hash
-
-        if creativeWork.isPartOf.nil? || creativeWork.blank?
-          return nil
-        end
-
         parent = DataCycleCore::CreativeWork.find_by(id: creativeWork.isPartOf)
 
         if parent.nil?
