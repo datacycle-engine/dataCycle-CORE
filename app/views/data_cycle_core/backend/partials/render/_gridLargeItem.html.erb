@@ -36,10 +36,10 @@
 
                 </div>
 
-                <% unless item.description.nil? %>
+                <% if !item.content.nil? && !item.content['description'].blank? %>
 
                     <div class="description">
-                        <%= item.description.html_safe %>
+                        <%= item.content['description'].html_safe %>
                     </div>
 
                 <% end %>

@@ -28,18 +28,16 @@
 
                 <div class="title">
 
-                    <% if !item.content.nil? && !item.content['name'].blank? %>
-                        <%= item.content['name'] %>
-                    <% elsif  !item.content.nil? && !item.content['headline'].blank? %>
+                    <% if !item.content.nil? && !item.content['headline'].blank? %>
                         <%= item.content['headline'] %>
                     <% end %>
 
                 </div>
 
-                <% unless item.description.nil? %>
+                <% if !item.content.nil? && !item.content['description'].blank? %>
 
                     <div class="description">
-                        <%= item.description.html_safe %>
+                        <%= item.content['description'].html_safe %>
                     </div>
 
                 <% end %>
