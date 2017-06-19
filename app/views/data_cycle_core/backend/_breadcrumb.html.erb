@@ -1,12 +1,23 @@
-<section class="breadcrumb ">
+<section class="breadcrumb">
     <div class="row expanded">
         <div class="column">
             <ul>
-                <li>
-                    <a href="/">
-                        <i class="fa fa-folder-open-o" aria-hidden="true"></i>Themenwelten
-                    </a>
-                </li>
+                <% if @breadcrumbs %>
+                    <% @breadcrumbs[0..-2].each do |type, title, path| %>
+                        <li><a class="breadcrumb-item" href="<%= path %>">
+                        <% unless type.nil? %>
+                            <span class="breadcrumb-type"><%= type %></span><%= title != "" ? ": " : "" %>
+                        <% end %>
+                        <% unless title == "" %>
+                            <span class="breadcrumb-title"><%= h title %></span>
+                        <% end %>
+                        </a> > </li>
+                    <% end %>
+                    <li>
+                        <span class="breadcrumb-type"><%= @breadcrumbs.last[0] %></span>: 
+                        <span class="breadcrumb-title"><%= h @breadcrumbs.last[1] %></span>
+                    </li>
+                <% end %>
             </ul>
         </div>
     </div>
