@@ -55,10 +55,7 @@
 
             <%= render 'data_cycle_core/creative_works/partials/render/validityPeriod' %>
 
-            
-
-
-            <% if @creativeWork.metadata['validation']['name'] != "Bild" %>
+            <% if !@creativeWork.metadata['validation']['permissions'].nil? && is_writable(@creativeWork.metadata['validation']['permissions']) %>
 
                 <div class="edit">
                     <%= link_to edit_creative_work_path(@creativeWork), class:'button-prime small' do %>

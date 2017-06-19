@@ -12,6 +12,12 @@ module DataCycleCore
 
     end
 
+    def is_writable(permissions)
+      if !permissions['read_write'].nil? && permissions['read_write'] == true
+        return true
+      end
+      return false
+    end
 
     def get_allowed_content_types
       allowed_content_types = {'Artikel' => 'Standard-Artikel'}
