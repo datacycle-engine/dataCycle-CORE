@@ -3,20 +3,18 @@
         <div class="column">
             <ul>
                 <% if @breadcrumbs %>
-                    <% @breadcrumbs[0..-2].each do |type, title, path| %>
-                        <li><a class="breadcrumb-item" href="<%= path %>">
-                        <% unless type.nil? %>
-                            <span class="breadcrumb-type"><%= type %></span><%= title != "" ? ": " : "" %>
+                    <% @breadcrumbs[0..-1].each do |item| %>
+                        <li>
+                        <% unless item.equal?(@breadcrumbs.last) %><a class="breadcrumb-item" href="<%= item[2] %>"><% end %>
+                        <% unless item[0].nil? || item[0] == "" %>
+                            <span class="breadcrumb-type"><%= item[0] %></span>: 
                         <% end %>
-                        <% unless title == "" %>
-                            <span class="breadcrumb-title"><%= h title %></span>
+                        <% unless item[0].nil? || item[1] == "" %>
+                            <span class="breadcrumb-title"><%= h item[1] %></span>
                         <% end %>
-                        </a> > </li>
+                        <% unless item.equal?(@breadcrumbs.last) %></a> > <% end %>
+                        </li>
                     <% end %>
-                    <li>
-                        <span class="breadcrumb-type"><%= @breadcrumbs.last[0] %></span>: 
-                        <span class="breadcrumb-title"><%= h @breadcrumbs.last[1] %></span>
-                    </li>
                 <% end %>
             </ul>
         </div>
