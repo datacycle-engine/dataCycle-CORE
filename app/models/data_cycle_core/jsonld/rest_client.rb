@@ -9,6 +9,7 @@ module DataCycleCore
           req.headers['Accept'] = 'application/json'
           req.params['page'] = page
           req.params['per'] = per
+          req.params['token'] = @credentials['token'] if @credentials && @credentials['token']
         end
       end
 
