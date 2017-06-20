@@ -1,4 +1,4 @@
-<div class="form-element <%= key.split('[').last[0...-1] %>">
+<div class="form-element validation-container <%= key.split('[').last[0...-1] %>">
     <%= label_tag(key, label) %>
     <%= text_field_tag key,value,options %>
 </div>

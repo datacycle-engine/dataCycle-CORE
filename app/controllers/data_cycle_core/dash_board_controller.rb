@@ -2,10 +2,12 @@ module DataCycleCore
   class DashBoardController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
     #load_and_authorize_resource         # from cancancan (authorize)
+    add_breadcrumb "Themenwelten", "", "/"
 
     def home
       @statOutdoorActive = StatsDatabase.new(current_user.id)
       @statJobQueue = StatsJobQueue.new.update
+      add_breadcrumb "Admin", "Home", "/admin"
     end
 
     def download

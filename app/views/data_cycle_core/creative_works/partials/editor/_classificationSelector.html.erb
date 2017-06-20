@@ -1,4 +1,4 @@
-<div class="form-element <%= key.split('[').last[0...-1] %>">
+<div class="form-element validation-container <%= key.split('[').last[0...-1] %>">
 
     <% @classification_tree_label = get_classifications_for_name prop['type_name'] unless prop['type_name'].nil? %>
 
@@ -8,7 +8,7 @@
     <% unless @classification_tree_label.nil? %>
 
         <%# options = @classification_tree_label.classification_trees.map { |classification| {:value => classification.sub_classification_alias.classifications.ids.first , :label => classification.sub_classification_alias.name }} %>
-        <div class="multi-validation" <%= !prop['editor']['options'].nil? && !prop['editor']['options']['data-validate'].nil? ? "data-validate=#{prop['editor']['options']['data-validate']}" : '' %>>
+        <div <%= !prop['editor']['options'].nil? && !prop['editor']['options']['data-validate'].nil? ? "data-validate=#{prop['editor']['options']['data-validate']}" : '' %>>
 
             <% selected_values = get_selected_values_for_classification options, value %>
             <div class="custom-select-title"><%= prop['label'] %></div>
