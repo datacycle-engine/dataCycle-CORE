@@ -83,6 +83,35 @@
 
   /* Media Browser */
 
+.media-thumbs {
+  .media {
+    display: block;
+    float: left;
+    overflow: hidden;
+    width: 229px;
+    height: 157px;
+    margin: 0 1rem 1rem 0;
+    background-position: center center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: white;
+    span.caption { display: none; }
+    &.add {
+      border-color: $primary-color;
+      background-color: $primary-color;
+    }
+    .delete-thumbnail {
+      background: white;
+      color:  $dark-gray;
+      padding: 0 0.2rem;
+      &:hover {
+        color:  map-get($foundation-palette, alert);
+      }
+    }
+  }
+}
+
+
   button.mediabrowser {
     margin: 1rem;
     i.fa {
@@ -91,26 +120,79 @@
   }
   .object-browser {
     text-align: left;
-    padding: 2rem;
-    .thumbs {
-      .item {
-        max-width: 250px;
-        display: inline-block;
-      }
-    }
+    padding: 3rem 0 0 0.1rem;
+    overflow: hidden;
     input {
       display: none;
-
     }
   }
-  #mediabrowser {
+
+
+#mediabrowser {
+  margin: 8.1rem 0 0 0 !important;
+  outline: none;
+  padding: 0 0 10rem 0;
+  h4 {
+    z-index: 2;
+    color: $primary-color;
+    font-size: 1.2rem;
+    position: fixed;
+    width: 100%;
+    padding: 1rem 1rem 1rem 1.5rem;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+50,ffffff+100&1+0,0.78+50,0+100 */
+    background: -moz-linear-gradient(top,  rgba(255,255,255,1) 0%, rgba(255,255,255,0.78) 50%, rgba(255,255,255,0) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(255,255,255,0.78) 50%,rgba(255,255,255,0) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom,  rgba(255,255,255,1) 0%,rgba(255,255,255,0.78) 50%,rgba(255,255,255,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#00ffffff',GradientType=0 ); /* IE6-9 */
+    i {
+      margin-right: 0.5rem;
+    }
+  }
+  .close-button {
+    right: 410px;
+    top: 0;
+    outline: none;
+    i { font-size: 1.5rem; }
+  }
+  #close-media-browser {
+    position: absolute;
+    right: 450px;
+    top: 0.5rem;
+  }
+  #media-content {
+    padding: 4rem 1rem 1rem 1rem;
+    margin-right: 400px;
     .media {
+      display: block;
+      float: left;
+      overflow: hidden;
+      width: 229px;
+      height: 157px;
+      margin: 0 1rem 1rem 0;
+      background-position: center center;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-color: white;
+      span.caption { display: none; }
       &.add {
-        figure {
-          img {
-            border: 4px solid $primary-color;
-          }
-        }
+        border-color: $primary-color;
+        background-color: $primary-color;
       }
     }
   }
+}
+#media-info {
+    width: 400px;
+    background: white;
+    position: fixed;
+    right: 0;
+    top: 8.1rem;;
+    bottom: 0;
+    padding: 3.5rem 1.5rem 1.5rem 1.5rem;
+    h5 {
+      font-size: 1.2rem;
+      color: $dark-gray;
+    }
+    dl dt { margin: 0.3rem 0 0 0; }
+    #media-display img { max-height: 300px; }
+}

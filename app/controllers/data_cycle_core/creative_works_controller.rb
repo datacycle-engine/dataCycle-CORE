@@ -2,13 +2,14 @@ module DataCycleCore
   class CreativeWorksController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
     #load_and_authorize_resource         # from cancancan (authorize)
+    add_breadcrumb "Themenwelten", "", "/"
 
     def index
-
     end
 
     def show
       @creativeWork = DataCycleCore::CreativeWork.find_by(id: params[:id])
+      set_breadcrumb_for @creativeWork
       if @creativeWork.nil?
         redirect_to root
       end
@@ -32,12 +33,14 @@ module DataCycleCore
     def new
       #only for testing
       @creativeWork = DataCycleCore::CreativeWork.new
+      set_breadcrumb_for @creativeWork      
       render layout: "data_cycle_core/creative_works_show"
     end
 
     def create
 
       @creativeWork = create_internal(params[:template])
+      set_breadcrumb_for @creativeWork
 
       if @creativeWork.nil?
         redirect_to :back
@@ -81,6 +84,8 @@ module DataCycleCore
 
     def edit
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
+      set_breadcrumb_for @creativeWork
+      add_breadcrumb "Edit", "", creative_work_path(@creativeWork)
       @dataSchema = @creativeWork.get_data_hash
 
       render layout: "data_cycle_core/creative_works_edit"
@@ -88,6 +93,8 @@ module DataCycleCore
 
     def update
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
+      set_breadcrumb_for @creativeWork
+      add_breadcrumb "", "Edit", creative_work_path(@creativeWork)
       datahash = creative_work_params[:datahash]
 
       # add creator id
@@ -228,5 +235,10 @@ module DataCycleCore
         return data_hash.compact!
 
       end
+      def set_breadcrumb_for creativeWork
+        set_breadcrumb_for creativeWork.parent if creativeWork.parent
+        add_breadcrumb creativeWork.metadata['validation']['name'], creativeWork.content['headline'], creative_work_path(creativeWork.id)
+      end
+
   end
 end

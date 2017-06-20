@@ -14,3 +14,31 @@
 		}
 	}
 }
+#mediabrowser {
+	h4, #media-info {
+		backface-visibility: hidden;
+	}
+	#media-info {
+		overflow-y: scroll;
+	}
+}
+.breadcrumb {
+	ul {
+		color: #fefefe;
+		font-size: 1.2rem;
+		font-weight: 200;
+		li {
+			display: inline-block;
+			.breadcrumb-separator {
+				margin: 0px 10px;
+				font-size: 1.4rem;
+			}
+			.breadcrumb-type {
+				font-style: italic;
+			}
+			.breadcrumb-title {
+				font-weight: 600;
+			}
+		}
+	}
+}
