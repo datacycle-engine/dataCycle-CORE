@@ -2,8 +2,9 @@ module DataCycleCore
   class User < ApplicationRecord
     # Include default devise modules. Others available are:
     # :confirmable, :lockable, :timeoutable and :omniauthable
-    devise :saml_authenticatable, :trackable
-    # :database_authenticatable, :registerable,
+    #:saml_authenticatable, :trackable
+     devise :saml_authenticatable
+    #  :database_authenticatable, :registerable,
     #        :recoverable, :rememberable, :trackable, :validatable
 
     has_many :use_cases
