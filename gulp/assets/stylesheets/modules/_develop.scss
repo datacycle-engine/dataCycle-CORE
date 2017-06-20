@@ -14,6 +14,14 @@
 		}
 	}
 }
+#mediabrowser {
+	h4, #media-info {
+		backface-visibility: hidden;
+	}
+	#media-info {
+		overflow-y: scroll;
+	}
+}
 .breadcrumb {
 	li {
 		display: inline-block;
