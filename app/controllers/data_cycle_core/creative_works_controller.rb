@@ -2,7 +2,7 @@ module DataCycleCore
   class CreativeWorksController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
     #load_and_authorize_resource         # from cancancan (authorize)
-    add_breadcrumb "", "Themenwelten", "/"
+    add_breadcrumb "Themenwelten", "", "/"
 
     def index
     end
@@ -71,7 +71,7 @@ module DataCycleCore
     def edit
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       set_breadcrumb_for @creativeWork
-      add_breadcrumb "", "Edit", creative_work_path(@creativeWork)
+      add_breadcrumb "Edit", "", creative_work_path(@creativeWork)
       @dataSchema = @creativeWork.get_data_hash
 
       render layout: "data_cycle_core/creative_works_edit"

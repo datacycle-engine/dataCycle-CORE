@@ -2,7 +2,7 @@ module DataCycleCore
   class BackendController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
     #load_and_authorize_resource         # from cancancan (authorize)
-    add_breadcrumb "", "Themenwelten", "/"
+    add_breadcrumb "Themenwelten", "", "/"
 
     def index
       @classification_array = []
