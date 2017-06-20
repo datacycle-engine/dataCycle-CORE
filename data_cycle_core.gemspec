@@ -33,14 +33,13 @@ Gem::Specification.new do |s|
   s.add_dependency 'faraday'
   # JSON Parser
   s.add_dependency 'multi_json'
-    # SOAP Client
+  # SOAP Client
   #s.add_dependency 'savon', '~> 2.0'
   # XML Parser
   s.add_dependency 'nokogiri'
   #s.add_dependency 'activemodel-serializers-xml'
   # authentication
   s.add_dependency 'devise'
-  s.add_dependency 'ruby-saml'
   # authorization
   s.add_dependency 'cancancan'
   # foundation helper

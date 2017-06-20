@@ -3,9 +3,8 @@ module DataCycleCore
     # Include default devise modules. Others available are:
     # :confirmable, :lockable, :timeoutable and :omniauthable
     #:saml_authenticatable, :trackable
-     devise :saml_authenticatable
-    #  :database_authenticatable, :registerable,
-    #        :recoverable, :rememberable, :trackable, :validatable
+     devise :database_authenticatable, :registerable,
+            :recoverable, :rememberable, :trackable, :validatable
 
     has_many :use_cases
 
