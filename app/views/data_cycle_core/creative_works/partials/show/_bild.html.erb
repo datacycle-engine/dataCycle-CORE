@@ -13,7 +13,7 @@
 
     <!--<%= @creativeWork.classification_aliases.to_a.map{|item| item.name}.join("<br/>").html_safe %>-->
 
-  <div class="image-data"">
+  <div class="image-data">
 
     <h5>Details</h5>
 
@@ -43,7 +43,8 @@
 
       <% unless @creativeWork.metadata['width'].nil? %>
         <dt><i class="fa fa-info-circle" aria-hidden="true"></i> Bildinformationen</dt>
-        <dd><%= @creativeWork.metadata['width'] %>px/<%= @creativeWork.metadata['height'] %>px, <%= @creativeWork.metadata['contentSize'] %>, <strong>Format:</strong> <%= @creativeWork.metadata['fileFormat'] %>
+        <dd><%= @creativeWork.metadata['width'] %>px/<%= @creativeWork.metadata['height'] %>px, <%= @creativeWork.metadata['contentSize'] %>Bytes<br />
+            <strong>Format:</strong> <%= @creativeWork.metadata['fileFormat'] %>
 
                     <% unless @creativeWork.metadata['dateCreated'].nil? %>
                 <%= render 'data_cycle_core/creative_works/partials/show/datatype/datetime',
@@ -126,60 +127,4 @@
 
 <hr>
 
-        <div class="type translations">
-                        <span class="icon"><i class="fa fa-comment" aria-hidden="true"></i>
-</span>
-
-                    <span class="title">Übersetzungen</span>
-                </div>
-
-           
-<div class="row">
-      <div class="large-2 columns">
-       <h5>English</h5>
-       </div>
-       <div class="large-10 columns">
-                <div class="detail-type string">
-                    <span><strong>Titel: </strong></span>
-                    <span>Ursprungsalm Steiermark</span>
-                </div><div class="detail-type string">
-                    <span><strong>Alt-Label: </strong></span>
-                    <span>Ursprungsalm Steiermark</span>
-                </div>
-
-      </div>  
-</div>
-<hr>
-<div class="row">
-      <div class="large-2 columns">
-       <h5>Italiano</h5>
-       </div>
-       <div class="large-10 columns">
-                <div class="detail-type string">
-                    <span><strong>Titel: </strong></span>
-                    <span>Ursprungsalm Steiermark</span>
-                </div><div class="detail-type string">
-                    <span><strong>Alt-Label: </strong></span>
-                    <span>Ursprungsalm Steiermark</span>
-                </div>
-
-      </div>  
-</div>
-<hr>
-<div class="row">
-      <div class="large-2 columns">
-       <h5>Slovensko</h5>
-       </div>
-       <div class="large-10 columns">
-                <div class="detail-type string">
-                    <span><strong>Titel: </strong></span>
-                    <span>Ursprungsalm Steiermark</span>
-                </div><div class="detail-type string">
-                    <span><strong>Alt-Label: </strong></span>
-                    <span>Ursprungsalm Steiermark</span>
-                </div>
-
-      </div>  
-</div>
-<hr>
 <% end %>
