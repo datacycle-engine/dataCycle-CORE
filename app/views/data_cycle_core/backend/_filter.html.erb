@@ -2,7 +2,18 @@
 <%= form_tag(root_path, :method => "get", id: "search-form") do %>
 
 <section class="filters">
-
+    <div class="search row expanded">
+        <div class="column">
+            <div class="search">
+                <div class="input-group">
+                    <div class="input-group-button">
+                        <button type="submit" class="search_icon "><i class="fa fa-search" aria-hidden="true"></i></button>
+                    </div>
+                    <%= text_field_tag :search, params[:search], placeholder: "Suchbegriff",class:"input-group-field" %>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="main-filters row expanded">
         <div class="column">
             <div class="row">
@@ -18,29 +29,17 @@
 
                         <%= render 'data_cycle_core/backend/partials/filter/sprache'%>
 
-                        <%= render 'data_cycle_core/backend/partials/filter/themenbereiche', tree_label: 'Inhaltstypen', display_label: 'Inhaltstypen', classification_alias_id: nil, show_selected: false %>
+                    <!--
+                        <%= render 'data_cycle_core/backend/partials/filter/themenbereiche', tree_label: 'Inhaltstypen', display_label: 'Inhaltstyp', classification_alias_id: nil, show_selected: false %>
 
-                        <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Inhaltspools', display_label: 'Inhaltspools', classification_alias_id: nil %>
-
+                        <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Inhaltspools', display_label: 'Inhaltspool', classification_alias_id: nil %>
+                    -->
                     </ul>
                 </nav>
 
             </div>
         </div>
     </div>
-    <div class="search row expanded">
-        <div class="column">
-            <div class="search">
-                <div class="input-group">
-                    <div class="input-group-button">
-                        <button type="submit" class="search_icon "><i class="fa fa-search" aria-hidden="true"></i></button>
-                    </div>
-                    <%= text_field_tag :search, params[:search], placeholder: "Suchbegriff",class:"input-group-field" %>
-                </div>
-            </div>
-        </div>
-    </div>
-
 </section>
 
 
