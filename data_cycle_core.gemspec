@@ -33,7 +33,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'faraday'
   # JSON Parser
   s.add_dependency 'multi_json'
-    # SOAP Client
+  # SOAP Client
   #s.add_dependency 'savon', '~> 2.0'
   # XML Parser
   s.add_dependency 'nokogiri'
