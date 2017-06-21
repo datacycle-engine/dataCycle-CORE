@@ -16,7 +16,7 @@
 
         <%= form_for(@creativeWork) do |f| %>
             <%= hidden_field_tag 'template', 'Thema' %>
-            <%= f.text_field :headline, class: 'form-control', readonly: true, value:params[:search] %>
+            <%= f.text_field :headline, class: 'form-control', value:params[:search] %>
             <% if params[:search].present? %>
                 <%= f.submit "Erstellen", class: "button primary" %>
             <% end %>
@@ -32,7 +32,7 @@
 
         <%= form_for(@creativeWork) do |f| %>
             <%= hidden_field_tag 'template', 'Recherche' %>
-            <%= f.text_field :headline, class: 'form-control', readonly: true, value:params[:search] %>
+            <%= f.text_field :headline, class: 'form-control', value:params[:search] %>
             <% if params[:search].present? %>
                 <%= submit_tag "Erstellen", class: "button primary" %>
             <% end %>
