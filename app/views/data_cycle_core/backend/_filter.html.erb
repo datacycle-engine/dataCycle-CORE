@@ -11,14 +11,14 @@
                     <ul>
 
                         <%# classification_alias_id = DataCycleCore::ClassificationAlias.joins(classification_trees: [:classification_tree_label]).where("classification_tree_labels.name = ?", 'Sonstiges').where("classification_aliases.name = ?",'Auslagenthema (Sehnsuchtsthema)').first.id %>
-                        <%= render 'data_cycle_core/backend/partials/filter/themenbereiche', tree_label: 'Themenbereiche', display_label: 'Thema', classification_alias_id: nil %>
+                        <%= render 'data_cycle_core/backend/partials/filter/themenbereiche', tree_label: 'Themenbereiche', display_label: 'Thema', classification_alias_id: nil, show_selected: true %>
 
                         <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Bundesländer', display_label: 'Bundesland', classification_alias_id: nil %>
                         <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Märkte', display_label: 'Zielmarkt', classification_alias_id: nil %>
 
                         <%= render 'data_cycle_core/backend/partials/filter/sprache'%>
 
-                        <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Inhaltstypen', display_label: 'Inhaltstypen', classification_alias_id: nil %>
+                        <%= render 'data_cycle_core/backend/partials/filter/themenbereiche', tree_label: 'Inhaltstypen', display_label: 'Inhaltstypen', classification_alias_id: nil, show_selected: false %>
 
                         <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Inhaltspools', display_label: 'Inhaltspools', classification_alias_id: nil %>
 

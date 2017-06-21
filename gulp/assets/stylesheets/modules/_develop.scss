@@ -42,3 +42,38 @@
 		}
 	}
 }
+.detail-header {
+	.gueltigkeit {
+		margin-top: 1rem;
+	}
+	.tags {
+		.tag-group-wrapper {
+			text-align: left;
+			margin: 0 0 0 1rem;
+			.icon {
+				i:before {
+					content: "\f02c";
+					font-family: FontAwesome;
+					font-style: normal;
+					font-weight: normal;
+					text-decoration: inherit;
+				}
+				&.Themenbereiche {
+					i:before {
+						content: "\f07c";
+					}
+				}
+				&.Zielmarkt {
+					i:before {
+						content: "\f192";
+					}
+				}
+				&.Bundesland {
+					i:before {
+						content: "\f041";
+					}
+				}
+			}
+		}
+	}
+}

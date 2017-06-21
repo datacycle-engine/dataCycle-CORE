@@ -1,4 +1,4 @@
-<li class="subtree">
+<li <% if !show_selected.nil? && show_selected == true %>class="subtree" <% end %>>
 
     <% parent_string = classification_alias_id.nil? ? "IS NULL" : " = '#{classification_alias_id}'" %>
     <% types = DataCycleCore::ClassificationAlias.joins(classification_trees: [:classification_tree_label]).where("classification_tree_labels.name = ?", tree_label).where("classification_trees.parent_classification_alias_id #{parent_string}") %>
@@ -7,7 +7,7 @@
 
     <span class="title"><%=display_label%> <strong>(<%=types.count%>)</strong></span>
     <div>
-
+        <% if !show_selected.nil? && show_selected == true %>
         <% selected_classifications = get_classifications_for_id(@classification_array, tree_label)  %>
 
         <div class="your-choice tags">
@@ -26,6 +26,7 @@
             <% end %>
 
         </div>
+        <% end %>
 
         <ul class="clearfix">
             <% types.sort{|a,b| a.name <=> b.name}.each do |item| %>
