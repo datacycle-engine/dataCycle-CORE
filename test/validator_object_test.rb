@@ -307,8 +307,8 @@ module DataCycleCore
             }
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
-          assert_equal(1, validator.error[:error].size)
-          assert_equal(0, validator.error[:warning].size)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(1, validator.error[:warning].size)
 
           template_hash = {
             "validityPeriod" => {
@@ -344,8 +344,8 @@ module DataCycleCore
             }
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
-          assert_equal(1, validator.error[:error].size)
-          assert_equal(0, validator.error[:warning].size)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(1, validator.error[:warning].size)
 
           template_hash = {
             "validityPeriod" => {
