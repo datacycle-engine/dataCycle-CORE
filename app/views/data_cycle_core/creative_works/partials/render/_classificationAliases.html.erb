@@ -16,9 +16,9 @@
                         <% if !@dataSchema[key].nil? && !@dataSchema[key].empty? %>
                             <div class="tag-group-wrapper">
 
-                                <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i></span>
+                                <span class="icon <%= prop['label'] %>"><i class="fa" aria-hidden="true"></i></span>
 
-                                <span class="tag-group-header"><%= prop['label'] %></span>
+                                <span class="tag-group-header"><%= prop['label'] %>: </span>
 
                                 <% get_classificationAliases_for_classificationIDs(@dataSchema[key]).each do |classificationAlias| %>
                                     <span class="tag"><%= classificationAlias.name %></span>
