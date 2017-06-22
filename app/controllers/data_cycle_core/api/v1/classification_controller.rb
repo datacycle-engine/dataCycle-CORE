@@ -38,8 +38,8 @@ module DataCycleCore
       @per = params[:per] unless params[:per].blank?
       @per ||= @@default_per
 
-      total = query.count
-      pages = total.fdiv(@per.to_i).ceil
+      @total = query.count
+      pages = @total.fdiv(@per.to_i).ceil
 
       unless params[:page].blank?
         @page = params[:page]
