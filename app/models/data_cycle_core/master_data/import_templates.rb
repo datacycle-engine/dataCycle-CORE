@@ -2,10 +2,10 @@ module DataCycleCore
   module MasterData
     class ImportTemplates
 
-      def import(filename)
+      def import(filename, object)
         begin
           data_templates = YAML.load(File.open(filename.to_s))
-          iterate_templates(data_templates)
+          iterate_templates(data_templates, object)
         rescue Exception => e
           puts "could not access the file: #{filename}"
           puts e.message
@@ -15,7 +15,7 @@ module DataCycleCore
 
       def iterate_templates(data_templates)
         data_templates.each do |template|
-          data_set = DataCycleCore::CreativeWork
+          data_set = object
             .find_or_initialize_by(
               headline: template[:data][:name],
               description: template[:data][:description],
