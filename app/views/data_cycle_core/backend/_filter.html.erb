@@ -28,15 +28,15 @@
                         <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Märkte', display_label: 'Zielmarkt', classification_alias_id: nil %>
 
                         <%= render 'data_cycle_core/backend/partials/filter/sprache'%>
-
-                    <!--
+                    
                         <%= render 'data_cycle_core/backend/partials/filter/themenbereiche', tree_label: 'Inhaltstypen', display_label: 'Inhaltstyp', classification_alias_id: nil, show_selected: false %>
 
-                        <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Inhaltspools', display_label: 'Inhaltspool', classification_alias_id: nil %>
-                    -->
+                        <!--
+                        <%#= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Inhaltspools', display_label: 'Inhaltspool', classification_alias_id: nil %>
+                        -->
                     </ul>
                 </nav>
-
+                <button type="reset" id="reset-filter" class="button">Filter Zurücksetzen</button>
             </div>
         </div>
     </div>
