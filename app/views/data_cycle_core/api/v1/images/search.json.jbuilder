@@ -1,6 +1,8 @@
-I18n.with_locale(@language) do
-  json.images @images do |item|
-    json.partial! 'image', locals: {language: @language, image: item }
+json.images @images do |item|
+  item.translated_locales.each do |language|
+    I18n.with_locale(language) do
+      json.partial! 'image', locals: {language: language, image: item }
+    end
   end
 end
 
