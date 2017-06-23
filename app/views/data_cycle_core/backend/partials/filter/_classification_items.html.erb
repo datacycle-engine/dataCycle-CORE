@@ -4,7 +4,7 @@
     <label for="<%= item.id %>">
         <span class="title">
             <span class="inner-title"><%= item.name%></span>
-            <strong><%="("+item.sub_classification_alias.count.to_s+")" if item.sub_classification_alias.count > 0 %></strong>
+            <!--<strong><%="("+item.sub_classification_alias.count.to_s+")" if item.sub_classification_alias.count > 0 %></strong>-->
         </span>
         <% if item.sub_classification_alias.count > 0 %>
             <span class="icon"><i class="fa fa-angle-right" aria-hidden="true"></i></span>

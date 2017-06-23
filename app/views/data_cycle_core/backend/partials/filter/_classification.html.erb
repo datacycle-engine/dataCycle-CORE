@@ -5,7 +5,7 @@
 
     <%= render 'data_cycle_core/creative_works/partials/render/icon', icon_type: tree_label.downcase %>
 
-    <span class="title"><%=display_label%> <strong>(<%=types.count%>)</strong></span>
+    <span class="title"><%=display_label%><!-- <strong>(<%=types.count%>)</strong>--></span>
     <div>
         <ul class="split-list clearfix">
             <% types.sort{|a,b| a.name <=> b.name}.each do |item| %>
