@@ -44,6 +44,7 @@ module DataCycleCore
           end
         end
 
+        # validate nil,"",[],[nil],[""] as blank.
         def is_blank?(data)
           return true if data.blank?
           if data.is_a?(::Array)
