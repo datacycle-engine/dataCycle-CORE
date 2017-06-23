@@ -2,22 +2,34 @@
 
 <section>
 
-    <div class="row">
-        <div class="small-12">
-            <%= paginate @dataCycleObjects %>
-        </div>
-    </div>
+    <% if @dataCycleObjects.count == 0 %>
 
-    <% if @mode == 'list' %>
-        <%= render 'data_cycle_core/backend/partials/list', dataCycleObjects: @dataCycleObjects %>
+        <div class="row">
+            <div class="small-12">
+                <span class="no-results">Es wurden keine Themen für Ihre Filterkriterien gefunden. </span>
+            </div>
+        </div>
+
     <% else %>
-        <%= render 'data_cycle_core/backend/partials/grid', dataCycleObjects: @dataCycleObjects %>
-    <% end %>
 
-    <div class="row">
-        <div class="small-12">
-            <%= paginate @dataCycleObjects %>
+        <div class="row">
+            <div class="small-12">
+                <%= paginate @dataCycleObjects %>
+            </div>
         </div>
-    </div>
+
+        <% if @mode == 'list' %>
+            <%= render 'data_cycle_core/backend/partials/list', dataCycleObjects: @dataCycleObjects %>
+        <% else %>
+            <%= render 'data_cycle_core/backend/partials/grid', dataCycleObjects: @dataCycleObjects %>
+        <% end %>
+
+        <div class="row">
+            <div class="small-12">
+                <%= paginate @dataCycleObjects %>
+            </div>
+        </div>
+
+    <% end %>
 
 </section>
