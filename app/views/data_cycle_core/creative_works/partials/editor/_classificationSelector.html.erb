@@ -1,4 +1,4 @@
-<div class="form-element validation-container <%= key.split('[').last[0...-1] %>">
+<div class="form-element validation-container <%= key.split('[').last[0...-1] %>" tabindex="-1">
 
     <% @classification_tree_label = get_classifications_for_name prop['type_name'] unless prop['type_name'].nil? %>
 
