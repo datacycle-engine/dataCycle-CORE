@@ -44,10 +44,20 @@ module.exports.initialize = function () {
     });
   }
 
+  function clearForm() {
+    $(':input').not(':button, :submit, :reset, :hidden, :checkbox, :radio').val('');
+    $(':checkbox, :radio').prop('checked', false);
+  }
+
   function setup() {
     // Reset selected Tags
-    $(document).on('click', '#reset-filter', function () {
-      $('#primary_nav_wrap .your-choice.tags label').remove();
+    $(document).on('click', '#reset-filter', function (e) {
+      e.preventDefault();
+      var form = $(this).closest('#search-form');
+      var search = form.find('#search').val();
+      clearForm();
+      form.find('#search').val(search);
+      form.submit();
     });
 
     // remove your-choice tags on click
