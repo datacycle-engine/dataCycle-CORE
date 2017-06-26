@@ -5,6 +5,8 @@ class CreatePersons < ActiveRecord::Migration[5.0]
     create_table :persons, id: :uuid do |t|
       t.string :headline
       t.text :description
+      t.string :givenName
+      t.string :familyName
       t.jsonb :metadata
       t.boolean :template, null: false, default: false
       t.datetime :seen_at
