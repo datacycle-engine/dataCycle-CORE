@@ -2,7 +2,7 @@ module DataCycleCore
   class PersonsController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
     #load_and_authorize_resource         # from cancancan (authorize)
-    add_breadcrumb "Themenwelten", "", "/"
+    add_breadcrumb "Personen", "", "/"
 
     #layout "data_cycle_core/creative_works_edit"
 
@@ -25,12 +25,16 @@ module DataCycleCore
       end
 
       @dataSchema = @person.get_data_hash
+
+      #only for testing
+      @creativeWork = @person
+
       render layout: "data_cycle_core/creative_works_edit"
 
     end
 
     def new
-
+      @person = DataCycleCore::Person.new
     end
 
     def create
@@ -56,7 +60,7 @@ module DataCycleCore
     end
 
     def edit
-      @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
+      @creativeWork = DataCycleCore::Person.find(params[:id])
       set_breadcrumb_for @creativeWork
       add_breadcrumb '<i aria-hidden="true" class="fa fa-pencil"></i> Bearbeiten'.html_safe, "", creative_work_path(@creativeWork)
       @dataSchema = @creativeWork.get_data_hash
@@ -65,10 +69,10 @@ module DataCycleCore
     end
 
     def update
-      @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
+      @creativeWork = DataCycleCore::Person.find(params[:id])
       set_breadcrumb_for @creativeWork
       add_breadcrumb "", "Edit", creative_work_path(@creativeWork)
-      datahash = creative_work_params[:datahash]
+      datahash = person_params[:datahash]
 
       # add creator id
       datahash[:creator] = current_user[:id]
@@ -76,7 +80,7 @@ module DataCycleCore
 
       if valid.key?(:error) && !valid[:error].empty?
         flash[:error] = valid[:error]
-        redirect_to edit_creative_work_path(@creativeWork)
+        redirect_to edit_person_path(@creativeWork)
         return
       end
 
@@ -87,9 +91,9 @@ module DataCycleCore
       @creativeWork.update_attributes(update_params)
 
       if @creativeWork.save
-        flash[:success] = "CreativeWork updated"
+        flash[:success] = "Person updated"
         # redirect_to @creativeWork
-        redirect_to edit_creative_work_path(@creativeWork)
+        redirect_to edit_person_path(@creativeWork)
       else
         render 'edit'
       end
@@ -107,7 +111,7 @@ module DataCycleCore
     private
 
       def person_params
-        params.require(:person).permit(:datahash => [:givenName, :familyName])
+        params.require(:person).permit(:givenName, :familyName, :datahash => [])
         # params.require(:creative_work).permit!
       end
 
@@ -121,7 +125,7 @@ module DataCycleCore
         person.metadata = { 'validation' => validation }
         person.save
 
-        datahash = {'headline' => "#{creative_work_params[:givenName]} #{creative_work_params[:familyName]}", 'creator' => current_user[:id]}
+        datahash = {'headline' => "#{person_params[:givenName]} #{person_params[:familyName]}", 'creator' => current_user[:id]}
 
         # unless validation['properties']['data_pool'].nil?
         #   data_pool_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
@@ -151,9 +155,9 @@ module DataCycleCore
 
       end
 
-      def set_breadcrumb_for creativeWork
-        set_breadcrumb_for creativeWork.parent if creativeWork.parent
-        add_breadcrumb creativeWork.metadata['validation']['name'], creativeWork.content['headline'], creative_work_path(creativeWork.id)
+      def set_breadcrumb_for person
+        #set_breadcrumb_for creativeWork.parent if creativeWork.parent
+        add_breadcrumb person.headline, person_path(person.id)
       end
 
   end

@@ -9,6 +9,7 @@ DataCycleCore::Engine.routes.draw do
   get  '/settings',    to: 'backend#settings'
 
   resources :creative_works, only: [:index, :show, :new, :create, :edit, :update]
+  resources :persons, only: [:index, :show, :new, :create, :edit, :update]
 
   get  '/admin', to: 'dash_board#home'
   get  '/admin/download', to: 'dash_board#download'

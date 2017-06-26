@@ -2,10 +2,10 @@ module DataCycleCore
   module MasterData
     class ImportPersons
 
-      def import(filename)
+      def import(filename, object)
         begin
           data_templates = YAML.load(File.open(filename.to_s))
-          iterate_templates(data_templates)
+          iterate_templates(data_templates, object)
         rescue Exception => e
           puts "could not access the file: #{filename}"
           puts e.message
@@ -13,9 +13,9 @@ module DataCycleCore
         end
       end
 
-      def iterate_templates(data_templates)
+      def iterate_templates(data_templates, object)
         data_templates.each do |template|
-          data_set = DataCycleCore::Person
+          data_set = object
             .find_or_initialize_by(
               headline: template[:data][:name],
               description: template[:data][:description],
