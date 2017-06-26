@@ -487,12 +487,12 @@ module DataCycleCore
         author = data.has_key?('meta') && data['meta'].has_key?('author') ? data['meta']['author'].strip : nil
         duration = data.has_key?('time') && data['time'].has_key?('min') ? data['time']['min'] : nil
         difficulty = data.has_key?('rating') && data['rating'].has_key?('difficulty') ? data['rating']['difficulty'] : nil
-        content_hash = {
+        metadata_hash = {
           'author' => author,
           'duration' => duration,
           'difficulty' => difficulty
         }.compact
-        content_hash = nil if content_hash.blank?
+        metadata_hash = nil if metadata_hash.blank?
 
         return {
           'external_source_id' => @external_source_id,
@@ -514,7 +514,7 @@ module DataCycleCore
           'email' => email,
           'url' => url,
           'hoursAvailable' => hours_available,
-          'content' => content_hash
+          'metadata' => metadata_hash
         }
       end
 
