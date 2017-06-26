@@ -18,7 +18,7 @@ module DataCycleCore
             "type" => "classificationTreeLabel",
             "type_name" => "Bundesländer",
             "storage_type" => "classification_creative_works",
-            "storage_location" => "classification_creative_works"
+            "storage_location" => "classification_relation"
           }
           uuid = DataCycleCore::Classification.where(name: "Kärnten").first.id
           validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new([uuid],template_hash)
@@ -31,7 +31,7 @@ module DataCycleCore
             "type" => "classificationTreeLabel",
             "type_name" => "Bundesländer",
             "storage_type" => "classification_creative_works",
-            "storage_location" => "classification_creative_works"
+            "storage_location" => "classification_relation"
           }
           validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new(nil,template_hash)
           assert_equal(0, validator.error[:error].size)
@@ -48,7 +48,7 @@ module DataCycleCore
             "type" => "classificationTreeLabel",
             "type_name" => "Bundesländer",
             "storage_type" => "classification_creative_works",
-            "storage_location" => "classification_creative_works"
+            "storage_location" => "classification_relation"
           }
           uuid = DataCycleCore::Classification.where(name: "Kärnten").first.id
           validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new(uuid,template_hash)
@@ -61,7 +61,7 @@ module DataCycleCore
             "type" => "classificationTreeLabel",
             "type_name" => "Bundesländer",
             "storage_type" => "classification_creative_works",
-            "storage_location" => "classification_creative_works",
+            "storage_location" => "classification_relation",
             "validations" => {
               "max" => 1
             }
@@ -79,7 +79,7 @@ module DataCycleCore
             "type" => "classificationTreeLabel",
             "type_name" => "Bundesländer",
             "storage_type" => "classification_creative_works",
-            "storage_location" => "classification_creative_works",
+            "storage_location" => "classification_relation",
             "validations" => {
               "min" => 3
             }
@@ -98,7 +98,7 @@ module DataCycleCore
             "type" => "classificationTreeLabel",
             "type_name" => "Bundesländer",
             "storage_type" => "classification_creative_works",
-            "storage_location" => "classification_creative_works"
+            "storage_location" => "classification_relation"
           }
           uuid = DataCycleCore::Classification.where(name: "Kärnten").first.id
           uuid2 = DataCycleCore::Classification.where(name: "Steiermark").first.id
@@ -114,7 +114,7 @@ module DataCycleCore
             "type" => "classificationTreeLabel",
             "type_name" => "Bundesländer",
             "storage_type" => "classification_creative_works",
-            "storage_location" => "classification_creative_works",
+            "storage_location" => "classification_relation",
             "validations" => {
               "min" => 1,
               "max" => 5
@@ -134,7 +134,7 @@ module DataCycleCore
             "type" => "classificationTreeLabel",
             "type_name" => "Bundesländer",
             "storage_type" => "classification_creative_works",
-            "storage_location" => "classification_creative_works"
+            "storage_location" => "classification_relation"
           }
           uuid = DataCycleCore::Classification.where(name: "Kärnten").first.id
           uuid2 = DataCycleCore::Classification.where(name: "Steiermark").first.id
@@ -151,7 +151,7 @@ module DataCycleCore
             "type" => "classificationTreeLabel",
             "type_name" => "foo",
             "storage_type" => "classification_creative_works",
-            "storage_location" => "classification_creative_works"
+            "storage_location" => "classification_relation"
           }
           uuid = DataCycleCore::Classification.where(name: "Kärnten").first.id
           validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new(uuid,template_hash)
@@ -166,7 +166,7 @@ module DataCycleCore
             "type" => "classificationTreeLabel",
             "type_name" => "Bundesländer",
             "storage_type" => "classification_creative_works",
-            "storage_location" => "classification_creative_works"
+            "storage_location" => "classification_relation"
           }
           validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new("abcde",template_hash)
           assert_equal(1, validator.error[:error].size)
@@ -187,7 +187,7 @@ module DataCycleCore
             "type" => "classificationTreeLabel",
             "type_name" => "Bundesländer",
             "storage_type" => "classification_creative_works",
-            "storage_location" => "classification_creative_works"
+            "storage_location" => "classification_relation"
           }
           uuid = DataCycleCore::Classification.where(name: "Kärnten").first.id
           uuid2 = DataCycleCore::Classification.where(name: "Steiermark").first.id
@@ -203,7 +203,7 @@ module DataCycleCore
             "type" => "classificationTreeLabel",
             "type_name" => "Bundesländer",
             "storage_type" => "classification_creative_works",
-            "storage_location" => "classification_creative_works"
+            "storage_location" => "classification_relation"
           }
           validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new([""],template_hash)
           assert_equal(0, validator.error[:error].size)

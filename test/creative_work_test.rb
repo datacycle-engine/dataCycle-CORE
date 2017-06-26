@@ -15,85 +15,89 @@ module DataCycleCore
     end
 
     test "save proper CreativeWork data-set with hash method" do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Content-Einheit", description: "CreativeWork").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Thema", description: "CreativeWork").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
-      data_set.set_data_hash({"title" => "Dies ist ein Test!", "description" => "wtf is going on???"})
+      data_set.set_data_hash({"headline" => "Dies ist ein Test!", "description" => "wtf is going on???"})
       data_set.save
       expected_hash = {
-        "tags" => [],
-        "state" => [],
-        "title" => "Dies ist ein Test!",
-        "topics" => [],
-        "markets" => [],
-        "description" => "wtf is going on???"
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "tags"=>[],
+        "state"=>[],
+        "topics"=>[],
+        "markets"=>[],
+        "data_pool"=>[]
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact)
     end
 
     test "save CreativeWork with only Titel" do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Content-Einheit", description: "CreativeWork").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Thema", description: "CreativeWork").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
-      data_set.set_data_hash({"title" => "Dies ist ein Test!"})
+      data_set.set_data_hash({"headline" => "Dies ist ein Test!"})
       data_set.save
       expected_hash = {
-        "tags" => [],
-        "state" => [],
-        "title" => "Dies ist ein Test!",
-        "topics" => [],
-        "markets" => []
+        "headline" => "Dies ist ein Test!",
+        "tags"=>[],
+        "state"=>[],
+        "topics"=>[],
+        "markets"=>[],
+        "data_pool"=>[]
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact)
     end
 
     test "save CreativeWork with sub-properties" do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Content-Einheit", description: "CreativeWork").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Thema", description: "CreativeWork").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
-      data_set.set_data_hash({"title" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validTo" => "2017-06-01"}})
+      data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validUntil" => "2017-06-01"}})
       data_set.save
       expected_hash = {
-        "tags" => [],
-        "state" => [],
-        "title" => "Dies ist ein Test!",
-        "topics" => [],
-        "markets" => [],
+        "headline" => "Dies ist ein Test!",
         "validityPeriod" => {
           "validFrom" => "2017-05-01",
-          "validTo" => "2017-06-01"
-        }
+          "validUntil" => "2017-06-01"
+        },
+        "tags"=>[],
+        "state"=>[],
+        "topics"=>[],
+        "markets"=>[],
+        "data_pool"=>[]
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact)
     end
 
     test "save CreativeWork with sub-properties_tree" do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Content-Einheit", description: "CreativeWork").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Thema", description: "CreativeWork").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
-      data_set.set_data_hash({"title" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validTo" => "2017-06-01", "test" => {"test1" => 1, "test2" => 2}}})
+      error = data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validUntil" => "2017-06-01", "test" => {"test1" => 1, "test2" => 2}}})
       data_set.save
       expected_hash = {
-        "tags" => [],
-        "state" => [],
-        "title" => "Dies ist ein Test!",
-        "topics" => [],
-        "markets" => [],
+        "headline" => "Dies ist ein Test!",
         "validityPeriod" => {
           "validFrom" => "2017-05-01",
-          "validTo" => "2017-06-01"
-        }
+          "validUntil" => "2017-06-01"
+        },
+        "tags"=>[],
+        "state"=>[],
+        "topics"=>[],
+        "markets"=>[],
+        "data_pool"=>[]
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact)
-      data_set.set_data_hash({"title" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validTo" => "2017-06-01"},"test" => {"test1" => 1, "test2" => 2, "test3" => {"hallo" => "World"}} })
+      data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validUntil" => "2017-06-01"},"test" => {"test1" => 1, "test2" => 2, "test3" => {"hallo" => "World"}} })
       data_set.save
       assert_equal(expected_hash, data_set.get_data_hash.compact)
     end
@@ -115,24 +119,14 @@ module DataCycleCore
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
-      data_hash = {"headline" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validUntil" => "2017-06-01"}}
+      data_hash = {"headline" => "Dies ist ein Test!", "validityPeriod" => {"datePublished" => "2017-05-01", "validTo" => "2017-06-01"}}
       error = data_set.set_data_hash(data_hash)
-
-      assert_equal(1, error[:error].count)
-      assert_equal(23, error[:warning].count)
-      expected_hash = {
-        "headline" => "Dies ist ein Test!",
-        "access" => [],
-        "validityPeriod" => {
-          "datePublished" => nil,
-          "expires" => nil
-        }
-      }
-      assert_equal(expected_hash, data_set.get_data_hash.compact)
+      assert_equal(0, error[:error].count)
+      assert_equal(24, error[:warning].count)
     end
 
     test "save CreativeWork link to user_id" do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Content-Einheit", description: "CreativeWork").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Thema", description: "CreativeWork").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
@@ -144,15 +138,16 @@ module DataCycleCore
         password:"password"
       )
       uuid = DataCycleCore::User.first.id
-      data_set.set_data_hash({"title" => "Dies ist ein Test!", "creator" => uuid})
+      data_set.set_data_hash({"headline" => "Dies ist ein Test!", "creator" => uuid})
       data_set.save
       expected_hash = {
-        "tags" => [],
-        "state" => [],
-        "title" => "Dies ist ein Test!",
-        "topics" => [],
-        "markets" => [],
-        "creator" => uuid
+        "headline" => "Dies ist ein Test!",
+        "creator" => uuid,
+        "tags"=>[],
+        "state"=>[],
+        "topics"=>[],
+        "markets"=>[],
+        "data_pool"=>[]
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact)
     end

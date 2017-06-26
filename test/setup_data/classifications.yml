@@ -1,4 +1,6 @@
---- # classifications for oew top-classification is label for classificationstree
+---
+# classifications for oew top-classification is label for classificationstree
+# $$ for internal classifications
 - Inhaltstypen:
   - $$Text:
     - $$Artikel
@@ -24,10 +26,10 @@
   - $$Audio
 
 - Inhaltspools:
-  - Themenvorschläge
-  - Recherche
-  - Aktuelle Themen
-  - Archiv
+  - $$Themenvorschläge
+  - $$Recherche
+  - $$Aktuelle Themen
+  - $$Archiv
 
 - Ausgabekanäle:
   - Web:
@@ -234,7 +236,7 @@
       - Winterzauber
       - Legenden des Winters
       - Wintersonne
-      - Am Puls der Zeit
+      - Am Puls der Zeit
       - Kulturelles Erbe
       - Leidenschaft für Tradition
       - Stadtleben
@@ -263,7 +265,6 @@
       - Hauptkampagne:
         - Name der jeweiligen Kampagne
     - Besondere Empfehlung
-    - ICM Content
   - Partner:
     - Name des jeweiligen Partner (CRM)
   - Jahreszeiten:
