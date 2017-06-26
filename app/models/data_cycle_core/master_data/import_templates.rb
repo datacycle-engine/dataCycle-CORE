@@ -13,7 +13,7 @@ module DataCycleCore
         end
       end
 
-      def iterate_templates(data_templates)
+      def iterate_templates(data_templates, object)
         data_templates.each do |template|
           data_set = object
             .find_or_initialize_by(

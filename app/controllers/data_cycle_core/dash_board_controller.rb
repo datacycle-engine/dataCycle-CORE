@@ -27,14 +27,14 @@ module DataCycleCore
     end
 
     def import_templates
-      path = Rails.root.join('config','templates.yml')
+      path = Rails.root.join('config','data_definitions','creative_works.yml')
       MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::CreativeWork)
       flash[:notice] = "imported data types YAML file"
       redirect_to admin_path
     end
 
     def import_classifications
-      path = Rails.root.join('config','classifications.yml')
+      path = Rails.root.join('config','data_definitions','classifications.yml')
       MasterData::ImportClassifications.new.import(path.to_s)
       flash[:notice] = "imported basic classification trees from YAML file"
       redirect_to admin_path
