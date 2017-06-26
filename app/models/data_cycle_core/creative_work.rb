@@ -20,6 +20,9 @@ module DataCycleCore
     has_many :creative_work_places
     has_many :places, through: :creative_work_places
 
+    has_many :creative_work_persons
+    has_many :persons, through: :creative_work_persons
+
     acts_as_tree order: "position", foreign_key: "isPartOf"
 
     # custom setter

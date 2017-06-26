@@ -40,6 +40,13 @@ module DataCycleCore
       redirect_to admin_path
     end
 
+    def import_persons
+      path = Rails.root.join('config','persons.yml')
+      MasterData::ImportPersons.new.import(path.to_s)
+      flash[:notice] = "imported basic persons from YAML file"
+      redirect_to admin_path
+    end
+
     def logs
       @dataname = params[:dataname]
     end
