@@ -37,6 +37,6 @@ DataCycleCore::Engine.routes.draw do
   #dev routes for michi
   get '/demoarticle', to: 'creative_works#demoarticle'
   get '/demotopic', to: 'creative_works#demotopic'
-  get '/mediabrowser', to: 'creative_works#mediabrowser'
+  get '/objectbrowser', to: 'object_browser#show'
 
 end

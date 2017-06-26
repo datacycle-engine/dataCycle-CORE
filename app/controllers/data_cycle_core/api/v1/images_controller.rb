@@ -10,8 +10,8 @@ module DataCycleCore
       @per = params[:per] unless params[:per].blank?
       @per ||= @@default_per
 
-      total = query.count
-      pages = total.fdiv(@per.to_i).ceil
+      @total = query.count
+      pages = @total.fdiv(@per.to_i).ceil
 
       unless params[:page].blank?
         @page = params[:page]
@@ -34,9 +34,9 @@ module DataCycleCore
       @per = params[:per] unless params[:per].blank?
       @per ||= @@default_per
 
-      total = query.count
-      raise ActiveRecord::RecordNotFound.new("No images found for search-key(s): '#{params[:search]}' in language: '#{@language}'") if total == 0
-      pages = total.fdiv(@per.to_i).ceil
+      @total = query.count
+      raise ActiveRecord::RecordNotFound.new("No images found for search-key(s): '#{params[:search]}' in language: '#{@language}'") if @total == 0
+      pages = @total.fdiv(@per.to_i).ceil
 
       unless params[:page].blank?
         @page = params[:page]
