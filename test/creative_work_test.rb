@@ -1,8 +1,10 @@
 require 'test_helper'
 
 # load template, classifications for all tests
-template_yaml = Rails.root.join('..','setup_data','templates.yml')
-DataCycleCore::MasterData::ImportTemplates.new.import(template_yaml)
+creative_work_yaml = Rails.root.join('..','setup_data','creative_works.yml')
+DataCycleCore::MasterData::ImportTemplates.new.import(creative_work_yaml, DataCycleCore::CreativeWork)
+place_yaml = Rails.root.join('..','setup_data','places.yml')
+DataCycleCore::MasterData::ImportTemplates.new.import(place_yaml, DataCycleCore::Place)
 classification_yaml = Rails.root.join('..','setup_data','classifications.yml')
 DataCycleCore::MasterData::ImportClassifications.new.import(classification_yaml)
 
@@ -103,14 +105,15 @@ module DataCycleCore
     end
 
     test "save CreativeWork with sub-properties and invalid data" do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Content-Einheit", description: "CreativeWork").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Thema", description: "CreativeWork").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
-      error = data_set.set_data_hash({"title" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validTo" => "2017-16-01"}})
-      assert_equal(1, error[:error].count)
-      assert_equal(8, error[:warning].count)
+      error = data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validUntil" => "2017-16-01"}})
+      data_set.save
+      assert_equal(2, error[:error].count)
+      assert_equal(10, error[:warning].count)
     end
 
     test "save CreativeWork with sub-properties with wrong name and valid data" do
@@ -122,7 +125,7 @@ module DataCycleCore
       data_hash = {"headline" => "Dies ist ein Test!", "validityPeriod" => {"datePublished" => "2017-05-01", "validTo" => "2017-06-01"}}
       error = data_set.set_data_hash(data_hash)
       assert_equal(0, error[:error].count)
-      assert_equal(24, error[:warning].count)
+      assert_equal(23, error[:warning].count)
     end
 
     test "save CreativeWork link to user_id" do
