@@ -2,12 +2,13 @@ module DataCycleCore
   class PersonsController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
     #load_and_authorize_resource         # from cancancan (authorize)
-    add_breadcrumb "Personen", "", "/"
+    add_breadcrumb "Personen", "", "/persons"
 
     #layout "data_cycle_core/creative_works_edit"
 
     def index
-
+      @persons = DataCycleCore::Person.all().where(:template => false).order(updated_at: :desc)
+      @person = DataCycleCore::Person.new
     end
 
     def show
@@ -72,6 +73,7 @@ module DataCycleCore
       @creativeWork = DataCycleCore::Person.find(params[:id])
       set_breadcrumb_for @creativeWork
       add_breadcrumb "", "Edit", creative_work_path(@creativeWork)
+
       datahash = person_params[:datahash]
 
       # add creator id
@@ -111,7 +113,7 @@ module DataCycleCore
     private
 
       def person_params
-        params.require(:person).permit(:givenName, :familyName, :datahash => [])
+        params.require(:person).permit(:givenName, :familyName, :datahash => [:givenName, :familyName, :honorificPrefix, :telephone, :faxNumber, :email, :jobTitle])
         # params.require(:creative_work).permit!
       end
 
@@ -125,7 +127,7 @@ module DataCycleCore
         person.metadata = { 'validation' => validation }
         person.save
 
-        datahash = {'headline' => "#{person_params[:givenName]} #{person_params[:familyName]}", 'creator' => current_user[:id]}
+        datahash = {'givenName' => person_params[:givenName], 'familyName' => person_params[:familyName], 'creator' => current_user[:id]}
 
         # unless validation['properties']['data_pool'].nil?
         #   data_pool_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
@@ -134,15 +136,15 @@ module DataCycleCore
         #
         #   datahash['data_pool'] = [data_pool_classification.id] unless data_pool_classification.nil?
         # end
-        #
-        # #add data_type
-        # unless validation['properties']['data_type'].nil?
-        #   data_type_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
-        #       .where("classification_tree_labels.name = ?", validation['properties']['data_type']['type_name'])
-        #       .where("classification_aliases.name = ?", validation['properties']['data_type']['default_value']).first
-        #
-        #   datahash['data_type'] = [data_type_classification.id] unless data_type_classification.nil?
-        # end
+
+        #add data_type
+        unless validation['properties']['data_type'].nil?
+          data_type_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
+              .where("classification_tree_labels.name = ?", validation['properties']['data_type']['type_name'])
+              .where("classification_aliases.name = ?", validation['properties']['data_type']['default_value']).first
+
+          datahash['data_type'] = [data_type_classification.id] unless data_type_classification.nil?
+        end
 
         person.set_data_hash(datahash)
 
@@ -157,7 +159,7 @@ module DataCycleCore
 
       def set_breadcrumb_for person
         #set_breadcrumb_for creativeWork.parent if creativeWork.parent
-        add_breadcrumb person.headline, person_path(person.id)
+        add_breadcrumb person.metadata['validation']['name'], "#{person.givenName} #{person.familyName}", person_path(person.id)
       end
 
   end

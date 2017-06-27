@@ -3,8 +3,8 @@
 
     <%= form_for(@person) do |f| %>
         <%= hidden_field_tag 'template', 'Person' %>
-        <%= f.text_field :givenName, class: 'form-control' %>
-        <%= f.text_field :familyName, class: 'form-control' %>
+        <%= f.text_field :givenName, class: 'form-control', value:'' %>
+        <%= f.text_field :familyName, class: 'form-control', value:'' %>
         <%= f.submit "Erstellen", class: "button primary" %>
     <% end %>
 

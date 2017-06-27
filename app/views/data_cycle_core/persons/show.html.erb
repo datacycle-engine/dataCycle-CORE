@@ -20,21 +20,10 @@
 
             <div class="title">
 
-                <% if !@creativeWork.content.nil? && !@creativeWork.content['name'].blank? %>
-                    <%= @creativeWork.content['name'] %>
-                <% elsif  !@creativeWork.content.nil? && !@creativeWork.content['headline'].blank? %>
-                    <%= @creativeWork.content['headline'] %>
+                <% if !@creativeWork.givenName.nil? && !@creativeWork.nil? %>
+                    <%= "#{@creativeWork.givenName} #{@creativeWork.familyName}" %>
                 <% end %>
 
-            </div>
-
-            <div class="description">
-                <% if !@creativeWork[:description].nil? %>
-                    <%= @creativeWork.description.html_safe %>
-                <% end %>
-                <% if !@creativeWork.content.nil? && !@creativeWork.content['text'].nil? %>
-                    <%= @creativeWork.content['text'].html_safe %>
-                <% end %>
             </div>
 
             <%= render 'data_cycle_core/creative_works/partials/render/classificationAliases' %>
