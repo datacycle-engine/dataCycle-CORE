@@ -53,7 +53,12 @@ module DataCycleCore
               merge_errors(validator_object.error) unless validator_object.nil?
               next
             else
-              @error[:error].push "Object type \"#{key_item['label']}\" without specified \"properties\"."
+              # check if it is a linked data_type
+              if key_item.has_key?('name') && key_item.has_key?('description')
+                # TODO: hadle embedded data_types
+              else
+                @error[:error].push "Object type \"#{key_item['label']}\" is not an embedded data_type, nor has it \"properties\" specified."
+              end
             end
 
           end

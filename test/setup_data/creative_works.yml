@@ -254,10 +254,10 @@
           :format: boolean
       :contentLocation:
         :label: Ort
-        :type: embeddedLink
-        :type_name: places
-        :storage_type: string
-        :storage_location: metadata
+        :type: object
+        :storage_location: places
+        :name: contentLocation
+        :description: Place
       :width:
         :label: Breite
         :type: number

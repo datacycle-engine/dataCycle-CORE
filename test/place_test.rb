@@ -25,6 +25,7 @@ module DataCycleCore
       error = data_set.set_data_hash({"name" => "Dies ist ein Test!", "longitude" => 40.56, "latitude" => 13.13})
       data_set.save
       expected_hash = {
+        "id" => data_set.id,
         "name" => "Dies ist ein Test!",
         "longitude" => 40.56,
         "latitude"=> 13.13
@@ -42,6 +43,7 @@ module DataCycleCore
       error = data_set.set_data_hash({"name" => "Dies ist ein Test!", "longitude" => 40.56, "latitude" => 13.13, "location" => point})
       data_set.save
       expected_hash = {
+        "id" => data_set.id,
         "name" => "Dies ist ein Test!",
         "longitude" => 40.56,
         "latitude"=> 13.13,
@@ -75,6 +77,7 @@ module DataCycleCore
       })
       data_set.save
       expected_hash = {
+        "id" => data_set.id,
         "name" => "Dies ist ein Test!",
         "address" => "irgendwo im Nirgendwo 666",
         "longitude" => 40.56,

@@ -10,6 +10,7 @@ module DataCycleCore
         data_type = metadata['validation']
         data_hash = {}
         data_type['properties'].each do |key,value|
+          next if key == '@id'
           data_hash[key] = storage_cases_get(key,data_type['properties'][key])
         end
         data_hash
@@ -24,7 +25,7 @@ module DataCycleCore
       template_hash = metadata['validation']
       if validate?(data_hash)
         ActiveRecord::Base.transaction do
-          set_template_data_hash(template_hash['properties'], data_hash)
+          set_template_data_hash(data_hash, template_hash['properties'])
         end
       end
       validate(data_hash) # return error/warnings from validation
@@ -79,9 +80,10 @@ module DataCycleCore
       end
     end
 
-    def set_template_data_hash(properties, data_hash)
+    def set_template_data_hash(data_hash, properties)
       properties.each do |key,value|
-        storage_cases_set(key, data_hash[key], properties[key])
+        #puts " key ----> #{key} | value: #{value} || #{data_hash[key]} | #{data_hash}"
+        storage_cases_set(key, data_hash[key], value)
       end
     end
 
@@ -97,6 +99,10 @@ module DataCycleCore
         self.properties[key]
       when "classification_relation"
         get_relation_ids(properties["storage_type"], properties["type_name"])
+      when "key"
+        self.id
+      else
+        get_linked_data_type(properties['storage_location'], properties['name'], properties['description'])
       end
     end
 
@@ -113,6 +119,16 @@ module DataCycleCore
         save_to_jsonb(key, value, properties, 'properties')
       when 'classification_relation'
         set_relation_ids(properties['storage_type'], value, properties['type_name'])
+      when 'key'
+        # do nothing (keys are only for internal usage)
+      else
+        # maybe already evaluated with validations?
+        if properties.has_key?('name') && properties.has_key?('description')
+          # puts "object is stored in other table - a linked data_type --> #{key} | #{value}"
+          set_linked_data_type(value, properties['storage_location'], properties['name'], properties['description'])
+        else
+          puts "wrong data_type #{key} | #{value}"
+        end
       end
     end
 
@@ -142,7 +158,76 @@ module DataCycleCore
       data_hash
     end
 
+    def get_linked_data_type(table, name, description)
+      return_data = []
+      self.method(table).call.each do |item|
+        return_data.push(item.get_data_hash)
+      end
+      return_data
+    end
 
+    # TODO: set data to other table and write relation_table
+    # !!! check if entry already exists in table
+    # !!! check for translations (esp. before deleting)
+    def set_linked_data_type(data, table, name, description)
+      return if is_blank?(data)
+      ap data
+      puts "table: #{table}"
+      puts "name: #{name}"
+      puts "description: #{description}"
+
+
+      # figure out the relation name (alphabetic order from this_class + table )
+      tables = [ table, self.class.table_name ].sort
+      relation = tables[0].singularize+"_"+tables[1]
+
+      puts "relation: #{relation}"
+
+      # get validation template
+      template = ("DataCycleCore::"+table.classify).constantize.
+        find_by(template: true, headline: name, description: description)
+
+      data.each do |item|
+        if item.has_key?('@id')
+          #update
+          update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['@id'])
+          update_item.set_data_hash(data)
+          update_item.save
+        else
+          #insert
+
+          puts "insert_item: #{"DataCycleCore::"+table.classify}"
+
+          insert_item = ("DataCycleCore::"+table.classify).constantize.new
+          insert_item.metadata = { 'validation' => template.metadata['validation'] }
+          insert_item.save
+          insert_item.set_data_hash(item)
+          insert_item.save
+
+          # insert_relation
+          insert_relation = ("DataCycleCore::"+relation.classify).constantize.new
+
+          ap insert_relation
+          puts "#{self.class.table_name.singularize.foreign_key} = #{self.id}"
+          puts "#{table.singularize.foreign_key} = #{insert_item.id}"
+          insert_relation.method(self.class.table_name.singularize.foreign_key+"=").call(self.id)
+          insert_relation.method(table.singularize.foreign_key+"=").call(insert_item.id)
+          insert_relation.save
+          puts "saved"
+        end
+      end
+
+      # check if items at this particular language should be deleted
+    end
+
+    # validate nil,"",[],[nil],[""] as blank.
+    def is_blank?(data)
+      return true if data.blank?
+      if data.is_a?(::Array)
+        return true if data.length == 1 && data[0].blank?
+      end
+      return false
+    end
 
   end
 end

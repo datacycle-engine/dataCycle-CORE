@@ -16,6 +16,30 @@ module DataCycleCore
       assert_equal(data.class, DataCycleCore::CreativeWork)
     end
 
+    test "save CreativeWork with embedded object contentLocation" do
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      error = data_set.set_data_hash({
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [
+          {
+            "name" => "Testort",
+            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+            "longitude" => 13.10,
+            "latitude" => 25.30
+          }
+        ]
+      })
+      ap error
+      data_set.save
+      ap data_set.get_data_hash
+      ap data_set.places
+    end
+
     test "save proper CreativeWork data-set with hash method" do
       template = DataCycleCore::CreativeWork.where(template: true, headline: "Thema", description: "CreativeWork").first
       validation = template.metadata['validation']
@@ -117,15 +141,14 @@ module DataCycleCore
     end
 
     test "save CreativeWork with sub-properties with wrong name and valid data" do
-
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Thema", description: "CreativeWork").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_hash = {"headline" => "Dies ist ein Test!", "validityPeriod" => {"datePublished" => "2017-05-01", "validTo" => "2017-06-01"}}
       error = data_set.set_data_hash(data_hash)
       assert_equal(0, error[:error].count)
-      assert_equal(23, error[:warning].count)
+      assert_equal(13, error[:warning].count)
     end
 
     test "save CreativeWork link to user_id" do
