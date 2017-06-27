@@ -1,10 +1,10 @@
 module DataCycleCore
-  class Place < ApplicationRecord
+  class Place < DataHash
 
     # handle translations with gem Globalize
-    translates :name, :description, :addressLocality, :streetAddress,
+    translates :name, :addressLocality, :streetAddress,
       :postalCode, :addressCountry, :faxNumber, :telephone, :email,
-      :url, :hoursAvailable, :address
+      :url, :hoursAvailable, :address, :content, :properties
 
     # callbacks
     before_destroy :destroy_translations, prepend: true

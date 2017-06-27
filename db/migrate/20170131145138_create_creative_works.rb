@@ -5,7 +5,6 @@ class CreateCreativeWorks < ActiveRecord::Migration[5.0]
     I18n.with_locale(:de) do
       DataCycleCore::Place.create_translation_table!({
         name: :string,
-        description: :string,
         addressLocality: :string,
         streetAddress: :string,
         postalCode: :string,

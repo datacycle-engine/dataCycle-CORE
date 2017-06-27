@@ -289,13 +289,13 @@
         :type: string
         :storage_type: string
         :storage_location: metadata
+        # :validations:
+        #   :daterange:
+        #     :from: datePublished
+        #     :to: expires
       :validityPeriod:
         :label: Gültigkeitszeitraum
         :type: object
-        :validations:
-          :daterange:
-            :from: datePublished
-            :to: expires
         :storage_location: metadata
         :properties:
           :datePublished:
