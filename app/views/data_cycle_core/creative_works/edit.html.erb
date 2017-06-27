@@ -5,6 +5,8 @@
 
     <div id="edit-form">
 
+        <% set_key_prefix "creative_work[datahash]" %>
+
         <%= form_for @creativeWork, builder: DataCycleCore::CreativeWorksHelper::DataCycleFormBuilder do |f| %>
             <%= hidden_field_tag 'uuid', @creativeWork.id %>
 
