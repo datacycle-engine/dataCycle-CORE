@@ -19,7 +19,8 @@ DataCycleCore::Engine.routes.draw do
   get  'admin/import_persons', to: 'dash_board#import_persons'
   #mount RailsDb::Engine => '/db', :as => 'db'
 
-  match '/validatetest(/:id)', to: 'creative_works#validate_single_data', via: [:patch, :post]
+  match '/validatecreativework(/:id)', to: 'creative_works#validate_single_data', via: [:patch, :post]
+  match '/validateperson(/:id)', to: 'persons#validate_single_data', via: [:patch, :post]
 
 
   defaults format: :json do
