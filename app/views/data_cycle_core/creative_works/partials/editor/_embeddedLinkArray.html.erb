@@ -1,5 +1,5 @@
 <% object = ("DataCycleCore::"+("#{prop['type_name']}".classify)).constantize %>
-<div class="form-element validation-container <%= key.split('[').last[0...-1] %>">
+<div class="form-element validation-container <%= key.split('[').last[0...-1] %>" tabindex="-1">
 	<div class="object-browser" id="<%= sanitize_to_id(key) %>">
 	  <%= label_tag(key, prop['label']) %>
 	  <input type="text" disabled="disabled" />

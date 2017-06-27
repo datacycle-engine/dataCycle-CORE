@@ -5,9 +5,16 @@ module.exports.initialize = function () {
     var form = document.querySelector('#edit-form form');
 
     $(form).find('.validation-container').on("focusout", function (ev) {
-      check_items_and_validate(form, this);
+      setTimeout(function () {
+        if ($(this).find(':focus').length == 0) {
+          check_items_and_validate(form, this);
+        }
+      }.bind(this), 50);
+
     });
-    form.onsubmit = function () { return submit_creative_work_form(form); };
+    form.onsubmit = function () {
+      return submit_creative_work_form(form);
+    };
   }
 
   function submit_creative_work_form(form) {
