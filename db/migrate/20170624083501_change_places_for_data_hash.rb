@@ -3,9 +3,9 @@ class ChangePlacesForDataHash < ActiveRecord::Migration[5.0]
     rename_column :places, :content, :metadata
     add_column :places, :template, :boolean, default: false
     add_column :places, :headline, :string
-    change_column :places, :description, :text
+    add_column :places, :description, :text
 
-    #remove_column :place_translations, :description, :text
+    remove_column :place_translations, :description, :text
     add_column :place_translations, :content, :jsonb
     add_column :place_translations, :properties, :jsonb
   end
