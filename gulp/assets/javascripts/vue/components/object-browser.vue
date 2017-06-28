@@ -4,7 +4,7 @@
       <slot name="item" v-for="item in existingItems" :item="item" :remove="remove"></slot>
     </div>
     <transition name="fade">
-      <object-browser-modal v-if="showModal" :object-type="objectType" url="/objectbrowser" :preChosenItems="existingItems" @close="showModal = false">
+      <object-browser-modal v-if="showModal" v-on:save="save" :object-type="objectType" url="/objectbrowser" :preChosenItems="existingItems" @close="showModal = false">
         <template scope="props" slot="item">
           <slot name="item" :item="props.item"></slot>
         </template>
@@ -37,7 +37,7 @@ export default {
       existingItems: []
     }
   },
-  mounted() {
+  created() {
     this.existingItems = this.existing;
   },
   methods: {
@@ -52,6 +52,9 @@ export default {
         return item.id == chosen.id;
       });
     },
+    save(data) {
+      this.existingItems = data;
+    }
   }
 }
 </script>

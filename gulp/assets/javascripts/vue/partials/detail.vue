@@ -8,10 +8,6 @@
       </dd>
       <dt v-if="item.content.headline != undefined">Name: </dt>
       <dd v-if="item.content.headline != undefined">{{ item.content.headline }}</dd>
-      <dt v-if="item.givenName != undefined">Name: </dt>
-      <dd v-if="item.givenName != undefined">{{ item.givenName }}</dd>
-      <dt v-if="item.familyName != undefined">Familienname: </dt>
-      <dd v-if="item.familyName != undefined">{{ item.familyName }}</dd>
       <dt v-if="item.metadata.url != undefined">Datei Url: </dt>
       <dd v-if="item.metadata.url != undefined">
         <a :href="item.metadata.url " target="_blank ">{{ item.metadata.url }}</a>

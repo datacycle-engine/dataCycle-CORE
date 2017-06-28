@@ -7,7 +7,7 @@
       <button class="close-object-browser" @click.prevent="$emit('close')">
         <i aria-hidden="true" class="fa fa-times"></i>
       </button>
-      <button class="button save-object-browser" @click.prevent="$emit('close')">
+      <button class="button save-object-browser" @click="save">
         <span class="button-title" v-if="totalChosen > 0">
           <strong>{{ totalChosen }}</strong>{{ totalChosen > 0 ? " Element" + (totalChosen == 1 ? "" : "e") + " auswählen" : "Keine Elemente auswählen" }}</span>
         <span class="button-title" v-else>Keine Elemente auswählen</span>
@@ -66,7 +66,7 @@ export default {
     }
   },
   mounted() {
-    this.chosenItems = this.preChosenItems;
+    //this.chosenItems = this.preChosenItems;
     var $modal = $('#object-browser').foundation();
     $modal.foundation('open');
     $('.reveal-blur').addClass("show");
@@ -86,7 +86,7 @@ export default {
       currentPage: 1,
       activeItem: {},
       totalItems: 0,
-      chosenItems: []
+      chosenItems: this.preChosenItems.slice(0)
     }
   },
   methods: {
@@ -114,8 +114,15 @@ export default {
     addActive() {
       this.items.forEach(function (item) {
         if (this.compareIndex(this.chosenItems, item) >= 0) item.active = true;
-        else item.active = false;
+        else {
+          if (this.objectType == "Autor") item.content.headline = item.givenName + " " + item.familyName;
+          item.active = false;
+        }
       }, this);
+    },
+    save() {
+      this.$emit('save', this.chosenItems);
+      this.$emit('close');
     }
   },
   asyncComputed: {

@@ -19,7 +19,7 @@ module DataCycleCore
 
       elsif @type == "Autor"
 
-        query = DataCycleCore::Person.all
+        query = DataCycleCore::Person.all().where(:template => false).order(updated_at: :desc)
 
       else
 
