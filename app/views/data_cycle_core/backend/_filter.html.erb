@@ -16,6 +16,27 @@
     </div>
     <div class="main-filters row expanded">
         <div class="column">
+        <div class="row">        
+        <% ['Themenbereiche', 'Bundesländer', 'Märkte', 'Inhaltstypen'].each do |label| %>
+        <% selected_classifications = get_classifications_for_id(@classification_array, label)  %>
+        <div class="your-choice tags">
+            <span class="icon">
+                <i class="fa fa-check" aria-hidden="true"></i><%= label %>:
+            </span>
+
+            <% unless selected_classifications.nil? %>
+                <% selected_classifications.each do |selected| %>
+                    <label for="<%= selected.id %>">
+                        <a class="tag">
+                            <%= selected.name %><i class="fa fa-times" aria-hidden="true"></i>
+                        </a>
+                    </label>
+                <% end %>
+            <% end %>
+
+        </div>
+<% end %>
+        </div>
             <div class="row">
 
                 <nav id="primary_nav_wrap">
