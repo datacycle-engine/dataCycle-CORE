@@ -39,6 +39,11 @@ export default {
   },
   created() {
     this.existingItems = this.existing;
+    if (this.objectType == "Autor") {
+      for (var i = 0; i < this.existingItems.length; i++) {
+        this.existingItems[i].content.headline = this.existingItems[i].givenName + " " + this.existingItems[i].familyName;
+      }
+    }
   },
   methods: {
     remove(item) {
