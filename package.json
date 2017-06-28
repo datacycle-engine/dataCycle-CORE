@@ -64,6 +64,7 @@
     "turbolinks": "^5.0.0",
     "vinyl-source-stream": "~1.1.0",
     "vue": "^2.2.6",
+    "vue-async-computed": "^3.2.1",
     "vueify": "^9.4.1",
     "watchify": "^3.9.0"
   }

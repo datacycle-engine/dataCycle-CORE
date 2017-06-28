@@ -1,21 +1,44 @@
 <% object = ("DataCycleCore::"+("#{prop['type_name']}".classify)).constantize %>
-<div class="form-element validation-container <%= key.split('[').last[0...-1] %>" tabindex="-1">
+<div class="form-element validation-container <%= key.split('[').last[0...-1] %>">
 	<div class="object-browser" id="<%= sanitize_to_id(key) %>">
 	  <%= label_tag(key, prop['label']) %>
 	  <input type="text" disabled="disabled" />
 	  <div class="media-thumbs">
-		<% unless value.blank? %>
-		  <% value.each do |item| %>
-		  	<% image = object.where(id: item).first %>
-		  	<div class="media thumbnail" style="background-image: url(<%= image.metadata['thumbnailUrl'] %>);">
-			    <a class="delete-thumbnail" href="#"><i aria-hidden="true" class="fa fa-times"></i></a>
-			    <span class="caption"></span><input type="hidden" name="<%= key %>[]" value="<%= image.id %>">
-		    </div>
-		  <% end %>
-		<% end %>
+
 		<% if prop['label'] == 'Bilder' %>
-		  	<button class="button mediabrowser" data-media-type="<%= prop['label'] %>"><i class="fa fa-plus"></i></button>
-		<% end %>
+			<% existing = [] %>
+			<% unless value.blank? %>
+				<% value.each do |item| %>
+					<% image = object.where(id: item).first %>
+					<% existing << image %>
+				<% end %>
+			<% end %>				
+			<object-browser :existing="<%= existing.to_json %>" :object-type="'<%= prop['label'] %>'">
+				<template scope="props" slot="item">
+					<div v-if="props.item != undefined" class="media thumbnail" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnailUrl+')' }">
+						<a slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
+						<span class="caption"></span><input type="hidden" name="<%= key %>[]" :value="props.item.id">
+					</div>
+				</template>
+			</object-browser>
+
+		<% elsif prop['label'] == 'Autor' %>
+			<% existing = [] %>
+			<% unless value.blank? %>
+				<% value.each do |item| %>
+					<% image = object.where(id: item).first %>
+					<% existing << image %>
+				<% end %>
+			<% end %>
+			<object-browser :existing="<%= existing.to_json %>" :object-type="'<%= prop['label'] %>'">
+				<template scope="props" slot="item">
+					<div v-if="props.item != undefined" class="media thumbnail" :style="{ backgroundImage: 'url('+props.item+')' }">
+						<a slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
+						<span class="name">{{ props.item.givenName }} {{ props.item.familyName }}</span>
+						<input type="hidden" name="<%= key %>[]" :value="props.item.id">
+					</div>
+				</template>
+			</object-browser>		<% end %>
 		</div>
   </div>
 </div>

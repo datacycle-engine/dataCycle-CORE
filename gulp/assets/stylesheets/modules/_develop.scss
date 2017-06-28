@@ -1,27 +1,32 @@
 /* todo: merge styles */
+
+
 /* dev styles */
 
 .thumbs {
 	.item {
 		margin: 0.3rem;
-	  text-align: right;			
+		text-align: right;
 		img {
 			max-height: 10rem;
 		}
 		.delete-item {
-	    position: relative;
-	    display: inline-block;
+			position: relative;
+			display: inline-block;
 		}
 	}
 }
+
 #mediabrowser {
-	h4, #media-info {
+	h4,
+	#media-info {
 		backface-visibility: hidden;
 	}
 	#media-info {
 		overflow-y: scroll;
 	}
 }
+
 .detail-header {
 	.gueltigkeit {
 		margin-top: 1rem;
@@ -57,7 +62,155 @@
 		}
 	}
 }
+
 .no-results {
 	display: block;
 	text-align: center;
+}
+
+// Objectbrowser
+#object-browser {
+	margin: 8.1rem 0 0 0 !important;
+	outline: none;
+	padding: 0 0 10rem 0;
+	.object-browser-header {
+		#object-browser-search {
+			margin-top: 0.5rem;
+		}
+		.close-object-browser {
+			position: absolute;
+			right: 1rem;
+			top: 1rem;
+			margin: 0.5rem;
+			cursor: pointer;
+			.fa {
+				color: $dark-gray;
+				font-size: 1.5rem;
+				&:hover,
+				&:focus {
+					color: $black;
+				}
+			}
+		}
+		.save-object-browser {
+			position: absolute;
+			right: 4rem;
+			top: 1rem;
+			&:hover,
+			&:focus {
+				.chosen-items {
+					display: block;
+				}
+			}
+		}
+		-webkit-backface-visibility: hidden;
+		backface-visibility: hidden;
+		z-index: 2;
+		color: $primary-color;
+		font-size: 1.2rem;
+		position: fixed;
+		width: calc(100% - 400px);
+		padding: 1rem 1rem 1rem 1rem;
+		background: linear-gradient(to bottom, white 0%, rgba(255, 255, 255, 0.78) 50%, rgba(255, 255, 255, 0) 100%);
+		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#00ffffff', GradientType=0);
+		.chosen-items {
+			display: none;
+			padding-top: 1rem;
+			.chosen-item {
+				padding: 0.5rem 2rem 0.5rem 0;
+				text-align: left;
+				position: relative;
+				.remove {
+					position: absolute;
+					right: 0;
+					top: 0.25rem;
+					display: block;
+					width: 1.5rem;
+					height: 1.5rem;
+					text-align: center;
+					line-height: 1.5rem;
+					&:hover,
+					&:focus {
+						color: red;
+					}
+				}
+			}
+		}
+	}
+	.pagination {
+		text-align: center;
+		width: 100%;
+		margin-top: 1rem;
+		clear: both;
+		.active {
+			a {
+				color: $primary-color;
+			}
+		}
+	}
+	.items {
+		padding: 6rem 1rem 1rem 1rem;
+		margin-right: 400px;
+		.thumbnail {
+			border: none;
+			display: block;
+			overflow: hidden;
+			width: 229px;
+			height: 157px;
+			background-position: center center;
+			background-size: contain;
+			background-repeat: no-repeat;
+			margin: 0.3rem;
+			box-shadow: none;
+			outline: none;
+			a.delete-thumbnail {
+				display: none;
+			}
+		}
+		.loading {
+			text-align: center;
+			padding: 5rem;
+			.fa {
+				font-size: 3rem;
+				color: $light-gray;
+			}
+		}
+		.no-entries {
+			text-align: center;
+		}
+		.item {
+			&.active {
+				border-color: $primary-color;
+				background-color: $primary-color;
+			}
+			display: block;
+			float: left;
+			background-color: white;
+			overflow: hidden;
+			margin: 0 1rem 1rem 0;
+			border: solid 4px #fefefe;
+			border-radius: 0;
+			box-shadow: 0 0 0 1px rgba(51, 51, 51, 0.2);
+			transition: box-shadow 200ms ease-out;
+			cursor: pointer;
+			&:hover,
+			&:focus {
+				box-shadow: 0 0 6px 1px rgba($primary-color, 0.5);
+			}
+		}
+	}
+	.item-info {
+		width: 400px;
+		background: $white;
+		position: fixed;
+		right: 0;
+		top: 8.1rem;
+		bottom: 0;
+		padding: 3.5rem 1.5rem 1.5rem 1.5rem;
+		background: $white;
+		overflow-y: scroll;
+		-webkit-backface-visibility: hidden;
+		backface-visibility: hidden;
+		z-index: 3;
+	}
 }
