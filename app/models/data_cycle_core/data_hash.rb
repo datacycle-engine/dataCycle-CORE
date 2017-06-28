@@ -166,22 +166,12 @@ module DataCycleCore
       return_data
     end
 
-    # TODO: set data to other table and write relation_table
-    # !!! check if entry already exists in table
-    # !!! check for translations (esp. before deleting)
     def set_linked_data_type(data, table, name, description)
       return if is_blank?(data)
-      ap data
-      puts "table: #{table}"
-      puts "name: #{name}"
-      puts "description: #{description}"
-
 
       # figure out the relation name (alphabetic order from this_class + table )
       tables = [ table, self.class.table_name ].sort
       relation = tables[0].singularize+"_"+tables[1]
-
-      puts "relation: #{relation}"
 
       # get validation template
       template = ("DataCycleCore::"+table.classify).constantize.
@@ -217,23 +207,18 @@ module DataCycleCore
       available_update_item_keys = available_update_items.map{|item| item.id}
       potentially_delete = available_update_item_keys - to_update_item_keys
 
-      puts "found relations:"
-      ap available_update_item_keys
-      puts "updated relations"
-      ap to_update_item_keys
-      puts "potentially_delete:"
-      ap potentially_delete
-
       potentially_delete.each do |key|
         item = ("DataCycleCore::"+table.classify).constantize.find_by(id: key)
         translations = item.translated_locales
-        puts "available translations for #{key}: #{translations.pretty_inspect}"
         if (translations-[update_language]).count == 0
-          puts "find relation and destroy it"
+          # find relation and destroy it
           self.method(table).call.find_by(id: key).destroy
           ("DataCycleCore::"+relation.classify).constantize.
             find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
             destroy
+        else
+          # only delete particular translation !
+          item.translation.delete
         end
       end
       self.method(table).call.reload # MO: force reload of the relation, otherwise cached data can obsure the next get_data_hash

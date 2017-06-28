@@ -189,21 +189,6 @@ module DataCycleCore
       }
       expected_hash["contentLocation"].push(returned_data_hash["contentLocation"][1])
       returned_data_hash = data_set.get_data_hash
-
-      puts "all_place_ids: #{DataCycleCore::Place.all.pluck(:id)}"
-      puts "place_rel_ids: #{data_set.places.ids}"
-      puts "all_CWP_ids:   #{DataCycleCore::CreativeWorkPlace.all.pluck(:place_id, :creative_work_id)}"
-      puts "creative_W_id: #{data_set.id}"
-      puts "#{DataCycleCore::Place.all.map{|item| [item.id, item.name]}}"
-
-
-
-
-
-
-      puts "create new object"
-      test_data = DataCycleCore::CreativeWork.find_by(id: data_set.id)
-      ap test_data.get_data_hash.compact
       assert_equal(expected_hash, returned_data_hash.compact)
     end
 
