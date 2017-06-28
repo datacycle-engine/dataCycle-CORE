@@ -1,0 +1,29 @@
+<div id="new-object-circle">
+    <a data-toggle="new-object" class="button-prime"><i class="fa fa-plus" aria-hidden="true"></i></a>
+    <div class="reveal" id="new-object" data-reveal data-append-to="#new-object-circle" data-v-offset="auto">
+        <a class="option last" href="#" data-open="newPerson"><i class="fa fa-folder-open-o" aria-hidden="true"></i>Neue Person erstellen</a>
+    </div>
+</div>
+
+<!-- testing -->
+
+<% if !@person.nil? %>
+
+    <div class="reveal" id="newPerson" data-reveal>
+        <h3>Neue Person erstellen</h3>
+
+        <%= form_for :person, :url => {:action => "create"} do |f| %>
+
+            <%= hidden_field_tag 'template', 'Person' %>
+            <%= f.text_field :givenName, class: 'form-control', value:'' %>
+            <%= f.text_field :familyName, class: 'form-control', value:'' %>
+            <%= f.submit "Erstellen", class: "button primary" %>
+
+        <% end %>
+
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+<% end %>

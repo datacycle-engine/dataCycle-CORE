@@ -179,7 +179,7 @@ module DataCycleCore
         set_data['address'] = data_hash['address']
         set_data['longitude'] = data_hash['geo']['longitude'] unless data_hash['geo'].blank?
         set_data['latitude'] = data_hash['geo']['latitude'] unless data_hash['geo'].blank?
-        unless set_data['longitude'].blank? || set_data['latitude']
+        unless set_data['longitude'].blank? || set_data['latitude'].blank?
           set_data['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(set_data['longitude'].to_f, set_data['latitude'].to_f)
         end
         set_data['external_source_id'] = @external_source_id

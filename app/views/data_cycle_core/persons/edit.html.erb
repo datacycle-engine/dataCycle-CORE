@@ -5,7 +5,7 @@
 
     <div id="edit-form">
 
-        <% set_key_prefix "creative_work[datahash]" %>
+        <% set_key_prefix "person[datahash]" %>
 
         <%= form_for @creativeWork, builder: DataCycleCore::CreativeWorksHelper::DataCycleFormBuilder do |f| %>
             <%= hidden_field_tag 'uuid', @creativeWork.id %>
@@ -14,7 +14,7 @@
                 <div class="row expanded">
                     <div class="column">
                         <div class="edit-headline">
-                            <i class="fa fa-pencil" aria-hidden="true"></i> <%=@creativeWork.metadata['validation']['name']%> bearbeiten
+                            <i class="fa fa-pencil" aria-hidden="true"></i> <%= @creativeWork.metadata['validation']['name']%> bearbeiten
                         </div>
                         <ul>
                             <!--<li>-->
@@ -98,6 +98,45 @@
             </div>
 
         <% end %>
+
+        <div class="reveal full" id="mediabrowser" data-reveal data-overlay="false">
+          <h4>
+            <i class="fa fa-files-o" aria-hidden="true"></i>Medien hinzufügen
+            <button class="close-button" data-close aria-label="Close reveal" type="button"><span aria-hidden="true"><i aria-hidden="true" class="fa fa-times"></i></span></button>
+          </h4>
+          <div id="media-content"></div>
+          <div id="media-info">
+               <h5>Details</h5>
+                <dl>
+                  <dt></dt>
+                  <dd class="add-metadata" id="thumb-url"></dd>
+
+                  <dt>Datei URL</dt>
+                  <dd class="add-metadata" id="media-file-url"></dd>
+
+                  <dt>Caption</dt>
+                  <dd class="add-metadata" id="media-name"></dd>
+
+                  <dt>Format</dt>
+                  <dd class="add-metadata" id="media-format"></dd>
+
+                  <dt>Abmessungen</dt>
+                  <dd class="add-metadata" id="media-dimensions"></dd>
+
+                  <dt>Dateigröße</dt>
+                  <dd class="add-metadata" id="media-size"></dd>
+
+                  <dt>Lizenz</dt>
+                  <dd class="add-metadata" id="media-license"></dd>
+
+                  <dt>Erstellt</dt>
+                  <dd class="add-metadata" id="media-date-created"></dd>
+
+                  <dt>Bearbeitet</dt>
+                  <dd class="add-metadata" id="media-date-modified"></dd>
+                </dl>
+          </div>
+        </div>
 
     </div>
 </div>

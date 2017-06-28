@@ -206,6 +206,10 @@ module DataCycleCore
         data_hash['tags'] = parent_data_hash['tags']
         #state
         data_hash['state'] = parent_data_hash['state']
+        #kind
+        data_hash['kind'] = parent_data_hash['kind']
+        #season
+        data_hash['season'] = parent_data_hash['season']
 
         return data_hash.compact!
 

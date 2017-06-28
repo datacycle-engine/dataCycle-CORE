@@ -1,8 +1,8 @@
 // Add Validation to Form Elements
 module.exports.initialize = function () {
 
-  if ($('form.edit_creative_work').html() != undefined) {
-    var form = document.querySelector('form.edit_creative_work');
+  if ($('#edit-form form').html() != undefined) {
+    var form = document.querySelector('#edit-form form');
 
     $(form).find('.validation-container').on("focusout", function (ev) {
       setTimeout(function () {
@@ -70,31 +70,37 @@ module.exports.initialize = function () {
     $(item).closest('.validation-container').removeClass('has-error');
 
     var uuid = $(form).find('input#uuid').val();
-    var validation_url = /validatetest/;
-    var url = validation_url + uuid;
 
     var formdata = $(item).serializeArray();
 
     is_creative_work = new RegExp('^' + 'creative_work', 'i');
+    is_person = new RegExp('^' + 'person', 'i');
+
+    if (is_creative_work.test(formdata[0].name)) {
+      var validation_url = /validatecreativework/;
+    }else if (is_person.test(formdata[0].name)) {
+      var validation_url = /validateperson/;
+    }else{
+      return false;
+    }
+
+    var url = validation_url + uuid;
 
     isValid = true;
 
-    if (is_creative_work.test(formdata[0].name)) {
-
-      $.ajax({
-        type: "POST",
-        url: url,
-        data: $.param(formdata), // serializes the form's elements.
-        async: false,
-        success: function (data) {
-          if (data.error.length > 0) {
-            $(item).closest('.validation-container').append(render_error_msg(data, item));
-            $(item).closest('.validation-container').addClass('has-error');
-            isValid = false;
-          }
+    $.ajax({
+      type: "POST",
+      url: url,
+      data: $.param(formdata), // serializes the form's elements.
+      async: false,
+      success: function (data) {
+        if (data.error.length > 0) {
+          $(item).closest('.validation-container').append(render_error_msg(data, item));
+          $(item).closest('.validation-container').addClass('has-error');
+          isValid = false;
         }
-      });
-    }
+      }
+    });
 
     return isValid;
   }

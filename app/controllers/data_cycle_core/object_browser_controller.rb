@@ -8,9 +8,26 @@ module DataCycleCore
       @language = params[:language] unless params[:language].blank?
       @language ||= "de"
 
-      query = DataCycleCore::Filter::ImageQueryBuilder.new
-      query = query.with_locale(@language)
-      query = query.fulltext_search(params[:search]) unless params[:search].blank?
+      @type = params[:type] unless params[:type].blank?
+      @type ||= "Bilder"
+
+      if @type == "Bilder"
+
+        query = DataCycleCore::Filter::ImageQueryBuilder.new.only_images
+        query = query.with_locale(@language)
+        query = query.fulltext_search(params[:search]) unless params[:search].blank?
+
+      elsif @type == "Autor"
+
+        query = DataCycleCore::Person.all
+
+      else
+
+        query = DataCycleCore::Filter::ImageQueryBuilder.new
+        query = query.with_locale(@language)
+        query = query.fulltext_search(params[:search]) unless params[:search].blank?
+      
+      end
 
       @per = params[:per] unless params[:per].blank?
       @per ||= @@default_per
@@ -27,7 +44,7 @@ module DataCycleCore
 
       @images = query.page(@page).per(@per)
 
-      render :json => @images
+      render :json => { results: @images, total: total }
     end
 
   end

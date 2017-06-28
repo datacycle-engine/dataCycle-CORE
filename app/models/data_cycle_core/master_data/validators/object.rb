@@ -7,6 +7,7 @@ module DataCycleCore
             'object' => Validators::Object,
             'string' => Validators::String,
             'number' => Validators::Number,
+            'geographic' => Validators::Geographic,
             'embeddedLink' => Validators::EmbeddedLink,             # only one or zero links allowed
             'embeddedLinkArray' => Validators::EmbeddedLinkArray,   # arbitray number of links to the same table allowed
             'classificationTreeLabel' => Validators::ClassificationTreeLabel
@@ -62,10 +63,12 @@ module DataCycleCore
       private
 
         def daterange(data_hash, template_hash)
+          # ap data_hash
+          # ap template_hash
           if template_hash.blank? || template_hash['from'].blank? || template_hash['to'].blank?
             @error[:error].push 'No fields for from-date and/or to-date specified.'
-          elsif !data_hash.has_key?(template_hash['from']) || !data_hash.has_key?(template_hash['to'])
-            @error[:error].push 'Fields specified in the validations are not available in the given data.'
+          # elsif !data_hash.has_key?(template_hash['from']) || !data_hash.has_key?(template_hash['to'])  # if we want an error when not all data are given
+          #   @error[:error].push 'Fields specified in the validations are not available in the given data.'
           else
             if data_hash[template_hash['from']].blank?
               @error[:warning].push 'No data for from-date specified, assuming from-date of 1970-01-01.'

@@ -32,7 +32,7 @@
                 <% if !@creativeWork[:description].nil? %>
                     <%= @creativeWork.description.html_safe %>
                 <% end %>
-                <% if !@creativeWork.content['text'].nil? %>
+                <% if !@creativeWork.content.nil? && !@creativeWork.content['text'].nil? %>
                     <%= @creativeWork.content['text'].html_safe %>
                 <% end %>
             </div>

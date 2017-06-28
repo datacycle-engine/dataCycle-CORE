@@ -1,6 +1,6 @@
 module DataCycleCore
   module MasterData
-    class ImportTemplates
+    class ImportPersons
 
       def import(filename, object)
         begin

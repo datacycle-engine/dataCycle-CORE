@@ -12,6 +12,10 @@ module DataCycleCore
 
     end
 
+    def set_key_prefix(prefix)
+      @@key_prefix = prefix
+    end
+
     def is_writable(permissions)
       if !permissions['read_write'].nil? && permissions['read_write'] == true
         return true
