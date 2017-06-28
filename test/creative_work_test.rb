@@ -22,23 +22,191 @@ module DataCycleCore
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
-      error = data_set.set_data_hash({
+      data_hash = {
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [
-          {
+        "contentLocation" => [{
             "name" => "Testort",
             "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
             "longitude" => 13.10,
             "latitude" => 25.30
-          }
-        ]
-      })
-      ap error
+        }]
+      }
+      error = data_set.set_data_hash(data_hash)
+      expected_hash = {
+        "access" => [],
+        "headline" => "Dies ist ein Test!",
+        "data_type" => [],
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "id" => nil,
+          "name" => "Testort",
+          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "location" => nil,
+          "longitude" => 13.1,
+          "external_source_id" => nil
+        }]
+      }
       data_set.save
-      ap data_set.get_data_hash
-      ap data_set.places
+      returned_data_hash = data_set.get_data_hash.compact
+      expected_hash['contentLocation'][0]['id'] = returned_data_hash['contentLocation'][0]['id']
+      assert_equal(expected_hash, returned_data_hash)
+      assert_equal(0, error[:error].count)
     end
+
+    test "save CreativeWork with embedded object contentLocation consistency check get(set)=set" do
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      data_hash = {
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+            "name" => "Testort",
+            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+            "longitude" => 13.10,
+            "latitude" => 25.30
+        }]
+      }
+      error = data_set.set_data_hash(data_hash)
+      data_set.save
+      error = data_set.set_data_hash(data_set.get_data_hash.compact)
+      data_set.save
+      expected_hash = {
+        "access" => [],
+        "headline" => "Dies ist ein Test!",
+        "data_type" => [],
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "id" => nil,
+          "name" => "Testort",
+          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "location" => nil,
+          "longitude" => 13.1,
+          "external_source_id" => nil
+        }]
+      }
+      data_set.save
+      returned_data_hash = data_set.get_data_hash.compact
+      expected_hash['contentLocation'][0]['id'] = returned_data_hash['contentLocation'][0]['id']
+      assert_equal(expected_hash, returned_data_hash)
+      assert_equal(0, error[:error].count)
+    end
+
+    test "save CreativeWork with more than one embedded object contentLocation" do
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      data_hash = {
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+            "name" => "Testort",
+            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+            "longitude" => 13.1,
+            "latitude" => 25.3
+        },{
+          "name" => "2Testort",
+          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "longitude" => 23.1,
+        }]
+      }
+      error = data_set.set_data_hash(data_hash)
+      expected_hash = {
+        "access" => [],
+        "headline" => "Dies ist ein Test!",
+        "data_type" => [],
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "id" => nil,
+          "name" => "Testort",
+          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "location" => nil,
+          "longitude" => 13.1,
+          "external_source_id" => nil
+        },{
+          "id" => nil,
+          "name" => "2Testort",
+          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "location" => nil,
+          "longitude" => 23.1,
+          "external_source_id" => nil
+        }]
+      }
+      data_set.save
+      returned_data_hash = data_set.get_data_hash.compact
+      returned_data_hash['contentLocation'][0]['id'] = nil
+      returned_data_hash['contentLocation'][1]['id'] = nil
+      assert_equal(expected_hash.except("contentLocation"), returned_data_hash.except("contentLocation"))
+      assert_equal(expected_hash["contentLocation"].count, returned_data_hash["contentLocation"].count)
+    end
+
+    test "save CreativeWork with two embedded objects then delete one" do
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      data_hash = {
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+            "name" => "Testort",
+            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+            "longitude" => 13.1,
+            "latitude" => 25.3
+        },{
+          "name" => "2Testort",
+          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "longitude" => 23.1,
+        }]
+      }
+      error = data_set.set_data_hash(data_hash)
+      data_set.save
+      returned_data_hash = data_set.get_data_hash
+      data_hash2 = returned_data_hash.compact
+      data_hash2["contentLocation"] = []
+      data_hash2["contentLocation"].push(returned_data_hash["contentLocation"][1])
+      error = data_set.set_data_hash(data_hash2.compact)
+      data_set.save
+
+      expected_hash = {
+        "access" => [],
+        "headline" => "Dies ist ein Test!",
+        "data_type" => [],
+        "description" => "wtf is going on???",
+        "contentLocation" => []
+      }
+      expected_hash["contentLocation"].push(returned_data_hash["contentLocation"][1])
+      returned_data_hash = data_set.get_data_hash
+
+      puts "all_place_ids: #{DataCycleCore::Place.all.pluck(:id)}"
+      puts "place_rel_ids: #{data_set.places.ids}"
+      puts "all_CWP_ids:   #{DataCycleCore::CreativeWorkPlace.all.pluck(:place_id, :creative_work_id)}"
+      puts "creative_W_id: #{data_set.id}"
+      puts "#{DataCycleCore::Place.all.map{|item| [item.id, item.name]}}"
+
+
+
+
+
+
+      puts "create new object"
+      test_data = DataCycleCore::CreativeWork.find_by(id: data_set.id)
+      ap test_data.get_data_hash.compact
+      assert_equal(expected_hash, returned_data_hash.compact)
+    end
+
 
     test "save proper CreativeWork data-set with hash method" do
       template = DataCycleCore::CreativeWork.where(template: true, headline: "Thema", description: "CreativeWork").first

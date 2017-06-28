@@ -119,15 +119,15 @@ module DataCycleCore
         save_to_jsonb(key, value, properties, 'properties')
       when 'classification_relation'
         set_relation_ids(properties['storage_type'], value, properties['type_name'])
-      when 'key'
-        # do nothing (keys are only for internal usage)
       else
         # maybe already evaluated with validations?
-        if properties.has_key?('name') && properties.has_key?('description')
-          # puts "object is stored in other table - a linked data_type --> #{key} | #{value}"
-          set_linked_data_type(value, properties['storage_location'], properties['name'], properties['description'])
-        else
-          puts "wrong data_type #{key} | #{value}"
+        unless properties['storage_location'] == 'key'
+          if properties.has_key?('name') && properties.has_key?('description')
+            # puts "object is stored in other table - a linked data_type --> #{key} | #{value}"
+            set_linked_data_type(value, properties['storage_location'], properties['name'], properties['description'])
+          else
+            puts "wrong data_type #{key} | #{value}"
+          end
         end
       end
     end
@@ -187,37 +187,56 @@ module DataCycleCore
       template = ("DataCycleCore::"+table.classify).constantize.
         find_by(template: true, headline: name, description: description)
 
+      to_update_item_keys = []
       data.each do |item|
-        if item.has_key?('@id')
-          #update
-          update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['@id'])
-          update_item.set_data_hash(data)
+        if item.has_key?('id')
+          update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['id'])
+          update_item.set_data_hash(item)
           update_item.save
+          to_update_item_keys.push(update_item.id)
         else
           #insert
-
-          puts "insert_item: #{"DataCycleCore::"+table.classify}"
-
           insert_item = ("DataCycleCore::"+table.classify).constantize.new
           insert_item.metadata = { 'validation' => template.metadata['validation'] }
           insert_item.save
           insert_item.set_data_hash(item)
           insert_item.save
+          to_update_item_keys.push(insert_item.id)
 
           # insert_relation
           insert_relation = ("DataCycleCore::"+relation.classify).constantize.new
-
-          ap insert_relation
-          puts "#{self.class.table_name.singularize.foreign_key} = #{self.id}"
-          puts "#{table.singularize.foreign_key} = #{insert_item.id}"
           insert_relation.method(self.class.table_name.singularize.foreign_key+"=").call(self.id)
           insert_relation.method(table.singularize.foreign_key+"=").call(insert_item.id)
           insert_relation.save
-          puts "saved"
         end
       end
 
       # check if items at this particular language should be deleted
+      update_language = I18n.locale
+      available_update_items = self.method(table).call
+      available_update_item_keys = available_update_items.map{|item| item.id}
+      potentially_delete = available_update_item_keys - to_update_item_keys
+
+      puts "found relations:"
+      ap available_update_item_keys
+      puts "updated relations"
+      ap to_update_item_keys
+      puts "potentially_delete:"
+      ap potentially_delete
+
+      potentially_delete.each do |key|
+        item = ("DataCycleCore::"+table.classify).constantize.find_by(id: key)
+        translations = item.translated_locales
+        puts "available translations for #{key}: #{translations.pretty_inspect}"
+        if (translations-[update_language]).count == 0
+          puts "find relation and destroy it"
+          self.method(table).call.find_by(id: key).destroy
+          ("DataCycleCore::"+relation.classify).constantize.
+            find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
+            destroy
+        end
+      end
+      self.method(table).call.reload # MO: force reload of the relation, otherwise cached data can obsure the next get_data_hash
     end
 
     # validate nil,"",[],[nil],[""] as blank.

@@ -54,8 +54,8 @@ module DataCycleCore
               next
             else
               # check if it is a linked data_type
-              if key_item.has_key?('name') && key_item.has_key?('description')
-                # TODO: hadle embedded data_types
+              if key_item.has_key?('name') && key_item.has_key?('description') && key_item.has_key?('storage_location')
+                verify_embedded_object(data[key], key_item['storage_location'], key_item['name'], key_item['description'])
               else
                 @error[:error].push "Object type \"#{key_item['label']}\" is not an embedded data_type, nor has it \"properties\" specified."
               end
@@ -66,6 +66,22 @@ module DataCycleCore
         end
 
       private
+
+        def verify_embedded_object(data, table, name, description)
+
+          # ap data
+          # puts "#{table}|#{name}|#{description}"
+
+          return if data.empty?
+          template = ("DataCycleCore::"+table.classify).constantize.
+            find_by(template: true, headline: name, description: description)
+
+          data.each do |item|
+            validator_object = DataCycleCore::MasterData::ValidateData.new
+            merge_errors(validator_object.validate(item, template.metadata['validation']))
+          end
+        end
+
 
         def daterange(data_hash, template_hash)
           # ap data_hash
