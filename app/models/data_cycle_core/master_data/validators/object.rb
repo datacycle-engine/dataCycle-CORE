@@ -18,6 +18,7 @@ module DataCycleCore
         # validate data as specified in the keys of the data template
         # data hash with key names as specified in the schema
         def validate(data, template_data)
+          return if data.blank?
           data_keys = data.keys
           template_data.each do |key, key_item|
             unless data_keys.include?(key)

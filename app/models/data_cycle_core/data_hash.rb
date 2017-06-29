@@ -180,7 +180,7 @@ module DataCycleCore
       updated_item_keys = []
       # update/insert linked_data
       data.each do |item|
-        if item.has_key?('id')
+        if item.has_key?('id') && !item['id'].blank?
           # update
           update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['id'])
           update_item.set_data_hash(item)
