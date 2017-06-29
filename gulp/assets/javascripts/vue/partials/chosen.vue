@@ -1,6 +1,6 @@
 <template>
   <span>
-    {{ item.content.headline }}
+    {{ headline }}
   </span>
 </template>
 
@@ -9,6 +9,9 @@ export default {
   props: {
     item: {
       type: Object
+    },
+    headline: {
+      type: String
     }
   }
 }

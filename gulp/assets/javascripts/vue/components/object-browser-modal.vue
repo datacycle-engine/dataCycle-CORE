@@ -7,19 +7,19 @@
       <button class="close-object-browser" @click.prevent="$emit('close')">
         <i aria-hidden="true" class="fa fa-times"></i>
       </button>
-      <button class="button save-object-browser" @click="save">
+      <div class="button save-object-browser" @click.stop="save">
         <span class="button-title" v-if="totalChosen > 0">
           <strong>{{ totalChosen }}</strong>{{ totalChosen > 0 ? " Element" + (totalChosen == 1 ? "" : "e") + " auswählen" : "Keine Elemente auswählen" }}</span>
         <span class="button-title" v-else>Keine Elemente auswählen</span>
-        <div class="chosen-items" @click.stop v-if="totalChosen > 0">
-          <div @click.prevent="activeItem = item" class="chosen-item" v-for="item in chosenItems">
-            <chosen :item="item"></chosen>
-            <span class="remove" @click.prevent="toggleActive(item)">
+        <div class="chosen-items" v-if="totalChosen > 0">
+          <div @click.stop="activeItem = item" class="chosen-item" v-for="item in chosenItems">
+            <chosen :item="item" :headline="headline(item)"></chosen>
+            <span class="remove" @click.stop="toggleActive(item)" v-show="!selectOne || chosenItems.length > 1">
               <i aria-hidden="true" class="fa fa-times"></i>
             </span>
           </div>
         </div>
-      </button>
+      </div>
   
       <input v-model.lazy="searchTerm" placeholder="Volltext Suche" autofocus id="object-browser-search">
       <span id="item-count" v-if="totalItems > 0">{{ totalItems }}</span>
@@ -33,14 +33,14 @@
         <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
       </div>
       <div v-else-if="items.length == 0" class="no-entries">Keine Einträge gefunden</div>
-      <div v-else class="item" v-for="item in items" @click.prevent="toggleActive(item)" v-bind:class="{ active: item.active }">
+      <div v-else class="item" v-for="item in items" @click.prevent="toggleActive(item)" v-bind:class="{ active: isActive(item) }">
         <slot name="item" :item="item"></slot>
       </div>
   
       <pagination :current-page="currentPage" :items-per-page="itemsPerPage" :total-items="totalItems" @page-changed="pageChanged">
       </pagination>
     </div>
-    <detail :item="activeItem" class="item-info"></detail>
+    <detail :item="activeItem" :headline="headline(activeItem)" class="item-info"></detail>
   </div>
 </template>
 
@@ -63,10 +63,13 @@ export default {
     preChosenItems: {
       type: Array,
       default: []
+    },
+    selectOne: {
+      type: Boolean,
+      default: false
     }
   },
   mounted() {
-    //this.chosenItems = this.preChosenItems;
     var $modal = $('#object-browser').foundation();
     $modal.foundation('open');
     $('.reveal-blur').addClass("show");
@@ -94,16 +97,20 @@ export default {
       this.currentPage = pageNum
     },
     toggleActive(item) {
-      this.activeItem = item;
-      var chosenIndex = this.compareIndex(this.chosenItems, item);
-      var index = this.compareIndex(this.items, item);
-
-      if (chosenIndex >= 0) {
-        this.chosenItems.splice(chosenIndex, 1);
-        if (this.items[index] != undefined) this.items[index].active = false;
-      } else {
+      if (this.selectOne) {
+        this.activeItem = item;
+        this.chosenItems = [];
         this.chosenItems.push(item);
-        this.items[index].active = true;
+      } else {
+        this.activeItem = item;
+        var chosenIndex = this.compareIndex(this.chosenItems, item);
+        var index = this.compareIndex(this.items, item);
+
+        if (chosenIndex >= 0) {
+          this.chosenItems.splice(chosenIndex, 1);
+        } else {
+          this.chosenItems.push(item);
+        }
       }
     },
     compareIndex(array, item) {
@@ -111,18 +118,20 @@ export default {
         return item.id == chosen.id;
       });
     },
-    addActive() {
-      this.items.forEach(function (item) {
-        if (this.compareIndex(this.chosenItems, item) >= 0) item.active = true;
-        else {
-          if (this.objectType == "Autor") item.content.headline = item.givenName + " " + item.familyName;
-          item.active = false;
-        }
-      }, this);
+    isActive(item) {
+      var chosenIndex = this.compareIndex(this.chosenItems, item);
+      if (chosenIndex >= 0) return true;
+      else return false;
     },
     save() {
+      if (this.selectOne && this.chosenItems.length != 1) return;
       this.$emit('save', this.chosenItems);
       this.$emit('close');
+    },
+    headline(item) {
+      if (this.objectType == "Autor") return item.givenName + " " + item.familyName;
+      else if (item != undefined && item.content != undefined) return item.content.headline;
+      else return undefined;
     }
   },
   asyncComputed: {
@@ -135,7 +144,6 @@ export default {
           this.totalItems = json_data.total;
           this.items = json_data.results;
           this.loading = false;
-          this.addActive();
           return this.items;
         }.bind(this));
       },

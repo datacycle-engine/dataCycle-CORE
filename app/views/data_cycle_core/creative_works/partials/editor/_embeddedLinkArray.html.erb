@@ -30,10 +30,10 @@
 					<% existing << image %>
 				<% end %>
 			<% end %>
-			<object-browser :existing="<%= existing.to_json %>" :object-type="'<%= prop['label'] %>'">
+			<object-browser :existing="<%= existing.to_json %>" :object-type="'<%= prop['label'] %>'" :select-one="true">
 				<template scope="props" slot="item">
 					<div v-if="props.item != undefined" class="media person">
-						<a slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
+						<a slot="remove" v-show="!props.selectOne" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
 						<i class="fa fa-user" aria-hidden="true"></i>
 						<span class="name">{{ props.item.givenName }} <strong>{{ props.item.familyName }}</strong></span>
 						<input type="hidden" name="<%= key %>[]" :value="props.item.id">
