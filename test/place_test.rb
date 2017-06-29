@@ -49,6 +49,7 @@ module DataCycleCore
         "latitude"=> 13.13,
         "location" => point
       }
+
       # location object deserializes with the RGeo::Geos::CAPIFactory != RGeo::Geographic.spherical_factory
       assert_equal(expected_hash.except("location"), data_set.get_data_hash.except("location").compact)
       assert_equal(true, expected_hash['location'].x == data_set.get_data_hash['location'].x)

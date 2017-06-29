@@ -167,8 +167,6 @@ module DataCycleCore
     end
 
     def set_linked_data_type(data, table, name, description)
-      return if is_blank?(data)
-
       # figure out the relation name (alphabetic order from this_class + table )
       tables = [ table, self.class.table_name ].sort
       relation = tables[0].singularize+"_"+tables[1]
@@ -178,31 +176,33 @@ module DataCycleCore
         find_by(template: true, headline: name, description: description)
 
       updated_item_keys = []
-      # update/insert linked_data
-      data.each do |item|
-        if item.has_key?('id') && !item['id'].blank?
-          # update
-          update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['id'])
-          update_item.set_data_hash(item)
-          update_item.save
-          updated_item_keys.push(update_item.id)
-        else
-          # insert
-          insert_item = ("DataCycleCore::"+table.classify).constantize.new
-          insert_item.metadata = { 'validation' => template.metadata['validation'] }
-          insert_item.save
-          insert_item.set_data_hash(item)
-          insert_item.save
-          updated_item_keys.push(insert_item.id)
 
-          # insert_relation
-          insert_relation = ("DataCycleCore::"+relation.classify).constantize.new
-          insert_relation.method(self.class.table_name.singularize.foreign_key+"=").call(self.id)
-          insert_relation.method(table.singularize.foreign_key+"=").call(insert_item.id)
-          insert_relation.save
+      unless is_blank?(data)
+        # update/insert linked_data
+        data.each do |item|
+          if item.has_key?('id') && !item['id'].blank?
+            # update
+            update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['id'])
+            update_item.set_data_hash(item)
+            update_item.save
+            updated_item_keys.push(update_item.id)
+          else
+            # insert
+            insert_item = ("DataCycleCore::"+table.classify).constantize.new
+            insert_item.metadata = { 'validation' => template.metadata['validation'] }
+            insert_item.save
+            insert_item.set_data_hash(item)
+            insert_item.save
+            updated_item_keys.push(insert_item.id)
+
+            # insert_relation
+            insert_relation = ("DataCycleCore::"+relation.classify).constantize.new
+            insert_relation.method(self.class.table_name.singularize.foreign_key+"=").call(self.id)
+            insert_relation.method(table.singularize.foreign_key+"=").call(insert_item.id)
+            insert_relation.save
+          end
         end
       end
-
       # check if items in context of the present language should be deleted
       available_update_item_keys = self.method(table).call.ids
       potentially_delete = available_update_item_keys - updated_item_keys
