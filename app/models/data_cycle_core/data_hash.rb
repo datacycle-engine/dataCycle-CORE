@@ -163,7 +163,7 @@ module DataCycleCore
       self.method(table).call.each do |item|
         return_data.push(item.get_data_hash)
       end
-      return_data
+      return_data.compact
     end
 
     def set_linked_data_type(data, table, name, description)
@@ -177,21 +177,23 @@ module DataCycleCore
       template = ("DataCycleCore::"+table.classify).constantize.
         find_by(template: true, headline: name, description: description)
 
-      to_update_item_keys = []
+      updated_item_keys = []
+      # update/insert linked_data
       data.each do |item|
         if item.has_key?('id')
+          # update
           update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['id'])
           update_item.set_data_hash(item)
           update_item.save
-          to_update_item_keys.push(update_item.id)
+          updated_item_keys.push(update_item.id)
         else
-          #insert
+          # insert
           insert_item = ("DataCycleCore::"+table.classify).constantize.new
           insert_item.metadata = { 'validation' => template.metadata['validation'] }
           insert_item.save
           insert_item.set_data_hash(item)
           insert_item.save
-          to_update_item_keys.push(insert_item.id)
+          updated_item_keys.push(insert_item.id)
 
           # insert_relation
           insert_relation = ("DataCycleCore::"+relation.classify).constantize.new
@@ -201,24 +203,22 @@ module DataCycleCore
         end
       end
 
-      # check if items at this particular language should be deleted
-      update_language = I18n.locale
-      available_update_items = self.method(table).call
-      available_update_item_keys = available_update_items.map{|item| item.id}
-      potentially_delete = available_update_item_keys - to_update_item_keys
+      # check if items in context of the present language should be deleted
+      available_update_item_keys = self.method(table).call.ids
+      potentially_delete = available_update_item_keys - updated_item_keys
 
       potentially_delete.each do |key|
         item = ("DataCycleCore::"+table.classify).constantize.find_by(id: key)
         translations = item.translated_locales
-        if (translations-[update_language]).count == 0
+        if (translations-[ I18n.locale ]).size < 1
           # find relation and destroy it
           self.method(table).call.find_by(id: key).destroy
           ("DataCycleCore::"+relation.classify).constantize.
             find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
             destroy
         else
-          # only delete particular translation !
-          item.translation.delete
+          # only destroy particular translation !
+          item.translation.destroy
         end
       end
       self.method(table).call.reload # MO: force reload of the relation, otherwise cached data can obsure the next get_data_hash

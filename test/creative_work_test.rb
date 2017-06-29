@@ -192,6 +192,197 @@ module DataCycleCore
       assert_equal(expected_hash, returned_data_hash.compact)
     end
 
+    test "save CreativeWork with two embedded objects having two translations and then delete one translation" do
+      # setup data-set with a template
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+
+      # expected de/en hashes for main object
+      de_expected = {
+        "access" => [],
+        "headline" => "Das ist ein Test!",
+        "data_type" => [],
+        "description" => "wooos laft??"
+      }
+      en_expected = {
+        "access" => [],
+        "headline" => "this is a test!",
+        "data_type" => [],
+        "description" => "wtf is going on???"
+      }
+
+      # save two embedded objects in german translation
+      data_hash = {
+        "headline" => "Das ist ein Test!",
+        "description" => "wooos laft??",
+        "contentLocation" => [{
+            "name" => "Testort",
+            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+            "longitude" => 13.1,
+            "latitude" => 25.3
+        },{
+          "name" => "2Testort",
+          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "longitude" => 23.1,
+        }]
+      }
+      error = I18n.with_locale(:de){
+        data_set.set_data_hash(data_hash)
+      }
+      data_set.save
+
+      # check for german data-set, two embedded contentLocation // no english data-set
+      assert_equal(de_expected, I18n.with_locale(:de){data_set.get_data_hash.compact.except("contentLocation")})
+      assert_equal(data_hash["contentLocation"].size, I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].size})
+      assert_nil(I18n.with_locale(:en){data_set.get_data_hash})
+
+
+      # prepare a german hash with only one embedded object
+      returned_data_hash = I18n.with_locale(:de){
+        data_set.get_data_hash
+      }
+      data_hash2 = returned_data_hash.compact
+      data_hash2["contentLocation"] = []
+      data_hash2["contentLocation"].push(returned_data_hash["contentLocation"][1])
+      ids = data_set.places.ids
+
+      # save two embedded objects in english
+      data_hash_en = {
+        "headline" => "this is a test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "id" => ids[0],
+          "name" => "Testplace",
+          "address" => "Sherwood forest 13, 12345 Dotcot",
+          "longitude" => 13.1,
+          "latitude" => 25.3
+        },{
+          "id" => ids[1],
+          "name" => "2nd Testplace",
+          "address" => "Sherwood forest 23, 12345 Dotcot",
+          "latitude" => 25.3,
+          "longitude" => 23.1,
+        }]
+      }
+
+      error_eng = I18n.with_locale(:en){
+        data_set.set_data_hash(data_hash_en.compact)
+      }
+      data_set.save
+
+      # check for two german and englisch data_sets (+ check that they are only translations of the same data-sets)
+      assert_equal(de_expected, I18n.with_locale(:de){data_set.get_data_hash.compact.except("contentLocation")})
+      assert_equal(data_hash["contentLocation"].size, I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].size})
+      assert_equal(en_expected, I18n.with_locale(:en){data_set.get_data_hash.compact.except("contentLocation")})
+      assert_equal(data_hash_en["contentLocation"].size, I18n.with_locale(:en){data_set.get_data_hash.compact["contentLocation"].size})
+      de_ids = I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].map{|item| item["id"]}}
+      en_ids = I18n.with_locale(:en){data_set.get_data_hash.compact["contentLocation"].map{|item| item["id"]}}
+      assert_equal(de_ids.sort, en_ids.sort)
+
+
+      # delete the german translation of one object
+      error = I18n.with_locale(:de){
+        data_set.set_data_hash(data_hash2)
+      }
+      data_set.save
+
+      de_returned = I18n.with_locale(:de){ data_set.get_data_hash }
+      en_returned = I18n.with_locale(:en){ data_set.get_data_hash }
+
+      de_embedded = de_returned["contentLocation"]
+      en_embedded = en_returned["contentLocation"]
+      assert_equal(de_expected, de_returned.compact.except("contentLocation"))
+      assert_equal(en_expected, en_returned.compact.except("contentLocation"))
+      assert_equal(1, de_embedded.count)
+      assert_equal(2, en_embedded.count)
+    end
+
+    test "save CreativeWork with two embedded objects each for every translation" do
+      # setup data-set with a template
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+
+      # expected de/en hashes for main object
+      de_expected = {
+        "access" => [],
+        "headline" => "Das ist ein Test!",
+        "data_type" => [],
+        "description" => "wooos laft??"
+      }
+      en_expected = {
+        "access" => [],
+        "headline" => "this is a test!",
+        "data_type" => [],
+        "description" => "wtf is going on???"
+      }
+
+      # save two embedded objects in german translation
+      data_hash = {
+        "headline" => "Das ist ein Test!",
+        "description" => "wooos laft??",
+        "contentLocation" => [{
+            "name" => "Testort",
+            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+            "longitude" => 13.1,
+            "latitude" => 25.3
+        },{
+          "name" => "2Testort",
+          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "longitude" => 23.1,
+        }]
+      }
+      error = I18n.with_locale(:de){
+        data_set.set_data_hash(data_hash)
+      }
+      data_set.save
+
+      # check for german data-set, two embedded contentLocation // no english data-set
+      assert_equal(de_expected, I18n.with_locale(:de){data_set.get_data_hash.compact.except("contentLocation")})
+      assert_equal(data_hash["contentLocation"].size, I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].size})
+      assert_nil(I18n.with_locale(:en){data_set.get_data_hash})
+
+      # save two embedded objects in english (different locations from the german ones)
+      data_hash_en = {
+        "headline" => "this is a test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "name" => "Testplace",
+          "address" => "Sherwood forest 13, 12345 Dotcot",
+          "longitude" => 13.1,
+          "latitude" => 25.3
+        },{
+          "name" => "2nd Testplace",
+          "address" => "Sherwood forest 23, 12345 Dotcot",
+          "latitude" => 25.3,
+          "longitude" => 23.1,
+        }]
+      }
+
+      error_eng = I18n.with_locale(:en){
+        data_set.set_data_hash(data_hash_en.compact)
+      }
+      data_set.save
+
+      # check for two german and englisch data_sets (+ check that they are different data-sets)
+      assert_equal(de_expected, I18n.with_locale(:de){data_set.get_data_hash.compact.except("contentLocation")})
+      assert_equal(data_hash["contentLocation"].size, I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].size})
+      assert_equal(en_expected, I18n.with_locale(:en){data_set.get_data_hash.compact.except("contentLocation")})
+      assert_equal(data_hash_en["contentLocation"].size, I18n.with_locale(:en){data_set.get_data_hash.compact["contentLocation"].size})
+      de_ids = I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].map{|item| item["id"]}}
+      en_ids = I18n.with_locale(:en){data_set.get_data_hash.compact["contentLocation"].map{|item| item["id"]}}
+      assert_equal(2, de_ids.size)
+      assert_equal(2, en_ids.size)
+      assert_not_equal(de_ids.sort[0], en_ids.sort[0])
+      assert_not_equal(de_ids.sort[1], en_ids.sort[1])
+    end
 
     test "save proper CreativeWork data-set with hash method" do
       template = DataCycleCore::CreativeWork.where(template: true, headline: "Thema", description: "CreativeWork").first
