@@ -15,7 +15,7 @@ var blur_init = require('./modules/initializers/blur_init');
 var focus_init = require('./modules/initializers/focus_init');
 var flash_init = require('./modules/initializers/flash_init');
 var validation_init = require('./modules/initializers/validation_init');
-//var object_browser_init = require('./modules/initializers/object_browser_init');
+var counter_init = require('./modules/initializers/counter_init');
 
 
 // Initialize Masonry Grid
@@ -53,10 +53,10 @@ $(function () {
   // Initialize Form Validation
   validation_init.initialize();
 
-  // Initialize Object Browser
-  //object_browser_init.initialize();
-
   // initialize Quill Editor
   quill_init.initialize();
+
+  // initialize Quill Editor
+  counter_init.initialize();
 
 });
