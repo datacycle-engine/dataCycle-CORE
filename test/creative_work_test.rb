@@ -56,9 +56,9 @@ module DataCycleCore
       assert_equal(0, error[:error].count)
 
       # check consistency of data in DB
-      assert_equal(1, DataCycleCore::Place.where(template: false).count)
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
       assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::Place.where(template: false).count)
 
       returned_data_hash["contentLocation"] = []
       error = data_set.set_data_hash(returned_data_hash)
@@ -67,9 +67,94 @@ module DataCycleCore
       assert_equal(returned_data_hash, returned_again)
 
       # check consistency of data in DB
-      assert_equal(0, DataCycleCore::Place.where(template: false).count)
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
       assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(0, DataCycleCore::Place.where(template: false).count)
+    end
+
+    test "save CreativeWork with more than one embedded object contentLocation, delete multiple contentLocations at once" do
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      data_hash = {
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "name" => "Testort",
+          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "longitude" => 13.1,
+          "latitude" => 25.3
+        },{
+          "name" => "2Testort",
+          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "longitude" => 23.1
+        },{
+          "name" => "3Testort",
+          "address" => "3Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 35.3,
+          "longitude" => 33.1
+        }]
+      }
+      error = data_set.set_data_hash(data_hash)
+      data_set.save
+
+      expected_hash = {
+        "access" => [],
+        "headline" => "Dies ist ein Test!",
+        "data_type" => [],
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "id" => nil,
+          "name" => "Testort",
+          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "location" => nil,
+          "longitude" => 13.1,
+          "external_source_id" => nil
+        },{
+          "id" => nil,
+          "name" => "2Testort",
+          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "location" => nil,
+          "longitude" => 23.1,
+          "external_source_id" => nil
+        },{
+          "id" => nil,
+          "name" => "3Testort",
+          "address" => "3Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 35.3,
+          "location" => nil,
+          "longitude" => 33.1,
+          "external_source_id" => nil
+        }]
+      }
+
+      returned_data_hash = data_set.get_data_hash.compact
+      assert_equal(expected_hash.except("contentLocation"), returned_data_hash.except("contentLocation"))
+      assert_equal(expected_hash["contentLocation"].count, returned_data_hash["contentLocation"].count)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(3, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(3, DataCycleCore::Place.where(template: false).count)
+
+      # delete all places at once
+      returned_data_hash["contentLocation"] = []
+      error = data_set.set_data_hash(returned_data_hash)
+      data_set.save
+
+      returned_again = data_set.get_data_hash.compact
+      expected_hash["contentLocation"] = []
+      assert_equal(expected_hash, returned_data_hash)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(0, DataCycleCore::Place.where(template: false).count)
     end
 
     test "save CreativeWork with embedded object contentLocation, write, read and write back" do
