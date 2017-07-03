@@ -3,6 +3,8 @@ require 'test_helper'
 # load template, classifications for all tests
 creative_work_yaml = Rails.root.join('..','setup_data','creative_works.yml')
 DataCycleCore::MasterData::ImportTemplates.new.import(creative_work_yaml, DataCycleCore::CreativeWork)
+creative_work_yaml = Rails.root.join('..','setup_data','creative_works_test.yml')
+DataCycleCore::MasterData::ImportTemplates.new.import(creative_work_yaml, DataCycleCore::CreativeWork)
 place_yaml = Rails.root.join('..','setup_data','places.yml')
 DataCycleCore::MasterData::ImportTemplates.new.import(place_yaml, DataCycleCore::Place)
 classification_yaml = Rails.root.join('..','setup_data','classifications.yml')
@@ -578,9 +580,9 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
     end
 
-    test "save CreativeWork with two embedded objects having two translations and then delete one translation" do
+    test "save CreativeWork with two embedded objects having two translations and then delete one translation (full access to embeddedObjects)" do
       # setup data-set with a template
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "BildTest", description: "ImageObject").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
@@ -692,9 +694,9 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::CreativeWorkPlace.count)
     end
 
-    test "save CreativeWork with two embedded objects each for every translation" do
+    test "save CreativeWork with two embedded objects each for every translation (full access to embeddedObjects)" do
       # setup data-set with a template
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "BildTest", description: "ImageObject").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
