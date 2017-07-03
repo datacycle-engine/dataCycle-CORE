@@ -49,13 +49,16 @@ module DataCycleCore
         return
       end
 
-      #validate ?
-      if !@person.nil? && @person.save
-        flash[:success] = "Successfully added new person!"
-        redirect_to @person
-      else
-        redirect_to :back
-        return
+      respond_to do |format|
+        #validate ?
+        if !@person.nil? && @person.save
+          flash[:success] = "Successfully added new person!"
+          format.html { redirect_to @person }
+          format.json { render :json => @person }
+        else
+          redirect_to :back
+          return
+        end
       end
 
     end

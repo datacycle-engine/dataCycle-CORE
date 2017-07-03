@@ -4,6 +4,16 @@
       <h4>
         <i class="fa fa-files-o" aria-hidden="true"></i> Medien auswählen
       </h4>
+      <button v-if="createItem" data-open="newItem" class="new-item-button button">
+        <i class="fa fa-plus"></i>
+      </button>
+      <div v-if="createItem" data-overlay="false" class="reveal without-overlay new-item" id="newItem" data-reveal>
+        <new v-on:add="addItem" v-if="showNew">
+          <template scope="newItem" slot="new-item">
+            <slot name="new-item"></slot>
+          </template>
+        </new>
+      </div>
       <button class="close-object-browser" @click.prevent="$emit('close')">
         <i aria-hidden="true" class="fa fa-times"></i>
       </button>
@@ -14,7 +24,7 @@
         <div class="chosen-items" v-if="totalChosen > 0">
           <div @click.stop="activeItem = item" class="chosen-item" v-for="item in chosenItems">
             <chosen :item="item" :headline="headline(item)"></chosen>
-            <span class="remove" @click.stop="toggleActive(item)" v-show="!selectOne || chosenItems.length > 1">
+            <span class="remove" @click.stop="toggleActive(item)">
               <i aria-hidden="true" class="fa fa-times"></i>
             </span>
           </div>
@@ -48,9 +58,10 @@
 import Pagination from './pagination.vue'
 import Detail from './../partials/detail.vue'
 import Chosen from './../partials/chosen.vue'
+import New from './../partials/new.vue'
 
 export default {
-  components: { Pagination, Detail, Chosen },
+  components: { Pagination, Detail, Chosen, New },
   props: {
     objectType: {
       type: String,
@@ -67,6 +78,10 @@ export default {
     selectOne: {
       type: Boolean,
       default: false
+    },
+    createItem: {
+      type: Boolean,
+      default: false
     }
   },
   mounted() {
@@ -74,8 +89,23 @@ export default {
     $modal.foundation('open');
     $('.reveal-blur').addClass("show");
     window.scrollTo(0, 0);
+
+    $('#object-browser').on('closed.zf.reveal', function (e) {
+      this.$emit('close');
+    }.bind(this));
+
+    $('.new-item').on('closed.zf.reveal', function (e) {
+      $('body').addClass('is-reveal-open');
+      this.showNew = false;
+      e.stopPropagation();
+    }.bind(this));
+
+    $('.new-item').on('open.zf.reveal', function (e) {
+      this.showNew = true;
+    }.bind(this));
   },
   beforeDestroy() {
+    $('.new-item').remove();
     var $modal = $('#object-browser');
     $modal.foundation('close');
     $('.reveal-blur').removeClass("show");
@@ -89,7 +119,8 @@ export default {
       currentPage: 1,
       activeItem: {},
       totalItems: 0,
-      chosenItems: this.preChosenItems.slice(0)
+      chosenItems: this.preChosenItems.slice(0),
+      showNew: false
     }
   },
   methods: {
@@ -97,20 +128,15 @@ export default {
       this.currentPage = pageNum
     },
     toggleActive(item) {
-      if (this.selectOne) {
-        this.activeItem = item;
-        this.chosenItems = [];
-        this.chosenItems.push(item);
-      } else {
-        this.activeItem = item;
-        var chosenIndex = this.compareIndex(this.chosenItems, item);
-        var index = this.compareIndex(this.items, item);
+      this.activeItem = item;
+      var chosenIndex = this.compareIndex(this.chosenItems, item);
+      var index = this.compareIndex(this.items, item);
 
-        if (chosenIndex >= 0) {
-          this.chosenItems.splice(chosenIndex, 1);
-        } else {
-          this.chosenItems.push(item);
-        }
+      if (chosenIndex >= 0) {
+        this.chosenItems.splice(chosenIndex, 1);
+      } else {
+        if (this.selectOne) this.chosenItems = [];
+        this.chosenItems.push(item);
       }
     },
     compareIndex(array, item) {
@@ -124,7 +150,6 @@ export default {
       else return false;
     },
     save() {
-      if (this.selectOne && this.chosenItems.length != 1) return;
       this.$emit('save', this.chosenItems);
       this.$emit('close');
     },
@@ -132,6 +157,10 @@ export default {
       if (this.objectType == "Autor") return item.givenName + " " + item.familyName;
       else if (item != undefined && item.content != undefined) return item.content.headline;
       else return undefined;
+    },
+    addItem(item) {
+      this.items.push(item);
+      $('#newItem').foundation('close');
     }
   },
   asyncComputed: {

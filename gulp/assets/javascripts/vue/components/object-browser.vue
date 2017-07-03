@@ -1,12 +1,18 @@
 <template>
   <div class="object-browser">
-    <div class="object-thumbs">
+    <div class="object-thumbs" v-if="existingItems.length > 0">
       <slot name="item" v-for="item in existingItems" :item="item" :remove="remove" :select-one="selectOne"></slot>
     </div>
+    <div class="object-thumbs" v-else>
+      <input type="hidden" :name="hiddenName">
+    </div>
     <transition name="fade">
-      <object-browser-modal v-if="showModal" v-on:save="save" :object-type="objectType" url="/objectbrowser" :preChosenItems="existingItems" :select-one="selectOne" @close="showModal = false">
+      <object-browser-modal v-if="showModal" v-on:save="save" :object-type="objectType" url="/objectbrowser" :preChosenItems="existingItems" :select-one="selectOne" @close="showModal = false" :create-item="createItem">
         <template scope="props" slot="item">
           <slot name="item" :item="props.item"></slot>
+        </template>
+        <template scope="newItem" slot="new-item">
+          <slot name="new-item"></slot>
         </template>
       </object-browser-modal>
     </transition>
@@ -30,6 +36,13 @@ export default {
     selectOne: {
       type: Boolean,
       default: false
+    },
+    createItem: {
+      type: Boolean,
+      default: false
+    },
+    hiddenName: {
+      type: String
     }
   },
   components: {
@@ -43,11 +56,6 @@ export default {
   },
   created() {
     this.existingItems = this.existing;
-    // if (this.objectType == "Autor") {
-    //   for (var i = 0; i < this.existingItems.length; i++) {
-    //     this.existingItems[i].content.headline = this.existingItems[i].givenName + " " + this.existingItems[i].familyName;
-    //   }
-    // }
   },
   methods: {
     remove(item) {

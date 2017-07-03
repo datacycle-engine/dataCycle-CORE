@@ -57,6 +57,6 @@ $(function () {
   quill_init.initialize();
 
   // initialize Quill Editor
-  counter_init.initialize();
+  //counter_init.initialize();
 
 });

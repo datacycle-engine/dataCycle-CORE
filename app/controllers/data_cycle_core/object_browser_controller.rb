@@ -19,7 +19,9 @@ module DataCycleCore
 
       elsif @type == "Autor"
 
-        query = DataCycleCore::Person.all().where(:template => false).order(updated_at: :desc)
+        query = DataCycleCore::Filter::PersonQueryBuilder.new
+        query = query.with_locale(@language)
+        query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       else
 
@@ -42,9 +44,9 @@ module DataCycleCore
       end
       @page ||= 1
 
-      @images = query.page(@page).per(@per)
+      @results = query.page(@page).per(@per)
 
-      render :json => { results: @images, total: total }
+      render :json => { results: @results, total: total }
     end
 
   end
