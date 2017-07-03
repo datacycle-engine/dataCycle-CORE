@@ -123,8 +123,10 @@ module DataCycleCore
         # maybe already evaluated with validations?
         unless properties['storage_location'] == 'key'
           if properties.has_key?('name') && properties.has_key?('description')
-            # puts "object is stored in other table - a linked data_type --> #{key} | #{value}"
-            set_linked_data_type(value, properties['storage_location'], properties['name'], properties['description'])
+            delete = false
+            delete = true if properties.has_key?('delete') && properties['delete'] == true
+            #puts "set_linked_data_type(#{value}, #{properties['storage_location']}, #{properties['name']}, #{properties['description']}, #{delete})"
+            set_linked_data_type(value, properties['storage_location'], properties['name'], properties['description'], delete)
           else
             puts "wrong data_type #{key} | #{value}"
           end
@@ -166,7 +168,7 @@ module DataCycleCore
       return_data.compact
     end
 
-    def set_linked_data_type(data, table, name, description)
+    def set_linked_data_type(data, table, name, description, delete)
       # figure out the relation name (alphabetic order from this_class + table )
       tables = [ table, self.class.table_name ].sort
       relation = tables[0].singularize+"_"+tables[1]
@@ -180,10 +182,9 @@ module DataCycleCore
       unless is_blank?(data)
         # update/insert linked_data
         data.each do |item|
-          if item.has_key?('id') && item.keys.count == 1
+          if item.has_key?('id') && !item['id'].blank? && item.keys.count == 1
             # id is the only item --> no update
             updated_item_keys.push(item['id'])
-
             # relation update/insert
             upsert_relation = ("DataCycleCore::"+relation.classify).
               constantize.
@@ -192,7 +193,6 @@ module DataCycleCore
                 table.singularize.foreign_key.to_sym => item['id']
                 )
             upsert_relation.save
-
           elsif item.has_key?('id') && !item['id'].blank?
             # update
             update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['id'])
@@ -220,18 +220,29 @@ module DataCycleCore
       available_update_item_keys = self.method(table).call.ids
       potentially_delete = available_update_item_keys - updated_item_keys
 
-      potentially_delete.each do |key|
-        item = ("DataCycleCore::"+table.classify).constantize.find_by(id: key)
-        translations = item.translated_locales
-        if (translations-[ I18n.locale ]).size < 1
-          # find relation and destroy it
+      if delete
+        # full access to embeddedObjects
+        potentially_delete.each do |key|
+          item = ("DataCycleCore::"+table.classify).constantize.find_by(id: key)
+          translations = item.translated_locales
+          if (translations-[ I18n.locale ]).size < 1
+            # find relation and destroy it
+            self.method(table).call.find_by(id: key).destroy
+            ("DataCycleCore::"+relation.classify).constantize.
+              find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
+              destroy
+          else
+            # only destroy particular translation !
+            item.translation.destroy
+          end
+        end
+      else
+        # only manage relations to embeddedObjects
+        potentially_delete.each do |key|
           self.method(table).call.find_by(id: key).destroy
           ("DataCycleCore::"+relation.classify).constantize.
             find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
             destroy
-        else
-          # only destroy particular translation !
-          item.translation.destroy
         end
       end
       self.method(table).call.reload # MO: force reload of the relation, otherwise cached data can obsure the next get_data_hash
