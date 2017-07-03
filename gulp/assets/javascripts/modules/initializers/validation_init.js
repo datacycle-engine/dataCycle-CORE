@@ -6,7 +6,7 @@ module.exports.initialize = function () {
 
     $(form).find('.validation-container').on("focusout", function (ev) {
       setTimeout(function () {
-        if ($(this).find(':focus').length == 0) {
+        if ($(this).find(':focus').addBack(':focus').length == 0) {
           check_items_and_validate(form, this);
         }
       }.bind(this), 50);
@@ -78,9 +78,9 @@ module.exports.initialize = function () {
 
     if (is_creative_work.test(formdata[0].name)) {
       var validation_url = /validatecreativework/;
-    }else if (is_person.test(formdata[0].name)) {
+    } else if (is_person.test(formdata[0].name)) {
       var validation_url = /validateperson/;
-    }else{
+    } else {
       return false;
     }
 

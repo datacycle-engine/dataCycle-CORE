@@ -6,8 +6,8 @@
       <dd v-if="item.metadata.thumbnailUrl != undefined">
         <img :src=" item.metadata.thumbnailUrl ">
       </dd>
-      <dt v-if="item.content.headline != undefined">Name: </dt>
-      <dd v-if="item.content.headline != undefined">{{ item.content.headline }}</dd>
+      <dt v-if="headline != undefined">Name: </dt>
+      <dd v-if="headline != undefined">{{ headline }}</dd>
       <dt v-if="item.metadata.url != undefined">Datei Url: </dt>
       <dd v-if="item.metadata.url != undefined">
         <a :href="item.metadata.url " target="_blank ">{{ item.metadata.url }}</a>
@@ -36,6 +36,9 @@ export default {
   props: {
     item: {
       type: Object
+    },
+    headline: {
+      type: String
     }
   }
 }

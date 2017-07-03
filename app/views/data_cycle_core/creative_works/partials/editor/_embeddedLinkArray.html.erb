@@ -13,14 +13,15 @@
 						<% existing << image %>
 					<% end %>
 				<% end %>
-				<object-browser :existing="<%= existing.to_json %>" :object-type="'<%= prop['label'] %>'">
-					<template scope="props" slot="item">
-						<div v-if="props.item != undefined" class="media thumbnail" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnailUrl+')' }">
-							<a slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
-							<span class="caption"></span><input type="hidden" name="<%= key %>[]" :value="props.item.id">
-						</div>
-					</template>
-				</object-browser>
+			<% end %>				
+			<object-browser :existing="<%= existing.to_json %>" :object-type="'<%= prop['label'] %>'" hidden-name="<%= key %>[]">
+				<template scope="props" slot="item">
+					<div v-if="props.item != undefined" class="media thumbnail" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnailUrl+')' }">
+						<a slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
+						<span class="caption"></span><input type="hidden" name="<%= key %>[]" :value="props.item.id">
+					</div>
+				</template>
+			</object-browser>
 
 			<% elsif prop['label'] == 'Autor' %>
 				<% existing = [] %>
@@ -41,6 +42,36 @@
 					</template>
 				</object-browser>
 			<% end %>
+			<object-browser :existing="<%= existing.to_json %>" :object-type="'<%= prop['label'] %>'" :select-one="true" :create-item="true" hidden-name="<%= key %>[]">
+				<template scope="props" slot="item">
+					<div v-if="props.item != undefined" class="media person">
+						<a class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
+						<i class="fa fa-user" aria-hidden="true"></i>
+						<span class="name">{{ props.item.givenName }} <strong>{{ props.item.familyName }}</strong></span>
+						<input type="hidden" name="<%= key %>[]" :value="props.item.id">
+					</div>
+				</template>
+				
+				<template slot="new-item" scope="newItem">
+					<div id="newPerson">
+						<h3>Neue Person erstellen</h3>
+						<% @person = DataCycleCore::Person.new %>
+						<%= form_for(@person) do |f| %>
+
+								<%= hidden_field_tag 'template', 'Person' %>
+								<%= f.text_field :givenName, class: 'form-control', value:'' %>
+								<%= f.text_field :familyName, class: 'form-control', value:'' %>
+								<%= f.submit "Erstellen", class: "button primary" %>
+
+						<% end %>
+
+						<button class="close-button" data-close aria-label="Close modal" type="button">
+								<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+				</template>
+			</object-browser>		
+		<% end %>
 		</div>
 	</div>
 </div>

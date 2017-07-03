@@ -4,6 +4,8 @@ var Counter = require('./../components/quill_counter');
 // Quill Config
 module.exports.initialize = function () {
 
+  quill.register('modules/counter', Counter);
+
   if ($('.quill-editor').html() != undefined) {
     $('.quill-editor').each(function () {
       init(this);
@@ -26,13 +28,27 @@ module.exports.initialize = function () {
 
     var toolbar = {
       "none": [],
-      "basic": [[{ header: [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline']],
-      "full": [[{ 'align': [] }],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-      [{ header: [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline'],
-      ['link']]
+      "basic": [
+        [{
+          header: [1, 2, 3, false]
+        }],
+        ['bold', 'italic', 'underline']
+      ],
+      "full": [
+        [{
+          'align': []
+        }],
+        [{
+          'list': 'ordered'
+        }, {
+          'list': 'bullet'
+        }],
+        [{
+          header: [1, 2, 3, false]
+        }],
+        ['bold', 'italic', 'underline'],
+        ['link']
+      ]
     };
 
     var options = {
@@ -42,11 +58,9 @@ module.exports.initialize = function () {
         },
         toolbar: toolbar[mode]
       },
-      theme: 'snow',  // or 'bubble'
+      theme: 'snow', // or 'bubble'
       formats: formats[mode]
     };
-
-    quill.register('modules/counter', Counter);
 
     var editor = new quill('#' + node.id, options);
   }

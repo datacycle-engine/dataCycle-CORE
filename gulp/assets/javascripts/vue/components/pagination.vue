@@ -1,26 +1,26 @@
 <template>
-  <ul class="pagination">
-    <li>
-      <a href="#" @click.prevent="pageChanged(1)" aria-label="First" :disabled="currentPage<=1">
-        <span aria-hidden="true">&laquo;</span>
+  <ul class="pagination" v-show="totalItems > 0">
+    <li v-show="currentPage > 1">
+      <a href="#" @click.prevent="pageChanged(1)" aria-label="First" :disabled="currentPage <= 1">
+        <span aria-hidden="true">&laquo; Erste</span>
       </a>
     </li>
-    <li>
-      <a href="#" @click.prevent="pageChanged(currentPage-1)" aria-label="Previous" :disabled="currentPage<=1">
-        <span aria-hidden="true">&lsaquo;</span>
+    <li v-show="currentPage > 1">
+      <a href="#" @click.prevent="pageChanged(currentPage-1)" aria-label="Previous" :disabled="currentPage <= 1">
+        <span aria-hidden="true">&lsaquo; Vorherige</span>
       </a>
     </li>
     <li v-for="n in paginationRange" :class="activePage(n)">
       <a href="#" @click.prevent="pageChanged(n)">{{ n }}</a>
     </li>
-    <li>
-      <a href="#" @click.prevent="pageChanged(currentPage+1)" aria-label="Next" :disabled="currentPage>=lastPage">
-        <span aria-hidden="true">&rsaquo;</span>
+    <li v-show="currentPage < lastPage">
+      <a href="#" @click.prevent="pageChanged(currentPage+1)" aria-label="Next" :disabled="currentPage >= lastPage">
+        <span aria-hidden="true">Nächste &rsaquo;</span>
       </a>
     </li>
-    <li>
-      <a href="#" @click.prevent="pageChanged(lastPage)" aria-label="Last" :disabled="currentPage>=lastPage">
-        <span aria-hidden="true">&raquo;</span>
+    <li v-show="currentPage < lastPage">
+      <a href="#" @click.prevent="pageChanged(lastPage)" aria-label="Last" :disabled="currentPage >= lastPage">
+        <span aria-hidden="true">Letzte &raquo;</span>
       </a>
     </li>
   </ul>
@@ -84,7 +84,7 @@ export default {
     },
 
     activePage(pageNum) {
-      return this.currentPage === pageNum ? 'active' : ''
+      return this.currentPage == pageNum ? 'active' : ''
     },
     lowerBound(num, limit) {
       return num >= limit ? num : limit
