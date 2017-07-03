@@ -181,8 +181,18 @@ module DataCycleCore
         # update/insert linked_data
         data.each do |item|
           if item.has_key?('id') && item.keys.count == 1
-            # id is the only item --> no update 
+            # id is the only item --> no update
             updated_item_keys.push(item['id'])
+
+            # relation update/insert
+            upsert_relation = ("DataCycleCore::"+relation.classify).
+              constantize.
+              find_or_create_by(
+                self.class.table_name.singularize.foreign_key.to_sym => self.id,
+                table.singularize.foreign_key.to_sym => item['id']
+                )
+            upsert_relation.save
+
           elsif item.has_key?('id') && !item['id'].blank?
             # update
             update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['id'])
