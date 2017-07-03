@@ -21,6 +21,10 @@ module DataCycleCore
 
         query = DataCycleCore::Person.all().where(:template => false).order(updated_at: :desc)
 
+      elsif @type == "Ort"
+
+        query = DataCycleCore::Place.all().where(:template => false).order(updated_at: :desc)
+
       else
 
         query = DataCycleCore::Filter::ImageQueryBuilder.new
