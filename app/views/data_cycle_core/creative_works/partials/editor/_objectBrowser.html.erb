@@ -45,7 +45,7 @@
 				<% existing = [] %>
 				<% unless value.blank? %>
 					<% value.each do |item| %>
-						<% image = object.where(id: item).first %>
+						<% image = object.where(id: item['id']).first %>
 						<% existing << image %>
 					<% end %>
 				<% end %>
