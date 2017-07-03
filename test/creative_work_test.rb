@@ -18,8 +18,62 @@ module DataCycleCore
       assert_equal(data.class, DataCycleCore::CreativeWork)
     end
 
-    test "save CreativeWork with embedded object contentLocation, then delete embedded object (last an only one)" do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+    test "different behaviour for embeddedObject with/without delete flag" do
+      template_without_delete = DataCycleCore::CreativeWork.find_by(template: true, headline: "Bild", description: "ImageObject")
+      validation_without_delete = template_without_delete.metadata['validation']
+      data_set_without = DataCycleCore::CreativeWork.new
+      data_set_without.metadata = { 'validation' => validation_without_delete }
+      data_set_without.save
+      data_hash = {
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+            "name" => "Testort",
+            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+            "longitude" => 13.10,
+            "latitude" => 25.30
+        }]
+      }
+      error = data_set_without.set_data_hash(data_hash)
+      data_set_without.save
+      returned_data_hash_without = data_set_without.get_data_hash
+      expected_hash = {
+        "access" => [],
+        "headline" => "Dies ist ein Test!",
+        "data_type" => [],
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "id" => returned_data_hash_without['contentLocation'][0]['id'],
+          "name" => "Testort",
+          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "location" => nil,
+          "longitude" => 13.1,
+          "external_source_id" => nil
+        }]
+      }
+      assert_equal(expected_hash, returned_data_hash_without.compact)
+      assert_equal(0, error[:error].count)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::Place.where(template: false).count)
+
+      returned_data_hash_without["contentLocation"] = []
+      error = data_set_without.set_data_hash(returned_data_hash_without)
+      data_set_without.save
+      returned_again = data_set_without.get_data_hash
+      assert_equal(returned_data_hash_without, returned_again)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::Place.where(template: false).count)
+    end
+
+    test "save CreativeWork with embedded object contentLocation, then delete embedded object (last and only one)" do
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "BildTest", description: "ImageObject").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
@@ -248,7 +302,7 @@ module DataCycleCore
     end
 
     test "save CreativeWork with more than one embedded object contentLocation, delete multiple contentLocations at once" do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "BildTest", description: "ImageObject").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
@@ -534,7 +588,7 @@ module DataCycleCore
     end
 
     test "save CreativeWork with two embedded objects then delete one" do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "BildTest", description: "ImageObject").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }

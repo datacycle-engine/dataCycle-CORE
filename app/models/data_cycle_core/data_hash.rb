@@ -239,7 +239,6 @@ module DataCycleCore
       else
         # only manage relations to embeddedObjects
         potentially_delete.each do |key|
-          self.method(table).call.find_by(id: key).destroy
           ("DataCycleCore::"+relation.classify).constantize.
             find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
             destroy
