@@ -180,7 +180,10 @@ module DataCycleCore
       unless is_blank?(data)
         # update/insert linked_data
         data.each do |item|
-          if item.has_key?('id') && !item['id'].blank?
+          if item.has_key?('id') && item.keys.count == 1
+            # id is the only item --> no update 
+            updated_item_keys.push(item['id'])
+          elsif item.has_key?('id') && !item['id'].blank?
             # update
             update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['id'])
             update_item.set_data_hash(item)
