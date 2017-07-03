@@ -161,7 +161,7 @@ module DataCycleCore
     def get_linked_data_type(table, name, description)
       return_data = []
       self.method(table).call.each do |item|
-        return_data.push(item.get_data_hash)
+        return_data.push(item.get_data_hash.merge({'id' => item.id}))
       end
       return_data.compact
     end

@@ -1,4 +1,4 @@
-<% object = ("DataCycleCore::"+("#{prop['type_name']}".classify)).constantize %>
+<% object = ("DataCycleCore::"+("#{prop['storage_location']}".classify)).constantize %>
 <div class="form-element validation-container <%= key.split('[').last[0...-1] %>">
 	<div class="object-browser" id="<%= sanitize_to_id(key) %>">
 		<%= label_tag(key, prop['label']) %>
@@ -26,7 +26,7 @@
 				<% existing = [] %>
 				<% unless value.blank? %>
 					<% value.each do |item| %>
-						<% image = object.where(id: item).first %>
+						<% image = object.where(id: item['id']).first %>
 						<% existing << image %>
 					<% end %>
 				<% end %>
