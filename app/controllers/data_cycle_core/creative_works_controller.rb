@@ -139,7 +139,9 @@ module DataCycleCore
         data_hash_embedded_objects_content_location = [:contentLocation => [:id]]
         datahash_embedded_objects = [data_hash_embedded_objects_author, data_hash_embedded_objects_content_location]
         datahash_metadata = [:validityPeriod => [:validFrom, :validUntil]]
-        datahash = [:datahash => [:headline, :alternativeHeadline, :name, :text, :description, :metaTitle, :metaDescription, :keywords, :sameAs, datahash_metadata, datahash_tags, datahash_embedded_objects, :image => [], :video => []]]
+        datahash_content_offer = [:logo, :price, :service, :offerPeriod => [:validFrom, :validUntil]]
+        datahash_content = [:alternativeHeadline, :name, :metaTitle, :metaDescription, :keywords, :sameAs, datahash_content_offer]
+        datahash = [:datahash => [:headline, :text, :description, datahash_content, datahash_metadata, datahash_tags, datahash_embedded_objects, :image => [], :video => []]]
         params.require(:creative_work).permit(:headline, datahash)
         # params.require(:creative_work).permit!
       end

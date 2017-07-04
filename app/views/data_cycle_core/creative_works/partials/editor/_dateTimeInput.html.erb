@@ -1,0 +1,7 @@
+<span class="icon <%= key.split('[').last[0...-1] %>">
+    <i aria-hidden="true" class="fa fa-clock-o"></i> <%= label %>
+</span>
+<div class="form-element <%= key.split('[').last[0...-1] %>">
+    <%= label_tag(key, label) %>
+    <%= datetime_field_tag key, value, options %>
+</div>

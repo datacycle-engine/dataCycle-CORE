@@ -24,7 +24,7 @@ module DataCycleCore
     end
 
     def get_allowed_content_types
-      allowed_content_types = {'Artikel' => 'Standard-Artikel'}
+      allowed_content_types = {'Artikel' => 'Standard-Artikel', 'Angebot' => 'Angebot'}
     end
 
     def get_ordered_validation_properties(validation)
@@ -126,6 +126,8 @@ module DataCycleCore
             render_input_text_field(key, value, prop['label'], options)
           when 'date'
             render_date_input_text_field(key, value, prop['label'], options)
+          when 'datetime'
+            render_datetime_input_text_field(key, value, prop['label'], options)
           when 'quillEditor'
             render_fe_editor(key, value, prop['label'], options)
         end
@@ -145,6 +147,10 @@ module DataCycleCore
 
     def render_date_input_text_field(key, value=nil, label=nil, options={})
       render partial: "#{@@partials_path}dateInput", locals: {key: key, value: value, label: label, options: options}
+    end
+
+    def render_datetime_input_text_field(key, value=nil, label=nil, options={})
+      render partial: "#{@@partials_path}dateTimeInput", locals: {key: key, value: value, label: label, options: options}
     end
 
     private
