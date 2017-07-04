@@ -38,8 +38,12 @@
 						<%= form_for(@person) do |f| %>
 
 							<%= hidden_field_tag 'template', 'Person' %>
-							<%= f.text_field :givenName, class: 'form-control', value:'' %>
-							<%= f.text_field :familyName, class: 'form-control', value:'' %>
+							<div class="validation-container form-element">
+								<%= f.text_field :givenName, class: 'form-control', value:'' %>
+							</div>
+							<div class="validation-container form-element">
+								<%= f.text_field :familyName, class: 'form-control', value:'' %>
+							</div>
 							<%= f.submit "Erstellen", class: "button primary" %>
 
 						<% end %>
