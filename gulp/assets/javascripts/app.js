@@ -56,7 +56,7 @@ $(function () {
   // initialize Quill Editor
   quill_init.initialize();
 
-  // initialize Quill Editor
+  // initialize Word Counter
   //counter_init.initialize();
 
 });
