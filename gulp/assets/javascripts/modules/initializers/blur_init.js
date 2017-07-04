@@ -11,4 +11,9 @@ module.exports.initialize = function () {
     $('.reveal-blur').removeClass("show");
   });
 
+  // $(window).on('scroll', function (e) {
+  //   if ($(this).scrollTop() > 130) $('.edit-header').addClass('fix-edit-bar');
+  //   else $('.edit-header').removeClass('fix-edit-bar');
+  // });
+
 };
