@@ -21,7 +21,6 @@ module.exports.initialize = function () {
     var forms = $('.new-item form');
 
     $(document).on('open.zf.reveal', '.new-item', function (e) {
-      console.log("test");
       $(this).find('form').on('submit', function (e) {
         e.preventDefault();
         if (check_fields(this)) this.submit();
@@ -101,7 +100,7 @@ module.exports.initialize = function () {
 
       if ($itemsToValidate.first().data('validate') == "text") items = $itemsToValidate;
       else if ($itemsToValidate.first().data('validate') == "classification") items = $(validation_container).find('input[type="hidden"]');
-      else if ($itemsToValidate.first().data('validate') == "daterange") items = $(validation_container).find('input[type="date"]');
+      else if ($itemsToValidate.first().data('validate') == "daterange") items = $(validation_container).find('input[data-validate="daterange"]');
 
       return validate_single_item(form, items);
     }
