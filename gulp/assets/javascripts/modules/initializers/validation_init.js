@@ -41,7 +41,7 @@ module.exports.initialize = function () {
 
       if ($itemsToValidate.first().data('validate') == "text") items = $itemsToValidate;
       else if ($itemsToValidate.first().data('validate') == "classification") items = $(validation_container).find('input[type="hidden"]');
-      else if ($itemsToValidate.first().data('validate') == "daterange") items = $(validation_container).find('input[type="date"]');
+      else if ($itemsToValidate.first().data('validate') == "daterange") items = $(validation_container).find('input[data-validate="daterange"]');
 
       return validate_single_item(form, items);
     }

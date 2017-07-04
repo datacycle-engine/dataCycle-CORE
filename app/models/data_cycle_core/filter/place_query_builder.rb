@@ -24,7 +24,7 @@ module DataCycleCore
       end
 
     # filters
-      def only_frontend_valid()
+      def only_frontend_valid
         reflect(
           @query.where(
             place[:metadata].not_eq(nil).
