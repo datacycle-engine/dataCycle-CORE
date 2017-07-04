@@ -2,7 +2,7 @@
   <div id="object-browser" data-overlay="false" class="full reveal without-overlay" data-reveal>
     <div class="object-browser-header">
       <h4>
-        <i class="fa fa-files-o" aria-hidden="true"></i> Medien auswählen
+        <i class="fa fa-files-o" aria-hidden="true"></i> {{objectType}} auswählen
       </h4>
       <button v-if="createItem" data-open="newItem" class="new-item-button button">
         <i class="fa fa-plus"></i>
@@ -123,6 +123,11 @@ export default {
       showNew: false
     }
   },
+  watch: {
+    searchTerm(val) {
+      this.currentPage = 1;
+    }
+  },
   methods: {
     pageChanged(pageNum) {
       this.currentPage = pageNum
@@ -184,6 +189,7 @@ export default {
       },
       watch() {
         this.searchTerm
+
       }
     }
   },
