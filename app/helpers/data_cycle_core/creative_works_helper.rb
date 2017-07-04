@@ -90,9 +90,15 @@ module DataCycleCore
       end
     end
 
+    def render_objectBrowser_field(key, prop, value=nil, options={})
+      if !prop.blank? && !prop['editor']['type'].nil?
+        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options}
+      end
+    end
+
     def render_object_field(key, prop, value=nil, options={})
       #raise prop.inspect
-      unless prop['properties'].nil?
+      if !prop['properties'].nil?
         output = []
 
         prop['properties'].each do |object_key, object_property|
@@ -100,6 +106,14 @@ module DataCycleCore
         end
 
         output.join('').html_safe
+
+      else
+
+        if !prop['name'].nil? && !prop['description'].nil? && !prop['editor']['type'].nil?
+          key = get_object_key(key)
+          render_objectBrowser_field(key, prop, value, options)
+        end
+
       end
 
     end

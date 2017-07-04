@@ -50,7 +50,7 @@
       <pagination :current-page="currentPage" :items-per-page="itemsPerPage" :total-items="totalItems" @page-changed="pageChanged">
       </pagination>
     </div>
-    <detail :item="activeItem" :headline="headline(activeItem)" class="item-info"></detail>
+    <detail :item="activeItem" :headline="headline(activeItem)" :object-type="objectType" class="item-info"></detail>
   </div>
 </template>
 
@@ -155,6 +155,12 @@ export default {
     },
     headline(item) {
       if (this.objectType == "Autor") return item.givenName + " " + item.familyName;
+      else if (this.objectType == "Ort") {
+        if (item.name != undefined)
+          return item.name;
+        else
+          return "not set";
+      }
       else if (item != undefined && item.content != undefined) return item.content.headline;
       else return undefined;
     },

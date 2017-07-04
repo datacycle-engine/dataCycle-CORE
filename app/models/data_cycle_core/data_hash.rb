@@ -10,6 +10,7 @@ module DataCycleCore
         data_type = metadata['validation']
         data_hash = {}
         data_type['properties'].each do |key,value|
+          next if key == '@id'
           data_hash[key] = storage_cases_get(key,data_type['properties'][key])
         end
         data_hash
@@ -24,7 +25,7 @@ module DataCycleCore
       template_hash = metadata['validation']
       if validate?(data_hash)
         ActiveRecord::Base.transaction do
-          set_template_data_hash(template_hash['properties'], data_hash)
+          set_template_data_hash(data_hash, template_hash['properties'])
         end
       end
       validate(data_hash) # return error/warnings from validation
@@ -79,9 +80,10 @@ module DataCycleCore
       end
     end
 
-    def set_template_data_hash(properties, data_hash)
+    def set_template_data_hash(data_hash, properties)
       properties.each do |key,value|
-        storage_cases_set(key, data_hash[key], properties[key])
+        #puts " key ----> #{key} | value: #{value} || #{data_hash[key]} | #{data_hash}"
+        storage_cases_set(key, data_hash[key], value)
       end
     end
 
@@ -97,6 +99,10 @@ module DataCycleCore
         self.properties[key]
       when "classification_relation"
         get_relation_ids(properties["storage_type"], properties["type_name"])
+      when "key"
+        self.id
+      else
+        get_linked_data_type(properties['storage_location'], properties['name'], properties['description'])
       end
     end
 
@@ -113,6 +119,18 @@ module DataCycleCore
         save_to_jsonb(key, value, properties, 'properties')
       when 'classification_relation'
         set_relation_ids(properties['storage_type'], value, properties['type_name'])
+      else
+        # maybe already evaluated with validations?
+        unless properties['storage_location'] == 'key'
+          if properties.has_key?('name') && properties.has_key?('description')
+            delete = false
+            delete = true if properties.has_key?('delete') && properties['delete'] == true
+            #puts "set_linked_data_type(#{value}, #{properties['storage_location']}, #{properties['name']}, #{properties['description']}, #{delete})"
+            set_linked_data_type(value, properties['storage_location'], properties['name'], properties['description'], delete)
+          else
+            puts "wrong data_type #{key} | #{value}"
+          end
+        end
       end
     end
 
@@ -142,7 +160,101 @@ module DataCycleCore
       data_hash
     end
 
+    def get_linked_data_type(table, name, description)
+      return_data = []
+      self.method(table).call.each do |item|
+        return_data.push(item.get_data_hash)
+      end
+      return_data.compact
+    end
 
+    def set_linked_data_type(data, table, name, description, delete)
+      # figure out the relation name (alphabetic order from this_class + table )
+      tables = [ table, self.class.table_name ].sort
+      relation = tables[0].singularize+"_"+tables[1]
+
+      # get validation template
+      template = ("DataCycleCore::"+table.classify).constantize.
+        find_by(template: true, headline: name, description: description)
+
+      updated_item_keys = []
+
+      unless is_blank?(data)
+        # update/insert linked_data
+        data.each do |item|
+          if item.has_key?('id') && !item['id'].blank? && item.keys.count == 1
+            # id is the only item --> no update
+            updated_item_keys.push(item['id'])
+            # relation update/insert
+            upsert_relation = ("DataCycleCore::"+relation.classify).
+              constantize.
+              find_or_create_by(
+                self.class.table_name.singularize.foreign_key.to_sym => self.id,
+                table.singularize.foreign_key.to_sym => item['id']
+                )
+            upsert_relation.save
+          elsif item.has_key?('id') && !item['id'].blank?
+            # update
+            update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['id'])
+            update_item.set_data_hash(item)
+            update_item.save
+            updated_item_keys.push(update_item.id)
+          else
+            # insert
+            insert_item = ("DataCycleCore::"+table.classify).constantize.new
+            insert_item.metadata = { 'validation' => template.metadata['validation'] }
+            insert_item.save
+            insert_item.set_data_hash(item)
+            insert_item.save
+            updated_item_keys.push(insert_item.id)
+
+            # insert_relation
+            insert_relation = ("DataCycleCore::"+relation.classify).constantize.new
+            insert_relation.method(self.class.table_name.singularize.foreign_key+"=").call(self.id)
+            insert_relation.method(table.singularize.foreign_key+"=").call(insert_item.id)
+            insert_relation.save
+          end
+        end
+      end
+      # check if items in context of the present language should be deleted
+      available_update_item_keys = self.method(table).call.ids
+      potentially_delete = available_update_item_keys - updated_item_keys
+
+      if delete
+        # full access to embeddedObjects
+        potentially_delete.each do |key|
+          item = ("DataCycleCore::"+table.classify).constantize.find_by(id: key)
+          translations = item.translated_locales
+          if (translations-[ I18n.locale ]).size < 1
+            # find relation and destroy it
+            self.method(table).call.find_by(id: key).destroy
+            ("DataCycleCore::"+relation.classify).constantize.
+              find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
+              destroy
+          else
+            # only destroy particular translation !
+            item.translation.destroy
+          end
+        end
+      else
+        # only manage relations to embeddedObjects
+        potentially_delete.each do |key|
+          ("DataCycleCore::"+relation.classify).constantize.
+            find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
+            destroy
+        end
+      end
+      self.method(table).call.reload # MO: force reload of the relation, otherwise cached data can obsure the next get_data_hash
+    end
+
+    # validate nil,"",[],[nil],[""] as blank.
+    def is_blank?(data)
+      return true if data.blank?
+      if data.is_a?(::Array)
+        return true if data.length == 1 && data[0].blank?
+      end
+      return false
+    end
 
   end
 end

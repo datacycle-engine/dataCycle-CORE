@@ -23,6 +23,10 @@ module DataCycleCore
         query = query.with_locale(@language)
         query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
+      elsif @type == "Ort"
+
+        query = DataCycleCore::Place.all().where(:template => false).order(updated_at: :desc)
+
       else
 
         query = DataCycleCore::Filter::ImageQueryBuilder.new

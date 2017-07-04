@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: Thema
+    :name: ThemaTest
     :description: CreativeWork
     :type: object
     :permissions:
@@ -134,7 +134,7 @@
           :format: date_time
 
 - :data:
-    :name: Recherche
+    :name: RechercheTest
     :description: CreativeWork
     :type: object
     :permissions:
@@ -214,7 +214,7 @@
           :format: date_time
 
 - :data:
-    :name: Bild
+    :name: BildTest
     :description: ImageObject
     :type: object
     :permissions:
@@ -255,6 +255,7 @@
       :contentLocation:
         :label: Ort
         :type: object
+        :delete: true
         :storage_location: places
         :name: contentLocation
         :description: Place
@@ -383,7 +384,7 @@
         :default_value: "Bild"
 
 - :data:
-    :name: Standard-Artikel
+    :name: Standard-ArtikelTest
     :description: CreativeWork
     :type: object
     :permissions:
