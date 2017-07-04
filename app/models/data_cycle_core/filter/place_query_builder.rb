@@ -6,10 +6,10 @@ module DataCycleCore
         @classification_alias = classification_alias
         @locale = locale
         @query = query || Place.unscoped.distinct.
-                            joins(place.join(place_translation).
-                            on(place[:id].eq(place_translation[:place_id])).
-                            join_sources
-                          ).where(place_translation[:locale].eq(quoted(@locale)))
+          joins(place.join(place_translation).
+          on(place[:id].eq(place_translation[:place_id])).
+          join_sources
+        ).where(place_translation[:locale].eq(quoted(@locale)))
 
       end
 
@@ -17,7 +17,20 @@ module DataCycleCore
       def with_name(name)
         reflect(
           @query.where(
-            place_translation[:name].matches("%#{name}%")
+            place_translation[:name].matches("%#{name}%").
+            or(place_translation[:address].matches("%#{name}%"))
+          )
+        )
+      end
+
+    # filters
+      def only_frontend_valid()
+        reflect(
+          @query.where(
+            place[:metadata].not_eq(nil).
+            and(place_translation[:name].not_eq(nil).
+              or(place_translation[:address].not_eq(nil))
+            )
           )
         )
       end
@@ -85,6 +98,11 @@ module DataCycleCore
 
       def classification_place
         ClassificationPlace.arel_table
+      end
+
+    # chain method for Builder pattern
+      def reflect(query)
+        self.class.new(query, @locale, @classification_alias)
       end
 
     end
