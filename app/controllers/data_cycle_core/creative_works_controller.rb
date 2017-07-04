@@ -131,19 +131,16 @@ module DataCycleCore
       render :json => valid.to_json
     end
 
-    #dev views for michi
-    def demotopic
-
-    end
-
-    def demoarticle
-
-    end
-
     private
 
       def creative_work_params
-        params.require(:creative_work).permit(:headline, :datahash => [:headline, :alternativeHeadline, :name, :text,:description, :metaTitle, :metaDescription, :keywords, :sameAs, :state => [], :kind => [] ,:season => [],:topics => [],:markets => [],:tags => [], :outputChannels => [], :validityPeriod => [:validFrom, :validUntil], :image => [], :video => [], :author => [:id], :contentLocation => [:id]])
+        datahash_tags = [:state => [], :kind => [] ,:season => [],:topics => [],:markets => [],:tags => [], :outputChannels => []]
+        data_hash_embedded_objects_author = [:author => [:id]]
+        data_hash_embedded_objects_content_location = [:contentLocation => [:id]]
+        datahash_embedded_objects = [data_hash_embedded_objects_author, data_hash_embedded_objects_content_location]
+        datahash_metadata = [:validityPeriod => [:validFrom, :validUntil]]
+        datahash = [:datahash => [:headline, :alternativeHeadline, :name, :text, :description, :metaTitle, :metaDescription, :keywords, :sameAs, datahash_metadata, datahash_tags, datahash_embedded_objects, :image => [], :video => []]]
+        params.require(:creative_work).permit(:headline, datahash)
         # params.require(:creative_work).permit!
       end
 
