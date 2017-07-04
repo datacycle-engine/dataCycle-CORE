@@ -94,6 +94,12 @@ module DataCycleCore
           where(template: true, headline: 'Bild', description: 'ImageObject').
           first
         validation = data_template.metadata['validation']
+
+        template_place = Place.
+          where(template: true, headline: 'contentLocation', description: 'Place').
+          first
+        contentLocation_template = template_place.metadata['validation']
+
         i = 0
         page_size = 50 #avoid timeout from Mongo-cursor!!!
         total_items=DownloadCreativeWork.count
@@ -101,7 +107,7 @@ module DataCycleCore
         pages.times do |index|
           DownloadCreativeWork.all.extras(:limit => page_size, :skip => (index*page_size)).each do |data_set|
             ActiveRecord::Base.transaction do
-
+              contentLocation = nil
               to_update_image = CreativeWork
                 .where(
                   "metadata ->> 'external_key' = ? AND external_source_id = ?",
@@ -130,10 +136,13 @@ module DataCycleCore
                     next
                   end
                   to_update_image.save
-                  unless contentLocation.blank?
-                    save_location(to_update_image.id, lang, contentLocation)
-                  end
                 end
+              end
+
+              languages = data_set.dump.keys
+              # save place data
+              unless contentLocation.blank? || to_update_image.id.nil?
+                save_location(to_update_image, contentLocation, contentLocation_template, languages)
               end
 
               unless to_update_image.id.nil?
@@ -171,23 +180,45 @@ module DataCycleCore
         end
       end
 
-      def save_location(creative_work_id, lang, data_hash)
-        set_data = {}
-        if !data_hash['name'].blank? && !data_hash['name'][lang].blank?
-          set_data['name'] = data_hash['name'][lang]
+      def save_location(creative_work, data_hash, template, parent_languages)
+        # check which languages are present
+        if data_hash['name'].blank?
+          lang = parent_languages.first
+          languages = [ lang ]
+        else
+          languages = data_hash['name'].keys
         end
-        set_data['address'] = data_hash['address']
-        set_data['longitude'] = data_hash['geo']['longitude'] unless data_hash['geo'].blank?
-        set_data['latitude'] = data_hash['geo']['latitude'] unless data_hash['geo'].blank?
-        unless set_data['longitude'].blank? || set_data['latitude'].blank?
-          set_data['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(set_data['longitude'].to_f, set_data['latitude'].to_f)
+
+        # check if place exists
+        places = creative_work.places
+        if places.count == 1
+          place = places.first
+          place.metadata['validation'] = template # always use new data_type-template
+        elsif places.count == 0
+          place = DataCycleCore::Place.new
+          place.metadata = { 'validation' => template }
+          place.save
         end
-        set_data['external_source_id'] = @external_source_id
-        place = Place.find_or_create_by(set_data) do |data_set|
-          data_set.seen_at = Time.zone.now
+
+        languages.each do |lang|
+          I18n.with_locale(lang) do
+            set_data = {}
+            if !data_hash['name'].blank? && !data_hash['name'][lang].blank?
+              set_data['name'] = data_hash['name'][lang]
+            end
+            set_data['address'] = data_hash['address']
+            set_data['longitude'] = data_hash['geo']['longitude'] unless data_hash['geo'].blank?
+            set_data['latitude'] = data_hash['geo']['latitude'] unless data_hash['geo'].blank?
+            unless set_data['longitude'].blank? || set_data['latitude'].blank?
+              set_data['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(set_data['longitude'].to_f, set_data['latitude'].to_f)
+            end
+            set_data['external_source_id'] = @external_source_id
+            place.set_data_hash(set_data)
+            place.seen_at = Time.zone.now
+            place.save
+          end
         end
-        place.save
-        CreativeWorkPlace.find_or_create_by(place_id: place.id, creative_work_id: creative_work_id, external_source_id: @external_source_id) do |data_set|
+        CreativeWorkPlace.find_or_create_by(place_id: place.id, creative_work_id: creative_work.id, external_source_id: @external_source_id) do |data_set|
           data_set.seen_at = Time.zone.now
         end.save
       end

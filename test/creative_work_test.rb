@@ -3,6 +3,8 @@ require 'test_helper'
 # load template, classifications for all tests
 creative_work_yaml = Rails.root.join('..','setup_data','creative_works.yml')
 DataCycleCore::MasterData::ImportTemplates.new.import(creative_work_yaml, DataCycleCore::CreativeWork)
+creative_work_yaml = Rails.root.join('..','setup_data','creative_works_test.yml')
+DataCycleCore::MasterData::ImportTemplates.new.import(creative_work_yaml, DataCycleCore::CreativeWork)
 place_yaml = Rails.root.join('..','setup_data','places.yml')
 DataCycleCore::MasterData::ImportTemplates.new.import(place_yaml, DataCycleCore::Place)
 classification_yaml = Rails.root.join('..','setup_data','classifications.yml')
@@ -14,6 +16,824 @@ module DataCycleCore
     test "CreativeWork exists" do
       data = DataCycleCore::CreativeWork.new
       assert_equal(data.class, DataCycleCore::CreativeWork)
+    end
+
+    test "different behaviour for embeddedObject with/without delete flag" do
+      template_without_delete = DataCycleCore::CreativeWork.find_by(template: true, headline: "Bild", description: "ImageObject")
+      validation_without_delete = template_without_delete.metadata['validation']
+      data_set_without = DataCycleCore::CreativeWork.new
+      data_set_without.metadata = { 'validation' => validation_without_delete }
+      data_set_without.save
+      data_hash = {
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+            "name" => "Testort",
+            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+            "longitude" => 13.10,
+            "latitude" => 25.30
+        }]
+      }
+      error = data_set_without.set_data_hash(data_hash)
+      data_set_without.save
+      returned_data_hash_without = data_set_without.get_data_hash
+      expected_hash = {
+        "access" => [],
+        "headline" => "Dies ist ein Test!",
+        "data_type" => [],
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "id" => returned_data_hash_without['contentLocation'][0]['id'],
+          "name" => "Testort",
+          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "location" => nil,
+          "longitude" => 13.1,
+          "external_source_id" => nil
+        }]
+      }
+      assert_equal(expected_hash, returned_data_hash_without.compact)
+      assert_equal(0, error[:error].count)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::Place.where(template: false).count)
+
+      returned_data_hash_without["contentLocation"] = []
+      error = data_set_without.set_data_hash(returned_data_hash_without)
+      data_set_without.save
+      returned_again = data_set_without.get_data_hash
+      assert_equal(returned_data_hash_without, returned_again)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::Place.where(template: false).count)
+    end
+
+    test "save CreativeWork with embedded object contentLocation, then delete embedded object (last and only one)" do
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "BildTest", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      data_hash = {
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+            "name" => "Testort",
+            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+            "longitude" => 13.10,
+            "latitude" => 25.30
+        }]
+      }
+      error = data_set.set_data_hash(data_hash)
+      data_set.save
+      returned_data_hash = data_set.get_data_hash
+
+      expected_hash = {
+        "access" => [],
+        "headline" => "Dies ist ein Test!",
+        "data_type" => [],
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "id" => returned_data_hash['contentLocation'][0]['id'],
+          "name" => "Testort",
+          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "location" => nil,
+          "longitude" => 13.1,
+          "external_source_id" => nil
+        }]
+      }
+
+      assert_equal(expected_hash, returned_data_hash.compact)
+      assert_equal(0, error[:error].count)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::Place.where(template: false).count)
+
+      returned_data_hash["contentLocation"] = []
+      error = data_set.set_data_hash(returned_data_hash)
+      data_set.save
+      returned_again = data_set.get_data_hash
+      assert_equal(returned_data_hash, returned_again)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(0, DataCycleCore::Place.where(template: false).count)
+    end
+
+    test "save CreativeWork with embedded object contentLocation, read data with only id given" do
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      data_hash = {
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+            "name" => "Testort",
+            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+            "longitude" => 13.10,
+            "latitude" => 25.30
+        }]
+      }
+      error = data_set.set_data_hash(data_hash)
+      data_set.save
+      returned_data_hash = data_set.get_data_hash
+
+      expected_hash = {
+        "access" => [],
+        "headline" => "Dies ist ein Test!",
+        "data_type" => [],
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "id" => returned_data_hash['contentLocation'][0]['id'],
+          "name" => "Testort",
+          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "location" => nil,
+          "longitude" => 13.1,
+          "external_source_id" => nil
+        }]
+      }
+
+      assert_equal(expected_hash, returned_data_hash.compact)
+      assert_equal(0, error[:error].count)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::Place.where(template: false).count)
+
+      returned_data_hash["contentLocation"] = [{'id' => returned_data_hash["contentLocation"][0]['id']}]
+      error = data_set.set_data_hash(returned_data_hash)
+      data_set.save
+      returned_again = data_set.get_data_hash
+      assert_equal(expected_hash, returned_again.compact)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::Place.where(template: false).count)
+    end
+
+    test "save CreativeWork with embedded object contentLocation, create relation with only id given" do
+      # insert a place
+      template = DataCycleCore::Place.find_by(template: true, headline: "contentLocation", description: "Place")
+      validation = template.metadata['validation']
+      data_set_place = DataCycleCore::Place.new
+      data_set_place.metadata = { 'validation' => validation }
+      data_set_place.save
+      place_hash = {
+          "name" => "Testort",
+          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "longitude" => 13.10,
+          "latitude" => 25.30
+      }
+      error = data_set_place.set_data_hash(place_hash)
+      data_set_place.save
+      returned_place = data_set_place.get_data_hash
+      place_id = returned_place['id']
+
+      # insert an image and connect it to an existing place
+      template = DataCycleCore::CreativeWork.find_by(template: true, headline: "Bild", description: "ImageObject")
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      data_hash = {
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{ "id" => place_id }]
+      }
+      error = data_set.set_data_hash(data_hash)
+      data_set.save
+
+      returned_data_hash = data_set.get_data_hash
+
+      expected_hash = {
+        "access" => [],
+        "headline" => "Dies ist ein Test!",
+        "data_type" => [],
+        "description" => "wtf is going on???",
+        "contentLocation" => [ returned_place ]
+      }
+
+      assert_equal(expected_hash, returned_data_hash.compact)
+      assert_equal(0, error[:error].count)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::Place.where(template: false).count)
+    end
+
+    test "save CreativeWork without embedded object contentLocation, update CW and create relation with only id given" do
+      # insert a place
+      template = DataCycleCore::Place.find_by(template: true, headline: "contentLocation", description: "Place")
+      validation = template.metadata['validation']
+      data_set_place = DataCycleCore::Place.new
+      data_set_place.metadata = { 'validation' => validation }
+      data_set_place.save
+      place_hash = {
+          "name" => "Testort",
+          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "longitude" => 13.10,
+          "latitude" => 25.30
+      }
+      error = data_set_place.set_data_hash(place_hash)
+      data_set_place.save
+      returned_place = data_set_place.get_data_hash
+      place_id = returned_place['id']
+
+      # insert an image without connection to a place
+      template = DataCycleCore::CreativeWork.find_by(template: true, headline: "Bild", description: "ImageObject")
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      data_hash = {
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => []
+      }
+      error = data_set.set_data_hash(data_hash)
+      data_set.save
+
+      returned_data_hash = data_set.get_data_hash
+
+      expected_hash = {
+        "access" => [],
+        "headline" => "Dies ist ein Test!",
+        "data_type" => [],
+        "description" => "wtf is going on???",
+        "contentLocation" => []
+      }
+
+      assert_equal(expected_hash, returned_data_hash.compact)
+      assert_equal(0, error[:error].count)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::Place.where(template: false).count)
+
+      # make relation
+      data_hash["contentLocation"] = [{ "id" => place_id }]
+      error = data_set.set_data_hash(data_hash)
+      data_set.save
+      returned_data_hash = data_set.get_data_hash
+      expected_hash["contentLocation"] = [ returned_place ]
+
+      assert_equal(expected_hash, returned_data_hash.compact)
+      assert_equal(0, error[:error].count)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::Place.where(template: false).count)
+    end
+
+    test "save CreativeWork with more than one embedded object contentLocation, delete multiple contentLocations at once" do
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "BildTest", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      data_hash = {
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "name" => "Testort",
+          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "longitude" => 13.1,
+          "latitude" => 25.3
+        },{
+          "name" => "2Testort",
+          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "longitude" => 23.1
+        },{
+          "name" => "3Testort",
+          "address" => "3Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 35.3,
+          "longitude" => 33.1
+        }]
+      }
+      error = data_set.set_data_hash(data_hash)
+      data_set.save
+
+      expected_hash = {
+        "access" => [],
+        "headline" => "Dies ist ein Test!",
+        "data_type" => [],
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "id" => nil,
+          "name" => "Testort",
+          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "location" => nil,
+          "longitude" => 13.1,
+          "external_source_id" => nil
+        },{
+          "id" => nil,
+          "name" => "2Testort",
+          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "location" => nil,
+          "longitude" => 23.1,
+          "external_source_id" => nil
+        },{
+          "id" => nil,
+          "name" => "3Testort",
+          "address" => "3Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 35.3,
+          "location" => nil,
+          "longitude" => 33.1,
+          "external_source_id" => nil
+        }]
+      }
+
+      returned_data_hash = data_set.get_data_hash.compact
+      assert_equal(expected_hash.except("contentLocation"), returned_data_hash.except("contentLocation"))
+      assert_equal(expected_hash["contentLocation"].count, returned_data_hash["contentLocation"].count)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(3, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(3, DataCycleCore::Place.where(template: false).count)
+
+      # delete all places at once
+      returned_data_hash["contentLocation"] = []
+      error = data_set.set_data_hash(returned_data_hash)
+      data_set.save
+
+      returned_again = data_set.get_data_hash.compact
+      expected_hash["contentLocation"] = []
+      assert_equal(expected_hash, returned_data_hash)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(0, DataCycleCore::Place.where(template: false).count)
+    end
+
+    test "save CreativeWork with embedded object contentLocation, write, read and write back" do
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      data_hash = {
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+            "name" => "Testort",
+            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+            "longitude" => 13.10,
+            "latitude" => 25.30
+        }]
+      }
+      error = data_set.set_data_hash(data_hash)
+      data_set.save
+
+      returned_data_hash = data_set.get_data_hash
+
+      expected_hash = {
+        "access" => [],
+        "headline" => "Dies ist ein Test!",
+        "data_type" => [],
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "id" => returned_data_hash['contentLocation'][0]['id'],
+          "name" => "Testort",
+          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "location" => nil,
+          "longitude" => 13.1,
+          "external_source_id" => nil
+        }]
+      }
+
+      assert_equal(expected_hash, returned_data_hash.compact)
+      assert_equal(0, error[:error].count)
+
+      error = data_set.set_data_hash(returned_data_hash)
+      data_set.save
+
+      returned_again = data_set.get_data_hash
+      assert_equal(returned_data_hash, returned_again)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::Place.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+    end
+
+    test "save CreativeWork with embedded object contentLocation" do
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      data_hash = {
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+            "name" => "Testort",
+            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+            "longitude" => 13.10,
+            "latitude" => 25.30
+        }]
+      }
+      error = data_set.set_data_hash(data_hash)
+      expected_hash = {
+        "access" => [],
+        "headline" => "Dies ist ein Test!",
+        "data_type" => [],
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "id" => nil,
+          "name" => "Testort",
+          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "location" => nil,
+          "longitude" => 13.1,
+          "external_source_id" => nil
+        }]
+      }
+      data_set.save
+      returned_data_hash = data_set.get_data_hash.compact
+      expected_hash['contentLocation'][0]['id'] = returned_data_hash['contentLocation'][0]['id']
+      assert_equal(expected_hash, returned_data_hash)
+      assert_equal(0, error[:error].count)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::Place.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+    end
+
+    test "save CreativeWork with embedded object contentLocation consistency check get(set)=set" do
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      data_hash = {
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+            "name" => "Testort",
+            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+            "longitude" => 13.10,
+            "latitude" => 25.30
+        }]
+      }
+      error = data_set.set_data_hash(data_hash)
+      data_set.save
+      error = data_set.set_data_hash(data_set.get_data_hash.compact)
+      data_set.save
+      expected_hash = {
+        "access" => [],
+        "headline" => "Dies ist ein Test!",
+        "data_type" => [],
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "id" => nil,
+          "name" => "Testort",
+          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "location" => nil,
+          "longitude" => 13.1,
+          "external_source_id" => nil
+        }]
+      }
+      data_set.save
+      returned_data_hash = data_set.get_data_hash.compact
+      expected_hash['contentLocation'][0]['id'] = returned_data_hash['contentLocation'][0]['id']
+      assert_equal(expected_hash, returned_data_hash)
+      assert_equal(0, error[:error].count)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::Place.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+    end
+
+    test "save CreativeWork with more than one embedded object contentLocation" do
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      data_hash = {
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+            "name" => "Testort",
+            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+            "longitude" => 13.1,
+            "latitude" => 25.3
+        },{
+          "name" => "2Testort",
+          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "longitude" => 23.1,
+        }]
+      }
+      error = data_set.set_data_hash(data_hash)
+      expected_hash = {
+        "access" => [],
+        "headline" => "Dies ist ein Test!",
+        "data_type" => [],
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "id" => nil,
+          "name" => "Testort",
+          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "location" => nil,
+          "longitude" => 13.1,
+          "external_source_id" => nil
+        },{
+          "id" => nil,
+          "name" => "2Testort",
+          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "location" => nil,
+          "longitude" => 23.1,
+          "external_source_id" => nil
+        }]
+      }
+      data_set.save
+      returned_data_hash = data_set.get_data_hash.compact
+      returned_data_hash['contentLocation'][0]['id'] = nil
+      returned_data_hash['contentLocation'][1]['id'] = nil
+      assert_equal(expected_hash.except("contentLocation"), returned_data_hash.except("contentLocation"))
+      assert_equal(expected_hash["contentLocation"].count, returned_data_hash["contentLocation"].count)
+
+      # check consistency of data in DB
+      assert_equal(2, DataCycleCore::Place.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(2, DataCycleCore::CreativeWorkPlace.count)
+    end
+
+    test "save CreativeWork with two embedded objects then delete one" do
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "BildTest", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+      data_hash = {
+        "headline" => "Dies ist ein Test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+            "name" => "Testort",
+            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+            "longitude" => 13.1,
+            "latitude" => 25.3
+        },{
+          "name" => "2Testort",
+          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "longitude" => 23.1,
+        }]
+      }
+      error = data_set.set_data_hash(data_hash)
+      data_set.save
+      returned_data_hash = data_set.get_data_hash
+      data_hash2 = returned_data_hash.compact
+      data_hash2["contentLocation"] = []
+      data_hash2["contentLocation"].push(returned_data_hash["contentLocation"][1])
+      error = data_set.set_data_hash(data_hash2.compact)
+      data_set.save
+
+      expected_hash = {
+        "access" => [],
+        "headline" => "Dies ist ein Test!",
+        "data_type" => [],
+        "description" => "wtf is going on???",
+        "contentLocation" => []
+      }
+      expected_hash["contentLocation"].push(returned_data_hash["contentLocation"][1])
+      returned_data_hash = data_set.get_data_hash
+      assert_equal(expected_hash, returned_data_hash.compact)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::Place.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+    end
+
+    test "save CreativeWork with two embedded objects having two translations and then delete one translation (full access to embeddedObjects)" do
+      # setup data-set with a template
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "BildTest", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+
+      # expected de/en hashes for main object
+      de_expected = {
+        "access" => [],
+        "headline" => "Das ist ein Test!",
+        "data_type" => [],
+        "description" => "wooos laft??"
+      }
+      en_expected = {
+        "access" => [],
+        "headline" => "this is a test!",
+        "data_type" => [],
+        "description" => "wtf is going on???"
+      }
+
+      # save two embedded objects in german translation
+      data_hash = {
+        "headline" => "Das ist ein Test!",
+        "description" => "wooos laft??",
+        "contentLocation" => [{
+            "name" => "Testort",
+            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+            "longitude" => 13.1,
+            "latitude" => 25.3
+        },{
+          "name" => "2Testort",
+          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "longitude" => 23.1,
+        }]
+      }
+      error = I18n.with_locale(:de){
+        data_set.set_data_hash(data_hash)
+      }
+      data_set.save
+
+      # check for german data-set, two embedded contentLocation // no english data-set
+      assert_equal(de_expected, I18n.with_locale(:de){data_set.get_data_hash.compact.except("contentLocation")})
+      assert_equal(data_hash["contentLocation"].size, I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].size})
+      assert_nil(I18n.with_locale(:en){data_set.get_data_hash})
+
+
+      # prepare a german hash with only one embedded object
+      returned_data_hash = I18n.with_locale(:de){
+        data_set.get_data_hash
+      }
+      data_hash2 = returned_data_hash.compact
+      data_hash2["contentLocation"] = []
+      data_hash2["contentLocation"].push(returned_data_hash["contentLocation"][1])
+      ids = data_set.places.ids
+
+      # save two embedded objects in english
+      data_hash_en = {
+        "headline" => "this is a test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "id" => ids[0],
+          "name" => "Testplace",
+          "address" => "Sherwood forest 13, 12345 Dotcot",
+          "longitude" => 13.1,
+          "latitude" => 25.3
+        },{
+          "id" => ids[1],
+          "name" => "2nd Testplace",
+          "address" => "Sherwood forest 23, 12345 Dotcot",
+          "latitude" => 25.3,
+          "longitude" => 23.1,
+        }]
+      }
+
+      error_eng = I18n.with_locale(:en){
+        data_set.set_data_hash(data_hash_en.compact)
+      }
+      data_set.save
+
+      # check for two german and englisch data_sets (+ check that they are only translations of the same data-sets)
+      assert_equal(de_expected, I18n.with_locale(:de){data_set.get_data_hash.compact.except("contentLocation")})
+      assert_equal(data_hash["contentLocation"].size, I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].size})
+      assert_equal(en_expected, I18n.with_locale(:en){data_set.get_data_hash.compact.except("contentLocation")})
+      assert_equal(data_hash_en["contentLocation"].size, I18n.with_locale(:en){data_set.get_data_hash.compact["contentLocation"].size})
+      de_ids = I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].map{|item| item["id"]}}
+      en_ids = I18n.with_locale(:en){data_set.get_data_hash.compact["contentLocation"].map{|item| item["id"]}}
+      assert_equal(de_ids.sort, en_ids.sort)
+
+
+      # delete the german translation of one object
+      error = I18n.with_locale(:de){
+        data_set.set_data_hash(data_hash2)
+      }
+      data_set.save
+
+      de_returned = I18n.with_locale(:de){ data_set.get_data_hash }
+      en_returned = I18n.with_locale(:en){ data_set.get_data_hash }
+
+      de_embedded = de_returned["contentLocation"]
+      en_embedded = en_returned["contentLocation"]
+      assert_equal(de_expected, de_returned.compact.except("contentLocation"))
+      assert_equal(en_expected, en_returned.compact.except("contentLocation"))
+      assert_equal(1, de_embedded.count)
+      assert_equal(2, en_embedded.count)
+
+      # check consistency of data in DB
+      assert_equal(2, DataCycleCore::Place.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(2, DataCycleCore::CreativeWorkPlace.count)
+    end
+
+    test "save CreativeWork with two embedded objects each for every translation (full access to embeddedObjects)" do
+      # setup data-set with a template
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "BildTest", description: "ImageObject").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+
+      # expected de/en hashes for main object
+      de_expected = {
+        "access" => [],
+        "headline" => "Das ist ein Test!",
+        "data_type" => [],
+        "description" => "wooos laft??"
+      }
+      en_expected = {
+        "access" => [],
+        "headline" => "this is a test!",
+        "data_type" => [],
+        "description" => "wtf is going on???"
+      }
+
+      # save two embedded objects in german translation
+      data_hash = {
+        "headline" => "Das ist ein Test!",
+        "description" => "wooos laft??",
+        "contentLocation" => [{
+            "name" => "Testort",
+            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+            "longitude" => 13.1,
+            "latitude" => 25.3
+        },{
+          "name" => "2Testort",
+          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
+          "latitude" => 25.3,
+          "longitude" => 23.1,
+        }]
+      }
+      error = I18n.with_locale(:de){
+        data_set.set_data_hash(data_hash)
+      }
+      data_set.save
+
+      # check for german data-set, two embedded contentLocation // no english data-set
+      assert_equal(de_expected, I18n.with_locale(:de){data_set.get_data_hash.compact.except("contentLocation")})
+      assert_equal(data_hash["contentLocation"].size, I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].size})
+      assert_nil(I18n.with_locale(:en){data_set.get_data_hash})
+
+      # save two embedded objects in english (different locations from the german ones)
+      data_hash_en = {
+        "headline" => "this is a test!",
+        "description" => "wtf is going on???",
+        "contentLocation" => [{
+          "name" => "Testplace",
+          "address" => "Sherwood forest 13, 12345 Dotcot",
+          "longitude" => 13.1,
+          "latitude" => 25.3
+        },{
+          "name" => "2nd Testplace",
+          "address" => "Sherwood forest 23, 12345 Dotcot",
+          "latitude" => 25.3,
+          "longitude" => 23.1,
+        }]
+      }
+
+      error_eng = I18n.with_locale(:en){
+        data_set.set_data_hash(data_hash_en.compact)
+      }
+      data_set.save
+
+      # check for two german and englisch data_sets (+ check that they are different data-sets)
+      assert_equal(de_expected, I18n.with_locale(:de){data_set.get_data_hash.compact.except("contentLocation")})
+      assert_equal(data_hash["contentLocation"].size, I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].size})
+      assert_equal(en_expected, I18n.with_locale(:en){data_set.get_data_hash.compact.except("contentLocation")})
+      assert_equal(data_hash_en["contentLocation"].size, I18n.with_locale(:en){data_set.get_data_hash.compact["contentLocation"].size})
+      de_ids = I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].map{|item| item["id"]}}
+      en_ids = I18n.with_locale(:en){data_set.get_data_hash.compact["contentLocation"].map{|item| item["id"]}}
+      assert_equal(2, de_ids.size)
+      assert_equal(2, en_ids.size)
+      assert_not_equal(de_ids.sort[0], en_ids.sort[0])
+      assert_not_equal(de_ids.sort[1], en_ids.sort[1])
+
+      # check consistency of data in DB
+      assert_equal(4, DataCycleCore::Place.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(4, DataCycleCore::CreativeWorkPlace.count)
     end
 
     test "save proper CreativeWork data-set with hash method" do
@@ -117,15 +937,14 @@ module DataCycleCore
     end
 
     test "save CreativeWork with sub-properties with wrong name and valid data" do
-
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Thema", description: "CreativeWork").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_hash = {"headline" => "Dies ist ein Test!", "validityPeriod" => {"datePublished" => "2017-05-01", "validTo" => "2017-06-01"}}
       error = data_set.set_data_hash(data_hash)
       assert_equal(0, error[:error].count)
-      assert_equal(23, error[:warning].count)
+      assert_equal(13, error[:warning].count)
     end
 
     test "save CreativeWork link to user_id" do

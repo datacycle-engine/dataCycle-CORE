@@ -17,6 +17,28 @@
 	}
 }
 
+.edit-header {
+	&.fix-edit-bar {
+		position: fixed;
+		width: 100%;
+		z-index: 10000;
+		top: 0;
+	}
+}
+
+.form-element .counter {
+	position: absolute;
+	right: 10px;
+	bottom: 3px;
+	z-index: 99;
+	text-align: right;
+	font-size: 100%;
+}
+
+.validation-container {
+	position: relative;
+}
+
 #mediabrowser {
 	h4,
 	#media-info {
@@ -74,6 +96,13 @@
 	outline: none;
 	padding: 0 0 10rem 0;
 	.object-browser-header {
+		.new-item-button {
+			position: absolute;
+			right: 3.5rem;
+			top: 1rem;
+			padding: 0.65em 0.9em;
+			cursor: pointer;
+		}
 		#object-browser-search {
 			margin-top: 0.5rem;
 		}
@@ -94,7 +123,7 @@
 		}
 		.save-object-browser {
 			position: absolute;
-			right: 4rem;
+			right: 7rem;
 			top: 1rem;
 			&:hover,
 			&:focus {
@@ -143,13 +172,20 @@
 		margin-top: 1rem;
 		clear: both;
 		.active {
+			border-radius: 30px;
+			width: 30px;
+			height: 30px;
+			background: $light-gray;
 			a {
-				color: $primary-color;
+				padding: 0;
+				color: $dark-gray;
+				cursor: default;
+				text-decoration: none;
 			}
 		}
 	}
 	.items {
-		padding: 6rem 1rem 1rem 1rem;
+		padding: 7rem 1rem 1rem 1rem;
 		margin-right: 400px;
 		.thumbnail {
 			border: none;
@@ -163,13 +199,13 @@
 			margin: 0.3rem;
 			box-shadow: none;
 			outline: none;
-			a.delete-thumbnail {
-				display: none;
-			}
+		}
+		a.delete-thumbnail {
+			display: none;
 		}
 		.loading {
 			text-align: center;
-			padding: 5rem;
+			padding: 10rem 0;
 			.fa {
 				font-size: 3rem;
 				color: $light-gray;
@@ -177,11 +213,15 @@
 		}
 		.no-entries {
 			text-align: center;
+			padding: 10rem 0;
 		}
 		.item {
 			&.active {
 				border-color: $primary-color;
 				background-color: $primary-color;
+			}
+			.person {
+				margin: 0.5rem 1rem;
 			}
 			display: block;
 			float: left;
@@ -212,5 +252,22 @@
 		-webkit-backface-visibility: hidden;
 		backface-visibility: hidden;
 		z-index: 3;
+	}
+}
+
+.reveal {
+	&.new-item {
+		background: $white;
+		.loading {
+			display: none;
+			vertical-align: text-bottom;
+			.fa {
+				font-size: 2rem;
+				color: $light-gray;
+			}
+			&.show {
+				display: inline-block;
+			}
+		}
 	}
 }

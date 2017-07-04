@@ -32,7 +32,10 @@ Counter.prototype.calculate = function () {
 
   text = this.quill.getText();
 
-  return { words: this.countWords(text), chars: this.countChars(text) };
+  return {
+    words: this.countWords(text),
+    chars: this.countChars(text)
+  };
 };
 
 Counter.prototype.update = function () {

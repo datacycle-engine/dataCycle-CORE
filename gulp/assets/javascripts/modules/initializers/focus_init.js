@@ -8,9 +8,8 @@ module.exports.initialize = function () {
   });
 
   $('body').on('focusout', '.validation-container', function (ev) {
-    var parent = this;
     setTimeout(function () {
-      if ($(this).find(':focus').length == 0) {
+      if ($(this).find(':focus').addBack(':focus').length == 0) {
         $(this).removeClass('focus');
       }
     }.bind(this), 50);

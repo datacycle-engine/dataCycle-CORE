@@ -25,6 +25,7 @@ module DataCycleCore
       error = data_set.set_data_hash({"name" => "Dies ist ein Test!", "longitude" => 40.56, "latitude" => 13.13})
       data_set.save
       expected_hash = {
+        "id" => data_set.id,
         "name" => "Dies ist ein Test!",
         "longitude" => 40.56,
         "latitude"=> 13.13
@@ -42,11 +43,13 @@ module DataCycleCore
       error = data_set.set_data_hash({"name" => "Dies ist ein Test!", "longitude" => 40.56, "latitude" => 13.13, "location" => point})
       data_set.save
       expected_hash = {
+        "id" => data_set.id,
         "name" => "Dies ist ein Test!",
         "longitude" => 40.56,
         "latitude"=> 13.13,
         "location" => point
       }
+
       # location object deserializes with the RGeo::Geos::CAPIFactory != RGeo::Geographic.spherical_factory
       assert_equal(expected_hash.except("location"), data_set.get_data_hash.except("location").compact)
       assert_equal(true, expected_hash['location'].x == data_set.get_data_hash['location'].x)
@@ -75,6 +78,7 @@ module DataCycleCore
       })
       data_set.save
       expected_hash = {
+        "id" => data_set.id,
         "name" => "Dies ist ein Test!",
         "address" => "irgendwo im Nirgendwo 666",
         "longitude" => 40.56,

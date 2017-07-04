@@ -6,7 +6,7 @@ module.exports.initialize = function () {
 
     $(form).find('.validation-container').on("focusout", function (ev) {
       setTimeout(function () {
-        if ($(this).find(':focus').length == 0) {
+        if ($(this).find(':focus').addBack(':focus').length == 0) {
           check_items_and_validate(form, this);
         }
       }.bind(this), 50);
@@ -15,6 +15,66 @@ module.exports.initialize = function () {
     form.onsubmit = function () {
       return submit_creative_work_form(form);
     };
+  }
+
+  if ($('.new-item form').html() != undefined) {
+    var forms = $('.new-item form');
+
+    $(document).on('open.zf.reveal', '.new-item', function (e) {
+      console.log("test");
+      $(this).find('form').on('submit', function (e) {
+        e.preventDefault();
+        if (check_fields(this)) this.submit();
+      }.bind(this));
+
+      $(this).find('form input[type=text]').each(function (e) {
+        $(this).on('change', function () {
+          $(this).closest('form').find('input[type=submit]').removeAttr('disabled');
+          $(this).closest('.validation-container').find('.single_error').remove();
+          check_field(this);
+        });
+      });
+    }.bind(this));
+
+    $(document).on('closed.zf.reveal', '.new-item', function (e) {
+      $(this).find('form').off('submit');
+      $(this).find('form input[type=text]').each(function (e) {
+        $(this).off('change');
+      });
+    }.bind(this));
+
+    $(forms).each(function () {
+      $(this).on('submit', function (e) {
+        e.preventDefault();
+        if (check_fields(this)) this.submit();
+      }.bind(this));
+
+      $(this).find('input[type=text]').each(function (e) {
+        $(this).on('change', function () {
+          $(this).closest('form').find('input[type=submit]').removeAttr('disabled');
+          $(this).closest('.validation-container').find('.single_error').remove();
+          check_field(this);
+        });
+      });
+    });
+  }
+
+  function check_fields(form) {
+    var isValid = true;
+    $(form).find('input[type=text]').each(function (e) {
+      if (check_field(this) == false) isValid = false;
+    });
+    return isValid;
+  }
+
+  function check_field(field) {
+    if ($(field).val().length == 0) {
+      var data = {};
+      data.error = ["Feld darf nicht leer sein"];
+      $(field).closest('.validation-container').append(render_error_msg(data, field));
+      return false;
+    }
+    return true;
   }
 
   function submit_creative_work_form(form) {
@@ -78,9 +138,9 @@ module.exports.initialize = function () {
 
     if (is_creative_work.test(formdata[0].name)) {
       var validation_url = /validatecreativework/;
-    }else if (is_person.test(formdata[0].name)) {
+    } else if (is_person.test(formdata[0].name)) {
       var validation_url = /validateperson/;
-    }else{
+    } else {
       return false;
     }
 

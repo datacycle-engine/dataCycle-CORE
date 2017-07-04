@@ -1,12 +1,18 @@
 <template>
   <div class="object-browser">
-    <div class="object-thumbs">
-      <slot name="item" v-for="item in existingItems" :item="item" :remove="remove"></slot>
+    <div class="object-thumbs" v-if="existingItems.length > 0">
+      <slot name="item" v-for="item in existingItems" :item="item" :remove="remove" :select-one="selectOne"></slot>
+    </div>
+    <div class="object-thumbs" v-else>
+      <input type="hidden" :name="hiddenName">
     </div>
     <transition name="fade">
-      <object-browser-modal v-if="showModal" :object-type="objectType" url="/objectbrowser" :preChosenItems="existingItems" @close="showModal = false">
+      <object-browser-modal v-if="showModal" v-on:save="save" :object-type="objectType" url="/objectbrowser" :preChosenItems="existingItems" :select-one="selectOne" @close="showModal = false" :create-item="createItem">
         <template scope="props" slot="item">
           <slot name="item" :item="props.item"></slot>
+        </template>
+        <template scope="newItem" slot="new-item">
+          <slot name="new-item"></slot>
         </template>
       </object-browser-modal>
     </transition>
@@ -26,6 +32,17 @@ export default {
     },
     objectType: {
       type: String
+    },
+    selectOne: {
+      type: Boolean,
+      default: false
+    },
+    createItem: {
+      type: Boolean,
+      default: false
+    },
+    hiddenName: {
+      type: String
     }
   },
   components: {
@@ -37,7 +54,7 @@ export default {
       existingItems: []
     }
   },
-  mounted() {
+  created() {
     this.existingItems = this.existing;
   },
   methods: {
@@ -52,6 +69,9 @@ export default {
         return item.id == chosen.id;
       });
     },
+    save(data) {
+      this.existingItems = data;
+    }
   }
 }
 </script>
