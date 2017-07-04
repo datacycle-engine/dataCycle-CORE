@@ -7,7 +7,8 @@ module.exports.initialize = function () {
     $(this).flatpickr({
       altFormat: "d.m.Y",
       altInput: true,
-      time_24hr: true
+      time_24hr: true,
+      allowInput: true
     });
   });
 
