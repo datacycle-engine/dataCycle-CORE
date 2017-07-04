@@ -10,7 +10,6 @@ module DataCycleCore
         data_type = metadata['validation']
         data_hash = {}
         data_type['properties'].each do |key,value|
-          next if key == '@id'
           data_hash[key] = storage_cases_get(key,data_type['properties'][key])
         end
         data_hash
@@ -29,6 +28,38 @@ module DataCycleCore
         end
       end
       validate(data_hash) # return error/warnings from validation
+    end
+
+    def delete_data_hash
+      template_hash = metadata['validation']
+      # check for subtrees
+      template_hash['properties'].each do |key,value|
+        if value['type'] == 'object' && value.has_key?('name') && value.has_key?('description')
+          #puts "Object: #{value['name']}|#{value['description']}|#{value['delete']}"
+          delete = false
+          delete = value['delete'] unless value['delete'].blank?
+          if value['storage_location'] == self.class.table_name
+            #puts "delete same table"
+            delete_item_keys = self.metadata['hasPart'] if !self.metadata.blank? && self.metadata.has_key?('hasPart')
+            delete_item_keys.each do |key|
+              item = ("DataCycleCore::"+value['storage_type'].classify).constantize.find_by(id: key)
+              item.delete_data_hash
+              item.destroy if delete
+            end
+          else
+            #puts "delete relation table"
+            present_relations = self.method(value['storage_location']).call.ids
+            self.method(value['storage_location']).call.each do |item|
+              item.delete_data_hash
+              item.destroy if delete
+            end
+            relation = get_relation_name(value['storage_location'])
+            relations = ("DataCycleCore::"+relation.classify).constantize.
+              where(self.class.table_name.singularize.foreign_key.to_sym => self.id, value['storage_location'].singularize.foreign_key.to_sym => present_relations)
+            relations.destroy_all unless relations.blank?
+          end
+        end
+      end
     end
 
     def validate(data)
@@ -162,16 +193,34 @@ module DataCycleCore
 
     def get_linked_data_type(table, name, description)
       return_data = []
-      self.method(table).call.each do |item|
-        return_data.push(item.get_data_hash)
+
+      # check if external relation or relation to itself
+      if table == self.class.table_name
+        if !self.metadata.blank? && self.metadata.has_key?('hasPart')
+          self.metadata['hasPart'].each do |item|
+            data_set = self.class.find_by(id: item)
+            return_data.push(data_set.get_data_hash)
+          end
+        end
+      else
+        self.method(table).call.each do |item|
+          return_data.push(item.get_data_hash)
+        end
       end
       return_data.compact
     end
 
     def set_linked_data_type(data, table, name, description, delete)
-      # figure out the relation name (alphabetic order from this_class + table )
-      tables = [ table, self.class.table_name ].sort
-      relation = tables[0].singularize+"_"+tables[1]
+      # check if it is a relation to itself or external via relation_table
+      if table == self.class.table_name
+        set_linked_via_tree(data, table, name, description, delete)
+      else
+        set_linked_via_relation(data, table, name, description, delete)
+      end
+    end
+
+    def set_linked_via_relation(data, table, name, description, delete)
+      relation = get_relation_name(table)
 
       # get validation template
       template = ("DataCycleCore::"+table.classify).constantize.
@@ -216,7 +265,7 @@ module DataCycleCore
           end
         end
       end
-      # check if items in context of the present language should be deleted
+
       available_update_item_keys = self.method(table).call.ids
       potentially_delete = available_update_item_keys - updated_item_keys
 
@@ -226,8 +275,11 @@ module DataCycleCore
           item = ("DataCycleCore::"+table.classify).constantize.find_by(id: key)
           translations = item.translated_locales
           if (translations-[ I18n.locale ]).size < 1
-            # find relation and destroy it
-            self.method(table).call.find_by(id: key).destroy
+            # destroy relationObject + additional embeddedObjects and their relations
+            to_update_item = self.method(table).call.find_by(id: key)
+            #check for subtrees
+            to_update_item.delete_data_hash
+            to_update_item.destroy
             ("DataCycleCore::"+relation.classify).constantize.
               find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
               destroy
@@ -237,7 +289,7 @@ module DataCycleCore
           end
         end
       else
-        # only manage relations to embeddedObjects
+        # only destroy relations
         potentially_delete.each do |key|
           ("DataCycleCore::"+relation.classify).constantize.
             find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
@@ -245,6 +297,81 @@ module DataCycleCore
         end
       end
       self.method(table).call.reload # MO: force reload of the relation, otherwise cached data can obsure the next get_data_hash
+    end
+
+    def set_linked_via_tree(data, table, name, description, delete)
+      # get validation template
+      template = ("DataCycleCore::"+table.classify).constantize.
+        find_by(template: true, headline: name, description: description)
+
+      updated_item_keys = []
+
+      unless is_blank?(data)
+        # update/insert linked_data
+        data.each do |item|
+          if item.has_key?('id') && !item['id'].blank? && item.keys.count == 1
+            # id is the only item --> no update of data_set
+            item_id = item['id']
+          elsif item.has_key?('id') && !item['id'].blank?
+            # update
+            update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['id'])
+            update_item.set_data_hash(item)
+            update_item.save
+            item_id = item['id']
+          else
+            # insert
+            insert_item = ("DataCycleCore::"+table.classify).constantize.new
+            insert_item.metadata = { 'validation' => template.metadata['validation'] }
+            insert_item.save
+            insert_item.set_data_hash(item)
+            insert_item.isPartOf = self.id
+            insert_item.save
+            item_id = insert_item.id
+          end
+          updated_item_keys.push(item_id)
+          # update relation
+          if self.metadata.blank?
+            self.metadata = { 'hasPart' => [ item_id ] }
+            self.save
+          elsif self.metadata['hasPart'].blank?
+            self.metadata['hasPart'] = [ item_id ]
+            self.save
+          elsif !self.metadata['hasPart'].include?(item_id)
+            self.metadata['hasPart'].push(item_id)
+            self.save
+          end
+        end
+      end
+
+      available_update_item_keys = []
+      available_update_item_keys = self.metadata['hasPart'] if !self.metadata.blank? && self.metadata.has_key?('hasPart')
+      potentially_delete = available_update_item_keys - updated_item_keys
+
+      if delete
+        # full access to embeddedObjects
+        potentially_delete.each do |key|
+          item = ("DataCycleCore::"+table.classify).constantize.find_by(id: key)
+          translations = item.translated_locales
+          if (translations-[ I18n.locale ]).size < 1
+            # find relation and destroy it
+            item.delete_data_hash
+            item.destroy
+            self.metadata['hasPart'] -= [ key ] # remove reference
+          else
+            # only destroy particular translation !
+            item.translation.destroy
+          end
+        end
+      else
+        # replace hasPart with given updated_item_keys
+        self.metadata['hasPart'] = updated_item_keys
+      end
+    end
+
+    # make a rails conform name for a relation table
+    def get_relation_name(table)
+      tables = [ table , self.class.table_name ].sort
+      tables[0].singularize+"_"+tables[1]
     end
 
     # validate nil,"",[],[nil],[""] as blank.
