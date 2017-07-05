@@ -160,6 +160,7 @@ module DataCycleCore
           :metaDescription,
           :keywords,
           :sameAs,
+          :isPartOf,
           #content offer
           :price,
           :service,
