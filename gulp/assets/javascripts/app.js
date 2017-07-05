@@ -61,6 +61,6 @@ $(function () {
   datepicker_init.initialize();
 
   // initialize Word Counter
-  //counter_init.initialize();
+  counter_init.initialize();
 
 });

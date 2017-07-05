@@ -28,7 +28,7 @@ Counter.prototype.calculate = function () {
 };
 
 Counter.prototype.update = function () {
-  if (!$(this.$container).is(":visible")) $(this.$container).fadeIn('fast');
+  if (!$(this.$container).is(":visible")) $(this.$container).show();
 
   var length = this.calculate();
   var chars = length.chars;
@@ -36,7 +36,7 @@ Counter.prototype.update = function () {
   var char_label = "Zeichen";
   var word_label = words == 1 ? "Wort" : "Wörter";
 
-  if (length.chars == 0) $(this.$container).fadeOut('fast');
+  if (length.chars == 0) $(this.$container).hide();
 
   $(this.$container).html(words + ' ' + word_label + ' / ' + chars + ' ' + char_label);
 };

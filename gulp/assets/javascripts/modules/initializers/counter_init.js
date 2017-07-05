@@ -5,7 +5,7 @@ module.exports.initialize = function () {
 
   var CounterArray = [];
 
-  $('#edit-form input.form-control[type=text]:not(:disabled)').each(function () {
+  $('#edit-form input.form-control[type=text]:not(:disabled)').not('.flatpickr-input').each(function () {
     CounterArray.push(new Counter($(this)));
   });
 

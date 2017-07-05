@@ -225,7 +225,6 @@ form {
     &.focus {
       border-color: $primary-color;
       background: white;
-      z-index: 10;
       input {
         background: $white
       }
@@ -265,27 +264,33 @@ form {
     border-color: $light-gray;
     box-shadow: 0 0 2px $dark-gray;
     position: relative;
-    z-index: 1;
     transition: box-shadow 0.5s, border-color 0.25s ease-in-out;
     min-width: 280px;
     &:hover {
       box-shadow: 0 0 7px $primary-color;
-      z-index: 10;
     }
     &:focus {
       border-color: $primary-color;
       background: white;
-      z-index: 10;
     }
     &::placeholder {
       font-weight: 200;
       color: $dark-gray;
     }
   }
+  .focus .ql-editor {
+    border-color: $primary-color;
+    background: white;
+  }
   .focus .v-select {
     border-color: $primary-color;
     background: white;
-    z-index: 10;
+    z-index: 16;
+  }
+  .focus {
+    label {
+      z-index: 1000
+    }
   }
   .ql-editor {
     min-height: 375px;
@@ -296,7 +301,6 @@ form {
     background: none;
     .form-element {
       position: relative;
-      z-index: 1;
       margin-bottom: 1rem;
       .custom-select-title {
         display: none;
@@ -307,7 +311,6 @@ form {
         color: rgba($dark-gray, 50%);
       }
       &:hover {
-        z-index: 2;
         label {
           color: $primary-color;
         }
@@ -330,7 +333,7 @@ form {
       padding: 3rem 1rem;
     }
     .headline input {
-      padding: 1rem 5rem;
+      padding: 1rem 5rem 1.5rem 5rem;
     }
     .description {
       padding: 0;
@@ -363,7 +366,7 @@ form {
     border: 0 !important;
   }
   .dropdown-menu {
-    z-index: 10;
+    z-index: 1000;
   }
 }
 

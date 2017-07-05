@@ -7,6 +7,8 @@ creative_work_yaml = Rails.root.join('..','setup_data','creative_works_test.yml'
 DataCycleCore::MasterData::ImportTemplates.new.import(creative_work_yaml, DataCycleCore::CreativeWork)
 place_yaml = Rails.root.join('..','setup_data','places.yml')
 DataCycleCore::MasterData::ImportTemplates.new.import(place_yaml, DataCycleCore::Place)
+person_yaml = Rails.root.join('..','setup_data','persons.yml')
+DataCycleCore::MasterData::ImportTemplates.new.import(person_yaml, DataCycleCore::Person)
 classification_yaml = Rails.root.join('..','setup_data','classifications.yml')
 DataCycleCore::MasterData::ImportClassifications.new.import(classification_yaml)
 
@@ -18,7 +20,7 @@ module DataCycleCore
       assert_equal(data.class, DataCycleCore::CreativeWork)
     end
 
-    test "different behaviour for embeddedObject with/without delete flag" do
+    test "different behaviour for embeddedObject without delete flag" do
       template_without_delete = DataCycleCore::CreativeWork.find_by(template: true, headline: "Bild", description: "ImageObject")
       validation_without_delete = template_without_delete.metadata['validation']
       data_set_without = DataCycleCore::CreativeWork.new
@@ -483,7 +485,7 @@ module DataCycleCore
     end
 
     test "save CreativeWork with embedded object contentLocation consistency check get(set)=set" do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild", description: "ImageObject").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "BildTest", description: "ImageObject").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
@@ -851,7 +853,9 @@ module DataCycleCore
         "state"=>[],
         "topics"=>[],
         "markets"=>[],
-        "data_pool"=>[]
+        "data_pool"=>[],
+        "season" => [],
+        "kind" => []
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact)
     end
@@ -870,7 +874,9 @@ module DataCycleCore
         "state"=>[],
         "topics"=>[],
         "markets"=>[],
-        "data_pool"=>[]
+        "data_pool"=>[],
+        "season" => [],
+        "kind" => []
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact)
     end
@@ -893,7 +899,9 @@ module DataCycleCore
         "state"=>[],
         "topics"=>[],
         "markets"=>[],
-        "data_pool"=>[]
+        "data_pool"=>[],
+        "season" => [],
+        "kind" => []
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact)
     end
@@ -916,7 +924,9 @@ module DataCycleCore
         "state"=>[],
         "topics"=>[],
         "markets"=>[],
-        "data_pool"=>[]
+        "data_pool"=>[],
+        "season" => [],
+        "kind" => []
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact)
       data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validUntil" => "2017-06-01"},"test" => {"test1" => 1, "test2" => 2, "test3" => {"hallo" => "World"}} })
@@ -933,7 +943,6 @@ module DataCycleCore
       error = data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validUntil" => "2017-16-01"}})
       data_set.save
       assert_equal(2, error[:error].count)
-      assert_equal(10, error[:warning].count)
     end
 
     test "save CreativeWork with sub-properties with wrong name and valid data" do
@@ -944,7 +953,6 @@ module DataCycleCore
       data_hash = {"headline" => "Dies ist ein Test!", "validityPeriod" => {"datePublished" => "2017-05-01", "validTo" => "2017-06-01"}}
       error = data_set.set_data_hash(data_hash)
       assert_equal(0, error[:error].count)
-      assert_equal(13, error[:warning].count)
     end
 
     test "save CreativeWork link to user_id" do
@@ -969,7 +977,9 @@ module DataCycleCore
         "state"=>[],
         "topics"=>[],
         "markets"=>[],
-        "data_pool"=>[]
+        "data_pool"=>[],
+        "season" => [],
+        "kind" => []
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact)
     end

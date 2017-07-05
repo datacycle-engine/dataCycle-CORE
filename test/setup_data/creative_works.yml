@@ -18,16 +18,6 @@
           :sorting: 1
           :options:
             :data-validate: text
-      :description:
-        :label: Beschreibung
-        :type: string
-        :storage_type: text
-        :storage_location: content
-        :editor:
-          :type: quillEditor
-          :sorting: 2
-          :options:
-            :data-size: basic
       :topics:
         :label: Themenbereiche
         :type: classificationTreeLabel
@@ -36,7 +26,7 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 3
+          :sorting: 2
       :markets:
         :label: Zielmarkt
         :type: classificationTreeLabel
@@ -45,11 +35,20 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 4
-      :tags:
-        :label: Tags
+          :sorting: 3
+      :kind:
+        :label: Inhaltsart
         :type: classificationTreeLabel
-        :type_name: Sonstiges
+        :type_name: Inhaltsarten
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 4
+      :season:
+        :label: Jahreszeit
+        :type: classificationTreeLabel
+        :type_name: Jahreszeiten
         :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
@@ -68,6 +67,25 @@
           :sorting: 6
           :options:
             :data-validate: classification
+      :tags:
+        :label: Tags
+        :type: classificationTreeLabel
+        :type_name: Tags
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 7
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :editor:
+          :type: quillEditor
+          :sorting: 8
+          :options:
+            :data-size: basic
       :validityPeriod:
         :label: Gültigkeitszeitraum
         :type: object
@@ -77,9 +95,10 @@
             :from: validFrom
             :to: validUntil
         :editor:
-          :sorting: 7
+          :sorting: 9
           :options:
             :class: daterange validation-container
+            :tabindex: -1
         :properties:
           :validFrom:
             :label: Gültigkeit
@@ -507,15 +526,24 @@
         :editor:
           :type: classificationSelector
           :sorting: 21
-      :tags:
-        :label: Tags
+      :kind:
+        :label: Inhaltsart
         :type: classificationTreeLabel
-        :type_name: Sonstiges
+        :type_name: Inhaltsarten
         :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
           :sorting: 22
+      :season:
+        :label: Jahreszeit
+        :type: classificationTreeLabel
+        :type_name: Jahreszeiten
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 23
       :state:
         :label: Bundesland
         :type: classificationTreeLabel
@@ -526,9 +554,26 @@
           :max: 1
         :editor:
           :type: classificationSelector
-          :sorting: 23
+          :sorting: 24
           :options:
             :data-validate: classification
+      :tags:
+        :label: Tags
+        :type: classificationTreeLabel
+        :type_name: Sonstiges
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 25
+      :author:
+        :label: Autor
+        :type: embeddedLinkArray
+        :type_name: persons
+        :storage_type: array
+        :storage_location: metadata
+        :editor:
+          :sorting: 26
       :validityPeriod:
         :label: Gültigkeitszeitraum
         :type: object
@@ -580,6 +625,13 @@
         :storage_type: classification_creative_works
         :storage_location: classification_relation
         :default_value: "Artikel"
+      :quotation:
+        :label: Zitat
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: Zitat
+        :description: CreativeWork
       :creator:
         :label: Ersteller
         :type: embeddedLink
@@ -600,3 +652,49 @@
         :storage_location: metadata
         :validations:
           :format: date_time
+
+- :data:
+    :name: Zitat
+    :description: CreativeWork
+    :type: object
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :text:
+        :label: text
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :editor:
+          :type: quillEditor
+          :sorting: 1
+          :options:
+            :data-size: basic
+      :image:
+        :label: Bild
+        :type: embeddedLink
+        :type_name: creative_works
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :sorting: 2
+      :author:
+        :label: Autor
+        :type: object
+        :storage_location: persons
+        :name: Autor
+        :description: Person
+      :isPartOf:
+        :label: parent
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :validations:
+          :format: uuid

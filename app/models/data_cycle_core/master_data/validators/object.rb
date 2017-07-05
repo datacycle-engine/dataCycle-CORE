@@ -77,6 +77,11 @@ module DataCycleCore
           template = ("DataCycleCore::"+table.classify).constantize.
             find_by(template: true, headline: name, description: description)
 
+          if template.blank?
+            @error[:error].push "No corresponding data-type template found for #{name}|#{description}"
+            return
+          end
+
           data.each do |item|
             validator_object = DataCycleCore::MasterData::ValidateData.new
             merge_errors(validator_object.validate(item, template.metadata['validation']))
