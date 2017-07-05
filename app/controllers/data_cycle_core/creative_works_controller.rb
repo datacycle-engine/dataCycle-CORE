@@ -175,6 +175,14 @@ module DataCycleCore
           ]},
           {:contentLocation => [
             :id
+          ]},
+          #content quotation
+          {:quotation => [
+            :text,
+            {:image => []},
+            {:author => [
+                :id
+            ]}
           ]}
         ]
         

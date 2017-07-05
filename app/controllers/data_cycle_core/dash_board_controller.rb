@@ -21,7 +21,7 @@ module DataCycleCore
     def import
       @uuid = params[:uuid]
       ImportJob.perform_later(@uuid)
-      name = ExternalSource.where(id: @uuid).first.name
+      name = ExternalSourceget_internal_data.where(id: @uuid).first.name
       flash[:notice] = "added #{name}/#{@uuid} to job-queue"
       redirect_to admin_path
     end
