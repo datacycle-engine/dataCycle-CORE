@@ -11,7 +11,7 @@
                     <input type="radio" name="language" value="<%= key.to_s %>" id="<%= key.to_s %>" <%= "checked" if key.to_s == "de" || key.to_s == params[:language]%> />
                     <label for="<%= key.to_s %>">
                         <span class="title">
-                            <strong><%=value%></strong>
+                            <strong><%= value.capitalize %></strong>
                         </span>
                     </label>
                 </li>
