@@ -183,6 +183,10 @@ module DataCycleCore
             {:author => [
                 :id
             ]}
+          ]},
+          #content portrait - biographie
+          {:about => [
+            :id
           ]}
         ]
         
