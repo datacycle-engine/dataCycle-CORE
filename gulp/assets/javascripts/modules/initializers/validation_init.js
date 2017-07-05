@@ -10,7 +10,6 @@ module.exports.initialize = function () {
           check_items_and_validate(form, this);
         }
       }.bind(this), 50);
-
     });
     form.onsubmit = function () {
       return submit_creative_work_form(form);
@@ -109,7 +108,8 @@ module.exports.initialize = function () {
   function set_fe_editor_values(editor) {
     var hidden_field_id = $(editor).attr('data-hidden-field-id');
     var hidden_field = document.querySelector('input#' + hidden_field_id);
-    hidden_field.value = $(editor).find('.ql-editor').html();
+    var text = $(editor).find('.ql-editor').html();
+    hidden_field.value = text.replace("<p><br></p>", "");
   }
 
   function validate_complete_form(form) {

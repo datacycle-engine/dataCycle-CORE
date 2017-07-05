@@ -17,7 +17,7 @@
         <%= form_for(@creativeWork) do |f| %>
             <%= hidden_field_tag 'template', 'Thema' %>
             <div class="validation-container form-element">
-                <%= f.text_field :headline, class: 'form-control', value:params[:search] %>
+                <%= f.text_field :headline, class: 'form-control', value:params[:search], disabled: !params[:search].present? %>
             </div>
             <% if params[:search].present? %>
                 <%= f.submit "Erstellen", class: "button primary" %>
@@ -35,7 +35,7 @@
         <%= form_for(@creativeWork) do |f| %>
             <%= hidden_field_tag 'template', 'Recherche' %>
             <div class="validation-container form-element">
-                <%= f.text_field :headline, class: 'form-control', value:params[:search] %>
+                <%= f.text_field :headline, class: 'form-control', value:params[:search], disabled: !params[:search].present? %>
             </div>
             <% if params[:search].present? %>
                 <%= submit_tag "Erstellen", class: "button primary" %>
