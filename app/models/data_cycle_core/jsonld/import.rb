@@ -91,13 +91,11 @@ module DataCycleCore
 
       def import_creative_work
         data_template = CreativeWork.
-          where(template: true, headline: 'Bild', description: 'ImageObject').
-          first
+          find_by(template: true, headline: 'Bild', description: 'ImageObject')
         validation = data_template.metadata['validation']
 
         template_place = Place.
-          where(template: true, headline: 'contentLocation', description: 'Place').
-          first
+          find_by(template: true, headline: 'contentLocation', description: 'Place')
         contentLocation_template = template_place.metadata['validation']
 
         i = 0
@@ -133,6 +131,7 @@ module DataCycleCore
                   # check if data is set and validations are correct
                   if errors[:error].size > 0
                     @log.error "received wrong data for id:#{data_set.id}, language: #{lang}, data: #{data} (skipping)"
+                    @log.error errors[:error]
                     next
                   end
                   to_update_image.save
@@ -142,7 +141,7 @@ module DataCycleCore
               languages = data_set.dump.keys
               # save place data
               unless contentLocation.blank? || to_update_image.id.nil?
-                save_location(to_update_image, contentLocation, contentLocation_template, languages)
+                save_location(to_update_image.id, contentLocation, contentLocation_template, languages)
               end
 
               unless to_update_image.id.nil?
@@ -162,15 +161,15 @@ module DataCycleCore
                 unless keywords.nil?
                   keywords.each do |keyword|
                     classification_id = check_for_classification_keyword(keyword)
-                    updated_ccw = ClassificationCreativeWork
-                      .find_or_create_by(
+                    ClassificationCreativeWork
+                      .find_or_initialize_by(
                         creative_work_id: to_update_image.id,
                         classification_id: classification_id,
                         external_source_id: @external_source_id,
                         tag: true
-                      )
-                    updated_ccw.seen_at = Time.zone.now
-                    updated_ccw.save
+                      ) do |relation|
+                        relation.seen_at = Time.zone.now
+                    end.save
                   end
                 end
               end
@@ -180,7 +179,8 @@ module DataCycleCore
         end
       end
 
-      def save_location(creative_work, data_hash, template, parent_languages)
+      def save_location(creative_work_id, data_hash, template, parent_languages)
+
         # check which languages are present
         if data_hash['name'].blank?
           lang = parent_languages.first
@@ -190,7 +190,9 @@ module DataCycleCore
         end
 
         # check if place exists
-        places = creative_work.places
+        places = Place.
+          joins(:creative_work_places).
+          where("creative_work_places.creative_work_id" => creative_work_id)
         if places.count == 1
           place = places.first
           place.metadata['validation'] = template # always use new data_type-template
@@ -218,7 +220,7 @@ module DataCycleCore
             place.save
           end
         end
-        CreativeWorkPlace.find_or_create_by(place_id: place.id, creative_work_id: creative_work.id, external_source_id: @external_source_id) do |data_set|
+        CreativeWorkPlace.find_or_create_by(place_id: place.id, creative_work_id: creative_work_id, external_source_id: @external_source_id) do |data_set|
           data_set.seen_at = Time.zone.now
         end.save
       end

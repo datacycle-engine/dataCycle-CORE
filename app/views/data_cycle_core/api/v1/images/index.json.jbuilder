@@ -1,9 +1,5 @@
 json.images @images do |item|
-  item.translated_locales.each do |language|
-    I18n.with_locale(language) do
-      json.partial! 'image', locals: {language: language, image: item }
-    end
-  end
+  json.partial! 'image_translation_format', locals: {image: item }
 end
 
 std_params = "per=#{params[:per] || @per}&token=#{params[:token]}"
