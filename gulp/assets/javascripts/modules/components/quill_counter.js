@@ -6,6 +6,7 @@ var Counter = function (quill, options) {
   this.unit = this.options.unit || "zeichen";
   this.container = this.setContainer();
   quill.on('text-change', this.update.bind(this));
+  this.setup();
   this.update();
 };
 
@@ -13,6 +14,10 @@ Counter.prototype.setContainer = function () {
   var parentElement = this.quill.container.parentElement;
   if (parentElement.querySelector('#counter') == null) parentElement.insertAdjacentHTML('beforeend', '<div id="counter"></div>');
   return parentElement.querySelector('#counter');
+};
+Counter.prototype.setup = function () {
+  var text = this.quill.getText();
+  if (text.length == 0) $(this.container).hide();
 };
 Counter.prototype.countWords = function (text) {
   return text.trim().length > 0 ? text.trim().split(/\s+/).length : 0;
@@ -47,6 +52,9 @@ Counter.prototype.update = function () {
   else if (this.options.unit === "zeichen") limit_label = "Zeichen";
   var char_label = "Zeichen";
   var word_label = words == 1 ? "Wort" : "Wörter";
+
+  if (length.chars == 0) $(this.container).fadeOut('fast');
+  else $(this.container).fadeIn('fast');
 
   this.container.innerHTML = words + ' ' + word_label + ' / ' + chars + ' ' + char_label;
 };

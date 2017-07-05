@@ -43,6 +43,12 @@
 	position: relative;
 }
 
+// Datepicker
+.flatpickr-calendar.static.open {
+	top: initial;
+	bottom: calc(100% + 2px);
+}
+
 #mediabrowser {
 	h4,
 	#media-info {
