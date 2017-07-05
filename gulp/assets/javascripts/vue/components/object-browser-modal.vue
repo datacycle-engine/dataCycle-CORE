@@ -159,7 +159,7 @@ export default {
       this.$emit('close');
     },
     headline(item) {
-      if (this.objectType == "Autor") return item.givenName + " " + item.familyName;
+      if (this.objectType == "Autor" || this.objectType == "Person") return item.givenName + " " + item.familyName;
       else if (this.objectType == "Ort") {
         if (item.name != undefined)
           return item.name;

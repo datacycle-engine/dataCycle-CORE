@@ -24,7 +24,7 @@ module DataCycleCore
     end
 
     def get_allowed_content_types
-      allowed_content_types = {'Artikel' => 'Standard-Artikel'}
+      allowed_content_types = {'Artikel' => 'Standard-Artikel', 'Portrait' => 'Portrait', 'Biografie' => 'Biografie', 'Social Media Posting' => 'SocialMediaPosting'}
     end
 
     def get_ordered_validation_properties(validation)

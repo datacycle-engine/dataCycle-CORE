@@ -5,7 +5,8 @@
 		<input type="text" disabled="disabled" />
 		<div class="media-thumbs">
 
-			<% if prop['label'] == 'Bilder' %>
+			<% if prop['label'] == 'Bilder' || prop['label'] == 'Bild' %>
+				<% select_one = prop['label'] == 'Bild' ? true : false %>
 				<% existing = [] %>
 				<% unless value.blank? %>
 					<% value.each do |item| %>
@@ -13,7 +14,7 @@
 						<% existing << image %>
 					<% end %>
 				<% end %>
-				<object-browser :existing="<%= existing.to_json %>" :object-type="'<%= prop['label'] %>'" hidden-name="<%= key %>[]">
+				<object-browser :existing="<%= existing.to_json %>" :object-type="'<%= prop['label'] %>'" :select-one="<%= select_one %>" hidden-name="<%= key %>[]">
 					<template scope="props" slot="item">
 						<div v-if="props.item != undefined" class="media thumbnail" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnailUrl+')' }">
 							<a slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
