@@ -19,7 +19,7 @@
 					<% select_one = true %>
 				<% end %>
 
-				<object-browser :existing="<%= existing.to_json %>" :object-type="'<%= prop['label'] %>'" :select-one="<%= select_one %>" hidden-name="<%= key %>[]">
+				<object-browser :existing="<%= existing.to_json %>" :object-type="'<%= prop['label'] %>'" :select-one="<%= select_one %>" :hidden-name="'<%= key %>[]'">
 					<template scope="props" slot="item">
 						<div v-if="props.item != undefined" class="media thumbnail" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnailUrl+')' }">
 							<a slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
