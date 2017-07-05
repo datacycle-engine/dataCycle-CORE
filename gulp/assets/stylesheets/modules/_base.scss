@@ -1,49 +1,52 @@
-body{
+body {
   background-color: $white;
 }
 
+
 /* Headings */
-h2{
-  &.form-heading{
+
+h2 {
+  &.form-heading {
     text-align: center;
     font-size: 2rem;
     padding: 4rem 0;
-    i{
+    i {
       font-size: 2rem;
       margin-right: 0.75rem;
     }
   }
 }
+
 h5 {
   color: $dark-gray;
 }
 
+
 /* Forms */
+
 form {
-  label{
+  label {
     font-size: 1rem;
   }
-  input{
+  input {
     font-size: 1rem;
   }
-  button[type="submit"]{
-    &.button{
+  button[type="submit"] {
+    &.button {
       padding: 0.2rem 4.5rem;
-      i{
+      i {
         font-size: 3rem;
       }
     }
   }
 }
 
-
-
-
 .pagination {
   border-radius: 30px;
   background: lighten($light-gray, 6%);
-  a, button {
-    border-radius: 0; 
+  a,
+  button {
+    border-radius: 0;
     line-height: inherit;
     line-height: 30px;
     &:hover {
@@ -53,43 +56,47 @@ form {
     }
   }
   .current {
-      border-radius: 30px;
-      width: 30px;
-      height: 30px;
-      background: $light-gray;
-
-      a { 
-        padding: 0; 
-        color: $dark-gray; 
-        cursor: default; 
-        text-decoration: none;
-      }
+    border-radius: 30px;
+    width: 30px;
+    height: 30px;
+    background: $light-gray;
+    a {
+      padding: 0;
+      color: $dark-gray;
+      cursor: default;
+      text-decoration: none;
+    }
   }
 }
 
 .edit-form {
   padding-bottom: 400px;
 }
+
 .edit-header {
-  background-color: rgba($primary-color, 0.2);
+  background-color: lighten($primary-color, 50%);
   height: 3.5rem;
   line-height: 3.5rem;
   .edit-headline {
     color: $primary-color;
     position: absolute;
     left: 1.5rem;
-    i { margin-right: 0.5rem; }
+    i {
+      margin-right: 0.5rem;
+    }
   }
-
-  ul{
+  ul {
     text-align: right;
     margin: 0;
     list-style: none;
     line-height: 3.5rem;
-    li{
+    li {
       display: inline-block;
       position: relative;
-      button.has-tip { border-bottom: none; cursor: pointer;}
+      button.has-tip {
+        border-bottom: none;
+        cursor: pointer;
+      }
       .button {
         margin: 0;
         display: block;
@@ -99,18 +106,21 @@ form {
         i {
           font-size: 1.5rem;
         }
-        &:hover, &:focus {
+        &:hover,
+        &:focus {
           color: $primary-color;
         }
         &.discard {
           color: rgba($black, 0.5);
-           &:hover, &:focus {
+          &:hover,
+          &:focus {
             color: $black;
           }
         }
         &.delete {
-          color:  rgba(map-get($foundation-palette, alert), 0.5);
-          &:hover, &:focus {
+          color: rgba(map-get($foundation-palette, alert), 0.5);
+          &:hover,
+          &:focus {
             color: map-get($foundation-palette, alert);
           }
         }
@@ -127,33 +137,27 @@ form {
   }
 }
 
-
 .detail-header {
-
   position: relative;
   background: $light-gray;
   text-align: center;
   padding: 4rem 0 1rem 0;
   margin: 1rem 0;
-
-
-  > .title, > .headline input {
+  >.title,
+  >.headline input {
     font-size: 2rem;
     font-weight: 200;
     padding: 1rem 5rem 0 5rem;
     text-align: center;
     position: relative;
   }
-
-  .headline{
+  .headline {
     position: relative;
   }
-
-  > .description {
+  >.description {
     position: relative;
     padding: 0 5rem 3rem 5rem;
   }
-
   .topleftinfo {
     position: absolute;
     left: 1rem;
@@ -168,10 +172,9 @@ form {
       transition: opacity ease-in-out 0.25s;
     }
     &:hover .metadata {
-        opacity: 1;
+      opacity: 1;
     }
   }
-
   .bookmark {
     position: absolute;
     right: 1rem;
@@ -190,11 +193,7 @@ form {
         content: "\f02e";
       }
     }
-  }
-
-
-
-  //.tags, .gueltigkeit {
+  } //.tags, .gueltigkeit {
   .gueltigkeit {
     text-align: left;
     margin: 0 0 0 1rem;
@@ -202,37 +201,48 @@ form {
       color: $dark-gray;
     }
   }
-  .daterange span.bis, .daterange span.icon, .gueltigkeit span.bis, .gueltigkeit span.icon  {
-      color: $dark-gray;
+  .daterange span.bis,
+  .daterange span.icon,
+  .gueltigkeit span.bis,
+  .gueltigkeit span.icon {
+    color: $dark-gray;
   }
-  .daterange span.bis,.gueltigkeit span.bis  {
-      font-style: italic;
+  .daterange span.bis,
+  .gueltigkeit span.bis {
+    font-style: italic;
   }
   .daterange {
     padding: 1rem;
     text-align: left;
-    label { width: 0; height: 0; overflow: hidden; }
-    input { min-width: 100px; }
+    label {
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+    input {
+      min-width: 100px;
+    }
     &.focus {
       border-color: $primary-color;
       background: white;
       z-index: 10;
-      input { 
+      input {
         background: $white
-       }
+      }
     }
     &:hover span.icon {
-     color: $primary-color;
+      color: $primary-color;
     }
   }
-
   .edit {
     position: absolute;
     right: 1rem;
     bottom: 1rem;
-    a span { display: block; text-indent: -9999px; }
+    a span {
+      display: block;
+      text-indent: -9999px;
+    }
   }
-
   label {
     text-align: left;
     position: absolute;
@@ -242,8 +252,10 @@ form {
     color: rgba($dark-gray, 50%);
     transition: color ease-in-out 0.25s;
   }
-
-  input, .ql-editor, .daterange, .v-select {
+  input,
+  .ql-editor,
+  .daterange,
+  .v-select {
     border: 1px solid $light-gray;
     background: $light-gray;
     outline: none;
@@ -266,103 +278,102 @@ form {
       z-index: 10;
     }
     &::placeholder {
-        font-weight: 200;
-        color: $dark-gray;
+      font-weight: 200;
+      color: $dark-gray;
     }
   }
   .focus .v-select {
-      border-color: $primary-color;
-      background: white;
-      z-index: 10;
-
+    border-color: $primary-color;
+    background: white;
+    z-index: 10;
   }
-
   .ql-editor {
     min-height: 375px;
   }
-
   &.editor {
     padding: 0;
     margin-top: 3rem;
     background: none;
-       .form-element {
-          position: relative;
-          z-index: 1;
-          margin-bottom: 1rem;
-          .custom-select-title { display: none; }
-          label {
-            padding-top: 0.5rem;
-            opacity: 1;
-            color: rgba($dark-gray, 50%);
-          }
-          &:hover {
-            z-index: 2;
-            label {
-                color: $primary-color;
-            }  
-          }
-        }
-      .topleftinfo {
-        top: -2rem;
-        left: 0.5rem;
-        .type  {
-          opacity: 0.3;
-        }
-        &:hover .type {
-            opacity: 1;
-        }
-      }
-
-      .bookmark {
+    .form-element {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 1rem;
+      .custom-select-title {
         display: none;
       }
-    .input input{
+      label {
+        padding-top: 0.5rem;
+        opacity: 1;
+        color: rgba($dark-gray, 50%);
+      }
+      &:hover {
+        z-index: 2;
+        label {
+          color: $primary-color;
+        }
+      }
+    }
+    .topleftinfo {
+      top: -2rem;
+      left: 0.5rem;
+      .type {
+        opacity: 0.3;
+      }
+      &:hover .type {
+        opacity: 1;
+      }
+    }
+    .bookmark {
+      display: none;
+    }
+    .input input {
       padding: 3rem 1rem;
     }
     .headline input {
-        padding: 1rem 5rem;
-      }
-      .description {
-        padding: 0;
-      }
-      .daterange {
-        .icon.validUntil {
-          i {
-            display: none;
-          }
+      padding: 1rem 5rem;
+    }
+    .description {
+      padding: 0;
+    }
+    .daterange {
+      .icon.validUntil {
+        i {
+          display: none;
         }
-        //padding: 1rem;
-        .form-element {
-          display: inline-block;
-          input {
-            box-shadow: none !important;
-            border: 0 !important;
-          }
-          .single_error {
-            left: 1rem;
-            top: -2rem;
-            right: auto;
-          }
+      } //padding: 1rem;
+      .form-element {
+        display: inline-block;
+        input {
+          box-shadow: none !important;
+          border: 0 !important;
+        }
+        .single_error {
+          left: 1rem;
+          top: -2rem;
+          right: auto;
         }
       }
+    }
   }
-
 }
 
-.v-select{
+.v-select {
   padding: 2rem 1rem 1rem 1rem;
-  .dropdown-toggle { border: 0 !important; }
-  .dropdown-menu { z-index: 10; }
+  .dropdown-toggle {
+    border: 0 !important;
+  }
+  .dropdown-menu {
+    z-index: 10;
+  }
 }
-
 
 .editor-block {
   position: relative;
   .ql-toolbar {
-      position: absolute;
-      z-index: 12;
-      right: 0;
-      border: 0;
+    position: absolute;
+    z-index: 12;
+    right: 0;
+    border: 0;
   }
   .ql-editor {
     padding-top: 3rem;
@@ -372,53 +383,55 @@ form {
   .ql-container.ql-snow {
     border: 0;
   }
-  .ql-tooltip { z-index: 12; }
+  .ql-tooltip {
+    z-index: 12;
+  }
 }
 
 span.single_error {
-    position: absolute;
-    top: -3.3rem; 
-    right: 2rem;
-    background-color: map-get($foundation-palette, alert);
-    padding: 0.5rem 1rem;
-    color: white;
-    border-radius: 5px;
-    white-space: nowrap;
-    z-index: 100;
-    -webkit-transition: all 0.4s ease;
-  }
-  span.single_error:before {
-    content: "";
-    position: absolute;
-    width: 0;
-    height: 0;
-    border-top: 20px solid map-get($foundation-palette, alert);
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    -webkit-transition: all 0.4s ease;
-    -moz-transition   : all 0.4s ease;
-    left: 30%;
-    bottom: -50%;
-  }
+  position: absolute;
+  top: -3.3rem;
+  right: 2rem;
+  background-color: map-get($foundation-palette, alert);
+  padding: 0.5rem 1rem;
+  color: white;
+  border-radius: 5px;
+  white-space: nowrap;
+  z-index: 100;
+  -webkit-transition: all 0.4s ease;
+}
 
+span.single_error:before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-top: 20px solid map-get($foundation-palette, alert);
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  -webkit-transition: all 0.4s ease;
+  -moz-transition: all 0.4s ease;
+  left: 30%;
+  bottom: -50%;
+}
 
 .detail-header-wrapper {
   background: $white;
   box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
-
   .infolist {
     margin: 0;
-    li { display: inline-block; margin-right: 1rem; }
+    li {
+      display: inline-block;
+      margin-right: 1rem;
+    }
   }
-    .row {
+  .row {
     margin-bottom: 1rem;
   }
-
 }
 
 .detail-content {
-
-  .image { 
+  .image {
     width: 100%;
     margin: 2rem 0;
     padding: 0;
@@ -436,22 +449,26 @@ span.single_error {
     border-radius: 0;
     box-shadow: 0 0 0 1px rgba(51, 51, 51, 0.2);
   }
-  .stripes { 
-    background: repeating-linear-gradient( 45deg,  lighten($light-gray, 6%), lighten($light-gray, 6%) 10px,  #fcfcfc 10px,  #fcfcfc 20px );
+  .stripes {
+    background: repeating-linear-gradient( 45deg, lighten($light-gray, 6%), lighten($light-gray, 6%) 10px, #fcfcfc 10px, #fcfcfc 20px);
   }
   .images {
     max-width: 900px;
     margin: 2rem auto;
   }
   .image-data {
-    float: right; 
-    background: white; 
+    float: right;
+    background: white;
     position: relative;
-    text-align:left;
+    text-align: left;
     width: 33%;
     padding: 1.5rem;
     dl {
-      dt { margin: 1rem 0 0 0; color: $dark-gray; font-weight: 200;}
+      dt {
+        margin: 1rem 0 0 0;
+        color: $dark-gray;
+        font-weight: 200;
+      }
     }
     &:before {
       content: '';
@@ -466,71 +483,74 @@ span.single_error {
       border-color: transparent #ffffff transparent transparent;
     }
   }
-
   hr {
     padding: 1rem 0;
   }
 }
 
-
-.type{
+.type {
   font-size: 1rem;
   font-weight: normal;
-  &.translations { margin-bottom: 2rem; }
-  &.bild, &.bilder {
-      color: $ccpicture;
+  &.translations {
+    margin-bottom: 2rem;
+  }
+  &.bild,
+  &.bilder {
+    color: $ccpicture;
   }
   &.website {
-      color: $ccwebsite;
+    color: $ccwebsite;
   }
   &.video {
-      color: $ccvideo;
+    color: $ccvideo;
   }
   &.text {
-      color: $cctext;
+    color: $cctext;
   }
   &.social {
-      color: $ccsocial;
+    color: $ccsocial;
   }
   &.print {
-      color: $ccprint;
+    color: $ccprint;
   }
   &.event {
-      color: $ccevent;
+    color: $ccevent;
   }
-  &.content-einheit, &.thema {
-      color: $ccthema;
+  &.content-einheit,
+  &.thema {
+    color: $ccthema;
   }
   &.recherche {
-      color: $ccrecherche;
+    color: $ccrecherche;
   }
 }
 
-.tags, body .v-select {
-  .tag, .selected-tag{
-      display: inline-block;
-      background-color: rgba($primary-color, 0.5);
+.tags,
+body .v-select {
+  .tag,
+  .selected-tag {
+    display: inline-block;
+    background-color: rgba($primary-color, 0.5);
+    font-size: 0.8rem;
+    color: $white;
+    padding: 0 0.3rem;
+    margin: 0 0.1rem;
+    line-height: 1.2rem;
+    border-radius: $object-border-radius;
+    i {
       font-size: 0.8rem;
-      color: $white;
-      padding: 0 0.3rem;
-      margin: 0 0.1rem;
-      line-height: 1.2rem;
-      border-radius: $object-border-radius;
-
-      i {
-        font-size: 0.8rem;
-        margin-left: 0.2rem;
-      }
-      .close {
-          font-size: 1.2rem;
-          color: white;
-          text-shadow:none;
-          opacity: .7;
-      }
+      margin-left: 0.2rem;
+    }
+    .close {
+      font-size: 1.2rem;
+      color: white;
+      text-shadow: none;
+      opacity: .7;
+    }
   }
-  .selected-tag { 
-    float: left; 
-    margin-top: 5px; 
+  .selected-tag {
+    float: left;
+    margin-top: 5px;
     font-family: $body-font-family;
     border: 0;
     height: auto;
@@ -545,25 +565,33 @@ span.single_error {
       padding-right: 5px;
     }
   }
-  .selected-tag { float: left; margin-top: 5px; font-family: $body-font-family}
-  a.tag:hover, a.selected-tag:hover {
-      background-color: rgba($primary-color, 0.8);
+  .selected-tag {
+    float: left;
+    margin-top: 5px;
+    font-family: $body-font-family
+  }
+  a.tag:hover,
+  a.selected-tag:hover {
+    background-color: rgba($primary-color, 0.8);
   }
   .selected-tag:hover {
-      background-color: rgba(map-get($foundation-palette, alert), 0.5);
+    background-color: rgba(map-get($foundation-palette, alert), 0.5);
   }
-  span.tag { background-color: rgba($dark-gray, 0.8);  }
+  span.tag {
+    background-color: rgba($dark-gray, 0.8);
+  }
 }
 
-
 .longtext {
-  max-width: 900px; 
+  max-width: 900px;
   margin: 0 auto;
 }
 
-.reveal-overlay, .reveal.without-overlay {
+.reveal-overlay,
+.reveal.without-overlay {
   background: none;
 }
+
 .reveal-blur {
   &.show {
     transition: all ease-out 0.1s;

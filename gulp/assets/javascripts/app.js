@@ -16,6 +16,7 @@ var focus_init = require('./modules/initializers/focus_init');
 var flash_init = require('./modules/initializers/flash_init');
 var validation_init = require('./modules/initializers/validation_init');
 var counter_init = require('./modules/initializers/counter_init');
+var datepicker_init = require('./modules/initializers/date_picker_init');
 
 
 // Initialize Masonry Grid
@@ -56,7 +57,10 @@ $(function () {
   // initialize Quill Editor
   quill_init.initialize();
 
-  // initialize Quill Editor
+  // initialize Date Picker
+  datepicker_init.initialize();
+
+  // initialize Word Counter
   //counter_init.initialize();
 
 });

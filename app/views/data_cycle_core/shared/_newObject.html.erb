@@ -11,12 +11,14 @@
 
 <% unless @creativeWork.nil? %>
 
-    <div class="reveal" id="newCreativeWork" data-reveal>
+    <div class="reveal new-item" id="newCreativeWork" data-reveal>
         <h3>Neues Thema erstellen</h3>
 
         <%= form_for(@creativeWork) do |f| %>
             <%= hidden_field_tag 'template', 'Thema' %>
-            <%= f.text_field :headline, class: 'form-control', value:params[:search] %>
+            <div class="validation-container form-element">
+                <%= f.text_field :headline, class: 'form-control', value:params[:search] %>
+            </div>
             <% if params[:search].present? %>
                 <%= f.submit "Erstellen", class: "button primary" %>
             <% end %>
@@ -27,12 +29,14 @@
         </button>
     </div>
 
-    <div class="reveal" id="recherche" data-reveal>
+    <div class="reveal new-item" id="recherche" data-reveal>
         <h3>Neue Recherche beginnen</h3>
 
         <%= form_for(@creativeWork) do |f| %>
             <%= hidden_field_tag 'template', 'Recherche' %>
-            <%= f.text_field :headline, class: 'form-control', value:params[:search] %>
+            <div class="validation-container form-element">
+                <%= f.text_field :headline, class: 'form-control', value:params[:search] %>
+            </div>
             <% if params[:search].present? %>
                 <%= submit_tag "Erstellen", class: "button primary" %>
             <% end %>

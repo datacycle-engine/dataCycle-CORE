@@ -17,6 +17,65 @@ module.exports.initialize = function () {
     };
   }
 
+  if ($('.new-item form').html() != undefined) {
+    var forms = $('.new-item form');
+
+    $(document).on('open.zf.reveal', '.new-item', function (e) {
+      $(this).find('form').on('submit', function (e) {
+        e.preventDefault();
+        if (check_fields(this)) this.submit();
+      }.bind(this));
+
+      $(this).find('form input[type=text]').each(function (e) {
+        $(this).on('change', function () {
+          $(this).closest('form').find('input[type=submit]').removeAttr('disabled');
+          $(this).closest('.validation-container').find('.single_error').remove();
+          check_field(this);
+        });
+      });
+    }.bind(this));
+
+    $(document).on('closed.zf.reveal', '.new-item', function (e) {
+      $(this).find('form').off('submit');
+      $(this).find('form input[type=text]').each(function (e) {
+        $(this).off('change');
+      });
+    }.bind(this));
+
+    $(forms).each(function () {
+      $(this).on('submit', function (e) {
+        e.preventDefault();
+        if (check_fields(this)) this.submit();
+      }.bind(this));
+
+      $(this).find('input[type=text]').each(function (e) {
+        $(this).on('change', function () {
+          $(this).closest('form').find('input[type=submit]').removeAttr('disabled');
+          $(this).closest('.validation-container').find('.single_error').remove();
+          check_field(this);
+        });
+      });
+    });
+  }
+
+  function check_fields(form) {
+    var isValid = true;
+    $(form).find('input[type=text]').each(function (e) {
+      if (check_field(this) == false) isValid = false;
+    });
+    return isValid;
+  }
+
+  function check_field(field) {
+    if ($(field).val().length == 0) {
+      var data = {};
+      data.error = ["Feld darf nicht leer sein"];
+      $(field).closest('.validation-container').append(render_error_msg(data, field));
+      return false;
+    }
+    return true;
+  }
+
   function submit_creative_work_form(form) {
     //get quill-js values
     if ($('.quill-editor').html() != undefined) {

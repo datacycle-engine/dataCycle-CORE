@@ -49,11 +49,7 @@
 
       <div class="row">
         <div class="small-7 small-offset-5 columns end">
-          <div class="form-actions">
-            <%= link_to "https://adfs.austria.info/adfs/ls/idpinitiatedsignon.aspx", class:"button" do %>
-              <i class="fa fa-angle-right" aria-hidden="true"> remote</i>
-            <% end %>
-          </div>
+          <%= render "devise/shared/links" %>
         </div>
       </div>
 
@@ -106,7 +102,3 @@
 
   </div>
 </div>
-
-<!--
-<%= render "devise/shared/links" %>
--->

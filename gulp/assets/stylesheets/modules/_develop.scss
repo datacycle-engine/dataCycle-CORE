@@ -17,6 +17,19 @@
 	}
 }
 
+.edit-header {
+	&.fix-edit-bar {
+		position: fixed;
+		width: 100%;
+		z-index: 10000;
+		top: 0;
+	}
+}
+
+.no-edit-bar {
+	padding-top: 3.5rem;
+}
+
 .form-element .counter {
 	position: absolute;
 	right: 10px;

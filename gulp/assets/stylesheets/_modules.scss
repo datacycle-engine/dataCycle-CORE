@@ -1,21 +1,16 @@
 // load foundation
 @import "modules/foundation";
-
 // load font-awesome
 @import "modules/font-awesome";
-
 // load overrides
 @import "modules/foundation-overrides";
 @import "modules/font-awesome-overrides";
-
 // load quilljs
 @import "modules/quilljs";
-
 // load application modules
 @import "modules/base";
 @import "modules/structure";
 @import "modules/responsive";
-
 // load components
 @import "modules/components/breadcrumb";
 @import "modules/components/filters";
@@ -24,8 +19,7 @@
 @import "modules/components/data-cycle-objects";
 @import "modules/components/offcanvas";
 @import "modules/components/vue_select";
-
 //load logs
 @import "modules/logs";
-
 @import "modules/develop";
+@import '../../../node_modules/flatpickr/dist/flatpickr.min';
