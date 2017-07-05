@@ -86,13 +86,15 @@ module DataCycleCore
 
     def render_embeddedLinkArray_field(key, prop, value=nil, options={})
       if !prop.blank? && !prop['type_name'].blank?
-        render partial: "#{@@partials_path}#{prop['type']}", locals: {key: key, prop: prop, value: value, options: options}
+        valid_value = value.reject { |v| v.empty? } if value.kind_of?(Array)
+        render partial: "#{@@partials_path}#{prop['type']}", locals: {key: key, prop: prop, value: valid_value, options: options}
       end
     end
 
     def render_objectBrowser_field(key, prop, value=nil, options={})
       if !prop.blank? && !prop['editor']['type'].nil?
-        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options}
+        valid_value = value.reject { |v| v.empty? } if value.kind_of?(Array)
+        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: valid_value, options: options}
       end
     end
 
