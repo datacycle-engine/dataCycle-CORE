@@ -177,12 +177,11 @@ module DataCycleCore
       end
 
       def get_contentLocation(creative_work_id, data_hash, lang)
+        set_data = {}
         # check if place exists
         place = Place.
           joins(:creative_work_places).
           find_by("creative_work_places.creative_work_id" => creative_work_id)
-
-        set_data = {}
         set_data['id'] = place.id unless place.blank?
         if !data_hash['name'].blank? && data_hash['name'].has_key?(lang) && !data_hash['name'][lang].blank?
           set_data['name'] = data_hash['name'][lang]
