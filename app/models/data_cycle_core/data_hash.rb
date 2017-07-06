@@ -291,9 +291,14 @@ module DataCycleCore
       else
         # only destroy relations
         potentially_delete.each do |key|
-          ("DataCycleCore::"+relation.classify).constantize.
-            find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
-            destroy
+          item = ("DataCycleCore::"+table.classify).constantize.find_by(id: key)
+          translations = item.translated_locales
+          # destroy relation only if it is not needed for another language
+          if (translations - [ I18n.locale ]).size < 1
+            ("DataCycleCore::"+relation.classify).constantize.
+              find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
+              destroy
+          end
         end
       end
       self.method(table).call.reload # MO: force reload of the relation, otherwise cached data can obsure the next get_data_hash

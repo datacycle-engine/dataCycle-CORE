@@ -25,7 +25,6 @@ module DataCycleCore
           where('classification_tree_labels.name = ?', 'Inhaltstypen').
           first.id
 
-
         Rails.logger.level = save_logger_level
       end
 
@@ -125,8 +124,11 @@ module DataCycleCore
                 i += 1
 ## TODO: visibility when its properly defined
                 data = data_hash.except('@context', '@type', 'visibility', 'keywords', 'contentLocation')
-                contentLocation = data_hash["contentLocation"]
                 I18n.with_locale(lang) do
+                  unless data_hash["contentLocation"].blank?
+                    contentLocation_hash = get_contentLocation(to_update_image.id, data_hash["contentLocation"], lang)
+                    data['contentLocation'] = [ contentLocation_hash ]
+                  end
                   errors = to_update_image.set_data_hash(data)
                   # check if data is set and validations are correct
                   if errors[:error].size > 0
@@ -136,12 +138,6 @@ module DataCycleCore
                   end
                   to_update_image.save
                 end
-              end
-
-              languages = data_set.dump.keys
-              # save place data
-              unless contentLocation.blank? || to_update_image.id.nil?
-                save_location(to_update_image.id, contentLocation, contentLocation_template, languages)
               end
 
               unless to_update_image.id.nil?
@@ -179,52 +175,25 @@ module DataCycleCore
         end
       end
 
-      def save_location(creative_work_id, data_hash, template, parent_languages)
-
-        # check which languages are present
-        if data_hash['name'].blank?
-          lang = parent_languages.first
-          languages = [ lang ]
-        else
-          languages = data_hash['name'].keys
-        end
-
+      def get_contentLocation(creative_work_id, data_hash, lang)
+        set_data = {}
         # check if place exists
-        places = Place.
+        place = Place.
           joins(:creative_work_places).
-          where("creative_work_places.creative_work_id" => creative_work_id)
-        if places.count == 1
-          place = places.first
-          place.metadata['validation'] = template # always use new data_type-template
-        elsif places.count == 0
-          place = DataCycleCore::Place.new
-          place.metadata = { 'validation' => template }
-          place.save
+          find_by("creative_work_places.creative_work_id" => creative_work_id)
+        set_data['id'] = place.id unless place.blank?
+        if !data_hash['name'].blank? && data_hash['name'].has_key?(lang) && !data_hash['name'][lang].blank?
+          set_data['name'] = data_hash['name'][lang]
         end
-
-        languages.each do |lang|
-          I18n.with_locale(lang) do
-            set_data = {}
-            if !data_hash['name'].blank? && !data_hash['name'][lang].blank?
-              set_data['name'] = data_hash['name'][lang]
-            end
-            set_data['address'] = data_hash['address']
-            set_data['longitude'] = data_hash['geo']['longitude'] unless data_hash['geo'].blank?
-            set_data['latitude'] = data_hash['geo']['latitude'] unless data_hash['geo'].blank?
-            unless set_data['longitude'].blank? || set_data['latitude'].blank?
-              set_data['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(set_data['longitude'].to_f, set_data['latitude'].to_f)
-            end
-            set_data['external_source_id'] = @external_source_id
-            place.set_data_hash(set_data)
-            place.seen_at = Time.zone.now
-            place.save
-          end
+        set_data['address'] = data_hash['address']
+        set_data['longitude'] = data_hash['geo']['longitude'] unless data_hash['geo'].blank?
+        set_data['latitude'] = data_hash['geo']['latitude'] unless data_hash['geo'].blank?
+        unless set_data['longitude'].blank? || set_data['latitude'].blank?
+          set_data['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(set_data['longitude'].to_f, set_data['latitude'].to_f)
         end
-        CreativeWorkPlace.find_or_create_by(place_id: place.id, creative_work_id: creative_work_id, external_source_id: @external_source_id) do |data_set|
-          data_set.seen_at = Time.zone.now
-        end.save
+        set_data['external_source_id'] = @external_source_id
+        set_data
       end
-
 
     # logging ceremony for import logic
       def import_logging
