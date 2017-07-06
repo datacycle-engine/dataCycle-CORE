@@ -30,10 +30,11 @@ module DataCycleCore
       validate(data_hash) # return error/warnings from validation
     end
 
-    def delete_data_hash
+    def delete_childs(delete_relation)
       template_hash = metadata['validation']
       # check for subtrees
       template_hash['properties'].each do |key,value|
+        # cleanup embeddedObjects
         if value['type'] == 'object' && value.has_key?('name') && value.has_key?('description')
           #puts "Object: #{value['name']}|#{value['description']}|#{value['delete']}"
           delete = false
@@ -43,20 +44,35 @@ module DataCycleCore
             delete_item_keys = self.metadata['hasPart'] if !self.metadata.blank? && self.metadata.has_key?('hasPart')
             delete_item_keys.each do |key|
               item = ("DataCycleCore::"+value['storage_type'].classify).constantize.find_by(id: key)
-              item.delete_data_hash
+              item.delete_childs(delete)
               item.destroy if delete
             end
           else
             #puts "delete relation table"
             present_relations = self.method(value['storage_location']).call.ids
             self.method(value['storage_location']).call.each do |item|
-              item.delete_data_hash
+              item.delete_childs(delete)
               item.destroy if delete
             end
             relation = get_relation_name(value['storage_location'])
             relations = ("DataCycleCore::"+relation.classify).constantize.
               where(self.class.table_name.singularize.foreign_key.to_sym => self.id, value['storage_location'].singularize.foreign_key.to_sym => present_relations)
             relations.destroy_all unless relations.blank?
+          end
+        end
+        # cleanup classification_relation (only if present item can be deleted)
+        if delete_relation
+          if value['storage_location'] == 'classification_relation'
+            found_ids = get_relation_ids(value['storage_type'], value['type_name'])
+            if found_ids.size > 0
+              class_string = "DataCycleCore::"+value['storage_type'].classify
+              class_id = self.class.to_s.demodulize.foreign_key
+              class_string.constantize.
+                where(
+                  class_id => self.id,
+                  classification_id: found_ids
+                ).destroy_all
+            end
           end
         end
       end
@@ -87,18 +103,20 @@ module DataCycleCore
     end
 
     def set_relation_ids(storage_type, ids, tree_label)
-      return if ids.nil?
       class_string = "DataCycleCore::"+storage_type.classify
       class_id = self.class.to_s.demodulize.foreign_key
 
-      # insert missing ids
-      ids.each do |classification_id|
-        class_string.constantize.
-          find_or_create_by(
-            class_id => self.id,
-            classification_id: classification_id
-          )
+      unless ids.blank?
+        # insert missing ids
+        ids.each do |classification_id|
+          class_string.constantize.
+            find_or_create_by(
+              class_id => self.id,
+              classification_id: classification_id
+            )
+        end
       end
+      ids = [] if ids.blank?
       # delete missing ids
       found_ids = get_relation_ids(storage_type, tree_label)
       to_delete = found_ids - ids
@@ -278,7 +296,7 @@ module DataCycleCore
             # destroy relationObject + additional embeddedObjects and their relations
             to_update_item = self.method(table).call.find_by(id: key)
             #check for subtrees
-            to_update_item.delete_data_hash
+            to_update_item.delete_childs(delete)
             to_update_item.destroy
             ("DataCycleCore::"+relation.classify).constantize.
               find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
@@ -359,7 +377,7 @@ module DataCycleCore
           translations = item.translated_locales
           if (translations-[ I18n.locale ]).size < 1
             # find relation and destroy it
-            item.delete_data_hash
+            item.delete_childs(delete)
             item.destroy
             self.metadata['hasPart'] -= [ key ] # remove reference
           else
