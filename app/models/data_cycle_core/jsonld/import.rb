@@ -25,7 +25,6 @@ module DataCycleCore
           where('classification_tree_labels.name = ?', 'Inhaltstypen').
           first.id
 
-
         Rails.logger.level = save_logger_level
       end
 
