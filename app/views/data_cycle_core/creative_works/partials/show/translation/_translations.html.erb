@@ -4,7 +4,7 @@
 <% if !language.nil? && language == "de" %>
 
     <% german = @creativeWork.translations.select{|l| l['locale'] == language}.first %>
-    <%= render 'data_cycle_core/creative_works/partials/render/translation_item', translation: german %>
+    <%= render 'data_cycle_core/creative_works/partials/show/translation/translation_item', translation: german %>
 
 <% else %>
 
@@ -25,7 +25,7 @@
                 </div>
 
                 <div class="large-10 columns">
-                    <%= render 'data_cycle_core/creative_works/partials/render/translation_item', translation: translation %>
+                    <%= render 'data_cycle_core/creative_works/partials/show/translation/translation_item', translation: translation %>
                 </div>
             </div>
             <hr>

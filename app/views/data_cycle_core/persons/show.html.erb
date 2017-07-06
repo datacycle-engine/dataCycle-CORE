@@ -7,10 +7,10 @@
 
             <div class="topleftinfo">
                 <div class="type <%= @creativeWork.metadata['validation']['name'].downcase %>">
-                    <%= render 'data_cycle_core/creative_works/partials/render/icon', icon_type: @creativeWork.metadata['validation']['name'].downcase %>
+                    <%= render 'data_cycle_core/shared/icon', icon_type: @creativeWork.metadata['validation']['name'].downcase %>
                     <span class="title"><%= @creativeWork.metadata['validation']['name'] %></span>
                 </div>
-                <%= render 'data_cycle_core/creative_works/partials/render/metaData' %>
+                <%= render 'data_cycle_core/creative_works/partials/metaData' %>
             </div>
 
             <!--<a class="bookmark marked" href="#">-->
@@ -26,9 +26,9 @@
 
             </div>
 
-            <%= render 'data_cycle_core/creative_works/partials/render/classificationAliases' %>
+            <%= render 'data_cycle_core/creative_works/partials/show/top_content/classificationAliases' %>
 
-            <%= render 'data_cycle_core/creative_works/partials/render/validityPeriod' %>
+            <%= render 'data_cycle_core/creative_works/partials/show/top_content/validityPeriod' %>
 
             <% if !@creativeWork.metadata['validation']['permissions'].nil? && is_writable(@creativeWork.metadata['validation']['permissions']) %>
 

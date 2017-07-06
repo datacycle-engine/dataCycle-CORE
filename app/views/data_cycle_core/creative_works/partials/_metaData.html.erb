@@ -1,6 +1,6 @@
 <% if !@creativeWork.metadata.nil? && !@creativeWork.metadata['creator'].nil? %>
-    <% creator = get_user_for_id(@creativeWork.metadata['creator']) %>
-    <span class="metadata">
+	<% creator = get_user_for_id(@creativeWork.metadata['creator']) %>
+	<span class="metadata">
         <span>erstellt am </span>
         <span><strong><%= @creativeWork.created_at.to_s(:german_datetime_format) %></strong></span>
         <span> von </span>
