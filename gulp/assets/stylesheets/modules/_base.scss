@@ -506,7 +506,7 @@ span.single_error:before {
   &.video {
     color: $ccvideo;
   }
-  &.text {
+  &.text, &.standard-artikel, &.angebot {
     color: $cctext;
   }
   &.social {

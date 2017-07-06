@@ -131,19 +131,66 @@ module DataCycleCore
       render :json => valid.to_json
     end
 
-    #dev views for michi
-    def demotopic
-
-    end
-
-    def demoarticle
-
-    end
-
     private
 
       def creative_work_params
-        params.require(:creative_work).permit(:headline, :datahash => [:headline, :alternativeHeadline, :name, :text,:description, :metaTitle, :metaDescription, :keywords, :sameAs, :state => [], :kind => [] ,:season => [],:topics => [],:markets => [],:tags => [], :outputChannels => [], :validityPeriod => [:validFrom, :validUntil], :image => [], :video => [], :author => [:id], :contentLocation => [:id], :about => [:id]])
+        datahash = [
+          #base data
+          :headline,
+          :description,
+          :text,
+          #metadata
+          {:validityPeriod => [
+              :validFrom,
+              :validUntil
+          ]},
+          #classifications
+          {:state => []},
+          {:kind => []},
+          {:season => []},
+          {:topics => []},
+          {:markets => []},
+          {:tags => []},
+          {:outputChannels => []},
+          #content
+          {:image => []},
+          {:video => []},
+          :alternativeHeadline,
+          :metaTitle,
+          :metaDescription,
+          :keywords,
+          :sameAs,
+          :isPartOf,
+          #content offer
+          :price,
+          :service,
+          :name,
+          {:logo => []},
+          {:offerPeriod => [
+            :validFrom,
+            :validUntil
+          ]},
+          {:author => [
+            :id
+          ]},
+          {:contentLocation => [
+            :id
+          ]},
+          #content quotation
+          {:quotation => [
+            :text,
+            {:image => []},
+            {:author => [
+                :id
+            ]}
+          ]},
+          #content portrait - biographie
+          {:about => [
+            :id
+          ]}
+        ]
+        
+        params.require(:creative_work).permit(:headline, :datahash => datahash)
         # params.require(:creative_work).permit!
       end
 

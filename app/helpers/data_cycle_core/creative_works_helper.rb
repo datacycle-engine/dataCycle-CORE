@@ -24,7 +24,8 @@ module DataCycleCore
     end
 
     def get_allowed_content_types
-      allowed_content_types = {'Artikel' => 'Standard-Artikel', 'Portrait' => 'Portrait', 'Biografie' => 'Biografie', 'Social Media Posting' => 'SocialMediaPosting'}
+      #allowed_content_types = {'Angebot' => 'Angebot', 'Artikel' => 'Standard-Artikel', 'Biografie' => 'Biografie', 'Portrait' => 'Portrait', 'Social Media Posting' => 'SocialMediaPosting'}
+      allowed_content_types = {'Artikel' => 'Standard-Artikel', 'Biografie' => 'Biografie', 'Portrait' => 'Portrait', 'Social Media Posting' => 'SocialMediaPosting'}
     end
 
     def get_ordered_validation_properties(validation)
@@ -59,7 +60,7 @@ module DataCycleCore
 
       object_key = get_object_key(key, parents)
       if prop['type'] == 'object'
-        object_key = key
+          object_key = key
       end
       data_type = prop['type']
 
@@ -68,7 +69,11 @@ module DataCycleCore
       end
 
       if respond_to?('render_'+ data_type +'_field')
-        send('render_'+ data_type +'_field', object_key, prop, value, options)
+        if prop['type'] == 'object'
+          send('render_'+ data_type +'_field', object_key, prop, value, options, parents)
+        else
+          send('render_'+ data_type +'_field', object_key, prop, value, options)
+        end
         # send('render_'+ data_type +'_field', object_key, prop, value, options)
       else
          "Unknown data_type: #{prop['type']}"
@@ -86,17 +91,26 @@ module DataCycleCore
 
     def render_embeddedLinkArray_field(key, prop, value=nil, options={})
       if !prop.blank? && !prop['type_name'].blank?
-        render partial: "#{@@partials_path}#{prop['type']}", locals: {key: key, prop: prop, value: value, options: options}
+        valid_value = value.reject { |v| v.empty? } if value.kind_of?(Array)
+        render partial: "#{@@partials_path}#{prop['type']}", locals: {key: key, prop: prop, value: valid_value, options: options}
       end
     end
 
     def render_objectBrowser_field(key, prop, value=nil, options={})
       if !prop.blank? && !prop['editor']['type'].nil?
-        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options}
+        valid_value = value.reject { |v| v.empty? } if value.kind_of?(Array)
+        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: valid_value, options: options}
       end
     end
 
-    def render_object_field(key, prop, value=nil, options={})
+    def render_embeddedObject_field(key, prop, value=nil, options={})
+      if !prop.blank? && !prop['editor']['type'].nil?
+        internal_object = get_internal_data(prop['storage_location'], prop['name'], prop['description'], value)
+        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options, internal_object: internal_object}
+      end
+    end
+
+    def render_object_field(key, prop, value=nil, options={}, parents=[])
       #raise prop.inspect
       if !prop['properties'].nil?
         output = []
@@ -110,8 +124,15 @@ module DataCycleCore
       else
 
         if !prop['name'].nil? && !prop['description'].nil? && !prop['editor']['type'].nil?
-          key = get_object_key(key)
-          render_objectBrowser_field(key, prop, value, options)
+
+          case prop['editor']['type']
+            when 'embeddedObject'
+              render_embeddedObject_field(key, prop, value, options)
+            when 'objectBrowser'
+              key = get_object_key(key, parents)
+              render_objectBrowser_field(key, prop, value, options)
+          end
+
         end
 
       end
@@ -126,6 +147,8 @@ module DataCycleCore
             render_input_text_field(key, value, prop['label'], options)
           when 'date'
             render_date_input_text_field(key, value, prop['label'], options)
+          when 'datetime'
+            render_datetime_input_text_field(key, value, prop['label'], options)
           when 'quillEditor'
             render_fe_editor(key, value, prop['label'], options)
         end
@@ -147,6 +170,10 @@ module DataCycleCore
       render partial: "#{@@partials_path}dateInput", locals: {key: key, value: value, label: label, options: options}
     end
 
+    def render_datetime_input_text_field(key, value=nil, label=nil, options={})
+      render partial: "#{@@partials_path}dateTimeInput", locals: {key: key, value: value, label: label, options: options}
+    end
+
     private
 
       def get_object_key(key, parents = [])
@@ -155,6 +182,24 @@ module DataCycleCore
           parent_keys = parents.map{ |parent| "[#{parent}]" }.join('')
         end
         object_key = "#{@@key_prefix}#{parent_keys}[#{key}]"
+      end
+
+      def get_internal_data(storage_location, name, description, value)
+
+        if !value.empty? && value.count > 0
+          internal_object = ("DataCycleCore::"+storage_location.classify).constantize.
+              find_by(id: value.first['id'])
+        else
+          internal_object = ("DataCycleCore::"+storage_location.classify).constantize.
+              find_by(template: true, headline: name, description: description)
+        end
+
+        if internal_object.blank?
+          return nil
+        end
+
+        return internal_object
+
       end
 
   end

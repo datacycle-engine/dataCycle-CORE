@@ -25,7 +25,9 @@ module DataCycleCore
 
       elsif @type == "Ort"
 
-        query = DataCycleCore::Place.all().where(:template => false).order(updated_at: :desc)
+        query = DataCycleCore::Filter::PlaceQueryBuilder.new(nil,@language)
+        query = query.only_frontend_valid
+        query = query.with_name(params[:search]) unless params[:search].blank?
 
       else
 

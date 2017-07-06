@@ -26,19 +26,41 @@
 
                 <% end %>
 
-                <div class="title">
+                <!-- todo add autor and image -->
+                <% if item.metadata['validation']['name'].downcase == 'zitat' %>
+                    <div class="title">
 
-                    <% if !item.content.nil? && !item.content['headline'].blank? %>
-                        <%= item.content['headline'] %>
+                        <% if !item.content.nil? && !item.content['headline'].blank? %>
+                            <%= item.content['headline'] %>
+                        <% end %>
+
+                    </div>
+
+                    <% if !item.content.nil? && !item.content['text'].blank? %>
+
+                        <div class="description">
+                            <%= item.content['text'].html_safe %>
+                        </div>
+
                     <% end %>
 
-                </div>
+                <% else %>
 
-                <% if !item.content.nil? && !item.content['description'].blank? %>
+                    <div class="title">
 
-                    <div class="description">
-                        <%= item.content['description'].html_safe %>
+                        <% if !item.content.nil? && !item.content['headline'].blank? %>
+                            <%= item.content['headline'] %>
+                        <% end %>
+
                     </div>
+
+                    <% if !item.content.nil? && !item.content['description'].blank? %>
+
+                        <div class="description">
+                            <%= item.content['description'].html_safe %>
+                        </div>
+
+                    <% end %>
 
                 <% end %>
 
