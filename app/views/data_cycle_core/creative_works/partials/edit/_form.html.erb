@@ -51,10 +51,7 @@
 
 				<% if !dataObject.metadata.nil? && !dataObject.metadata['validation'].nil? %>
 
-					<% validation = dataObject.metadata['validation'] %>
 					<% validation_properties = get_ordered_validation_properties(dataObject.metadata['validation']) %>
-
-					<!--<h2><%= "#{validation['name']} - #{validation['description']} - #{validation['type']}" %></h2>-->
 					<%#= dataObject.get_data_hash %>
 					<% if !validation_properties.nil? %>
 
