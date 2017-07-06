@@ -85,6 +85,7 @@ export default {
     }
   },
   mounted() {
+    this.scrollTop = $(window).scrollTop();
     var $modal = $('#object-browser').foundation();
     $modal.foundation('open');
     $('.reveal-blur').addClass("show");
@@ -105,6 +106,7 @@ export default {
     }.bind(this));
   },
   beforeDestroy() {
+    $(window).scrollTop(this.scrollTop);
     $('.new-item').remove();
     var $modal = $('#object-browser');
     $modal.foundation('close');
@@ -120,7 +122,8 @@ export default {
       activeItem: {},
       totalItems: 0,
       chosenItems: this.preChosenItems.slice(0),
-      showNew: false
+      showNew: false,
+      scrollTop: 0
     }
   },
   watch: {
