@@ -8,7 +8,7 @@
 
 			<% validation = internal_object.metadata['validation'] %>
 			<% validation_properties = get_ordered_validation_properties(internal_object.metadata['validation']) %>
-			<h2><%= render 'data_cycle_core/creative_works/partials/render/icon', icon_type: validation['name'].downcase %> <%= validation['name'].capitalize %></h2>
+			<h2><%= render 'data_cycle_core/shared/icon', icon_type: validation['name'].downcase %> <%= validation['name'].capitalize %></h2>
 
 			<%#= @creativeWork.get_data_hash %>
 
