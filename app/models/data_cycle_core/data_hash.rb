@@ -291,8 +291,10 @@ module DataCycleCore
       else
         # only destroy relations
         potentially_delete.each do |key|
+          item = ("DataCycleCore::"+table.classify).constantize.find_by(id: key)
+          translations = item.translated_locales
           # destroy relation only if it is not needed for another language
-          if (translations-[ I18n.locale ]).size < 1
+          if (translations - [ I18n.locale ]).size < 1
             ("DataCycleCore::"+relation.classify).constantize.
               find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
               destroy
