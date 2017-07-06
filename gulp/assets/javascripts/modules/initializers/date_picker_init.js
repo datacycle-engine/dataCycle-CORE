@@ -9,7 +9,14 @@ module.exports.initialize = function () {
       enableTime: true,
       altInput: true,
       time_24hr: true,
-      allowInput: true
+      allowInput: true,
+      static: true
+    });
+
+    var input = $(this).next('input');
+    $(input).on('change', function (e) {
+      cal.setDate($(this).val(), false, cal.config.altFormat);
+      cal.close();
     });
   });
 
@@ -24,7 +31,8 @@ module.exports.initialize = function () {
 
     var input = $(this).next('input');
     $(input).on('change', function (e) {
-      cal.setDate($(this).val(), false, "d.m.Y");
+      cal.setDate($(this).val(), false, cal.config.altFormat);
+      cal.close();
     });
   });
 
