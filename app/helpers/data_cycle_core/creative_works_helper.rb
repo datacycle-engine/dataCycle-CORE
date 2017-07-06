@@ -24,8 +24,8 @@ module DataCycleCore
     end
 
     def get_allowed_content_types
-      #allowed_content_types = {'Angebot' => 'Angebot', 'Artikel' => 'Standard-Artikel', 'Biografie' => 'Biografie', 'Portrait' => 'Portrait', 'Social Media Posting' => 'SocialMediaPosting'}
-      allowed_content_types = {'Artikel' => 'Standard-Artikel', 'Biografie' => 'Biografie', 'Portrait' => 'Portrait', 'Social Media Posting' => 'SocialMediaPosting'}
+      allowed_content_types = {'Angebot' => 'Angebot', 'Artikel' => 'Standard-Artikel', 'Biografie' => 'Biografie', 'Portrait' => 'Portrait', 'Social Media Posting' => 'SocialMediaPosting'}
+      # allowed_content_types = {'Artikel' => 'Standard-Artikel', 'Biografie' => 'Biografie', 'Portrait' => 'Portrait', 'Social Media Posting' => 'SocialMediaPosting'}
     end
 
     def get_ordered_validation_properties(validation)
@@ -105,8 +105,9 @@ module DataCycleCore
 
     def render_embeddedObject_field(key, prop, value=nil, options={})
       if !prop.blank? && !prop['editor']['type'].nil?
-        internal_object = get_internal_data(prop['storage_location'], prop['name'], prop['description'], value)
-        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options, internal_object: internal_object}
+        internal_template = get_internal_template(prop['storage_location'], prop['name'], prop['description'])
+        internal_objects = get_internal_data(prop['storage_location'], prop['name'], prop['description'], value)
+        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options, internal_objects: internal_objects, internal_template: internal_template}
       end
     end
 
@@ -186,19 +187,31 @@ module DataCycleCore
 
       def get_internal_data(storage_location, name, description, value)
 
+        internal_objects = []
         if !value.empty? && value.count > 0
-          internal_object = ("DataCycleCore::"+storage_location.classify).constantize.
-              find_by(id: value.first['id'])
+          value.each do |object|
+            internal_object = ("DataCycleCore::"+storage_location.classify).constantize.
+                find_by(id: value.first['id'])
+            internal_objects.push(internal_object) unless internal_object.blank?
+          end
         else
-          internal_object = ("DataCycleCore::"+storage_location.classify).constantize.
-              find_by(template: true, headline: name, description: description)
-        end
-
-        if internal_object.blank?
           return nil
         end
 
-        return internal_object
+        return internal_objects
+
+      end
+
+      def get_internal_template(storage_location, name, description)
+
+        internal_template = ("DataCycleCore::"+storage_location.classify).constantize.
+            find_by(template: true, headline: name, description: description)
+
+        if internal_template.blank?
+          return nil
+        end
+
+        return internal_template
 
       end
 
