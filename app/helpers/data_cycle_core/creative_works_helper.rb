@@ -1,7 +1,7 @@
 module DataCycleCore
   module CreativeWorksHelper
 
-    @@partials_path = "data_cycle_core/creative_works/partials/editor/"
+    @@partials_path = "data_cycle_core/creative_works/partials/edit/datatype/"
     @@key_prefix = "creative_work[datahash]"
 
     class DataCycleFormBuilder < ActionView::Helpers::FormBuilder
