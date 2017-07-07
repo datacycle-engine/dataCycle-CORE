@@ -30,7 +30,7 @@
 
 										<% object_value = objectDataHash[key].nil? ? "" : objectDataHash[key][object_key] %>
 
-										<%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [embedded_object_key, key] %>
+										<%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [embedded_object_key, index, key] %>
 
 									<% end %>
 
@@ -71,7 +71,7 @@
 
 									<% object_value = @dataSchema[key].nil? ? "" : @dataSchema[key][object_key] %>
 
-									<%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [embedded_object_key, key] %>
+									<%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [embedded_object_key, '0', key] %>
 
 								<% end %>
 
