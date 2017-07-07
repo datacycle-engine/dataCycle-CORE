@@ -5,19 +5,53 @@
 
 	<% embedded_object_key = key %>
 
-	<% if !internal_objects.nil? && !internal_objects.empty? %>
+	<div class="contentObject datatype-<%= embedded_object_key %>">
 
+		<% if !internal_objects.nil? && !internal_objects.empty? %>
 
-		<% internal_objects.each do |object| %>
+			<% internal_objects.each_with_index do |object,index| %>
 
-			<%= debug(object) %>
-			<%= debug(object.get_data_hash) %>
+				<% objectDataHash = object.get_data_hash %>
 
-		<% end %>
+				<% if !object.metadata.nil? && !object.metadata['validation'].nil? %>
 
-	<% else %>
+					<% validation_properties = get_ordered_validation_properties(object.metadata['validation']) %>
 
-		<div class="contentObject datatype-<%= embedded_object_key %>">
+					<% if !validation_properties.nil? %>
+
+						<% validation_properties.each do |key, prop| %>
+
+							<% if prop['type'] == 'object' && !prop['properties'].nil? %>
+
+								<% object_options = !prop['editor'].nil? && !prop['editor']['options'].nil? ? prop['editor']['options'] : nil %>
+								<%= content_tag :div, object_options do %>
+
+									<% prop['properties'].each do |object_key, object_property| %>
+
+										<% object_value = objectDataHash[key].nil? ? "" : objectDataHash[key][object_key] %>
+
+										<%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [embedded_object_key, key] %>
+
+									<% end %>
+
+								<% end %>
+
+							<% else %>
+
+								<% object_value = !objectDataHash[key].nil? && !objectDataHash[key].empty? ? objectDataHash[key] : "" %>
+								<%= data_cycle_field key, prop, object_value, {class: 'form-control'}, [embedded_object_key,index] %>
+
+							<% end %>
+
+						<% end %>
+
+					<% end %>
+
+				<% end %>
+
+			<% end %>
+
+		<% else %>
 
 			<% if !internal_template.metadata.nil? && !internal_template.metadata['validation'].nil? %>
 
@@ -45,17 +79,18 @@
 
 						<% else %>
 
-							<%# object_value = !@dataSchema[embedded_object_key].nil? && !@dataSchema[embedded_object_key].empty? && !@dataSchema[embedded_object_key].first[key].nil? ? @dataSchema[embedded_object_key].first[key] : "" %>
-							<%= data_cycle_field key, prop, "", {class: 'form-control'}, [embedded_object_key,''] %>
+							<%= data_cycle_field key, prop, "", {class: 'form-control'}, [embedded_object_key,'0'] %>
 
 						<% end %>
 
 					<% end %>
 
 				<% end %>
-			<% end %>
-		</div>
 
-	<% end %>
+			<% end %>
+
+		<% end %>
+
+	</div>
 
 <% end %>

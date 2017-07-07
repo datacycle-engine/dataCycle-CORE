@@ -95,7 +95,8 @@ module DataCycleCore
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       set_breadcrumb_for @creativeWork
       add_breadcrumb "", "Edit", creative_work_path(@creativeWork)
-      datahash = creative_work_params[:datahash]
+
+      datahash = flatten_datahash_value(creative_work_params[:datahash])
 
       # add creator id
       datahash[:creator] = current_user[:id]
@@ -176,6 +177,10 @@ module DataCycleCore
           {:contentLocation => [
             :id
           ]},
+          {:website => [
+              :url,
+              :name
+          ]},
           #content quotation
           {:quotation => [
             :text,
@@ -187,11 +192,30 @@ module DataCycleCore
           #content portrait - biographie
           {:about => [
             :id
-          ]}
+          ]},
         ]
         
         params.require(:creative_work).permit(:headline, :datahash => datahash)
         # params.require(:creative_work).permit!
+      end
+
+      #todo make this more fancy
+      def flatten_datahash_value(datahash)
+
+        if datahash.key?(:quotation) && !datahash[:quotation].empty?
+          datahash[:quotation] = datahash[:quotation].values
+        end
+
+        if datahash.key?(:website) && !datahash[:website].empty?
+          datahash[:website] = datahash[:website].values
+        end
+
+        return datahash
+
+      end
+
+      def is_number? string
+        true if Float(string) rescue false
       end
 
       def create_internal(template)
