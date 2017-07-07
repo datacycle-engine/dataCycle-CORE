@@ -193,6 +193,24 @@ module DataCycleCore
           {:about => [
             :id
           ]},
+          #content mobile application
+          {:mobileApplication => [
+            :url,
+            :operatingSystem
+          ]},
+          #content timeline
+          {:timelineItem => [
+            :headline,
+            {:image => []},
+            {:contentLocation => [
+                :id
+            ]},
+            {:temporalCoverage => [
+                :validFrom,
+                :validUntil
+            ]},
+            :description
+          ]},
         ]
         
         params.require(:creative_work).permit(:headline, :datahash => datahash)
@@ -208,6 +226,14 @@ module DataCycleCore
 
         if datahash.key?(:website) && !datahash[:website].empty?
           datahash[:website] = datahash[:website].values
+        end
+
+        if datahash.key?(:mobileApplication) && !datahash[:mobileApplication].empty?
+          datahash[:mobileApplication] = datahash[:mobileApplication].values
+        end
+
+        if datahash.key?(:timelineItem) && !datahash[:timelineItem].empty?
+          datahash[:timelineItem] = datahash[:timelineItem].values
         end
 
         return datahash
@@ -285,6 +311,7 @@ module DataCycleCore
         return data_hash.compact!
 
       end
+
       def set_breadcrumb_for creativeWork
         set_breadcrumb_for creativeWork.parent if creativeWork.parent
         add_breadcrumb creativeWork.metadata['validation']['name'], creativeWork.content['headline'], creative_work_path(creativeWork.id)
