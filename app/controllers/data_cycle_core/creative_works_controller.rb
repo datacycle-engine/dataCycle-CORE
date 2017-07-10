@@ -213,6 +213,11 @@ module DataCycleCore
           ]},
           #content interview
           {:audio => []},
+          #voting interview
+          {:suggestedAnswer => [
+              :text,
+              {:image => []}
+          ]},
         ]
         
         params.require(:creative_work).permit(:headline, :datahash => datahash)
@@ -236,6 +241,10 @@ module DataCycleCore
 
         if datahash.key?(:timelineItem) && !datahash[:timelineItem].empty?
           datahash[:timelineItem] = datahash[:timelineItem].values
+        end
+
+        if datahash.key?(:suggestedAnswer) && !datahash[:suggestedAnswer].empty?
+          datahash[:suggestedAnswer] = datahash[:suggestedAnswer].values
         end
 
         return datahash
