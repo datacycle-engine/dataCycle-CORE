@@ -90,6 +90,7 @@ module DataCycleCore
 
 
         def daterange(data_hash, template_hash)
+          return if data_hash.nil?
           # ap data_hash
           # ap template_hash
           if template_hash.blank? || template_hash['from'].blank? || template_hash['to'].blank?

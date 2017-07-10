@@ -50,12 +50,42 @@ module DataCycleCore
         }
         ]
       }
+      expected_hash_quiz = {
+        "kind" => [],
+        "tags" => [],
+        "state" => [],
+        "season" => [],
+        "topics" => [],
+        "markets" => [],
+        "headline" => "Dies ist ein Test Quiz!",
+        "outputChannels" => [],
+        "alternativeHeadline" => "ein lustiges Quiz für jeden Tag!"
+       }
+
       error = data_set.set_data_hash(data_hash)
-      ap error
       data_set.save
       returned_data_hash = data_set.get_data_hash
 
-      ap returned_data_hash
+      assert_equal(0, error[:error].count)
+      assert_equal(expected_hash_quiz, returned_data_hash.except("question","id","data_type").compact)
+      assert_equal(2, returned_data_hash["question"].count)
+      assert_equal(4, returned_data_hash["question"][0]["suggestedAnswer"].count)
+      assert_equal(4, returned_data_hash["question"][1]["suggestedAnswer"].count)
+      assert_equal(1, returned_data_hash["question"][0]["acceptedAnswer"].count)
+      assert_equal(1, returned_data_hash["question"][1]["acceptedAnswer"].count)
+
+      # check consistency of data in DB
+      assert_equal(13, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(13, DataCycleCore::ClassificationCreativeWork.count)
+
+      new_data_hash = returned_data_hash#.except("outputChannels")
+      new_data_hash["question"] = []
+      error = data_set.set_data_hash(new_data_hash)
+      data_set.save
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(1, DataCycleCore::ClassificationCreativeWork.count)
     end
 
   end

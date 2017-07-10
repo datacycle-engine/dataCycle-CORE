@@ -5,7 +5,7 @@ module DataCycleCore
 
     belongs_to :external_sources
 
-    has_many :classification_trees, class_name: 'ClassificationTree', foreign_key: 'classification_alias_id'
+    has_many :classification_trees
     has_many :parent_classification_alias, through: :classification_trees
 
     has_many :sub_classification_trees, class_name: 'ClassificationTree', foreign_key: 'parent_classification_alias_id'
