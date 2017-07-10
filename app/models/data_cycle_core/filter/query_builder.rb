@@ -10,11 +10,9 @@ module DataCycleCore
         :first, :second, :third, :fourth, :fifth, :forty_two, :last]
       def_delegators :@query, *TERMINAL_METHODS
 
-      def initialize(language ="de", query = nil, classification_alias = false)
-        @classification_alias = classification_alias
-        @fulltext = fulltext
+      def initialize(locale ="de", query = nil)
+        @locale = locale
         @query = query
-        @locale = language
       end
 
     # helper for paging
@@ -64,40 +62,31 @@ module DataCycleCore
         )
       end
 
-      def with_classification_alias_ids(ids = nil)
-        # ids = ['0543d553-3c2d-4f49-bf19-5d2e59a15d82', '5ae2c5f2-1534-4800-b1fb-216b789cf9cb']
-        unless @classification_alias # see if joins are necessary
-          @query = join_classification_alias
-          @classification_alias = true
-        end
-
-        children = Arel::Table.new(:children)
-        recursive_term = Arel::SelectManager.new
-          .from(classification_tree)
-          .project(Arel.star)
-          .where(classification_tree[:parent_classification_alias_id].in(ids))
-        non_recursive_term = Arel::SelectManager.new
-          .project(classification_tree[Arel.star])
-          .from(classification_tree).join(children)
-          .on(classification_tree[:parent_classification_alias_id].eq(children[:classification_alias_id]))
-        union = recursive_term.union(:all, non_recursive_term)
-        cte_as_statement = Arel::Nodes::As.new(children, union)
-        select_manager = Arel::SelectManager.new(ActiveRecord::Base).freeze
-        manager = select_manager
-          .with(:recursive, cte_as_statement)
-          .from(children)
-          .project(children[:classification_alias_id])
-
-        # get everything including parents (or-clause)
-        reflect(
-          @query.where(
-            classification_alias[:id].in(manager)
-            .or(classification_alias[:id].in(ids))
-          )
-        )
-      end
-
     private
+
+    def create_classification_alias_recursion(ids)
+      children = Arel::Table.new(:children)
+      recursive_term = Arel::SelectManager.new
+        .from(classification_tree)
+        .project(Arel.star)
+        .where(classification_tree[:parent_classification_alias_id].in(ids))
+      non_recursive_term = Arel::SelectManager.new
+        .project(classification_tree[Arel.star])
+        .from(classification_tree).join(children)
+        .on(classification_tree[:parent_classification_alias_id].eq(children[:classification_alias_id]))
+      union = recursive_term.union(:all, non_recursive_term)
+      cte_as_statement = Arel::Nodes::As.new(children, union)
+      select_manager = Arel::SelectManager.new(ActiveRecord::Base).freeze
+      manager = select_manager
+        .with(:recursive, cte_as_statement)
+        .from(children)
+        .project(children[:classification_alias_id])
+
+      query2 = join_classification_alias2
+      manager2 = query2.where(classification_alias[:id].in(manager)
+      .or(classification_alias[:id].in(ids)))
+    end
+
     # custom function helper
       def get_point(longitude,latitude)
         Arel::Nodes::NamedFunction.new("ST_GeomFromEWKT", ["SRID=4326;POINT (#{longitude} #{latitude})"])
@@ -178,7 +167,7 @@ module DataCycleCore
 
     # chain method for Builder pattern
       def reflect(query)
-        self.class.new(@locale, query, @classification_alias)
+        self.class.new(@locale, query)
       end
 
     end
