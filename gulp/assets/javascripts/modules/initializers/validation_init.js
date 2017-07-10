@@ -3,16 +3,19 @@ module.exports.initialize = function () {
 
   if ($('#edit-form form').html() != undefined) {
     var form = document.querySelector('#edit-form form');
+    var promises = [];
 
     $(form).find('.validation-container').on("focusout", function (ev) {
       setTimeout(function () {
         if ($(this).find(':focus').addBack(':focus').length == 0) {
           check_items_and_validate(form, this);
+          catch_promises(form, false);
         }
       }.bind(this), 50);
     });
     form.onsubmit = function () {
-      return submit_creative_work_form(form);
+      submit_creative_work_form(form);
+      return false;
     };
   }
 
@@ -57,6 +60,20 @@ module.exports.initialize = function () {
     });
   }
 
+  function catch_promises(form, submit) {
+    $.when.apply($, promises).then(function () {
+      var isValid = true;
+      for (var i = 0; i < arguments.length; i++) {
+        if (arguments[i][0] != undefined && arguments[i][0].error != undefined && arguments[i][0].error.length > 0) {
+          isValid = false;
+        }
+      }
+      promises = [];
+      if (isValid && submit) form.submit();
+    });
+
+  }
+
   function check_fields(form) {
     var isValid = true;
     $(form).find('input[type=text]').each(function (e) {
@@ -83,13 +100,15 @@ module.exports.initialize = function () {
       });
     }
 
-    var isValid = validate_complete_form(form);
+    $('#validation_errors').html('');
 
-    if (isValid == true) {
-      form.submit();
-    } else {
-      return false;
-    }
+    var items = [];
+
+    $(form).find('.validation-container').each(function () {
+      check_items_and_validate(form, this);
+      items.push(this);
+    });
+    catch_promises(form, true);
   }
 
   function check_items_and_validate(form, validation_container) {
@@ -101,7 +120,7 @@ module.exports.initialize = function () {
       else if ($itemsToValidate.first().data('validate') == "classification") items = $(validation_container).find('input[type="hidden"]');
       else if ($itemsToValidate.first().data('validate') == "daterange") items = $(validation_container).find('input[data-validate="daterange"]');
 
-      return validate_single_item(form, items);
+      validate_single_item(form, items);
     }
   }
 
@@ -110,17 +129,6 @@ module.exports.initialize = function () {
     var hidden_field = document.querySelector('input#' + hidden_field_id);
     var text = $(editor).find('.ql-editor').html();
     hidden_field.value = text.replace("<p><br></p>", "");
-  }
-
-  function validate_complete_form(form) {
-    $('#validation_errors').html('');
-
-    var isValid = true;
-
-    $(form).find('.validation-container').each(function () {
-      if (check_items_and_validate(form, this) == false) isValid = false;
-    });
-    return isValid;
   }
 
   function validate_single_item(form, item) {
@@ -145,23 +153,16 @@ module.exports.initialize = function () {
 
     var url = validation_url + uuid;
 
-    isValid = true;
-
-    $.ajax({
+    promises.push($.ajax({
       type: "POST",
       url: url,
-      data: $.param(formdata), // serializes the form's elements.
-      async: false,
-      success: function (data) {
-        if (data.error.length > 0) {
-          $(item).closest('.validation-container').append(render_error_msg(data, item));
-          $(item).closest('.validation-container').addClass('has-error');
-          isValid = false;
-        }
+      data: $.param(formdata)
+    }).done(function (data) {
+      if (data != undefined && data.error.length > 0) {
+        $(item).closest('.validation-container').append(render_error_msg(data, item));
+        $(item).closest('.validation-container').addClass('has-error');
       }
-    });
-
-    return isValid;
+    }));
   }
 
   function render_error_msg(data, item) {

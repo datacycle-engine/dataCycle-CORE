@@ -13,7 +13,7 @@ Counter.prototype.setup = function () {
   if (text.length == 0) $(this.$container).hide();
 };
 Counter.prototype.setContainer = function () {
-  if (this.$parent.find('.counter').length == 0) this.$wrapper.append('<div class="counter"></div>');
+  if (this.$parent.parent().find('.counter').length == 0) this.$wrapper.append('<div class="counter"></div>');
   return this.$wrapper.find('.counter')[0];
 };
 Counter.prototype.countWords = function (text) {

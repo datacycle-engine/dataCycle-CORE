@@ -1,13 +1,17 @@
 
-<% unless internal_template.nil? %>
-
-	<h2>Zitat</h2>
+<% if !internal_template.metadata.nil? && !internal_template.metadata['validation'].nil? && !internal_template.metadata['validation']['name'].nil? %>
 
 	<% embedded_object_key = key %>
 
+	<% start_index = 0 %>
+
 	<div class="contentObject datatype-<%= embedded_object_key %>">
 
+	<h2><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.metadata['validation']['name'].downcase %> <%= prop['label'].capitalize %></h2>
+
 		<% if !internal_objects.nil? && !internal_objects.empty? %>
+
+			<% start_index = internal_objects.length - 1 %>
 
 			<% internal_objects.each_with_index do |object,index| %>
 
@@ -18,6 +22,8 @@
 					<% validation_properties = get_ordered_validation_properties(object.metadata['validation']) %>
 
 					<% if !validation_properties.nil? %>
+
+					<div class="content-object-item" id="<%= embedded_object_key %>_item_<%= index %>">
 
 						<% validation_properties.each do |key, prop| %>
 
@@ -44,29 +50,34 @@
 
 						<% end %>
 
+						<button class="button removeContentObject"><i class="fa fa-times"></i></button>
+
+					</div>
+
 					<% end %>
 
 				<% end %>
 
 			<% end %>
 
-		<% else %>
+		<% end %>
 
-			<% if !internal_template.metadata.nil? && !internal_template.metadata['validation'].nil? %>
+		<% validation_properties = get_ordered_validation_properties(internal_template.metadata['validation']) %>
 
-				<% validation_properties = get_ordered_validation_properties(internal_template.metadata['validation']) %>
+		<% if !validation_properties.nil? %>
 
-				<% if !validation_properties.nil? %>
+		<embedded-objects embedded-object-key="<%= embedded_object_key %>" :start-index="<%= start_index %>">
+			<template scope="props" slot="embedded-item">
 
-					<% validation_properties.each do |key, prop| %>
+				<% validation_properties.each do |key, prop| %>
 
-						<% if prop['type'] == 'object' && !prop['properties'].nil? %>
+					<% if prop['type'] == 'object' && !prop['properties'].nil? %>
 
-							<% object_options = !prop['editor'].nil? && !prop['editor']['options'].nil? ? prop['editor']['options'] : nil %>
-							<%= content_tag :div, object_options do %>
-								<!--<div class="object-title"><strong><%= prop['label'] %></strong></div>-->
+						<% object_options = !prop['editor'].nil? && !prop['editor']['options'].nil? ? prop['editor']['options'] : nil %>
+						<%= content_tag :div, object_options do %>
+							<!--<div class="object-title"><strong><%= prop['label'] %></strong></div>-->
 
-								<% prop['properties'].each do |object_key, object_property| %>
+							<% prop['properties'].each do |object_key, object_property| %>
 
 									<% object_value = @dataSchema[key].nil? ? "" : @dataSchema[key][object_key] %>
 									<%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [embedded_object_key, '0', key] %>
@@ -87,16 +98,62 @@
 								<%= data_cycle_field key, prop, "", {class: 'form-control'}, [embedded_object_key,'0'] %>
 							<% end %>
 
-						<% end %>
+						<%= data_cycle_field key, prop, "", {class: 'form-control'}, [embedded_object_key,'0'] %>
 
 					<% end %>
 
 				<% end %>
 
+				<button class="button removeContentObject"><i class="fa fa-times"></i></button>
+
+			</template>
+		</embedded-objects>
+		<% end %>
+
+
+
+	</div>
+
+<script type="text/html" id="<%= embedded_object_key %>_item_template" class="content_object_template" v-pre>
+
+	<% validation_properties = get_ordered_validation_properties(internal_template.metadata['validation']) %>
+
+	<% if !validation_properties.nil? %>
+
+	<div class="content-object-item" id="<%= embedded_object_key %>_item_0">
+
+		<% validation_properties.each do |key, prop| %>
+
+			<% if prop['type'] == 'object' && !prop['properties'].nil? %>
+
+				<% object_options = !prop['editor'].nil? && !prop['editor']['options'].nil? ? prop['editor']['options'] : nil %>
+				<%= content_tag :div, object_options do %>
+					<!--<div class="object-title"><strong><%= prop['label'] %></strong></div>-->
+
+					<% prop['properties'].each do |object_key, object_property| %>
+
+						<% object_value = @dataSchema[key].nil? ? "" : @dataSchema[key][object_key] %>
+
+						<%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [embedded_object_key, key] %>
+
+					<% end %>
+
+				<% end %>
+
+			<% else %>
+
+				<%= data_cycle_field key, prop, "", {class: 'form-control'}, [embedded_object_key,'0'] %>
+
 			<% end %>
 
 		<% end %>
 
+		<button class="button removeContentObject"><i class="fa fa-times"></i></button>
+
 	</div>
+
+	<% end %>
+
+</script>
 
 <% end %>

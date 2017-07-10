@@ -1,5 +1,5 @@
 <template>
-  <div id="object-browser" data-overlay="false" class="full reveal without-overlay" data-reveal>
+  <div id="object-browser" data-overlay="false" class="full reveal without-overlay" data-reveal data-v-offset="0">
     <div class="object-browser-header">
       <h4>
         <i class="fa fa-files-o" aria-hidden="true"></i> {{objectType}} auswählen
@@ -24,7 +24,7 @@
         <div class="chosen-items" v-if="totalChosen > 0">
           <div @click.stop="activeItem = item" class="chosen-item" v-for="item in chosenItems">
             <chosen :item="item" :headline="headline(item)"></chosen>
-            <span class="remove" @click.stop="toggleActive(item)">
+            <span class="remove" @click.stop="toggleActive(item, $event)">
               <i aria-hidden="true" class="fa fa-times"></i>
             </span>
           </div>
@@ -43,7 +43,7 @@
         <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
       </div>
       <div v-else-if="items.length == 0" class="no-entries">Keine Einträge gefunden</div>
-      <div v-else class="item" v-for="item in items" @click.prevent="toggleActive(item)" v-bind:class="{ active: isActive(item) }">
+      <div v-else class="item" v-for="item in items" @click.prevent="toggleActive(item, $event)" v-bind:class="{ active: isActive(item) }">
         <slot name="item" :item="item"></slot>
       </div>
   
@@ -59,8 +59,10 @@ import Pagination from './pagination.vue'
 import Detail from './../partials/detail.vue'
 import Chosen from './../partials/chosen.vue'
 import New from './../partials/new.vue'
+import Error from './../mixins/errors.js'
 
 export default {
+  mixins: [Error],
   components: { Pagination, Detail, Chosen, New },
   props: {
     objectType: {
@@ -82,9 +84,18 @@ export default {
     createItem: {
       type: Boolean,
       default: false
+    },
+    min: {
+      type: Number,
+      default: 0
+    },
+    max: {
+      type: Number,
+      default: 0
     }
   },
   mounted() {
+    this.scrollTop = $(window).scrollTop();
     var $modal = $('#object-browser').foundation();
     $modal.foundation('open');
     $('.reveal-blur').addClass("show");
@@ -105,6 +116,7 @@ export default {
     }.bind(this));
   },
   beforeDestroy() {
+    $(window).scrollTop(this.scrollTop);
     $('.new-item').remove();
     var $modal = $('#object-browser');
     $modal.foundation('close');
@@ -120,7 +132,8 @@ export default {
       activeItem: {},
       totalItems: 0,
       chosenItems: this.preChosenItems.slice(0),
-      showNew: false
+      showNew: false,
+      scrollTop: 0
     }
   },
   watch: {
@@ -132,15 +145,17 @@ export default {
     pageChanged(pageNum) {
       this.currentPage = pageNum
     },
-    toggleActive(item) {
+    toggleActive(item, event) {
       this.activeItem = item;
       var chosenIndex = this.compareIndex(this.chosenItems, item);
       var index = this.compareIndex(this.items, item);
 
       if (chosenIndex >= 0) {
+        if (this.min > 0 && this.totalChosen == this.min) return this.renderError("min", this.min, event, this.objectType);
         this.chosenItems.splice(chosenIndex, 1);
       } else {
-        if (this.selectOne) this.chosenItems = [];
+        if (this.max > 1 && this.totalChosen >= this.max) return this.renderError("max", this.max, event, this.objectType);
+        if (this.max == 1) this.chosenItems = [];
         this.chosenItems.push(item);
       }
     },

@@ -9,4 +9,11 @@ module.exports.initialize = function () {
     CounterArray.push(new Counter($(this)));
   });
 
+  $(document).on('clone-added', '.content-object-item', function () {
+
+    $(this).find('input.form-control[type=text]:not(:disabled)').not('.flatpickr-input').each(function () {
+      CounterArray.push(new Counter($(this)));
+    });
+  });
+
 };

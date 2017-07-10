@@ -61,6 +61,8 @@ module DataCycleCore
       res = walk_classification_tree(classification_alias).flatten
     end
 
+
+
     def walk_classification_tree(classification_alias,level=0)
       classification_tree = []
       return if classification_alias.nil?

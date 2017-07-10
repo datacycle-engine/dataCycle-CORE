@@ -43,12 +43,6 @@
 	position: relative;
 }
 
-// Datepicker
-.flatpickr-calendar.static.open {
-	top: initial;
-	bottom: calc(100% + 2px);
-}
-
 #mediabrowser {
 	h4,
 	#media-info {
@@ -60,6 +54,9 @@
 }
 
 .detail-header {
+	.daterange {
+		margin-bottom: 1rem;
+	}
 	.gueltigkeit {
 		margin-top: 1rem;
 	}
@@ -230,9 +227,6 @@
 				border-color: $primary-color;
 				background-color: $primary-color;
 			}
-			.person {
-				margin: 0.5rem 1rem;
-			}
 			display: block;
 			float: left;
 			background-color: white;
@@ -265,6 +259,30 @@
 	}
 }
 
+span.single_error.object-browser-error {
+	right: initial;
+	z-index: 9999;
+	&:before {
+		left: 5px;
+	}
+}
+
+.close-object-browser-error {
+	color: white;
+	margin-left: 0.5rem;
+	display: inline-block;
+	&:hover,
+	&:focus {
+		color: $white;
+	}
+}
+
+.media.person {
+	width: auto;
+	height: auto;
+	padding: 0.85rem 1rem;
+}
+
 .reveal {
 	&.new-item {
 		background: $white;
@@ -282,11 +300,30 @@
 	}
 }
 
-.detail-header.editor{
+.detail-header.editor {
 	padding-bottom: 30rem;
 }
 
-.contentObject{
-	padding: 5rem;
-	border: 2px solid blue;
+// verschachtelter Inhalt
+.contentObject {
+	padding: 1rem;
+	border: 1px solid #e6e6e6;
+	background: #e6e6e6;
+	outline: none;
+	height: auto;
+	line-height: 1;
+	margin: 0;
+	border-color: #e6e6e6;
+	box-shadow: 0 0 2px #9d9d9d;
+	position: relative;
+	transition: box-shadow 0.5s, border-color 0.25s ease-in-out;
+	min-width: 280px;
+	margin-bottom: 1rem;
+	h2 {
+		.icon {
+			.fa {
+				font-size: inherit;
+			}
+		}
+	}
 }

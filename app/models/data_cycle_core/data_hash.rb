@@ -30,10 +30,11 @@ module DataCycleCore
       validate(data_hash) # return error/warnings from validation
     end
 
-    def delete_data_hash
+    def delete_childs(delete_relation)
       template_hash = metadata['validation']
       # check for subtrees
       template_hash['properties'].each do |key,value|
+        # cleanup embeddedObjects
         if value['type'] == 'object' && value.has_key?('name') && value.has_key?('description')
           #puts "Object: #{value['name']}|#{value['description']}|#{value['delete']}"
           delete = false
@@ -43,20 +44,35 @@ module DataCycleCore
             delete_item_keys = self.metadata['hasPart'] if !self.metadata.blank? && self.metadata.has_key?('hasPart')
             delete_item_keys.each do |key|
               item = ("DataCycleCore::"+value['storage_type'].classify).constantize.find_by(id: key)
-              item.delete_data_hash
+              item.delete_childs(delete)
               item.destroy if delete
             end
           else
             #puts "delete relation table"
             present_relations = self.method(value['storage_location']).call.ids
             self.method(value['storage_location']).call.each do |item|
-              item.delete_data_hash
+              item.delete_childs(delete)
               item.destroy if delete
             end
             relation = get_relation_name(value['storage_location'])
             relations = ("DataCycleCore::"+relation.classify).constantize.
               where(self.class.table_name.singularize.foreign_key.to_sym => self.id, value['storage_location'].singularize.foreign_key.to_sym => present_relations)
             relations.destroy_all unless relations.blank?
+          end
+        end
+        # cleanup classification_relation (only if present item can be deleted)
+        if delete_relation
+          if value['storage_location'] == 'classification_relation'
+            found_ids = get_relation_ids(value['storage_type'], value['type_name'])
+            if found_ids.size > 0
+              class_string = "DataCycleCore::"+value['storage_type'].classify
+              class_id = self.class.to_s.demodulize.foreign_key
+              class_string.constantize.
+                where(
+                  class_id => self.id,
+                  classification_id: found_ids
+                ).destroy_all
+            end
           end
         end
       end
@@ -86,19 +102,35 @@ module DataCycleCore
         pluck(:classification_id)
     end
 
-    def set_relation_ids(storage_type, ids, tree_label)
-      return if ids.nil?
+    def set_relation_ids(storage_type, ids, tree_label, default_value)
       class_string = "DataCycleCore::"+storage_type.classify
       class_id = self.class.to_s.demodulize.foreign_key
 
-      # insert missing ids
-      ids.each do |classification_id|
-        class_string.constantize.
-          find_or_create_by(
-            class_id => self.id,
-            classification_id: classification_id
-          )
+      #puts "#{storage_type} | #{ids} | #{tree_label} | #{default_value}"
+      if ids.blank?
+        unless default_value.blank?
+          classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
+              .where("classification_tree_labels.name = ?", tree_label)
+              .where("classification_aliases.name = ?", default_value).first.id
+          class_string.constantize.
+            find_or_create_by(
+              class_id => self.id,
+              classification_id: classification_id
+            )
+          ids = [classification_id]
+        end
+      else
+        # insert missing ids
+        ids.each do |classification_id|
+          class_string.constantize.
+            find_or_create_by(
+              class_id => self.id,
+              classification_id: classification_id
+            )
+        end
       end
+
+      ids = [] if ids.blank? && default_value.blank?
       # delete missing ids
       found_ids = get_relation_ids(storage_type, tree_label)
       to_delete = found_ids - ids
@@ -133,7 +165,7 @@ module DataCycleCore
       when "key"
         self.id
       else
-        get_linked_data_type(properties['storage_location'], properties['name'], properties['description'])
+        get_linked_data_type(key, properties['storage_location'], properties['name'], properties['description'])
       end
     end
 
@@ -149,15 +181,16 @@ module DataCycleCore
       when 'properties'
         save_to_jsonb(key, value, properties, 'properties')
       when 'classification_relation'
-        set_relation_ids(properties['storage_type'], value, properties['type_name'])
+        set_relation_ids(properties['storage_type'], value, properties['type_name'], properties['default_value'])
       else
         # maybe already evaluated with validations?
         unless properties['storage_location'] == 'key'
           if properties.has_key?('name') && properties.has_key?('description')
             delete = false
             delete = true if properties.has_key?('delete') && properties['delete'] == true
-            #puts "set_linked_data_type(#{value}, #{properties['storage_location']}, #{properties['name']}, #{properties['description']}, #{delete})"
-            set_linked_data_type(value, properties['storage_location'], properties['name'], properties['description'], delete)
+            puts key
+            puts "set_linked_data_type(#{value}, #{properties['storage_location']}, #{properties['name']}, #{properties['description']}, #{delete})"
+            set_linked_data_type(key, value, properties['storage_location'], properties['name'], properties['description'], delete)
           else
             puts "wrong data_type #{key} | #{value}"
           end
@@ -191,13 +224,14 @@ module DataCycleCore
       data_hash
     end
 
-    def get_linked_data_type(table, name, description)
+    def get_linked_data_type(field_name, table, name, description)
       return_data = []
 
       # check if external relation or relation to itself
       if table == self.class.table_name
-        if !self.metadata.blank? && self.metadata.has_key?('hasPart')
-          self.metadata['hasPart'].each do |item|
+        field_has_part = "#{field_name}_hasPart"
+        if !self.metadata.blank? && self.metadata.has_key?(field_has_part)
+          self.metadata[field_has_part].each do |item|
             data_set = self.class.find_by(id: item)
             return_data.push(data_set.get_data_hash)
           end
@@ -210,11 +244,13 @@ module DataCycleCore
       return_data.compact
     end
 
-    def set_linked_data_type(data, table, name, description, delete)
+    def set_linked_data_type(field_name, data, table, name, description, delete)
       # check if it is a relation to itself or external via relation_table
       if table == self.class.table_name
-        set_linked_via_tree(data, table, name, description, delete)
+        puts "set_linked_via_tree"
+        set_linked_via_tree(field_name, data, table, name, description, delete)
       else
+        puts "set_linked_via_relation"
         set_linked_via_relation(data, table, name, description, delete)
       end
     end
@@ -278,7 +314,7 @@ module DataCycleCore
             # destroy relationObject + additional embeddedObjects and their relations
             to_update_item = self.method(table).call.find_by(id: key)
             #check for subtrees
-            to_update_item.delete_data_hash
+            to_update_item.delete_childs(delete)
             to_update_item.destroy
             ("DataCycleCore::"+relation.classify).constantize.
               find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
@@ -291,8 +327,10 @@ module DataCycleCore
       else
         # only destroy relations
         potentially_delete.each do |key|
+          item = ("DataCycleCore::"+table.classify).constantize.find_by(id: key)
+          translations = item.translated_locales
           # destroy relation only if it is not needed for another language
-          if (translations-[ I18n.locale ]).size < 1
+          if (translations - [ I18n.locale ]).size < 1
             ("DataCycleCore::"+relation.classify).constantize.
               find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
               destroy
@@ -302,12 +340,13 @@ module DataCycleCore
       self.method(table).call.reload # MO: force reload of the relation, otherwise cached data can obsure the next get_data_hash
     end
 
-    def set_linked_via_tree(data, table, name, description, delete)
+    def set_linked_via_tree(field_name, data, table, name, description, delete)
       # get validation template
       template = ("DataCycleCore::"+table.classify).constantize.
         find_by(template: true, headline: name, description: description)
 
       updated_item_keys = []
+      field_has_part = "#{field_name}_hasPart"
 
       unless is_blank?(data)
         # update/insert linked_data
@@ -334,20 +373,20 @@ module DataCycleCore
           updated_item_keys.push(item_id)
           # update relation
           if self.metadata.blank?
-            self.metadata = { 'hasPart' => [ item_id ] }
+            self.metadata = { field_has_part => [ item_id ] }
             self.save
-          elsif self.metadata['hasPart'].blank?
-            self.metadata['hasPart'] = [ item_id ]
+          elsif self.metadata[field_has_part].blank?
+            self.metadata[field_has_part] = [ item_id ]
             self.save
-          elsif !self.metadata['hasPart'].include?(item_id)
-            self.metadata['hasPart'].push(item_id)
+          elsif !self.metadata[field_has_part].include?(item_id)
+            self.metadata[field_has_part].push(item_id)
             self.save
           end
         end
       end
 
       available_update_item_keys = []
-      available_update_item_keys = self.metadata['hasPart'] if !self.metadata.blank? && self.metadata.has_key?('hasPart')
+      available_update_item_keys = self.metadata[field_has_part] if !self.metadata.blank? && self.metadata.has_key?(field_has_part)
       potentially_delete = available_update_item_keys - updated_item_keys
 
       if delete
@@ -357,9 +396,9 @@ module DataCycleCore
           translations = item.translated_locales
           if (translations-[ I18n.locale ]).size < 1
             # find relation and destroy it
-            item.delete_data_hash
+            item.delete_childs(delete)
             item.destroy
-            self.metadata['hasPart'] -= [ key ] # remove reference
+            self.metadata[field_has_part] -= [ key ] # remove reference
           else
             # only destroy particular translation !
             item.translation.destroy
@@ -367,7 +406,7 @@ module DataCycleCore
         end
       else
         # replace hasPart with given updated_item_keys
-        self.metadata['hasPart'] = updated_item_keys
+        self.metadata[field_has_part] = updated_item_keys
       end
     end
 

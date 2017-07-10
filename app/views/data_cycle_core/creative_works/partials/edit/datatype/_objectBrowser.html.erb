@@ -12,7 +12,7 @@
 				<% end %>
 			<% end %>
 			<% create = prop['label'] == "Autor" || prop['label'] == "Person" ? true : false %>
-			<object-browser :existing="<%= existing.to_json %>" :object-type="'<%= prop['label'] %>'" :select-one="true" :create-item="<%= create %>" hidden-name="<%= key %>[]">
+			<object-browser :existing="<%= existing.to_json %>" :object-type="'<%= prop['label'] %>'" :max="1" :create-item="<%= create %>" hidden-name="<%= key %>[]">
 				<template scope="props" slot="item">
 					<div v-if="props.item != undefined" class="media person">
 						<a slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>

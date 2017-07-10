@@ -401,6 +401,7 @@ span.single_error {
   white-space: nowrap;
   z-index: 100;
   -webkit-transition: all 0.4s ease;
+  line-height: 1.5;
 }
 
 span.single_error:before {
@@ -506,7 +507,9 @@ span.single_error:before {
   &.video {
     color: $ccvideo;
   }
-  &.text, &.standard-artikel, &.angebot {
+  &.text,
+  &.standard-artikel,
+  &.angebot {
     color: $cctext;
   }
   &.social {
