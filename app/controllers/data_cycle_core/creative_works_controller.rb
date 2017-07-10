@@ -281,7 +281,6 @@ module DataCycleCore
         end
 
         if datahash.key?(:question) && !datahash[:question].empty?
-          #datahash[:question] = datahash[:question].values
 
           temp_question = []
 
