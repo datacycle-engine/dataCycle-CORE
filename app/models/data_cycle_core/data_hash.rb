@@ -41,7 +41,8 @@ module DataCycleCore
           delete = value['delete'] unless value['delete'].blank?
           if value['storage_location'] == self.class.table_name
             #puts "delete same table"
-            delete_item_keys = self.metadata['hasPart'] if !self.metadata.blank? && self.metadata.has_key?('hasPart')
+            field_has_part = "#{key}_has_Part"
+            delete_item_keys = self.metadata[field_has_part] if !self.metadata.blank? && self.metadata.has_key?(field_has_part)
             delete_item_keys.each do |key|
               item = ("DataCycleCore::"+value['storage_type'].classify).constantize.find_by(id: key)
               item.delete_childs(delete)
@@ -188,8 +189,8 @@ module DataCycleCore
           if properties.has_key?('name') && properties.has_key?('description')
             delete = false
             delete = true if properties.has_key?('delete') && properties['delete'] == true
-            puts key
-            puts "set_linked_data_type(#{value}, #{properties['storage_location']}, #{properties['name']}, #{properties['description']}, #{delete})"
+            #puts key
+            #puts "set_linked_data_type(#{value}, #{properties['storage_location']}, #{properties['name']}, #{properties['description']}, #{delete})"
             set_linked_data_type(key, value, properties['storage_location'], properties['name'], properties['description'], delete)
           else
             puts "wrong data_type #{key} | #{value}"
@@ -247,10 +248,10 @@ module DataCycleCore
     def set_linked_data_type(field_name, data, table, name, description, delete)
       # check if it is a relation to itself or external via relation_table
       if table == self.class.table_name
-        puts "set_linked_via_tree"
+        #puts "set_linked_via_tree"
         set_linked_via_tree(field_name, data, table, name, description, delete)
       else
-        puts "set_linked_via_relation"
+        #puts "set_linked_via_relation"
         set_linked_via_relation(data, table, name, description, delete)
       end
     end

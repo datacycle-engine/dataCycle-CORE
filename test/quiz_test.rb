@@ -28,26 +28,26 @@ module DataCycleCore
           "headline" => "beliebtestes Handy-OS?",
           "suggestedAnswer" => [
             { "text" => "Android" },
-            # { "text" => "iOS" },
-            # { "text" => "Sailfish"},
+            { "text" => "iOS" },
+            { "text" => "Sailfish"},
             { "text" => "Ubuntu Phone"}
           ],
           "acceptedAnswer" => [
             { "text" => "Android"}
           ]
-        }#,
-        # {
-        #   "headline" => "bestes Desktop OS?",
-        #   "suggestedAnswer" => [
-        #     { "text" => "Linux"},
-        #     { "text" => "BSD"},
-        #     { "text" => "Windows"},
-        #     { "text" => "sonstige"}
-        #   ],
-        #   "acceptedAnswer" => [
-        #     { "text" => "Linux"}
-        #   ]
-        # }
+        },
+        {
+          "headline" => "bestes Desktop OS?",
+          "suggestedAnswer" => [
+            { "text" => "Linux"},
+            { "text" => "BSD"},
+            { "text" => "Windows"},
+            { "text" => "sonstige"}
+          ],
+          "acceptedAnswer" => [
+            { "text" => "Linux"}
+          ]
+        }
         ]
       }
       error = data_set.set_data_hash(data_hash)
