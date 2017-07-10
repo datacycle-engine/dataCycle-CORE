@@ -24,6 +24,13 @@
   - $$Bild
   - $$Video
   - $$Audio
+  # additional types for content variants
+  - $$Website
+  - $$MobileApplication
+  - $$Inklusiv-Leistungen
+  - $$Zeitleiste-Eintrag
+  - $$Frage
+  - $$Antwort
 
 - Inhaltspools:
   - $$Themenvorschläge

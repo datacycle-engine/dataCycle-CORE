@@ -21,10 +21,6 @@ module DataCycleCore
     end
 
     test "different behaviour for embeddedObject without delete flag" do
-
-begin
-
-
       template_without_delete = DataCycleCore::CreativeWork.find_by(template: true, headline: "Bild", description: "ImageObject")
       validation_without_delete = template_without_delete.metadata['validation']
       data_set_without = DataCycleCore::CreativeWork.new
@@ -75,13 +71,6 @@ begin
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
       assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
       assert_equal(1, DataCycleCore::Place.where(template: false).count)
-
-    rescue Exception => e
-      e.message
-      e.backtrace
-    end
-
-
     end
 
     test "save CreativeWork with embedded object contentLocation, then delete embedded object (last and only one)" do

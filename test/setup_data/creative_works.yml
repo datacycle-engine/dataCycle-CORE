@@ -199,14 +199,14 @@
         :storage_location: metadata
         :editor:
           :sorting: 3
-      :video:
-        :label: Videos
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
-        :editor:
-          :sorting: 4
+#      :video:
+#        :label: Videos
+#        :type: embeddedLinkArray
+#        :type_name: creative_works
+#        :storage_type: array
+#        :storage_location: metadata
+#        :editor:
+#          :sorting: 4
       :text:
         :label: Recherchedaten
         :type: string
@@ -286,15 +286,9 @@
         :type: string
         :storage_type: string
         :storage_location: content
-      :photographer:
+      :creator:
         :label: Fotograf
         :type: string
-        :storage_type: string
-        :storage_location: metadata
-      :creator:
-        :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
         :storage_type: string
         :storage_location: metadata
       :license:
@@ -369,6 +363,12 @@
             :storage_location: metadata
             :validations:
               :format: date_time
+      :accountablePerson:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
       :dateCreated:
         :label: Erstellungsdatum
         :type: string
@@ -540,14 +540,14 @@
         :storage_location: metadata
         :editor:
           :sorting: 10
-      :video:
-        :label: Videos
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
-        :editor:
-          :sorting: 11
+#      :video:
+#        :label: Videos
+#        :type: embeddedLinkArray
+#        :type_name: creative_works
+#        :storage_type: array
+#        :storage_location: metadata
+#        :editor:
+#          :sorting: 11
       #meta attributes
       :topics:
         :label: Themenbereiche
@@ -862,6 +862,16 @@
                 :data-type: datepicker
                 :data-validate: daterange
                 :placeholder: "tt.mm.jjjj --:--"
+      :website:
+        :label: Link
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: Website
+        :description: CreativeWork
+        :editor:
+          :type: embeddedObject
+          :sorting: 15
       #meta attributes
       :topics:
         :label: Themenbereiche
@@ -1443,14 +1453,14 @@
           :sorting: 3
           :options:
             :data-validate: media
-      :video:
-        :label: Videos
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
-        :editor:
-          :sorting: 4
+#      :video:
+#        :label: Videos
+#        :type: embeddedLinkArray
+#        :type_name: creative_works
+#        :storage_type: array
+#        :storage_location: metadata
+#        :editor:
+#          :sorting: 4
       :url:
         :label: Link
         :type: string
@@ -1668,6 +1678,1654 @@
         :storage_type: classification_creative_works
         :storage_location: classification_relation
         :default_value: "Zitat"
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+
+- :data:
+    :name: Website
+    :description: CreativeWork
+    :type: object
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :url:
+        :label: Link
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :editor:
+          :type: input
+          :sorting: 1
+      :name:
+        :label: Text
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :editor:
+          :type: quillEditor
+          :sorting: 2
+          :options:
+            :data-size: basic
+      :isPartOf:
+        :label: parent
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :validations:
+          :format: uuid
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :default_value: "Website"
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+
+- :data:
+    :name: App
+    :description: CreativeWork
+    :type: object
+    :content_type: variant
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 1
+          :options:
+            :data-validate: text
+      :alternativeHeadline:
+        :label: Subüberschrift
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :editor:
+          :type: input
+          :sorting: 2
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :editor:
+          :type: quillEditor
+          :sorting: 3
+          :options:
+            :data-size: basic
+      :image:
+        :label: Bilder
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+        :editor:
+          :sorting: 10
+#      :video:
+#        :label: Videos
+#        :type: embeddedLinkArray
+#        :type_name: creative_works
+#        :storage_type: array
+#        :storage_location: metadata
+#        :editor:
+#          :sorting: 11
+      :mobileApplication:
+        :label: Link
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: MobileApplication
+        :description: CreativeWork
+        :editor:
+          :type: embeddedObject
+          :sorting: 12
+      #meta attributes
+      :topics:
+        :label: Themenbereiche
+        :type: classificationTreeLabel
+        :type_name: Themenbereiche
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 20
+      :markets:
+        :label: Zielmarkt
+        :type: classificationTreeLabel
+        :type_name: Märkte
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 21
+      :kind:
+        :label: Inhaltsart
+        :type: classificationTreeLabel
+        :type_name: Inhaltsarten
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 22
+      :season:
+        :label: Jahreszeit
+        :type: classificationTreeLabel
+        :type_name: Jahreszeiten
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 23
+      :state:
+        :label: Bundesland
+        :type: classificationTreeLabel
+        :type_name: Bundesländer
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 24
+          :options:
+            :data-validate: classification
+      :tags:
+        :label: Tags
+        :type: classificationTreeLabel
+        :type_name: Tags
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 25
+      :outputChannels:
+        :label: Ausgabekanäle
+        :type: classificationTreeLabel
+        :type_name: Ausgabekanäle
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 26
+      :validityPeriod:
+        :label: Gültigkeitszeitraum
+        :type: object
+        :storage_location: metadata
+        :validations:
+          :daterange:
+            :from: validFrom
+            :to: validUntil
+        :editor:
+          :sorting: 30
+          :options:
+            :class: daterange validation-container
+            :tabindex: -1
+        :properties:
+          :validFrom:
+            :label: Gültigkeit
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: tt.mm.jjjj
+          :validUntil:
+            :label: bis
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: tt.mm.jjjj
+#      :data_pool:
+#        :label: Inhaltspool
+#        :type: classificationTreeLabel
+#        :type_name: Inhaltspools
+#        :storage_type: classification_creative_works
+#        :storage_location: classification_relation
+#        :default_value: "Aktuelle Themen"
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :default_value: "App"
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+
+- :data:
+    :name: MobileApplication
+    :description: CreativeWork
+    :type: object
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :url:
+        :label: URL
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :editor:
+          :type: input
+          :sorting: 1
+      :operatingSystem:
+        :label: Plattform
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :editor:
+          :type: input
+          :sorting: 2
+      :isPartOf:
+        :label: parent
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :validations:
+          :format: uuid
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :default_value: "MobileApplication"
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+
+
+- :data:
+    :name: Zeitleiste
+    :description: CreativeWork
+    :type: object
+    :content_type: variant
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 1
+          :options:
+            :data-validate: text
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :editor:
+          :type: quillEditor
+          :sorting: 3
+          :options:
+            :data-size: basic
+      :timelineItem:
+        :label: Eintrag
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: Zeitleiste-Eintrag
+        :description: CreativeWork
+        :editor:
+          :type: embeddedObject
+          :sorting: 12
+      #meta attributes
+      :topics:
+        :label: Themenbereiche
+        :type: classificationTreeLabel
+        :type_name: Themenbereiche
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 20
+      :markets:
+        :label: Zielmarkt
+        :type: classificationTreeLabel
+        :type_name: Märkte
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 21
+      :kind:
+        :label: Inhaltsart
+        :type: classificationTreeLabel
+        :type_name: Inhaltsarten
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 22
+      :season:
+        :label: Jahreszeit
+        :type: classificationTreeLabel
+        :type_name: Jahreszeiten
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 23
+      :state:
+        :label: Bundesland
+        :type: classificationTreeLabel
+        :type_name: Bundesländer
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 24
+          :options:
+            :data-validate: classification
+      :tags:
+        :label: Tags
+        :type: classificationTreeLabel
+        :type_name: Tags
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 25
+      :outputChannels:
+        :label: Ausgabekanäle
+        :type: classificationTreeLabel
+        :type_name: Ausgabekanäle
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 26
+      :validityPeriod:
+        :label: Gültigkeitszeitraum
+        :type: object
+        :storage_location: metadata
+        :validations:
+          :daterange:
+            :from: validFrom
+            :to: validUntil
+        :editor:
+          :sorting: 30
+          :options:
+            :class: daterange validation-container
+            :tabindex: -1
+        :properties:
+          :validFrom:
+            :label: Gültigkeit
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: tt.mm.jjjj
+          :validUntil:
+            :label: bis
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: tt.mm.jjjj
+#      :data_pool:
+#        :label: Inhaltspool
+#        :type: classificationTreeLabel
+#        :type_name: Inhaltspools
+#        :storage_type: classification_creative_works
+#        :storage_location: classification_relation
+#        :default_value: "Aktuelle Themen"
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :default_value: "Zeitleiste"
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+
+- :data:
+    :name: Zeitleiste-Eintrag
+    :description: CreativeWork
+    :type: object
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 1
+          :options:
+            :data-validate: text
+      :temporalCoverage:
+        :label: Zeitraum
+        :type: object
+        :storage_location: metadata
+        :validations:
+          :daterange:
+            :from: validFrom
+            :to: validUntil
+        :editor:
+          :sorting: 2
+          :options:
+            :class: daterange validation-container
+            :tabindex: -1
+        :properties:
+          :validFrom:
+            :label: Zeitraum
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date
+            :editor:
+              :type: datetime
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: "tt.mm.jjjj --:--"
+          :validUntil:
+            :label: bis
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date
+            :editor:
+              :type: datetime
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: "tt.mm.jjjj --:--"
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :editor:
+          :type: quillEditor
+          :sorting: 3
+          :options:
+            :data-size: basic
+      :image:
+        :label: Bild
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+        :validations:
+          :max: 1
+        :editor:
+          :sorting: 4
+          :options:
+            :data-validate: media
+      :contentLocation:
+        :label: Ort
+        :type: object
+        :storage_location: places
+        :name: contentLocation
+        :description: Place
+        :delete: false
+        :editor:
+          :sorting: 5
+          :type: objectBrowser
+      :isPartOf:
+        :label: parent
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :validations:
+          :format: uuid
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :default_value: "Zeitleiste-Eintrag"
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+
+
+- :data:
+    :name: Interview
+    :description: CreativeWork
+    :type: object
+    :content_type: variant
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 1
+          :options:
+            :data-validate: text
+      :alternativeHeadline:
+        :label: Subüberschrift
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :editor:
+          :type: input
+          :sorting: 2
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :editor:
+          :type: quillEditor
+          :sorting: 3
+          :options:
+            :data-size: basic
+      :text:
+        :label: Interview
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :editor:
+          :type: quillEditor
+          :sorting: 4
+          :options:
+            :data-size: full
+#      :video:
+#        :label: Video
+#        :type: embeddedLinkArray
+#        :type_name: creative_works
+#        :storage_type: array
+#        :storage_location: metadata
+#        :editor:
+#          :sorting: 11
+#      :audio:
+#        :label: Audio
+#        :type: embeddedLinkArray
+#        :type_name: creative_works
+#        :storage_type: array
+#        :storage_location: metadata
+#        :editor:
+#          :sorting: 12
+      #meta attributes
+      :topics:
+        :label: Themenbereiche
+        :type: classificationTreeLabel
+        :type_name: Themenbereiche
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 20
+      :markets:
+        :label: Zielmarkt
+        :type: classificationTreeLabel
+        :type_name: Märkte
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 21
+      :kind:
+        :label: Inhaltsart
+        :type: classificationTreeLabel
+        :type_name: Inhaltsarten
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 22
+      :season:
+        :label: Jahreszeit
+        :type: classificationTreeLabel
+        :type_name: Jahreszeiten
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 23
+      :state:
+        :label: Bundesland
+        :type: classificationTreeLabel
+        :type_name: Bundesländer
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 24
+          :options:
+            :data-validate: classification
+      :tags:
+        :label: Tags
+        :type: classificationTreeLabel
+        :type_name: Tags
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 25
+      :quotation:
+        :label: Zitat
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: Zitat
+        :description: CreativeWork
+        :editor:
+          :type: embeddedObject
+          :sorting: 26
+      :outputChannels:
+        :label: Ausgabekanäle
+        :type: classificationTreeLabel
+        :type_name: Ausgabekanäle
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 27
+      :validityPeriod:
+        :label: Gültigkeitszeitraum
+        :type: object
+        :storage_location: metadata
+        :validations:
+          :daterange:
+            :from: validFrom
+            :to: validUntil
+        :editor:
+          :sorting: 30
+          :options:
+            :class: daterange validation-container
+            :tabindex: -1
+        :properties:
+          :validFrom:
+            :label: Gültigkeit
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: tt.mm.jjjj
+          :validUntil:
+            :label: bis
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: tt.mm.jjjj
+#      :data_pool:
+#        :label: Inhaltspool
+#        :type: classificationTreeLabel
+#        :type_name: Inhaltspools
+#        :storage_type: classification_creative_works
+#        :storage_location: classification_relation
+#        :default_value: "Aktuelle Themen"
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :default_value: "Interview"
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+
+
+- :data:
+    :name: Linktipps
+    :description: CreativeWork
+    :type: object
+    :content_type: variant
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 1
+          :options:
+            :data-validate: text
+      :alternativeHeadline:
+        :label: Subüberschrift
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :editor:
+          :type: input
+          :sorting: 2
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :editor:
+          :type: quillEditor
+          :sorting: 3
+          :options:
+            :data-size: basic
+      :image:
+        :label: Bild
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+        :validations:
+          :max: 1
+        :editor:
+          :sorting: 4
+          :options:
+            :data-validate: media
+      :website:
+        :label: Link
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: Website
+        :description: CreativeWork
+        :editor:
+          :type: embeddedObject
+          :sorting: 5
+      #meta attributes
+      :topics:
+        :label: Themenbereiche
+        :type: classificationTreeLabel
+        :type_name: Themenbereiche
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 20
+      :markets:
+        :label: Zielmarkt
+        :type: classificationTreeLabel
+        :type_name: Märkte
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 21
+      :kind:
+        :label: Inhaltsart
+        :type: classificationTreeLabel
+        :type_name: Inhaltsarten
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 22
+      :season:
+        :label: Jahreszeit
+        :type: classificationTreeLabel
+        :type_name: Jahreszeiten
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 23
+      :state:
+        :label: Bundesland
+        :type: classificationTreeLabel
+        :type_name: Bundesländer
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 24
+          :options:
+            :data-validate: classification
+      :tags:
+        :label: Tags
+        :type: classificationTreeLabel
+        :type_name: Tags
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 25
+      :outputChannels:
+        :label: Ausgabekanäle
+        :type: classificationTreeLabel
+        :type_name: Ausgabekanäle
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 26
+      :validityPeriod:
+        :label: Gültigkeitszeitraum
+        :type: object
+        :storage_location: metadata
+        :validations:
+          :daterange:
+            :from: validFrom
+            :to: validUntil
+        :editor:
+          :sorting: 30
+          :options:
+            :class: daterange validation-container
+            :tabindex: -1
+        :properties:
+          :validFrom:
+            :label: Gültigkeit
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: tt.mm.jjjj
+          :validUntil:
+            :label: bis
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: tt.mm.jjjj
+#      :data_pool:
+#        :label: Inhaltspool
+#        :type: classificationTreeLabel
+#        :type_name: Inhaltspools
+#        :storage_type: classification_creative_works
+#        :storage_location: classification_relation
+#        :default_value: "Aktuelle Themen"
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :default_value: "Linktipps"
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+
+- :data:
+    :name: Voting
+    :description: CreativeWork
+    :type: object
+    :content_type: variant
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :headline:
+        :label: Frage
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 1
+          :options:
+            :data-validate: text
+      :suggestedAnswer:
+        :label: Antwort
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: Antwort
+        :description: CreativeWork
+        :editor:
+          :type: embeddedObject
+          :sorting: 15
+      #meta attributes
+      :topics:
+        :label: Themenbereiche
+        :type: classificationTreeLabel
+        :type_name: Themenbereiche
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 20
+      :markets:
+        :label: Zielmarkt
+        :type: classificationTreeLabel
+        :type_name: Märkte
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 21
+      :kind:
+        :label: Inhaltsart
+        :type: classificationTreeLabel
+        :type_name: Inhaltsarten
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 22
+      :season:
+        :label: Jahreszeit
+        :type: classificationTreeLabel
+        :type_name: Jahreszeiten
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 23
+      :state:
+        :label: Bundesland
+        :type: classificationTreeLabel
+        :type_name: Bundesländer
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 24
+          :options:
+            :data-validate: classification
+      :tags:
+        :label: Tags
+        :type: classificationTreeLabel
+        :type_name: Tags
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 25
+      :outputChannels:
+        :label: Ausgabekanäle
+        :type: classificationTreeLabel
+        :type_name: Ausgabekanäle
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 26
+      :validityPeriod:
+        :label: Gültigkeitszeitraum
+        :type: object
+        :storage_location: metadata
+        :validations:
+          :daterange:
+            :from: validFrom
+            :to: validUntil
+        :editor:
+          :sorting: 30
+          :options:
+            :class: daterange validation-container
+            :tabindex: -1
+        :properties:
+          :validFrom:
+            :label: Gültigkeit
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: tt.mm.jjjj
+          :validUntil:
+            :label: bis
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: tt.mm.jjjj
+#      :data_pool:
+#        :label: Inhaltspool
+#        :type: classificationTreeLabel
+#        :type_name: Inhaltspools
+#        :storage_type: classification_creative_works
+#        :storage_location: classification_relation
+#        :default_value: "Aktuelle Themen"
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :default_value: "Voting"
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+
+- :data:
+    :name: Frage
+    :description: CreativeWork
+    :type: object
+    :content_type: variant
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :headline:
+        :label: Frage
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 1
+          :options:
+            :data-validate: text
+      :text:
+        :label: Hinweis
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :editor:
+          :type: quillEditor
+          :sorting: 2
+          :options:
+            :data-size: basic
+      :image:
+        :label: Bild
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+        :validations:
+          :max: 1
+        :editor:
+          :sorting: 3
+          :options:
+            :data-validate: media
+      :acceptedAnswer:
+        :label: Antwort
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: Antwort
+        :description: CreativeWork
+        :editor:
+          :type: embeddedObject
+          :sorting: 14
+      :suggestedAnswer:
+        :label: Antwort
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: Antwort
+        :description: CreativeWork
+        :editor:
+          :type: embeddedObject
+          :sorting: 15
+      #meta attributes
+#      :data_pool:
+#        :label: Inhaltspool
+#        :type: classificationTreeLabel
+#        :type_name: Inhaltspools
+#        :storage_type: classification_creative_works
+#        :storage_location: classification_relation
+#        :default_value: "Aktuelle Themen"
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :default_value: "Frage"
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+
+- :data:
+    :name: Antwort
+    :description: CreativeWork
+    :type: object
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :text:
+        :label: Antwort
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :editor:
+          :type: quillEditor
+          :sorting: 1
+          :options:
+            :data-size: basic
+      :image:
+        :label: Bild
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+        :validations:
+          :max: 1
+        :editor:
+          :sorting: 2
+          :options:
+            :data-validate: media
+      :isPartOf:
+        :label: parent
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :validations:
+          :format: uuid
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :default_value: "Zitat"
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+
+- :data:
+    :name: Quiz
+    :description: CreativeWork
+    :type: object
+    :content_type: variant
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 1
+          :options:
+            :data-validate: text
+      :alternativeHeadline:
+        :label: Subüberschrift
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :editor:
+          :type: input
+          :sorting: 2
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :editor:
+          :type: quillEditor
+          :sorting: 3
+          :options:
+            :data-size: basic
+      :question:
+        :label: Frage
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: Frage
+        :description: CreativeWork
+        :editor:
+          :type: embeddedObject
+          :sorting: 5
+      #meta attributes
+      :topics:
+        :label: Themenbereiche
+        :type: classificationTreeLabel
+        :type_name: Themenbereiche
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 20
+      :markets:
+        :label: Zielmarkt
+        :type: classificationTreeLabel
+        :type_name: Märkte
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 21
+      :kind:
+        :label: Inhaltsart
+        :type: classificationTreeLabel
+        :type_name: Inhaltsarten
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 22
+      :season:
+        :label: Jahreszeit
+        :type: classificationTreeLabel
+        :type_name: Jahreszeiten
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 23
+      :state:
+        :label: Bundesland
+        :type: classificationTreeLabel
+        :type_name: Bundesländer
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 24
+          :options:
+            :data-validate: classification
+      :tags:
+        :label: Tags
+        :type: classificationTreeLabel
+        :type_name: Tags
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 25
+      :outputChannels:
+        :label: Ausgabekanäle
+        :type: classificationTreeLabel
+        :type_name: Ausgabekanäle
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 26
+      :validityPeriod:
+        :label: Gültigkeitszeitraum
+        :type: object
+        :storage_location: metadata
+        :validations:
+          :daterange:
+            :from: validFrom
+            :to: validUntil
+        :editor:
+          :sorting: 30
+          :options:
+            :class: daterange validation-container
+            :tabindex: -1
+        :properties:
+          :validFrom:
+            :label: Gültigkeit
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: tt.mm.jjjj
+          :validUntil:
+            :label: bis
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: tt.mm.jjjj
+#      :data_pool:
+#        :label: Inhaltspool
+#        :type: classificationTreeLabel
+#        :type_name: Inhaltspools
+#        :storage_type: classification_creative_works
+#        :storage_location: classification_relation
+#        :default_value: "Aktuelle Themen"
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :default_value: "Quiz"
       :creator:
         :label: Ersteller
         :type: embeddedLink
