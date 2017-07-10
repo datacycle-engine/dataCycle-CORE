@@ -203,20 +203,39 @@ module DataCycleCore
             :headline,
             {:image => []},
             {:contentLocation => [
-                :id
+              :id
             ]},
             {:temporalCoverage => [
-                :validFrom,
-                :validUntil
+              :validFrom,
+              :validUntil
             ]},
             :description
           ]},
           #content interview
           {:audio => []},
-          #voting interview
+          #content voting
           {:suggestedAnswer => [
+            :text,
+            {:image => []}
+          ]},
+          #content question
+          {:acceptedAnswer => [
+            :text,
+            {:image => []}
+          ]},
+          #content quiz
+          {:question => [
+            :headline,
+            :text,
+            {:image => []},
+            {:suggestedAnswer => [
               :text,
               {:image => []}
+            ]},
+            {:acceptedAnswer => [
+              :text,
+              {:image => []}
+            ]},
           ]},
         ]
         
@@ -245,6 +264,24 @@ module DataCycleCore
 
         if datahash.key?(:suggestedAnswer) && !datahash[:suggestedAnswer].empty?
           datahash[:suggestedAnswer] = datahash[:suggestedAnswer].values
+        end
+
+        if datahash.key?(:question) && !datahash[:question].empty?
+          #datahash[:question] = datahash[:question].values
+
+          temp_question = []
+
+          datahash[:question].values.each do |question|
+            temp = question
+            if temp.key?(:suggestedAnswer) && !temp[:suggestedAnswer].empty?
+              temp[:suggestedAnswer] = temp[:suggestedAnswer].values
+            end
+            if temp.key?(:acceptedAnswer) && !temp[:acceptedAnswer].empty?
+              temp[:acceptedAnswer] = temp[:acceptedAnswer].values
+            end
+            temp_question.push(temp)
+          end
+          datahash[:question] = temp_question
         end
 
         return datahash

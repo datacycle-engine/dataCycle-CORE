@@ -24,7 +24,7 @@ module DataCycleCore
     end
 
     def get_allowed_content_types
-      allowed_content_types = {'Angebot' => 'Angebot', 'App' => 'App', 'Artikel' => 'Standard-Artikel', 'Biografie' => 'Biografie', 'Interview' => 'Interview', 'Linktipps' => 'Linktipps', 'Portrait' => 'Portrait', 'Social Media Posting' => 'SocialMediaPosting', 'Voting' => 'Voting', 'Zeitleiste' => 'Zeitleiste'}
+      allowed_content_types = {'Angebot' => 'Angebot', 'App' => 'App', 'Artikel' => 'Standard-Artikel', 'Biografie' => 'Biografie', 'Interview' => 'Interview', 'Linktipps' => 'Linktipps', 'Portrait' => 'Portrait', 'Quiz' => 'Quiz', 'Social Media Posting' => 'SocialMediaPosting', 'Voting' => 'Voting', 'Zeitleiste' => 'Zeitleiste'}
       # allowed_content_types = {'Artikel' => 'Standard-Artikel', 'Biografie' => 'Biografie', 'Portrait' => 'Portrait', 'Social Media Posting' => 'SocialMediaPosting'}
     end
 
@@ -59,9 +59,11 @@ module DataCycleCore
       end
 
       object_key = get_object_key(key, parents)
+
       if prop['type'] == 'object'
-          object_key = key
+        object_key = key
       end
+
       data_type = prop['type']
 
       unless prop['editor']['options'].nil?
@@ -72,7 +74,7 @@ module DataCycleCore
         if prop['type'] == 'object'
           send('render_'+ data_type +'_field', object_key, prop, value, options, parents)
         else
-          send('render_'+ data_type +'_field', object_key, prop, value, options)
+          send('render_'+ data_type +'_field', object_key, prop, value, options, parents)
         end
         # send('render_'+ data_type +'_field', object_key, prop, value, options)
       else
@@ -81,33 +83,33 @@ module DataCycleCore
 
     end
 
-    def render_classificationTreeLabel_field(key, prop, value=nil, options={})
+    def render_classificationTreeLabel_field(key, prop, value=nil, options={}, parents=[])
       if !prop['editor'].nil? && !prop['editor']['type'].nil?
-        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options}
+        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options, parents: parents}
       else
         # 'editor not set'
       end
     end
 
-    def render_embeddedLinkArray_field(key, prop, value=nil, options={})
+    def render_embeddedLinkArray_field(key, prop, value=nil, options={}, parents=[])
       if !prop.blank? && !prop['type_name'].blank?
         valid_value = value.reject { |v| v.empty? } if value.kind_of?(Array)
-        render partial: "#{@@partials_path}#{prop['type']}", locals: {key: key, prop: prop, value: valid_value, options: options}
+        render partial: "#{@@partials_path}#{prop['type']}", locals: {key: key, prop: prop, value: valid_value, options: options, parents: parents}
       end
     end
 
-    def render_objectBrowser_field(key, prop, value=nil, options={})
+    def render_objectBrowser_field(key, prop, value=nil, options={}, parents=[])
       if !prop.blank? && !prop['editor']['type'].nil?
         valid_value = value.reject { |v| v.empty? } if value.kind_of?(Array)
-        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: valid_value, options: options}
+        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: valid_value, options: options, parents: parents}
       end
     end
 
-    def render_embeddedObject_field(key, prop, value=nil, options={})
+    def render_embeddedObject_field(key, prop, value=nil, options={}, parents=[])
       if !prop.blank? && !prop['editor']['type'].nil?
         internal_template = get_internal_template(prop['storage_location'], prop['name'], prop['description'])
         internal_objects = get_internal_data(prop['storage_location'], prop['name'], prop['description'], value)
-        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options, internal_objects: internal_objects, internal_template: internal_template}
+        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options, internal_objects: internal_objects, internal_template: internal_template, parents: parents}
       end
     end
 
@@ -128,7 +130,7 @@ module DataCycleCore
 
           case prop['editor']['type']
             when 'embeddedObject'
-              render_embeddedObject_field(key, prop, value, options)
+              render_embeddedObject_field(key, prop, value, options, parents)
             when 'objectBrowser'
               key = get_object_key(key, parents)
               render_objectBrowser_field(key, prop, value, options)
@@ -140,39 +142,39 @@ module DataCycleCore
 
     end
 
-    def render_string_field(key, prop, value=nil, options={})
+    def render_string_field(key, prop, value=nil, options={}, parents=[])
 
       if !prop['editor'].nil? && !prop['editor']['type'].nil?
         case prop['editor']['type']
           when 'input'
-            render_input_text_field(key, value, prop['label'], options)
+            render_input_text_field(key, value, prop['label'], options, parents: parents)
           when 'date'
-            render_date_input_text_field(key, value, prop['label'], options)
+            render_date_input_text_field(key, value, prop['label'], options, parents: parents)
           when 'datetime'
-            render_datetime_input_text_field(key, value, prop['label'], options)
+            render_datetime_input_text_field(key, value, prop['label'], options, parents: parents)
           when 'quillEditor'
-            render_fe_editor(key, value, prop['label'], options)
+            render_fe_editor(key, value, prop['label'], options, parents: parents)
         end
       else
-        render_input_text_field(key, value, prop['label'], options)
+        render_input_text_field(key, value, prop['label'], options, parents: parents)
       end
 
     end
 
-    def render_fe_editor(key, value=nil, label=nil, options={})
-      render partial: "#{@@partials_path}feEditor", locals: {key: key, value: value, label: label, options: options}
+    def render_fe_editor(key, value=nil, label=nil, options={}, parents=[])
+      render partial: "#{@@partials_path}feEditor", locals: {key: key, value: value, label: label, options: options, parents: parents}
     end
 
-    def render_input_text_field(key, value=nil, label=nil, options={})
-      render partial: "#{@@partials_path}input", locals: {key: key, value: value, label: label, options: options}
+    def render_input_text_field(key, value=nil, label=nil, options={}, parents=[])
+      render partial: "#{@@partials_path}input", locals: {key: key, value: value, label: label, options: options, parents: parents}
     end
 
-    def render_date_input_text_field(key, value=nil, label=nil, options={})
-      render partial: "#{@@partials_path}dateInput", locals: {key: key, value: value, label: label, options: options}
+    def render_date_input_text_field(key, value=nil, label=nil, options={}, parents=[])
+      render partial: "#{@@partials_path}dateInput", locals: {key: key, value: value, label: label, options: options, parents: parents}
     end
 
-    def render_datetime_input_text_field(key, value=nil, label=nil, options={})
-      render partial: "#{@@partials_path}dateTimeInput", locals: {key: key, value: value, label: label, options: options}
+    def render_datetime_input_text_field(key, value=nil, label=nil, options={}, parents=[])
+      render partial: "#{@@partials_path}dateTimeInput", locals: {key: key, value: value, label: label, options: options, parents: parents}
     end
 
     private
