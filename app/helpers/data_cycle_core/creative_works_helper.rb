@@ -24,7 +24,7 @@ module DataCycleCore
     end
 
     def get_allowed_content_types
-      allowed_content_types = {'Angebot' => 'Angebot', 'App' => 'App', 'Artikel' => 'Standard-Artikel', 'Biografie' => 'Biografie', 'Interview' => 'Interview', 'Linktipps' => 'Linktipps', 'Portrait' => 'Portrait', 'Quiz' => 'Quiz', 'Social Media Posting' => 'SocialMediaPosting', 'Voting' => 'Voting', 'Zeitleiste' => 'Zeitleiste'}
+      allowed_content_types = {'Angebot' => 'Angebot', 'App' => 'App', 'Artikel' => 'Standard-Artikel', 'Biografie' => 'Biografie', 'Interview' => 'Interview', 'Linktipps' => 'Linktipps', 'Portrait' => 'Portrait', 'Quiz' => 'Quiz', 'Rezept' => 'Rezept', 'Social Media Posting' => 'SocialMediaPosting', 'Voting' => 'Voting', 'Zeitleiste' => 'Zeitleiste'}
       # allowed_content_types = {'Artikel' => 'Standard-Artikel', 'Biografie' => 'Biografie', 'Portrait' => 'Portrait', 'Social Media Posting' => 'SocialMediaPosting'}
     end
 

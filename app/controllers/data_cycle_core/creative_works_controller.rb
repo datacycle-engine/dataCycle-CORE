@@ -237,6 +237,16 @@ module DataCycleCore
               {:image => []}
             ]},
           ]},
+          #content recipe
+          :recipeInstructions,
+          :recipeYield,
+          {:recipeCourse => []},
+          {:recipeCategory => []},
+          :recipeIngredient,
+          {:recipeComponent =>[
+            :recipeInstructions,
+            :recipeIngredient
+          ]}
         ]
         
         params.require(:creative_work).permit(:headline, :datahash => datahash)
@@ -264,6 +274,10 @@ module DataCycleCore
 
         if datahash.key?(:suggestedAnswer) && !datahash[:suggestedAnswer].empty?
           datahash[:suggestedAnswer] = datahash[:suggestedAnswer].values
+        end
+
+        if datahash.key?(:recipeComponent) && !datahash[:recipeComponent].empty?
+          datahash[:recipeComponent] = datahash[:recipeComponent].values
         end
 
         if datahash.key?(:question) && !datahash[:question].empty?
