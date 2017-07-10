@@ -126,7 +126,7 @@ module DataCycleCore
     def validate_single_data
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
 
-      datahash = creative_work_params[:datahash]
+      datahash = flatten_datahash_value(creative_work_params[:datahash])
       valid = @creativeWork.validate(datahash)
 
       render :json => valid.to_json
