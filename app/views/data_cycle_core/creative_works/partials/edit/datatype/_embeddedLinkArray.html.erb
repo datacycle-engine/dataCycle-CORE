@@ -14,12 +14,17 @@
 					<% end %>
 				<% end %>
 
-				<% select_one = false %>
-				<% if !prop['validations'].nil? && !prop['validations']['max'].nil? && prop['validations']['max'] == 1 %>
-					<% select_one = true %>
+				<% min = 0 %>
+				<% max = 0 %>
+				<% if !prop['validations'].nil? && !prop['validations']['min'].nil? %>
+					<% min = prop['validations']['min'] %>
 				<% end %>
 
-				<object-browser :existing="<%= existing.to_json %>" :min="1" :max="3" :object-type="'<%= prop['label'] %>'" :select-one="<%= select_one %>" :hidden-name="'<%= key %>[]'">
+				<% if !prop['validations'].nil? && !prop['validations']['max'].nil? %>
+					<% max = prop['validations']['max'] %>
+				<% end %>
+
+				<object-browser :existing="<%= existing.to_json %>" :min="<%= min %>" :max="<%= max %>" :object-type="'<%= prop['label'] %>'" hidden-name="<%= key %>[]">
 					<template scope="props" slot="item">
 						<div v-if="props.item != undefined" class="media thumbnail" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnailUrl+')' }">
 							<a slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item, $event)"><i aria-hidden="true" class="fa fa-times"></i></a>

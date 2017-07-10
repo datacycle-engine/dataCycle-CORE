@@ -95,7 +95,8 @@ module DataCycleCore
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       set_breadcrumb_for @creativeWork
       add_breadcrumb "", "Edit", creative_work_path(@creativeWork)
-      datahash = creative_work_params[:datahash]
+
+      datahash = flatten_datahash_value(creative_work_params[:datahash])
 
       # add creator id
       datahash[:creator] = current_user[:id]
@@ -176,6 +177,10 @@ module DataCycleCore
           {:contentLocation => [
             :id
           ]},
+          {:website => [
+              :url,
+              :name
+          ]},
           #content quotation
           {:quotation => [
             :text,
@@ -187,11 +192,30 @@ module DataCycleCore
           #content portrait - biographie
           {:about => [
             :id
-          ]}
+          ]},
         ]
         
         params.require(:creative_work).permit(:headline, :datahash => datahash)
         # params.require(:creative_work).permit!
+      end
+
+      #todo make this more fancy
+      def flatten_datahash_value(datahash)
+
+        if datahash.key?(:quotation) && !datahash[:quotation].empty?
+          datahash[:quotation] = datahash[:quotation].values
+        end
+
+        if datahash.key?(:website) && !datahash[:website].empty?
+          datahash[:website] = datahash[:website].values
+        end
+
+        return datahash
+
+      end
+
+      def is_number? string
+        true if Float(string) rescue false
       end
 
       def create_internal(template)
@@ -206,22 +230,22 @@ module DataCycleCore
 
         datahash = {'headline' => creative_work_params[:headline], 'creator' => current_user[:id]}
 
-        unless validation['properties']['data_pool'].nil?
-          data_pool_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
-              .where("classification_tree_labels.name = ?", validation['properties']['data_pool']['type_name'])
-              .where("classification_aliases.name = ?", validation['properties']['data_pool']['default_value']).first
+        # unless validation['properties']['data_pool'].nil?
+        #   data_pool_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
+        #       .where("classification_tree_labels.name = ?", validation['properties']['data_pool']['type_name'])
+        #       .where("classification_aliases.name = ?", validation['properties']['data_pool']['default_value']).first
 
-          datahash['data_pool'] = [data_pool_classification.id] unless data_pool_classification.nil?
-        end
+        #   datahash['data_pool'] = [data_pool_classification.id] unless data_pool_classification.nil?
+        # end
 
-        #add data_type
-        unless validation['properties']['data_type'].nil?
-          data_type_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
-              .where("classification_tree_labels.name = ?", validation['properties']['data_type']['type_name'])
-              .where("classification_aliases.name = ?", validation['properties']['data_type']['default_value']).first
+        # #add data_type
+        # unless validation['properties']['data_type'].nil?
+        #   data_type_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
+        #       .where("classification_tree_labels.name = ?", validation['properties']['data_type']['type_name'])
+        #       .where("classification_aliases.name = ?", validation['properties']['data_type']['default_value']).first
 
-          datahash['data_type'] = [data_type_classification.id] unless data_type_classification.nil?
-        end
+        #   datahash['data_type'] = [data_type_classification.id] unless data_type_classification.nil?
+        # end
 
         creative_work.set_data_hash(datahash)
 
