@@ -211,6 +211,8 @@ module DataCycleCore
             ]},
             :description
           ]},
+          #content interview
+          {:audio => []},
         ]
         
         params.require(:creative_work).permit(:headline, :datahash => datahash)
