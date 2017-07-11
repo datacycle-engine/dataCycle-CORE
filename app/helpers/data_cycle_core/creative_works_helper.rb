@@ -166,6 +166,19 @@ module DataCycleCore
 
     end
 
+    def render_number_field(key, prop, value=nil, options={}, parents=[])
+
+      if !prop['editor'].nil? && !prop['editor']['type'].nil?
+        case prop['editor']['type']
+          when 'duration'
+            render_input_duration_field(key, value, prop['label'], options, parents: parents)
+        end
+      else
+        render_input_text_field(key, value, prop['label'], options, parents: parents)
+      end
+
+    end
+
     def render_fe_editor(key, value=nil, label=nil, options={}, parents=[])
       render partial: "#{@@partials_path}feEditor", locals: {key: key, value: value, label: label, options: options, parents: parents}
     end
@@ -180,6 +193,10 @@ module DataCycleCore
 
     def render_datetime_input_text_field(key, value=nil, label=nil, options={}, parents=[])
       render partial: "#{@@partials_path}dateTimeInput", locals: {key: key, value: value, label: label, options: options, parents: parents}
+    end
+
+    def render_input_duration_field(key, value=nil, label=nil, options={}, parents=[])
+      render partial: "#{@@partials_path}duration", locals: {key: key, value: value, label: label, options: options, parents: parents}
     end
 
     private

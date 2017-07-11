@@ -1,0 +1,16 @@
+
+<div class="form-element <%= key.split('[').last[0...-1] %>">
+    <%= label_tag key do %>
+        <span class="icon <%= key.split('[').last[0...-1] %>">
+            <i aria-hidden="true" class="fa fa-clock-o"></i>
+        </span>
+        <%= label %>
+    <% end %>
+
+    <div class="slider" data-slider data-initial-start="0" data-step="1" data-position-value-function="log" data-non-linear-base="5">
+        <span class="slider-handle" data-slider-handle role="slider" tabindex="1" aria-controls="sliderOutputNonLinear"></span>
+    </div>
+        <input type="number" id="sliderOutputNonLinear">
+    <%= text_field_tag key,value,options %>
+
+</div>
