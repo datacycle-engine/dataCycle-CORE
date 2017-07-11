@@ -1,6 +1,6 @@
 <template>
   <div>
-    <embedded-object :embedded-object-key="embeddedObjectKey" v-for="i in indizes" :index="i+startIndex">
+    <embedded-object :embedded-object-key="embeddedObjectKey" v-for="i in indizes" :index="i+startIndex-1">
       <template scope="props" slot="embedded-item">
         <slot name="embedded-item" :index="index" :start-index="startIndex"></slot>
       </template>

@@ -40,10 +40,6 @@ $(function () {
         EmbeddedObjects
       }
     });
-
-    $(document).on('clone-added', '.content-object-item', function () {
-      $(this).find('object-browser').each(function () {});
-    });
   }
 
   // Initialize Filter Events

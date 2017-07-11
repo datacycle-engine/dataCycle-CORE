@@ -29,14 +29,14 @@ export default {
     $(this.$el).trigger('clone-added');
     var elem = this.$el;
     this.$root.$on('objects-saved', function (data) {
-      var idx = String(data.id);
-      idx = parseInt(idx.match(/\d+/));
-      console.log(idx);
-      console.log('input[name="' + data.name + '"]');
-      $(elem).find('input[name="' + data.name + '"]').attr('name', function (i, txt) {
-        return txt.replace(/\d+/, idx);
+      this.$nextTick(function () {
+        var idx = String(data.id);
+        idx = parseInt(idx.match(/\d+/));
+        $(this.$el).find("input[name^='" + data.name + "']").attr('name', function (i, txt) {
+          return txt.replace(/\d+/, idx);
+        });
       });
-    });
+    }.bind(this));
   },
   created() {
   },
