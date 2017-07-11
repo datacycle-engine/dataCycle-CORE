@@ -1,14 +1,13 @@
 <template>
   <div>
-    <embedded-object :embedded-object-key="embeddedObjectKey" v-for="i in indizes" :index="i+startIndex-1">
+    <embedded-object :embedded-object-key="embeddedObjectKey" v-for="idx in embeddedObjects" :key="idx" :index="idx" @remove="removeItem(idx)">
       <template scope="props" slot="embedded-item">
-        <slot name="embedded-item" :index="index" :start-index="startIndex"></slot>
+        <slot name="embedded-item"></slot>
       </template>
     </embedded-object>
-    <button :id="'add_' + embeddedObjectKey" class="button addContentObject" @click.prevent="addItem">
+    <button v-show="(embeddedObjectsLength + preLength) < max || max == 0" :id="'add_' + embeddedObjectKey" class="button addContentObject" @click.prevent="addItem">
       <i class="fa fa-plus"></i>
     </button>
-  
   </div>
 </template>
 
@@ -20,7 +19,7 @@ export default {
     embeddedObjectKey: {
       type: String
     },
-    startIndex: {
+    max: {
       type: Number,
       default: 0
     }
@@ -30,12 +29,30 @@ export default {
   },
   data() {
     return {
-      indizes: 0
+      embeddedObjects: [],
+      nextIndex: 0,
+      preLength: 0
+    }
+  },
+  mounted() {
+    this.nextIndex = $(this.$el).parent().find('.content-object-item').length;
+    this.preLength = this.nextIndex;
+    $(this.$el).parent().on('remove-embedded-object', '.content-object-item', function () {
+      this.preLength--;
+    }.bind(this));
+  },
+  computed: {
+    embeddedObjectsLength() {
+      return this.embeddedObjects.length;
     }
   },
   methods: {
     addItem() {
-      this.indizes++;
+      this.embeddedObjects.push(this.nextIndex);
+      this.nextIndex++;
+    },
+    removeItem(item) {
+      this.embeddedObjects = this.embeddedObjects.filter(function (e) { return e !== item });
     }
   }
 }
