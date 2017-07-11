@@ -8,9 +8,25 @@
 	</div>
 
 	<% unless dataCycleObjects.nil? %>
+
 		<% dataCycleObjects.each do |dataCycleObject| %>
-			<%= render "data_cycle_core/backend/partials/render/grid#{@mode.camelcase}Item", item: dataCycleObject %>
+
+			<% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['validation'].nil? %>
+
+				<%# if !dataCycleObject.metadata['validation']['content_type'].nil? && dataCycleObject.metadata['validation']['content_type'] != 'embedded' %>
+
+					<% if !dataCycleObject.metadata['validation']['name'].nil? && !dataCycleObject.metadata['validation']['name'].blank? %>
+
+						<%= render "data_cycle_core/backend/partials/render/grid#{@mode.camelcase}Item", item: dataCycleObject %>
+
+					<% end %>
+
+				<% end %>
+
+			<%# end %>
+
 		<% end %>
+
 	<% end %>
 
 </div>
