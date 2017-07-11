@@ -25,6 +25,8 @@
 
 					<div class="content-object-item" id="<%= embedded_object_key %>_item_<%= index %>">
 
+						<%= data_cycle_hidden_field 'id', objectDataHash['id'], [embedded_object_key,index] %>
+
 						<% validation_properties.each do |key, prop| %>
 
 							<% if prop['type'] == 'object' && !prop['properties'].nil? %>
@@ -44,7 +46,12 @@
 							<% else %>
 
 								<% object_value = !objectDataHash[key].nil? && !objectDataHash[key].empty? ? objectDataHash[key] : "" %>
-								<%= data_cycle_field key, prop, object_value, {class: 'form-control'}, [embedded_object_key,index] %>
+
+								<% if !parents.empty? %>
+									<%= data_cycle_field key, prop, object_value, {class: 'form-control'}, parents + [index] %>
+								<% else %>
+									<%= data_cycle_field key, prop, object_value, {class: 'form-control'}, [embedded_object_key,index] %>
+								<% end %>
 
 							<% end %>
 
@@ -66,46 +73,48 @@
 
 		<% if !validation_properties.nil? %>
 
-		<embedded-objects embedded-object-key="<%= embedded_object_key %>" :start-index="<%= start_index %>">
-			<template scope="props" slot="embedded-item">
+			<embedded-objects embedded-object-key="<%= embedded_object_key %>" :start-index="<%= start_index %>">
+				<template scope="props" slot="embedded-item">
 
-				<% validation_properties.each do |key, prop| %>
+					<% validation_properties.each do |key, prop| %>
 
-					<% if prop['type'] == 'object' && !prop['properties'].nil? %>
+						<% if prop['type'] == 'object' && !prop['properties'].nil? %>
 
-						<% object_options = !prop['editor'].nil? && !prop['editor']['options'].nil? ? prop['editor']['options'] : nil %>
-						<%= content_tag :div, object_options do %>
-							<!--<div class="object-title"><strong><%= prop['label'] %></strong></div>-->
+							<% object_options = !prop['editor'].nil? && !prop['editor']['options'].nil? ? prop['editor']['options'] : nil %>
+							<%= content_tag :div, object_options do %>
+								<!--<div class="object-title"><strong><%= prop['label'] %></strong></div>-->
 
-							<% prop['properties'].each do |object_key, object_property| %>
+								<% prop['properties'].each do |object_key, object_property| %>
 
-									<% object_value = @dataSchema[key].nil? ? "" : @dataSchema[key][object_key] %>
-									<%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [embedded_object_key, '0', key] %>
+										<% object_value = @dataSchema[key].nil? ? "" : @dataSchema[key][object_key] %>
+										<%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [embedded_object_key, '0', key] %>
 
+								<% end %>
+
+							<% end %>
+
+						<% elsif prop['type'] == 'object' %>
+
+								<%#= data_cycle_field key, prop, "", {class: 'form-control'}, [embedded_object_key, '0'] %>
+								<%= data_cycle_field key, prop, "", {class: 'form-control'}, [embedded_object_key, '0'] %>
+
+						<% else %>
+
+							<% if !parents.empty? %>
+								<%= data_cycle_field key, prop, "", {class: 'form-control'}, parents + ['0'] %>
+							<% else %>
+								<%= data_cycle_field key, prop, "", {class: 'form-control'}, [embedded_object_key,'0'] %>
 							<% end %>
 
 						<% end %>
 
-					<% elsif prop['type'] == 'object' %>
-
-							<%= data_cycle_field key, prop, "", {class: 'form-control'}, [embedded_object_key, '0', key] %>
-
-					<% else %>
-
-						<% if !parents.empty? %>
-							<%= data_cycle_field key, prop, "", {class: 'form-control'}, parents + ['0'] %>
-						<% else %>
-							<%= data_cycle_field key, prop, "", {class: 'form-control'}, [embedded_object_key,'0'] %>
-						<% end %>
-
 					<% end %>
 
-				<% end %>
+					<button class="button removeContentObject"><i class="fa fa-times"></i></button>
 
-				<button class="button removeContentObject"><i class="fa fa-times"></i></button>
+				</template>
+			</embedded-objects>
 
-			</template>
-		</embedded-objects>
 		<% end %>
 
 	</div>

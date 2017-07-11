@@ -52,6 +52,11 @@ module DataCycleCore
 
     end
 
+    def data_cycle_hidden_field(key, value = nil, parents=[])
+      object_key = get_object_key(key, parents)
+      hidden_field_tag(object_key, value)
+    end
+
     def data_cycle_field(key, prop, value = nil, options = {}, parents=[])
       unless prop['editor'] || prop['type'] == 'object'
         # return "No properties for editor set"
@@ -193,7 +198,7 @@ module DataCycleCore
         if !value.empty? && value.count > 0
           value.each do |object|
             internal_object = ("DataCycleCore::"+storage_location.classify).constantize.
-                find_by(id: value.first['id'])
+                find_by(id: object['id'])
             internal_objects.push(internal_object) unless internal_object.blank?
           end
         else
