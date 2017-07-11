@@ -5,7 +5,7 @@ module.exports.initialize = function () {
     var form = document.querySelector('#edit-form form');
     var promises = [];
 
-    $(form).find('.validation-container').on("focusout", function (ev) {
+    $(form).on("focusout", '.validation-container', function (ev) {
       setTimeout(function () {
         if ($(this).find(':focus').addBack(':focus').length == 0) {
           check_items_and_validate(form, this);
