@@ -1,6 +1,9 @@
 <template>
   <div class="content-object-item" :id="embeddedObjectKey + '_item_' + index">
-    <slot name="embedded-item" :index="index" :start-index="startIndex"></slot>
+    <slot name="embedded-item"></slot>
+    <button @click.prevent="$emit('remove')" class="button">
+      <i class="fa fa-times"></i>
+    </button>
   </div>
 </template>
 
@@ -72,7 +75,6 @@ export default {
 
       return clone;
     }
-
   }
 }
 </script>
