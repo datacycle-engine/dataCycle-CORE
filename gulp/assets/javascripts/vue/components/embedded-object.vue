@@ -73,6 +73,10 @@ export default {
         return txt.replace(/\d+/, newID);
       });
 
+      clone.find('.slider span').attr('aria-controls', function (i, txt) {
+        return txt.replace(/\d+/, newID);
+      });
+
       return clone;
     }
   }

@@ -326,4 +326,18 @@ span.single_error.object-browser-error {
 			}
 		}
 	}
+	.content-object-item {
+		background-color: white;
+		padding: 1rem;
+		border-radius: 3px;
+		margin-bottom: 1rem;
+	}
+}
+
+// Duration Slider
+.duration-slider {
+	padding-left: 8rem;
+	input {
+		min-width: 100%;
+	}
 }

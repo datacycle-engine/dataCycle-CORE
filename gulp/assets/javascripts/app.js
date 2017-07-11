@@ -19,6 +19,7 @@ var validation_init = require('./modules/initializers/validation_init');
 var counter_init = require('./modules/initializers/counter_init');
 var datepicker_init = require('./modules/initializers/date_picker_init');
 var content_object_init = require('./modules/initializers/content_object_init');
+var slider_init = require('./modules/initializers/slider_init');
 
 
 // Initialize Masonry Grid
@@ -69,4 +70,6 @@ $(function () {
   // initialize Content Objects
   content_object_init.initialize();
 
+  // initialize Foundation Sliders
+  slider_init.initialize();
 });
