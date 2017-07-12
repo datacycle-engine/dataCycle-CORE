@@ -2,8 +2,8 @@ module DataCycleCore
   module Filter
     class PersonQueryBuilder < QueryBuilder
 
-      def initialize(language = 'de', query = nil)
-        @language = language
+      def initialize(locale = 'de', query = nil)
+        @locale = locale
         @query = query || Person.unscoped.distinct.
           where(template: false).
           joins(
@@ -26,6 +26,16 @@ module DataCycleCore
           )
         )
       end
+
+      def with_classification_alias_ids(ids = nil)
+        manager = create_classification_alias_recursion(ids)
+        # get everything including parents (or-clause)
+        reflect(
+          @query.where(person[:id].in(manager))
+        )
+      end
+
+    private
 
       def join_person_translation
         Arel::SelectManager.new.

@@ -2,13 +2,15 @@ module DataCycleCore
   module Filter
     class PlaceQueryBuilder < QueryBuilder
 
-      def initialize(locale = "de", query = nil)
+      def initialize(locale = 'de', query = nil)
         @locale = locale
         @query = query || Place.unscoped.distinct.
-          joins(place.join(place_translation).
-          on(place[:id].eq(place_translation[:place_id])).
-          join_sources
-        ).where(place_translation[:locale].eq(quoted(@locale)))
+          where(template: false).
+          joins(
+            place.join(place_translation).
+            on(place[:id].eq(place_translation[:place_id])).
+            join_sources
+          ).where(place_translation[:locale].eq(quoted(@locale)))
 
       end
 
@@ -45,6 +47,14 @@ module DataCycleCore
         distance = distance_km * 180 / Math::PI / 6378.137
         reflect(
           @query.where(st_distance(place[:location], get_point(longitude,latitude)).lt(distance))
+        )
+      end
+
+      def with_classification_alias_ids(ids = nil)
+        manager = create_classification_alias_recursion(ids)
+        # get everything including parents (or-clause)
+        reflect(
+          @query.where(place[:id].in(manager))
         )
       end
 

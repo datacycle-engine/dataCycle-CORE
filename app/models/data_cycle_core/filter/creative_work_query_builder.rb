@@ -2,7 +2,7 @@ module DataCycleCore
   module Filter
     class CreativeWorkQueryBuilder < QueryBuilder
 
-      def initialize(locale = "de", query = nil)
+      def initialize(locale = 'de', query = nil)
         @locale = locale
         @query = query || CreativeWork.unscoped.distinct.
           where(template: false).

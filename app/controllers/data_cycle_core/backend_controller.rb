@@ -14,20 +14,13 @@ module DataCycleCore
       @language = params[:language]
       @language ||= "de" #default-language
 
-      query_creative_work = DataCycleCore::Filter::CreativeWorkQueryBuilder.new(@language).order(updated_at: :desc)
-      query_creative_work = query_creative_work.fulltext_search(params[:search]) unless params[:search].blank?
-      query_creative_work = query_creative_work.with_classification_alias_ids(@classification_array) unless @classification_array.blank?
+      query = DataCycleCore::Filter::QueryIndex.new(language: @language)
+      query = query.order(updated_at: :desc)
+      query = query.fulltext_search(params[:search]) unless params[:search].blank?
+      query = query.with_classification_alias_ids(@classification_array) unless @classification_array.blank?
 
-      query_person = DataCycleCore::Filter::PersonQueryBuilder.new(@language).order(updated_at: :desc)
-      query_person = query_person.fulltext_search(params[:search]) unless params[:search].blank?
-
-
-      query = query_creative_work
-      # concatinate results
-      #query = [query_creative_work.query ,query_person.query]
-
-      #@dataCycleObjects = Kaminari.paginate_array(query).page(params[:page]).per(10)
-      @dataCycleObjects = query.page(params[:page])
+      @paginateObject = query.page(params[:page])
+      @dataCycleObjects = @paginateObject.page_data
 
       if params[:mode].nil?
         @mode = "flex"
