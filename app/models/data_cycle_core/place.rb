@@ -22,6 +22,7 @@ module DataCycleCore
     has_many :classifications, through: :classification_places
     has_many :classification_groups, through: :classifications
     has_many :classification_aliases, through: :classification_groups
+    has_many :display_classification_aliases, -> { where("classification_aliases.internal = ?", false) }, through: :classification_groups, source: :classification_alias
 
     has_one :primaryImage, class_name: 'CreativeWork', primary_key: 'photo', foreign_key: 'id'
     has_many :creative_work_places

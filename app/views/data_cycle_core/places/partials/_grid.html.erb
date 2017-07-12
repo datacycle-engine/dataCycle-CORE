@@ -1,0 +1,16 @@
+<div class="grid <%= @mode %>">
+
+	<div class="grid-sizer"></div>
+	<div class="gutter-sizer"></div>
+	<div class="grid-loading">
+		<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+		<span class="sr-only">Loading...</span>
+	</div>
+
+	<% unless dataCycleObjects.nil? %>
+		<% dataCycleObjects.each do |dataCycleObject| %>
+			<%= render "data_cycle_core/places/partials/index/default", item: dataCycleObject %>
+		<% end %>
+	<% end %>
+
+</div>

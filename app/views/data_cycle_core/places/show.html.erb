@@ -1,0 +1,53 @@
+
+<% content_for :top_content do %>
+
+    <div class="column detail-header-wrapper">
+
+        <div class="detail-header">
+
+            <div class="topleftinfo">
+                <div class="type <%= @creativeWork.metadata['validation']['name'].downcase %>">
+                    <%= render 'data_cycle_core/shared/icon', icon_type: @creativeWork.metadata['validation']['name'].downcase %>
+                    <span class="title"><%= @creativeWork.metadata['validation']['name'] %></span>
+                </div>
+                <%= render 'data_cycle_core/creative_works/partials/metaData' %>
+            </div>
+
+            <!--<a class="bookmark marked" href="#">-->
+            <!--<span class="bookmarkinfo">zur Recherche hinzugefügt</span>-->
+            <!--<i class="fa fa-bookmark-o" aria-hidden="true"></i>-->
+            <!--</a>-->
+
+            <div class="title">
+
+                <% if !@creativeWork.name.nil? && !@creativeWork.nil? %>
+                    <%= @creativeWork.name %>
+                <% end %>
+
+            </div>
+
+            <%= render 'data_cycle_core/creative_works/partials/show/top_content/classificationAliases' %>
+
+            <%= render 'data_cycle_core/creative_works/partials/show/top_content/validityPeriod' %>
+
+            <% if !@creativeWork.metadata['validation']['permissions'].nil? && is_writable(@creativeWork.metadata['validation']['permissions']) %>
+
+                <div class="edit">
+                    <%= link_to edit_places_path(@creativeWork), class:'button-prime small' do %>
+                        <i class="fa fa-pencil" aria-hidden="true"></i><span>Bearbeiten</span>
+                    <% end %>
+                </div>
+
+            <% end %>
+
+        </div>
+
+        <%#= render 'data_cycle_core/creative_works/filter' if user_signed_in? %>
+
+    </div>
+
+<% end %>
+
+<section>
+
+</section>
