@@ -1,0 +1,7 @@
+<% if !item.content.nil? && !item.content['description'].blank? %>
+
+    <div class="description">
+        <%= item.content['description'].html_safe %>
+    </div>
+
+<% end %>

@@ -17,13 +17,22 @@
 
 					<% if !dataCycleObject.metadata['validation']['name'].nil? && !dataCycleObject.metadata['validation']['name'].blank? %>
 
-						<%= render "data_cycle_core/backend/partials/render/grid#{@mode.camelcase}Item", item: dataCycleObject %>
+						<div class="grid-item data-cycle-object">
+
+							<% case dataCycleObject.metadata['validation']['description'] %>
+								<% when "Person" %>
+									<%= render "data_cycle_core/creative_works/partials/index/#{dataCycleObject.metadata['validation']['name'].downcase}", item: dataCycleObject rescue render "data_cycle_core/creative_works/partials/index/default", item: dataCycleObject  %>
+								<% else %>
+									<%= render "data_cycle_core/creative_works/partials/index/#{dataCycleObject.metadata['validation']['name'].downcase}", item: dataCycleObject rescue render "data_cycle_core/creative_works/partials/index/default", item: dataCycleObject  %>
+							<% end %>
+
+						</div>
 
 					<% end %>
 
-				<% end %>
+				<%# end %>
 
-			<%# end %>
+			<% end %>
 
 		<% end %>
 

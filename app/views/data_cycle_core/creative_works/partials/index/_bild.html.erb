@@ -8,6 +8,17 @@
             <%= render 'data_cycle_core/creative_works/partials/index/render/title', item: item %>
             <%= render 'data_cycle_core/creative_works/partials/index/render/description', item: item %>
 
+            <% unless item.metadata.nil? %>
+
+                <% unless item.metadata['thumbnailUrl'].nil? %>
+
+                    <div class="image">
+                        <img src="<%= item.metadata['thumbnailUrl'] %>" alt="<%= item.content['name'] unless item.content.blank?%>" />
+                    </div>
+
+                <% end %>
+
+            <% end %>
 
             <% unless item.display_classification_aliases.nil? %>
 

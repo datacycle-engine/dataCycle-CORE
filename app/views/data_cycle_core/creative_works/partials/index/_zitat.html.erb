@@ -5,8 +5,22 @@
         <div class="inner">
 
             <%= render 'data_cycle_core/creative_works/partials/index/render/type', item: item %>
-            <%= render 'data_cycle_core/creative_works/partials/index/render/title', item: item %>
-            <%= render 'data_cycle_core/creative_works/partials/index/render/description', item: item %>
+
+            <div class="title">
+
+                <% if !item.content.nil? && !item.content['headline'].blank? %>
+                    <%= item.content['headline'] %>
+                <% end %>
+
+            </div>
+
+            <% if !item.content.nil? && !item.content['text'].blank? %>
+
+                <div class="description">
+                    <%= item.content['text'].html_safe %>
+                </div>
+
+            <% end %>
 
 
             <% unless item.display_classification_aliases.nil? %>
