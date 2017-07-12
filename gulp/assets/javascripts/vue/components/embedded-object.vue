@@ -1,9 +1,9 @@
 <template>
   <div class="content-object-item" :id="embeddedObjectKey + '_item_' + index">
-    <slot name="embedded-item"></slot>
-    <button @click.prevent="$emit('remove')" class="button">
+    <button @click.prevent="$emit('remove')" class="button removeContentObject">
       <i class="fa fa-times"></i>
     </button>
+    <slot name="embedded-item"></slot>
   </div>
 </template>
 

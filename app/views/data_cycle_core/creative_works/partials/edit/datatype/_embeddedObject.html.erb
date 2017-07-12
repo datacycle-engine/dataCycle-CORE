@@ -23,6 +23,8 @@
 
 					<div class="content-object-item" id="<%= embedded_object_key %>_item_<%= index %>">
 
+						<button class="button removeContentObject"><i class="fa fa-times"></i></button>
+
 						<%= data_cycle_hidden_field 'id', objectDataHash['id'], [embedded_object_key,index] %>
 
 						<% validation_properties.each do |key, prop| %>
@@ -54,8 +56,6 @@
 							<% end %>
 
 						<% end %>
-
-						<button class="button removeContentObject"><i class="fa fa-times"></i></button>
 
 					</div>
 
