@@ -171,7 +171,8 @@ module DataCycleCore
       if !prop['editor'].nil? && !prop['editor']['type'].nil?
         case prop['editor']['type']
           when 'duration'
-            render_input_duration_field(key, value, prop['label'], options, parents: parents)
+            validation = prop['validations'].nil? ? {} : prop['validations']
+            render_input_duration_field(key, value, prop['label'], options, validation, parents: parents)
         end
       else
         render_input_text_field(key, value, prop['label'], options, parents: parents)
@@ -195,8 +196,8 @@ module DataCycleCore
       render partial: "#{@@partials_path}dateTimeInput", locals: {key: key, value: value, label: label, options: options, parents: parents}
     end
 
-    def render_input_duration_field(key, value=nil, label=nil, options={}, parents=[])
-      render partial: "#{@@partials_path}duration", locals: {key: key, value: value, label: label, options: options, parents: parents}
+    def render_input_duration_field(key, value=nil, label=nil, options={}, validation={}, parents=[])
+      render partial: "#{@@partials_path}duration", locals: {key: key, value: value, label: label, options: options, parents: parents, validation: validation}
     end
 
     private
