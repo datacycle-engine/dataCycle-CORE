@@ -84,10 +84,10 @@ module DataCycleCore
           where("classification_aliases.id = ? ", classification_alias_id).
           where("classification_aliases.name = ? ", data)
         if find_classification.count < 1
-          classification = DataCycleCore::Classification.find_or_create_by(name: data, external_source_id: nil) do |item|
+          classification = DataCycleCore::Classification.create(name: data, external_source_id: nil) do |item|
             item.seen_at = Time.zone.now
           end
-          DataCycleCore::ClassificationGroup.find_or_create_by(classification_id: classification.id, classification_alias_id: classification_alias_id, external_source_id: nil) do |group|
+          DataCycleCore::ClassificationGroup.create(classification_id: classification.id, classification_alias_id: classification_alias_id, external_source_id: nil) do |group|
             group.seen_at = Time.zone.now
           end
         else

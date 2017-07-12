@@ -32,7 +32,7 @@ module DataCycleCore
       path = Rails.root.join('config','data_definitions','places.yml')
       MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Place)
       path = Rails.root.join('config','data_definitions','persons.yml')
-      MasterData::ImportPersons.new.import(path.to_s, DataCycleCore::Person)
+      MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Person)
       flash[:notice] = "imported data types YAML file"
       redirect_to admin_path
     end
