@@ -28,6 +28,8 @@ de:
       timeout: Ihre Sitzung ist abgelaufen, bitte melden Sie sich erneut an.
       unauthenticated: Sie müssen sich anmelden oder registrieren, bevor Sie fortfahren können.
       unconfirmed: Sie müssen Ihren Account bestätigen, bevor Sie fortfahren können.
+      user:
+        invalid_saml_response: Sie müssen sich anmelden oder registrieren, bevor Sie fortfahren können.
     mailer:
       confirmation_instructions:
         action: Mein Konto bestätigen
