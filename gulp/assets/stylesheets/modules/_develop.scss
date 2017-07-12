@@ -334,9 +334,6 @@ span.single_error.object-browser-error {
 			top: 1rem;
 			right: 1rem;
 		}
-		.duration-label {
-			top: 0.75rem;
-		}
 	}
 }
 
@@ -351,10 +348,14 @@ span.single_error.object-browser-error {
 		min-width: 100%;
 		text-align: right;
 		padding-right: 3rem;
+		height: 2.5rem;
 	}
 	.duration-label {
 		position: absolute;
 		right: 1rem;
-		top: 0.5rem;
+		top: 0;
+		display: inline-block;
+		height: 2.5rem;
+		line-height: 2.5rem;
 	}
 }
