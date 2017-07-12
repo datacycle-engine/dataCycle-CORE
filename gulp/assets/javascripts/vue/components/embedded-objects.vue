@@ -6,6 +6,7 @@
       </template>
     </embedded-object>
     <button v-show="(embeddedObjectsLength + preLength) < max || max == 0" :id="'add_' + embeddedObjectKey" class="button addContentObject" @click.prevent="addItem">
+      Hinzufügen
       <i class="fa fa-plus"></i>
     </button>
   </div>

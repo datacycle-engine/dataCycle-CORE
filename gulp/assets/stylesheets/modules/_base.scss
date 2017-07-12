@@ -254,7 +254,8 @@ form {
   input,
   .ql-editor,
   .daterange,
-  .v-select {
+  .v-select,
+  .contentObject {
     border: 1px solid $light-gray;
     background: $light-gray;
     outline: none;

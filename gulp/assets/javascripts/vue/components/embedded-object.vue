@@ -1,9 +1,9 @@
 <template>
   <div class="content-object-item" :id="embeddedObjectKey + '_item_' + index">
-    <slot name="embedded-item"></slot>
-    <button @click.prevent="$emit('remove')" class="button">
+    <button @click.prevent="$emit('remove')" class="button removeContentObject">
       <i class="fa fa-times"></i>
     </button>
+    <slot name="embedded-item"></slot>
   </div>
 </template>
 
@@ -70,6 +70,10 @@ export default {
       clone.find('.quill-editor').html('').siblings('.ql-toolbar').remove();
 
       clone.find('.object-browser').attr('id', function (i, txt) {
+        return txt.replace(/\d+/, newID);
+      });
+
+      clone.find('.slider span').attr('aria-controls', function (i, txt) {
         return txt.replace(/\d+/, newID);
       });
 

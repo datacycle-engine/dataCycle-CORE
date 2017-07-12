@@ -305,25 +305,57 @@ span.single_error.object-browser-error {
 }
 
 // verschachtelter Inhalt
+.detail-header .contentObject {
+	margin-bottom: 1rem;
+}
+
 .contentObject {
 	padding: 1rem;
-	border: 1px solid #e6e6e6;
-	background: #e6e6e6;
-	outline: none;
-	height: auto;
-	line-height: 1;
-	margin: 0;
-	border-color: #e6e6e6;
-	box-shadow: 0 0 2px #9d9d9d;
-	position: relative;
-	transition: box-shadow 0.5s, border-color 0.25s ease-in-out;
-	min-width: 280px;
-	margin-bottom: 1rem;
 	h2 {
 		.icon {
 			.fa {
 				font-size: inherit;
 			}
 		}
+	}
+	.addContentObject {
+		.fa {
+			padding-left: 0.5rem;
+		}
+	}
+	.content-object-item {
+		position: relative;
+		background-color: white;
+		padding: 5rem 1rem 1rem 1rem;
+		border-radius: 3px;
+		margin-bottom: 1rem;
+		.removeContentObject {
+			position: absolute;
+			top: 1rem;
+			right: 1rem;
+		}
+	}
+}
+
+// Duration Slider
+.duration-slider {
+	padding-left: 8rem;
+	.small-2 {
+		position: relative;
+		padding-right: 0;
+	}
+	input {
+		min-width: 100%;
+		text-align: right;
+		padding-right: 3rem;
+		height: 2.5rem;
+	}
+	.duration-label {
+		position: absolute;
+		right: 1rem;
+		top: 0;
+		display: inline-block;
+		height: 2.5rem;
+		line-height: 2.5rem;
 	}
 }
