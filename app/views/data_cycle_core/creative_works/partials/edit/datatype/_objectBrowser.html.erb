@@ -45,6 +45,10 @@
 							<div class="validation-container form-element">
 								<%= f.text_field :familyName, class: 'form-control', value:'' %>
 							</div>
+							<div class="validation-container form-element">
+								<%= label_tag 'person[datahash][jobTitle]', 'Job title' %>
+								<%= text_field_tag 'person[datahash][jobTitle]', '', class: 'form-control' %>
+							</div>
 							<%= f.submit "Erstellen", class: "button primary" %>
 
 						<% end %>

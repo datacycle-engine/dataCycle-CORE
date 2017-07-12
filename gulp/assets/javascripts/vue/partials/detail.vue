@@ -15,6 +15,8 @@
         </dd>
         <dt v-if="item.metadata.fileFormat != undefined">Format: </dt>
         <dd v-if="item.metadata.fileFormat != undefined">{{ item.metadata.fileFormat }}</dd>
+        <dt v-if="item.content.jobTitle != undefined">Beruf: </dt>
+        <dd v-if="item.content.jobTitle != undefined">{{ item.content.jobTitle }}</dd>
         <dt v-if="item.metadata.width != undefined && item.metadata.height != undefined">Abmessungen: </dt>
         <dd v-if="item.metadata.width != undefined && item.metadata.height != undefined">{{ item.metadata.width }} x {{ item.metadata.height }}</dd>
         <dt v-if="item.metadata.contentSize != undefined">Dateigröße: </dt>

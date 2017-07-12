@@ -130,7 +130,7 @@ module DataCycleCore
         person.metadata = { 'validation' => validation }
         person.save
 
-        datahash = {'givenName' => person_params[:givenName], 'familyName' => person_params[:familyName], 'creator' => current_user[:id]}
+        datahash = {'givenName' => person_params[:givenName], 'familyName' => person_params[:familyName], 'jobTitle' => person_params[:datahash][:jobTitle], 'creator' => current_user[:id]}
 
         # unless validation['properties']['data_pool'].nil?
         #   data_pool_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
