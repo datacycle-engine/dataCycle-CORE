@@ -13,28 +13,26 @@ module DataCycleCore
 
       if @type == "Bilder" || @type == "Bild"
 
-        query = DataCycleCore::Filter::ImageQueryBuilder.new.only_images
-        query = query.with_locale(@language)
+        query = DataCycleCore::Filter::ImageQueryBuilder.new(@language)
+        query = query.only_images
         query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       elsif @type == "Autor" || @type == "Person"
 
-        query = DataCycleCore::Filter::PersonQueryBuilder.new
-        query = query.with_locale(@language)
+        query = DataCycleCore::Filter::PersonQueryBuilder.new(@language)
         query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       elsif @type == "Ort"
 
-        query = DataCycleCore::Filter::PlaceQueryBuilder.new(nil,@language)
+        query = DataCycleCore::Filter::PlaceQueryBuilder.new(@language)
         query = query.only_frontend_valid
-        query = query.with_name(params[:search]) unless params[:search].blank?
+        query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       else
 
-        query = DataCycleCore::Filter::ImageQueryBuilder.new
-        query = query.with_locale(@language)
+        query = DataCycleCore::Filter::ImageQueryBuilder.new(@language)
         query = query.fulltext_search(params[:search]) unless params[:search].blank?
-      
+
       end
 
       @per = params[:per] unless params[:per].blank?

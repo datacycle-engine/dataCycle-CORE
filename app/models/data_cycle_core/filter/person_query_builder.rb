@@ -2,25 +2,15 @@ module DataCycleCore
   module Filter
     class PersonQueryBuilder < QueryBuilder
 
-      def initialize(query = nil, language = nil)
-        @language = language
-        @query = query
-        @query ||= Person.unscoped.distinct.
+      def initialize(locale = 'de', query = nil)
+        @locale = locale
+        @query = query || Person.unscoped.distinct.
           where(template: false).
-          joins(person.
-            join(person_translation).
-            on(person[:id].
-            eq(person_translation[:person_id])).
+          joins(
+            person.join(person_translation).
+            on(person[:id].eq(person_translation[:person_id])).
             join_sources
-          )
-      end
-
-      def with_locale(language)
-        reflect(
-          @query.where(
-            person_translation[:locale].eq(quoted(language.to_s))
-          )
-        )
+          ).where(person_translation[:locale].eq(quoted(@locale)))
       end
 
       def fulltext_search(name)
@@ -36,6 +26,16 @@ module DataCycleCore
           )
         )
       end
+
+      def with_classification_alias_ids(ids = nil)
+        manager = create_classification_alias_recursion(ids)
+        # get everything including parents (or-clause)
+        reflect(
+          @query.where(person[:id].in(manager))
+        )
+      end
+
+    private
 
       def join_person_translation
         Arel::SelectManager.new.
@@ -54,11 +54,6 @@ module DataCycleCore
       def person_translation
         PersonTranslation.arel_table
       end
-
-      def reflect(query)
-        self.class.new(query, @language)
-      end
-
 
     end
   end

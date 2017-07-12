@@ -145,16 +145,16 @@ module DataCycleCore
       if !prop['editor'].nil? && !prop['editor']['type'].nil?
         case prop['editor']['type']
           when 'input'
-            render_input_text_field(key, value, prop['label'], options, parents: parents)
+            render_input_text_field(key, prop, value, prop['label'], options, parents: parents)
           when 'date'
-            render_date_input_text_field(key, value, prop['label'], options, parents: parents)
+            render_date_input_text_field(key, prop, value, prop['label'], options, parents: parents)
           when 'datetime'
-            render_datetime_input_text_field(key, value, prop['label'], options, parents: parents)
+            render_datetime_input_text_field(key, prop, value, prop['label'], options, parents: parents)
           when 'quillEditor'
-            render_fe_editor(key, value, prop['label'], options, parents: parents)
+            render_fe_editor(key, prop, value, prop['label'], options, parents: parents)
         end
       else
-        render_input_text_field(key, value, prop['label'], options, parents: parents)
+        render_input_text_field(key, prop, value, prop['label'], options, parents: parents)
       end
 
     end
@@ -164,32 +164,32 @@ module DataCycleCore
       if !prop['editor'].nil? && !prop['editor']['type'].nil?
         case prop['editor']['type']
           when 'duration'
-            render_input_duration_field(key, value, prop['label'], options, parents: parents)
+            render_input_duration_field(key, prop, value, prop['label'], options, parents: parents)
         end
       else
-        render_input_text_field(key, value, prop['label'], options, parents: parents)
+        render_input_text_field(key, prop, value, prop['label'], options, parents: parents)
       end
 
     end
 
-    def render_fe_editor(key, value=nil, label=nil, options={}, parents=[])
-      render partial: "#{@@partials_path}feEditor", locals: {key: key, value: value, label: label, options: options, parents: parents}
+    def render_fe_editor(key, prop, value=nil, label=nil, options={}, parents=[])
+      render partial: "#{@@partials_path}feEditor", locals: {key: key, value: value, label: label, prop: prop, options: options, parents: parents}
     end
 
-    def render_input_text_field(key, value=nil, label=nil, options={}, parents=[])
-      render partial: "#{@@partials_path}input", locals: {key: key, value: value, label: label, options: options, parents: parents}
+    def render_input_text_field(key, prop, value=nil, label=nil, options={}, parents=[])
+      render partial: "#{@@partials_path}input", locals: {key: key, value: value, label: label, prop: prop, options: options, parents: parents}
     end
 
-    def render_date_input_text_field(key, value=nil, label=nil, options={}, parents=[])
-      render partial: "#{@@partials_path}dateInput", locals: {key: key, value: value, label: label, options: options, parents: parents}
+    def render_date_input_text_field(key, prop, value=nil, label=nil, options={}, parents=[])
+      render partial: "#{@@partials_path}dateInput", locals: {key: key, value: value, label: label, prop: prop, options: options, parents: parents}
     end
 
-    def render_datetime_input_text_field(key, value=nil, label=nil, options={}, parents=[])
-      render partial: "#{@@partials_path}dateTimeInput", locals: {key: key, value: value, label: label, options: options, parents: parents}
+    def render_datetime_input_text_field(key, prop, value=nil, label=nil, options={}, parents=[])
+      render partial: "#{@@partials_path}dateTimeInput", locals: {key: key, value: value, label: label, prop: prop, options: options, parents: parents}
     end
 
-    def render_input_duration_field(key, value=nil, label=nil, options={}, parents=[])
-      render partial: "#{@@partials_path}duration", locals: {key: key, value: value, label: label, options: options, parents: parents}
+    def render_input_duration_field(key, prop, value=nil, label=nil, options={}, parents=[])
+      render partial: "#{@@partials_path}duration", locals: {key: key, value: value, label: label, prop: prop, options: options, parents: parents}
     end
 
     private
