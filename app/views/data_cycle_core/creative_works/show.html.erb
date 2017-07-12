@@ -89,7 +89,11 @@
         <% contentData = [] %>
 
         <% @creativeWork.walk_tree do |content, level| %>
-            <% contentData.push(content) %>
+
+            <% if content.metadata['validation']['content_type'] != 'embedded' %>
+                <% contentData.push(content) %>
+            <% end %>
+
         <% end %>
 
         <% if @mode == 'list' %>
