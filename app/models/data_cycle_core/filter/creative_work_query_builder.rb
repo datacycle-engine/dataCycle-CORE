@@ -10,7 +10,9 @@ module DataCycleCore
             creative_work.join(creative_work_translation).
             on(creative_work[:id].eq(creative_work_translation[:creative_work_id])).
             join_sources
-          ).where(creative_work_translation[:locale].eq(quoted(@locale)))
+          )
+          .where(json_path(creative_work[:metadata], quoted('{validation, content_type}')).not_eq(quoted('embedded')))
+          .where(creative_work_translation[:locale].eq(quoted(@locale)))
       end
 
     # filters
