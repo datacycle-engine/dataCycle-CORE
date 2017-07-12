@@ -45,7 +45,7 @@
 
 							<% else %>
 
-								<% object_value = !objectDataHash[key].nil? && !objectDataHash[key].empty? ? objectDataHash[key] : "" %>
+								<% object_value = !objectDataHash[key].nil? && !objectDataHash[key].blank? ? objectDataHash[key] : "" %>
 
 								<% if !parents.empty? %>
 									<%= data_cycle_field key, prop, object_value, {class: 'form-control'}, parents + [index] %>

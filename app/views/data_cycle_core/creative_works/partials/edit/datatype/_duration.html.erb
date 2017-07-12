@@ -1,4 +1,3 @@
-
 <div class="form-element clearfix <%= key.split('[').last[0...-1] %>">
     <%= label_tag key do %>
         <span class="icon <%= key.split('[').last[0...-1] %>">
@@ -8,11 +7,10 @@
     <% end %>
     <div class="duration-slider">
         <div class="small-10 columns">
-            <div class="slider" data-slider data-initial-start="0" data-step="1" data-position-value-function="pow" data-non-linear-base="5" data-end="300">
+            <div class="slider" data-slider data-initial-start="<%= value %>" data-step="1" data-position-value-function="pow" data-non-linear-base="5" data-end="300">
                 <span class="slider-handle" data-slider-handle role="slider" tabindex="1" aria-controls="<%= sanitize_to_id(key) %>"></span>
             </div>
         </div>
-
         <div class="small-2 columns">
             <%= number_field_tag key,value,options %>
             <span class="duration-label">min</span>

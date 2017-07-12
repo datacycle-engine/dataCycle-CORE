@@ -127,6 +127,7 @@ module DataCycleCore
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
 
       datahash = flatten_datahash_value(creative_work_params[:datahash])
+      #datahash = creative_work_params[:datahash]
       valid = @creativeWork.validate(datahash)
 
       render :json => valid.to_json
@@ -240,12 +241,14 @@ module DataCycleCore
           #content recipe
           :recipeInstructions,
           :recipeYield,
+          :totalTime,
           {:recipeCourse => []},
           {:recipeCategory => []},
           :recipeIngredient,
           {:recipeComponent =>[
             :recipeInstructions,
-            :recipeIngredient
+            :recipeIngredient,
+            :totalTime,
           ]}
         ]
         
@@ -276,8 +279,22 @@ module DataCycleCore
           datahash[:suggestedAnswer] = datahash[:suggestedAnswer].values
         end
 
+        if datahash.key?(:totalTime) && !datahash[:totalTime].blank?
+          datahash[:totalTime] = datahash[:totalTime].to_i
+        end
+
         if datahash.key?(:recipeComponent) && !datahash[:recipeComponent].empty?
-          datahash[:recipeComponent] = datahash[:recipeComponent].values
+          #datahash[:recipeComponent] = datahash[:recipeComponent].values
+          temp_recipeComponent= []
+
+          datahash[:recipeComponent].values.each do |component|
+            temp = component
+            if temp.key?(:totalTime) && !temp[:totalTime].blank?
+              temp[:totalTime] = temp[:totalTime].to_i
+            end
+            temp_recipeComponent.push(temp)
+          end
+          datahash[:recipeComponent] = temp_recipeComponent
         end
 
         if datahash.key?(:question) && !datahash[:question].empty?
