@@ -27,11 +27,11 @@ module DataCycleCore
     end
 
     def import_templates
-      path = Rails.root.join('config','data_definitions','creative_works.yml')
+      path = Rails.root.join('config','data_definitions','creative_works')
       MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::CreativeWork)
-      path = Rails.root.join('config','data_definitions','places.yml')
+      path = Rails.root.join('config','data_definitions','places')
       MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Place)
-      path = Rails.root.join('config','data_definitions','persons.yml')
+      path = Rails.root.join('config','data_definitions','persons')
       MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Person)
       flash[:notice] = "imported data types YAML file"
       redirect_to admin_path
