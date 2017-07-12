@@ -2,19 +2,20 @@ module DataCycleCore
   module Filter
     class PlaceQueryBuilder < QueryBuilder
 
-      def initialize(query = nil, locale = "de", classification_alias = false)
-        @classification_alias = classification_alias
+      def initialize(locale = 'de', query = nil)
         @locale = locale
         @query = query || Place.unscoped.distinct.
-          joins(place.join(place_translation).
-          on(place[:id].eq(place_translation[:place_id])).
-          join_sources
-        ).where(place_translation[:locale].eq(quoted(@locale)))
+          where(template: false).
+          joins(
+            place.join(place_translation).
+            on(place[:id].eq(place_translation[:place_id])).
+            join_sources
+          ).where(place_translation[:locale].eq(quoted(@locale)))
 
       end
 
     # filters
-      def with_name(name)
+      def fulltext_search(name)
         reflect(
           @query.where(
             place_translation[:name].matches("%#{name}%").
@@ -49,15 +50,17 @@ module DataCycleCore
         )
       end
 
+      def with_classification_alias_ids(ids = nil)
+        manager = create_classification_alias_recursion(ids)
+        # get everything including parents (or-clause)
+        reflect(
+          @query.where(place[:id].in(manager))
+        )
+      end
+
     private
 
     # joins
-      # def join_place_translation
-      #   @query.joins(place.join(place_translation)
-      #     .on(place[:id].eq(place_translation[:place_id]))
-      #     .join_sources
-      #   )
-      # end
 
       def join_classification_place
         @query.joins(place.join(classification_place)
@@ -98,11 +101,6 @@ module DataCycleCore
 
       def classification_place
         ClassificationPlace.arel_table
-      end
-
-    # chain method for Builder pattern
-      def reflect(query)
-        self.class.new(query, @locale, @classification_alias)
       end
 
     end

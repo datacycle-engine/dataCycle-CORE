@@ -14,11 +14,13 @@ module DataCycleCore
       @language = params[:language]
       @language ||= "de" #default-language
 
-      query = DataCycleCore::Filter::CreativeWorkQueryBuilder.new(@language).order(updated_at: :desc)
+      query = DataCycleCore::Filter::QueryIndex.new(language: @language)
+      query = query.order(updated_at: :desc)
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
       query = query.with_classification_alias_ids(@classification_array) unless @classification_array.blank?
 
-      @dataCycleObjects = query.page(params[:page])
+      @paginateObject = query.page(params[:page])
+      @dataCycleObjects = @paginateObject.page_data
 
       if params[:mode].nil?
         @mode = "flex"
