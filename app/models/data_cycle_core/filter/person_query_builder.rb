@@ -37,6 +37,24 @@ module DataCycleCore
 
     private
 
+      def join_classification_alias2
+        Arel::SelectManager.new.
+          project(person[:id]).
+          from(person).
+          where(person[:template].eq(false)).
+          join(person_translation).
+            on(person[:id].eq(person_translation[:person_id])).
+          where(person_translation[:locale].eq(quoted(@locale))).
+          join(classification_person).
+            on(person[:id].eq(classification_person[:person_id])).
+          join(classification).
+            on(classification_person[:classification_id].eq(classification[:id])).
+          join(classification_group).
+            on(classification[:id].eq(classification_group[:classification_id])).
+          join(classification_alias).
+            on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+      end
+
       def join_person_translation
         Arel::SelectManager.new.
           project(person[:id]).
@@ -54,6 +72,10 @@ module DataCycleCore
       def person_translation
         PersonTranslation.arel_table
       end
+
+      def classification_person
+        ClassificationPerson.arel_table
+      end 
 
     end
   end

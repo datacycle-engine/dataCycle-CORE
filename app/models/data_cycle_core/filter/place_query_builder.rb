@@ -62,6 +62,24 @@ module DataCycleCore
 
     # joins
 
+      def join_classification_alias2
+        Arel::SelectManager.new.
+          project(place[:id]).
+          from(place).
+          where(place[:template].eq(false)).
+          join(place_translation).
+            on(place[:id].eq(place_translation[:place_id])).
+          where(place_translation[:locale].eq(quoted(@locale))).
+          join(classification_place).
+            on(place[:id].eq(classification_place[:place_id])).
+          join(classification).
+            on(classification_place[:classification_id].eq(classification[:id])).
+          join(classification_group).
+            on(classification[:id].eq(classification_group[:classification_id])).
+          join(classification_alias).
+            on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+      end
+
       def join_classification_place
         @query.joins(place.join(classification_place)
           .on(place[:id].eq(classification_place[:place_id]))
