@@ -1,0 +1,42 @@
+<% I18n.with_locale(@language) do %>
+
+    <%= link_to item do %>
+
+        <div class="inner">
+
+            <%= render 'data_cycle_core/creative_works/partials/index/render/type', item: item %>
+
+            <div class="title">
+
+                <% if !item.content.nil? && !item.content['headline'].blank? %>
+                    <%= item.content['headline'] %>
+                <% end %>
+
+            </div>
+
+            <% if !item.content.nil? && !item.content['text'].blank? %>
+
+                <div class="description">
+                    <%= item.content['text'].html_safe %>
+                </div>
+
+            <% end %>
+
+
+            <% unless item.display_classification_aliases.nil? %>
+
+                <div class="tags">
+                    <% item.display_classification_aliases.each do |classificationAlias| %>
+                        <span class="tag"><%= classificationAlias.name %></span>
+                    <% end %>
+                </div>
+
+            <% end %>
+
+            <%= render 'data_cycle_core/creative_works/partials/index/render/contentInfo', item: item %>
+
+        </div>
+
+    <% end %>
+
+<% end %>

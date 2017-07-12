@@ -76,12 +76,7 @@ module DataCycleCore
       end
 
       if respond_to?('render_'+ data_type +'_field')
-        if prop['type'] == 'object'
-          send('render_'+ data_type +'_field', object_key, prop, value, options, parents)
-        else
-          send('render_'+ data_type +'_field', object_key, prop, value, options, parents)
-        end
-        # send('render_'+ data_type +'_field', object_key, prop, value, options)
+          send('render_'+ data_type +'_field', object_key, prop, normalize_value(value), options, parents)
       else
          "Unknown data_type: #{prop['type']}"
       end
@@ -98,22 +93,20 @@ module DataCycleCore
 
     def render_embeddedLinkArray_field(key, prop, value=nil, options={}, parents=[])
       if !prop.blank? && !prop['type_name'].blank?
-        valid_value = value.reject { |v| v.empty? } if value.kind_of?(Array)
-        render partial: "#{@@partials_path}#{prop['type']}", locals: {key: key, prop: prop, value: valid_value, options: options, parents: parents}
+        render partial: "#{@@partials_path}#{prop['type']}", locals: {key: key, prop: prop, value: value, options: options, parents: parents}
       end
     end
 
     def render_objectBrowser_field(key, prop, value=nil, options={}, parents=[])
       if !prop.blank? && !prop['editor']['type'].nil?
-        valid_value = value.reject { |v| v.empty? } if value.kind_of?(Array)
-        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: valid_value, options: options, parents: parents}
+        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options, parents: parents}
       end
     end
 
     def render_embeddedObject_field(key, prop, value=nil, options={}, parents=[])
       if !prop.blank? && !prop['editor']['type'].nil?
         internal_template = get_internal_template(prop['storage_location'], prop['name'], prop['description'])
-        internal_objects = get_internal_data(prop['storage_location'], prop['name'], prop['description'], value)
+        internal_objects = get_internal_data(prop['storage_location'], value)
         render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options, internal_objects: internal_objects, internal_template: internal_template, parents: parents}
       end
     end
@@ -210,7 +203,7 @@ module DataCycleCore
         object_key = "#{@@key_prefix}#{parent_keys}[#{key}]"
       end
 
-      def get_internal_data(storage_location, name, description, value)
+      def get_internal_data(storage_location, value)
 
         internal_objects = []
         if !value.empty? && value.count > 0
@@ -238,6 +231,13 @@ module DataCycleCore
 
         return internal_template
 
+      end
+
+      def normalize_value(value=nil)
+        if value.kind_of?(Array)
+          value = value.reject { |v| v.empty? }
+        end
+        return value
       end
 
   end
