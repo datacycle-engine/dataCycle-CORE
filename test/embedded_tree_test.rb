@@ -1,15 +1,16 @@
 require 'test_helper'
 
 # load template, classifications for all tests
-creative_work_yaml = Rails.root.join('..','setup_data','creative_works.yml')
-DataCycleCore::MasterData::ImportTemplates.new.import(creative_work_yaml, DataCycleCore::CreativeWork)
-creative_work_yaml = Rails.root.join('..','setup_data','creative_works_test.yml')
-DataCycleCore::MasterData::ImportTemplates.new.import(creative_work_yaml, DataCycleCore::CreativeWork)
-place_yaml = Rails.root.join('..','setup_data','places.yml')
-DataCycleCore::MasterData::ImportTemplates.new.import(place_yaml, DataCycleCore::Place)
-person_yaml = Rails.root.join('..','setup_data','persons.yml')
-DataCycleCore::MasterData::ImportTemplates.new.import(person_yaml, DataCycleCore::Person)
-classification_yaml = Rails.root.join('..','setup_data','classifications.yml')
+cw_path = Rails.root.join('..','data_types','creative_works','*.yml')
+DataCycleCore::MasterData::ImportTemplates.new.import(cw_path.to_s, DataCycleCore::CreativeWork)
+place_path = Rails.root.join('..','data_types','places','*.yml')
+DataCycleCore::MasterData::ImportTemplates.new.import(place_path.to_s, DataCycleCore::Place)
+person_path = Rails.root.join('..','data_types','persons','*.yml')
+DataCycleCore::MasterData::ImportTemplates.new.import(person_path.to_s, DataCycleCore::Person)
+cwc_path = Rails.root.join('..','data_types','creative_works_custom','*.yml')
+DataCycleCore::MasterData::ImportTemplates.new.import(cwc_path.to_s, DataCycleCore::CreativeWork)
+
+classification_yaml = Rails.root.join('..','data_types','classifications.yml')
 DataCycleCore::MasterData::ImportClassifications.new.import(classification_yaml)
 
 module DataCycleCore

@@ -1,0 +1,82 @@
+---
+- :data:
+    :name: Zitat
+    :description: CreativeWork
+    :type: object
+    :content_type: embedded
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :text:
+        :label: text
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :editor:
+          :type: quillEditor
+          :sorting: 1
+          :options:
+            :data-size: basic
+      :image:
+        :label: Bild
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+        :validations:
+          :max: 1
+        :editor:
+          :sorting: 2
+          :options:
+            :data-validate: media
+      :author:
+        :label: Autor
+        :type: object
+        :storage_location: persons
+        :name: Person
+        :description: Person
+        :delete: false
+        :editor:
+          :sorting: 3
+          :type: objectBrowser
+      :isPartOf:
+        :label: parent
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :validations:
+          :format: uuid
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :default_value: "Zitat"
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time

@@ -1,7 +1,7 @@
 require 'test_helper'
 
 # load classifications
-classification_yaml = Rails.root.join('..','setup_data','classifications.yml')
+classification_yaml = Rails.root.join('..','data_types','classifications.yml')
 DataCycleCore::MasterData::ImportClassifications.new.import(classification_yaml)
 
 

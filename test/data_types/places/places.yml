@@ -10,7 +10,7 @@
         :storage_type: string
         :storage_location: key
         :validations:
-          :format: uuid
+          :format: uuid      
       :name:
         :label: Name
         :type: string
