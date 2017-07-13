@@ -2,7 +2,7 @@ json.images @images do |item|
   json.partial! 'image_translation_format', locals: {image: item }
 end
 
-std_params = "per=#{params[:per] || @per}&search=#{params[:search]}&language=#{params[:language]}&token=#{params[:token]}"
+#std_params = "per=#{params[:per] || @per}&search=#{params[:search]}&language=#{params[:language]}&token=#{params[:token]}"
 json.set! "total", @total
 # json.set! "links", {
 #   first: "#{api_v1_images_search_url}.json?page=#{1.to_s}&#{std_params}",
