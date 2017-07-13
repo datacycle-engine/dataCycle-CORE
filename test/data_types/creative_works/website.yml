@@ -1,0 +1,68 @@
+---
+- :data:
+    :name: Website
+    :description: CreativeWork
+    :type: object
+    :content_type: embedded
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :url:
+        :label: Link
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :editor:
+          :type: input
+          :sorting: 1
+      :name:
+        :label: Text
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :editor:
+          :type: quillEditor
+          :sorting: 2
+          :options:
+            :data-size: basic
+      :isPartOf:
+        :label: parent
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :validations:
+          :format: uuid
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :default_value: "Website"
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
