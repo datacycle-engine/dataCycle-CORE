@@ -103,41 +103,65 @@
 	outline: none;
 	padding: 0 0 10rem 0;
 	.object-browser-header {
-		.new-item-button {
-			position: absolute;
-			right: 3.5rem;
-			top: 1rem;
-			padding: 0.65em 0.9em;
-			cursor: pointer;
-		}
-		#object-browser-search {
-			margin-top: 0.5rem;
-		}
-		.close-object-browser {
+		.buttons {
 			position: absolute;
 			right: 1rem;
 			top: 1rem;
-			margin: 0.5rem;
-			cursor: pointer;
-			.fa {
-				color: $dark-gray;
-				font-size: 1.5rem;
+			.button,
+			button {
+				margin: 0;
+				vertical-align: top;
+			}
+			.new-item-button {
+				padding: 0.6rem 0.8rem;
+				cursor: pointer;
+			}
+			.close-object-browser {
+				margin: 0.5rem;
+				cursor: pointer;
+				.fa {
+					color: $dark-gray;
+					font-size: 1.5rem;
+					&:hover,
+					&:focus {
+						color: $black;
+					}
+				}
+			}
+			.save-object-browser {
+				.chosen-items {
+					display: none;
+					padding-top: 1rem;
+					.chosen-item {
+						padding: 0.5rem 2rem 0.5rem 0;
+						text-align: left;
+						position: relative;
+						.remove {
+							position: absolute;
+							right: 0;
+							top: 0.25rem;
+							display: block;
+							width: 1.5rem;
+							height: 1.5rem;
+							text-align: center;
+							line-height: 1.5rem;
+							&:hover,
+							&:focus {
+								color: red;
+							}
+						}
+					}
+				}
 				&:hover,
 				&:focus {
-					color: $black;
+					.chosen-items {
+						display: block;
+					}
 				}
 			}
 		}
-		.save-object-browser {
-			position: absolute;
-			right: 7rem;
-			top: 1rem;
-			&:hover,
-			&:focus {
-				.chosen-items {
-					display: block;
-				}
-			}
+		#object-browser-search {
+			margin-top: 0.5rem;
 		}
 		-webkit-backface-visibility: hidden;
 		backface-visibility: hidden;
@@ -149,29 +173,6 @@
 		padding: 1rem 1rem 1rem 1rem;
 		background: linear-gradient(to bottom, white 0%, rgba(255, 255, 255, 0.78) 50%, rgba(255, 255, 255, 0) 100%);
 		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#00ffffff', GradientType=0);
-		.chosen-items {
-			display: none;
-			padding-top: 1rem;
-			.chosen-item {
-				padding: 0.5rem 2rem 0.5rem 0;
-				text-align: left;
-				position: relative;
-				.remove {
-					position: absolute;
-					right: 0;
-					top: 0.25rem;
-					display: block;
-					width: 1.5rem;
-					height: 1.5rem;
-					text-align: center;
-					line-height: 1.5rem;
-					&:hover,
-					&:focus {
-						color: red;
-					}
-				}
-			}
-		}
 	}
 	.pagination {
 		text-align: center;

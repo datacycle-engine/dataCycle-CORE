@@ -9,9 +9,11 @@ export default {
   props: {
     item: {
       type: Object
-    },
-    headline: {
-      type: String
+    }
+  },
+  computed: {
+    headline() {
+      return this.item.name != undefined ? this.item.name : "namenloser Ort";
     }
   }
 }

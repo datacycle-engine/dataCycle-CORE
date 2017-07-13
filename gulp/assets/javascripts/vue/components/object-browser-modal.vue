@@ -2,33 +2,35 @@
   <div id="object-browser" data-overlay="false" class="full reveal without-overlay" data-reveal data-v-offset="0">
     <div class="object-browser-header">
       <h4>
-        <i class="fa fa-files-o" aria-hidden="true"></i> {{objectType}} auswählen
+        <i class="fa fa-files-o" aria-hidden="true"></i> {{objectLabel}} auswählen
       </h4>
-      <button v-if="createItem" data-open="newItem" class="new-item-button button">
-        <i class="fa fa-plus"></i>
-      </button>
-      <div v-if="createItem" data-overlay="false" class="reveal without-overlay new-item" id="newItem" data-reveal>
-        <new v-on:add="addItem" v-if="showNew">
-          <template scope="newItem" slot="new-item">
-            <slot name="new-item"></slot>
-          </template>
-        </new>
-      </div>
-      <button class="close-object-browser" @click.prevent="$emit('close')">
-        <i aria-hidden="true" class="fa fa-times"></i>
-      </button>
-      <div class="button save-object-browser" @click.stop="save">
-        <span class="button-title" v-if="totalChosen > 0">
-          <strong>{{ totalChosen }}</strong>{{ totalChosen > 0 ? " Element" + (totalChosen == 1 ? "" : "e") + " auswählen" : "Keine Elemente auswählen" }}</span>
-        <span class="button-title" v-else>Keine Elemente auswählen</span>
-        <div class="chosen-items" v-if="totalChosen > 0">
-          <div @click.stop="activeItem = item" class="chosen-item" v-for="item in chosenItems">
-            <chosen :item="item" :headline="headline(item)"></chosen>
-            <span class="remove" @click.stop="toggleActive(item, $event)">
-              <i aria-hidden="true" class="fa fa-times"></i>
-            </span>
+      <div class="buttons">
+        <div class="button save-object-browser" @click.stop="save">
+          <span class="button-title" v-if="totalChosen > 0">
+            <strong>{{ totalChosen }}</strong>{{ totalChosen > 0 ? " Element" + (totalChosen == 1 ? "" : "e") + " auswählen" : "Keine Elemente auswählen" }}</span>
+          <span class="button-title" v-else>Keine Elemente auswählen</span>
+          <div class="chosen-items" v-if="totalChosen > 0">
+            <div @click.stop="activeItem = item" class="chosen-item" v-for="item in chosenItems">
+              <component :is="objectType + '_chosen'" :item="item"></component>
+              <span class="remove" @click.stop="toggleActive(item, $event)">
+                <i aria-hidden="true" class="fa fa-times"></i>
+              </span>
+            </div>
           </div>
         </div>
+        <button v-if="createItem" data-open="newItem" class="new-item-button button">
+          <i class="fa fa-plus"></i>
+        </button>
+        <div v-if="createItem" data-overlay="false" class="reveal without-overlay new-item" id="newItem" data-reveal>
+          <new v-on:add="addItem" v-if="showNew">
+            <template scope="newItem" slot="new-item">
+              <slot name="new-item"></slot>
+            </template>
+          </new>
+        </div>
+        <button class="close-object-browser" @click.prevent="$emit('close')">
+          <i aria-hidden="true" class="fa fa-times"></i>
+        </button>
       </div>
   
       <input v-model.lazy="searchTerm" placeholder="Volltext Suche" autofocus id="object-browser-search">
@@ -50,24 +52,27 @@
       <pagination :current-page="currentPage" :items-per-page="itemsPerPage" :total-items="totalItems" @page-changed="pageChanged">
       </pagination>
     </div>
-    <detail :item="activeItem" :headline="headline(activeItem)" :object-type="objectType" class="item-info"></detail>
+    <component :is="objectType + '_detail'" :item="activeItem" class="item-info">
+    </component>
   </div>
 </template>
 
 <script>
 import Pagination from './pagination.vue'
-import Detail from './../partials/detail.vue'
-import Chosen from './../partials/chosen.vue'
-import New from './../partials/new.vue'
 import Error from './../mixins/errors.js'
+import Components from './../partials'
 
 export default {
-  mixins: [Error],
-  components: { Pagination, Detail, Chosen, New },
+  mixins: [Error, Components],
+  components: { Pagination },
   props: {
     objectType: {
       type: String,
-      default: "Bilder"
+      default: "default"
+    },
+    objectLabel: {
+      type: String,
+      default: "Default"
     },
     url: {
       type: String,
@@ -151,10 +156,10 @@ export default {
       var index = this.compareIndex(this.items, item);
 
       if (chosenIndex >= 0) {
-        if (this.min > 0 && this.totalChosen == this.min) return this.renderError("min", this.min, event, this.objectType);
+        if (this.min > 0 && this.totalChosen == this.min) return this.renderError("min", this.min, event, this.objectLabel);
         this.chosenItems.splice(chosenIndex, 1);
       } else {
-        if (this.max > 1 && this.totalChosen >= this.max) return this.renderError("max", this.max, event, this.objectType);
+        if (this.max > 1 && this.totalChosen >= this.max) return this.renderError("max", this.max, event, this.objectLabel);
         if (this.max == 1) this.chosenItems = [];
         this.chosenItems.push(item);
       }
@@ -174,6 +179,7 @@ export default {
       this.$emit('close');
     },
     headline(item) {
+      return "testheadline";
       if (this.objectType == "Autor" || this.objectType == "Person") return item.givenName + " " + item.familyName;
       else if (this.objectType == "Ort") {
         if (item.name != undefined)
