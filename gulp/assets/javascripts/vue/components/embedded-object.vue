@@ -25,10 +25,16 @@ export default {
   },
   data() {
     return {
+      parentIndex: []
     }
   },
   mounted() {
-    this.changeIDs($(this.$el), this.index);
+    if (this.$parent.$parent != undefined && this.$parent.$parent.$options._componentTag == this.$options._componentTag) {
+      this.parentIndex = this.$parent.$parent.parentIndex.slice(0);
+    }
+    this.parentIndex.push(this.index);
+
+    this.changeIDs();
     $(this.$el).trigger('clone-added');
     var elem = this.$el;
     this.$root.$on('objects-saved', function (data) {
@@ -44,40 +50,25 @@ export default {
   created() {
   },
   methods: {
-    changeIDs(clone, newID) {
-
-      clone.attr('id', function (i, txt) {
-        return txt.replace(/\d+/, newID);
-      });
-
-      clone.find('label[for]').attr('for', function (i, txt) {
-        return txt.replace(/\d+/, newID);
-      });
-
-      clone.find('input[name]').attr('name', function (i, txt) {
-        return txt.replace(/\d+/, newID);
-      }).val('');
-
-      clone.find('input[id]').attr('id', function (i, txt) {
-        return txt.replace(/\d+/, newID);
-      }).val('');
-
-      clone.find('.quill-editor').attr('id', function (i, txt) {
-        return txt.replace(/\d+/, newID);
-      }).attr('data-hidden-field-id', function (i, txt) {
-        return txt.replace(/\d+/, newID);
-      });
-      clone.find('.quill-editor').html('').siblings('.ql-toolbar').remove();
-
-      clone.find('.object-browser').attr('id', function (i, txt) {
-        return txt.replace(/\d+/, newID);
-      });
-
-      clone.find('.slider span').attr('aria-controls', function (i, txt) {
-        return txt.replace(/\d+/, newID);
-      });
-
-      return clone;
+    changeIDs() {
+      $(this.$el).attr('id', this.changeID);
+      $(this.$el).find('label[for]').attr('for', this.changeID);
+      $(this.$el).find('input[name]').attr('name', this.changeID).val('');
+      $(this.$el).find('input[id]').attr('id', this.changeID).val('');
+      $(this.$el).find('.quill-editor').attr('id', this.changeID).attr('data-hidden-field-id', this.changeID);
+      $(this.$el).find('.quill-editor').html('').siblings('.ql-toolbar').remove();
+      $(this.$el).find('.object-browser').attr('id', this.changeID);
+      $(this.$el).find('.slider span').attr('aria-controls', this.changeID);
+    },
+    changeID(pos, txt) {
+      var count = 0;
+      return txt.replace(/\d+/g, function (x, i) {
+        var replacement;
+        if (this.parentIndex[count] != undefined) replacement = this.parentIndex[count];
+        else replacement = x;
+        count++;
+        return replacement;
+      }.bind(this));
     }
   }
 }

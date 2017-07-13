@@ -36,7 +36,8 @@ export default {
     }
   },
   mounted() {
-    this.nextIndex = $(this.$el).parent().find('.content-object-item').length;
+    this.nextIndex = $(this.$el).siblings('.content-object-item').length;
+
     this.preLength = this.nextIndex;
     $(this.$el).parent().on('remove-embedded-object', '.content-object-item', function () {
       this.preLength--;
