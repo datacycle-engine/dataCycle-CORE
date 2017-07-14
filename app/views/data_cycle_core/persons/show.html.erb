@@ -26,6 +26,14 @@
 
             </div>
 
+            <% if !@creativeWork.content.nil? && !@creativeWork.content['jobTitle'].blank? %>
+
+                <div class="description">
+                    <%= @creativeWork.content['jobTitle'].html_safe %>
+                </div>
+
+            <% end %>
+
             <%= render 'data_cycle_core/creative_works/partials/show/top_content/classificationAliases' %>
 
             <%= render 'data_cycle_core/creative_works/partials/show/top_content/validityPeriod' %>
@@ -42,12 +50,22 @@
 
         </div>
 
-        <%#= render 'data_cycle_core/creative_works/filter' if user_signed_in? %>
-
     </div>
 
 <% end %>
 
 <section>
-
+    <br /><br />
 </section>
+
+<div class="detail-content">
+
+    <div class="row">
+
+        <%= render 'data_cycle_core/persons/partials/show/person' %>
+
+        <%= render 'data_cycle_core/creative_works/partials/show/translation/translations', language: nil %>
+
+    </div>
+
+</div>
