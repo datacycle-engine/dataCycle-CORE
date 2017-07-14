@@ -23,8 +23,7 @@
 				<% if !prop['validations'].nil? && !prop['validations']['max'].nil? %>
 					<% max = prop['validations']['max'] %>
 				<% end %>
-
-				<object-browser :existing="<%= existing.to_json %>" :min="<%= min %>" :max="<%= max %>" object-type="bild" :object-label="'<%= prop['label'] %>'" hidden-name="<%= key %>[]">
+				<object-browser :existing="<%= existing.to_json %>" :min="<%= min %>" :max="<%= max %>" object-type="<%= prop['editor']['options']['data-type'].downcase %>" :object-label="'<%= prop['label'] %>'" hidden-name="<%= key %>[]">
 					<template scope="props" slot="item">
 						<div v-if="props.item != undefined" class="media thumbnail" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnailUrl+')' }">
 							<a slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item, $event)"><i aria-hidden="true" class="fa fa-times"></i></a>

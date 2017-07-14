@@ -9,9 +9,9 @@ module DataCycleCore
       @language ||= "de"
 
       @type = params[:type] unless params[:type].blank?
-      @type ||= "Bilder"
+      @type ||= "image"
 
-      if @type == "bilder" || @type == "bild"
+      if @type == "image"
 
         query = DataCycleCore::Filter::ImageQueryBuilder.new(@language)
         query = query.only_images
@@ -22,7 +22,7 @@ module DataCycleCore
         query = DataCycleCore::Filter::PersonQueryBuilder.new(@language)
         query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
-      elsif @type == "contentlocation"
+      elsif @type == "place"
 
         query = DataCycleCore::Filter::PlaceQueryBuilder.new(@language)
         query = query.only_frontend_valid

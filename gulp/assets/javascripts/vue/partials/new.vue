@@ -19,7 +19,7 @@ export default {
       if (browser.checkFields(this)) browser.createNewItem(this, formData, url);
     });
 
-    $('div.new-item form input[type=text]').each(function (e) {
+    $("div.new-item form input[type=text]:not('.no-validation')").each(function (e) {
       $(this).on('change', function (e) {
         $(this).closest('form').find('input[type=submit]').removeAttr('disabled');
         $(this).closest('.validation-container').find('.single_error').remove();
@@ -47,7 +47,7 @@ export default {
     checkFields(form) {
       var isValid = true;
       var browser = this;
-      $(form).find('input[type=text]').each(function (e) {
+      $(form).find("input[type=text]:not('.no-validation')").each(function (e) {
         if (browser.checkField(this) == false) isValid = false;
       });
       return isValid;

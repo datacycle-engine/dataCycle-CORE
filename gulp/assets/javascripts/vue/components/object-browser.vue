@@ -7,14 +7,16 @@
       <input type="hidden" :name="hiddenName">
     </div>
     <transition name="fade">
-      <object-browser-modal v-if="showModal" v-on:save="save" :object-type="objectType" :object-label="objectLabel" url="/objectbrowser" :preChosenItems="existingItems" :select-one="selectOne" @close="showModal = false" :create-item="createItem" :min="min" :max="max">
-        <template scope="props" slot="item">
-          <slot name="item" :item="props.item"></slot>
-        </template>
-        <template scope="newItem" slot="new-item">
-          <slot name="new-item"></slot>
-        </template>
-      </object-browser-modal>
+      <keep-alive>
+        <object-browser-modal v-if="showModal" @save="save" :object-type="objectType" :object-label="objectLabel" url="/objectbrowser" :preChosenItems="existingItems" :select-one="selectOne" @close="showModal = false" :create-item="createItem" :min="min" :max="max">
+          <template scope="props" slot="item">
+            <slot name="item" :item="props.item"></slot>
+          </template>
+          <template scope="newItem" slot="new-item">
+            <slot name="new-item"></slot>
+          </template>
+        </object-browser-modal>
+      </keep-alive>
     </transition>
     <button class="button" id="show" @click.prevent="showModal = true">
       <i class="fa fa-plus"></i>
@@ -80,7 +82,7 @@ export default {
       });
     },
     save(data) {
-      this.existingItems = data;
+      this.existingItems = data.slice(0);
       var parentID = $(this.$el).closest('.object-browser').attr('id');
       this.$root.$emit('objects-saved', { name: this.hiddenName, id: parentID });
     }

@@ -11,9 +11,9 @@
 					<% existing << data_object %>
 				<% end %>
 			<% end %>
-			<% create = prop['label'] == "Autor" || prop['label'] == "Person" ? true : false %>
-
-			<object-browser :existing="<%= existing.to_json %>" :object-type="'<%= prop['name'].downcase %>'" :object-label="'<%= prop['label'] %>'" :max="1" :create-item="<%= create %>" hidden-name="<%= key %>[]">
+			<% create = prop['name'].downcase == "person" ? true : false %>
+			
+			<object-browser :existing="<%= existing.to_json %>" :object-type="'<%= prop['editor']['options']['data-type'].downcase %>'" :object-label="'<%= prop['label'] %>'" :max="1" :create-item="<%= create %>" hidden-name="<%= key %>[]">
 				<template scope="props" slot="item">
 					<div v-if="props.item != undefined" class="media person">
 						<a slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
@@ -48,7 +48,7 @@
 							</div>
 							<div class="validation-container form-element">
 								<%= label_tag 'person[datahash][jobTitle]', 'Job title' %>
-								<%= text_field_tag 'person[datahash][jobTitle]', '', class: 'form-control' %>
+								<%= text_field_tag 'person[datahash][jobTitle]', '', class: 'form-control no-validation' %>
 							</div>
 							<%= f.submit "Erstellen", class: "button primary" %>
 
