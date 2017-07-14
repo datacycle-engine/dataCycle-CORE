@@ -4,8 +4,6 @@ module DataCycleCore
     #load_and_authorize_resource         # from cancancan (authorize)
     add_breadcrumb "Ort", "", "/places"
 
-    #layout "data_cycle_core/creative_works_edit"
-
     def index
       @places = DataCycleCore::Place.all().where(:template => false).order(updated_at: :desc)
       @place = DataCycleCore::Place.new

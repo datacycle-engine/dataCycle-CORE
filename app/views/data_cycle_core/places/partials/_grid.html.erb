@@ -9,7 +9,11 @@
 
 	<% unless dataCycleObjects.nil? %>
 		<% dataCycleObjects.each do |dataCycleObject| %>
-			<%= render "data_cycle_core/places/partials/index/default", item: dataCycleObject %>
+
+			<div class="grid-item data-cycle-object">
+				<%= render "data_cycle_core/places/partials/index/default", item: dataCycleObject %>
+			</div>
+
 		<% end %>
 	<% end %>
 

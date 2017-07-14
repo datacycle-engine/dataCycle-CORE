@@ -26,6 +26,14 @@
 
             </div>
 
+            <% if !@creativeWork.address.nil? && !@creativeWork.address.blank? %>
+
+                <div class="description">
+                    <%= @creativeWork.address.html_safe %>
+                </div>
+
+            <% end %>
+
             <%= render 'data_cycle_core/creative_works/partials/show/top_content/classificationAliases' %>
 
             <%= render 'data_cycle_core/creative_works/partials/show/top_content/validityPeriod' %>
@@ -42,12 +50,22 @@
 
         </div>
 
-        <%#= render 'data_cycle_core/creative_works/filter' if user_signed_in? %>
-
     </div>
 
 <% end %>
 
 <section>
-
+    <br /><br />
 </section>
+
+<div class="detail-content">
+
+    <div class="row">
+
+        <%= render 'data_cycle_core/places/partials/show/place' %>
+
+        <%= render 'data_cycle_core/places/partials/show/translation/translations', language: nil %>
+
+    </div>
+
+</div>
