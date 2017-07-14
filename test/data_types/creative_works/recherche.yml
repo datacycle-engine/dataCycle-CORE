@@ -1,0 +1,89 @@
+---
+- :data:
+    :name: Recherche
+    :description: CreativeWork
+    :type: object
+    :content_type: entity
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 1
+          :options:
+            :data-validate: text
+      :text:
+        :label: Recherchedaten
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :editor:
+          :type: quillEditor
+          :sorting: 2
+          :options:
+            :data-size: full
+      :image:
+        :label: Bilder
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+        :editor:
+          :sorting: 3
+#      :video:
+#        :label: Videos
+#        :type: embeddedLinkArray
+#        :type_name: creative_works
+#        :storage_type: array
+#        :storage_location: metadata
+#        :editor:
+#          :sorting: 4
+      #meta attributes
+      :data_pool:
+        :label: Inhaltspool
+        :type: classificationTreeLabel
+        :type_name: Inhaltspools
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :default_value: "Recherche"
+#      :data_type:
+#        :label: Inhaltstype
+#        :type: classificationTreeLabel
+#        :type_name: Inhaltstypen
+#        :storage_type: classification_creative_works
+#        :storage_location: classification_relation
+#        :default_value: "Aktuelle Themen"
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time

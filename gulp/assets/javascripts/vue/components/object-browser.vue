@@ -1,13 +1,13 @@
 <template>
   <div>
     <div class="object-thumbs" v-if="existingItems.length > 0">
-      <slot name="item" v-for="item in existingItems" :item="item" :remove="remove" :select-one="selectOne"></slot>
+      <slot name="item" v-for="item in existingItems" :item="item" :remove="remove"></slot>
     </div>
     <div class="object-thumbs" v-else>
       <input type="hidden" :name="hiddenName">
     </div>
     <transition name="fade">
-      <object-browser-modal v-if="showModal" v-on:save="save" :object-type="objectType" url="/objectbrowser" :preChosenItems="existingItems" :select-one="selectOne" @close="showModal = false" :create-item="createItem" :min="min" :max="max">
+      <object-browser-modal v-if="showModal" v-on:save="save" :object-type="objectType" :object-label="objectLabel" url="/objectbrowser" :preChosenItems="existingItems" :select-one="selectOne" @close="showModal = false" :create-item="createItem" :min="min" :max="max">
         <template scope="props" slot="item">
           <slot name="item" :item="props.item"></slot>
         </template>
@@ -35,9 +35,8 @@ export default {
     objectType: {
       type: String
     },
-    selectOne: {
-      type: Boolean,
-      default: false
+    objectLabel: {
+      type: String
     },
     createItem: {
       type: Boolean,

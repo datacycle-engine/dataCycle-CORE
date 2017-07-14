@@ -6,6 +6,13 @@
     :permissions:
       :read_write: true
     :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
       :givenName:
         :label: Vorname
         :type: string

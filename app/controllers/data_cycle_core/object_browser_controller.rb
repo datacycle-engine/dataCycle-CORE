@@ -11,18 +11,18 @@ module DataCycleCore
       @type = params[:type] unless params[:type].blank?
       @type ||= "Bilder"
 
-      if @type == "Bilder" || @type == "Bild"
+      if @type == "bilder" || @type == "bild"
 
         query = DataCycleCore::Filter::ImageQueryBuilder.new(@language)
         query = query.only_images
         query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
-      elsif @type == "Autor" || @type == "Person"
+      elsif @type == "person"
 
         query = DataCycleCore::Filter::PersonQueryBuilder.new(@language)
         query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
-      elsif @type == "Ort"
+      elsif @type == "contentlocation"
 
         query = DataCycleCore::Filter::PlaceQueryBuilder.new(@language)
         query = query.only_frontend_valid

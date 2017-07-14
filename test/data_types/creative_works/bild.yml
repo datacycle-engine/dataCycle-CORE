@@ -1,0 +1,177 @@
+---
+- :data:
+    :name: Bild
+    :description: ImageObject
+    :type: object
+    :content_type: variant
+    :permissions:
+      :read_write: false
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+      :caption:
+        :label: Alt-Label
+        :type: string
+        :storage_type: string
+        :storage_location: content
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_type: string
+        :storage_location: content
+      :photographer:
+        :label: Fotograf
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :license:
+        :label: Copyright / Lizenz
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+      :mandatoryLicense:
+        :label: Copyright Nennung verpflichtend
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: boolean
+      :contentLocation:
+        :label: Ort
+        :type: object
+        :storage_location: places
+        :name: contentLocation
+        :description: Place
+      :width:
+        :label: Breite
+        :type: number
+        :storage_type: number
+        :storage_location: metadata
+        :validations:
+          :format: integer
+      :height:
+        :label: Höhe
+        :type: number
+        :storage_type: number
+        :storage_location: metadata
+        :validations:
+          :format: integer
+      :contentSize:
+        :label: Dateigröße
+        :type: number
+        :storage_type: number
+        :storage_location: metadata
+        :validations:
+          :format: integer
+      :fileFormat:
+        :label: Dateiformat
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+      :comment:
+        :label: Kommentar
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        # :validations:
+        #   :daterange:
+        #     :from: datePublished
+        #     :to: expires
+      :validityPeriod:
+        :label: Gültigkeitszeitraum
+        :type: object
+        :storage_location: metadata
+        :properties:
+          :datePublished:
+            :label: Gültig von
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+          :expires:
+            :label: Gültig bis
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :source:
+        :label: Erhalten von
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+      :imageId:
+        :label: Bildnummer
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+      :visibility:
+        :label: Sichtbarkeit
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+      :access:
+        :label: Rechte/Einsatzgebiet
+        :type: classificationTreeLabel
+        :type_name: Rechte
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+      :contentUrl:
+        :label: Bild URL
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
+      :thumbnailUrl:
+        :label: Thumbnail URL
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
+      :url:
+        :label: URL
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :default_value: "Bild"
