@@ -1,0 +1,13 @@
+<% content_for :top_content do %>
+
+<div class="reveal-blur">
+
+    <div id="edit-form">
+
+        <%= render 'data_cycle_core/creative_works/partials/edit/form', keyPrefix: 'person[datahash]', dataObject: @creativeWork, dataSchema: @dataSchema %>
+
+    </div>
+
+</div>
+
+<% end %>

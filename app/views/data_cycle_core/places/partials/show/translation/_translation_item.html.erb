@@ -1,0 +1,33 @@
+<% unless translation.nil? %>
+
+    <% unless @creativeWork.name.nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['name']['label'],
+                   value: @creativeWork.name %>
+    <% end %>
+
+    <% unless @creativeWork.address.nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['address']['label'],
+                   value: @creativeWork.address %>
+    <% end %>
+
+    <% unless @creativeWork.longitude.nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['longitude']['label'],
+                   value: @creativeWork.longitude %>
+    <% end %>
+
+    <% unless @creativeWork.latitude.nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['latitude']['label'],
+                   value: @creativeWork.latitude %>
+    <% end %>
+
+    <% unless @creativeWork.location.nil? %>
+        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                   label: @creativeWork.metadata['validation']['properties']['location']['label'],
+                   value: @creativeWork.location %>
+    <% end %>
+
+<% end %>

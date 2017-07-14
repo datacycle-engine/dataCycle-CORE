@@ -7,7 +7,7 @@ module DataCycleCore
       attr_internal_accessor :limit_value, :offset_value
       @@supported_objects = [
           DataCycleCore::Filter::CreativeWorkQueryBuilder,
-          #DataCycleCore::Filter::PlaceQueryBuilder,
+          DataCycleCore::Filter::PlaceQueryBuilder,
           DataCycleCore::Filter::PersonQueryBuilder
       ]
 

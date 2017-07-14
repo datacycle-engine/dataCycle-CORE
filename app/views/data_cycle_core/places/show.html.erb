@@ -20,16 +20,16 @@
 
             <div class="title">
 
-                <% if !@creativeWork.givenName.nil? && !@creativeWork.nil? %>
-                    <%= "#{@creativeWork.givenName} #{@creativeWork.familyName}" %>
+                <% if !@creativeWork.name.nil? && !@creativeWork.nil? %>
+                    <%= @creativeWork.name %>
                 <% end %>
 
             </div>
 
-            <% if !@creativeWork.content.nil? && !@creativeWork.content['jobTitle'].blank? %>
+            <% if !@creativeWork.address.nil? && !@creativeWork.address.blank? %>
 
                 <div class="description">
-                    <%= @creativeWork.content['jobTitle'].html_safe %>
+                    <%= @creativeWork.address.html_safe %>
                 </div>
 
             <% end %>
@@ -41,7 +41,7 @@
             <% if !@creativeWork.metadata['validation']['permissions'].nil? && is_writable(@creativeWork.metadata['validation']['permissions']) %>
 
                 <div class="edit">
-                    <%= link_to edit_person_path(@creativeWork), class:'button-prime small' do %>
+                    <%= link_to edit_places_path(@creativeWork), class:'button-prime small' do %>
                         <i class="fa fa-pencil" aria-hidden="true"></i><span>Bearbeiten</span>
                     <% end %>
                 </div>
@@ -62,9 +62,9 @@
 
     <div class="row">
 
-        <%= render 'data_cycle_core/persons/partials/show/person' %>
+        <%= render 'data_cycle_core/places/partials/show/place' %>
 
-        <%= render 'data_cycle_core/creative_works/partials/show/translation/translations', language: nil %>
+        <%= render 'data_cycle_core/places/partials/show/translation/translations', language: nil %>
 
     </div>
 
