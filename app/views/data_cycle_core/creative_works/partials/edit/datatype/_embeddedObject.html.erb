@@ -43,6 +43,16 @@
 
 								<% end %>
 
+							<% elsif prop['type'] == 'object' %>
+
+								<% object_value = !objectDataHash[key].nil? && !objectDataHash[key].blank? ? objectDataHash[key] : "" %>
+
+								<% if !parents.empty? %>
+									<%= data_cycle_field key, prop, object_value, {class: 'form-control'}, parents + [index, key] %>
+								<% else %>
+									<%= data_cycle_field key, prop, object_value, {class: 'form-control'}, [embedded_object_key, index, key] %>
+								<% end %>
+
 							<% else %>
 
 								<% object_value = !objectDataHash[key].nil? && !objectDataHash[key].blank? ? objectDataHash[key] : "" %>
@@ -86,8 +96,8 @@
 
 								<% prop['properties'].each do |object_key, object_property| %>
 
-										<% object_value = @dataSchema[key].nil? ? "" : @dataSchema[key][object_key] %>
-										<%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [embedded_object_key, '0', key] %>
+									<% object_value = @dataSchema[key].nil? ? "" : @dataSchema[key][object_key] %>
+									<%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [embedded_object_key, '0', key] %>
 
 								<% end %>
 
@@ -95,8 +105,11 @@
 
 						<% elsif prop['type'] == 'object' %>
 
-								<%#= data_cycle_field key, prop, "", {class: 'form-control'}, [embedded_object_key, '0'] %>
-								<%= data_cycle_field key, prop, "", {class: 'form-control'}, [embedded_object_key, '0'] %>
+							<% if !parents.empty? %>
+								<%= data_cycle_field key, prop, "", {class: 'form-control'}, parents + ['0', key] %>
+							<% else %>
+								<%= data_cycle_field key, prop, "", {class: 'form-control'}, [embedded_object_key, '0', key] %>
+							<% end %>
 
 						<% else %>
 

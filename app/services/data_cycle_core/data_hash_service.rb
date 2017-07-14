@@ -2,7 +2,7 @@ module DataCycleCore
   class DataHashService
 
     #todo make this more fancy
-    def self.flatten_datahash_value(datahash)
+    def self.flatten_datahash_value(datahash,debug=false)
 
       if datahash.key?(:quotation) && !datahash[:quotation].empty?
         datahash[:quotation] = datahash[:quotation].values
@@ -29,7 +29,6 @@ module DataCycleCore
       end
 
       if datahash.key?(:recipeComponent) && !datahash[:recipeComponent].empty?
-        #datahash[:recipeComponent] = datahash[:recipeComponent].values
         temp_recipeComponent= []
 
         datahash[:recipeComponent].values.each do |component|
@@ -57,6 +56,10 @@ module DataCycleCore
           temp_question.push(temp)
         end
         datahash[:question] = temp_question
+      end
+
+      if debug == true
+        raise datahash.inspect
       end
 
       return datahash
