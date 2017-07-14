@@ -320,21 +320,30 @@ span.single_error.object-browser-error {
 		}
 	}
 	.addContentObject {
+		margin: 0;
 		.fa {
 			padding-left: 0.5rem;
 		}
 	}
 	.content-object-item {
+		&:not(:last-child) {
+			margin-bottom: 1rem;
+		}
 		position: relative;
 		background-color: white;
 		padding: 5rem 1rem 1rem 1rem;
 		border-radius: 3px;
-		margin-bottom: 1rem;
 		box-shadow: 0 0 3px #9d9d9d inset;
 		.removeContentObject {
 			position: absolute;
 			top: 1rem;
 			right: 1rem;
+		}
+		.embedded-header {
+			position: absolute;
+			left: 1rem;
+			top: 1rem;
+			font-size: 1.2rem;
 		}
 	}
 }

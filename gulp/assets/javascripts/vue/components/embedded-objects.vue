@@ -5,9 +5,8 @@
         <slot name="embedded-item"></slot>
       </template>
     </embedded-object>
-    <button v-show="(embeddedObjectsLength + preLength) < max || max == 0" :id="'add_' + embeddedObjectKey" class="button addContentObject" @click.prevent="addItem">
-      Hinzufügen
-      <i class="fa fa-plus"></i>
+    <button v-if="(embeddedObjectsLength + preLength) < max || max == 0" :id="'add_' + embeddedObjectKey" class="button addContentObject" @click.prevent="addItem">
+      {{ label }} hinzufügen
     </button>
   </div>
 </template>
@@ -23,6 +22,9 @@ export default {
     max: {
       type: Number,
       default: 0
+    },
+    label: {
+      type: String
     }
   },
   components: {

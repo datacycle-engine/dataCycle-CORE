@@ -4,9 +4,7 @@
 	<% embedded_object_key = key %>
 
 	<div class="contentObject datatype-<%= embedded_object_key %>">
-
-	<h2><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.metadata['validation']['name'].downcase %> <%= prop['label'].capitalize %></h2>
-
+		
 		<% if !internal_objects.nil? && !internal_objects.empty? %>
 
 			<% start_index = internal_objects.length %>
@@ -22,6 +20,8 @@
 					<% if !validation_properties.nil? %>
 
 					<div class="content-object-item" id="<%= embedded_object_key %>_item_<%= index %>">
+					
+						<span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.metadata['validation']['name'].downcase %> <%= prop['label'] %></span>
 
 						<button class="button removeContentObject"><i class="fa fa-times"></i></button>
 
@@ -83,8 +83,9 @@
 		
 		<% if !validation_properties.nil? %>
 
-		<embedded-objects embedded-object-key="<%= embedded_object_key %>" :max="<%= max %>">
+		<embedded-objects embedded-object-key="<%= embedded_object_key %>" :max="<%= max %>" label="<%= prop['label'] %>">
 			<template scope="props" slot="embedded-item">
+				<span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.metadata['validation']['name'].downcase %> <%= prop['label'] %></span>
 
 					<% validation_properties.each do |key, prop| %>
 
