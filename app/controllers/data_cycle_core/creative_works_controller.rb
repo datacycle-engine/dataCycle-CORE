@@ -249,7 +249,12 @@ module DataCycleCore
             :recipeInstructions,
             :recipeIngredient,
             :totalTime,
-          ]}
+          ]},
+          {:event => [
+              :url,
+              :startDate,
+              :endDate
+          ]},
         ]
         
         params.require(:creative_work).permit(:headline, :datahash => datahash)
