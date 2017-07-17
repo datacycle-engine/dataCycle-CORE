@@ -3,6 +3,31 @@
 
     <br /><br />
 
+    <% if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? %>
+
+        <% validation_properties = get_ordered_validation_properties(@creativeWork.metadata['validation']) %>
+
+        <% if !validation_properties.nil? %>
+
+            <% validation_properties.each do |key, prop| %>
+
+                <% if !@dataSchema[key].nil? && !@dataSchema[key].blank? %>
+
+                <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
+                   label: prop['label'],
+                   value: @dataSchema[key] %>
+
+                <br />
+
+                <% end %>
+
+            <% end %>
+
+        <% end %>
+
+    <% end %>
+
+
 
 
 <hr>
