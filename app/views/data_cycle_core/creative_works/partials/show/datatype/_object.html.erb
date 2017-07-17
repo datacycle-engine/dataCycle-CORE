@@ -1,4 +1,22 @@
-Object goes here
 
-<%= label %>
-<%= value %>
+<% if prop['type'] == 'object' && !prop['properties'].nil? %>
+
+    <% object_properties = get_ordered_validation_properties(prop) %>
+    <% object_properties.each do |object_key, object_property| %>
+
+        <% object_value = @dataSchema[key].nil? ? "" : @dataSchema[key][object_key] %>
+
+        <%= render "data_cycle_core/creative_works/partials/show/datatype/#{object_property['type'].downcase}",
+                   label: object_property['label'],
+                   prop: object_property,
+                   value: object_value %>
+
+    <% end %>
+
+<% elsif prop['type'] == 'object' && !prop['editor'].nil? && !prop['editor']['type'].nil? && prop['editor']['type'] == 'embeddedObject' %>
+
+    <!-- get embedded object data -->
+    <%= key %>
+    <%= prop %>
+
+<% end %>
