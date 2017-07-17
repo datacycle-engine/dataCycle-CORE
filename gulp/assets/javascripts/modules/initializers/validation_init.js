@@ -8,6 +8,7 @@ module.exports.initialize = function () {
     $(form).on("focusout", '.validation-container', function (ev) {
       setTimeout(function () {
         if ($(this).find(':focus').addBack(':focus').length == 0) {
+          update_editor_values();
           check_items_and_validate(form, this);
           catch_promises(form, false);
         }
@@ -75,7 +76,6 @@ module.exports.initialize = function () {
         $(window).scrollTop(first_error_offset - 100);
       }
     });
-
   }
 
   function check_fields(form) {
@@ -98,11 +98,7 @@ module.exports.initialize = function () {
 
   function submit_creative_work_form(form) {
     //get quill-js values
-    if ($('.quill-editor').html() != undefined) {
-      $('.quill-editor').each(function () {
-        set_fe_editor_values(this);
-      });
-    }
+    update_editor_values();
 
     $('#validation_errors').html('');
 
@@ -125,6 +121,14 @@ module.exports.initialize = function () {
       else if ($itemsToValidate.first().data('validate') == "daterange") items = $(validation_container).find('input[data-validate="daterange"]');
 
       validate_single_item(form, items);
+    }
+  }
+
+  function update_editor_values() {
+    if ($('.quill-editor').html() != undefined) {
+      $('.quill-editor').each(function () {
+        set_fe_editor_values(this);
+      });
     }
   }
 
