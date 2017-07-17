@@ -180,9 +180,11 @@ module.exports.initialize = function () {
     else if (item != null && $(item).closest('.form-element').find('label').first().attr('for') != undefined) item_id = "id='" + $(item).closest('.form-element').find('label').first().attr('for') + "_error'";
 
     item_label = (item != null) ? $(item).closest('.form-element').find('label').first().html() + ": " : "";
+    out = "<span " + item_id + "class='single_error'>";
     $.each(data.error, function (key, val) {
-      out += "<span " + item_id + "class='single_error'><strong>" + item_label + "</strong>" + val + "</span>";
+      out += "<strong>" + item_label + "</strong>" + val + "</br>";
     });
+    out += "</span>";
     return out;
   }
 
