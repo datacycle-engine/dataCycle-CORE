@@ -308,10 +308,13 @@ span.single_error.object-browser-error {
 // verschachtelter Inhalt
 .detail-header .contentObject {
 	margin-bottom: 1rem;
+	&:not(:last-child) {
+		margin-bottom: 1rem;
+	}
 }
 
 .contentObject {
-	padding: 1rem;
+	padding: 0.5rem;
 	h2 {
 		.icon {
 			.fa {
@@ -327,7 +330,7 @@ span.single_error.object-browser-error {
 	}
 	.content-object-item {
 		&:not(:last-child) {
-			margin-bottom: 1rem;
+			margin-bottom: 0.5rem;
 		}
 		position: relative;
 		background-color: white;
