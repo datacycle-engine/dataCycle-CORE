@@ -60,10 +60,13 @@ module.exports.initialize = function () {
       ]
     };
 
+    var max = $(node).parent().data('max');
+
     var options = {
       modules: {
         counter: {
-          unit: 'zeichen'
+          unit: 'zeichen',
+          max: max
         },
         toolbar: toolbar[mode]
       },

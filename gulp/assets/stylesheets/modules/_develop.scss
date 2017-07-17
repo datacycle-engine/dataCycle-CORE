@@ -31,6 +31,10 @@
 }
 
 .form-element .counter {
+	&.max-reached {
+		color: red;
+		font-weight: bold;
+	}
 	position: absolute;
 	right: 10px;
 	bottom: 3px;
