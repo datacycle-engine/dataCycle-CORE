@@ -377,3 +377,39 @@ span.single_error.object-browser-error {
 		line-height: 2.5rem;
 	}
 }
+
+// Sortierung Startseite
+.view-icons,
+.view-order,
+.order-item {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.order-title,
+.order-arrows {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.order-item {
+	margin-right: 0.5rem;
+	a {
+		color: $black;
+		&.active,
+		&:hover,
+		&:focus {
+			color: $primary-color;
+		}
+		clear: both;
+		float: right;
+		display: block;
+		line-height: 12px;
+		height: 12px;
+		.fa {
+			display: block;
+			line-height: 12px;
+			height: 12px;
+		}
+	}
+}
