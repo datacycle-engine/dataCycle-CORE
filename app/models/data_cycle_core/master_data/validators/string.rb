@@ -14,15 +14,18 @@ module DataCycleCore
                 if @@string_keywords.include?(key)
                   self.method(key).call(data, template["validations"][key])
                 else
-                  @error[:warning].push "#{key} is not a known keyword for a String. Found for #{data} in #{template}" unless key == "type"
+                  @error[:warning].push I18n.t :string, scope: [:validation, :warnings], data: data, key: key, template: template unless key == "type"
+                  #@error[:warning].push "#{key} is not a known keyword for a String. Found for #{data} in #{template}" unless key == "type"
                 end
               end
             end
           else
             if data.blank?
-              @error[:warning].push "No data given for #{template["label"]}."
+              @error[:warning].push I18n.t :no_data, scope: [:validation, :warnings], data: template["label"]
+              #@error[:warning].push "No data given for #{template["label"]}."
             else
-              @error[:error].push "#{template["label"]} is not a String, but #{data.class}."
+              @error[:error].push I18n.t :string, scope: [:validation, :errors], class: data.class, label: template["label"]
+              #@error[:error].push "#{template["label"]} is not a String, but #{data.class}."
             end
           end
           return @error
@@ -33,13 +36,15 @@ module DataCycleCore
 
         def minLength(data,value)
           if data.length < value.to_i
-            @error[:error].push "#{data} length not long enough, should be #{value.to_i}, but is only #{data.length} long."
+            @error[:error].push I18n.t :min, scope: [:validation, :errors], data: data, min: value.to_i, length: data.length
+            #@error[:error].push "#{data} length not long enough, should be #{value.to_i}, but is only #{data.length} long."
           end
         end
 
         def maxLength(data,value)
           if data.length > value.to_i
-            @error[:error].push "String #{data} too long , should be #{value.to_i}, but is #{data.length} long."
+            @error[:error].push I18n.t :max, scope: [:validation, :errors], data: data, max: value.to_i, length: data.length
+            #@error[:error].push "String #{data} too long , should be #{value.to_i}, but is #{data.length} long."
           end
         end
 
@@ -47,7 +52,8 @@ module DataCycleCore
           regex = /#{expression[1..expression.length-2]}/
           matched = data.match(regex)
           if matched.nil? || matched.offset(0) != [0,data.size]
-            @error[:error].push "Expecting #{data} match format-string: #{expression}"
+            @error[:error].push I18n.t :match, scope: [:validation, :errors], data: data, match: expression
+            #@error[:error].push "Expecting #{data} match format-string: #{expression}"
           end
         end
 
@@ -55,7 +61,8 @@ module DataCycleCore
           if @@string_formats.include?(format_string)
             self.method(format_string).call(data)
           else
-            @error[:error].push "format-string #{format_string} given for #{data} unknown."
+            @error[:error].push I18n.t :format, scope: [:validation, :errors], data: data, format: format_string
+            #@error[:error].push "format-string #{format_string} given for #{data} unknown."
           end
         end
 
@@ -66,7 +73,8 @@ module DataCycleCore
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
           check_uuid = data.length == 36 && !(data=~uuid).nil?
           unless check_uuid
-            @error[:error].push "Expecting uuid for #{data}. format: 12345678-9abc-def0-1234-56789abcdef0"
+            @error[:error].push I18n.t :uuid, scope: [:validation, :errors], data: data
+            #@error[:error].push "Expecting uuid for #{data}. format: 12345678-9abc-def0-1234-56789abcdef0"
           end
         end
 
@@ -82,7 +90,8 @@ module DataCycleCore
           begin
             data.to_datetime
           rescue
-            @error[:error].push "Failed to convert #{data} to date_time format."
+            @error[:error].push I18n.t :date_time, scope: [:validation, :errors], data: data
+            #@error[:error].push "Failed to convert #{data} to date_time format."
           end
         end
 
@@ -90,13 +99,15 @@ module DataCycleCore
           begin
             data.to_date
           rescue
-            @error[:error].push "Failed to convert #{data} to date format."
+            @error[:error].push I18n.t :date, scope: [:validation, :errors], data: data
+            #@error[:error].push "Failed to convert #{data} to date format."
           end
         end
 
         def boolean(data)
           unless data.squish == "true" || data.squish == "false"
-            @error[:error].push "Failed to convert #{data} to boolean format. (only 'true' or 'false' allowed)"
+            @error[:error].push I18n.t :boolean, scope: [:validation, :errors], data: data
+            #@error[:error].push "Failed to convert #{data} to boolean format. (only 'true' or 'false' allowed)"
           end
         end
 
@@ -104,10 +115,12 @@ module DataCycleCore
           begin
             uri = URI.parse data
             unless uri.kind_of? URI::HTTP
-              @error[:error].push "Failed to convert #{data} to url."
+              @error[:error].push I18n.t :url, scope: [:validation, :errors], data: data
+              #@error[:error].push "Failed to convert #{data} to url."
             end
           rescue URI::InvalidURIError
-            @error[:error].push "Failed to convert #{data} to url."
+            @error[:error].push I18n.t :url, scope: [:validation, :errors], data: data
+            #@error[:error].push "Failed to convert #{data} to url."
           end
         end
 
