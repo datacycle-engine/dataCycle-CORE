@@ -250,10 +250,17 @@ module DataCycleCore
             :recipeIngredient,
             :totalTime,
           ]},
+          # {:event => [
+          #     :url,
+          #     :startDate,
+          #     :endDate
+          # ]},
           {:event => [
-              :url,
-              :startDate,
-              :endDate
+            :url,
+            {:eventPeriod => [
+               :startDate,
+               :endDate
+            ]},
           ]},
         ]
         
