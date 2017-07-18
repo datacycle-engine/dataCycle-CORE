@@ -52,7 +52,7 @@ de:
       invalid_parent_attr: "Ungültige Eltern Attribute."
     success:
       created: "%{data} wurde erfolgreich erstellt."
-      updated: "%{data} wurde gespeichert."
+      updated: "%{data} wurde aktualisiert."
     job:
       added: "%{data}/%{uuid} zur Job-Queue hinzugefügt."
       imported: "'%{data}' wurden aus YAML Datei importiert."
