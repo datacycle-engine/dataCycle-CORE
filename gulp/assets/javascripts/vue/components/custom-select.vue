@@ -223,7 +223,8 @@ export default {
             search: '',
             open: false,
             mutableValue: null,
-            mutableOptions: []
+            mutableOptions: [],
+            changeCallback: this.onChange
         }
     },
 
@@ -246,9 +247,9 @@ export default {
          */
         mutableValue(val, old) {
             if (this.multiple) {
-                this.onChange ? this.onChange(val) : null
+                this.changeCallback ? this.changeCallback(val) : null
             } else {
-                this.onChange && val !== old ? this.onChange(val) : null
+                this.changeCallback && val !== old ? this.changeCallback(val) : null
             }
         },
 
@@ -291,7 +292,7 @@ export default {
     created() {
         this.mutableValue = this.selectedValues
         this.mutableOptions = this.customOptions.slice(0)
-        this.onChange = this.generateHiddenFields
+        this.changeCallback = this.generateHiddenFields
         this.mutableLoading = this.loading
 
         this.$on('option:created', this.maybePushTag)

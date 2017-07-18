@@ -1,4 +1,6 @@
 var flatpickr = require('flatpickr');
+var Deutsch = require("flatpickr/dist/l10n/de.js").de;
+flatpickr.localize(Deutsch);
 
 // Reveal Blur 
 module.exports.initialize = function () {

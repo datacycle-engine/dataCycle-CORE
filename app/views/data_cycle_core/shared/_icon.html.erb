@@ -23,18 +23,24 @@
     <span class="icon"><i class="fa fa-address-card" aria-hidden="true"></i></span>
 <% when "zitat" %>
     <span class="icon"><i class="fa fa-quote-left" aria-hidden="true"></i></span>
-<% when "zeitleiste" %>
-    <span class="icon"><i class="fa fa-history" aria-hidden="true"></i></span>
+<% when "zeitleiste", "zeitleiste-eintrag" %>
+    <span class="icon"><i class="fa fa-clock-o" aria-hidden="true"></i></span>
 <% when "app" %>
     <span class="icon"><i class="fa fa-android" aria-hidden="true"></i></span>
 <% when "voting" %>
     <span class="icon"><i class="fa fa-thumbs-up" aria-hidden="true"></i></span>
-<% when "rezept" %>
+<% when "rezept", "rezept-komponente" %>
     <span class="icon"><i class="fa fa-cutlery" aria-hidden="true"></i></span>
-<% when "linktipps" %>
+<% when "linktipps", "website", "mobileapplication" %>
     <span class="icon"><i class="fa fa-link" aria-hidden="true"></i></span>
 <% when "interview" %>
     <span class="icon"><i class="fa fa-comment" aria-hidden="true"></i></span>
+<% when "quiz" %>
+    <span class="icon"><i class="fa fa-question-circle" aria-hidden="true"></i></span>
+<% when "frage" %>
+    <span class="icon"><i class="fa fa-question" aria-hidden="true"></i></span>
+<% when "antwort" %>
+    <span class="icon"><i class="fa fa-reply" aria-hidden="true"></i></span>
 <% else %>
     <span class="icon"><i class="fa fa-folder-open" aria-hidden="true"></i></span>
 <% end %>

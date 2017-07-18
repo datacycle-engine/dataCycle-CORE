@@ -31,16 +31,21 @@ export default {
   mounted() {
     if (this.$parent.$parent != undefined && this.$parent.$parent.$options._componentTag == this.$options._componentTag) {
       this.parentIndex = this.$parent.$parent.parentIndex.slice(0);
+    } else if ($(this.$el).parents('.content-object-item').length > 0) {
+      var object = this;
+      $(this.$el).parents('.content-object-item').each(function () {
+        object.parentIndex.unshift(parseInt($(this).attr('id').match(/\d+/)[0]));
+      });
     }
     this.parentIndex.push(this.index);
 
     this.changeIDs();
+
     $(this.$el).trigger('clone-added');
     var elem = this.$el;
     this.$root.$on('objects-saved', function (data) {
       this.$nextTick(function () {
-        var idx = String(data.id);
-        idx = parseInt(idx.match(/\d+/));
+        var idx = parseInt(data.id.match(/\d+/));
         $(this.$el).find("input[name^='" + data.name + "']").attr('name', function (i, txt) {
           return txt.replace(/\d+/, idx);
         });

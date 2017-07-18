@@ -25,8 +25,8 @@ data_type = image.metadata['validation']
 # non translated items
 json.set! "@context", "http://www.schema.org/ImageObject"
 data_type['properties'].each do |key,value|
-   data = storage_cases_get(image, key, value, false)
-   json.set! key, data unless data.blank?
+  data = storage_cases_get(image, key, value, false)
+  json.set! key, data unless data.blank?
 end
 class_hash = []
 image.classification_aliases.each do |class_item|

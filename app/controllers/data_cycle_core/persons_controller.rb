@@ -52,7 +52,7 @@ module DataCycleCore
       respond_to do |format|
         #validate ?
         if !@person.nil? && @person.save
-          flash[:success] = "Successfully added new person!"
+          flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Person'
           format.html { redirect_to @person }
           format.json { render :json => @person }
         else
@@ -96,7 +96,7 @@ module DataCycleCore
       @creativeWork.update_attributes(update_params)
 
       if @creativeWork.save
-        flash[:success] = "Person updated"
+        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Person'
         # redirect_to @creativeWork
         redirect_to edit_person_path(@creativeWork)
       else

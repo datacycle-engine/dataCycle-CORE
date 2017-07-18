@@ -68,11 +68,11 @@ export default {
   props: {
     objectType: {
       type: String,
-      default: "default"
+      default: "image"
     },
     objectLabel: {
       type: String,
-      default: "Default"
+      default: "Bilder"
     },
     url: {
       type: String,
@@ -99,16 +99,23 @@ export default {
       default: 0
     }
   },
+  data() {
+    return {
+      searchTerm: '',
+      loading: true,
+      items: [],
+      itemsPerPage: 25,
+      currentPage: 1,
+      activeItem: {},
+      totalItems: 0,
+      chosenItems: this.preChosenItems.slice(0),
+      showNew: false,
+      scrollTop: 0,
+      modal: ''
+    }
+  },
   mounted() {
-    this.scrollTop = $(window).scrollTop();
-    var $modal = $('#object-browser').foundation();
-    $modal.foundation('open');
-    $('.reveal-blur').addClass("show");
-    window.scrollTo(0, 0);
-
-    $('#object-browser').on('closed.zf.reveal', function (e) {
-      this.$emit('close');
-    }.bind(this));
+    this.modal = $('#object-browser').foundation();
 
     $('.new-item').on('closed.zf.reveal', function (e) {
       $('body').addClass('is-reveal-open');
@@ -120,26 +127,18 @@ export default {
       this.showNew = true;
     }.bind(this));
   },
-  beforeDestroy() {
+  activated() {
+    this.chosenItems = this.preChosenItems.slice(0);
+    this.scrollTop = $(window).scrollTop();
+    this.modal.foundation('open');
+    $('.reveal-blur').addClass("show");
+    window.scrollTo(0, 0);
+  },
+  deactivated() {
     $(window).scrollTop(this.scrollTop);
     $('.new-item').remove();
-    var $modal = $('#object-browser');
-    $modal.foundation('close');
+    this.modal.foundation('close');
     $('.reveal-blur').removeClass("show");
-  },
-  data() {
-    return {
-      searchTerm: '',
-      loading: true,
-      items: [],
-      itemsPerPage: 15,
-      currentPage: 1,
-      activeItem: {},
-      totalItems: 0,
-      chosenItems: this.preChosenItems.slice(0),
-      showNew: false,
-      scrollTop: 0
-    }
   },
   watch: {
     searchTerm(val) {
@@ -177,18 +176,6 @@ export default {
     save() {
       this.$emit('save', this.chosenItems);
       this.$emit('close');
-    },
-    headline(item) {
-      return "testheadline";
-      if (this.objectType == "Autor" || this.objectType == "Person") return item.givenName + " " + item.familyName;
-      else if (this.objectType == "Ort") {
-        if (item.name != undefined)
-          return item.name;
-        else
-          return "not set";
-      }
-      else if (item != undefined && item.content != undefined) return item.content.headline;
-      else return undefined;
     },
     addItem(item) {
       this.items.push(item);

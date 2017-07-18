@@ -8,6 +8,7 @@ module.exports.initialize = function () {
     $(form).on("focusout", '.validation-container', function (ev) {
       setTimeout(function () {
         if ($(this).find(':focus').addBack(':focus').length == 0) {
+          update_editor_values();
           check_items_and_validate(form, this);
           catch_promises(form, false);
         }
@@ -70,8 +71,13 @@ module.exports.initialize = function () {
       }
       promises = [];
       if (isValid && submit) form.submit();
+      else if (submit) {
+        var first_error_offset = $('.single_error').first().offset().top;
+        $('html, body').animate({
+          scrollTop: first_error_offset - 100
+        }, 500);
+      }
     });
-
   }
 
   function check_fields(form) {
@@ -94,11 +100,7 @@ module.exports.initialize = function () {
 
   function submit_creative_work_form(form) {
     //get quill-js values
-    if ($('.quill-editor').html() != undefined) {
-      $('.quill-editor').each(function () {
-        set_fe_editor_values(this);
-      });
-    }
+    update_editor_values();
 
     $('#validation_errors').html('');
 
@@ -121,6 +123,14 @@ module.exports.initialize = function () {
       else if ($itemsToValidate.first().data('validate') == "daterange") items = $(validation_container).find('input[data-validate="daterange"]');
 
       validate_single_item(form, items);
+    }
+  }
+
+  function update_editor_values() {
+    if ($('.quill-editor').html() != undefined) {
+      $('.quill-editor').each(function () {
+        set_fe_editor_values(this);
+      });
     }
   }
 
@@ -172,9 +182,11 @@ module.exports.initialize = function () {
     else if (item != null && $(item).closest('.form-element').find('label').first().attr('for') != undefined) item_id = "id='" + $(item).closest('.form-element').find('label').first().attr('for') + "_error'";
 
     item_label = (item != null) ? $(item).closest('.form-element').find('label').first().html() + ": " : "";
+    out = "<span " + item_id + "class='single_error'>";
     $.each(data.error, function (key, val) {
-      out += "<span " + item_id + "class='single_error'><strong>" + item_label + "</strong>" + val + "</span>";
+      out += "<strong>" + item_label + "</strong>" + val + "</br>";
     });
+    out += "</span>";
     return out;
   }
 

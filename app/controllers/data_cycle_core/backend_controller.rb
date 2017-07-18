@@ -14,8 +14,12 @@ module DataCycleCore
       @language = params[:language]
       @language ||= "de" #default-language
 
+      @order_by = !params[:order].nil? && params[:order].split('_').first == 'udpated' ? 'updated_at' : 'updated_at'
+      @order = !params[:order].nil? && params[:order].split('_').last == 'asc' ? 'ASC' : 'DESC' 
+      order_string = @order_by + ' ' + @order
+
       query = DataCycleCore::Filter::QueryIndex.new(language: @language)
-      query = query.order(updated_at: :desc)
+      query = query.order(order_string)
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
       query = query.with_classification_alias_ids(@classification_array) unless @classification_array.blank?
 

@@ -403,6 +403,7 @@ span.single_error {
   z-index: 100;
   -webkit-transition: all 0.4s ease;
   line-height: 1.5;
+  text-align: left;
 }
 
 span.single_error:before {
@@ -416,7 +417,7 @@ span.single_error:before {
   -webkit-transition: all 0.4s ease;
   -moz-transition: all 0.4s ease;
   left: 30%;
-  bottom: -50%;
+  bottom: -1.2rem;
 }
 
 .detail-header-wrapper {

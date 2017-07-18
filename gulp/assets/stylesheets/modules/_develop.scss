@@ -31,6 +31,10 @@
 }
 
 .form-element .counter {
+	&.max-reached {
+		color: red;
+		font-weight: bold;
+	}
 	position: absolute;
 	right: 10px;
 	bottom: 3px;
@@ -308,10 +312,13 @@ span.single_error.object-browser-error {
 // verschachtelter Inhalt
 .detail-header .contentObject {
 	margin-bottom: 1rem;
+	&:not(:last-child) {
+		margin-bottom: 1rem;
+	}
 }
 
 .contentObject {
-	padding: 1rem;
+	padding: 0.5rem;
 	h2 {
 		.icon {
 			.fa {
@@ -320,21 +327,30 @@ span.single_error.object-browser-error {
 		}
 	}
 	.addContentObject {
+		margin: 0;
 		.fa {
 			padding-left: 0.5rem;
 		}
 	}
 	.content-object-item {
+		&:not(:last-child) {
+			margin-bottom: 0.5rem;
+		}
 		position: relative;
 		background-color: white;
 		padding: 5rem 1rem 1rem 1rem;
 		border-radius: 3px;
-		margin-bottom: 1rem;
 		box-shadow: 0 0 3px #9d9d9d inset;
 		.removeContentObject {
 			position: absolute;
 			top: 1rem;
 			right: 1rem;
+		}
+		.embedded-header {
+			position: absolute;
+			left: 1rem;
+			top: 1rem;
+			font-size: 1.2rem;
 		}
 	}
 }
@@ -359,5 +375,41 @@ span.single_error.object-browser-error {
 		display: inline-block;
 		height: 2.5rem;
 		line-height: 2.5rem;
+	}
+}
+
+// Sortierung Startseite
+.view-icons,
+.view-order,
+.order-item {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.order-title,
+.order-arrows {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.order-item {
+	margin-right: 0.5rem;
+	a {
+		color: $black;
+		&.active,
+		&:hover,
+		&:focus {
+			color: $primary-color;
+		}
+		clear: both;
+		float: right;
+		display: block;
+		line-height: 12px;
+		height: 12px;
+		.fa {
+			display: block;
+			line-height: 12px;
+			height: 12px;
+		}
 	}
 }

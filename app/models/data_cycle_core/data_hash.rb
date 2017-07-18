@@ -185,8 +185,7 @@ module DataCycleCore
       when 'classification_relation'
         set_relation_ids(properties['storage_type'], value, properties['type_name'], properties['default_value'])
       else
-        # maybe already evaluated with validations?
-        unless properties['storage_location'] == 'key'
+        unless properties['storage_location'] == 'key'  # do nothing with key
           if properties.has_key?('name') && properties.has_key?('description')
             delete = false
             delete = true if properties.has_key?('delete') && properties['delete'] == true
