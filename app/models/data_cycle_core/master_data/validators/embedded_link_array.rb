@@ -31,7 +31,6 @@ module DataCycleCore
                 self.method(key).call(data, template['validations'][key])
               else
                 @error[:warning].push I18n.t :keyword, scope: [:validation, :warnings], key: key, type: "EmbeddedLinkArray"
-                #@error[:warning].push "#{key} is not a known keyword for an EmbeddedLinkArray ."
               end
             end
           end
@@ -43,7 +42,6 @@ module DataCycleCore
               merge_errors(validate_link.error) unless validate_link.nil?
             else
               @error[:error].push I18n.t :data_format, scope: [:validation, :errors], key: key, template: template['label']
-              #@error[:error].push "Elements of the link-array given for #{template['label']} have the wrong format (#{key})."
             end
           end
         end
@@ -60,14 +58,12 @@ module DataCycleCore
         def min(data, value)
           if data.size < value
             @error[:error].push I18n.t :min_ref, scope: [:validation, :errors], data: data.size, value: value
-            #@error[:error].push "Number of references given (#{data.size}) is smaller than expected. Should be at least #{value}."
           end
         end
 
         def max(data, value)
           if data.size > value
             @error[:error].push I18n.t :max_ref, scope: [:validation, :errors], data: data.size, value: value
-            #@error[:error].push "Too many references given (#{data.size}). Only a maximum of #{value} is allowed."
           end
         end
 

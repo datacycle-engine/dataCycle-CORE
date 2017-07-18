@@ -23,13 +23,11 @@ module DataCycleCore
           template_data.each do |key, key_item|
             unless data_keys.include?(key)
               @error[:warning].push I18n.t :no_evaluate, scope: [:validation, :warning], data: key
-              #@error[:warning].push "\"#{key}\" not provided in the data to evaluate."
               next
             end
 
             unless @@basic_types.include?(key_item['type'])
               @error[:error].push I18n.t :object_type, scope: [:validation, :errors], data: key_item, type: key_item['type']
-              #@error[:error].push "wrong data type for #{key_item}. Type #{key_item['type']} not defined."
               next
             end
 
@@ -46,7 +44,6 @@ module DataCycleCore
                   self.method(val_key).call(data[key], val_item)
                 else
                   @error[:warning].push I18n.t :keyword, scope: [:validation, :warning], key: val_key, type: "Object"
-                  #@error[:warning].push "#{val_key} is not a known keyword for Object validations."
                 end
               end
             end
@@ -62,7 +59,6 @@ module DataCycleCore
                 verify_embedded_object(data[key], key_item['storage_location'], key_item['name'], key_item['description'])
               else
                 @error[:error].push I18n.t :wrong_object_type, scope: [:validation, :errors], data: key_item['label']
-                #@error[:error].push "Object type \"#{key_item['label']}\" is not an embedded data_type, nor has it \"properties\" specified."
               end
             end
 
@@ -83,7 +79,6 @@ module DataCycleCore
 
           if template.blank?
             @error[:error].push I18n.t :no_template, scope: [:validation, :errors], name: name, desc: description
-            #@error[:error].push "No corresponding data-type template found for #{name}|#{description}"
             return
           end
 
@@ -100,30 +95,25 @@ module DataCycleCore
           # ap template_hash
           if template_hash.blank? || template_hash['from'].blank? || template_hash['to'].blank?
             @error[:error].push I18n.t :no_fields, scope: [:validation, :errors]
-            #@error[:error].push 'No fields for from-date and/or to-date specified.'
           # elsif !data_hash.has_key?(template_hash['from']) || !data_hash.has_key?(template_hash['to'])  # if we want an error when not all data are given
           #   @error[:error].push 'Fields specified in the validations are not available in the given data.'
           else
             if data_hash[template_hash['from']].blank?
               @error[:warning].push I18n.t :start_date, scope: [:validation, :warning]
-              #@error[:warning].push 'No data for from-date specified, assuming from-date of 1970-01-01.'
               from_date = date_time('1970-01-01')
             else
               from_date = date_time(data_hash[template_hash['from']])
             end
             if data_hash[template_hash['to']].blank?
               @error[:warning].push I18n.t :end_date, scope: [:validation, :warning]
-              #@error[:warning].push 'No data for to-date specified, assuming to-date of 9999-12-31.'
               to_date = date_time('9999-12-31')
             else
               to_date = date_time(data_hash[template_hash['to']])
             end
             if from_date.nil? || to_date.nil?
               @error[:error].push I18n.t :convert_date, scope: [:validation, :errors]
-              #@error[:error].push "Could not convert dates to validate the date-range."
             elsif from_date > to_date
               @error[:error].push I18n.t :daterange, scope: [:validation, :errors], from: from_date.to_date, to: to_date.to_date
-              #@error[:error].push "Invalid date range, from-date (#{from_date.to_date}) is after to-date (#{to_date.to_date})"
             end
           end
         end
@@ -133,7 +123,6 @@ module DataCycleCore
             data.to_datetime
           rescue
             @error[:warning].push I18n.t :convert, scope: [:validation, :warning], data: data
-            #@error[:warning].push "Failed to convert #{data} to date_time format for daterange validation."
             return nil
           end
         end

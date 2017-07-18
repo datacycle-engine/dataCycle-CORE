@@ -53,7 +53,7 @@ module DataCycleCore
             thema = create_internal("Thema")
             @creativeWork.isPartOf = thema.id unless thema.nil?
           else
-            flash[:error] = "invalid parent object"
+            flash[:error] = I18n.t :invalid_parent, scope: [:controllers, :error]
             redirect_to :back
             return
           end
@@ -63,7 +63,7 @@ module DataCycleCore
           #get inherit attributes
           inherit_datahash = get_inherit_datahash(@creativeWork)
           if inherit_datahash.nil?
-            flash[:error] = "invalid parent attributes"
+            flash[:error] = I18n.t :invalid_parent_attr, scope: [:controllers, :error]
             redirect_to :back
             return
           end
@@ -73,7 +73,7 @@ module DataCycleCore
 
       #validate ?
       if !@creativeWork.nil? && @creativeWork.save
-        flash[:success] = "Successfully added new creativeWork!"
+        flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
         redirect_to @creativeWork
       else
         redirect_to :back
@@ -115,7 +115,7 @@ module DataCycleCore
       @creativeWork.update_attributes(update_params)
 
       if @creativeWork.save
-        flash[:success] = "CreativeWork updated"
+        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
         # redirect_to @creativeWork
         redirect_to edit_creative_work_path(@creativeWork)
       else

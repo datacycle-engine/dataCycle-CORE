@@ -12,12 +12,10 @@ module DataCycleCore
       def validate(data, validation_hash, strict = false, verbose = false)
         if data.blank?
           @error[:error].push I18n.t :no_data, scope: [:validation, :errors]
-          #@error[:error].push("No data given.")
           return @error
         end
         if validation_hash.blank?
           @error[:error].push I18n.t :no_validation, scope: [:validation, :errors]
-          #@error[:error].push("No validation data given.")
           return @error
         end
 

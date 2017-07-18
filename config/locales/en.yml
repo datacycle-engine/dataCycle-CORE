@@ -67,3 +67,13 @@ en:
       convert: "Failed to validate daterange due to wrong 'date_time' format given for %{data}."
       end_date: "No end-date given, assume 9999-12-31."
       start_date: "No start-date given, assume 1970-01-01."
+  controllers:
+    error:
+      invalid_parent: "Invalid Parent Object."
+      invalid_parent_attr: "Invalid Parent Attributes."
+    success: 
+      created: "%{data} successfully created."
+      updated: "%{data} updated."
+    job:
+      added: "%{data}/%{uuid} added to Job-Queue."
+      imported: "'%{data}' imported from YAML file."

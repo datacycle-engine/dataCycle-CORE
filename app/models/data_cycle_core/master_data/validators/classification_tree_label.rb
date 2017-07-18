@@ -8,14 +8,12 @@ module DataCycleCore
         def validate(data, template)
           if is_blank?(data)
             @error[:warning].push I18n.t :no_data, scope: [:validation, :errors], data: template['label']
-            #@error[:warning].push "No data given for #{template['label']}."
           elsif data.is_a?(::Array)
             check_reference_array(data, template)
           elsif data.is_a?(::String)
             check_reference_array([data],template)
           else
             @error[:error].push I18n.t :data_type, scope: [:validation, :errors], data: data, template: template['label']
-            #@error[:error].push "Wrong data type given for #{template['label']} (#{data}). Expected an UUID or an array of UUID's."
           end
           return @error
         end
@@ -30,7 +28,6 @@ module DataCycleCore
                 self.method(key).call(data, template['validations'][key])
               else
                 @error[:warning].push I18n.t :keyword, scope: [:validation, :errors], key: key, type: "ClassificationTreeLabel reference List"
-                #@error[:warning].push "#{key} is not a known keyword for a ClassificationTreeLabel reference List."
               end
             end
           end
@@ -41,7 +38,6 @@ module DataCycleCore
               check_reference(key,template)
             else
               @error[:error].push I18n.t :data_array_format, scope: [:validation, :errors], key: key, template: template['label']
-              #@error[:error].push "Elements of the data-array given for #{template['label']} have the wrong format (#{key})."
             end
           end
         end
@@ -55,7 +51,6 @@ module DataCycleCore
               where("classification_tree_labels.name = ?", template['type_name'])
             if find_classification_alias.count < 1
               @error[:error].push I18n.t :classification, scope: [:validation, :errors], key: key, label: template['label'], tree_label: template['type_name']
-              #@error[:error].push "In classification_tree with label: \"#{template['label']}\" and tree-label \"#{template['type_name']}\". No respective Classification found for #{key}."
             end
           end
         end
@@ -66,7 +61,6 @@ module DataCycleCore
           check_uuid = data.length == 36 && !(data=~uuid).nil?
           unless check_uuid
             @error[:error].push I18n.t :uuid, scope: [:validation, :errors], data: data
-            #@error[:error].push "Expecting uuid for #{data}. format: 12345678-9abc-def0-1234-56789abcdef0"
           end
           check_uuid
         end
@@ -83,14 +77,12 @@ module DataCycleCore
         def min(data, value)
           if data.size < value
             @error[:error].push I18n.t :min_ref, scope: [:validation, :errors], data: data.size, value: value
-            #@error[:error].push "Number of references given (#{data.size}) is smaller than expected. Should be at least #{value}."
           end
         end
 
         def max(data, value)
           if data.size > value
             @error[:error].push I18n.t :max_ref, scope: [:validation, :errors], data: data.size, value: value
-            #@error[:error].push "Too many references given (#{data.size}). Only a maximum of #{value} is allowed."
           end
         end
 
