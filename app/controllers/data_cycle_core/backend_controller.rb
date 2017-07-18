@@ -14,8 +14,8 @@ module DataCycleCore
       @language = params[:language]
       @language ||= "de" #default-language
 
-      @order_by = params[:order_by] || 'updated_at'
-      @order = params[:order] || 'DESC'
+      @order_by = !params[:order].nil? && params[:order].split('_').first == 'udpated' ? 'updated_at' : 'updated_at'
+      @order = !params[:order].nil? && params[:order].split('_').last == 'asc' ? 'ASC' : 'DESC' 
       order_string = @order_by + ' ' + @order
 
       query = DataCycleCore::Filter::QueryIndex.new(language: @language)
