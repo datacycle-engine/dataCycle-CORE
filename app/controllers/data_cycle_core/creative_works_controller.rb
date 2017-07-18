@@ -187,7 +187,7 @@ module DataCycleCore
             :text,
             {:image => []},
             {:author => [
-                :id
+              :id
             ]}
           ]},
           #content portrait - biographie

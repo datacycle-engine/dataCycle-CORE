@@ -192,6 +192,19 @@ module DataCycleCore
       render partial: "#{@@partials_path}duration", locals: {key: key, value: value, label: label, prop: prop, options: options, parents: parents}
     end
 
+    # Show action
+    def get_object_data_for_show_action(storage_location, value)
+      return get_internal_data(storage_location, value)
+    end
+
+    # todo: move to mixins
+    def normalize_value(value=nil)
+      if value.kind_of?(Array)
+        value = value.reject { |v| v.empty? }
+      end
+      return value
+    end
+
     private
 
       def get_object_key(key, parents = [])
@@ -230,13 +243,6 @@ module DataCycleCore
 
         return internal_template
 
-      end
-
-      def normalize_value(value=nil)
-        if value.kind_of?(Array)
-          value = value.reject { |v| v.empty? }
-        end
-        return value
       end
 
   end
