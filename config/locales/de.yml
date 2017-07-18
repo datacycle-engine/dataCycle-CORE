@@ -12,7 +12,7 @@ de:
       min_number: "%{data} zu klein, sollte %{value} sein, ist aber nur %{data}."
       max_number: "%{data} zu hoch, sollte %{value} sein, ist aber %{data}."
       match: "%{data} stimmt nicht mit %{expression} überein."
-      format: "Format-String %{format} für %{data} unbekannt."
+      format: "Format-String %{format_string} für %{data} unbekannt."
       uuid: "Erwarte uuid für %{data}. Format: 12345678-9abc-def0-1234-56789abcdef0"
       date_time: "%{data} ist kein gültiges Zeit/Datum Format."
       date: "%{data} ist kein gültiges Datums Format."
@@ -50,7 +50,7 @@ de:
     error:
       invalid_parent: "Ungültiges Eltern Objekt."
       invalid_parent_attr: "Ungültige Eltern Attribute."
-    success: 
+    success:
       created: "%{data} wurde erfolgreich erstellt."
       updated: "%{data} wurde gespeichert."
     job:

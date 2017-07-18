@@ -47,7 +47,7 @@ module DataCycleCore
           if @@number_formats.include?(format_string)
             self.method(format_string).call(data)
           else
-            @error[:error].push I18n.t :format, scope: [:validation, :errors], data: data, format: format_string
+            @error[:error].push I18n.t :format, scope: [:validation, :errors], data: data, format_string: format_string
           end
         end
 

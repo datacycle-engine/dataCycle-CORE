@@ -22,7 +22,7 @@ module DataCycleCore
             if data.blank?
               @error[:warning].push I18n.t :no_data, scope: [:validation, :warnings], data: template["label"]
             else
-              @error[:error].push I18n.t :string, scope: [:validation, :errors], class: data.class, label: template["label"]
+              @error[:error].push I18n.t :string, scope: [:validation, :errors], template: data.class, label: template["label"]
             end
           end
           return @error
@@ -47,7 +47,7 @@ module DataCycleCore
           regex = /#{expression[1..expression.length-2]}/
           matched = data.match(regex)
           if matched.nil? || matched.offset(0) != [0,data.size]
-            @error[:error].push I18n.t :match, scope: [:validation, :errors], data: data, match: expression
+            @error[:error].push I18n.t :match, scope: [:validation, :errors], data: data, expression: expression
           end
         end
 
@@ -55,7 +55,7 @@ module DataCycleCore
           if @@string_formats.include?(format_string)
             self.method(format_string).call(data)
           else
-            @error[:error].push I18n.t :format, scope: [:validation, :errors], data: data, format: format_string
+            @error[:error].push I18n.t :format, scope: [:validation, :errors], data: data, format_string: format_string
           end
         end
 
