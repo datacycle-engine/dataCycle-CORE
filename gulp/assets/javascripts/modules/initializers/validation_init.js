@@ -73,7 +73,9 @@ module.exports.initialize = function () {
       if (isValid && submit) form.submit();
       else if (submit) {
         var first_error_offset = $('.single_error').first().offset().top;
-        $(window).scrollTop(first_error_offset - 100);
+        $('body').animate({
+          scrollTop: first_error_offset - 100
+        }, 500);
       }
     });
   }
