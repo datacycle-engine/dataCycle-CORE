@@ -26,6 +26,7 @@ data_type = image.metadata['validation']
 json.set! "@context", "http://www.schema.org/ImageObject"
 data_type['properties'].each do |key,value|
   data = storage_cases_get(image, key, value, false)
+  json.set! 'external_key', data[/\d+\z/] if key == 'url' && !data.blank?
   json.set! key, data unless data.blank?
 end
 class_hash = []
