@@ -33,7 +33,7 @@ en:
       min_number: "%{data} too small, should be %{value}, but is only %{data}."
       max_number: "%{data} too high, should be %{value}, but is %{data}."
       match: "%{data} should match %{expression}."
-      format: "Format-String %{format} for %{data} unknown."
+      format: "Format-String %{format_string} for %{data} unknown."
       uuid: "Expected uuid for %{data}. Format: 12345678-9abc-def0-1234-56789abcdef0"
       date_time: "%{data} is not a valid date_time format."
       date: "%{data} is not a valid date format."
@@ -71,7 +71,7 @@ en:
     error:
       invalid_parent: "Invalid Parent Object."
       invalid_parent_attr: "Invalid Parent Attributes."
-    success: 
+    success:
       created: "%{data} successfully created."
       updated: "%{data} updated."
     job:
