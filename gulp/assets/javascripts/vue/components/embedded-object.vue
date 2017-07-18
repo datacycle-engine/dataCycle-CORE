@@ -42,13 +42,10 @@ export default {
     this.changeIDs();
 
     $(this.$el).trigger('clone-added');
-    var elem = this.$el;
-    this.$root.$on('objects-saved', function (data) {
+
+    this.$on('objects-saved', function (data) {
       this.$nextTick(function () {
-        var idx = parseInt(data.id.match(/\d+/));
-        $(this.$el).find("input[name^='" + data.name + "']").attr('name', function (i, txt) {
-          return txt.replace(/\d+/, idx);
-        });
+        $(this.$el).find("input[name^='" + data.name + "']").attr('name', this.changeID);
       });
     }.bind(this));
   },

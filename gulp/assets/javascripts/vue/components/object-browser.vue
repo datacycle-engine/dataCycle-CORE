@@ -84,7 +84,7 @@ export default {
     save(data) {
       this.existingItems = data.slice(0);
       var parentID = $(this.$el).closest('.object-browser').attr('id');
-      this.$root.$emit('objects-saved', { name: this.hiddenName, id: parentID });
+      this.$parent.$emit('objects-saved', { name: this.hiddenName });
     }
   }
 }
