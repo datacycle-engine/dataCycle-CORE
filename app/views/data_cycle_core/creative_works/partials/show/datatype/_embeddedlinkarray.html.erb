@@ -1,8 +1,8 @@
-<div class="detail-type media">
 
     <% object = ("DataCycleCore::"+("#{prop['type_name']}".classify)).constantize %>
 
     <% unless value.blank? %>
+    <div class="detail-type media">
 
         <span class="label"><strong><%= label %></strong></span>
 
@@ -31,6 +31,5 @@
 
         </div>
 
+    </div>
     <% end %>
-
-</div>
