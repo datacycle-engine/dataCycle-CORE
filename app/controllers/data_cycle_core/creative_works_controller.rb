@@ -33,7 +33,7 @@ module DataCycleCore
     def new
       #only for testing
       @creativeWork = DataCycleCore::CreativeWork.new
-      set_breadcrumb_for @creativeWork      
+      set_breadcrumb_for @creativeWork
       render layout: "data_cycle_core/creative_works_show"
     end
 
@@ -107,6 +107,8 @@ module DataCycleCore
         redirect_to edit_creative_work_path(@creativeWork)
         return
       end
+
+      puts datahash
 
       @creativeWork.set_data_hash(datahash)
 
@@ -263,7 +265,7 @@ module DataCycleCore
             ]},
           ]},
         ]
-        
+
         params.require(:creative_work).permit(:headline, :datahash => datahash)
         # params.require(:creative_work).permit!
       end
