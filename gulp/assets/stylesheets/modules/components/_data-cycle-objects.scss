@@ -3,6 +3,17 @@
 
 /* gridItems */
 
+.flex {
+  .data-cycle-object {
+    .inner {
+      .description {
+        max-height: 300px;
+        overflow: hidden;
+      }
+    }
+  }
+}
+
 .data-cycle-object {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   transition: all ease-in-out 0.2s;
@@ -23,8 +34,6 @@
     overflow: hidden;
     >div {
       padding-bottom: 0.5rem;
-      max-height: 300px;
-      overflow: hidden;
     }
   }
   .type {
