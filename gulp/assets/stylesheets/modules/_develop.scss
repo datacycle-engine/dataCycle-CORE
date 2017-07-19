@@ -444,6 +444,9 @@ span.single_error.object-browser-error {
 				>.label {
 					position: absolute;
 					float: none;
+					.object-index {
+						display: none;
+					}
 				}
 			}
 			.label {
@@ -454,8 +457,14 @@ span.single_error.object-browser-error {
 		}
 		&.media {
 			.thumbnail {
-				max-width: 250px;
+				width: 229px;
+				height: 157px;
 				margin-right: 0.5rem;
+				background-position: center center;
+				background-size: contain;
+				background-repeat: no-repeat;
+				background-color: white;
+				overflow: hidden;
 			}
 		}
 		.label {
