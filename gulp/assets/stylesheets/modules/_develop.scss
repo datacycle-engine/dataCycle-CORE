@@ -413,3 +413,67 @@ span.single_error.object-browser-error {
 		}
 	}
 }
+
+// pagination fix
+.pagination .current {
+	padding: 0;
+}
+
+// Details for Show
+.detail-content {
+	padding: 0 1rem;
+	.row {
+		max-width: 1200px;
+	}
+	p {
+		margin: 0;
+	}
+	.detail-type {
+		position: relative;
+		box-shadow: 0 0 2px #9d9d9d;
+		padding: 2rem 1rem 1rem 1rem;
+		&:not(:last-child) {
+			margin-bottom: 1rem;
+		}
+		.detail-type {
+			box-shadow: none;
+			padding: 0;
+			&.object {
+				box-shadow: 0 0 2px #9d9d9d;
+				padding: 2rem 1rem 1rem 1rem;
+				>.label {
+					position: absolute;
+					float: none;
+				}
+			}
+			.label {
+				position: relative;
+				float: left;
+				margin-right: 1rem;
+			}
+		}
+		&.media {
+			.thumbnail {
+				max-width: 250px;
+				margin-right: 0.5rem;
+			}
+		}
+		.label {
+			position: absolute;
+			left: 0;
+			top: 0;
+			background: inherit;
+			color: inherit;
+			box-shadow: 1px 1px 2px #9d9d9d;
+			.icon {
+				.fa {
+					font-size: inherit;
+				}
+			}
+		}
+		.content {
+			position: relative;
+			display: inline-block;
+		}
+	}
+}

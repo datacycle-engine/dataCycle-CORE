@@ -108,7 +108,7 @@
 
     <div class="detail-content">
 
-        <div class="row">
+        <div class="row align-center">
 
             <%= render 'data_cycle_core/creative_works/partials/show/'+@creativeWork.metadata['validation']['name'].downcase rescue render "data_cycle_core/creative_works/partials/show/default" %>
             <%= render 'data_cycle_core/creative_works/partials/show/translation/translations', language: nil %>

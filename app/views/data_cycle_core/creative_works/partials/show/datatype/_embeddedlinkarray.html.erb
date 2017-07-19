@@ -4,7 +4,7 @@
 
     <% unless value.blank? %>
 
-        <span><strong><%= label %></strong></span>
+        <span class="label"><strong><%= label %></strong></span>
 
         <div class="media-thumbs">
 
@@ -19,7 +19,7 @@
 
                         <% unless image.blank? %>
 
-                            <img src="<%= image.metadata['thumbnailUrl'] %>" alt="<%= image.headline %>" />
+                            <img class="thumbnail" src="<%= image.metadata['thumbnailUrl'] %>" alt="<%= image.headline %>" />
 
                         <% end %>
 
