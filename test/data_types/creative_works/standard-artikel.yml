@@ -119,7 +119,7 @@
           :type: quillEditor
           :sorting: 8
           :options:
-            :data-size: full
+            :data-size: none
       :keywords:
         :label: SEO Keywords
         :type: string
@@ -146,6 +146,9 @@
         :storage_location: metadata
         :editor:
           :sorting: 11
+          :options:
+            :data-validate: media
+            :data-type: image
 #      :video:
 #        :label: Videos
 #        :type: embeddedLinkArray
@@ -154,6 +157,9 @@
 #        :storage_location: metadata
 #        :editor:
 #          :sorting: 12
+#          :options:
+#            :data-validate: media
+#            :data-type: video
       #meta attributes
       :author:
         :label: Autor
@@ -165,6 +171,9 @@
         :editor:
           :sorting: 13
           :type: objectBrowser
+          :options:
+            :data-validate: object
+            :data-type: person
       :contentLocation:
         :label: Ort
         :type: object
@@ -175,6 +184,9 @@
         :editor:
           :sorting: 14
           :type: objectBrowser
+          :options:
+            :data-validate: object
+            :data-type: place
       :quotation:
         :label: Zitat
         :type: object

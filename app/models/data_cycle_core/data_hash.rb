@@ -109,7 +109,7 @@ module DataCycleCore
       class_id = self.class.to_s.demodulize.foreign_key
 
       #puts "#{storage_type} | #{ids} | #{tree_label} | #{default_value}"
-      if ids.blank?
+      if is_blank?(ids)
         unless default_value.blank?
           classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
               .where("classification_tree_labels.name = ?", tree_label)
@@ -257,11 +257,6 @@ module DataCycleCore
 
     def set_linked_via_relation(data, table, name, description, delete)
       relation = get_relation_name(table)
-
-      # get validation template
-      template = ("DataCycleCore::"+table.classify).constantize.
-        find_by(template: true, headline: name, description: description)
-
       updated_item_keys = []
 
       unless is_blank?(data)
@@ -286,6 +281,8 @@ module DataCycleCore
             updated_item_keys.push(update_item.id)
           else
             # insert
+            template = ("DataCycleCore::"+table.classify).constantize.              # get validation template
+              find_by(template: true, headline: name, description: description)
             insert_item = ("DataCycleCore::"+table.classify).constantize.new
             insert_item.metadata = { 'validation' => template.metadata['validation'] }
             insert_item.save
@@ -325,16 +322,11 @@ module DataCycleCore
           end
         end
       else
-        # only destroy relations
+        # only destroy relations (independend of how many translations in self/embeddedObject exist)
         potentially_delete.each do |key|
-          item = ("DataCycleCore::"+table.classify).constantize.find_by(id: key)
-          translations = item.translated_locales
-          # destroy relation only if it is not needed for another language
-          if (translations - [ I18n.locale ]).size < 1
-            ("DataCycleCore::"+relation.classify).constantize.
-              find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
-              destroy
-          end
+          ("DataCycleCore::"+relation.classify).constantize.
+            find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
+            destroy
         end
       end
       self.method(table).call.reload # MO: force reload of the relation, otherwise cached data can obsure the next get_data_hash

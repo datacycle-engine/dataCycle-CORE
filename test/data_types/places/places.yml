@@ -10,17 +10,21 @@
         :storage_type: string
         :storage_location: key
         :validations:
-          :format: uuid      
+          :format: uuid
       :name:
         :label: Name
         :type: string
         :storage_type: string
         :storage_location: column
+        :editor:
+          :sorting: 1
       :address:
         :label: Adresse
         :type: string
         :storage_type: string
         :storage_location: column
+        :editor:
+          :sorting: 2
       :longitude:
         :label: Longitude
         :type: number
@@ -28,6 +32,8 @@
         :storage_location: column
         :validations:
             :format: float
+        :editor:
+          :sorting: 3
       :latitude:
         :label: Latitude
         :type: number
@@ -35,14 +41,20 @@
         :storage_location: column
         :validations:
             :format: float
+        :editor:
+          :sorting: 4
       :location:
         :label: GPS-Koordinaten
         :type: geographic
         :storage_type: geographic
         :storage_location: column
+        :editor:
+          :sorting: 5
       :external_source_id:
         :label: external_source_id
         :type: embeddedLink
         :type_name: external_sources
         :storage_type: string
         :storage_location: column
+        :editor:
+          :sorting: 6
