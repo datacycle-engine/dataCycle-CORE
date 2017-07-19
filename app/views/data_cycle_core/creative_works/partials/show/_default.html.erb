@@ -17,10 +17,10 @@
                 <% if !@dataSchema[key].nil? && !@dataSchema[key].blank? && !exludedProperties.include?(key) %>
 
                     <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
-                       label: prop['label'],
-                       prop: prop,
-                       key: key,
-                       value: normalize_value(@dataSchema[key]) %>
+                               label: prop['label'],
+                               prop: prop,
+                               key: key,
+                               value: normalize_value(@dataSchema[key]) %>
 
                 <% end %>
 
@@ -33,6 +33,6 @@
 
 
 
-<hr>
+    <hr>
 
 <% end %>

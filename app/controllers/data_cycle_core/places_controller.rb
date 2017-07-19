@@ -144,7 +144,7 @@ module DataCycleCore
 
       def set_breadcrumb_for place
         #set_breadcrumb_for creativeWork.parent if creativeWork.parent
-        add_breadcrumb place.metadata['validation']['name'], "#{place.name}", place_path(place.id)
+        add_breadcrumb 'Ort', "#{place.name}, #{place.address}", place_path(place.id)
       end
 
   end
