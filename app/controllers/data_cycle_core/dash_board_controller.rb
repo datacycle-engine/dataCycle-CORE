@@ -33,6 +33,8 @@ module DataCycleCore
       MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Place)
       path = Rails.root.join('config','data_definitions','persons','*.yml')
       MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Person)
+      path = Rails.root.join('config','data_definitions','events','*.yml')
+      MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Event)
       flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: "data types"
       redirect_to admin_path
     end

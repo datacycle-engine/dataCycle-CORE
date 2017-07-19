@@ -1,0 +1,36 @@
+<div class="detail-type media">
+
+    <% object = ("DataCycleCore::"+("#{prop['type_name']}".classify)).constantize %>
+
+    <% unless value.blank? %>
+
+        <span><strong><%= label %></strong></span>
+
+        <div class="media-thumbs">
+
+            <!-- todo: remove when videos are available -->
+            <% if prop['label'] != 'Videos' %>
+
+                <% unless value.blank? %>
+
+                    <% value.each do |item| %>
+
+                        <% image = object.where(id: item).first %>
+
+                        <% unless image.blank? %>
+
+                            <img src="<%= image.metadata['thumbnailUrl'] %>" alt="<%= image.headline %>" />
+
+                        <% end %>
+
+                    <% end %>
+
+                <% end %>
+
+            <% end %>
+
+        </div>
+
+    <% end %>
+
+</div>

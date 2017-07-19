@@ -82,8 +82,6 @@
 
 <section>
 
-    <%#= debug(@creativeWork.classification_aliases) %>
-
     <% if @creativeWork.metadata['validation']['content_type'] == 'entity' %>
 
         <% contentData = [] %>
@@ -106,18 +104,13 @@
 
 </section>
 
-<!--todo: make this more generic
-<%#= @creativeWork.metadata['validation']['name'].downcase %>
--->
-
-<% if @creativeWork.metadata['validation']['name'] == "Bild" %>
+<% if @creativeWork.metadata['validation']['content_type'] == 'variant' %>
 
     <div class="detail-content">
 
         <div class="row">
 
-            <%= render 'data_cycle_core/creative_works/partials/show/'+@creativeWork.metadata['validation']['name'].downcase %>
-
+            <%= render 'data_cycle_core/creative_works/partials/show/'+@creativeWork.metadata['validation']['name'].downcase rescue render "data_cycle_core/creative_works/partials/show/default" %>
             <%= render 'data_cycle_core/creative_works/partials/show/translation/translations', language: nil %>
 
         </div>

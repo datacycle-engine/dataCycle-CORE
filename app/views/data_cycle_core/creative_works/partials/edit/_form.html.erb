@@ -63,7 +63,8 @@
 								<%= content_tag :div, object_options do %>
 									<!--<div class="object-title"><strong><%= prop['label'] %></strong></div>-->
 
-									<% prop['properties'].each do |object_key, object_property| %>
+									<% object_properties = get_ordered_validation_properties(prop) %>
+									<% object_properties.each do |object_key, object_property| %>
 
 										<% object_value = dataSchema[key].nil? ? "" : dataSchema[key][object_key] %>
 

@@ -23,6 +23,9 @@ module DataCycleCore
     has_many :creative_work_persons
     has_many :persons, through: :creative_work_persons
 
+    has_many :creative_work_events
+    has_many :events, through: :creative_work_events
+
     acts_as_tree order: "position", foreign_key: "isPartOf"
 
     # custom setter

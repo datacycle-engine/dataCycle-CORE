@@ -187,7 +187,7 @@ module DataCycleCore
             :text,
             {:image => []},
             {:author => [
-                :id
+              :id
             ]}
           ]},
           #content portrait - biographie
@@ -249,7 +249,19 @@ module DataCycleCore
             :recipeInstructions,
             :recipeIngredient,
             :totalTime,
-          ]}
+          ]},
+          # {:event => [
+          #     :url,
+          #     :startDate,
+          #     :endDate
+          # ]},
+          {:event => [
+            :url,
+            {:eventPeriod => [
+               :startDate,
+               :endDate
+            ]},
+          ]},
         ]
         
         params.require(:creative_work).permit(:headline, :datahash => datahash)

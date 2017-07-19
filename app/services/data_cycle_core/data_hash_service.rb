@@ -28,6 +28,10 @@ module DataCycleCore
         datahash[:totalTime] = datahash[:totalTime].to_i
       end
 
+      if datahash.key?(:event) && !datahash[:event].empty?
+        datahash[:event] = datahash[:event].values
+      end
+
       if datahash.key?(:recipeComponent) && !datahash[:recipeComponent].empty?
         temp_recipeComponent= []
 
