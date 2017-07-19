@@ -19,7 +19,7 @@
 
                         <% unless image.blank? %>
 
-                            <img class="thumbnail" src="<%= image.metadata['thumbnailUrl'] %>" alt="<%= image.headline %>" />
+                            <div class="thumbnail" style="background-image: url(<%= image.metadata['thumbnailUrl'] %>)"></div>
 
                         <% end %>
 
