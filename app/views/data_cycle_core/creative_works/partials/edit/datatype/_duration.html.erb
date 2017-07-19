@@ -12,8 +12,9 @@
             </div>
         </div>
         <div class="small-2 columns">
+            
             <%= number_field_tag key,value,options %>
-            <span class="duration-label">min</span>
+            <span class="duration-label"><%= !options.nil? && !options['data-unit'].nil? ? options['data-unit'] : 'min' %></span>
         </div>
     </div>
 </div>
