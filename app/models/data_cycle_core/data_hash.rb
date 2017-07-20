@@ -8,11 +8,7 @@ module DataCycleCore
     def get_data_hash
       if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with pending data in it
         data_type = metadata['validation']
-        data_hash = {}
-        data_type['properties'].each do |key,value|
-          data_hash[key] = storage_cases_get(key,data_type['properties'][key])
-        end
-        data_hash
+        get_template_data_hash(data_type['properties'])
       else
         return nil
       end
@@ -145,6 +141,14 @@ module DataCycleCore
       end
     end
 
+    def get_template_data_hash(properties, origin = [])
+      data_hash = {}
+      properties.each do |key,value|
+        data_hash[key] = storage_cases_get(key,properties[key], origin)
+      end
+      data_hash
+    end
+
     def set_template_data_hash(data_hash, properties)
       properties.each do |key,value|
         #puts " key ----> #{key} | value: #{value} || #{data_hash[key]} | #{data_hash}"
@@ -152,16 +156,16 @@ module DataCycleCore
       end
     end
 
-    def storage_cases_get(key, properties)
+    def storage_cases_get(key, properties, origin)
       case properties["storage_location"]
       when "column"
         self.method(key).call
       when "content"
-        self.content[key]
+        get_from_jsonb(key, properties, origin, 'content')
       when "metadata"
-        self.metadata[key]
+        get_from_jsonb(key, properties, origin, 'metadata')
       when "properties"
-        self.properties[key]
+        get_from_jsonb(key, properties, origin, 'properties')
       when "classification_relation"
         get_relation_ids(properties["storage_type"], properties["type_name"])
       when "key"
@@ -198,10 +202,30 @@ module DataCycleCore
       end
     end
 
+    def get_from_jsonb(key, properties, origin, field_name)
+      #puts "#{key} | #{origin} | #{field_name} || #{properties}" #if properties['type'] == 'object'
+      if properties['type'] == 'object'
+        # object found ==> recursively retrieve data
+        new_origin = origin + [key]
+        result = get_template_data_hash(properties['properties'], new_origin).compact
+      else
+        # data element found ==> get data within jsonb-tree-structure
+        result = self.method(field_name).call
+        origin = origin + [key]
+        origin.each do |item|
+          result = result[item]
+          return nil if result.nil?
+        end
+      end
+      result.blank? ? nil : result  # conserve old behavior (empty objects return as nil)
+    end
+
     def save_to_jsonb(key, data, properties, location)
       # parse tree in json, to only set data specified in the data definitions
-      if data.is_a?(::Hash)
+      if properties['type'] == 'object' && data.is_a?(::Hash) # object with potentially relevant data
+        #puts "#{key}|#{data}|#{new_origin}|#{location}"
         data = set_data_tree_hash(data, properties['properties'])
+        #puts "#{data}"
       end
       # set to json field (could be empty)
       if self.method("#{location}").call.blank?
@@ -215,10 +239,10 @@ module DataCycleCore
       data_hash = {}
       return if data.blank?
       data_definitions.each do |key,value|
-        unless data_definitions[key]['type'] == 'object'
-          data_hash[key] = data[key]
-        else
+        if data_definitions[key]['type'] == 'object'
           data_hash[key] = set_data_tree_hash(data[key], data_definitions[key]['properties'])
+        else
+          data_hash[key] = storage_cases_set(key, data[key], data_definitions[key])
         end
       end
       data_hash
@@ -281,8 +305,11 @@ module DataCycleCore
             updated_item_keys.push(update_item.id)
           else
             # insert
-            template = ("DataCycleCore::"+table.classify).constantize.              # get validation template
+
+            # get validation template
+            template = ("DataCycleCore::"+table.classify).constantize.
               find_by(template: true, headline: name, description: description)
+
             insert_item = ("DataCycleCore::"+table.classify).constantize.new
             insert_item.metadata = { 'validation' => template.metadata['validation'] }
             insert_item.save
