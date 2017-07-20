@@ -60,6 +60,7 @@ form {
     width: 30px;
     height: 30px;
     background: $light-gray;
+    padding: 0;
     a {
       padding: 0;
       color: $dark-gray;
@@ -73,10 +74,20 @@ form {
   padding-bottom: 400px;
 }
 
+.no-edit-bar {
+  padding-top: 3.5rem;
+}
+
 .edit-header {
   background-color: lighten($primary-color, 50%);
   height: 3.5rem;
   line-height: 3.5rem;
+  &.fix-edit-bar {
+    position: fixed;
+    width: 100%;
+    z-index: 10000;
+    top: 0;
+  }
   .edit-headline {
     color: $primary-color;
     position: absolute;
@@ -196,7 +207,7 @@ form {
   } //.tags, .gueltigkeit {
   .gueltigkeit {
     text-align: left;
-    margin: 0 0 0 1rem;
+    margin: 1rem 0 0 1rem;
     .icon {
       color: $dark-gray;
     }
@@ -214,6 +225,9 @@ form {
   .daterange {
     padding: 1rem;
     text-align: left;
+    &.validation-container {
+      margin-bottom: 1rem;
+    }
     label {
       width: 0;
       height: 0;
@@ -297,9 +311,12 @@ form {
     min-height: 375px;
   }
   &.editor {
-    padding: 0;
+    padding: 0 0 30rem 0;
     margin-top: 3rem;
     background: none;
+    .validation-container {
+      position: relative;
+    }
     .form-element {
       position: relative;
       margin-bottom: 1rem;
@@ -532,6 +549,37 @@ span.single_error:before {
   }
 }
 
+.tags {
+  .tag-group-wrapper {
+    text-align: left;
+    margin: 0 0 0 1rem;
+    .icon {
+      i:before {
+        content: "\f02c";
+        font-family: FontAwesome;
+        font-style: normal;
+        font-weight: normal;
+        text-decoration: inherit;
+      }
+      &.Themenbereiche {
+        i:before {
+          content: "\f07c";
+        }
+      }
+      &.Zielmarkt {
+        i:before {
+          content: "\f192";
+        }
+      }
+      &.Bundesland {
+        i:before {
+          content: "\f041";
+        }
+      }
+    }
+  }
+}
+
 .tags,
 body .v-select {
   .tag,
@@ -604,5 +652,48 @@ body .v-select {
     transition: all ease-out 0.1s;
     filter: blur(5px);
     opacity: 0.2;
+  }
+}
+
+.no-results {
+  display: block;
+  text-align: center;
+}
+
+
+/* Sortierung, Viewtype Startseite */
+
+.view-icons,
+.view-order,
+.order-item {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.order-title,
+.order-arrows {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.order-item {
+  margin-right: 0.5rem;
+  a {
+    color: $black;
+    &.active,
+    &:hover,
+    &:focus {
+      color: $primary-color;
+    }
+    clear: both;
+    float: right;
+    display: block;
+    line-height: 12px;
+    height: 12px;
+    .fa {
+      display: block;
+      line-height: 12px;
+      height: 12px;
+    }
   }
 }

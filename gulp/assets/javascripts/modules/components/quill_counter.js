@@ -12,8 +12,8 @@ var Counter = function (quill, options) {
 
 Counter.prototype.setContainer = function () {
   var parentElement = this.quill.container.parentElement;
-  if (parentElement.querySelector('#counter') == null) parentElement.insertAdjacentHTML('beforeend', '<div id="counter"></div>');
-  return parentElement.querySelector('#counter');
+  if (parentElement.querySelector('.counter') == null) parentElement.insertAdjacentHTML('beforeend', '<div class="counter"></div>');
+  return parentElement.querySelector('.counter');
 };
 Counter.prototype.setup = function () {
   var text = this.quill.getText();

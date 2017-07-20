@@ -83,20 +83,26 @@
 }
 
 
-/* Media Browser */
+/* Objectbrowser */
 
 .media-thumbs {
   .media {
     display: block;
     float: left;
     overflow: hidden;
-    width: 229px;
-    height: 157px;
+    width: auto;
+    height: auto;
+    padding: 0.85rem 1rem;
     margin: 0 1rem 1rem 0;
     background-position: center center;
     background-size: contain;
     background-repeat: no-repeat;
     background-color: white;
+    &.thumbnail {
+      width: 229px;
+      height: 157px;
+      padding: 0;
+    }
     span.caption {
       display: none;
     }
@@ -115,13 +121,6 @@
   }
 }
 
-button.mediabrowser {
-  margin: 1rem;
-  i.fa {
-    font-size: 1em;
-  }
-}
-
 .object-browser {
   text-align: left;
   padding: 3rem 0 0 0.1rem;
@@ -131,17 +130,79 @@ button.mediabrowser {
   }
 }
 
-#mediabrowser {
+#object-browser {
   margin: 8.1rem 0 0 0 !important;
   outline: none;
   padding: 0 0 10rem 0;
-  h4 {
+  .object-browser-header {
+    .buttons {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      .button,
+      button {
+        margin: 0;
+        vertical-align: top;
+      }
+      .new-item-button {
+        padding: 0.6rem 0.8rem;
+        cursor: pointer;
+      }
+      .close-object-browser {
+        margin: 0.5rem;
+        cursor: pointer;
+        .fa {
+          color: $dark-gray;
+          font-size: 1.5rem;
+          &:hover,
+          &:focus {
+            color: $black;
+          }
+        }
+      }
+      .save-object-browser {
+        .chosen-items {
+          display: none;
+          padding-top: 1rem;
+          .chosen-item {
+            padding: 0.5rem 2rem 0.5rem 0;
+            text-align: left;
+            position: relative;
+            .remove {
+              position: absolute;
+              right: 0;
+              top: 0.25rem;
+              display: block;
+              width: 1.5rem;
+              height: 1.5rem;
+              text-align: center;
+              line-height: 1.5rem;
+              &:hover,
+              &:focus {
+                color: red;
+              }
+            }
+          }
+        }
+        &:hover,
+        &:focus {
+          .chosen-items {
+            display: block;
+          }
+        }
+      }
+    }
+    #object-browser-search {
+      margin-top: 0.5rem;
+    }
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
     z-index: 2;
     color: $primary-color;
     font-size: 1.2rem;
     position: fixed;
-    width: 100%;
-    padding: 1rem 1rem 1rem 1.5rem;
+    width: calc(100% - 400px);
+    padding: 1rem 1rem 1rem 1rem;
     /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+50,ffffff+100&1+0,0.78+50,0+100 */
     background: -moz-linear-gradient(top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.78) 50%, rgba(255, 255, 255, 0) 100%);
     /* FF3.6-15 */
@@ -151,61 +212,199 @@ button.mediabrowser {
     /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#00ffffff', GradientType=0);
     /* IE6-9 */
-    i {
-      margin-right: 0.5rem;
+  }
+  .pagination {
+    text-align: center;
+    width: 100%;
+    margin-top: 1rem;
+    clear: both;
+    .active {
+      border-radius: 30px;
+      width: 30px;
+      height: 30px;
+      background: $light-gray;
+      a {
+        padding: 0;
+        color: $dark-gray;
+        cursor: default;
+        text-decoration: none;
+      }
     }
   }
-  .close-button {
-    right: 410px;
-    top: 0;
-    outline: none;
-    i {
-      font-size: 1.5rem;
-    }
-  }
-  #close-media-browser {
-    position: absolute;
-    right: 450px;
-    top: 0.5rem;
-  }
-  #media-content {
-    padding: 4rem 1rem 1rem 1rem;
+  .items {
+    padding: 7rem 1rem 1rem 1rem;
     margin-right: 400px;
-    .media {
+    .thumbnail {
+      border: none;
       display: block;
-      float: left;
       overflow: hidden;
       width: 229px;
       height: 157px;
-      margin: 0 1rem 1rem 0;
       background-position: center center;
       background-size: contain;
       background-repeat: no-repeat;
-      background-color: white;
-      span.caption {
-        display: none;
+      margin: 0.3rem;
+      box-shadow: none;
+      outline: none;
+    }
+    a.delete-thumbnail {
+      display: none;
+    }
+    .loading {
+      text-align: center;
+      padding: 10rem 0;
+      .fa {
+        font-size: 3rem;
+        color: $light-gray;
       }
-      &.add {
+    }
+    .no-entries {
+      text-align: center;
+      padding: 10rem 0;
+    }
+    .item {
+      &.active {
         border-color: $primary-color;
         background-color: $primary-color;
+      }
+      display: block;
+      float: left;
+      background-color: white;
+      overflow: hidden;
+      margin: 0 1rem 1rem 0;
+      border: solid 4px #fefefe;
+      border-radius: 0;
+      box-shadow: 0 0 0 1px rgba(51, 51, 51, 0.2);
+      transition: box-shadow 200ms ease-out;
+      cursor: pointer;
+      &:hover,
+      &:focus {
+        box-shadow: 0 0 6px 1px rgba($primary-color, 0.5);
+      }
+    }
+  }
+  .item-info {
+    width: 400px;
+    background: $white;
+    position: fixed;
+    right: 0;
+    top: 8.1rem;
+    bottom: 0;
+    padding: 3.5rem 1.5rem 1.5rem 1.5rem;
+    background: $white;
+    overflow-y: scroll;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    z-index: 3;
+  }
+}
+
+span.single_error.object-browser-error {
+  right: initial;
+  z-index: 9999;
+  &:before {
+    left: 5px;
+  }
+}
+
+.close-object-browser-error {
+  color: white;
+  margin-left: 0.5rem;
+  display: inline-block;
+  &:hover,
+  &:focus {
+    color: $white;
+  }
+}
+
+
+/* Object Browser New Items */
+
+.reveal {
+  &.new-item {
+    background: $white;
+    .loading {
+      display: none;
+      vertical-align: text-bottom;
+      .fa {
+        font-size: 2rem;
+        color: $light-gray;
+      }
+      &.show {
+        display: inline-block;
       }
     }
   }
 }
 
-#media-info {
-  width: 400px;
-  background: white;
-  position: fixed;
-  right: 0;
-  top: 8.1rem;
-  ;
-  bottom: 0;
-  padding: 3.5rem 1.5rem 1.5rem 1.5rem;
-  dl dt {
-    margin: 0.3rem 0 0 0;
+
+/* embedded Objects */
+
+.detail-header {
+  .contentObject {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    &:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+    h2 {
+      .icon {
+        .fa {
+          font-size: inherit;
+        }
+      }
+    }
+    .addContentObject {
+      margin: 0;
+      .fa {
+        padding-left: 0.5rem;
+      }
+    }
+    .content-object-item {
+      &:not(:last-child) {
+        margin-bottom: 0.5rem;
+      }
+      position: relative;
+      background-color: white;
+      padding: 5rem 1rem 1rem 1rem;
+      border-radius: 3px;
+      box-shadow: 0 0 3px #9d9d9d inset;
+      .removeContentObject {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+      }
+      .embedded-header {
+        position: absolute;
+        left: 1rem;
+        top: 1rem;
+        font-size: 1.2rem;
+      }
+    }
   }
-  #media-display img {
-    max-height: 300px;
+}
+
+
+/* Duration Slider */
+
+.duration-slider {
+  padding-left: 8rem;
+  .small-2 {
+    position: relative;
+    padding-right: 0;
+  }
+  input {
+    min-width: 100%;
+    text-align: right;
+    padding-right: 3rem;
+    height: 2.5rem;
+  }
+  .duration-label {
+    position: absolute;
+    right: 1rem;
+    top: 0;
+    display: inline-block;
+    height: 2.5rem;
+    line-height: 2.5rem;
   }
 }
