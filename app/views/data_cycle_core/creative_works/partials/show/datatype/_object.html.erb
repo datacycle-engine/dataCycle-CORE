@@ -19,10 +19,12 @@
 
     <% if !objects.nil? && !objects.blank? %>
 
+        <% objects_length = objects.count %>
+
         <% objects.each_with_index do |object,index| %>
-            
+  
             <div class="detail-type object">
-                <span class="label"><%= render 'data_cycle_core/shared/icon', icon_type: objects[0].metadata['validation']['name'].downcase %><strong><%= prop['label'].capitalize %> <span class="object-index"><%= index+1 %></span></strong></span>
+                <span class="label"><%= render 'data_cycle_core/shared/icon', icon_type: objects[0].metadata['validation']['name'].downcase %><strong><%= prop['label'].capitalize %> <%= content_tag(:span, index+1) if objects_length > 1 %></strong></span>
 
                 <% objectDataHash = object.get_data_hash %>
 
