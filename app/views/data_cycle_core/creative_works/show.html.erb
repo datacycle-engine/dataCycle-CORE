@@ -106,7 +106,7 @@
 
 <% if @creativeWork.metadata['validation']['content_type'] == 'variant' %>
 
-    <div class="detail-content">
+    <div class="detail-content <%= @creativeWork.metadata['validation']['description'].downcase if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? && !@creativeWork.metadata['validation']['description'].nil? %>">
 
         <div class="row align-center">
 

@@ -234,18 +234,24 @@
   .items {
     padding: 7rem 1rem 1rem 1rem;
     margin-right: 400px;
-    .thumbnail {
+    .media {
+      width: auto;
+      height: auto;
+      padding: 0.85rem 1rem;
       border: none;
       display: block;
       overflow: hidden;
-      width: 229px;
-      height: 157px;
       background-position: center center;
       background-size: contain;
       background-repeat: no-repeat;
-      margin: 0.3rem;
       box-shadow: none;
       outline: none;
+      &.thumbnail {
+        width: 229px;
+        height: 157px;
+        margin: 0.3rem;
+        padding: 0;
+      }
     }
     a.delete-thumbnail {
       display: none;

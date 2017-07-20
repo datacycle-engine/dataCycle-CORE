@@ -3,8 +3,7 @@
 }
 
 // Details for Show
-.detail-content {
-  padding: 0 1rem;
+.detail-content.creativework {
   .row {
     max-width: 1200px;
   }
@@ -14,7 +13,7 @@
   .detail-type {
     position: relative;
     box-shadow: 0 0 1px #9d9d9d;
-    padding: 2rem 1rem 1rem 1rem;
+    padding: 2.2rem 1rem 1rem 1rem;
     &:not(:last-child) {
       margin-bottom: 1rem;
     }
@@ -23,13 +22,13 @@
       padding: 0;
       &.object {
         box-shadow: 0 0 1px #9d9d9d;
-        padding: 2rem 1rem 1rem 1rem;
-        >.label {
+        padding: 2.2rem 1rem 1rem 1rem;
+        >.detail-label {
           position: absolute;
           float: none;
         }
       }
-      .label {
+      .detail-label {
         position: relative;
         float: left;
         margin-right: 1rem;
@@ -47,20 +46,21 @@
         overflow: hidden;
       }
     }
-    .label {
+    .detail-label {
       position: absolute;
       left: 0;
       top: 0;
       background: inherit;
       color: inherit;
       box-shadow: 1px 1px 2px #9d9d9d;
+      padding: 1px 8px;
       .icon {
         .fa {
           font-size: inherit;
         }
       }
     }
-    .content {
+    .detail-content {
       position: relative;
       display: inline-block;
     }
