@@ -1,4 +1,110 @@
 ---
+
+- :data:
+    :name: TestObject
+    :description: CreativeWork
+    :type: object
+    :properties:
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :validations:
+          :minLength: 1
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_type: text
+        :storage_location: content
+      :period:
+        :label: Gültigkeitszeitraum
+        :type: object
+        :storage_location: metadata
+        :validations:
+          :daterange:
+            :from: created_at
+            :to: updated_at
+        :properties:
+          :created_at:
+            :label: Gültigkeit
+            :type: string
+            :storage_type: string
+            :storage_location: column
+            :validations:
+              :format: date_time
+          :updated_at:
+            :label: bis
+            :type: string
+            :storage_type: string
+            :storage_location: column
+            :validations:
+              :format: date_time
+
+- :data:
+    :name: TestObject2
+    :description: CreativeWork
+    :type: object
+    :properties:
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :validations:
+          :minLength: 1
+      :period:
+        :label: Gültigkeitszeitraum
+        :type: object
+        :storage_location: metadata
+        :validations:
+          :daterange:
+            :from: created_at
+            :to: updated_at
+        :properties:
+          :created_at:
+            :label: gültig_von
+            :type: string
+            :storage_type: string
+            :storage_location: column
+            :validations:
+              :format: date_time
+          :updated_at:
+            :label: gültig_bis
+            :type: string
+            :storage_type: string
+            :storage_location: column
+            :validations:
+              :format: date_time
+          :description:
+            :label: Beschreibung
+            :type: string
+            :storage_type: text
+            :storage_location: metadata
+          :validityPeriod:
+            :label: Zeitraum
+            :type: object
+            :storage_location: metadata
+            :validations:
+              :daterange:
+                :from: validFrom
+                :to: validUntil
+            :properties:
+              :validFrom:
+                :label: Gültigkeit
+                :type: string
+                :storage_type: string
+                :storage_location: metadata
+                :validations:
+                  :format: date_time
+              :validUntil:
+                :label: bis
+                :type: string
+                :storage_type: string
+                :storage_location: metadata
+                :validations:
+                  :format: date_time
+
 - :data:
     :name: ThemaTest
     :description: CreativeWork
