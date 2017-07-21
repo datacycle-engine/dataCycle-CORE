@@ -27,8 +27,13 @@ place_path = Rails.root.join('..','data_types','places','*.yml')
 DataCycleCore::MasterData::ImportTemplates.new.import(place_path, DataCycleCore::Place)
 person_path = Rails.root.join('..','data_types','persons','*.yml')
 DataCycleCore::MasterData::ImportTemplates.new.import(person_path, DataCycleCore::Person)
+event_path = Rails.root.join('..','data_types','events','*.yml')
+DataCycleCore::MasterData::ImportTemplates.new.import(event_path, DataCycleCore::Event)
+
+
 cwc_path = Rails.root.join('..','data_types','creative_works_custom','*.yml')
 DataCycleCore::MasterData::ImportTemplates.new.import(cwc_path, DataCycleCore::CreativeWork)
+
 
 classification_yaml = Rails.root.join('..','data_types','classifications.yml')
 DataCycleCore::MasterData::ImportClassifications.new.import(classification_yaml); nil
