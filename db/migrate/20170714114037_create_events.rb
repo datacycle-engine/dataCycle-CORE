@@ -5,7 +5,6 @@ class CreateEvents < ActiveRecord::Migration[5.0]
     create_table :events, id: :uuid do |t|
       t.string :headline
       t.text :description
-      t.string :url
       t.datetime :startDate
       t.datetime :endDate
       t.jsonb :metadata
