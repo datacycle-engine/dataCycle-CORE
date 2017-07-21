@@ -143,8 +143,8 @@ module DataCycleCore
           :text,
           #metadata
           {:validityPeriod => [
-              :validFrom,
-              :validUntil
+            :validFrom,
+            :validUntil
           ]},
           #classifications
           {:state => []},
@@ -184,6 +184,7 @@ module DataCycleCore
           ]},
           #content quotation
           {:quotation => [
+            :id,
             :text,
             {:image => []},
             {:author => [
@@ -196,11 +197,13 @@ module DataCycleCore
           ]},
           #content mobile application
           {:mobileApplication => [
+            :id,
             :url,
             :operatingSystem
           ]},
           #content timeline
           {:timelineItem => [
+            :id,
             :headline,
             {:image => []},
             {:contentLocation => [
@@ -221,19 +224,23 @@ module DataCycleCore
           ]},
           #content question
           {:acceptedAnswer => [
+            :id,
             :text,
             {:image => []}
           ]},
           #content quiz
           {:question => [
+            :id,
             :headline,
             :text,
             {:image => []},
             {:suggestedAnswer => [
+              :id,
               :text,
               {:image => []}
             ]},
             {:acceptedAnswer => [
+              :id,
               :text,
               {:image => []}
             ]},
@@ -246,6 +253,7 @@ module DataCycleCore
           {:recipeCategory => []},
           :recipeIngredient,
           {:recipeComponent =>[
+            :id,
             :recipeInstructions,
             :recipeIngredient,
             :totalTime,
@@ -256,6 +264,7 @@ module DataCycleCore
           #     :endDate
           # ]},
           {:event => [
+            :id,
             :url,
             {:eventPeriod => [
                :startDate,
