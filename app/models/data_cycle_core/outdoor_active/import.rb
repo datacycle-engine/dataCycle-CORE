@@ -405,7 +405,7 @@ module DataCycleCore
             'headline' => record['title'],
             'url' => "http://img.oastatic.com/img/#{record['id']}",
             'contentUrl' => "http://img.oastatic.com/img/#{record['id']}/.jpg",
-            'thumbnailUrl' => "http://img.oastatic.com/img/#{record['id']}/.jpg",
+            'thumbnailUrl' => "http://img.oastatic.com/img/400/400/fit/#{record['id']}/.jpg",
             'external_key' => record['id'],
             'seen_at' => Time.zone.now,
             'gallery' => record['gallery'].to_s,
