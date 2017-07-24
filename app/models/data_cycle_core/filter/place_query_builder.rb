@@ -16,11 +16,16 @@ module DataCycleCore
 
     # filters
       def fulltext_search(name)
+        # include textsearch on classification_aliases.name
+        query = join_classification_alias2
+        manager = query.where(classification_alias[:name].matches("%#{name}%"))
+
+
         reflect(
-          @query.where(
+          @query.where(place[:id].in(manager).or(
             place_translation[:name].matches("%#{name}%").
             or(place_translation[:address].matches("%#{name}%"))
-          )
+          ))
         )
       end
 

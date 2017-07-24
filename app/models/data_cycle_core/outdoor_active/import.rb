@@ -154,9 +154,11 @@ module DataCycleCore
               end
               create_classification_place_regions( load_poi.dump[load_poi.dump.keys.first]['regions'], to_update_place.id )
               create_classification_place_category( load_poi.dump[load_poi.dump.keys.first]['category'], to_update_place.id )
-              create_classification_from_bool( 'winterActivity', load_poi.dump[load_poi.dump.keys.first]['winterActivity'], to_update_place.id )
-              create_classification_from_string( 'frontendtype', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id )
-              create_classification_from_string( 'source', load_poi.dump[load_poi.dump.keys.first]['meta']['source']['name'], to_update_place.id )
+              #create_classification_from_bool( 'winterActivity', load_poi.dump[load_poi.dump.keys.first]['winterActivity'], to_update_place.id )
+              create_classification_entry('Jahreszeiten', 'Winter', to_update_place.id) if load_poi.dump[load_poi.dump.keys.first]['winterActivity']
+              #create_classification_from_string( 'frontendtype', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id )
+              create_classification_entry('Type', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id) unless load_poi.dump[load_poi.dump.keys.first]['frontendtype'].blank?
+              #create_classification_from_string( 'source', load_poi.dump[load_poi.dump.keys.first]['meta']['source']['name'], to_update_place.id )
               create_classifications_from_array('properties', load_poi.dump[load_poi.dump.keys.first]['properties']['property'], 'text', to_update_place.id) if load_poi.dump[load_poi.dump.keys.first].has_key?('properties')
               create_creative_work_place( load_poi.dump[load_poi.dump.keys.first]['images'], to_update_place.id )
               set_primary_image( load_poi.dump[load_poi.dump.keys.first]['primaryImage'], to_update_place.id )
@@ -164,6 +166,18 @@ module DataCycleCore
           end
           puts "\n"
           DownloadPoiUpsert.delete_all if @incremental_update
+        end
+      end
+
+      def create_classification_entry(label_name, alias_name, place_id)
+        classification = DataCycleCore::Classification.where(name: alias_name).
+          joins(classification_groups: [classification_alias: [classification_trees: [:classification_tree_label]]]).
+          where('classification_aliases.name = ?', alias_name).
+          where('classification_tree_labels.name = ?', label_name).
+          first
+
+        DataCycleCore::ClassificationPlace.find_or_create_by(place_id: place_id, classification_id: classification.id, external_source_id: @external_source_id) do |item|
+          item.seen_at = Time.zone.now
         end
       end
 
@@ -483,6 +497,7 @@ module DataCycleCore
         url = data.has_key?('homepage') ? data['homepage'].strip : nil
         hours_available = data.has_key?('businessHours') ? data['businessHours'].strip : nil
 
+        source = data.has_key?('meta') && data['meta'].has_key?('source') && data['meta']['source'].has_key?('name') ? data['meta']['source']['name'].strip : nil
         author = data.has_key?('meta') && data['meta'].has_key?('author') ? data['meta']['author'].strip : nil
         duration = data.has_key?('time') && data['time'].has_key?('min') ? data['time']['min'] : nil
         difficulty = data.has_key?('rating') && data['rating'].has_key?('difficulty') ? data['rating']['difficulty'] : nil
