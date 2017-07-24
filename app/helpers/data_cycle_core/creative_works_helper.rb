@@ -25,7 +25,6 @@ module DataCycleCore
 
     def get_allowed_content_types
       allowed_content_types = {'Angebot' => 'Angebot', 'App' => 'App', 'Artikel' => 'Standard-Artikel', 'Biografie' => 'Biografie', 'Interview' => 'Interview', 'Linktipps' => 'Linktipps', 'Portrait' => 'Portrait', 'Quiz' => 'Quiz', 'Rezept' => 'Rezept', 'Social Media Posting' => 'SocialMediaPosting', 'Veranstaltung' => 'Veranstaltung', 'Voting' => 'Voting', 'Zeitleiste' => 'Zeitleiste'}
-      # allowed_content_types = {'Angebot' => 'Angebot', 'App' => 'App', 'Artikel' => 'Standard-Artikel', 'Biografie' => 'Biografie', 'Interview' => 'Interview', 'Linktipps' => 'Linktipps', 'Portrait' => 'Portrait', 'Quiz' => 'Quiz', 'Rezept' => 'Rezept', 'Social Media Posting' => 'SocialMediaPosting', 'Voting' => 'Voting', 'Zeitleiste' => 'Zeitleiste'}
     end
 
     def get_ordered_validation_properties(validation)
@@ -105,8 +104,8 @@ module DataCycleCore
 
     def render_embeddedObject_field(key, prop, value=nil, options={}, parent_object_keys=[])
       if !prop.blank? && !prop['editor']['type'].nil?
-        internal_template = get_internal_template(prop['storage_location'], prop['name'], prop['description'])
-        internal_objects = get_internal_data(prop['storage_location'], value)
+        internal_template = DataCycleCore::DataHashService.get_internal_template(prop['storage_location'], prop['name'], prop['description'])
+        internal_objects = DataCycleCore::DataHashService.get_internal_data(prop['storage_location'], value)
         render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options, internal_objects: internal_objects, internal_template: internal_template, parent_object_keys: parent_object_keys}
       end
     end
@@ -194,7 +193,7 @@ module DataCycleCore
 
     # Show action
     def get_object_data_for_show_action(storage_location, value)
-      return get_internal_data(storage_location, value)
+      return DataCycleCore::DataHashService.get_internal_data(storage_location, value)
     end
 
     # todo: move to mixins
@@ -213,36 +212,6 @@ module DataCycleCore
           parent_object_keys_string = parent_object_keys.map{ |parent| "[#{parent}]" }.join('')
         end
         object_key = "#{@@key_prefix}#{parent_object_keys_string}[#{key}]"
-      end
-
-      def get_internal_data(storage_location, value)
-
-        internal_objects = []
-        if !value.empty? && value.count > 0
-          value.each do |object|
-            internal_object = ("DataCycleCore::"+storage_location.classify).constantize.
-                find_by(id: object['id'])
-            internal_objects.push(internal_object) unless internal_object.blank?
-          end
-        else
-          return nil
-        end
-
-        return internal_objects
-
-      end
-
-      def get_internal_template(storage_location, name, description)
-
-        internal_template = ("DataCycleCore::"+storage_location.classify).constantize.
-            find_by(template: true, headline: name, description: description)
-
-        if internal_template.blank?
-          return nil
-        end
-
-        return internal_template
-
       end
 
   end
