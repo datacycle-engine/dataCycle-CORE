@@ -11,7 +11,6 @@ module DataCycleCore
             on(place[:id].eq(place_translation[:place_id])).
             join_sources
           ).where(place_translation[:locale].eq(quoted(@locale)))
-
       end
 
     # filters

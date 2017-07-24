@@ -21,7 +21,7 @@ module DataCycleCore
           download_category
           download_region
           download_pois('pois')
-          #download_pois('tours')
+          download_pois('tours')
         end
 
         Mongoid.override_database(nil) #reset to default
@@ -162,7 +162,7 @@ module DataCycleCore
         @log.info "  -- determining translations"
         print " " * 40 + "loading"
         indexes_size = indexes.size
-        indexes_size_debug = 1
+        indexes_size_debug = indexes.size
         if indexes_size > 0
           (0..indexes_size_debug).step(@download_page_size).to_a.each do |start_index|
             print '.'

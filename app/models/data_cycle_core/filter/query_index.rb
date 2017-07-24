@@ -38,6 +38,7 @@ module DataCycleCore
         pos_start = 0
 
         @query_array.each do |item|
+          puts "get(#{item}, #{pos_start}, #{pos_start + item.count}, #{offset}, #{limit}, #{return_array.size})"
           return_array += get(item, pos_start, pos_start + item.count, offset, limit, return_array.size)
           pos_start += item.count
         end
@@ -47,8 +48,9 @@ module DataCycleCore
       def get(array_item, pos_start, pos_end, offset, limit, grapped)
         # check for out of bound, or already all items found
         return [] if grapped >= limit || offset > pos_end || pos_start > offset + limit
-        start_index = offset < pos_start ? 0 : offset
-        end_index = offset + (limit-grapped) < pos_end ? limit - grapped : pos_end - pos_start
+        start_index = offset < pos_start ? 0 : offset - pos_start
+        end_index = offset + (limit-grapped) < pos_end ? limit - grapped : pos_end - offset
+        puts "return(#{start_index}..#{end_index})"
         return array_item.offset(start_index).limit(end_index).to_a
       end
 
