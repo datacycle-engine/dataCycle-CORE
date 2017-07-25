@@ -26,6 +26,9 @@ module DataCycleCore
     has_many :creative_work_events
     has_many :events, through: :creative_work_events
 
+    has_many :watch_list_data_hashes, as: :hashable, dependent: :destroy
+    has_many :watch_lists, through: :watch_list_data_hashes
+
     acts_as_tree order: "position", foreign_key: "isPartOf"
 
     # custom setter

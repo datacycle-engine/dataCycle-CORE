@@ -214,5 +214,9 @@ module DataCycleCore
         object_key = "#{@@key_prefix}#{parent_object_keys_string}[#{key}]"
       end
 
+      def is_in_watchlist?(watchlist, item)
+        #raise item.watch_lists.inspect
+        !watchlist.watch_list_data_hashes.where('watch_list_id = ? AND hashable_type = ? AND hashable_id = ?', watchlist.id, item.class.name, item.id).empty?
+      end
   end
 end

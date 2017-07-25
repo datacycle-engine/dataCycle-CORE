@@ -1,0 +1,13 @@
+module DataCycleCore
+  class WatchListService
+
+    def self.get_objects_with_types(watch_list_data_hash)
+      objects = []
+      watch_list_data_hash.each do |data_hash|
+        objects.push((data_hash.hashable_type).constantize.find_by(id: data_hash.hashable_id))
+      end
+      return objects
+    end
+
+  end
+end

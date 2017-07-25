@@ -71,9 +71,13 @@ en:
     error:
       invalid_parent: "Invalid Parent Object."
       invalid_parent_attr: "Invalid Parent Attributes."
+      no_permission: "No Permisssion."
     success:
       created: "%{data} successfully created."
       updated: "%{data} updated."
+      destroyed: "%{data} deleted."
+      addedTo: "Added to Watchlist."
+      removedFrom: "Removed from Watchlist."
     job:
       added: "%{data}/%{uuid} added to Job-Queue."
       imported: "'%{data}' imported from YAML file."

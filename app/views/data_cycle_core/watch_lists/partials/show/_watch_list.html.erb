@@ -1,0 +1,15 @@
+<% unless @watch_list.metadata.nil? %>
+    <div class="type properties">
+
+        <% watch_list_items = DataCycleCore::WatchListService.get_objects_with_types(@watch_list.watch_list_data_hashes) %>
+
+        <% if @mode == 'list' %>
+            <%= render 'data_cycle_core/backend/partials/list', dataCycleObjects: watch_list_items %>
+        <% else %>
+            <%= render 'data_cycle_core/backend/partials/grid', dataCycleObjects: watch_list_items %>
+        <% end %>
+
+    </div>
+
+<hr />
+<% end %>
