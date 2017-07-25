@@ -50,6 +50,7 @@ de:
     error:
       invalid_parent: "Ungültiges Eltern Objekt."
       invalid_parent_attr: "Ungültige Eltern Attribute."
+      no_permission: "Keine Berechtigung."
     success:
       created: "%{data} wurde erfolgreich erstellt."
       updated: "%{data} wurde aktualisiert."

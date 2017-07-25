@@ -245,14 +245,6 @@ module DataCycleCore
 
       end
 
-      def get_objects_with_types(watch_list_data_hash)
-        objects = []
-        watch_list_data_hash.each do |data_hash|
-          objects.push((data_hash.hashable_type).constantize.find_by(id: data_hash.hashable_id))
-        end
-        return objects
-      end
-
       def is_in_watchlist?(watchlist, item)
         #raise item.watch_lists.inspect
         !watchlist.watch_list_data_hashes.where('watch_list_id = ? AND hashable_type = ? AND hashable_id = ?', watchlist.id, item.class.name, item.id).empty?

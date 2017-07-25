@@ -1,6 +1,7 @@
 module DataCycleCore
   class WatchListsController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
+    before_action :check_permission, only: [:show, :create, :edit, :udpate, :destroy, :removeItem, :addItem]
     #load_and_authorize_resource         # from cancancan (authorize)
     add_breadcrumb "Merklisten", "", "/watch_lists"
 
@@ -32,8 +33,6 @@ module DataCycleCore
 
     def create
       @watch_list = current_user.watch_lists.build(watch_list_params)
-      datahash = {'creator' => current_user[:id]}
-      @watch_list.metadata = datahash
 
       if !@watch_list.nil? && @watch_list.save
         set_breadcrumb_for @watch_list
@@ -88,7 +87,7 @@ module DataCycleCore
     end
 
     def removeItem
-      watch_list = DataCycleCore::WatchList.find(params[:watch_list])
+      watch_list = DataCycleCore::WatchList.find(params[:id])
       data = get_data(watch_list, params[:data_type], params[:data_id])
       watch_list.watch_list_data_hashes.destroy(data)
 
@@ -96,7 +95,7 @@ module DataCycleCore
     end
 
     def addItem
-      watch_list = DataCycleCore::WatchList.find(params[:watch_list])
+      watch_list = DataCycleCore::WatchList.find(params[:id])
       data = get_data(watch_list, params[:data_type], params[:data_id])
       if data.empty?
         watch_list.watch_list_data_hashes.build( :watch_list_id => watch_list.id, :hashable_id => params[:data_id], :hashable_type => params[:data_type] )
@@ -119,6 +118,13 @@ module DataCycleCore
       def set_breadcrumb_for watch_list
         #set_breadcrumb_for creativeWork.parent if creativeWork.parent
         add_breadcrumb 'Merkliste', watch_list.headline, watch_list_path(watch_list.id)
+      end
+
+      def check_permission
+        if current_user != DataCycleCore::WatchList.find(params[:id]).user
+          flash[:error] = I18n.t :no_permission, scope: [:controllers, :error]
+          redirect_to root_path
+        end
       end
 
   end
