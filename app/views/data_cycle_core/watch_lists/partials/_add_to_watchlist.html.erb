@@ -1,0 +1,17 @@
+<div id="add-to-watchlist">
+    <a id="add-to-watchlist-link" data-toggle="add-watchlist">Zu Merkliste hinzufügen <i class="fa fa-bookmark" aria-hidden="true"></i></a>
+    <ul class="dropdown-pane bottom" id="add-watchlist" data-dropdown>
+        <% current_user.watch_lists.each do |watchlist| %>
+            <li>
+              <% if is_in_watchlist?(watchlist, @creativeWork) %>
+                <span class="check"><i class="fa fa-check" aria-hidden="true"></i></span>
+                <span class="remove-link">
+                  <%= link_to removeItem_watch_list_path(watch_list: watchlist, data_type: @creativeWork.class.name, data_id: @creativeWork.id), class: 'remove-from-watchlist-link' do %>
+                      <i aria-hidden="true" class="fa fa-times"></i>
+                  <% end %>
+                </span>
+              <% end %>
+            <%= link_to_unless is_in_watchlist?(watchlist, @creativeWork), watchlist.headline, addItem_watch_list_path(watch_list: watchlist, data_type: @creativeWork.class.name, data_id: @creativeWork) %></li>
+        <% end %>
+    </ul>
+</div>

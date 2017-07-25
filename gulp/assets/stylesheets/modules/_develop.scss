@@ -1,5 +1,11 @@
 /* todo: merge styles */
 
+.remove-from-watchlist-link {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
 .detail-header {
   .destroy {
     position: absolute;
@@ -16,6 +22,40 @@
     right: 4rem;
     top: 0;
     font-size: 0.9rem;
+    #add-to-watchlist-link {
+      display: block;
+      padding: 0 2rem 0.5rem 0.5rem;
+      height: 1.5rem;
+      &.hover {
+        background: white;
+      }
+      .fa {
+        font-size: 1.5rem;
+        position: absolute;
+        right: 0.5rem;
+        top: -7px;
+      }
+    }
+    #add-watchlist {
+      top: 1.5rem !important;
+      right: 0 !important;
+      left: auto !important;
+      list-style-type: none;
+      border: none;
+      li {
+        position: relative;
+        text-align: left;
+        padding: 0 2rem;
+        .check {
+          position: absolute;
+          left: 0;
+        }
+        .remove-link {
+          position: absolute;
+          right: 0;
+        }
+      }
+    }
   }
 }
 
