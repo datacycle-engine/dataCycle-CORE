@@ -1,7 +1,7 @@
 module DataCycleCore
   class WatchListsController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
-    before_action :check_permission, only: [:show, :create, :edit, :udpate, :destroy, :removeItem, :addItem]
+    before_action :check_permission, only: [:show, :edit, :udpate, :destroy, :removeItem, :addItem]
     #load_and_authorize_resource         # from cancancan (authorize)
     add_breadcrumb "Merklisten", "", "/watch_lists"
 
