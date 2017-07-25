@@ -415,14 +415,15 @@ module DataCycleCore
           # save image
           author = record['author']
           author ||= record['meta']['authorFull']['name'] if record.has_key?('meta') && record['meta'].has_key?('authorFull')
+          gallery = record['gallery'].blank? ? 'false' : record['gallery'].to_s
           data_image = {
             'headline' => record['title'],
             'url' => "http://img.oastatic.com/img/#{record['id']}",
             'contentUrl' => "http://img.oastatic.com/img/#{record['id']}/.jpg",
             'thumbnailUrl' => "http://img.oastatic.com/img/400/400/fit/#{record['id']}/.jpg",
             'external_key' => record['id'],
+            'gallery' => gallery,
             'seen_at' => Time.zone.now,
-            'gallery' => record['gallery'].to_s,
             'external_source_id' => @external_source_id
           }
           to_update_image = CreativeWork.
@@ -438,9 +439,17 @@ module DataCycleCore
             to_update_image.metadata['validation'] = validation_hash
           end
           to_update_image.save
-          to_update_image.set_data_hash(data_image)
-          to_update_image.save
-
+          error = to_update_image.set_data_hash(data_image)
+          if error[:error].count > 0
+            ap error[:error]
+            @log.info "  could not import Image for #{place_id}!"
+            @log.info "  data given for Image: #{record}"
+            CreativeWorkPlace.where(place_id: place_id, creative_work_id: to_update_image.id, external_source_id: @external_source_id).destroy_all
+            to_update_image.destroy
+            next
+          else
+            to_update_image.save
+          end
           # relation to place
           data_creative_work_place = {
             'external_source_id' => @external_source_id,
