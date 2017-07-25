@@ -128,40 +128,44 @@ module DataCycleCore
           place_template = Place.
             find_by(template: true, headline: 'contentLocation', description: 'Place')
           validation = place_template.metadata['validation']
-
           print " " * 40 + "loading"
-          DownloadPoi.in(_id: indexes).each do |load_poi|
-            print '.' if (updates % @download_page_size) == 0
-            updates-=1
-            to_update_place = Place
-              .where(external_source_id: @external_source_id,
-                external_key: load_poi.id)
-              .first_or_initialize
 
-            if to_update_place.metadata.nil?
-              to_update_place.metadata = { 'validation' => validation }
-            else
-              to_update_place.metadata['validation'] = validation
-            end
+          page_size = 50 #avoid timeout from Mongo-cursor!!!
+          pages = updates.fdiv(page_size).ceil
+          pages.times do |index|
+            DownloadPoi.in(_id: indexes).extras(:limit => page_size, :skip => (index*page_size)).each do |load_poi|
+              print '.' if (updates % @download_page_size) == 0
+              updates-=1
+              to_update_place = Place
+                .where(external_source_id: @external_source_id,
+                  external_key: load_poi.id)
+                .first_or_initialize
 
-            ActiveRecord::Base.transaction do
-              load_poi.dump.each do |lang, lang_dump|
-                I18n.with_locale(lang) do
-                  place_hash = extract_place_data(lang_dump)
-                  to_update_place.set_data_hash(place_hash)
-                  to_update_place.save
-                end
+              if to_update_place.metadata.nil?
+                to_update_place.metadata = { 'validation' => validation }
+              else
+                to_update_place.metadata['validation'] = validation
               end
-              create_classification_place_regions( load_poi.dump[load_poi.dump.keys.first]['regions'], to_update_place.id )
-              create_classification_place_category( load_poi.dump[load_poi.dump.keys.first]['category'], to_update_place.id )
-              #create_classification_from_bool( 'winterActivity', load_poi.dump[load_poi.dump.keys.first]['winterActivity'], to_update_place.id )
-              create_classification_entry('Jahreszeiten', 'Winter', to_update_place.id) if load_poi.dump[load_poi.dump.keys.first]['winterActivity']
-              #create_classification_from_string( 'frontendtype', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id )
-              create_classification_entry('Type', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id) unless load_poi.dump[load_poi.dump.keys.first]['frontendtype'].blank?
-              #create_classification_from_string( 'source', load_poi.dump[load_poi.dump.keys.first]['meta']['source']['name'], to_update_place.id )
-              create_classifications_from_array('properties', load_poi.dump[load_poi.dump.keys.first]['properties']['property'], 'text', to_update_place.id) if load_poi.dump[load_poi.dump.keys.first].has_key?('properties')
-              create_creative_work_place( load_poi.dump[load_poi.dump.keys.first]['images'], to_update_place.id )
-              set_primary_image( load_poi.dump[load_poi.dump.keys.first]['primaryImage'], to_update_place.id )
+
+              ActiveRecord::Base.transaction do
+                load_poi.dump.each do |lang, lang_dump|
+                  I18n.with_locale(lang) do
+                    place_hash = extract_place_data(lang_dump)
+                    to_update_place.set_data_hash(place_hash)
+                    to_update_place.save
+                  end
+                end
+                create_classification_place_regions( load_poi.dump[load_poi.dump.keys.first]['regions'], to_update_place.id )
+                create_classification_place_category( load_poi.dump[load_poi.dump.keys.first]['category'], to_update_place.id )
+                #create_classification_from_bool( 'winterActivity', load_poi.dump[load_poi.dump.keys.first]['winterActivity'], to_update_place.id )
+                create_classification_entry('Jahreszeiten', 'Winter', to_update_place.id) if load_poi.dump[load_poi.dump.keys.first]['winterActivity']
+                #create_classification_from_string( 'frontendtype', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id )
+                create_classification_entry('Type', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id) unless load_poi.dump[load_poi.dump.keys.first]['frontendtype'].blank?
+                #create_classification_from_string( 'source', load_poi.dump[load_poi.dump.keys.first]['meta']['source']['name'], to_update_place.id )
+                create_classifications_from_array('properties', load_poi.dump[load_poi.dump.keys.first]['properties']['property'], 'text', to_update_place.id) if load_poi.dump[load_poi.dump.keys.first].has_key?('properties')
+                create_creative_work_place( load_poi.dump[load_poi.dump.keys.first]['images'], to_update_place.id )
+                set_primary_image( load_poi.dump[load_poi.dump.keys.first]['primaryImage'], to_update_place.id )
+              end
             end
           end
           puts "\n"
