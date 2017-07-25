@@ -116,7 +116,14 @@ module DataCycleCore
     private
 
       def event_params
-        params.require(:person).permit(:url, :startDate, :endDate)
+        params.require(:event).permit(
+            :id,
+            :url,
+            {:eventPeriod => [
+                :startDate,
+                :endDate
+            ]},
+        )
         # params.require(:creative_work).permit!
       end
 

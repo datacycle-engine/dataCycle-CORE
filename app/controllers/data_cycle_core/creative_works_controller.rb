@@ -95,11 +95,12 @@ module DataCycleCore
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       set_breadcrumb_for @creativeWork
       add_breadcrumb "", "Edit", creative_work_path(@creativeWork)
-      #raise DataCycleCore::DataHashService.instance_methods.inspect
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(creative_work_params[:datahash])
+
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(creative_work_params[:datahash], @creativeWork.metadata['validation'],false)
 
       # add creator id
       datahash[:creator] = current_user[:id]
+
       valid = @creativeWork.validate(datahash)
 
       if valid.key?(:error) && !valid[:error].empty?
@@ -125,11 +126,8 @@ module DataCycleCore
 
     def validate_single_data
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
-
-      #datahash = flatten_datahash_value(creative_work_params[:datahash])
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(creative_work_params[:datahash])
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(creative_work_params[:datahash], @creativeWork.metadata['validation'])
       valid = @creativeWork.validate(datahash)
-
       render :json => valid.to_json
     end
 
@@ -143,8 +141,8 @@ module DataCycleCore
           :text,
           #metadata
           {:validityPeriod => [
-              :validFrom,
-              :validUntil
+            :validFrom,
+            :validUntil
           ]},
           #classifications
           {:state => []},
@@ -179,11 +177,12 @@ module DataCycleCore
             :id
           ]},
           {:website => [
-              :url,
-              :name
+            :url,
+            :name
           ]},
           #content quotation
           {:quotation => [
+            :id,
             :text,
             {:image => []},
             {:author => [
@@ -196,11 +195,13 @@ module DataCycleCore
           ]},
           #content mobile application
           {:mobileApplication => [
+            :id,
             :url,
             :operatingSystem
           ]},
           #content timeline
           {:timelineItem => [
+            :id,
             :headline,
             {:image => []},
             {:contentLocation => [
@@ -221,19 +222,23 @@ module DataCycleCore
           ]},
           #content question
           {:acceptedAnswer => [
+            :id,
             :text,
             {:image => []}
           ]},
           #content quiz
           {:question => [
+            :id,
             :headline,
             :text,
             {:image => []},
             {:suggestedAnswer => [
+              :id,
               :text,
               {:image => []}
             ]},
             {:acceptedAnswer => [
+              :id,
               :text,
               {:image => []}
             ]},
@@ -246,26 +251,23 @@ module DataCycleCore
           {:recipeCategory => []},
           :recipeIngredient,
           {:recipeComponent =>[
+            :id,
             :recipeInstructions,
             :recipeIngredient,
             :totalTime,
           ]},
-          # {:event => [
-          #     :url,
-          #     :startDate,
-          #     :endDate
-          # ]},
           {:event => [
+            :id,
             :url,
             {:eventPeriod => [
-               :startDate,
-               :endDate
+             :startDate,
+             :endDate
             ]},
           ]},
         ]
 
         params.require(:creative_work).permit(:headline, :datahash => datahash)
-        # params.require(:creative_work).permit!
+        #params.require(:creative_work).permit!
       end
 
       def is_number? string

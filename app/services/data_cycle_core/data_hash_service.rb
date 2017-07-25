@@ -1,66 +1,9 @@
 module DataCycleCore
   class DataHashService
 
-    #todo make this more fancy
-    def self.flatten_datahash_value(datahash,debug=false)
+    def self.flatten_datahash_value(datahash, template_hash, debug=false)
 
-      if datahash.key?(:quotation) && !datahash[:quotation].empty?
-        datahash[:quotation] = datahash[:quotation].values
-      end
-
-      if datahash.key?(:website) && !datahash[:website].empty?
-        datahash[:website] = datahash[:website].values
-      end
-
-      if datahash.key?(:mobileApplication) && !datahash[:mobileApplication].empty?
-        datahash[:mobileApplication] = datahash[:mobileApplication].values
-      end
-
-      if datahash.key?(:timelineItem) && !datahash[:timelineItem].empty?
-        datahash[:timelineItem] = datahash[:timelineItem].values
-      end
-
-      if datahash.key?(:suggestedAnswer) && !datahash[:suggestedAnswer].empty?
-        datahash[:suggestedAnswer] = datahash[:suggestedAnswer].values
-      end
-
-      if datahash.key?(:totalTime) && !datahash[:totalTime].blank?
-        datahash[:totalTime] = datahash[:totalTime].to_i
-      end
-
-      if datahash.key?(:event) && !datahash[:event].empty?
-        datahash[:event] = datahash[:event].values
-      end
-
-      if datahash.key?(:recipeComponent) && !datahash[:recipeComponent].empty?
-        temp_recipeComponent= []
-
-        datahash[:recipeComponent].values.each do |component|
-          temp = component
-          if temp.key?(:totalTime) && !temp[:totalTime].blank?
-            temp[:totalTime] = temp[:totalTime].to_i
-          end
-          temp_recipeComponent.push(temp)
-        end
-        datahash[:recipeComponent] = temp_recipeComponent
-      end
-
-      if datahash.key?(:question) && !datahash[:question].empty?
-
-        temp_question = []
-
-        datahash[:question].values.each do |question|
-          temp = question
-          if temp.key?(:suggestedAnswer) && !temp[:suggestedAnswer].empty?
-            temp[:suggestedAnswer] = temp[:suggestedAnswer].values
-          end
-          if temp.key?(:acceptedAnswer) && !temp[:acceptedAnswer].empty?
-            temp[:acceptedAnswer] = temp[:acceptedAnswer].values
-          end
-          temp_question.push(temp)
-        end
-        datahash[:question] = temp_question
-      end
+      datahash = self.flatten_recursive(datahash.to_h, template_hash)
 
       if debug == true
         raise datahash.inspect
@@ -69,6 +12,74 @@ module DataCycleCore
       return datahash
 
     end
+
+    def self.get_internal_data(storage_location, value)
+
+      internal_objects = []
+      if !value.empty? && value.count > 0
+        value.each do |object|
+          internal_object = ("DataCycleCore::"+storage_location.classify).constantize.
+              find_by(id: object['id'])
+          internal_objects.push(internal_object) unless internal_object.blank?
+        end
+      else
+        return nil
+      end
+
+      return internal_objects
+
+    end
+
+    def self.get_internal_template(storage_location, name, description)
+
+      internal_template = ("DataCycleCore::"+storage_location.classify).constantize.
+          find_by(template: true, headline: name, description: description)
+
+      if internal_template.blank?
+        return nil
+      end
+
+      return internal_template
+
+    end
+
+    private
+
+      def self.flatten_recursive(datahash, template_hash)
+
+        temp_datahash = {}
+
+        datahash.each do |key,value|
+
+          properties = template_hash['properties'][key]
+
+          if value.is_a?(::Hash)
+
+            if properties['type'] == 'object' && !properties['editor']['type'].nil? && properties['editor']['type'] == 'embeddedObject'
+              object_properties = self.get_internal_template(properties['storage_location'],properties['name'],properties['description'])
+              temp_value = []
+
+              value.values.each do |object_value|
+                temp_value.push(self.flatten_recursive(object_value, object_properties.metadata['validation']))
+              end
+
+              value = temp_value
+            end
+          elsif value.is_a?(::Array)
+            value = value.reject { |v| v.empty? }
+          else
+            #todo: add more casts ?
+            if properties['type'] == 'number'
+              value = value.to_i
+            end
+
+          end
+
+          temp_datahash[key] = value
+        end
+
+        return temp_datahash
+      end
 
   end
 

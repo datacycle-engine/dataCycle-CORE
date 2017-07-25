@@ -25,7 +25,11 @@
 
 						<button class="button removeContentObject"><i class="fa fa-times"></i></button>
 
-						<%= data_cycle_hidden_field 'id', objectDataHash['id'], [embedded_object_key,index] %>
+						<% if parent_object_keys.kind_of?(Array) && !parent_object_keys.empty? %>
+							<%= data_cycle_hidden_field 'id', objectDataHash['id'], parent_object_keys + [embedded_object_key, index] %>
+						<% else %>
+							<%= data_cycle_hidden_field 'id', objectDataHash['id'], [embedded_object_key, index] %>
+						<% end %>
 
 						<% validation_properties.each do |key, prop| %>
 

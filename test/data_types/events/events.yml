@@ -87,7 +87,7 @@
         :label: Link
         :type: string
         :storage_type: string
-        :storage_location: column
+        :storage_location: metadata
         :editor:
           :type: input
           :sorting: 3
