@@ -152,11 +152,14 @@ module.exports.initialize = function () {
 
     is_creative_work = new RegExp('^' + 'creative_work', 'i');
     is_person = new RegExp('^' + 'person', 'i');
+    is_place = new RegExp('^' + 'place', 'i');
 
     if (is_creative_work.test(formdata[0].name)) {
       var validation_url = /validatecreativework/;
     } else if (is_person.test(formdata[0].name)) {
       var validation_url = /validateperson/;
+    } else if (is_place.test(formdata[0].name)) {
+      var validation_url = /validateplace/;
     } else {
       return false;
     }

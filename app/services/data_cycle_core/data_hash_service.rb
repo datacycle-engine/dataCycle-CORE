@@ -69,7 +69,9 @@ module DataCycleCore
             value = value.reject { |v| v.empty? }
           else
             #todo: add more casts ?
-            if properties['type'] == 'number'
+            if properties['type'] == 'number' && !properties['validations'].nil? && !properties['validations']['format'].nil? && properties['validations']['format'] == 'float'
+              value = value.to_f
+            elsif properties['type'] == 'number'
               value = value.to_i
             end
 

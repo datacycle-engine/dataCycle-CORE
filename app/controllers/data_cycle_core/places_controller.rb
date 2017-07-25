@@ -5,15 +5,15 @@ module DataCycleCore
     add_breadcrumb "Ort", "", "/places"
 
     def index
-      @places = DataCycleCore::Place.all().where(:template => false).order(updated_at: :desc)
+      @places = DataCycleCore::Place.all().where(:template => false).order(updated_at: :desc).page(params[:page])
       @place = DataCycleCore::Place.new
     end
 
     def show
-      @Place = DataCycleCore::Place.find_by(id: params[:id])
-      set_breadcrumb_for @Place
+      @place = DataCycleCore::Place.find_by(id: params[:id])
+      set_breadcrumb_for @place
 
-      if @Place.nil?
+      if @place.nil?
         redirect_to root
       end
 
@@ -23,36 +23,36 @@ module DataCycleCore
         @mode = params[:mode].to_s
       end
 
-      @dataSchema = @Place.get_data_hash
+      @dataSchema = @place.get_data_hash
 
       #only for testing
-      @creativeWork = @Place
+      @creativeWork = @place
 
       render layout: "data_cycle_core/creative_works_edit"
 
     end
 
     def new
-      @Place = DataCycleCore::Place.new
+      @place = DataCycleCore::Place.new
     end
 
     def create
 
-      @Place = create_internal(params[:template])
+      @place = create_internal(params[:template])
 
-      set_breadcrumb_for @Place
+      set_breadcrumb_for @place
 
-      if @Place.nil?
+      if @place.nil?
         redirect_to :back
         return
       end
 
       respond_to do |format|
         #validate ?
-        if !@Place.nil? && @Place.save
+        if !@place.nil? && @place.save
           flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Place'
-          format.html { redirect_to @Place }
-          format.json { render :json => @Place }
+          format.html { redirect_to @place }
+          format.json { render :json => @place }
         else
           redirect_to :back
           return
@@ -76,15 +76,19 @@ module DataCycleCore
       set_breadcrumb_for @creativeWork
       add_breadcrumb "", "Edit", creative_work_path(@creativeWork)
 
-      datahash = Place_params[:datahash]
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(place_params[:datahash],@creativeWork.metadata['validation'], false)
 
       # add creator id
       datahash[:creator] = current_user[:id]
+
+      # todo: implement preprocessor
+      datahash = set_location(datahash)
+
       valid = @creativeWork.validate(datahash)
 
       if valid.key?(:error) && !valid[:error].empty?
         flash[:error] = valid[:error]
-        redirect_to edit_Place_path(@creativeWork)
+        redirect_to edit_place_path(@creativeWork)
         return
       end
 
@@ -97,17 +101,17 @@ module DataCycleCore
       if @creativeWork.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Place'
         # redirect_to @creativeWork
-        redirect_to edit_Place_path(@creativeWork)
+        redirect_to edit_place_path(@creativeWork)
       else
         render 'edit'
       end
     end
 
     def validate_single_data
-      @Place = DataCycleCore::Place.find(params[:id])
+      @place = DataCycleCore::Place.find(params[:id])
 
-      datahash = Place_params[:datahash]
-      valid = @Place.validate(datahash)
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(place_params[:datahash],@place.metadata['validation'])
+      valid = @place.validate(datahash)
 
       render :json => valid.to_json
     end
@@ -115,21 +119,39 @@ module DataCycleCore
     private
 
       def place_params
-        params.require(:Place).permit(:givenName, :familyName, :datahash => [:givenName, :familyName, :honorificPrefix, :telephone, :faxNumber, :email, :jobTitle])
+        datahash = [
+          :name,
+          {:address => [
+              :addressLocality,
+              :streetAddress,
+              :postalCode
+          ]},
+          :longitude,
+          :latitude
+        ]
+        params.require(:place).permit(:name, :datahash => datahash)
         # params.require(:creative_work).permit!
+      end
+
+      #todo: implement as preprocessor
+      def set_location(datahash)
+        if !datahash['longitude'].nil? && !datahash['longitude'].blank? && !datahash['latitude'].nil? && !datahash['latitude'].blank?
+          datahash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(datahash['longitude'].to_f, datahash['latitude'].to_f)
+        end
+        return datahash
       end
 
       def create_internal(template)
 
-        place = DataCycleCore::Place.new(Place_params)
+        place = DataCycleCore::Place.new(place_params)
 
-        template = DataCycleCore::Place.where(template: true, headline: template, description: "contentLocation").first
+        template = DataCycleCore::Place.where(template: true, headline: template, description: "Place").first
         validation = template.metadata['validation']
 
         place.metadata = { 'validation' => validation }
         place.save
 
-        datahash = {'givenName' => place_params[:givenName], 'familyName' => place_params[:familyName], 'jobTitle' => place_params[:datahash][:jobTitle], 'creator' => current_user[:id]}
+        datahash = {'name' => place_params[:name], 'creator' => current_user[:id]}
 
         place.set_data_hash(datahash)
 
@@ -144,7 +166,7 @@ module DataCycleCore
 
       def set_breadcrumb_for place
         #set_breadcrumb_for creativeWork.parent if creativeWork.parent
-        add_breadcrumb 'Ort', "#{place.name}, #{place.address}", place_path(place.id)
+        add_breadcrumb 'Ort', place.name, place_path(place.id)
       end
 
   end
