@@ -161,8 +161,10 @@ module DataCycleCore
         indexes_lang = {}
         @log.info "  -- determining translations"
         print " " * 40 + "loading"
-        if indexes.size > 0
-          (0..indexes.size).step(@download_page_size).to_a.each do |start_index|
+        indexes_size = indexes.size
+        indexes_size_debug = indexes.size
+        if indexes_size > 0
+          (0..indexes_size_debug).step(@download_page_size).to_a.each do |start_index|
             print '.'
 
             request_indexes = indexes[start_index..(start_index+@download_page_size-1)].join(',')

@@ -13,58 +13,51 @@ module DataCycleCore
       end
 
       def init_db
-        @classification_tree_label_id = init_or_create_classification_tree_label('imported')
-        @tree_label_id_creative_work =    init_or_create_classification_tree_label('CreativeWork')
-        @creative_work_classification_id = check_for_classification('ImageObject')
+        @classification_tree_label_id = init_or_create_classification_tree_label('OutdoorActive')
+        @creative_work_classification_id = init_or_create_classification('Bild')
       end
 
-      def init_or_create_classification_tree_label(label)
-        if ClassificationTreeLabel.where(name: label, external_source_id: @external_source_id).count < 1
-          ClassificationTreeLabel
-            .new(name: label, seen_at: Time.zone.now, external_source_id: @external_source_id)
-            .save
-        end
-        ClassificationTreeLabel
-          .where(name: label, external_source_id: @external_source_id)
-          .first
-          .id
+      def init_or_create_classification_tree_label(label_string)
+        classification_tree_label = ClassificationTreeLabel.
+          find_or_create_by(name: label_string, external_source_id: @external_source_id) do |item|
+            item.seen_at = Time.zone.now
+          end
+        classification_tree_label.id
       end
 
-      def check_for_classification(keyword)
-        classification = Classification.find_or_initialize_by(name: keyword, external_source_id: @external_source_id, external_type: "place") do |data_set|
+      def init_or_create_classification(keyword)
+        classification = Classification.find_or_create_by(name: keyword, external_source_id: @external_source_id, external_type: "place") do |data_set|
           data_set.seen_at = Time.zone.now
         end
-        classification.save
 
-        # check if entries up to classification_tree with label 'imported' exist
+        # check if entries up to classification_tree with label 'OutdoorActive' exist
         class_group = ClassificationGroup.
           joins(classification_alias: [classification_trees: [:classification_tree_label]]).
           where("classification_groups.classification_id = ?", classification.id).
           where("classification_trees.external_source_id = ?", @external_source_id).
-          where("classification_tree_labels.name = ?", 'imported')
+          where("classification_tree_labels.name = ?", 'OutdoorActive')
 
         if class_group.count < 1
-          classification_alias = ClassificationAlias.find_or_initialize_by(name: keyword, external_source_id: @external_source_id) do |data_set|
+          classification_alias = ClassificationAlias.create(name: keyword, external_source_id: @external_source_id) do |data_set|
             data_set.seen_at = Time.zone.now
           end
-          classification_alias.save
           ClassificationGroup.
-            find_or_initialize_by(
+            find_or_create_by(
               classification_id: classification.id,
               classification_alias_id: classification_alias.id,
               external_source_id: @external_source_id
             ) do |data_set|
               data_set.seen_at = Time.zone.now
-          end.save
+          end
           ClassificationTree.
-            find_or_initialize_by(
+            find_or_create_by(
               classification_alias_id: classification_alias.id,
               external_source_id: @external_source_id,
               classification_tree_label_id: @classification_tree_label_id,
               parent_classification_alias_id: nil
             ) do |data_set|
               data_set.seen_at = Time.zone.now
-          end.save
+          end
         end
         return classification.id
       end
@@ -132,6 +125,10 @@ module DataCycleCore
           end
           updates = indexes.count
 
+          place_template = Place.
+            find_by(template: true, headline: 'contentLocation', description: 'Place')
+          validation = place_template.metadata['validation']
+
           print " " * 40 + "loading"
           DownloadPoi.in(_id: indexes).each do |load_poi|
             print '.' if (updates % @download_page_size) == 0
@@ -141,17 +138,27 @@ module DataCycleCore
                 external_key: load_poi.id)
               .first_or_initialize
 
+            if to_update_place.metadata.nil?
+              to_update_place.metadata = { 'validation' => validation }
+            else
+              to_update_place.metadata['validation'] = validation
+            end
+
             ActiveRecord::Base.transaction do
               load_poi.dump.each do |lang, lang_dump|
                 I18n.with_locale(lang) do
-                  to_update_place.set_data(extract_place_data(lang_dump)).save
+                  place_hash = extract_place_data(lang_dump)
+                  to_update_place.set_data_hash(place_hash)
+                  to_update_place.save
                 end
               end
               create_classification_place_regions( load_poi.dump[load_poi.dump.keys.first]['regions'], to_update_place.id )
               create_classification_place_category( load_poi.dump[load_poi.dump.keys.first]['category'], to_update_place.id )
-              create_classification_from_bool( 'winterActivity', load_poi.dump[load_poi.dump.keys.first]['winterActivity'], to_update_place.id )
-              create_classification_from_string( 'frontendtype', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id )
-              create_classification_from_string( 'source', load_poi.dump[load_poi.dump.keys.first]['meta']['source']['name'], to_update_place.id )
+              #create_classification_from_bool( 'winterActivity', load_poi.dump[load_poi.dump.keys.first]['winterActivity'], to_update_place.id )
+              create_classification_entry('Jahreszeiten', 'Winter', to_update_place.id) if load_poi.dump[load_poi.dump.keys.first]['winterActivity']
+              #create_classification_from_string( 'frontendtype', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id )
+              create_classification_entry('Type', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id) unless load_poi.dump[load_poi.dump.keys.first]['frontendtype'].blank?
+              #create_classification_from_string( 'source', load_poi.dump[load_poi.dump.keys.first]['meta']['source']['name'], to_update_place.id )
               create_classifications_from_array('properties', load_poi.dump[load_poi.dump.keys.first]['properties']['property'], 'text', to_update_place.id) if load_poi.dump[load_poi.dump.keys.first].has_key?('properties')
               create_creative_work_place( load_poi.dump[load_poi.dump.keys.first]['images'], to_update_place.id )
               set_primary_image( load_poi.dump[load_poi.dump.keys.first]['primaryImage'], to_update_place.id )
@@ -162,12 +169,23 @@ module DataCycleCore
         end
       end
 
+      def create_classification_entry(label_name, alias_name, place_id)
+        classification = DataCycleCore::Classification.where(name: alias_name).
+          joins(classification_groups: [classification_alias: [classification_trees: [:classification_tree_label]]]).
+          where('classification_aliases.name = ?', alias_name).
+          where('classification_tree_labels.name = ?', label_name).
+          first
+
+        DataCycleCore::ClassificationPlace.find_or_create_by(place_id: place_id, classification_id: classification.id, external_source_id: @external_source_id) do |item|
+          item.seen_at = Time.zone.now
+        end
+      end
+
       def upsert_classification_from_key(external_key, parent_external_key, data_hash)
         classification_id = upsert_classification(external_key, data_hash)
         unless parent_external_key.nil?
           parent_classification_id = Classification
-            .where(external_source_id: @external_source_id, external_key: parent_external_key)
-            .first
+            .find_by(external_source_id: @external_source_id, external_key: parent_external_key)
             .id
         else
           parent_classification_id = nil
@@ -355,7 +373,7 @@ module DataCycleCore
         if classification_id.nil?
           classification = Classification.new
         else
-          classification = Classification.where(id: classification_id).first
+          classification = Classification.find(classification_id)
         end
         classification.set_data(data_hash).save
 
@@ -364,8 +382,7 @@ module DataCycleCore
           parent_classification_alias_id = nil
         else
           parent_classification_alias_id = ClassificationGroup
-            .where(classification_id: parent_classification_id, external_source_id: @external_source_id)
-            .first
+            .find_by(classification_id: parent_classification_id, external_source_id: @external_source_id)
             .classification_alias_id
         end
         upsert_classification_tree(classification_alias_id, parent_classification_alias_id)
@@ -380,36 +397,48 @@ module DataCycleCore
           'classification_id' => classification_id
         }
         to_update_classification_place = ClassificationPlace
-          .where(
+          .find_or_initialize_by(
             external_source_id: @external_source_id,
             place_id: place_id,
             classification_id: classification_id
           )
-          .first_or_initialize
         to_update_classification_place.set_data(data_hash).save
       end
 
       def create_creative_work_place( images, place_id)
         return if images.nil? || images.empty?
+
+        template = DataCycleCore::CreativeWork.find_by(headline: 'Bild', description: 'ImageObject', template: true)
+        validation_hash = template.metadata['validation']
+
         images['image'].each do |record|
           # save image
+          author = record['author']
+          author ||= record['meta']['authorFull']['name'] if record.has_key?('meta') && record['meta'].has_key?('authorFull')
           data_image = {
             'headline' => record['title'],
-            'content' => {'url' => "http://img.oastatic.com/img/#{record['id']}/.jpg"},
-            'metadata' => record['meta'].merge({external_key: record['id']}),
+            'url' => "http://img.oastatic.com/img/#{record['id']}",
+            'contentUrl' => "http://img.oastatic.com/img/#{record['id']}/.jpg",
+            'thumbnailUrl' => "http://img.oastatic.com/img/400/400/fit/#{record['id']}/.jpg",
+            'external_key' => record['id'],
             'seen_at' => Time.zone.now,
-            'position' => 0,
-            'properties' => {'gallery' => record['gallery'].to_s},
+            'gallery' => record['gallery'].to_s,
             'external_source_id' => @external_source_id
           }
-          to_update_image = CreativeWork
-            .where(
+          to_update_image = CreativeWork.
+            where(
               "metadata ->> 'external_key' = ? AND external_source_id = ?",
               record['id'],
               @external_source_id
             )
             .first_or_initialize
-            .set_data(data_image)
+          if to_update_image.metadata.blank?
+            to_update_image.metadata = { 'validation' => validation_hash }
+          else
+            to_update_image.metadata['validation'] = validation_hash
+          end
+          to_update_image.save
+          to_update_image.set_data_hash(data_image)
           to_update_image.save
 
           # relation to place
@@ -419,32 +448,12 @@ module DataCycleCore
             'creative_work_id' => to_update_image.id,
             'seen_at' => Time.zone.now
           }
-          to_update_place_creative_work = CreativeWorkPlace
-            .where(
+          to_update_place_creative_work = CreativeWorkPlace.
+            find_or_initialize_by(
               external_source_id: @external_source_id,
               place_id: place_id,
               creative_work_id: to_update_image.id
-            )
-            .first_or_initialize
-            .set_data(data_creative_work_place)
-            .save
-
-          # relation to classification
-          data_classifications_creative_work = {
-            'creative_work_id' => to_update_image.id,
-            'classification_id' => @creative_work_classification_id,
-            'tag' => false,
-            'classification' => false,
-            'seen_at' => Time.zone.now
-          }
-          ClassificationCreativeWork
-            .where(
-              creative_work_id: to_update_image.id,
-              classification_id: @creative_work_classification_id
-            )
-            .first_or_initialize
-            .set_data(data_classifications_creative_work)
-            .save
+            ).set_data(data_creative_work_place).save
         end
       end
 
@@ -458,13 +467,13 @@ module DataCycleCore
           )
         if creative_work_image.count > 0
           creative_work_id = creative_work_image.first.id
-          to_update_place = Place.where(id: place_id).first
+          to_update_place = Place.find(place_id)
           to_update_place.photo = creative_work_id
           to_update_place.save
         end
       end
 
-      def extract_place_data ( data )
+      def extract_place_data(data)
         # prioritize longText over shortText
         description = data.has_key?('shortText') ? data['shortText'].strip : nil
         description = data['longText'].strip if data.has_key?('longText')
@@ -473,6 +482,10 @@ module DataCycleCore
         lon,lat,_ = data['geometry'].split(/[, ]/,3)
         location = RGeo::Geographic.spherical_factory(srid: 4326).point(lon, lat)
         line = data.has_key?('geometry') ? convert_tour_geometry(data['geometry']) : nil
+        if data.has_key?('elevation')
+          ascent = data['elevation']['ascent']
+          descent = data['elevation']['descent']
+        end
 
         address_locality = data.has_key?('address') && data['address'].has_key?('town') ? data['address']['town'].strip : nil
         street_address = set_street_address(data)
@@ -484,27 +497,16 @@ module DataCycleCore
         url = data.has_key?('homepage') ? data['homepage'].strip : nil
         hours_available = data.has_key?('businessHours') ? data['businessHours'].strip : nil
 
+        source = data.has_key?('meta') && data['meta'].has_key?('source') && data['meta']['source'].has_key?('name') ? data['meta']['source']['name'].strip : nil
         author = data.has_key?('meta') && data['meta'].has_key?('author') ? data['meta']['author'].strip : nil
         duration = data.has_key?('time') && data['time'].has_key?('min') ? data['time']['min'] : nil
         difficulty = data.has_key?('rating') && data['rating'].has_key?('difficulty') ? data['rating']['difficulty'] : nil
-        metadata_hash = {
-          'author' => author,
-          'duration' => duration,
-          'difficulty' => difficulty
-        }.compact
-        metadata_hash = nil if metadata_hash.blank?
+        distance = data['length']
+
 
         return {
-          'external_source_id' => @external_source_id,
-          'external_key' => data['id'],
-          'seen_at' => Time.zone.now,
           'name' => data['title'],
           'description' => description,
-          'elevation' => altitude.to_f,
-          'longitude' => lon.to_f,
-          'latitude' => lat.to_f,
-          'location' => location,
-          'line' => line,
           'addressLocality' => address_locality,
           'streetAddress' => street_address,
           'postalCode' => postal_code,
@@ -514,19 +516,31 @@ module DataCycleCore
           'email' => email,
           'url' => url,
           'hoursAvailable' => hours_available,
-          'metadata' => metadata_hash
+          'longitude' => lon.to_f,
+          'latitude' => lat.to_f,
+          'elevation' => altitude.to_f,
+          'location' => location,
+          'line' => line,
+          'distance' => distance,
+          'ascent' => ascent,
+          'descent' => descent,
+          'duration' => duration,
+          'difficulty' => difficulty,
+          'author' => author,
+          'external_key' => data['id'],
+          'external_source_id' => @external_source_id
         }
       end
 
-    def set_street_address(data)
-      street_address = data.has_key?('address') && data['address'].has_key?('street') ? data['address']['street'].strip : nil
-      if !street_address.nil? && data.has_key?('address') && data['address'].has_key?('housenumber')
-        if street_address.reverse.to_i == 0 #sometimes the address already includes the housenumber and in addition a housenumber is given
-          street_address+=' '+ data['address']['housenumber'].strip
+      def set_street_address(data)
+        street_address = data.has_key?('address') && data['address'].has_key?('street') ? data['address']['street'].strip : nil
+        if !street_address.nil? && data.has_key?('address') && data['address'].has_key?('housenumber')
+          if street_address.reverse.to_i == 0 #sometimes the address already includes the housenumber and in addition a housenumber is given
+            street_address+=' '+ data['address']['housenumber'].strip
+          end
         end
+        street_address
       end
-      street_address
-    end
 
     # small helper
       def get_id(object, symbol, value)
