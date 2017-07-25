@@ -120,6 +120,7 @@ module DataCycleCore
         # params.require(:creative_work).permit!
       end
 
+      #refactor
       def create_internal(template)
 
         person = DataCycleCore::Person.new(person_params)
@@ -130,7 +131,11 @@ module DataCycleCore
         person.metadata = { 'validation' => validation }
         person.save
 
-        datahash = {'givenName' => person_params[:givenName], 'familyName' => person_params[:familyName], 'jobTitle' => person_params[:datahash][:jobTitle], 'creator' => current_user[:id]}
+        if !person_params[:datahash].nil? && !person_params[:datahash][:jobTitle].nil?
+          datahash = {'givenName' => person_params[:givenName], 'familyName' => person_params[:familyName], 'jobTitle' => person_params[:datahash][:jobTitle], 'creator' => current_user[:id]}
+        else
+          datahash = {'givenName' => person_params[:givenName], 'familyName' => person_params[:familyName], 'creator' => current_user[:id]}
+        end
 
         # unless validation['properties']['data_pool'].nil?
         #   data_pool_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
