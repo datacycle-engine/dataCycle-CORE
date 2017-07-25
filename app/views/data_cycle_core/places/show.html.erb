@@ -5,6 +5,7 @@
 
         <div class="detail-header">
 
+            <a class="close-button" href="<%= @breadcrumbs[-2][2] %>"><i aria-hidden="true" class="fa fa-times"></i></a>
             <div class="topleftinfo">
                 <div class="type <%= @creativeWork.metadata['validation']['name'].downcase %>">
                     <%= render 'data_cycle_core/shared/icon', icon_type: @creativeWork.metadata['validation']['name'].downcase %>
@@ -59,7 +60,7 @@
     <br /><br />
 </section>
 
-<div class="detail-content">
+<div class="detail-content place">
 
     <div class="row">
 

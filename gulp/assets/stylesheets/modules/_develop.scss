@@ -1,1 +1,40 @@
 /* todo: merge styles */
+
+.detail-header {
+  .destroy {
+    position: absolute;
+    right: 5rem;
+    bottom: 1rem;
+    a {
+      span {
+        display: none;
+      }
+    }
+  }
+  #add-to-watchlist {
+    position: absolute;
+    right: 4rem;
+    top: 0;
+    font-size: 0.9rem;
+  }
+}
+
+#settings-off-canvas {
+  .settings-row {
+    &.watchlists {
+      a {
+        margin: 0;
+      }
+      .add-watch-list {
+        float: right;
+      }
+      .item {
+        padding: 0.5rem;
+      }
+      span.icon {
+        display: inline-block;
+        width: 2rem;
+      }
+    }
+  }
+}
