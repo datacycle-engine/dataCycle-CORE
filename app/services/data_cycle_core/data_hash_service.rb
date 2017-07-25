@@ -6,7 +6,7 @@ module DataCycleCore
       datahash = self.flatten_recursive(datahash.to_h, template_hash)
 
       if debug == true
-        #raise datahash.inspect
+        raise datahash.inspect
       end
 
       return datahash
@@ -65,7 +65,8 @@ module DataCycleCore
 
               value = temp_value
             end
-
+          elsif value.is_a?(::Array)
+            value = value.reject { |v| v.empty? }
           else
             #todo: add more casts ?
             if properties['type'] == 'number'
