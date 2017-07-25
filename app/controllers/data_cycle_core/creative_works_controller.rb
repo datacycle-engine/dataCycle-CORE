@@ -96,7 +96,7 @@ module DataCycleCore
       set_breadcrumb_for @creativeWork
       add_breadcrumb "", "Edit", creative_work_path(@creativeWork)
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(creative_work_params[:datahash], @creativeWork.metadata['validation'],true)
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(creative_work_params[:datahash], @creativeWork.metadata['validation'],false)
 
       # add creator id
       datahash[:creator] = current_user[:id]
