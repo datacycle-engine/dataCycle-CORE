@@ -6,43 +6,4 @@
     </div>
 </div>
 
-<!-- testing -->
-
-<% if !@creativeWork.nil? && !@creativeWork.id.nil? %>
-
-    <div class="reveal new-item" id="newContent" data-reveal>
-        <h3>Neuen Inhalt erstellen</h3>
-
-        <%= form_for :creative_work, :url => {:action => "create"} do |f| %>
-
-            <%= select_tag 'template', options_for_select(get_allowed_content_types) %>
-            <%= hidden_field_tag 'parent', @creativeWork.id %>
-            <div class="validation-container form-element">
-                <%= f.text_field :headline, class: 'form-control', value:'' %>
-            </div>
-            <%= submit_tag "Erstellen", class: "button primary" %>
-        <% end %>
-
-        <button class="close-button" data-close aria-label="Close modal" type="button">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-
-    <div class="reveal new-item" id="recherche" data-reveal>
-        <h3>Neue Recherche beginnen</h3>
-
-        <%= form_for :creative_work, :url => {:action => "create"} do |f| %>
-            <%= hidden_field_tag 'template', 'Recherche' %>
-            <%= hidden_field_tag 'parent', @creativeWork.id %>
-            <div class="validation-container form-element">
-                <%= f.text_field :headline, class: 'form-control', value:'' %>
-            </div>
-            <%= submit_tag "Erstellen", class: "button primary" %>
-        <% end %>
-
-        <button class="close-button" data-close aria-label="Close modal" type="button">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-
-<% end %>
+<%= render 'data_cycle_core/creative_works/partials/shared/newContent' %>

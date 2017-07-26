@@ -5,47 +5,4 @@
     </div>
 </div>
 
-<!-- testing -->
-
-<% if !@place.nil? %>
-
-    <div class="reveal new-item" id="newPlace" data-reveal>
-        <h3>Neuen Ort erstellen</h3>
-
-        <%= form_for :place, :url => {:action => "create"} do |f| %>
-
-            <%= hidden_field_tag 'template', 'contentLocation' %>
-            <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][name]', 'Titel' %>
-                <%= text_field_tag 'place[datahash][name]', '', class: 'form-control', value:'' %>
-            </div>
-            <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][address][streetAddress]', 'Straße' %>
-                <%= text_field_tag 'place[datahash][address][streetAddress]', '', class: 'form-control', value:'' %>
-            </div>
-            <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][address][postalCode]', 'PLZ' %>
-                <%= text_field_tag 'place[datahash][address][postalCode]', '', class: 'form-control', value:'' %>
-            </div>
-            <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][address][addressLocality]', 'Ort' %>
-                <%= text_field_tag 'place[datahash][address][addressLocality]', '', class: 'form-control', value:'' %>
-            </div>
-            <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][longitude]', 'Longitude' %>
-                <%= text_field_tag 'place[datahash][longitude]', '', class: 'form-control', value:'' %>
-            </div>
-            <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][latitude]', 'Latitude' %>
-                <%= text_field_tag 'place[datahash][latitude]', '', class: 'form-control', value:'' %>
-            </div>
-            <%= f.submit "Erstellen", class: "button primary" %>
-
-        <% end %>
-
-        <button class="close-button" data-close aria-label="Close modal" type="button">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-
-<% end %>
+<%= render 'data_cycle_core/places/partials/shared/new' %>
