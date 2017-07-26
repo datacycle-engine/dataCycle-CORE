@@ -8,7 +8,8 @@
             <%= select_tag 'template', options_for_select(get_allowed_content_types) %>
             <%= hidden_field_tag 'parent', @creativeWork.id %>
             <div class="validation-container form-element">
-                <%= f.text_field :headline, class: 'form-control', value:'' %>
+                <%= label_tag 'creative_work[datahash][name]', 'Titel' %>
+                <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value:'' %>
             </div>
             <%= submit_tag "Erstellen", class: "button primary" %>
         <% end %>
@@ -25,7 +26,8 @@
             <%= hidden_field_tag 'template', 'Recherche' %>
             <%= hidden_field_tag 'parent', @creativeWork.id %>
             <div class="validation-container form-element">
-                <%= f.text_field :headline, class: 'form-control', value:'' %>
+                <%= label_tag 'creative_work[datahash][name]', 'Titel' %>
+                <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value:'' %>
             </div>
             <%= submit_tag "Erstellen", class: "button primary" %>
         <% end %>
