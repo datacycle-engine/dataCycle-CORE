@@ -3,7 +3,7 @@ module DataCycleCore
 
     @@default_per = 50
 
-    # method to get all Images in all available languages
+    # method to get all WatchLists
     def index
       query = DataCycleCore::WatchList.all
 
@@ -21,5 +21,17 @@ module DataCycleCore
 
       @watch_lists = query.page(@page).per(@per)
     end
+
+    # method to show a particular WatchList
+    def show
+      query = DataCycleCore::WatchList.where(id: params[:id])
+
+      if query.count == 0
+        raise ActiveRecord::RecordNotFound.new("watch_list not found")
+      else
+        @watch_list = query.first
+      end
+    end
+
   end
 end
