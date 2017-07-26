@@ -16,8 +16,9 @@
     color: lighten(map-get($foundation-palette, alert), 10%);
   }
   position: absolute;
-  right: 0.5rem;
-  top: 0.5rem;
+  right: 0;
+  top: 0;
+  padding: 0 0.5rem;
 }
 
 .detail-header {
@@ -69,8 +70,7 @@
           position: absolute;
           right: 0;
           .remove-from-watchlist-link {
-            top: 0;
-            right: 0;
+            padding: 0;
           }
         }
         .add-link {

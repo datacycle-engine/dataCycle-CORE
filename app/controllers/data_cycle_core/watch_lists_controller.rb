@@ -81,8 +81,8 @@ module DataCycleCore
     def destroy
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       @watch_list.destroy
+      
       flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Merkliste'
-
       redirect_to watch_lists_path
     end
 
@@ -91,6 +91,7 @@ module DataCycleCore
       data = get_data(watch_list, params[:data_type], params[:data_id])
       watch_list.watch_list_data_hashes.destroy(data)
 
+      flash[:success] = I18n.t :removedFrom, scope: [:controllers, :success], data: watch_list.headline
       redirect_to :back
     end
 
@@ -102,6 +103,7 @@ module DataCycleCore
         watch_list.save
       end
 
+      flash[:success] = I18n.t :addedTo, scope: [:controllers, :success], data: watch_list.headline
       redirect_to :back
     end
 
