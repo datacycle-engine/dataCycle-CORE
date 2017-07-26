@@ -16,7 +16,7 @@
 
                 <% validation_properties.each do |key, prop| %>
 
-                    <% if !@dataSchema[key].nil? && !@dataSchema[key].blank? && !exludedProperties.include?(key) %>
+                    <% if !@dataSchema.nil? && !@dataSchema[key].nil? && !@dataSchema[key].blank? && !exludedProperties.include?(key) %>
 
                         <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
                                 label: prop['label'],
@@ -33,9 +33,6 @@
         <% end %>
 
     <% end %>
-
-
-
 
     <hr>
 

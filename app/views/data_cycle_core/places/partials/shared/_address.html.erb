@@ -1,13 +1,11 @@
-<% if !item.metadata['address'].nil? %>
-    <div class="description">
-        <% if !item.metadata['address']['streetAddress'].nil? && !item.metadata['address']['streetAddress'].blank? %>
-            <%= item.metadata['address']['streetAddress'].html_safe %><br />
-        <% end %>
-        <% if !item.metadata['address']['postalCode'].nil? && !item.metadata['address']['postalCode'].blank? %>
-            <%= item.metadata['address']['postalCode'].html_safe %>
-        <% end %>
-        <% if !item.metadata['address']['addressLocality'].nil? && !item.metadata['address']['addressLocality'].blank? %>
-            <%= item.metadata['address']['addressLocality'].html_safe %>
-        <% end %>
-    </div>
-<% end %>
+<div class="description">
+    <% if !item.streetAddress.nil? && !item.streetAddress.blank? %>
+        <%= item.streetAddress.html_safe %><br />
+    <% end %>
+    <% if !item.postalCode.nil? && !item.postalCode.blank? %>
+        <%= item.postalCode.html_safe %>
+    <% end %>
+    <% if !item.addressLocality.nil? && !item.addressLocality.blank? %>
+        <%= item.addressLocality.html_safe %>
+    <% end %>
+</div>

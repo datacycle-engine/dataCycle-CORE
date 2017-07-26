@@ -1,32 +1,12 @@
 <% unless translation.nil? %>
-
-    <% unless @creativeWork.name.nil? %>
+    
+    <% unless translation.name.nil? %>
         <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
                    label: @creativeWork.metadata['validation']['properties']['name']['label'],
                    prop: nil,
-                   value: @creativeWork.name %>
+                   value: translation.name %>
     <% end %>
 
-    <% unless @creativeWork.address.nil? %>
-        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                   label: @creativeWork.metadata['validation']['properties']['address']['label'],
-                   prop: nil,
-                   value: @creativeWork.address %>
-    <% end %>
-
-    <% unless @creativeWork.longitude.nil? %>
-        <%= render 'data_cycle_core/creative_works/partials/show/datatype/float',
-                   label: @creativeWork.metadata['validation']['properties']['longitude']['label'],
-                   prop: nil,
-                   value: @creativeWork.longitude %>
-    <% end %>
-
-    <% unless @creativeWork.latitude.nil? %>
-        <%= render 'data_cycle_core/creative_works/partials/show/datatype/float',
-                   label: @creativeWork.metadata['validation']['properties']['latitude']['label'],
-                   prop: nil,
-                   value: @creativeWork.latitude %>
-    <% end %>
-
+    <%= render 'data_cycle_core/places/partials/shared/address', item: translation %>
 
 <% end %>

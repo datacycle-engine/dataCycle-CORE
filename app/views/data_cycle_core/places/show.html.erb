@@ -31,14 +31,6 @@
 
             </div>
 
-            <% if !@creativeWork.address.nil? && !@creativeWork.address.blank? %>
-
-                <div class="description">
-                    <%= @creativeWork.address.html_safe %>
-                </div>
-
-            <% end %>
-
             <%= render 'data_cycle_core/creative_works/partials/show/top_content/classificationAliases' %>
 
             <%= render 'data_cycle_core/creative_works/partials/show/top_content/validityPeriod' %>
