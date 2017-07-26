@@ -24,6 +24,10 @@ module DataCycleCore
       end
 
       @dataSchema = @place.get_data_hash
+      # do something if no german version exists
+      if @dataSchema.nil?
+        @dataSchema = I18n.with_locale(@place.translated_locales.first){@place.get_data_hash}
+      end
 
       #only for testing
       @creativeWork = @place
