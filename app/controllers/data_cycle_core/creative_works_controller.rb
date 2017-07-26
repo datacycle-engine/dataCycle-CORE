@@ -171,7 +171,7 @@ module DataCycleCore
           :service,
           :name,
           {:logo => []},
-          {:offerPeriod => [
+          {:offerPeriods => [
             {:offerPeriod => 
               [
                 :validFrom,
