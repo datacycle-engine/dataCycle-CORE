@@ -5,6 +5,7 @@ module DataCycleCore
     add_breadcrumb "Themenwelten", "", "/"
 
     def index
+
     end
 
     def show
@@ -22,30 +23,25 @@ module DataCycleCore
 
       @dataSchema = @creativeWork.get_data_hash
 
-      #todo: add readonly property
-      if @creativeWork.metadata['validation']['name'] != 'Thema'
+      if @creativeWork.metadata['validation']['content_type'] == 'variant'
         render layout: "data_cycle_core/creative_works_edit"
       else
         render layout: "data_cycle_core/creative_works_show"
       end
-    end
 
-    def new
-      #only for testing
-      @creativeWork = DataCycleCore::CreativeWork.new
-      set_breadcrumb_for @creativeWork
-      render layout: "data_cycle_core/creative_works_show"
     end
 
     def create
 
       @creativeWork = create_internal(params[:template])
-      set_breadcrumb_for @creativeWork
 
       if @creativeWork.nil?
         redirect_to :back
         return
       end
+
+      set_breadcrumb_for @creativeWork
+
       if params[:template] != "Thema"
         if params['parent'].nil? || params['parent'].blank?
           #create new thema
@@ -93,14 +89,9 @@ module DataCycleCore
 
     def update
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
-      set_breadcrumb_for @creativeWork
-      add_breadcrumb "", "Edit", creative_work_path(@creativeWork)
 
       object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], 'CreativeWork')
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'],false)
-
-      # add creator id
-      datahash[:creator] = current_user[:id]
 
       valid = @creativeWork.validate(datahash)
 
@@ -111,10 +102,6 @@ module DataCycleCore
       end
 
       @creativeWork.set_data_hash(datahash)
-
-      # needed because headline != title
-      update_params = {:headline => datahash[:headline]}
-      @creativeWork.update_attributes(update_params)
 
       if @creativeWork.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
@@ -164,24 +151,12 @@ module DataCycleCore
         creative_work.metadata = { 'validation' => validation }
         creative_work.save
 
-        datahash = {'headline' => object_params[:headline], 'creator' => current_user[:id]}
-
-        # unless validation['properties']['data_pool'].nil?
-        #   data_pool_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
-        #       .where("classification_tree_labels.name = ?", validation['properties']['data_pool']['type_name'])
-        #       .where("classification_aliases.name = ?", validation['properties']['data_pool']['default_value']).first
-
-        #   datahash['data_pool'] = [data_pool_classification.id] unless data_pool_classification.nil?
-        # end
-
-        # #add data_type
-        # unless validation['properties']['data_type'].nil?
-        #   data_type_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
-        #       .where("classification_tree_labels.name = ?", validation['properties']['data_type']['type_name'])
-        #       .where("classification_aliases.name = ?", validation['properties']['data_type']['default_value']).first
-
-        #   datahash['data_type'] = [data_type_classification.id] unless data_type_classification.nil?
-        # end
+        if !object_params[:datahash].nil?
+          datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],creative_work.metadata['validation'])
+          datahash[:creator] = current_user[:id]
+        else
+          return nil
+        end
 
         creative_work.set_data_hash(datahash)
 

@@ -36,20 +36,16 @@ module DataCycleCore
 
     end
 
-    def new
-      @place = DataCycleCore::Place.new
-    end
-
     def create
 
       @place = create_internal(params[:template])
-
-      set_breadcrumb_for @place
 
       if @place.nil?
         redirect_to :back
         return
       end
+
+      set_breadcrumb_for @place
 
       respond_to do |format|
         #validate ?
@@ -77,8 +73,6 @@ module DataCycleCore
 
     def update
       @creativeWork = DataCycleCore::Place.find(params[:id])
-      set_breadcrumb_for @creativeWork
-      add_breadcrumb "", "Edit", creative_work_path(@creativeWork)
 
       object_params = place_params('places', @creativeWork.metadata['validation']['name'], 'Place')
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@creativeWork.metadata['validation'], false)
@@ -95,10 +89,6 @@ module DataCycleCore
       end
 
       @creativeWork.set_data_hash(datahash)
-
-      # needed because headline != title
-      update_params = {:headline => datahash[:headline]}
-      @creativeWork.update_attributes(update_params)
 
       if @creativeWork.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Place'
@@ -128,14 +118,6 @@ module DataCycleCore
 
       end
 
-      #todo: implement as preprocessor
-      def set_location(datahash)
-        if !datahash['longitude'].nil? && !datahash['longitude'].blank? && !datahash['latitude'].nil? && !datahash['latitude'].blank?
-          datahash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(datahash['longitude'].to_f, datahash['latitude'].to_f)
-        end
-        return datahash
-      end
-
       def create_internal(template)
 
         object_params = place_params('places', template, 'Place')
@@ -150,6 +132,8 @@ module DataCycleCore
         if !object_params[:datahash].nil?
           datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],place.metadata['validation'])
           datahash[:creator] = current_user[:id]
+        else
+          return nil
         end
 
         place.set_data_hash(datahash)
@@ -166,6 +150,14 @@ module DataCycleCore
       def set_breadcrumb_for place
         #set_breadcrumb_for creativeWork.parent if creativeWork.parent
         add_breadcrumb 'Ort', place.name, place_path(place.id)
+      end
+
+      #todo: implement as preprocessor
+      def set_location(datahash)
+        if !datahash['longitude'].nil? && !datahash['longitude'].blank? && !datahash['latitude'].nil? && !datahash['latitude'].blank?
+          datahash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(datahash['longitude'].to_f, datahash['latitude'].to_f)
+        end
+        return datahash
       end
 
   end

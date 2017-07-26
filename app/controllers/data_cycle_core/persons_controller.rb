@@ -34,20 +34,16 @@ module DataCycleCore
 
     end
 
-    def new
-      @person = DataCycleCore::Person.new
-    end
-
     def create
 
       @person = create_internal(params[:template])
-
-      set_breadcrumb_for @person
 
       if @person.nil?
         redirect_to :back
         return
       end
+
+      set_breadcrumb_for @person
 
       respond_to do |format|
         #validate ?
@@ -73,10 +69,8 @@ module DataCycleCore
 
     def update
       @creativeWork = DataCycleCore::Person.find(params[:id])
-      set_breadcrumb_for @creativeWork
-      add_breadcrumb "", "Edit", creative_work_path(@creativeWork)
-      object_params = person_params('persons', @creativeWork.metadata['validation']['name'], 'Person')
 
+      object_params = person_params('persons', @creativeWork.metadata['validation']['name'], 'Person')
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@creativeWork.metadata['validation'], false)
 
       # add creator id
@@ -89,10 +83,6 @@ module DataCycleCore
       end
 
       @creativeWork.set_data_hash(datahash)
-
-      # needed because headline != title
-      update_params = {:headline => datahash[:headline]}
-      @creativeWork.update_attributes(update_params)
 
       if @creativeWork.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Person'
@@ -138,23 +128,8 @@ module DataCycleCore
         if !object_params[:datahash].nil?
           datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],person.metadata['validation'])
           datahash[:creator] = current_user[:id]
-        end
-
-        # unless validation['properties']['data_pool'].nil?
-        #   data_pool_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
-        #       .where("classification_tree_labels.name = ?", validation['properties']['data_pool']['type_name'])
-        #       .where("classification_aliases.name = ?", validation['properties']['data_pool']['default_value']).first
-        #
-        #   datahash['data_pool'] = [data_pool_classification.id] unless data_pool_classification.nil?
-        # end
-
-        #add data_type
-        unless validation['properties']['data_type'].nil?
-          data_type_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
-              .where("classification_tree_labels.name = ?", validation['properties']['data_type']['type_name'])
-              .where("classification_aliases.name = ?", validation['properties']['data_type']['default_value']).first
-
-          datahash['data_type'] = [data_type_classification.id] unless data_type_classification.nil?
+        else
+          return nil
         end
 
         person.set_data_hash(datahash)
