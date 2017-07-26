@@ -1,4 +1,12 @@
 <div class="detail-type string">
     <span class="detail-label"><strong><%= label %></strong></span>
-    <span class="detail-content"><%= value.html_safe unless value.nil? %></span>
+    <span class="detail-content">
+        <% if !prop['editor'].nil? && !prop['editor']['type'].nil? && prop['editor']['type'] == 'date' %>
+            <%= value.to_datetime.to_s(:german_date_format)  unless value.nil? %>
+        <% elsif !prop['editor'].nil? && !prop['editor']['type'].nil? && prop['editor']['type'] == 'datetime' %>
+            <%= value.to_datetime.to_s(:german_datetime_format) unless value.nil? %>
+        <% else %>
+            <%= value.html_safe unless value.nil? %>
+        <% end %>
+    </span>
 </div>

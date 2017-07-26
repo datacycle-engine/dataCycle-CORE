@@ -39,7 +39,7 @@
                             <% if prop['type'] == 'object' && !prop['properties'].nil? %>
 
                                 <% object_options = !prop['editor'].nil? && !prop['editor']['options'].nil? ? prop['editor']['options'] : nil %>
-
+                                <% object_options['class'] << ' detail-type' unless object_options.nil? %>
                                 <%= content_tag :div, object_options do %>
 
                                     <% object_properties = get_ordered_validation_properties(prop) %>
@@ -47,7 +47,7 @@
 
                                         <% object_value = objectDataHash[key].nil? ? "" : objectDataHash[key][object_key] %>
 
-                                        <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
+                                        <%= render "data_cycle_core/creative_works/partials/show/datatype/#{object_property['type'].downcase}",
                                             label: object_property['label'],
                                             prop: object_property,
                                             value: object_value %>
@@ -59,6 +59,7 @@
                             <% else %>
 
                                 <% object_value = !objectDataHash[key].nil? && !objectDataHash[key].blank? ? objectDataHash[key] : "" %>
+
                                 <% if !object_value.blank? %>
 
                                     <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
