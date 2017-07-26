@@ -78,9 +78,6 @@ module DataCycleCore
 
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(place_params[:datahash],@creativeWork.metadata['validation'], false)
 
-      # add creator id
-      datahash[:creator] = current_user[:id]
-
       # todo: implement preprocessor
       datahash = set_location(datahash)
 
@@ -122,9 +119,9 @@ module DataCycleCore
         datahash = [
           :name,
           {:address => [
-              :addressLocality,
-              :streetAddress,
-              :postalCode
+            :addressLocality,
+            :streetAddress,
+            :postalCode
           ]},
           :longitude,
           :latitude
@@ -151,7 +148,10 @@ module DataCycleCore
         place.metadata = { 'validation' => validation }
         place.save
 
-        datahash = {'name' => place_params[:name], 'creator' => current_user[:id]}
+        if !place_params[:datahash].nil?
+          datahash = DataCycleCore::DataHashService.flatten_datahash_value(place_params[:datahash],place.metadata['validation'])
+          datahash[:creator] = current_user[:id]
+        end
 
         place.set_data_hash(datahash)
 
