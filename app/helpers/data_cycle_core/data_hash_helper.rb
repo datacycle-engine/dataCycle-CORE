@@ -1,5 +1,5 @@
 module DataCycleCore
-  module CreativeWorksHelper
+  module DataHashHelper
 
     @@partials_path = "data_cycle_core/creative_works/partials/edit/datatype/"
     @@key_prefix = "creative_work[datahash]"

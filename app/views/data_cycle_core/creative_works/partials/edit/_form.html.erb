@@ -1,6 +1,6 @@
 <% set_key_prefix keyPrefix %>
 
-<%= form_for dataObject, builder: DataCycleCore::CreativeWorksHelper::DataCycleFormBuilder do |f| %>
+<%= form_for dataObject, builder: DataCycleCore::DataHashHelper::DataCycleFormBuilder do |f| %>
 	<%= hidden_field_tag 'uuid', dataObject.id %>
 
 	<section class="edit-header">
