@@ -80,7 +80,8 @@ module DataCycleCore
       set_breadcrumb_for @creativeWork
       add_breadcrumb "", "Edit", creative_work_path(@creativeWork)
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(place_params[:datahash],@creativeWork.metadata['validation'], false)
+      object_params = place_params('places', @creativeWork.metadata['validation']['name'], 'Place')
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@creativeWork.metadata['validation'], false)
 
       # todo: implement preprocessor
       datahash = set_location(datahash)
@@ -110,8 +111,9 @@ module DataCycleCore
 
     def validate_single_data
       @place = DataCycleCore::Place.find(params[:id])
+      object_params = place_params('places', @place.metadata['validation']['name'], 'Place')
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(place_params[:datahash],@place.metadata['validation'])
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@place.metadata['validation'])
       valid = @place.validate(datahash)
 
       render :json => valid.to_json
@@ -119,19 +121,11 @@ module DataCycleCore
 
     private
 
-      def place_params
-        datahash = [
-          :name,
-          {:address => [
-            :addressLocality,
-            :streetAddress,
-            :postalCode
-          ]},
-          :longitude,
-          :latitude
-        ]
+      def place_params(storage_location, template_name, template_description)
+
+        datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
         params.require(:place).permit(:name, :datahash => datahash)
-        # params.require(:creative_work).permit!
+
       end
 
       #todo: implement as preprocessor
@@ -144,6 +138,7 @@ module DataCycleCore
 
       def create_internal(template)
 
+        object_params = place_params('places', template, 'Place')
         place = DataCycleCore::Place.new(place_params)
 
         template = DataCycleCore::Place.where(template: true, headline: template, description: "Place").first
@@ -152,8 +147,8 @@ module DataCycleCore
         place.metadata = { 'validation' => validation }
         place.save
 
-        if !place_params[:datahash].nil?
-          datahash = DataCycleCore::DataHashService.flatten_datahash_value(place_params[:datahash],place.metadata['validation'])
+        if !object_params[:datahash].nil?
+          datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],place.metadata['validation'])
           datahash[:creator] = current_user[:id]
         end
 

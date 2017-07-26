@@ -68,7 +68,6 @@ module DataCycleCore
       set_breadcrumb_for @creativeWork
       add_breadcrumb '<i aria-hidden="true" class="fa fa-pencil"></i> Bearbeiten'.html_safe, "", creative_work_path(@creativeWork)
       @dataSchema = @creativeWork.get_data_hash
-
       render layout: "data_cycle_core/creative_works_edit"
     end
 
@@ -76,8 +75,9 @@ module DataCycleCore
       @creativeWork = DataCycleCore::Person.find(params[:id])
       set_breadcrumb_for @creativeWork
       add_breadcrumb "", "Edit", creative_work_path(@creativeWork)
+      object_params = person_params('persons', @creativeWork.metadata['validation']['name'], 'Person')
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(person_params[:datahash],@creativeWork.metadata['validation'], false)
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@creativeWork.metadata['validation'], false)
 
       # add creator id
       valid = @creativeWork.validate(datahash)
@@ -106,7 +106,9 @@ module DataCycleCore
     def validate_single_data
       @person = DataCycleCore::Person.find(params[:id])
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(person_params[:datahash],@person.metadata['validation'])
+      object_params = person_params('persons', @person.metadata['validation']['name'], 'Person')
+
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@person.metadata['validation'])
       valid = @person.validate(datahash)
 
       render :json => valid.to_json
@@ -114,24 +116,18 @@ module DataCycleCore
 
     private
 
-      def person_params
-        datahash = [
-          :givenName,
-          :familyName,
-          :honorificPrefix,
-          :telephone,
-          :faxNumber,
-          :email,
-          :jobTitle
-        ]
-        params.require(:person).permit(:givenName, :familyName, :datahash => datahash)
-        # params.require(:creative_work).permit!
+      def person_params(storage_location, template_name, template_description)
+
+        datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
+        params.require(:person).permit(:datahash => datahash)
+
       end
 
       #refactor
       def create_internal(template)
 
-        person = DataCycleCore::Person.new(person_params)
+        object_params = person_params('persons', template, 'Person')
+        person = DataCycleCore::Person.new(object_params)
 
         template = DataCycleCore::Person.where(template: true, headline: template, description: "Person").first
         validation = template.metadata['validation']
@@ -139,8 +135,8 @@ module DataCycleCore
         person.metadata = { 'validation' => validation }
         person.save
 
-        if !person_params[:datahash].nil?
-          datahash = DataCycleCore::DataHashService.flatten_datahash_value(person_params[:datahash],person.metadata['validation'])
+        if !object_params[:datahash].nil?
+          datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],person.metadata['validation'])
           datahash[:creator] = current_user[:id]
         end
 

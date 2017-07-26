@@ -43,7 +43,35 @@ module DataCycleCore
 
     end
 
+    def self.get_object_params(storage_location, template_name, template_description)
+      template = self.get_internal_template(storage_location, template_name, template_description)
+      datahash = self.get_params_from_hash(template.metadata['validation'])
+      return datahash
+    end
+
     private
+
+      def self.get_params_from_hash(template_hash)
+        temp_params = []
+
+        template_hash['properties'].each do |key,value|
+
+          if value['type'] == 'object' && !value['editor']['type'].nil? && (value['editor']['type'] == 'embeddedObject' || value['editor']['type'] == 'objectBrowser')
+            object_properties = self.get_internal_template(value['storage_location'],value['name'],value['description'])
+            key = {key.to_sym => self.get_params_from_hash(object_properties.metadata['validation'])}
+          elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
+            key = {key.to_sym => self.get_params_from_hash(value)}
+          elsif value['type'] == 'classificationTreeLabel' || value['type'] == 'embeddedLinkArray'
+            key = {key.to_sym => []}
+          else
+            key = key.to_sym
+          end
+
+          temp_params.push(key)
+        end
+
+        return temp_params
+      end
 
       def self.flatten_recursive(datahash, template_hash)
 

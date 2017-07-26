@@ -96,7 +96,8 @@ module DataCycleCore
       set_breadcrumb_for @creativeWork
       add_breadcrumb "", "Edit", creative_work_path(@creativeWork)
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(creative_work_params[:datahash], @creativeWork.metadata['validation'],false)
+      object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], 'CreativeWork')
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'],false)
 
       # add creator id
       datahash[:creator] = current_user[:id]
@@ -131,152 +132,21 @@ module DataCycleCore
 
     def validate_single_data
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(creative_work_params[:datahash], @creativeWork.metadata['validation'])
+
+      object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], 'CreativeWork')
+
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'])
       valid = @creativeWork.validate(datahash)
       render :json => valid.to_json
     end
 
     private
 
-      def creative_work_params
-        datahash = [
-          #base data
-          :headline,
-          :description,
-          :text,
-          #metadata
-          {:validityPeriod => [
-            :validFrom,
-            :validUntil
-          ]},
-          #classifications
-          {:state => []},
-          {:kind => []},
-          {:season => []},
-          {:topics => []},
-          {:markets => []},
-          {:tags => []},
-          {:outputChannels => []},
-          #content
-          {:image => []},
-          {:video => []},
-          :alternativeHeadline,
-          :metaTitle,
-          :metaDescription,
-          :keywords,
-          :sameAs,
-          :isPartOf,
-          #content offer
-          :price,
-          :service,
-          :name,
-          {:logo => []},
-          {:offerPeriods => [
-            {:offerPeriod => 
-              [
-                :validFrom,
-                :validUntil
-              ]
-            }
-          ]},
-          {:author => [
-            :id
-          ]},
-          {:contentLocation => [
-            :id
-          ]},
-          {:website => [
-            :url,
-            :name
-          ]},
-          #content quotation
-          {:quotation => [
-            :id,
-            :text,
-            {:image => []},
-            {:author => [
-              :id
-            ]}
-          ]},
-          #content portrait - biographie
-          {:about => [
-            :id
-          ]},
-          #content mobile application
-          {:mobileApplication => [
-            :id,
-            :url,
-            :operatingSystem
-          ]},
-          #content timeline
-          {:timelineItem => [
-            :id,
-            :headline,
-            {:image => []},
-            {:contentLocation => [
-              :id
-            ]},
-            {:temporalCoverage => [
-              :validFrom,
-              :validUntil
-            ]},
-            :description
-          ]},
-          #content interview
-          {:audio => []},
-          #content voting
-          {:suggestedAnswer => [
-            :text,
-            {:image => []}
-          ]},
-          #content question
-          {:acceptedAnswer => [
-            :id,
-            :text,
-            {:image => []}
-          ]},
-          #content quiz
-          {:question => [
-            :id,
-            :headline,
-            :text,
-            {:image => []},
-            {:suggestedAnswer => [
-              :id,
-              :text,
-              {:image => []}
-            ]},
-            {:acceptedAnswer => [
-              :id,
-              :text,
-              {:image => []}
-            ]},
-          ]},
-          #content recipe
-          :recipeInstructions,
-          :recipeYield,
-          :totalTime,
-          {:recipeCourse => []},
-          {:recipeCategory => []},
-          :recipeIngredient,
-          {:recipeComponent =>[
-            :id,
-            :recipeInstructions,
-            :recipeIngredient,
-            :totalTime,
-          ]},
-          {:event => [
-            :id,
-            :url,
-            {:eventPeriod => [
-             :startDate,
-             :endDate
-            ]},
-          ]},
-        ]
+      def creative_work_params(storage_location, template_name, template_description)
 
+        datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
         params.require(:creative_work).permit(:headline, :datahash => datahash)
-        #params.require(:creative_work).permit!
+
       end
 
       def is_number? string
@@ -285,7 +155,8 @@ module DataCycleCore
 
       def create_internal(template)
 
-        creative_work = DataCycleCore::CreativeWork.new(creative_work_params)
+        object_params = creative_work_params('creative_works', template, 'CreativeWork')
+        creative_work = DataCycleCore::CreativeWork.new(object_params)
 
         template = DataCycleCore::CreativeWork.where(template: true, headline: template, description: "CreativeWork").first
         validation = template.metadata['validation']
@@ -293,7 +164,7 @@ module DataCycleCore
         creative_work.metadata = { 'validation' => validation }
         creative_work.save
 
-        datahash = {'headline' => creative_work_params[:headline], 'creator' => current_user[:id]}
+        datahash = {'headline' => object_params[:headline], 'creator' => current_user[:id]}
 
         # unless validation['properties']['data_pool'].nil?
         #   data_pool_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
