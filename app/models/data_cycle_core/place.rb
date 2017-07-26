@@ -11,6 +11,8 @@ module DataCycleCore
 
     # custom setter
     include DataSetter
+
+    attr_accessor :datahash
     # # Arel Helper
     # include ArelHelpers::ArelTable
     # include ArelHelpers::JoinAssociation

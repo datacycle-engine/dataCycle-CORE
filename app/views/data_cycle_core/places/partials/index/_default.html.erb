@@ -17,13 +17,7 @@
 
             </div>
 
-            <% if !item.address.nil? && !item.address.blank? %>
-
-                <div class="description">
-                    <%= item.address.html_safe %>
-                </div>
-
-            <% end %>
+            <%= render 'data_cycle_core/places/partials/shared/address', item: item %>
 
             <% unless item.display_classification_aliases.nil? %>
 

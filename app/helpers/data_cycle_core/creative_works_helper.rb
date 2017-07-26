@@ -96,6 +96,12 @@ module DataCycleCore
       end
     end
 
+    def render_geographic_field(key, prop, value=nil, options={}, parent_object_keys=[])
+      if !prop.blank? && !prop['type'].blank?
+        render partial: "#{@@partials_path}#{prop['type']}", locals: {key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys}
+      end
+    end
+
     def render_objectBrowser_field(key, prop, value=nil, options={}, parent_object_keys=[])
       if !prop.blank? && !prop['editor']['type'].nil?
         render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys}

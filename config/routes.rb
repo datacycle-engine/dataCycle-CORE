@@ -10,7 +10,7 @@ DataCycleCore::Engine.routes.draw do
 
   resources :creative_works, only: [:index, :show, :new, :create, :edit, :update]
   resources :persons, only: [:index, :show, :new, :create, :edit, :update]
-  resources :places, only: [:index, :show]
+  resources :places, only: [:index, :show, :new, :create, :edit, :update]
   resources :watch_lists do
     get :removeItem, on: :member
     get :addItem, on: :member
@@ -26,6 +26,7 @@ DataCycleCore::Engine.routes.draw do
 
   match '/validatecreativework(/:id)', to: 'creative_works#validate_single_data', via: [:patch, :post]
   match '/validateperson(/:id)', to: 'persons#validate_single_data', via: [:patch, :post]
+  match '/validateplace(/:id)', to: 'places#validate_single_data', via: [:patch, :post]
 
 
   defaults format: :json do

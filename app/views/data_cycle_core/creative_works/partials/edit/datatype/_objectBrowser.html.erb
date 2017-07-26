@@ -41,13 +41,15 @@
 
 							<%= hidden_field_tag 'template', 'Person' %>
 							<div class="validation-container form-element">
-								<%= f.text_field :givenName, class: 'form-control', value:'' %>
+								<%= label_tag 'person[datahash][givenName]', 'Vorname' %>
+								<%= text_field_tag 'person[datahash][givenName]', 'Vorname', class: 'form-control', value:'' %>
 							</div>
 							<div class="validation-container form-element">
-								<%= f.text_field :familyName, class: 'form-control', value:'' %>
+								<%= label_tag 'person[datahash][familyName]', 'Nachname' %>
+								<%= text_field_tag 'person[datahash][familyName]', '', class: 'form-control', value:'' %>
 							</div>
 							<div class="validation-container form-element">
-								<%= label_tag 'person[datahash][jobTitle]', 'Job title' %>
+								<%= label_tag 'person[datahash][jobTitle]', 'Berufsbezeichnung' %>
 								<%= text_field_tag 'person[datahash][jobTitle]', '', class: 'form-control no-validation' %>
 							</div>
 							<%= f.submit "Erstellen", class: "button primary" %>
