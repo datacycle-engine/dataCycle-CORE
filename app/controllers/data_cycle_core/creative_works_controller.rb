@@ -172,8 +172,12 @@ module DataCycleCore
           :name,
           {:logo => []},
           {:offerPeriod => [
-            :validFrom,
-            :validUntil
+            {:offerPeriod => 
+              [
+                :validFrom,
+                :validUntil
+              ]
+            }
           ]},
           {:author => [
             :id
