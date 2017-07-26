@@ -50,7 +50,7 @@
       <pagination :current-page="currentPage" :items-per-page="itemsPerPage" :total-items="totalItems" @page-changed="pageChanged">
       </pagination>
     </div>
-    <component :is="objectType + '_detail'" :item="activeItem" class="item-info">
+    <component :is="objectType + '_detail'" :item="activeItem" :link="editUrl" class="item-info">
     </component>
   </div>
 </template>
@@ -112,13 +112,17 @@ export default {
       chosenItems: this.preChosenItems.slice(0),
       scrollTop: 0,
       modal: '',
-      newModal: ''
+      newModal: '',
+      editUrl: ''
     }
   },
   mounted() {
     this.modal = $('#object-browser').foundation();
-    this.newModal = $('#' + this.newId).foundation();
-    $('#' + this.newId).parent().css('z-index', '10000');
+    if ($('#' + this.newId).length > 0) {
+      this.newModal = $('#' + this.newId).foundation();
+      $('#' + this.newId).parent().css('z-index', '10000');
+      this.editUrl = this.newModal.find('form').attr('action');
+    }
 
     $('.new-item').on('closed.zf.reveal', function (e) {
       $('body').addClass('is-reveal-open');
@@ -140,7 +144,7 @@ export default {
   },
   deactivated() {
     $(window).scrollTop(this.scrollTop);
-    this.newModal.foundation('close');
+    if (this.newModal != '') this.newModal.foundation('close');
     this.modal.foundation('close');
     $('.reveal-blur').removeClass("show");
   },
@@ -155,6 +159,7 @@ export default {
     },
     toggleActive(item, event) {
       this.activeItem = item;
+
       var chosenIndex = this.compareIndex(this.chosenItems, item);
       var index = this.compareIndex(this.items, item);
 
@@ -183,7 +188,7 @@ export default {
     },
     addItem(item) {
       this.items.push(item);
-      this.newModal.foundation('close');
+      if (this.newModal != '') this.newModal.foundation('close');
     }
   },
   asyncComputed: {
