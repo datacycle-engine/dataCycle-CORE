@@ -18,19 +18,17 @@
             </div>
           </div>
         </div>
-        <button v-if="createItem" data-open="newItem" class="new-item-button button">
+        <button v-if="createItem" :data-open="newId" class="new-item-button button">
           <i class="fa fa-plus"></i>
         </button>
-        <div v-if="createItem" data-overlay="false" class="reveal without-overlay new-item" id="newItem" data-reveal>
-          <new v-on:add="addItem" v-if="showNew">
-            <template scope="newItem" slot="new-item">
-              <slot name="new-item"></slot>
-            </template>
-          </new>
-        </div>
         <button class="close-object-browser" @click.prevent="$emit('close')">
           <i aria-hidden="true" class="fa fa-times"></i>
         </button>
+        <new v-on:add="addItem">
+          <template scope="newItem" slot="new-item">
+            <slot name="new-item"></slot>
+          </template>
+        </new>
       </div>
   
       <input v-model.lazy="searchTerm" placeholder="Volltext Suche" autofocus id="object-browser-search">
@@ -74,6 +72,9 @@ export default {
       type: String,
       default: "Bilder"
     },
+    newId: {
+      type: String
+    },
     url: {
       type: String,
       default: "/"
@@ -109,22 +110,25 @@ export default {
       activeItem: {},
       totalItems: 0,
       chosenItems: this.preChosenItems.slice(0),
-      showNew: false,
       scrollTop: 0,
-      modal: ''
+      modal: '',
+      newModal: ''
     }
   },
   mounted() {
     this.modal = $('#object-browser').foundation();
+    this.newModal = $('#' + this.newId).foundation();
+    $('#' + this.newId).parent().css('z-index', '10000');
 
     $('.new-item').on('closed.zf.reveal', function (e) {
       $('body').addClass('is-reveal-open');
-      this.showNew = false;
       e.stopPropagation();
     }.bind(this));
 
     $('.new-item').on('open.zf.reveal', function (e) {
-      this.showNew = true;
+      this.newModal.find('form')[0].reset();
+      this.newModal.find('input[type=submit]').removeAttr('disabled');
+
     }.bind(this));
   },
   activated() {
@@ -136,7 +140,7 @@ export default {
   },
   deactivated() {
     $(window).scrollTop(this.scrollTop);
-    $('.new-item').remove();
+    this.newModal.foundation('close');
     this.modal.foundation('close');
     $('.reveal-blur').removeClass("show");
   },
@@ -179,7 +183,7 @@ export default {
     },
     addItem(item) {
       this.items.push(item);
-      $('#newItem').foundation('close');
+      this.newModal.foundation('close');
     }
   },
   asyncComputed: {

@@ -3,7 +3,7 @@
     <div class="reveal new-item" id="newPlace" data-reveal>
         <h3>Neuen Ort erstellen</h3>
 
-        <%= form_for :place, :url => {:action => "create"} do |f| %>
+        <%= form_for :place, :url => {:controller => :places, :action => "create"} do |f| %>
 
             <%= hidden_field_tag 'template', 'contentLocation' %>
             <div class="validation-container form-element">
@@ -12,23 +12,23 @@
             </div>
             <div class="validation-container form-element">
                 <%= label_tag 'place[datahash][address][streetAddress]', 'Straße' %>
-                <%= text_field_tag 'place[datahash][address][streetAddress]', '', class: 'form-control', value:'' %>
+                <%= text_field_tag 'place[datahash][address][streetAddress]', '', class: 'form-control no-validation', value:'' %>
             </div>
             <div class="validation-container form-element">
                 <%= label_tag 'place[datahash][address][postalCode]', 'PLZ' %>
-                <%= text_field_tag 'place[datahash][address][postalCode]', '', class: 'form-control', value:'' %>
+                <%= text_field_tag 'place[datahash][address][postalCode]', '', class: 'form-control no-validation', value:'' %>
             </div>
             <div class="validation-container form-element">
                 <%= label_tag 'place[datahash][address][addressLocality]', 'Ort' %>
-                <%= text_field_tag 'place[datahash][address][addressLocality]', '', class: 'form-control', value:'' %>
+                <%= text_field_tag 'place[datahash][address][addressLocality]', '', class: 'form-control no-validation', value:'' %>
             </div>
             <div class="validation-container form-element">
                 <%= label_tag 'place[datahash][longitude]', 'Longitude' %>
-                <%= text_field_tag 'place[datahash][longitude]', '', class: 'form-control', value:'' %>
+                <%= text_field_tag 'place[datahash][longitude]', '', class: 'form-control no-validation', value:'' %>
             </div>
             <div class="validation-container form-element">
                 <%= label_tag 'place[datahash][latitude]', 'Latitude' %>
-                <%= text_field_tag 'place[datahash][latitude]', '', class: 'form-control', value:'' %>
+                <%= text_field_tag 'place[datahash][latitude]', '', class: 'form-control no-validation', value:'' %>
             </div>
             <%= f.submit "Erstellen", class: "button primary" %>
 
