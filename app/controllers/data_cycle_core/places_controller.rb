@@ -92,8 +92,13 @@ module DataCycleCore
 
       if @creativeWork.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Place'
-        # redirect_to @creativeWork
-        redirect_to edit_place_path(@creativeWork)
+
+        if Rails.env.development?
+          redirect_to edit_place_path(@creativeWork) if Rails.env.development?
+        else
+          redirect_to @creativeWork
+        end
+
       else
         render 'edit'
       end
