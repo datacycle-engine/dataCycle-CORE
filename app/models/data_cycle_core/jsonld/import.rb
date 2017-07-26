@@ -145,8 +145,7 @@ module DataCycleCore
                 ClassificationCreativeWork
                   .find_or_initialize_by(
                     creative_work_id: to_update_image.id,
-                    classification_id: @image_classification,
-                    external_source_id: @external_source_id
+                    classification_id: @image_classification
                   ) do |relation|
                     relation.seen_at = Time.zone.now
                 end.save
