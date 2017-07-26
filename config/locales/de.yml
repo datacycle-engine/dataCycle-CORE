@@ -50,9 +50,20 @@ de:
     error:
       invalid_parent: "Ungültiges Eltern Objekt."
       invalid_parent_attr: "Ungültige Eltern Attribute."
+      no_permission: "Keine Berechtigung."
     success:
       created: "%{data} wurde erfolgreich erstellt."
       updated: "%{data} wurde aktualisiert."
+      destroyed: "%{data} wurde gelöscht."
+      addedTo: "Zu Merkliste hinzugefügt."
+      removedFrom: "Von Merkliste entfernt."
     job:
       added: "%{data}/%{uuid} zur Job-Queue hinzugefügt."
       imported: "'%{data}' wurden aus YAML Datei importiert."
+  activerecord:
+    errors:
+      models:
+        data_cycle_core/watch_list:
+          attributes:
+            headline:
+              blank: "Headline: Darf nicht leer sein."

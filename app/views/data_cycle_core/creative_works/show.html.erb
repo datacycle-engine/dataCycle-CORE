@@ -5,6 +5,10 @@
 
         <div class="detail-header">
 
+            <a class="close-button" href="<%= @breadcrumbs[-2][2] %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+
+            <%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist' %>
+
             <div class="topleftinfo">
                 <div class="type <%= @creativeWork.metadata['validation']['name'].downcase %>">
                     <%= render 'data_cycle_core/shared/icon', icon_type: @creativeWork.metadata['validation']['name'].downcase %>
@@ -20,10 +24,10 @@
 
             <div class="title">
                 <!--todo: check if name is allready in use-->
-                <% if !@creativeWork.content.nil? && !@creativeWork.content['name'].blank? %>
-                    <%= @creativeWork.content['name'] %>
-                <% elsif  !@creativeWork.content.nil? && !@creativeWork.content['headline'].blank? %>
+                <% if !@creativeWork.content.nil? && !@creativeWork.content['headline'].blank? %>
                     <%= @creativeWork.content['headline'] %>
+                <% elsif  !@creativeWork.content.nil? && !@creativeWork.content['name'].blank? %>
+                    <%= @creativeWork.content['name'] %>
                 <% end %>
 
             </div>

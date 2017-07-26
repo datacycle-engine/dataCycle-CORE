@@ -117,8 +117,13 @@ module DataCycleCore
 
       if @creativeWork.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
-        # redirect_to @creativeWork
-        redirect_to edit_creative_work_path(@creativeWork)
+        
+        if Rails.env.development?
+          redirect_to edit_creative_work_path(@creativeWork) if Rails.env.development?
+        else
+          redirect_to @creativeWork
+        end
+
       else
         render 'edit'
       end
@@ -166,9 +171,13 @@ module DataCycleCore
           :service,
           :name,
           {:logo => []},
-          {:offerPeriod => [
-            :validFrom,
-            :validUntil
+          {:offerPeriods => [
+            {:offerPeriod => 
+              [
+                :validFrom,
+                :validUntil
+              ]
+            }
           ]},
           {:author => [
             :id

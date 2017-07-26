@@ -180,6 +180,12 @@ button.button-prime {
   transition: all ease-in-out 0.1s;
   width: 5rem;
   height: 5rem;
+  &.alert {
+    background-color: map-get($foundation-palette, alert);
+    &:hover {
+      background-color: lighten(map-get($foundation-palette, alert), 10%);
+    }
+  }
   i {
     color: $white;
     position: relative;

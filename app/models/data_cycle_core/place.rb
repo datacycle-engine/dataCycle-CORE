@@ -30,6 +30,9 @@ module DataCycleCore
     has_many :creative_work_places
     has_many :creative_works, through: :creative_work_places
 
+    has_many :watch_list_data_hashes, as: :hashable, dependent: :destroy
+    has_many :watch_lists, through: :watch_list_data_hashes
+
     # to cash also translated values (comming from gem Globalize)
     def cache_key
       super + '-' + Globalize.locale.to_s

@@ -5,6 +5,10 @@
 
         <div class="detail-header">
 
+            <a class="close-button" href="<%= @breadcrumbs[-2][2] %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+
+            <%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist' %>
+
             <div class="topleftinfo">
                 <div class="type <%= @creativeWork.metadata['validation']['name'].downcase %>">
                     <%= render 'data_cycle_core/shared/icon', icon_type: @creativeWork.metadata['validation']['name'].downcase %>
@@ -26,14 +30,6 @@
                 <% end %>
 
             </div>
-
-            <% if !@creativeWork.address.nil? && !@creativeWork.address.blank? %>
-
-                <div class="description">
-                    <%= @creativeWork.address.html_safe %>
-                </div>
-
-            <% end %>
 
             <%= render 'data_cycle_core/creative_works/partials/show/top_content/classificationAliases' %>
 
@@ -59,7 +55,7 @@
     <br /><br />
 </section>
 
-<div class="detail-content">
+<div class="detail-content place">
 
     <div class="row">
 

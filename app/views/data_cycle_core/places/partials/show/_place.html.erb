@@ -12,28 +12,27 @@
             <!-- todo: make this more generic ? -->
             <% exludedProperties = ['headline','text','validityPeriod'] %>
 
-            <% validation_properties.each do |key, prop| %>
+            <div class="type properties">
 
-                <% if !@dataSchema[key].nil? && !@dataSchema[key].blank? && !exludedProperties.include?(key) %>
+                <% validation_properties.each do |key, prop| %>
 
-                    <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
-                               label: prop['label'],
-                               prop: prop,
-                               key: key,
-                               value: normalize_value(@dataSchema[key]) %>
+                    <% if !@dataSchema.nil? && !@dataSchema[key].nil? && !@dataSchema[key].blank? && !exludedProperties.include?(key) %>
 
-                    <br />
+                        <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
+                                label: prop['label'],
+                                prop: prop,
+                                key: key,
+                                value: normalize_value(@dataSchema[key]) %>
+
+                    <% end %>
 
                 <% end %>
 
-            <% end %>
+            </div>
 
         <% end %>
 
     <% end %>
-
-
-
 
     <hr>
 

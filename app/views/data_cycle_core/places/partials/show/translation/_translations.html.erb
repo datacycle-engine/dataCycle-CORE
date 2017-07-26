@@ -13,9 +13,10 @@
     <% if languages.count > 0 %>
 
         <div class="type translations">
-            <span class="icon"><i class="fa fa-comment" aria-hidden="true"></i></span>
-            <span class="title">Übersetzungen</span>
-        </div>
+            <div class="header">
+                <span class="icon"><i class="fa fa-comment" aria-hidden="true"></i></span>
+                <span class="title">Übersetzungen</span>
+            </div>
 
         <% languages.each do |translation| %>
 
@@ -31,6 +32,7 @@
             <hr>
 
         <% end %>
+        </div>
 
     <% end %>
 

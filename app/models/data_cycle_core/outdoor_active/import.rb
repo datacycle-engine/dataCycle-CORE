@@ -128,40 +128,47 @@ module DataCycleCore
           place_template = Place.
             find_by(template: true, headline: 'contentLocation', description: 'Place')
           validation = place_template.metadata['validation']
-
           print " " * 40 + "loading"
-          DownloadPoi.in(_id: indexes).each do |load_poi|
-            print '.' if (updates % @download_page_size) == 0
-            updates-=1
-            to_update_place = Place
-              .where(external_source_id: @external_source_id,
-                external_key: load_poi.id)
-              .first_or_initialize
 
-            if to_update_place.metadata.nil?
-              to_update_place.metadata = { 'validation' => validation }
-            else
-              to_update_place.metadata['validation'] = validation
-            end
+          page_size = 50 #avoid timeout from Mongo-cursor!!!
+          pages = updates.fdiv(page_size).ceil
+          pages.times do |index|
+            DownloadPoi.in(_id: indexes).extras(:limit => page_size, :skip => (index*page_size)).each do |load_poi|
+              print '.' if (updates % @download_page_size) == 0
+              updates-=1
+              to_update_place = Place
+                .where(external_source_id: @external_source_id,
+                  external_key: load_poi.id)
+                .first_or_initialize
 
-            ActiveRecord::Base.transaction do
-              load_poi.dump.each do |lang, lang_dump|
-                I18n.with_locale(lang) do
-                  place_hash = extract_place_data(lang_dump)
-                  to_update_place.set_data_hash(place_hash)
-                  to_update_place.save
-                end
+              if to_update_place.metadata.nil?
+                to_update_place.metadata = { 'validation' => validation }
+              else
+                to_update_place.metadata['validation'] = validation
               end
-              create_classification_place_regions( load_poi.dump[load_poi.dump.keys.first]['regions'], to_update_place.id )
-              create_classification_place_category( load_poi.dump[load_poi.dump.keys.first]['category'], to_update_place.id )
-              #create_classification_from_bool( 'winterActivity', load_poi.dump[load_poi.dump.keys.first]['winterActivity'], to_update_place.id )
-              create_classification_entry('Jahreszeiten', 'Winter', to_update_place.id) if load_poi.dump[load_poi.dump.keys.first]['winterActivity']
-              #create_classification_from_string( 'frontendtype', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id )
-              create_classification_entry('Type', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id) unless load_poi.dump[load_poi.dump.keys.first]['frontendtype'].blank?
-              #create_classification_from_string( 'source', load_poi.dump[load_poi.dump.keys.first]['meta']['source']['name'], to_update_place.id )
-              create_classifications_from_array('properties', load_poi.dump[load_poi.dump.keys.first]['properties']['property'], 'text', to_update_place.id) if load_poi.dump[load_poi.dump.keys.first].has_key?('properties')
-              create_creative_work_place( load_poi.dump[load_poi.dump.keys.first]['images'], to_update_place.id )
-              set_primary_image( load_poi.dump[load_poi.dump.keys.first]['primaryImage'], to_update_place.id )
+              to_update_place.save
+
+              ActiveRecord::Base.transaction do
+                image = create_creative_work_place( load_poi.dump[load_poi.dump.keys.first]['images'], to_update_place.id )
+                primaryImage = set_primary_image( load_poi.dump[load_poi.dump.keys.first]['primaryImage'], to_update_place.id )
+                load_poi.dump.each do |lang, lang_dump|
+                  I18n.with_locale(lang) do
+                    place_hash = extract_place_data(lang_dump)
+                    place_hash['primaryImage'] = primaryImage if primaryImage
+                    place_hash['image'] = image if image.count > 0
+                    to_update_place.set_data_hash(place_hash)
+                    to_update_place.save
+                  end
+                end
+                create_classification_place_regions( load_poi.dump[load_poi.dump.keys.first]['regions'], to_update_place.id )
+                create_classification_place_category( load_poi.dump[load_poi.dump.keys.first]['category'], to_update_place.id )
+                #create_classification_from_bool( 'winterActivity', load_poi.dump[load_poi.dump.keys.first]['winterActivity'], to_update_place.id )
+                create_classification_entry('Jahreszeiten', 'Winter', to_update_place.id) if load_poi.dump[load_poi.dump.keys.first]['winterActivity']
+                #create_classification_from_string( 'frontendtype', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id )
+                create_classification_entry('Type', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id) unless load_poi.dump[load_poi.dump.keys.first]['frontendtype'].blank?
+                #create_classification_from_string( 'source', load_poi.dump[load_poi.dump.keys.first]['meta']['source']['name'], to_update_place.id )
+                create_classifications_from_array('properties', load_poi.dump[load_poi.dump.keys.first]['properties']['property'], 'text', to_update_place.id) if load_poi.dump[load_poi.dump.keys.first].has_key?('properties')
+              end
             end
           end
           puts "\n"
@@ -406,7 +413,8 @@ module DataCycleCore
       end
 
       def create_creative_work_place( images, place_id)
-        return if images.nil? || images.empty?
+        return [] if images.nil? || images.empty?
+        return_images = []
 
         template = DataCycleCore::CreativeWork.find_by(headline: 'Bild', description: 'ImageObject', template: true)
         validation_hash = template.metadata['validation']
@@ -415,14 +423,15 @@ module DataCycleCore
           # save image
           author = record['author']
           author ||= record['meta']['authorFull']['name'] if record.has_key?('meta') && record['meta'].has_key?('authorFull')
+          gallery = record['gallery'].blank? ? 'false' : record['gallery'].to_s
           data_image = {
             'headline' => record['title'],
             'url' => "http://img.oastatic.com/img/#{record['id']}",
             'contentUrl' => "http://img.oastatic.com/img/#{record['id']}/.jpg",
             'thumbnailUrl' => "http://img.oastatic.com/img/400/400/fit/#{record['id']}/.jpg",
             'external_key' => record['id'],
+            'gallery' => gallery,
             'seen_at' => Time.zone.now,
-            'gallery' => record['gallery'].to_s,
             'external_source_id' => @external_source_id
           }
           to_update_image = CreativeWork.
@@ -438,39 +447,31 @@ module DataCycleCore
             to_update_image.metadata['validation'] = validation_hash
           end
           to_update_image.save
-          to_update_image.set_data_hash(data_image)
-          to_update_image.save
-
-          # relation to place
-          data_creative_work_place = {
-            'external_source_id' => @external_source_id,
-            'place_id_id' => place_id,
-            'creative_work_id' => to_update_image.id,
-            'seen_at' => Time.zone.now
-          }
-          to_update_place_creative_work = CreativeWorkPlace.
-            find_or_initialize_by(
-              external_source_id: @external_source_id,
-              place_id: place_id,
-              creative_work_id: to_update_image.id
-            ).set_data(data_creative_work_place).save
+          error = to_update_image.set_data_hash(data_image)
+          if error[:error].count > 0
+            ap error[:error]
+            @log.info "  could not import Image for #{place_id}!"
+            @log.info "  data given for Image: #{record}"
+            to_update_image.destroy
+            next
+          else
+            to_update_image.save
+            return_images.push(to_update_image.id)
+          end
         end
+        return_images
       end
 
       def set_primary_image(primaryImage, place_id)
-        return if primaryImage.nil? || primaryImage.empty?
+        return nil if primaryImage.blank?
         creative_work_image = CreativeWork
           .where(
             "metadata ->> 'external_key' = ? AND external_source_id = ?",
             primaryImage['id'],
             @external_source_id
           )
-        if creative_work_image.count > 0
-          creative_work_id = creative_work_image.first.id
-          to_update_place = Place.find(place_id)
-          to_update_place.photo = creative_work_id
-          to_update_place.save
-        end
+        creative_work_id = nil
+        creative_work_id = creative_work_image.first.id if creative_work_image.count > 0
       end
 
       def extract_place_data(data)

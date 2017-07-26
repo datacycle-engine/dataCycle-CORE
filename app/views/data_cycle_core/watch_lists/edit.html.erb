@@ -1,0 +1,13 @@
+<% content_for :top_content do %>
+
+<div class="reveal-blur">
+
+    <div id="edit-form">
+
+        <%= render 'data_cycle_core/watch_lists/partials/edit/form', keyPrefix: 'watch_list[datahash]', dataObject: @watch_list %>
+
+    </div>
+
+</div>
+
+<% end %>

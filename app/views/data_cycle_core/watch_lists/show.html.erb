@@ -1,0 +1,53 @@
+
+<% content_for :top_content do %>
+
+    <div class="column detail-header-wrapper">
+
+        <div class="detail-header">
+
+            <div class="topleftinfo">
+                <div class="type watchlist">
+                    <%= render 'data_cycle_core/shared/icon', icon_type: 'merkliste' %>
+                    <span class="title">Merkliste</span>
+                </div>
+            </div>
+
+            <div class="title">
+
+                <% if !@watch_list.nil? && !@watch_list.headline.nil? %>
+                    <%= @watch_list.headline %>
+                <% end %>
+
+            </div>
+
+            <div class="edit">
+                <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small' do %>
+                    <i class="fa fa-pencil" aria-hidden="true"></i><span>Bearbeiten</span>
+                <% end %>
+            </div>
+
+            <div class="destroy">
+                <%= link_to @watch_list, method: :delete, class:'button-prime small alert' do %>
+                    <i class="fa fa-times" aria-hidden="true"></i><span>Löschen</span>
+                <% end %>
+            </div>           
+
+        </div>
+
+    </div>
+
+<% end %>
+
+<section>
+    <br /><br />
+</section>
+
+<div class="detail-content person">
+
+    <div class="row">
+
+        <%= render 'data_cycle_core/watch_lists/partials/show/watch_list' %>
+
+    </div>
+
+</div>

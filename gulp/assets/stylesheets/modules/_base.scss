@@ -408,7 +408,8 @@ form {
   }
 }
 
-span.single_error {
+span.single_error,
+.form-error {
   position: absolute;
   top: -3.3rem;
   right: 2rem;
@@ -423,7 +424,8 @@ span.single_error {
   text-align: left;
 }
 
-span.single_error:before {
+span.single_error:before,
+.form-error:before {
   content: "";
   position: absolute;
   width: 0;

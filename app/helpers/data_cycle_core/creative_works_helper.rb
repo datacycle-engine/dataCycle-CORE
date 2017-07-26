@@ -210,6 +210,10 @@ module DataCycleCore
       return value
     end
 
+    def is_in_watchlist?(watchlist, item)
+      !watchlist.watch_list_data_hashes.where('watch_list_id = ? AND hashable_type = ? AND hashable_id = ?', watchlist.id, item.class.name, item.id).empty?
+    end
+
     private
 
       def get_object_key(key, parent_object_keys = [])
