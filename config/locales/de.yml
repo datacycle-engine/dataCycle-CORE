@@ -55,8 +55,8 @@ de:
       created: "%{data} wurde erfolgreich erstellt."
       updated: "%{data} wurde aktualisiert."
       destroyed: "%{data} wurde gelöscht."
-      addedTo: "Zu Merkliste hinzugefügt."
-      removedFrom: "Von Merkliste entfernt."
+      addedTo: "Zu Merkliste: %{data} hinzugefügt."
+      removedFrom: "Von Merkliste: %{data} entfernt."
     job:
       added: "%{data}/%{uuid} zur Job-Queue hinzugefügt."
       imported: "'%{data}' wurden aus YAML Datei importiert."

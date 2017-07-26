@@ -18,19 +18,17 @@
             </div>
           </div>
         </div>
-        <button v-if="createItem" data-open="newItem" class="new-item-button button">
+        <button v-if="createItem" :data-open="newId" class="new-item-button button">
           <i class="fa fa-plus"></i>
         </button>
-        <div v-if="createItem" data-overlay="false" class="reveal without-overlay new-item" id="newItem" data-reveal>
-          <new v-on:add="addItem" v-if="showNew">
-            <template scope="newItem" slot="new-item">
-              <slot name="new-item"></slot>
-            </template>
-          </new>
-        </div>
         <button class="close-object-browser" @click.prevent="$emit('close')">
           <i aria-hidden="true" class="fa fa-times"></i>
         </button>
+        <new v-on:add="addItem">
+          <template scope="newItem" slot="new-item">
+            <slot name="new-item"></slot>
+          </template>
+        </new>
       </div>
   
       <input v-model.lazy="searchTerm" placeholder="Volltext Suche" autofocus id="object-browser-search">
@@ -52,7 +50,7 @@
       <pagination :current-page="currentPage" :items-per-page="itemsPerPage" :total-items="totalItems" @page-changed="pageChanged">
       </pagination>
     </div>
-    <component :is="objectType + '_detail'" :item="activeItem" class="item-info">
+    <component :is="objectType + '_detail'" :item="activeItem" :link="editUrl" class="item-info">
     </component>
   </div>
 </template>
@@ -73,6 +71,9 @@ export default {
     objectLabel: {
       type: String,
       default: "Bilder"
+    },
+    newId: {
+      type: String
     },
     url: {
       type: String,
@@ -109,22 +110,29 @@ export default {
       activeItem: {},
       totalItems: 0,
       chosenItems: this.preChosenItems.slice(0),
-      showNew: false,
       scrollTop: 0,
-      modal: ''
+      modal: '',
+      newModal: '',
+      editUrl: ''
     }
   },
   mounted() {
     this.modal = $('#object-browser').foundation();
+    if ($('#' + this.newId).length > 0) {
+      this.newModal = $('#' + this.newId).foundation();
+      $('#' + this.newId).parent().css('z-index', '10000');
+      this.editUrl = this.newModal.find('form').attr('action');
+    }
 
     $('.new-item').on('closed.zf.reveal', function (e) {
       $('body').addClass('is-reveal-open');
-      this.showNew = false;
       e.stopPropagation();
     }.bind(this));
 
     $('.new-item').on('open.zf.reveal', function (e) {
-      this.showNew = true;
+      this.newModal.find('form')[0].reset();
+      this.newModal.find('input[type=submit]').removeAttr('disabled');
+
     }.bind(this));
   },
   activated() {
@@ -136,7 +144,7 @@ export default {
   },
   deactivated() {
     $(window).scrollTop(this.scrollTop);
-    $('.new-item').remove();
+    if (this.newModal != '') this.newModal.foundation('close');
     this.modal.foundation('close');
     $('.reveal-blur').removeClass("show");
   },
@@ -151,6 +159,7 @@ export default {
     },
     toggleActive(item, event) {
       this.activeItem = item;
+
       var chosenIndex = this.compareIndex(this.chosenItems, item);
       var index = this.compareIndex(this.items, item);
 
@@ -179,7 +188,7 @@ export default {
     },
     addItem(item) {
       this.items.push(item);
-      $('#newItem').foundation('close');
+      if (this.newModal != '') this.newModal.foundation('close');
     }
   },
   asyncComputed: {

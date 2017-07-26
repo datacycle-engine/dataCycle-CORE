@@ -50,19 +50,21 @@ module DataCycleCore
       end
 
       def only_images
-        @query = join_classification_alias
-        manager = Arel::SelectManager.new.
-          project(classification_alias[:id]).
-          from(classification_alias).
-          where(classification_alias[:name].eq(quoted('Bild'))).
-          join(classification_tree).
-            on(classification_tree[:classification_alias_id].eq(classification_alias[:id])).
-          join(classification_tree_label).
-            on(classification_tree[:classification_tree_label_id].eq(classification_tree_label[:id])).
-          where(classification_tree_label[:name].eq(quoted('Inhaltstypen')))
+        # @query = join_classification_alias
+        # manager = Arel::SelectManager.new.
+        #   project(classification_alias[:id]).
+        #   from(classification_alias).
+        #   where(classification_alias[:name].eq(quoted('Bild'))).
+        #   join(classification_tree).
+        #     on(classification_tree[:classification_alias_id].eq(classification_alias[:id])).
+        #   join(classification_tree_label).
+        #     on(classification_tree[:classification_tree_label_id].eq(classification_tree_label[:id])).
+        #   where(classification_tree_label[:name].eq(quoted('Inhaltstypen')))
 
         reflect(
-          @query.where(classification_alias[:id].in(manager))
+          #@query.where(classification_alias[:id].in(manager))
+          @query.where(json_path(creative_work[:metadata], quoted('{  validation, name }')).eq(quoted("Bild")))
+
         )
       end
 

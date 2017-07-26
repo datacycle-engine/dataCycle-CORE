@@ -3,7 +3,7 @@
     <div class="reveal new-item" id="newPerson" data-reveal>
         <h3>Neue Person erstellen</h3>
 
-        <%= form_for :person, :url => {:action => "create"} do |f| %>
+        <%= form_for :person, :url => {:controller => :persons, :action => "create"} do |f| %>
 
             <%= hidden_field_tag 'template', 'Person' %>
             <div class="validation-container form-element">

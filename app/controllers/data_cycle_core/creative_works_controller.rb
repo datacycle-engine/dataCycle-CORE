@@ -80,6 +80,8 @@ module DataCycleCore
 
     def edit
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
+      @place = DataCycleCore::Place.new
+      @person = DataCycleCore::Person.new
       set_breadcrumb_for @creativeWork
       add_breadcrumb '<i aria-hidden="true" class="fa fa-pencil"></i> Bearbeiten'.html_safe, "", creative_work_path(@creativeWork)
       @dataSchema = @creativeWork.get_data_hash

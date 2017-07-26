@@ -8,7 +8,7 @@
     </div>
     <transition name="fade">
       <keep-alive>
-        <object-browser-modal v-if="showModal" @save="save" :object-type="objectType" :object-label="objectLabel" url="/objectbrowser" :preChosenItems="existingItems" :select-one="selectOne" @close="showModal = false" :create-item="createItem" :min="min" :max="max">
+        <object-browser-modal v-if="showModal" @save="save" :object-type="objectType" :object-label="objectLabel" url="/objectbrowser" :preChosenItems="existingItems" :select-one="selectOne" :new-id="newId" @close="showModal = false" :create-item="createItem" :min="min" :max="max">
           <template scope="props" slot="item">
             <slot name="item" :item="props.item"></slot>
           </template>
@@ -35,6 +35,9 @@ export default {
       type: Array
     },
     objectType: {
+      type: String
+    },
+    newId: {
       type: String
     },
     objectLabel: {
