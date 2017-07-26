@@ -4,13 +4,12 @@ DataCycleCore::Engine.routes.draw do
 
   root to: 'backend#index'
 
-  get  '/vuejs',    to: 'backend#vue'
   get  '/info',    to: 'frontend#info'
   get  '/settings',    to: 'backend#settings'
 
-  resources :creative_works, only: [:index, :show, :new, :create, :edit, :update]
-  resources :persons, only: [:index, :show, :new, :create, :edit, :update]
-  resources :places, only: [:index, :show, :new, :create, :edit, :update]
+  resources :creative_works, only: [:index, :show, :create, :edit, :update]
+  resources :persons, only: [:index, :show, :create, :edit, :update]
+  resources :places, only: [:index, :show, :create, :edit, :update]
   resources :watch_lists do
     get :removeItem, on: :member
     get :addItem, on: :member
@@ -19,11 +18,12 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin', to: 'dash_board#home'
   get  '/admin/download', to: 'dash_board#download'
   get  '/admin/import', to: 'dash_board#import'
-  get  'admin/import_templates', to: 'dash_board#import_templates'
-  get  'admin/import_classifications', to: 'dash_board#import_classifications'
-  get  'admin/import_persons', to: 'dash_board#import_persons'
+  get  '/admin/import_templates', to: 'dash_board#import_templates'
+  get  '/admin/import_classifications', to: 'dash_board#import_classifications'
+  get  '/admin/import_persons', to: 'dash_board#import_persons'
   #mount RailsDb::Engine => '/db', :as => 'db'
 
+  #backend validation endpoints
   match '/validatecreativework(/:id)', to: 'creative_works#validate_single_data', via: [:patch, :post]
   match '/validateperson(/:id)', to: 'persons#validate_single_data', via: [:patch, :post]
   match '/validateplace(/:id)', to: 'places#validate_single_data', via: [:patch, :post]
