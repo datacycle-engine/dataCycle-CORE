@@ -81,3 +81,10 @@ en:
     job:
       added: "%{data}/%{uuid} added to Job-Queue."
       imported: "'%{data}' imported from YAML file."
+  activerecord:
+    errors:
+      models:
+        data_cycle_core/watch_list:
+          attributes:
+            headline:
+              blank: "Headline: Should be atleast 1 long."

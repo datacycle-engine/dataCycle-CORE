@@ -1,11 +1,12 @@
 <% I18n.with_locale(@language) do %>
 
+    <% unless @watch_list.nil? %>
+        <%= render 'data_cycle_core/watch_lists/partials/remove_item_link', item: item %>
+    <% end %>
+
     <%= link_to item do %>
 
         <div class="inner">
-            <% unless @watch_list.nil? %>
-                <%= render 'data_cycle_core/watch_lists/partials/remove_item_link', item: item %>
-            <% end %>
 
             <%= render 'data_cycle_core/creative_works/partials/index/render/type', item: item %>
             <%= render 'data_cycle_core/creative_works/partials/index/render/title', item: item %>

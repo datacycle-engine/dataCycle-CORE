@@ -1,14 +1,23 @@
 /* todo: merge styles */
 
+.new-item {
+  .validation-container {
+    position: relative;
+    span.single_error {
+      top: -2rem;
+    }
+  }
+}
+
 .remove-from-watchlist-link {
-  color: red;
+  color: map-get($foundation-palette, alert);
   &:hover,
   &:focus {
-    color: darkred;
+    color: lighten(map-get($foundation-palette, alert), 10%);
   }
   position: absolute;
-  right: 0;
-  top: 0;
+  right: 0.5rem;
+  top: 0.5rem;
 }
 
 .detail-header {
@@ -59,11 +68,19 @@
         .remove-link {
           position: absolute;
           right: 0;
+          .remove-from-watchlist-link {
+            top: 0;
+            right: 0;
+          }
         }
         .add-link {
           color: green;
           position: absolute;
           right: 0;
+          &:hover,
+          &:focus {
+            color: lighten(green, 10%);
+          }
         }
       }
     }

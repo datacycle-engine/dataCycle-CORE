@@ -1,4 +1,4 @@
-<% unless @watch_list.metadata.nil? %>
+<% unless @watch_list.nil? %>
     <div class="type properties">
 
         <% watch_list_items = DataCycleCore::WatchListService.get_objects_with_types(@watch_list.watch_list_data_hashes) %>
