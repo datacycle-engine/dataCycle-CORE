@@ -7,7 +7,7 @@ module DataCycleCore
     #layout "data_cycle_core/creative_works_edit"
 
     def index
-      @persons = DataCycleCore::Person.all().where(:template => false).order(updated_at: :desc)
+      @persons = DataCycleCore::Person.all().where(:template => false).order(updated_at: :desc).page(params[:page])
       @person = DataCycleCore::Person.new
     end
 
@@ -77,10 +77,9 @@ module DataCycleCore
       set_breadcrumb_for @creativeWork
       add_breadcrumb "", "Edit", creative_work_path(@creativeWork)
 
-      datahash = person_params[:datahash]
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(person_params[:datahash],@creativeWork.metadata['validation'], false)
 
       # add creator id
-      datahash[:creator] = current_user[:id]
       valid = @creativeWork.validate(datahash)
 
       if valid.key?(:error) && !valid[:error].empty?
@@ -107,7 +106,7 @@ module DataCycleCore
     def validate_single_data
       @person = DataCycleCore::Person.find(params[:id])
 
-      datahash = person_params[:datahash]
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(person_params[:datahash],@person.metadata['validation'])
       valid = @person.validate(datahash)
 
       render :json => valid.to_json
@@ -116,7 +115,16 @@ module DataCycleCore
     private
 
       def person_params
-        params.require(:person).permit(:givenName, :familyName, :datahash => [:givenName, :familyName, :honorificPrefix, :telephone, :faxNumber, :email, :jobTitle])
+        datahash = [
+          :givenName,
+          :familyName,
+          :honorificPrefix,
+          :telephone,
+          :faxNumber,
+          :email,
+          :jobTitle
+        ]
+        params.require(:person).permit(:givenName, :familyName, :datahash => datahash)
         # params.require(:creative_work).permit!
       end
 
@@ -131,10 +139,9 @@ module DataCycleCore
         person.metadata = { 'validation' => validation }
         person.save
 
-        if !person_params[:datahash].nil? && !person_params[:datahash][:jobTitle].nil?
-          datahash = {'givenName' => person_params[:givenName], 'familyName' => person_params[:familyName], 'jobTitle' => person_params[:datahash][:jobTitle], 'creator' => current_user[:id]}
-        else
-          datahash = {'givenName' => person_params[:givenName], 'familyName' => person_params[:familyName], 'creator' => current_user[:id]}
+        if !person_params[:datahash].nil?
+          datahash = DataCycleCore::DataHashService.flatten_datahash_value(person_params[:datahash],person.metadata['validation'])
+          datahash[:creator] = current_user[:id]
         end
 
         # unless validation['properties']['data_pool'].nil?

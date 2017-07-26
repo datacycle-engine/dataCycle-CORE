@@ -1,3 +1,14 @@
+<div class="row">
+    <div class="small-12">
+        <%= paginate @persons %>
+    </div>
+</div>
 
 <% @mode = "flex" %>
 <%= render 'data_cycle_core/persons/partials/grid', dataCycleObjects: @persons %>
+
+<div class="row">
+    <div class="small-12">
+        <%= paginate @persons %>
+    </div>
+</div>
