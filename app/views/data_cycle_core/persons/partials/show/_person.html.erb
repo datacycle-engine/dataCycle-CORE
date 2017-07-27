@@ -1,31 +1,38 @@
 <% unless @creativeWork.metadata.nil? %>
-    <div class="type properties">
 
-        <% unless @creativeWork.content['honorificPrefix'].nil? %>
-            <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                    label: @creativeWork.metadata['validation']['properties']['honorificPrefix']['label'],
-                    value: @creativeWork.content['honorificPrefix'] %>
+    <br /><br />
+
+    <% if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? %>
+
+        <% validation_properties = get_ordered_validation_properties(@creativeWork.metadata['validation']) %>
+
+        <% if !validation_properties.nil? %>
+
+            <!-- todo: make this more generic ? -->
+            <% exludedProperties = ['givenName','familyName','jobTitle'] %>
+
+            <div class="type properties">
+
+                <% validation_properties.each do |key, prop| %>
+
+                    <% if !@dataSchema.nil? && !@dataSchema[key].nil? && !@dataSchema[key].blank? && !exludedProperties.include?(key) %>
+
+                        <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
+                            label: prop['label'],
+                            prop: prop,
+                            key: key,
+                            value: normalize_value(@dataSchema[key]) %>
+
+                    <% end %>
+
+                <% end %>
+
+            </div>
+
         <% end %>
 
-        <% unless @creativeWork.metadata['telephone'].nil? %>
-            <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                    label: @creativeWork.metadata['validation']['properties']['telephone']['label'],
-                    value: @creativeWork.metadata['telephone'] %>
-        <% end %>
+    <% end %>
 
-        <% unless @creativeWork.metadata['email'].nil? %>
-            <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                    label: @creativeWork.metadata['validation']['properties']['email']['label'],
-                    value: @creativeWork.metadata['email'] %>
-        <% end %>
+    <hr>
 
-        <% unless @creativeWork.metadata['faxNumber'].nil? %>
-            <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                    label: @creativeWork.metadata['validation']['properties']['faxNumber']['label'],
-                    value: @creativeWork.metadata['faxNumber'] %>
-        <% end %>
-
-    </div>
-
-<hr />
 <% end %>
