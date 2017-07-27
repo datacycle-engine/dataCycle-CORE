@@ -355,7 +355,8 @@ module DataCycleCore
 
       def set_breadcrumb_for creativeWork
         set_breadcrumb_for creativeWork.parent if creativeWork.parent
-        add_breadcrumb creativeWork.metadata['validation']['name'], creativeWork.content['headline'], creative_work_path(creativeWork.id)
+        name = (!creativeWork.content.nil? && !creativeWork.content['headline'].nil?) ? creativeWork.content['headline'] : ''
+        add_breadcrumb creativeWork.metadata['validation']['name'], name, creative_work_path(creativeWork.id)
       end
 
   end
