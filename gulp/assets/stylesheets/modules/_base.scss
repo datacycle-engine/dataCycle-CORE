@@ -699,3 +699,15 @@ body .v-select {
     }
   }
 }
+
+
+/* Korrektur für Fehler im Neuen Eintrag erstellen reveal  */
+
+.new-item {
+  .validation-container {
+    position: relative;
+    span.single_error {
+      top: -2rem;
+    }
+  }
+}
