@@ -7,14 +7,14 @@
 
             <a class="close-button" href="<%= @breadcrumbs[-2][2] %>"><i aria-hidden="true" class="fa fa-times"></i></a>
 
-            <%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist' %>
+            <%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: @person %>
 
             <div class="topleftinfo">
-                <div class="type <%= @creativeWork.metadata['validation']['name'].downcase %>">
-                    <%= render 'data_cycle_core/shared/icon', icon_type: @creativeWork.metadata['validation']['name'].downcase %>
-                    <span class="title"><%= @creativeWork.metadata['validation']['name'] %></span>
+                <div class="type <%= @person.metadata['validation']['name'].downcase %>">
+                    <%= render 'data_cycle_core/shared/icon', icon_type: @person.metadata['validation']['name'].downcase %>
+                    <span class="title"><%= @person.metadata['validation']['name'] %></span>
                 </div>
-                <%= render 'data_cycle_core/creative_works/partials/metaData' %>
+                <%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @person %>
             </div>
 
             <!--<a class="bookmark marked" href="#">-->
@@ -24,28 +24,28 @@
 
             <div class="title">
 
-                <% if !@creativeWork.givenName.nil? && !@creativeWork.nil? %>
-                    <%= "#{@creativeWork.givenName} #{@creativeWork.familyName}" %>
+                <% if !@person.givenName.nil? && !@person.nil? %>
+                    <%= "#{@person.givenName} #{@person.familyName}" %>
                 <% end %>
 
             </div>
 
-            <% if !@creativeWork.content.nil? && !@creativeWork.content['jobTitle'].blank? %>
+            <% if !@person.content.nil? && !@person.content['jobTitle'].blank? %>
 
                 <div class="description">
-                    <%= @creativeWork.content['jobTitle'].html_safe %>
+                    <%= @person.content['jobTitle'].html_safe %>
                 </div>
 
             <% end %>
 
-            <%= render 'data_cycle_core/creative_works/partials/show/top_content/classificationAliases' %>
+            <%= render 'data_cycle_core/creative_works/partials/show/top_content/classificationAliases', dataCycleObject: @person, dataCycleObjectSchema: @dataSchema %>
 
-            <%= render 'data_cycle_core/creative_works/partials/show/top_content/validityPeriod' %>
+            <%= render 'data_cycle_core/creative_works/partials/show/top_content/validityPeriod', dataCycleObject: @person %>
 
-            <% if !@creativeWork.metadata['validation']['permissions'].nil? && is_writable(@creativeWork.metadata['validation']['permissions']) %>
+            <% if !@person.metadata['validation']['permissions'].nil? && is_writable(@person.metadata['validation']['permissions']) %>
 
                 <div class="edit">
-                    <%= link_to edit_person_path(@creativeWork), class:'button-prime small' do %>
+                    <%= link_to edit_person_path(@person), class:'button-prime small' do %>
                         <i class="fa fa-pencil" aria-hidden="true"></i><span>Bearbeiten</span>
                     <% end %>
                 </div>
@@ -66,9 +66,9 @@
 
     <div class="row">
 
-        <%= render 'data_cycle_core/persons/partials/show/person' %>
+        <%= render 'data_cycle_core/persons/partials/show/person', dataCycleObject: @person, dataCycleObjectSchema: @dataSchema %>
 
-        <%= render 'data_cycle_core/creative_works/partials/show/translation/translations', language: nil %>
+        <%= render 'data_cycle_core/creative_works/partials/show/translation/translations', language: nil, dataCycleObject: @person %>
 
     </div>
 

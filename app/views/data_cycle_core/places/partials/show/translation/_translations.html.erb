@@ -3,12 +3,12 @@
 
 <% if !language.nil? && language == "de" %>
 
-    <% german = @creativeWork.translations.select{|l| l['locale'] == language}.first %>
-    <%= render 'data_cycle_core/creative_works/partials/show/translation/translation_item', translation: german %>
+    <% german = dataCycleObject.translations.select{|l| l['locale'] == language}.first %>
+    <%= render 'data_cycle_core/creative_works/partials/show/translation/translation_item', translation: german, dataCycleObject: dataCycleObject %>
 
 <% else %>
 
-    <% languages = @creativeWork.translations.select{|l| l['locale'] != 'de'} %>
+    <% languages = dataCycleObject.translations.select{|l| l['locale'] != 'de'} %>
 
     <% if languages.count > 0 %>
 
@@ -26,7 +26,7 @@
                 </div>
 
                 <div class="large-10 columns">
-                    <%= render 'data_cycle_core/places/partials/show/translation/translation_item', translation: translation %>
+                    <%= render 'data_cycle_core/places/partials/show/translation/translation_item', translation: translation, dataCycleObject: dataCycleObject %>
                 </div>
             </div>
             <hr>

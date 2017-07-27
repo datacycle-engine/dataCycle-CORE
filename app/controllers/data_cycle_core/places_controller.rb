@@ -11,11 +11,12 @@ module DataCycleCore
 
     def show
       @place = DataCycleCore::Place.find_by(id: params[:id])
-      set_breadcrumb_for @place
 
       if @place.nil?
-        redirect_to root
+        redirect_to :back
       end
+
+      set_breadcrumb_for @place
 
       if params[:mode].nil?
         @mode = "flex"
@@ -28,9 +29,6 @@ module DataCycleCore
       if @dataSchema.nil?
         @dataSchema = I18n.with_locale(@place.translated_locales.first){@place.get_data_hash}
       end
-
-      #only for testing
-      @creativeWork = @place
 
       render layout: "data_cycle_core/creative_works_edit"
 
@@ -62,40 +60,40 @@ module DataCycleCore
 
     def edit
 
-      @creativeWork = DataCycleCore::Place.find(params[:id])
-      set_breadcrumb_for @creativeWork
-      add_breadcrumb '<i aria-hidden="true" class="fa fa-pencil"></i> Bearbeiten'.html_safe, "", creative_work_path(@creativeWork)
-      @dataSchema = @creativeWork.get_data_hash
+      @place = DataCycleCore::Place.find(params[:id])
+      set_breadcrumb_for @place
+      add_breadcrumb '<i aria-hidden="true" class="fa fa-pencil"></i> Bearbeiten'.html_safe, "", creative_work_path(@place)
+      @dataSchema = @place.get_data_hash
 
       render layout: "data_cycle_core/creative_works_edit"
     end
 
     def update
-      @creativeWork = DataCycleCore::Place.find(params[:id])
+      @place = DataCycleCore::Place.find(params[:id])
 
-      object_params = place_params('places', @creativeWork.metadata['validation']['name'], 'Place')
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@creativeWork.metadata['validation'], false)
+      object_params = place_params('places', @place.metadata['validation']['name'], 'Place')
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@place.metadata['validation'], false)
 
       # todo: implement preprocessor
       datahash = set_location(datahash)
 
-      valid = @creativeWork.validate(datahash)
+      valid = @place.validate(datahash)
 
       if valid.key?(:error) && !valid[:error].empty?
         flash[:error] = valid[:error]
-        redirect_to edit_place_path(@creativeWork)
+        redirect_to edit_place_path(@place)
         return
       end
 
-      @creativeWork.set_data_hash(datahash)
+      @place.set_data_hash(datahash)
 
-      if @creativeWork.save
+      if @place.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Place'
 
         if Rails.env.development?
-          redirect_to edit_place_path(@creativeWork) if Rails.env.development?
+          redirect_to edit_place_path(@place) if Rails.env.development?
         else
-          redirect_to @creativeWork
+          redirect_to @place
         end
 
       else

@@ -7,15 +7,15 @@
 
             <a class="close-button" href="<%= @breadcrumbs[-2][2] %>"><i aria-hidden="true" class="fa fa-times"></i></a>
 
-            <%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist' %>
+            <%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: @place %>
 
             <div class="topleftinfo">
-                <div class="type <%= @creativeWork.metadata['validation']['name'].downcase %>">
-                    <%= render 'data_cycle_core/shared/icon', icon_type: @creativeWork.metadata['validation']['name'].downcase %>
-                    <!--<span class="title"><%= @creativeWork.metadata['validation']['name'] %></span>-->
+                <div class="type <%= @place.metadata['validation']['name'].downcase %>">
+                    <%= render 'data_cycle_core/shared/icon', icon_type: @place.metadata['validation']['name'].downcase %>
+                    <!--<span class="title"><%= @place.metadata['validation']['name'] %></span>-->
                     <span class="title">Ort</span>
                 </div>
-                <%= render 'data_cycle_core/creative_works/partials/metaData' %>
+                <%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @place %>
             </div>
 
             <!--<a class="bookmark marked" href="#">-->
@@ -25,20 +25,20 @@
 
             <div class="title">
 
-                <% if !@creativeWork.nil? && !@creativeWork.name.nil? %>
-                    <%= @creativeWork.name %>
+                <% if !@place.nil? && !@place.name.nil? %>
+                    <%= @place.name %>
                 <% end %>
 
             </div>
 
-            <%= render 'data_cycle_core/creative_works/partials/show/top_content/classificationAliases' %>
+            <%= render 'data_cycle_core/creative_works/partials/show/top_content/classificationAliases', dataCycleObject: @place, dataCycleObjectSchema: @dataSchema %>
 
-            <%= render 'data_cycle_core/creative_works/partials/show/top_content/validityPeriod' %>
+            <%= render 'data_cycle_core/creative_works/partials/show/top_content/validityPeriod', dataCycleObject: @place %>
 
-            <% if !@creativeWork.metadata['validation']['permissions'].nil? && is_writable(@creativeWork.metadata['validation']['permissions']) %>
+            <% if !@place.metadata['validation']['permissions'].nil? && is_writable(@place.metadata['validation']['permissions']) %>
 
                 <div class="edit">
-                    <%= link_to edit_place_path(@creativeWork), class:'button-prime small' do %>
+                    <%= link_to edit_place_path(@place), class:'button-prime small' do %>
                         <i class="fa fa-pencil" aria-hidden="true"></i><span>Bearbeiten</span>
                     <% end %>
                 </div>
@@ -59,9 +59,9 @@
 
     <div class="row">
 
-        <%= render 'data_cycle_core/places/partials/show/place' %>
+        <%= render 'data_cycle_core/places/partials/show/place', dataCycleObject: @place, dataCycleObjectSchema: @dataSchema %>
 
-        <%= render 'data_cycle_core/places/partials/show/translation/translations', language: nil %>
+        <%= render 'data_cycle_core/places/partials/show/translation/translations', language: nil, dataCycleObject: @place %>
 
     </div>
 

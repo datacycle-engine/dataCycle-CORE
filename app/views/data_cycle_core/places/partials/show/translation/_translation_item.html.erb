@@ -2,8 +2,9 @@
     
     <% unless translation.name.nil? %>
         <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                   label: @creativeWork.metadata['validation']['properties']['name']['label'],
-                   prop: nil,
+                   label: dataCycleObject.metadata['validation']['properties']['name']['label'],
+                   prop: dataCycleObject.metadata['validation']['properties']['name'],
+                   key: 'name',
                    value: translation.name %>
     <% end %>
 

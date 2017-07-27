@@ -11,11 +11,12 @@ module DataCycleCore
 
     def show
       @person = DataCycleCore::Person.find_by(id: params[:id])
-      set_breadcrumb_for @person
 
       if @person.nil?
         redirect_to :back
       end
+
+      set_breadcrumb_for @person
 
       if params[:mode].nil?
         @mode = "flex"
@@ -24,9 +25,6 @@ module DataCycleCore
       end
 
       @dataSchema = @person.get_data_hash
-
-      #only for testing
-      #@creativeWork = @person
 
       render layout: "data_cycle_core/creative_works_edit"
 
@@ -56,37 +54,37 @@ module DataCycleCore
     end
 
     def edit
-      @creativeWork = DataCycleCore::Person.find(params[:id])
-      set_breadcrumb_for @creativeWork
-      add_breadcrumb '<i aria-hidden="true" class="fa fa-pencil"></i> Bearbeiten'.html_safe, "", creative_work_path(@creativeWork)
-      @dataSchema = @creativeWork.get_data_hash
+      @person = DataCycleCore::Person.find(params[:id])
+      set_breadcrumb_for @person
+      add_breadcrumb '<i aria-hidden="true" class="fa fa-pencil"></i> Bearbeiten'.html_safe, "", creative_work_path(@person)
+      @dataSchema = @person.get_data_hash
       render layout: "data_cycle_core/creative_works_edit"
     end
 
     def update
-      @creativeWork = DataCycleCore::Person.find(params[:id])
+      @person = DataCycleCore::Person.find(params[:id])
 
-      object_params = person_params('persons', @creativeWork.metadata['validation']['name'], 'Person')
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@creativeWork.metadata['validation'], false)
+      object_params = person_params('persons', @person.metadata['validation']['name'], 'Person')
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@person.metadata['validation'], false)
 
       # add creator id
-      valid = @creativeWork.validate(datahash)
+      valid = @person.validate(datahash)
 
       if valid.key?(:error) && !valid[:error].empty?
         flash[:error] = valid[:error]
-        redirect_to edit_person_path(@creativeWork)
+        redirect_to edit_person_path(@person)
         return
       end
 
-      @creativeWork.set_data_hash(datahash)
+      @person.set_data_hash(datahash)
 
-      if @creativeWork.save
+      if @person.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Person'
 
         if Rails.env.development?
-          redirect_to edit_person_path(@creativeWork) if Rails.env.development?
+          redirect_to edit_person_path(@person) if Rails.env.development?
         else
-          redirect_to @creativeWork
+          redirect_to @person
         end
 
       else

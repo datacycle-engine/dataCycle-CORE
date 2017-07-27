@@ -1,11 +1,11 @@
 
-<% unless @creativeWork.metadata.nil? %>
+<% unless dataCycleObject.metadata.nil? %>
 
     <br /><br />
 
-    <% if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? %>
+    <% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['validation'].nil? %>
 
-        <% validation_properties = get_ordered_validation_properties(@creativeWork.metadata['validation']) %>
+        <% validation_properties = get_ordered_validation_properties(dataCycleObject.metadata['validation']) %>
 
         <% if !validation_properties.nil? %>
 
@@ -16,13 +16,13 @@
 
                 <% validation_properties.each do |key, prop| %>
 
-                    <% if !@dataSchema[key].nil? && !@dataSchema[key].blank? && !exludedProperties.include?(key) %>
+                    <% if !dataCycleObjectSchema[key].nil? && !dataCycleObjectSchema[key].blank? && !exludedProperties.include?(key) %>
 
                         <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
                                 label: prop['label'],
                                 prop: prop,
                                 key: key,
-                                value: normalize_value(@dataSchema[key]) %>
+                                value: normalize_value(dataCycleObjectSchema[key]) %>
 
                     <% end %>
 

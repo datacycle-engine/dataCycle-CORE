@@ -1,10 +1,10 @@
-<% unless @creativeWork.display_classification_aliases.empty? %>
+<% unless dataCycleObject.display_classification_aliases.empty? %>
 
      <div class="tags">
 
-        <% if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? %>
+        <% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['validation'].nil? %>
 
-            <% validation_properties = get_ordered_validation_properties(@creativeWork.metadata['validation']) %>
+            <% validation_properties = get_ordered_validation_properties(dataCycleObject.metadata['validation']) %>
 
             <% if !validation_properties.nil? %>
 
@@ -13,14 +13,14 @@
                     <% if prop['type'] == 'classificationTreeLabel' %>
 
 
-                        <% if !@dataSchema[key].nil? && !@dataSchema[key].empty? %>
+                        <% if !dataCycleObjectSchema[key].nil? && !dataCycleObjectSchema[key].empty? %>
                             <div class="tag-group-wrapper">
 
                                 <span class="icon <%= prop['label'] %>"><i class="fa" aria-hidden="true"></i></span>
 
                                 <span class="tag-group-header"><%= prop['label'] %>: </span>
 
-                                <% get_classificationAliases_for_classificationIDs(@dataSchema[key]).each do |classificationAlias| %>
+                                <% get_classificationAliases_for_classificationIDs(dataCycleObjectSchema[key]).each do |classificationAlias| %>
                                     <span class="tag"><%= classificationAlias.name %></span>
                                 <% end %>
 

@@ -7,14 +7,14 @@
 
             <a class="close-button" href="<%= @breadcrumbs[-2][2] %>"><i aria-hidden="true" class="fa fa-times"></i></a>
 
-            <%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist' %>
+            <%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: @creativeWork %>
 
             <div class="topleftinfo">
                 <div class="type <%= @creativeWork.metadata['validation']['name'].downcase %>">
                     <%= render 'data_cycle_core/shared/icon', icon_type: @creativeWork.metadata['validation']['name'].downcase %>
                     <span class="title"><%= @creativeWork.metadata['validation']['name'] %></span>
                 </div>
-                <%= render 'data_cycle_core/creative_works/partials/metaData' %>
+                <%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @creativeWork %>
             </div>
 
             <!--<a class="bookmark marked" href="#">-->
@@ -55,10 +55,10 @@
                     </div>
                 <% end %>
             <% else %>
-                <%= render 'data_cycle_core/creative_works/partials/show/top_content/classificationAliases' %>
+                <%= render 'data_cycle_core/creative_works/partials/show/top_content/classificationAliases', dataCycleObject: @creativeWork, dataCycleObjectSchema: @dataSchema %>
             <% end %>
 
-            <%= render 'data_cycle_core/creative_works/partials/show/top_content/validityPeriod' %>
+            <%= render 'data_cycle_core/creative_works/partials/show/top_content/validityPeriod', dataCycleObject: @creativeWork %>
 
             <% if !@creativeWork.metadata['validation']['permissions'].nil? && is_writable(@creativeWork.metadata['validation']['permissions']) %>
 
@@ -114,8 +114,8 @@
 
         <div class="row align-center">
 
-            <%= render 'data_cycle_core/creative_works/partials/show/'+@creativeWork.metadata['validation']['name'].downcase rescue render "data_cycle_core/creative_works/partials/show/default" %>
-            <%= render 'data_cycle_core/creative_works/partials/show/translation/translations', language: nil %>
+            <%= render 'data_cycle_core/creative_works/partials/show/'+@creativeWork.metadata['validation']['name'].downcase, dataCycleObject: @creativeWork, dataCycleObjectSchema: @dataSchema rescue render "data_cycle_core/creative_works/partials/show/default", dataCycleObject: @creativeWork, dataCycleObjectSchema: @dataSchema  %>
+            <%= render 'data_cycle_core/creative_works/partials/show/translation/translations', language: nil, dataCycleObject: @creativeWork %>
 
         </div>
 

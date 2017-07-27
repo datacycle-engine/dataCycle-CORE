@@ -10,11 +10,13 @@ module DataCycleCore
 
     def show
       @creativeWork = DataCycleCore::CreativeWork.find_by(id: params[:id])
-      set_breadcrumb_for @creativeWork
 
       if @creativeWork.nil?
-        redirect_to root
+        redirect_to :back
+        return
       end
+
+      set_breadcrumb_for @creativeWork
 
       if params[:mode].nil?
         @mode = "flex"
