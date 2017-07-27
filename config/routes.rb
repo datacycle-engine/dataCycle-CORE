@@ -38,7 +38,7 @@ DataCycleCore::Engine.routes.draw do
         get 'images/search', to: 'images#search'
         resources :images, only: [:index, :show]
 
-        resources :watch_lists, only: [:index]
+        resources :watch_lists, only: [:index, :show]
       end
     end
   end

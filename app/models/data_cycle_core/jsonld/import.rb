@@ -129,6 +129,7 @@ module DataCycleCore
                     contentLocation_hash = get_contentLocation(to_update_image.id, data_hash["contentLocation"], lang)
                     data['contentLocation'] = [ contentLocation_hash ]
                   end
+                  data['data_type'] = nil # touch data_type to get defalut_value
                   errors = to_update_image.set_data_hash(data)
                   # check if data is set and validations are correct
                   if errors[:error].size > 0
@@ -141,16 +142,6 @@ module DataCycleCore
               end
 
               unless to_update_image.id.nil?
-                # save image with classification 'Bild' and treelabel 'Inhaltstypen'
-                ClassificationCreativeWork
-                  .find_or_initialize_by(
-                    creative_work_id: to_update_image.id,
-                    classification_id: @image_classification,
-                    external_source_id: @external_source_id
-                  ) do |relation|
-                    relation.seen_at = Time.zone.now
-                end.save
-
                 #create relation for keywords
                 #puts "id: #{to_update_image.id} | keywords = #{data_set.dump.each.first[1]['keywords']}"
                 keywords = data_set.dump.each.first[1]['keywords']
