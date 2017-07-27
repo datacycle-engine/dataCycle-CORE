@@ -11,6 +11,7 @@ module DataCycleCore
     def show
       @creativeWork = DataCycleCore::CreativeWork.find_by(id: params[:id])
       set_breadcrumb_for @creativeWork
+
       if @creativeWork.nil?
         redirect_to root
       end
@@ -32,21 +33,19 @@ module DataCycleCore
     end
 
     def create
-
-      @creativeWork = create_internal(params[:template])
+      object_params = creative_work_params('creative_works', params[:template], 'CreativeWork')
+      @creativeWork = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:template], 'CreativeWork', object_params, current_user)
 
       if @creativeWork.nil?
         redirect_to :back
         return
       end
 
-      set_breadcrumb_for @creativeWork
-
       if params[:template] != "Thema"
         if params['parent'].nil? || params['parent'].blank?
           #create new thema
           if params[:template] == "Recherche"
-            thema = create_internal("Thema")
+            thema = DataCycleCore::DataHashService.create_internal_object('creative_works', "Thema", 'CreativeWork', object_params, current_user)
             @creativeWork.isPartOf = thema.id unless thema.nil?
           else
             flash[:error] = I18n.t :invalid_parent, scope: [:controllers, :error]
@@ -120,13 +119,13 @@ module DataCycleCore
     end
 
     def validate_single_data
+
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
-
       object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], 'CreativeWork')
-
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'])
       valid = @creativeWork.validate(datahash)
       render :json => valid.to_json
+
     end
 
     private
@@ -134,41 +133,12 @@ module DataCycleCore
       def creative_work_params(storage_location, template_name, template_description)
 
         datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
-        params.require(:creative_work).permit(:headline, :datahash => datahash)
+        params.require(:creative_work).permit(:datahash => datahash)
 
       end
 
       def is_number? string
         true if Float(string) rescue false
-      end
-
-      def create_internal(template)
-
-        object_params = creative_work_params('creative_works', template, 'CreativeWork')
-        creative_work = DataCycleCore::CreativeWork.new(object_params)
-
-        template = DataCycleCore::CreativeWork.where(template: true, headline: template, description: "CreativeWork").first
-        validation = template.metadata['validation']
-
-        creative_work.metadata = { 'validation' => validation }
-        creative_work.save
-
-        if !object_params[:datahash].nil?
-          datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],creative_work.metadata['validation'])
-          datahash[:creator] = current_user[:id]
-        else
-          return nil
-        end
-
-        creative_work.set_data_hash(datahash)
-
-        #validate ?
-        if creative_work.save
-          return creative_work
-        else
-          return nil
-        end
-
       end
 
       def get_inherit_datahash(creativeWork)

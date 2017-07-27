@@ -49,6 +49,34 @@ module DataCycleCore
       return datahash
     end
 
+    def self.create_internal_object(storage_location, template_name, template_description, object_params, current_user)
+
+      object = ("DataCycleCore::"+storage_location.classify).constantize.new(object_params)
+
+      template = self.get_internal_template(storage_location, template_name, template_description)
+      validation = template.metadata['validation']
+
+      object.metadata = { 'validation' => validation }
+      object.save
+
+      if !object_params[:datahash].nil?
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],object.metadata['validation'])
+        datahash[:creator] = current_user[:id]
+      else
+        return nil
+      end
+
+      object.set_data_hash(datahash)
+
+      #validate ?
+      if object.save
+        return object
+      else
+        return nil
+      end
+
+    end
+
     private
 
       def self.get_params_from_hash(template_hash)

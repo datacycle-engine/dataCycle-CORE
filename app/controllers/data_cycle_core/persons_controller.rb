@@ -4,8 +4,6 @@ module DataCycleCore
     #load_and_authorize_resource         # from cancancan (authorize)
     add_breadcrumb "Personen", "", "/persons"
 
-    #layout "data_cycle_core/creative_works_edit"
-
     def index
       @persons = DataCycleCore::Person.all().where(:template => false).order(updated_at: :desc).page(params[:page])
       @person = DataCycleCore::Person.new
@@ -16,7 +14,7 @@ module DataCycleCore
       set_breadcrumb_for @person
 
       if @person.nil?
-        redirect_to root
+        redirect_to :back
       end
 
       if params[:mode].nil?
@@ -28,22 +26,20 @@ module DataCycleCore
       @dataSchema = @person.get_data_hash
 
       #only for testing
-      @creativeWork = @person
+      #@creativeWork = @person
 
       render layout: "data_cycle_core/creative_works_edit"
 
     end
 
     def create
-
-      @person = create_internal(params[:template])
+      object_params = person_params('persons', params[:template], 'Person')
+      @person = DataCycleCore::DataHashService.create_internal_object('persons', params[:template], 'Person', object_params, current_user)
 
       if @person.nil?
         redirect_to :back
         return
       end
-
-      set_breadcrumb_for @person
 
       respond_to do |format|
         #validate ?
@@ -115,36 +111,6 @@ module DataCycleCore
 
         datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
         params.require(:person).permit(:datahash => datahash)
-
-      end
-
-      #refactor
-      def create_internal(template)
-
-        object_params = person_params('persons', template, 'Person')
-        person = DataCycleCore::Person.new(object_params)
-
-        template = DataCycleCore::Person.where(template: true, headline: template, description: "Person").first
-        validation = template.metadata['validation']
-
-        person.metadata = { 'validation' => validation }
-        person.save
-
-        if !object_params[:datahash].nil?
-          datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],person.metadata['validation'])
-          datahash[:creator] = current_user[:id]
-        else
-          return nil
-        end
-
-        person.set_data_hash(datahash)
-
-        #validate ?
-        if person.save
-          return person
-        else
-          return nil
-        end
 
       end
 

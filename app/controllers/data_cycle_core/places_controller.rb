@@ -38,14 +38,13 @@ module DataCycleCore
 
     def create
 
-      @place = create_internal(params[:template])
+      object_params = place_params('places', params[:template], 'Place')
+      @place = DataCycleCore::DataHashService.create_internal_object('places', params[:template], 'Place', object_params, current_user)
 
       if @place.nil?
         redirect_to :back
         return
       end
-
-      set_breadcrumb_for @place
 
       respond_to do |format|
         #validate ?
@@ -119,36 +118,7 @@ module DataCycleCore
       def place_params(storage_location, template_name, template_description)
 
         datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
-        params.require(:place).permit(:name, :datahash => datahash)
-
-      end
-
-      def create_internal(template)
-
-        object_params = place_params('places', template, 'Place')
-        place = DataCycleCore::Place.new(place_params)
-
-        template = DataCycleCore::Place.where(template: true, headline: template, description: "Place").first
-        validation = template.metadata['validation']
-
-        place.metadata = { 'validation' => validation }
-        place.save
-
-        if !object_params[:datahash].nil?
-          datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],place.metadata['validation'])
-          datahash[:creator] = current_user[:id]
-        else
-          return nil
-        end
-
-        place.set_data_hash(datahash)
-
-        #validate ?
-        if place.save
-          return place
-        else
-          return nil
-        end
+        params.require(:place).permit(:datahash => datahash)
 
       end
 
