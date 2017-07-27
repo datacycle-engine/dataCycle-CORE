@@ -61,7 +61,7 @@ module DataCycleCore
 
       if !object_params[:datahash].nil?
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],object.metadata['validation'])
-        datahash[:creator] = current_user[:id]
+        datahash['creator'] = current_user[:id]
       else
         return nil
       end
