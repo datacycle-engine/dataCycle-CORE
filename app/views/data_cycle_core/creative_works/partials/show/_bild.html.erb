@@ -41,7 +41,19 @@
                    value: dataCycleObject.metadata['mandatoryLicense'] %>
         <% end %>
         </dd>
-      <% end %>   
+      <% end %>
+
+        <!-- todo: check only for empty string -->
+      <% if !dataCycleObject.metadata['restrictions'].nil? && dataCycleObject.metadata['restrictions'] != 'Keine Einschränkung;' && !dataCycleObject.metadata['restrictions'].blank? %>
+        <dt><i class="fa fa-info-circle" aria-hidden="true"></i> <%= dataCycleObject.metadata['validation']['properties']['restrictions']['label'] %></dt>
+        <dd>
+                <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                           label: '',
+                           prop: dataCycleObject.metadata['validation']['properties']['restrictions'],
+                           key: 'restrictions',
+                           value: dataCycleObject.metadata['restrictions'] %>
+        </dd>
+      <% end %>
 
       <% unless dataCycleObject.metadata['width'].nil? %>
         <dt><i class="fa fa-info-circle" aria-hidden="true"></i> Bildinformationen</dt>
