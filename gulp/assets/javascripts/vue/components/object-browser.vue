@@ -71,6 +71,9 @@ export default {
   created() {
     this.existingItems = this.existing;
   },
+  mounted() {
+    $(this.$el).find('.media-preview').foundation();
+  },
   methods: {
     remove(item, event) {
       if (this.min > 0 && this.existingItems.length <= this.min) return this.renderError("min", this.min, event, this.objectType);
@@ -88,6 +91,9 @@ export default {
       this.existingItems = data.slice(0);
       var parentID = $(this.$el).closest('.object-browser').attr('id');
       this.$parent.$emit('objects-saved', { name: this.hiddenName });
+      this.$nextTick(function () {
+        $(this.$el).find('.media-preview').foundation();
+      });
     }
   }
 }

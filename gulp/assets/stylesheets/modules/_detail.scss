@@ -46,6 +46,7 @@
           }
           &.media {
             .thumbnail {
+              position: relative;
               width: 229px;
               height: 157px;
               margin-right: 0.5rem;
@@ -54,8 +55,25 @@
               background-repeat: no-repeat;
               background-color: white;
               overflow: hidden;
-              &.has-restrictions{
+              &.has-restrictions {
                 box-shadow: 0 0 0 2px rgba(255, 0, 0, 1);
+              }
+              .description {
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                width: 221px;
+                background: rgba(0, 0, 0, 0.5);
+                height: 2rem;
+                display: block;
+                line-height: 1rem;
+                font-size: 1rem;
+                color: white;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding: 0.5rem;
+                text-align: center;
               }
             }
           }

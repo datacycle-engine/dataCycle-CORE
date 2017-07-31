@@ -99,9 +99,27 @@
     background-repeat: no-repeat;
     background-color: white;
     &.thumbnail {
+      position: relative;
       width: 229px;
       height: 157px;
       padding: 0;
+      .description {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 221px;
+        background: rgba(0, 0, 0, 0.5);
+        height: 2rem;
+        display: block;
+        line-height: 1rem;
+        font-size: 1rem;
+        color: white;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 0.5rem;
+        text-align: center;
+      }
     }
     span.caption {
       display: none;
@@ -114,6 +132,7 @@
       background: white;
       color: $dark-gray;
       padding: 0 0.2rem;
+      cursor: pointer;
       &:hover {
         color: map-get($foundation-palette, alert);
       }
@@ -286,6 +305,12 @@
       &:hover,
       &:focus {
         box-shadow: 0 0 6px 1px rgba($primary-color, 0.5);
+      }
+      .delete-thumbnail {
+        display: none;
+      }
+      .description {
+        display: none;
       }
     }
   }
