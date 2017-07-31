@@ -1,9 +1,12 @@
+<% breadcrumb @watch_list %>
 
 <% content_for :top_content do %>
 
     <div class="column detail-header-wrapper">
 
         <div class="detail-header">
+
+            <a class="close-button" href="<%= breadcrumbs[-2].url %>"><i aria-hidden="true" class="fa fa-times"></i></a>
 
             <div class="topleftinfo">
                 <div class="type watchlist">

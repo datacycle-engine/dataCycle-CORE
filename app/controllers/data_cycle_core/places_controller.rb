@@ -2,7 +2,6 @@ module DataCycleCore
   class PlacesController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
     #load_and_authorize_resource         # from cancancan (authorize)
-    add_breadcrumb "Ort", "", "/places"
 
     def index
       @places = DataCycleCore::Place.all().where(:template => false).order(updated_at: :desc).page(params[:page])
@@ -13,10 +12,8 @@ module DataCycleCore
       @place = DataCycleCore::Place.find_by(id: params[:id])
 
       if @place.nil?
-        redirect_to :back
+        redirect_back(fallback_location: root_path)
       end
-
-      set_breadcrumb_for @place
 
       if params[:mode].nil?
         @mode = "flex"
@@ -40,7 +37,7 @@ module DataCycleCore
       @place = DataCycleCore::DataHashService.create_internal_object('places', params[:template], 'Place', object_params, current_user)
 
       if @place.nil?
-        redirect_to :back
+        redirect_back(fallback_location: root_path)
         return
       end
 
@@ -51,7 +48,7 @@ module DataCycleCore
           format.html { redirect_to @place }
           format.json { render :json => @place }
         else
-          redirect_to :back
+          redirect_back(fallback_location: root_path)
           return
         end
       end
@@ -61,8 +58,6 @@ module DataCycleCore
     def edit
 
       @place = DataCycleCore::Place.find(params[:id])
-      set_breadcrumb_for @place
-      add_breadcrumb '<i aria-hidden="true" class="fa fa-pencil"></i> Bearbeiten'.html_safe, "", creative_work_path(@place)
       @dataSchema = @place.get_data_hash
 
       render layout: "data_cycle_core/creative_works_edit"
@@ -91,7 +86,7 @@ module DataCycleCore
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Place'
 
         if Rails.env.development?
-          redirect_to edit_place_path(@place) if Rails.env.development?
+          redirect_back(fallback_location: root_path)
         else
           redirect_to @place
         end
@@ -118,11 +113,6 @@ module DataCycleCore
         datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
         params.require(:place).permit(:datahash => datahash)
 
-      end
-
-      def set_breadcrumb_for place
-        #set_breadcrumb_for creativeWork.parent if creativeWork.parent
-        add_breadcrumb 'Ort', place.name, place_path(place.id)
       end
 
       #todo: implement as preprocessor
