@@ -38,7 +38,7 @@ json.set! "classifications_aliases", class_hash
 
 # get translated items
 data_hash_trans = {}
-image.translated_locales.each do |language|
+image.translations.map(&:locale).each do |language|
   data_hash_lang = {}
   I18n.with_locale(language) do
     data_type['properties'].each do |key,value|

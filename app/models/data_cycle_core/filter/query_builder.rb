@@ -5,7 +5,7 @@ module DataCycleCore
       include Enumerable
 
       attr_reader :query
-      def_delegators :@query, :to_a, :to_sql, :each, :page
+      def_delegators :@query, :to_a, :to_sql, :each, :page, :includes
       TERMINAL_METHODS = [:count, :pluck,
         :first, :second, :third, :fourth, :fifth, :forty_two, :last]
       def_delegators :@query, *TERMINAL_METHODS
