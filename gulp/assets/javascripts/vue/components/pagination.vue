@@ -10,7 +10,7 @@
         <span aria-hidden="true">&lsaquo; Vorherige</span>
       </a>
     </li>
-    <li v-for="n in paginationRange" :class="activePage(n)">
+    <li v-for="n in paginationRange" :key="n" :class="activePage(n)">
       <a href="#" @click.prevent="pageChanged(n)">{{ n }}</a>
     </li>
     <li v-show="currentPage < lastPage">

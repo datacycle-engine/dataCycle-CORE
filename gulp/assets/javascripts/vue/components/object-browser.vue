@@ -1,7 +1,9 @@
 <template>
   <div>
     <div class="object-thumbs" v-if="existingItems.length > 0">
-      <slot name="item" v-for="item in existingItems" :item="item" :remove="remove" :data-open="revealLink ? 'media-reveal-'+item.id : ''"></slot>
+      <div v-for="item in existingItems" :key="item">
+        <slot name="item" :item="item" :remove="remove" :data-open="revealLink ? 'media-reveal-'+item.id : ''"></slot>
+      </div>
     </div>
     <div class="object-thumbs" v-else>
       <input type="hidden" :name="hiddenName">
@@ -76,9 +78,7 @@ export default {
     this.existingItems = this.existing;
   },
   mounted() {
-    this.$nextTick(function () {
-      $(this.$el).find('.media-preview').foundation();
-    });
+    $(this.$el).find('.media-preview').foundation();
   },
   methods: {
     remove(item, event) {
@@ -95,7 +95,6 @@ export default {
     },
     save(data) {
       this.existingItems = data.slice(0);
-      var parentID = $(this.$el).closest('.object-browser').attr('id');
       this.$parent.$emit('objects-saved', { name: this.hiddenName });
       this.$nextTick(function () {
         $(this.$el).find('.media-preview').foundation();
