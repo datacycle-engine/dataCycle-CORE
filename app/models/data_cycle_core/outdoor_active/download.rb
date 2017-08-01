@@ -3,9 +3,10 @@ module DataCycleCore
 
     class Download
 
-      def initialize ( uuid, incremental_update = false, page_size = 300, verbose = false )
+      def initialize ( uuid, incremental_update = false, page_size = 300, max_item_count = nil, verbose = false )
         @uuid = uuid
         @download_page_size = page_size
+        @max_item_count = max_item_count
         @verbose = verbose
         @log = DataCycleCore::Logger.new("outdooractive_download")
         external_source = ExternalSource.where(id: uuid).first
@@ -131,7 +132,12 @@ module DataCycleCore
           else
             indexes = JSON.parse(response.body)['data'].collect { |selected_poi| selected_poi['id']}
           end
-          download_poi_details(end_point, indexes)
+          
+          if @max_item_count
+            download_poi_details(end_point, indexes[0..(@max_item_count - 1)])
+          else
+            download_poi_details(end_point, indexes)
+          end
         end
       end
 
