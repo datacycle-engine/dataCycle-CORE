@@ -1,5 +1,6 @@
 .detail-header {
   background: $light-gray;
+  min-height: 8rem;
   .close-button {
     position: absolute;
     top: 1rem;
@@ -25,6 +26,9 @@
           box-shadow: 0 0 1px #9d9d9d;
           padding: 2.2rem 1rem 1rem 1rem;
           &:not(:last-child) {
+            margin-bottom: 1rem;
+          }
+          >div:not(.detail-type) {
             margin-bottom: 1rem;
           }
           .detail-type {
@@ -56,7 +60,7 @@
               background-color: white;
               overflow: hidden;
               &.has-restrictions {
-                box-shadow: 0 0 0 2px rgba(255, 0, 0, 1);
+                box-shadow: 0 0 2px 1px red;
               }
               .description {
                 position: absolute;

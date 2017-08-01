@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="object-thumbs" v-if="existingItems.length > 0">
-      <slot name="item" v-for="item in existingItems" :item="item" :remove="remove"></slot>
+      <slot name="item" v-for="item in existingItems" :item="item" :remove="remove" :data-open="revealLink ? 'media-reveal-'+item.id : ''"></slot>
     </div>
     <div class="object-thumbs" v-else>
       <input type="hidden" :name="hiddenName">
@@ -47,6 +47,10 @@ export default {
       type: Boolean,
       default: false
     },
+    revealLink: {
+      type: Boolean,
+      default: false
+    },
     hiddenName: {
       type: String
     },
@@ -72,7 +76,9 @@ export default {
     this.existingItems = this.existing;
   },
   mounted() {
-    $(this.$el).find('.media-preview').foundation();
+    this.$nextTick(function () {
+      $(this.$el).find('.media-preview').foundation();
+    });
   },
   methods: {
     remove(item, event) {

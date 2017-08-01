@@ -1,7 +1,7 @@
 <div id="add-to-watchlist">
-    <% if !current_user.watch_lists.empty? %>
-        <a id="add-to-watchlist-link" data-toggle="add-watchlist">Zu Merkliste hinzufügen <i class="fa fa-bookmark" aria-hidden="true"></i></a>
-        <ul class="dropdown-pane bottom" id="add-watchlist" data-dropdown>
+    <a id="add-to-watchlist-link" data-toggle="add-watchlist">Zu Merkliste hinzufügen <i class="fa fa-bookmark" aria-hidden="true"></i></a>
+    <ul class="dropdown-pane bottom" id="add-watchlist" data-dropdown>
+        <% if current_user.watch_lists.count > 0 %>
             <% current_user.watch_lists.each do |watchlist| %>
                 <li>
                     <% if is_in_watchlist?(watchlist, dataCycleObject) %>
@@ -20,6 +20,28 @@
                     <% end %>
                 </li>
             <% end %>
-        </ul>
-    <% end %>
+        <% else %>
+            <li>Keine Merklisten</li>
+            <li><a class="add-watch-list" href="#" data-open="newWatchList">Neue hinzufügen</a></li>
+
+            <div class="reveal new-item" id="newWatchList" data-reveal>
+                <h3>Neue Merkliste erstellen</h3>
+
+                <% @watch_list = DataCycleCore::WatchList.new %>
+
+                <%= form_for @watch_list do |f| %>
+
+                    <div class="validation-container form-element">
+                        <%= f.text_field :headline, class: 'form-control', value:'' %>
+                    </div>
+                    <%= f.submit "Erstellen", class: "button primary" %>
+
+                <% end %>
+
+                <button class="close-button" data-close aria-label="Close modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        <% end %>
+    </ul>
 </div>

@@ -197,6 +197,31 @@ module DataCycleCore
       render partial: "#{@@partials_path}duration", locals: {key: key, value: value, label: label, prop: prop, options: options, parent_object_keys: parent_object_keys}
     end
 
+    def to_html_string title, text = ''
+      html_title = ''
+      unless title.blank?
+        html_title += '<i>'
+        html_title += title
+        
+        unless text.blank?
+          html_title += ':'
+        end
+
+        html_title += '</i>'
+      end
+
+      html_text = ''
+      unless text.blank?
+        html_text += '<b> '
+        html_text += text
+        html_text += '</b>'
+      end
+
+      html_tag = html_title + html_text
+
+      html_tag.html_safe
+    end
+
     # Show action
     def get_object_data_for_show_action(storage_location, value)
       return DataCycleCore::DataHashService.get_internal_data(storage_location, value)
