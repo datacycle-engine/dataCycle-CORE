@@ -3,9 +3,10 @@ module DataCycleCore
 
     class Download
 
-      def initialize(uuid, incremental_update = false, page_size = 100, verbose = false )
+      def initialize(uuid, incremental_update = false, page_size = 100, max_item_count = nil, verbose = false )
         @uuid = uuid
-        @download_page_size = page_size
+        @download_page_size = [page_size, max_item_count].reject(&:nil?).min
+        @max_item_count = max_item_count
         @verbose = verbose
         @log = DataCycleCore::Logger.new("jsonld_download")
         external_source = ExternalSource.where(id: uuid).first
@@ -33,7 +34,7 @@ module DataCycleCore
         @log.error "  could not load JSON-LD end-point, HTTP-Response = #{response.status}" unless response.status == 200
         initial_download = JSON.parse(response.body)
         total_items = initial_download['count'].to_i
-        pages = total_items.fdiv(@download_page_size).ceil
+        pages = [total_items, @max_item_count].reject(&:nil?).min.fdiv(@download_page_size).ceil
 
         print "downloading: "
         pages.times do |i|
