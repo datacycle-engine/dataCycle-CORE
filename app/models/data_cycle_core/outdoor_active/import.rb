@@ -80,7 +80,7 @@ module DataCycleCore
 
       def import_category
         import_classification_logging ('category') do
-          DownloadCategory.all.each do |loaded_category|
+          DownloadCategory.all.order_by(:'_id'.asc).each do |loaded_category|
             ActiveRecord::Base.transaction do
               data_hash = {
                 'external_source_id' => @external_source_id,
@@ -191,9 +191,14 @@ module DataCycleCore
       def upsert_classification_from_key(external_key, parent_external_key, data_hash)
         classification_id = upsert_classification(external_key, data_hash)
         unless parent_external_key.nil?
-          parent_classification_id = Classification
-            .find_by(external_source_id: @external_source_id, external_key: parent_external_key)
-            .id
+          parent_classification = Classification.find_by(external_source_id: @external_source_id, external_key: parent_external_key)
+
+          if (parent_classification.nil?)
+            @log.warn("parent category with external key #{parent_external_key} from data source #{@external_source_id} is missing")
+            parent_classification_id = nil
+          else
+            parent_classification_id = parent_classification.id
+          end
         else
           parent_classification_id = nil
         end

@@ -22,6 +22,10 @@ module DataCycleCore
       @log.info message
     end
 
+    def warn(message)
+      @log.warn message
+    end
+
     def error(message)
       @log.error message
     end
