@@ -125,8 +125,7 @@ module DataCycleCore
           end
           updates = indexes.count
 
-          place_template = Place.
-            find_by(template: true, headline: 'contentLocation', description: 'Place')
+          place_template = poi_template
           validation = place_template.metadata['validation']
           print " " * 40 + "loading"
 
@@ -644,6 +643,24 @@ module DataCycleCore
         @log.info "  end importing pois #{(end_time-start_time).round(2)} [s]"
       end
 
+
+      private 
+      
+      def poi_template
+        if DataCycleCore::OutdoorActive::Config.poi_template.nil?
+          @log.error 'Missing configuration for poi template to use when importing pois from outdoor active'
+          raise 'Missing configuration for poi template'
+        elsif DataCycleCore::OutdoorActive::Config.poi_template.is_a? String
+          begin
+            Place.find_by!(template: true, headline: DataCycleCore::OutdoorActive::Config.poi_template)
+          rescue ActiveRecord::RecordNotFound => e
+            @log.error "Missing template '#{DataCycleCore::OutdoorActive::Config.poi_template}' for places"
+            raise e
+          end
+        else
+          raise NotImplementedError
+        end
+      end
     end
   end
 end
