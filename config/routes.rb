@@ -21,6 +21,7 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/import_templates', to: 'dash_board#import_templates'
   get  '/admin/import_classifications', to: 'dash_board#import_classifications'
   get  '/admin/import_persons', to: 'dash_board#import_persons'
+  get  '/admin/classifications', to: 'dash_board#classifications'
   #mount RailsDb::Engine => '/db', :as => 'db'
 
   #backend validation endpoints
