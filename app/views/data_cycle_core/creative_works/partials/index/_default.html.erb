@@ -4,7 +4,7 @@
         <%= render 'data_cycle_core/watch_lists/partials/remove_item_link', item: item %>
     <% end %>
     
-    <%= link_to item do %>
+    <%= link_to polymorphic_path(item, trail: (breadcrumb_trail unless request.path == root_path)) do %>
 
         <div class="inner">
             <%= render 'data_cycle_core/creative_works/partials/index/render/type', item: item %>

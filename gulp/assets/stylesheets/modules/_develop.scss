@@ -1,1 +1,13 @@
 /* todo: merge styles */
+
+.media-preview {
+  padding-top: 2.5rem;
+  .preview-title {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+  }
+  .description {
+    margin-top: 0.5rem;
+  }
+}

@@ -1,5 +1,6 @@
 .detail-header {
   background: $light-gray;
+  min-height: 8rem;
   .close-button {
     position: absolute;
     top: 1rem;
@@ -27,6 +28,9 @@
           &:not(:last-child) {
             margin-bottom: 1rem;
           }
+          >div:not(.detail-type) {
+            margin-bottom: 1rem;
+          }
           .detail-type {
             box-shadow: none;
             padding: 0;
@@ -46,6 +50,7 @@
           }
           &.media {
             .thumbnail {
+              position: relative;
               width: 229px;
               height: 157px;
               margin-right: 0.5rem;
@@ -54,6 +59,26 @@
               background-repeat: no-repeat;
               background-color: white;
               overflow: hidden;
+              &.has-restrictions {
+                box-shadow: 0 0 2px 1px red;
+              }
+              .description {
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                width: 221px;
+                background: rgba(0, 0, 0, 0.5);
+                height: 2rem;
+                display: block;
+                line-height: 1rem;
+                font-size: 1rem;
+                color: white;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding: 0.5rem;
+                text-align: center;
+              }
             }
           }
           .detail-label {

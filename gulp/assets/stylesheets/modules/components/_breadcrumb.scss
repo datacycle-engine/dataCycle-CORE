@@ -1,32 +1,48 @@
-.breadcrumb{
+.breadcrumb {
   background-color: $dark-gray;
   padding: 1rem 0 1rem 0.5rem;
-  ul{
-		color: #fefefe;
-		font-size: 1.2rem;
-		font-weight: 200;
+  ul {
+    color: #fefefe;
+    font-size: 1.2rem;
+    font-weight: 200;
     margin: 0;
     list-style: none;
-    li{
-			display: inline-block;
-			.breadcrumb-separator {
-				margin: 0px 10px;
-				font-size: 1.4rem;
-			}
-			.breadcrumb-type {
-				font-style: italic;
-			}
-			.breadcrumb-title {
-				font-weight: 600;
-			}
-      a{
+    line-height: 1.4;
+    .fa {
+      display: inline-block;
+      vertical-align: middle;
+    }
+    li {
+      display: inline-block;
+      .breadcrumb-separator {
+        margin: 0px 10px;
+        font-size: 1.4rem;
+        display: inline-block;
+        vertical-align: middle;
+      }
+      .breadcrumb-text {
+        display: inline-block;
+        vertical-align: middle;
+        text-overflow: ellipsis;
+        max-width: 20rem;
+        white-space: nowrap;
+        overflow: hidden;
+        i {
+          font-style: italic;
+          &.fa {
+            font-style: normal;
+            margin-right: 0.3rem;
+            font-size: 1.2rem;
+          }
+        }
+        b {
+          font-weight: 600;
+        }
+      }
+      a {
         color: $white;
         font-size: 1.2rem;
         font-weight: 200;
-        i{
-          margin-right: 0.5rem;
-          line-height: 1.2;
-        }
       }
     }
   }

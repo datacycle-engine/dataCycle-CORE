@@ -99,9 +99,31 @@
     background-repeat: no-repeat;
     background-color: white;
     &.thumbnail {
+      position: relative;
       width: 229px;
       height: 157px;
       padding: 0;
+      cursor: pointer;
+      &.has-restrictions {
+        box-shadow: 0 0 2px 1px red;
+      }
+      .description {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 221px;
+        background: rgba(0, 0, 0, 0.5);
+        height: 2rem;
+        display: block;
+        line-height: 1rem;
+        font-size: 1rem;
+        color: white;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 0.5rem;
+        text-align: center;
+      }
     }
     span.caption {
       display: none;
@@ -114,6 +136,7 @@
       background: white;
       color: $dark-gray;
       padding: 0 0.2rem;
+      cursor: pointer;
       &:hover {
         color: map-get($foundation-palette, alert);
       }
@@ -238,19 +261,32 @@
       width: auto;
       height: auto;
       padding: 0.85rem 1rem;
-      border: none;
       display: block;
       overflow: hidden;
-      background-position: center center;
-      background-size: contain;
-      background-repeat: no-repeat;
       box-shadow: none;
       outline: none;
+      border-radius: 0;
+      overflow: hidden;
+      background-color: white;
+      border: solid 8px #fefefe;
+      box-shadow: 0 0 0 1px rgba(51, 51, 51, 0.2);
+      transition: box-shadow 200ms ease-out;
+      cursor: pointer;
+      &:hover,
+      &:focus {
+        box-shadow: 0 0 6px 1px rgba($primary-color, 0.5);
+      }
       &.thumbnail {
-        width: 229px;
-        height: 157px;
-        margin: 0.3rem;
+        width: 247px;
+        height: 170px;
+        margin: 0;
         padding: 0;
+        background-position: center center;
+        background-size: contain;
+        background-repeat: no-repeat;
+        &.has-restrictions {
+          box-shadow: 0 0 2px 1px red;
+        }
       }
     }
     a.delete-thumbnail {
@@ -270,22 +306,19 @@
     }
     .item {
       &.active {
-        border-color: $primary-color;
-        background-color: $primary-color;
+        .media {
+          border-color: $primary-color;
+          background-color: $primary-color;
+        }
       }
       display: block;
       float: left;
-      background-color: white;
-      overflow: hidden;
       margin: 0 1rem 1rem 0;
-      border: solid 4px #fefefe;
-      border-radius: 0;
-      box-shadow: 0 0 0 1px rgba(51, 51, 51, 0.2);
-      transition: box-shadow 200ms ease-out;
-      cursor: pointer;
-      &:hover,
-      &:focus {
-        box-shadow: 0 0 6px 1px rgba($primary-color, 0.5);
+      .delete-thumbnail {
+        display: none;
+      }
+      .description {
+        display: none;
       }
     }
   }
@@ -306,6 +339,17 @@
       position: absolute;
       right: 1rem;
       top: 3.5rem;
+    }
+    dl {
+      margin: 0;
+      dt,
+      dd {
+        margin: 0;
+        display: block;
+      }
+      dd {
+        margin-bottom: 0.5rem;
+      }
     }
   }
 }

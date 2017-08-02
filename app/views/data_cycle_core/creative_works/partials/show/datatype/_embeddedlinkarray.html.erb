@@ -19,7 +19,42 @@
 
                         <% unless image.blank? %>
 
-                            <div class="thumbnail" style="background-image: url(<%= image.metadata['thumbnailUrl'] %>)"></div>
+                            <a data-open="media-reveal-<%= image.id %>">
+                                <div class="thumbnail <%= 'has-restrictions' if !image.metadata['restrictions'].nil? && !image.metadata['restrictions'].blank? && image.metadata['restrictions'] != 'Keine Einschränkung;' %>"
+                                     style="background-image: url(<%= image.metadata['thumbnailUrl'] %>)">
+                                    <% if !image.content.nil? && !image.content['headline'].nil? %>
+                                        <div class="description">
+                                            <%= image.content['headline'] %>
+                                        </div>
+                                    <% end %>
+                                </div>
+                            </a>
+
+                            <div class="large reveal media-preview" id="media-reveal-<%= image.id %>" data-reveal>
+                                <button class="close-button" data-close aria-label="Close modal" type="button">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <% if !image.content.nil? && !image.content['headline'].nil? %>
+                                    <span class="preview-title"><%= image.content['headline'] %></span>
+                                <% end %>
+                                <div class="image">
+                                    <img src="<%= image.metadata['contentUrl'] %>" />
+                                </div>
+                                <div class="description">
+
+                                    <!-- todo: check only for empty string -->
+                                    <% if !image.metadata['restrictions'].nil? && !image.metadata['restrictions'].blank? && image.metadata['restrictions'] != 'Keine Einschränkung;' %>
+                                        <strong>Einschränkungen:</strong> <%= image.metadata['restrictions'].html_safe %><br /><br />
+                                    <% end %>
+
+                                    <%= link_to image do %>
+                                        zur Detailansicht
+                                    <% end %> | 
+                                    <% unless image.metadata['url'].nil? && image.metadata['url'].blank? %>
+                                        <a href="<%= image.metadata['url'] %>" target="_blank">im Medienarchiv öffnen</a>
+                                    <% end %>
+                                </div>
+                            </div>
 
                         <% end %>
 

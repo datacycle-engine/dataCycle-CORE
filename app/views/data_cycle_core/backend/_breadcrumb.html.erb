@@ -1,22 +1,25 @@
 <section class="breadcrumb">
     <div class="row expanded">
         <div class="column">
-            <ul><i class="fa fa-folder-open-o" aria-hidden="true"></i>
-                <% if @breadcrumbs %>
-                    <% @breadcrumbs[0..-1].each do |item| %>
-                        <li>
-                        <% unless item.equal?(@breadcrumbs.last) %><a class="breadcrumb-item" href="<%= item[2] %>"><% end %>
-                        <% unless item[0].nil? || item[0] == "" %>
-                            <span class="breadcrumb-type"><%= item[0] %></span><% unless item[1].nil? || item[1] == "" %>: <% end %>
+            <ul>
+                <% breadcrumbs(display_single_fragment: true).tap do |links| %>
+                    <% if links.any? %>
+                        <% links.each do |link| %>
+                            <li>
+                                <% unless link.current? %>
+                                    <%= link_to link.url, class: (link.current? ? "current" : nil) do %>
+                                        <span class="breadcrumb-text"><%= link.text %></span>
+                                    <% end %>
+                                    <i class="fa fa-angle-right breadcrumb-separator" aria-hidden="true"></i>
+                                <% else %>
+                                    <span class="breadcrumb-text"><%= link.text %></span>
+                                <% end %>
+                            </li>          
                         <% end %>
-                        <% unless item[1].nil? || item[1] == "" %>
-                            <span class="breadcrumb-title"><%= h item[1] %></span>
-                        <% end %>
-                        <% unless item.equal?(@breadcrumbs.last) %></a><i class="fa fa-angle-right breadcrumb-separator" aria-hidden="true"></i><% end %>
-                        </li>
                     <% end %>
                 <% end %>
             </ul>
+
         </div>
     </div>
 </section>

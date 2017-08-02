@@ -2,7 +2,6 @@ module DataCycleCore
   class CreativeWorksController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
     #load_and_authorize_resource         # from cancancan (authorize)
-    add_breadcrumb "Themenwelten", "", "/"
 
     def index
 
@@ -12,11 +11,9 @@ module DataCycleCore
       @creativeWork = DataCycleCore::CreativeWork.find_by(id: params[:id])
 
       if @creativeWork.nil?
-        redirect_to :back
+        redirect_back(fallback_location: root_path)
         return
       end
-
-      set_breadcrumb_for @creativeWork
 
       if params[:mode].nil?
         @mode = "flex"
@@ -39,7 +36,7 @@ module DataCycleCore
       @creativeWork = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:template], 'CreativeWork', object_params, current_user)
 
       if @creativeWork.nil?
-        redirect_to :back
+        redirect_back(fallback_location: root_path)
         return
       end
 
@@ -51,7 +48,7 @@ module DataCycleCore
             @creativeWork.isPartOf = thema.id unless thema.nil?
           else
             flash[:error] = I18n.t :invalid_parent, scope: [:controllers, :error]
-            redirect_to :back
+            redirect_back(fallback_location: root_path)
             return
           end
         else
@@ -61,7 +58,7 @@ module DataCycleCore
           inherit_datahash = get_inherit_datahash(@creativeWork)
           if inherit_datahash.nil?
             flash[:error] = I18n.t :invalid_parent_attr, scope: [:controllers, :error]
-            redirect_to :back
+            redirect_back(fallback_location: root_path)
             return
           end
           @creativeWork.set_data_hash(inherit_datahash)
@@ -73,7 +70,7 @@ module DataCycleCore
         flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
         redirect_to @creativeWork
       else
-        redirect_to :back
+        redirect_back(fallback_location: root_path)
         return
       end
 
@@ -83,8 +80,6 @@ module DataCycleCore
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       @place = DataCycleCore::Place.new
       @person = DataCycleCore::Person.new
-      set_breadcrumb_for @creativeWork
-      add_breadcrumb '<i aria-hidden="true" class="fa fa-pencil"></i> Bearbeiten'.html_safe, "", creative_work_path(@creativeWork)
       @dataSchema = @creativeWork.get_data_hash
 
       render layout: "data_cycle_core/creative_works_edit"
@@ -110,7 +105,7 @@ module DataCycleCore
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
         
         if Rails.env.development?
-          redirect_to edit_creative_work_path(@creativeWork) if Rails.env.development?
+          redirect_back(fallback_location: root_path)
         else
           redirect_to @creativeWork
         end
@@ -169,12 +164,6 @@ module DataCycleCore
 
         return data_hash.compact!
 
-      end
-
-      def set_breadcrumb_for creativeWork
-        set_breadcrumb_for creativeWork.parent if creativeWork.parent
-        name = (!creativeWork.content.nil? && !creativeWork.content['headline'].nil?) ? creativeWork.content['headline'] : ''
-        add_breadcrumb creativeWork.metadata['validation']['name'], name, creative_work_path(creativeWork.id)
       end
 
   end

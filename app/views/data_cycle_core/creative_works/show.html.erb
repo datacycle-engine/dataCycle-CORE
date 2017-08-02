@@ -1,3 +1,4 @@
+<% breadcrumb @creativeWork %>
 
 <% content_for :top_content do %>
 
@@ -5,7 +6,7 @@
 
         <div class="detail-header">
 
-            <a class="close-button" href="<%= @breadcrumbs[-2][2] %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+            <a class="close-button" href="<%= breadcrumbs[-2].url %>"><i aria-hidden="true" class="fa fa-times"></i></a>
 
             <%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: @creativeWork %>
 
@@ -63,7 +64,7 @@
             <% if !@creativeWork.metadata['validation']['permissions'].nil? && is_writable(@creativeWork.metadata['validation']['permissions']) %>
 
                 <div class="edit">
-                    <%= link_to edit_creative_work_path(@creativeWork), class:'button-prime small' do %>
+                    <%= link_to edit_creative_work_path(@creativeWork, trail: breadcrumb_trail), class:'button-prime small' do %>
                         <i class="fa fa-pencil" aria-hidden="true"></i><span>Bearbeiten</span>
                     <% end %>
                 </div>

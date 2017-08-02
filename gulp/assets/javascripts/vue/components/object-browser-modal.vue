@@ -10,7 +10,7 @@
             <strong>{{ totalChosen }}</strong>{{ totalChosen > 0 ? " Element" + (totalChosen == 1 ? "" : "e") + " auswählen" : "Keine Elemente auswählen" }}</span>
           <span class="button-title" v-else>Keine Elemente auswählen</span>
           <div class="chosen-items" v-if="totalChosen > 0">
-            <div @click.stop="activeItem = item" class="chosen-item" v-for="item in chosenItems">
+            <div @click.stop="activeItem = item" class="chosen-item" v-for="item in chosenItems" :key="item">
               <component :is="objectType + '_chosen'" :item="item"></component>
               <span class="remove" @click.stop="toggleActive(item, $event)">
                 <i aria-hidden="true" class="fa fa-times"></i>
@@ -43,7 +43,7 @@
         <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
       </div>
       <div v-else-if="items.length == 0" class="no-entries">Keine Einträge gefunden</div>
-      <div v-else class="item" v-for="item in items" @click.prevent="toggleActive(item, $event)" v-bind:class="{ active: isActive(item) }">
+      <div v-else class="item" v-for="item in items" :key="item" @click.prevent="toggleActive(item, $event)" v-bind:class="{ active: isActive(item) }">
         <slot name="item" :item="item"></slot>
       </div>
   

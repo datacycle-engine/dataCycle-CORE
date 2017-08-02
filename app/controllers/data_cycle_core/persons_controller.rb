@@ -2,7 +2,6 @@ module DataCycleCore
   class PersonsController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
     #load_and_authorize_resource         # from cancancan (authorize)
-    add_breadcrumb "Personen", "", "/persons"
 
     def index
       @persons = DataCycleCore::Person.all().where(:template => false).order(updated_at: :desc).page(params[:page])
@@ -13,10 +12,8 @@ module DataCycleCore
       @person = DataCycleCore::Person.find_by(id: params[:id])
 
       if @person.nil?
-        redirect_to :back
+        redirect_back(fallback_location: root_path)
       end
-
-      set_breadcrumb_for @person
 
       if params[:mode].nil?
         @mode = "flex"
@@ -35,7 +32,7 @@ module DataCycleCore
       @person = DataCycleCore::DataHashService.create_internal_object('persons', params[:template], 'Person', object_params, current_user)
 
       if @person.nil?
-        redirect_to :back
+        redirect_back(fallback_location: root_path)
         return
       end
 
@@ -46,7 +43,7 @@ module DataCycleCore
           format.html { redirect_to @person }
           format.json { render :json => @person }
         else
-          redirect_to :back
+          redirect_back(fallback_location: root_path)
           return
         end
       end
@@ -55,8 +52,6 @@ module DataCycleCore
 
     def edit
       @person = DataCycleCore::Person.find(params[:id])
-      set_breadcrumb_for @person
-      add_breadcrumb '<i aria-hidden="true" class="fa fa-pencil"></i> Bearbeiten'.html_safe, "", creative_work_path(@person)
       @dataSchema = @person.get_data_hash
       render layout: "data_cycle_core/creative_works_edit"
     end
@@ -82,7 +77,7 @@ module DataCycleCore
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Person'
 
         if Rails.env.development?
-          redirect_to edit_person_path(@person) if Rails.env.development?
+          redirect_back(fallback_location: root_path)
         else
           redirect_to @person
         end
@@ -110,11 +105,6 @@ module DataCycleCore
         datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
         params.require(:person).permit(:datahash => datahash)
 
-      end
-
-      def set_breadcrumb_for person
-        #set_breadcrumb_for creativeWork.parent if creativeWork.parent
-        add_breadcrumb person.metadata['validation']['name'], "#{person.givenName} #{person.familyName}", person_path(person.id)
       end
 
   end
