@@ -7,19 +7,26 @@
     font-weight: 200;
     margin: 0;
     list-style: none;
+    line-height: 1.4;
+    .fa {
+      display: inline-block;
+      vertical-align: middle;
+    }
     li {
       display: inline-block;
       .breadcrumb-separator {
         margin: 0px 10px;
         font-size: 1.4rem;
         display: inline-block;
+        vertical-align: middle;
       }
       .breadcrumb-text {
+        display: inline-block;
+        vertical-align: middle;
         text-overflow: ellipsis;
         max-width: 20rem;
         white-space: nowrap;
         overflow: hidden;
-        line-height: 1.2rem;
         i {
           font-style: italic;
           &.fa {
