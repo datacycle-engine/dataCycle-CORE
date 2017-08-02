@@ -8,9 +8,36 @@
 	</div>
 
 	<% unless dataCycleObjects.nil? %>
+
 		<% dataCycleObjects.each do |dataCycleObject| %>
-			<%= render "data_cycle_core/backend/partials/render/grid#{@mode.camelcase}Item", item: dataCycleObject %>
+
+			<% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['validation'].nil? %>
+
+				<%# if !dataCycleObject.metadata['validation']['content_type'].nil? && dataCycleObject.metadata['validation']['content_type'] != 'embedded' %>
+
+					<% if !dataCycleObject.metadata['validation']['name'].nil? && !dataCycleObject.metadata['validation']['name'].blank? %>
+
+						<div class="grid-item data-cycle-object">
+
+							<% case dataCycleObject.metadata['validation']['description'] %>
+								<% when "Person" %>
+									<%= render "data_cycle_core/persons/partials/index/#{dataCycleObject.metadata['validation']['name'].downcase}", item: dataCycleObject rescue render "data_cycle_core/persons/partials/index/default", item: dataCycleObject  %>
+								<% when "Place" %>
+									<%= render "data_cycle_core/places/partials/index/#{dataCycleObject.metadata['validation']['name'].downcase}", item: dataCycleObject rescue render "data_cycle_core/places/partials/index/default", item: dataCycleObject  %>
+								<% else %>
+									<%= render "data_cycle_core/creative_works/partials/index/#{dataCycleObject.metadata['validation']['name'].downcase}", item: dataCycleObject rescue render "data_cycle_core/creative_works/partials/index/default", item: dataCycleObject  %>
+							<% end %>
+
+						</div>
+
+					<% end %>
+
+				<%# end %>
+
+			<% end %>
+
 		<% end %>
+
 	<% end %>
 
 </div>

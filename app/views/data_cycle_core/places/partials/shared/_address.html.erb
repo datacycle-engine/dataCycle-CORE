@@ -1,0 +1,11 @@
+<div class="description">
+    <% if !item.streetAddress.nil? && !item.streetAddress.blank? %>
+        <%= item.streetAddress.html_safe %><br />
+    <% end %>
+    <% if !item.postalCode.nil? && !item.postalCode.blank? %>
+        <%= item.postalCode.html_safe %>
+    <% end %>
+    <% if !item.addressLocality.nil? && !item.addressLocality.blank? %>
+        <%= item.addressLocality.html_safe %>
+    <% end %>
+</div>

@@ -9,30 +9,30 @@ module DataCycleCore
       @language ||= "de"
 
       @type = params[:type] unless params[:type].blank?
-      @type ||= "Bilder"
+      @type ||= "image"
 
-      if @type == "Bilder"
+      if @type == "image"
 
-        query = DataCycleCore::Filter::ImageQueryBuilder.new.only_images
-        query = query.with_locale(@language)
+        query = DataCycleCore::Filter::ImageQueryBuilder.new(@language)
+        query = query.only_images
         query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
-      elsif @type == "Autor"
+      elsif @type == "person"
 
-        query = DataCycleCore::Filter::PersonQueryBuilder.new
-        query = query.with_locale(@language)
+        query = DataCycleCore::Filter::PersonQueryBuilder.new(@language)
         query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
-      elsif @type == "Ort"
+      elsif @type == "place"
 
-        query = DataCycleCore::Place.all().where(:template => false).order(updated_at: :desc)
+        query = DataCycleCore::Filter::PlaceQueryBuilder.new(@language)
+        query = query.only_frontend_valid
+        query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       else
 
-        query = DataCycleCore::Filter::ImageQueryBuilder.new
-        query = query.with_locale(@language)
+        query = DataCycleCore::Filter::ImageQueryBuilder.new(@language)
         query = query.fulltext_search(params[:search]) unless params[:search].blank?
-      
+
       end
 
       @per = params[:per] unless params[:per].blank?

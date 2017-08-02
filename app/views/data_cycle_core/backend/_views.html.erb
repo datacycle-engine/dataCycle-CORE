@@ -7,6 +7,20 @@
         </div>
     </div>
     <div class="columns small-6 text-right">
+        <% unless @order_by.nil? %>
+            <div class="view-order"><span class="order-title"><%= t :header, scope: ['order'] %>: </span>
+                <div class="order-item"><span class="order-title"><%= t :updated, scope: ['order'] %> </span>
+                    <div class="order-arrows">
+                        <%= link_to params.merge(:order => 'updated_asc').permit!, class: (@order_by == 'updated_at' && @order == 'ASC' ? 'active' : '') do %>
+                            <i class="fa fa-caret-up" aria-hidden="true"></i>
+                        <% end %>
+                        <%= link_to params.merge(:order => 'updated_desc').permit!, class: (@order_by == 'updated_at' && @order == 'DESC' ? 'active' : '') do %>
+                            <i class="fa fa-caret-down" aria-hidden="true"></i>
+                        <% end %>
+                    </div>
+                </div>
+            </div>
+        <% end %>
         <div class="view-icons">
             <span class="view-icon">
                 <%= link_to params.merge(:mode => 'flex').permit!, class: (@mode == 'flex' ? "active" : "") do %>

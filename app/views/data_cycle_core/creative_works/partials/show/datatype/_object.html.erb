@@ -1,0 +1,86 @@
+
+<% if prop['type'] == 'object' && !prop['properties'].nil? %>
+
+    <% object_properties = get_ordered_validation_properties(prop) %>
+    <% object_properties.each do |object_key, object_property| %>
+
+        <% object_value = @dataSchema[key].nil? ? "" : @dataSchema[key][object_key] %>
+
+        <%= render "data_cycle_core/creative_works/partials/show/datatype/#{object_property['type'].downcase}",
+            label: object_property['label'],
+            prop: object_property,
+            value: object_value %>
+
+    <% end %>
+
+<% elsif prop['type'] == 'object' %>
+
+    <% objects = get_object_data_for_show_action(prop['storage_location'], value) %>
+
+    <% if !objects.nil? && !objects.blank? %>
+
+        <% objects_length = objects.count %>
+
+        <% objects.each_with_index do |object,index| %>
+  
+            <div class="detail-type object">
+                <span class="detail-label"><%= render 'data_cycle_core/shared/icon', icon_type: objects[0].metadata['validation']['name'].downcase %><strong><%= prop['label'].capitalize %> <%= content_tag(:span, index+1) if objects_length > 1 %></strong></span>
+
+                <% objectDataHash = object.get_data_hash %>
+
+                <% if !object.metadata.nil? && !object.metadata['validation'].nil? %>
+
+                    <% validation_properties = get_ordered_validation_properties(object.metadata['validation']) %>
+
+                    <% if !validation_properties.nil? %>
+
+                        <% validation_properties.each do |key, prop| %>
+
+                            <% if prop['type'] == 'object' && !prop['properties'].nil? %>
+
+                                <% object_options = !prop['editor'].nil? && !prop['editor']['options'].nil? ? prop['editor']['options'] : nil %>
+                                <% object_options['class'] << ' detail-type' unless object_options.nil? %>
+                                <%= content_tag :div, object_options do %>
+
+                                    <% object_properties = get_ordered_validation_properties(prop) %>
+                                    <% object_properties.each do |object_key, object_property| %>
+
+                                        <% object_value = objectDataHash[key].nil? ? "" : objectDataHash[key][object_key] %>
+
+                                        <%= render "data_cycle_core/creative_works/partials/show/datatype/#{object_property['type'].downcase}",
+                                            label: object_property['label'],
+                                            prop: object_property,
+                                            value: object_value %>
+
+                                    <% end %>
+
+                                <% end %>
+
+                            <% else %>
+
+                                <% object_value = !objectDataHash[key].nil? && !objectDataHash[key].blank? ? objectDataHash[key] : "" %>
+
+                                <% if !object_value.blank? %>
+
+                                    <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
+                                        label: prop['label'],
+                                        prop: prop,
+                                        value: object_value %>
+
+                                <% end %>
+
+                            <% end %>
+
+                        <% end %>
+
+                    <% end %>
+
+                <% end %>
+                
+            </div>
+
+        <% end %>
+
+    <% end %>
+
+<% end %>

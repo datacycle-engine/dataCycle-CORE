@@ -505,6 +505,63 @@ module DataCycleCore
           assert_equal(2, validator.error[:warning].size)
         end
 
+        test "object validator daterange test data edge-cases" do
+          template_hash= {
+            "validityPeriod" => {
+              "label" => "Gültigkeitszeitraum",
+              "type" => "object",
+              "storage_location" => "metadata",
+              "validations" => {
+                "daterange" => {
+                  "from" => "validFrom",
+                  "to" => "validUntil"
+                }
+              },
+              "properties" => {
+                "validFrom" => {
+                  "label" => "Gültigkeit",
+                  "type" => "string",
+                  "storage_type" => "string",
+                  "storage_location" => "metadata",
+                  "validations" => {
+                    "format" => "date_time"
+                  }
+                },
+                "validUntil" => {
+                  "label" => "bis",
+                  "type" => "string",
+                  "storage_type" => "string",
+                  "storage_location" => "metadata",
+                  "validations" => {
+                    "format" => "date_time"
+                  }
+                }
+              }
+            }
+          }
+          data_hash = {
+            "validityPeriod" => {
+              "validFrom" => "2016-01-01",
+              "validUntil" => "2017-01-01"
+            }
+          }
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+
+          validator = DataCycleCore::MasterData::Validators::Object.new({},template_hash)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+
+          validator = DataCycleCore::MasterData::Validators::Object.new(nil,template_hash)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(0, validator.error[:warning].size)
+
+          validator = DataCycleCore::MasterData::Validators::Object.new({"test" => "wrong"},template_hash)
+          assert_equal(0, validator.error[:error].size)
+          assert_equal(1, validator.error[:warning].size)
+        end
+
       end
     end
   end

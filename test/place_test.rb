@@ -1,13 +1,5 @@
 require 'test_helper'
 
-# load template, classifications for all tests
-creative_work_yaml = Rails.root.join('..','setup_data','creative_works.yml')
-DataCycleCore::MasterData::ImportTemplates.new.import(creative_work_yaml, DataCycleCore::CreativeWork)
-place_yaml = Rails.root.join('..','setup_data','places.yml')
-DataCycleCore::MasterData::ImportTemplates.new.import(place_yaml, DataCycleCore::Place)
-classification_yaml = Rails.root.join('..','setup_data','classifications.yml')
-DataCycleCore::MasterData::ImportClassifications.new.import(classification_yaml)
-
 module DataCycleCore
   class PlaceTest < ActiveSupport::TestCase
 

@@ -2,19 +2,17 @@ module DataCycleCore
   class DashBoardController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
     #load_and_authorize_resource         # from cancancan (authorize)
-    add_breadcrumb "Themenwelten", "", "/"
 
     def home
       @statOutdoorActive = StatsDatabase.new(current_user.id)
       @statJobQueue = StatsJobQueue.new.update
-      add_breadcrumb "Admin", "Home", "/admin"
     end
 
     def download
       @uuid = params[:uuid]
       DownloadJob.perform_later(@uuid)
       name = ExternalSource.where(id: @uuid).first.name
-      flash[:notice] = "added #{name}/#{@uuid} to job-queue"
+      flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: name, uuid: @uuid
       redirect_to admin_path
     end
 
@@ -22,25 +20,27 @@ module DataCycleCore
       @uuid = params[:uuid]
       ImportJob.perform_later(@uuid)
       name = ExternalSource.where(id: @uuid).first.name
-      flash[:notice] = "added #{name}/#{@uuid} to job-queue"
+      flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: name, uuid: @uuid
       redirect_to admin_path
     end
 
     def import_templates
-      path = Rails.root.join('config','data_definitions','creative_works.yml')
+      path = Rails.root.join('config','data_definitions','creative_works','*.yml')
       MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::CreativeWork)
-      path = Rails.root.join('config','data_definitions','places.yml')
+      path = Rails.root.join('config','data_definitions','places','*.yml')
       MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Place)
-      path = Rails.root.join('config','data_definitions','persons.yml')
-      MasterData::ImportPersons.new.import(path.to_s, DataCycleCore::Person)
-      flash[:notice] = "imported data types YAML file"
+      path = Rails.root.join('config','data_definitions','persons','*.yml')
+      MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Person)
+      path = Rails.root.join('config','data_definitions','events','*.yml')
+      MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Event)
+      flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: "data types"
       redirect_to admin_path
     end
 
     def import_classifications
       path = Rails.root.join('config','data_definitions','classifications.yml')
       MasterData::ImportClassifications.new.import(path.to_s)
-      flash[:notice] = "imported basic classification trees from YAML file"
+      flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: "basic classification trees"
       redirect_to admin_path
     end
 

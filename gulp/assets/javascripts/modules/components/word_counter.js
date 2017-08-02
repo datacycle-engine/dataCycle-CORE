@@ -4,11 +4,16 @@ var Counter = function ($selector) {
   this.$wrapper = this.$parent.closest('.form-element').first();
   this.$container = this.setContainer();
   this.$parent.on('input', this.update.bind(this));
+  this.setup();
   this.update();
 };
 
+Counter.prototype.setup = function () {
+  var text = this.$parent.val();
+  if (text.length == 0) $(this.$container).hide();
+};
 Counter.prototype.setContainer = function () {
-  if (this.$parent.find('.counter').length == 0) this.$wrapper.append('<div class="counter"></div>');
+  if (this.$parent.parent().find('.counter').length == 0) this.$wrapper.append('<div class="counter"></div>');
   return this.$wrapper.find('.counter')[0];
 };
 Counter.prototype.countWords = function (text) {
@@ -28,8 +33,6 @@ Counter.prototype.calculate = function () {
 };
 
 Counter.prototype.update = function () {
-  if (!$(this.$container).is(":visible")) $(this.$container).fadeIn('fast');
-
   var length = this.calculate();
   var chars = length.chars;
   var words = length.words;
@@ -37,6 +40,7 @@ Counter.prototype.update = function () {
   var word_label = words == 1 ? "Wort" : "Wörter";
 
   if (length.chars == 0) $(this.$container).fadeOut('fast');
+  else $(this.$container).fadeIn('fast');
 
   $(this.$container).html(words + ' ' + word_label + ' / ' + chars + ' ' + char_label);
 };

@@ -3,17 +3,20 @@ module.exports.initialize = function () {
 
   if ($('#edit-form form').html() != undefined) {
     var form = document.querySelector('#edit-form form');
+    var promises = [];
 
-    $(form).find('.validation-container').on("focusout", function (ev) {
+    $(form).on("focusout", '.validation-container', function (ev) {
       setTimeout(function () {
         if ($(this).find(':focus').addBack(':focus').length == 0) {
+          update_editor_values();
           check_items_and_validate(form, this);
+          catch_promises(form, false);
         }
       }.bind(this), 50);
-
     });
     form.onsubmit = function () {
-      return submit_creative_work_form(form);
+      submit_creative_work_form(form);
+      return false;
     };
   }
 
@@ -21,7 +24,6 @@ module.exports.initialize = function () {
     var forms = $('.new-item form');
 
     $(document).on('open.zf.reveal', '.new-item', function (e) {
-      console.log("test");
       $(this).find('form').on('submit', function (e) {
         e.preventDefault();
         if (check_fields(this)) this.submit();
@@ -59,6 +61,25 @@ module.exports.initialize = function () {
     });
   }
 
+  function catch_promises(form, submit) {
+    $.when.apply($, promises).then(function () {
+      var isValid = true;
+      for (var i = 0; i < arguments.length; i++) {
+        if (arguments[i][0] != undefined && arguments[i][0].error != undefined && arguments[i][0].error.length > 0) {
+          isValid = false;
+        }
+      }
+      promises = [];
+      if (isValid && submit) form.submit();
+      else if (submit) {
+        var first_error_offset = $('.single_error').first().offset().top;
+        $('html, body').animate({
+          scrollTop: first_error_offset - 100
+        }, 500);
+      }
+    });
+  }
+
   function check_fields(form) {
     var isValid = true;
     $(form).find('input[type=text]').each(function (e) {
@@ -79,19 +100,17 @@ module.exports.initialize = function () {
 
   function submit_creative_work_form(form) {
     //get quill-js values
-    if ($('.quill-editor').html() != undefined) {
-      $('.quill-editor').each(function () {
-        set_fe_editor_values(this);
-      });
-    }
+    update_editor_values();
 
-    var isValid = validate_complete_form(form);
+    $('#validation_errors').html('');
 
-    if (isValid == true) {
-      form.submit();
-    } else {
-      return false;
-    }
+    var items = [];
+
+    $(form).find('.validation-container').each(function () {
+      check_items_and_validate(form, this);
+      items.push(this);
+    });
+    catch_promises(form, true);
   }
 
   function check_items_and_validate(form, validation_container) {
@@ -101,27 +120,25 @@ module.exports.initialize = function () {
 
       if ($itemsToValidate.first().data('validate') == "text") items = $itemsToValidate;
       else if ($itemsToValidate.first().data('validate') == "classification") items = $(validation_container).find('input[type="hidden"]');
-      else if ($itemsToValidate.first().data('validate') == "daterange") items = $(validation_container).find('input[type="date"]');
+      else if ($itemsToValidate.first().data('validate') == "daterange") items = $(validation_container).find('input[data-validate="daterange"]');
 
-      return validate_single_item(form, items);
+      validate_single_item(form, items);
+    }
+  }
+
+  function update_editor_values() {
+    if ($('.quill-editor').html() != undefined) {
+      $('.quill-editor').each(function () {
+        set_fe_editor_values(this);
+      });
     }
   }
 
   function set_fe_editor_values(editor) {
     var hidden_field_id = $(editor).attr('data-hidden-field-id');
     var hidden_field = document.querySelector('input#' + hidden_field_id);
-    hidden_field.value = $(editor).find('.ql-editor').html();
-  }
-
-  function validate_complete_form(form) {
-    $('#validation_errors').html('');
-
-    var isValid = true;
-
-    $(form).find('.validation-container').each(function () {
-      if (check_items_and_validate(form, this) == false) isValid = false;
-    });
-    return isValid;
+    var text = $(editor).find('.ql-editor').html();
+    hidden_field.value = text.replace("<p><br></p>", "");
   }
 
   function validate_single_item(form, item) {
@@ -135,34 +152,30 @@ module.exports.initialize = function () {
 
     is_creative_work = new RegExp('^' + 'creative_work', 'i');
     is_person = new RegExp('^' + 'person', 'i');
+    is_place = new RegExp('^' + 'place', 'i');
 
     if (is_creative_work.test(formdata[0].name)) {
       var validation_url = /validatecreativework/;
     } else if (is_person.test(formdata[0].name)) {
       var validation_url = /validateperson/;
+    } else if (is_place.test(formdata[0].name)) {
+      var validation_url = /validateplace/;
     } else {
       return false;
     }
 
     var url = validation_url + uuid;
 
-    isValid = true;
-
-    $.ajax({
+    promises.push($.ajax({
       type: "POST",
       url: url,
-      data: $.param(formdata), // serializes the form's elements.
-      async: false,
-      success: function (data) {
-        if (data.error.length > 0) {
-          $(item).closest('.validation-container').append(render_error_msg(data, item));
-          $(item).closest('.validation-container').addClass('has-error');
-          isValid = false;
-        }
+      data: $.param(formdata)
+    }).done(function (data) {
+      if (data != undefined && data.error.length > 0) {
+        $(item).closest('.validation-container').append(render_error_msg(data, item));
+        $(item).closest('.validation-container').addClass('has-error');
       }
-    });
-
-    return isValid;
+    }));
   }
 
   function render_error_msg(data, item) {
@@ -172,9 +185,11 @@ module.exports.initialize = function () {
     else if (item != null && $(item).closest('.form-element').find('label').first().attr('for') != undefined) item_id = "id='" + $(item).closest('.form-element').find('label').first().attr('for') + "_error'";
 
     item_label = (item != null) ? $(item).closest('.form-element').find('label').first().html() + ": " : "";
+    out = "<span " + item_id + "class='single_error'>";
     $.each(data.error, function (key, val) {
-      out += "<span " + item_id + "class='single_error'><strong>" + item_label + "</strong>" + val + "</span>";
+      out += "<strong>" + item_label + "</strong>" + val + "</br>";
     });
+    out += "</span>";
     return out;
   }
 

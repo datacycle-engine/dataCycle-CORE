@@ -1,0 +1,30 @@
+<% if !@person.nil? %>
+
+    <div class="reveal new-item" id="newPerson" data-reveal>
+        <h3>Neue Person erstellen</h3>
+
+        <%= form_for :person, :url => {:controller => :persons, :action => "create"} do |f| %>
+
+            <%= hidden_field_tag 'template', 'Person' %>
+            <div class="validation-container form-element">
+                <%= label_tag 'person[datahash][givenName]', 'Vorname' %>
+                <%= text_field_tag 'person[datahash][givenName]', 'Vorname', class: 'form-control', value:'' %>
+            </div>
+            <div class="validation-container form-element">
+                <%= label_tag 'person[datahash][familyName]', 'Nachname' %>
+                <%= text_field_tag 'person[datahash][familyName]', '', class: 'form-control', value:'' %>
+            </div>
+            <div class="validation-container form-element">
+                <%= label_tag 'person[datahash][jobTitle]', 'Berufsbezeichnung' %>
+                <%= text_field_tag 'person[datahash][jobTitle]', '', class: 'form-control no-validation' %>
+            </div>
+            <%= f.submit "Erstellen", class: "button primary" %>
+
+        <% end %>
+
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+<% end %>

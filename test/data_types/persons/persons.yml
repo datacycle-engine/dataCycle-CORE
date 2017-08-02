@@ -1,0 +1,153 @@
+---
+- :data:
+    :name: Person
+    :description: Person
+    :type: object
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :givenName:
+        :label: Vorname
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 1
+          :options:
+            :data-validate: text
+      :familyName:
+        :label: Nachname
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 2
+          :options:
+            :data-validate: text
+      :honorificPrefix:
+        :label: "Anrede / Titel"
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :editor:
+          :type: input
+          :sorting: 3
+      :telephone:
+        :label: Telefonnummer
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: input
+          :sorting: 4
+      :faxNumber:
+        :label: Fax
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: input
+          :sorting: 5
+      :email:
+        :label: E-Mail
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: input
+          :sorting: 6
+      :jobTitle:
+        :label: Position
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :editor:
+          :type: input
+          :sorting: 7
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_type: classification_persons
+        :storage_location: classification_relation
+        :default_value: "Person"
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :dateCreated:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :dateModified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+
+- :data:
+    :name: Autor
+    :description: Person
+    :type: object
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :givenName:
+        :label: Vorname
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 1
+          :options:
+            :data-validate: text
+      :familyName:
+        :label: Nachname
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 2
+          :options:
+            :data-validate: text
+      :jobTitle:
+        :label: Beruf
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :editor:
+          :type: input
+          :sorting: 3

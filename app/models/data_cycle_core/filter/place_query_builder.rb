@@ -2,22 +2,40 @@ module DataCycleCore
   module Filter
     class PlaceQueryBuilder < QueryBuilder
 
-      def initialize(query = nil, locale = "de", classification_alias = false)
-        @classification_alias = classification_alias
+      def initialize(locale = 'de', query = nil)
         @locale = locale
         @query = query || Place.unscoped.distinct.
-                            joins(place.join(place_translation).
-                            on(place[:id].eq(place_translation[:place_id])).
-                            join_sources
-                          ).where(place_translation[:locale].eq(quoted(@locale)))
-
+          where(template: false).
+          joins(
+            place.join(place_translation).
+            on(place[:id].eq(place_translation[:place_id])).
+            join_sources
+          ).where(place_translation[:locale].eq(quoted(@locale)))
       end
 
     # filters
-      def with_name(name)
+      def fulltext_search(name)
+        # include textsearch on classification_aliases.name
+        query = join_classification_alias2
+        manager = query.where(classification_alias[:name].matches("%#{name}%"))
+
+
+        reflect(
+          @query.where(place[:id].in(manager).or(
+            place_translation[:name].matches("%#{name}%").
+            or(place_translation[:address].matches("%#{name}%"))
+          ))
+        )
+      end
+
+    # filters
+      def only_frontend_valid
         reflect(
           @query.where(
-            place_translation[:name].matches("%#{name}%")
+            place[:metadata].not_eq(nil).
+            and(place_translation[:name].not_eq(nil).
+              or(place_translation[:address].not_eq(nil))
+            )
           )
         )
       end
@@ -36,15 +54,35 @@ module DataCycleCore
         )
       end
 
+      def with_classification_alias_ids(ids = nil)
+        manager = create_classification_alias_recursion(ids)
+        # get everything including parents (or-clause)
+        reflect(
+          @query.where(place[:id].in(manager))
+        )
+      end
+
     private
 
     # joins
-      # def join_place_translation
-      #   @query.joins(place.join(place_translation)
-      #     .on(place[:id].eq(place_translation[:place_id]))
-      #     .join_sources
-      #   )
-      # end
+
+      def join_classification_alias2
+        Arel::SelectManager.new.
+          project(place[:id]).
+          from(place).
+          where(place[:template].eq(false)).
+          join(place_translation).
+            on(place[:id].eq(place_translation[:place_id])).
+          where(place_translation[:locale].eq(quoted(@locale))).
+          join(classification_place).
+            on(place[:id].eq(classification_place[:place_id])).
+          join(classification).
+            on(classification_place[:classification_id].eq(classification[:id])).
+          join(classification_group).
+            on(classification[:id].eq(classification_group[:classification_id])).
+          join(classification_alias).
+            on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+      end
 
       def join_classification_place
         @query.joins(place.join(classification_place)

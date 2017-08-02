@@ -5,29 +5,4 @@
     </div>
 </div>
 
-<!-- testing -->
-
-<% if !@person.nil? %>
-
-    <div class="reveal new-item" id="newPerson" data-reveal>
-        <h3>Neue Person erstellen</h3>
-
-        <%= form_for :person, :url => {:action => "create"} do |f| %>
-
-            <%= hidden_field_tag 'template', 'Person' %>
-            <div class="validation-container form-element">
-                <%= f.text_field :givenName, class: 'form-control', value:'' %>
-            </div>
-            <div class="validation-container form-element">
-                <%= f.text_field :familyName, class: 'form-control', value:'' %>
-            </div>
-            <%= f.submit "Erstellen", class: "button primary" %>
-
-        <% end %>
-
-        <button class="close-button" data-close aria-label="Close modal" type="button">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-
-<% end %>
+<%= render 'data_cycle_core/persons/partials/shared/new' %>

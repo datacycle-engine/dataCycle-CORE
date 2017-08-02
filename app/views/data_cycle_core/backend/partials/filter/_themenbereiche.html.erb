@@ -3,7 +3,7 @@
     <% parent_string = classification_alias_id.nil? ? "IS NULL" : " = '#{classification_alias_id}'" %>
     <% types = DataCycleCore::ClassificationAlias.joins(classification_trees: [:classification_tree_label]).where("classification_tree_labels.name = ?", tree_label).where("classification_trees.parent_classification_alias_id #{parent_string}") %>
 
-    <%= render 'data_cycle_core/creative_works/partials/render/icon', icon_type: tree_label.downcase %>
+    <%= render 'data_cycle_core/shared/icon', icon_type: tree_label.downcase %>
 
     <span class="title"><%=display_label%><!-- <strong>(<%=types.count%>)</strong>--></span>
     <div>

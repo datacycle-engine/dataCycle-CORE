@@ -7,9 +7,9 @@ end
 
 std_params = "per=#{params[:per] || @per}&token=#{params[:token]}"
 json.set! "total", @total
-json.set! "links", {
-  first: "#{api_v1_classification_index_url}.json?page=#{1.to_s}&#{std_params}",
-  prev: @classification_aliases.first_page? ? nil : "#{api_v1_classification_index_url}.json?page=#{@classification_aliases.prev_page.to_s}&#{std_params}",
-  next: @classification_aliases.last_page?  ? nil : "#{api_v1_classification_index_url}.json?page=#{@classification_aliases.next_page.to_s}&#{std_params}",
-  last: "#{api_v1_classification_index_url}.json?page=#{@classification_aliases.total_pages.to_s}&#{std_params}"
-}.compact
+# json.set! "links", {
+#   first: "#{api_v1_classification_index_url}.json?page=#{1.to_s}&#{std_params}",
+#   prev: @classification_aliases.first_page? ? nil : "#{api_v1_classification_index_url}.json?page=#{@classification_aliases.prev_page.to_s}&#{std_params}",
+#   next: @classification_aliases.last_page?  ? nil : "#{api_v1_classification_index_url}.json?page=#{@classification_aliases.next_page.to_s}&#{std_params}",
+#   last: "#{api_v1_classification_index_url}.json?page=#{@classification_aliases.total_pages.to_s}&#{std_params}"
+# }.compact

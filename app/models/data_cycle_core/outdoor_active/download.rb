@@ -3,9 +3,10 @@ module DataCycleCore
 
     class Download
 
-      def initialize ( uuid, incremental_update = false, page_size = 300, verbose = false )
+      def initialize ( uuid, incremental_update = false, page_size = 300, max_item_count = nil, verbose = false )
         @uuid = uuid
         @download_page_size = page_size
+        @max_item_count = max_item_count
         @verbose = verbose
         @log = DataCycleCore::Logger.new("outdooractive_download")
         external_source = ExternalSource.where(id: uuid).first
@@ -131,7 +132,12 @@ module DataCycleCore
           else
             indexes = JSON.parse(response.body)['data'].collect { |selected_poi| selected_poi['id']}
           end
-          download_poi_details(end_point, indexes)
+          
+          if @max_item_count
+            download_poi_details(end_point, indexes[0..(@max_item_count - 1)])
+          else
+            download_poi_details(end_point, indexes)
+          end
         end
       end
 
@@ -161,8 +167,10 @@ module DataCycleCore
         indexes_lang = {}
         @log.info "  -- determining translations"
         print " " * 40 + "loading"
-        if indexes.size > 0
-          (0..indexes.size).step(@download_page_size).to_a.each do |start_index|
+        indexes_size = indexes.size
+        indexes_size_debug = indexes.size
+        if indexes_size > 0
+          (0..indexes_size_debug).step(@download_page_size).to_a.each do |start_index|
             print '.'
 
             request_indexes = indexes[start_index..(start_index+@download_page_size-1)].join(',')

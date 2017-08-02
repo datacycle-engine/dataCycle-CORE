@@ -1,0 +1,11 @@
+<% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['creator'].nil? %>
+	<% creator = get_user_for_id(dataCycleObject.metadata['creator']) %>
+	<span class="metadata">
+        <span>erstellt am </span>
+        <span><strong><%= dataCycleObject.created_at.to_s(:german_datetime_format) %></strong></span>
+        <span> von </span>
+        <span><strong><a href="mailto:<%= "#{creator.email}" %>"><%= "#{creator.name}" %></strong></a>.</span>
+	    <span>Letzte Bearbeitung: </span>
+	    <span><strong><%= dataCycleObject.updated_at.to_s(:german_datetime_format) %></strong></span>
+	</span>
+<% end %>

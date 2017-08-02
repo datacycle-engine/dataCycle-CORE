@@ -1,3 +1,4 @@
+<% breadcrumb @creativeWork %>
 
 <% content_for :top_content do %>
 
@@ -5,12 +6,16 @@
 
         <div class="detail-header">
 
+            <a class="close-button" href="<%= breadcrumbs[-2].url %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+
+            <%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: @creativeWork %>
+
             <div class="topleftinfo">
                 <div class="type <%= @creativeWork.metadata['validation']['name'].downcase %>">
-                    <%= render 'data_cycle_core/creative_works/partials/render/icon', icon_type: @creativeWork.metadata['validation']['name'].downcase %>
+                    <%= render 'data_cycle_core/shared/icon', icon_type: @creativeWork.metadata['validation']['name'].downcase %>
                     <span class="title"><%= @creativeWork.metadata['validation']['name'] %></span>
                 </div>
-                <%= render 'data_cycle_core/creative_works/partials/render/metaData' %>
+                <%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @creativeWork %>
             </div>
 
             <!--<a class="bookmark marked" href="#">-->
@@ -19,15 +24,16 @@
             <!--</a>-->
 
             <div class="title">
-
-                <% if !@creativeWork.content.nil? && !@creativeWork.content['name'].blank? %>
-                    <%= @creativeWork.content['name'] %>
-                <% elsif  !@creativeWork.content.nil? && !@creativeWork.content['headline'].blank? %>
+                <!--todo: check if name is allready in use-->
+                <% if !@creativeWork.content.nil? && !@creativeWork.content['headline'].blank? %>
                     <%= @creativeWork.content['headline'] %>
+                <% elsif  !@creativeWork.content.nil? && !@creativeWork.content['name'].blank? %>
+                    <%= @creativeWork.content['name'] %>
                 <% end %>
 
             </div>
 
+            <!--todo: only use description field ?-->
             <div class="description">
                 <% if !@creativeWork[:description].nil? %>
                     <%= @creativeWork.description.html_safe %>
@@ -50,15 +56,15 @@
                     </div>
                 <% end %>
             <% else %>
-                <%= render 'data_cycle_core/creative_works/partials/render/classificationAliases' %>
+                <%= render 'data_cycle_core/creative_works/partials/show/top_content/classificationAliases', dataCycleObject: @creativeWork, dataCycleObjectSchema: @dataSchema %>
             <% end %>
 
-            <%= render 'data_cycle_core/creative_works/partials/render/validityPeriod' %>
+            <%= render 'data_cycle_core/creative_works/partials/show/top_content/validityPeriod', dataCycleObject: @creativeWork %>
 
             <% if !@creativeWork.metadata['validation']['permissions'].nil? && is_writable(@creativeWork.metadata['validation']['permissions']) %>
 
                 <div class="edit">
-                    <%= link_to edit_creative_work_path(@creativeWork), class:'button-prime small' do %>
+                    <%= link_to edit_creative_work_path(@creativeWork, trail: breadcrumb_trail), class:'button-prime small' do %>
                         <i class="fa fa-pencil" aria-hidden="true"></i><span>Bearbeiten</span>
                     <% end %>
                 </div>
@@ -67,11 +73,11 @@
 
         </div>
 
-        <!--<%= render 'data_cycle_core/creative_works/filter' if user_signed_in? %>-->
+        <!--<%= render 'data_cycle_core/creative_works/partials/filter' if user_signed_in? %>-->
 
     </div>
 
-    <% if @creativeWork.metadata['validation']['name'] != "Bild" %>
+    <% if @creativeWork.metadata['validation']['content_type'] == 'entity' %>
 
         <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
 
@@ -81,30 +87,36 @@
 
 <section>
 
-    <% contentData = [] %>
+    <% if @creativeWork.metadata['validation']['content_type'] == 'entity' %>
 
-    <% @creativeWork.walk_tree do |content, level| %>
-        <% contentData.push(content) %>
+        <% contentData = [] %>
+
+        <% @creativeWork.walk_tree do |content, level| %>
+
+            <% if content.metadata['validation']['content_type'] != 'embedded' %>
+                <% contentData.push(content) %>
+            <% end %>
+
+        <% end %>
+
+        <% if @mode == 'list' %>
+            <%= render 'data_cycle_core/backend/partials/list', dataCycleObjects: contentData %>
+        <% else %>
+            <%= render 'data_cycle_core/backend/partials/grid', dataCycleObjects: contentData %>
+        <% end %>
+
     <% end %>
-
-    <% if @mode == 'list' %>
-        <%= render 'data_cycle_core/backend/partials/list', dataCycleObjects: contentData %>
-    <% else %>
-        <%= render 'data_cycle_core/backend/partials/grid', dataCycleObjects: contentData %>
-    <% end %>
-
 
 </section>
 
-<% if @creativeWork.metadata['validation']['name'] == "Bild" %>
+<% if @creativeWork.metadata['validation']['content_type'] == 'variant' %>
 
-    <div class="detail-content">
+    <div class="detail-content <%= @creativeWork.metadata['validation']['description'].downcase if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? && !@creativeWork.metadata['validation']['description'].nil? %>">
 
-        <div class="row">
+        <div class="row align-center">
 
-            <%= render 'data_cycle_core/creative_works/partials/show/bild' %>
-
-            <%= render 'data_cycle_core/creative_works/partials/render/translations', language: nil %>
+            <%= render 'data_cycle_core/creative_works/partials/show/'+@creativeWork.metadata['validation']['name'].downcase, dataCycleObject: @creativeWork, dataCycleObjectSchema: @dataSchema rescue render "data_cycle_core/creative_works/partials/show/default", dataCycleObject: @creativeWork, dataCycleObjectSchema: @dataSchema  %>
+            <%= render 'data_cycle_core/creative_works/partials/show/translation/translations', language: nil, dataCycleObject: @creativeWork %>
 
         </div>
 

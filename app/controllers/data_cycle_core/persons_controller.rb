@@ -2,21 +2,17 @@ module DataCycleCore
   class PersonsController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
     #load_and_authorize_resource         # from cancancan (authorize)
-    add_breadcrumb "Personen", "", "/persons"
-
-    #layout "data_cycle_core/creative_works_edit"
 
     def index
-      @persons = DataCycleCore::Person.all().where(:template => false).order(updated_at: :desc)
+      @persons = DataCycleCore::Person.all().where(:template => false).order(updated_at: :desc).page(params[:page])
       @person = DataCycleCore::Person.new
     end
 
     def show
       @person = DataCycleCore::Person.find_by(id: params[:id])
-      set_breadcrumb_for @person
 
       if @person.nil?
-        redirect_to root
+        redirect_back(fallback_location: root_path)
       end
 
       if params[:mode].nil?
@@ -27,36 +23,27 @@ module DataCycleCore
 
       @dataSchema = @person.get_data_hash
 
-      #only for testing
-      @creativeWork = @person
-
       render layout: "data_cycle_core/creative_works_edit"
 
     end
 
-    def new
-      @person = DataCycleCore::Person.new
-    end
-
     def create
-
-      @person = create_internal(params[:template])
-
-      set_breadcrumb_for @person
+      object_params = person_params('persons', params[:template], 'Person')
+      @person = DataCycleCore::DataHashService.create_internal_object('persons', params[:template], 'Person', object_params, current_user)
 
       if @person.nil?
-        redirect_to :back
+        redirect_back(fallback_location: root_path)
         return
       end
 
       respond_to do |format|
         #validate ?
         if !@person.nil? && @person.save
-          flash[:success] = "Successfully added new person!"
+          flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Person'
           format.html { redirect_to @person }
           format.json { render :json => @person }
         else
-          redirect_to :back
+          redirect_back(fallback_location: root_path)
           return
         end
       end
@@ -64,41 +51,37 @@ module DataCycleCore
     end
 
     def edit
-      @creativeWork = DataCycleCore::Person.find(params[:id])
-      set_breadcrumb_for @creativeWork
-      add_breadcrumb '<i aria-hidden="true" class="fa fa-pencil"></i> Bearbeiten'.html_safe, "", creative_work_path(@creativeWork)
-      @dataSchema = @creativeWork.get_data_hash
-
+      @person = DataCycleCore::Person.find(params[:id])
+      @dataSchema = @person.get_data_hash
       render layout: "data_cycle_core/creative_works_edit"
     end
 
     def update
-      @creativeWork = DataCycleCore::Person.find(params[:id])
-      set_breadcrumb_for @creativeWork
-      add_breadcrumb "", "Edit", creative_work_path(@creativeWork)
+      @person = DataCycleCore::Person.find(params[:id])
 
-      datahash = person_params[:datahash]
+      object_params = person_params('persons', @person.metadata['validation']['name'], 'Person')
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@person.metadata['validation'], false)
 
       # add creator id
-      datahash[:creator] = current_user[:id]
-      valid = @creativeWork.validate(datahash)
+      valid = @person.validate(datahash)
 
       if valid.key?(:error) && !valid[:error].empty?
         flash[:error] = valid[:error]
-        redirect_to edit_person_path(@creativeWork)
+        redirect_to edit_person_path(@person)
         return
       end
 
-      @creativeWork.set_data_hash(datahash)
+      @person.set_data_hash(datahash)
 
-      # needed because headline != title
-      update_params = {:headline => datahash[:headline]}
-      @creativeWork.update_attributes(update_params)
+      if @person.save
+        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Person'
 
-      if @creativeWork.save
-        flash[:success] = "Person updated"
-        # redirect_to @creativeWork
-        redirect_to edit_person_path(@creativeWork)
+        if Rails.env.development?
+          redirect_back(fallback_location: root_path)
+        else
+          redirect_to @person
+        end
+
       else
         render 'edit'
       end
@@ -107,7 +90,9 @@ module DataCycleCore
     def validate_single_data
       @person = DataCycleCore::Person.find(params[:id])
 
-      datahash = person_params[:datahash]
+      object_params = person_params('persons', @person.metadata['validation']['name'], 'Person')
+
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@person.metadata['validation'])
       valid = @person.validate(datahash)
 
       render :json => valid.to_json
@@ -115,54 +100,11 @@ module DataCycleCore
 
     private
 
-      def person_params
-        params.require(:person).permit(:givenName, :familyName, :datahash => [:givenName, :familyName, :honorificPrefix, :telephone, :faxNumber, :email, :jobTitle])
-        # params.require(:creative_work).permit!
-      end
+      def person_params(storage_location, template_name, template_description)
 
-      def create_internal(template)
+        datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
+        params.require(:person).permit(:datahash => datahash)
 
-        person = DataCycleCore::Person.new(person_params)
-
-        template = DataCycleCore::Person.where(template: true, headline: template, description: "Person").first
-        validation = template.metadata['validation']
-
-        person.metadata = { 'validation' => validation }
-        person.save
-
-        datahash = {'givenName' => person_params[:givenName], 'familyName' => person_params[:familyName], 'creator' => current_user[:id]}
-
-        # unless validation['properties']['data_pool'].nil?
-        #   data_pool_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
-        #       .where("classification_tree_labels.name = ?", validation['properties']['data_pool']['type_name'])
-        #       .where("classification_aliases.name = ?", validation['properties']['data_pool']['default_value']).first
-        #
-        #   datahash['data_pool'] = [data_pool_classification.id] unless data_pool_classification.nil?
-        # end
-
-        #add data_type
-        unless validation['properties']['data_type'].nil?
-          data_type_classification = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
-              .where("classification_tree_labels.name = ?", validation['properties']['data_type']['type_name'])
-              .where("classification_aliases.name = ?", validation['properties']['data_type']['default_value']).first
-
-          datahash['data_type'] = [data_type_classification.id] unless data_type_classification.nil?
-        end
-
-        person.set_data_hash(datahash)
-
-        #validate ?
-        if person.save
-          return person
-        else
-          return nil
-        end
-
-      end
-
-      def set_breadcrumb_for person
-        #set_breadcrumb_for creativeWork.parent if creativeWork.parent
-        add_breadcrumb person.metadata['validation']['name'], "#{person.givenName} #{person.familyName}", person_path(person.id)
       end
 
   end

@@ -7,6 +7,7 @@ module DataCycleCore
             :recoverable, :rememberable, :trackable, :validatable
 
     has_many :use_cases
+    has_many :watch_lists, dependent: :destroy
 
     def admin?
       self.admin

@@ -2,25 +2,20 @@ module DataCycleCore
   module Filter
     class CreativeWorkQueryBuilder < QueryBuilder
 
-      def initialize(language = "de", query = nil, classification_alias = false)
-        @classification_alias = classification_alias
-        @locale = language
+      def initialize(locale = 'de', query = nil)
+        @locale = locale
         @query = query || CreativeWork.unscoped.distinct.
-                            where(template: false).
-                            joins(creative_work.join(creative_work_translation).
-                            on(creative_work[:id].eq(creative_work_translation[:creative_work_id])).
-                            join_sources
-                          ).where(creative_work_translation[:locale].eq(quoted(@locale)))
+          where(template: false).
+          joins(
+            creative_work.join(creative_work_translation).
+            on(creative_work[:id].eq(creative_work_translation[:creative_work_id])).
+            join_sources
+          )
+          .where(json_path(creative_work[:metadata], quoted('{validation, content_type}')).not_eq(quoted('embedded')))
+          .where(creative_work_translation[:locale].eq(quoted(@locale)))
       end
 
     # filters
-      def with_highlight(name)
-        reflect(
-          @query.where(
-            creative_work[:headline].matches("%#{name}%")
-          )
-        )
-      end
 
       def fulltext_search(name)
         # include textsearch on classification_aliases.name
@@ -74,37 +69,10 @@ module DataCycleCore
       end
 
       def with_classification_alias_ids(ids = nil)
-        # ids = ['0543d553-3c2d-4f49-bf19-5d2e59a15d82', '5ae2c5f2-1534-4800-b1fb-216b789cf9cb']
-        # unless @classification_alias # see if joins are necessary
-        #   @query = join_classification_alias
-        #   @classification_alias = true
-        # end
-
-        children = Arel::Table.new(:children)
-        recursive_term = Arel::SelectManager.new
-          .from(classification_tree)
-          .project(Arel.star)
-          .where(classification_tree[:parent_classification_alias_id].in(ids))
-        non_recursive_term = Arel::SelectManager.new
-          .project(classification_tree[Arel.star])
-          .from(classification_tree).join(children)
-          .on(classification_tree[:parent_classification_alias_id].eq(children[:classification_alias_id]))
-        union = recursive_term.union(:all, non_recursive_term)
-        cte_as_statement = Arel::Nodes::As.new(children, union)
-        select_manager = Arel::SelectManager.new(ActiveRecord::Base).freeze
-        manager = select_manager
-          .with(:recursive, cte_as_statement)
-          .from(children)
-          .project(children[:classification_alias_id])
-
-        query2 = join_classification_alias2
-        manager2 = query2.where(classification_alias[:id].in(manager)
-        .or(classification_alias[:id].in(ids)))
-
-
+        manager = create_classification_alias_recursion(ids)
         # get everything including parents (or-clause)
         reflect(
-          @query.where(creative_work[:id].in(manager2))
+          @query.where(creative_work[:id].in(manager))
         )
       end
 

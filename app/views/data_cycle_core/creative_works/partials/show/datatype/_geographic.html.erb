@@ -1,0 +1,6 @@
+<% if value.geometry_type == RGeo::Feature::Point %> <%# only show points for now, not the lines %>
+  <div class="detail-type string">
+    <span class="detail-label"><strong><%= label %>: </strong></span>
+    <span class="detail-content"><%= value.to_s %></span>
+  </div>
+<% end %>

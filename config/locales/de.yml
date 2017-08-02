@@ -1,2 +1,69 @@
-en:
+de:
   hello: "Servas!"
+  order:
+    header: "Sortierung"
+    title: "Titel"
+    updated: "Bearbeitet"
+
+  validation:
+    errors:
+      min: "%{data} zu kurz, sollte mindestens %{min} lang sein, ist aber nur %{length} lang."
+      max: "%{data} zu lang, sollte maximal %{max} lang sein, ist aber %{length} lang."
+      min_number: "%{data} zu klein, sollte %{value} sein, ist aber nur %{data}."
+      max_number: "%{data} zu hoch, sollte %{value} sein, ist aber %{data}."
+      match: "%{data} stimmt nicht mit %{expression} überein."
+      format: "Format-String %{format_string} für %{data} unbekannt."
+      uuid: "Erwarte uuid für %{data}. Format: 12345678-9abc-def0-1234-56789abcdef0"
+      date_time: "%{data} ist kein gültiges Zeit/Datum Format."
+      date: "%{data} ist kein gültiges Datums Format."
+      boolean: "%{data} ist kein gültiges Boolean Format. (Nur 'true' oder 'false' erlaubt)"
+      url: "%{data} ist keine gültige Url."
+      string: "%{template} ist kein String, sondern %{label}."
+      geo: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ."
+      number: "%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data})."
+      no_data: "Keine Daten angegeben."
+      no_validation: "Keine Validierguns-Daten angegeben."
+      data_type: "Falschen Daten-Typ angegeben für %{template} %{data}. Erwartet wurde UUID oder UUID Array."
+      data_array_format: "Elemente des Daten-Arrays für %{template} haben falsches Format %{key}."
+      classification: "Keine Classification gefunden für %{key} in classification_tree mit dem Label: '%{label}' und tree_label '%{tree_label}'"
+      min_ref: "Zu wenig Referezen angegeben, %{data} sollte mindestens %{value} sein."
+      max_ref: "Zu viele Referezen angegeben, %{data} sollte maximal %{value} sein."
+      data_format: "Elemente des Link-Arrays für %{template} haben das falsche Format %{key}."
+      not_found: "Daten für %{template} mit uuid %{key} nicht gefunden in Tabelle %{table}."
+      integer: "%{data} ist kein Integer."
+      float: "%{data} ist kein Float."
+      object_type: "Falscher Datentyp für %{data}. Typ %{type} ist nicht definiert."
+      wrong_object_type: "Objekt Type %{data} ist kein embedded Datentyp und hat keine 'properties'."
+      no_template: "Kein passendes Datentyp Template gefunden für %{name}|%{desc}."
+      no_fields: "Keine Felder für 'from-date' und/oder 'to-date' angegeben."
+      convert_date: "Datum konnte nicht konvertiert werden, um die Zeitspanne zu validieren."
+      daterange: "Ungültige Zeitspanne, 'von' (%{from}) ist nach 'bis' (%{to})."
+    warning:
+      string: "%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}"
+      no_data: "Keine Daten angegeben für %{data}"
+      no_evaluate: "%{data} nicht bei den Evaluierungsdaten angegeben."
+      keyword: "%{key} ist kein gültiges Keyword für %{type}"
+      convert: "Konvertieren von %{data} zu 'date_time' Format für die Zeitspannen-Validierung fehlgeschlagen."
+      end_date: "Kein End-Datum angegeben, setze auf 9999-12-31."
+      start_date: "Kein Start-Datum angegeben, setze auf 1970-01-01."
+  controllers:
+    error:
+      invalid_parent: "Ungültiges Eltern Objekt."
+      invalid_parent_attr: "Ungültige Eltern Attribute."
+      no_permission: "Keine Berechtigung."
+    success:
+      created: "%{data} wurde erfolgreich erstellt."
+      updated: "%{data} wurde aktualisiert."
+      destroyed: "%{data} wurde gelöscht."
+      addedTo: "Zu Merkliste: %{data} hinzugefügt."
+      removedFrom: "Von Merkliste: %{data} entfernt."
+    job:
+      added: "%{data}/%{uuid} zur Job-Queue hinzugefügt."
+      imported: "'%{data}' wurden aus YAML Datei importiert."
+  activerecord:
+    errors:
+      models:
+        data_cycle_core/watch_list:
+          attributes:
+            headline:
+              blank: "Headline: Darf nicht leer sein."

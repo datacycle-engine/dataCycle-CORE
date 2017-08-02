@@ -1,0 +1,39 @@
+<% unless dataCycleObject.display_classification_aliases.empty? %>
+
+     <div class="tags">
+
+        <% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['validation'].nil? %>
+
+            <% validation_properties = get_ordered_validation_properties(dataCycleObject.metadata['validation']) %>
+
+            <% if !validation_properties.nil? %>
+
+                <% validation_properties.each do |key, prop| %>
+
+                    <% if prop['type'] == 'classificationTreeLabel' %>
+
+
+                        <% if !dataCycleObjectSchema[key].nil? && !dataCycleObjectSchema[key].empty? %>
+                            <div class="tag-group-wrapper">
+
+                                <span class="icon <%= prop['label'] %>"><i class="fa" aria-hidden="true"></i></span>
+
+                                <span class="tag-group-header"><%= prop['label'] %>: </span>
+
+                                <% get_classificationAliases_for_classificationIDs(dataCycleObjectSchema[key]).each do |classificationAlias| %>
+                                    <span class="tag"><%= classificationAlias.name %></span>
+                                <% end %>
+
+                            </div>
+                        <% end %>
+
+                    <% end %>
+
+                <% end %>
+
+            <% end %>
+        <% end %>
+
+    </div>
+
+<% end %>

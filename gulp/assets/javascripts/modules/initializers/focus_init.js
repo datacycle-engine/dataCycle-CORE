@@ -1,13 +1,13 @@
 // Add Focus Class to DOM Element on focus
 module.exports.initialize = function () {
 
-  $('body').on('mousedown', '.selected-tag button.close', function (ev) {
+  $(document).on('mousedown', '.selected-tag button.close', function (ev) {
     $(this).closest('.validation-container').trigger('focus');
 
     ev.stopPropagation();
   });
 
-  $('body').on('focusout', '.validation-container', function (ev) {
+  $(document).on('focusout', '.validation-container', function (ev) {
     setTimeout(function () {
       if ($(this).find(':focus').addBack(':focus').length == 0) {
         $(this).removeClass('focus');
@@ -15,7 +15,7 @@ module.exports.initialize = function () {
     }.bind(this), 50);
     ev.stopPropagation();
   });
-  $('body').on('focusin', '.validation-container', function (ev) {
+  $(document).on('focusin', '.validation-container', function (ev) {
     $(this).addClass('focus');
 
     ev.stopPropagation();

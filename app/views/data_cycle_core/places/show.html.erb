@@ -1,0 +1,69 @@
+<% breadcrumb @place %>
+
+<% content_for :top_content do %>
+
+    <div class="column detail-header-wrapper">
+
+        <div class="detail-header">
+
+            <a class="close-button" href="<%= breadcrumbs[-2].url %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+
+            <%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: @place %>
+
+            <div class="topleftinfo">
+                <div class="type <%= @place.metadata['validation']['name'].downcase %>">
+                    <%= render 'data_cycle_core/shared/icon', icon_type: @place.metadata['validation']['name'].downcase %>
+                    <!--<span class="title"><%= @place.metadata['validation']['name'] %></span>-->
+                    <span class="title">Ort</span>
+                </div>
+                <%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @place %>
+            </div>
+
+            <!--<a class="bookmark marked" href="#">-->
+            <!--<span class="bookmarkinfo">zur Recherche hinzugefügt</span>-->
+            <!--<i class="fa fa-bookmark-o" aria-hidden="true"></i>-->
+            <!--</a>-->
+
+            <div class="title">
+
+                <% if !@place.nil? && !@place.name.nil? %>
+                    <%= @place.name %>
+                <% end %>
+
+            </div>
+
+            <%= render 'data_cycle_core/creative_works/partials/show/top_content/classificationAliases', dataCycleObject: @place, dataCycleObjectSchema: @dataSchema %>
+
+            <%= render 'data_cycle_core/creative_works/partials/show/top_content/validityPeriod', dataCycleObject: @place %>
+
+            <% if !@place.metadata['validation']['permissions'].nil? && is_writable(@place.metadata['validation']['permissions']) %>
+
+                <div class="edit">
+                    <%= link_to edit_place_path(@place, trail: breadcrumb_trail), class:'button-prime small' do %>
+                        <i class="fa fa-pencil" aria-hidden="true"></i><span>Bearbeiten</span>
+                    <% end %>
+                </div>
+
+            <% end %>
+
+        </div>
+
+    </div>
+
+<% end %>
+
+<section>
+    <br /><br />
+</section>
+
+<div class="detail-content place">
+
+    <div class="row">
+
+        <%= render 'data_cycle_core/places/partials/show/place', dataCycleObject: @place, dataCycleObjectSchema: @dataSchema %>
+
+        <%= render 'data_cycle_core/places/partials/show/translation/translations', language: nil, dataCycleObject: @place %>
+
+    </div>
+
+</div>

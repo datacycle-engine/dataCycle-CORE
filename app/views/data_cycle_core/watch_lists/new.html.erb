@@ -1,0 +1,13 @@
+<div class="reveal-open" id="newCreativeWork" >
+    <h3>Neue Person erstellen</h3>
+
+    <%= form_for(@person) do |f| %>
+        <%= hidden_field_tag 'template', 'WatchList' %>
+        <%= f.text_field :headline, class: 'form-control', value:'' %>
+        <%= f.submit "Erstellen", class: "button primary" %>
+    <% end %>
+
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>

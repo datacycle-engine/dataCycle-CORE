@@ -19,7 +19,7 @@ module DataCycleCore
       end
       @page ||= 1
 
-      @images = query.page(@page).per(@per)
+      @images = query.includes({classifications: {classification_aliases: []}, classification_aliases: [], translations: []}).page(@page).per(@per)
     end
 
     # method to query images per language and full-text-search
@@ -44,7 +44,7 @@ module DataCycleCore
       end
       @page ||= 1
 
-      @images = query.page(@page).per(@per)
+      @images = query.includes({classifications: {classification_aliases: []}, classification_aliases: [], translations: []}).page(@page).per(@per)
     end
 
     # method to show a particular Image with all languages

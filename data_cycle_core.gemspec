@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
 
   # rails
   s.add_dependency 'rails', '~> 5.0.0', '>= 5.0.0.1'
+  s.add_dependency 'jquery-rails'
   s.add_dependency 'sass-rails', '~> 5.0'
   # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
   s.add_dependency 'turbolinks', '~> 5'

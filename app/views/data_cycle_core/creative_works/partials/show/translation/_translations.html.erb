@@ -1,0 +1,41 @@
+<!-- todo: use translation file -->
+<% language_hash = {de: "deutsch", en: "englisch", ar: "arabisch", bg: "bulgarisch", cs: "tschechisch", da: "dänisch", es: "spanisch", fr: "französisch", it: "italienisch", hu: "ungarisch", hr: "kroatisch", ja: "japanisch", ko: "koreanisch", nl: "holländisch", pt: "portugiesisch", pl: "polnisch", ru: "russisch", sl: "slowenisch", sk: "slowakisch", sv: "schwedisch", tr: "türkisch", uk: "ukrainisch", "de-CH" => "schweizer-deutsch"} %>
+
+<% if !language.nil? && language == "de" %>
+
+    <% german = dataCycleObject.translations.select{|l| l['locale'] == language}.first %>
+    <%= render 'data_cycle_core/creative_works/partials/show/translation/translation_item', translation: german, dataCycleObject: dataCycleObject %>
+
+<% else %>
+
+    <% languages = dataCycleObject.translations.select{|l| l['locale'] != 'de'} %>
+
+    <% if languages.count > 0 %>
+
+        <div class="type translations">
+            <div class="header">
+                <span class="icon"><i class="fa fa-comment" aria-hidden="true"></i></span>
+                <span class="title">Übersetzungen</span>
+            </div>
+
+        <% languages.each do |translation| %>
+
+            <div class="row">
+                <div class="large-2 columns">
+                    <h5><%= "#{language_hash[translation.locale]} (#{translation.locale})" %></h5>
+                </div>
+
+                <div class="large-10 columns">
+                    <%= render 'data_cycle_core/creative_works/partials/show/translation/translation_item', translation: translation, dataCycleObject: dataCycleObject %>
+                </div>
+            </div>
+
+            <hr>
+
+        <% end %>
+
+        </div>
+
+    <% end %>
+
+<% end %>

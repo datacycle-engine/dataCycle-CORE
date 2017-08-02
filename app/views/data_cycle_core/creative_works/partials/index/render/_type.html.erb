@@ -1,0 +1,26 @@
+
+<% if !item.metadata.nil? && !item.metadata['validation'].nil? && !item.metadata['validation']['name'].nil? %>
+
+    <div class="type <%= item.metadata['validation']['name'].downcase %>">
+        <div class="infoRow">
+            <%= render 'data_cycle_core/shared/icon', icon_type: item.metadata['validation']['name'].downcase %>
+            <% if item.metadata['validation']['name'].downcase == 'contentlocation' %>
+                <span class="title">Ort</span>
+            <% else %>
+                <span class="title"><%= item.metadata['validation']['name'] %></span>
+            <% end %>
+        </div>
+    </div>
+
+<% else %>
+
+    <div class="type">
+        <div class="infoRow">
+            <span class="icon">
+                <i class="fa fa-folder-open-o" aria-hidden="true"></i>
+            </span>
+            <span class="title">Undefined Content</span>
+        </div>
+    </div>
+
+<% end %>

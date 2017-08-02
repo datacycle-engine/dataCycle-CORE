@@ -21,3 +21,70 @@
 
 en:
   hello: "Hello world"
+  order:
+    header: "Order"
+    title: "Title"
+    updated: "Updated"
+
+  validation:
+    errors:
+      min: "%{data} not long enough, should be %{min} long, but is only %{length} long."
+      max: "%{data} too long, should be %{max} long, but is %{length} long."
+      min_number: "%{data} too small, should be %{value}, but is only %{data}."
+      max_number: "%{data} too high, should be %{value}, but is %{data}."
+      match: "%{data} should match %{expression}."
+      format: "Format-String %{format_string} for %{data} unknown."
+      uuid: "Expected uuid for %{data}. Format: 12345678-9abc-def0-1234-56789abcdef0"
+      date_time: "%{data} is not a valid date_time format."
+      date: "%{data} is not a valid date format."
+      boolean: "%{data} is no valid boolean format. (only 'true' or 'false')"
+      url: "%{data} is no valid Url."
+      string: "%{template} is not a string, but %{label}."
+      geo: "Wrong data-type for %{template} (%{data}). Expected Geometric/Geographical type."
+      number: "%{template} is not nummerical, but %{class} (Wert: %{data})."
+      no_data: "No data given."
+      no_validation: "No validation data given."
+      data_type: "Wrong data-type for %{template} %{data}. Expected UUID or UUID Array."
+      data_array_format: "Wrong format %{key} for Template %{template}."
+      classification: "No Classification found for %{key} in classification_tree with Label: '%{label}' and tree_label '%{tree_label}'"
+      min_ref: "Not enough references given, %{data} should be atleast %{value}."
+      max_ref: "Too many references given, %{data} should be at most %{value}."
+      data_format: "Wrong format %{key} for %{template}."
+      not_found: "Data for %{template} with uuid %{key} not found in table %{table}."
+      integer: "%{data} is not of type integer."
+      float: "%{data} is not of type float."
+      object_type: "Wrong data-type for %{data}. Type %{type} not defined."
+      wrong_object_type: "Object-type %{data} is no embedded data-type and has no 'properties'."
+      no_template: "No matching data-type template found for %{name}|%{desc}."
+      no_fields: "No fields for 'from-date' and/or 'to-date' given."
+      convert_date: "Could not validate daterange, date_time not valid."
+      daterange: "Invalid Daterange, 'from' (%{from}) is after 'to' (%{to})."
+    warning:
+      string: "%{key} is no valid keyword for string. Found for %{data} in %{template}"
+      no_data: "No data given for %{data}"
+      no_evaluate: "%{data} not given for evaluation data."
+      keyword: "%{key} is not a valid keyword for %{type}"
+      convert: "Failed to validate daterange due to wrong 'date_time' format given for %{data}."
+      end_date: "No end-date given, assume 9999-12-31."
+      start_date: "No start-date given, assume 1970-01-01."
+  controllers:
+    error:
+      invalid_parent: "Invalid Parent Object."
+      invalid_parent_attr: "Invalid Parent Attributes."
+      no_permission: "No Permisssion."
+    success:
+      created: "%{data} successfully created."
+      updated: "%{data} updated."
+      destroyed: "%{data} deleted."
+      addedTo: "Added to Watchlist: %{data}."
+      removedFrom: "Removed from Watchlist: %{data}."
+    job:
+      added: "%{data}/%{uuid} added to Job-Queue."
+      imported: "'%{data}' imported from YAML file."
+  activerecord:
+    errors:
+      models:
+        data_cycle_core/watch_list:
+          attributes:
+            headline:
+              blank: "Headline: Should be atleast 1 long."

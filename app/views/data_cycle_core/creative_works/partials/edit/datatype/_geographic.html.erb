@@ -1,0 +1,4 @@
+<div class="form-element validation-container input <%= key.split('[').last[0...-1] %>" tabindex="-1">
+    <%= label_tag(key, prop['label']) %>
+    <%= text_field_tag key, value.to_s ,options %>
+</div>

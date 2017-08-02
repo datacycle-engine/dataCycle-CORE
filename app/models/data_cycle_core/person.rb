@@ -19,6 +19,9 @@ module DataCycleCore
     has_many :classification_aliases, through: :classification_groups
     has_many :display_classification_aliases, -> { where("classification_aliases.internal = ?", false) }, through: :classification_groups, source: :classification_alias
 
+    has_many :watch_list_data_hashes, as: :hashable, dependent: :destroy
+    has_many :watch_lists, through: :watch_list_data_hashes
+
     # custom setter
     include DataSetter
 

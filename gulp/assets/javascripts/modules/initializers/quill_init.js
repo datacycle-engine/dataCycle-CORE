@@ -6,6 +6,15 @@ module.exports.initialize = function () {
 
   quill.register('modules/counter', Counter);
 
+  $(document).on('clone-added', '.content-object-item', function () {
+
+    if ($(this).find('.quill-editor').html() != undefined) {
+      $(this).find('.quill-editor').each(function () {
+        init(this);
+      });
+    }
+  });
+
   if ($('.quill-editor').html() != undefined) {
     $('.quill-editor').each(function () {
       init(this);
@@ -51,10 +60,13 @@ module.exports.initialize = function () {
       ]
     };
 
+    var max = $(node).parent().data('max');
+
     var options = {
       modules: {
         counter: {
-          unit: 'zeichen'
+          unit: 'zeichen',
+          max: max
         },
         toolbar: toolbar[mode]
       },

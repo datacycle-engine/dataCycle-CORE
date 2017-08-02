@@ -1,0 +1,47 @@
+<div id="add-to-watchlist">
+    <a id="add-to-watchlist-link" data-toggle="add-watchlist">Zu Merkliste hinzufügen <i class="fa fa-bookmark" aria-hidden="true"></i></a>
+    <ul class="dropdown-pane bottom" id="add-watchlist" data-dropdown>
+        <% if current_user.watch_lists.count > 0 %>
+            <% current_user.watch_lists.each do |watchlist| %>
+                <li>
+                    <% if is_in_watchlist?(watchlist, dataCycleObject) %>
+                        <span class="check"><i class="fa fa-check" aria-hidden="true"></i></span>
+                        <%= watchlist.headline %>
+                        <span class="remove-link">
+                        <%= link_to removeItem_watch_list_path(watchlist, hashable_type: dataCycleObject.class.name, hashable_id: dataCycleObject.id), class: 'remove-from-watchlist-link' do %>
+                            <i aria-hidden="true" class="fa fa-times"></i>
+                        <% end %>
+                        </span>
+                    <% else %>
+                        <%= link_to addItem_watch_list_path(watchlist, hashable_type: dataCycleObject.class.name, hashable_id: dataCycleObject) do %>
+                            <%= watchlist.headline %>
+                            <span class="add-link"><i class="fa fa-plus" aria-hidden="true"></i></span>
+                        <% end %>
+                    <% end %>
+                </li>
+            <% end %>
+        <% else %>
+            <li>Keine Merklisten</li>
+            <li><a class="add-watch-list" href="#" data-open="newWatchList">Neue hinzufügen</a></li>
+
+            <div class="reveal new-item" id="newWatchList" data-reveal>
+                <h3>Neue Merkliste erstellen</h3>
+
+                <% @watch_list = DataCycleCore::WatchList.new %>
+
+                <%= form_for @watch_list do |f| %>
+
+                    <div class="validation-container form-element">
+                        <%= f.text_field :headline, class: 'form-control', value:'' %>
+                    </div>
+                    <%= f.submit "Erstellen", class: "button primary" %>
+
+                <% end %>
+
+                <button class="close-button" data-close aria-label="Close modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        <% end %>
+    </ul>
+</div>

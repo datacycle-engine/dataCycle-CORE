@@ -7,6 +7,7 @@ var Vue = require('vue');
 var AsyncComputed = require('vue-async-computed');
 var CustomSelect = require('./vue/components/custom-select.vue');
 var ObjectBrowser = require('./vue/components/object-browser.vue');
+var EmbeddedObjects = require('./vue/components/embedded-objects.vue');
 
 var masonry_init = require('./modules/initializers/masonry_init');
 var quill_init = require('./modules/initializers/quill_init');
@@ -16,6 +17,9 @@ var focus_init = require('./modules/initializers/focus_init');
 var flash_init = require('./modules/initializers/flash_init');
 var validation_init = require('./modules/initializers/validation_init');
 var counter_init = require('./modules/initializers/counter_init');
+var datepicker_init = require('./modules/initializers/date_picker_init');
+var content_object_init = require('./modules/initializers/content_object_init');
+var slider_init = require('./modules/initializers/slider_init');
 
 
 // Initialize Masonry Grid
@@ -33,7 +37,8 @@ $(function () {
       el: '#edit-form',
       components: {
         CustomSelect,
-        ObjectBrowser
+        ObjectBrowser,
+        EmbeddedObjects
       }
     });
   }
@@ -56,7 +61,15 @@ $(function () {
   // initialize Quill Editor
   quill_init.initialize();
 
-  // initialize Quill Editor
-  //counter_init.initialize();
+  // initialize Date Picker
+  datepicker_init.initialize();
 
+  // initialize Word Counter
+  counter_init.initialize();
+
+  // initialize Content Objects
+  content_object_init.initialize();
+
+  // initialize Foundation Sliders
+  slider_init.initialize();
 });
