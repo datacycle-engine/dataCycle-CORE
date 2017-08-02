@@ -8,12 +8,12 @@
                         <span class="check"><i class="fa fa-check" aria-hidden="true"></i></span>
                         <%= watchlist.headline %>
                         <span class="remove-link">
-                        <%= link_to removeItem_watch_list_path(watchlist, data_type: dataCycleObject.class.name, data_id: dataCycleObject.id), class: 'remove-from-watchlist-link' do %>
+                        <%= link_to removeItem_watch_list_path(watchlist, hashable_type: dataCycleObject.class.name, hashable_id: dataCycleObject.id), class: 'remove-from-watchlist-link' do %>
                             <i aria-hidden="true" class="fa fa-times"></i>
                         <% end %>
                         </span>
                     <% else %>
-                        <%= link_to addItem_watch_list_path(watchlist, data_type: dataCycleObject.class.name, data_id: dataCycleObject) do %>
+                        <%= link_to addItem_watch_list_path(watchlist, hashable_type: dataCycleObject.class.name, hashable_id: dataCycleObject) do %>
                             <%= watchlist.headline %>
                             <span class="add-link"><i class="fa fa-plus" aria-hidden="true"></i></span>
                         <% end %>

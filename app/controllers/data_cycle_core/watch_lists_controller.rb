@@ -81,7 +81,7 @@ module DataCycleCore
 
     def removeItem
       watch_list = DataCycleCore::WatchList.find(params[:id])
-      data = get_data(watch_list, params[:data_type], params[:data_id])
+      data = get_data(watch_list, params[:hashable_type], params[:hashable_id])
       watch_list.watch_list_data_hashes.destroy(data)
 
       flash[:success] = I18n.t :removedFrom, scope: [:controllers, :success], data: watch_list.headline
@@ -90,10 +90,9 @@ module DataCycleCore
 
     def addItem
       watch_list = DataCycleCore::WatchList.find(params[:id])
-      data = get_data(watch_list, params[:data_type], params[:data_id])
+      data = get_data(watch_list, params[:hashable_type], params[:hashable_id])
       if data.empty?
-        watch_list.watch_list_data_hashes.build( :watch_list_id => watch_list.id, :hashable_id => params[:data_id], :hashable_type => params[:data_type] )
-        watch_list.save
+        watch_list.watch_list_data_hashes.create(hashable_params)
       end
 
       flash[:success] = I18n.t :addedTo, scope: [:controllers, :success], data: watch_list.headline
@@ -104,6 +103,10 @@ module DataCycleCore
 
       def watch_list_params
         params.require(:watch_list).permit(:headline)
+      end
+
+      def hashable_params
+        params.permit(:hashable_id, :hashable_type)
       end
 
       def get_data watch_list, type, id
