@@ -42,6 +42,11 @@ require 'logging'
 # i18n for db
 require 'globalize'
 
+# Breadcrumbs
+require 'gretel'
+require 'gretel-trails'
+
+
 module DataCycleCore
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore

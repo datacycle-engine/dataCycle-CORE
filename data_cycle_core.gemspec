@@ -64,6 +64,10 @@ Gem::Specification.new do |s|
   s.add_dependency 'daemons'
   # simple forms
   s.add_dependency 'simple_form'
+  # Breadcrumbs
+  s.add_dependency 'gretel'
+  s.add_dependency 'gretel-trails'
+
   # development tools
   s.add_development_dependency 'web-console'
   s.add_development_dependency 'better_errors'
