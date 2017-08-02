@@ -106,16 +106,21 @@ module DataCycleCore
 
       #puts "#{storage_type} | #{ids} | #{tree_label} | #{default_value}"
       if is_blank?(ids)
-        unless default_value.blank?
-          classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
-              .where("classification_tree_labels.name = ?", tree_label)
-              .where("classification_aliases.name = ?", default_value).first.id
-          class_string.constantize.
-            find_or_create_by(
-              class_id => self.id,
-              classification_id: classification_id
-            )
-          ids = [classification_id]
+        begin
+          unless default_value.blank?
+            classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
+                .where("classification_tree_labels.name = ?", tree_label)
+                .where("classification_aliases.name = ?", default_value).first!.id
+            class_string.constantize.
+              find_or_create_by(
+                class_id => self.id,
+                classification_id: classification_id
+              )
+            ids = [classification_id]
+          end
+        rescue ActiveRecord::RecordNotFound => e
+          logger.error "Missing default value '#{default_value}' for classification tree '#{tree_label}'"
+          raise e
         end
       else
         # insert missing ids

@@ -180,7 +180,7 @@ module DataCycleCore
           joins(classification_groups: [classification_alias: [classification_trees: [:classification_tree_label]]]).
           where('classification_aliases.name = ?', alias_name).
           where('classification_tree_labels.name = ?', label_name).
-          first
+          first!
 
         DataCycleCore::ClassificationPlace.find_or_create_by(place_id: place_id, classification_id: classification.id, external_source_id: @external_source_id) do |item|
           item.seen_at = Time.zone.now
