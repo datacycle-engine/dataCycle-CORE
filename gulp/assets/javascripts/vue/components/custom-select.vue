@@ -249,7 +249,7 @@ export default {
             if (this.multiple) {
                 this.changeCallback ? this.changeCallback(val) : null
             } else {
-                this.changeCallback && val !== old ? this.changeCallback(val) : null
+                this.changeCallback && val !== old ? this.changeCallback([val]) : null
             }
         },
 
@@ -300,6 +300,7 @@ export default {
 
     methods: {
         generateHiddenFields(val) {
+            val = val.filter(n => n)
             this.hiddenFields = val;
             if (val.length == 0) {
                 this.hiddenFields = null;

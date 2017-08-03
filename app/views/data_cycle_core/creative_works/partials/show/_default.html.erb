@@ -10,7 +10,7 @@
         <% if !validation_properties.nil? %>
 
             <!-- todo: make this more generic ? -->
-            <% exludedProperties = ['headline','text','validityPeriod'] %>
+            <% exludedProperties = exludedProperties || ['headline','text','validityPeriod'] %>
 
             <div class="type properties">
 

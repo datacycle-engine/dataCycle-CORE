@@ -26,7 +26,17 @@
 		</div>
 	</section>
 
-	<div class="row">
+	<% unless @splitSource.nil? %>
+		<div class="flex-box">
+			<div class="split-content detail-content">
+					<%= render "data_cycle_core/#{@splitSource.model_name.route_key}/partials/show/"+@splitSource.model_name.route_key.singularize, dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema, exludedProperties: [] rescue render "data_cycle_core/#{@splitSource.model_name.route_key}/partials/show/default", dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema, exludedProperties: [] %>
+
+					<%#= render "data_cycle_core/#{@splitSource.model_name.route_key}/partials/show/top_content/classificationAliases", dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema %>
+
+			</div>
+	<% end %>
+
+	<div class="row<%= ' split-content' unless @splitSource.nil? %>">
 		<div class="column">
 			<div class="detail-header editor">
 
@@ -87,5 +97,10 @@
 			</div>
 		</div>
 	</div>
+
+		<% unless @splitSource.nil? %>
+			</div>
+		<% end %>
+
 
 <% end %>

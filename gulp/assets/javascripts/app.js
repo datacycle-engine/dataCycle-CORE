@@ -43,6 +43,15 @@ $(function () {
     });
   }
 
+  if ($('#newContent').length > 0) {
+    var new_vue = new Vue({
+      el: '#newContent form',
+      components: {
+        CustomSelect
+      }
+    });
+  }
+
   // Initialize Filter Events
   filter_init.initialize();
 
