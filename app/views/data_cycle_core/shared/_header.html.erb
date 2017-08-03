@@ -5,9 +5,8 @@
               <button class="menu-icon dark" type="button" data-toggle></button>
             </span> -->
             <span class="logo">
-                <%= link_to image_tag("data_cycle_core/datacycle.png", alt: "DataCycle"), '' %>
+                <%= link_to image_tag("data_cycle_core/datacycle_logo_white.svg", alt: "dataCycle Logo", style: 'height: 3rem;'), root_path %>
             </span>
-            <span class="title">DataCycle</span>
         </div>
         <div class="top-bar-right" id="main-menu">
             <ul class="menu">
@@ -19,7 +18,7 @@
                 <% if user_signed_in? %>
                     <li>
                         <button type="button" class="button" data-toggle="settings-off-canvas">
-                            <span><%= current_user.email %></span><i class="fa fa-smile-o icon-right" aria-hidden="true"></i>
+                            <span><%= current_user.name %></span><i class="fa fa-smile-o icon-right" aria-hidden="true"></i>
                         </button>
                     </li>
                 <% else %>

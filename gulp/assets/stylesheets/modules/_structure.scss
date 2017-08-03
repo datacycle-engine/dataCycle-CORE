@@ -46,7 +46,8 @@ header {
       padding: 0;
       display: inline-block;
       img {
-        max-height: 50px;
+        margin: 0.5rem;
+        max-height: 3rem;
         width: auto;
       }
     }
@@ -64,6 +65,8 @@ header {
     }
   }
   ul.menu {
+    line-height: 4rem;
+
     li {
       a,
       button {
