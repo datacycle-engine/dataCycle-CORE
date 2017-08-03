@@ -48,6 +48,16 @@ require 'gretel-trails'
 
 
 module DataCycleCore
+  class << self
+    mattr_accessor :breadcrumb_root_name    
+    self.breadcrumb_root_name = "Dashboard"
+  end
+
+  def self.setup(&block)
+    yield self
+  end
+
+
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
 
