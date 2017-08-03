@@ -125,8 +125,7 @@ module DataCycleCore
           end
           updates = indexes.count
 
-          place_template = Place.
-            find_by(template: true, headline: 'contentLocation', description: 'Place')
+          place_template = poi_template
           validation = place_template.metadata['validation']
           print " " * 40 + "loading"
 
@@ -162,11 +161,11 @@ module DataCycleCore
                 end
                 create_classification_place_regions( load_poi.dump[load_poi.dump.keys.first]['regions'], to_update_place.id )
                 create_classification_place_category( load_poi.dump[load_poi.dump.keys.first]['category'], to_update_place.id )
-                #create_classification_from_bool( 'winterActivity', load_poi.dump[load_poi.dump.keys.first]['winterActivity'], to_update_place.id )
-                create_classification_entry('Jahreszeiten', 'Winter', to_update_place.id) if load_poi.dump[load_poi.dump.keys.first]['winterActivity']
-                #create_classification_from_string( 'frontendtype', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id )
-                create_classification_entry('Type', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id) unless load_poi.dump[load_poi.dump.keys.first]['frontendtype'].blank?
-                #create_classification_from_string( 'source', load_poi.dump[load_poi.dump.keys.first]['meta']['source']['name'], to_update_place.id )
+                # create_classification_from_bool( 'winterActivity', load_poi.dump[load_poi.dump.keys.first]['winterActivity'], to_update_place.id )
+                # create_classification_entry('Jahreszeiten', 'Winter', to_update_place.id) if load_poi.dump[load_poi.dump.keys.first]['winterActivity']
+                # create_classification_from_string( 'frontendtype', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id )
+                # create_classification_entry('Type', load_poi.dump[load_poi.dump.keys.first]['frontendtype'], to_update_place.id) unless load_poi.dump[load_poi.dump.keys.first]['frontendtype'].blank?
+                # create_classification_from_string( 'source', load_poi.dump[load_poi.dump.keys.first]['meta']['source']['name'], to_update_place.id )
                 create_classifications_from_array('properties', load_poi.dump[load_poi.dump.keys.first]['properties']['property'], 'text', to_update_place.id) if load_poi.dump[load_poi.dump.keys.first].has_key?('properties')
               end
             end
@@ -181,7 +180,7 @@ module DataCycleCore
           joins(classification_groups: [classification_alias: [classification_trees: [:classification_tree_label]]]).
           where('classification_aliases.name = ?', alias_name).
           where('classification_tree_labels.name = ?', label_name).
-          first
+          first!
 
         DataCycleCore::ClassificationPlace.find_or_create_by(place_id: place_id, classification_id: classification.id, external_source_id: @external_source_id) do |item|
           item.seen_at = Time.zone.now
@@ -644,6 +643,24 @@ module DataCycleCore
         @log.info "  end importing pois #{(end_time-start_time).round(2)} [s]"
       end
 
+
+      private 
+      
+      def poi_template
+        if DataCycleCore::OutdoorActive::Config.poi_template.nil?
+          @log.error 'Missing configuration for poi template to use when importing pois from outdoor active'
+          raise 'Missing configuration for poi template'
+        elsif DataCycleCore::OutdoorActive::Config.poi_template.is_a? String
+          begin
+            Place.find_by!(template: true, headline: DataCycleCore::OutdoorActive::Config.poi_template)
+          rescue ActiveRecord::RecordNotFound => e
+            @log.error "Missing template '#{DataCycleCore::OutdoorActive::Config.poi_template}' for places"
+            raise e
+          end
+        else
+          raise NotImplementedError
+        end
+      end
     end
   end
 end

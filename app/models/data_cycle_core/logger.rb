@@ -30,6 +30,9 @@ module DataCycleCore
       @log.error message
     end
 
+    def logger
+      @log
+    end
   end
 
 end

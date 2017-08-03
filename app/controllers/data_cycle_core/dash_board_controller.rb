@@ -44,6 +44,9 @@ module DataCycleCore
       redirect_to admin_path
     end
 
+    def classifications
+    end
+
     def logs
       @dataname = params[:dataname]
     end
