@@ -362,7 +362,7 @@ module DataCycleCore
           }
           parent_classification_id = upsert_classification_from_id(nil,nil, parent_data_hash)
         end
-        create_classification_place(parent_classification_id, place_id)
+        # create_classification_place(parent_classification_id, place_id)
         array.each do |item|
           if item.has_key?(field_name)
             classification_id = get_id(Classification, :name, item[field_name])
