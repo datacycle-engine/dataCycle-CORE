@@ -10,20 +10,20 @@ module DataCycleCore
     before_destroy :destroy_translations, prepend: true
 
     # associations
-    has_many :classification_creative_works
+    has_many :classification_creative_works, dependent: :destroy
     has_many :classifications, through: :classification_creative_works
     has_many :classification_groups, through: :classifications
     has_many :classification_aliases, through: :classification_groups
     has_many :display_classification_aliases, -> { where("classification_aliases.internal = ?", false) }, through: :classification_groups, source: :classification_alias
 
     belongs_to :primaryImage, class_name: 'Place', primary_key: 'id', foreign_key: 'photo'
-    has_many :creative_work_places
+    has_many :creative_work_places, dependent: :destroy
     has_many :places, through: :creative_work_places
 
-    has_many :creative_work_persons
+    has_many :creative_work_persons, dependent: :destroy
     has_many :persons, through: :creative_work_persons
 
-    has_many :creative_work_events
+    has_many :creative_work_events, dependent: :destroy
     has_many :events, through: :creative_work_events
 
     has_many :watch_list_data_hashes, as: :hashable, dependent: :destroy
