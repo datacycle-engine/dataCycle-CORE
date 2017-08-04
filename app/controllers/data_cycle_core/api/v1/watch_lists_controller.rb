@@ -1,37 +1,30 @@
 module DataCycleCore
   class Api::V1::WatchListsController < Api::V1::ApiBaseController
 
-    @@default_per = 50
-
-    # method to get all WatchLists
     def index
-      query = DataCycleCore::WatchList.all
-
-      @per = params[:per] unless params[:per].blank?
-      @per ||= @@default_per
-
-      @total = query.count
-      pages = @total.fdiv(@per.to_i).ceil
-
-      unless params[:page].blank?
-        @page = params[:page]
-        @page = pages if params[:page].to_i > pages
+      if current_user
+        @watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
+          .where(user: User.find_by(email: params[:user_email]) || current_user)
+          .all
+      else
+        @watch_lists = DataCycleCore::WatchList.where(user: User.find_by!(email: params[:user_email])).all
       end
-      @page ||= 1
 
-      @watch_lists = query.page(@page).per(@per)
+      render json: {
+        collections: @watch_lists.map { |l| 
+          {
+            id: l.id,
+            name: l.headline,
+            url: api_v1_collection_url(l),
+            item_count: l.watch_list_data_hashes.count
+          }
+        }
+      }
     end
 
     # method to show a particular WatchList
     def show
-      query = DataCycleCore::WatchList.where(id: params[:id])
-
-      if query.count == 0
-        raise ActiveRecord::RecordNotFound.new("watch_list not found")
-      else
-        @watch_list = query.first
-      end
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
     end
-
   end
 end

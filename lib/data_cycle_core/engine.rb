@@ -46,6 +46,11 @@ require 'globalize'
 require 'gretel'
 require 'gretel-trails'
 
+# support for forms 
+require 'simple_form'
+
+# rendering json responses
+require 'jbuilder'
 
 module DataCycleCore
   class << self

@@ -1,5 +1,7 @@
-json.watch_list do
+json.collection do
   json.set! 'id', @watch_list.id
-  json.set! 'user_id', @watch_list.user_id
-  json.partial! 'items', locals: {item: @watch_list }
+  json.set! 'name', @watch_list.headline
+  json.items do
+    json.array! @watch_list.watch_list_data_hashes, partial: 'item', as: :item
+  end
 end
