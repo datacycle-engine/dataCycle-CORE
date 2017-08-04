@@ -12,6 +12,42 @@
   }
 }
 
+.confirm {
+  position: absolute;
+  top: -5rem;
+  left: 1rem;
+  border: 2px solid map-get($foundation-palette, alert);
+  background-color: white; //map-get($foundation-palette, alert);
+  padding: 0.5rem 1rem;
+  color: $black;
+  border-radius: 5px;
+  white-space: nowrap;
+  z-index: 100;
+  -webkit-transition: all 0.4s ease;
+  line-height: 1.5;
+  text-align: left;
+  span {
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .buttons {
+    text-align: right;
+  }
+  &:before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-top: 20px solid map-get($foundation-palette, alert);
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    -webkit-transition: all 0.4s ease;
+    -moz-transition: all 0.4s ease;
+    left: 30%;
+    bottom: -1.3rem;
+  }
+}
+
 #newContent {
   overflow-y: visible;
   .custom-select .dropdown {
@@ -73,7 +109,7 @@
           top: 0.5rem;
           .fa {
             line-height: 2rem;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
           }
         }
       }

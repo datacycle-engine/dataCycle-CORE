@@ -1,8 +1,16 @@
 <template>
   <div>
+    <div class='confirm' v-if="confirm">
+      <span v-html="confirmText"></span>
+      <div class="buttons">
+        <button class='button abort' @click.prevent="confirm = false">Abbrechen</button>
+        <button class='button ok' @click.prevent="confirmed">Ok</button>
+      </div>
+    </div>
+  
     <div class="object-thumbs" v-if="existingItems.length > 0">
       <div v-for="item in existingItems" :key="item">
-        <slot name="item" :item="item" :remove="remove" :data-open="revealLink ? 'media-reveal-'+item.id : ''"></slot>
+        <slot name="item" :item="item" :remove="remove" :uid="_uid" :data-open="revealLink ? 'media-reveal-'+item.id+'_'+_uid : ''"></slot>
       </div>
     </div>
     <div class="object-thumbs" v-else>
@@ -76,7 +84,10 @@ export default {
     return {
       showModal: false,
       existingItems: [],
-      url: '/objectbrowser'
+      url: '/objectbrowser',
+      confirm: false,
+      confirmData: [],
+      confirmText: ""
     }
   },
   created() {
@@ -86,7 +97,12 @@ export default {
     $(this.$el).find('.media-preview').foundation();
     $(this.$el).on('import-data', function (ev, data) {
       $.getJSON(this.url + "/find", { ids: data.ids, class: this.objectClass }).done(function (json_data) {
-        this.save(json_data);
+        if (this.getDelta(json_data, this.existingItems).length > 0) {
+          if (this.max == 0 || this.existingItems.length < this.max) {
+            this.mergeArrays(this.existingItems, json_data);
+          }
+          else this.confirmation(json_data, "Auswahl überschreiben?");
+        }
       }.bind(this));
     }.bind(this));
   },
@@ -95,15 +111,54 @@ export default {
       if (this.min > 0 && this.existingItems.length <= this.min) return this.renderError("min", this.min, event, this.objectType);
       var index = this.compareIndex(this.existingItems, item);
       if (index >= 0) {
+        this.removeOverlay([this.existingItems[index]]);
         this.existingItems.splice(index, 1);
       }
+    },
+    mergeArrays(arr1, arr2) {
+      var combined = arr1;
+      var rest = 0;
+      for (var i = 0; i < arr2.length; i++) {
+        var idx = this.compareIndex(arr1, arr2[i]);
+        if (idx < 0 && this.max > 0 && combined.length < this.max) combined.push(arr2[i]);
+        else if (idx < 0 && this.max == 0) combined.push(arr2[i]);
+        else if (idx < 0 && combined.length >= this.max) rest++;
+      }
+
+      if (rest > 0) {
+        this.confirmation(combined, "Zu viele hinzugefügt. " + rest + " werden nicht hinzugefügt.<br />Trotzdem fortfahren?");
+      } else {
+        this.save(combined);
+      }
+    },
+    getDelta(arr1, arr2) {
+      var delta = [];
+      for (var i = 0; i < arr2.length; i++) {
+        if (this.compareIndex(arr1, arr2[i]) < 0) delta.push(arr2[i]);
+      }
+      return delta;
     },
     compareIndex(array, item) {
       return array.findIndex(function (chosen) {
         return item.id == chosen.id;
       });
     },
+    removeOverlay(delta) {
+      for (var i = 0; i < delta.length; i++) {
+        $('#media-reveal-' + delta[i].id + '_' + this._uid).parent('.reveal-overlay').remove();
+      }
+    },
+    confirmation(data, text) {
+      this.confirmText = text;
+      this.confirmData = data;
+      this.confirm = true;
+    },
+    confirmed() {
+      this.confirm = false;
+      this.save(this.confirmData);
+    },
     save(data) {
+      this.removeOverlay(this.getDelta(this.existingItems, data));
       this.existingItems = data.slice(0);
       this.$parent.$emit('objects-saved', { name: this.hiddenName });
       this.$nextTick(function () {

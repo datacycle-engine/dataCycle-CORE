@@ -33,7 +33,7 @@
 							</div>
 							<span class="caption"></span><input type="hidden" name="<%= key %>[]" :value="props.item.id">
 						</div>
-						<div class="large reveal media-preview" :id="'media-reveal-'+props.item.id" data-reveal>
+						<div class="large reveal media-preview" :id="'media-reveal-'+props.item.id+'_'+props.uid" data-reveal>
 								<button class="close-button" data-close aria-label="Close modal" type="button">
 										<span aria-hidden="true">&times;</span>
 								</button>
