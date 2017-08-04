@@ -1,8 +1,4 @@
-json.set! '@context', 'http://www.schema.org/Place'
-
-json.set! 'id', object.id
-json.set! 'dateCreated', object.created_at
-json.set! 'dateModified', object.updated_at
+json.partial! 'preface', object: object
 
 special_attributes = [
   'id', 'external_source_id', 'external_key', 
