@@ -6,17 +6,27 @@ object.metadata.reject { |k, v| v.blank? || special_attributes.include?(k) || k.
   json.set! key, value
 end
 
-json.set! 'translations' do
-  object.translations.each.each do |translation|
-    json.set! translation.locale do
-      Array(translation.content).reject { |k, v| v.blank? || special_attributes.include?(k) || k.ends_with?('hasPart') }.each do |key, value|
-        json.set! key, value
-      end
-      Array(translation.properties).reject { |k, v| v.blank? || special_attributes.include?(k) || k.ends_with?('hasPart') }.each do |key, value|
-        json.set! key, value
+if object.translations.count > 1 
+  json.set! 'translations' do
+    object.translations.each.each do |translation|
+      json.set! translation.locale do
+        Array(translation.content).reject { |k, v| v.blank? || special_attributes.include?(k) || k.ends_with?('hasPart') }.each do |key, value|
+          json.set! key, value
+        end
+        Array(translation.properties).reject { |k, v| v.blank? || special_attributes.include?(k) || k.ends_with?('hasPart') }.each do |key, value|
+          json.set! key, value
+        end
       end
     end
   end
+else
+  json.set! 'inLanguage', object.translations.first.locale
+  Array(object.translations.first.content).reject { |k, v| v.blank? || special_attributes.include?(k) || k.ends_with?('hasPart') }.each do |key, value|
+    json.set! key, value
+  end
+  Array(object.translations.first.properties).reject { |k, v| v.blank? || special_attributes.include?(k) || k.ends_with?('hasPart') }.each do |key, value|
+    json.set! key, value
+  end  
 end
 
 if object.metadata.select { |k, v| k.ends_with?('hasPart') }.map { |k, v| v }.flatten.count > 0
