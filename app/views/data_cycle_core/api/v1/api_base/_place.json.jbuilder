@@ -1,15 +1,16 @@
 json.partial! 'preface', object: object
 
-special_attributes = [
-  'id', 'external_source_id', 'external_key', 
+special_attributes = DataCycleCore.special_data_attributes + [
+  'id', 'external_source_id', 'external_key', 'validation',
   'seen_at', 'created_at', 'updated_at',
-  'addressLocality', 'streetAddress', 'postalCode', 'addressCountry', 
+  'address', 'addressLocality', 'streetAddress', 'postalCode', 'addressCountry', 
   'latitude',  'longitude',  'elevation', 'location',
-  'metadata', 'content', 'properties', 'template']
+  'metadata', 'content', 'properties', 'template'
+]
 
 if object.streetAddress || object.postalCode || object.addressLocality || object.addressCountry
   json.set! 'address' do
-    json.partial! 'address', object: object
+    json.partial! 'address', addressData: object
   end
 end
 
@@ -22,11 +23,11 @@ if (object.latitude && object.longitude) || object.elevation
   end
 end
 
-object.metadata.reject { |k, v| v.nil? || k == 'validation' }.each do |key, value|
+object.metadata.reject { |k, v| v.blank? || special_attributes.include?(k) }.each do |key, value|
   json.set! key, value
 end
 
-object.attributes.reject { |k, v| v.nil? || special_attributes.include?(k) }.each do |key, value|
+object.attributes.reject { |k, v| v.blank? || special_attributes.include?(k) }.each do |key, value|
   json.set! key, value
 end
 
@@ -35,7 +36,7 @@ json.set! 'translations' do
     json.set! translation.locale do
       if translation.streetAddress || translation.postalCode || translation.addressLocality || translation.addressCountry
         json.set! 'address' do
-          json.partial! 'address', object: translation
+          json.partial! 'address', addressData: translation
         end
       end
 
@@ -43,11 +44,11 @@ json.set! 'translations' do
         json.set! key, value
       end
 
-      Array(translation.content).each do |key, value|
+      Array(translation.content).reject { |k, v| v.nil? || (special_attributes + ['place_id', 'locale']).include?(k) }.each do |key, value|
         json.set! key, value
       end
 
-      Array(translation.properties).each do |key, value|
+      Array(translation.properties).reject { |k, v| v.nil? || (special_attributes + ['place_id', 'locale']).include?(k) }.each do |key, value|
         json.set! key, value
       end
     end

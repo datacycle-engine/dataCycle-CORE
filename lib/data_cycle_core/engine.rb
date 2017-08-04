@@ -56,6 +56,10 @@ module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name    
     self.breadcrumb_root_name = "Dashboard"
+
+    # special data attributes are ignored by the standard json serializes and must be handled by the application itself
+    mattr_accessor :special_data_attributes    
+    self.special_data_attributes = []
   end
 
   def self.setup(&block)

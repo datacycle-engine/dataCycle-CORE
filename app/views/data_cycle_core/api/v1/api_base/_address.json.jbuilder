@@ -1,5 +1,5 @@
 json.set! '@type', 'PostalAddress'
-json.set! 'streetAddress', object.streetAddress if object.streetAddress
-json.set! 'postalCode', object.postalCode if object.postalCode
-json.set! 'addressLocality', object.addressLocality if object.addressLocality
-json.set! 'addressCountry', object.addressCountry if object.addressCountry
+json.set! 'streetAddress', addressData.streetAddress unless addressData.streetAddress.blank?
+json.set! 'postalCode', addressData.postalCode unless addressData.postalCode.blank?
+json.set! 'addressLocality', addressData.addressLocality unless addressData.addressLocality.blank?
+json.set! 'addressCountry', addressData.addressCountry unless addressData.addressCountry.blank?
