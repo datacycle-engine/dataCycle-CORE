@@ -1,5 +1,5 @@
 <% object = ("DataCycleCore::"+("#{prop['type_name']}".classify)).constantize %>
-<div class="form-element validation-container <%= key.split('[').last[0...-1] %>">
+<div class="form-element validation-container <%= key.split('[').last[0...-1] %>" data-label="<%= prop['label'] %>">
 	<div class="object-browser" id="<%= sanitize_to_id(key) %>">
 		<%= label_tag(key, prop['label']) %>
 		<input type="text" disabled="disabled" />
@@ -23,7 +23,8 @@
 				<% if !prop['validations'].nil? && !prop['validations']['max'].nil? %>
 					<% max = prop['validations']['max'] %>
 				<% end %>
-				<object-browser :existing="<%= existing.to_json %>" :min="<%= min %>" :max="<%= max %>" object-type="<%= prop['editor']['options']['data-type'].downcase %>" :object-label="'<%= prop['label'] %>'" hidden-name="<%= key %>[]" :reveal-link="true">
+
+				<object-browser :existing="<%= existing.to_json %>" object-class="<%= object %>" :min="<%= min %>" :max="<%= max %>" object-type="<%= prop['editor']['options']['data-type'].downcase %>" :object-label="'<%= prop['label'] %>'" hidden-name="<%= key %>[]" :reveal-link="true">
 					<template scope="props" slot="item">
 						<div v-if="props.item != undefined" :data-open="props.dataOpen" :class="[props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != '' && props.item.metadata.restrictions != 'Keine Einschränkung;' ? 'has-restrictions' : '', 'media thumbnail']" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnailUrl+')' }">
 							<span slot="remove" class="delete-thumbnail" href="#" @click.stop="props.remove(props.item, $event)"><i aria-hidden="true" class="fa fa-times"></i></span>

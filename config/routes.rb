@@ -45,5 +45,6 @@ DataCycleCore::Engine.routes.draw do
   end
 
   get '/objectbrowser', to: 'object_browser#show'
+  get '/objectbrowser/find', to: 'object_browser#find'
 
 end

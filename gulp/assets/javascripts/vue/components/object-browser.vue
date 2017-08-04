@@ -10,7 +10,7 @@
     </div>
     <transition name="fade">
       <keep-alive>
-        <object-browser-modal v-if="showModal" @save="save" :object-type="objectType" :object-label="objectLabel" url="/objectbrowser" :preChosenItems="existingItems" :select-one="selectOne" :new-id="newId" @close="showModal = false" :create-item="createItem" :min="min" :max="max">
+        <object-browser-modal v-if="showModal" @save="save" :object-type="objectType" :object-label="objectLabel" :url="url" :preChosenItems="existingItems" :select-one="selectOne" :new-id="newId" @close="showModal = false" :create-item="createItem" :min="min" :max="max">
           <template scope="props" slot="item">
             <slot name="item" :item="props.item"></slot>
           </template>
@@ -38,6 +38,10 @@ export default {
     },
     objectType: {
       type: String
+    },
+    objectClass: {
+      type: String,
+      default: 'DataCycleCore::CreativeWork'
     },
     newId: {
       type: String
@@ -71,7 +75,8 @@ export default {
   data() {
     return {
       showModal: false,
-      existingItems: []
+      existingItems: [],
+      url: '/objectbrowser'
     }
   },
   created() {
@@ -79,6 +84,11 @@ export default {
   },
   mounted() {
     $(this.$el).find('.media-preview').foundation();
+    $(this.$el).on('import-data', function (ev, data) {
+      $.getJSON(this.url + "/find", { ids: data.ids, class: this.objectClass }).done(function (json_data) {
+        this.save(json_data);
+      }.bind(this));
+    }.bind(this));
   },
   methods: {
     remove(item, event) {

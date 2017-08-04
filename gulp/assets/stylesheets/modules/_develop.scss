@@ -64,6 +64,19 @@
     height: calc(100vh - 13rem);
     .detail-content {
       padding: 0 1rem;
+      .button-prime {
+        &.small {
+          width: 2rem;
+          height: 2rem;
+          position: absolute;
+          right: 0.5rem;
+          top: 0.5rem;
+          .fa {
+            line-height: 2rem;
+            font-size: 1.4rem;
+          }
+        }
+      }
     }
     .split-content {
       display: inline-block;
