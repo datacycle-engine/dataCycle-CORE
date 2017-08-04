@@ -1,4 +1,4 @@
-elsif object.is_a?(DataCycleCore::CreativeWork)
+if object.is_a?(DataCycleCore::CreativeWork)
   json.set! '@context', "http://schema.org/CreativeWork"
 elsif object.is_a?(DataCycleCore::Place)
   json.set! '@context', "http://schema.org/Place"
