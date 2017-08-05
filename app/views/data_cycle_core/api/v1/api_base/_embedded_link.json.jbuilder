@@ -1,1 +1,1 @@
-raise NotImplemented
+raise NotImplementedError

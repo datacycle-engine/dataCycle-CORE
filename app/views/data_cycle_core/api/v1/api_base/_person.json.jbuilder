@@ -1,39 +1,47 @@
-json.partial! 'preface', object: object
+type = object.metadata['validation']['name']
 
-special_attributes = DataCycleCore.special_data_attributes + ['validation']
+begin
+  json.partial! "#{object.class.class_name.underscore}_#{type.underscore}", object: object, nested: defined?(nested) ? nested : false
+rescue ActionView::MissingTemplate => e
+  logger.info "Using standard template for #{object.class.to_s} - #{type}"
 
-special_attributes = DataCycleCore.special_data_attributes + [
-  'id', 'creator',
-  'seen_at', 'created_at', 'updated_at',
-  'validation', 'metadata', 'content', 'properties', 'template'
-]
+  json.partial! 'preface', object: object
 
-if object.metadata['creator']
-  user = DataCycleCore::User.find(object.metadata['creator'])
-  json.set! 'creator', "#{user.name} <#{user.email}>"
-end
+  special_attributes = DataCycleCore.special_data_attributes + ['validation']
 
-object.metadata.reject { |k, v| v.blank? || special_attributes.include?(k) }.each do |key, value|
-  json.set! key, value
-end
+  special_attributes = DataCycleCore.special_data_attributes + [
+    'id', 'creator',
+    'seen_at', 'created_at', 'updated_at',
+    'validation', 'metadata', 'content', 'properties', 'template'
+  ]
 
-object.attributes.reject { |k, v| v.blank? || special_attributes.include?(k) }.each do |key, value|
-  json.set! key, value
-end
+  if object.metadata['creator']
+    user = DataCycleCore::User.find(object.metadata['creator'])
+    json.set! 'creator', "#{user.name} <#{user.email}>"
+  end
 
-json.set! 'translations' do
-  object.translations.each.each do |translation|
-    json.set! translation.locale do
-      translation.attributes.reject { |k, v| v.nil? || (special_attributes + ['person_id', 'locale']).include?(k) }.each do |key, value|
-        json.set! key, value
-      end
+  object.metadata.reject { |k, v| v.blank? || special_attributes.include?(k) }.each do |key, value|
+    json.set! key, value
+  end
 
-      Array(translation.content).reject { |k, v| v.nil? || (special_attributes + ['person_id', 'locale']).include?(k) }.each do |key, value|
-        json.set! key, value
-      end
+  object.attributes.reject { |k, v| v.blank? || special_attributes.include?(k) }.each do |key, value|
+    json.set! key, value
+  end
 
-      Array(translation.properties).reject { |k, v| v.nil? || (special_attributes + ['person_id', 'locale']).include?(k) }.each do |key, value|
-        json.set! key, value
+  json.set! 'translations' do
+    object.translations.each.each do |translation|
+      json.set! translation.locale do
+        translation.attributes.reject { |k, v| v.nil? || (special_attributes + ['person_id', 'locale']).include?(k) }.each do |key, value|
+          json.set! key, value
+        end
+
+        Array(translation.content).reject { |k, v| v.nil? || (special_attributes + ['person_id', 'locale']).include?(k) }.each do |key, value|
+          json.set! key, value
+        end
+
+        Array(translation.properties).reject { |k, v| v.nil? || (special_attributes + ['person_id', 'locale']).include?(k) }.each do |key, value|
+          json.set! key, value
+        end
       end
     end
   end
