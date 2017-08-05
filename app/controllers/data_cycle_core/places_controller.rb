@@ -27,8 +27,12 @@ module DataCycleCore
         @dataSchema = I18n.with_locale(@place.translated_locales.first){@place.get_data_hash}
       end
 
-      render layout: "data_cycle_core/creative_works_edit"
-
+      respond_to do |format|
+        format.json { redirect_to api_v1_content_path(type: 'places', id: params[:id]) }
+        format.html {
+          render layout: "data_cycle_core/creative_works_edit"
+        }
+      end
     end
 
     def create

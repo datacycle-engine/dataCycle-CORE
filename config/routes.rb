@@ -40,6 +40,9 @@ DataCycleCore::Engine.routes.draw do
         resources :images, only: [:index, :show]
 
         resources :collections, only: [:index, :show], controller: :watch_lists
+
+        type_regexp = Regexp.new([:creative_works, :persons, :places].join("|"))
+        resources :contents, path: ':type', constraints: { type: type_regexp }, only: [:show]
       end
     end
   end
