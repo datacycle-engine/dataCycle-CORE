@@ -2,9 +2,9 @@ json.partial! 'preface', object: object, nested: defined?(nested) ? nested : fal
 
 linkedObjectDefinitions = object.metadata['validation']['properties']
   .select { |k, v| v['type'].starts_with?('embedded') }
-  .reject { |k, v| DataCycleCore.special_data_attributes.include?(k) }
+  .reject { |k, v| (['creator'] + DataCycleCore.special_data_attributes).include?(k) }
 
-special_attributes = DataCycleCore.special_data_attributes + linkedObjectDefinitions.keys + ['validation']
+special_attributes = DataCycleCore.special_data_attributes + linkedObjectDefinitions.keys + ['validation', 'creator']
 
 object.metadata.reject { |k, v| v.blank? || special_attributes.include?(k) || k.ends_with?('hasPart') }.each do |key, value|
   json.set! key, value
