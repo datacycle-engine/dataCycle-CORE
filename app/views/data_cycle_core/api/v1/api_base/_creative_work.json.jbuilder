@@ -5,7 +5,7 @@ begin
 rescue ActionView::MissingTemplate => e
   logger.info "Using standard template for #{object.class.to_s} - #{type}"
 
-  json.partial! 'preface', object: object, nested: defined?(nested) ? nested : false
+  json.partial! 'header', object: object
 
   special_attributes = DataCycleCore.special_data_attributes + [
     'validation', 'creator', 'external_source_id'
