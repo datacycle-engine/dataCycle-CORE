@@ -7,19 +7,12 @@ rescue ActionView::MissingTemplate => e
 
   json.partial! 'header', object: object
 
-  special_attributes = DataCycleCore.special_data_attributes + [
-    'id', 'external_source_id', 'external_key', 'validation',
-    'seen_at', 'created_at', 'updated_at',
-    'address', 'addressLocality', 'streetAddress', 'postalCode', 'addressCountry', 
-    'latitude',  'longitude',  'elevation', 'location',
-    'metadata', 'content', 'properties', 'template'
-  ]
+  object = DataCycleCore::ContentDecorator.new(object)
 
-  if object.streetAddress || object.postalCode || object.addressLocality || object.addressCountry
-    json.set! 'address' do
-      json.partial! 'address', addressData: object
-    end
-  end
+  special_attributes = DataCycleCore.special_data_attributes +  DataCycleCore::ContentDecorator.special_property_names + [
+    'latitude',  'longitude',  'elevation', 'location',
+    'addressLocality', 'streetAddress', 'postalCode', 'addressCountry'
+  ]
 
   if (object.latitude && object.longitude) || object.elevation
     json.set! 'geo' do
@@ -30,35 +23,39 @@ rescue ActionView::MissingTemplate => e
     end
   end
 
-  object.metadata.reject { |k, v| v.blank? || special_attributes.include?(k) }.each do |key, value|
-    json.set! key, value
+  ((object.untranslatable_property_names & object.plain_property_names) - special_attributes).each do |key|
+    json.set! key, object.property_value(key) unless object.property_value(key).blank?
   end
 
-  object.attributes.reject { |k, v| v.blank? || special_attributes.include?(k) }.each do |key, value|
-    json.set! key, value
-  end
+  if object.translations == 1 
+    translation = object.translations.first
 
-  json.set! 'translations' do
-    object.translations.each.each do |translation|
-      json.set! translation.locale do
-        if translation.streetAddress || translation.postalCode || translation.addressLocality || translation.addressCountry
+    json.set! 'inLanguage', translation.locale
+
+    (object.translatable_property_names - special_attributes).each do |key|
+      json.set! key, object.property_value(key) unless object.property_value(key).blank?
+    end
+
+    json.set! 'address' do
+      json.partial! 'address', addressData: translation
+    end
+  else
+    json.set! 'translations' do
+      object.translations.each do |translation|
+        json.set! translation.locale do
+          (object.translatable_property_names - special_attributes).each do |key|
+            json.set! key, object.property_value(key) unless object.property_value(key).blank?
+          end
+
           json.set! 'address' do
             json.partial! 'address', addressData: translation
           end
         end
-
-        translation.attributes.reject { |k, v| v.nil? || (special_attributes + ['place_id', 'locale']).include?(k) }.each do |key, value|
-          json.set! key, value
-        end
-
-        Array(translation.content).reject { |k, v| v.nil? || (special_attributes + ['place_id', 'locale']).include?(k) }.each do |key, value|
-          json.set! key, value
-        end
-
-        Array(translation.properties).reject { |k, v| v.nil? || (special_attributes + ['place_id', 'locale']).include?(k) }.each do |key, value|
-          json.set! key, value
-        end
       end
     end
+  end
+
+  object.linked_object_definitions.each do |k, v|
+    json.partial! v['type'].underscore, name: k, definition: v, data: object.linked_object_data(k)
   end
 end
