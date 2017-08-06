@@ -42,6 +42,16 @@ class DataCycleCore::ContentDecorator < SimpleDelegator
     end
   end
 
+  def translated_property_value(property_key, locale)
+    definition = property_definitions[property_key]
+
+    if definition['storage_location'] == 'column' || definition['storage_location'] == 'key'
+      self.translations.find { |t| t.locale == locale }.send(property_key)
+    else
+      self.translations.find { |t| t.locale == locale }.send(definition['storage_location'])[property_key]
+    end
+  end
+
   def embedded_object_names
     self.property_definitions.select { |k, v| v['type'] == 'object' }.keys
   end

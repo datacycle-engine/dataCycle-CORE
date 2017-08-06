@@ -21,7 +21,9 @@ else
     object.translations.each do |translation|
       json.set! translation.locale do
         ((object.translatable_property_names & object.plain_property_names) - special_attributes).each do |key|
-          json.set! key, object.property_value(key) unless object.property_value(key).blank?
+          if !object.translated_property_value(key, translation.locale).blank?
+            json.set! key, object.translated_property_value(key, translation.locale) 
+          end
         end
       end
     end
