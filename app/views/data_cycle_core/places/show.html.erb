@@ -14,7 +14,7 @@
                 <div class="type <%= @place.metadata['validation']['name'].downcase %>">
                     <%= render 'data_cycle_core/shared/icon', icon_type: @place.metadata['validation']['name'].downcase %>
                     <!--<span class="title"><%= @place.metadata['validation']['name'] %></span>-->
-                    <span class="title">Ort</span>
+                    <span class="title"><%= @place.metadata['validation']['name'] %></span>
                 </div>
                 <%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @place %>
             </div>
