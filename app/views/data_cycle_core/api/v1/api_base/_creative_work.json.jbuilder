@@ -5,5 +5,18 @@ begin
 rescue ActionView::MissingTemplate => e
   logger.info "Using standard template for #{object.class.to_s} - #{type}"
 
-  json.partial! 'base', object: object
+  json.partial! 'base', object: object, options: defined?(options) ? options : {}
+
+  special_attributes = DataCycleCore.special_data_attributes +  DataCycleCore::ContentDecorator.special_property_names
+
+  parts = DataCycleCore::CreativeWork.where(id: (DataCycleCore::ContentDecorator.new(object).embedded_object_names - special_attributes)
+      .map { |k| object.metadata[k + '_hasPart'] }
+      .flatten
+    )
+
+  if (parts.size > 0)
+    json.hasPart(parts) do |part|
+      json.partial! 'creative_work', object: part, options: { header_type: :none }
+    end
+  end
 end

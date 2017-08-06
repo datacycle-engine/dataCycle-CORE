@@ -5,7 +5,7 @@ begin
 rescue ActionView::MissingTemplate => e
   logger.info "Using standard template for #{object.class.to_s} - #{type}"
 
-  json.partial! 'header', object: object
+  json.partial! 'header', object: object, options: defined?(options) ? options : {}
 
   object = DataCycleCore::ContentDecorator.new(object)
 

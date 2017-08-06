@@ -29,7 +29,7 @@ class DataCycleCore::ContentDecorator < SimpleDelegator
   end
 
   def plain_property_names
-    property_names - linked_property_names
+    property_names - linked_property_names - embedded_object_names
   end
 
   def property_value(property_key)
@@ -40,6 +40,10 @@ class DataCycleCore::ContentDecorator < SimpleDelegator
     else
       self.__getobj__.send(definition['storage_location'])[property_key]
     end
+  end
+
+  def embedded_object_names
+    self.property_definitions.select { |k, v| v['type'] == 'object' }.keys
   end
 
   def linked_object_definitions

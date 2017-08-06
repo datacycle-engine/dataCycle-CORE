@@ -5,5 +5,5 @@ begin
 rescue ActionView::MissingTemplate => e
   logger.info "Using standard template for #{object.class.to_s} - #{type}"
 
-  json.partial! 'base', object: object
+  json.partial! 'base', object: object, options: defined?(options) ? options : {}
 end
