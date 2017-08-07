@@ -1,6 +1,26 @@
 FIXNUM_MAX = (2**(0.size * 8 -2) -1)
 
 namespace :data_cycle_core do
+  namespace :clear do
+    desc "Remove all data except for configuration data like users"
+    task :all => :environment do
+      DataCycleCore::Classification.destroy_all
+      DataCycleCore::ClassificationAlias.destroy_all
+      DataCycleCore::CreativeWork.destroy_all
+      DataCycleCore::Event.destroy_all
+      DataCycleCore::Person.destroy_all
+      DataCycleCore::Place.destroy_all
+    end
+
+    desc "Remove all contents related data like creative works and places (does not remove classifications)"
+    task :contents => :environment do
+      DataCycleCore::CreativeWork.destroy_all
+      DataCycleCore::Event.destroy_all
+      DataCycleCore::Person.destroy_all
+      DataCycleCore::Place.destroy_all
+    end
+  end
+
   namespace :import do
     desc "List available endpoints for import"
     task :list => :environment do

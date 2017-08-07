@@ -68,8 +68,8 @@ module DataCycleCore
         Mongoid.override_database("#{DownloadPoi.database_name}_#{@external_source_id}")
 
         import_logging do
-          import_category
-          import_region
+          # import_category
+          # import_region
           import_poi
         end
 
@@ -125,14 +125,15 @@ module DataCycleCore
           end
           updates = indexes.count
 
-          place_template = poi_template
-          validation = place_template.metadata['validation']
           print " " * 40 + "loading"
 
           page_size = 50 #avoid timeout from Mongo-cursor!!!
           pages = updates.fdiv(page_size).ceil
           pages.times do |index|
             DownloadPoi.in(_id: indexes).extras(:limit => page_size, :skip => (index*page_size)).each do |load_poi|
+              place_template = poi_template(load_poi)
+              validation = place_template.metadata['validation']              
+
               print '.' if (updates % @download_page_size) == 0
               updates-=1
               to_update_place = Place
@@ -362,7 +363,7 @@ module DataCycleCore
           }
           parent_classification_id = upsert_classification_from_id(nil,nil, parent_data_hash)
         end
-        create_classification_place(parent_classification_id, place_id)
+        # create_classification_place(parent_classification_id, place_id)
         array.each do |item|
           if item.has_key?(field_name)
             classification_id = get_id(Classification, :name, item[field_name])
@@ -646,13 +647,20 @@ module DataCycleCore
 
       private 
       
-      def poi_template
+      def poi_template(raw_data)
         if DataCycleCore::OutdoorActive::Config.poi_template.nil?
           @log.error 'Missing configuration for poi template to use when importing pois from outdoor active'
           raise 'Missing configuration for poi template'
         elsif DataCycleCore::OutdoorActive::Config.poi_template.is_a? String
           begin
             Place.find_by!(template: true, headline: DataCycleCore::OutdoorActive::Config.poi_template)
+          rescue ActiveRecord::RecordNotFound => e
+            @log.error "Missing template '#{DataCycleCore::OutdoorActive::Config.poi_template}' for places"
+            raise e
+          end
+        elsif DataCycleCore::OutdoorActive::Config.poi_template.is_a? Proc
+          begin
+            Place.find_by!(template: true, headline: DataCycleCore::OutdoorActive::Config.poi_template.call(raw_data))
           rescue ActiveRecord::RecordNotFound => e
             @log.error "Missing template '#{DataCycleCore::OutdoorActive::Config.poi_template}' for places"
             raise e

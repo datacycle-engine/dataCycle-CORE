@@ -7,11 +7,11 @@ module DataCycleCore
     # callbacks
     before_destroy :destroy_translations, prepend: true
 
-    has_many :creative_work_events
+    has_many :creative_work_events, dependent: :destroy
     has_many :creative_works, through: :creative_work_events
 
     # associations
-    has_many :classification_events
+    has_many :classification_events, dependent: :destroy
     has_many :classifications, through: :classification_events
     has_many :classification_groups, through: :classifications
     has_many :classification_aliases, through: :classification_groups

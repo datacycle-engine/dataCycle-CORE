@@ -29,7 +29,7 @@ crumb :'data_cycle_core/places' do
 end
 
 crumb :'data_cycle_core/place' do |place|
-  link to_html_string("Ort", place.name), place_path(place)
+  link to_html_string(place.metadata['validation']['name'], place.name), place_path(place)
 
   # parent :'data_cycle_core/places'
 end

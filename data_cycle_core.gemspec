@@ -68,6 +68,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'gretel'
   s.add_dependency 'gretel-trails'
 
+  s.add_dependency 'jbuilder'
+
   # development tools
   s.add_development_dependency 'web-console'
   s.add_development_dependency 'better_errors'

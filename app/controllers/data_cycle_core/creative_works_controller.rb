@@ -22,14 +22,18 @@ module DataCycleCore
       end
 
       @dataSchema = @creativeWork.get_data_hash
-      
-      if @creativeWork.metadata['validation']['content_type'] == 'variant'
-        render layout: "data_cycle_core/creative_works_edit"
-      else
-        @sources = get_sources
-        render layout: "data_cycle_core/creative_works_show"
-      end
 
+      respond_to do |format|
+        format.json { redirect_to api_v1_content_path(type: 'creative_works', id: params[:id]) }
+        format.html {
+          if @creativeWork.metadata['validation']['content_type'] == 'variant'
+            render layout: "data_cycle_core/creative_works_edit"
+          else
+            render layout: "data_cycle_core/creative_works_show"
+          end
+        }
+        @sources = get_sources
+      end
     end
 
     def create
