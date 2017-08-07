@@ -26,7 +26,7 @@ module DataCycleCore
       if @creativeWork.metadata['validation']['content_type'] == 'variant'
         render layout: "data_cycle_core/creative_works_edit"
       else
-        @sources = get_sources()
+        @sources = get_sources
         render layout: "data_cycle_core/creative_works_show"
       end
 
@@ -176,7 +176,7 @@ module DataCycleCore
         tree_labels = helpers.get_allowed_content_types.keys
         tree_labels.push('Recherche')
 
-        types = DataCycleCore::ClassificationAlias.where("name IN (?)", tree_labels).pluck(:id)
+        types = DataCycleCore::ClassificationAlias.where("name IN (?) AND internal = true", tree_labels).pluck(:id)
         
         @language = params[:language]
         @language ||= "de"
@@ -184,7 +184,7 @@ module DataCycleCore
         query = DataCycleCore::Filter::CreativeWorkQueryBuilder.new(@language)
         query = query.with_classification_alias_ids(types)
         
-        query = query.map{|c| { value: "source_id=>#{c.id}, source_type=>#{c.class.name}", label: c.content['headline'] + " (" + c.metadata['validation']['name'] + ")" } unless c.metadata['validation']['description'] == "ImageObject" }.compact
+        query = query.map{|c| { value: "source_id=>#{c.id}, source_type=>#{c.class.name}", label: c.content['headline'] + " (" + c.metadata['validation']['name'] + ")" } }.compact
         
         return query
       end   
