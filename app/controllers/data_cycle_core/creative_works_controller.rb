@@ -29,10 +29,10 @@ module DataCycleCore
           if @creativeWork.metadata['validation']['content_type'] == 'variant'
             render layout: "data_cycle_core/creative_works_edit"
           else
+            @sources = get_sources
             render layout: "data_cycle_core/creative_works_show"
           end
         }
-        @sources = get_sources
       end
     end
 
