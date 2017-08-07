@@ -25,6 +25,9 @@ module DataCycleCore
     # custom setter
     include DataSetter
 
+    include ContentHelpers
+
+    
     attr_accessor :datahash
 
 

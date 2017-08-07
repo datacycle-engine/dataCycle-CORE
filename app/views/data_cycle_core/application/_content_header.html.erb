@@ -1,0 +1,27 @@
+<div class="column detail-header-wrapper">
+  <div class="detail-header">
+    <a class="close-button" href="<%= breadcrumbs[-2].url %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+
+    <div class="topleftinfo">
+      <div class="type <%= object.content_type.downcase %>">
+        <%= render 'content_icon', object: object %>
+        <span class="title"><%= object.content_type %></span>
+      </div>
+
+      <span class="metadata">
+        <span>erstellt am </span>
+        <span><strong><%= object.created_at.to_s(:german_datetime_format) %></strong></span>
+        <% if object.creator %>
+          <span> von </span>
+          <span><strong><a href="mailto:<%= "#{creator.email}" %>"><%= "#{creator.name}" %></strong></a></span>
+        <% end %>
+        <span>. Letzte Bearbeitung: </span>
+        <span><strong><%= object.updated_at.to_s(:german_datetime_format) %></strong></span>
+      </span>
+    </div>
+
+    <div class="title">
+      <%= object.title %>
+    </div>
+  </div>
+</div>
