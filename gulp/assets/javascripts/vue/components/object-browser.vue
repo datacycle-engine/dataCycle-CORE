@@ -124,7 +124,6 @@ export default {
         else if (idx < 0 && this.max == 0) combined.push(arr2[i]);
         else if (idx < 0 && combined.length >= this.max) rest++;
       }
-
       if (rest > 0) {
         this.confirmation(combined, "Zu viele hinzugefügt. " + rest + " werden nicht hinzugefügt.<br />Trotzdem fortfahren?");
       } else {
@@ -133,8 +132,11 @@ export default {
     },
     getDelta(arr1, arr2) {
       var delta = [];
-      for (var i = 0; i < arr2.length; i++) {
-        if (this.compareIndex(arr1, arr2[i]) < 0) delta.push(arr2[i]);
+      var longer = arr1.length >= arr2.length ? arr1 : arr2;
+      var shorter = arr1.length >= arr2.length ? arr2 : arr1;
+
+      for (var i = 0; i < longer.length; i++) {
+        if (this.compareIndex(shorter, longer[i]) < 0) delta.push(longer[i]);
       }
       return delta;
     },
