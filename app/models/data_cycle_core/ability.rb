@@ -4,6 +4,8 @@ module DataCycleCore
 
     def initialize(user)
       can :read, DataCycleCore::WatchList, user: user
+
+      can :manage, DataCycleCore::CreativeWork
     end
   end
 end
