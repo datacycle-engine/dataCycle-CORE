@@ -2,7 +2,7 @@ module DataCycleCore
   class Place < DataHash
 
     # handle translations with gem Globalize
-    translates :name, :description, :addressLocality, :streetAddress,
+    translates :name, :headline, :description, :addressLocality, :streetAddress,
       :postalCode, :addressCountry, :faxNumber, :telephone, :email,
       :url, :hoursAvailable, :address, :content, :properties
 

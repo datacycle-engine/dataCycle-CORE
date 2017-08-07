@@ -2,7 +2,7 @@ module DataCycleCore
   class Event < DataHash
 
     # handle translations with gem Globalize
-    translates :content, :properties
+    translates :headline, :description, :content, :properties
 
     # callbacks
     before_destroy :destroy_translations, prepend: true
