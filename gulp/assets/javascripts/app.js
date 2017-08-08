@@ -13,6 +13,7 @@ var masonry_init = require('./modules/initializers/masonry_init');
 var quill_init = require('./modules/initializers/quill_init');
 var filter_init = require('./modules/initializers/filter_init');
 var blur_init = require('./modules/initializers/blur_init');
+var detailheader_init = require('./modules/initializers/detailheader_init');
 var focus_init = require('./modules/initializers/focus_init');
 var flash_init = require('./modules/initializers/flash_init');
 var validation_init = require('./modules/initializers/validation_init');
@@ -48,6 +49,9 @@ $(function () {
 
   // Initialize Filter Events
   blur_init.initialize();
+
+ // Initialize Detailheader Events
+  detailheader_init.initialize();
 
   // Initialize Focus Events and Classes
   focus_init.initialize();

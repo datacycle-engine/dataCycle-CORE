@@ -6,11 +6,52 @@
 
         <div class="detail-header">
 
-            <a class="close-button" href="<%= breadcrumbs[-2].url %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+            <div class="detail-header-functions">
+                <ul class="no-bullet">
+                    <li>
+                        <a id="show-history-link" data-toggle="show-history"><i class="fa fa-history" aria-hidden="true"></i> Versionen</a>
+                        <ul class="dropdown-pane no-bullet bottom" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
+                            <li>
+                            Aktuelle Version von Admin<br><i>vor 1 Monat (8. Jul @ 09:18)</i>
+                            </li>
+                            <li>
+                            <a href="#">Revision von Admin</a><br><i>vor 1 Monat (4. Jul @ 15:46)</i>
+                            </li>
+                            <li>
+                            <a href="#">Revision von Admin</a><br><i>vor 1 Monat (4. Jul @ 15:46)</i>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a id="send-link-link" data-toggle="send-link"><i class="fa fa-share" aria-hidden="true"></i><i class="fa fa-user" aria-hidden="true"></i> versenden</span></a>
+                        <ul class="dropdown-pane no-bullet bottom" id="send-link" data-dropdown data-hover="true" data-hover-pane="true">
+                            <li>
+                                <h5>Link versenden</h5>
+                                <input type="email" placeholder="E-Mail Adresse" style="">
+                            </li>
+                            <li><button id="sendlinkButton" class="button small">Link versenden</button></li>
+                            <li>
+                                <input readonly="readonly" id="copyTarget" type="text" style="" value="http://10.0.0.82:3000/creative_works/c98379b4-8023-4efd-9556-1721fac3e16c">
+                            </li>
+                            <li><button id="copyButton" class="button small">In die Zwischenablage kopieren</button></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a id="subscribe-link" data-toggle="subscribe"><i class="fa fa-bell-o" aria-hidden="true"></i> abonnieren</span></a>
+                        <ul class="dropdown-pane no-bullet bottom" id="subscribe" data-dropdown data-hover="true" data-hover-pane="true">
+                            <li>
 
-            <%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: @creativeWork %>
+                            Klicken Sie hier um regelmäßig über Änderungen informiert zu werden.
+                            </li>
+                        </ul>
+                    </li>
+                    <li><%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: @creativeWork %></li>
+                    <li><a href="<%= breadcrumbs[-2].url %>" class="hascontent"><i aria-hidden="true" class="fa fa-times"></i></a></li>
+                </ul>
+            </div>
+                        
 
-            <div class="topleftinfo">
+            <div class="detail-header-info">
                 <div class="type <%= @creativeWork.metadata['validation']['name'].downcase %>">
                     <%= render 'data_cycle_core/shared/icon', icon_type: @creativeWork.metadata['validation']['name'].downcase %>
                     <span class="title"><%= @creativeWork.metadata['validation']['name'] %></span>

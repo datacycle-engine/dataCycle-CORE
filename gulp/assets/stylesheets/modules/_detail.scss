@@ -1,16 +1,6 @@
 .detail-header {
   background: $light-gray;
   min-height: 8rem;
-  .close-button {
-    position: absolute;
-    top: 1rem;
-    right: 1.3rem;
-    display: block;
-    text-align: center;
-    .fa {
-      font-size: 2rem;
-    }
-  }
 }
 
 // Details for Show

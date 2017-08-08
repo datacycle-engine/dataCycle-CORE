@@ -1,5 +1,6 @@
 body {
   background-color: $white;
+  border-top: 0.3rem solid $customercolor;
 }
 
 
@@ -169,7 +170,7 @@ form {
     position: relative;
     padding: 0 5rem 3rem 5rem;
   }
-  .topleftinfo {
+  .detail-header-info {
     position: absolute;
     left: 1rem;
     top: 1rem;
@@ -185,6 +186,59 @@ form {
     &:hover .metadata {
       opacity: 1;
     }
+  }
+  .detail-header-functions {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    > ul {
+      position: relative;
+      > li {
+        display: inline-block;
+        position: relative;
+        > a {
+          color: $body-font-color;
+          opacity: 0.3;
+          transition: all ease-in-out 0.25s;
+          padding: 0 0 0.5rem 1rem;
+          &:hover {
+            opacity: 1;
+            color: lighten($body-font-color, 30%);
+          }
+          &.hascontent {
+            opacity: 1;
+          }
+        } 
+        ul {
+          box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
+          &::before {
+              content: '';
+              position: absolute;
+              position: absolute;
+              top: -12px;
+              left: 50px;
+              width: 0;
+              height: 0;
+              border-style: solid;
+              border-width: 0 25px 12px 25px;
+              border-color: transparent transparent #ffffff transparent;
+          }
+          li {
+            text-align: left;
+            font-size: 0.8rem;
+            line-height: 1rem;
+            padding: 0 0 0.5rem 0;
+            i:not(.fa) { color: $dark-gray; } 
+            input {
+              max-width: 100%;
+              min-width: initial;
+              cursor: pointer !important;
+            }
+          }
+        }
+      }
+    }
+
   }
   .bookmark {
     position: absolute;
@@ -440,8 +494,8 @@ span.single_error:before,
 }
 
 .detail-header-wrapper {
-  background: $white;
-  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
+  /*background: $white;
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);*/
   .infolist {
     margin: 0;
     li {
