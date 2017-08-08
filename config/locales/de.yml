@@ -67,3 +67,6 @@ de:
           attributes:
             headline:
               blank: "Headline: Darf nicht leer sein."
+  unauthorized:
+    manage:
+      all: "Keine Zugriffsberechtigung!"

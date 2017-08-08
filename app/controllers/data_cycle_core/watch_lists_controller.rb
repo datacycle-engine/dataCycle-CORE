@@ -1,7 +1,6 @@
 module DataCycleCore
   class WatchListsController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
-    before_action :check_permission, only: [:show, :edit, :udpate, :destroy, :removeItem, :addItem]
     load_and_authorize_resource         # from cancancan (authorize)
 
     def index
@@ -113,14 +112,6 @@ module DataCycleCore
       # refactor
       def get_data watch_list, type, id
         watch_list.watch_list_data_hashes.where('watch_list_id = ? AND hashable_type = ? AND hashable_id = ?', watch_list.id, type, id)
-      end
-
-      # move to cancancan
-      def check_permission
-        if current_user != DataCycleCore::WatchList.find(params[:id]).user
-          flash[:error] = I18n.t :no_permission, scope: [:controllers, :error]
-          redirect_to root_path
-        end
       end
 
   end
