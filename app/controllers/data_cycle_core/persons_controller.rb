@@ -1,7 +1,7 @@
 module DataCycleCore
   class PersonsController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
-    #load_and_authorize_resource         # from cancancan (authorize)
+    load_and_authorize_resource         # from cancancan (authorize)
 
     def index
       @persons = DataCycleCore::Person.all().where(:template => false).order(updated_at: :desc).page(params[:page])
@@ -9,6 +9,7 @@ module DataCycleCore
     end
 
     def show
+      session[:trail] = params[:trail] unless params[:trail].nil?
       @person = DataCycleCore::Person.find_by(id: params[:id])
 
       if @person.nil?
@@ -83,7 +84,7 @@ module DataCycleCore
         if Rails.env.development?
           redirect_back(fallback_location: root_path)
         else
-          redirect_to @person
+          redirect_to person_path(@person, trail: session[:trail])
         end
 
       else
@@ -103,6 +104,9 @@ module DataCycleCore
     end
 
     private
+
+      def create_params
+      end
 
       def person_params(storage_location, template_name, template_description)
 

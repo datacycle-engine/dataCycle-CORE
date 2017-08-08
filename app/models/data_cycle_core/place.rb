@@ -33,6 +33,8 @@ module DataCycleCore
     has_many :watch_list_data_hashes, as: :hashable, dependent: :destroy
     has_many :watch_lists, through: :watch_list_data_hashes
 
+    has_one :edit_link, as: :item
+    
     # to cash also translated values (comming from gem Globalize)
     def cache_key
       super + '-' + Globalize.locale.to_s

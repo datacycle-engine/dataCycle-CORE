@@ -8,6 +8,8 @@
 
             <a class="close-button" href="<%= breadcrumbs[-2].url %>"><i aria-hidden="true" class="fa fa-times"></i></a>
 
+            <%= render 'data_cycle_core/creative_works/partials/create_edit_link', dataCycleObject: @creativeWork %>
+
             <%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: @creativeWork %>
 
             <div class="topleftinfo">
@@ -108,7 +110,6 @@
     <% end %>
 
 </section>
-
 <% if @creativeWork.metadata['validation']['content_type'] == 'variant' %>
 
     <div class="detail-content <%= @creativeWork.metadata['validation']['description'].downcase if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? && !@creativeWork.metadata['validation']['description'].nil? %>">

@@ -2,13 +2,14 @@ module DataCycleCore
   class WatchListsController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
     before_action :check_permission, only: [:show, :edit, :udpate, :destroy, :removeItem, :addItem]
-    #load_and_authorize_resource         # from cancancan (authorize)
+    load_and_authorize_resource         # from cancancan (authorize)
 
     def index
       @watch_lists = current_user.watch_lists
     end
 
     def show
+      session[:trail] = params[:trail] unless params[:trail].nil?
       @watch_list = DataCycleCore::WatchList.find_by(id: params[:id])
 
       if @watch_list.nil?
@@ -63,7 +64,7 @@ module DataCycleCore
         if Rails.env.development?
           redirect_to edit_watch_list_path(@watch_list) if Rails.env.development?
         else
-          redirect_to @watch_list
+          redirect_to watch_list_path(@watch_list, trail: session[:trail])          
         end
 
       else
@@ -109,10 +110,12 @@ module DataCycleCore
         params.permit(:hashable_id, :hashable_type)
       end
 
+      # refactor
       def get_data watch_list, type, id
         watch_list.watch_list_data_hashes.where('watch_list_id = ? AND hashable_type = ? AND hashable_id = ?', watch_list.id, type, id)
       end
 
+      # move to cancancan
       def check_permission
         if current_user != DataCycleCore::WatchList.find(params[:id]).user
           flash[:error] = I18n.t :no_permission, scope: [:controllers, :error]

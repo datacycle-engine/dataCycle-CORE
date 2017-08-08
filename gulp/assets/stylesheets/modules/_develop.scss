@@ -1,5 +1,16 @@
 /* todo: merge styles */
 
+.edit-link-url {
+  position: relative;
+  padding: 1rem 2rem 1rem 1rem;
+  background: #eee;
+  border-radius: 3px;
+  .remove-edit-link {
+    position: absolute;
+    right: 0.5rem;
+  }
+}
+
 .media-preview {
   padding-top: 2.5rem;
   .preview-title {
@@ -110,6 +121,21 @@
           .fa {
             line-height: 2rem;
             font-size: 1.2rem;
+          }
+        }
+      }
+      .copy-to-clipboard {
+        position: absolute;
+        right: 0.5rem;
+        top: 0.5rem;
+        cursor: pointer;
+        display: none;
+      }
+      .string {
+        &:hover,
+        &:focus {
+          .copy-to-clipboard {
+            display: block;
           }
         }
       }

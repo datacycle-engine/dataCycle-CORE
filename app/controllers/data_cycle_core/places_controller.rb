@@ -1,7 +1,7 @@
 module DataCycleCore
   class PlacesController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
-    #load_and_authorize_resource         # from cancancan (authorize)
+    load_and_authorize_resource       # from cancancan (authorize)
 
     def index
       @places = DataCycleCore::Place.all().where(:template => false).order(updated_at: :desc).page(params[:page])
@@ -9,6 +9,7 @@ module DataCycleCore
     end
 
     def show
+      session[:trail] = params[:trail] unless params[:trail].nil?
       @place = DataCycleCore::Place.find_by(id: params[:id])
 
       if @place.nil?
@@ -92,7 +93,7 @@ module DataCycleCore
         if Rails.env.development?
           redirect_back(fallback_location: root_path)
         else
-          redirect_to @place
+          redirect_to place_path(@place, trail: session[:trail])
         end
 
       else
@@ -111,6 +112,9 @@ module DataCycleCore
     end
 
     private
+
+      def create_params
+      end
 
       def place_params(storage_location, template_name, template_description)
 

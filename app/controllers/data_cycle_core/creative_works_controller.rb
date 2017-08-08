@@ -1,15 +1,16 @@
 module DataCycleCore
   class CreativeWorksController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
-    #load_and_authorize_resource         # from cancancan (authorize)
+    load_and_authorize_resource         # from cancancan (authorize)
 
     def index
 
     end
 
     def show
+      session[:trail] = params[:trail] unless params[:trail].nil?
       @creativeWork = DataCycleCore::CreativeWork.find_by(id: params[:id])
-
+      
       if @creativeWork.nil?
         redirect_back(fallback_location: root_path)
         return
@@ -117,7 +118,7 @@ module DataCycleCore
         if Rails.env.development?
           redirect_back(fallback_location: root_path)
         else
-          redirect_to @creativeWork
+          redirect_to creative_work_path(@creativeWork, trail: session[:trail])
         end
 
       else
@@ -136,6 +137,8 @@ module DataCycleCore
     end
 
     private
+      def create_params
+      end
 
       def creative_work_params(storage_location, template_name, template_description)
 

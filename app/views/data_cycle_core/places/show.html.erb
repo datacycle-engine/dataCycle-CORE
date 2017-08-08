@@ -8,6 +8,8 @@
 
             <a class="close-button" href="<%= breadcrumbs[-2].url %>"><i aria-hidden="true" class="fa fa-times"></i></a>
 
+            <%= render 'data_cycle_core/creative_works/partials/create_edit_link', dataCycleObject: @place %>
+
             <%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: @place %>
 
             <div class="topleftinfo">
