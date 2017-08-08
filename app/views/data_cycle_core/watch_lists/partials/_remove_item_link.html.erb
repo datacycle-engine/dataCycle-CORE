@@ -1,3 +1,5 @@
-<%= link_to removeItem_watch_list_path(@watch_list, hashable_type: item.class.name, hashable_id: item.id), class: 'remove-from-watchlist-link' do %>
-    <i aria-hidden="true" class="fa fa-times"></i>
+<% if @watch_list && @watch_list.persisted? %>
+  <%= link_to removeItem_watch_list_path(@watch_list, hashable_type: item.class.name, hashable_id: item.id), class: 'remove-from-watchlist-link' do %>
+      <i aria-hidden="true" class="fa fa-times"></i>
+  <% end %>
 <% end %>
