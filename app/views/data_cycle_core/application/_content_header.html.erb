@@ -2,47 +2,47 @@
   <div class="detail-header">
     <a class="close-button" href="<%= breadcrumbs[-2].url %>"><i aria-hidden="true" class="fa fa-times"></i></a>
 
-    <%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: @creativeWork %>
+    <%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: content %>
 
-    <% if can? :write, object %>
+    <% if can? :write, content %>
       <div class="edit">
-        <%= link_to send("edit_#{object.class.class_name.underscore}_path", @creativeWork, trail: breadcrumb_trail), class:'button-prime small' do %>
+        <%= link_to send("edit_#{content.class.class_name.underscore}_path", content, trail: breadcrumb_trail), class:'button-prime small' do %>
           <i class="fa fa-pencil" aria-hidden="true"></i><span>Bearbeiten</span>
         <% end %>
       </div>    
     <% end %>
 
     <div class="topleftinfo">
-      <div class="type <%= object.content_type.downcase %>">
-        <%= render 'content_icon', object: object %>
-        <span class="title"><%= object.content_type %></span>
+      <div class="type <%= content.content_type.downcase %>">
+        <%= render_content_partial 'icon', content: content %>
+        <span class="title"><%= content.content_type %></span>
       </div>
 
       <span class="metadata">
         <span>erstellt am </span>
-        <span><strong><%= object.created_at.to_s(:german_datetime_format) %></strong><% if object.creator.nil? %>.<% end %></span>
-        <% if object.creator %>
+        <span><strong><%= content.created_at.to_s(:german_datetime_format) %></strong><% if content.creator.nil? %>.<% end %></span>
+        <% if content.creator %>
           <span> von </span>
-          <span><strong><a href="mailto:<%= "#{object.creator.email}" %>"><%= "#{object.creator.name}" %></strong></a>.</span>
+          <span><strong><a href="mailto:<%= "#{content.creator.email}" %>"><%= "#{content.creator.name}" %></strong></a>.</span>
         <% end %>
         <span>Letzte Bearbeitung: </span>
-        <span><strong><%= object.updated_at.to_s(:german_datetime_format) %></strong></span>
+        <span><strong><%= content.updated_at.to_s(:german_datetime_format) %></strong></span>
       </span>
     </div>
 
     <div class="title">
-      <%= object.title %>
+      <%= content.title %>
     </div>
 
-    <% object_data = object.get_data_hash %>
+    <% content_data = content.get_data_hash %>
     <div class="tags">
-      <% object.classification_tree_definitions.each do |definition| %>
-        <% if !object_data[definition[:key]].blank? %>
+      <% content.classification_tree_definitions.each do |definition| %>
+        <% if !content_data[definition[:key]].blank? %>
           <div class="tag-group-wrapper">        
             <span class="icon <%= definition['label'] %>"><i class="fa" aria-hidden="true"></i></span>
             <span class="tag-group-header"><%= definition['label'] %>: </span>
 
-            <% DataCycleCore::Classification.find(object_data[definition[:key]]).each do |classification| %>
+            <% content.classifications.select { |c| content_data[definition[:key]].include?(c.id) }.each do |classification| %>
               <span class="tag"><%= classification.name %></span>              
             <% end %>
           </div>

@@ -14,7 +14,7 @@ end
 
 # Creative Work
 crumb :'data_cycle_core/creative_work' do |creative_work|
-  link to_html_string(creative_work.metadata['validation']['name'], creative_work.content['headline']), creative_work_path(creative_work)
+  link to_html_string(creative_work.content_type, creative_work.title), creative_work_path(creative_work)
 
   if creative_work.parent
     parent creative_work.parent

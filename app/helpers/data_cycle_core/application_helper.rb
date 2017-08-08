@@ -47,6 +47,22 @@ module DataCycleCore
 
     end
 
+    def render_content_partial(partial, parameters)
+      partials = [
+        "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].content_type.underscore}_#{partial}",
+        "#{parameters[:content].class.class_name.underscore}_#{partial}",
+        "content_#{partial}",
+      ]
+      
+      partials.each_with_index do |partial, idx|
+        begin
+          return render(partial, parameters)
+        rescue ActionView::MissingTemplate => e
+          raise e if idx == partials.size - 1
+        end
+      end
+    end
+
     private
 
     def alert_box(value, alert_class, closable)
