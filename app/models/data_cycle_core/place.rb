@@ -1,5 +1,8 @@
 module DataCycleCore
   class Place < DataHash
+    class Translation < Globalize::ActiveRecord::Translation
+        include ContentTranslationHelpers
+    end
 
     # handle translations with gem Globalize
     translates :name, :headline, :description, :addressLocality, :streetAddress,

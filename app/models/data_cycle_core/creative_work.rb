@@ -3,6 +3,10 @@ module DataCycleCore
     extend ActsAsTree::TreeView
     extend ActsAsTree::TreeWalker
 
+    class Translation < Globalize::ActiveRecord::Translation
+        include ContentTranslationHelpers
+    end
+
     # handle translations with gem Globalize
     translates :headline, :description, :content, :properties
 

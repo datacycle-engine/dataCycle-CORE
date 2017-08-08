@@ -1,5 +1,8 @@
 module DataCycleCore
   class Event < DataHash
+    class Translation < Globalize::ActiveRecord::Translation
+        include ContentTranslationHelpers
+    end
 
     # handle translations with gem Globalize
     translates :headline, :description, :content, :properties

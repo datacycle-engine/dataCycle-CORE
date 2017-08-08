@@ -70,7 +70,7 @@ module DataCycleCore
       end
 
       def person_translation
-        PersonTranslation.arel_table
+        Person::Translation.arel_table
       end
 
       def classification_person

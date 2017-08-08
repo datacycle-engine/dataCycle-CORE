@@ -143,7 +143,7 @@ module DataCycleCore
       end
 
       def creative_work_translation
-        CreativeWorkTranslation.arel_table
+        CreativeWork::Translation.arel_table
       end
 
       def classification_creative_work

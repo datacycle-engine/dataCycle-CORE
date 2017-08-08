@@ -118,7 +118,7 @@ module DataCycleCore
       end
 
       def place_translation
-        PlaceTranslation.arel_table
+        Place::Translation.arel_table
       end
 
       def classification_place
