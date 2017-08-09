@@ -1,5 +1,21 @@
 /* todo: merge styles */
 
+.detail-header {
+  .destroy {
+    position: absolute;
+    right: 5rem;
+    bottom: 1rem;
+  }
+}
+
+.data-cycle-object {
+  .remove-from-watchlist-link {
+    position: absolute;
+    right: 3px;
+    top: 0;
+  }
+}
+
 .edit-link-url {
   position: relative;
   padding: 1rem 2rem 1rem 1rem;
