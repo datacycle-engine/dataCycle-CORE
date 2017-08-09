@@ -111,7 +111,7 @@ module DataCycleCore
 
       # refactor
       def get_data watch_list, type, id
-        watch_list.watch_list_data_hashes.where('watch_list_id = ? AND hashable_type = ? AND hashable_id = ?', watch_list.id, type, id)
+        watch_list.watch_list_data_hashes.where('hashable_type = ? AND hashable_id = ?', type, id)
       end
 
   end

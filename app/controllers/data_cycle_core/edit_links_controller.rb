@@ -21,13 +21,15 @@ module DataCycleCore
 
       @edit_link.save
 
+      EditLinkMailer.mail_link(@edit_link.creator, url_for(@edit_link), "bearbeiten").deliver_later
+
       flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Edit Link'
       redirect_back(fallback_location: root_path)
     end
 
     def destroy
       link = DataCycleCore::EditLink.find_by(id: params[:id]).destroy
-      redirect_back fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Edit Link')
+      redirect_back fallback_location: root_path, alert: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Edit Link')
     end
 
     private

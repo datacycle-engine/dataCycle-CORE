@@ -1,6 +1,6 @@
 module DataCycleCore
   class ApplicationMailer < ActionMailer::Base
-    default from: 'from@example.com'
+    default from: 'no-reply@datacycle.at'
     layout 'mailer'
   end
 end
