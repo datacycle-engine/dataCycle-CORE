@@ -57,6 +57,8 @@ de:
       destroyed: "%{data} wurde gelöscht."
       addedTo: "Zu Merkliste: %{data} hinzugefügt."
       removedFrom: "Von Merkliste: %{data} entfernt."
+      sent: "Email wurde versandt."
+      invalid_mail: "Keine gültige E-Mail Adresse."
     job:
       added: "%{data}/%{uuid} zur Job-Queue hinzugefügt."
       imported: "'%{data}' wurden aus YAML Datei importiert."

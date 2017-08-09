@@ -1,6 +1,6 @@
 <% if !@person.nil? %>
 
-    <div class="reveal new-item" id="newPerson" data-reveal>
+    <div class="reveal new-item" id="newPerson" data-reveal data-multiple-opened="true">
         <h3>Neue Person erstellen</h3>
 
         <%= form_for :person, :url => {:controller => :persons, :action => "create"} do |f| %>

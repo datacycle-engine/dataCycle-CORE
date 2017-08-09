@@ -1,7 +1,7 @@
 module DataCycleCore
   class EditLinksController < ApplicationController
     before_action :authenticate_user!, only: [:new]   # from devise (authenticate)
-    # load_and_authorize_resource         # from cancancan (authorize)
+    load_and_authorize_resource :except => [:show]         # from cancancan (authorize)
 
     def show
       link = DataCycleCore::EditLink.find_by(id: params[:id])
@@ -18,25 +18,39 @@ module DataCycleCore
     def new
       @edit_link = DataCycleCore::EditLink.new(create_link_params)
       @edit_link.creator = current_user unless current_user.nil?
+      @edit_link.read_only = false
 
       @edit_link.save
 
-      # EditLinkMailer.mail_link(@edit_link.creator, url_for(@edit_link), "bearbeiten").deliver_later
-      EditLinkMailer.mail_link(@edit_link.creator, url_for(@edit_link), "bearbeiten").deliver
+      redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Edit Link'))
+    end
 
-      flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Edit Link'
-      redirect_back(fallback_location: root_path)
+    def send_mail
+      @edit_link = DataCycleCore::EditLink.find_by(id: params[:id])
+      receiver = send_link_params[:receiver]
+
+      if receiver =~ Devise.email_regexp
+        EditLinkMailer.mail_link(@edit_link.creator, receiver, url_for(@edit_link), "bearbeiten").deliver
+        redirect_back(fallback_location: root_path, notice: (I18n.t :sent, scope: [:controllers, :success]))
+      else
+        redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :success]))
+      end
+
     end
 
     def destroy
       link = DataCycleCore::EditLink.find_by(id: params[:id]).destroy
-      redirect_back fallback_location: root_path, alert: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Edit Link')
+      redirect_back fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Edit Link')
     end
 
     private
 
     def create_link_params
       params.permit(:item_id, :item_type)
+    end
+
+    def send_link_params
+      params.require(:edit_link).permit(:receiver)
     end
 
     def guest_user

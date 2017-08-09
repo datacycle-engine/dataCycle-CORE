@@ -1,0 +1,55 @@
+<div class="detail-header-functions">
+		<ul class="no-bullet">
+				<li>
+						
+						<a id="show-history-link" data-toggle="show-history"><i class="fa fa-history" aria-hidden="true"></i> <strong>Version 1</strong>, <%= dataCycleObject.updated_at.to_s(:german_datetime_format) %></a>
+						<ul class="dropdown-pane no-bullet bottom" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
+								<li>
+								<% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['creator'].nil? %>
+									<% creator = get_user_for_id(dataCycleObject.metadata['creator']) %>
+									Aktuelle Version von <a href="mailto:<%= "#{creator.email}" %>"><%= "#{creator.name}" %></a><br><i><%= dataCycleObject.updated_at.to_s(:german_datetime_format) %></i>
+								<% else %>
+									Aktuelle Version von Unbekannt<br><i><%= dataCycleObject.updated_at.to_s(:german_datetime_format) %></i>
+								<% end %>
+								</li>
+						</ul>
+				</li>
+				<% if can? :manage, @edit_link %>
+					<li>
+							<a id="send-link-link" data-toggle="send-link"><i class="fa fa-share" aria-hidden="true"></i><i class="fa fa-user" aria-hidden="true"></i> versenden</span></a>
+							<ul class="dropdown-pane no-bullet bottom" id="send-link" data-dropdown data-hover="true" data-hover-pane="true">
+							<% if dataCycleObject.edit_link.nil? %>
+									<h5>Link erstellen</h5>
+									<%= link_to "Link generieren", new_edit_link_path(item_id: dataCycleObject.id, item_type: dataCycleObject.class.name), class: "button small" %>
+							<% else %>												
+									<%= form_tag send_mail_edit_link_path(dataCycleObject.edit_link), class: "send-link" do |f| %>
+										<li>
+												<h5>Link versenden</h5>
+													<input type="email" id="edit_link_receiver" name="edit_link[receiver]" placeholder="E-Mail Adresse" style="" required>
+										</li>
+										<li><%= button_tag "Link versenden", id: "sendlinkButton", class: "button small" %></li>
+									<% end %>
+									<li>
+											<input readonly="readonly" id="copyTarget" type="text" style="" value="<%= h(edit_link_url(dataCycleObject.edit_link)) %>">
+									</li>
+									<li><button id="copyButton" class="button small">In die Zwischenablage kopieren</button></li>
+									<li><%= link_to "Link löschen", dataCycleObject.edit_link, method: :delete, class: "button small alert" %></li>
+							<% end %>
+							</ul>
+					</li>
+				<% end %>
+				<%# <li>
+						<a id="subscribe-link" data-toggle="subscribe"><i class="fa fa-bell-o" aria-hidden="true"></i> abonnieren</span></a>
+						<ul class="dropdown-pane no-bullet bottom" id="subscribe" data-dropdown data-hover="true" data-hover-pane="true">
+								<li>
+
+								Klicken Sie hier um regelmäßig über Änderungen informiert zu werden.
+								</li>
+						</ul>
+				</li> %>
+				<% if can? :manage, @watch_list %>
+					<li><%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: dataCycleObject %></li>
+				<% end %>
+				<li><a href="<%= breadcrumbs[-2].url %>" class="hascontent"><i aria-hidden="true" class="fa fa-times"></i></a></li>
+		</ul>
+</div>

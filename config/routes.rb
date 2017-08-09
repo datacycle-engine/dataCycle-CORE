@@ -10,7 +10,9 @@ DataCycleCore::Engine.routes.draw do
   resources :creative_works, only: [:index, :show, :create, :edit, :update]
   resources :persons, only: [:index, :show, :create, :edit, :update]
   resources :places, only: [:index, :show, :create, :edit, :update]
-  resources :edit_links
+  resources :edit_links do
+    post :send_mail, on: :member
+  end
   resources :watch_lists do
     get :removeItem, on: :member
     get :addItem, on: :member
