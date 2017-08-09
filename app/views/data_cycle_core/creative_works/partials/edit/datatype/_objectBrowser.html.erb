@@ -1,5 +1,5 @@
 <% object = ("DataCycleCore::"+("#{prop['storage_location']}".classify)).constantize %>
-<div class="form-element validation-container <%= key.split('[').last[0...-1] %>">
+<div class="form-element validation-container <%= key.split('[').last[0...-1] %>" data-label="<%= prop['name'] %>">
 	<div class="object-browser" id="<%= sanitize_to_id(key) %>">
 		<%= label_tag(key, prop['label']) %>
 		<input type="text" disabled="disabled" />
@@ -12,7 +12,7 @@
 				<% end %>
 			<% end %>
 		
-			<object-browser :existing="<%= existing.to_json %>" :object-type="'<%= prop['editor']['options']['data-type'].downcase %>'" :object-label="'<%= prop['label'] %>'" :max="1" :create-item="true" new-id="new<%= prop['storage_location'].classify %>" hidden-name="<%= key %>[]">
+			<object-browser :existing="<%= existing.to_json %>" object-class="<%= object %>" :object-type="'<%= prop['editor']['options']['data-type'].downcase %>'" :object-label="'<%= prop['label'] %>'" :max="1" :create-item="<%= can? :create, object %>" new-id="new<%= prop['storage_location'].classify %>" hidden-name="<%= key %>[]">
 				<template scope="props" slot="item">
 					<div v-if="props.item != undefined" class="media person">
 						<a slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>

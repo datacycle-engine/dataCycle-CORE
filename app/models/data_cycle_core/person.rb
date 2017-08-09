@@ -25,6 +25,8 @@ module DataCycleCore
     has_many :watch_list_data_hashes, as: :hashable, dependent: :destroy
     has_many :watch_lists, through: :watch_list_data_hashes
 
+    has_one :edit_link, as: :item
+    
     # custom setter
     include DataSetter
 

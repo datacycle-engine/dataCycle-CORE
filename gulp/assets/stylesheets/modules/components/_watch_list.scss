@@ -4,72 +4,40 @@
   &:focus {
     color: lighten(map-get($foundation-palette, alert), 10%);
   }
-  position: absolute;
-  right: 0;
-  top: 0;
-  padding: 0 0.5rem;
 }
 
 .detail-header {
   .destroy {
-    position: absolute;
-    right: 5rem;
-    bottom: 1rem;
     a {
       span {
         display: none;
       }
     }
   }
-  #add-to-watchlist {
-    position: absolute;
-    right: 4rem;
-    top: 0;
-    font-size: 0.9rem;
-    #add-to-watchlist-link {
-      display: block;
-      padding: 0 2rem 0.5rem 0.5rem;
-      height: 1.5rem;
-      &.hover {
-        background: white;
+  #add-watchlist {
+    right: 0 !important;
+    left: auto !important;
+    top: 2rem !important;
+    &::before { right: 50px; left: auto; }
+    li {
+      position: relative;
+      .check {
+        color: green;
       }
-      .fa {
-        font-size: 1.5rem;
+      .remove-link {
         position: absolute;
-        right: 0.5rem;
-        top: -7px;
+        right: 0;
+        .remove-from-watchlist-link {
+          padding: 0;
+        }
       }
-    }
-    #add-watchlist {
-      top: 1.5rem !important;
-      right: 0 !important;
-      left: auto !important;
-      list-style-type: none;
-      border: none;
-      li {
-        position: relative;
-        text-align: left;
-        padding: 0 2rem;
-        .check {
-          color: green;
-          position: absolute;
-          left: 0;
-        }
-        .remove-link {
-          position: absolute;
-          right: 0;
-          .remove-from-watchlist-link {
-            padding: 0;
-          }
-        }
-        .add-link {
-          color: green;
-          position: absolute;
-          right: 0;
-          &:hover,
-          &:focus {
-            color: lighten(green, 10%);
-          }
+      .add-link {
+        color: green;
+        position: absolute;
+        right: 0;
+        &:hover,
+        &:focus {
+          color: lighten(green, 10%);
         }
       }
     }

@@ -9,7 +9,7 @@ body {
   height: inherit;
   width: 100%;
   position: absolute;
-  padding-top: 4.2rem;
+  padding-top: 70px;
   top: 0;
 }
 
@@ -35,29 +35,28 @@ textarea {
 header {
   z-index: 3;
   position: relative;
-  max-height: 4.2rem;
-  overflow: hidden;
   .top-bar {
+    max-height: 65px;
+    overflow: hidden;
     padding: 0;
     background-color: $black;
-    line-height: 4rem;
+    line-height: 65px;
     background: linear-gradient(to bottom, darken($black, 15%) 0%, $black 50%, lighten($black, 7%) 100%);
     .logo {
-      padding: 0;
-      display: inline-block;
+      padding: 0 0 0 1rem;
+      float:left;
       img {
-        margin: 0.5rem;
-        max-height: 3rem;
+        max-height: 80px;
         width: auto;
       }
     }
     .title {
       color: $white;
-      display: inline-block;
+      float: left;
       position: relative;
       left: 1rem;
       padding: 0;
-      font-size: 1.5em;
+      font-size: 1.2em;
       font-weight: 200;
     }
     .top-bar-title {
@@ -73,7 +72,8 @@ header {
         color: $white;
         font-size: 1rem;
         padding: 0 1.5rem;
-        line-height: 4rem;
+        line-height: 64px;
+        border-bottom: 0;
         i.icon-right {
           margin-left: 0.75rem;
           margin-right: 0;
@@ -216,21 +216,136 @@ button.button-prime {
 
 /* Home */
 
-.callout {
-  &.home {
-    background-color: $medium-gray;
-    border: 0;
-    padding: 5rem;
-    margin-top: 1rem;
-    text-align: center;
-    color: $black;
-    h1 {
-      padding-bottom: 2rem;
+body.login-page {
+  background-position: center bottom;
+  background-attachment: fixed;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .off-canvas-content {
+    background: none;
+  }
+  header, .off-canvas-wrapper { display: none; }
+}
+.home-container {
+  max-width: 500px;
+  overflow: hidden;
+  margin: 50px auto;
+  width: 70%;
+  padding: 0; 
+  transition: box-shadow 1s ease-in-out;
+  .home-container-content {
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    overflow: hidden; 
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    backface-visibility: hidden;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    position: relative;
+    border-bottom: 1px solid;
+    border-bottom-color: #ccc;
+    border-bottom-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  }
+  &.show {
+    box-shadow: 0 3px 13px rgba(0, 0, 0, 0.3);
+    .home-container-content {
+      opacity: 1;
     }
-    p {
-      font-size: 1.2rem;
+  } 
+  .home-logo {
+    padding: 10px 0 0 0;
+  }
+  h1 { text-align: center; }
+  .accordion {
+    margin-bottom: 0;
+    background: none;
+    line-height: initial;
+    li.accordion-item {
+      a.accordion-title {
+        border: 0;
+        color: white;
+        text-align: center;
+        font-size: 2rem;
+        padding: 1rem 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        i {
+          font-size: 2rem;
+          margin-right: 0.75rem;
+        }
+        &::before {
+          top: 30%;
+        }
+        &:hover, &:focus {
+            background: none;
+        }
+        &:hover {
+            color: white;
+            opacity: 0.7;
+        }
+      }
+    }
+    .accordion-content {
+      border: 0;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: white;
     }
   }
+  form {
+    margin-top: 1rem;
+    label { color: white; }
+  }
+}
+.glass {
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+  position: relative;
+  &::after {
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    backface-visibility: hidden;
+    position: absolute;
+    top: 0px;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    background-position: center bottom;
+    background-attachment: fixed;
+    background-size: cover;
+    content: "";
+    transition: all 1s ease-out;
+  }
+  &.show::after {
+    filter: url("data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20version%3D%221.1%22%3E%3Cdefs%3E%3Cfilter%20id%3D%22blur%22%3E%3CfeGaussianBlur%20stdDeviation%3D%225%22%2F%3E%3C%2Ffilter%3E%3C%2Fdefs%3E%3C%2Fsvg%3E#blur");
+    -webkit-filter: blur(5px);
+    filter: blur(5px);
+  }
+  .legacy-ie-fix {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(opacity=20)";
+  }
+}
+body.customer-image-1 {  background-image: url(/assets/oew1.jpg); .glass::after { background-image: url(/assets/oew1.jpg); } }
+body.customer-image-2 {  background-image: url(/assets/oew2.jpg); .glass::after { background-image: url(/assets/oew2.jpg); } }
+body.customer-image-3 {  background-image: url(/assets/oew3.jpg); .glass::after { background-image: url(/assets/oew3.jpg); } }
+body.customer-image-4 {  background-image: url(/assets/oew4.jpg); .glass::after { background-image: url(/assets/oew4.jpg); } }
+body.customer-image-5 {  background-image: url(/assets/oew5.jpg); .glass::after { background-image: url(/assets/oew5.jpg); } }
+
+
+.callout {
   &.alert,
   &.success {
     position: fixed;
@@ -240,6 +355,7 @@ button.button-prime {
     padding: 0.1rem 1rem;
     left: 0;
     right: 0;
+    top: 5px;
     width: 100%;
     z-index: 10001;
     border: 0;
@@ -255,15 +371,5 @@ button.button-prime {
   }
   &.alert {
     background: rgba(map-get($foundation-palette, alert), 0.95);
-  }
-}
-
-.home-login {
-  padding-bottom: 1rem;
-  >div {
-    padding: 1rem 3rem 5rem 3rem;
-  }
-  .right {
-    border-left: 1px solid $black;
   }
 }

@@ -1,6 +1,6 @@
 <% if !@place.nil? %>
 
-    <div class="reveal new-item" id="newPlace" data-reveal>
+    <div class="reveal new-item" id="newPlace" data-reveal data-multiple-opened="true">
         <h3>Neuen Ort erstellen</h3>
 
         <%= form_for :place, :url => {:controller => :places, :action => "create"} do |f| %>

@@ -7,8 +7,8 @@
   .main-filters{
     //display: none;
   }
-  background: $white;
-  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
+  background: $light-gray;
+  //box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
   padding-bottom: 1.2rem;
   strong{
     color: map-get($foundation-palette, primary);
@@ -123,7 +123,7 @@
         background: #ddd;
       }
       &:hover {
-        background: $light-gray;
+        background: white;
         box-shadow: 0 5px 3px rgba(0, 0, 0, 0.3);
       }
       > div {
@@ -131,14 +131,14 @@
         position: absolute;
         top: 100%;
         left: 0;
-        background: $light-gray;
+        background: white;
         width: 100%;
         padding: 1rem 0 0 0;
         box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
       }
       .filterbutton {
         clear: both;
-        background: darken($light-gray, 7%);
+        background: white;
         width: 100%;
         text-align: center;
         margin-top: 0.5rem;
@@ -250,7 +250,7 @@
     padding-left: 0;
   }
   .split-list li{
-    background: $light-gray;
+    background: white;
    }
 
   .your-choice.tags{

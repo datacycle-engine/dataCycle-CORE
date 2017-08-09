@@ -1,15 +1,16 @@
 module DataCycleCore
   class CreativeWorksController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
-    #load_and_authorize_resource         # from cancancan (authorize)
+    load_and_authorize_resource         # from cancancan (authorize)
 
     def index
 
     end
 
     def show
+      session[:trail] = params[:trail] unless params[:trail].nil?
       @creativeWork = DataCycleCore::CreativeWork.find_by(id: params[:id])
-
+      
       if @creativeWork.nil?
         redirect_back(fallback_location: root_path)
         return
@@ -29,6 +30,7 @@ module DataCycleCore
           if @creativeWork.metadata['validation']['content_type'] == 'variant'
             render layout: "data_cycle_core/creative_works_edit"
           else
+            @sources = get_sources
             render layout: "data_cycle_core/creative_works_show"
           end
         }
@@ -36,6 +38,7 @@ module DataCycleCore
     end
 
     def create
+      source = Hash[params[:source].split(",").collect{|x| x.strip.split("=>")}] unless params[:source].blank?
       object_params = creative_work_params('creative_works', params[:template], 'CreativeWork')
       @creativeWork = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:template], 'CreativeWork', object_params, current_user)
 
@@ -72,7 +75,7 @@ module DataCycleCore
       #validate ?
       if !@creativeWork.nil? && @creativeWork.save
         flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
-        redirect_to @creativeWork
+        redirect_to edit_creative_work_path(@creativeWork, source)
       else
         redirect_back(fallback_location: root_path)
         return
@@ -86,32 +89,36 @@ module DataCycleCore
       @person = DataCycleCore::Person.new
       @dataSchema = @creativeWork.get_data_hash
 
+      @splitType = params[:source_type].constantize unless params[:source_type].nil?
+      @splitSource = @splitType.find(params[:source_id]) if !params[:source_id].nil? && !@splitType.nil?
+      @splitSchema = @splitSource.get_data_hash unless @splitSource.nil?
+
       render layout: "data_cycle_core/creative_works_edit"
     end
 
     def update
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
-
+      
       object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], 'CreativeWork')
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'],false)
-
+     
       valid = @creativeWork.validate(datahash)
-
+      
       if valid.key?(:error) && !valid[:error].empty?
         flash[:error] = valid[:error]
         redirect_to edit_creative_work_path(@creativeWork)
         return
       end
-
+      
       @creativeWork.set_data_hash(datahash)
-
+      
       if @creativeWork.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
         
         if Rails.env.development?
           redirect_back(fallback_location: root_path)
         else
-          redirect_to @creativeWork
+          redirect_to creative_work_path(@creativeWork, trail: session[:trail])
         end
 
       else
@@ -130,6 +137,8 @@ module DataCycleCore
     end
 
     private
+      def create_params
+      end
 
       def creative_work_params(storage_location, template_name, template_description)
 
@@ -169,6 +178,23 @@ module DataCycleCore
         return data_hash.compact!
 
       end
+
+      def get_sources
+        tree_labels = helpers.get_allowed_content_types.keys
+        tree_labels.push('Recherche')
+
+        types = DataCycleCore::ClassificationAlias.where("name IN (?) AND internal = true", tree_labels).pluck(:id)
+        
+        @language = params[:language]
+        @language ||= "de"
+        
+        query = DataCycleCore::Filter::CreativeWorkQueryBuilder.new(@language)
+        query = query.with_classification_alias_ids(types)
+        
+        query = query.map{|c| { value: "source_id=>#{c.id}, source_type=>#{c.class.name}", label: c.content['headline'] + " (" + c.metadata['validation']['name'] + ")" } }.compact
+        
+        return query
+      end   
 
   end
 end

@@ -1,6 +1,7 @@
 module DataCycleCore
   class ObjectBrowserController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
+    authorize_resource :class => false         # from cancancan (authorize)
 
     def show
       @@default_per = 50
@@ -51,6 +52,15 @@ module DataCycleCore
       @results = query.page(@page).per(@per)
 
       render :json => { results: @results, total: total }
+    end
+
+    def find
+      if !params[:class].blank? && !params[:ids].blank?
+        object = params[:class].constantize
+        result = object.where(id: params[:ids])
+
+        render :json => result
+      end
     end
 
   end

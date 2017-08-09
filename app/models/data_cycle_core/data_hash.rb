@@ -232,6 +232,10 @@ module DataCycleCore
         data = set_data_tree_hash(data, properties['properties'])
         #puts "#{data}"
       end
+
+      # dont overwrite creator with empty values
+      return if key == "creator" && data.nil?
+
       # set to json field (could be empty)
       if self.method("#{location}").call.blank?
         self.method("#{location}=").call({ key => data })

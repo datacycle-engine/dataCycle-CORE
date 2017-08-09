@@ -1,10 +1,10 @@
 <div class="detail-type string">
-    <span class="detail-label"><strong><%= label %></strong></span>
+    <span class="detail-label"><%= label %></span>
     <span class="detail-content">
         <% if !prop.nil? && !prop['editor'].nil? && !prop['editor']['type'].nil? && prop['editor']['type'] == 'date' %>
-            <%= value.to_datetime.to_s(:german_date_format)  unless value.nil? %>
+            <%= value.to_datetime.to_s(:german_date_format) unless value.blank? %>
         <% elsif !prop.nil? && !prop['editor'].nil? && !prop['editor']['type'].nil? && prop['editor']['type'] == 'datetime' %>
-            <%= value.to_datetime.to_s(:german_datetime_format) unless value.nil? %>
+            <%= value.to_datetime.to_s(:german_datetime_format) unless value.blank? %>
         <% else %>
             <%= value.html_safe unless value.nil? %>
         <% end %>

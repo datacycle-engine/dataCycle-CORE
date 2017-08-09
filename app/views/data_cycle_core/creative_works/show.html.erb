@@ -4,6 +4,71 @@
 
     <%= render_content_partial 'header', content: @creativeWork %>
 
+        <div class="detail-header">
+                        
+            <div class="detail-header-info">
+                <div class="type <%= @creativeWork.metadata['validation']['name'].downcase %>">
+                    <%= render 'data_cycle_core/shared/icon', icon_type: @creativeWork.metadata['validation']['name'].downcase %>
+                    <span class="title"><%= @creativeWork.metadata['validation']['name'] %></span>
+                </div>
+            </div>
+
+            <%= render 'data_cycle_core/creative_works/partials/detail_header_functions', dataCycleObject: @creativeWork %>
+
+            <div class="title">
+                <!--todo: check if name is allready in use-->
+                <% if !@creativeWork.content.nil? && !@creativeWork.content['headline'].blank? %>
+                    <%= @creativeWork.content['headline'] %>
+                <% elsif  !@creativeWork.content.nil? && !@creativeWork.content['name'].blank? %>
+                    <%= @creativeWork.content['name'] %>
+                <% end %>
+
+            </div>
+
+            <!--todo: only use description field ?-->
+            <div class="description">
+                <% if !@creativeWork[:description].nil? %>
+                    <%= @creativeWork.description.html_safe %>
+                <% end %>
+                <% if !@creativeWork.content.nil? && !@creativeWork.content['text'].nil? %>
+                    <%= @creativeWork.content['text'].html_safe %>
+                <% end %>
+            </div>
+
+
+            <% if @creativeWork.metadata['validation']['name'] == "Bild" %>
+                <% unless @creativeWork.display_classification_aliases.empty? %>
+                    <div class="tags">
+                        <div class="tag-group-wrapper">
+                            <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i></span>
+                            <% @creativeWork.display_classification_aliases.each do |classificationAlias| %>
+                                <span class="tag"><%= classificationAlias.name %></span>
+                            <% end %>
+                        </div>
+                    </div>
+                <% end %>
+            <% else %>
+                <%= render 'data_cycle_core/creative_works/partials/show/top_content/classificationAliases', dataCycleObject: @creativeWork, dataCycleObjectSchema: @dataSchema %>
+            <% end %>
+
+            <%= render 'data_cycle_core/creative_works/partials/show/top_content/validityPeriod', dataCycleObject: @creativeWork %>
+
+            <% if !@creativeWork.metadata['validation']['permissions'].nil? && is_writable(@creativeWork.metadata['validation']['permissions']) %>
+
+                <div class="edit">
+                    <%= link_to edit_creative_work_path(@creativeWork, trail: breadcrumb_trail), class:'button-prime small' do %>
+                        <i class="fa fa-pencil" aria-hidden="true"></i><span>Bearbeiten</span>
+                    <% end %>
+                </div>
+
+            <% end %>
+
+        </div>
+
+        <!--<%= render 'data_cycle_core/creative_works/partials/filter' if user_signed_in? %>-->
+
+    </div>
+
     <% if @creativeWork.metadata['validation']['content_type'] == 'entity' %>
 
         <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
@@ -35,7 +100,6 @@
     <% end %>
 
 </section>
-
 <% if @creativeWork.metadata['validation']['content_type'] == 'variant' %>
 
     <div class="detail-content <%= @creativeWork.metadata['validation']['description'].downcase if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? && !@creativeWork.metadata['validation']['description'].nil? %>">

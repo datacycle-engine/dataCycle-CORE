@@ -26,15 +26,25 @@
 		</div>
 	</section>
 
-	<div class="row">
+	<% unless @splitSource.nil? %>
+		<div class="flex-box">
+			<div class="split-content detail-content">
+					<%= render "data_cycle_core/#{@splitSource.model_name.route_key}/partials/show/"+@splitSource.model_name.route_key.singularize, dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema, exludedProperties: [] rescue render "data_cycle_core/#{@splitSource.model_name.route_key}/partials/show/default", dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema, exludedProperties: [] %>
+
+					<%#= render "data_cycle_core/#{@splitSource.model_name.route_key}/partials/show/top_content/classificationAliases", dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema %>
+
+			</div>
+	<% end %>
+
+	<div class="row<%= ' split-content edit-content' unless @splitSource.nil? %>">
 		<div class="column">
 			<div class="detail-header editor">
 
-				<div class="topleftinfo">
+				<div class="detail-header-info">
 					<div class="type thema">
-                                <span class="icon">
-                                    <i class="fa fa-folder-open" aria-hidden="true"></i>
-                                </span>
+						<span class="icon">
+								<i class="fa fa-folder-open" aria-hidden="true"></i>
+						</span>
 						<span class="title"><%=dataObject.metadata['validation']['name']%></span>
 					</div>
 					<%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: dataObject, dataCycleObjectSchema: dataSchema %>
@@ -87,5 +97,10 @@
 			</div>
 		</div>
 	</div>
+
+		<% unless @splitSource.nil? %>
+			</div>
+		<% end %>
+
 
 <% end %>

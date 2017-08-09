@@ -1,10 +1,9 @@
-
 <% if prop['type'] == 'object' && !prop['properties'].nil? %>
 
     <% object_properties = get_ordered_validation_properties(prop) %>
     <% object_properties.each do |object_key, object_property| %>
 
-        <% object_value = @dataSchema[key].nil? ? "" : @dataSchema[key][object_key] %>
+        <% object_value = value.nil? ? "" : value[object_key] %>
 
         <%= render "data_cycle_core/creative_works/partials/show/datatype/#{object_property['type'].downcase}",
             label: object_property['label'],
@@ -22,8 +21,9 @@
         <% objects_length = objects.count %>
 
         <% objects.each_with_index do |object,index| %>
-  
-            <div class="detail-type object">
+
+            <div class="detail-type object" data-label="<%= prop['name'] %>" data-editor="<%= prop['editor']['type'] %>" data-id="<%= object.id.split(',') %>">
+
                 <span class="detail-label"><%= render 'data_cycle_core/shared/icon', icon_type: objects[0].metadata['validation']['name'].downcase %><strong><%= prop['label'].capitalize %> <%= content_tag(:span, index+1) if objects_length > 1 %></strong></span>
 
                 <% objectDataHash = object.get_data_hash %>
