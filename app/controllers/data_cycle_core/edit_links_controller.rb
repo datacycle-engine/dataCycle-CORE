@@ -21,7 +21,8 @@ module DataCycleCore
 
       @edit_link.save
 
-      EditLinkMailer.mail_link(@edit_link.creator, url_for(@edit_link), "bearbeiten").deliver_later
+      # EditLinkMailer.mail_link(@edit_link.creator, url_for(@edit_link), "bearbeiten").deliver_later
+      EditLinkMailer.mail_link(@edit_link.creator, url_for(@edit_link), "bearbeiten").deliver
 
       flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Edit Link'
       redirect_back(fallback_location: root_path)
