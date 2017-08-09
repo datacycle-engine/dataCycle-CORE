@@ -9,7 +9,7 @@ body {
   height: inherit;
   width: 100%;
   position: absolute;
-  padding-top: 4.5rem;
+  padding-top: 70px;
   top: 0;
 }
 
@@ -35,28 +35,28 @@ textarea {
 header {
   z-index: 3;
   position: relative;
-  max-height: 4.2rem;
-  overflow: hidden;
   .top-bar {
+    max-height: 65px;
+    overflow: hidden;
     padding: 0;
     background-color: $black;
-    line-height: 4rem;
+    line-height: 65px;
     background: linear-gradient(to bottom, darken($black, 15%) 0%, $black 50%, lighten($black, 7%) 100%);
     .logo {
-      padding: 0;
-      display: inline-block;
+      padding: 0 0 0 1rem;
+      float:left;
       img {
-        max-height: 50px;
+        max-height: 80px;
         width: auto;
       }
     }
     .title {
       color: $white;
-      display: inline-block;
+      float: left;
       position: relative;
       left: 1rem;
       padding: 0;
-      font-size: 1.5em;
+      font-size: 1.2em;
       font-weight: 200;
     }
     .top-bar-title {
@@ -70,7 +70,8 @@ header {
         color: $white;
         font-size: 1rem;
         padding: 0 1.5rem;
-        line-height: 4rem;
+        line-height: 64px;
+        border-bottom: 0;
         i.icon-right {
           margin-left: 0.75rem;
           margin-right: 0;

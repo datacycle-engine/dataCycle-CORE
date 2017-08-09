@@ -88,6 +88,7 @@ form {
     width: 100%;
     z-index: 10000;
     top: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1)
   }
   .edit-headline {
     color: $primary-color;
@@ -331,9 +332,9 @@ form {
     line-height: 1;
     margin: 0;
     border-color: $light-gray;
-    box-shadow: 0 0 2px $dark-gray;
+    box-shadow: 0 0 0 $dark-gray;
     position: relative;
-    transition: box-shadow 0.5s, border-color 0.25s ease-in-out;
+    transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
     min-width: 280px;
     &:hover {
       box-shadow: 0 0 7px $primary-color;
@@ -388,7 +389,7 @@ form {
         }
       }
     }
-    .topleftinfo {
+    .detail-header-info {
       top: -2rem;
       left: 0.5rem;
       .type {

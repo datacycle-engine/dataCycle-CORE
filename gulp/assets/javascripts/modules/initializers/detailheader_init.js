@@ -61,7 +61,6 @@ module.exports.initialize = function () {
     // HOME RANDOMIZED IMAGES AND GLASSHACK!
     if ( $( ".home-container" ).length ) {
         $( ".home-container" ).appendTo("body");
-
         setTimeout(function(){ $('.home-container').addClass('show') }, 500);
         var number = 1 + Math.floor(Math.random() * 5);
         $('body').addClass('login-page').addClass('customer-image-' + number);
