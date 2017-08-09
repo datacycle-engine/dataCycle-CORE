@@ -1,5 +1,5 @@
 <div class="detail-type string">
-    <span class="detail-label"><strong><%= label %> </strong></span>
+    <span class="detail-label"><%= label %></span>
     <span class="detail-content">
         <%= value.to_f %>
         <% if !prop.nil? && !prop['editor'].nil? && !prop['editor']['options'].nil? && !prop['editor']['options']['data-unit'].nil? %><%= prop['editor']['options']['data-unit'].html_safe %><% end %>

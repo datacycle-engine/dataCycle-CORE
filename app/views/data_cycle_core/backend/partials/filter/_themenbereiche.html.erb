@@ -8,24 +8,7 @@
     <span class="title"><%=display_label%><!-- <strong>(<%=types.count%>)</strong>--></span>
     <div>
         <% if !show_selected.nil? && show_selected == true %>
-        <% selected_classifications = get_classifications_for_id(@classification_array, tree_label)  %>
 
-        <div class="your-choice tags">
-            <span class="icon">
-                <i class="fa fa-check" aria-hidden="true"></i> Ihre Auswahl:
-            </span>
-
-            <% unless selected_classifications.nil? %>
-                <% selected_classifications.each do |selected| %>
-                    <label for="<%= selected.id %>">
-                        <a class="tag">
-                            <%= selected.name %><i class="fa fa-times" aria-hidden="true"></i>
-                        </a>
-                    </label>
-                <% end %>
-            <% end %>
-
-        </div>
         <% end %>
 
         <ul class="clearfix">
