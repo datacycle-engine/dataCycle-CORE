@@ -75,7 +75,7 @@ module DataCycleCore
 
           return if data.empty?
           template = ("DataCycleCore::"+table.classify).constantize.
-            find_by(template: true, headline: name, description: description)
+            find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name,  description )
 
           if template.blank?
             @error[:error].push I18n.t :no_template, scope: [:validation, :errors], name: name, desc: description

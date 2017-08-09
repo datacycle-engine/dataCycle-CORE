@@ -33,7 +33,7 @@ module DataCycleCore
     def self.get_internal_template(storage_location, name, description)
 
       internal_template = ("DataCycleCore::"+storage_location.classify).constantize.
-          find_by(template: true, headline: name, description: description)
+          find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name,  description )
 
       if internal_template.blank?
         return nil

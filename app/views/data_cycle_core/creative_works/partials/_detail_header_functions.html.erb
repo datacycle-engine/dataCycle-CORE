@@ -1,17 +1,17 @@
 <div class="detail-header-functions">
 		<ul class="no-bullet">
 				<li>
-						
-						<a id="show-history-link" data-toggle="show-history"><i class="fa fa-history" aria-hidden="true"></i> <strong>Version 1</strong>, <%= dataCycleObject.updated_at.to_s(:german_datetime_format) %></a>
+						<% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['creator'].nil? %>
+							<% creator = get_user_for_id(dataCycleObject.metadata['creator']) %>
+							<% creator_text = "<a href='mailto:#{creator.email}'>#{creator.name}</a>" %>
+						<% else %>
+							<% creator_text = "Unbekannt" %>
+						<% end %>
+
+						<a id="show-history-link" data-toggle="show-history"><i class="fa fa-history" aria-hidden="true"></i> erstellt am <%= dataCycleObject.created_at.to_s(:german_datetime_format) %></a>
+
 						<ul class="dropdown-pane no-bullet bottom" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
-								<li>
-								<% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['creator'].nil? %>
-									<% creator = get_user_for_id(dataCycleObject.metadata['creator']) %>
-									Aktuelle Version von <a href="mailto:<%= "#{creator.email}" %>"><%= "#{creator.name}" %></a><br><i><%= dataCycleObject.updated_at.to_s(:german_datetime_format) %></i>
-								<% else %>
-									Aktuelle Version von Unbekannt<br><i><%= dataCycleObject.updated_at.to_s(:german_datetime_format) %></i>
-								<% end %>
-								</li>
+								<li>Letzte Bearbeitung: <%= creator_text.html_safe %><br><i><%= dataCycleObject.updated_at.to_s(:german_datetime_format) %></i></li>
 						</ul>
 				</li>
 				<% if can? :manage, @edit_link %>

@@ -317,7 +317,7 @@ module DataCycleCore
 
             # get validation template
             template = ("DataCycleCore::"+table.classify).constantize.
-              find_by(template: true, headline: name, description: description)
+              find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name,  description )
 
             insert_item = ("DataCycleCore::"+table.classify).constantize.new
             insert_item.metadata = { 'validation' => template.metadata['validation'] }
@@ -371,7 +371,7 @@ module DataCycleCore
     def set_linked_via_tree(field_name, data, table, name, description, delete)
       # get validation template
       template = ("DataCycleCore::"+table.classify).constantize.
-        find_by(template: true, headline: name, description: description)
+        find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name,  description )
 
       updated_item_keys = []
       field_has_part = "#{field_name}_hasPart"
