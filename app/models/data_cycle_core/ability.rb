@@ -14,6 +14,10 @@ module DataCycleCore
         cannot :manage, [:dash_board, DataCycleCore::WatchList]
         can :manage, DataCycleCore::WatchList, user: user
 
+        if user.admin?
+          can :manage, :dash_board
+        end
+
       elsif user.role == "guest"
         can :read, :all
         cannot :manage, [:dash_board, DataCycleCore::WatchList, :backend]
