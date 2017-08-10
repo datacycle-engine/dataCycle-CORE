@@ -22,9 +22,9 @@
                             <a data-open="media-reveal-<%= image.id %>">
                                 <div class="thumbnail <%= 'has-restrictions' if !image.metadata['restrictions'].nil? && !image.metadata['restrictions'].blank? && image.metadata['restrictions'] != 'Keine Einschränkung;' %>"
                                      style="background-image: url(<%= image.metadata['thumbnailUrl'] %>)">
-                                    <% if !image.content.nil? && !image.content['headline'].nil? %>
+                                    <% unless image.title.blank? %>
                                         <div class="description">
-                                            <%= image.content['headline'] %>
+                                            <%= image.title %>
                                         </div>
                                     <% end %>
                                 </div>
@@ -34,9 +34,7 @@
                                 <button class="close-button" data-close aria-label="Close modal" type="button">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
-                                <% if !image.content.nil? && !image.content['headline'].nil? %>
-                                    <span class="preview-title"><%= image.content['headline'] %></span>
-                                <% end %>
+                                <span class="preview-title"><%= image.title %></span>
                                 <div class="image">
                                     <img src="<%= image.metadata['contentUrl'] %>" />
                                 </div>

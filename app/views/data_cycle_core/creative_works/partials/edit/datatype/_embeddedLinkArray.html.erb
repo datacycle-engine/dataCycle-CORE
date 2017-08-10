@@ -28,8 +28,8 @@
 					<template scope="props" slot="item">
 						<div v-if="props.item != undefined" :data-open="props.dataOpen" :class="[props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != '' && props.item.metadata.restrictions != 'Keine Einschränkung;' ? 'has-restrictions' : '', 'media thumbnail']" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnailUrl+')' }">
 							<span slot="remove" class="delete-thumbnail" href="#" @click.stop="props.remove(props.item, $event)"><i aria-hidden="true" class="fa fa-times"></i></span>
-							<div class="description" v-if="props.item.content != undefined && props.item.content.headline != undefined && props.item.content.headline != ''">
-								{{ props.item.content.headline }}
+							<div class="description" v-if="props.item.headline">
+								{{ props.item.headline }}
 							</div>
 							<span class="caption"></span><input type="hidden" name="<%= key %>[]" :value="props.item.id">
 						</div>
@@ -37,8 +37,8 @@
 								<button class="close-button" data-close aria-label="Close modal" type="button">
 										<span aria-hidden="true">&times;</span>
 								</button>
-								<span class="preview-title" v-if="props.item.content != undefined && props.item.content.headline != undefined && props.item.content.headline != ''">
-									{{ props.item.content.headline }}
+								<span class="preview-title" v-if="props.item.headline">
+									{{ props.item.headline }}
 								</span>
 								<div class="image">
 										<img :src="props.item.metadata.contentUrl" />

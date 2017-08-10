@@ -162,6 +162,29 @@
       vertical-align: top;
       height: 100%;
       overflow-y: scroll;
+      &.edit-content {
+        .detail-header-info {
+          text-align: left;
+          display: flex;
+          width: 100%;
+          left: 0;
+          .type,
+          .metadata {
+            display: flex;
+            white-space: pre;
+          }
+          .metadata {
+            padding-left: 0.5rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            span {
+              min-width: 100%;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+          }
+        }
+      }
     }
     .topleftinfo {
       width: 100%;

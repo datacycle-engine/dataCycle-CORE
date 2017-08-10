@@ -1,9 +1,9 @@
 <template>
   <div v-if="item.id != undefined">
     <h5>Details</h5>
-    <dl v-if="item.content != undefined">
-      <dt v-if="item.content.headline != undefined">Name: </dt>
-      <dd v-if="item.content.headline != undefined">{{ item.content.headline }}</dd>
+    <dl v-if="item.headline">
+      <dt>Name: </dt>
+      <dd>{{ item.headline }}</dd>
     </dl>
     <dl v-if="item.metadata != undefined">
       <dt v-if="item.metadata.thumbnailUrl != undefined"></dt>

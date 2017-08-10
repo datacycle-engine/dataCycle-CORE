@@ -187,11 +187,11 @@ module DataCycleCore
         
         @language = params[:language]
         @language ||= "de"
-        
+       
         query = DataCycleCore::Filter::CreativeWorkQueryBuilder.new(@language)
         query = query.with_classification_alias_ids(types)
         
-        query = query.map{|c| { value: "source_id=>#{c.id}, source_type=>#{c.class.name}", label: c.content['headline'] + " (" + c.metadata['validation']['name'] + ")" } }.compact
+        query = query.map{|c| { value: "source_id=>#{c.id}, source_type=>#{c.class.name}", label: c.title + " (" + c.content_type + ")" } }.compact
         
         return query
       end   

@@ -8,6 +8,10 @@ module DataCycleCore
       headline || (content ? content['headline'] : '')
     end
 
+    def desc
+      description || (content ? content['text'] : '')
+    end
+
     def creator
       DataCycleCore::User.find(metadata['creator']) if metadata && metadata['creator']
     end

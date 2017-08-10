@@ -13,7 +13,7 @@ export default {
   },
   computed: {
     headline() {
-      return this.item.content != undefined && this.item.content.headline != "" && this.item.content.headline != null ? this.item.content.headline : "namenloses Bild";
+      return this.item.headline ? this.item.headline : "namenloses Bild";
     }
   }
 }
