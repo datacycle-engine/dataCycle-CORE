@@ -2,7 +2,7 @@ module DataCycleCore
   class Ability
     include CanCan::Ability
 
-    def initialize(user, session)
+    def initialize(user, session = {})
 
       if user.role == "admin"
         can :manage, :all
