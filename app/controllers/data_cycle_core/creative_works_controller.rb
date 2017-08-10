@@ -85,6 +85,12 @@ module DataCycleCore
 
     def edit
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
+
+      unless @creativeWork.read_write?
+        redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error])
+        return
+      end
+      
       @place = DataCycleCore::Place.new
       @person = DataCycleCore::Person.new
       @dataSchema = @creativeWork.get_data_hash

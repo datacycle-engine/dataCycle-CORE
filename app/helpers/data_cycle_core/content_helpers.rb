@@ -3,6 +3,9 @@ module DataCycleCore
     def content_type
       metadata['validation']['name']
     end
+    def read_write?
+      metadata['validation']['permissions']['read_write']
+    end
 
     def title
       headline || (content ? content['headline'] : '')
