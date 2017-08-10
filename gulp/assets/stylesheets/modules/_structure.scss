@@ -348,42 +348,6 @@ body.login-page {
   }
 }
 
-body.customer-image-1 {
-  background-image: url('/assets/images/oew1.jpg');
-
-  .glass::after {
-    background-image: url('/assets/images/oew1.jpg');
-  }
-}
-
-body.customer-image-2 {
-  background-image: url('/assets/images/oew2.jpg');
-  .glass::after {
-    background-image: url('/assets/images/oew2.jpg');
-  }
-}
-
-body.customer-image-3 {
-  background-image: url('/assets/images/oew3.jpg');
-  .glass::after {
-    background-image: url('/assets/images/oew3.jpg');
-  }
-}
-
-body.customer-image-4 {
-  background-image: url('/assets/images/oew4.jpg');
-  .glass::after {
-    background-image: url('/assets/images/oew4.jpg');
-  }
-}
-
-body.customer-image-5 {
-  background-image: url('/assets/images/oew5.jpg');
-  .glass::after {
-    background-image: url('/assets/images/oew5.jpg');
-  }
-}
-
 .callout {
   &.alert,
   &.success {
