@@ -1,4 +1,4 @@
-<a id="add-to-watchlist-link" class="hascontent" data-toggle="add-watchlist"><i class="fa fa-bookmark" aria-hidden="true"></i> Zu Merkliste hinzufügen</a>
+<a id="add-to-watchlist-link" class="hascontent" data-toggle="add-watchlist"><i class="fa <%= dataCycleObject.watch_lists.count > 0 ? 'fa-bookmark' : 'fa-bookmark-o' %>" aria-hidden="true"></i> Zu Merkliste hinzufügen</a>
 <ul class="dropdown-pane no-bullet bottom" id="add-watchlist" data-dropdown data-hover="true" data-hover-pane="true">
     <% if current_user.watch_lists.count > 0 %>
         <% current_user.watch_lists.each do |watchlist| %>

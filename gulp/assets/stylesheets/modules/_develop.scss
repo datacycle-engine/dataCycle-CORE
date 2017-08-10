@@ -1,5 +1,20 @@
 /* todo: merge styles */
 
+.detail-content {
+  .type {
+    &.translations {
+      span.detail-label {
+        font-weight: bold;
+      }
+    }
+  }
+  &.imageobject {
+    span.detail-label {
+      font-weight: bold;
+    }
+  }
+}
+
 .detail-header {
   .destroy {
     position: absolute;

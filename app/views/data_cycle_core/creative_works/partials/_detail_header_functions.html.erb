@@ -16,7 +16,7 @@
 				</li>
 				<% if can? :manage, @edit_link %>
 					<li>
-							<a id="send-link-link" data-toggle="send-link"><i class="fa fa-share" aria-hidden="true"></i><i class="fa fa-user" aria-hidden="true"></i> versenden</span></a>
+							<a id="send-link-link" data-toggle="send-link"><i class="fa fa-share" aria-hidden="true"></i><i class="fa <%= dataCycleObject.edit_link.nil? ? 'fa-user-o' : 'fa-user' %>" aria-hidden="true"></i> versenden</span></a>
 							<ul class="dropdown-pane no-bullet bottom" id="send-link" data-dropdown data-hover="true" data-hover-pane="true">
 							<% if dataCycleObject.edit_link.nil? %>
 									<h5>Link erstellen</h5>
