@@ -27,7 +27,7 @@
   .search{
     padding-top: 0.5rem;
     .input-group{
-      background-color: lighten($light-gray, 9%); 
+      background-color: lighten($light-gray, 7%); 
       padding:  0 2.6rem 0 1rem;
       transition: background ease-in-out 0.2s;
       margin-bottom: 0;
@@ -61,10 +61,109 @@
         }
       }
       &:hover, &:focus, &:active {
-        background-color: $medium-gray; 
+        background-color: white; 
       }
     }
   }
+  .accordion {
+    background: $light-gray;
+    margin-bottom: 0.5rem;
+    .accordion-title {
+      font-size: 1rem;
+      text-align: center;
+      color: $dark-gray;
+      padding: 0.5rem 0 1rem 0;
+      transition: all 0.2s ease;
+      &:hover, &:focus {
+        color: $body-font-color;
+      }
+      i {
+        //color: white;
+      }
+      span {
+        &::after {
+          content: "weitere Filter anzeigen";
+        }
+        z-index: 1;
+        position: relative;
+        background: $light-gray;
+        padding: 0 0.5rem;
+      }
+      &::before {
+        content: "";
+        position: absolute;
+        height: 1px;
+        border-bottom: 1px solid white;
+        top: 1.65rem;
+        right: 0;
+        left: 0;
+      }
+    }
+    .is-active .accordion-title span {
+      &::after { content:'weitere Filter ausblenden'}
+      i::before {
+        content: '\f077';
+      } 
+    }
+    .accordion-content {
+      padding-top: 0;
+      background: $light-gray;
+      border: 0;
+      border-bottom: 1px solid white;
+      margin-bottom: 1.5rem;
+      ul li {
+        display: inline-block;
+        ul {
+          display: inline-block;
+        }
+      }
+      .expanded-filter-listitem {
+        border-bottom: 1px solid #f1f1f1;
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.5rem;
+        &:last-of-type {
+          padding-bottom: 0;
+          border-bottom: 0;
+          margin-bottom: 0;
+        }
+      }
+      label {
+        position: relative;
+        cursor: pointer;
+        transition: all 0.4s ease;
+        font-size: 0.8rem;
+        i {
+          position: absolute;
+          top: 1px;
+          right: -28px;
+        }
+      }
+      label:before {
+        content: 'o';
+        transition: all 0.4s ease;
+        opacity: 1;
+      }
+      label:hover {
+        opacity: .3;
+        &:before {
+          opacity: .3;
+        }
+      }
+      input {
+        display: none;
+      }
+      /* :: CHECKED :: */
+      input:checked ~ label {
+        color: $primary-color;
+      }
+      input:checked ~ label:before {
+        color: $primary-color;
+        opacity: 1;
+        content: '✓';
+      }
+    }
+  }
+  button[type="submit"].button { padding: 0.85em 1em; color: white; }
 }
 
 .detail-header-wrapper .filters {
@@ -88,6 +187,7 @@
       margin: 0;
       padding: 0;
       cursor: pointer;
+
 
       label:hover:before {
         opacity: .3;
@@ -128,6 +228,7 @@
       }
       > div {
         display: none;
+        z-index: 2;
         position: absolute;
         top: 100%;
         left: 0;
@@ -136,26 +237,12 @@
         padding: 1rem 0 0 0;
         box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
       }
-      .filterbutton {
-        clear: both;
-        background: white;
-        width: 100%;
-        text-align: center;
-        margin-top: 0.5rem;
-        div {
-          padding: 0.5rem 1rem;
-        }
-        .button {
-          margin: 0;
-          padding: 0.85em 2em;
-        }
-      }
     }
     ul {
       display: none;
       padding: 0;
       position: relative;
-
+      margin: 1rem;
       label {
         display: block;
         padding: 0.3rem 0.5rem 0.3rem 2.5rem;
@@ -209,6 +296,7 @@
         top: 0;
         left: 18rem;
         position: absolute;
+        margin: 0;
         background: lighten( $light-gray, 4%);
         li:hover {
           background: lighten($light-gray, 7%);
@@ -235,7 +323,7 @@
     position: relative;
     width: 100%;
     > li {
-      width: 25%;
+      width: 20%;
       padding: 1rem;
       float: none;
       position: initial;
@@ -253,13 +341,36 @@
     background: white;
    }
 
+}
+
+.filtertags {
+  font-size: 0.8rem;
+  padding: 0 0 1rem 1rem;
+  .fa-check { color: $primary-color; }
   .your-choice.tags{
-    label{
-      font-size: inherit;
-      line-height: inherit;
-      color: white;
+    label, a {
       display: inline-block;
     }
   }
+  &.activefilter  .your-choice.tags{
+    i.choice-label { color: $dark-gray; }
+    background: lighten($light-gray, 7%); 
+    border-radius: 5px;
+    padding: 4px;
+    margin-right: 0.5rem;
+    label, a {
+      display: inline-block;
+    }
+  }
+}
 
+
+.filterbuttons {
+  clear: both;
+  width: 100%;
+  text-align: right;
+  margin-top: 0.5rem;
+  button {
+    margin: 0 0 0 1rem;
+  }
 }
