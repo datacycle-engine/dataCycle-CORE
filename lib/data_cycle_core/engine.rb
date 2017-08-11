@@ -69,6 +69,8 @@ module DataCycleCore
   module OutdoorActive
     mattr_accessor :poi_template
 
+    mattr_accessor :poi_filter
+
     def self.setup(&block)
       yield self
     end

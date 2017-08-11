@@ -63,7 +63,7 @@ namespace :data_cycle_core do
 
       import_class = Object.const_get("DataCycleCore::#{use_case.external_source.config["import"]}")
       import_job = import_class.new(options[:external_source_id])
-      import_job.import
+      import_job.import(options)
     end
   end
 end
