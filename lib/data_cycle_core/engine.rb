@@ -66,6 +66,14 @@ module DataCycleCore
     yield self
   end
 
+  module OutdoorActive
+    mattr_accessor :poi_template
+
+    def self.setup(&block)
+      yield self
+    end
+  end
+
 
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
