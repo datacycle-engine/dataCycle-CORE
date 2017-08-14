@@ -13,7 +13,7 @@ module DataCycleCore
         raise ArgumentError.new("wrong number of arguments (given #{args.size}, expected 0)") unless args.size == 1
 
         send(property_definition['storage_location'] + '=', 
-          send(property_definition['storage_location']).merge({name.to_s.gsub(/=$/, '') => args.first})
+          (send(property_definition['storage_location']) || {}).merge({name.to_s.gsub(/=$/, '') => args.first})
         )        
       elsif property_definition && ['metadata', 'content', 'properties'].include?(property_definition['storage_location'])
         raise ArgumentError.new("wrong number of arguments (given #{args.size}, expected 0)") unless args.blank?
