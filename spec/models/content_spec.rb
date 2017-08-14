@@ -138,8 +138,6 @@ RSpec.describe DataCycleCore::Content, type: :model do
 
     it "provides list of translatable properties" do
       expect(subject.translatable_property_names).to eq(['headline', '3', '4'])
-
-      byebug
     end
   end
 end
