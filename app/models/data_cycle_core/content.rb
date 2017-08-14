@@ -13,11 +13,11 @@ module DataCycleCore
     def method_missing(name, *args, &block)
       property_definition = property_definitions.try(:[], name.to_s.gsub(/=$/, ''))
 
-      if property_definition && NESTED_STORAGE_LOCATIONS.include?(property_definition['storage_location']) && name.to_s.ends_with?('=')
+      if property_definition && name.to_s.ends_with?('=')
         raise ArgumentError.new("wrong number of arguments (given #{args.size}, expected 0)") unless args.size == 1
 
         set_property_value(name.to_s.gsub(/=$/, ''), property_definition, args.first)
-      elsif property_definition && NESTED_STORAGE_LOCATIONS.include?(property_definition['storage_location'])
+      elsif property_definition
         raise ArgumentError.new("wrong number of arguments (given #{args.size}, expected 0)") unless args.blank?
 
         get_property_value(name.to_s.gsub(/=$/, ''), property_definition)
@@ -64,7 +64,13 @@ module DataCycleCore
     def get_property_value(property_name, property_definition)
       if PLAIN_PROPERTY_TYPES.include?(property_definition['storage_type'])
         send(property_definition['storage_location'])[property_name.to_s]      
-      else
+      elsif (::DataCycleCore.const_get(property_definition['storage_location'].classify) rescue nil)        
+        if self.class != ::DataCycleCore.const_get(property_definition['storage_location'].classify)
+          send(property_definition['storage_location'])
+        else
+          raise NotImplementedError
+        end
+    else
         raise NotImplementedError
       end
     end
