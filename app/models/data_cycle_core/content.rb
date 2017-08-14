@@ -26,6 +26,38 @@ module DataCycleCore
       end
     end
 
+    def property_names
+      property_definitions.keys
+    end
+
+    def translatable_property_names
+      translated_columns = (self.class.to_s + "::Translation").constantize.column_names
+
+      property_definitions.select { |property_name, definition| 
+          ['content', 'properties'].include?(definition['storage_location']) || 
+          (definition['storage_location'] == 'column' && translated_columns.include?(property_name))
+        }.keys
+    end
+
+    def untranslatable_property_names
+      untranslated_columns = self.class.column_names
+
+      property_definitions.select { |property_name, definition| 
+          ['key', 'metadata'].include?(definition['storage_location']) || 
+          (definition['storage_location'] == 'column' && untranslated_columns.include?(property_name))
+        }.keys
+    end
+
+    def verify
+      if (translatable_property_names & untranslatable_property_names).size > 0
+        inconsistent_properties = (translatable_property_names & untranslatable_property_names)
+
+        raise StandardError.new("cannot determine whether some properties (#{inconsistent_properties.join(',')}) are translatable or not")
+      end
+
+      self
+    end
+
 
     private
 

@@ -85,4 +85,61 @@ RSpec.describe DataCycleCore::Content, type: :model do
 
   include_context "for properties with no content yet", "properties",  ->() { SecureRandom.hex }
   include_context "for properties", "properties",  ->() { SecureRandom.hex }
+
+  describe "with translatable and untranslatable properties" do
+    subject {
+      DataCycleCore::CreativeWork.new(metadata: {
+          validation: {
+            properties: {
+              id: {
+                label: 'id',
+                type: 'string',
+                storage_type: 'string',
+                storage_location: 'key'
+              },              
+              headline: {
+                label: 'headline',
+                type: 'string',
+                storage_type: 'string',
+                storage_location: 'column'
+              },              
+              '1' => {
+                label: '1',
+                type: 'string',
+                storage_type: 'string',
+                storage_location: 'metadata'
+              },
+              '2' => {
+                label: '2',
+                type: 'string',
+                storage_type: 'string',
+                storage_location: 'metadata'
+              },              
+              '3' => {
+                label: '3',
+                type: 'string',
+                storage_type: 'string',
+                storage_location: 'content'
+              },              
+              '4' => {
+                label: '4',
+                type: 'string',
+                storage_type: 'string',
+                storage_location: 'properties'
+              }              
+            }
+          }
+        })
+    }
+
+    it "provides list of untranslatable properties" do
+      expect(subject.untranslatable_property_names).to eq(['id', '1', '2'])
+    end
+
+    it "provides list of translatable properties" do
+      expect(subject.translatable_property_names).to eq(['headline', '3', '4'])
+
+      byebug
+    end
+  end
 end
