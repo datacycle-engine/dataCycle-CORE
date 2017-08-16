@@ -63,14 +63,14 @@ module DataCycleCore
       end
 
     # main import functionality
-      def import
+      def import(options)
         Mongoid.override_database(nil) #reset to default
         Mongoid.override_database("#{DownloadPoi.database_name}_#{@external_source_id}")
 
         import_logging do
           # import_category
           # import_region
-          import_poi
+          import_poi(options)
         end
 
         Mongoid.override_database(nil) #reset to default
@@ -115,14 +115,23 @@ module DataCycleCore
         end
       end
 
-      def import_poi
+      def import_poi(options)
         import_poi_logging do
 
           if @incremental_update
-            indexes = DownloadPoiUpsert.all.map {|index| index.id }
+            query = DownloadPoiUpsert.all
+          elsif DataCycleCore::OutdoorActive.poi_filter
+            query = DataCycleCore::OutdoorActive.poi_filter.call(DownloadPoi.all)
           else
-            indexes = DownloadPoi.all.map {|index| index.id }
+            query = DownloadPoi.all
           end
+
+          if options[:max_count]
+            query = query.limit(options[:max_count].to_i)
+          end
+
+          indexes = query.map {|index| index.id }
+
           updates = indexes.count
 
           print " " * 40 + "loading"
@@ -153,7 +162,7 @@ module DataCycleCore
                 primaryImage = set_primary_image( load_poi.dump[load_poi.dump.keys.first]['primaryImage'], to_update_place.id )
                 load_poi.dump.each do |lang, lang_dump|
                   I18n.with_locale(lang) do
-                    place_hash = extract_place_data(lang_dump)
+                    place_hash = (to_update_place.get_data_hash rescue {}).merge(extract_place_data(lang_dump))
                     place_hash['primaryImage'] = primaryImage if primaryImage
                     place_hash['image'] = image if image.count > 0
                     to_update_place.set_data_hash(place_hash)
@@ -480,72 +489,28 @@ module DataCycleCore
       end
 
       def extract_place_data(data)
-        # prioritize longText over shortText
-        description = data.has_key?('shortText') ? data['shortText'].strip : nil
-        description = data['longText'].strip if data.has_key?('longText')
+        data.extend PoiAttributeTransformation
 
-        altitude = data.has_key?('altitude') ? data['altitude'] : nil
-        lon,lat,_ = data['geometry'].split(/[, ]/,3)
-        location = RGeo::Geographic.spherical_factory(srid: 4326).point(lon, lat)
         line = data.has_key?('geometry') ? convert_tour_geometry(data['geometry']) : nil
         if data.has_key?('elevation')
           ascent = data['elevation']['ascent']
           descent = data['elevation']['descent']
         end
 
-        address_locality = data.has_key?('address') && data['address'].has_key?('town') ? data['address']['town'].strip : nil
-        street_address = set_street_address(data)
-        postal_code = data.has_key?('address') && data['address'].has_key?('zipcode') ? data['address']['zipcode'].strip : nil
-        address_country = data.has_key?('countryCode') ? data['countryCode'].strip : nil
-        fax_number = data.has_key?('fax') ? data['fax'].strip : nil
-        telephone = data.has_key?('phone') ? data['phone'].strip : nil
-        email = data.has_key?('email') ? data['email'].strip : nil
-        url = data.has_key?('homepage') ? data['homepage'].strip : nil
-        hours_available = data.has_key?('businessHours') ? data['businessHours'].strip : nil
-
-        source = data.has_key?('meta') && data['meta'].has_key?('source') && data['meta']['source'].has_key?('name') ? data['meta']['source']['name'].strip : nil
-        author = data.has_key?('meta') && data['meta'].has_key?('author') ? data['meta']['author'].strip : nil
         duration = data.has_key?('time') && data['time'].has_key?('min') ? data['time']['min'] : nil
         difficulty = data.has_key?('rating') && data['rating'].has_key?('difficulty') ? data['rating']['difficulty'] : nil
         distance = data['length']
 
-
-        return {
-          'name' => data['title'],
-          'description' => description,
-          'addressLocality' => address_locality,
-          'streetAddress' => street_address,
-          'postalCode' => postal_code,
-          'addressCountry' => address_country,
-          'faxNumber' => fax_number,
-          'telephone' => telephone,
-          'email' => email,
-          'url' => url,
-          'hoursAvailable' => hours_available,
-          'longitude' => lon.to_f,
-          'latitude' => lat.to_f,
-          'elevation' => altitude.to_f,
-          'location' => location,
+        return Hash[data.to_h.map { |k, v| [k.to_s, v] }].merge({
           'line' => line,
           'distance' => distance,
           'ascent' => ascent,
           'descent' => descent,
           'duration' => duration,
           'difficulty' => difficulty,
-          'author' => author,
           'external_key' => data['id'],
           'external_source_id' => @external_source_id
-        }
-      end
-
-      def set_street_address(data)
-        street_address = data.has_key?('address') && data['address'].has_key?('street') ? data['address']['street'].strip : nil
-        if !street_address.nil? && data.has_key?('address') && data['address'].has_key?('housenumber')
-          if street_address.reverse.to_i == 0 #sometimes the address already includes the housenumber and in addition a housenumber is given
-            street_address+=' '+ data['address']['housenumber'].strip
-          end
-        end
-        street_address
+        })
       end
 
     # small helper
@@ -648,21 +613,21 @@ module DataCycleCore
       private 
       
       def poi_template(raw_data)
-        if DataCycleCore::OutdoorActive::Config.poi_template.nil?
+        if DataCycleCore::OutdoorActive.poi_template.nil?
           @log.error 'Missing configuration for poi template to use when importing pois from outdoor active'
           raise 'Missing configuration for poi template'
-        elsif DataCycleCore::OutdoorActive::Config.poi_template.is_a? String
+        elsif DataCycleCore::OutdoorActive.poi_template.is_a? String
           begin
-            Place.find_by!(template: true, headline: DataCycleCore::OutdoorActive::Config.poi_template)
+            Place.find_by!(template: true, headline: DataCycleCore::OutdoorActive.poi_template)
           rescue ActiveRecord::RecordNotFound => e
-            @log.error "Missing template '#{DataCycleCore::OutdoorActive::Config.poi_template}' for places"
+            @log.error "Missing template '#{DataCycleCore::OutdoorActive.poi_template}' for places"
             raise e
           end
-        elsif DataCycleCore::OutdoorActive::Config.poi_template.is_a? Proc
+        elsif DataCycleCore::OutdoorActive.poi_template.is_a? Proc
           begin
-            Place.find_by!(template: true, headline: DataCycleCore::OutdoorActive::Config.poi_template.call(raw_data))
+            Place.find_by!(template: true, headline: DataCycleCore::OutdoorActive.poi_template.call(raw_data))
           rescue ActiveRecord::RecordNotFound => e
-            @log.error "Missing template '#{DataCycleCore::OutdoorActive::Config.poi_template}' for places"
+            @log.error "Missing template '#{DataCycleCore::OutdoorActive.poi_template.call(raw_data)}' for places"
             raise e
           end
         else

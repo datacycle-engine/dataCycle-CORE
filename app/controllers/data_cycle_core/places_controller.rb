@@ -71,7 +71,7 @@ module DataCycleCore
     def update
       @place = DataCycleCore::Place.find(params[:id])
 
-      object_params = place_params('places', @place.metadata['validation']['name'], 'Place')
+      object_params = place_params('places', @place.metadata['validation']['name'], @place.metadata['validation']['description'])
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@place.metadata['validation'], false)
 
       # todo: implement preprocessor
@@ -117,7 +117,6 @@ module DataCycleCore
       end
 
       def place_params(storage_location, template_name, template_description)
-
         datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
         params.require(:place).permit(:datahash => datahash)
 

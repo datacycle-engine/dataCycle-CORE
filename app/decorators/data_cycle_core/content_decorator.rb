@@ -11,19 +11,6 @@ class DataCycleCore::ContentDecorator < SimpleDelegator
     self.property_definitions.reject { |k, v| v['type'].starts_with?('classification') || v['storage_location'] == 'key' }.keys
   end
 
-  def translatable_property_names
-    self.property_names -  self.untranslatable_property_names
-  end
-
-  def untranslatable_property_names
-    (
-      (
-        Object.const_get(self.__getobj__.class.to_s).attribute_names - 
-        Object.const_get(self.__getobj__.class.to_s + '::Translation').attribute_names
-      ) + self.metadata.keys
-    ) & self.property_names    
-  end
-
   def linked_property_names
     linked_object_definitions.keys 
   end

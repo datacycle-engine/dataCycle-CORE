@@ -1,5 +1,5 @@
 module DataCycleCore
-  class CreativeWork < DataHash
+  class CreativeWork < Content
     extend ActsAsTree::TreeView
     extend ActsAsTree::TreeWalker
 

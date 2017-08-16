@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.1
--- Dumped by pg_dump version 9.6.1
+-- Dumped from database version 9.6.3
+-- Dumped by pg_dump version 9.6.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -231,7 +231,9 @@ CREATE TABLE creative_work_translations (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     content jsonb,
-    properties jsonb
+    properties jsonb,
+    headline text,
+    description text
 );
 
 
@@ -260,8 +262,6 @@ ALTER SEQUENCE creative_work_translations_id_seq OWNED BY creative_work_translat
 
 CREATE TABLE creative_works (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    headline character varying,
-    description text,
     "position" integer DEFAULT 0,
     "isPartOf" uuid,
     metadata jsonb,
@@ -315,6 +315,22 @@ ALTER SEQUENCE delayed_jobs_id_seq OWNED BY delayed_jobs.id;
 
 
 --
+-- Name: edit_links; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE edit_links (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    item_id uuid,
+    item_type character varying,
+    creator_id uuid,
+    read_only boolean DEFAULT true,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: event_translations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -325,7 +341,9 @@ CREATE TABLE event_translations (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     content jsonb,
-    properties jsonb
+    properties jsonb,
+    headline text,
+    description text
 );
 
 
@@ -354,9 +372,6 @@ ALTER SEQUENCE event_translations_id_seq OWNED BY event_translations.id;
 
 CREATE TABLE events (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    headline character varying,
-    description text,
-    url character varying,
     "startDate" timestamp without time zone,
     "endDate" timestamp without time zone,
     metadata jsonb,
@@ -420,7 +435,9 @@ CREATE TABLE person_translations (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     content jsonb,
-    properties jsonb
+    properties jsonb,
+    headline text,
+    description text
 );
 
 
@@ -449,8 +466,6 @@ ALTER SEQUENCE person_translations_id_seq OWNED BY person_translations.id;
 
 CREATE TABLE persons (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    headline character varying,
-    description text,
     "givenName" character varying,
     "familyName" character varying,
     metadata jsonb,
@@ -483,7 +498,9 @@ CREATE TABLE place_translations (
     "hoursAvailable" character varying,
     address character varying,
     content jsonb,
-    properties jsonb
+    properties jsonb,
+    description text,
+    headline text
 );
 
 
@@ -512,7 +529,6 @@ ALTER SEQUENCE place_translations_id_seq OWNED BY place_translations.id;
 
 CREATE TABLE places (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    description text,
     external_source_id uuid,
     external_key character varying,
     longitude double precision,
@@ -525,8 +541,7 @@ CREATE TABLE places (
     photo uuid,
     line geography(LineStringZ,4326),
     metadata jsonb,
-    template boolean DEFAULT false,
-    headline character varying
+    template boolean DEFAULT false
 );
 
 
@@ -585,8 +600,36 @@ CREATE TABLE users (
     last_sign_in_ip character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    provider character varying,
-    uid character varying
+    role character varying DEFAULT 'user'::character varying
+);
+
+
+--
+-- Name: watch_list_data_hashes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE watch_list_data_hashes (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    watch_list_id uuid,
+    hashable_id uuid,
+    hashable_type character varying,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: watch_lists; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE watch_lists (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    headline character varying,
+    user_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -754,6 +797,14 @@ ALTER TABLE ONLY delayed_jobs
 
 
 --
+-- Name: edit_links edit_links_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY edit_links
+    ADD CONSTRAINT edit_links_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: event_translations event_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -855,6 +906,22 @@ ALTER TABLE ONLY use_cases
 
 ALTER TABLE ONLY users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: watch_list_data_hashes watch_list_data_hashes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY watch_list_data_hashes
+    ADD CONSTRAINT watch_list_data_hashes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: watch_lists watch_lists_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY watch_lists
+    ADD CONSTRAINT watch_lists_pkey PRIMARY KEY (id);
 
 
 --
@@ -1124,6 +1191,20 @@ CREATE INDEX "index_creative_works_on_isPartOf" ON creative_works USING btree ("
 
 
 --
+-- Name: index_edit_links_on_item_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_edit_links_on_item_id ON edit_links USING btree (item_id);
+
+
+--
+-- Name: index_edit_links_on_item_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_edit_links_on_item_type ON edit_links USING btree (item_type);
+
+
+--
 -- Name: index_event_translations_on_event_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1278,6 +1359,27 @@ CREATE UNIQUE INDEX index_users_on_reset_password_token ON users USING btree (re
 
 
 --
+-- Name: index_watch_list_data_hashes_on_hashable_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_watch_list_data_hashes_on_hashable_id ON watch_list_data_hashes USING btree (hashable_id);
+
+
+--
+-- Name: index_watch_list_data_hashes_on_hashable_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_watch_list_data_hashes_on_hashable_type ON watch_list_data_hashes USING btree (hashable_type);
+
+
+--
+-- Name: index_watch_list_data_hashes_on_watch_list_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_watch_list_data_hashes_on_watch_list_id ON watch_list_data_hashes USING btree (watch_list_id);
+
+
+--
 -- Name: parent_child_index; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1297,7 +1399,7 @@ CREATE UNIQUE INDEX place_classification_index ON classification_places USING bt
 
 SET search_path TO public, postgis;
 
-INSERT INTO schema_migrations (version) VALUES
+INSERT INTO "schema_migrations" (version) VALUES
 ('20170116165448'),
 ('20170118091809'),
 ('20170131141857'),
@@ -1314,10 +1416,14 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170524132123'),
 ('20170524144644'),
 ('20170612114242'),
-('20170619191047'),
 ('20170620143810'),
 ('20170621070615'),
 ('20170624083501'),
-('20170714114037');
+('20170714114037'),
+('20170720130827'),
+('20170806152208'),
+('20170807100953'),
+('20170807131053'),
+('20170808071705');
 
 

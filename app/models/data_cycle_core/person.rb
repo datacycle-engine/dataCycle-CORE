@@ -1,5 +1,5 @@
 module DataCycleCore
-  class Person < DataHash
+  class Person < Content
     class Translation < Globalize::ActiveRecord::Translation
         include ContentTranslationHelpers
     end
