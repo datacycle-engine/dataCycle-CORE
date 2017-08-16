@@ -28,7 +28,6 @@ module DataCycleCore
         )
       end
 
-    # filters
       def only_frontend_valid
         reflect(
           @query.where(

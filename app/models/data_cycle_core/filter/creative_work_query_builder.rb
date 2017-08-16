@@ -31,9 +31,9 @@ module DataCycleCore
                 concatinate(
                   concatinate(
                     coalesce(json_element(creative_work_translation[:content], quoted('caption')), quoted(' ')),
-                    coalesce(json_element(creative_work_translation[:content], quoted('description')),quoted(''))
+                    coalesce(creative_work_translation[:description],quoted(''))
                   ),
-                  coalesce(json_element(creative_work_translation[:content], quoted('headline')), quoted(' ')),
+                  coalesce(creative_work_translation[:headline], quoted(' ')),
                 )
               ),
               to_tsquery(quoted(name))
@@ -50,10 +50,10 @@ module DataCycleCore
             #   quoted(name)
             #   )
               coalesce(
-                json_element(creative_work_translation[:content], quoted('headline')),
+                creative_work_translation[:headline],
                 coalesce(
                   json_element(creative_work_translation[:content], quoted('caption')),
-                  json_element(creative_work_translation[:content], quoted('description'))
+                  creative_work_translation[:description]
                 )
               ).matches("%#{name}%")
             )

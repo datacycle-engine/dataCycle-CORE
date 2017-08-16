@@ -75,7 +75,7 @@ module DataCycleCore
 
       def classification_person
         ClassificationPerson.arel_table
-      end 
+      end
 
     end
   end

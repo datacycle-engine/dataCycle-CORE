@@ -26,15 +26,7 @@ module DataCycleCore
       def in_validity_period(current_date = Time.now)
         reflect (
           @query.where(
-            # Arel::Nodes::Between.new(
-            #   sql_date(quoted(current_date)),
-            #   Arel::Nodes::And.new(
-            #     [
-            #       sql_date(json_path(creative_work[:metadata], quoted('{ validityPeriod, datePublished }'))),
-            #       sql_date(json_path(creative_work[:metadata], quoted('{ validityPeriod, expires }')))
-            #     ]
-            #   )
-            # )
+
             sql_date(json_path(creative_work[:metadata], quoted('{ validityPeriod, datePublished }'))).eq(nil).
               or(
                 sql_date(json_path(creative_work[:metadata], quoted('{ validityPeriod, datePublished }'))).lteq(sql_date(quoted(current_date)))
@@ -50,21 +42,8 @@ module DataCycleCore
       end
 
       def only_images
-        # @query = join_classification_alias
-        # manager = Arel::SelectManager.new.
-        #   project(classification_alias[:id]).
-        #   from(classification_alias).
-        #   where(classification_alias[:name].eq(quoted('Bild'))).
-        #   join(classification_tree).
-        #     on(classification_tree[:classification_alias_id].eq(classification_alias[:id])).
-        #   join(classification_tree_label).
-        #     on(classification_tree[:classification_tree_label_id].eq(classification_tree_label[:id])).
-        #   where(classification_tree_label[:name].eq(quoted('Inhaltstypen')))
-
         reflect(
-          #@query.where(classification_alias[:id].in(manager))
           @query.where(json_path(creative_work[:metadata], quoted('{  validation, name }')).eq(quoted("Bild")))
-
         )
       end
 
