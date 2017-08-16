@@ -72,9 +72,19 @@ module.exports.initialize = function () {
       promises = [];
       if (isValid && submit) form.submit();
       else if (submit) {
-        var first_error_offset = $('.single_error').first().offset().top;
-        $('html, body').animate({
-          scrollTop: first_error_offset - 100
+        var first_error_offset, container;
+        var error_container = $('.single_error').first();
+
+        if ($('.split-content.edit-content').length > 0) {
+          container = $('.flex-box .edit-content');
+          first_error_offset = error_container.offset().top - container.offset().top + container.scrollTop() - 50;
+        } else {
+          container = $('html, body');
+          first_error_offset = $('.single_error').first().offset().top - 100;
+        }
+
+        container.animate({
+          scrollTop: first_error_offset
         }, 500);
       }
     });
