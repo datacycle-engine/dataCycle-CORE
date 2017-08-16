@@ -44,7 +44,7 @@ form {
 
 .pagination {
   border-radius: 30px;
-  background: lighten($light-gray, 6%);
+  background: lighten($light-gray, 7%);
   a,
   button {
     border-radius: 0;
@@ -178,14 +178,6 @@ form {
     .type {
       display: inline-block;
       transition: opacity ease-in-out 0.25s;
-    }
-    .metadata {
-      display: inline-block;
-      opacity: 0.3;
-      transition: opacity ease-in-out 0.25s;
-    }
-    &:hover .metadata {
-      opacity: 1;
     }
   }
   .detail-header-functions {

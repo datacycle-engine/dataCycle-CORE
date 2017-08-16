@@ -2,8 +2,10 @@
 <%= form_tag(root_path, :method => "get", id: "search-form") do %>
 
 <section class="filters">
-    <div class="search row expanded">
-        <div class="column">
+    <div class="row">
+    <div class="column">
+
+        <div class="search">
             <div class="search">
                 <div class="input-group">
                     <div class="input-group-button">
@@ -13,33 +15,742 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="main-filters row expanded">
-        <div class="column">
-            <div class="row">
 
-                <nav id="primary_nav_wrap">
-                    <ul>
+        <div class="main-filters">
 
-                        <%# classification_alias_id = DataCycleCore::ClassificationAlias.joins(classification_trees: [:classification_tree_label]).where("classification_tree_labels.name = ?", 'Sonstiges').where("classification_aliases.name = ?",'Auslagenthema (Sehnsuchtsthema)').first.id %>
-                        <%= render 'data_cycle_core/backend/partials/filter/themenbereiche', tree_label: 'Themenbereiche', display_label: 'Thema', classification_alias_id: nil, show_selected: true %>
+            <nav id="primary_nav_wrap">
+                <ul>
 
-                        <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Bundesländer', display_label: 'Bundesland', classification_alias_id: nil %>
-                        <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Märkte', display_label: 'Zielmarkt', classification_alias_id: nil %>
+                    <%# classification_alias_id = DataCycleCore::ClassificationAlias.joins(classification_trees: [:classification_tree_label]).where("classification_tree_labels.name = ?", 'Sonstiges').where("classification_aliases.name = ?",'Auslagenthema (Sehnsuchtsthema)').first.id %>
+                    <%= render 'data_cycle_core/backend/partials/filter/themenbereiche', tree_label: 'Themenbereiche', display_label: 'Thema', classification_alias_id: nil, show_selected: true %>
 
-                        <%= render 'data_cycle_core/backend/partials/filter/sprache'%>
-                    
-                        <%= render 'data_cycle_core/backend/partials/filter/contentType', tree_label: 'Inhaltstypen', display_label: 'Inhaltstyp', classification_alias_id: nil, show_selected: false %>
+                    <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Bundesländer', display_label: 'Bundesland', classification_alias_id: nil %>
+                    <%= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Märkte', display_label: 'Zielmarkt', classification_alias_id: nil %>
 
-                        <!--
-                        <%#= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Inhaltspools', display_label: 'Inhaltspool', classification_alias_id: nil %>
-                        -->
-                    </ul>
-                </nav>
-                <button type="reset" id="reset-filter" class="button">Filter Zurücksetzen</button>
-            </div>
+                    <%= render 'data_cycle_core/backend/partials/filter/sprache'%>
+                
+                    <%= render 'data_cycle_core/backend/partials/filter/contentType', tree_label: 'Inhaltstypen', display_label: 'Inhaltstyp', classification_alias_id: nil, show_selected: false %>
+
+                    <!--
+                    <%#= render 'data_cycle_core/backend/partials/filter/classification', tree_label: 'Inhaltspools', display_label: 'Inhaltspool', classification_alias_id: nil %>
+                    -->
+                </ul>
+            </nav>
+
         </div>
+
+        <ul class="accordion" data-responsive-accordion-tabs="accordion medium-tabs large-accordion" data-allow-all-closed="true">
+          <li class="accordion-item" data-accordion-item>
+            <a href="#" class="accordion-title"><span><i class="fa fa-chevron-down" aria-hidden="true"></i> </span></a>
+            <div class="accordion-content" data-tab-content>
+              
+                <div class="row expanded-filter-listitem">
+                    <div class="columns small-12 large-2">
+                        <input type="checkbox" name="classification[][selected]" value="09eb945b-c44c-40c5-883f-1599f9d954f1" id="filtertypen" checked="">
+                        <label for="filtertypen">
+                            <span class="title">
+                                <span class="inner-title"><strong>Inhaltstypen</strong></span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="columns small-12 large-10">
+
+                            <ul class="clearfix" style="min-height: 0px;">
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="09eb945b-c44c-40c5-883f-1599f9d954f1" id="09eb945b-c44c-40c5-883f-1599f9d954f1" checked="">
+                        <label for="09eb945b-c44c-40c5-883f-1599f9d954f1">
+                            <span class="title">
+                                <span class="inner-title">Angebot</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="4047c3c5-7a4f-47ab-96e9-1325556b4e96" id="4047c3c5-7a4f-47ab-96e9-1325556b4e96" checked="">
+                        <label for="4047c3c5-7a4f-47ab-96e9-1325556b4e96">
+                            <span class="title">
+                                <span class="inner-title">Angebotszeitraum</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="c2bd2070-8e4e-441a-8768-0d0da661fd5f" id="c2bd2070-8e4e-441a-8768-0d0da661fd5f" checked="">
+                        <label for="c2bd2070-8e4e-441a-8768-0d0da661fd5f">
+                            <span class="title">
+                                <span class="inner-title">App</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="123f478c-ff1b-4762-8840-d2bdeb8a92b1" id="123f478c-ff1b-4762-8840-d2bdeb8a92b1" checked="">
+                        <label for="123f478c-ff1b-4762-8840-d2bdeb8a92b1">
+                            <span class="title">
+                                <span class="inner-title">Audio</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="d2050356-d0c5-49fd-af60-234ee3760682" id="d2050356-d0c5-49fd-af60-234ee3760682" checked="">
+                        <label for="d2050356-d0c5-49fd-af60-234ee3760682">
+                            <span class="title">
+                                <span class="inner-title">Bild</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="9ca2e05d-53da-4c66-a750-068938501767" id="9ca2e05d-53da-4c66-a750-068938501767" checked="">
+                        <label for="9ca2e05d-53da-4c66-a750-068938501767">
+                            <span class="title">
+                                <span class="inner-title">Firma</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="2d512e7d-e9bc-4b92-b9a7-95e416476815" id="2d512e7d-e9bc-4b92-b9a7-95e416476815" checked="">
+                        <label for="2d512e7d-e9bc-4b92-b9a7-95e416476815">
+                            <span class="title">
+                                <span class="inner-title">Person</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="c27a0a95-4f8e-4106-9709-e9b01036148a" id="c27a0a95-4f8e-4106-9709-e9b01036148a" checked="">
+                        <label for="c27a0a95-4f8e-4106-9709-e9b01036148a">
+                            <span class="title">
+                                <span class="inner-title">Quiz</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="8af54e98-b485-4da8-a068-3f2c7a9715b5" id="8af54e98-b485-4da8-a068-3f2c7a9715b5" checked="">
+                        <label for="8af54e98-b485-4da8-a068-3f2c7a9715b5">
+                            <span class="title">
+                                <span class="inner-title">Statistik</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="9bbab688-606f-4ba0-b3a3-93026af4e806" id="9bbab688-606f-4ba0-b3a3-93026af4e806">
+                        <label for="9bbab688-606f-4ba0-b3a3-93026af4e806">
+                            <span class="title">
+                                <span class="inner-title">Text</span>
+                                <!--<strong>(9)</strong>-->
+                            </span>
+                                <span class="icon"><i class="fa fa-angle-right" aria-hidden="true"></i></span>
+                        </label>
+
+                            <ul style="min-height: 0px;">
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="f99a756a-db0a-4ce1-9a1e-a46300cf10a7" id="f99a756a-db0a-4ce1-9a1e-a46300cf10a7" checked="">
+                        <label for="f99a756a-db0a-4ce1-9a1e-a46300cf10a7">
+                            <span class="title">
+                                <span class="inner-title">Artikel</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="691da031-20e8-4a1b-94a6-e48dda21b10e" id="691da031-20e8-4a1b-94a6-e48dda21b10e" checked="">
+                        <label for="691da031-20e8-4a1b-94a6-e48dda21b10e">
+                            <span class="title">
+                                <span class="inner-title">Biografie</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="c421f423-579e-4068-aba4-f811a5a86938" id="c421f423-579e-4068-aba4-f811a5a86938" checked="">
+                        <label for="c421f423-579e-4068-aba4-f811a5a86938">
+                            <span class="title">
+                                <span class="inner-title">Interview</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="22858d96-2f4d-4435-ad6b-d8d66d52be84" id="22858d96-2f4d-4435-ad6b-d8d66d52be84" checked="">
+                        <label for="22858d96-2f4d-4435-ad6b-d8d66d52be84">
+                            <span class="title">
+                                <span class="inner-title">Linktipps</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="509531ce-6362-44ed-b375-2849969c5562" id="509531ce-6362-44ed-b375-2849969c5562" checked="">
+                        <label for="509531ce-6362-44ed-b375-2849969c5562">
+                            <span class="title">
+                                <span class="inner-title">Portrait</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="fefdc4f9-9a01-4a0b-9e31-d33cf0e4ac06" id="fefdc4f9-9a01-4a0b-9e31-d33cf0e4ac06" checked="">
+                        <label for="fefdc4f9-9a01-4a0b-9e31-d33cf0e4ac06">
+                            <span class="title">
+                                <span class="inner-title">Rezept</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="a0215e3c-fb95-4e1e-971b-ee3cb4683c52" id="a0215e3c-fb95-4e1e-971b-ee3cb4683c52" checked="">
+                        <label for="a0215e3c-fb95-4e1e-971b-ee3cb4683c52">
+                            <span class="title">
+                                <span class="inner-title">Social Media Posting</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="103f81f7-479a-43cd-a874-dd2580473e90" id="103f81f7-479a-43cd-a874-dd2580473e90" checked="">
+                        <label for="103f81f7-479a-43cd-a874-dd2580473e90">
+                            <span class="title">
+                                <span class="inner-title">Zeitleiste</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="dc802ed9-20f8-489e-b940-07617d38ac29" id="dc802ed9-20f8-489e-b940-07617d38ac29" checked="">
+                        <label for="dc802ed9-20f8-489e-b940-07617d38ac29">
+                            <span class="title">
+                                <span class="inner-title">Zitat</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                            </ul>
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="2b5db2d2-7808-4c55-be00-02086809b8b0" id="2b5db2d2-7808-4c55-be00-02086809b8b0" checked="">
+                        <label for="2b5db2d2-7808-4c55-be00-02086809b8b0">
+                            <span class="title">
+                                <span class="inner-title">Veranstaltung</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="4b992508-49b6-42b4-a52a-952fa9977c93" id="4b992508-49b6-42b4-a52a-952fa9977c93" checked="">
+                        <label for="4b992508-49b6-42b4-a52a-952fa9977c93">
+                            <span class="title">
+                                <span class="inner-title">Video</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="f45459ce-fab9-49ba-9799-6000c02d1614" id="f45459ce-fab9-49ba-9799-6000c02d1614" checked="">
+                        <label for="f45459ce-fab9-49ba-9799-6000c02d1614">
+                            <span class="title">
+                                <span class="inner-title">Voting</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                            </ul>
+                        </div>
+                </div>
+
+                <div class="row">
+                    <div class="columns small-12 large-2">
+                        <input type="checkbox" name="classification[][selected]" value="09eb945b-c44c-40c5-883f-1599f9d954f1" id="filtertypen" checked="">
+                        <label for="filtertypen">
+                            <span class="title">
+                                <span class="inner-title"><strong>Inhaltstypen</strong></span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="columns small-12 large-10">
+
+                            <ul class="clearfix" style="min-height: 0px;">
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="09eb945b-c44c-40c5-883f-1599f9d954f1" id="09eb945b-c44c-40c5-883f-1599f9d954f1" checked="">
+                        <label for="09eb945b-c44c-40c5-883f-1599f9d954f1">
+                            <span class="title">
+                                <span class="inner-title">Angebot</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="4047c3c5-7a4f-47ab-96e9-1325556b4e96" id="4047c3c5-7a4f-47ab-96e9-1325556b4e96" checked="">
+                        <label for="4047c3c5-7a4f-47ab-96e9-1325556b4e96">
+                            <span class="title">
+                                <span class="inner-title">Angebotszeitraum</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="c2bd2070-8e4e-441a-8768-0d0da661fd5f" id="c2bd2070-8e4e-441a-8768-0d0da661fd5f" checked="">
+                        <label for="c2bd2070-8e4e-441a-8768-0d0da661fd5f">
+                            <span class="title">
+                                <span class="inner-title">App</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="123f478c-ff1b-4762-8840-d2bdeb8a92b1" id="123f478c-ff1b-4762-8840-d2bdeb8a92b1" checked="">
+                        <label for="123f478c-ff1b-4762-8840-d2bdeb8a92b1">
+                            <span class="title">
+                                <span class="inner-title">Audio</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="d2050356-d0c5-49fd-af60-234ee3760682" id="d2050356-d0c5-49fd-af60-234ee3760682" checked="">
+                        <label for="d2050356-d0c5-49fd-af60-234ee3760682">
+                            <span class="title">
+                                <span class="inner-title">Bild</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="9ca2e05d-53da-4c66-a750-068938501767" id="9ca2e05d-53da-4c66-a750-068938501767" checked="">
+                        <label for="9ca2e05d-53da-4c66-a750-068938501767">
+                            <span class="title">
+                                <span class="inner-title">Firma</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="2d512e7d-e9bc-4b92-b9a7-95e416476815" id="2d512e7d-e9bc-4b92-b9a7-95e416476815" checked="">
+                        <label for="2d512e7d-e9bc-4b92-b9a7-95e416476815">
+                            <span class="title">
+                                <span class="inner-title">Person</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="c27a0a95-4f8e-4106-9709-e9b01036148a" id="c27a0a95-4f8e-4106-9709-e9b01036148a" checked="">
+                        <label for="c27a0a95-4f8e-4106-9709-e9b01036148a">
+                            <span class="title">
+                                <span class="inner-title">Quiz</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="8af54e98-b485-4da8-a068-3f2c7a9715b5" id="8af54e98-b485-4da8-a068-3f2c7a9715b5" checked="">
+                        <label for="8af54e98-b485-4da8-a068-3f2c7a9715b5">
+                            <span class="title">
+                                <span class="inner-title">Statistik</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="9bbab688-606f-4ba0-b3a3-93026af4e806" id="9bbab688-606f-4ba0-b3a3-93026af4e806">
+                        <label for="9bbab688-606f-4ba0-b3a3-93026af4e806">
+                            <span class="title">
+                                <span class="inner-title">Text</span>
+                                <!--<strong>(9)</strong>-->
+                            </span>
+                                <span class="icon"><i class="fa fa-angle-right" aria-hidden="true"></i></span>
+                        </label>
+
+                            <ul style="min-height: 0px;">
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="f99a756a-db0a-4ce1-9a1e-a46300cf10a7" id="f99a756a-db0a-4ce1-9a1e-a46300cf10a7" checked="">
+                        <label for="f99a756a-db0a-4ce1-9a1e-a46300cf10a7">
+                            <span class="title">
+                                <span class="inner-title">Artikel</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="691da031-20e8-4a1b-94a6-e48dda21b10e" id="691da031-20e8-4a1b-94a6-e48dda21b10e" checked="">
+                        <label for="691da031-20e8-4a1b-94a6-e48dda21b10e">
+                            <span class="title">
+                                <span class="inner-title">Biografie</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="c421f423-579e-4068-aba4-f811a5a86938" id="c421f423-579e-4068-aba4-f811a5a86938" checked="">
+                        <label for="c421f423-579e-4068-aba4-f811a5a86938">
+                            <span class="title">
+                                <span class="inner-title">Interview</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="22858d96-2f4d-4435-ad6b-d8d66d52be84" id="22858d96-2f4d-4435-ad6b-d8d66d52be84" checked="">
+                        <label for="22858d96-2f4d-4435-ad6b-d8d66d52be84">
+                            <span class="title">
+                                <span class="inner-title">Linktipps</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="509531ce-6362-44ed-b375-2849969c5562" id="509531ce-6362-44ed-b375-2849969c5562" checked="">
+                        <label for="509531ce-6362-44ed-b375-2849969c5562">
+                            <span class="title">
+                                <span class="inner-title">Portrait</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="fefdc4f9-9a01-4a0b-9e31-d33cf0e4ac06" id="fefdc4f9-9a01-4a0b-9e31-d33cf0e4ac06" checked="">
+                        <label for="fefdc4f9-9a01-4a0b-9e31-d33cf0e4ac06">
+                            <span class="title">
+                                <span class="inner-title">Rezept</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="a0215e3c-fb95-4e1e-971b-ee3cb4683c52" id="a0215e3c-fb95-4e1e-971b-ee3cb4683c52" checked="">
+                        <label for="a0215e3c-fb95-4e1e-971b-ee3cb4683c52">
+                            <span class="title">
+                                <span class="inner-title">Social Media Posting</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="103f81f7-479a-43cd-a874-dd2580473e90" id="103f81f7-479a-43cd-a874-dd2580473e90" checked="">
+                        <label for="103f81f7-479a-43cd-a874-dd2580473e90">
+                            <span class="title">
+                                <span class="inner-title">Zeitleiste</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="dc802ed9-20f8-489e-b940-07617d38ac29" id="dc802ed9-20f8-489e-b940-07617d38ac29" checked="">
+                        <label for="dc802ed9-20f8-489e-b940-07617d38ac29">
+                            <span class="title">
+                                <span class="inner-title">Zitat</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                            </ul>
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="2b5db2d2-7808-4c55-be00-02086809b8b0" id="2b5db2d2-7808-4c55-be00-02086809b8b0" checked="">
+                        <label for="2b5db2d2-7808-4c55-be00-02086809b8b0">
+                            <span class="title">
+                                <span class="inner-title">Veranstaltung</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="4b992508-49b6-42b4-a52a-952fa9977c93" id="4b992508-49b6-42b4-a52a-952fa9977c93" checked="">
+                        <label for="4b992508-49b6-42b4-a52a-952fa9977c93">
+                            <span class="title">
+                                <span class="inner-title">Video</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                                    <li>
+                        <input type="checkbox" name="classification[][selected]" value="f45459ce-fab9-49ba-9799-6000c02d1614" id="f45459ce-fab9-49ba-9799-6000c02d1614" checked="">
+                        <label for="f45459ce-fab9-49ba-9799-6000c02d1614">
+                            <span class="title">
+                                <span class="inner-title">Voting</span>
+                                <!--<strong></strong>-->
+                            </span>
+                        </label>
+
+
+                    </li>
+
+                            </ul>
+                        </div>
+                </div>
+
+            </div>
+          </li>
+        </ul>
+
+ <!--   </div>
     </div>
+    <div class="row">
+    <div class="columns large-8 small-12">-->
+
+        <div class="filtertags activefilter">
+            <span class="icon"><i class="fa fa-check" aria-hidden="true"></i> <strong>Angewendete Filter:</strong> </span>
+            <% ['Themenbereiche', 'Bundesländer', 'Märkte', 'Inhaltstypen'].each do |label| %>
+            <% selected_classifications = get_classifications_for_id(@classification_array, label)  %>
+            <span class="your-choice tags">
+                
+                <i class="choice-label"><%= label %>:</i>
+                
+                <% unless selected_classifications.nil? %>
+                    <% selected_classifications.each do |selected| %>
+                        <label for="<%= selected.id %>">
+                            <a class="tag">
+                                <%= selected.name %><i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                    <% end %>
+                <% end %>
+            </span>
+            <% end %>
+        </div>
+
+        <!--<div class="filtertags">
+            <span class="icon"><i class="fa fa-check" aria-hidden="true"></i> <strong>Neu ausgewählte Filter:</strong></span>
+            <span class="your-choice tags">
+                
+               
+                        <label for="a2afe096-2e40-4a46-8c5e-53b6840adb85">
+                            <a class="tag">
+                                Most<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                        <label for="a9fe10fa-1d81-4a67-b789-ccf61127d083">
+                            <a class="tag">
+                                Schnaps<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                
+                        <label for="f6c30b38-1d14-443e-9096-44541a4f0da3">
+                            <a class="tag">
+                                Kroatien<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                        <label for="15210d5e-d82b-4a9c-8f60-0a28ef8265d5">
+                            <a class="tag">
+                                Polen<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                        <label for="fdd8690a-0ecc-4a99-8e6c-19e75b703106">
+                            <a class="tag">
+                                Schweden<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                        <label for="0eba11e4-9a49-4f9e-bbec-5df124cfa4ba">
+                            <a class="tag">
+                                Spanien<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                        <label for="480ae1ad-735b-43f9-b2ac-da8214defd56">
+                            <a class="tag">
+                                Ukraine<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                
+                        <label for="09eb945b-c44c-40c5-883f-1599f9d954f1">
+                            <a class="tag">
+                                Angebot<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                        <label for="4047c3c5-7a4f-47ab-96e9-1325556b4e96">
+                            <a class="tag">
+                                Angebotszeitraum<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                        <label for="c2bd2070-8e4e-441a-8768-0d0da661fd5f">
+                            <a class="tag">
+                                App<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                        <label for="123f478c-ff1b-4762-8840-d2bdeb8a92b1">
+                            <a class="tag">
+                                Audio<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                        <label for="d2050356-d0c5-49fd-af60-234ee3760682">
+                            <a class="tag">
+                                Bild<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                        <label for="9ca2e05d-53da-4c66-a750-068938501767">
+                            <a class="tag">
+                                Firma<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                        <label for="2d512e7d-e9bc-4b92-b9a7-95e416476815">
+                            <a class="tag">
+                                Person<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                        <label for="c27a0a95-4f8e-4106-9709-e9b01036148a">
+                            <a class="tag">
+                                Quiz<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                        <label for="8af54e98-b485-4da8-a068-3f2c7a9715b5">
+                            <a class="tag">
+                                Statistik<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                        <label for="f99a756a-db0a-4ce1-9a1e-a46300cf10a7">
+                            <a class="tag">
+                                Artikel<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+                        <label for="691da031-20e8-4a1b-94a6-e48dda21b10e">
+                            <a class="tag">
+                                Biografie<i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </label>
+            </span>
+        </div>-->
+
+    <div class=" filterbuttons"><!--columns large-4 small-12-->
+
+        <button type="reset" id="reset-filter" class="button">Alle zurücksetzen</button>
+        <%= button_tag("Filter anwenden (5 neue)", class: "button success") %>
+
+    </div>     
+
+</div>
+</div>
 </section>
 
 
