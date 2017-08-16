@@ -349,9 +349,9 @@ module DataCycleCore
             #check for subtrees
             to_update_item.delete_childs(delete)
             to_update_item.destroy
-            ("DataCycleCore::"+relation.classify).constantize.
-              find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
-              destroy
+            # ("DataCycleCore::"+relation.classify).constantize.
+            #   find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
+            #   destroy   # now automatically done by Rails-relation
           else
             # only destroy particular translation !
             item.translation.destroy
