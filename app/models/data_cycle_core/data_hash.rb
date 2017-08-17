@@ -8,7 +8,10 @@ module DataCycleCore
     def get_data_hash
       if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with pending data in it
         data_type = metadata['validation']
-        get_template_data_hash(data_type['properties'])
+        data_hash = get_template_data_hash(data_type['properties'])
+
+        data_hash = merge_release(data_hash, release) if kind_of?(DataCycleCore::Releasable) && !release.blank?
+        return data_hash
       else
         return nil
       end
@@ -18,9 +21,13 @@ module DataCycleCore
     # data hash with keys named as in schema.org
     def set_data_hash(data_hash)
       template_hash = metadata['validation']
+
+      data_hash, release_hash = extract_release(data_hash) if kind_of?(DataCycleCore::Releasable)
+
       if validate?(data_hash)
         ActiveRecord::Base.transaction do
           set_template_data_hash(data_hash, template_hash['properties'])
+          self.release = release_hash
         end
       end
       validate(data_hash) # return error/warnings from validation
