@@ -89,4 +89,11 @@ $(function () {
 
   // initialize Copy_Contents
   copy_contents_init.initialize();
+
+  // HOME RANDOMIZED IMAGES AND GLASSHACK!
+  if ( $( ".home-container" ).length ) {
+    $( ".home-container" ).appendTo("body");
+    setTimeout(function(){ $('.home-container').addClass('show') }, 500);
+    $('body').addClass('login-page');
+  }
 });
