@@ -15,7 +15,7 @@
 
             <%= render 'data_cycle_core/backend/breadcrumb' if user_signed_in? %>
 
-            <%= render 'data_cycle_core/shared/newContentObject' if user_signed_in? %>
+            <%= render 'data_cycle_core/shared/newContentObject' if user_signed_in? && current_user.role != "guest" %>
 
             <%= yield :top_content %>
 
