@@ -14,29 +14,8 @@
 								<li>Letzte Bearbeitung: <%= creator_text.html_safe %><br><i><%= dataCycleObject.updated_at.to_s(:german_datetime_format) %></i></li>
 						</ul>
 				</li>
-				<% if can? :manage, @edit_link %>
-					<li>
-							<a id="send-link-link" data-toggle="send-link"><i class="fa fa-share" aria-hidden="true"></i><i class="fa <%= dataCycleObject.edit_link.nil? ? 'fa-user-o' : 'fa-user' %>" aria-hidden="true"></i> versenden</span></a>
-							<ul class="dropdown-pane no-bullet bottom" id="send-link" data-dropdown data-hover="true" data-hover-pane="true">
-							<% if dataCycleObject.edit_link.nil? %>
-									<h5>Link erstellen</h5>
-									<%= link_to "Link generieren", new_edit_link_path(item_id: dataCycleObject.id, item_type: dataCycleObject.class.name), class: "button small" %>
-							<% else %>												
-									<%= form_tag send_mail_edit_link_path(dataCycleObject.edit_link), class: "send-link" do |f| %>
-										<li>
-												<h5>Link versenden</h5>
-													<input type="email" id="edit_link_receiver" name="edit_link[receiver]" placeholder="E-Mail Adresse" style="" required>
-										</li>
-										<li><%= button_tag "Link versenden", id: "sendlinkButton", class: "button small" %></li>
-									<% end %>
-									<li>
-											<input readonly="readonly" id="copyTarget" type="text" style="" value="<%= h(edit_link_url(dataCycleObject.edit_link)) %>">
-									</li>
-									<li><button id="copyButton" class="button small">In die Zwischenablage kopieren</button></li>
-									<li><%= link_to "Link löschen", dataCycleObject.edit_link, method: :delete, class: "button small alert" %></li>
-							<% end %>
-							</ul>
-					</li>
+				<% if can? :manage, @data_link %>
+					<li><%= render 'data_cycle_core/shared/data_links', dataCycleObject: dataCycleObject %></li>
 				<% end %>
 				<%# <li>
 						<a id="subscribe-link" data-toggle="subscribe"><i class="fa fa-bell-o" aria-hidden="true"></i> abonnieren</span></a>

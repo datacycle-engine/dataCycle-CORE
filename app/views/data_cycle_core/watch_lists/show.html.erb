@@ -4,9 +4,16 @@
 
     <div class="column detail-header-wrapper">
 
-        <div class="detail-header">
+            <div class="detail-header">
 
-            <a class="close-button" href="<%= breadcrumbs[-2].url %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+                <div class="detail-header-functions">
+                    <ul class="no-bullet">
+                        <% if can? :manage, @data_link %>
+                            <li><%= render 'data_cycle_core/shared/data_links', dataCycleObject: @watch_list %></li>
+                        <% end %>
+                        <li><a href="<%= breadcrumbs[-2].url %>" class="hascontent"><i aria-hidden="true" class="fa fa-times"></i></a></li>
+                </ul>
+            </div>
 
             <div class="detail-header-info">
                 <div class="type watchlist">
@@ -23,17 +30,21 @@
 
             </div>
 
-            <div class="edit">
-                <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small' do %>
-                    <i class="fa fa-pencil" aria-hidden="true"></i><span>Bearbeiten</span>
-                <% end %>
-            </div>
+            <% if can? :edit, @watch_list %>
+                <div class="edit">
+                    <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small' do %>
+                        <i class="fa fa-pencil" aria-hidden="true"></i><span>Bearbeiten</span>
+                    <% end %>
+                </div>
+            <% end %>
 
-            <div class="destroy">
-                <%= link_to @watch_list, method: :delete, class:'button-prime small alert' do %>
-                    <i class="fa fa-times" aria-hidden="true"></i><span>Löschen</span>
-                <% end %>
-            </div>           
+            <% if can? :destroy, @watch_list %>
+                <div class="destroy">
+                    <%= link_to @watch_list, method: :delete, class:'button-prime small alert' do %>
+                        <i class="fa fa-times" aria-hidden="true"></i><span>Löschen</span>
+                    <% end %>
+                </div>
+            <% end %>
 
         </div>
 

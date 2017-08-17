@@ -8,7 +8,7 @@ module DataCycleCore
         can :manage, :all
         cannot :manage, DataCycleCore::WatchList
         can :manage, DataCycleCore::WatchList, user: user
-        
+
       elsif user.role == "user"
         can :manage, :all
         cannot :manage, [:dash_board, DataCycleCore::WatchList]
@@ -20,9 +20,9 @@ module DataCycleCore
 
       elsif user.role == "guest"
         can :read, :all
-        cannot :manage, [:dash_board, DataCycleCore::WatchList, :backend]
-        
-        DataCycleCore::EditLink.where(id: session[:can_edit_ids]).each do |link|
+        cannot :manage, [:dash_board, :backend]
+
+        DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
           can [:update, :validate_single_data], link.item_type.constantize, {id: link.item_id}
         end
       end
