@@ -71,6 +71,7 @@
     "vue-template-compiler": "2.3.4",
     "vue-async-computed": "3.2.1",
     "vueify": "9.4.1",
-    "watchify": "3.9.0"
+    "watchify": "3.9.0",
+    "ol": "4.3.1"
   }
 }
