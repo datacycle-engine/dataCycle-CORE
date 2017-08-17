@@ -7,7 +7,7 @@ module DataCycleCore
     # handle translations with gem Globalize
     translates :name, :headline, :description, :addressLocality, :streetAddress,
       :postalCode, :addressCountry, :faxNumber, :telephone, :email,
-      :url, :hoursAvailable, :address, :content, :properties
+      :url, :hoursAvailable, :address, :content, :properties, :release
 
     # callbacks
     before_destroy :destroy_translations, prepend: true
@@ -15,9 +15,10 @@ module DataCycleCore
     # custom setter
     include DataSetter
 
+    include Releasable
     include ContentHelpers
 
-    
+
     attr_accessor :datahash
     # # Arel Helper
     # include ArelHelpers::ArelTable
@@ -40,7 +41,7 @@ module DataCycleCore
     has_many :watch_lists, through: :watch_list_data_hashes
 
     has_one :edit_link, as: :item
-    
+
     # to cash also translated values (comming from gem Globalize)
     def cache_key
       super + '-' + Globalize.locale.to_s

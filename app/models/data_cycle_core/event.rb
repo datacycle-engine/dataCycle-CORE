@@ -5,7 +5,7 @@ module DataCycleCore
     end
 
     # handle translations with gem Globalize
-    translates :headline, :description, :content, :properties
+    translates :headline, :description, :content, :properties, :release
 
     # callbacks
     before_destroy :destroy_translations, prepend: true
@@ -23,9 +23,10 @@ module DataCycleCore
     # custom setter
     include DataSetter
 
+    include Releasable
     include ContentHelpers
 
-    
+
     attr_accessor :datahash
 
 
