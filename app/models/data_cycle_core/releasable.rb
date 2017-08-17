@@ -22,6 +22,7 @@ module DataCycleCore
       release_hash = {}
       original_hash.each do |key, value|
         data_hash[key], release_hash[key] = split_data(original_hash[key])
+        release_hash[key] = nil if release_hash[key].nil? || release_hash[key].empty?
       end
       return data_hash.compact, release_hash.compact
     end

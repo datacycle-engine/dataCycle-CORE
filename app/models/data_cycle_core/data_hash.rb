@@ -10,7 +10,7 @@ module DataCycleCore
         data_type = metadata['validation']
         data_hash = get_template_data_hash(data_type['properties'])
 
-        data_hash = merge_release(data_hash, release) if kind_of?(DataCycleCore::Releasable) && !release.blank?
+        data_hash = merge_release(data_hash, release) if kind_of?(DataCycleCore::Releasable) && !self.release.blank?
         return data_hash
       else
         return nil
