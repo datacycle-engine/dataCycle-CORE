@@ -50,6 +50,8 @@ module.exports.initialize = function () {
   }
 
   function setup() {
+    // hide activated filters
+    if ($('.activefilter').find('.your-choice.tags:visible').length == 0) $('.activefilter').hide();
     // Reset selected Tags
     $(document).on('click', '#reset-filter', function (e) {
       e.preventDefault();
@@ -65,8 +67,6 @@ module.exports.initialize = function () {
       removeFilter($(this));
     });
 
-    //todo: make this more fancy
-    //add tags to your-choice tags on click
     $(document).on('click', '.filters .filter ul label', function (e) {
       var id = $(this).attr('for');
       var title = $(this).find('span.inner-title').first().html();
@@ -82,6 +82,7 @@ module.exports.initialize = function () {
         } else {
           selected_label.show();
         }
+        $('.activefilter').show();
         $('.filters .your-choice.tags.' + tree_label).show();
       }
     });
@@ -104,8 +105,8 @@ module.exports.initialize = function () {
     if (elem.siblings('label:visible').length == 0) {
       elem.parent().hide();
     }
-    console.log(elem.siblings('label'));
     elem.hide();
+    if ($('.activefilter').find('.your-choice.tags:visible').length == 0) $('.activefilter').hide();
   }
 
 };
