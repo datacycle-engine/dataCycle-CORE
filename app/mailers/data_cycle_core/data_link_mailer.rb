@@ -1,5 +1,5 @@
 module DataCycleCore
-  class EditLinkMailer < ApplicationMailer
+  class DataLinkMailer < ApplicationMailer
     def mail_link(user, receiver, url, action_text)
       @user = user
       @url  = url

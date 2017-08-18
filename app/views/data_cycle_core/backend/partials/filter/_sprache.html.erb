@@ -11,12 +11,11 @@
                     <input type="radio" name="language" value="<%= key.to_s %>" id="<%= key.to_s %>" <%= "checked" if key.to_s == "de" || key.to_s == params[:language]%> />
                     <label for="<%= key.to_s %>">
                         <span class="title">
-                            <strong><%= value.capitalize %></strong>
+                            <%= value.capitalize %>
                         </span>
                     </label>
                 </li>
             <% end %>
         </ul>
-        <%= render 'data_cycle_core/backend/partials/filter/filterbutton' %>
     </div>
 </li>

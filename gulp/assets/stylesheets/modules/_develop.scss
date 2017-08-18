@@ -226,3 +226,25 @@
     }
   }
 }
+
+.data-links {
+  .delete-button {
+    float: right;
+  }
+  .copy-button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    background: initial;
+    color: $black;
+    transition: color 0.5s;
+    &:hover,
+    &:focus {
+      color: lighten($black, 20%);
+    }
+  }
+  .copy-input {
+    padding-right: 2.5rem;
+    text-overflow: ellipsis;
+  }
+}

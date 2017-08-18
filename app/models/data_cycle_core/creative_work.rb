@@ -33,7 +33,8 @@ module DataCycleCore
     has_many :watch_list_data_hashes, as: :hashable, dependent: :destroy
     has_many :watch_lists, through: :watch_list_data_hashes
 
-    has_one :edit_link, as: :item
+    has_one :show_link, -> { DataLink.show_links }, class_name: "DataLink", as: :item
+    has_one :edit_link, -> { DataLink.edit_links }, class_name: "DataLink", as: :item
 
     acts_as_tree order: "position", foreign_key: "isPartOf"
 

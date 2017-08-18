@@ -1,56 +1,60 @@
 <div class="off-canvas position-right" id="settings-off-canvas" data-off-canvas data-content-overlay="false">
-    <div class="settings-row">
-        <div class="row column">
-            <%= link_to data_cycle_core.destroy_user_session_path, method: :delete do %>
-                <span class="icon"><i class="fa fa-sign-out" aria-hidden="true"></i></span>
-                <span class="title">Ausloggen</span>
-            <% end %>
-        </div>
-        <div class="row columns">
-            <%= link_to settings_path do %>
-                <span class="icon"><i class="fa fa-cogs" aria-hidden="true"></i></span>
-                <span class="title">Einstellungen</span>
-            <% end %>
-        </div>
-        <div class="row columns">
-            <%= link_to persons_path do %>
-                <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
-                <span class="title">Personen</span>
-            <% end %>
-        </div>
-    </div>
-    <div class="settings-row watchlists">
-        <div class="row column">
-            <div class="heading">Meine Merklisten<a class="add-watch-list" href="#" data-open="newWatchList"><i class="fa fa-plus" aria-hidden="true"></i></a>
-
-            <div class="reveal new-item" id="newWatchList" data-reveal>
-                <h3>Neue Merkliste erstellen</h3>
-
-                <% @watch_list = DataCycleCore::WatchList.new %>
-
-                <%= form_for @watch_list do |f| %>
-
-                    <div class="validation-container form-element">
-                        <%= f.text_field :headline, class: 'form-control', value:'' %>
-                    </div>
-                    <%= f.submit "Erstellen", class: "button primary" %>
-
+    <% unless current_user.role == "guest" %>
+        <div class="settings-row">
+            <div class="row column">
+                <%= link_to data_cycle_core.destroy_user_session_path, method: :delete do %>
+                    <span class="icon"><i class="fa fa-sign-out" aria-hidden="true"></i></span>
+                    <span class="title">Ausloggen</span>
                 <% end %>
-
-                <button class="close-button" data-close aria-label="Close modal" type="button">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
-
+            <div class="row columns">
+                <%= link_to settings_path do %>
+                    <span class="icon"><i class="fa fa-cogs" aria-hidden="true"></i></span>
+                    <span class="title">Einstellungen</span>
+                <% end %>
             </div>
-
-            <div class="inner-content">
-                <% current_user.watch_lists.each do |watch_list| %>
-                    <div class="item"><%= link_to watch_list.headline, watch_list_path(watch_list) %></div>
+            <div class="row columns">
+                <%= link_to persons_path do %>
+                    <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
+                    <span class="title">Personen</span>
                 <% end %>
             </div>
         </div>
-    </div>
+    <% end %>
+    <% if can? :manage, DataCycleCore::WatchList %>
+        <div class="settings-row watchlists">
+            <div class="row column">
+                <div class="heading">Meine Merklisten<a class="add-watch-list" href="#" data-open="newWatchList"><i class="fa fa-plus" aria-hidden="true"></i></a>
+
+                <div class="reveal new-item" id="newWatchList" data-reveal>
+                    <h3>Neue Merkliste erstellen</h3>
+
+                    <% @watch_list = DataCycleCore::WatchList.new %>
+
+                    <%= form_for @watch_list do |f| %>
+
+                        <div class="validation-container form-element">
+                            <%= f.text_field :headline, class: 'form-control', value:'' %>
+                        </div>
+                        <%= f.submit "Erstellen", class: "button primary" %>
+
+                    <% end %>
+
+                    <button class="close-button" data-close aria-label="Close modal" type="button">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                </div>
+
+                <div class="inner-content">
+                    <% current_user.watch_lists.each do |watch_list| %>
+                        <div class="item"><%= link_to watch_list.headline, watch_list_path(watch_list) %></div>
+                    <% end %>
+                </div>
+            </div>
+        </div>
+    <% end %>
     <!--<div class="settings-row">-->
     <!--<div class="row column">-->
     <!--<div class="heading">Meine letzten Suchen</div>-->
