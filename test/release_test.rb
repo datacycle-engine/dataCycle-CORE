@@ -1,30 +1,5 @@
 require 'test_helper'
 
-DataCycleCore::Release.create!(
-  release_code: 0,
-  release_text: "freigegeben"
-)
-DataCycleCore::Release.create!(
-  release_code: 1,
-  release_text: "beim Partner"
-)
-DataCycleCore::Release.create!(
-  release_code: 2,
-  release_text: "in Bearbeitung"
-)
-DataCycleCore::Release.create!(
-  release_code: 3,
-  release_text: "in Review"
-)
-DataCycleCore::Release.create!(
-  release_code: 4,
-  release_text: "Draft"
-)
-DataCycleCore::Release.create!(
-  release_code: 10,
-  release_text: "gesperrt"
-)
-
 module DataCycleCore
   class ReleaseTest < ActiveSupport::TestCase
 

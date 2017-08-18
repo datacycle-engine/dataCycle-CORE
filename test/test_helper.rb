@@ -37,3 +37,29 @@ DataCycleCore::MasterData::ImportTemplates.new.import(cwc_path, DataCycleCore::C
 
 classification_yaml = Rails.root.join('..','data_types','classifications.yml')
 DataCycleCore::MasterData::ImportClassifications.new.import(classification_yaml); nil
+
+# seed release table
+DataCycleCore::Release.create!(
+  release_code: 0,
+  release_text: "freigegeben"
+)
+DataCycleCore::Release.create!(
+  release_code: 1,
+  release_text: "beim Partner"
+)
+DataCycleCore::Release.create!(
+  release_code: 2,
+  release_text: "in Bearbeitung"
+)
+DataCycleCore::Release.create!(
+  release_code: 3,
+  release_text: "in Review"
+)
+DataCycleCore::Release.create!(
+  release_code: 4,
+  release_text: "Draft"
+)
+DataCycleCore::Release.create!(
+  release_code: 10,
+  release_text: "gesperrt"
+)
