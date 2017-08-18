@@ -18,9 +18,9 @@ var ol = {
   },
   style: {
     Style: require('ol/style/style').default,
-    Stroke: require('ol/style/Stroke').default,
-    Circle: require('ol/style/Circle').default,
-    Fill: require('ol/style/Fill').default
+    Stroke: require('ol/style/stroke').default,
+    Circle: require('ol/style/circle').default,
+    Fill: require('ol/style/fill').default
   },
   View: require('ol/view').default,
   extent: require('ol/extent').default
