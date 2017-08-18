@@ -30,6 +30,15 @@ module DataCycleCore
 
     def merge_data(data_value, release_data)
       return data_value if release_data.blank?
+      if data_value.kind_of?(::Array)
+        if data_value.first.kind_of?(::Hash)
+          return_data = []
+          data_value.each_index do |index|
+            return_data.push(data_visitor_merge(data_value[index], release_data[index]))
+          end
+          return return_data
+        end
+      end
       return release_data.merge({ 'value' => data_value})
     end
 
@@ -38,6 +47,15 @@ module DataCycleCore
         return original['value'], {'release_id' => original.try(:[], 'release_id'), 'release_comment' => original.try(:[],'release_comment')}
       elsif original.kind_of?(::Hash)
         return data_visitor_split(original)
+      elsif original.kind_of?(::Array)
+        return_data = []
+        return_release = []
+        original.each do |item|
+          data_item, release_item = data_visitor_split(item)
+          return_data.push(data_item)
+          return_release.push(release_item)
+        end
+        return return_data, return_release
       else
         return original, nil
       end

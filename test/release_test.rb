@@ -37,11 +37,9 @@ module DataCycleCore
         },
         "description2" => "description2"
       }
-      ap data_set.extract_release(data_hash)
       error = data_set.set_data_hash(data_hash)
       data_set.save
-      ap data_set.release
-      ap data_set.get_data_hash
+
       assert_equal(data_hash, data_set.get_data_hash)
     end
 
