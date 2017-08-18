@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.3
--- Dumped by pg_dump version 9.6.3
+-- Dumped from database version 9.6.1
+-- Dumped by pg_dump version 9.6.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -233,7 +233,8 @@ CREATE TABLE creative_work_translations (
     content jsonb,
     properties jsonb,
     headline text,
-    description text
+    description text,
+    release jsonb
 );
 
 
@@ -270,6 +271,22 @@ CREATE TABLE creative_works (
     updated_at timestamp without time zone NOT NULL,
     external_source_id uuid,
     template boolean DEFAULT false NOT NULL
+);
+
+
+--
+-- Name: data_links; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE data_links (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    item_id uuid,
+    item_type character varying,
+    creator_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    permissions character varying
 );
 
 
@@ -315,22 +332,6 @@ ALTER SEQUENCE delayed_jobs_id_seq OWNED BY delayed_jobs.id;
 
 
 --
--- Name: edit_links; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE edit_links (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    item_id uuid,
-    item_type character varying,
-    creator_id uuid,
-    read_only boolean DEFAULT true,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
 -- Name: event_translations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -343,7 +344,8 @@ CREATE TABLE event_translations (
     content jsonb,
     properties jsonb,
     headline text,
-    description text
+    description text,
+    release jsonb
 );
 
 
@@ -500,7 +502,8 @@ CREATE TABLE place_translations (
     content jsonb,
     properties jsonb,
     description text,
-    headline text
+    headline text,
+    release jsonb
 );
 
 
@@ -542,6 +545,17 @@ CREATE TABLE places (
     line geography(LineStringZ,4326),
     metadata jsonb,
     template boolean DEFAULT false
+);
+
+
+--
+-- Name: releases; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE releases (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    release_code integer,
+    release_text character varying
 );
 
 
@@ -600,6 +614,8 @@ CREATE TABLE users (
     last_sign_in_ip character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
+    provider character varying,
+    uid character varying,
     role character varying DEFAULT 'user'::character varying
 );
 
@@ -797,10 +813,10 @@ ALTER TABLE ONLY delayed_jobs
 
 
 --
--- Name: edit_links edit_links_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: data_links edit_links_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY edit_links
+ALTER TABLE ONLY data_links
     ADD CONSTRAINT edit_links_pkey PRIMARY KEY (id);
 
 
@@ -874,6 +890,14 @@ ALTER TABLE ONLY place_translations
 
 ALTER TABLE ONLY places
     ADD CONSTRAINT places_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: releases releases_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY releases
+    ADD CONSTRAINT releases_pkey PRIMARY KEY (id);
 
 
 --
@@ -1191,17 +1215,17 @@ CREATE INDEX "index_creative_works_on_isPartOf" ON creative_works USING btree ("
 
 
 --
--- Name: index_edit_links_on_item_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_data_links_on_item_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_edit_links_on_item_id ON edit_links USING btree (item_id);
+CREATE INDEX index_data_links_on_item_id ON data_links USING btree (item_id);
 
 
 --
--- Name: index_edit_links_on_item_type; Type: INDEX; Schema: public; Owner: -
+-- Name: index_data_links_on_item_type; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_edit_links_on_item_type ON edit_links USING btree (item_type);
+CREATE INDEX index_data_links_on_item_type ON data_links USING btree (item_type);
 
 
 --
@@ -1416,6 +1440,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20170524132123'),
 ('20170524144644'),
 ('20170612114242'),
+('20170619191047'),
 ('20170620143810'),
 ('20170621070615'),
 ('20170624083501'),
@@ -1424,6 +1449,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20170806152208'),
 ('20170807100953'),
 ('20170807131053'),
-('20170808071705');
+('20170808071705'),
+('20170816140348'),
+('20170817090756'),
+('20170817151049');
 
 

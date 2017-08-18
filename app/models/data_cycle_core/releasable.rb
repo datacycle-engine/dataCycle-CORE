@@ -48,14 +48,18 @@ module DataCycleCore
       elsif original.kind_of?(::Hash)
         return data_visitor_split(original)
       elsif original.kind_of?(::Array)
-        return_data = []
-        return_release = []
-        original.each do |item|
-          data_item, release_item = data_visitor_split(item)
-          return_data.push(data_item)
-          return_release.push(release_item)
-        end
-        return return_data, return_release
+        if original.first.kind_of?(::Hash)
+          return_data = []
+          return_release = []
+          original.each do |item|
+            data_item, release_item = data_visitor_split(item)
+            return_data.push(data_item)
+            return_release.push(release_item)
+          end
+          return return_data, return_release
+        else
+          return original, nil
+        end 
       else
         return original, nil
       end
