@@ -32,11 +32,11 @@ $(function () {
   $(document).foundation();
 
   // initialize Vue + Custom Select + Object Browser
-  if ($('#edit-form').length > 0) {
+  if ($('.editor').length > 0) {
     Vue.use(AsyncComputed);
 
     var edit_form = new Vue({
-      el: '#edit-form',
+      el: '.editor',
       components: {
         CustomSelect,
         ObjectBrowser,
@@ -60,7 +60,7 @@ $(function () {
   // Initialize Filter Events
   blur_init.initialize();
 
- // Initialize Detailheader Events
+  // Initialize Detailheader Events
   detailheader_init.initialize();
 
   // Initialize Focus Events and Classes
@@ -89,4 +89,11 @@ $(function () {
 
   // initialize Copy_Contents
   copy_contents_init.initialize();
+
+  // HOME RANDOMIZED IMAGES AND GLASSHACK!
+  if ( $( ".home-container" ).length ) {
+    $( ".home-container" ).appendTo("body");
+    setTimeout(function(){ $('.home-container').addClass('show') }, 500);
+    $('body').addClass('login-page');
+  }
 });

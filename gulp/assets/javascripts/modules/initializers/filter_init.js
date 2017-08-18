@@ -1,4 +1,4 @@
-// Filter 
+// Filter
 module.exports.initialize = function () {
 
   // submit searchform on blur
@@ -50,6 +50,8 @@ module.exports.initialize = function () {
   }
 
   function setup() {
+    // hide activated filters
+    if ($('.activefilter').find('.your-choice.tags:visible').length == 0) $('.activefilter').hide();
     // Reset selected Tags
     $(document).on('click', '#reset-filter', function (e) {
       e.preventDefault();
@@ -61,23 +63,27 @@ module.exports.initialize = function () {
     });
 
     // remove your-choice tags on click
-    $(document).on('click', '#primary_nav_wrap .your-choice.tags label', function (e) {
-      $(this).hide();
+    $(document).on('click', '.filters .your-choice.tags label', function (e) {
+      removeFilter($(this));
     });
 
-    //todo: make this more fancy
-    //add tags to your-choice tags on click
-    $(document).on('click', '#primary_nav_wrap li.subtree ul label', function (e) {
+    $(document).on('click', '.filters .filter ul label', function (e) {
       var id = $(this).attr('for');
       var title = $(this).find('span.inner-title').first().html();
-      var renderedTag = '<label for="' + id + '"><a class="tag">' + title + '<i class="fa fa-times" aria-hidden="true"></i></a> </label>';
-      $('#primary_nav_wrap .your-choice.tags').append(renderedTag);
+      var tree_label = $(this).parents('.filter').data('tree-label');
 
       if ($(this).siblings('input[type=checkbox]').first().is(':checked') == true) {
-        //remove tag
-        $('#primary_nav_wrap .your-choice.tags').find('label[for=' + id + ']').hide();
+        removeFilter($('.filters .your-choice.tags.' + tree_label).find('label[for=' + id + ']'));
       } else {
-        //do nothing
+        var selected_label = $('.filters .your-choice.tags.' + tree_label).find('[for=' + id + ']');
+        if (selected_label.length == 0) {
+          var renderedTag = '<label for="' + id + '"><a class="tag">' + title + '<i class="fa fa-times" aria-hidden="true"></i></a> </label>';
+          $('.filters .your-choice.tags.' + tree_label).append(renderedTag);
+        } else {
+          selected_label.show();
+        }
+        $('.activefilter').show();
+        $('.filters .your-choice.tags.' + tree_label).show();
       }
     });
 
@@ -93,6 +99,14 @@ module.exports.initialize = function () {
         $(this).css('min-height', ulminheight.height());
       });
     });
+  }
+
+  function removeFilter(elem) {
+    if (elem.siblings('label:visible').length == 0) {
+      elem.parent().hide();
+    }
+    elem.hide();
+    if ($('.activefilter').find('.your-choice.tags:visible').length == 0) $('.activefilter').hide();
   }
 
 };

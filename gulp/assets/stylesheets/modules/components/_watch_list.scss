@@ -15,10 +15,6 @@
     }
   }
   #add-watchlist {
-    right: 0 !important;
-    left: auto !important;
-    top: 2rem !important;
-    &::before { right: 50px; left: auto; }
     li {
       position: relative;
       .check {

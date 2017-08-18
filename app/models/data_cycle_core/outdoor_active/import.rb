@@ -489,25 +489,11 @@ module DataCycleCore
       end
 
       def extract_place_data(data)
-        data.extend PoiAttributeTransformation
+        data.extend attribute_transformer(data)
 
-        line = data.has_key?('geometry') ? convert_tour_geometry(data['geometry']) : nil
-        if data.has_key?('elevation')
-          ascent = data['elevation']['ascent']
-          descent = data['elevation']['descent']
-        end
-
-        duration = data.has_key?('time') && data['time'].has_key?('min') ? data['time']['min'] : nil
-        difficulty = data.has_key?('rating') && data['rating'].has_key?('difficulty') ? data['rating']['difficulty'] : nil
-        distance = data['length']
+        pp data.to_h
 
         return Hash[data.to_h.map { |k, v| [k.to_s, v] }].merge({
-          'line' => line,
-          'distance' => distance,
-          'ascent' => ascent,
-          'descent' => descent,
-          'duration' => duration,
-          'difficulty' => difficulty,
           'external_key' => data['id'],
           'external_source_id' => @external_source_id
         })
@@ -529,13 +515,6 @@ module DataCycleCore
         point4 = factory.point(lon2,lat1)
         line = factory.line_string([point1, point2, point3, point4, point1])
         return factory.polygon(line)
-      end
-
-      def convert_tour_geometry(geometry_string)
-        geometry = geometry_string.split(" ").map!{|point| point.split(',').map!(&:to_f)}
-        factory = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
-        geometry_points = geometry.map{|point| factory.point(point[0],point[1],point[2])}
-        return factory.line_string(geometry_points)
       end
 
     # logging ceremony for import logic
@@ -632,6 +611,16 @@ module DataCycleCore
           end
         else
           raise NotImplementedError
+        end
+      end
+
+      def attribute_transformer(raw_data)
+        if raw_data['frontendtype'] == 'poi'          
+          PoiAttributeTransformation
+        elsif raw_data['frontendtype'] == 'tour'          
+          TourAttributeTransformation
+        else
+          PoiAttributeTransformation
         end
       end
     end

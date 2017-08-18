@@ -1,5 +1,5 @@
 body {
-  background-color: $white;
+  background-color: $body-background;
   border-top: 0.3rem solid $customercolor;
 }
 
@@ -44,7 +44,7 @@ form {
 
 .pagination {
   border-radius: 30px;
-  background: lighten($light-gray, 6%);
+  background: lighten($light-gray, 7%);
   a,
   button {
     border-radius: 0;
@@ -88,7 +88,7 @@ form {
     width: 100%;
     z-index: 10000;
     top: 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1)
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1)
   }
   .edit-headline {
     color: $primary-color;
@@ -179,25 +179,37 @@ form {
       display: inline-block;
       transition: opacity ease-in-out 0.25s;
     }
-    .metadata {
-      display: inline-block;
-      opacity: 0.3;
-      transition: opacity ease-in-out 0.25s;
-    }
-    &:hover .metadata {
-      opacity: 1;
-    }
   }
   .detail-header-functions {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    > ul {
+    >ul {
       position: relative;
-      > li {
+      >li {
+        &:nth-last-child(2) {
+          ul {
+            right: 0 !important;
+            left: auto !important;
+            top: 2rem !important;
+            &::before {
+              content: '';
+              position: absolute;
+              position: absolute;
+              top: -12px;
+              right: 50px;
+              left: auto;
+              width: 0;
+              height: 0;
+              border-style: solid;
+              border-width: 0 25px 12px 25px;
+              border-color: transparent transparent #ffffff transparent;
+            }
+          }
+        }
         display: inline-block;
         position: relative;
-        > a {
+        >a {
           color: $body-font-color;
           opacity: 0.3;
           transition: all ease-in-out 0.25s;
@@ -209,37 +221,41 @@ form {
           &.hascontent {
             opacity: 1;
           }
-        } 
+        }
         ul {
           box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
           &::before {
-              content: '';
-              position: absolute;
-              position: absolute;
-              top: -12px;
-              left: 50px;
-              width: 0;
-              height: 0;
-              border-style: solid;
-              border-width: 0 25px 12px 25px;
-              border-color: transparent transparent #ffffff transparent;
+            content: '';
+            position: absolute;
+            position: absolute;
+            top: -12px;
+            left: 50px;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 25px 12px 25px;
+            border-color: transparent transparent #ffffff transparent;
           }
           li {
+            position: relative;
             text-align: left;
             font-size: 0.8rem;
             line-height: 1rem;
             padding: 0 0 0.5rem 0;
-            i:not(.fa) { color: $dark-gray; } 
+            i:not(.fa) {
+              color: $dark-gray;
+            }
             input {
               max-width: 100%;
               min-width: initial;
-              cursor: pointer !important;
+              &[readonly] {
+                cursor: pointer !important;
+              }
             }
           }
         }
       }
     }
-
   }
   .bookmark {
     position: absolute;
@@ -765,4 +781,8 @@ body .v-select {
       top: -2rem;
     }
   }
+}
+
+body.login-page {
+  background-color: darkgrey;
 }

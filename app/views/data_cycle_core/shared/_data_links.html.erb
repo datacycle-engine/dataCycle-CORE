@@ -1,0 +1,43 @@
+<a id="send-link-link" data-toggle="send-link"><i class="fa fa-share" aria-hidden="true"></i><i class="fa <%= !dataCycleObject.show_link.nil? || (defined?(dataCycleObject.edit_link) && !dataCycleObject.edit_link.nil?) ? 'fa-user' : 'fa-user-o' %>" aria-hidden="true"></i> versenden</span></a>
+
+<ul class="dropdown-pane no-bullet bottom data-links" id="send-link" data-dropdown data-hover="true" data-hover-pane="true">
+
+    <% if dataCycleObject.show_link.nil? %>
+        <h5>Show-Link erstellen</h5>
+        <%= link_to "Show-Link generieren", new_data_link_path(item_id: dataCycleObject.id, item_type: dataCycleObject.class.name, permissions: "read"), class: "button small" %>
+    <% else %>
+        <h5>Show-Link</h5>
+        <li>
+            <input readonly="readonly" id="copyTarget" type="text" class="copy-input" style="" value="<%= h(data_link_url(dataCycleObject.show_link)) %>">
+            <button id="copyButton" class="button small copy-button"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
+        </li>
+        <%= form_tag send_mail_data_link_path(dataCycleObject.show_link), class: "send-link" do |f| %>
+            <li>
+                <input type="email" id="data_link_receiver" name="data_link[receiver]" placeholder="E-Mail Adresse" style="" required>
+            </li>
+            <li><%= button_tag "Link versenden", id: "sendlinkButton", class: "button small" %><%= link_to "Link löschen", dataCycleObject.show_link, method: :delete, class: "button small alert delete-button" %></li>
+        <% end %>
+    <% end %>
+
+    <% if defined?(dataCycleObject.edit_link) %>
+        <hr />
+
+        <% if dataCycleObject.edit_link.nil? %>
+            <h5>Edit-Link erstellen</h5>
+            <%= link_to "Edit-Link generieren", new_data_link_path(item_id: dataCycleObject.id, item_type: dataCycleObject.class.name, permissions: "write"), class: "button small" %>
+        <% else %>
+            <h5>Edit-Link</h5>
+            <li>
+                <input readonly="readonly" id="copyTarget" type="text" class="copy-input" style="" value="<%= h(data_link_url(dataCycleObject.edit_link)) %>">
+                <button id="copyButton" class="button small copy-button"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
+            </li>
+            <%= form_tag send_mail_data_link_path(dataCycleObject.edit_link), class: "send-link" do |f| %>
+                <li>
+                    <input type="email" id="data_link_receiver" name="data_link[receiver]" placeholder="E-Mail Adresse" style="" required>
+                </li>
+                <li><%= button_tag "Link versenden", id: "sendlinkButton", class: "button small" %><%= link_to "Link löschen", dataCycleObject.edit_link, method: :delete, class: "button small alert delete-button" %></li>
+            <% end %>
+        <% end %>
+    <% end %>
+
+</ul>

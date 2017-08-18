@@ -64,13 +64,7 @@ module DataCycleCore
     def get_property_value(property_name, property_definition)
       if PLAIN_PROPERTY_TYPES.include?(property_definition['storage_type'])
         send(property_definition['storage_location'])[property_name.to_s]      
-      elsif (::DataCycleCore.const_get(property_definition['storage_location'].classify) rescue nil)        
-        if self.class != ::DataCycleCore.const_get(property_definition['storage_location'].classify)
-          send(property_definition['storage_location'])
-        else
-          raise NotImplementedError
-        end
-    else
+      else
         raise NotImplementedError
       end
     end
