@@ -162,7 +162,7 @@ module DataCycleCore
                 primaryImage = set_primary_image( load_poi.dump[load_poi.dump.keys.first]['primaryImage'], to_update_place.id )
                 load_poi.dump.each do |lang, lang_dump|
                   I18n.with_locale(lang) do
-                    place_hash = (to_update_place.get_data_hash rescue {}).merge(extract_place_data(lang_dump))
+                    place_hash = ((to_update_place.get_data_hash || {}) rescue {}).merge(extract_place_data(lang_dump))
                     place_hash['primaryImage'] = primaryImage if primaryImage
                     place_hash['image'] = image if image.count > 0
                     to_update_place.set_data_hash(place_hash)
@@ -490,8 +490,6 @@ module DataCycleCore
 
       def extract_place_data(data)
         data.extend attribute_transformer(data)
-
-        pp data.to_h
 
         return Hash[data.to_h.map { |k, v| [k.to_s, v] }].merge({
           'external_key' => data['id'],

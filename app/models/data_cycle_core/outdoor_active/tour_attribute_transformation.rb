@@ -63,60 +63,19 @@ module DataCycleCore
       end
 
       def condition_rating    
-        self['rationg'].try(:[], 'condition').try(:to_i)
+        self['rating'].try(:[], 'condition').try(:to_i)
       end
 
       def difficulty_rating
-        self['rationg'].try(:[], 'difficulty').try(:to_i)
+        self['rating'].try(:[], 'difficulty').try(:to_i)
       end
 
       def experience_rating
-        self['rationg'].try(:[], 'experience').try(:to_i)
+        self['rating'].try(:[], 'experience').try(:to_i)
       end
 
       def landscape_rating
-        self['rationg'].try(:[], 'landscape').try(:to_i)
-      end
-
-      def address_locality
-        self['address'].try(:[], 'town').try(:strip)
-      end
-
-      def street_address
-        unless self['address'].try(:[], 'street').try(:strip).blank?
-          [
-            self['address'].try(:[], 'street').try(:strip),
-            self['address'].try(:[], 'housenumber').try(:strip)            
-          ].join(' ')
-        end
-      end
-
-      def postal_code
-        self['address'].try(:[], 'zipcode').try(:strip)
-      end
-
-      def address_country
-        self['countryCode'].try(:strip)
-      end
-
-      def fax_number
-        self['fax'].try(:strip)
-      end
-
-      def telephone
-        self['phone'].try(:strip)
-      end
-
-      def email
-        self['email'].try(:strip)
-      end
-
-      def url
-        self['homepage'].try(:strip)
-      end
-
-      def hours_available
-        self['businessHours'].try(:strip)
+        self['rating'].try(:[], 'landscape').try(:to_i)
       end
 
       def source
