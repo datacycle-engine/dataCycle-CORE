@@ -1,6 +1,18 @@
 // Add Validation to Form Elements
 module.exports.initialize = function () {
 
+  // Status Kommentar setzen
+
+  $(document).on('click', '.release-comment .save', function (e) {
+    var input_field = $(e.target).siblings('input').first();
+    var id = input_field.attr('id');
+    var value = input_field.val();
+
+    $('input[type=hidden]#' + id).val(value);
+  });
+
+  // Validation
+
   if ($('#edit-form form').html() != undefined) {
     var form = document.querySelector('#edit-form form');
     var promises = [];
