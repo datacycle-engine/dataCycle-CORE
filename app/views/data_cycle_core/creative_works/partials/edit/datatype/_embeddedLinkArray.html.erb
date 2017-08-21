@@ -1,5 +1,12 @@
 <% object = ("DataCycleCore::"+("#{prop['type_name']}".classify)).constantize %>
 <div class="form-element validation-container <%= key.split('[').last[0...-1] %>" data-label="<%= prop['label'] %>">
+
+	<% if prop['releasable'] %>
+			<%= render "data_cycle_core/creative_works/partials/edit/datatype/releasable", prop: prop, key: key, value: value %>
+			<% key += "[value]" %>
+			<% value = value['value'] unless value.blank? %>
+	<% end %>
+
 	<div class="object-browser" id="<%= sanitize_to_id(key) %>">
 		<%= label_tag(key, prop['label']) %>
 		<input type="text" disabled="disabled" />

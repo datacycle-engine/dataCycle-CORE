@@ -83,6 +83,8 @@ module DataCycleCore
         temp_params = []
 
         template_hash['properties'].each do |key,value|
+          orig_key = key
+          key = "value" if value['releasable']
 
           if value['type'] == 'object' && !value['editor']['type'].nil? && (value['editor']['type'] == 'embeddedObject' || value['editor']['type'] == 'objectBrowser')
             object_properties = self.get_internal_template(value['storage_location'],value['name'],value['description'])
@@ -94,6 +96,8 @@ module DataCycleCore
           else
             key = key.to_sym
           end
+
+          key = {orig_key.to_sym => [key, "release_id", "release_comment"]} if value['releasable']
 
           temp_params.push(key)
         end
@@ -120,6 +124,9 @@ module DataCycleCore
               end
 
               value = temp_value
+
+            elsif value['value'].is_a?(::Array)
+              value['value'] = value['value'].reject { |v| v.empty? }
             end
           elsif value.is_a?(::Array)
             value = value.reject { |v| v.empty? }

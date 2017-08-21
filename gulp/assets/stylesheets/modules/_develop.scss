@@ -1,5 +1,43 @@
 /* todo: merge styles */
 
+.release-status {
+  display: block;
+  position: absolute;
+  top: 1px;
+  right: 0;
+  width: auto;
+  .release-select {
+    width: auto;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .release-comment {
+    position: relative;
+    width: auto;
+    display: inline-block;
+    vertical-align: middle;
+    input {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 3rem;
+    }
+    &:hover,
+    &:focus {
+      input {
+        display: block;
+      }
+    }
+  }
+  .status-comment {
+    margin-right: 0.5rem;
+  }
+}
+
+.release-comment {
+  z-index: 13;
+}
+
 .detail-content {
   .type {
     &.translations {

@@ -77,15 +77,13 @@ module DataCycleCore
       # todo: implement preprocessor
       datahash = set_location(datahash)
 
-      valid = @place.validate(datahash)
+      valid = @place.set_data_hash(datahash)
 
       if valid.key?(:error) && !valid[:error].empty?
         flash[:error] = valid[:error]
         redirect_to edit_place_path(@place)
         return
       end
-
-      @place.set_data_hash(datahash)
 
       if @place.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Place'

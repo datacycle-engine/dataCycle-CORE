@@ -68,15 +68,13 @@ module DataCycleCore
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@person.metadata['validation'], false)
 
       # add creator id
-      valid = @person.validate(datahash)
+      valid = @person.set_data_hash(datahash)
 
       if valid.key?(:error) && !valid[:error].empty?
         flash[:error] = valid[:error]
         redirect_to edit_person_path(@person)
         return
       end
-
-      @person.set_data_hash(datahash)
 
       if @person.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Person'

@@ -6,6 +6,14 @@
 
         <span class="detail-label"><%= label %></span>
 
+        <% if prop['releasable'] %>
+            <div class="release-status">
+                <span class="status-information"><%= DataCycleCore::Release.find(value['release_id']).release_text %></span>
+                <span class="status-comment"><%= "/ " + value['release_comment'] unless value['release_comment'].blank? %></span>
+            </div>
+            <% value = value['value'] unless value.blank? %>
+        <% end %>
+
         <div class="media-thumbs">
 
             <!-- todo: remove when videos are available -->
@@ -47,7 +55,7 @@
 
                                     <%= link_to image do %>
                                         zur Detailansicht
-                                    <% end %> | 
+                                    <% end %> |
                                     <% unless image.metadata['url'].nil? && image.metadata['url'].blank? %>
                                         <a href="<%= image.metadata['url'] %>" target="_blank">im Medienarchiv öffnen</a>
                                     <% end %>

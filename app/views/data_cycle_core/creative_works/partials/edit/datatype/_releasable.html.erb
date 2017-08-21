@@ -1,0 +1,8 @@
+<% value = value.nil? ? {} : value %>
+<div class="release-status" id="release_container_<%= sanitize_to_id(key) %>">
+  <%= collection_select key, :release_id, DataCycleCore::Release.all, :id, :release_text, {selected: value['release_id']}, class: "release-select" %>
+  <div class="release-comment" id="release_comment_<%= sanitize_to_id(key) %>">
+    <span class="button open-release-comment" data-show="release_comment_<%= sanitize_to_id(key) %>">Kommentar</span>
+    <%= text_field_tag key + "[release_comment]", value['release_comment'], placeholder: "Kommentar" %>
+  </div>
+</div>
