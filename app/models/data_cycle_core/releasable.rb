@@ -71,8 +71,7 @@ module DataCycleCore
       ids = []
       flat_hash = flatten_hash(self.release)
       flat_hash.map{|key,value| ids.push(value) if key[/release_id\z/]}
-      release_id_calc = max_release_status_id(ids)
-      release_id_calc.nil? ? release_id_released : release_id_calc
+      max_release_status_id(ids)
     end
 
     def flatten_hash(data_hash, prefix=nil)
@@ -108,11 +107,11 @@ module DataCycleCore
 
     def max_release_status_id(ids)
       releases = Release.order(release_code: :desc).find_by(id: ids)
-      releases.nil? ? nil : releases.id
+      releases.nil? ? release_id_released : releases.id # nil defined as "freigegeben"
     end
 
     def release_id_released
-      Release.find_by(release_code: 0).id
+      Release.find_by(release_code: 0).id # release_code 0 defined as "freigegeben"
     end
 
   end
