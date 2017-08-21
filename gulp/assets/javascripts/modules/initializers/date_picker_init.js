@@ -2,19 +2,23 @@ var flatpickr = require('flatpickr');
 var Deutsch = require("flatpickr/dist/l10n/de.js").de;
 flatpickr.localize(Deutsch);
 
-// Reveal Blur 
+// Reveal Blur
 module.exports.initialize = function () {
+
+  var calenders = [];
 
   function init($element) {
     $($element).find('input[type=datetime-local]').each(function () {
-      $(this).flatpickr({
+      var cal = $(this).flatpickr({
         altFormat: "d.m.Y H:i",
         enableTime: true,
         altInput: true,
         time_24hr: true,
         allowInput: true,
-        static: true
+        static: true,
+        onChange: setSiblingMin
       });
+      calenders.push(cal);
 
       var input = $(this).next('input');
       $(input).on('change', function (e) {
@@ -29,16 +33,19 @@ module.exports.initialize = function () {
         altInput: true,
         time_24hr: true,
         allowInput: true,
-        static: true
+        static: true,
+        onChange: setSiblingMin
       });
+      calenders.push(cal);
 
       var input = $(this).next('input');
       $(input).on('change', function (e) {
-        cal.setDate($(this).val(), false, cal.config.altFormat);
+        cal.setDate($(this).val(), true, cal.config.altFormat);
         cal.close();
       });
 
     });
+
   }
 
   init(document)
@@ -47,4 +54,22 @@ module.exports.initialize = function () {
     init(this);
   });
 
+  function setSiblingMin(selectedDates, dateStr, instance) {
+    var index = calenders.indexOf(instance);
+    if (index >= 0) {
+      var id = instance.element.id;
+      id = id.split('_');
+      id.pop();
+      id = id.join('_');
+
+      var until_cal = calenders.filter(function (val) {
+        temp_id = val.element.id.split('_');
+        temp_id.pop();
+        temp_id = temp_id.join('_');
+        return temp_id == id;
+      });
+
+      if (until_cal.length == 2 && instance == until_cal[0]) until_cal[1].set("minDate", dateStr);
+    }
+  };
 };
