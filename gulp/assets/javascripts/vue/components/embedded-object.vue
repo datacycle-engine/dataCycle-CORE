@@ -29,6 +29,8 @@ export default {
     }
   },
   mounted() {
+    $(this.$el).find('.reveal').foundation();
+
     if (this.$parent.$parent != undefined && this.$parent.$parent.$options._componentTag == this.$options._componentTag) {
       this.parentIndex = this.$parent.$parent.parentIndex.slice(0);
     } else if ($(this.$el).parents('.content-object-item').length > 0) {
