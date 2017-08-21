@@ -156,7 +156,7 @@
 #object-browser {
   margin: 8.1rem 0 0 0 !important;
   outline: none;
-  padding: 0 0 10rem 0;
+  padding: 0;
   .object-browser-header {
     .buttons {
       position: absolute;
@@ -257,6 +257,8 @@
   .items {
     padding: 7rem 1rem 1rem 1rem;
     margin-right: 400px;
+    height: calc(100% - 8.1rem);
+    overflow-y: scroll;
     .media {
       width: auto;
       height: auto;
