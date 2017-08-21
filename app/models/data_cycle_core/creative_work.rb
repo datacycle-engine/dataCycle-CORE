@@ -8,7 +8,8 @@ module DataCycleCore
     end
 
     # handle translations with gem Globalize
-    translates :headline, :description, :content, :properties, :release
+    translates :headline, :description, :content, :properties, :release,
+      :release_id, :release_comment
 
     # callbacks
     before_destroy :destroy_translations, prepend: true

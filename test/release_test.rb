@@ -41,6 +41,7 @@ module DataCycleCore
       data_set.save
 
       assert_equal(data_hash, data_set.get_data_hash)
+      assert_equal(release_id, data_set.release_id)
     end
 
   end

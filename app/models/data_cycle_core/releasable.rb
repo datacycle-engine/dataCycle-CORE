@@ -30,8 +30,10 @@ module DataCycleCore
 
     def merge_data(data_value, release_data)
       return data_value if release_data.blank?
-      if data_value.kind_of?(::Array)
-        if data_value.first.kind_of?(::Hash)
+      if data_value.kind_of?(::Hash) # --> embedded data
+        return data_visitor_merge(data_value, release_data)
+      elsif data_value.kind_of?(::Array)
+        if data_value.first.kind_of?(::Hash) # --> embeddedObjects
           return_data = []
           data_value.each_index do |index|
             return_data.push(data_visitor_merge(data_value[index], release_data[index]))
@@ -39,16 +41,16 @@ module DataCycleCore
           return return_data
         end
       end
-      return release_data.merge({ 'value' => data_value})
+      return release_data.merge({ 'value' => data_value}) # --> single value | --> Array of values
     end
 
     def split_data(original)
       if release_data?(original)
         return original['value'], {'release_id' => original.try(:[], 'release_id'), 'release_comment' => original.try(:[],'release_comment')}
-      elsif original.kind_of?(::Hash)
+      elsif original.kind_of?(::Hash) # --> embedded data
         return data_visitor_split(original)
       elsif original.kind_of?(::Array)
-        if original.first.kind_of?(::Hash)
+        if original.first.kind_of?(::Hash) # --> embeddedObjects
           return_data = []
           return_release = []
           original.each do |item|
@@ -58,18 +60,59 @@ module DataCycleCore
           end
           return return_data, return_release
         else
-          return original, nil
-        end 
+          return original, nil # --> Array of values
+        end
       else
-        return original, nil
+        return original, nil # --> single value
       end
     end
 
+    def set_global_release
+      ids = []
+      flat_hash = flatten_hash(self.release)
+      flat_hash.map{|key,value| ids.push(value) if key[/release_id\z/]}
+      release_id_calc = max_release_status_id(ids)
+      release_id_calc.nil? ? release_id_released : release_id_calc
+    end
+
+    def flatten_hash(data_hash, prefix=nil)
+      result = {}
+      data_hash = data_hash.as_json
+
+      data_hash.map do |hash_key, hash_value|
+        hash_key = "#{prefix}.#{hash_key}" if prefix.present?
+        result.merge!( [Hash, Array].include?( hash_value.class ) ? flatten_hash( hash_value, hash_key ) : ( { hash_key => hash_value } ) )
+      end if data_hash.is_a?( Hash )
+
+      data_hash.uniq.each_with_index do |item, index|
+        index = "#{prefix}.#{index}" if prefix.present?
+        result.merge!( [Hash, Array].include?( item.class ) ? flatten_hash( item, index ) : ( { index => item } ) )
+      end if data_hash.is_a?( Array )
+
+      result
+    end
+
     def release_data?(value)
-      return_value = false
       return false unless value.kind_of?(::Hash)
       return true if value.has_key?('value') || value.has_key?('release_id') || value.has_key?('release_comment')
-      return_value
+      false
+    end
+
+    def release_status
+      Release.find(self.release_id)
+    end
+
+    def release_status_code
+      Release.find(self.release_id) ? Release.find(self.release_id).release_code : nil
+    end
+
+    def max_release_status_id(ids)
+      releases = Release.order(release_code: :desc).find_by(id: ids)
+      releases.nil? ? nil : releases.id
+    end
+
+    def release_id_released
+      Release.find_by(release_code: 0).id
     end
 
   end

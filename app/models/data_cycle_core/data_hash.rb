@@ -27,7 +27,10 @@ module DataCycleCore
       if validate?(data_hash)
         ActiveRecord::Base.transaction do
           set_template_data_hash(data_hash, template_hash['properties'])
-          self.release = release_hash if kind_of?(DataCycleCore::Releasable)
+          if kind_of?(DataCycleCore::Releasable)
+            self.release = release_hash
+            self.release_id = set_global_release
+          end 
         end
       end
       validate(data_hash) # return error/warnings from validation
