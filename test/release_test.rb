@@ -65,7 +65,6 @@ module DataCycleCore
       bild2.set_data_hash({"headline" => "Testbild2"})
       bild2.save
 
-
       data_hash = {
         "kind" => [],
         "tags" => [],
