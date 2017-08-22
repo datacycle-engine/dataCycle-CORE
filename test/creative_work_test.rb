@@ -898,7 +898,6 @@ module DataCycleCore
         "season" => [],
         "kind" => []
       }
-      ap data_set.get_data_hash
 
       assert_equal(expected_hash, data_set.get_data_hash.except('id',"data_pool").compact)
       data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validUntil" => "2017-06-01"},"test" => {"test1" => 1, "test2" => 2, "test3" => {"hallo" => "World"}} })
