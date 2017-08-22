@@ -7,30 +7,30 @@
 
             <%= hidden_field_tag 'template', 'contentLocation' %>
             <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][name]', 'Titel' %>
+                <%= label_tag 'place[datahash][name]', t('.name') %>
                 <%= text_field_tag 'place[datahash][name]', '', class: 'form-control', value:'' %>
             </div>
             <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][address][streetAddress]', 'Straße' %>
+                <%= label_tag 'place[datahash][address][streetAddress]', t('.street') %>
                 <%= text_field_tag 'place[datahash][address][streetAddress]', '', class: 'form-control no-validation', value:'' %>
             </div>
             <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][address][postalCode]', 'PLZ' %>
+                <%= label_tag 'place[datahash][address][postalCode]', t('.plz') %>
                 <%= text_field_tag 'place[datahash][address][postalCode]', '', class: 'form-control no-validation', value:'' %>
             </div>
             <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][address][addressLocality]', 'Ort' %>
+                <%= label_tag 'place[datahash][address][addressLocality]', t('.address') %>
                 <%= text_field_tag 'place[datahash][address][addressLocality]', '', class: 'form-control no-validation', value:'' %>
             </div>
             <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][longitude]', 'Longitude' %>
+                <%= label_tag 'place[datahash][longitude]', t('.longitude') %>
                 <%= text_field_tag 'place[datahash][longitude]', '', class: 'form-control no-validation', value:'' %>
             </div>
             <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][latitude]', 'Latitude' %>
+                <%= label_tag 'place[datahash][latitude]', t('.latitude') %>
                 <%= text_field_tag 'place[datahash][latitude]', '', class: 'form-control no-validation', value:'' %>
             </div>
-            <%= f.submit "Erstellen", class: "button primary" %>
+            <%= f.submit t(:submit), class: "button primary" %>
 
         <% end %>
 

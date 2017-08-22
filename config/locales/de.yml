@@ -4,6 +4,7 @@ de:
     header: "Sortierung"
     title: "Titel"
     updated: "Bearbeitet"
+  submit: "Erstellen"
 
   validation:
     errors:
@@ -72,3 +73,21 @@ de:
   unauthorized:
     manage:
       all: "Keine Zugriffsberechtigung!"
+  data_cycle_core:
+    places:
+      partials:
+        shared:
+          new:
+            name: "Name"
+            street: "Straße"
+            plz: "PLZ"
+            address: "Ort"
+            longitude: "Längengrad"
+            latitude: "Breitengrad"
+    persons:
+      partials:
+        shared:
+          new:
+            givenName: "Vorname"
+            familyName: "Familienname"
+            jobTitle: "Berufsbezeichnung"
