@@ -5,6 +5,11 @@
 
 // Details for Show
 .detail-content {
+  .edit-link {
+    position: absolute;
+    right: 0.4rem;
+    top: 0.2rem;
+  }
   &:not(.imageobject) {
     p {
       margin: 0;
@@ -76,8 +81,7 @@
             left: 0;
             top: 0;
             background: inherit;
-            color: $dark-gray;
-            //box-shadow: 1px 1px 2px #9d9d9d;
+            color: $dark-gray; //box-shadow: 1px 1px 2px #9d9d9d;
             padding: 1px 8px;
             .icon {
               .fa {
