@@ -10,7 +10,7 @@ module DataCycleCore
         data_type = metadata['validation']
         data_hash = get_template_data_hash(data_type['properties'])
 
-        data_hash = merge_release(data_hash, release) if kind_of?(DataCycleCore::Releasable) && !self.release.blank?
+        data_hash = merge_release(data_hash, release) if kind_of?(DataCycleCore::Releasable)
         return data_hash
       else
         return nil
@@ -241,7 +241,7 @@ module DataCycleCore
       # parse tree in json, to only set data specified in the data definitions
       if properties['type'] == 'object' && data.is_a?(::Hash) # object with potentially relevant data
         #puts "#{key}|#{data}|#{new_origin}|#{location}"
-        data = set_data_tree_hash(data, properties['properties'])
+        data = set_data_tree_hash(data, properties['properties'], location)
         #puts "#{data}"
       end
 
@@ -256,14 +256,19 @@ module DataCycleCore
       end
     end
 
-    def set_data_tree_hash(data, data_definitions)
+    def set_data_tree_hash(data, data_definitions, location)
+      #ap data_definitions
       data_hash = {}
       return if data.blank?
       data_definitions.each do |key,value|
         if data_definitions[key]['type'] == 'object'
-          data_hash[key] = set_data_tree_hash(data[key], data_definitions[key]['properties'])
+          data_hash[key] = set_data_tree_hash(data[key], data_definitions[key]['properties'], location)
+        elsif data_definitions[key]['storage_location'] == location
+          data_hash[key] = data[key]
+        elsif data_definitions[key]['storage_location'] == 'column'
+          self.method("#{key}=").call(data[key])
         else
-          data_hash[key] = storage_cases_set(key, data[key], data_definitions[key])
+          #ignore wrong data
         end
       end
       data_hash
