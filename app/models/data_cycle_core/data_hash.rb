@@ -30,7 +30,7 @@ module DataCycleCore
           if kind_of?(DataCycleCore::Releasable)
             self.release = release_hash
             self.release_id = set_global_release
-          end 
+          end
         end
       end
       validate(data_hash) # return error/warnings from validation

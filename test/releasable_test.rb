@@ -175,6 +175,58 @@ module DataCycleCore
 
       processed_data_hash = data_set.merge_release(value_hash, release_hash)
       assert_equal(data_hash, processed_data_hash)
-    end 
+    end
+
+    test "merge release data to data_hash" do
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "ReleaseTest", description: "CreativeWork").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+
+      data_hash = {
+        "kind" => [],
+        "name" => "",
+        "tags" => [],
+        "text" => "",
+        "image" => ["108bbf5f-08b0-4c10-a7cc-6094750fd317", "76de5bef-3030-4315-a7f7-90951037a5c4", "43aa35f4-0c6b-4648-a7da-c403e6450640"],
+        "state" => [],
+        "sameAs" => "",
+        "season" => [],
+        "topics" => [],
+        "markets" => [],
+        "headline" => "Release Artikel 15",
+        "keywords" => "", "metaTitle" => "", "quotation" => [{
+          "text" => "<p>sdfasf asdf adfasdf</p>",
+          "image" => ["4fb7eb58-bdf9-402b-be29-1b822513a3fa"],
+          "author" => []
+        }],
+        "description" => "",
+        "outputChannels" => [],
+        "validityPeriod" => {
+          "validFrom" => "",
+          "validUntil" => ""
+        },
+        "contentLocation" => [],
+        "metaDescription" => "",
+        "alternativeHeadline" => ""
+      }
+      release_hash = {
+        "image" => {
+          "release_id" => "40dc12d1-de50-4c58-abfb-c442eb134909",
+          "release_comment" => "normales bild kommentar"
+        },
+        "quotation" => [{
+          "image" => {
+            "release_id" => "e2eb3206-0ab0-4842-9cb1-0c028a27d2d2",
+            "release_comment" => "zitat bild kommentar"
+          }
+        }]
+      }
+
+      ap data_set.merge_release(data_hash, release_hash)
+
+    end
+
   end
 end
