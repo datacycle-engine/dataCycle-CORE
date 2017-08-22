@@ -1,18 +1,16 @@
-<div class="form-element validation-container <%= key.split('[').last[0...-1] %>" tabindex="-1">
-    <%= label_tag(key, label) %>
-    <div class="editor-block">
+<%= label_tag(key, label) %>
+<div class="editor-block">
 
-        <%= hidden_field_tag key, value, options %>
+    <%= hidden_field_tag key, value, options %>
 
-        <% options.merge!({'data-hidden-field-id' => sanitize_to_id(key),:class => 'quill-editor', :id => "#{sanitize_to_id(key)}-editor" }) %>
+    <% options.merge!({'data-hidden-field-id' => sanitize_to_id(key),:class => 'quill-editor', :id => "#{sanitize_to_id(key)}-editor" }) %>
 
-        <%= content_tag :div, options do %>
+    <%= content_tag :div, options do %>
 
-            <% if !value.nil? && !value.blank? %>
-                <%= value.html_safe %>
-            <% end %>
-
+        <% if !value.nil? && !value.blank? %>
+            <%= value.html_safe %>
         <% end %>
 
-    </div>
+    <% end %>
+
 </div>

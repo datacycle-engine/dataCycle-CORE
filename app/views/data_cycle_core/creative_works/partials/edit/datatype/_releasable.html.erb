@@ -14,3 +14,10 @@
   </div>
 
 </div>
+
+<% key += "[value]" %>
+<% value = value['value'] unless value.blank? %>
+<% options ||= options %>
+<% parent_object_keys ||= parent_object_keys %>
+
+<%= send('render_'+ prop['type'] +'_field', key, prop, value, options, parent_object_keys) %>

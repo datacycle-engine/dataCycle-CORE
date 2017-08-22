@@ -1,44 +1,42 @@
 <% object = ("DataCycleCore::"+("#{prop['storage_location']}".classify)).constantize %>
-<div class="form-element validation-container <%= key.split('[').last[0...-1] %>" data-label="<%= prop['name'] %>">
-	<div class="object-browser" id="<%= sanitize_to_id(key) %>">
-		<%= label_tag(key, prop['label']) %>
-		<input type="text" disabled="disabled" />
-		<div class="media-thumbs">
-			<% existing = [] %>
-			<% unless value.blank? %>
-				<% value.each do |item| %>
-					<% data_object = object.where(id: item['id']).first %>
-					<% existing << data_object %>
-				<% end %>
+<div class="object-browser" id="<%= sanitize_to_id(key) %>">
+	<%= label_tag(key, prop['label']) %>
+	<input type="text" disabled="disabled" />
+	<div class="media-thumbs">
+		<% existing = [] %>
+		<% unless value.blank? %>
+			<% value.each do |item| %>
+				<% data_object = object.where(id: item['id']).first %>
+				<% existing << data_object %>
 			<% end %>
-		
-			<object-browser :existing="<%= existing.to_json %>" object-class="<%= object %>" :object-type="'<%= prop['editor']['options']['data-type'].downcase %>'" :object-label="'<%= prop['label'] %>'" :max="1" :create-item="<%= can? :create, object %>" new-id="new<%= prop['storage_location'].classify %>" hidden-name="<%= key %>[]">
-				<template scope="props" slot="item">
-					<div v-if="props.item != undefined" class="media person">
-						<a slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
+		<% end %>
 
-						<% if prop['storage_location'] == 'persons' %>
+		<object-browser :existing="<%= existing.to_json %>" object-class="<%= object %>" :object-type="'<%= prop['editor']['options']['data-type'].downcase %>'" :object-label="'<%= prop['label'] %>'" :max="1" :create-item="<%= can? :create, object %>" new-id="new<%= prop['storage_location'].classify %>" hidden-name="<%= key %>[]">
+			<template scope="props" slot="item">
+				<div v-if="props.item != undefined" class="media person">
+					<a slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
 
-							<i class="fa fa-user" aria-hidden="true"></i>
-							<span class="name">{{ props.item.givenName }} <strong>{{ props.item.familyName }}</strong></span>
+					<% if prop['storage_location'] == 'persons' %>
 
-						<% elsif prop['storage_location'] == 'places' %>
+						<i class="fa fa-user" aria-hidden="true"></i>
+						<span class="name">{{ props.item.givenName }} <strong>{{ props.item.familyName }}</strong></span>
 
-							<i class="fa fa-map-marker" aria-hidden="true"></i>
-							<span class="name">{{ props.item.name }} {{ props.item.address }} </span>
-							{{ props.objectType }}
-					<% end %>
-						<input type="hidden" name="<%= key %>[][id]" :value="props.item.id">
-					</div>
-				</template>
+					<% elsif prop['storage_location'] == 'places' %>
 
-				<template slot="new-item" scope="newItem">
+						<i class="fa fa-map-marker" aria-hidden="true"></i>
+						<span class="name">{{ props.item.name }} {{ props.item.address }} </span>
+						{{ props.objectType }}
+				<% end %>
+					<input type="hidden" name="<%= key %>[][id]" :value="props.item.id">
+				</div>
+			</template>
 
-					<%= render "data_cycle_core/#{prop['storage_location']}/partials/shared/new" %>
+			<template slot="new-item" scope="newItem">
 
-				</template>
+				<%= render "data_cycle_core/#{prop['storage_location']}/partials/shared/new" %>
 
-			</object-browser>
-		</div>
+			</template>
+
+		</object-browser>
 	</div>
 </div>

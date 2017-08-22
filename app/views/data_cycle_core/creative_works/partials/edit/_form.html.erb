@@ -83,8 +83,11 @@
 								<% end %>
 
 							<% else %>
+								<div class="<%= 'form-element validation-container' unless prop['editor']['type'] == 'embeddedObject' %> <%= key %> <%= prop['editor']['type'] %>" data-label="<%= prop['label'] %>" <%= "tabindex=-1" unless prop['type'] == 'object' || prop['type'] == 'embeddedLinkArray' %>>
 
-								<%= data_cycle_field key, prop, dataSchema[key], class: 'form-control' %>
+									<%= data_cycle_field key, prop, dataSchema[key], class: 'form-control' %>
+
+								</div>
 
 							<% end %>
 

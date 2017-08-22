@@ -3,8 +3,6 @@
 
 	<% embedded_object_key = key %>
 
-	<div class="contentObject datatype-<%= embedded_object_key %>">
-		
 		<% if !internal_objects.nil? && !internal_objects.empty? %>
 
 			<% start_index = internal_objects.length %>
@@ -20,7 +18,7 @@
 					<% if !validation_properties.nil? %>
 
 					<div class="content-object-item" id="<%= embedded_object_key %>_item_<%= index %>">
-					
+
 						<span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.metadata['validation']['name'].downcase %> <%= prop['label'] %></span>
 
 						<button class="button removeContentObject"><i class="fa fa-times"></i></button>
@@ -32,6 +30,8 @@
 						<% end %>
 
 						<% validation_properties.each do |key, prop| %>
+
+							<div class="<%= 'form-element validation-container' unless prop['editor']['type'] == 'embeddedObject' %> <%= key %> <%= prop['editor']['type'] %>" data-label="<%= prop['label'] %>">
 
 							<% if prop['type'] == 'object' && !prop['properties'].nil? %>
 
@@ -70,6 +70,8 @@
 
 							<% end %>
 
+							</div>
+
 						<% end %>
 
 					</div>
@@ -85,7 +87,7 @@
 		<% validation_properties = get_ordered_validation_properties(internal_template.metadata['validation']) %>
 
 		<% max = !prop.nil? && !prop['validations'].nil? && !prop['validations']['maxLength'].nil? ? prop['validations']['maxLength'] : 0 %>
-		
+
 		<% if !validation_properties.nil? %>
 
 		<embedded-objects embedded-object-key="<%= embedded_object_key %>" :max="<%= max %>" label="<%= prop['label'] %>">
@@ -93,6 +95,8 @@
 				<span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.metadata['validation']['name'].downcase %> <%= prop['label'] %></span>
 
 					<% validation_properties.each do |key, prop| %>
+
+						<div class="<%= 'form-element validation-container' unless prop['editor']['type'] == 'embeddedObject' %> <%= key %> <%= prop['editor']['type'] %>" data-label="<%= prop['label'] %>">
 
 						<% if prop['type'] == 'object' && !prop['properties'].nil? %>
 
@@ -128,13 +132,13 @@
 
 						<% end %>
 
+						</div>
+
 					<% end %>
 
 			</template>
 		</embedded-objects>
 
 		<% end %>
-
-	</div>
 
 <% end %>
