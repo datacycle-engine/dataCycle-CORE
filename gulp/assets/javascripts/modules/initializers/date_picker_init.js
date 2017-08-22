@@ -16,7 +16,7 @@ module.exports.initialize = function () {
         time_24hr: true,
         allowInput: true,
         static: true,
-        onChange: setSiblingMin
+        onChange: setSibling
       });
       calenders.push(cal);
 
@@ -34,7 +34,7 @@ module.exports.initialize = function () {
         time_24hr: true,
         allowInput: true,
         static: true,
-        onChange: setSiblingMin
+        onChange: setSibling
       });
       calenders.push(cal);
 
@@ -54,7 +54,7 @@ module.exports.initialize = function () {
     init(this);
   });
 
-  function setSiblingMin(selectedDates, dateStr, instance) {
+  function setSibling(selectedDates, dateStr, instance) {
     var index = calenders.indexOf(instance);
     if (index >= 0) {
       var id = instance.element.id;
@@ -70,6 +70,7 @@ module.exports.initialize = function () {
       });
 
       if (until_cal.length == 2 && instance == until_cal[0]) until_cal[1].set("minDate", dateStr);
+      if (until_cal.length == 2 && instance == until_cal[1]) until_cal[0].set("maxDate", dateStr);
     }
   };
 };
