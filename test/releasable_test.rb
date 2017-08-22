@@ -32,7 +32,7 @@ module DataCycleCore
           "release_comment" => "noch nicht fertig"
         }
       }
-      value_hash, release_hash = data_set.extract_release(data_hash)
+      value_hash, release_hash = data_set.extract_release(data_hash, true)
       assert_equal(expected_value_hash, value_hash)
       assert_equal(expected_release_hash, release_hash)
 
@@ -101,7 +101,7 @@ module DataCycleCore
           "release_comment"=>"hahaha"
         }
       }
-      value_hash, release_hash = data_set.extract_release(data_hash)
+      value_hash, release_hash = data_set.extract_release(data_hash, true)
       assert_equal(expected_value_hash, value_hash)
       assert_equal(expected_release_hash, release_hash)
 
@@ -169,7 +169,7 @@ module DataCycleCore
         }
       }
 
-      value_hash, release_hash = data_set.extract_release(data_hash)
+      value_hash, release_hash = data_set.extract_release(data_hash, true)
       assert_equal(expected_value_hash, value_hash)
       assert_equal(expected_release_hash, release_hash)
 

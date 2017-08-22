@@ -22,18 +22,20 @@ module DataCycleCore
     def set_data_hash(data_hash)
       template_hash = metadata['validation']
 
-      data_hash, release_hash = extract_release(data_hash) if kind_of?(DataCycleCore::Releasable)
+      stripped_data_hash = data_hash
+      stripped_data_hash, global_release_hash = extract_release(data_hash, true) if kind_of?(DataCycleCore::Releasable) # strip also release data from embeddedObjects
 
-      if validate?(data_hash)
+      if validate?(stripped_data_hash)
         ActiveRecord::Base.transaction do
+          data_hash, release_hash = extract_release(data_hash, false) if kind_of?(DataCycleCore::Releasable) # strip release data only from this objectt
           set_template_data_hash(data_hash, template_hash['properties'])
           if kind_of?(DataCycleCore::Releasable)
             self.release = release_hash
-            self.release_id = set_global_release
+            self.release_id = set_global_release(global_release_hash)
           end
         end
       end
-      validate(data_hash) # return error/warnings from validation
+      validate(stripped_data_hash) # return error/warnings from validation
     end
 
     def delete_childs(delete_relation)
@@ -228,7 +230,7 @@ module DataCycleCore
         result = self.method(field_name).call
         origin = origin + [key]
         origin.each do |item|
-          result = result[item]
+          result = result[item] unless result.nil?
           return nil if result.nil?
         end
       end

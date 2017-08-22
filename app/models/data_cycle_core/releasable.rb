@@ -5,8 +5,8 @@ module DataCycleCore
       data_hash = data_iterator_merge(data_hash, release_hash)
     end
 
-    def extract_release(data_hash)
-      content_hash, release_hash = data_iterator_split(data_hash)
+    def extract_release(data_hash, full)
+      content_hash, release_hash = data_iterator_split(data_hash, full)
     end
 
 
@@ -18,11 +18,11 @@ module DataCycleCore
       return data_hash
     end
 
-    def data_iterator_split(original_hash)
+    def data_iterator_split(original_hash, full)
       data_hash = {}
       release_hash = {}
       original_hash.each do |key, value|
-        data_hash[key], release_hash[key] = split_data(original_hash[key])
+        data_hash[key], release_hash[key] = split_data(original_hash[key], full)
         release_hash[key] = nil if release_hash[key].blank?
       end
       return data_hash.compact, release_hash.compact
@@ -48,17 +48,17 @@ module DataCycleCore
       end
     end
 
-    def split_data(original)
+    def split_data(original, full)
       if release_data?(original)
         return original['value'], {'release_id' => original.try(:[], 'release_id'), 'release_comment' => original.try(:[],'release_comment')}
       elsif original.kind_of?(::Hash) # --> embedded data
-        return data_iterator_split(original)
+        return data_iterator_split(original, full)
       elsif original.kind_of?(::Array)
-        if original.first.kind_of?(::Hash) # --> embeddedObjects
+        if original.first.kind_of?(::Hash) && full # --> embeddedObjects
           return_data = []
           return_release = []
           original.each do |item|
-            data_item, release_item = data_iterator_split(item)
+            data_item, release_item = data_iterator_split(item, full)
             return_data.push(data_item)
             return_release.push(release_item)
           end
@@ -71,9 +71,9 @@ module DataCycleCore
       end
     end
 
-    def set_global_release
+    def set_global_release(global_release_hash)
       ids = []
-      flat_hash = flatten_hash(self.release)
+      flat_hash = flatten_hash(global_release_hash)
       flat_hash.map{|key,value| ids.push(value) if key[/release_id\z/]}
       max_release_status_id(ids.uniq)
     end
