@@ -16,11 +16,10 @@ module.exports.initialize = function () {
         time_24hr: true,
         allowInput: true,
         static: true,
-        onChange: setSibling,
-        onReady: setup
+        onClose: setSibling
       });
 
-
+      calenders.push(cal);
       var input = $(this).next('input');
       $(input).on('change', function (e) {
         cal.setDate($(this).val(), false, cal.config.altFormat);
@@ -35,10 +34,10 @@ module.exports.initialize = function () {
         time_24hr: true,
         allowInput: true,
         static: true,
-        onChange: setSibling,
-        onReady: setup
+        onClose: setSibling
       });
 
+      calenders.push(cal);
       var input = $(this).next('input');
       $(input).on('change', function (e) {
         cal.setDate($(this).val(), true, cal.config.altFormat);
@@ -46,6 +45,8 @@ module.exports.initialize = function () {
       });
 
     });
+
+    setup(calenders);
 
   }
 
@@ -66,22 +67,19 @@ module.exports.initialize = function () {
     }
   }
 
-  function setup(selectedDates, dateStr, instance) {
-    if (calenders.indexOf(instance) < 0) calenders.push(instance);
+  function setup(cals) {
+    for (var i = 0; i < cals.length; i++) {
+      var siblings = cals.filter(function (val) {
+        return getIdFromCalender(val) == getIdFromCalender(cals[i]);
+      });
 
-    var siblings = calenders.filter(function (val) {
-      return getIdFromCalender(val) == getIdFromCalender(instance);
-    });
-
-    if (siblings.length == 2) {
-      if (instance == siblings[0]) {
+      if (siblings.length == 2) {
         siblings[0].set("maxDate", siblings[1].input.value);
-        siblings[1].set("minDate", dateStr);
-      } else if (instance == siblings[1]) {
-        siblings[0].set("maxDate", dateStr);
         siblings[1].set("minDate", siblings[0].input.value);
       }
+      i++;
     }
+
   }
 
   function getIdFromCalender(instance) {
