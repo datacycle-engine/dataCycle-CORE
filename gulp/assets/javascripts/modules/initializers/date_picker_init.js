@@ -16,9 +16,10 @@ module.exports.initialize = function () {
         time_24hr: true,
         allowInput: true,
         static: true,
-        onChange: setSibling
+        onChange: setSibling,
+        onReady: setup
       });
-      calenders.push(cal);
+
 
       var input = $(this).next('input');
       $(input).on('change', function (e) {
@@ -34,9 +35,9 @@ module.exports.initialize = function () {
         time_24hr: true,
         allowInput: true,
         static: true,
-        onChange: setSibling
+        onChange: setSibling,
+        onReady: setup
       });
-      calenders.push(cal);
 
       var input = $(this).next('input');
       $(input).on('change', function (e) {
@@ -55,22 +56,39 @@ module.exports.initialize = function () {
   });
 
   function setSibling(selectedDates, dateStr, instance) {
-    var index = calenders.indexOf(instance);
-    if (index >= 0) {
-      var id = instance.element.id;
-      id = id.split('_');
-      id.pop();
-      id = id.join('_');
-
-      var until_cal = calenders.filter(function (val) {
-        temp_id = val.element.id.split('_');
-        temp_id.pop();
-        temp_id = temp_id.join('_');
-        return temp_id == id;
+    if (calenders.indexOf(instance) >= 0) {
+      var siblings = calenders.filter(function (val) {
+        return getIdFromCalender(val) == getIdFromCalender(instance);
       });
 
-      if (until_cal.length == 2 && instance == until_cal[0]) until_cal[1].set("minDate", dateStr);
-      if (until_cal.length == 2 && instance == until_cal[1]) until_cal[0].set("maxDate", dateStr);
+      if (siblings.length == 2 && instance == siblings[0]) siblings[1].set("minDate", dateStr);
+      if (siblings.length == 2 && instance == siblings[1]) siblings[0].set("maxDate", dateStr);
     }
-  };
+  }
+
+  function setup(selectedDates, dateStr, instance) {
+    if (calenders.indexOf(instance) < 0) calenders.push(instance);
+
+    var siblings = calenders.filter(function (val) {
+      return getIdFromCalender(val) == getIdFromCalender(instance);
+    });
+
+    if (siblings.length == 2) {
+      if (instance == siblings[0]) {
+        siblings[0].set("maxDate", siblings[1].input.value);
+        siblings[1].set("minDate", dateStr);
+      } else if (instance == siblings[1]) {
+        siblings[0].set("maxDate", dateStr);
+        siblings[1].set("minDate", siblings[0].input.value);
+      }
+    }
+  }
+
+  function getIdFromCalender(instance) {
+    var id = instance.element.id.split('_');
+    id.pop();
+    id = id.join('_');
+
+    return id;
+  }
 };
