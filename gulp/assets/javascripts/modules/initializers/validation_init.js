@@ -4,7 +4,7 @@ module.exports.initialize = function () {
   // Status Kommentar setzen
 
   $(document).on('click', '.release-comment .save', function (e) {
-    var input_field = $(e.target).siblings('input').first();
+    var input_field = $(e.target).siblings('.release-comment').first();
     var id = input_field.attr('id');
     var value = input_field.val();
 

@@ -21,12 +21,21 @@
     font-weight: bold;
   }
   .status-comment {
-    margin-right: 0.5rem;
+    padding: 0.2rem 0.5rem;
+    color: $black;
+    cursor: pointer;
+    &:hover,
+    &:focus {
+      color: lighten($black, 10%);
+    }
   }
 }
 
 .release-comment {
   z-index: 13;
+  textarea {
+    min-height: 20rem;
+  }
 }
 
 .detail-content {
