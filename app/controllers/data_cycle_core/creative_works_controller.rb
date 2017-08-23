@@ -22,7 +22,7 @@ module DataCycleCore
         @mode = params[:mode].to_s
       end
 
-      @release_status = DataCycleCore::Release.find_by(id: @creativeWork.release_id)
+      @release_status = DataCycleCore::Release.find_by(id: @creativeWork.release_id) if @creativeWork.metadata['validation']['releasable']
       @dataSchema = @creativeWork.get_data_hash
 
       respond_to do |format|

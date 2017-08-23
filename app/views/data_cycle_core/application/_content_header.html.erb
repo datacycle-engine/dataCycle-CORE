@@ -48,6 +48,8 @@
 
         <%= render 'data_cycle_core/creative_works/partials/show/top_content/validityPeriod', dataCycleObject: @creativeWork %>
 
+        <%= render 'data_cycle_core/creative_works/partials/show/top_content/releaseStatus', dataCycleObject: @creativeWork, status: @release_status %>
+
         <% if !@creativeWork.metadata['validation']['permissions'].nil? && is_writable(@creativeWork.metadata['validation']['permissions']) %>
 
             <div class="edit">

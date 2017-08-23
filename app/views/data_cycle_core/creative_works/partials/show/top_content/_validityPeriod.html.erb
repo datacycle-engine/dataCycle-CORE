@@ -16,9 +16,6 @@
             <span class="bis">bis</span>
             <%= dataCycleObject.metadata['validityPeriod']['validUntil'].to_datetime.to_s(:german_date_format) %>
         <% end %>
-
-        / <span class="status">Status: <strong><%= @release_status.release_text %></strong></span>
-
     </div>
 
     <% end %>

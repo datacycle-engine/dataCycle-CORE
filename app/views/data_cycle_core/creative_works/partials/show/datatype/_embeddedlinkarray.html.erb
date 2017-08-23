@@ -1,15 +1,15 @@
 
     <% object = ("DataCycleCore::"+("#{prop['type_name']}".classify)).constantize %>
 
-    <% unless value.blank? %>
-    <div class="detail-type media" data-label="<%= prop['label'] %>" data-editor="objectBrowser" data-id="<%= value %>">
+    <% unless value.blank? || (value.is_a?(Hash) && value['value'].blank?) %>
+    <div class="detail-type media" data-label="<%= prop['label'] %>" data-editor="objectBrowser" data-id="<%= value.is_a?(Hash) ? value['value'] : value %>">
 
         <span class="detail-label"><%= label %></span>
 
-        <% if prop['releasable'] %>
+        <% if prop['releasable'] && value.is_a?(Hash) %>
             <div class="release-status">
                 <span class="status-information"><%= DataCycleCore::Release.find(value['release_id']).release_text %></span>
-                <span class="status-comment"><%= "/ " + value['release_comment'] unless value['release_comment'].blank? %></span>
+                <span class="status-comment"><%= "(" + value['release_comment'] + ")" unless value['release_comment'].blank? %></span>
             </div>
             <% value = value['value'] unless value.blank? %>
         <% end %>

@@ -31,7 +31,7 @@
 
 						<% validation_properties.each do |key, prop| %>
 
-							<div class="<%= 'form-element validation-container' unless prop['editor']['type'] == 'embeddedObject' %> <%= key %> <%= prop['editor']['type'] %>" data-label="<%= prop['label'] %>">
+							<div class="clearfix <%= 'form-element validation-container' unless prop['editor']['type'] == 'embeddedObject' %> <%= key %> <%= prop['editor']['type'] %>" data-label="<%= prop['label'] %>" <%= "tabindex=-1" unless prop['type'] == 'object' || prop['type'] == 'embeddedLinkArray' || prop['editor']['type'] == 'duration' %>>
 
 							<% if prop['type'] == 'object' && !prop['properties'].nil? %>
 
@@ -96,7 +96,7 @@
 
 					<% validation_properties.each do |key, prop| %>
 
-						<div class="<%= 'form-element validation-container' unless prop['editor']['type'] == 'embeddedObject' %> <%= key %> <%= prop['editor']['type'] %>" data-label="<%= prop['label'] %>">
+						<div class="clearfix <%= 'form-element validation-container' unless prop['editor']['type'] == 'embeddedObject' %> <%= key %> <%= prop['editor']['type'] %>" data-label="<%= prop['label'] %>" <%= "tabindex=-1" unless prop['type'] == 'object' || prop['type'] == 'embeddedLinkArray' || prop['editor']['type'] == 'duration' %>>
 
 						<% if prop['type'] == 'object' && !prop['properties'].nil? %>
 
