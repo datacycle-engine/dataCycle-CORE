@@ -1,5 +1,34 @@
 /* todo: merge styles */
 
+.release-status {
+  display: inline-block;
+  position: absolute;
+  top: 1px;
+  right: 0;
+  width: auto;
+  .release-select {
+    width: auto;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .release-comment {
+    position: relative;
+    width: auto;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .status-information {
+    font-weight: bold;
+  }
+  .status-comment {
+    margin-right: 0.5rem;
+  }
+}
+
+.release-comment {
+  z-index: 13;
+}
+
 .detail-content {
   .type {
     &.translations {
@@ -192,11 +221,6 @@
             padding-left: 0.5rem;
             overflow: hidden;
             text-overflow: ellipsis;
-            span {
-              min-width: 100%;
-              overflow: hidden;
-              text-overflow: ellipsis;
-            }
           }
         }
       }

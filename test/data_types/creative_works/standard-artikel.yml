@@ -142,6 +142,7 @@
         :label: Bilder
         :type: embeddedLinkArray
         :type_name: creative_works
+        :releasable: true
         :storage_type: array
         :storage_location: metadata
         :editor:

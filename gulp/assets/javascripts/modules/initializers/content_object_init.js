@@ -1,7 +1,7 @@
-// Reveal Blur 
+// Reveal Blur
 module.exports.initialize = function () {
 
-  $('.contentObject .removeContentObject').on('click', function (ev) {
+  $('.embeddedObject .removeContentObject').on('click', function (ev) {
     ev.preventDefault();
 
     $(this).parent().trigger('remove-embedded-object');

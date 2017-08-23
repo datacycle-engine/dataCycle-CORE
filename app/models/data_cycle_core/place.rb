@@ -7,7 +7,8 @@ module DataCycleCore
     # handle translations with gem Globalize
     translates :name, :headline, :description, :addressLocality, :streetAddress,
       :postalCode, :addressCountry, :faxNumber, :telephone, :email,
-      :url, :hoursAvailable, :address, :content, :properties
+      :url, :hoursAvailable, :address, :content, :properties, :release,
+      :release_id, :release_comment
 
     # callbacks
     before_destroy :destroy_translations, prepend: true
@@ -15,6 +16,7 @@ module DataCycleCore
     # custom setter
     include DataSetter
 
+    include Releasable
     include ContentHelpers
 
 

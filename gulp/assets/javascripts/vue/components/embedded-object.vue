@@ -43,6 +43,8 @@ export default {
 
     $(this.$el).trigger('clone-added');
 
+    $(this.$el).find('.reveal').foundation();
+
     this.$on('objects-saved', function (data) {
       this.$nextTick(function () {
         $(this.$el).find("input[name^='" + data.name + "']").attr('name', this.changeID);
@@ -60,9 +62,12 @@ export default {
       $(this.$el).find('.quill-editor').attr('id', this.changeID).attr('data-hidden-field-id', this.changeID);
       $(this.$el).find('.quill-editor').html('').siblings('.ql-toolbar').remove();
       $(this.$el).find('.object-browser').attr('id', this.changeID);
-      $(this.$el).find('.slider span').attr('aria-controls', this.changeID);
+      $(this.$el).find('span[data-open]').attr('data-open', this.changeID);
+      $(this.$el).find('div[id]').attr('id', this.changeID);
+      $(this.$el).find('select[name]').attr('id', this.changeID).attr('name', this.changeID);
     },
     changeID(pos, txt) {
+      if (txt == undefined) return;
       var count = 0;
       return txt.replace(/\d+/g, function (x, i) {
         var replacement;

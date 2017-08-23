@@ -10,7 +10,7 @@ module DataCycleCore
     def show
       session[:trail] = params[:trail] unless params[:trail].nil?
       @creativeWork = DataCycleCore::CreativeWork.find_by(id: params[:id])
-      
+
       if @creativeWork.nil?
         redirect_back(fallback_location: root_path)
         return
@@ -22,6 +22,7 @@ module DataCycleCore
         @mode = params[:mode].to_s
       end
 
+      @release_status = DataCycleCore::Release.find_by(id: @creativeWork.release_id) if @creativeWork.metadata['validation']['releasable']
       @dataSchema = @creativeWork.get_data_hash
 
       respond_to do |format|
@@ -90,7 +91,7 @@ module DataCycleCore
         redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error])
         return
       end
-      
+
       @place = DataCycleCore::Place.new
       @person = DataCycleCore::Person.new
       @dataSchema = @creativeWork.get_data_hash
@@ -104,23 +105,21 @@ module DataCycleCore
 
     def update
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
-      
+
       object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], 'CreativeWork')
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'],false)
-     
-      valid = @creativeWork.validate(datahash)
-      
+
+      valid = @creativeWork.set_data_hash(datahash)
+
       if valid.key?(:error) && !valid[:error].empty?
         flash[:error] = valid[:error]
         redirect_to edit_creative_work_path(@creativeWork)
         return
       end
-      
-      @creativeWork.set_data_hash(datahash)
-      
+
       if @creativeWork.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
-        
+
         if Rails.env.development?
           redirect_back(fallback_location: root_path)
         else
@@ -190,17 +189,17 @@ module DataCycleCore
         tree_labels.push('Recherche')
 
         types = DataCycleCore::ClassificationAlias.where("name IN (?) AND internal = true", tree_labels).pluck(:id)
-        
+
         @language = params[:language]
         @language ||= "de"
-       
+
         query = DataCycleCore::Filter::CreativeWorkQueryBuilder.new(@language)
         query = query.with_classification_alias_ids(types)
-        
+
         query = query.map{|c| { value: "source_id=>#{c.id}, source_type=>#{c.class.name}", label: c.title + " (" + c.content_type + ")" } }.compact
-        
+
         return query
-      end   
+      end
 
   end
 end

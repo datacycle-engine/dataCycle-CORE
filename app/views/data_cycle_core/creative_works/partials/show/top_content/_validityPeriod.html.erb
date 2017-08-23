@@ -5,7 +5,7 @@
     <div class="gueltigkeit">
 
         <span class="icon">
-            <i class="fa fa-clock-o" aria-hidden="true"></i> Gültigkeit: 
+            <i class="fa fa-clock-o" aria-hidden="true"></i> Gültigkeit:
         </span>
 
         <% if !dataCycleObject.metadata['validityPeriod']['validFrom'].nil? && !dataCycleObject.metadata['validityPeriod']['validFrom'].blank? %>
@@ -16,7 +16,6 @@
             <span class="bis">bis</span>
             <%= dataCycleObject.metadata['validityPeriod']['validUntil'].to_datetime.to_s(:german_date_format) %>
         <% end %>
-
     </div>
 
     <% end %>

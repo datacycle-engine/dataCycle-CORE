@@ -8,7 +8,10 @@ module DataCycleCore
     def get_data_hash
       if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with pending data in it
         data_type = metadata['validation']
-        get_template_data_hash(data_type['properties'])
+        data_hash = get_template_data_hash(data_type['properties'])
+
+        data_hash = merge_release(data_hash, release) if kind_of?(DataCycleCore::Releasable)
+        return data_hash
       else
         return nil
       end
@@ -18,12 +21,21 @@ module DataCycleCore
     # data hash with keys named as in schema.org
     def set_data_hash(data_hash)
       template_hash = metadata['validation']
-      if validate?(data_hash)
+
+      stripped_data_hash = data_hash
+      stripped_data_hash, global_release_hash = extract_release(data_hash, true) if kind_of?(DataCycleCore::Releasable) # strip also release data from embeddedObjects
+
+      if validate?(stripped_data_hash)
         ActiveRecord::Base.transaction do
+          data_hash, release_hash = extract_release(data_hash, false) if kind_of?(DataCycleCore::Releasable) # strip release data only from this objectt
           set_template_data_hash(data_hash, template_hash['properties'])
+          if kind_of?(DataCycleCore::Releasable)
+            self.release = release_hash
+            self.release_id = set_global_release(global_release_hash)
+          end
         end
       end
-      validate(data_hash) # return error/warnings from validation
+      validate(stripped_data_hash) # return error/warnings from validation
     end
 
     def delete_childs(delete_relation)
@@ -218,7 +230,7 @@ module DataCycleCore
         result = self.method(field_name).call
         origin = origin + [key]
         origin.each do |item|
-          result = result[item]
+          result = result[item] unless result.nil?
           return nil if result.nil?
         end
       end
@@ -229,7 +241,7 @@ module DataCycleCore
       # parse tree in json, to only set data specified in the data definitions
       if properties['type'] == 'object' && data.is_a?(::Hash) # object with potentially relevant data
         #puts "#{key}|#{data}|#{new_origin}|#{location}"
-        data = set_data_tree_hash(data, properties['properties'])
+        data = set_data_tree_hash(data, properties['properties'], location)
         #puts "#{data}"
       end
 
@@ -244,14 +256,19 @@ module DataCycleCore
       end
     end
 
-    def set_data_tree_hash(data, data_definitions)
+    def set_data_tree_hash(data, data_definitions, location)
+      #ap data_definitions
       data_hash = {}
       return if data.blank?
       data_definitions.each do |key,value|
         if data_definitions[key]['type'] == 'object'
-          data_hash[key] = set_data_tree_hash(data[key], data_definitions[key]['properties'])
+          data_hash[key] = set_data_tree_hash(data[key], data_definitions[key]['properties'], location)
+        elsif data_definitions[key]['storage_location'] == location
+          data_hash[key] = data[key]
+        elsif data_definitions[key]['storage_location'] == 'column'
+          self.method("#{key}=").call(data[key])
         else
-          data_hash[key] = storage_cases_set(key, data[key], data_definitions[key])
+          #ignore wrong data
         end
       end
       data_hash

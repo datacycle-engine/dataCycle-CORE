@@ -8,7 +8,6 @@ module DataCycleCore
         @error = { error: [], warning: []}
       end
 
-      # keys of the data-hash defined as keys in the template
       def validate(data, validation_hash, strict = false, verbose = false)
         if data.blank?
           @error[:error].push I18n.t :no_data, scope: [:validation, :errors]
@@ -26,7 +25,6 @@ module DataCycleCore
         @error = validation_object.error
       end
 
-      # keys of the data-hash defined as keys in the template
       def valid?(data, validation_hash, strict = false, verbose = false)
         validate(data, validation_hash, strict, verbose)
         if strict

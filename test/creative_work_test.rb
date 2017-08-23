@@ -898,10 +898,51 @@ module DataCycleCore
         "season" => [],
         "kind" => []
       }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id',"data_pool"))
+
+      assert_equal(expected_hash, data_set.get_data_hash.except('id',"data_pool").compact)
       data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validUntil" => "2017-06-01"},"test" => {"test1" => 1, "test2" => 2, "test3" => {"hallo" => "World"}} })
       data_set.save
       assert_equal(expected_hash, data_set.get_data_hash.compact.except('id',"data_pool"))
+    end
+
+    test "save CreativeWork, Data properly written to metadata" do
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Thema", description: "CreativeWork").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+
+      expected_hash = {
+        "headline" => "Dies ist ein Test!",
+        "validityPeriod" => {
+          "validFrom" => "2017-05-01",
+          "validUntil" => "2017-06-01"
+        },
+        "tags"=>[],
+        "state"=>[],
+        "topics"=>[],
+        "markets"=>[],
+        "season" => [],
+        "kind" => []
+      }
+
+      test_data = {
+        "headline" => "Dies ist ein Test!",
+        "validityPeriod" => {
+          "validFrom" => "2017-05-01",
+          "validUntil" => "2017-06-01"
+        }
+      }
+      data_set.set_data_hash(test_data)
+      data_set.save
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id',"data_pool"))
+      expected_data_hash = {
+        "validityPeriod" => {
+          "validFrom" => "2017-05-01",
+          "validUntil" => "2017-06-01"
+        }
+      }
+      assert_equal( expected_data_hash, data_set.metadata.except('validation').compact)
     end
 
     test "save CreativeWork with sub-properties and invalid data" do
