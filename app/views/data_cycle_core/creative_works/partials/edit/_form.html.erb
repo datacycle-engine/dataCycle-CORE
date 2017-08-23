@@ -70,20 +70,26 @@
 							<% if prop['type'] == 'object' && !prop['properties'].nil? %>
 
 								<% object_options = !prop['editor'].nil? && !prop['editor']['options'].nil? ? prop['editor']['options'] : nil %>
+								<!--<div class="object-title"><strong><%= prop['label'] %></strong></div>-->
 								<%= content_tag :div, object_options do %>
-									<!--<div class="object-title"><strong><%= prop['label'] %></strong></div>-->
 
 									<% object_properties = get_ordered_validation_properties(prop) %>
 									<% object_properties.each do |object_key, object_property| %>
 
 										<% object_value = dataSchema[key].nil? ? "" : dataSchema[key][object_key] %>
 
-										<%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [key] %>
+										<div class="clearfix <%= 'form-element' unless object_property['editor']['type'] == 'embeddedObject' %> <%= object_key %> <%= object_property['editor']['type'] %> <%= 'input' unless object_property['type'] == 'object' || object_property['type'] == 'embeddedLinkArray' || object_property['editor']['type'] == 'duration' || object_property['editor']['type'] == 'date' %>" data-label="<%= object_property['label'] %>" <%= "tabindex=-1" unless object_property['type'] == 'object' || object_property['type'] == 'embeddedLinkArray' || object_property['editor']['type'] == 'duration' || object_property['editor']['type'] == 'date' %>>
+
+											<%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [key] %>
+
+										</div>
+
 									<% end %>
+
 								<% end %>
 
 							<% else %>
-								<div class="clearfix <%= 'form-element validation-container' unless prop['editor']['type'] == 'embeddedObject' %> <%= key %> <%= prop['editor']['type'] %>" data-label="<%= prop['label'] %>" <%= "tabindex=-1" unless prop['type'] == 'object' || prop['type'] == 'embeddedLinkArray' || prop['editor']['type'] == 'duration' %>>
+								<div class="clearfix <%= 'form-element validation-container' unless prop['editor']['type'] == 'embeddedObject' %> <%= key %> <%= prop['editor']['type'] %> <%= 'input' unless prop['type'] == 'object' || prop['type'] == 'embeddedLinkArray' || prop['editor']['type'] == 'duration' || prop['editor']['type'] == 'classificationSelector' %>" data-label="<%= prop['label'] %>" <%= "tabindex=-1" unless prop['type'] == 'object' || prop['type'] == 'embeddedLinkArray' || prop['editor']['type'] == 'duration' %>>
 
 									<%= data_cycle_field key, prop, dataSchema[key], class: 'form-control' %>
 

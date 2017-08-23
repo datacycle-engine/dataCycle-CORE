@@ -7,16 +7,12 @@
     <dl>
       <dt v-if="item.name != undefined">Name: </dt>
       <dd v-if="item.name != undefined">{{ item.name }}</dd>
-    </dl>
-    <dl v-if="item.metadata != undefined && item.metadata.address != undefined">
-      <dt v-if="item.metadata.address.streetAddress != undefined">Straße: </dt>
-      <dd v-if="item.metadata.address.streetAddress != undefined">{{ item.metadata.address.streetAddress }}</dd>
-      <dt v-if="item.metadata.address.postalCode != undefined">PLZ: </dt>
-      <dd v-if="item.metadata.address.postalCode != undefined">{{ item.metadata.address.postalCode }}</dd>
-      <dt v-if="item.metadata.address.addressLocality != undefined">Ort: </dt>
-      <dd v-if="item.metadata.address.addressLocality != undefined">{{ item.metadata.address.addressLocality }}</dd>
-    </dl>
-    <dl>
+      <dt v-if="item.streetAddress != undefined">Straße: </dt>
+      <dd v-if="item.streetAddress != undefined">{{ item.streetAddress }}</dd>
+      <dt v-if="item.postalCode != undefined">PLZ: </dt>
+      <dd v-if="item.postalCode != undefined">{{ item.postalCode }}</dd>
+      <dt v-if="item.addressLocality != undefined">Ort: </dt>
+      <dd v-if="item.addressLocality != undefined">{{ item.addressLocality }}</dd>
       <dt v-if="item.latitude != undefined">Latitude: </dt>
       <dd v-if="item.latitude != undefined">{{ item.latitude }}</dd>
       <dt v-if="item.longitude != undefined">Longitude: </dt>
