@@ -1,5 +1,19 @@
 /* todo: merge styles */
 
+
+/* Fixes for Firefox */
+
+.detail-header.editor {
+  .form-element {
+    &.headline {
+      input {
+        height: 6rem;
+        padding: 1.5rem 0.5rem;
+      }
+    }
+  }
+}
+
 .release-status {
   display: inline-block;
   position: absolute;
@@ -130,6 +144,14 @@
 
 #newContent {
   overflow-y: visible;
+  input[type=text],
+  select {
+    padding: 0 0.5rem;
+    line-height: initial;
+  }
+  select {
+    padding-right: 1.5rem;
+  }
   .custom-select .dropdown {
     display: block;
     box-sizing: border-box;
@@ -257,27 +279,5 @@
     &.button {
       padding: 0.85em 1em;
     }
-  }
-}
-
-.data-links {
-  .delete-button {
-    float: right;
-  }
-  .copy-button {
-    position: absolute;
-    right: 0;
-    top: 0;
-    background: initial;
-    color: $black;
-    transition: color 0.5s;
-    &:hover,
-    &:focus {
-      color: lighten($black, 20%);
-    }
-  }
-  .copy-input {
-    padding-right: 2.5rem;
-    text-overflow: ellipsis;
   }
 }

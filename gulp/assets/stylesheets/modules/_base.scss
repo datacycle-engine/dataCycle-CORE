@@ -184,6 +184,32 @@ form {
     position: absolute;
     top: 1rem;
     right: 1rem;
+    input {
+      padding: 0 0.5rem;
+      height: 2.2rem;
+      &.copy-input {
+        padding-right: 2.3rem;
+        text-overflow: ellipsis;
+      }
+    }
+    .data-links {
+      .delete-button {
+        float: right;
+      }
+      .copy-button {
+        position: absolute;
+        right: 0;
+        top: 0;
+        padding: 0.5rem;
+        background: initial;
+        color: $black;
+        transition: color 0.5s;
+        &:hover,
+        &:focus {
+          color: lighten($black, 20%);
+        }
+      }
+    }
     >ul {
       position: relative;
       >li {
@@ -294,7 +320,7 @@ form {
     font-style: italic;
   }
   .daterange {
-    padding: 1rem;
+    padding: 1rem 1rem 0 1rem;
     text-align: left;
     &.validation-container {
       margin-bottom: 1rem;
@@ -419,7 +445,8 @@ form {
       display: none;
     }
     .input input {
-      padding: 3rem 1rem;
+      padding: 2.5rem 1rem 2rem 1rem;
+      line-height: initial;
     }
     .headline input {
       padding: 1rem 5rem 1.5rem 5rem;
@@ -469,6 +496,7 @@ form {
   }
   .ql-editor {
     padding-top: 3rem;
+    padding-bottom: 2rem;
     font-size: 1rem;
   }
   .ql-container.ql-snow {
