@@ -10,9 +10,7 @@ module DataCycleCore
     before_filter :authenticate
 
     def tokens
-      [
-        '85a5c213fa8c27b996edf93159e41274'
-      ]
+      DataCycleCore.access_tokens
     end
 
 

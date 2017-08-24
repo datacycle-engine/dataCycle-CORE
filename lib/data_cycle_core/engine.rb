@@ -60,6 +60,9 @@ module DataCycleCore
     # special data attributes are ignored by the standard json serializes and must be handled by the application itself
     mattr_accessor :special_data_attributes    
     self.special_data_attributes = []
+
+    mattr_accessor :access_tokens    
+    self.access_tokens = []
   end
 
   def self.setup(&block)
