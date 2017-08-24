@@ -10,8 +10,8 @@
             <div class="release-status">
                 <span class="status-information"><%= DataCycleCore::Release.find(value['release_id']).release_text %></span>
                 <% unless value['release_comment'].blank? %>
-                    <span class="status-comment" data-open="release_comment_<%= label %>"><i class="fa fa-comment" aria-hidden="true"></i></span>
-                    <div class="reveal release-comment" id="release_comment_<%= label %>" data-reveal>
+                    <span class="status-comment" data-open="release-comment-<%= object_id %>-<%= key %>"><i class="fa fa-comment" aria-hidden="true"></i></span>
+                    <div class="reveal release-comment" id="release-comment-<%= object_id %>-<%= key %>" data-reveal>
                         <p class="lead">Kommentar</p>
                         <div class="release-comment"><%= simple_format(value['release_comment']) %></div>
                         <button class="close-button" data-close aria-label="Close modal" type="button">
