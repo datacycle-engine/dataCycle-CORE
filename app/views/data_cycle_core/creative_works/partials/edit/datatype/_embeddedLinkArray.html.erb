@@ -6,6 +6,7 @@
 
 		<% if prop['label'] != 'Videos' %>
 			<% existing = [] %>
+			<% readonly = options['readonly'] ? true : false %>
 			<% unless value.blank? %>
 				<% value.each do |item| %>
 					<% image = object.where(id: item).first %>
@@ -23,10 +24,10 @@
 				<% max = prop['validations']['max'] %>
 			<% end %>
 
-			<object-browser :existing="<%= existing.to_json %>" object-class="<%= object %>" :min="<%= min %>" :max="<%= max %>" object-type="<%= prop['editor']['options']['data-type'].downcase %>" :object-label="'<%= prop['label'] %>'" hidden-name="<%= key %>[]" :reveal-link="true">
+			<object-browser :existing="<%= existing.to_json %>" object-class="<%= object %>" :min="<%= min %>" :max="<%= max %>" object-type="<%= prop['editor']['options']['data-type'].downcase %>" :object-label="'<%= prop['label'] %>'" hidden-name="<%= key %>[]" :reveal-link="true" :readonly="<%= readonly %>">
 				<template scope="props" slot="item">
 					<div v-if="props.item != undefined" :data-open="props.dataOpen" :class="[props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != '' && props.item.metadata.restrictions != 'Keine Einschränkung;' ? 'has-restrictions' : '', 'media thumbnail']" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnailUrl+')' }">
-						<span slot="remove" class="delete-thumbnail" href="#" @click.stop="props.remove(props.item, $event)"><i aria-hidden="true" class="fa fa-times"></i></span>
+						<span v-if="!props.readonly" slot="remove" class="delete-thumbnail" href="#" @click.stop="props.remove(props.item, $event)"><i aria-hidden="true" class="fa fa-minus-circle"></i></span>
 						<div class="description" v-if="props.item.headline">
 							{{ props.item.headline }}
 						</div>

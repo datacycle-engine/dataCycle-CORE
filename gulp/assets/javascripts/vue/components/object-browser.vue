@@ -7,10 +7,10 @@
         <button class='button ok' @click.prevent="confirmed">Ok</button>
       </div>
     </div>
-  
+
     <div class="object-thumbs" v-if="existingItems.length > 0">
       <div v-for="item in existingItems" :key="item">
-        <slot name="item" :item="item" :remove="remove" :uid="_uid" :data-open="revealLink ? 'media-reveal-'+item.id+'_'+_uid : ''"></slot>
+        <slot name="item" :item="item" :remove="remove" :uid="_uid" :data-open="revealLink ? 'media-reveal-'+item.id+'_'+_uid : ''" :readonly="readonly"></slot>
       </div>
     </div>
     <div class="object-thumbs" v-else>
@@ -28,7 +28,7 @@
         </object-browser-modal>
       </keep-alive>
     </transition>
-    <button class="button" id="show" @click.prevent="showModal = true">
+    <button v-if="!readonly" class="button" id="show" @click.prevent="showModal = true">
       <i class="fa fa-plus"></i>
     </button>
   </div>
@@ -75,6 +75,10 @@ export default {
     max: {
       type: Number,
       default: 0
+    },
+    readonly: {
+      type: Boolean,
+      default: false
     }
   },
   components: {
@@ -95,16 +99,18 @@ export default {
   },
   mounted() {
     $(this.$el).find('.media-preview').foundation();
-    $(this.$el).on('import-data', function (ev, data) {
-      $.getJSON(this.url + "/find", { ids: data.ids, class: this.objectClass }).done(function (json_data) {
-        if (this.getDelta(json_data, this.existingItems).length > 0) {
-          if (this.max == 0 || this.existingItems.length < this.max) {
-            this.mergeArrays(this.existingItems, json_data);
+    if (!this.readonly) {
+      $(this.$el).on('import-data', function(ev, data) {
+        $.getJSON(this.url + "/find", { ids: data.ids, class: this.objectClass }).done(function(json_data) {
+          if (this.getDelta(json_data, this.existingItems).length > 0) {
+            if (this.max == 0 || this.existingItems.length < this.max) {
+              this.mergeArrays(this.existingItems, json_data);
+            }
+            else this.confirmation(json_data, "Auswahl überschreiben?");
           }
-          else this.confirmation(json_data, "Auswahl überschreiben?");
-        }
+        }.bind(this));
       }.bind(this));
-    }.bind(this));
+    }
   },
   methods: {
     remove(item, event) {
@@ -141,7 +147,7 @@ export default {
       return delta;
     },
     compareIndex(array, item) {
-      return array.findIndex(function (chosen) {
+      return array.findIndex(function(chosen) {
         return item.id == chosen.id;
       });
     },
@@ -163,7 +169,7 @@ export default {
       this.removeOverlay(this.getDelta(this.existingItems, data));
       this.existingItems = data.slice(0);
       this.$parent.$emit('objects-saved', { name: this.hiddenName });
-      this.$nextTick(function () {
+      this.$nextTick(function() {
         $(this.$el).find('.media-preview').foundation();
       });
     }

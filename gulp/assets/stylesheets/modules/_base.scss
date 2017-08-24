@@ -362,6 +362,16 @@ form {
     color: rgba($dark-gray, 50%);
     transition: color ease-in-out 0.25s;
   }
+  .focus {
+    .ql-disabled {
+      .ql-editor {
+        background: $light-gray;
+        &:focus {
+          background: $light-gray;
+        }
+      }
+    }
+  }
   input,
   .ql-editor,
   .daterange,
@@ -389,6 +399,9 @@ form {
       font-weight: 200;
       color: $dark-gray;
     }
+    &[readonly] {
+      background: $light-gray;
+    }
   }
   .focus .ql-editor {
     border-color: $primary-color;
@@ -398,6 +411,9 @@ form {
     border-color: $primary-color;
     background: white;
     z-index: 16;
+    &.readonly {
+      background: $light-gray;
+    }
   }
   .focus {
     label {

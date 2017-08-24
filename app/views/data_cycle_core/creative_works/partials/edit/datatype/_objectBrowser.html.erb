@@ -4,6 +4,7 @@
 	<input type="text" disabled="disabled" />
 	<div class="media-thumbs">
 		<% existing = [] %>
+		<% readonly = options['readonly'] ? true : false %>
 		<% unless value.blank? %>
 			<% value.each do |item| %>
 				<% data_object = object.where(id: item['id']).first %>
@@ -11,10 +12,10 @@
 			<% end %>
 		<% end %>
 
-		<object-browser :existing="<%= existing.to_json %>" object-class="<%= object %>" :object-type="'<%= prop['editor']['options']['data-type'].downcase %>'" :object-label="'<%= prop['label'] %>'" :max="1" :create-item="<%= can? :create, object %>" new-id="new<%= prop['storage_location'].classify %>" hidden-name="<%= key %>[]">
+		<object-browser :existing="<%= existing.to_json %>" object-class="<%= object %>" :object-type="'<%= prop['editor']['options']['data-type'].downcase %>'" :object-label="'<%= prop['label'] %>'" :max="1" :create-item="<%= can? :create, object %>" new-id="new<%= prop['storage_location'].classify %>" hidden-name="<%= key %>[]" :readonly="<%= readonly %>">
 			<template scope="props" slot="item">
 				<div v-if="props.item != undefined" class="media person">
-					<a slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
+					<a v-if="!props.readonly" slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-minus-circle"></i></a>
 
 					<% if prop['storage_location'] == 'persons' %>
 

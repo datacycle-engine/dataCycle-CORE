@@ -1,6 +1,6 @@
 <template>
   <div class="content-object-item" :id="embeddedObjectKey + '_item_' + index">
-    <button @click.prevent="$emit('remove')" class="button removeContentObject">
+    <button v-if="!readonly" @click.prevent="$emit('remove')" class="button removeContentObject">
       <i class="fa fa-times"></i>
     </button>
     <slot name="embedded-item"></slot>
@@ -18,6 +18,10 @@ export default {
     index: {
       type: Number,
       default: 0
+    },
+    readonly: {
+      type: Boolean,
+      default: false
     }
   },
   components: {
@@ -33,7 +37,7 @@ export default {
       this.parentIndex = this.$parent.$parent.parentIndex.slice(0);
     } else if ($(this.$el).parents('.content-object-item').length > 0) {
       var object = this;
-      $(this.$el).parents('.content-object-item').each(function () {
+      $(this.$el).parents('.content-object-item').each(function() {
         object.parentIndex.unshift(parseInt($(this).attr('id').match(/\d+/)[0]));
       });
     }
@@ -45,8 +49,8 @@ export default {
 
     $(this.$el).find('.reveal').foundation();
 
-    this.$on('objects-saved', function (data) {
-      this.$nextTick(function () {
+    this.$on('objects-saved', function(data) {
+      this.$nextTick(function() {
         $(this.$el).find("input[name^='" + data.name + "']").attr('name', this.changeID);
       });
     }.bind(this));
@@ -69,7 +73,7 @@ export default {
     changeID(pos, txt) {
       if (txt == undefined) return;
       var count = 0;
-      return txt.replace(/\d+/g, function (x, i) {
+      return txt.replace(/\d+/g, function(x, i) {
         var replacement;
         if (this.parentIndex[count] != undefined) replacement = this.parentIndex[count];
         else replacement = x;
