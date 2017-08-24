@@ -76,10 +76,9 @@
 }
 
 .data-cycle-object {
-  .remove-from-watchlist-link {
-    position: absolute;
-    right: 3px;
-    top: 0;
+  >.remove-from-watchlist-link {
+    float: right;
+    margin-left: 0.5rem;
   }
 }
 

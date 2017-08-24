@@ -14,27 +14,28 @@
       }
     }
   }
-  #add-watchlist {
-    li {
-      position: relative;
-      .check {
-        color: green;
+}
+
+.watch-lists {
+  li {
+    position: relative;
+    .check {
+      color: green;
+    }
+    .remove-link {
+      position: absolute;
+      right: 0;
+      .remove-from-watchlist-link {
+        padding: 0;
       }
-      .remove-link {
-        position: absolute;
-        right: 0;
-        .remove-from-watchlist-link {
-          padding: 0;
-        }
-      }
-      .add-link {
-        color: green;
-        position: absolute;
-        right: 0;
-        &:hover,
-        &:focus {
-          color: lighten(green, 10%);
-        }
+    }
+    .add-link {
+      color: green;
+      position: absolute;
+      right: 0;
+      &:hover,
+      &:focus {
+        color: lighten(green, 10%);
       }
     }
   }
