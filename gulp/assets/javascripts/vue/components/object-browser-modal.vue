@@ -13,7 +13,7 @@
             <div @click.stop="activeItem = item" class="chosen-item" v-for="item in chosenItems" :key="item">
               <component :is="objectType + '_chosen'" :item="item"></component>
               <span class="remove" @click.stop="toggleActive(item, $event)">
-                <i aria-hidden="true" class="fa fa-times"></i>
+                <i aria-hidden="true" class="fa fa-minus-circle"></i>
               </span>
             </div>
           </div>
@@ -124,12 +124,12 @@ export default {
       this.editUrl = this.newModal.find('form').attr('action');
     }
 
-    $('.new-item').on('closed.zf.reveal', function (e) {
+    $('.new-item').on('closed.zf.reveal', function(e) {
       $('body').addClass('is-reveal-open');
       e.stopPropagation();
     }.bind(this));
 
-    $('.new-item').on('open.zf.reveal', function (e) {
+    $('.new-item').on('open.zf.reveal', function(e) {
       this.newModal.find('form')[0].reset();
       this.newModal.find('input[type=submit]').removeAttr('disabled');
 
@@ -173,7 +173,7 @@ export default {
       }
     },
     compareIndex(array, item) {
-      return array.findIndex(function (chosen) {
+      return array.findIndex(function(chosen) {
         return item.id == chosen.id;
       });
     },
@@ -197,7 +197,7 @@ export default {
         var self = this;
         this.loading = true;
         this.items = [];
-        return $.getJSON(this.url, { search: this.searchTerm, page: this.currentPage, per: this.itemsPerPage, type: this.objectType }).done(function (json_data) {
+        return $.getJSON(this.url, { search: this.searchTerm, page: this.currentPage, per: this.itemsPerPage, type: this.objectType }).done(function(json_data) {
           this.totalItems = json_data.total;
           this.items = json_data.results;
           this.loading = false;
