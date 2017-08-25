@@ -1,0 +1,13 @@
+<% @watch_list ||= DataCycleCore::WatchList.new %>
+
+<%= form_for @watch_list, namespace: dataCycleObject.id, html: { class: "add-watchlist-form" } do |f| %>
+    <%= hidden_field_tag 'hashable_id', dataCycleObject.id %>
+    <%= hidden_field_tag 'hashable_type', dataCycleObject.class.name %>
+    <div class="validation-container form-element">
+        <%= f.text_field :headline, class: 'form-control', value:'', placeholder: 'Neue Merkliste', required: true %>
+        <%= button_tag(type: 'submit', class: "button primary") do %>
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        <% end %>
+    </div>
+
+<% end %>

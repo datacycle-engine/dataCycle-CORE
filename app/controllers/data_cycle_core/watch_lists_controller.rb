@@ -32,11 +32,14 @@ module DataCycleCore
     def create
       @watch_list = current_user.watch_lists.build(watch_list_params)
 
-      if !@watch_list.nil? && @watch_list.save
-        flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Merkliste'
-        redirect_back(fallback_location: root_path)
-      else
-        redirect_back(fallback_location: root_path)
+      respond_to do |format|
+        if !@watch_list.nil? && @watch_list.save
+          format.json { render json: { headline: @watch_list.headline, url: addItem_watch_list_path(@watch_list, hashable_params) } }
+          format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Merkliste')) }
+        else
+          format.json { render json: { error: "Konnte nicht gespeichert werden." } }
+          format.html { redirect_back(fallback_location: root_path) }
+        end
       end
     end
 
@@ -48,7 +51,7 @@ module DataCycleCore
       else
         add_remove_data params
         redirect_back(fallback_location: root_path)
-      end        
+      end
     end
 
     def update
@@ -63,7 +66,7 @@ module DataCycleCore
         if Rails.env.development?
           redirect_to edit_watch_list_path(@watch_list) if Rails.env.development?
         else
-          redirect_to watch_list_path(@watch_list, trail: session[:trail])          
+          redirect_to watch_list_path(@watch_list, trail: session[:trail])
         end
 
       else
@@ -74,29 +77,38 @@ module DataCycleCore
     def destroy
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       @watch_list.destroy
-      
+
       flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Merkliste'
       redirect_to watch_lists_path
     end
 
     def removeItem
       watch_list = DataCycleCore::WatchList.find(params[:id])
-      data = get_data(watch_list, params[:hashable_type], params[:hashable_id])
-      watch_list.watch_list_data_hashes.destroy(data)
+      content_object = params[:hashable_type].constantize.find(params[:hashable_id])
 
-      flash[:success] = I18n.t :removedFrom, scope: [:controllers, :success], data: watch_list.headline
-      redirect_back(fallback_location: root_path)
+      unless content_object.nil? || watch_list.nil?
+        content_object.watch_lists.delete(watch_list)
+      end
+
+      respond_to do |format|
+        format.json { render json: { url: addItem_watch_list_path(watch_list, hashable_params), count: content_object.watch_lists.count, headline: watch_list.headline } }
+        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :removedFrom, scope: [:controllers, :success], data: watch_list.headline)) }
+      end
+
     end
 
     def addItem
       watch_list = DataCycleCore::WatchList.find(params[:id])
-      data = get_data(watch_list, params[:hashable_type], params[:hashable_id])
-      if data.empty?
-        watch_list.watch_list_data_hashes.create(hashable_params)
+      content_object = params[:hashable_type].constantize.find(params[:hashable_id])
+
+      unless content_object.nil? || watch_list.nil?
+        content_object.watch_lists << watch_list
       end
 
-      flash[:success] = I18n.t :addedTo, scope: [:controllers, :success], data: watch_list.headline
-      redirect_back(fallback_location: root_path)
+      respond_to do |format|
+        format.json { render json: { url: removeItem_watch_list_path(watch_list, hashable_params), count: content_object.watch_lists.count, headline: watch_list.headline } }
+        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :addedTo, scope: [:controllers, :success], data: watch_list.headline)) }
+      end
     end
 
     private
@@ -107,11 +119,6 @@ module DataCycleCore
 
       def hashable_params
         params.permit(:hashable_id, :hashable_type)
-      end
-
-      # refactor
-      def get_data watch_list, type, id
-        watch_list.watch_list_data_hashes.where('hashable_type = ? AND hashable_id = ?', type, id)
       end
 
   end
