@@ -36,11 +36,7 @@ DataCycleCore::Engine.routes.draw do
   defaults format: :json do
     namespace :api do
       namespace :v1 do
-
         resources :classification, only: [:index]
-
-        get 'images/search', to: 'images#search'
-        resources :images, only: [:index, :show]
 
         resources :collections, only: [:index, :show], controller: :watch_lists
 
