@@ -6,7 +6,7 @@ module DataCycleCore
 
       if !name.nil? && !name.blank?
         unless (DataCycleCore::ClassificationTreeLabel.find_by name: name).nil?
-          @classification_tree_label =  DataCycleCore::ClassificationTreeLabel.find_by name: name
+          @classification_tree_label =  DataCycleCore::ClassificationTreeLabel.includes(classification_trees: :sub_classification_alias).find_by name: name
         end
       end
 
