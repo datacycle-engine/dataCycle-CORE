@@ -1,1 +1,1 @@
-json.partial! 'image_translation_format', locals: {image: @image }
+  json.content_partial! 'details', content: @image
