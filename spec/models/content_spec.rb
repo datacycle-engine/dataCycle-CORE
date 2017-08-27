@@ -31,6 +31,10 @@ RSpec.shared_examples "for properties" do |storage_location, data_provider|
       end
     }
 
+    it "provides names of plain properties" do
+      expect(subject.plain_property_names).to eq(['property', 'existing_property'])      
+    end
+
     it "provides existing data" do
       expect(subject.existing_property).to eq(property_value)
     end    
@@ -68,6 +72,10 @@ RSpec.shared_examples "for properties with no content yet" do |storage_location|
     subject {
       DataCycleCore::CreativeWork.new(metadata: data_definition)
     }
+
+    it "provides names of plain properties" do
+      expect(subject.plain_property_names).to eq(['property'])      
+    end
 
     it "creates data for new property" do
       subject.property = "some data"
@@ -132,6 +140,11 @@ RSpec.describe DataCycleCore::Content, type: :model do
         })
     }
 
+    it "provides names of plain properties" do
+      expect(subject.plain_property_names).to eq(['id', 'headline', '1', '2', '3', '4'])      
+    end
+
+
     it "provides list of untranslatable properties" do
       expect(subject.untranslatable_property_names).to eq(['id', '1', '2'])
     end
@@ -140,4 +153,104 @@ RSpec.describe DataCycleCore::Content, type: :model do
       expect(subject.translatable_property_names).to eq(['headline', '3', '4'])
     end
   end
+
+  describe "with linked properties" do
+    subject {
+      DataCycleCore::CreativeWork.new(metadata: {
+          validation: {
+            properties: {
+              id: {
+                label: 'id',
+                type: 'string',
+                storage_type: 'string',
+                storage_location: 'key'
+              },              
+              existing_locations: {
+                label: 'Location',
+                type: 'embeddedLinkArray',
+                type_name: 'places',
+                storage_type: 'array',
+                storage_location: 'metadata',
+              },
+              existing_main_location: {
+                label: 'Main Location',
+                type: 'embeddedLink',
+                type_name: 'places',
+                storage_type: 'number',
+                storage_location: 'metadata',
+              }
+            }
+          },
+          existing_locations: [1, 2, 3],
+          existing_main_location: 1
+        })
+    }
+
+    it "provides names of linked properties" do
+      expect(subject.linked_property_names).to eq(['existing_locations', 'existing_main_location'])
+    end
+
+    it "provides existing data for linked array" do
+      expect(subject).to receive(:load_linked_data)
+        .with('DataCycleCore::Place', [1, 2, 3])
+        .and_return([double('DataCycleCore::Place'), double('DataCycleCore::Place'), double('DataCycleCore::Place')])
+
+      expect(subject.existing_locations.size).to eq(3)
+    end
+
+    it "provides existing data for single linked object" do
+      expect(subject).to receive(:load_linked_data)
+        .with('DataCycleCore::Place', 1)
+        .and_return(double('DataCycleCore::Place'))
+
+      expect(subject.existing_main_location).not_to be_nil
+    end    
+  end
+
+  describe "with embedded properties" do
+    subject {
+      DataCycleCore::CreativeWork.new(metadata: {
+          validation: {
+            properties: {
+              id: {
+                label: 'id',
+                type: 'string',
+                storage_type: 'string',
+                storage_location: 'key'
+              },              
+              existing_locations: {
+                label: 'Location',
+                type: 'object',
+                storage_location: 'places'
+              },
+              nested_creative_works: {
+                label: 'Nested Data',
+                type: 'object',
+                storage_location: 'creative_works'
+              }
+            }
+          },
+          nested_creative_works_hasPart: [3, 6, 9]
+        })
+    }
+
+    it "provides names of embedded properties" do
+      expect(subject.embedded_property_names).to eq(['existing_locations', 'nested_creative_works'])
+    end
+
+    it "provides existing data from different table" do
+      expect(subject).to receive(:places)
+        .and_return([double('DataCycleCore::Place'), double('DataCycleCore::Place'), double('DataCycleCore::Place')])
+
+      expect(subject.existing_locations.size).to eq(3)
+    end
+
+    it "provides existing data from same table" do
+      expect(subject).to receive(:load_linked_data)
+        .with('DataCycleCore::CreativeWork', [3, 6, 9])
+        .and_return([double('DataCycleCore::CreativeWork'), double('DataCycleCore::CreativeWork'), double('DataCycleCore::CreativeWork')])
+
+      expect(subject.nested_creative_works.size).to eq(3)
+    end
+  end  
 end

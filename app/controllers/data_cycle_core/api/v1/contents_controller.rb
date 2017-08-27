@@ -4,8 +4,6 @@ module DataCycleCore
       @content = Object.const_get("DataCycleCore::#{params[:type].classify}")
         .includes({classifications: [], translations: []})
         .find(params[:id])
-
-      render partial: params[:type].singularize, locals: { object: @content }
     end
   end
 end

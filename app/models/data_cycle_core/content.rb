@@ -48,6 +48,24 @@ module DataCycleCore
         }.keys
     end
 
+    def plain_property_names
+      property_definitions.select { |property_name, definition| 
+        PLAIN_PROPERTY_TYPES.include?(definition['type'])
+      }.keys
+    end
+
+    def linked_property_names
+      property_definitions.select { |property_name, definition| 
+        definition['type'] == 'embeddedLink' || definition['type'] == 'embeddedLinkArray'
+      }.keys
+    end
+
+    def embedded_property_names
+      property_definitions.select { |property_name, definition| 
+        definition['type'] == 'object'
+      }.keys
+    end
+
     def verify
       if (translatable_property_names & untranslatable_property_names).size > 0
         inconsistent_properties = (translatable_property_names & untranslatable_property_names)
@@ -62,11 +80,27 @@ module DataCycleCore
     private
 
     def get_property_value(property_name, property_definition)
-      if PLAIN_PROPERTY_TYPES.include?(property_definition['storage_type'])
+      if linked_property_names.include?(property_name)
+        load_linked_data(
+            "DataCycleCore::#{property_definition['type_name'].singularize.camelize}", 
+            send(property_definition['storage_location'])[property_name.to_s]
+          )
+      elsif embedded_property_names.include?(property_name) && property_definition['storage_location'] != self.class.table_name
+        send(property_definition['storage_location'])
+      elsif embedded_property_names.include?(property_name) && property_definition['storage_location'] == self.class.table_name
+        load_linked_data(
+            self.class.to_s, 
+            send('metadata')[property_name.to_s + '_hasPart']
+          )
+      elsif PLAIN_PROPERTY_TYPES.include?(property_definition['storage_type'])
         send(property_definition['storage_location'])[property_name.to_s]      
       else
         raise NotImplementedError
       end
+    end
+
+    def load_linked_data(class_name, ids)
+      class_name.safe_constantize.find(ids)
     end
 
     def set_property_value(property_name, property_definition, value)
