@@ -1,5 +1,5 @@
 module DataCycleCore
-  class PersonsController < ApplicationController
+  class PersonsController < ContentsController
     before_action :authenticate_user!   # from devise (authenticate)
     load_and_authorize_resource         # from cancancan (authorize)
 

@@ -1,0 +1,34 @@
+<div class="detail-header-functions">
+    <ul class="no-bullet">
+        <li>
+            <% if !content.metadata.nil? && !content.metadata['creator'].nil? %>
+              <% creator = get_user_for_id(content.metadata['creator']) %>
+              <% creator_text = "<a href='mailto:#{creator.email}'>#{creator.name}</a>" %>
+            <% else %>
+              <% creator_text = "Unbekannt" %>
+            <% end %>
+
+            <a id="show-history-link" data-toggle="show-history"><i class="fa fa-history" aria-hidden="true"></i> erstellt am <%= content.created_at.to_s(:german_datetime_format) %></a>
+
+            <ul class="dropdown-pane no-bullet bottom" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
+                <li>Letzte Bearbeitung: <%= creator_text.html_safe %><br><i><%= content.updated_at.to_s(:german_datetime_format) %></i></li>
+            </ul>
+        </li>
+        <% if can? :manage, @data_link %>
+          <li><%= render 'data_cycle_core/shared/data_links', dataCycleObject: content %></li>
+        <% end %>
+        <%# <li>
+            <a id="subscribe-link" data-toggle="subscribe"><i class="fa fa-bell-o" aria-hidden="true"></i> abonnieren</span></a>
+            <ul class="dropdown-pane no-bullet bottom" id="subscribe" data-dropdown data-hover="true" data-hover-pane="true">
+                <li>
+
+                Klicken Sie hier um regelmäßig über Änderungen informiert zu werden.
+                </li>
+            </ul>
+        </li> %>
+        <% if can? :manage, @watch_list %>
+          <li><%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: content %></li>
+        <% end %>
+        <li><a href="<%= breadcrumbs[-2].url %>" class="hascontent"><i aria-hidden="true" class="fa fa-times"></i></a></li>
+    </ul>
+</div>

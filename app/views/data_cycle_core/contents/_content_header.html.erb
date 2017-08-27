@@ -1,0 +1,17 @@
+<div class="column detail-header-wrapper">
+
+    <div class="detail-header">
+        <%= render_content_partial 'header_top', content: content %>
+
+        <% content_title = yield %>
+        <% if content_title.blank? %>
+        <div class="title">
+            <%= content.title %>
+        </div>
+        <% else %>
+            <%= content_title %>
+        <% end %>
+
+        <%= render_content_partial 'header_bottom', content: content %>
+    </div>
+</div>

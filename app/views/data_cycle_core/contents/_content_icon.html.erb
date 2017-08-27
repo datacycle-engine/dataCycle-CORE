@@ -1,6 +1,10 @@
 <% case content.class.to_s %>
 <% when 'DataCycleCore::CreativeWork' %>
   <span class="icon"><i class="fa fa-book" aria-hidden="true"></i></span>
+<% when 'DataCycleCore::Person' %>
+  <span class="icon"><i class="fa fa-user" aria-hidden="true"></i></span>
+<% when 'DataCycleCore::Place' %>
+  <span class="icon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
 <% else %>
   <span class="icon"><i class="fa fa-question" aria-hidden="true"></i></span>
 <% end %>
