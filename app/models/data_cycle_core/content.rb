@@ -7,7 +7,7 @@ module DataCycleCore
     self.abstract_class = true
 
     def property_definitions
-      metadata['validation']['properties'] rescue []
+      metadata['validation']['properties'] rescue {}
     end
 
     def method_missing(name, *args, &block)
