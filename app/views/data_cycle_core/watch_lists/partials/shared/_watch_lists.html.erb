@@ -1,0 +1,17 @@
+<% if can? :manage, DataCycleCore::WatchList %>
+  <a id="add-to-watchlist-link" class="hascontent watch-lists-link" data-toggle="watch-lists-for-user">Meine Merklisten</a>
+  <ul class="dropdown-pane no-bullet bottom watch-lists" id="watch-lists-for-user" data-dropdown data-hover="true" data-hover-pane="true">
+      <% current_user.watch_lists.each do |watchlist| %>
+          <li>
+              <span class="watch-list-item">
+                  <span class="watchlist-headline">
+                    <%= link_to watchlist.headline, watch_list_path(watchlist), class: 'watchlist-link' %>
+                  </span>
+              </span>
+          </li>
+      <% end %>
+
+      <%= render "data_cycle_core/watch_lists/partials/shared/new", dataCycleObject: nil %>
+
+  </ul>
+<% end %>

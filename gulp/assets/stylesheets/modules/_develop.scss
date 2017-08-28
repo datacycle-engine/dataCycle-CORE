@@ -141,16 +141,14 @@
   }
 }
 
+select {
+  padding: 0 1.5rem 0 0.5rem;
+  line-height: initial;
+}
+
 #newContent {
   overflow-y: visible;
   input[type=text],
-  select {
-    padding: 0 0.5rem;
-    line-height: initial;
-  }
-  select {
-    padding-right: 1.5rem;
-  }
   .custom-select .dropdown {
     display: block;
     box-sizing: border-box;

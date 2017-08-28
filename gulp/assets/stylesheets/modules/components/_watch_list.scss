@@ -16,6 +16,39 @@
   }
 }
 
+#main-menu {
+  .watch-lists {
+    background: white;
+    li {
+      .watch-list-item {
+        padding: 0 0 0.5rem 0;
+        .watchlist-headline {
+          width: 100%;
+          display: block;
+        }
+        .check,
+        .change-link {
+          display: none;
+        }
+        a {
+          color: $black;
+          padding: 0;
+          line-height: initial;
+          display: block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+      &.add-watchlist {
+        margin: 0;
+        input {
+          max-width: 100%;
+        }
+      }
+    }
+  }
+}
+
 .watch-lists {
   li {
     .watch-list-item {
@@ -69,8 +102,10 @@
           position: absolute;
           right: 0;
           top: 0;
-          padding: 0.4rem 0.5rem;
+          padding: 0.4rem 0.6rem;
           margin: 0;
+          line-height: 1.4rem;
+          border: none;
         }
         button[type="submit"].button i {
           font-size: 1rem;

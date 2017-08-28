@@ -34,7 +34,7 @@ module DataCycleCore
 
       respond_to do |format|
         if !@watch_list.nil? && @watch_list.save
-          format.json { render json: { headline: @watch_list.headline, url: addItem_watch_list_path(@watch_list, hashable_params) } }
+          format.json { render json: { headline: @watch_list.headline, url: hashable_params.blank? ? watch_list_path(@watch_list) : addItem_watch_list_path(@watch_list, hashable_params) } }
           format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Merkliste')) }
         else
           format.json { render json: { error: "Konnte nicht gespeichert werden." } }
