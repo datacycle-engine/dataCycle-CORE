@@ -3,16 +3,17 @@ module DataCycleCore
     def content_type
       metadata['validation']['name']
     end
+
     def read_write?
       metadata['validation']['permissions']['read_write']
     end
 
     def title
-      headline || (content ? content['headline'] : '')
+      raise NotImplementedError
     end
 
     def desc
-      description || (content ? content['text'] : '')
+      raise NotImplementedError
     end
 
     def creator

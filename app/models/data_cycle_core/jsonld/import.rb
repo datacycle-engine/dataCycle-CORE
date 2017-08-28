@@ -1,7 +1,23 @@
 module DataCycleCore
-  module Jsonld
+  module Jsonld 
 
-    class Import
+    Import = Struct.new(:max_count) do
+      def self.with_configuration(**configuration_options)
+        initializer_options = [
+          configuration_options[:external_source_id],
+          false,
+          configuration_options[:page_size] || 300,
+          configuration_options[:verbose] || false
+        ]
+
+        import = Import.new(*initializer_options)
+
+        configuration_options.reject { |k, v| [:external_source_id, :page_size, :verbose].include?(k) }.each do |k,v|
+          import.send("#{k}=", v) unless v.nil?
+        end
+
+        import
+      end
 
       def initialize ( uuid , incremental_update = false, page_size = 300, verbose = false )
         @external_source_id = uuid
@@ -75,7 +91,7 @@ module DataCycleCore
       end
 
     # main import functionality
-      def import
+      def import(options = {})
         Mongoid.override_database(nil) #reset to default
         Mongoid.override_database("#{DownloadCreativeWork.database_name}_#{@external_source_id}")
 
@@ -90,11 +106,11 @@ module DataCycleCore
 
       def import_creative_work
         data_template = CreativeWork.
-          find_by(template: true, headline: 'Bild', description: 'ImageObject')
+          find_by(template: true, headline: DataCycleCore.default_image_type)
         validation = data_template.metadata['validation']
 
         template_place = Place.
-          find_by(template: true, headline: 'contentLocation', description: 'Place')
+          find_by(template: true, headline: DataCycleCore.default_place_type)
         contentLocation_template = template_place.metadata['validation']
 
         i = 0
@@ -134,7 +150,10 @@ module DataCycleCore
                   # check if data is set and validations are correct
                   if errors[:error].size > 0
                     @log.error "received wrong data for id:#{data_set.id}, language: #{lang}, data: #{data} (skipping)"
-                    @log.error errors[:error]
+                    errors[:error].each do |error|
+                      @log.error error
+                    end
+
                     next
                   end
                   to_update_image.save
@@ -161,6 +180,7 @@ module DataCycleCore
                 end
               end
 
+              return if max_count && i >= max_count 
             end
           end
         end

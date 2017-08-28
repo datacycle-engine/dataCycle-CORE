@@ -63,13 +63,13 @@ module DataCycleCore
       end
 
     # main import functionality
-      def import(options)
+      def import(options = {})
         Mongoid.override_database(nil) #reset to default
         Mongoid.override_database("#{DownloadPoi.database_name}_#{@external_source_id}")
 
         import_logging do
-          # import_category
-          # import_region
+          import_category
+          import_region
           import_poi(options)
         end
 
@@ -443,18 +443,10 @@ module DataCycleCore
             'url' => "http://img.oastatic.com/img/#{record['id']}",
             'contentUrl' => "http://img.oastatic.com/img/#{record['id']}/.jpg",
             'thumbnailUrl' => "http://img.oastatic.com/img/400/400/fit/#{record['id']}/.jpg",
-            'external_key' => record['id'],
             'gallery' => gallery,
-            'seen_at' => Time.zone.now,
-            'external_source_id' => @external_source_id
+            'seen_at' => Time.zone.now
           }
-          to_update_image = CreativeWork.
-            where(
-              "metadata ->> 'external_key' = ? AND external_source_id = ?",
-              record['id'],
-              @external_source_id
-            )
-            .first_or_initialize
+          to_update_image = CreativeWork.where(external_key: record['id'], external_source_id: @external_source_id).first_or_initialize
           if to_update_image.metadata.blank?
             to_update_image.metadata = { 'validation' => validation_hash }
           else
@@ -478,12 +470,7 @@ module DataCycleCore
 
       def set_primary_image(primaryImage, place_id)
         return nil if primaryImage.blank?
-        creative_work_image = CreativeWork
-          .where(
-            "metadata ->> 'external_key' = ? AND external_source_id = ?",
-            primaryImage['id'],
-            @external_source_id
-          )
+        creative_work_image = CreativeWork.where(external_key: primaryImage['id'], external_source_id: @external_source_id)
         creative_work_id = nil
         creative_work_id = creative_work_image.first.id if creative_work_image.count > 0
       end

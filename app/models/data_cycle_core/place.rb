@@ -18,6 +18,7 @@ module DataCycleCore
 
     include Releasable
     include ContentHelpers
+    include PlaceHelpers
 
 
     attr_accessor :datahash
@@ -26,7 +27,7 @@ module DataCycleCore
     # include ArelHelpers::JoinAssociation
 
     # associations
-    belongs_to :external_sources
+    belongs_to :external_source
 
     has_many :classification_places, dependent: :destroy
     has_many :classifications, through: :classification_places

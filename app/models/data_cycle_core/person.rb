@@ -10,6 +10,8 @@ module DataCycleCore
     # callbacks
     before_destroy :destroy_translations, prepend: true
 
+    belongs_to :external_source
+
     has_many :creative_work_persons
     has_many :creative_works, through: :creative_work_persons
 
@@ -32,6 +34,7 @@ module DataCycleCore
     include DataSetter
 
     include ContentHelpers
+    include PersonHelpers
 
 
     attr_accessor :datahash

@@ -75,11 +75,7 @@ module DataCycleCore
       end
 
       if respond_to?('render_'+ data_type +'_field')
-          if(prop['releasable'])
-            render partial: "#{@@partials_path}releasable", locals: {key: object_key, prop: prop, value: normalize_value(value), options: options, parent_object_keys: parent_object_keys}
-          else
-            send('render_'+ data_type +'_field', object_key, prop, normalize_value(value), options, parent_object_keys)
-          end
+          send('render_'+ data_type +'_field', object_key, prop, normalize_value(value), options, parent_object_keys)
       else
          "Unknown data_type: #{prop['type']}"
       end

@@ -14,6 +14,8 @@ module DataCycleCore
     # callbacks
     before_destroy :destroy_translations, prepend: true
 
+    belongs_to :external_source
+
     # associations
     has_many :classification_creative_works, dependent: :destroy
     has_many :classifications, through: :classification_creative_works
@@ -44,6 +46,7 @@ module DataCycleCore
 
     include Releasable
     include ContentHelpers
+    include CreativeWorkHelpers
 
 
     attr_accessor :datahash

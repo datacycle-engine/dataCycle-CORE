@@ -16,7 +16,7 @@ module DataCycleCore
         @connRestClient = RestClient.new(@host, credentials, verbose)
       end
 
-      def download
+      def download(options = {})
         Mongoid.override_database(nil) #reset to default
         Mongoid.override_database("#{DownloadCreativeWork.database_name}_#{@uuid}")
 
