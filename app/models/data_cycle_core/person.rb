@@ -31,6 +31,7 @@ module DataCycleCore
     # custom setter
     include DataSetter
 
+    include Subscribable
     include ContentHelpers
 
 
