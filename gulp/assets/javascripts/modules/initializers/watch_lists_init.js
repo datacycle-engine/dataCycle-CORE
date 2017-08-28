@@ -1,7 +1,7 @@
 // Merklisten
 module.exports.initialize = function () {
 
-  $(document).on('click', '.add-to-watchlist-link, .remove-from-watchlist-link', function (ev) {
+  $(document).on('click', '.watch-list-item .add-to-watchlist-link, .watch-list-item .remove-from-watchlist-link', function (ev) {
     ev.preventDefault();
     var $parent = $(this).closest('.watch-list-item');
     var $change_link = $parent.find('.change-link a');
