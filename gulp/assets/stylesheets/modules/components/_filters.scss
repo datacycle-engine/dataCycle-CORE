@@ -1,7 +1,6 @@
 /* Filter */
 
 .filters {
-  z-index: 3;
   position: relative;
   .advanced-filters {
     li[data-children]>label:after {

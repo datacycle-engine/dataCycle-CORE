@@ -18,6 +18,10 @@
 					<% if !dataCycleObject.metadata['validation']['name'].nil? && !dataCycleObject.metadata['validation']['name'].blank? %>
 
 						<div class="grid-item data-cycle-object">
+							<% if can? :manage, DataCycleCore::WatchList %>
+								<%= render 'data_cycle_core/watch_lists/partials/remove_item_link', item: dataCycleObject if !@watch_list.nil? && !@watch_list.id.nil? %>
+								<%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: dataCycleObject unless !@watch_list.nil? && !@watch_list.id.nil? %>
+							<% end %>
 
 							<% case dataCycleObject.metadata['validation']['description'] %>
 								<% when "Person" %>

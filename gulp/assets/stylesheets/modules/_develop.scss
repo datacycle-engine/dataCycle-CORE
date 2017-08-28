@@ -1,5 +1,19 @@
 /* todo: merge styles */
 
+
+/* Fixes for Firefox */
+
+.detail-header.editor {
+  .form-element {
+    &.headline {
+      input {
+        height: 6rem;
+        padding: 1.5rem 0.5rem;
+      }
+    }
+  }
+}
+
 .release-status {
   display: inline-block;
   position: absolute;
@@ -62,10 +76,9 @@
 }
 
 .data-cycle-object {
-  .remove-from-watchlist-link {
-    position: absolute;
-    right: 3px;
-    top: 0;
+  >.remove-from-watchlist-link {
+    float: right;
+    margin-left: 0.5rem;
   }
 }
 
@@ -128,8 +141,14 @@
   }
 }
 
+select {
+  padding: 0 1.5rem 0 0.5rem;
+  line-height: initial;
+}
+
 #newContent {
   overflow-y: visible;
+  input[type=text],
   .custom-select .dropdown {
     display: block;
     box-sizing: border-box;
@@ -257,27 +276,5 @@
     &.button {
       padding: 0.85em 1em;
     }
-  }
-}
-
-.data-links {
-  .delete-button {
-    float: right;
-  }
-  .copy-button {
-    position: absolute;
-    right: 0;
-    top: 0;
-    background: initial;
-    color: $black;
-    transition: color 0.5s;
-    &:hover,
-    &:focus {
-      color: lighten($black, 20%);
-    }
-  }
-  .copy-input {
-    padding-right: 2.5rem;
-    text-overflow: ellipsis;
   }
 }

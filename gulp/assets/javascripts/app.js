@@ -23,6 +23,7 @@ var content_object_init = require('./modules/initializers/content_object_init');
 var slider_init = require('./modules/initializers/slider_init');
 var copy_contents_init = require('./modules/initializers/copy_contents_init');
 var map_init = require('./modules/initializers/map_init');
+var watch_lists_init = require('./modules/initializers/watch_lists_init');
 
 
 // Initialize Masonry Grid
@@ -91,10 +92,15 @@ $(function () {
   // initialize Copy_Contents
   copy_contents_init.initialize();
 
+  // initialize Watchlists
+  watch_lists_init.initialize();
+
   // HOME RANDOMIZED IMAGES AND GLASSHACK!
-  if ( $( ".home-container" ).length ) {
-    $( ".home-container" ).appendTo("body");
-    setTimeout(function(){ $('.home-container').addClass('show') }, 500);
+  if ($(".home-container").length) {
+    $(".home-container").appendTo("body");
+    setTimeout(function () {
+      $('.home-container').addClass('show')
+    }, 500);
     $('body').addClass('login-page');
   }
 });

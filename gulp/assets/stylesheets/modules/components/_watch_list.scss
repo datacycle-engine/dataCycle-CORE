@@ -1,11 +1,3 @@
-.remove-from-watchlist-link {
-  color: map-get($foundation-palette, alert);
-  &:hover,
-  &:focus {
-    color: lighten(map-get($foundation-palette, alert), 10%);
-  }
-}
-
 .detail-header {
   .destroy {
     a {
@@ -14,26 +6,111 @@
       }
     }
   }
-  #add-watchlist {
+}
+
+.remove-from-watchlist-link {
+  color: map-get($foundation-palette, alert);
+  &:hover,
+  &:focus {
+    color: lighten(map-get($foundation-palette, alert), 10%);
+  }
+}
+
+#main-menu {
+  .watch-lists {
+    background: white;
     li {
-      position: relative;
-      .check {
-        color: green;
-      }
-      .remove-link {
-        position: absolute;
-        right: 0;
-        .remove-from-watchlist-link {
+      .watch-list-item {
+        padding: 0 0 0.5rem 0;
+        .watchlist-headline {
+          width: 100%;
+          display: block;
+        }
+        .check,
+        .change-link {
+          display: none;
+        }
+        a {
+          color: $black;
           padding: 0;
+          line-height: initial;
+          display: block;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
       }
-      .add-link {
-        color: green;
+      &.add-watchlist-to-menu {
+        margin: 0;
+        input {
+          max-width: 100%;
+        }
+      }
+    }
+  }
+}
+
+.watch-lists {
+  li {
+    .watch-list-item {
+      .check {
         position: absolute;
-        right: 0;
-        &:hover,
-        &:focus {
-          color: lighten(green, 10%);
+        left: 0;
+        color: $light-gray;
+        &.checked {
+          color: map-get($foundation-palette, primary);
+        }
+      }
+      width: 100%;
+      display: inline-block;
+      padding: 0 1.5rem 0 1.5rem;
+      position: relative;
+      line-height: 1.2rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.8rem;
+    }
+    .change-link {
+      position: absolute;
+      right: 0;
+      padding: 0;
+    }
+    &.add-watchlist,
+    &.add-watchlist-to-menu {
+      position: relative;
+      margin-top: 1rem;
+      label {
+        display: none;
+      }
+      input {
+        border: 1px solid $light-gray;
+        background: $light-gray;
+        outline: none;
+        padding: 0 2rem 0 0.5rem;
+        height: 2.2rem;
+        line-height: 1;
+        margin: 0;
+        border-color: $light-gray;
+        box-shadow: 0 0 0 $dark-gray;
+        position: relative;
+        transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
+        &::placeholder {
+          color: $dark-gray;
+        }
+      }
+      form {
+        [type=submit] {
+          position: absolute;
+          right: 0;
+          top: 0;
+          padding: 0.4rem 0.6rem;
+          margin: 0;
+          line-height: 1.4rem;
+          border: none;
+        }
+        button[type="submit"].button i {
+          font-size: 1rem;
+          line-height: 1.2rem;
         }
       }
     }

@@ -6,7 +6,7 @@
 <% end %>
 <div class="duration-slider">
     <div class="small-10 columns">
-        <div class="slider" data-slider data-initial-start="<%= value.to_i %>" data-step="1" data-position-value-function="pow" data-non-linear-base="5" data-start="<%= prop['validations']['min'].to_i %>" data-end="<%= prop['validations']['max'].to_i %>" data-decimal="0">
+        <div class="slider <%= options['readonly'] ? 'disabled' : '' %>" data-slider data-initial-start="<%= value.to_i %>" data-step="1" data-position-value-function="pow" data-non-linear-base="5" data-start="<%= prop['validations']['min'].to_i %>" data-end="<%= prop['validations']['max'].to_i %>" data-decimal="0">
             <span class="slider-handle" data-slider-handle role="slider" tabindex="1" aria-controls="<%= sanitize_to_id(key) %>"></span>
         </div>
     </div>

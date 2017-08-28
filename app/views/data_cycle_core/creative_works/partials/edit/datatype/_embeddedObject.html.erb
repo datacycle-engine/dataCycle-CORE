@@ -21,7 +21,9 @@
 
 						<span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.metadata['validation']['name'].downcase %> <%= prop['label'] %></span>
 
-						<button class="button removeContentObject"><i class="fa fa-times"></i></button>
+						<% unless options['readonly'] %>
+							<button class="button removeContentObject"><i class="fa fa-times"></i></button>
+						<% end %>
 
 						<% if parent_object_keys.kind_of?(Array) && !parent_object_keys.empty? %>
 							<%= data_cycle_hidden_field 'id', objectDataHash['id'], parent_object_keys + [embedded_object_key, index] %>
@@ -90,8 +92,10 @@
 
 		<% if !validation_properties.nil? %>
 
-		<embedded-objects embedded-object-key="<%= embedded_object_key %>" :max="<%= max %>" label="<%= prop['label'] %>">
-			<template scope="props" slot="embedded-item">
+		<% readonly = options['readonly'] ? true : false %>
+
+		<embedded-objects embedded-object-key="<%= embedded_object_key %>" :max="<%= max %>" label="<%= prop['label'] %>" :readonly="<%= readonly %>">
+			<template scope="props" slot="embedded-item" >
 				<span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.metadata['validation']['name'].downcase %> <%= prop['label'] %></span>
 
 					<% validation_properties.each do |key, prop| %>
