@@ -155,7 +155,7 @@ module DataCycleCore
               else
                 to_update_place.metadata['validation'] = validation
               end
-              to_update_place.save
+              to_update_place.save!
 
               ActiveRecord::Base.transaction do
                 image = create_creative_work_place( load_poi.dump[load_poi.dump.keys.first]['images'], to_update_place.id )
@@ -166,7 +166,7 @@ module DataCycleCore
                     place_hash['primaryImage'] = primaryImage if primaryImage
                     place_hash['image'] = image if image.count > 0
                     to_update_place.set_data_hash(place_hash)
-                    to_update_place.save
+                    to_update_place.save!
                   end
                 end
                 create_classification_place_regions( load_poi.dump[load_poi.dump.keys.first]['regions'], to_update_place.id )
@@ -423,14 +423,15 @@ module DataCycleCore
             place_id: place_id,
             classification_id: classification_id
           )
-        to_update_classification_place.set_data(data_hash).save
+        to_update_classification_place.set_data(data_hash).save!
       end
 
       def create_creative_work_place( images, place_id)
         return [] if images.nil? || images.empty?
         return_images = []
 
-        template = DataCycleCore::CreativeWork.find_by(headline: 'Bild', description: 'ImageObject', template: true)
+        template = DataCycleCore::CreativeWork.find_by(template: true, headline: DataCycleCore.default_image_type)
+
         validation_hash = template.metadata['validation']
 
         images['image'].each do |record|
@@ -452,7 +453,8 @@ module DataCycleCore
           else
             to_update_image.metadata['validation'] = validation_hash
           end
-          to_update_image.save
+          to_update_image.save!
+
           error = to_update_image.set_data_hash(data_image)
           if error[:error].count > 0
             ap error[:error]
@@ -461,7 +463,7 @@ module DataCycleCore
             to_update_image.destroy
             next
           else
-            to_update_image.save
+            to_update_image.save!
             return_images.push(to_update_image.id)
           end
         end
