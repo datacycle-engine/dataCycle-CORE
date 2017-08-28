@@ -4,6 +4,7 @@ class CreateSubscriptions < ActiveRecord::Migration[5.0]
       t.uuid :user_id
       t.uuid :subscribable_id
       t.string :subscribable_type
+      t.datetime :seen_at
       t.timestamps
       t.index :user_id
       t.index :subscribable_id
