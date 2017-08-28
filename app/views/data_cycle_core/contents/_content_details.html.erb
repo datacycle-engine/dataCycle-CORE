@@ -1,0 +1,19 @@
+<div class="detail-content <%= content.metadata['validation']['description'].downcase if !content.metadata.nil? && !content.metadata['validation'].nil? && !content.metadata['validation']['description'].nil? %>">
+
+    <div class="row align-center">
+
+      <% begin %>
+        <%= render 'data_cycle_core/creative_works/partials/show/'+content.content_type.downcase, 
+                   dataCycleObject: content, 
+                   dataCycleObjectSchema: @dataSchema %>
+      <% rescue %>
+        <%= render "data_cycle_core/creative_works/partials/show/default", 
+                   dataCycleObject: content, 
+                   dataCycleObjectSchema: @dataSchema  %>
+      <% end %>
+
+      <%= render 'data_cycle_core/creative_works/partials/show/translation/translations', language: nil, dataCycleObject: content %>
+
+    </div>
+
+</div>
