@@ -1,5 +1,14 @@
 require 'rails_helper'
 
+
+hashify = lambda do |struct|
+  as_hash = struct.to_h
+  struct_keys = as_hash.select { |_, v| v.is_a? OpenStruct }.map(&:first)
+  struct_keys.each { |key| as_hash[key] = hashify.(as_hash[key]) }
+  as_hash
+end
+
+
 RSpec.shared_examples "for properties" do |storage_location, data_provider|
   describe "for properties with storage location '#{storage_location}'" do
     data_definition = {
@@ -357,7 +366,8 @@ RSpec.describe DataCycleCore::Content, type: :model do
 
   end
 
-  describe "with included properties" do
+  describe "with included properties, two ranks deep" do
+
     subject {
       DataCycleCore::CreativeWork.new(metadata: {
           validation: {
@@ -407,6 +417,19 @@ RSpec.describe DataCycleCore::Content, type: :model do
                         type: 'string',
                         storage_type: 'string',
                         storage_location: 'metadata'
+                      },
+                      deeper_object: {
+                        label: 'deeper Data',
+                        type: 'object',
+                        storage_location: 'metadata',
+                        properties: {
+                          property_deeper: {
+                            label: 'deeper_property_name ',
+                            type: 'string',
+                            storage_type: 'string',
+                            storage_location: 'metadata'
+                          }
+                        }
                       }
                     }
                   }
@@ -419,7 +442,10 @@ RSpec.describe DataCycleCore::Content, type: :model do
             "property2" => "data property2",
             "deep_included_object" => {
               "property_deep1" => "data property_deep1",
-              "property_deep2" => "data property_deep2"
+              "property_deep2" => "data property_deep2",
+              "deeper_object" => {
+                "property_deeper" => "deeper_property_name"
+              }
             }
           }
         },
@@ -427,13 +453,29 @@ RSpec.describe DataCycleCore::Content, type: :model do
       )
     }
 
+    it "returns an hash for included property" do
+      expect(hashify.(subject.included_object).deep_stringify_keys).to eq({
+        "property1" => "data property1",
+        "property2" => "data property2",
+        "deep_included_object" => {
+          "property_deep1" => "data property_deep1",
+          "property_deep2" => "data property_deep2",
+          "deeper_object" => {"property_deeper" => "deeper_property_name"}
+        }
+      })
+    end
+
     it "returns values for included sub_properties" do
       expect(subject.included_object.property1).to eq("data property1")
       expect(subject.included_object.property2).to eq("data property2")
     end
 
     it "returns deep_included_object" do
-      expect(subject.included_object.deep_included_object.to_h.deep_stringify_keys).to eq({"property_deep1" => "data property_deep1", "property_deep2" => "data property_deep2"})
+      expect(hashify.(subject.included_object.deep_included_object).deep_stringify_keys).to eq({
+        "property_deep1" => "data property_deep1",
+        "property_deep2" => "data property_deep2",
+        "deeper_object" => {"property_deeper" => "deeper_property_name"}
+      })
     end
 
     it "returns attributes for deep_included_object" do
@@ -441,15 +483,12 @@ RSpec.describe DataCycleCore::Content, type: :model do
       expect(subject.included_object.deep_included_object.property_deep2).to eq("data property_deep2")
     end
 
-    it "returns an hash for included property" do
-      expect(subject.included_object.to_h.deep_stringify_keys).to eq({
-        "property1" => "data property1",
-        "property2" => "data property2",
-        "deep_included_object" => {
-          "property_deep1" => "data property_deep1",
-          "property_deep2" => "data property_deep2"
-        }
-      })
+    it "returns attribues for deeper_objext" do
+      expect(subject.included_object.deep_included_object.deeper_object.to_h.stringify_keys).to eq({"property_deeper" => "deeper_property_name"})
+    end
+
+    it "returns values for deepest level" do
+      expect(subject.included_object.deep_included_object.deeper_object.property_deeper).to eq("deeper_property_name")
     end
 
   end
