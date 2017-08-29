@@ -1,0 +1,13 @@
+<div class="<%= [
+        'clearfix',
+        'form-element',
+        'validation-container',
+        key,
+        definition['type'].underscore,
+        definition.try(:[], 'editor').try(:[], 'type').try(:underscore),
+        definition.try(:[], 'editor').try(:[], 'options').try(:[], 'type').try(:underscore)
+      ].reject(&:blank?).join(' ') %>">
+
+  <%= yield %>
+
+</div>

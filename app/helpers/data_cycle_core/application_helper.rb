@@ -54,16 +54,33 @@ module DataCycleCore
         "content_#{partial}",
       ]
       
+      render_first_existing_partial(partials, parameters)
+    end
+
+    def render_attribute_editor(key:, definition:, value:, parameters: {})
+      partials = [
+        "#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'type').try(:underscore)}",
+        "#{definition.try(:[], 'editor').try(:[], 'type').try(:underscore)}",
+        "#{definition['type'].underscore}",
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/#{p}_editor" }
+
+      render_first_existing_partial(partials, parameters.merge({key: key, definition: definition, value: value}))
+    end
+
+
+    private
+
+    def render_first_existing_partial(partials, parameters)
       partials.each_with_index do |partial, idx|
         begin
+          logger.debug "  Rendering partial #{partial} ..."
           return render(partial, parameters)
         rescue ActionView::MissingTemplate => e
+          logger.debug "  Rendering partial #{partial} ... [NOT FOUND]"
           raise e if idx == partials.size - 1
         end
       end
     end
-
-    private
 
     def alert_box(value, alert_class, closable)
       options = { class: "flash callout #{alert_class}" }

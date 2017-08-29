@@ -67,6 +67,8 @@
 
 						<% validation_properties.each do |key, prop| %>
 
+							<%= render_attribute_editor key: key, definition: prop, value: dataSchema[key] %>
+
 							<% if prop['type'] == 'object' && !prop['properties'].nil? %>
 
 								<% object_options = !prop['editor'].nil? && !prop['editor']['options'].nil? ? prop['editor']['options'] : nil %>
