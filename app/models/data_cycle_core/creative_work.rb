@@ -1,5 +1,5 @@
 module DataCycleCore
-  class CreativeWork < Content
+  class CreativeWork < DataHash
     extend ActsAsTree::TreeView
     extend ActsAsTree::TreeWalker
 
@@ -54,18 +54,6 @@ module DataCycleCore
     # to cash also translated values (comming from gem Globalize)
     def cache_key
       super + '-' + Globalize.locale.to_s
-    end
-
-    def tags
-      DataCycleCore::ClassificationAlias.
-        joins(classifications: [:creative_works]).
-        where("creative_works.id = ?", self.id).
-        where("classification_creative_works.tag = ?", true)
-    end
-
-    # was replaced by QueryBuilders
-    def search(search)
-      where("headline LIKE ? OR description LIKE ?", "%#{search}%", "%#{search}%")
     end
 
     private

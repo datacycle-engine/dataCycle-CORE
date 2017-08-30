@@ -356,6 +356,17 @@ RSpec.describe DataCycleCore::Content, type: :model do
       expect(subject.included_object.property2).to eq("data property2")
     end
 
+    it "return a proper hash with :to_h" do
+      expect(subject.to_h).to eq({
+        "id" => nil,
+        "description" => "dies ist ein Test",
+        "included_object" => {
+          "property1" => "data property1",
+          "property2" => "data property2"
+        }
+      })
+    end
+
   end
 
   describe "with included properties, two ranks deep" do
@@ -446,7 +457,6 @@ RSpec.describe DataCycleCore::Content, type: :model do
     }
 
     it "returns an hash for included property" do
-      #expect(hashify.(subject.included_object).deep_stringify_keys).to eq({
       expect(subject.included_object.to_h).to eq({
         "property1" => "data property1",
         "property2" => "data property2",
@@ -484,7 +494,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
       expect(subject.included_object.deep_included_object.deeper_object.property_deeper).to eq("deeper_property_name")
     end
 
-    it "returns itself as proper hash" do
+    it "returns all data :to_h " do
       expect(subject.to_h).to eq({
         "id"=>nil,
         "description"=>"dies ist ein Test",

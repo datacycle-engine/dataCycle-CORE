@@ -1,5 +1,5 @@
 module DataCycleCore
-  class Place < Content
+  class Place < DataHash
     class Translation < Globalize::ActiveRecord::Translation
         include ContentTranslationHelpers
     end

@@ -1,5 +1,5 @@
 module DataCycleCore
-  class Event < Content
+  class Event < DataHash
     class Translation < Globalize::ActiveRecord::Translation
         include ContentTranslationHelpers
     end

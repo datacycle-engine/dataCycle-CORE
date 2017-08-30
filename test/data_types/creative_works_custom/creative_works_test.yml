@@ -5,14 +5,14 @@
     :description: CreativeWork
     :type: object
     :properties:
-      :headline:
+      :headline1:
         :label: Titel
         :type: string
         :storage_type: string
         :storage_location: content
         :validations:
           :minLength: 1
-      :description:
+      :description1:
         :label: Beschreibung
         :type: string
         :storage_type: text
@@ -46,7 +46,7 @@
     :description: CreativeWork
     :type: object
     :properties:
-      :headline:
+      :headline1:
         :label: Titel
         :type: string
         :storage_type: string

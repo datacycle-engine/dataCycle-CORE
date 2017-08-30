@@ -58,7 +58,17 @@ module DataCycleCore
 
       error = data_set.set_data_hash(data_hash)
       data_set.save
+
+      puts "now get data"
+
+      ap data_set.property_names
+      ap data_set.embedded_property_names
+      ap data_set.included_property_names
+      ap data_set.question.map(&:to_h)
+
       returned_data_hash = data_set.get_data_hash
+
+      puts "check data"
 
       assert_equal(0, error[:error].count)
       assert_equal(expected_hash_quiz, returned_data_hash.except("question","id","data_type").compact)

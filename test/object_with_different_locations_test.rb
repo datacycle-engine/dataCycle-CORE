@@ -40,8 +40,8 @@ module DataCycleCore
       data_set.metadata = { 'validation' => validation }
       data_set.save
       data_hash = {
-        "headline" => "Dies ist ein Test!",
-        "description" => "wtf is going on???",
+        "headline1" => "Dies ist ein Test!",
+        "description1" => "wtf is going on???",
         "period" => {
             "created_at" => "2017-06-01",
             "updated_at" => "2017-07-01"
@@ -51,8 +51,8 @@ module DataCycleCore
       data_set.save
       returned_data_hash = data_set.get_data_hash
       expected_hash = {
-        "headline" => "Dies ist ein Test!",
-        "description" => "wtf is going on???",
+        "headline1" => "Dies ist ein Test!",
+        "description1" => "wtf is going on???",
         "period" => {
           "created_at" => "2017-06-01".to_datetime,
           "updated_at" => "2017-07-01".to_datetime
@@ -69,7 +69,7 @@ module DataCycleCore
       data_set.metadata = { 'validation' => validation }
       data_set.save
       data_hash = {
-        "headline" => "Dies ist ein Test!",
+        "headline1" => "Dies ist ein Test!",
         "period" => {
             "created_at" => "2017-06-01",
             "updated_at" => "2017-07-01",
@@ -84,7 +84,7 @@ module DataCycleCore
       data_set.save
       returned_data_hash = data_set.get_data_hash
       expected_hash = {
-        "headline" => "Dies ist ein Test!",
+        "headline1" => "Dies ist ein Test!",
         "period" => {
           "created_at" => "2017-06-01".to_datetime,
           "updated_at" => "2017-07-01".to_datetime,
