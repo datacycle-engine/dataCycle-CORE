@@ -18,7 +18,7 @@
   display: inline-block;
   position: absolute;
   top: 1px;
-  right: 0;
+  right: 5px;
   width: auto;
   .release-select {
     width: auto;
@@ -35,7 +35,6 @@
     font-weight: bold;
   }
   .status-comment {
-    padding: 0.2rem 0.5rem;
     color: $black;
     cursor: pointer;
     &:hover,
