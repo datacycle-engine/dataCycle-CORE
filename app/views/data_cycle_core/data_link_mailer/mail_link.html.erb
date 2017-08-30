@@ -6,7 +6,8 @@
   <body>
     <h1>Sehr geehrter Besucher,</h1>
     <p>
-      <%= @user.name %> hat einen Link mit Ihnen geteilt: <%= @url %>.<br>
+      <%= @user.name %> hat einen Link mit Ihnen geteilt: <br>
+      <%= link_to @url, @url %>.<br>
     </p>
     <p>Mit diesem Link können Sie einen spezifischen Inhalt <%= @action %>.</p>
   </body>

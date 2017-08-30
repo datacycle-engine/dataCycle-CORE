@@ -3,7 +3,7 @@ module DataCycleCore
     def notify(user, content)
       @user = user
       @content = content
-      mail(to: @user.email, subject: 'Contents Changed')
+      mail(to: @user.email, subject: 'Abonnierter Inhalt wurde geändert')
     end
   end
 end

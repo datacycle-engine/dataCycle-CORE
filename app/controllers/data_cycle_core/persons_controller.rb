@@ -41,6 +41,7 @@ module DataCycleCore
         return
       end
 
+      @person.metadata['last_updated_by'] = current_user.id
       respond_to do |format|
         #validate ?
         if !@person.nil? && @person.save
@@ -67,7 +68,6 @@ module DataCycleCore
       object_params = person_params('persons', @person.metadata['validation']['name'], 'Person')
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@person.metadata['validation'], false)
 
-      # add creator id
       valid = @person.set_data_hash(datahash)
 
       if valid.key?(:error) && !valid[:error].empty?
@@ -76,6 +76,7 @@ module DataCycleCore
         return
       end
 
+      @person.metadata['last_updated_by'] = current_user.id
       if @person.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Person'
 

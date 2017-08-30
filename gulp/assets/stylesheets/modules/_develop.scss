@@ -182,6 +182,9 @@ select {
       margin-top: 2px;
     }
   }
+  input[type=text] {
+    padding: 0 0.5rem;
+  }
   .validation-container {
     clear: both;
   }

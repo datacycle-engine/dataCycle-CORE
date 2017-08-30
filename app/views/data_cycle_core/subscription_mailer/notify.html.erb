@@ -5,11 +5,12 @@
   </head>
   <body>
     <h1>Sehr geehrter User,</h1>
-    <p>
-      <%= @user.name %> hat einen Link mit Ihnen geteilt: <%= @url %>.<br>
+    <p>Ein abonnierter Inhalt hat sich geändert.</p>
+    <p><%= link_to @content do %>
+        <%= @content.metadata['validation']['name'] %>: <%= @content.title.blank? ? @content.id : @content.title %>
+      <% end %>
     </p>
+
     <p>Vielen Dank, dass Sie unsere Abo-Funktion nutzen und somit immer auf dem neuesten Stand bleiben.</p>
-    <p>Falls es Ihnen zu Viel wird, können sie mit folgendem Link Ihr Abo umstellen.</p>
-    <p><%= link_to polymorphic_url(@content) %></p>
   </body>
 </html>

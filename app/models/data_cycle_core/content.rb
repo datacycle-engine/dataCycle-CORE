@@ -6,6 +6,8 @@ module DataCycleCore
 
     self.abstract_class = true
 
+    include Subscribable
+
     def property_definitions
       metadata['validation']['properties'] rescue {}
     end
@@ -33,8 +35,8 @@ module DataCycleCore
     def translatable_property_names
       translated_columns = (self.class.to_s + "::Translation").constantize.column_names
 
-      property_definitions.select { |property_name, definition| 
-          ['content', 'properties'].include?(definition['storage_location']) || 
+      property_definitions.select { |property_name, definition|
+          ['content', 'properties'].include?(definition['storage_location']) ||
           (definition['storage_location'] == 'column' && translated_columns.include?(property_name))
         }.keys
     end
@@ -42,26 +44,26 @@ module DataCycleCore
     def untranslatable_property_names
       untranslated_columns = self.class.column_names
 
-      property_definitions.select { |property_name, definition| 
-          ['key', 'metadata'].include?(definition['storage_location']) || 
+      property_definitions.select { |property_name, definition|
+          ['key', 'metadata'].include?(definition['storage_location']) ||
           (definition['storage_location'] == 'column' && untranslated_columns.include?(property_name))
         }.keys
     end
 
     def plain_property_names
-      property_definitions.select { |property_name, definition| 
+      property_definitions.select { |property_name, definition|
         PLAIN_PROPERTY_TYPES.include?(definition['type'])
       }.keys
     end
 
     def linked_property_names
-      property_definitions.select { |property_name, definition| 
+      property_definitions.select { |property_name, definition|
         definition['type'] == 'embeddedLink' || definition['type'] == 'embeddedLinkArray'
       }.keys
     end
 
     def embedded_property_names
-      property_definitions.select { |property_name, definition| 
+      property_definitions.select { |property_name, definition|
         definition['type'] == 'object'
       }.keys
     end
@@ -82,18 +84,18 @@ module DataCycleCore
     def get_property_value(property_name, property_definition)
       if linked_property_names.include?(property_name)
         load_linked_data(
-            "DataCycleCore::#{property_definition['type_name'].singularize.camelize}", 
+            "DataCycleCore::#{property_definition['type_name'].singularize.camelize}",
             send(property_definition['storage_location'])[property_name.to_s]
           )
       elsif embedded_property_names.include?(property_name) && property_definition['storage_location'] != self.class.table_name
         send(property_definition['storage_location'])
       elsif embedded_property_names.include?(property_name) && property_definition['storage_location'] == self.class.table_name
         load_linked_data(
-            self.class.to_s, 
+            self.class.to_s,
             send('metadata')[property_name.to_s + '_hasPart']
           )
       elsif PLAIN_PROPERTY_TYPES.include?(property_definition['storage_type'])
-        send(property_definition['storage_location'])[property_name.to_s]      
+        send(property_definition['storage_location'])[property_name.to_s]
       else
         raise NotImplementedError
       end
@@ -105,8 +107,8 @@ module DataCycleCore
 
     def set_property_value(property_name, property_definition, value)
       if PLAIN_PROPERTY_TYPES.include?(property_definition['storage_type'])
-        send(property_definition['storage_location'] + '=', 
-            (send(property_definition['storage_location']) || {}).merge({property_name => value})  
+        send(property_definition['storage_location'] + '=',
+            (send(property_definition['storage_location']) || {}).merge({property_name => value})
           )
       else
         raise NotImplementedError

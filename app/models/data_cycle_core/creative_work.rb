@@ -43,7 +43,6 @@ module DataCycleCore
     include DataSetter
 
     include Releasable
-    include Subscribable
     include ContentHelpers
 
 
