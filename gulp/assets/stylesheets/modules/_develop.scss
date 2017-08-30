@@ -202,6 +202,14 @@ select {
     height: calc(100vh - 13rem);
     .detail-content {
       padding: 0 1rem;
+      position: relative;
+      .show-content {
+        margin-top: 3rem;
+        position: relative;
+        >br {
+          display: none;
+        }
+      }
       .button-prime {
         &.small {
           width: 2rem;
@@ -231,27 +239,59 @@ select {
         }
       }
     }
+    .detail-header-info {
+      text-align: left;
+      display: flex;
+      width: 100%;
+      left: 0;
+      position: absolute;
+      top: -2rem;
+      opacity: 0.3;
+      transition: opacity 0.3s ease;
+      &:hover,
+      &:focus {
+        opacity: 1;
+      }
+      .type,
+      .metadata {
+        display: flex;
+        white-space: nowrap;
+      }
+      .metadata {
+        padding-left: 0.5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: pre;
+      }
+    }
     .split-content {
       display: inline-block;
       width: 49%;
       vertical-align: top;
       height: 100%;
       overflow-y: scroll;
-      &.edit-content {
-        .detail-header-info {
-          text-align: left;
-          display: flex;
-          width: 100%;
-          left: 0;
-          .type,
-          .metadata {
-            display: flex;
-            white-space: pre;
-          }
-          .metadata {
-            padding-left: 0.5rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
+      .subscribe-parent {
+        position: absolute;
+        width: 100%;
+        left: 0;
+        top: 0;
+        padding: 1rem;
+        text-align: center;
+        background: rgba(map-get($foundation-palette, success), 0.95);
+        z-index: 1;
+        p {
+          margin-bottom: 0.5rem;
+        }
+        .close-subscribe-notice {
+          position: absolute;
+          right: 1rem;
+          top: 0.5rem;
+          font-size: 2em;
+          cursor: pointer;
+          color: rgba($black, 0.5);
+          &:hover,
+          &:focus {
+            color: $black;
           }
         }
       }
