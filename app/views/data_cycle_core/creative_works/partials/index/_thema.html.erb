@@ -19,6 +19,7 @@
             <% end %>
 
             <%= render 'data_cycle_core/creative_works/partials/index/render/contentInfo', item: item %>
+            <%= render 'data_cycle_core/creative_works/partials/index/render/images', item: item unless item.metadata['image'].blank? %>
 
         </div>
 
