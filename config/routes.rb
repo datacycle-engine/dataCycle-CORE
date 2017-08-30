@@ -20,7 +20,6 @@ DataCycleCore::Engine.routes.draw do
     get :removeItem, on: :member
     get :addItem, on: :member
   end
-  resources :subscriptions, only: [:create, :destroy]
 
   resources :classifications, only: [:index, :create] do
     put :update, on: :collection

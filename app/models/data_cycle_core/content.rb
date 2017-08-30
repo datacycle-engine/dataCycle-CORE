@@ -5,16 +5,7 @@ module DataCycleCore
 
     self.abstract_class = true
 
-    attr_accessor :datahash
-
-    extend ContentRelationHelper
-
-    # belongs_to :external_source
-    #
-    # puts ['classification',self.table_name.singularize].sort.join('_').pluralize.to_sym
-    #
-    # has_many ['classification',self.class.name.demodulize.tableize.singularize].sort.join('_').pluralize.to_sym, dependent: :destroy
-    # has_many :classifications, through: ['classification',self.class.name.demodulize.tableize.singularize].sort.join('_').pluralize.to_sym
+    include Subscribable
 
     def property_definitions
       metadata['validation']['properties'] rescue {}
@@ -57,7 +48,7 @@ module DataCycleCore
       untranslated_columns = self.class.column_names
 
       property_definitions.select { |property_name, definition|
-          ['key', 'metadata', 'classification_relation'].include?(definition['storage_location']) ||
+          ['key', 'metadata'].include?(definition['storage_location']) ||
           (definition['storage_location'] == 'column' && untranslated_columns.include?(property_name))
         }.keys
     end
@@ -76,7 +67,11 @@ module DataCycleCore
 
     def embedded_property_names
       property_definitions.select { |property_name, definition|
+<<<<<<< ad00f9f9d55f3e6644f5fca86696b6a37fc6a328
         definition['type'] == 'object' && !NESTED_STORAGE_LOCATIONS.include?(definition['storage_location'])
+=======
+        definition['type'] == 'object'
+>>>>>>> fixed subscriptions / changed abilities
       }.keys
     end
 
@@ -136,7 +131,11 @@ module DataCycleCore
       # linked data via embeddedLink/embeddedLinkArray
       # only uuid(s) stored in content-data_set
       if linked_property_names.include?(property_name)
+<<<<<<< ad00f9f9d55f3e6644f5fca86696b6a37fc6a328
         loaded_data = load_linked_data(
+=======
+        load_linked_data(
+>>>>>>> fixed subscriptions / changed abilities
             "DataCycleCore::#{property_definition['type_name'].singularize.camelize}",
             send(property_definition['storage_location'])[property_name.to_s]
           )
