@@ -48,30 +48,7 @@ module DataCycleCore
         return
       end
 
-      if params[:template] != "Thema"
-        if params['parent'].nil? || params['parent'].blank?
-          #create new thema
-          if params[:template] == "Recherche"
-            thema = DataCycleCore::DataHashService.create_internal_object('creative_works', "Thema", 'CreativeWork', object_params, current_user)
-            @creativeWork.isPartOf = thema.id unless thema.nil?
-          else
-            flash[:error] = I18n.t :invalid_parent, scope: [:controllers, :error]
-            redirect_back(fallback_location: root_path)
-            return
-          end
-        else
-          #set as parent
-          @creativeWork.isPartOf = params['parent']
-          #get inherit attributes
-          inherit_datahash = get_inherit_datahash(@creativeWork)
-          if inherit_datahash.nil?
-            flash[:error] = I18n.t :invalid_parent_attr, scope: [:controllers, :error]
-            redirect_back(fallback_location: root_path)
-            return
-          end
-          @creativeWork.set_data_hash(inherit_datahash)
-        end
-      end
+      after_create(@creativeWork)
 
       #validate ?
       if !@creativeWork.nil? && @creativeWork.save
@@ -140,6 +117,12 @@ module DataCycleCore
       render :json => valid.to_json
 
     end
+
+
+    def after_create(content)
+      # to be implemented by specific projects
+    end
+
 
     private
       def create_params
