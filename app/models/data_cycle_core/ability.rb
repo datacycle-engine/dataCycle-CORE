@@ -16,13 +16,10 @@ module DataCycleCore
           can [:create, :destroy], DataCycleCore::Subscription
         end
 
-        if user.role == "admin"
+        if user.role == "admin" || user.admin?
           can :manage, :dash_board
 
         elsif user.role == "user"
-          if user.admin?
-            can :manage, :dash_board
-          end
 
         elsif user.role == "guest"
           DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
