@@ -31,12 +31,15 @@
 					<input type="hidden" name="<%= key %>[][id]" :value="props.item.id">
 				</div>
 			</template>
+		
+			<% begin %>
+				<template slot="new-item" scope="newItem">
 
-			<template slot="new-item" scope="newItem">
+					<%= render "data_cycle_core/#{prop['storage_location']}/partials/shared/new" %>
 
-				<%= render "data_cycle_core/#{prop['storage_location']}/partials/shared/new" %>
-
-			</template>
+				</template>
+			<% rescue %>
+			<% end %>
 
 		</object-browser>
 	</div>
