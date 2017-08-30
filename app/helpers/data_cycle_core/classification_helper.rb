@@ -3,13 +3,11 @@ module DataCycleCore
 
     #todo refactor
     def get_classifications_for_name(name)
-
       if !name.nil? && !name.blank?
-        unless (DataCycleCore::ClassificationTreeLabel.find_by name: name).nil?
-          @classification_tree_label =  DataCycleCore::ClassificationTreeLabel.find_by name: name
-        end
+        DataCycleCore::ClassificationTreeLabel
+          .includes(classification_trees: [:classification_tree_label, :sub_classification_alias])
+          .find_by name: name
       end
-
     end
 
     #todo refactor
@@ -17,7 +15,9 @@ module DataCycleCore
 
       unless uids.nil?
         if !treeLabel.nil?
-          allowed_classifications = get_classifications_for_name(treeLabel).classification_trees.map { |classification| classification.sub_classification_alias.id }
+          allowed_classifications = get_classifications_for_name(treeLabel)            
+            .classification_trees
+            .map { |classification| classification.sub_classification_alias.id }
           allowed_uids = uids.select {|uid| allowed_classifications.include?(uid)}
           @selected_classifications = DataCycleCore::ClassificationAlias.find(allowed_uids) rescue return
         else
