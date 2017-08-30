@@ -71,6 +71,17 @@ module DataCycleCore
       }.keys
     end
 
+    def to_h
+      property_names.map { |property_name|
+        if plain_property_names.include?(property_name)
+          { property_name.to_s => send(property_name)}
+        else
+          { property_name.to_s => send(property_name).to_h}
+        end
+      }.inject(&:merge)
+      .deep_stringify_keys
+    end
+
     def verify
       if (translatable_property_names & untranslatable_property_names).size > 0
         inconsistent_properties = (translatable_property_names & untranslatable_property_names)
@@ -121,21 +132,26 @@ module DataCycleCore
     def load_included_data(property_name, property_definition)
       sub_property_definitions = property_definition.try(:[], 'properties')
       raise StandardError.new("Template for included data #{property_name} has no Subproperties defined.") if sub_property_definitions.blank?
-      OpenStruct.new(get_subproperty_hash(sub_property_definitions, property_definition['storage_location'], send(property_definition['storage_location']).try(:[], property_name))).freeze
+      OpenStructHash.new(
+        get_subproperty_hash(sub_property_definitions,
+          property_definition['storage_location'],
+          send(property_definition['storage_location']).try(:[], property_name)
+        )
+      ).freeze
     end
 
     def get_subproperty_hash(sub_properties, storage_location, sub_properties_data)
       sub_properties.map{ |key, item|
-        if item['type'] == 'object'
-          {key => OpenStruct.new(get_subproperty_hash(item['properties'], storage_location, sub_properties_data[key.to_s])).freeze}
+        if item['type'] == 'object' && item['storage_location'] == storage_location
+          {key => OpenStructHash.new(get_subproperty_hash(item['properties'], storage_location, sub_properties_data.try(:[],key.to_s))).freeze}
         elsif item['storage_location'] == storage_location
-          {key => sub_properties_data[key.to_s]}
+          {key => sub_properties_data.try(:[],key.to_s)}
         elsif item['storage_location'] == 'column'
           {key => send(key)}
         else
-          raise StandardError.new()
+          raise StandardError.new("Template includes wrong definitions for included sub_property #{key}, given: #{item}!")
         end
-      }.inject(&:merge!)
+      }.inject(&:merge)
     end
 
     def set_property_value(property_name, property_definition, value)
