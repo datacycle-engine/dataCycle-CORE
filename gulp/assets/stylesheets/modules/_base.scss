@@ -819,6 +819,13 @@ body .v-select {
 /* Korrektur für Fehler im Neuen Eintrag erstellen reveal  */
 
 .new-item {
+  .notice {
+    padding: 1rem;
+    display: block;
+    background: rgba(map-get($foundation-palette, alert), 0.9);
+    color: #fefefe;
+    text-align: center;
+  }
   .validation-container {
     position: relative;
     span.single_error {
