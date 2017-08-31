@@ -332,7 +332,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
     }
 
     it "provides names of included property" do
-      expect(subject.embedded_property_names).to eq(['included_object'])
+      expect(subject.included_property_names).to eq(['included_object'])
     end
 
     it "provides plain_property_names" do

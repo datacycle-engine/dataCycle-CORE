@@ -70,7 +70,7 @@
         :label: Beschreibung
         :type: string
         :storage_type: text
-        :storage_location: content
+        :storage_location: column
         :editor:
           :type: quillEditor
           :sorting: 3

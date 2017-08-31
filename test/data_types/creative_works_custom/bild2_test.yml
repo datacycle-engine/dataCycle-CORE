@@ -1,6 +1,5 @@
----
 - :data:
-    :name: Bild
+    :name: Bild2
     :description: ImageObject
     :type: object
     :content_type: variant
@@ -58,6 +57,7 @@
         :storage_location: places
         :name: contentLocation
         :description: Place
+        :delete: true
       :width:
         :label: Breite
         :type: number
@@ -89,10 +89,6 @@
         :type: string
         :storage_type: string
         :storage_location: metadata
-        # :validations:
-        #   :daterange:
-        #     :from: datePublished
-        #     :to: expires
       :validityPeriod:
         :label: Gültigkeitszeitraum
         :type: object

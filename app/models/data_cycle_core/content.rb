@@ -84,16 +84,22 @@ module DataCycleCore
 
     def to_h
       property_names.map { |property_name|
-        if (plain_property_names + linked_property_names + classification_property_names).include?(property_name)
-          { property_name.to_s => send(property_name)}
+        property_value =
+        if plain_property_names.include?(property_name)
+          send(property_name)
+        elsif classification_property_names.include?(property_name)
+          send(property_name).try(:pluck, :classification_id)
+        elsif linked_property_names.include?(property_name)
+          send(property_name).try(:pluck, :id) || send(property_name).try(:id)
         elsif included_property_names.include?(property_name)
           embedded_hash = send(property_name).to_h
-          { property_name.to_s => embedded_hash.blank? ? nil : embedded_hash}
+          embedded_hash.blank? ? nil : embedded_hash
         elsif embedded_property_names.include?(property_name)
-          { property_name.to_s => send(property_name).map(&:to_h)}
+          send(property_name).map(&:get_data_hash).compact #to propagate the releasable functionality
         else
           raise StandardError.new("cannot determine how to serialize #{property_name}")
         end
+        { property_name.to_s => property_value }
       }.inject(&:merge).deep_stringify_keys
     end
 
@@ -111,41 +117,52 @@ module DataCycleCore
     private
 
     def get_property_value(property_name, property_definition)
-
-      puts property_name
-
       # linked data via embeddedLink/embeddedLinkArray
+      # only uuid(s) stored in content-data_set
       if linked_property_names.include?(property_name)
-        load_linked_data(
+        #puts "for #{property_name}, in #{property_definition['storage_location']}, load [#{property_name.to_s}]"
+        #send(property_definition['storage_location'])[property_name.to_s]
+        loaded_data = load_linked_data(
             "DataCycleCore::#{property_definition['type_name'].singularize.camelize}",
             send(property_definition['storage_location'])[property_name.to_s]
           )
+
       # included subobjects
+      # properties stored in this content-data_set directly
       elsif included_property_names.include?(property_name)
         load_included_data(
-          property_name,
-          property_definition
-        )
+            property_name,
+            property_definition
+          )
 
-      # embeddedObject stored in differnt table
+      # embeddedObject stored in different table
+      # relation is hadled via a separate table
+      # embeddedObject is stored in a separate content-data_set
+      # all properties from the embeddedObject are handled within this content-data_set
       elsif embedded_property_names.include?(property_name) && property_definition['storage_location'] != self.class.table_name
-        puts "--> different table"
         send(property_definition['storage_location'])
 
       # embeddedObject stored in same table
+      # relation is handled via "property_name"+"_hasPart" uuid(s) array
+      # embeddedObject is stored in a separate content-data_set
+      # all properties from the embeddedObject are handled within this content-data_set
       elsif embedded_property_names.include?(property_name) && property_definition['storage_location'] == self.class.table_name
-        puts "--> same table"
         load_linked_data(
             self.class.to_s,
             send('metadata')[property_name.to_s + '_hasPart']
           )
-      # for classification relations load the uuid-array
+
+      # for classification relations
+      # classifications are stored in the respective relations Table
+      # ( "classification"+"content_table")
       elsif classification_property_names.include?(property_name)
         load_relation_ids(
-          property_definition['storage_type'],
-          property_definition['type_name']
-        )
+            property_definition['storage_type'],
+            property_definition['type_name']
+          )
+
       # plain properties (e.g. string,text, ... )
+      # non-structured properties of this content-data_set
       elsif PLAIN_PROPERTY_TYPES.include?(property_definition['storage_type'])
         send(property_definition['storage_location'])[property_name.to_s]
       else
@@ -154,8 +171,7 @@ module DataCycleCore
     end
 
     def load_linked_data(class_name, ids)
-      puts "class_name: #{class_name} / ids: #{ids}"
-      class_name.safe_constantize.find(ids) rescue []
+      class_name.safe_constantize.find(ids) rescue nil
     end
 
     def load_included_data(property_name, property_definition)
@@ -166,13 +182,13 @@ module DataCycleCore
           property_definition['storage_location'],
           send(property_definition['storage_location']).try(:[], property_name)
         )
-      ).compact.freeze
+      ).freeze
     end
 
     def load_subproperty_hash(sub_properties, storage_location, sub_properties_data)
       sub_properties.map{ |key, item|
         if item['type'] == 'object' && item['storage_location'] == storage_location
-          {key => OpenStructHash.new(load_subproperty_hash(item['properties'], storage_location, sub_properties_data.try(:[],key.to_s))).compact.freeze}
+          {key => OpenStructHash.new(load_subproperty_hash(item['properties'], storage_location, sub_properties_data.try(:[],key.to_s))).freeze}
         elsif item['storage_location'] == storage_location
           {key => sub_properties_data.try(:[],key.to_s)}
         elsif item['storage_location'] == 'column'
@@ -189,8 +205,7 @@ module DataCycleCore
       class_string.constantize.
         where(class_id => id).
         joins(classification: [classification_groups: [classification_alias: [classification_trees: [:classification_tree_label]]]]).
-        where("classification_tree_labels.name = ?", tree_label).
-        pluck(:classification_id)
+        where("classification_tree_labels.name = ?", tree_label)
     end
 
 

@@ -7,9 +7,9 @@ module DataCycleCore
       else
         as_hash = self.table.stringify_keys
         struct_keys = as_hash.select { |_, v| v.is_a? self.class }.map(&:first)
-        struct_keys.each { |key| as_hash[key] = as_hash[key].to_h }
+        struct_keys.each { |key| as_hash[key] = as_hash[key].to_h.compact }
       end
-      as_hash
+      as_hash.compact
     end
 
   end

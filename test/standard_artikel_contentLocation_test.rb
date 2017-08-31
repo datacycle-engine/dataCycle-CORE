@@ -135,7 +135,7 @@ module DataCycleCore
       }
       expected_hash["quotation"][0]["id"]=returned_data_hash["quotation"][0]["id"]
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except('id',"data_type"))
+      assert_equal(expected_hash, returned_data_hash.compact.except('id',"data_type",'validityPeriod'))
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
@@ -164,7 +164,7 @@ module DataCycleCore
         "location" => nil
         }]
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, updated_data_hash.compact.except('id',"data_type"))
+      assert_equal(expected_hash, updated_data_hash.compact.except('id',"data_type",'validityPeriod'))
 
 
       # check consistency of data in DB

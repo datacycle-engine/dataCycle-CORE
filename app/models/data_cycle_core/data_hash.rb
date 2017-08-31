@@ -5,7 +5,6 @@ module DataCycleCore
 
     # get data as specified in the data template
     # data hash with keys named as in schema.org
-
     def get_data_hash
       if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with pending data in it
         data_type = metadata['validation']
@@ -212,7 +211,7 @@ module DataCycleCore
           if properties.has_key?('name') && properties.has_key?('description')
             delete = false
             delete = true if properties.has_key?('delete') && properties['delete'] == true
-            #puts "set_linked_data_type(#key, #{value}, #{properties['storage_location']}, #{properties['name']}, #{properties['description']}, #{delete})"
+            #puts "set_linked_data_type(#{key}, #{value}, #{properties['storage_location']}, #{properties['name']}, #{properties['description']}, #{delete})"
             set_linked_data_type(key, value, properties['storage_location'], properties['name'], properties['description'], delete)
           else
             puts "wrong data_type #{key} | #{value}"
