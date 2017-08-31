@@ -105,7 +105,7 @@
   }
 }
 
-.confirm {
+.confirmation {
   position: absolute;
   top: -5rem;
   left: 1rem;
@@ -119,6 +119,21 @@
   -webkit-transition: all 0.4s ease;
   line-height: 1.5;
   text-align: left;
+  &.watchlist-dialog {
+    display: none;
+    left: auto;
+    transition: none;
+    span {
+      margin: 0.5rem 0;
+    }
+    button {
+      margin: 0.5rem 0.1rem;
+    }
+    &:before {
+      left: auto;
+      right: 1.2rem;
+    }
+  }
   span {
     display: block;
     margin-bottom: 1rem;

@@ -9,12 +9,13 @@ module.exports.initialize = function () {
     $.get($(this).attr('href'), function (data) {
       if ($(this).hasClass('add-to-watchlist-link')) {
         $parent.find('.watchlist-headline').html(data.headline);
+        $(this).on('click', check_confirmation);
       } else if ($(this).hasClass('remove-from-watchlist-link')) {
         $parent.find('.watchlist-headline').html('<a class="add-to-watchlist-link" href="' + data.url + '">' + data.headline + '</a>');
       }
 
       $parent.find('.check').toggleClass('checked');
-      $change_link.toggleClass('add-to-watchlist-link remove-from-watchlist-link');
+      $change_link.toggleClass('add-to-watchlist-link remove-from-watchlist-link confirm');
       $change_link.find('.fa').toggleClass('fa-plus-circle fa-minus-circle');
       $change_link.attr('href', data.url);
 
@@ -53,5 +54,62 @@ module.exports.initialize = function () {
       this.reset();
     }.bind(this));
   });
+
+  //  Confirmation to Delete Watchlists or Watchlist Entries
+
+  $('a.confirm').on('click', check_confirmation);
+
+  function check_confirmation(ev, options) {
+    options = options || {};
+    if (options.done) {
+      $(this).off(ev);
+      $(this)[0].click();
+    } else {
+      ev.stopPropagation();
+      ev.preventDefault();
+      confirm_delete(this, ev);
+    }
+  };
+
+  function confirm_delete(elem, event) {
+    var $confirmation = $('.confirmation.watchlist-dialog');
+    var text = $(elem).data('confirmation-text');
+    if ($confirmation.length > 0) {
+      $confirmation.find('.text').html(text);
+    } else {
+      $('.off-canvas-wrapper').append(render_confirmation(text));
+      $confirmation = $('.confirmation.watchlist-dialog');
+    }
+    var left = event.pageX - $confirmation.width() + 8;
+    var top = event.pageY - $confirmation.height() - 40;
+
+    $confirmation.css({
+      'left': left,
+      'top': top
+    });
+
+    $confirmation.show();
+    $confirmation.off('click', '.cancel-confirmation').on('click', '.cancel-confirmation', function (ev) {
+      ev.preventDefault();
+      $confirmation.hide();
+    });
+
+    $confirmation.off('click', '.accept-confirmation').on('click', '.accept-confirmation', function (ev) {
+      ev.preventDefault();
+      $confirmation.hide();
+      $(elem).triggerHandler('click', {
+        done: true
+      });
+    });
+  };
+
+  function render_confirmation(text) {
+    var html = '<div class="confirmation watchlist-dialog">';
+    html += '<span class="text">' + text + '</span>';
+    html += '<button class="button accept-confirmation">Ok</button>';
+    html += '<button class="button cancel-confirmation">Abbrechen</button>';
+    html += '</div>';
+    return html;
+  };
 
 };

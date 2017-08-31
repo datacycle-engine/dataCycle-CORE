@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class='confirm' v-if="confirm">
+    <div class='confirmation' v-if="confirm">
       <span v-html="confirmText"></span>
       <div class="buttons">
         <button class='button abort' @click.prevent="confirm = false">Abbrechen</button>
