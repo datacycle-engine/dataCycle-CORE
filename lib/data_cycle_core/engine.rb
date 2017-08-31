@@ -46,7 +46,7 @@ require 'globalize'
 require 'gretel'
 require 'gretel-trails'
 
-# support for forms 
+# support for forms
 require 'simple_form'
 
 # rendering json responses
@@ -54,20 +54,23 @@ require 'jbuilder'
 
 module DataCycleCore
   class << self
-    mattr_accessor :breadcrumb_root_name    
+    mattr_accessor :breadcrumb_root_name
     self.breadcrumb_root_name = "Dashboard"
 
     # special data attributes are ignored by the standard json serializes and must be handled by the application itself
-    mattr_accessor :special_data_attributes    
+    mattr_accessor :special_data_attributes
     self.special_data_attributes = []
 
-    mattr_accessor :default_image_type    
+    mattr_accessor :available_locales
+    self.available_locales = {}
+
+    mattr_accessor :default_image_type
     self.default_image_type = nil
 
-    mattr_accessor :default_place_type    
+    mattr_accessor :default_place_type
     self.default_place_type = nil
 
-    mattr_accessor :access_tokens    
+    mattr_accessor :access_tokens
     self.access_tokens = []
   end
 
@@ -148,7 +151,7 @@ JbuilderTemplate.class_eval do
       "#{parameters[:content].class.class_name.underscore}_#{partial}",
       "content_#{partial}",
     ]
-    
+
     partials.each_with_index do |partial, idx|
       begin
         return partial!(partial, parameters)
