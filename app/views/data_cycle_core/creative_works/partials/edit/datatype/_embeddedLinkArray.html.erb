@@ -26,6 +26,9 @@
 			<object-browser :existing="<%= existing.to_json %>" object-class="<%= object %>" :min="<%= min %>" :max="<%= max %>" object-type="<%= prop['editor']['options']['data-type'].downcase %>" :object-label="'<%= prop['label'] %>'" hidden-name="<%= key %>[]" :reveal-link="true">
 				<template scope="props" slot="item">
 					<div v-if="props.item != undefined" :data-open="props.dataOpen" :class="[props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != '' && props.item.metadata.restrictions != 'Keine Einschränkung;' ? 'has-restrictions' : '', 'media thumbnail']" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnailUrl+')' }">
+
+						<span v-if="props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != ''" data-tooltip aria-haspopup="true" class="has-tip warning" data-disable-hover="false" tabindex="1" :title="'Einschränkungen: '+props.item.metadata.restrictions"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
+
 						<span slot="remove" class="delete-thumbnail" href="#" @click.stop="props.remove(props.item, $event)"><i aria-hidden="true" class="fa fa-times"></i></span>
 						<div class="description" v-if="props.item.headline">
 							{{ props.item.headline }}

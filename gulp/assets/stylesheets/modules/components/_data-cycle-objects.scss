@@ -104,9 +104,6 @@
       height: 157px;
       padding: 0;
       cursor: pointer;
-      &.has-restrictions {
-        box-shadow: 0 0 2px 1px red;
-      }
       .description {
         position: absolute;
         left: 0;
@@ -157,6 +154,7 @@
   margin: 8.1rem 0 0 0 !important;
   outline: none;
   padding: 0;
+  background: white;
   .object-browser-header {
     .buttons {
       position: absolute;
@@ -180,37 +178,6 @@
           &:hover,
           &:focus {
             color: $black;
-          }
-        }
-      }
-      .save-object-browser {
-        .chosen-items {
-          display: none;
-          padding-top: 1rem;
-          .chosen-item {
-            padding: 0.5rem 2rem 0.5rem 0;
-            text-align: left;
-            position: relative;
-            .remove {
-              position: absolute;
-              right: 0;
-              top: 0.25rem;
-              display: block;
-              width: 1.5rem;
-              height: 1.5rem;
-              text-align: center;
-              line-height: 1.5rem;
-              &:hover,
-              &:focus {
-                color: red;
-              }
-            }
-          }
-        }
-        &:hover,
-        &:focus {
-          .chosen-items {
-            display: block;
           }
         }
       }
@@ -255,9 +222,9 @@
     }
   }
   .items {
-    padding: 7rem 1rem 1rem 1rem;
+    padding: 0.3rem 1rem 1rem 1rem;
     margin-right: 400px;
-    height: calc(100% - 8.1rem);
+    height: 100%;
     overflow-y: scroll;
     .media {
       width: auto;
@@ -286,9 +253,7 @@
         background-position: center center;
         background-size: contain;
         background-repeat: no-repeat;
-        &.has-restrictions {
-          box-shadow: 0 0 2px 1px red;
-        }
+        position: relative;
       }
     }
     a.delete-thumbnail {
@@ -323,16 +288,62 @@
         display: none;
       }
     }
+    .chosen-items {
+          position: fixed;
+          z-index: 20;
+          background: rgba(white, 0.9);
+          right: 0;
+          left: 0;
+          bottom: 0;
+          padding: 0.5rem;
+          box-shadow: 0 -3px 7px rgba(0,0,0, 0.1);
+          .buttons {
+            position: absolute;
+            top: -3rem;
+            right: 2rem;
+          }
+          .chosen-item {
+            display: inline-block;
+            position: relative;
+            height: 80px;
+            width: 80px;
+            margin: 0.1rem;
+            .chosen-bg {
+              height: 80px;
+              width: 80px;
+              background-size: cover;
+            }
+            .remove {
+              position: absolute;
+              right: 0;
+              left: 0;
+              top: 0;
+              bottom: 0;
+              display: block; 
+              text-align: center;
+              color: white;
+              i {
+                font-size: 2.5rem;
+                line-height: 80px;
+              }
+              &:hover,
+              &:focus {
+                color: red;
+                background: rgba(white, 0.5);
+                cursor: pointer;
+              }
+            }
+          }
+
+    }
   }
   .item-info {
     width: 400px;
-    background: $white;
-    position: fixed;
+    position: absolute;
     right: 0;
-    top: 8.1rem;
+    top: 0;
     bottom: 0;
-    padding: 3.5rem 1.5rem 1.5rem 1.5rem;
-    background: $white;
+    padding: 1.5rem 1.5rem 15rem 1.5rem;
     overflow-y: scroll;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
@@ -342,15 +353,33 @@
       right: 1rem;
       top: 3.5rem;
     }
+    .fa-exclamation-triangle {
+      color: $warning-color;
+    }
     dl {
       margin: 0;
-      dt,
-      dd {
-        margin: 0;
+      display: flex;
+      flex-flow: row;
+      flex-wrap: wrap;
+      width: 100%;      /* set the container width*/
+      overflow: visible;
+      dt {
+         margin: 0;
         display: block;
+        flex: 0 0 50%;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        &.block-flex { flex: 0 0 100%; }
       }
-      dd {
-        margin-bottom: 0.5rem;
+     dd {
+      margin: 0;
+      margin-bottom: 0.5rem;
+      flex:0 0 50%;
+      margin-left: auto;
+      text-align: left;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      &.block-flex { flex: 0 0 100%; }
       }
     }
   }
@@ -374,6 +403,14 @@ span.single_error.object-browser-error {
   }
 }
 
+.thumbnail span.warning {
+  position: absolute;
+  color: $warning-color;
+  bottom: 5px;
+  right: 5px;
+  display: block;
+  border-bottom: 0;
+}
 
 /* Object Browser New Items */
 
