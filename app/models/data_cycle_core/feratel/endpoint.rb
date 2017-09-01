@@ -9,14 +9,14 @@ class DataCycleCore::Feratel::Endpoint
   end
 
   def load_events(start_date = Date.today.beginning_of_month, end_date = Date.today.end_of_month)
-    ranges = (start_date..end_date).map { |d| 
-        [start_date, d.beginning_of_month].max 
-      }.uniq.map { |d| 
+    ranges = (start_date..end_date).map { |d|
+        [start_date, d.beginning_of_month].max
+      }.uniq.map { |d|
         d .. [d.end_of_month, Date.today + 11.weeks].min
       }
 
     if ranges.count > 1
-      ranges.each do |range| 
+      ranges.each do |range|
         load_events(range.first, range.last)
       end
     else
@@ -45,7 +45,7 @@ class DataCycleCore::Feratel::Endpoint
   def create_event_request_xml(start_date, end_date)
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <FeratelDsiRQ xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns=\"http://interface.deskline.net/DSI/XSD\">
-    <Request Originator=\"#{@pos_code}\" Company=\"#{@company_code}\" Language=\"de\"> 
+    <Request Originator=\"#{@pos_code}\" Company=\"#{@company_code}\" Language=\"de\">
         <Range Code=\"#{@range_code}\">
             <Item Id=\"#{@range_id}\" />
         </Range>
@@ -56,7 +56,7 @@ class DataCycleCore::Feratel::Endpoint
                   <Language Value=\"de\" />
               </Languages>
           </Filters>
-          <Events>
+          <Events ShowDataOwner=\"true\">
             <Details DateFrom=\"1980-01-01\" />
             <Documents DateFrom=\"1980-01-01\" Systems=\"L T\" />
             <Descriptions DateFrom=\"1980-01-01\" Systems=\"L T\" />
