@@ -120,8 +120,6 @@ module DataCycleCore
       # linked data via embeddedLink/embeddedLinkArray
       # only uuid(s) stored in content-data_set
       if linked_property_names.include?(property_name)
-        #puts "for #{property_name}, in #{property_definition['storage_location']}, load [#{property_name.to_s}]"
-        #send(property_definition['storage_location'])[property_name.to_s]
         loaded_data = load_linked_data(
             "DataCycleCore::#{property_definition['type_name'].singularize.camelize}",
             send(property_definition['storage_location'])[property_name.to_s]
@@ -136,7 +134,7 @@ module DataCycleCore
           )
 
       # embeddedObject stored in different table
-      # relation is hadled via a separate table
+      # relation is hadled via a separate table (an ActiveRecord::Relation has to be defined)
       # embeddedObject is stored in a separate content-data_set
       # all properties from the embeddedObject are handled within this content-data_set
       elsif embedded_property_names.include?(property_name) && property_definition['storage_location'] != self.class.table_name
