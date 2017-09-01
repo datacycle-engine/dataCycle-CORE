@@ -11,8 +11,9 @@
       font-weight: normal;
       text-decoration: inherit;
       position: absolute;
-      left: 1rem;
+      left: 0.3em;
       bottom: -1.5rem;
+      color: $dark-gray;
     }
   }
   .main-filters {
@@ -147,7 +148,14 @@
           display: inline-block;
           &.sub-classifications {
             display: block;
-            margin-left: 2rem;
+            margin: 0 0 0.5rem 1.5rem;
+            /*background: lighten($light-gray, 4%);
+            border-radius: 10px;*/
+            label {
+               font-size: 0.8rem;
+               margin-right: 0.5rem;
+              &:before { padding-top: 1px; }
+            }
           }
         }
       }
@@ -165,7 +173,7 @@
         position: relative;
         cursor: pointer;
         transition: all 0.4s ease;
-        font-size: 0.8rem;
+        font-size: 0.9rem; 
         i {
           position: absolute;
           top: 1px;
@@ -176,6 +184,12 @@
         content: 'o';
         transition: all 0.4s ease;
         opacity: 1;
+        font-size: 0.8rem;
+        display: block;
+        line-height: 1.2rem;
+        float: left;
+        padding: 3px 5px 0 0;
+        width: 0.8rem;
       }
       label:hover {
         opacity: .3;
@@ -406,6 +420,9 @@
     label,
     a {
       display: inline-block;
+    }
+    a:hover {
+        background: $alert-color;
     }
   }
 }
