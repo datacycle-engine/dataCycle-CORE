@@ -1,0 +1,19 @@
+<% breadcrumb :classifications, autoroot: false %>
+
+<div class="row">
+  <div class="small-12 columns">
+    <h1><%= t('data_cycle_core.classifications') %></h1>
+
+    <ul>
+      <% @classification_tree_labels.each do |tree_label| %>
+        <li>
+          <%= link_to tree_label.name,
+                      classifications_path(classification_tree_label_id: tree_label.id),
+                      data: {remote: true, 'disable-with' => '<i class="fa fa-spinner fa-spin"></i> Loading ...'} %>
+          <ul id="<%= tree_label.id %>">
+          </ul>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>

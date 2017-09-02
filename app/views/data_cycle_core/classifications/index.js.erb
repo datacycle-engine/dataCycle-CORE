@@ -1,0 +1,4 @@
+$('#<%= @classification_tree.id %>').empty();
+
+$('<%= escape_javascript(render 'classification_trees', classification_trees: @classification_trees) %>')
+  .appendTo('#<%= @classification_tree.id %>');

@@ -74,6 +74,10 @@ de:
     manage:
       all: "Keine Zugriffsberechtigung!"
   data_cycle_core:
+    administration: 'Administration'
+
+    classifications: 'Klassifizierungen'
+
     places:
       partials:
         shared:
