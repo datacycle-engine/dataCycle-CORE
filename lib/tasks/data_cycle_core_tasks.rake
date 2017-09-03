@@ -46,8 +46,8 @@ namespace :data_cycle_core do
 
     desc "Only download data from given data source"
     task :download, [:external_source_id, :max_count] => [:environment] do |t, args|
-      options = Hash[{max_count: FIXNUM_MAX}.merge(args.to_h).map { |k, v|
-        if k == :max_count
+      options = Hash[{max_count: nil}.merge(args.to_h).map { |k, v|
+        if k == :max_count && v
           [k, v.to_i]
         else
           [k, v]
@@ -55,7 +55,22 @@ namespace :data_cycle_core do
       }]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
-      external_source.download(options)
+      external_source.download(options) do |on|
+        on.phase_started { |label, total|
+          puts "Downloading #{label} ..." if total.nil?
+          puts "Downloading #{label} (#{total} items) ..." if total
+        }
+        on.item_processed { |title, id, num, total|
+          puts " -> \"#{title} (\##{id})\" downloaded (#{num} of #{total || '?'})"
+        }
+        on.error { |title, id, data, error|
+          puts "Error downloading \"#{title} (\##{id})\": #{error}"
+          puts "  DATA: #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}"
+        }
+        on.phase_finished { |label, total|
+          puts "Downloading #{label} (#{total} items) ... [DONE]"
+        }
+      end
     end
 
     desc "Only import (without downloading) data from given data source"

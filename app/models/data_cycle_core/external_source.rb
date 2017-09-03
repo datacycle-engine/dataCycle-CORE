@@ -5,11 +5,11 @@ module DataCycleCore
 
     has_many :use_cases
 
-    def download(options = {})
+    def download(options = {}, &block)
       if config['download'].starts_with?('::') || config['download'].starts_with?('DataCycleCore::')
-        "#{config['download']}".constantize.new(id).download(options)
+        "#{config['download']}".constantize.new(id).download(options, &block)
       else
-        "DataCycleCore::#{config['download']}".constantize.new(id).download(options)
+        "DataCycleCore::#{config['download']}".constantize.new(id).download(options, &block)
       end
     end
 
