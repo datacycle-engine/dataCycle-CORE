@@ -24,8 +24,24 @@ class DataCycleCore::Feratel::Endpoint
     load_data(:custom_attributes)
   end
 
+  def load_facility_groups
+    load_data(:facility_groups)
+  end
+
+  def load_facilities
+    load_data(:facilities)
+  end
+
+  def load_rating_questions
+    load_data(:rating_questions)
+  end
+
   def load_infrastructure_items
     load_data(:infrastructure_items)
+  end
+
+  def load_additional_service_providers
+    load_data(:additional_service_providers)
   end
 
   def load_events
@@ -33,7 +49,7 @@ class DataCycleCore::Feratel::Endpoint
   end
 
   def load_data(type)
-    if [:events, :infrastructure_items].include?(type)
+    if [:additional_service_providers, :events, :infrastructure_items].include?(type)
       url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
     else
       url = 'http://interface.deskline.net/DSI/KeyValue.asmx/GetKeyValues'
@@ -115,6 +131,48 @@ class DataCycleCore::Feratel::Endpoint
     end
   end
 
+  def create_facility_groups_request_xml
+    create_request_xml do |xml|
+      xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
+        xml.Translations do
+          DataCycleCore.available_locales.keys.each do |l|
+            xml.Language('Value' => l.to_s)
+          end
+        end
+
+        xml.FacilityGroups('Show' => true)
+      end
+    end
+  end
+
+  def create_facilities_request_xml
+    create_request_xml do |xml|
+      xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
+        xml.Translations do
+          DataCycleCore.available_locales.keys.each do |l|
+            xml.Language('Value' => l.to_s)
+          end
+        end
+
+        xml.Facilities('Show' => true)
+      end
+    end
+  end
+
+  def create_rating_questions_request_xml
+    create_request_xml do |xml|
+      xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
+        xml.Translations do
+          DataCycleCore.available_locales.keys.each do |l|
+            xml.Language('Value' => l.to_s)
+          end
+        end
+
+        xml.RatingQuestions('Show' => true)
+      end
+    end
+  end
+
   def create_infrastructure_items_request_xml
     create_request_xml do |xml|
       xml.BasicData do
@@ -137,6 +195,41 @@ class DataCycleCore::Feratel::Endpoint
           xml.CustomAttributes('DateFrom' => '1980-01-01')
           xml.HandicapFacilities('DateFrom' => '1980-01-01')
           xml.HandicapClassifications('DateFrom' => '1980-01-01')
+        end
+      end
+    end
+  end
+
+  def create_additional_service_providers_request_xml
+    create_request_xml do |xml|
+      xml.BasicData do
+        xml.Filters do
+          xml.ServiceProvider('Type' => 'AdditionalService')
+          xml.Languages do
+            DataCycleCore.available_locales.keys.each do |l|
+              xml.Language('Value' => l.to_s)
+            end
+          end
+        end
+
+        xml.ServiceProviders('ShowDataOwner' => true, 'IncludeVTInfo' => true) do
+          xml.Details('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
+          xml.Documents('DateFrom' => '1980-01-01')
+          xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
+          xml.Facilities('DateFrom' => '1980-01-01')
+          xml.Addresses('DateFrom' => '1980-01-01', 'GetSettlementAddresses' => true)
+          xml.RatingsAverage('DateFrom' => '1980-01-01')
+          xml.CustomAttributes('DateFrom' => '1980-01-01')
+          xml.HotSpots('DateFrom' => '1980-01-01')
+          xml.AdditionalServices do
+            xml.Details('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
+            xml.Documents('DateFrom' => '1980-01-01')
+            xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
+            xml.Facilities('DateFrom' => '1980-01-01')
+            xml.AdditionalProducts do
+              xml.Details('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
+            end
+          end
         end
       end
     end

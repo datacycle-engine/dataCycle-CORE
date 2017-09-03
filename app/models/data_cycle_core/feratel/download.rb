@@ -3,12 +3,16 @@ module DataCycleCore::Feratel
     def download(options = {}, &block)
       callbacks = DataCycleCore::Callbacks.new(block)
 
-      # download_locations(options, callbacks)
-      # download_holiday_themes(options, callbacks)
+      download_locations(options, callbacks)
+      download_holiday_themes(options, callbacks)
       download_infrastructure_topics(options, callbacks)
-      # download_custom_attributes(options, callbacks)
-      # download_infrastructure(options, callbacks)
-      # download_events(options, callbacks)
+      download_custom_attributes(options, callbacks)
+      download_facility_groups(options, callbacks)
+      download_facilities(options, callbacks)
+      download_rating_questions(options, callbacks)
+      download_infrastructure(options, callbacks)
+      download_additional_service_providers(options, callbacks)
+      download_events(options, callbacks)
     end
 
     def download_locations(options = {}, callbacks = DataCycleCore::Callbacks.new)
@@ -41,6 +45,33 @@ module DataCycleCore::Feratel
       end
     end
 
+    def download_facility_groups(options = {}, callbacks = DataCycleCore::Callbacks.new)
+      download_data(FacilityGroup, '//FacilityGroup', options.clone, callbacks) do |data|
+        [
+          data['Id'],
+          Array(data['Name']['Translation']).find { |t| t['Language'] == I18n.locale.to_s }.try(:[], 'text')
+        ]
+      end
+    end
+
+    def download_facilities(options = {}, callbacks = DataCycleCore::Callbacks.new)
+      download_data(Facility, '//Facility', options.clone, callbacks) do |data|
+        [
+          data['Id'],
+          Array(data['Name']['Translation']).find { |t| t['Language'] == I18n.locale.to_s }.try(:[], 'text')
+        ]
+      end
+    end
+
+    def download_rating_questions(options = {}, callbacks = DataCycleCore::Callbacks.new)
+      download_data(RatingQuestion, '//RatingQuestion', options.clone, callbacks) do |data|
+        [
+          data['Id'],
+          Array(data['Name']['Translation']).find { |t| t['Language'] == I18n.locale.to_s }.try(:[], 'text')
+        ]
+      end
+    end
+
     def download_infrastructure(options = {}, callbacks = DataCycleCore::Callbacks.new)
       download_data(InfrastructureItem, '//InfrastructureItem', options.clone, callbacks) do |data|
         [
@@ -49,6 +80,16 @@ module DataCycleCore::Feratel
         ]
       end
     end
+
+    def download_additional_service_providers(options = {}, callbacks = DataCycleCore::Callbacks.new)
+      download_data(AdditionalServiceProvider, '//ServiceProvider', options.clone, callbacks) do |data|
+        [
+          data['Id'],
+          Array(data['Details']['Names']['Translation']).find { |t| t['Language'] == I18n.locale.to_s }.try(:[], 'text')
+        ]
+      end
+    end
+
 
     def download_events(options = {}, callbacks = DataCycleCore::Callbacks.new)
       download_data(Event, '//Event', options.clone, callbacks) do |data|
