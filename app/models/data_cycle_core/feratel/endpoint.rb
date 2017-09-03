@@ -8,14 +8,40 @@ class DataCycleCore::Feratel::Endpoint
     @sales_channel_id = sales_channel_id
   end
 
-  def load_events
-    conn = Faraday.new
+  def load_locations
+    load_data(:locations)
+  end
 
-    response = conn.post do |req|
-      req.url 'http://interface.deskline.net//DSI/BasicData.asmx/GetData'
-      req.body = {
-        "xmlString" => create_event_request_xml
-      }
+  def load_holiday_themes
+    load_data(:holiday_themes)
+  end
+
+  def load_infrastructure_topics
+    load_data(:infrastructure_topics)
+  end
+
+  def load_custom_attributes
+    load_data(:custom_attributes)
+  end
+
+  def load_infrastructure_items
+    load_data(:infrastructure_items)
+  end
+
+  def load_events
+    load_data(:events)
+  end
+
+  def load_data(type)
+    if [:events, :infrastructure_items].include?(type)
+      url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
+    else
+      url = 'http://interface.deskline.net/DSI/KeyValue.asmx/GetKeyValues'
+    end
+
+    response = Faraday.new.post do |req|
+      req.url url
+      req.body = {"xmlString" => send("create_#{type}_request_xml")}
     end
 
     envelop = Nokogiri::XML(response.body)
@@ -30,34 +56,132 @@ class DataCycleCore::Feratel::Endpoint
     end
   end
 
-  def create_event_request_xml
-"<?xml version=\"1.0\" encoding=\"utf-8\"?>
-<FeratelDsiRQ xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns=\"http://interface.deskline.net/DSI/XSD\">
-    <Request Originator=\"#{@pos_code}\" Company=\"#{@company_code}\">
-        <Range Code=\"#{@range_code}\">
-            <Item Id=\"#{@range_id}\" />
-        </Range>
-        <BasicData>
-          <Filters>
-              <Events Start=\"#{(Date.today - 1.years).strftime('%Y-%m-%d')}\" End=\"#{(Date.today + 10.years).strftime('%Y-%m-%d')}\" />
-              <Languages>
-                  #{DataCycleCore.available_locales.keys.map { |l| '<Language Value="' + l.to_s + '" />' }.join("\n                  ")}
-              </Languages>
-          </Filters>
-          <Events ShowDataOwner=\"true\">
-            <Details DateFrom=\"1980-01-01\" />
-            <Documents DateFrom=\"1980-01-01\" />
-            <Descriptions DateFrom=\"1980-01-01\" />
-            <Links DateFrom=\"1980-01-01\" />
-            <Facilities DateFrom=\"1980-01-01\" />
-            <Addresses DateFrom=\"1980-01-01\" />
-            <CustomAttributes DateFrom=\"1980-01-01\" />
-            <HandicapFacilities DateFrom=\"1980-01-01\" />
-            <HandicapClassifications DateFrom=\"1980-01-01\" />
-          </Events>
-        </BasicData>
-    </Request>
-</FeratelDsiRQ>"
+  def create_locations_request_xml
+    create_request_xml do |xml|
+      xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
+        xml.Translations do
+          DataCycleCore.available_locales.keys.each do |l|
+            xml.Language('Value' => l.to_s)
+          end
+        end
+
+        xml.Countries('Show' => true, 'IncludeTranslations' => true)
+        xml.Regions('Show' => true, 'IncludeTranslations' => true)
+        xml.Towns('Show' => true, 'IncludeTranslations' => true)
+        xml.Districts('Show' => true, 'IncludeTranslations' => true)
+      end
+    end
   end
 
+  def create_holiday_themes_request_xml
+    create_request_xml do |xml|
+      xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
+        xml.Translations do
+          DataCycleCore.available_locales.keys.each do |l|
+            xml.Language('Value' => l.to_s)
+          end
+        end
+
+        xml.HolidayThemes('Show' => true)
+      end
+    end
+  end
+
+  def create_infrastructure_topics_request_xml
+    create_request_xml do |xml|
+      xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
+        xml.Translations do
+          DataCycleCore.available_locales.keys.each do |l|
+            xml.Language('Value' => l.to_s)
+          end
+        end
+
+        xml.InfrastructureTopics('Show' => true)
+      end
+    end
+  end
+
+  def create_custom_attributes_request_xml
+    create_request_xml do |xml|
+      xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
+        xml.Translations do
+          DataCycleCore.available_locales.keys.each do |l|
+            xml.Language('Value' => l.to_s)
+          end
+        end
+
+        xml.CustomAttributes('Show' => true)
+      end
+    end
+  end
+
+  def create_infrastructure_items_request_xml
+    create_request_xml do |xml|
+      xml.BasicData do
+        xml.Filters do
+          xml.Infrastructure
+          xml.Languages do
+            DataCycleCore.available_locales.keys.each do |l|
+              xml.Language('Value' => l.to_s)
+            end
+          end
+        end
+
+        xml.Infrastructure('ShowDataOwner' => true) do
+          xml.Details('DateFrom' => '1980-01-01', 'IncludeMainTopicId' => true)
+          xml.Documents('DateFrom' => '1980-01-01')
+          xml.Descriptions('DateFrom' => '1980-01-01')
+          xml.Links('DateFrom' => '1980-01-01')
+          xml.Addresses('DateFrom' => '1980-01-01')
+          xml.HotSpots('DateFrom' => '1980-01-01')
+          xml.CustomAttributes('DateFrom' => '1980-01-01')
+          xml.HandicapFacilities('DateFrom' => '1980-01-01')
+          xml.HandicapClassifications('DateFrom' => '1980-01-01')
+        end
+      end
+    end
+  end
+
+  def create_events_request_xml
+    create_request_xml do |xml|
+      xml.BasicData do
+        xml.Filters do
+          xml.Events('Start' => (Date.today - 1.years).strftime('%Y-%m-%d'), 'End' => (Date.today + 10.years).strftime('%Y-%m-%d'))
+          xml.Languages do
+            DataCycleCore.available_locales.keys.each do |l|
+              xml.Language('Value' => l.to_s)
+            end
+          end
+        end
+
+        xml.Events('ShowDataOwner' => true) do
+          xml.Details('DateFrom' => "1980-01-01")
+          xml.Documents('DateFrom' => "1980-01-01")
+          xml.Descriptions('DateFrom' => "1980-01-01")
+          xml.Links('DateFrom' => "1980-01-01")
+          xml.Facilities('DateFrom' => "1980-01-01")
+          xml.Addresses('DateFrom' => "1980-01-01")
+          xml.CustomAttributes('DateFrom' => "1980-01-01")
+          xml.HandicapFacilities('DateFrom' => "1980-01-01")
+          xml.HandicapClassifications('DateFrom' => "1980-01-01")
+        end
+      end
+    end
+  end
+
+  def create_request_xml
+    Nokogiri::XML::Builder.new { |xml|
+      xml.FeratelDsiRQ("xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
+                       "xmlns:xsd" => "http://www.w3.org/2001/XMLSchema",
+                       "xmlns" => "http://interface.deskline.net/DSI/XSD") do
+        xml.Request("Originator" => @pos_code, "Company" => @company_code) do
+          xml.Range("Code" => @range_code) do
+            xml.Item("Id" => @range_id)
+          end
+
+          yield(xml)
+        end
+      end
+    }.to_xml
+  end
 end

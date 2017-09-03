@@ -3,45 +3,98 @@ module DataCycleCore::Feratel
     def download(options = {}, &block)
       callbacks = DataCycleCore::Callbacks.new(block)
 
-      download_events(options, callbacks)
+      # download_locations(options, callbacks)
+      # download_holiday_themes(options, callbacks)
+      download_infrastructure_topics(options, callbacks)
+      # download_custom_attributes(options, callbacks)
+      # download_infrastructure(options, callbacks)
+      # download_events(options, callbacks)
+    end
+
+    def download_locations(options = {}, callbacks = DataCycleCore::Callbacks.new)
+      download_data(Location, '//Location', options.clone, callbacks) do |data|
+        [data['Id'], data['Name']]
+      end
+    end
+
+    def download_holiday_themes(options = {}, callbacks = DataCycleCore::Callbacks.new)
+      download_data(HolidayTheme, '//HolidayTheme', options.clone, callbacks) do |data|
+        [
+          data['Id'],
+          Array(data['Name']['Translation']).find { |t| t['Language'] == I18n.locale.to_s }.try(:[], 'text')
+        ]
+      end
+    end
+
+    def download_infrastructure_topics(options = {}, callbacks = DataCycleCore::Callbacks.new)
+      download_data(InfrastructureTopic, '//InfrastructureTopic', options.clone, callbacks) do |data|
+        [
+          data['Id'],
+          Array(data['Name']['Translation']).find { |t| t['Language'] == I18n.locale.to_s }.try(:[], 'text')
+        ]
+      end
+    end
+
+    def download_custom_attributes(options = {}, callbacks = DataCycleCore::Callbacks.new)
+      download_data(CustomAttribute, '//CustomAttribute', options.clone, callbacks) do |data|
+        [data['Id'], data['Name']]
+      end
+    end
+
+    def download_infrastructure(options = {}, callbacks = DataCycleCore::Callbacks.new)
+      download_data(InfrastructureItem, '//InfrastructureItem', options.clone, callbacks) do |data|
+        [
+          data['Id'],
+          Array(data['Details']['Names']['Translation']).find { |t| t['Language'] == I18n.locale.to_s }.try(:[], 'text')
+        ]
+      end
     end
 
     def download_events(options = {}, callbacks = DataCycleCore::Callbacks.new)
-      Mongoid.override_database("#{Event.database_name}_#{external_source.id}")
+      download_data(Event, '//Event', options.clone, callbacks) do |data|
+        [
+          data['Id'],
+          Array(data['Details']['Names']['Translation']).find { |t| t['Language'] == I18n.locale.to_s }.try(:[], 'text')
+        ]
+      end
+    end
 
-      data = endpoint.load_events
+    def download_data(type, xpath, options = {}, callbacks = DataCycleCore::Callbacks.new)
+      Mongoid.override_database("#{type.database_name}_#{external_source.id}")
 
-      options[:max_count] ||= data.xpath('//Event').count
+      data = endpoint.send("load_#{type.to_s.demodulize.underscore.pluralize}")
 
-      callbacks.execute_callback(:phase_started, :events, options[:max_count])
+      options[:max_count] ||= data.xpath(xpath).count
+
+      callbacks.execute_callback(:phase_started, type.to_s.demodulize.underscore.pluralize.to_sym, options[:max_count])
 
       item_count = 0
 
       begin
-        data.xpath('//Event').each do |xml_data|
-          raw_event_data = xml_data.to_hash
+        data.xpath(xpath).each do |xml_data|
+          item_count += 1
 
           begin
-            item_count += 1
+            item_id, item_name = yield(xml_data.to_hash)
 
-            event_id = raw_event_data['Id']
-            event_name = Array(raw_event_data['Details']['Names']['Translation']).find { |t| t['Language'] == I18n.locale.to_s }.try(:[], 'text')
+            item = type.find_or_initialize_by('external_id': item_id)
+            item.dump = xml_data.to_hash
+            item.save!
 
-            event = Event.find_or_initialize_by('external_id': event_id)
-            event.dump = raw_event_data
-            event.save!
-
-            callbacks.execute_callback(:item_processed, event_name, event_id, item_count, options[:max_count])
+            callbacks.execute_callback(:item_processed, item_name, item_id, item_count, options[:max_count])
           rescue => e
-            callbacks.execute_callback(:error, event_name, event_id, raw_event_data, e)
+            callbacks.execute_callback(:error, item_name, item_id, data, e)
           end
+
+          return if options[:max_count] && item_count >= options[:max_count]
         end
       ensure
         Mongoid.override_database(nil)
 
-        callbacks.execute_callback(:phase_finished, :events, item_count)
+        callbacks.execute_callback(:phase_finished, type.to_s.demodulize.underscore.pluralize.to_sym, item_count)
       end
     end
+
 
     protected
 

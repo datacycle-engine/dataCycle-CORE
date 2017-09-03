@@ -57,8 +57,8 @@ namespace :data_cycle_core do
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.download(options) do |on|
         on.phase_started { |label, total|
-          puts "Downloading #{label} ..." if total.nil?
-          puts "Downloading #{label} (#{total} items) ..." if total
+          puts "Downloading #{label.to_s.gsub(/_/, ' ')} ..." if total.nil?
+          puts "Downloading #{label.to_s.gsub(/_/, ' ')} (#{total} items) ..." if total
         }
         on.item_processed { |title, id, num, total|
           puts " -> \"#{title} (\##{id})\" downloaded (#{num} of #{total || '?'})"
@@ -68,7 +68,7 @@ namespace :data_cycle_core do
           puts "  DATA: #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}"
         }
         on.phase_finished { |label, total|
-          puts "Downloading #{label} (#{total} items) ... [DONE]"
+          puts "Downloading #{label.to_s.gsub(/_/, ' ')} (#{total} items) ... [DONE]"
         }
       end
     end
