@@ -8,61 +8,50 @@ class DataCycleCore::Feratel::Endpoint
     @sales_channel_id = sales_channel_id
   end
 
-  def load_events(start_date = Date.today.beginning_of_month, end_date = Date.today.end_of_month)
-    ranges = (start_date..end_date).map { |d|
-        [start_date, d.beginning_of_month].max
-      }.uniq.map { |d|
-        d .. [d.end_of_month, Date.today + 11.weeks].min
+  def load_events
+    conn = Faraday.new
+
+    response = conn.post do |req|
+      req.url 'http://interface.deskline.net//DSI/BasicData.asmx/GetData'
+      req.body = {
+        "xmlString" => create_event_request_xml
       }
+    end
 
-    if ranges.count > 1
-      ranges.each do |range|
-        load_events(range.first, range.last)
-      end
+    envelop = Nokogiri::XML(response.body)
+
+    data = Nokogiri::XML(envelop.children.first.content)
+    data.remove_namespaces!
+
+    if data.xpath('//@Status').first.value != '0'
+      raise data.xpath('//@Message').first.value
     else
-      conn = Faraday.new
-
-      response = conn.post do |req|
-        req.url 'http://interface.deskline.net//DSI/BasicData.asmx/GetData'
-        req.body = {
-          "xmlString" => create_event_request_xml(start_date, end_date)
-        }
-      end
-
-      envelop = Nokogiri::XML(response.body)
-
-      data = Nokogiri::XML(envelop.children.first.content)
-      data.remove_namespaces!
-
-      data.xpath('//Event').map(&:to_hash).each do |raw_event_data|
-        event = DataCycleCore::Feratel::Event.find_or_initialize_by('external_id': raw_event_data['Id'])
-        event.dump = raw_event_data
-        event.save!
-      end
+      data
     end
   end
 
-  def create_event_request_xml(start_date, end_date)
+  def create_event_request_xml
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <FeratelDsiRQ xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns=\"http://interface.deskline.net/DSI/XSD\">
-    <Request Originator=\"#{@pos_code}\" Company=\"#{@company_code}\" Language=\"de\">
+    <Request Originator=\"#{@pos_code}\" Company=\"#{@company_code}\">
         <Range Code=\"#{@range_code}\">
             <Item Id=\"#{@range_id}\" />
         </Range>
         <BasicData>
           <Filters>
-              <Events Start=\"#{start_date.strftime('%Y-%m-%d')}\" End=\"#{end_date.strftime('%Y-%m-%d')}\" Systems=\"T \" />
+              <Events Start=\"#{(Date.today - 1.years).strftime('%Y-%m-%d')}\" End=\"#{(Date.today + 10.years).strftime('%Y-%m-%d')}\" />
               <Languages>
-                  <Language Value=\"de\" />
+                  #{DataCycleCore.available_locales.keys.map { |l| '<Language Value="' + l.to_s + '" />' }.join("\n                  ")}
               </Languages>
           </Filters>
           <Events ShowDataOwner=\"true\">
             <Details DateFrom=\"1980-01-01\" />
-            <Documents DateFrom=\"1980-01-01\" Systems=\"L T\" />
-            <Descriptions DateFrom=\"1980-01-01\" Systems=\"L T\" />
+            <Documents DateFrom=\"1980-01-01\" />
+            <Descriptions DateFrom=\"1980-01-01\" />
             <Links DateFrom=\"1980-01-01\" />
             <Facilities DateFrom=\"1980-01-01\" />
             <Addresses DateFrom=\"1980-01-01\" />
+            <CustomAttributes DateFrom=\"1980-01-01\" />
             <HandicapFacilities DateFrom=\"1980-01-01\" />
             <HandicapClassifications DateFrom=\"1980-01-01\" />
           </Events>
