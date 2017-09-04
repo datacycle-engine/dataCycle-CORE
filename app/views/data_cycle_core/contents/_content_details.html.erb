@@ -1,14 +1,14 @@
-<div class="detail-content <%= content.metadata['validation']['description'].downcase if !content.metadata.nil? && !content.metadata['validation'].nil? && !content.metadata['validation']['description'].nil? %>">
+<div class="detail-content <%= content.try(:metadata).dig('validation', 'decription').try(:downcase) || '' %>">
 
     <div class="row align-center">
 
       <% begin %>
-        <%= render 'data_cycle_core/creative_works/partials/show/'+content.content_type.downcase, 
-                   dataCycleObject: content, 
+        <%= render 'data_cycle_core/creative_works/partials/show/'+content.content_type.downcase,
+                   dataCycleObject: content,
                    dataCycleObjectSchema: @dataSchema %>
       <% rescue %>
-        <%= render "data_cycle_core/creative_works/partials/show/default", 
-                   dataCycleObject: content, 
+        <%= render "data_cycle_core/creative_works/partials/show/default",
+                   dataCycleObject: content,
                    dataCycleObjectSchema: @dataSchema  %>
       <% end %>
 
