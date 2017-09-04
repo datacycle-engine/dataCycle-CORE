@@ -19,9 +19,9 @@ module DataCycleCore
     # callbacks
     before_destroy :destroy_translations, prepend: true
 
+    # associations
     belongs_to :external_source
 
-    # associations
     has_many :creative_work_places, dependent: :destroy
     has_many :places, through: :creative_work_places
 
@@ -33,8 +33,6 @@ module DataCycleCore
 
     has_many :classification_creative_works, dependent: :destroy
     has_many :classifications, through: :classification_creative_works
-
-
 
     has_many :classification_groups, through: :classifications
     has_many :classification_aliases, through: :classification_groups

@@ -10,16 +10,21 @@ module DataCycleCore
     # callbacks
     before_destroy :destroy_translations, prepend: true
 
+    # associations
     belongs_to :external_source
 
-    has_many :creative_work_persons
+    has_many :creative_work_persons, dependent: :destroy
     has_many :creative_works, through: :creative_work_persons
 
+    has_many :event_persons, dependent: :destroy
+    has_many :events, through: :event_persons
 
+    has_many :person_places, dependent: :destroy
+    has_many :places, through: :person_places
 
-    # associations
     has_many :classification_persons
     has_many :classifications, through: :classification_persons
+
     has_many :classification_groups, through: :classifications
     has_many :classification_aliases, through: :classification_groups
     has_many :display_classification_aliases, -> { where("classification_aliases.internal = ?", false) }, through: :classification_groups, source: :classification_alias
