@@ -95,7 +95,13 @@ module DataCycleCore
           embedded_hash = send(property_name).to_h
           embedded_hash.blank? ? nil : embedded_hash
         elsif embedded_property_names.include?(property_name)
-          send(property_name).map(&:get_data_hash).compact #to propagate the releasable functionality
+          if send(property_name).nil?
+            []
+          else
+            send(property_name).map{ |item|
+              item.get_data_hash
+            }.compact #to propagate the releasable functionality
+          end
         else
           raise StandardError.new("cannot determine how to serialize #{property_name}")
         end
