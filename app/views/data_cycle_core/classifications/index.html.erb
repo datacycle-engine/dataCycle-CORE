@@ -9,10 +9,10 @@
         <li id="<%= tree_label.id %>">
           <%= link_to tree_label.name,
                       classifications_path(classification_tree_label_id: tree_label.id),
-                      data: {remote: true, 'disable-with' => '<i class="fa fa-spinner fa-spin"></i> Loading ...'} %>
-          <% if tree_label.external_source.nil? %>
+                      data: {remote: true, 'disable-with' => '<i class="fa fa-spinner fa-spin"></i> ' + t("common.loading")} %>
+          <% if can?(:destroy, tree_label) %>
             <%= link_to classifications_path(classification_tree_label_id: tree_label.id),
-                        data: {remote: true, method: :delete} do %>
+                        data: {remote: true, method: :delete, 'disable-with' => '<i class="fa fa-spinner fa-spin"></i>'} do %>
               <i class="fa fa-trash-o" aria-hidden="true"></i>
             <% end %>
           <% end %>

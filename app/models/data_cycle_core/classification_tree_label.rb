@@ -3,9 +3,8 @@ module DataCycleCore
 
     include DataSetter
 
-    belongs_to :external_sources
+    belongs_to :external_source
 
-    has_many :classification_trees
-
+    has_many :classification_trees, dependent: :destroy
   end
 end

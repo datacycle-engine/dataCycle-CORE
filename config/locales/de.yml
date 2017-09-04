@@ -6,6 +6,9 @@ de:
     updated: "Bearbeitet"
   submit: "Erstellen"
 
+  common:
+    loading: 'Laden ...'
+
   validation:
     errors:
       min: "%{data} zu kurz, sollte mindestens %{min} lang sein, ist aber nur %{length} lang."

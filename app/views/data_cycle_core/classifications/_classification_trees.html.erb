@@ -3,13 +3,13 @@
     <% if classification_tree.sub_classification_alias.sub_classification_trees.size > 0 %>
       <%= link_to classification_tree.sub_classification_alias.try(:name),
                   classifications_path(classification_tree_id: classification_tree.id),
-                  data: {remote: true, 'disable-with' => '<i class="fa fa-spinner fa-spin"></i> Loading ...'} %>
+                  data: {remote: true, 'disable-with' => '<i class="fa fa-spinner fa-spin"></i> #{t("common.loading")}'} %>
     <% else %>
       <%= classification_tree.sub_classification_alias.try(:name) %>
     <% end %>
-    <% if classification_tree.sub_classification_alias.external_source.nil? %>
+    <% if can?(:destroy, classification_tree) %>
       <%= link_to classifications_path(classification_tree_id: classification_tree.id),
-                  data: {remote: true, method: :delete} do %>
+                  data: {remote: true, method: :delete, 'disable-with' => '<i class="fa fa-spinner fa-spin"></i>'} do %>
         <i class="fa fa-trash-o" aria-hidden="true"></i>
       <% end %>
     <% end %>

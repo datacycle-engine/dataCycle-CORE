@@ -3,14 +3,16 @@ module DataCycleCore
     layout 'data_cycle_core/admin'
 
     def index
-      authorize! :manage, DataCycleCore::Classification
-
       respond_to do |format|
         format.html do
+          authorize! :read, DataCycleCore::ClassificationTreeLabel
+
           @classification_tree_labels = DataCycleCore::ClassificationTreeLabel.accessible_by(current_ability).uniq
         end
 
         format.js do
+          authorize! :read, DataCycleCore::ClassificationTree
+
           permitted_params = params.permit(:classification_tree_label_id, :classification_tree_id)
 
           if permitted_params.include?(:classification_tree_label_id)
@@ -37,13 +39,15 @@ module DataCycleCore
         format.js do
           if permitted_params.include?(:classification_tree_label_id)
             @object = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
-            # @object.destroy
           elsif permitted_params.include?(:classification_tree_id)
             @object = DataCycleCore::ClassificationTree.find(params[:classification_tree_id])
-            # @object.sub_classification_alias.destroy
           else
             raise 'Missing parameter; either classification_tree_label_id or classification_tree_id must be provided'
           end
+
+          authorize! :destroy, @object
+
+          @object.destroy
         end
       end
     end
