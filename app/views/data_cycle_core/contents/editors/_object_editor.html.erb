@@ -1,3 +1,7 @@
-<%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value do %>
+<%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
+
+  <% get_ordered_validation_properties(definition).each do |o_key, o_definition| %>
+    <%= render_attribute_editor key: "#{key}[#{o_key}]", definition: o_definition, value: value.try(:[], o_key), parameters: { options: o_definition.dig('editor', 'options') || {} } %>
+  <% end %>
 
 <% end %>

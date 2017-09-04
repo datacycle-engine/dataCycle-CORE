@@ -53,12 +53,13 @@ module DataCycleCore
         "#{parameters[:content].class.class_name.underscore}_#{partial}",
         "content_#{partial}",
       ]
-      
+
       render_first_existing_partial(partials, parameters)
     end
 
     def render_attribute_editor(key:, definition:, value:, parameters: {})
       partials = [
+        "#{definition.try(:[], 'releasable') ? 'releasable' : ''}",
         "#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'type').try(:underscore)}",
         "#{definition.try(:[], 'editor').try(:[], 'type').try(:underscore)}",
         "#{definition['type'].underscore}",

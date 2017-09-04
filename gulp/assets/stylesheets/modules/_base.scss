@@ -171,6 +171,15 @@ form {
     position: relative;
     padding: 0 5rem 3rem 5rem;
   }
+  >.status-container {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    .status {
+      position: relative;
+      left: -50%;
+    }
+  }
   .detail-header-info {
     position: absolute;
     left: 1rem;
@@ -376,7 +385,7 @@ form {
   .ql-editor,
   .daterange,
   .v-select,
-  .embeddedObject {
+  .embedded_object {
     border: 1px solid $light-gray;
     background: $light-gray;
     outline: none;
@@ -433,6 +442,9 @@ form {
     .form-element {
       position: relative;
       margin-bottom: 1rem;
+      &.validation-container:last-of-type {
+        margin-bottom: 0;
+      }
       .custom-select-title {
         display: none;
       }
@@ -460,7 +472,8 @@ form {
     .bookmark {
       display: none;
     }
-    .input input {
+    .input input,
+    .number input {
       padding: 2.5rem 1rem 2rem 1rem;
       line-height: initial;
     }

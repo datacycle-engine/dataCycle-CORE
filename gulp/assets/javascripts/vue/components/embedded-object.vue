@@ -69,6 +69,7 @@ export default {
       $(this.$el).find('span[data-open]').attr('data-open', this.changeID);
       $(this.$el).find('div[id]').attr('id', this.changeID);
       $(this.$el).find('select[name]').attr('id', this.changeID).attr('name', this.changeID);
+      $(this.$el).find('textarea[id]').attr('id', this.changeID).attr('name', this.changeID);
     },
     changeID(pos, txt) {
       if (txt == undefined) return;

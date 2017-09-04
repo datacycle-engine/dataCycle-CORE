@@ -32,14 +32,18 @@ module DataCycleCore
       ordered_properties = ActiveSupport::OrderedHash.new
       unordered_properties = []
 
-      validation['properties'].each do |prop|
+      if !validation.nil? && !validation['properties'].blank?
 
-        if !prop[1]['editor'].nil?
+        validation['properties'].each do |prop|
 
-          if !prop[1]['editor']['sorting'].nil?
-            ordered_properties[prop[1]['editor']['sorting'].to_i] = prop
-          else
-            unordered_properties.push(prop)
+          if !prop[1]['editor'].nil?
+
+            if !prop[1]['editor']['sorting'].nil?
+              ordered_properties[prop[1]['editor']['sorting'].to_i] = prop
+            else
+              unordered_properties.push(prop)
+            end
+
           end
 
         end
@@ -47,7 +51,7 @@ module DataCycleCore
       end
 
       properties = Hash[ordered_properties.sort.map{ |k,v| v}]
-      return properties.merge(Hash[unordered_properties])
+      return properties.merge(Hash[unordered_properties]).nil? ? [] : properties.merge(Hash[unordered_properties])
 
     end
 

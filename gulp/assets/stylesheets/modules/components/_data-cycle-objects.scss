@@ -405,7 +405,7 @@ span.single_error.object-browser-error {
 /* embedded Objects */
 
 .detail-header {
-  .embeddedObject {
+  .embedded_object {
     margin-bottom: 1rem;
     padding: 0.5rem;
     &:not(:last-child) {
@@ -451,24 +451,28 @@ span.single_error.object-browser-error {
 
 /* Duration Slider */
 
-.duration-slider {
-  padding-left: 8rem;
-  .small-2 {
-    position: relative;
-    padding-right: 0;
-  }
-  input {
-    min-width: 100%;
-    text-align: right;
-    padding-right: 3rem;
-    height: 2.5rem;
-  }
-  .duration-label {
-    position: absolute;
-    right: 1rem;
-    top: 0;
-    display: inline-block;
-    height: 2.5rem;
-    line-height: 2.5rem;
+.detail-header.editor {
+  .duration {
+    .duration-slider {
+      padding-left: 8rem;
+      .small-2 {
+        position: relative;
+        padding-right: 0;
+      }
+      input {
+        min-width: 100%;
+        text-align: right;
+        padding: 1rem 3rem 1rem 1rem;
+        height: 2.5rem;
+      }
+      .duration-label {
+        position: absolute;
+        right: 1rem;
+        top: 0;
+        display: inline-block;
+        height: 2.5rem;
+        line-height: 2.5rem;
+      }
+    }
   }
 }
