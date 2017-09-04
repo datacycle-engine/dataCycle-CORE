@@ -1,31 +1,16 @@
 module DataCycleCore
   class CreativeWork < DataHash
+
+    # class History < DataHash
+    #   self.table_name = "creative_work_histories"
+    # end
+
     extend ActsAsTree::TreeView
     extend ActsAsTree::TreeWalker
 
     class Translation < Globalize::ActiveRecord::Translation
       include ContentTranslationHelpers
     end
-
-    # class CreativeWorkHistory < DataHash
-    #   translates :headline, :description, :content, :properties, :release,
-    #     :release_id, :release_comment
-    #
-    #   # callbacks
-    #   before_destroy :destroy_translations, prepend: true
-    #   belongs_to :external_source
-    #
-    #   # to cash also translated values (comming from gem Globalize)
-    #   def cache_key
-    #     super + '-' + Globalize.locale.to_s
-    #   end
-    #
-    #   private
-    #
-    #   def destroy_translations
-    #     self.translations.destroy_all
-    #   end
-    # end
 
     # handle translations with gem Globalize
     translates :headline, :description, :content, :properties, :release,
