@@ -1,0 +1,12 @@
+ul.classifications {
+  font-style: italic;
+  list-style: none;
+  margin-left: 0;
+
+  :before {
+    content: '(';
+  }
+  :after {
+    content: ')';
+  }
+}

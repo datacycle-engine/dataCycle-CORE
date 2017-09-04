@@ -1,13 +1,28 @@
-<% classification_trees.includes(sub_classification_alias: :sub_classification_trees).each do |classification_tree| %>
-  <li>
+<% classification_trees.includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source]).each do |classification_tree| %>
+  <li id="<%= classification_tree.id %>">
     <% if classification_tree.sub_classification_alias.sub_classification_trees.size > 0 %>
       <%= link_to classification_tree.sub_classification_alias.try(:name),
                   classifications_path(classification_tree_id: classification_tree.id),
                   data: {remote: true, 'disable-with' => '<i class="fa fa-spinner fa-spin"></i> Loading ...'} %>
-      <ul id="<%= classification_tree.id %>">
-      </ul>
     <% else %>
       <%= classification_tree.sub_classification_alias.try(:name) %>
+    <% end %>
+    <% if classification_tree.sub_classification_alias.external_source.nil? %>
+      <%= link_to classifications_path(classification_tree_id: classification_tree.id),
+                  data: {remote: true, method: :delete} do %>
+        <i class="fa fa-trash-o" aria-hidden="true"></i>
+      <% end %>
+    <% end %>
+
+    <ul class="classifications">
+      <% classification_tree.sub_classification_alias.classifications.each do |classification| %>
+        <li><%= classification.name %></li>
+      <% end %>
+    </ul>
+
+    <% if classification_tree.sub_classification_alias.sub_classification_trees.size > 0 %>
+      <ul>
+      </ul>
     <% end %>
   </li>
 <% end %>

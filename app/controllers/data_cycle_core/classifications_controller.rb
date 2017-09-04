@@ -25,5 +25,27 @@ module DataCycleCore
         end
       end
     end
+
+    def destroy
+      permitted_params = params.permit(:classification_tree_label_id, :classification_tree_id)
+
+      respond_to do |format|
+        format.html do
+          raise NotImplemented
+        end
+
+        format.js do
+          if permitted_params.include?(:classification_tree_label_id)
+            @object = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
+            # @object.destroy
+          elsif permitted_params.include?(:classification_tree_id)
+            @object = DataCycleCore::ClassificationTree.find(params[:classification_tree_id])
+            # @object.sub_classification_alias.destroy
+          else
+            raise 'Missing parameter; either classification_tree_label_id or classification_tree_id must be provided'
+          end
+        end
+      end
+    end
   end
 end

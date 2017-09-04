@@ -6,11 +6,18 @@
 
     <ul>
       <% @classification_tree_labels.each do |tree_label| %>
-        <li>
+        <li id="<%= tree_label.id %>">
           <%= link_to tree_label.name,
                       classifications_path(classification_tree_label_id: tree_label.id),
                       data: {remote: true, 'disable-with' => '<i class="fa fa-spinner fa-spin"></i> Loading ...'} %>
-          <ul id="<%= tree_label.id %>">
+          <% if tree_label.external_source.nil? %>
+            <%= link_to classifications_path(classification_tree_label_id: tree_label.id),
+                        data: {remote: true, method: :delete} do %>
+              <i class="fa fa-trash-o" aria-hidden="true"></i>
+            <% end %>
+          <% end %>
+
+          <ul>
           </ul>
         </li>
       <% end %>

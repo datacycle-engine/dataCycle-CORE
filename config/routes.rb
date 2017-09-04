@@ -18,7 +18,9 @@ DataCycleCore::Engine.routes.draw do
     get :addItem, on: :member
   end
 
-  resources :classifications, only: [:index]
+  resources :classifications, only: [:index] do
+    delete :destroy, on: :collection
+  end
 
   get  '/admin', to: 'dash_board#home'
   get  '/admin/download', to: 'dash_board#download'

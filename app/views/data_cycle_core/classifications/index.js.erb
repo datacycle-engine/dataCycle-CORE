@@ -1,4 +1,4 @@
-$('#<%= @classification_tree.id %>').empty();
+$('#<%= @classification_tree.id %> ul:not(.classifications)').empty();
 
 $('<%= escape_javascript(render 'classification_trees', classification_trees: @classification_trees) %>')
-  .appendTo('#<%= @classification_tree.id %>');
+  .appendTo('#<%= @classification_tree.id %> ul:not(.classifications)');
