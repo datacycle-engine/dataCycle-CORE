@@ -24,6 +24,7 @@ var slider_init = require('./modules/initializers/slider_init');
 var copy_contents_init = require('./modules/initializers/copy_contents_init');
 var map_init = require('./modules/initializers/map_init');
 var watch_lists_init = require('./modules/initializers/watch_lists_init');
+var classifications = require('./modules/initializers/classifications');
 
 
 // Initialize Masonry Grid
@@ -94,6 +95,10 @@ $(function () {
 
   // initialize Watchlists
   watch_lists_init.initialize();
+
+  if ($('#classification-administration').length) {
+    classifications.initialize();
+  }
 
   // HOME RANDOMIZED IMAGES AND GLASSHACK!
   if ($(".home-container").length) {
