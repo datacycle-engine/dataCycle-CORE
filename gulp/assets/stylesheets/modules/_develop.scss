@@ -289,7 +289,7 @@ select {
         width: 100%;
         left: 0;
         top: 0;
-        padding: 1rem;
+        padding: 1rem 2rem;
         text-align: center;
         background: rgba(map-get($foundation-palette, success), 0.95);
         z-index: 1;
@@ -298,8 +298,8 @@ select {
         }
         .close-subscribe-notice {
           position: absolute;
-          right: 1rem;
-          top: 0.5rem;
+          right: 0.5rem;
+          top: 0;
           font-size: 2em;
           cursor: pointer;
           color: rgba($black, 0.5);

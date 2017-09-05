@@ -6,10 +6,13 @@ module DataCycleCore
     def create
       @subscription = current_user.subscriptions.build(subscription_params)
 
-      if !@subscription.nil? && @subscription.save
-        redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Abonnement'))
-      else
-        redirect_back(fallback_location: root_path)
+      respond_to do |format|
+        if !@subscription.nil? && @subscription.save
+          format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Abonnement')) }
+          format.js
+        else
+          format.html { redirect_back(fallback_location: root_path) }
+        end
       end
     end
 
@@ -17,7 +20,10 @@ module DataCycleCore
       @subscription = DataCycleCore::Subscription.find(params[:id])
       @subscription.destroy
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Abonnement'))
+      respond_to do |format|
+        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Abonnement')) }
+        format.js
+      end
     end
 
     private
