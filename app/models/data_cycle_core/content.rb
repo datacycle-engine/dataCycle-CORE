@@ -78,11 +78,7 @@ module DataCycleCore
 
     def embedded_property_names
       property_definitions.select { |property_name, definition|
-<<<<<<< ad00f9f9d55f3e6644f5fca86696b6a37fc6a328
         definition['type'] == 'object' && !NESTED_STORAGE_LOCATIONS.include?(definition['storage_location'])
-=======
-        definition['type'] == 'object'
->>>>>>> fixed subscriptions / changed abilities
       }.keys
     end
 
@@ -142,11 +138,7 @@ module DataCycleCore
       # linked data via embeddedLink/embeddedLinkArray
       # only uuid(s) stored in content-data_set
       if linked_property_names.include?(property_name)
-<<<<<<< ad00f9f9d55f3e6644f5fca86696b6a37fc6a328
-        loaded_data = load_linked_data(
-=======
         load_linked_data(
->>>>>>> fixed subscriptions / changed abilities
             "DataCycleCore::#{property_definition['type_name'].singularize.camelize}",
             send(property_definition['storage_location'])[property_name.to_s]
           )
