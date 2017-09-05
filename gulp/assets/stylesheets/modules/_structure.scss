@@ -188,6 +188,12 @@ button.button-prime {
       background-color: lighten(map-get($foundation-palette, alert), 10%);
     }
   }
+  &.success {
+    background-color: map-get($foundation-palette, success);
+    &:hover {
+      background-color: lighten(map-get($foundation-palette, success), 10%);
+    }
+  }
   i {
     color: $white;
     position: relative;
@@ -203,8 +209,8 @@ button.button-prime {
     box-shadow: 0 0 1px 0px rgba(0, 1, 1, 0.18);
   }
   &.small {
-    height: 50px;
-    width: 50px;
+    height: 3rem;
+    width: 3rem;
     i {
       line-height: 3rem;
       font-size: 1.5rem;
