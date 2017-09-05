@@ -1,5 +1,5 @@
 module.exports.initialize = function () {
-  $('#classification-administration').on('ajax:beforeSend', function(event, xhr, options) {
+  $('#classification-administration').on('ajax:beforeSend', 'a:not(.destroy)', function(event, xhr, options) {
     var childrenContainer = $(event.target).closest('li').children('ul:not(.classifications)');
 
     if (childrenContainer.children().length > 0 && options.type != 'POST') {
