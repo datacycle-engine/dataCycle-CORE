@@ -12,7 +12,7 @@ module DataCycleCore
       :release_id, :release_comment
 
     # include content specific relations
-    setup_content_relations table_name: self.table_name
+    content_relations table_name: self.table_name
 
     # callbacks
     before_destroy :destroy_translations, prepend: true
@@ -20,7 +20,6 @@ module DataCycleCore
     # custom setter
     include DataSetter
 
-    include Releasable
     include ContentHelpers
     include PlaceHelpers
 

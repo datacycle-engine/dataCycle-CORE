@@ -9,7 +9,7 @@ module DataCycleCore
     translates :headline, :description, :content, :properties
 
     # include content specific relations
-    setup_content_relations table_name: self.table_name
+    content_relations table_name: self.table_name
 
     # callbacks
     before_destroy :destroy_translations, prepend: true
@@ -17,7 +17,6 @@ module DataCycleCore
     # custom setter
     include DataSetter
 
-    include Subscribable
     include ContentHelpers
     include PersonHelpers
 

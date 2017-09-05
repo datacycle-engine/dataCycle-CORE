@@ -1,5 +1,6 @@
 module DataCycleCore
   module Releasable
+    extend ActiveSupport::Concern
 
     def merge_release(data_hash, release_hash)
       data_hash = data_iterator_merge(data_hash, release_hash)

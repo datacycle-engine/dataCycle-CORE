@@ -7,8 +7,9 @@ module DataCycleCore
 
     attr_accessor :datahash
 
+    include ContentRelations
     include Subscribable
-    extend ContentRelationHelper
+    include Releasable
 
     # belongs_to :external_source
     #
