@@ -56,6 +56,9 @@ namespace :data_cycle_core do
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.download(options) do |on|
+        on.preparing_phase { |label|
+          puts "Preparing #{label.to_s.gsub(/_/, ' ')} ..."
+        }
         on.phase_started { |label, total|
           puts "Downloading #{label.to_s.gsub(/_/, ' ')} ..." if total.nil?
           puts "Downloading #{label.to_s.gsub(/_/, ' ')} (#{total} items) ..." if total

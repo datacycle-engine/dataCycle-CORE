@@ -103,6 +103,8 @@ module DataCycleCore::Feratel
     def download_data(type, xpath, options = {}, callbacks = DataCycleCore::Callbacks.new)
       Mongoid.override_database("#{type.database_name}_#{external_source.id}")
 
+      callbacks.execute_callback(:preparing_phase, type.to_s.demodulize.underscore.pluralize.to_sym)
+
       data = endpoint.send("load_#{type.to_s.demodulize.underscore.pluralize}")
 
       options[:max_count] ||= data.xpath(xpath).count
