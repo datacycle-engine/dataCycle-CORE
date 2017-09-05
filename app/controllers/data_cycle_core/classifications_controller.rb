@@ -52,7 +52,7 @@ module DataCycleCore
     end
 
     def update
-      permitted_params = params.permit(classification_tree_label: [:id, :name, :internal])
+      permitted_params = params.permit(classification_tree_label: [:id, :name, :internal], classification_alias: [:id, :name, :internal])
 
       respond_to do |format|
         format.html do
@@ -64,7 +64,10 @@ module DataCycleCore
             @object = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:classification_tree_label][:id])
             @object.update_attributes!(permitted_params[:classification_tree_label])
           else
-            byebug
+            @object = DataCycleCore::ClassificationAlias.find(permitted_params[:classification_alias][:id])
+            @object.update_attributes!(permitted_params[:classification_alias])
+
+            raise 'Too many classification trees' if @object.classification_trees.size > 1
           end
         end
       end

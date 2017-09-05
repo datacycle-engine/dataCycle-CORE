@@ -1,4 +1,7 @@
-$('#<%= @object.id %>')
-  .replaceWith('<%= escape_javascript(render 'classification_tree_label', tree_label: @object) %>');
-
-
+<% if @object.is_a? DataCycleCore::ClassificationTreeLabel %>
+  $('#<%= @object.id %>')
+    .replaceWith('<%= escape_javascript(render 'classification_tree_label', tree_label: @object) %>');
+<% else %>
+  $('#<%= @object.classification_trees.first.id %>')
+    .replaceWith('<%= escape_javascript(render 'classification_tree', classification_tree: @object.classification_trees.first) %>');
+<% end %>

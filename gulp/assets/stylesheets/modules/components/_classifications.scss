@@ -12,11 +12,11 @@ ul.classifications {
 }
 
 #classification-administration {
-  li:not(.active) form {
+  li:not(.active) > form {
     display: none;
   }
 
-  li.active a {
+  li.active > :not(form) {
     display: none;
   }
 }
