@@ -5,7 +5,17 @@ module DataCycleCore
 
     self.abstract_class = true
 
+    attr_accessor :datahash
+
     include Subscribable
+    extend ContentRelationHelper
+
+    # belongs_to :external_source
+    #
+    # puts ['classification',self.table_name.singularize].sort.join('_').pluralize.to_sym
+    #
+    # has_many ['classification',self.class.name.demodulize.tableize.singularize].sort.join('_').pluralize.to_sym, dependent: :destroy
+    # has_many :classifications, through: ['classification',self.class.name.demodulize.tableize.singularize].sort.join('_').pluralize.to_sym
 
     def property_definitions
       metadata['validation']['properties'] rescue {}
