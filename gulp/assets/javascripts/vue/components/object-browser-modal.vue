@@ -4,14 +4,14 @@
       <h4>
         <i class="fa fa-files-o" aria-hidden="true"></i> {{objectLabel}} auswählen
       </h4>
-
+      <span class="search-icon"><i class="fa fa-search" aria-hidden="true"></i></span>
       <input v-model.lazy="searchTerm" placeholder="Volltext Suche" autofocus id="object-browser-search">
       <span id="item-count" v-if="totalItems > 0">{{ totalItems }}</span>
   
     </div>
     <div id="media-content" class="items">
 
-      <div class="chosen-items" v-if="totalChosen > 0">
+      <div class="chosen-items">
         <div @click.stop="activeItem = item" class="chosen-item" v-for="item in chosenItems" :key="item">
           <component :is="objectType + '_chosen'" :item="item"></component>
           <span class="remove" @click.stop="toggleActive(item, $event)">
@@ -20,15 +20,13 @@
         </div>
 
           <div class="buttons">
-            <div class="button save-object-browser" @click.stop="save">
-              <span class="button-title" v-if="totalChosen > 0">
-                <strong>{{ totalChosen }}</strong>{{ totalChosen > 0 ? " Element" + (totalChosen == 1 ? "" : "e") + " auswählen" : "Keine Elemente auswählen" }}</span>
-              <span class="button-title" v-else>Keine Elemente auswählen</span>
-            </div>
-            <button v-if="createItem" :data-open="newId" class="new-item-button button">
+                <span class="button-title" v-if="totalChosen > 0">
+                <strong>{{ totalChosen }}</strong>{{ totalChosen > 0 ? " Element" + (totalChosen == 1 ? "" : "e") + " auswählen" : "Keine Elemente auswählen" }} <i class="fa fa-chevron-right" aria-hidden="true"></i></span><span class="button-title" v-else>Keine Elemente auswählen</span>
+                <a class="button-prime success small save-object-browser" @click.stop="save"><i class="fa fa-check" aria-hidden="true"></i></a>
+            <button v-if="createItem" :data-open="newId" class="new-item-button button-prime small">
               <i class="fa fa-plus"></i>
             </button>
-            <button class="close-object-browser" @click.prevent="$emit('close')">
+            <button class="button-prime small close-object-browser" @click.prevent="$emit('close')">
               <i aria-hidden="true" class="fa fa-times"></i>
             </button>
             <new v-on:add="addItem">

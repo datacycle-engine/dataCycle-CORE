@@ -100,10 +100,12 @@
     background-color: white;
     &.thumbnail {
       position: relative;
-      width: 229px;
-      height: 157px;
+      width: 194px;
+      height: 170px;
       padding: 0;
       cursor: pointer;
+      text-align: right;
+      border: 0;
       .description {
         position: absolute;
         left: 0;
@@ -130,7 +132,6 @@
       background-color: $primary-color;
     }
     .delete-thumbnail {
-      background: white;
       color: $dark-gray;
       padding: 0 0.2rem;
       cursor: pointer;
@@ -151,11 +152,11 @@
 }
 
 #object-browser {
-  margin: 8.1rem 0 0 0 !important;
+  margin: 7.9rem 0 0 0 !important;
   outline: none;
   padding: 0;
-  background: white;
   .object-browser-header {
+    h4 { display: none; }
     .buttons {
       position: absolute;
       right: 1rem;
@@ -183,7 +184,26 @@
       }
     }
     #object-browser-search {
-      margin-top: 0.5rem;
+        border: 0;
+      line-height: 3rem;
+      font-weight: 200;
+      padding: 0 1rem 0 2rem;
+      box-shadow: 0 1px 1px 1px rgba($light-gray, 1);
+      min-width: 350px;
+    }
+    .search-icon {
+      position: absolute;
+    line-height: 3rem;
+    left: 0.5rem;
+    color: $dark-gray;
+    }
+    #item-count {
+      font-style: italic;
+      right: 1rem;
+      position: absolute;
+      top: 0;
+      line-height: 3rem;
+      color: $dark-gray;
     }
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
@@ -191,17 +211,8 @@
     color: $primary-color;
     font-size: 1.2rem;
     position: fixed;
-    width: calc(100% - 400px);
-    padding: 1rem 1rem 1rem 1rem;
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+50,ffffff+100&1+0,0.78+50,0+100 */
-    background: -moz-linear-gradient(top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.78) 50%, rgba(255, 255, 255, 0) 100%);
-    /* FF3.6-15 */
-    background: -webkit-linear-gradient(top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.78) 50%, rgba(255, 255, 255, 0) 100%);
-    /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.78) 50%, rgba(255, 255, 255, 0) 100%);
-    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#00ffffff', GradientType=0);
-    /* IE6-9 */
+    left: 1rem;
+    top: 8.9rem;
   }
   .pagination {
     text-align: center;
@@ -222,7 +233,7 @@
     }
   }
   .items {
-    padding: 0.3rem 1rem 1rem 1rem;
+    padding: 2rem 1rem 15rem 1rem;
     margin-right: 400px;
     height: 100%;
     overflow-y: scroll;
@@ -236,9 +247,9 @@
       outline: none;
       border-radius: 0;
       overflow: hidden;
-      background-color: white;
-      border: solid 8px #fefefe;
-      box-shadow: 0 0 0 1px rgba(51, 51, 51, 0.2);
+      background-color: rgba(white, 0.5);
+      border: 0;
+      box-shadow: 0 0 0 1px rgba($dark-gray, 0.5);
       transition: box-shadow 200ms ease-out;
       cursor: pointer;
       &:hover,
@@ -246,7 +257,7 @@
         box-shadow: 0 0 6px 1px rgba($primary-color, 0.5);
       }
       &.thumbnail {
-        width: 247px;
+        width: 194px;
         height: 170px;
         margin: 0;
         padding: 0;
@@ -276,6 +287,13 @@
         .media {
           border-color: $primary-color;
           background-color: $primary-color;
+          box-shadow: 0 0 0 1px rgba($primary-color, 1);
+        }
+        .person {
+          color: white;
+        }
+        .warning {
+          opacity: 1;
         }
       }
       display: block;
@@ -297,17 +315,36 @@
           bottom: 0;
           padding: 0.5rem;
           box-shadow: 0 -3px 7px rgba(0,0,0, 0.1);
+          min-height: 60px;
           .buttons {
             position: absolute;
-            top: -3rem;
+            top: -1rem;
             right: 2rem;
+            .button-prime {
+              display: inline-block;
+              cursor: pointer;
+            }
+            .button-title {
+              display: inline-block;
+              background: rgba(255,255,255,0.8);
+              padding: 0 0.1rem 0 0.3rem;
+              font-size: 0.9rem;
+              i { font-size: 0.9rem; }
+            }
           }
           .chosen-item {
-            display: inline-block;
             position: relative;
             height: 80px;
             width: 80px;
             margin: 0.1rem;
+            box-shadow: inset 0 0 1px 1px rgba(0,0,0,0.2);
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-align: center;
+            align-items: center;
+            -ms-flex-pack: center;
+            justify-content: center;
+            float: left;
             .chosen-bg {
               height: 80px;
               width: 80px;
@@ -322,6 +359,7 @@
               display: block; 
               text-align: center;
               color: white;
+              opacity: 0;
               i {
                 font-size: 2.5rem;
                 line-height: 80px;
@@ -331,6 +369,7 @@
                 color: red;
                 background: rgba(white, 0.5);
                 cursor: pointer;
+                opacity: 1;
               }
             }
           }
@@ -373,13 +412,14 @@
       }
      dd {
       margin: 0;
-      margin-bottom: 0.5rem;
+      padding-bottom: 0.7rem;
       flex:0 0 50%;
       margin-left: auto;
       text-align: left;
       text-overflow: ellipsis;
       overflow: hidden;
-      &.block-flex { flex: 0 0 100%; }
+      img { max-height: 360px; }
+      &.block-flex { flex: 0 0 100%; line-height: 1; }
       }
     }
   }
@@ -410,6 +450,10 @@ span.single_error.object-browser-error {
   right: 5px;
   display: block;
   border-bottom: 0;
+  opacity: 0.5;
+  &:hover {
+    opacity: 1;
+  }
 }
 
 /* Object Browser New Items */

@@ -37,13 +37,17 @@
                         <% unless image.blank? %>
 
                             <a data-open="media-reveal-<%= image.id %>">
-                                <div class="thumbnail <%= 'has-restrictions' if !image.metadata['restrictions'].nil? && !image.metadata['restrictions'].blank? && image.metadata['restrictions'] != 'Keine Einschränkung;' %>"
-                                     style="background-image: url(<%= image.metadata['thumbnailUrl'] %>)">
+                                <div class="thumbnail" style="background-image: url(<%= image.metadata['thumbnailUrl'] %>)">
                                     <% unless image.title.blank? %>
                                         <div class="description">
                                             <%= image.title %>
                                         </div>
                                     <% end %>
+
+                                    <% if !image.metadata['restrictions'].nil? && !image.metadata['restrictions'].blank? && image.metadata['restrictions'] != 'Keine Einschränkung;' %>
+                                    <span data-tooltip aria-haspopup="true" class="has-tip warning" data-disable-hover="false" tabindex="1" title="Einschränkungen: <%= image.metadata['restrictions'] %>"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
+                                    <% end %>
+
                                 </div>
                             </a>
 
