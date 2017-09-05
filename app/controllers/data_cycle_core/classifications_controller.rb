@@ -7,7 +7,9 @@ module DataCycleCore
         format.html do
           authorize! :read, DataCycleCore::ClassificationTreeLabel
 
-          @classification_tree_labels = DataCycleCore::ClassificationTreeLabel.accessible_by(current_ability).uniq
+          @classification_tree_labels = DataCycleCore::ClassificationTreeLabel.accessible_by(current_ability)
+            .order(:created_at)
+            .distinct
         end
 
         format.js do
@@ -17,12 +19,52 @@ module DataCycleCore
 
           if permitted_params.include?(:classification_tree_label_id)
             @classification_tree = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
-            @classification_trees = @classification_tree.classification_trees.accessible_by(current_ability).where(parent_classification_alias: nil)
+            @classification_trees = @classification_tree.classification_trees.accessible_by(current_ability)
+              .where(parent_classification_alias: nil)
+              .order(:created_at)
           elsif permitted_params.include?(:classification_tree_id)
             @classification_tree = DataCycleCore::ClassificationTree.find(params[:classification_tree_id])
             @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees.accessible_by(current_ability)
+              .order(:created_at)
           else
             raise 'Missing parameter; either classification_tree_label_id or classification_tree_id must be provided'
+          end
+        end
+      end
+    end
+
+    def create
+      permitted_params = params.permit(classification_tree_label: [:name, :internal])
+
+      respond_to do |format|
+        format.html do
+          raise NotImplemented
+        end
+
+        format.js do
+          if permitted_params[:classification_tree_label]
+            @object = DataCycleCore::ClassificationTreeLabel.create!(permitted_params[:classification_tree_label])
+          else
+            byebug
+          end
+        end
+      end
+    end
+
+    def update
+      permitted_params = params.permit(classification_tree_label: [:id, :name, :internal])
+
+      respond_to do |format|
+        format.html do
+          raise NotImplemented
+        end
+
+        format.js do
+          if permitted_params[:classification_tree_label]
+            @object = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:classification_tree_label][:id])
+            @object.update_attributes!(permitted_params[:classification_tree_label])
+          else
+            byebug
           end
         end
       end

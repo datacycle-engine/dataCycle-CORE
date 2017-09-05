@@ -1,0 +1,7 @@
+$('.new-classification-tree-label form')
+  .replaceWith('<%= escape_javascript(render 'classification_tree_label_form', classification_tree_label: DataCycleCore::ClassificationTreeLabel.new) %>');
+
+$('.new-classification-tree-label')
+  .before($('<%= escape_javascript(render 'classification_tree_label', tree_label: @object) %>'));
+
+$('#classification-administration li.active').removeClass('active');

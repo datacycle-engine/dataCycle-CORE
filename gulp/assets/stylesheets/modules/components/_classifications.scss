@@ -10,3 +10,13 @@ ul.classifications {
     content: ')';
   }
 }
+
+#classification-administration {
+  li:not(.active) form {
+    display: none;
+  }
+
+  li.active a {
+    display: none;
+  }
+}
