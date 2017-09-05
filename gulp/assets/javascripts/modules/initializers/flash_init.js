@@ -6,7 +6,14 @@ module.exports.initialize = function () {
     $("div.flash.callout").parent('div').removeAttr('style');
     $('body').prepend($("body").find("div.flash.callout"));
     $("div.flash.callout").show();
-    setTimeout(function () { $("div.flash.callout.success").slideUp("slow"); }, 4000);
+    setTimeout(function () {
+      $("div.flash.callout.success").slideUp("slow");
+    }, 4000);
   }
+
+  $('.close-subscribe-notice').on('click', function (ev) {
+    ev.preventDefault();
+    $(this).closest('.subscribe-parent').hide();
+  });
 
 };

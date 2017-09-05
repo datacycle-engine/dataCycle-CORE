@@ -26,11 +26,10 @@ var map_init = require('./modules/initializers/map_init');
 var watch_lists_init = require('./modules/initializers/watch_lists_init');
 var classifications = require('./modules/initializers/classifications');
 
-
-// Initialize Masonry Grid
-masonry_init.initialize();
-
 $(function () {
+  // Initialize Masonry Grid
+  masonry_init.initialize();
+
   // Initialize Foundation
   $(document).foundation();
 

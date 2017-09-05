@@ -46,6 +46,7 @@ module DataCycleCore
         return
       end
 
+      @place.metadata['last_updated_by'] = current_user.id
       respond_to do |format|
         #validate ?
         if !@place.nil? && @place.save
@@ -85,6 +86,7 @@ module DataCycleCore
         return
       end
 
+      @place.metadata['last_updated_by'] = current_user.id
       if @place.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Place'
 

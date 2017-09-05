@@ -1,6 +1,6 @@
 <a id="add-to-watchlist-link" class="hascontent watch-lists-link" data-toggle="watch-lists-<%= dataCycleObject.id %>"><i class="fa <%= dataCycleObject.watch_lists.by_user(current_user).count > 0 ? 'fa-bookmark' : 'fa-bookmark-o' %>" aria-hidden="true"></i><span> Zu Merkliste hinzufügen</span></a>
 <ul class="dropdown-pane no-bullet bottom watch-lists" id="watch-lists-<%= dataCycleObject.id %>" data-dropdown data-hover="true" data-hover-pane="true">
-    <% current_user.watch_lists.each do |watchlist| %>
+    <% @accessible_watch_lists.each do |watchlist| %>
         <li>
             <% if is_in_watchlist?(watchlist, dataCycleObject) %>
                 <span class="watch-list-item">

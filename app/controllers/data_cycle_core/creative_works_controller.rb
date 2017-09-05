@@ -50,6 +50,7 @@ module DataCycleCore
 
       after_create(@creativeWork)
 
+      @creativeWork.metadata['last_updated_by'] = current_user.id
       #validate ?
       if !@creativeWork.nil? && @creativeWork.save
         flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
@@ -94,6 +95,7 @@ module DataCycleCore
         return
       end
 
+      @creativeWork.metadata['last_updated_by'] = current_user.id
       if @creativeWork.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
 

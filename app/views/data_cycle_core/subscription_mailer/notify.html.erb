@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h1>Sehr geehrter User,</h1>
+    <p>Ein abonnierter Inhalt hat sich geändert.</p>
+    <p><%= link_to @content do %>
+        <%= @content.metadata['validation']['name'] %>: <%= @content.title.blank? ? @content.id : @content.title %>
+      <% end %>
+    </p>
+
+    <p>Vielen Dank, dass Sie unsere Abo-Funktion nutzen und somit immer auf dem neuesten Stand bleiben.</p>
+  </body>
+</html>

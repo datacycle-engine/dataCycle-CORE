@@ -6,6 +6,8 @@ module DataCycleCore
 
     self.abstract_class = true
 
+    include Subscribable
+
     def property_definitions
       metadata['validation']['properties'] rescue {}
     end

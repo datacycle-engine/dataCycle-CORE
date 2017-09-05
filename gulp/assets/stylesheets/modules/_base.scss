@@ -462,12 +462,6 @@ form {
     .detail-header-info {
       top: -2rem;
       left: 0.5rem;
-      .type {
-        opacity: 0.3;
-      }
-      &:hover .type {
-        opacity: 1;
-      }
     }
     .bookmark {
       display: none;
