@@ -14,7 +14,7 @@
 		<object-browser :existing="<%= existing.to_json %>" object-class="<%= object %>" :object-type="'<%= prop['editor']['options']['data-type'].downcase %>'" :object-label="'<%= prop['label'] %>'" :max="1" :create-item="<%= can? :create, object %>" new-id="new<%= prop['storage_location'].classify %>" hidden-name="<%= key %>[]">
 			<template scope="props" slot="item">
 				<div v-if="props.item != undefined" class="media person">
-					<a slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
+					
 
 					<% if prop['storage_location'] == 'persons' %>
 
@@ -28,6 +28,7 @@
 						{{ props.objectType }}
 				<% end %>
 					<input type="hidden" name="<%= key %>[][id]" :value="props.item.id">
+					<a slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
 				</div>
 			</template>
 
