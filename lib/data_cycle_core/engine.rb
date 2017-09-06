@@ -61,9 +61,6 @@ module DataCycleCore
     mattr_accessor :special_data_attributes
     self.special_data_attributes = []
 
-    mattr_accessor :available_locales
-    self.available_locales = {}
-
     mattr_accessor :default_image_type
     self.default_image_type = nil
 
@@ -105,7 +102,7 @@ module DataCycleCore
     config.i18n.enforce_available_locales = false
     config.i18n.default_locale = :de
     # fallbacks for i18n and Globalize
-    #config.i18n.fallbacks = true
+    config.i18n.fallbacks = true
 
 
     # append engine migration path -> no installation of migrations required

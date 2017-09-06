@@ -3,12 +3,12 @@
     <span class="title">Sprache</span>
     <div>
         <ul class="split-list clearfix">
-            <% DataCycleCore.available_locales.each do |key,value| %>
+            <% available_locales_with_names.each do |key,value| %>
                 <li>
                     <input type="radio" name="language" value="<%= key.to_s %>" id="<%= key.to_s %>" <%= "checked" if key.to_s == "de" || key.to_s == params[:language]%> />
                     <label for="<%= key.to_s %>">
                         <span class="title">
-                            <%= value.capitalize %>
+                            <%= value %>
                         </span>
                     </label>
                 </li>

@@ -6,6 +6,31 @@ de:
     updated: "Bearbeitet"
   submit: "Erstellen"
 
+  locales:
+    de: "deutsch"
+    en: "englisch"
+    ar: "arabisch"
+    bg: "bulgarisch"
+    cs: "tschechisch"
+    da: "dänisch"
+    es: "spanisch"
+    fr: "französisch"
+    it: "italienisch"
+    hu: "ungarisch"
+    hr: "kroatisch"
+    ja: "japanisch"
+    ko: "koreanisch"
+    nl: "holländisch"
+    pt: "portugiesisch"
+    pl: "polnisch"
+    ru: "russisch"
+    sl: "slowenisch"
+    sk: "slowakisch"
+    sv: "schwedisch"
+    tr: "türkisch"
+    uk: "ukrainisch"
+    'de-CH': "schweizer-deutsch"
+
   common:
     loading: 'Laden ...'
 
