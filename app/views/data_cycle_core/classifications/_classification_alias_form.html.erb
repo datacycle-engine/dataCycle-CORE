@@ -1,0 +1,8 @@
+<%= form_for(classification_alias, url: classifications_path, remote: true) do |f| %>
+  <%= hidden_field(nil, :classification_tree_label_id, value: classification_tree_label.id) %>
+  <%= hidden_field(nil, :classification_tree_id, value: classification_tree.id) if classification_tree %>
+  <%= f.hidden_field :id %>
+  <%= f.text_field :name %>
+  <%= f.check_box :internal %>
+  <%= f.submit %>
+<% end %>

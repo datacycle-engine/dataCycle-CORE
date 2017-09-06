@@ -18,12 +18,13 @@ module DataCycleCore
           permitted_params = params.permit(:classification_tree_label_id, :classification_tree_id)
 
           if permitted_params.include?(:classification_tree_label_id)
-            @classification_tree = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
-            @classification_trees = @classification_tree.classification_trees.accessible_by(current_ability)
+            @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
+            @classification_trees = @classification_tree_label.classification_trees.accessible_by(current_ability)
               .where(parent_classification_alias: nil)
               .order(:created_at)
           elsif permitted_params.include?(:classification_tree_id)
             @classification_tree = DataCycleCore::ClassificationTree.find(params[:classification_tree_id])
+            @classification_tree_label = @classification_tree.classification_tree_label
             @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees.accessible_by(current_ability)
               .order(:created_at)
           else
@@ -34,7 +35,12 @@ module DataCycleCore
     end
 
     def create
-      permitted_params = params.permit(classification_tree_label: [:name, :internal])
+      permitted_params = params.permit(
+        :classification_tree_label_id,
+        :classification_tree_id,
+        {classification_tree_label: [:name, :internal]},
+        {classification_alias: [:name, :internal]}
+      )
 
       respond_to do |format|
         format.html do
@@ -45,7 +51,27 @@ module DataCycleCore
           if permitted_params[:classification_tree_label]
             @object = DataCycleCore::ClassificationTreeLabel.create!(permitted_params[:classification_tree_label])
           else
-            byebug
+            @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:classification_tree_label_id])
+
+            if permitted_params['classification_tree_id']
+              @parent_classification_tree = DataCycleCore::ClassificationTree.find(permitted_params['classification_tree_id'])
+            else
+              @parent_classification_tree = nil
+            end
+
+            ActiveRecord::Base.transaction do
+              @classification = DataCycleCore::Classification.create!(name: permitted_params[:classification_alias][:name])
+              @classification_alias = DataCycleCore::ClassificationAlias.create!(permitted_params[:classification_alias])
+              @classification_group = DataCycleCore::ClassificationGroup.create!(
+                classification: @classification,
+                classification_alias: @classification_alias
+              )
+              @object = DataCycleCore::ClassificationTree.create!({
+                classification_tree_label: @classification_tree_label,
+                parent_classification_alias: @parent_classification_tree.try(:sub_classification_alias),
+                sub_classification_alias: @classification_alias
+              })
+            end
           end
         end
       end
