@@ -1,5 +1,9 @@
 json.images @images do |item|
-  json.partial! 'image_translation_format', locals: {image: item }
+  begin
+    json.partial! 'creative_work_bild', object: item
+  rescue
+    json.partial! 'creative_work', object: item
+  end
 end
 
 #std_params = "per=#{params[:per] || @per}&search=#{params[:search]}&language=#{params[:language]}&token=#{params[:token]}"

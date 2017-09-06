@@ -1,1 +1,5 @@
-json.partial! 'image_translation_format', locals: {image: @image }
+begin
+  json.partial! 'creative_work_bild', object: @image
+rescue
+  json.partial! 'creative_work', object: @image
+end
