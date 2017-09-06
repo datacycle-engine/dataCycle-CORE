@@ -57,6 +57,7 @@ class DataCycleCore::Feratel::Endpoint
 
     response = Faraday.new.post do |req|
       req.url url
+      req.options.timeout = 120
       req.body = {"xmlString" => send("create_#{type}_request_xml")}
     end
 
@@ -76,7 +77,7 @@ class DataCycleCore::Feratel::Endpoint
     create_request_xml do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
-          I18n.available_locales.each do |l|
+          available_locales.each do |l|
             xml.Language('Value' => l.to_s)
           end
         end
@@ -93,7 +94,7 @@ class DataCycleCore::Feratel::Endpoint
     create_request_xml do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
-          I18n.available_locales.each do |l|
+          available_locales.each do |l|
             xml.Language('Value' => l.to_s)
           end
         end
@@ -107,7 +108,7 @@ class DataCycleCore::Feratel::Endpoint
     create_request_xml do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
-          I18n.available_locales.each do |l|
+          available_locales.each do |l|
             xml.Language('Value' => l.to_s)
           end
         end
@@ -121,7 +122,7 @@ class DataCycleCore::Feratel::Endpoint
     create_request_xml do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
-          I18n.available_locales.each do |l|
+          available_locales.each do |l|
             xml.Language('Value' => l.to_s)
           end
         end
@@ -135,7 +136,7 @@ class DataCycleCore::Feratel::Endpoint
     create_request_xml do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
-          I18n.available_locales.each do |l|
+          available_locales.each do |l|
             xml.Language('Value' => l.to_s)
           end
         end
@@ -149,7 +150,7 @@ class DataCycleCore::Feratel::Endpoint
     create_request_xml do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
-          I18n.available_locales.each do |l|
+          available_locales.each do |l|
             xml.Language('Value' => l.to_s)
           end
         end
@@ -163,7 +164,7 @@ class DataCycleCore::Feratel::Endpoint
     create_request_xml do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
-          I18n.available_locales.each do |l|
+          available_locales.each do |l|
             xml.Language('Value' => l.to_s)
           end
         end
@@ -179,7 +180,7 @@ class DataCycleCore::Feratel::Endpoint
         xml.Filters do
           xml.Infrastructure
           xml.Languages do
-            I18n.available_locales.each do |l|
+            available_locales.each do |l|
               xml.Language('Value' => l.to_s)
             end
           end
@@ -206,7 +207,7 @@ class DataCycleCore::Feratel::Endpoint
         xml.Filters do
           xml.ServiceProvider('Type' => 'AdditionalService')
           xml.Languages do
-            I18n.available_locales.each do |l|
+            available_locales.each do |l|
               xml.Language('Value' => l.to_s)
             end
           end
@@ -241,7 +242,7 @@ class DataCycleCore::Feratel::Endpoint
         xml.Filters do
           xml.Events('Start' => (Date.today - 1.years).strftime('%Y-%m-%d'), 'End' => (Date.today + 10.years).strftime('%Y-%m-%d'))
           xml.Languages do
-            I18n.available_locales.each do |l|
+            available_locales.each do |l|
               xml.Language('Value' => l.to_s)
             end
           end
@@ -276,5 +277,9 @@ class DataCycleCore::Feratel::Endpoint
         end
       end
     }.to_xml
+  end
+
+  def available_locales
+    I18n.available_locales.map(&:to_s).reject { |l| l.include?('-') }
   end
 end
