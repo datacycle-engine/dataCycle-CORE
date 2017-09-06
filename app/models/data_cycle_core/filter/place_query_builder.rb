@@ -22,8 +22,7 @@ module DataCycleCore
 
         reflect(
           @query.where(place[:id].in(manager).or(
-            place_translation[:name].matches("%#{name}%").
-            or(place_translation[:address].matches("%#{name}%"))
+            place_translation[:name].matches("%#{name}%")
           ))
         )
       end
@@ -32,8 +31,7 @@ module DataCycleCore
         reflect(
           @query.where(
             place[:metadata].not_eq(nil).
-            and(place_translation[:name].not_eq(nil).
-              or(place_translation[:address].not_eq(nil))
+            and(place_translation[:name].not_eq(nil)
             )
           )
         )
