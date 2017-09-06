@@ -34,6 +34,22 @@ module DataCycleCore
       end
     end
 
+    def search
+      permitted_params = params.permit(:q, :max)
+
+      render json: Classification
+        .includes(classification_groups: {classification_alias: :classification_tree})
+        .where('name ILIKE ?', "%#{params[:q]}%")
+        .limit(params[:max] || 10)
+        .map { |c|
+          {
+            id: c.id,
+            name: c.name,
+            path: c.ancestors.reverse.map(&:name).join(' > ')
+          }
+        }
+    end
+
     def create
       permitted_params = params.permit(
         :classification_tree_label_id,
@@ -92,8 +108,6 @@ module DataCycleCore
           else
             @object = DataCycleCore::ClassificationAlias.find(permitted_params[:classification_alias][:id])
             @object.update_attributes!(permitted_params[:classification_alias])
-
-            raise 'Too many classification trees' if @object.classification_trees.size > 1
           end
         end
       end
