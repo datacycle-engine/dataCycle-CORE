@@ -26,7 +26,7 @@ module DataCycleCore
 
     def ancestors
       Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 10.minutes) do
-        primary_classification_alias] + primary_classification_alias.ancestors
+        [primary_classification_alias] + primary_classification_alias.ancestors
       end
     end
   end

@@ -2,8 +2,8 @@
 
     <% parent_string = classification_alias_id.nil? ? "IS NULL" : " = '#{classification_alias_id}'" %>
     <% types = DataCycleCore::ClassificationAlias
-                .joins(classification_trees: [:classification_tree_label])
-                .includes(classification_trees: {classification_tree_label: {}})
+                .joins(classification_tree: [:classification_tree_label])
+                .includes(classification_tree: {classification_tree_label: {}})
                 .includes(sub_classification_alias: {sub_classification_alias: {sub_classification_alias: {}}})
                 .where("classification_tree_labels.name = ?", tree_label)
                 .where("classification_trees.parent_classification_alias_id #{parent_string}") %>
