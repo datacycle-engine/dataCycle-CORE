@@ -170,7 +170,7 @@ module DataCycleCore
       # plain properties (e.g. string,text, ... )
       # non-structured properties of this content-data_set
       elsif PLAIN_PROPERTY_TYPES.include?(property_definition['storage_type'])
-        send(property_definition['storage_location'])[property_name.to_s]
+        send(property_definition['storage_location']).try(:[], property_name.to_s)
       else
         raise NotImplementedError
       end

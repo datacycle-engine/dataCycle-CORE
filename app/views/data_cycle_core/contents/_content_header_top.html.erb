@@ -3,6 +3,9 @@
         <%= render_content_partial 'icon', content: content %>
 
         <span class="title"><%= content.metadata['validation']['name'] %></span>
+        <% unless content.translated_locales.count > 1 %>
+          <span class="language">(<%= I18n.locale %>)</span>
+        <% end %>
     </div>
 </div>
 

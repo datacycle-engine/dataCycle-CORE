@@ -6,15 +6,19 @@ module DataCycleCore
     # get data as specified in the data template
     # data hash with keys named as in schema.org
     def get_data_hash
-      if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with pending data in it
-        data_type = metadata['validation']
-        #data_hash = get_template_data_hash(data_type['properties'])
-        data_hash = self.to_h
+      locale = self.translated_locales.include?(I18n.locale) ? I18n.locale : self.translated_locales.first
+      I18n.with_locale(locale) do
 
-        data_hash = merge_release(data_hash, release) if kind_of?(DataCycleCore::Releasable)
-        return data_hash
-      else
-        return nil
+        if translated_locales.include?(locale) || changes.count > 0 # for new data-sets with pending data in it
+          data_type = metadata['validation']
+          # data_hash = get_template_data_hash(data_type['properties'])
+          data_hash = self.to_h
+
+          data_hash = merge_release(data_hash, release) if kind_of?(DataCycleCore::Releasable)
+          return data_hash
+        else
+          return nil
+        end
       end
     end
 

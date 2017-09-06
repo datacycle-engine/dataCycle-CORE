@@ -102,8 +102,8 @@ module DataCycleCore
     config.i18n.enforce_available_locales = false
     config.i18n.default_locale = :de
     # fallbacks for i18n and Globalize
-    config.i18n.fallbacks = true
-
+    config.i18n.fallbacks = [:de, :en, :ar, :bg, :cs, :da, :es, :fr, :it, :hu, :hr, :ja, :ko, :nl, :pt, :pl,
+    :ru, :sl, :sk, :sv, :tr, :uk, :"de-CH"]
 
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|
