@@ -11,33 +11,6 @@
     </div>
     <div id="media-content" class="items">
 
-      <div class="chosen-items">
-        <div @click.stop="activeItem = item" class="chosen-item" v-for="item in chosenItems" :key="item">
-          <component :is="objectType + '_chosen'" :item="item"></component>
-          <span class="remove" @click.stop="toggleActive(item, $event)">
-            <i aria-hidden="true" class="fa fa-times"></i>
-          </span>
-        </div>
-
-          <div class="buttons">
-                <span class="button-title" v-if="totalChosen > 0">
-                <strong>{{ totalChosen }}</strong>{{ totalChosen > 0 ? " Element" + (totalChosen == 1 ? "" : "e") + " auswählen" : "Keine Elemente auswählen" }} <i class="fa fa-chevron-right" aria-hidden="true"></i></span><span class="button-title" v-else>Keine Elemente auswählen</span>
-                <a class="button-prime success small save-object-browser" @click.stop="save"><i class="fa fa-check" aria-hidden="true"></i></a>
-            <button v-if="createItem" :data-open="newId" class="new-item-button button-prime small">
-              <i class="fa fa-plus"></i>
-            </button>
-            <button class="button-prime small close-object-browser" @click.prevent="$emit('close')">
-              <i aria-hidden="true" class="fa fa-times"></i>
-            </button>
-            <new v-on:add="addItem">
-              <template scope="newItem" slot="new-item">
-                <slot name="new-item"></slot>
-              </template>
-            </new>
-          </div>
-
-      </div>
-
       <pagination :current-page="currentPage" :items-per-page="itemsPerPage" :total-items="totalItems" @page-changed="pageChanged">
       </pagination>
   
@@ -54,6 +27,33 @@
     </div>
     <component :is="objectType + '_detail'" :item="activeItem" :link="editUrl" class="item-info">
     </component>
+
+    <div class="object-browser-footer">
+        <div class="chosen-items items">
+          <div class="chosen-items-container">
+            <div @click.stop="activeItem = item" v-for="item in chosenItems" :key="item">
+              <slot name="item" :item="item"></slot>
+            </div>
+          </div>
+        </div>
+        <div class="buttons">
+              <span class="button-title" v-if="totalChosen > 0"><sup>
+              <strong>{{ totalChosen }}</strong>{{ totalChosen > 0 ? " Element" + (totalChosen == 1 ? "" : "e") + " auswählen" : "Keine Elemente auswählen" }} <i class="fa fa-chevron-right" aria-hidden="true"></i></sup></span><span class="button-title" v-else><sup>Keine Elemente auswählen <i class="fa fa-chevron-right" aria-hidden="true"></i></sup></span>
+              <a class="button-prime success small save-object-browser" @click.stop="save"><i class="fa fa-check" aria-hidden="true"></i></a>
+          <button v-if="createItem" :data-open="newId" class="new-item-button button-prime small">
+            <i class="fa fa-plus"></i>
+          </button>
+          <button class="button-prime small close-object-browser" @click.prevent="$emit('close')">
+            <i aria-hidden="true" class="fa fa-times"></i>
+          </button>
+          <new v-on:add="addItem">
+            <template scope="newItem" slot="new-item">
+              <slot name="new-item"></slot>
+            </template>
+          </new>
+        </div>
+    </div>
+
   </div>
 </template>
 
@@ -119,6 +119,7 @@ export default {
     }
   },
   mounted() {
+    this.max = 0;
     this.modal = $('#object-browser').foundation();
     if ($('#' + this.newId).length > 0) {
       this.newModal = $('#' + this.newId).foundation();
