@@ -8,6 +8,22 @@ module DataCycleCore
       include ContentTranslationHelpers
     end
 
+
+
+
+    class History < DataHash
+      # handle translations with gem Globalize
+      translates :creative_work_id, :headline, :description, :content, :properties, :release,
+        :release_id, :release_comment, :history_valid
+
+      belongs_to :creative_work
+    end
+
+    has_many :history, class_name: 'DataCycleCore::CreativeWork::History', foreign_key: :creative_work_id
+
+
+
+
     # handle translations with gem Globalize
     translates :headline, :description, :content, :properties, :release,
       :release_id, :release_comment

@@ -11,12 +11,6 @@ module DataCycleCore
     include Subscribable
     include Releasable
 
-    # belongs_to :external_source
-    #
-    # puts ['classification',self.table_name.singularize].sort.join('_').pluralize.to_sym
-    #
-    # has_many ['classification',self.class.name.demodulize.tableize.singularize].sort.join('_').pluralize.to_sym, dependent: :destroy
-    # has_many :classifications, through: ['classification',self.class.name.demodulize.tableize.singularize].sort.join('_').pluralize.to_sym
 
     def property_definitions
       metadata['validation']['properties'] rescue {}
@@ -107,13 +101,8 @@ module DataCycleCore
           embedded_hash = send(property_name).to_h
           embedded_hash.blank? ? nil : embedded_hash
         elsif embedded_property_names.include?(property_name)
-          if send(property_name).nil?
-            []
-          else
-            send(property_name).map{ |item|
-              item.get_data_hash
-            }.compact #to propagate the releasable functionality
-          end
+          embedded_array = send(property_name).try(:map, &:get_data_hash)
+          embedded_array.blank? ? [] : embedded_array.compact
         else
           raise StandardError.new("cannot determine how to serialize #{property_name}")
         end

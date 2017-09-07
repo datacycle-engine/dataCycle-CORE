@@ -5,6 +5,24 @@ module DataCycleCore
         include ContentTranslationHelpers
     end
 
+
+
+    class History < DataHash
+      # handle translations with gem Globalize
+      translates :place_id, :name, :headline, :description, :addressLocality, :streetAddress,
+        :postalCode, :addressCountry, :faxNumber, :telephone, :email,
+        :url, :hoursAvailable, :address, :content, :properties, :release,
+        :release_id, :release_comment, :history_valid
+
+      belongs_to :place
+    end
+
+    has_many :history, class_name: 'DataCycleCore::Place::History', foreign_key: :place_id
+
+
+
+
+
     # handle translations with gem Globalize
     translates :name, :headline, :description, :addressLocality, :streetAddress,
       :postalCode, :addressCountry, :faxNumber, :telephone, :email,

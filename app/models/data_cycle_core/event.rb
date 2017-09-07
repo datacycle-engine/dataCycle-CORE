@@ -5,6 +5,22 @@ module DataCycleCore
         include ContentTranslationHelpers
     end
 
+
+
+
+    class History < DataHash
+      # handle translations with gem Globalize
+      translates :event_id, :headline, :description, :content, :properties, :release,
+        :release_id, :release_comment, :history_valid
+
+      belongs_to :event
+    end
+
+    has_many :history, class_name: 'DataCycleCore::Event::History', foreign_key: :event_id
+
+
+
+
     # handle translations with gem Globalize
     translates :headline, :description, :content, :properties, :release,
       :release_id, :release_comment

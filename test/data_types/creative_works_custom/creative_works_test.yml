@@ -1,6 +1,17 @@
 ---
 
 - :data:
+    :name: TestSimple
+    :description: CreativeWork
+    :type: object
+    :properties:
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: column
+
+- :data:
     :name: TestObject
     :description: CreativeWork
     :type: object
