@@ -1,5 +1,5 @@
 <% parent_string = classification_alias_id.nil? ? "IS NULL" : " = '#{classification_alias_id}'" %>
-<% types = DataCycleCore::ClassificationAlias.joins(classification_trees: [:classification_tree_label]).where("classification_tree_labels.name = ?", tree_label).where("classification_trees.parent_classification_alias_id #{parent_string}") %>
+<% types = DataCycleCore::ClassificationAlias.joins(classification_tree: [:classification_tree_label]).where("classification_tree_labels.name = ?", tree_label).where("classification_trees.parent_classification_alias_id #{parent_string}") %>
 
 <div class="row expanded-filter-listitem filter" data-tree-label="<%= tree_label.downcase %>">
     <div class="columns small-12 large-2">

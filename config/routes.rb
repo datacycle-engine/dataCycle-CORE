@@ -25,6 +25,7 @@ DataCycleCore::Engine.routes.draw do
     put :update, on: :collection
     patch :update, on: :collection
     delete :destroy, on: :collection
+    get :search, on: :collection
   end
 
   get  '/admin', to: 'dash_board#home'

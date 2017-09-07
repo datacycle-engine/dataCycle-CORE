@@ -2,6 +2,6 @@
   $('#<%= @object.id %>')
     .replaceWith('<%= escape_javascript(render 'classification_tree_label', tree_label: @object) %>');
 <% else %>
-  $('#<%= @object.classification_trees.first.id %>')
-    .replaceWith('<%= escape_javascript(render 'classification_tree', classification_tree_label: nil, classification_tree: @object.classification_trees.first) %>');
+  $('#<%= @object.classification_tree.id %>')
+    .replaceWith('<%= escape_javascript(render 'classification_tree', classification_tree_label: @object.classification_tree.classification_tree_label, classification_tree: @object.classification_tree) %>');
 <% end %>

@@ -3,10 +3,16 @@ ul.classifications {
   list-style: none;
   margin-left: 0;
 
-  :before {
+  li {
+    display: inline-block;
+  }
+  li:first-child:before {
     content: '(';
   }
-  :after {
+  li:not(:last-child):after {
+    content: ', '
+  }
+  li:last-child:after {
     content: ')';
   }
 }
