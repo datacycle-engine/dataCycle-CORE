@@ -4,5 +4,12 @@
   <%= f.hidden_field :id %>
   <%= f.text_field :name %>
   <%= f.check_box :internal %>
+  <% if classification_alias.persisted? %>
+    <%= f.select(:classification_ids,
+                 options_for_select(classification_alias.classifications.map { |c| [c.name, c.id] },
+                                    classification_alias.classifications.map(&:id)),
+                 {},
+                 {multiple: true}) %>
+  <% end %>
   <%= f.submit %>
 <% end %>

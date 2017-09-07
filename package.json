@@ -10,7 +10,8 @@
     "jquery": "./node_modules/jquery/dist/jquery.js",
     "foundation": "./node_modules/foundation-sites/js/foundation.js",
     "vue": "vue/dist/vue.common.js",
-    "select2": "./node_modules/select2/dist/js/select2.js"
+    "select2": "./node_modules/select2/dist/js/select2.js",
+    "select2/i18n/de": "./node_modules/select2/dist/js/i18n/de.js"
   },
   "browserify-shim": {
     "jquery": "$",

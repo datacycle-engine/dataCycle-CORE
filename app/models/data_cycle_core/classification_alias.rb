@@ -12,7 +12,7 @@ module DataCycleCore
     has_many :sub_classification_alias, through: :sub_classification_trees
 
     has_many :classification_groups, dependent: :destroy
-    has_many :classifications, through: :classification_groups
+    has_many :classifications, -> { order(:name) }, through: :classification_groups
 
     def ancestors
       Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 10.minutes) do

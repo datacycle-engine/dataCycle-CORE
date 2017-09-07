@@ -94,7 +94,10 @@ module DataCycleCore
     end
 
     def update
-      permitted_params = params.permit(classification_tree_label: [:id, :name, :internal], classification_alias: [:id, :name, :internal])
+      permitted_params = params.permit(
+        classification_tree_label: [:id, :name, :internal],
+        classification_alias: [:id, :name, :internal, classification_ids: []]
+      )
 
       respond_to do |format|
         format.html do
