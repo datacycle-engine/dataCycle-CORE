@@ -43,6 +43,7 @@
 									<i class="fa fa-folder-open" aria-hidden="true"></i>
 							</span>
 							<span class="title"><%=@splitSource.metadata['validation']['name']%></span>
+              <span class="language">(<%= I18n.locale %>)</span>
 						</div>
 						<%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema %>
 					</div>
@@ -64,6 +65,7 @@
 								<i class="fa fa-folder-open" aria-hidden="true"></i>
 						</span>
 						<span class="title"><%=dataObject.metadata['validation']['name']%></span>
+            <span class="language">(<%= I18n.locale %>)</span>
 					</div>
 					<%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: dataObject, dataCycleObjectSchema: dataSchema %>
 				</div>
@@ -85,7 +87,7 @@
 
 						<% validation_properties.each do |key, prop| %>
 
-							<%= render_attribute_editor key: "#{keyPrefix}[#{key}]", definition: prop, value: dataSchema[key], parameters: { options: prop.dig('editor', 'options') || {} } %>
+							<%= render_attribute_editor key: "#{keyPrefix}[#{key}]", definition: prop, value: dataSchema[key], parameters: { options: prop.dig('editor', 'options') || {} } unless dataSchema.nil? %>
 
 						<% end %>
 
@@ -100,6 +102,5 @@
 		<% unless @splitSource.nil? %>
 			</div>
 		<% end %>
-
 
 <% end %>

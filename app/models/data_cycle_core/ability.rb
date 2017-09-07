@@ -7,6 +7,7 @@ module DataCycleCore
       if user
         can :read, :all
         cannot :read, DataCycleCore::WatchList
+        can [:show, :find], :object_browser
 
         if user.role == "admin" || user.role == "user"
           can :manage, [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]

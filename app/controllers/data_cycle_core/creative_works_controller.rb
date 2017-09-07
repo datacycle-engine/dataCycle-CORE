@@ -10,103 +10,114 @@ module DataCycleCore
     def show
       session[:trail] = params[:trail] unless params[:trail].nil?
       @creativeWork = DataCycleCore::CreativeWork.find_by(id: params[:id])
+      locale = @creativeWork.translated_locales.include?(I18n.locale) ? I18n.locale : @creativeWork.translated_locales.first
+      I18n.with_locale(locale) do
 
-      if @creativeWork.nil?
-        redirect_back(fallback_location: root_path)
-        return
-      end
+        if @creativeWork.nil?
+          redirect_back(fallback_location: root_path)
+          return
+        end
 
-      if params[:mode].nil?
-        @mode = "flex"
-      else
-        @mode = params[:mode].to_s
-      end
+        if params[:mode].nil?
+          @mode = "flex"
+        else
+          @mode = params[:mode].to_s
+        end
 
-      @release_status = DataCycleCore::Release.find_by(id: @creativeWork.release_id) if @creativeWork.metadata['validation']['releasable'] && !@creativeWork.release_id.nil?
-      @dataSchema = @creativeWork.get_data_hash
+        @release_status = DataCycleCore::Release.find_by(id: @creativeWork.release_id) if @creativeWork.metadata['validation']['releasable'] && !@creativeWork.release_id.nil?
+        @dataSchema = @creativeWork.get_data_hash
 
-      respond_to do |format|
-        format.json { redirect_to api_v1_content_path(type: 'creative_works', id: params[:id]) }
-        format.html {
-          if @creativeWork.metadata['validation']['content_type'] == 'variant'
-            render layout: "data_cycle_core/creative_works_edit"
-          else
-            @sources = get_sources
-            render layout: "data_cycle_core/creative_works_show"
-          end
-        }
+        respond_to do |format|
+          format.json { redirect_to api_v1_content_path(type: 'creative_works', id: params[:id]) }
+          format.html {
+            if @creativeWork.metadata['validation']['content_type'] == 'variant'
+              render layout: "data_cycle_core/creative_works_edit"
+            else
+              @sources = get_sources
+              render layout: "data_cycle_core/creative_works_show"
+            end
+          }
+        end
       end
     end
 
     def create
-      source = Hash[params[:source].split(",").collect{|x| x.strip.split("=>")}] unless params[:source].blank?
-      object_params = creative_work_params('creative_works', params[:template], 'CreativeWork')
-      @creativeWork = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:template], 'CreativeWork', object_params, current_user)
+      locale = I18n.available_locales.include?(params[:locale].to_sym) ? params[:locale].to_sym : I18n.locale
+      I18n.with_locale(locale) do
+        source = Hash[params[:source].split(",").collect{|x| x.strip.split("=>")}] unless params[:source].blank?
+        object_params = creative_work_params('creative_works', params[:template], 'CreativeWork')
+        @creativeWork = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:template], 'CreativeWork', object_params, current_user)
+        if @creativeWork.nil?
+          redirect_back(fallback_location: root_path)
+          return
+        end
 
-      if @creativeWork.nil?
-        redirect_back(fallback_location: root_path)
-        return
-      end
+        after_create(@creativeWork)
 
-      after_create(@creativeWork)
-
-      @creativeWork.metadata['last_updated_by'] = current_user.id
-      #validate ?
-      if !@creativeWork.nil? && @creativeWork.save
-        flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
-        redirect_to edit_creative_work_path(@creativeWork, source)
-      else
-        redirect_back(fallback_location: root_path)
-        return
+        @creativeWork.metadata['last_updated_by'] = current_user.id
+        if !@creativeWork.nil? && @creativeWork.save
+          flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
+          redirect_to edit_creative_work_path(@creativeWork, source)
+        else
+          redirect_back(fallback_location: root_path)
+          return
+        end
       end
 
     end
 
     def edit
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
+      locale = @creativeWork.translated_locales.include?(I18n.locale) ? I18n.locale : @creativeWork.translated_locales.first
+      I18n.with_locale(locale) do
 
-      unless @creativeWork.read_write?
-        redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error])
-        return
+        unless @creativeWork.read_write?
+          raise "read_only"
+          redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error])
+          return
+        end
+
+        @place = DataCycleCore::Place.new
+        @person = DataCycleCore::Person.new
+        @dataSchema = @creativeWork.get_data_hash
+
+        @splitType = params[:source_type].constantize unless params[:source_type].nil?
+        @splitSource = @splitType.find(params[:source_id]) if !params[:source_id].nil? && !@splitType.nil?
+        @splitSchema = @splitSource.get_data_hash unless @splitSource.nil?
+
+        render layout: "data_cycle_core/creative_works_edit"
       end
-
-      @place = DataCycleCore::Place.new
-      @person = DataCycleCore::Person.new
-      @dataSchema = @creativeWork.get_data_hash
-
-      @splitType = params[:source_type].constantize unless params[:source_type].nil?
-      @splitSource = @splitType.find(params[:source_id]) if !params[:source_id].nil? && !@splitType.nil?
-      @splitSchema = @splitSource.get_data_hash unless @splitSource.nil?
-
-      render layout: "data_cycle_core/creative_works_edit"
     end
 
     def update
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
+      locale = @creativeWork.translated_locales.include?(I18n.locale) ? I18n.locale : @creativeWork.translated_locales.first
+      I18n.with_locale(locale) do
 
-      object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], 'CreativeWork')
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'],false)
+        object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], 'CreativeWork')
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'],false)
 
-      valid = @creativeWork.set_data_hash(datahash)
+        valid = @creativeWork.set_data_hash(datahash)
 
-      if valid.key?(:error) && !valid[:error].empty?
-        flash[:error] = valid[:error]
-        redirect_to edit_creative_work_path(@creativeWork)
-        return
-      end
-
-      @creativeWork.metadata['last_updated_by'] = current_user.id
-      if @creativeWork.save
-        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
-
-        if Rails.env.development?
-          redirect_back(fallback_location: root_path)
-        else
-          redirect_to creative_work_path(@creativeWork, trail: session[:trail])
+        if valid.key?(:error) && !valid[:error].empty?
+          flash[:error] = valid[:error]
+          redirect_to edit_creative_work_path(@creativeWork)
+          return
         end
 
-      else
-        render 'edit'
+        @creativeWork.metadata['last_updated_by'] = current_user.id
+        if @creativeWork.save
+          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
+
+          if Rails.env.development?
+            redirect_back(fallback_location: root_path)
+          else
+            redirect_to creative_work_path(@creativeWork, trail: session[:trail])
+          end
+
+        else
+          render 'edit'
+        end
       end
     end
 

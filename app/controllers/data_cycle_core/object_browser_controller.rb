@@ -1,7 +1,7 @@
 module DataCycleCore
   class ObjectBrowserController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
-    authorize_resource :class => false         # from cancancan (authorize)
+    load_and_authorize_resource :class => false         # from cancancan (authorize)
 
     def show
       @@default_per = 50

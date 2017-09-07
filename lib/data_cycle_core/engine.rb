@@ -104,7 +104,6 @@ module DataCycleCore
     # fallbacks for i18n and Globalize
     config.i18n.fallbacks = true
 
-
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|
       unless app.root.to_s.match root.to_s
