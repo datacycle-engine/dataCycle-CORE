@@ -1,5 +1,5 @@
 module DataCycleCore
-  module Jsonld 
+  module Jsonld
 
     Import = Struct.new(:max_count) do
       def self.with_configuration(**configuration_options)
@@ -35,7 +35,7 @@ module DataCycleCore
         @classifications_tree_label_id = init_or_create_classifications_trees_label('imported')
 
         @image_classification = DataCycleCore::Classification.where(name: 'Bild').
-          joins(classification_groups: [classification_alias: [classification_trees: [:classification_tree_label]]]).
+          joins(classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]).
           where('classification_aliases.name = ?', 'Bild').
           where('classification_trees.parent_classification_alias_id IS NULL').
           where('classification_tree_labels.name = ?', 'Inhaltstypen').
@@ -59,7 +59,7 @@ module DataCycleCore
 
         # check if entries up to classification_tree with label 'imported' exist
         class_group = ClassificationGroup.
-          joins(classification_alias: [classification_trees: [:classification_tree_label]]).
+          joins(classification_alias: [classification_tree: [:classification_tree_label]]).
           where('classification_groups.classification_id = ?', classification.id).
           where('classification_trees.external_source_id = ?', @external_source_id).
           where('classification_tree_labels.name = ?', 'imported')
@@ -180,7 +180,7 @@ module DataCycleCore
                 end
               end
 
-              return if max_count && i >= max_count 
+              return if max_count && i >= max_count
             end
           end
         end

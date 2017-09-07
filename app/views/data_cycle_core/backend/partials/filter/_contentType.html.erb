@@ -1,5 +1,5 @@
 <% parent_string = classification_alias_id.nil? ? "IS NULL" : " = '#{classification_alias_id}'" %>
-<% types = DataCycleCore::ClassificationAlias.joins(classification_trees: [:classification_tree_label]).where("classification_tree_labels.name = ?", tree_label).where("classification_trees.parent_classification_alias_id #{parent_string}") %>
+<% types = DataCycleCore::ClassificationAlias.joins(classification_tree: [:classification_tree_label]).where("classification_tree_labels.name = ?", tree_label).where("classification_trees.parent_classification_alias_id #{parent_string}") %>
 
 <!-- remove embedded content classifications -->
 <!-- todo: make this more generic -->

@@ -112,7 +112,7 @@ module DataCycleCore
       class_id = self.class.to_s.demodulize.foreign_key
       class_string.constantize.
         where(class_id => id).
-        joins(classification: [classification_groups: [classification_alias: [classification_trees: [:classification_tree_label]]]]).
+        joins(classification: [classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]]).
         where("classification_tree_labels.name = ?", tree_label).
         pluck(:classification_id)
     end
@@ -125,7 +125,7 @@ module DataCycleCore
       if is_blank?(ids)
         begin
           unless default_value.blank?
-            classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
+            classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
                 .where("classification_tree_labels.name = ?", tree_label)
                 .where("classification_aliases.name = ?", default_value).first!.id
             class_string.constantize.

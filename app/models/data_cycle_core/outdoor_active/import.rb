@@ -32,7 +32,7 @@ module DataCycleCore
 
         # check if entries up to classification_tree with label 'OutdoorActive' exist
         class_group = ClassificationGroup.
-          joins(classification_alias: [classification_trees: [:classification_tree_label]]).
+          joins(classification_alias: [classification_tree: [:classification_tree_label]]).
           where("classification_groups.classification_id = ?", classification.id).
           where("classification_trees.external_source_id = ?", @external_source_id).
           where("classification_tree_labels.name = ?", 'OutdoorActive')
@@ -141,7 +141,7 @@ module DataCycleCore
           pages.times do |index|
             DownloadPoi.in(_id: indexes).extras(:limit => page_size, :skip => (index*page_size)).each do |load_poi|
               place_template = poi_template(load_poi)
-              validation = place_template.metadata['validation']              
+              validation = place_template.metadata['validation']
 
               print '.' if (updates % @download_page_size) == 0
               updates-=1
@@ -187,7 +187,7 @@ module DataCycleCore
 
       def create_classification_entry(label_name, alias_name, place_id)
         classification = DataCycleCore::Classification.where(name: alias_name).
-          joins(classification_groups: [classification_alias: [classification_trees: [:classification_tree_label]]]).
+          joins(classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]).
           where('classification_aliases.name = ?', alias_name).
           where('classification_tree_labels.name = ?', label_name).
           first!
@@ -576,8 +576,8 @@ module DataCycleCore
       end
 
 
-      private 
-      
+      private
+
       def poi_template(raw_data)
         if DataCycleCore::OutdoorActive.poi_template.nil?
           @log.error 'Missing configuration for poi template to use when importing pois from outdoor active'
@@ -602,9 +602,9 @@ module DataCycleCore
       end
 
       def attribute_transformer(raw_data)
-        if raw_data['frontendtype'] == 'poi'          
+        if raw_data['frontendtype'] == 'poi'
           PoiAttributeTransformation
-        elsif raw_data['frontendtype'] == 'tour'          
+        elsif raw_data['frontendtype'] == 'tour'
           TourAttributeTransformation
         else
           PoiAttributeTransformation

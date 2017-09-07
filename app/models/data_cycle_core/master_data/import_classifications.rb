@@ -44,13 +44,13 @@ module DataCycleCore
       def save_data(data, parent, internal)
         if parent.nil?
           find_alias = DataCycleCore::ClassificationAlias.
-            joins(:classification_trees).
+            joins(:classification_tree).
             where("classification_trees.classification_tree_label_id = ?", @label_id).
             where("classification_aliases.name = ?", data).
             where("classification_trees.parent_classification_alias_id is NULL")
         else
           find_alias = DataCycleCore::ClassificationAlias.
-            joins(:classification_trees).
+            joins(:classification_tree).
             where("classification_trees.classification_tree_label_id = ?", @label_id).
             where("classification_aliases.name = ?", data).
             where("classification_trees.parent_classification_alias_id = ?", parent)

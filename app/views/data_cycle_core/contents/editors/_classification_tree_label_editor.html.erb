@@ -1,6 +1,6 @@
 <%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
 
-  <% types = DataCycleCore::ClassificationAlias.joins(classification_trees: [:classification_tree_label]).where("classification_tree_labels.name = ?", definition['type_name']).where("classification_trees.parent_classification_alias_id IS NULL") %>
+  <% types = DataCycleCore::ClassificationAlias.joins(classification_tree: [:classification_tree_label]).where("classification_tree_labels.name = ?", definition['type_name']).where("classification_trees.parent_classification_alias_id IS NULL") %>
 
   <% select_options = get_custom_select_values(types) %>
 
