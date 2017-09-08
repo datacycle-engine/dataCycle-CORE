@@ -9,16 +9,17 @@ module DataCycleCore
 
     class History < DataHash
       # handle translations with gem Globalize
-      translates :place_id, :name, :headline, :description, :addressLocality, :streetAddress,
+      translates :name, :headline, :description, :addressLocality, :streetAddress,
         :postalCode, :addressCountry, :faxNumber, :telephone, :email,
         :url, :hoursAvailable, :address, :content, :properties, :release,
         :release_id, :release_comment, :history_valid
+
+      content_relations table_name: "places", postfix: "history"
 
       belongs_to :place
     end
 
     has_many :history, class_name: 'DataCycleCore::Place::History', foreign_key: :place_id
-
 
 
 

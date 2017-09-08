@@ -5,18 +5,30 @@ module DataCycleCore
     module ClassMethods
       def content_relations(options={}, &block)
         table_given = options[:table_name]
+        postfix = options[:postfix]
+
+        table_full = table_given.to_s.singularize
+        table_full += "_#{postfix}" unless postfix.nil?
+
+        classification_relation_table = ['classification', table_given.to_s.singularize].sort.join('_')
+        classification_relation_table += "_#{postfix}" unless postfix.nil?
+        classification_relation_table = classification_relation_table.pluralize.to_sym
 
         # relation content to classification
-        has_many ['classification', table_given.to_s.singularize].sort.join('_').pluralize.to_sym, dependent: :destroy
-        has_many :classifications, through: ['classification', table_given.to_s.singularize].sort.join('_').pluralize.to_sym
+        has_many classification_relation_table, foreign_key: table_full.foreign_key, dependent: :destroy
+        has_many :classifications, through: classification_relation_table
         has_many :classification_groups, through: :classifications
         has_many :classification_aliases, through: :classification_groups
         has_many :display_classification_aliases, -> { where("classification_aliases.internal = ?", false) }, through: :classification_groups, source: :classification_alias
 
         # relation content to all other contents
         (DataCycleCore.content_tables - [table_given]).map(&:singularize).each do |content_name|
-          has_many [content_name, table_given.to_s.singularize].sort.join('_').pluralize.to_sym, dependent: :destroy
-          has_many content_name.pluralize.to_sym, through: [content_name, table_given.to_s.singularize].sort.join('_').pluralize.to_sym
+          content_relation_table = [content_name, table_given.to_s.singularize].sort.join('_')
+          content_relation_table += "_#{postfix}" unless postfix.nil?
+          content_relation_table = content_relation_table.pluralize.to_sym
+
+          has_many content_relation_table, dependent: :destroy
+          has_many content_name.pluralize.to_sym, through: content_relation_table
         end
 
         belongs_to :external_source

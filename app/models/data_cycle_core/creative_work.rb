@@ -13,8 +13,10 @@ module DataCycleCore
 
     class History < DataHash
       # handle translations with gem Globalize
-      translates :creative_work_id, :headline, :description, :content, :properties, :release,
+      translates :headline, :description, :content, :properties, :release,
         :release_id, :release_comment, :history_valid
+
+      content_relations table_name: "creative_works", postfix: "history"
 
       belongs_to :creative_work
     end
