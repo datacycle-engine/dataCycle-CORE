@@ -42,7 +42,7 @@ module DataCycleCore
     end
 
     def create
-      locale = (!params[:locale].blank? && I18n.available_locales.include?(params[:locale].to_sym)) ? params[:locale].to_sym : I18n.locale
+      locale = I18n.available_locales.include?(params[:locale].try(:to_sym)) ? params[:locale].try(:to_sym) : I18n.locale
       I18n.with_locale(locale) do
         source = Hash[params[:source].split(",").collect{|x| x.strip.split("=>")}] unless params[:source].blank?
         object_params = creative_work_params('creative_works', params[:template], 'CreativeWork')
