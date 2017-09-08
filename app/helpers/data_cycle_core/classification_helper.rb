@@ -15,7 +15,7 @@ module DataCycleCore
 
       unless uids.nil?
         if !treeLabel.nil?
-          allowed_classifications = get_classifications_for_name(treeLabel)            
+          allowed_classifications = get_classifications_for_name(treeLabel)
             .classification_trees
             .map { |classification| classification.sub_classification_alias.id }
           allowed_uids = uids.select {|uid| allowed_classifications.include?(uid)}
@@ -31,7 +31,7 @@ module DataCycleCore
     def get_classificationAliases_for_classificationIDs(uids)
       result = []
       unless uids.nil?
-        DataCycleCore::Classification.find(uids).each do |classification|
+        DataCycleCore::Classification.where(id: uids).each do |classification|
           result.push(classification.classification_aliases[0])
         end
       end
@@ -61,7 +61,19 @@ module DataCycleCore
       res = walk_classification_tree(classification_alias).flatten
     end
 
+    def ordered_content_pools
+      Rails.cache.fetch('cached_ordered_content_pools') do
+        pools = Hash[DataCycleCore::Classification.where(name: DataCycleCore.content_pool_order).collect{ |c| [ c.name, c ] }]
+        cached_ordered_content_pools = DataCycleCore.content_pool_order.collect{ |c| pools[c] }
+      end
+    end
 
+    def get_next_content_pool(classification_id)
+      c_index = ordered_content_pools.index{ |c| c.id == classification_id }
+      if c_index < ordered_content_pools.length - 1
+        return ordered_content_pools[c_index + 1]
+      end
+    end
 
     def walk_classification_tree(classification_alias,level=0)
       classification_tree = []

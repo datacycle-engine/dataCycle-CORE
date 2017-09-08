@@ -43,6 +43,16 @@ module DataCycleCore
       validate(stripped_data_hash) # return error/warnings from validation
     end
 
+    def set_data_hash_attribute(key, value)
+      key_hash = metadata.dig('validation', 'properties', key)
+
+      unless key_hash.nil?
+        ActiveRecord::Base.transaction do
+          storage_cases_set(key, value, key_hash)
+        end
+      end
+    end
+
     def delete_childs(delete_relation)
       template_hash = metadata['validation']
       # check for subtrees
@@ -124,8 +134,8 @@ module DataCycleCore
       #puts "#{storage_type} | #{ids} | #{tree_label} | #{default_value}"
       if is_blank?(ids)
         begin
-          unless default_value.blank?
-            classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
+          if !default_value.blank? && ids.nil? && get_relation_ids(storage_type, tree_label).count == 0
+            classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
                 .where("classification_tree_labels.name = ?", tree_label)
                 .where("classification_aliases.name = ?", default_value).first!.id
             class_string.constantize.
@@ -134,6 +144,8 @@ module DataCycleCore
                 classification_id: classification_id
               )
             ids = [classification_id]
+          elsif !default_value.blank? && ids.nil?
+            ids = get_relation_ids(storage_type, tree_label)
           end
         rescue ActiveRecord::RecordNotFound => e
           logger.error "Missing default value '#{default_value}' for classification tree '#{tree_label}'"

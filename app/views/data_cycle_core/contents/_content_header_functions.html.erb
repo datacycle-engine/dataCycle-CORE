@@ -14,7 +14,7 @@
                 <li>Letzte Bearbeitung: <%= creator_text.html_safe %><br><i><%= content.updated_at.to_s(:german_datetime_format) %></i></li>
             </ul>
         </li>
-        <% if can? :manage, @data_link %>
+        <% if can? :manage, DataCycleCore::DataLink %>
           <li><%= render 'data_cycle_core/shared/data_links', dataCycleObject: content %></li>
         <% end %>
         <% if can? :subscribe, content %>

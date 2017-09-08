@@ -15,6 +15,8 @@ module DataCycleCore
 
           can :subscribe, [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]
           can [:create, :destroy], DataCycleCore::Subscription
+
+          can :manage, DataCycleCore::DataLink
         end
 
         if user.role == "admin" || user.admin?

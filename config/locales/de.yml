@@ -31,6 +31,12 @@ de:
     uk: "ukrainisch"
     'de-CH': "schweizer-deutsch"
 
+  contentpool:
+    'vorschläge': "Vorschläge"
+    'recherche': "Recherche"
+    'aktuelle inhalte': "Aktuelle Inhalte"
+    'archiv': "Archiv"
+
   common:
     loading: 'Laden ...'
 

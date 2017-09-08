@@ -61,6 +61,9 @@ module DataCycleCore
     mattr_accessor :special_data_attributes
     self.special_data_attributes = []
 
+    mattr_accessor :content_pool_order
+    self.content_pool_order = []
+
     mattr_accessor :default_image_type
     self.default_image_type = nil
 

@@ -173,6 +173,8 @@ module DataCycleCore
         data_hash['kind'] = parent_data_hash['kind']
         #season
         data_hash['season'] = parent_data_hash['season']
+        #content_pool
+        data_hash['data_pool'] = parent_data_hash['data_pool']
 
         return data_hash.compact!
 

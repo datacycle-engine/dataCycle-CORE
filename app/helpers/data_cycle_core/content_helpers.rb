@@ -20,6 +20,14 @@ module DataCycleCore
     #   DataCycleCore::User.find(metadata['creator']) if metadata && metadata['creator']
     # end
 
+    def first_available_locale(locale = :de)
+      case
+        when translated_locales.include?(locale.try(:to_sym)) then locale.try(:to_sym)
+        when translated_locales.include?(I18n.locale) then I18n.locale
+        else translated_locales.first
+      end
+    end
+
     def classification_tree_definitions
       metadata['validation']['properties'].select { |key, definition|
         definition['type'] == 'classificationTreeLabel' && definition['editor']

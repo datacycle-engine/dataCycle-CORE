@@ -46,6 +46,8 @@
 
                 <%= render 'data_cycle_core/backend/partials/filter/moreFilter', tree_label: 'Inhaltsarten', display_label: 'Inhaltsart', classification_alias_id: nil %>
 
+                <%= render 'data_cycle_core/backend/partials/filter/moreFilter', tree_label: 'Inhaltspools', display_label: 'Inhaltspool', classification_alias_id: nil %>
+
                 <%= render 'data_cycle_core/backend/partials/filter/moreFilter', tree_label: 'Jahreszeiten', display_label: 'Jahreszeit', classification_alias_id: nil %>
 
             </div>
@@ -59,7 +61,7 @@
 
         <div class="filtertags activefilter">
             <span class="icon"><i class="fa fa-check" aria-hidden="true"></i> <strong>Angewendete Filter:</strong> </span>
-            <% ['Themenbereiche', 'Bundesländer', 'Märkte', 'Inhaltstypen', 'Inhaltsarten', 'Jahreszeiten'].each do |label| %>
+            <% ['Themenbereiche', 'Bundesländer', 'Märkte', 'Inhaltstypen', 'Inhaltsarten', 'Inhaltspools', 'Jahreszeiten'].each do |label| %>
                 <% selected_classifications = get_classifications_for_id(@classification_array, label)  %>
                 <span class="your-choice tags <%= label.downcase %>" style="<%= "display: none;" if selected_classifications.blank? %>">
                     <i class="choice-label"><%= label %>:</i>
