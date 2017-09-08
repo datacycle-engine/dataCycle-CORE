@@ -120,10 +120,10 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::ClassificationCreativeWork.count)
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(0, DataCycleCore::ClassificationCreativeWorkHistory.count)
+      assert_equal(0, DataCycleCore::ClassificationCreativeWork::History.count)
 
 ######################################################################################
-      # save to History table(s)
+      # save to History table(s) / with classification_relations
       save_time = Time.zone.now
       data_set_history = DataCycleCore::CreativeWork::History.new
       ActiveRecord::Base.transaction do
@@ -135,7 +135,7 @@ module DataCycleCore
         data_set_history.save
 
         data_set.classification_creative_works.each do |item|
-          data_set_classification_history = DataCycleCore::ClassificationCreativeWorkHistory.new
+          data_set_classification_history = DataCycleCore::ClassificationCreativeWork::History.new
           data_set_classification_history.creative_work_history_id = data_set_history.id
           data_set_history_valid = (item.updated_at .. save_time)
           item.attributes.except("id","creative_work_id").each do |key,value|
@@ -153,7 +153,7 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::ClassificationCreativeWork.count)
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(1, DataCycleCore::ClassificationCreativeWorkHistory.count)
+      assert_equal(1, DataCycleCore::ClassificationCreativeWork::History.count)
 
       assert_equal(data_set.get_data_hash, data_set_history.get_data_hash)
     end

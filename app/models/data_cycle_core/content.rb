@@ -209,11 +209,10 @@ module DataCycleCore
 
     def load_relation_ids(storage_type, tree_label)
       class_string = "DataCycleCore::"+storage_type.classify
-      class_string += "History" if is_history?
+      class_string += "::History" if is_history?
       module_names = self.class.to_s.split('::')
       module_names.shift
       class_id = module_names.join('').tableize.singularize.foreign_key
-      #class_id = self.class.to_s.demodulize.foreign_key
       class_string.constantize.
         where(class_id => id).
         joins(classification: [classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]]).
