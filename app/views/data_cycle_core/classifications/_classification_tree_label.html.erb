@@ -11,7 +11,9 @@
 
   <% if can?(:destroy, tree_label) %>
     <%= link_to classifications_path(classification_tree_label_id: tree_label.id), class: 'destroy',
-                data: {remote: true, method: :delete, 'disable-with' => '<i class="fa fa-spinner fa-spin"></i>'} do %>
+                data: {remote: true, method: :delete,
+                       confirm: t('common.are_you_sure'),
+                       'disable-with' => '<i class="fa fa-spinner fa-spin"></i>'} do %>
       <i class="fa fa-trash-o" aria-hidden="true"></i>
     <% end %>
   <% end %>

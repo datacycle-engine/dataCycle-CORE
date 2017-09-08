@@ -39,6 +39,7 @@ de:
 
   common:
     loading: 'Laden ...'
+    are_you_sure: 'Sind Sie sicher?'
 
   validation:
     errors:
