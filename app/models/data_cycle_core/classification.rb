@@ -5,6 +5,8 @@ module DataCycleCore
 
     belongs_to :external_sources
 
+    acts_as_paranoid
+
     has_many :classification_places, dependent: :destroy
     has_many :places, through: :classification_places
 

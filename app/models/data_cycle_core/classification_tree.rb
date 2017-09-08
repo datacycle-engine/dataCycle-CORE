@@ -3,8 +3,10 @@ module DataCycleCore
 
     include DataSetter
 
+    acts_as_paranoid
+
     belongs_to :external_source
-    belongs_to :classification_tree_label
+    belongs_to :classification_tree_label, -> (classification_tree) { classification_tree.deleted? ? with_deleted : self }
 
     belongs_to :sub_classification_alias, class_name: 'ClassificationAlias', foreign_key: 'classification_alias_id', dependent: :destroy
     belongs_to :parent_classification_alias, class_name: 'ClassificationAlias', foreign_key: 'parent_classification_alias_id'

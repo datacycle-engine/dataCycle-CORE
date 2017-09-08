@@ -52,6 +52,8 @@ require 'simple_form'
 # rendering json responses
 require 'jbuilder'
 
+require 'acts_as_paranoid'
+
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name

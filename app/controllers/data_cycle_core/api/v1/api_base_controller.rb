@@ -9,6 +9,8 @@ module DataCycleCore
     # rescue_from ActiveRecord::RecordNotFound, with: :not_found
     before_filter :authenticate
 
+    before_action :set_default_response_format
+
     def tokens
       DataCycleCore.access_tokens
     end
@@ -30,5 +32,8 @@ module DataCycleCore
       render status: :not_found, json: { "error": exception.message }
     end
 
+    def set_default_response_format
+      request.format = :json unless params[:format]
+    end
   end
 end

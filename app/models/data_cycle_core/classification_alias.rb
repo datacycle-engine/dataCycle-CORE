@@ -5,7 +5,9 @@ module DataCycleCore
 
     belongs_to :external_source
 
-    has_one :classification_tree, dependent: :destroy
+    acts_as_paranoid
+
+    has_one :classification_tree, -> (classification_alias) { classification_alias.deleted? ? with_deleted : self }, dependent: :destroy
     has_one :parent_classification_alias, through: :classification_tree
 
     has_many :sub_classification_trees, class_name: 'ClassificationTree', foreign_key: 'parent_classification_alias_id', dependent: :destroy

@@ -48,6 +48,10 @@ DataCycleCore::Engine.routes.draw do
       namespace :v1 do
         resources :classification, only: [:index]
 
+        resources :classification_trees, only: [:index, :show] do
+          get :classifications, on: :member
+        end
+
         resources :collections, only: [:index, :show], controller: :watch_lists
 
         type_regexp = Regexp.new([:creative_works, :persons, :places].join("|"))
