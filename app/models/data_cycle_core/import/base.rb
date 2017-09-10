@@ -1,4 +1,7 @@
 module DataCycleCore::Import
+  class RecoverableError < StandardError
+  end
+
   class Base
     attr_reader :external_source
 

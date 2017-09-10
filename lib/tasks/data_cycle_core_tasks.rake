@@ -152,15 +152,7 @@ namespace :data_cycle_core do
           # puts " -> \"#{title} (\##{id})\" downloaded (#{num} of #{total || '?'})"
         }
         on.error { |title, id, data, error|
-          if title && id
-            puts "Error downloading \"#{title} (\##{id})\": #{error}"
-          elsif title
-            puts "Error downloading \"#{title}\": #{error}"
-          elsif id
-            puts "Error downloading \"\##{id}\": #{error}"
-          else
-            puts "Error: #{error}"
-          end
+          puts "Error downloading \"#{title} (\##{id})\": #{error}"
           puts "  DATA: #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}" if data
         }
         on.phase_finished { |label, total|

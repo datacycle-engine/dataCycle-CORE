@@ -70,7 +70,9 @@ module DataCycleCore::OutdoorActive
       if response.success?
         JSON.parse(response.body)
       else
-        raise "error loading data from #{File.join(['http://www.outdooractive.com', 'api', 'project', @project] + url_path)}"
+        raise DataCycleCore::Import::RecoverableError.new(
+          "error loading data from #{File.join(['http://www.outdooractive.com', 'api', 'project', @project] + url_path)}"
+        )
       end
     end
   end

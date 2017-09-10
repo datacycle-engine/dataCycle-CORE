@@ -1,28 +1,28 @@
 module DataCycleCore::OutdoorActive
-  class Download < DataCycleCore::Import::Base
-    def download(options = {}, &block)
+  class Download < DataCycleCore::Import::DownloadBase
+    def download(**options, &block)
       callbacks = DataCycleCore::Callbacks.new(block)
 
-      download_categories(options, callbacks)
-      download_regions(options, callbacks)
-      download_pois(options, callbacks)
-      download_tours(options, callbacks)
+      download_categories(callbacks, **options)
+      download_regions(callbacks, **options)
+      download_pois(callbacks, **options)
+      download_tours(callbacks, **options)
     end
 
-    def download_categories(options = {}, callbacks = DataCycleCore::Callbacks.new)
-      download_data(Category, nil, options, callbacks)
+    def download_categories(callbacks = DataCycleCore::Callbacks.new, **options)
+      download_data(Category, nil, ->(data) { data['id'] }, ->(data) { data['name'] }, callbacks, options)
     end
 
-    def download_regions(options = {}, callbacks = DataCycleCore::Callbacks.new)
-      download_data(Region, nil, options, callbacks)
+    def download_regions(callbacks = DataCycleCore::Callbacks.new, **options)
+      download_data(Region, nil, ->(data) { data['id'] }, ->(data) { data['name'] }, callbacks, options)
     end
 
-    def download_pois(options = {}, callbacks = DataCycleCore::Callbacks.new)
-      download_data(Poi, nil, options, callbacks)
+    def download_pois(callbacks = DataCycleCore::Callbacks.new, **options)
+      download_data(Poi, nil, ->(data) { data['id'] }, ->(data) { data['name'] }, callbacks, options)
     end
 
-    def download_tours(options = {}, callbacks = DataCycleCore::Callbacks.new)
-      download_data(Tour, nil, options, callbacks)
+    def download_tours(callbacks = DataCycleCore::Callbacks.new, **options)
+      download_data(Tour, nil, ->(data) { data['id'] }, ->(data) { data['name'] }, callbacks, options)
     end
 
 
@@ -30,50 +30,6 @@ module DataCycleCore::OutdoorActive
 
     def endpoint
       @endpoint ||= Endpoint.new(Hash[credentials.map { |k, v| [k.to_sym, v] }])
-    end
-
-    def download_data(type, locale, options = {}, callbacks = DataCycleCore::Callbacks.new)
-      if locale == nil
-        I18n.available_locales.each do |locale|
-          download_data(type, locale, options, callbacks)
-        end
-      else
-        Mongoid.override_database("#{type.database_name}_#{external_source.id}")
-
-        callbacks.execute_callback(:preparing_phase, "#{type.to_s.demodulize.underscore.pluralize}_#{locale}")
-
-        item_count = 0
-
-        begin
-          items = endpoint.send("#{type.to_s.demodulize.underscore.pluralize}", lang: locale)
-
-          callbacks.execute_callback(:phase_started, "#{type.to_s.demodulize.underscore.pluralize}_#{locale}")
-
-          items.each do |item_data|
-            item_count += 1
-
-            begin
-              item_id = item_data['id']
-              item_name = item_data['name']
-
-              item = type.find_or_initialize_by('external_id': item_id)
-              item.dump ||= {}
-              item.dump[locale] = item_data
-              item.save!
-
-              callbacks.execute_callback(:item_processed, item_name, item_id, item_count, nil)
-            rescue => e
-              callbacks.execute_callback(:error, item_name, item_id, item_data, e)
-            end
-
-            return if options[:max_count] && item_count >= options[:max_count]
-          end
-        ensure
-          Mongoid.override_database(nil)
-
-          callbacks.execute_callback(:phase_finished, "#{type.to_s.demodulize.underscore.pluralize}_#{locale}", item_count)
-        end
-      end
     end
   end
 end
