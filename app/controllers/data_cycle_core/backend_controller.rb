@@ -5,7 +5,9 @@ module DataCycleCore
 
     def index
       @classification_array = []
-      unless params[:classification].blank?
+      if params[:classification].blank?
+        # @classification_array = [DataCycleCore::ClassificationAlias.find_by(name: "Aktuelle Inhalte").try(:id)]
+      else
         params[:classification].each do |item|
           @classification_array.push(item['selected'])
         end
@@ -14,7 +16,7 @@ module DataCycleCore
       @language ||= "de" #default-language
 
       @order_by = !params[:order].nil? && params[:order].split('_').first == 'udpated' ? 'updated_at' : 'updated_at'
-      @order = !params[:order].nil? && params[:order].split('_').last == 'asc' ? 'ASC' : 'DESC' 
+      @order = !params[:order].nil? && params[:order].split('_').last == 'asc' ? 'ASC' : 'DESC'
       order_string = @order_by + ' ' + @order
 
       query = DataCycleCore::Filter::QueryIndex.new(language: @language)

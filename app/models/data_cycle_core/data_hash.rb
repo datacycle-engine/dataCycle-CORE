@@ -135,7 +135,7 @@ module DataCycleCore
       if is_blank?(ids)
         begin
           if !default_value.blank? && ids.nil? && get_relation_ids(storage_type, tree_label).count == 0
-            classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
+            classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
                 .where("classification_tree_labels.name = ?", tree_label)
                 .where("classification_aliases.name = ?", default_value).first!.id
             class_string.constantize.

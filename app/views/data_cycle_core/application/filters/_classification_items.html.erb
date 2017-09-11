@@ -4,14 +4,13 @@
     <label for="<%= item.id %>">
         <span class="title">
             <span class="inner-title"><%= item.name %></span>
-            <!--<strong><%="("+item.sub_classification_alias.size.to_s+")" if item.sub_classification_alias.size > 0 %></strong>-->
         </span>
     </label>
 
     <% if item.sub_classification_alias.size > 0 %>
         <ul class="sub-classifications">
             <% item.sub_classification_alias.sort{|a,b| a.name <=> b.name}.each do |sub_item| %>
-                <%= render 'data_cycle_core/backend/partials/filter/classification_items', item: sub_item %>
+                <%= render 'data_cycle_core/application/filters/classification_items', item: sub_item %>
             <% end %>
         </ul>
     <% end %>

@@ -1,0 +1,62 @@
+<%= form_tag(root_path, :method => "get", id: "search-form") do %>
+<% excluded_types = ['Website','MobileApplication','Inklusiv-Leistungen','Zeitleiste-Eintrag','Frage','Antwort','Rezept-Komponente', 'Angebotszeitraum'] %>
+
+<section class="filters">
+  <div class="row">
+    <div class="column">
+
+        <div class="search">
+            <div class="search">
+                <div class="input-group">
+                    <div class="input-group-button">
+                        <button type="submit" class="search_icon "><i class="fa fa-search" aria-hidden="true"></i></button>
+                    </div>
+                    <%= text_field_tag :search, params[:search], placeholder: "Suchbegriff",class:"input-group-field" %>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-filters">
+
+          <nav id="primary_nav_wrap">
+            <ul>
+              <%= render 'data_cycle_core/application/filters/classification_tree', tree_label: 'Inhaltstypen', display_label: 'Inhaltstyp', excluded_types: excluded_types %>
+
+              <%= render 'data_cycle_core/application/filters/sprache'%>
+            </ul>
+          </nav>
+
+        </div>
+
+        <div class="filtertags activefilter">
+            <span class="icon"><i class="fa fa-check" aria-hidden="true"></i> <strong>Angewendete Filter:</strong> </span>
+            <% ['Inhaltstypen'].each do |label| %>
+                <% selected_classifications = get_classifications_for_id(@classification_array, label)  %>
+                <span class="your-choice tags <%= label.downcase %>" style="<%= "display: none;" if selected_classifications.blank? %>">
+                    <i class="choice-label"><%= label %>:</i>
+                    <% unless selected_classifications.blank? %>
+                        <% selected_classifications.each do |selected| %>
+                            <label for="<%= selected.id %>">
+                                <a class="tag">
+                                    <%= selected.name %><i class="fa fa-times" aria-hidden="true"></i>
+                                </a>
+                            </label>
+                        <% end %>
+                    <% end %>
+                </span>
+            <% end %>
+        </div>
+
+        <div class=" filterbuttons">
+
+            <button type="reset" id="reset-filter" class="button">Alle zurücksetzen</button>
+            <%= button_tag("Filter anwenden", class: "button success") %>
+
+        </div>
+
+    </div>
+  </div>
+</section>
+
+
+<% end %>
