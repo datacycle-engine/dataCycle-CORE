@@ -230,14 +230,8 @@ module DataCycleCore
 
         # # save all relations to other contents to history
         (DataCycleCore.content_tables - ['creative_works']).map(&:singularize).each do |content_name|
-          puts "content_name: #{content_name}"
           content_relation_table = [content_name, 'creative_work'].sort.join('_')
           data_set.send(content_name.pluralize).each do |content_item|
-            puts "#{data_set_history.class.to_s} || #{content_item.class.to_s}"
-
-            # create new content_history object
-            # content_item_class = ("DataCycleCore::"+content_name.classify+"::History").safe_constantize
-            # content_item_history = content_item_class.new
             content_item_history_hash = {}
             content_item.attributes.except("id").each do |key,value|
               content_item_history_hash[key] = value
@@ -266,12 +260,8 @@ module DataCycleCore
 
       expected_hash = data_set.get_data_hash
       returned_history = data_set_history.get_data_hash
-      reconstructed_place_history = returned_history["testPlace"]
-      # id is now saved in place_id !!
-      reconstructed_place_history[0]['id'] = data_set_history.place_histories.first.place_id
 
-      assert_equal(expected_hash.except("testPlace"), returned_data_hash.except("testPlace"))
-      assert_equal(expected_hash["testPlace"], reconstructed_place_history)
+      assert_equal(expected_hash, returned_data_hash)
     end
 
 
