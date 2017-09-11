@@ -88,32 +88,10 @@ module DataCycleCore
       }.keys
     end
 
-    def to_h2
-      property_names.map { |property_name|
-        property_value =
-        if plain_property_names.include?(property_name)
-          send(property_name)
-        elsif classification_property_names.include?(property_name)
-          send(property_name).try(:pluck, :classification_id)
-        elsif linked_property_names.include?(property_name)
-          send(property_name).try(:pluck, :id) || send(property_name).try(:id)
-        elsif included_property_names.include?(property_name)
-          embedded_hash = send(property_name).to_h
-          embedded_hash.blank? ? nil : embedded_hash
-        elsif embedded_property_names.include?(property_name)
-          embedded_array = send(property_name).try(:map, &:get_data_hash)
-          embedded_array.blank? ? [] : embedded_array.compact
-        else
-          raise StandardError.new("cannot determine how to serialize #{property_name}")
-        end
-        { property_name.to_s => property_value }
-      }.inject(&:merge).deep_stringify_keys
-    end
-
     def to_h
       property_names.map { |property_name|
         property_value =
-        if property_name=="id" && is_history?
+        if property_name == "id" && is_history?
           send(self.class.to_s.split("::")[1].foreign_key) # for history records original_key is saved in "content"_id
         elsif plain_property_names.include?(property_name)
           send(property_name)
