@@ -19,7 +19,7 @@ module DataCycleCore
       belongs_to :place
     end
 
-    has_many :history, class_name: 'DataCycleCore::Place::History', foreign_key: :place_id
+    has_many :histories, class_name: 'DataCycleCore::Place::History', foreign_key: :place_id
 
 
 

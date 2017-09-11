@@ -148,7 +148,9 @@ module DataCycleCore
       # embeddedObject is stored in a separate content-data_set
       # all properties from the embeddedObject are handled within this content-data_set
       elsif embedded_property_names.include?(property_name) && property_definition['storage_location'] != self.class.table_name
-        send(property_definition['storage_location'])
+        load_embedded_objects(
+            property_definition['storage_location']
+          )
 
       # embeddedObject stored in same table
       # relation is handled via "property_name"+"_hasPart" uuid(s) array
@@ -176,6 +178,10 @@ module DataCycleCore
       else
         raise NotImplementedError
       end
+    end
+
+    def load_embedded_objects(relation_name)
+      is_history? ? send("#{relation_name.singularize}_histories"): send(relation_name)
     end
 
     def load_linked_data(class_name, ids)

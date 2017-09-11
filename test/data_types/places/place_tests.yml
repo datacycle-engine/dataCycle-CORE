@@ -1,0 +1,19 @@
+---
+  
+- :data:
+    :name: testPlace
+    :description: Place
+    :type: object
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :name:
+        :label: Name
+        :type: string
+        :storage_type: string
+        :storage_location: column

@@ -18,7 +18,7 @@ module DataCycleCore
       belongs_to :event
     end
 
-    has_many :history, class_name: 'DataCycleCore::Event::History', foreign_key: :event_id
+    has_many :histories, class_name: 'DataCycleCore::Event::History', foreign_key: :event_id
 
 
 

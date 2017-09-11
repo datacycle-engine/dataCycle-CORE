@@ -56,6 +56,24 @@
         :default_value: "Aktuelle Themen"
 
 - :data:
+    :name: TestEmbeddedPlaceData
+    :description: CreativeWork
+    :type: object
+    :properties:
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: column
+      :testPlace:
+        :label: Ort
+        :type: object
+        :delete: true
+        :storage_location: places
+        :name: testPlace
+        :description: Place
+
+- :data:
     :name: TestObject
     :description: CreativeWork
     :type: object

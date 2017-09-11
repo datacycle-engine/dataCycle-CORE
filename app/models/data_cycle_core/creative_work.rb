@@ -21,7 +21,7 @@ module DataCycleCore
       belongs_to :creative_work
     end
 
-    has_many :history, class_name: 'DataCycleCore::CreativeWork::History', foreign_key: :creative_work_id
+    has_many :histories, class_name: 'DataCycleCore::CreativeWork::History', foreign_key: :creative_work_id
 
 
 

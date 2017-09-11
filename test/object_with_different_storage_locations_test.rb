@@ -1,7 +1,7 @@
 require 'test_helper'
 
 module DataCycleCore
-  class ObjectWithDifferentLocationsTest < ActiveSupport::TestCase
+  class ObjectWithDifferentStorageLocationsTest < ActiveSupport::TestCase
 
     test "events template with daterange" do
       template = DataCycleCore::Event.find_by(template: true, headline: "Event", description: "Event")
