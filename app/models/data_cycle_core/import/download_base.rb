@@ -4,12 +4,16 @@ module DataCycleCore::Import
 
     protected
 
-    def download_data(type, locale, extract_id, extract_name, callbacks = DataCycleCore::Callbacks.new, **options)
-      if locale == nil
-        I18n.available_locales.each do |locale|
-          download_data(type, locale, extract_id, extract_name, callbacks, options)
+    def download_data(type, extract_id, extract_name, callbacks = DataCycleCore::Callbacks.new, **options)
+      options[:locales] ||= I18n.available_locales
+
+      if options[:locales].size != 1
+        options[:locales].each do |l|
+          download_data(type, extract_id, extract_name, callbacks, options.except(:locales).merge({locales: [l]}))
         end
       else
+        locale = options[:locales].first
+
         Mongoid.override_database("#{type.database_name}_#{external_source.id}")
 
         callbacks.execute_callback(:preparing_phase, "#{type.to_s.demodulize.underscore.pluralize}_#{locale}")
