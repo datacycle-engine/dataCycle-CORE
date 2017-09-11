@@ -9,7 +9,7 @@
 
 	<% unless dataCycleObjects.nil? %>
 
-		<% dataCycleObjects.each do |dataCycleObject| %>
+		<% dataCycleObjects.reject(&:nil?).each do |dataCycleObject| %>
 
 			<% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['validation'].nil? %>
 
