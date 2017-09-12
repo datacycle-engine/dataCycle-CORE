@@ -53,6 +53,51 @@ module DataCycleCore
       end
     end
 
+    def to_history (save_time)
+      origin_table = self.class.to_s.split("::")[1].tableize
+      data_set_history = (self.class.to_s + "::History").safe_constantize.new
+
+      ActiveRecord::Base.transaction do
+
+        # cc self to history
+        data_set_history.send(origin_table.singularize.foreign_key+"=", self.id)
+        self.attributes.except("id").each do |key,value|
+          data_set_history.send("#{key}=", value)
+        end
+        data_set_history.history_valid = (self.updated_at .. save_time)
+        data_set_history.save
+
+        # cc classification_relation to history
+        classification_relation = "classification_"+origin_table
+        self.send(classification_relation).each do |item|
+          classification_history = ("DataCycleCore::Classification"+origin_table.classify+"::History").safe_constantize.new
+          classification_history.send(origin_table.singularize+"_history_id=", data_set_history.id)
+          item.attributes.except("id", origin_table.singularize.foreign_key).each do |key,value|
+            classification_history.send("#{key}=", value)
+          end
+          classification_history.classification_id = item.classification_id
+          #classification_history.history_valid = (item.updated_at .. save_time)
+          classification_history.save
+        end
+
+        # cc embedded data from other content tables
+        embedded_relations.map(&:singularize).each do |content_name|
+          content_relation_table = [content_name, origin_table.singularize].sort.join('_')
+          self.send(content_name.pluralize).each do |content_item|
+            new_content_history = content_item.to_history(save_time)
+            data_set_history.send(content_relation_table+"_histories").create({
+                (origin_table.singularize+"_history_id") => data_set_history.id,
+                (content_name+"_history_id") => new_content_history.id,
+                "history_valid" => (content_item.updated_at .. save_time)
+              })
+          end
+        end
+
+      end
+
+      data_set_history
+    end
+
     def delete_childs(delete_relation)
       template_hash = metadata['validation']
       # check for subtrees

@@ -128,6 +128,12 @@ module DataCycleCore
 
     private
 
+    def embedded_relations
+      embedded_property_names.map { |property_name|
+         property_definitions[property_name]['storage_location'] if property_definitions[property_name]['storage_location'] != self.class.table_name
+      }.uniq
+    end
+
     def get_property_value(property_name, property_definition)
       # linked data via embeddedLink/embeddedLinkArray
       # only uuid(s) stored in content-data_set

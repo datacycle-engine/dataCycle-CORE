@@ -36,13 +36,7 @@ module DataCycleCore
       save_time = Time.zone.now
 
       # save to History table
-      data_set_history = DataCycleCore::CreativeWork::History.new
-      data_set_history.creative_work_id = data_set.id
-      data_set.attributes.except("id").each do |key,value|
-        data_set_history.send("#{key}=", value)
-      end
-      data_set_history.history_valid = (data_set.updated_at .. save_time)
-      data_set_history.save
+      data_set_history = data_set.to_history(Time.zone.now)
 
       assert_equal(data_set.get_data_hash, data_set_history.get_data_hash)
 
@@ -75,18 +69,8 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::CreativeWork::History::Translation.count)
 
-#####################################################################################
       # save to History table
-      save_time = Time.zone.now
-      data_set_history = DataCycleCore::CreativeWork::History.new
-      data_set_history.creative_work_id = data_set.id
-      data_set.attributes.except("id").each do |key,value|
-        data_set_history.send("#{key}=", value)
-      end
-      data_set_history.history_valid = (data_set.updated_at .. save_time)
-      data_set_history.save
-######################################################################################
-
+      data_set_history = data_set.to_history(Time.zone.now)
 
       assert_equal(data_set.get_data_hash, data_set_history.get_data_hash)
 
@@ -122,31 +106,7 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::CreativeWork::History::Translation.count)
       assert_equal(0, DataCycleCore::ClassificationCreativeWork::History.count)
 
-######################################################################################
-      # save to History table(s) / with classification_relations
-      save_time = Time.zone.now
-      data_set_history = DataCycleCore::CreativeWork::History.new
-      ActiveRecord::Base.transaction do
-        data_set_history.creative_work_id = data_set.id
-        data_set.attributes.except("id").each do |key,value|
-          data_set_history.send("#{key}=", value)
-        end
-        data_set_history.history_valid = (data_set.updated_at .. save_time)
-        data_set_history.save
-
-        data_set.classification_creative_works.each do |item|
-          data_set_classification_history = DataCycleCore::ClassificationCreativeWork::History.new
-          data_set_classification_history.creative_work_history_id = data_set_history.id
-          data_set_history_valid = (item.updated_at .. save_time)
-          item.attributes.except("id","creative_work_id").each do |key,value|
-            data_set_classification_history.send("#{key}=", value)
-          end
-          data_set_classification_history.classification_id = item.classification_id
-          data_set_classification_history.save
-        end
-      end
-######################################################################################
-
+      data_set_history = data_set.to_history(Time.zone.now)
 
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw_count)
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt_count)
@@ -201,50 +161,7 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::Place::History.count)
       assert_equal(0, DataCycleCore::Place::History::Translation.count)
 
-######################################################################################
-      # save to History table(s) / with classification_relations
-      save_time = Time.zone.now
-      origin_table = "creative_works"
-      data_set_history = DataCycleCore::CreativeWork::History.new
-      ActiveRecord::Base.transaction do
-        # save data_set to history
-        data_set_history.creative_work_id = data_set.id
-        data_set.attributes.except("id").each do |key,value|
-          data_set_history.send("#{key}=", value)
-        end
-        data_set_history.history_valid = (data_set.updated_at .. save_time)
-        data_set_history.save
-
-        # save all relations to classifications to history
-        data_set.classification_creative_works.each do |item|
-          data_set_classification_history = DataCycleCore::ClassificationCreativeWork::History.new
-          data_set_classification_history.creative_work_history_id = data_set_history.id
-          data_set_history_valid = (item.updated_at .. save_time)
-          data_set_classification_history.history_valid = data_set_history_valid
-          item.attributes.except("id","creative_work_id").each do |key,value|
-            data_set_classification_history.send("#{key}=", value)
-          end
-          data_set_classification_history.classification_id = item.classification_id
-          data_set_classification_history.save
-        end
-
-        # # save all relations to other contents to history
-        (DataCycleCore.content_tables - ['creative_works']).map(&:singularize).each do |content_name|
-          content_relation_table = [content_name, 'creative_work'].sort.join('_')
-          data_set.send(content_name.pluralize).each do |content_item|
-            content_item_history_hash = {}
-            content_item.attributes.except("id").each do |key,value|
-              content_item_history_hash[key] = value
-            end
-            content_item_history_hash[content_name+"_id"] = content_item.id
-            content_item_history_hash["history_valid"] = (content_item.updated_at .. save_time)
-            data_set_history.send("#{content_name}_histories").create(content_item_history_hash)
-          end
-        end
-        data_set_history.save
-      end
-######################################################################################
-
+      data_set_history = data_set.to_history(Time.zone.now)
 
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw_count)
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt_count)
@@ -263,7 +180,6 @@ module DataCycleCore
 
       assert_equal(expected_hash, returned_data_hash)
     end
-
 
 
   end
