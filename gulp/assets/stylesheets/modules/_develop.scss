@@ -94,6 +94,10 @@
 
 .media-preview {
   padding-top: 2.5rem;
+  img.lazyload {
+    min-height: 10rem;
+    min-width: 10rem;
+  }
   .preview-title {
     position: absolute;
     top: 1rem;

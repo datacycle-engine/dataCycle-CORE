@@ -49,7 +49,7 @@ module DataCycleCore
       end
       @page ||= 1
 
-      @results = query.page(@page).per(@per)
+      @results = query.page(@page).per(@per).includes(:translations)
 
       render :json => { results: @results, total: total }
     end

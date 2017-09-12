@@ -24,6 +24,7 @@ var slider_init = require('./modules/initializers/slider_init');
 var copy_contents_init = require('./modules/initializers/copy_contents_init');
 var map_init = require('./modules/initializers/map_init');
 var watch_lists_init = require('./modules/initializers/watch_lists_init');
+var lazy_loading_init = require('./modules/initializers/lazy_loading_init');
 var classifications = require('./modules/initializers/classifications');
 
 $(function () {
@@ -94,6 +95,9 @@ $(function () {
 
   // initialize Watchlists
   watch_lists_init.initialize();
+
+  // initialize Lazy Loading for Images
+  lazy_loading_init.initialize();
 
   if ($('#classification-administration').length) {
     classifications.initialize();

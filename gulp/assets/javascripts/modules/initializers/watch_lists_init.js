@@ -16,7 +16,7 @@ module.exports.initialize = function () {
 
       $parent.find('.check').toggleClass('checked');
       $change_link.toggleClass('add-to-watchlist-link remove-from-watchlist-link confirm');
-      $change_link.find('.fa').toggleClass('fa-plus-circle fa-minus-circle');
+      $change_link.find('.fa').toggleClass('fa-plus-circle fa-times-circle');
       $change_link.attr('href', data.url);
 
       var $watch_lists_link = $parent.closest('.watch-lists').siblings('.watch-lists-link').find('.fa');

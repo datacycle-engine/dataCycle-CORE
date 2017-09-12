@@ -57,7 +57,7 @@
                                 </button>
                                 <span class="preview-title"><%= image.title %></span>
                                 <div class="image">
-                                    <img src="<%= image.metadata['contentUrl'] %>" />
+                                    <img class="lazyload" data-src="<%= image.metadata['contentUrl'] %>" />
                                 </div>
                                 <div class="description">
 

@@ -43,7 +43,10 @@
             }
           }
           &.media {
-            .media-thumbs { display: flex; }
+            position: relative;
+            .media-thumbs {
+              display: flex;
+            }
             .thumbnail {
               position: relative;
               width: 194px;
@@ -59,7 +62,9 @@
                 box-shadow: 0 0 2px 1px red;
               }
               &:hover {
-                .description { opacity: 1;}
+                .description {
+                  opacity: 1;
+                }
               }
               .description {
                 opacity: 0;

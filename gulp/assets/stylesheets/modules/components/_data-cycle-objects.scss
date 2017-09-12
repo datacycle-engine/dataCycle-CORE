@@ -93,17 +93,31 @@
 
 .media-thumbs {
   .media {
+    position: relative;
     display: block;
     float: left;
     overflow: hidden;
     width: auto;
     height: auto;
-    padding: 0.85rem 1rem;
+    padding: 0.65rem;
     margin: 0 1rem 1rem 0;
     background-position: center center;
     background-size: contain;
     background-repeat: no-repeat;
-    background-color: white;
+    outline: none;
+    border-radius: 0;
+    background-color: rgba(white, 0.5);
+    border: 0;
+    box-shadow: 0 0 0 1px rgba($dark-gray, 0.5);
+    transition: box-shadow 200ms ease-out;
+    line-height: 1.5;
+    .name {
+      padding: 0 0.3rem;
+    }
+    .delete-thumbnail {
+      position: relative;
+      float: right;
+    }
     &.thumbnail {
       position: relative;
       width: 194px;
@@ -112,22 +126,34 @@
       cursor: pointer;
       text-align: right;
       border: 0;
-      .description {
+      .delete-thumbnail {
         position: absolute;
-        left: 0;
-        bottom: 0;
-        width: 221px;
-        background: rgba(0, 0, 0, 0.5);
-        height: 2rem;
-        display: block;
+        float: none;
+      }
+      &:hover {
+        .description {
+          opacity: 1;
+        }
+      }
+      .description {
+        opacity: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        height: 100%;
         line-height: 1rem;
-        font-size: 1rem;
-        color: white;
-        white-space: nowrap;
+        font-size: 0.8rem;
+        color: $body-font-color;
         overflow: hidden;
-        text-overflow: ellipsis;
+        /* white-space: nowrap; */
+        /* text-overflow: ellipsis; */
         padding: 0.5rem;
         text-align: center;
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-align: center;
+        align-items: center;
+        -ms-flex-pack: center;
+        justify-content: center;
       }
     }
     span.caption {
@@ -139,14 +165,18 @@
     }
   }
 }
-    .delete-thumbnail {
-      color: $dark-gray;
-      padding: 0 0.2rem;
-      cursor: pointer;
-      &:hover {
-        color: map-get($foundation-palette, alert) !important;
-      }
-    }
+
+.delete-thumbnail {
+  color: $dark-gray;
+  padding: 0 0.2rem;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 0;
+  &:hover {
+    color: map-get($foundation-palette, alert) !important;
+  }
+}
 
 .object-browser {
   text-align: left;
@@ -162,9 +192,11 @@
   outline: none;
   padding: 0;
   .object-browser-header {
-    h4 { display: none; }
+    h4 {
+      display: none;
+    }
     #object-browser-search {
-        border: 0;
+      border: 0;
       line-height: 3rem;
       font-weight: 200;
       padding: 0 1rem 0 2rem;
@@ -173,9 +205,9 @@
     }
     .search-icon {
       position: absolute;
-    line-height: 3rem;
-    left: 0.5rem;
-    color: $dark-gray;
+      line-height: 3rem;
+      left: 0.5rem;
+      color: $dark-gray;
     }
     #item-count {
       font-style: italic;
@@ -201,9 +233,9 @@
     right: 0;
     left: 0;
     bottom: 0;
-    box-shadow: 0 -3px 7px rgba(0,0,0, 0.1);
-    .chosen-items { 
-      overflow-x: scroll; 
+    box-shadow: 0 -3px 7px rgba(0, 0, 0, 0.1);
+    .chosen-items {
+      overflow-x: auto;
       overflow-y: hidden;
       padding: 0.5rem;
       margin-right: 0;
@@ -213,15 +245,21 @@
     .chosen-items-container {
       width: max-content;
       line-height: 1;
-      > div { 
-        display: inline-block; 
+      >div {
+        display: inline-block;
         margin: 0 0.3rem 0 0;
-      } 
+      }
+      .description {
+        display: none;
+      }
     }
     .items .media {
       position: relative;
+      line-height: 1.5;
       .delete-thumbnail {
         display: inline-block;
+        position: relative;
+        float: right;
       }
       &.thumbnail {
         width: 80px;
@@ -231,13 +269,16 @@
         margin: 0;
         display: block;
         .delete-thumbnail {
+          float: none;
           position: absolute;
           top: 0.2rem;
           right: 0.2rem;
           color: white;
           text-shadow: 1px 1px 1px rgba($black, 0.3);
         }
-        .warning { display: none; }
+        .warning {
+          display: none;
+        }
       }
     }
     .buttons {
@@ -251,30 +292,8 @@
       .button-title {
         display: inline-block;
         padding: 0 0.1rem 0 0.3rem;
-        i { font-size: 0.9rem; }
-      }
-    }
-    .chosen-item {
-      .remove {
-        position: absolute;
-        right: 0;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        display: block; 
-        text-align: center;
-        color: white;
-        opacity: 0;
         i {
-          font-size: 2.5rem;
-          line-height: 80px;
-        }
-        &:hover,
-        &:focus {
-          color: red;
-          background: rgba(white, 0.5);
-          cursor: pointer;
-          opacity: 1;
+          font-size: 0.9rem;
         }
       }
     }
@@ -298,24 +317,26 @@
     }
   }
   .items {
-    padding: 2rem 1rem 15rem 1rem;
+    padding: 5rem 1rem 7rem 1rem;
     margin-right: 400px;
-    height: 100%;
+    height: calc(100% - 7.9rem);
     overflow-y: scroll;
     .media {
       width: auto;
       height: auto;
-      padding: 0.85rem 1rem;
+      padding: 0.65rem;
       display: block;
       overflow: hidden;
-      box-shadow: none;
       outline: none;
       border-radius: 0;
-      overflow: hidden;
       background-color: rgba(white, 0.5);
       border: 0;
       box-shadow: 0 0 0 1px rgba($dark-gray, 0.5);
       transition: box-shadow 200ms ease-out;
+      line-height: 1.5;
+      .name {
+        padding: 0 0.3rem;
+      }
       cursor: pointer;
       &:hover,
       &:focus {
@@ -336,8 +357,10 @@
       display: none;
     }
     .loading {
+      float: left;
+      width: 100%;
       text-align: center;
-      padding: 10rem 0;
+      padding: 1rem 0;
       .fa {
         font-size: 3rem;
         color: $light-gray;
@@ -396,26 +419,34 @@
       display: flex;
       flex-flow: row;
       flex-wrap: wrap;
-      width: 100%;      /* set the container width*/
+      width: 100%;
+      /* set the container width*/
       overflow: visible;
       dt {
-         margin: 0;
+        margin: 0;
         display: block;
         flex: 0 0 50%;
         text-overflow: ellipsis;
         overflow: hidden;
-        &.block-flex { flex: 0 0 100%; }
+        &.block-flex {
+          flex: 0 0 100%;
+        }
       }
-     dd {
-      margin: 0;
-      padding-bottom: 0.7rem;
-      flex:0 0 50%;
-      margin-left: auto;
-      text-align: left;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      img { max-height: 360px; }
-      &.block-flex { flex: 0 0 100%; line-height: 1; }
+      dd {
+        margin: 0;
+        padding-bottom: 0.7rem;
+        flex: 0 0 50%;
+        margin-left: auto;
+        text-align: left;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        img {
+          max-height: 360px;
+        }
+        &.block-flex {
+          flex: 0 0 100%;
+          line-height: 1;
+        }
       }
     }
   }
@@ -451,6 +482,7 @@ span.single_error.object-browser-error {
     opacity: 1;
   }
 }
+
 
 /* Object Browser New Items */
 

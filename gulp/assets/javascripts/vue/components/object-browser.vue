@@ -20,7 +20,7 @@
       <keep-alive>
         <object-browser-modal v-if="showModal" @save="save" :object-type="objectType" :object-label="objectLabel" :url="url" :preChosenItems="existingItems" :select-one="selectOne" :new-id="newId" @close="showModal = false" :create-item="createItem" :min="min" :max="max">
           <template scope="props" slot="item">
-            <slot name="item" :item="props.item"></slot>
+            <slot name="item" :item="props.item" :remove="props.remove"></slot>
           </template>
           <template scope="newItem" slot="new-item">
             <slot name="new-item"></slot>
@@ -171,6 +171,7 @@ export default {
       this.$parent.$emit('objects-saved', { name: this.hiddenName });
       this.$nextTick(function() {
         $(this.$el).find('.media-preview').foundation();
+        $(this.$el).trigger('media_previews_added');
       });
     }
   }
