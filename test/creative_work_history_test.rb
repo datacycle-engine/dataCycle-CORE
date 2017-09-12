@@ -181,6 +181,64 @@ module DataCycleCore
       assert_equal(expected_hash, returned_data_hash)
     end
 
+    test "save data to History with embeddedObject from same content_table" do
+
+      template_cw_count = DataCycleCore::CreativeWork.count
+      template_cwt_count = DataCycleCore::CreativeWork::Translation.count
+      template_place_count = DataCycleCore::Place.count
+      template_place_t_count = DataCycleCore::Place::Translation.count
+
+      template_data = DataCycleCore::CreativeWork.find_by(template: true, headline: "TestEmbeddedCreativeWork", description: "CreativeWork")
+      validation_hash = template_data.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation_hash }
+      data_set.save
+
+      template_cw = DataCycleCore::CreativeWork.find_by(template: true, headline: "EmbeddedCreativeWork", description: "CreativeWork")
+      validation_cw_hash = template_cw.metadata['validation']
+      data_set_cw = DataCycleCore::CreativeWork.new
+      data_set_cw.metadata = { 'validation' => validation_cw_hash }
+      data_set_cw.save
+      data_set_cw.set_data_hash({"headline" => "eingebettete Kreativdaten"})
+      data_set_cw.save
+
+      data_hash = { "headline" => "Dies ist ein Test!", "testCW" => [{"id" => data_set_cw.id}]}
+      error = data_set.set_data_hash(data_hash)
+      data_set.save
+
+      returned_data_hash = data_set.get_data_hash
+      expected_hash = data_hash
+      expected_hash['testCW'][0] = data_set_cw.get_data_hash
+      assert_equal(data_hash, returned_data_hash)
+      assert_equal(0, error[:error].count)
+
+      # check consistency of data in DB
+      assert_equal(2, DataCycleCore::CreativeWork.count - template_cw_count)
+      assert_equal(2, DataCycleCore::CreativeWork::Translation.count - template_cwt_count)
+      assert_equal(1, DataCycleCore::ClassificationCreativeWork.count)
+      assert_equal(0, DataCycleCore::CreativeWork::History.count)
+      assert_equal(0, DataCycleCore::CreativeWork::History::Translation.count)
+      assert_equal(0, DataCycleCore::ClassificationCreativeWork::History.count)
+
+      data_set_history = data_set.to_history(Time.zone.now)
+
+      assert_equal(2, DataCycleCore::CreativeWork.count - template_cw_count)
+      assert_equal(2, DataCycleCore::CreativeWork::Translation.count - template_cwt_count)
+      assert_equal(1, DataCycleCore::ClassificationCreativeWork.count)
+      assert_equal(2, DataCycleCore::CreativeWork::History.count)
+      assert_equal(2, DataCycleCore::CreativeWork::History::Translation.count)
+      assert_equal(1, DataCycleCore::ClassificationCreativeWork::History.count)
+
+
+      # ap data_set_history
+      # ap data_set_history.metadata.except("validation")
+      # ap DataCycleCore::CreativeWork::History.find(data_set_history.metadata['testCW_hasPart'][0])
+
+      expected_hash = data_set.get_data_hash
+      returned_history = data_set_history.get_data_hash
+
+      assert_equal(expected_hash, returned_data_hash)
+    end
 
   end
 end

@@ -93,6 +93,17 @@ module DataCycleCore
           end
         end
 
+        # cc embedded data from same content table
+        data_refs = embedded_self_property_names.map{ |name|
+          name + '_hasPart'
+        }.each { |key|
+          data_set_history.metadata[key] = []
+          self.metadata[key].each do |content_id|
+            content_history = self.class.find(content_id).to_history(save_time)
+            data_set_history.metadata[key].push(content_history.id)
+          end
+        }
+        data_set_history.save
       end
 
       data_set_history

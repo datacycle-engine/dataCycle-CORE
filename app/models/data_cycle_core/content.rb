@@ -131,7 +131,13 @@ module DataCycleCore
     def embedded_relations
       embedded_property_names.map { |property_name|
          property_definitions[property_name]['storage_location'] if property_definitions[property_name]['storage_location'] != self.class.table_name
-      }.uniq
+      }.compact.uniq
+    end
+
+    def embedded_self_property_names
+      embedded_property_names.select { |property_name|
+        property_definitions[property_name]['storage_location'] == self.class.table_name
+      }
     end
 
     def get_property_value(property_name, property_definition)
@@ -155,7 +161,7 @@ module DataCycleCore
       # relation is hadled via a separate table (an ActiveRecord::Relation has to be defined)
       # embeddedObject is stored in a separate content-data_set
       # all properties from the embeddedObject are handled within this content-data_set
-      elsif embedded_property_names.include?(property_name) && property_definition['storage_location'] != self.class.table_name
+      elsif embedded_property_names.include?(property_name) && !same_table?(property_definition['storage_location'])
         load_embedded_objects(
             property_definition['storage_location']
           )
@@ -164,7 +170,7 @@ module DataCycleCore
       # relation is handled via "property_name"+"_hasPart" uuid(s) array
       # embeddedObject is stored in a separate content-data_set
       # all properties from the embeddedObject are handled within this content-data_set
-      elsif embedded_property_names.include?(property_name) && property_definition['storage_location'] == self.class.table_name
+      elsif embedded_property_names.include?(property_name) && same_table?(property_definition['storage_location'])
         load_linked_data(
             self.class.to_s,
             send('metadata')[property_name.to_s + '_hasPart']
@@ -186,6 +192,14 @@ module DataCycleCore
       else
         raise NotImplementedError
       end
+    end
+
+    def same_table?(storage_location)
+      history = false
+      if self.class.table_name.split('_').last == 'histories'
+        history =  self.class.table_name.split('_')[0..-2].join('_').pluralize == storage_location
+      end
+      self.class.table_name == storage_location || history
     end
 
     def load_embedded_objects(relation_name)

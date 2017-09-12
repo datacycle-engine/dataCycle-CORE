@@ -74,6 +74,49 @@
         :description: Place
 
 - :data:
+    :name: TestEmbeddedCreativeWork
+    :description: CreativeWork
+    :type: object
+    :properties:
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: column
+      :testCW:
+        :label: Kreativdaten
+        :type: object
+        :delete: true
+        :storage_location: creative_works
+        :name: EmbeddedCreativeWork
+        :description: CreativeWork
+
+- :data:
+    :name: EmbeddedCreativeWork
+    :description: CreativeWork
+    :type: object
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: column
+      :data_pool:
+        :label: Inhaltspool
+        :type: classificationTreeLabel
+        :type_name: Inhaltspools
+        :storage_type: classification_creative_works
+        :storage_location: classification_relation
+        :default_value: "Aktuelle Themen"
+
+- :data:
     :name: TestObject
     :description: CreativeWork
     :type: object
