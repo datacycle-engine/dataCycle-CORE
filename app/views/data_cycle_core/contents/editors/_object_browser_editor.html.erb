@@ -17,7 +17,7 @@
         :readonly="<%= options['readonly'] ? true : false %>">
         <template scope="props" slot="item">
           <div v-if="props.item != undefined" class="media person">
-            <a v-if="!props.readonly" slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-minus-circle"></i></a>
+            <a v-if="!props.readonly" slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
 
             <% if definition['storage_location'] == 'persons' %>
 
