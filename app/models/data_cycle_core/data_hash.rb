@@ -70,8 +70,8 @@ module DataCycleCore
         # cc classification_relation to history
         classification_relation = "classification_"+origin_table
         self.send(classification_relation).each do |item|
-          classification_history = ("DataCycleCore::Classification"+origin_table.classify+"::History").safe_constantize.new
-          classification_history.send(origin_table.singularize+"_history_id=", data_set_history.id)
+          classification_history = ("DataCycleCore::Classification" + origin_table.classify + "::History").safe_constantize.new
+          classification_history.send(origin_table.singularize + "_history_id=", data_set_history.id)
           item.attributes.except("id", origin_table.singularize.foreign_key).each do |key,value|
             classification_history.send("#{key}=", value)
           end
@@ -85,9 +85,9 @@ module DataCycleCore
           content_relation_table = [content_name, origin_table.singularize].sort.join('_')
           self.send(content_name.pluralize).each do |content_item|
             new_content_history = content_item.to_history(save_time)
-            data_set_history.send(content_relation_table+"_histories").create({
-                (origin_table.singularize+"_history_id") => data_set_history.id,
-                (content_name+"_history_id") => new_content_history.id,
+            data_set_history.send(content_relation_table + "_histories").create({
+                (origin_table.singularize + "_history_id") => data_set_history.id,
+                (content_name + "_history_id") => new_content_history.id,
                 "history_valid" => (content_item.updated_at .. save_time)
               })
           end
@@ -113,7 +113,7 @@ module DataCycleCore
             delete_item_keys = []
             delete_item_keys = self.metadata[field_has_part] if !self.metadata.blank? && self.metadata.has_key?(field_has_part)
             delete_item_keys.each do |key|
-              item = ("DataCycleCore::"+value['storage_location'].classify).constantize.find_by(id: key)
+              item = ("DataCycleCore::" + value['storage_location'].classify).constantize.find_by(id: key)
               item.delete_childs(delete)
               item.destroy if delete
             end
@@ -125,7 +125,7 @@ module DataCycleCore
               item.destroy if delete
             end
             relation = get_relation_name(value['storage_location'])
-            relations = ("DataCycleCore::"+relation.classify).constantize.
+            relations = ("DataCycleCore::" + relation.classify).constantize.
               where(self.class.table_name.singularize.foreign_key.to_sym => self.id, value['storage_location'].singularize.foreign_key.to_sym => present_relations)
             relations.destroy_all unless relations.blank?
           end
@@ -135,7 +135,7 @@ module DataCycleCore
           if value['storage_location'] == 'classification_relation'
             found_ids = get_relation_ids(value['storage_type'], value['type_name'])
             if found_ids.size > 0
-              class_string = "DataCycleCore::"+value['storage_type'].classify
+              class_string = "DataCycleCore::" + value['storage_type'].classify
               class_id = self.class.to_s.demodulize.foreign_key
               class_string.constantize.
                 where(
@@ -163,7 +163,7 @@ module DataCycleCore
     private
 
     def get_relation_ids(storage_type, tree_label)
-      class_string = "DataCycleCore::"+storage_type.classify
+      class_string = "DataCycleCore::" + storage_type.classify
       class_id = self.class.to_s.demodulize.foreign_key
       class_string.constantize.
         where(class_id => id).
@@ -173,7 +173,7 @@ module DataCycleCore
     end
 
     def set_relation_ids(storage_type, ids, tree_label, default_value)
-      class_string = "DataCycleCore::"+storage_type.classify
+      class_string = "DataCycleCore::" + storage_type.classify
       class_id = self.class.to_s.demodulize.foreign_key
 
       #puts "#{storage_type} | #{ids} | #{tree_label} | #{default_value}"
