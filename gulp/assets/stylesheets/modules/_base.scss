@@ -43,8 +43,7 @@ form {
 }
 
 .pagination {
-  border-radius: 30px;
-  //background: lighten($light-gray, 7%);
+  border-radius: 30px; //background: lighten($light-gray, 7%);
   a,
   button {
     border-radius: 0;
@@ -385,7 +384,8 @@ form {
   .ql-editor,
   .daterange,
   .v-select,
-  .embedded_object {
+  .embedded_object,
+  .readonly-select {
     border: 1px solid $light-gray;
     background: $light-gray;
     outline: none;
