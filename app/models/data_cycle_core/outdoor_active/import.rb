@@ -68,8 +68,8 @@ module DataCycleCore
         Mongoid.override_database("#{DownloadPoi.database_name}_#{@external_source_id}")
 
         import_logging do
-          import_category
-          import_region
+          # import_category
+          # import_region
           import_poi(options)
         end
 
@@ -163,7 +163,7 @@ module DataCycleCore
                 load_poi.dump.each do |lang, lang_dump|
                   I18n.with_locale(lang) do
                     place_hash = ((to_update_place.get_data_hash || {}) rescue {}).merge(extract_place_data(lang_dump))
-                    place_hash['primaryImage'] = primaryImage if primaryImage
+                    place_hash['primary_image'] = primaryImage if primaryImage
                     place_hash['image'] = image if image.count > 0
                     to_update_place.set_data_hash(place_hash)
                     to_update_place.save!
