@@ -5,7 +5,10 @@
     <div <%= !definition.dig('editor', 'options', 'data-validate').nil? ? "data-validate=#{definition['editor']['options']['data-validate']}" : '' %>>
       <%= label_tag(key, definition['label']) %>
       <div class="readonly-select v-select clearfix">
-        <% @creativeWork.try(key.split('[').last[0...-1].to_sym).includes(classification: [:classification_aliases]).map{|c| {id: c.classification.id, alias: c.classification.primary_classification_alias}}.each do |c_alias| %>
+        <% DataCycleCore::Classification.where(id: value)
+            .includes(:classification_aliases)
+            .map { |c| {id: c.id, alias: c.primary_classification_alias} }
+            .each do |c_alias| %>
           <span class="selected-tag"><%= c_alias[:alias].name %></span>
           <%= hidden_field_tag key+'[]', c_alias[:id] %>
         <% end %>
