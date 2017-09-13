@@ -2,15 +2,13 @@
 
     <div class="row align-center">
 
-      <% begin %>
-        <%= render 'data_cycle_core/creative_works/partials/show/'+content.content_type.downcase,
-                   dataCycleObject: content,
-                   dataCycleObjectSchema: @dataSchema %>
-      <% rescue %>
-        <%= render "data_cycle_core/creative_works/partials/show/default",
-                   dataCycleObject: content,
-                   dataCycleObjectSchema: @dataSchema  %>
-      <% end %>
+      <%= render_first_existing_partial [
+            'data_cycle_core/creative_works/partials/show/' + content.content_type.downcase,
+            'data_cycle_core/creative_works/partials/show/default'
+          ], {
+            dataCycleObject: content,
+            dataCycleObjectSchema: @dataSchema
+          } %>
 
       <%= render 'data_cycle_core/creative_works/partials/show/translation/translations', language: nil, dataCycleObject: content %>
 

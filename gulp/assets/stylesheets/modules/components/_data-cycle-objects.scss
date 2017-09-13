@@ -89,6 +89,39 @@
 }
 
 
+.content-tiles {
+  margin: 0;
+  margin-bottom: 1rem;
+  list-style-type: none;
+
+  .content {
+    display: inline-block;
+    float: left;
+    overflow: hidden;
+    width: auto;
+    height: auto;
+    padding: 0.65rem;
+    margin: 0 1rem 1rem 0;
+    box-shadow: 0 0 0 1px rgba(157, 157, 157, 0.5);
+    transition: box-shadow 200ms ease-out;
+  }
+
+  .content.creative-work.bild {
+    padding: 1px;
+    margin: 0;
+    box-shadow: 0 0 0 0;
+  }
+
+  &:before,
+  &:after {
+    content: "";
+    display: table;
+  }
+  &:after {
+    clear: both;
+  }
+}
+
 /* Objectbrowser */
 
 .media-thumbs {
