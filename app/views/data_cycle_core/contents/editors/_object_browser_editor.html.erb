@@ -1,6 +1,6 @@
 <%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
 
-  <% object = ("DataCycleCore::"+("#{definition['storage_location']}".classify)).constantize %>
+  <% object = "DataCycleCore::#{(definition['type_name'] || definition['storage_location']).classify}".constantize %>
   <div class="object-browser" id="<%= sanitize_to_id(key) %>">
     <%= label_tag(key, definition['label']) %>
     <div class="media-thumbs">
@@ -19,12 +19,12 @@
           <div v-if="props.item != undefined" class="media person">
             <a v-if="!props.readonly" slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
 
-            <% if definition['storage_location'] == 'persons' %>
+            <% if definition['storage_location'] == 'persons' || definition['type_name'] == 'persons' %>
 
               <i class="fa fa-user" aria-hidden="true"></i>
               <span class="name">{{ props.item.givenName }} <strong>{{ props.item.familyName }}</strong></span>
 
-            <% elsif definition['storage_location'] == 'places' %>
+            <% elsif definition['storage_location'] == 'places' || definition['type_name'] == 'places' %>
 
               <i class="fa fa-map-marker" aria-hidden="true"></i>
               <span class="name">{{ props.item.name }} {{ props.item.address }} </span>
