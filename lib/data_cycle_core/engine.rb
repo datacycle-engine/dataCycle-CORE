@@ -52,6 +52,8 @@ require 'simple_form'
 # rendering json responses
 require 'jbuilder'
 
+require 'acts_as_paranoid'
+
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name
@@ -60,6 +62,18 @@ module DataCycleCore
     # special data attributes are ignored by the standard json serializes and must be handled by the application itself
     mattr_accessor :special_data_attributes
     self.special_data_attributes = []
+
+    mattr_accessor :content_pool_order
+    self.content_pool_order = []
+
+    mattr_accessor :default_image_type
+    self.default_image_type = nil
+
+    mattr_accessor :default_place_type
+    self.default_place_type = nil
+
+    mattr_accessor :access_tokens
+    self.access_tokens = []
   end
 
   def self.setup(&block)
@@ -93,8 +107,7 @@ module DataCycleCore
     config.i18n.enforce_available_locales = false
     config.i18n.default_locale = :de
     # fallbacks for i18n and Globalize
-    #config.i18n.fallbacks = true
-
+    config.i18n.fallbacks = true
 
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|
@@ -126,6 +139,25 @@ module DataCycleCore
     config.to_prepare do
       Dir.glob(Rails.root + "app/decorators/**/*_decorator*.rb").each do |c|
         require_dependency(c)
+      end
+    end
+  end
+end
+
+
+JbuilderTemplate.class_eval do
+  def content_partial!(partial, parameters)
+    partials = [
+      "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].content_type.underscore}_#{partial}",
+      "#{parameters[:content].class.class_name.underscore}_#{partial}",
+      "content_#{partial}",
+    ]
+
+    partials.each_with_index do |partial, idx|
+      begin
+        return partial!(partial, parameters)
+      rescue ActionView::MissingTemplate => e
+        raise e if idx == partials.size - 1
       end
     end
   end

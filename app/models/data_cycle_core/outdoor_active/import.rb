@@ -32,7 +32,7 @@ module DataCycleCore
 
         # check if entries up to classification_tree with label 'OutdoorActive' exist
         class_group = ClassificationGroup.
-          joins(classification_alias: [classification_trees: [:classification_tree_label]]).
+          joins(classification_alias: [classification_tree: [:classification_tree_label]]).
           where("classification_groups.classification_id = ?", classification.id).
           where("classification_trees.external_source_id = ?", @external_source_id).
           where("classification_tree_labels.name = ?", 'OutdoorActive')
@@ -63,13 +63,13 @@ module DataCycleCore
       end
 
     # main import functionality
-      def import(options)
+      def import(options = {})
         Mongoid.override_database(nil) #reset to default
         Mongoid.override_database("#{DownloadPoi.database_name}_#{@external_source_id}")
 
         import_logging do
-          # import_category
-          # import_region
+          import_category
+          import_region
           import_poi(options)
         end
 
@@ -141,7 +141,7 @@ module DataCycleCore
           pages.times do |index|
             DownloadPoi.in(_id: indexes).extras(:limit => page_size, :skip => (index*page_size)).each do |load_poi|
               place_template = poi_template(load_poi)
-              validation = place_template.metadata['validation']              
+              validation = place_template.metadata['validation']
 
               print '.' if (updates % @download_page_size) == 0
               updates-=1
@@ -155,7 +155,7 @@ module DataCycleCore
               else
                 to_update_place.metadata['validation'] = validation
               end
-              to_update_place.save
+              to_update_place.save!
 
               ActiveRecord::Base.transaction do
                 image = create_creative_work_place( load_poi.dump[load_poi.dump.keys.first]['images'], to_update_place.id )
@@ -166,7 +166,7 @@ module DataCycleCore
                     place_hash['primaryImage'] = primaryImage if primaryImage
                     place_hash['image'] = image if image.count > 0
                     to_update_place.set_data_hash(place_hash)
-                    to_update_place.save
+                    to_update_place.save!
                   end
                 end
                 create_classification_place_regions( load_poi.dump[load_poi.dump.keys.first]['regions'], to_update_place.id )
@@ -187,7 +187,7 @@ module DataCycleCore
 
       def create_classification_entry(label_name, alias_name, place_id)
         classification = DataCycleCore::Classification.where(name: alias_name).
-          joins(classification_groups: [classification_alias: [classification_trees: [:classification_tree_label]]]).
+          joins(classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]).
           where('classification_aliases.name = ?', alias_name).
           where('classification_tree_labels.name = ?', label_name).
           first!
@@ -423,14 +423,15 @@ module DataCycleCore
             place_id: place_id,
             classification_id: classification_id
           )
-        to_update_classification_place.set_data(data_hash).save
+        to_update_classification_place.set_data(data_hash).save!
       end
 
       def create_creative_work_place( images, place_id)
         return [] if images.nil? || images.empty?
         return_images = []
 
-        template = DataCycleCore::CreativeWork.find_by(headline: 'Bild', description: 'ImageObject', template: true)
+        template = DataCycleCore::CreativeWork.find_by(template: true, headline: DataCycleCore.default_image_type)
+
         validation_hash = template.metadata['validation']
 
         images['image'].each do |record|
@@ -443,24 +444,17 @@ module DataCycleCore
             'url' => "http://img.oastatic.com/img/#{record['id']}",
             'contentUrl' => "http://img.oastatic.com/img/#{record['id']}/.jpg",
             'thumbnailUrl' => "http://img.oastatic.com/img/400/400/fit/#{record['id']}/.jpg",
-            'external_key' => record['id'],
             'gallery' => gallery,
-            'seen_at' => Time.zone.now,
-            'external_source_id' => @external_source_id
+            'seen_at' => Time.zone.now
           }
-          to_update_image = CreativeWork.
-            where(
-              "metadata ->> 'external_key' = ? AND external_source_id = ?",
-              record['id'],
-              @external_source_id
-            )
-            .first_or_initialize
+          to_update_image = CreativeWork.where(external_key: record['id'], external_source_id: @external_source_id).first_or_initialize
           if to_update_image.metadata.blank?
             to_update_image.metadata = { 'validation' => validation_hash }
           else
             to_update_image.metadata['validation'] = validation_hash
           end
-          to_update_image.save
+          to_update_image.save!
+
           error = to_update_image.set_data_hash(data_image)
           if error[:error].count > 0
             ap error[:error]
@@ -469,7 +463,7 @@ module DataCycleCore
             to_update_image.destroy
             next
           else
-            to_update_image.save
+            to_update_image.save!
             return_images.push(to_update_image.id)
           end
         end
@@ -478,12 +472,7 @@ module DataCycleCore
 
       def set_primary_image(primaryImage, place_id)
         return nil if primaryImage.blank?
-        creative_work_image = CreativeWork
-          .where(
-            "metadata ->> 'external_key' = ? AND external_source_id = ?",
-            primaryImage['id'],
-            @external_source_id
-          )
+        creative_work_image = CreativeWork.where(external_key: primaryImage['id'], external_source_id: @external_source_id)
         creative_work_id = nil
         creative_work_id = creative_work_image.first.id if creative_work_image.count > 0
       end
@@ -587,8 +576,8 @@ module DataCycleCore
       end
 
 
-      private 
-      
+      private
+
       def poi_template(raw_data)
         if DataCycleCore::OutdoorActive.poi_template.nil?
           @log.error 'Missing configuration for poi template to use when importing pois from outdoor active'
@@ -613,9 +602,9 @@ module DataCycleCore
       end
 
       def attribute_transformer(raw_data)
-        if raw_data['frontendtype'] == 'poi'          
+        if raw_data['frontendtype'] == 'poi'
           PoiAttributeTransformation
-        elsif raw_data['frontendtype'] == 'tour'          
+        elsif raw_data['frontendtype'] == 'tour'
           TourAttributeTransformation
         else
           PoiAttributeTransformation

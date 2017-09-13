@@ -8,23 +8,23 @@
         </div>
         <div class="dropdown v-select" :class="dropdownClasses">
             <div ref="toggle" @mousedown.prevent="toggleDropdown" class="dropdown-toggle">
-    
+
                 <span class="selected-tag" v-for="option in valueAsArray" v-bind:key="option.index">
                     {{ getOptionLabel(option) }}
-                    <button v-if="multiple" @click="deselect(option)" type="button" class="close">
+                    <button v-if="multiple && !readOnly" @click="deselect(option)" type="button" class="close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </span>
-    
-                <input ref="search" v-model="search" @keydown.delete="maybeDeleteValue" @keyup.esc="onEscape" @keydown.up.prevent="typeAheadUp" @keydown.down.prevent="typeAheadDown" @keydown.enter.prevent="" @keyup.enter.prevent="typeAheadSelect" @blur="onSearchBlur" @focus="onSearchFocus" type="search" class="form-control" :placeholder="searchPlaceholder" :readonly="!searchable" :style="{ width: isValueEmpty ? '100%' : 'auto' }">
-    
-                <i v-if="!noDrop" ref="openIndicator" role="presentation" class="open-indicator"></i>
-    
+
+                <input ref="search" v-model="search" @keydown.delete="maybeDeleteValue" @keyup.esc="onEscape" @keydown.up.prevent="typeAheadUp" @keydown.down.prevent="typeAheadDown" @keydown.enter.prevent="" @keyup.enter.prevent="typeAheadSelect" @blur="onSearchBlur" @focus="onSearchFocus" type="search" class="form-control" :placeholder="searchPlaceholder" :readonly="!searchable || readOnly" :style="{ width: isValueEmpty ? '100%' : 'auto' }">
+
+                <i v-if="!noDrop && !readOnly" ref="openIndicator" role="presentation" class="open-indicator"></i>
+
                 <slot name="spinner">
                     <div class="spinner" v-show="mutableLoading">Loading...</div>
                 </slot>
             </div>
-    
+
             <transition :name="transition">
                 <ul ref="dropdownMenu" v-if="dropdownOpen" class="dropdown-menu" :style="{ 'max-height': maxHeight }">
                     <li v-for="(option, index) in filteredOptions" v-bind:key="index" :class="[{ active: isOptionSelected(option), highlight: index === typeAheadPointer},getLevelForOption(option)]" @mouseover="typeAheadPointer = index">
@@ -74,6 +74,10 @@ export default {
             type: Boolean,
             default: true
         },
+        readOnly: {
+            type: Boolean,
+            default: false
+        },
 
         /**
          * Sets the max-height property on the dropdown list.
@@ -90,7 +94,7 @@ export default {
          * @type {Boolean}
          */
         searchable: {
-            type: Boolean,
+            type: [Boolean, String],
             default: true
         },
 
@@ -159,7 +163,7 @@ export default {
          */
         onChange: {
             type: Function,
-            default: function (val) {
+            default: function(val) {
                 this.$emit('input', val)
             }
         },
@@ -384,7 +388,7 @@ export default {
          * @return {void}
          */
         toggleDropdown(e) {
-            if (e.target === this.$refs.openIndicator || e.target === this.$refs.search || e.target === this.$refs.toggle || e.target === this.$el) {
+            if (!this.readOnly && (e.target === this.$refs.openIndicator || e.target === this.$refs.search || e.target === this.$refs.toggle || e.target === this.$el)) {
                 if (this.open) {
                     this.$refs.search.blur() // dropdown will close on blur
                 } else {
@@ -447,8 +451,10 @@ export default {
          * @return {void}
          */
         onSearchFocus() {
-            this.open = true
-            this.$emit('search:focus')
+            if (!this.readOnly) {
+                this.open = true
+                this.$emit('search:focus')
+            }
         },
 
         /**
@@ -508,7 +514,8 @@ export default {
                 open: this.dropdownOpen,
                 searchable: this.searchable,
                 unsearchable: !this.searchable,
-                loading: this.mutableLoading
+                loading: this.mutableLoading,
+                readonly: this.readOnly
             }
         },
 

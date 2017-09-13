@@ -1,5 +1,5 @@
 module DataCycleCore
-  class Place < Content
+  class Place < DataHash
     class Translation < Globalize::ActiveRecord::Translation
         include ContentTranslationHelpers
     end
@@ -7,7 +7,7 @@ module DataCycleCore
     # handle translations with gem Globalize
     translates :name, :headline, :description, :addressLocality, :streetAddress,
       :postalCode, :addressCountry, :faxNumber, :telephone, :email,
-      :url, :hoursAvailable, :address, :content, :properties, :release,
+      :url, :hoursAvailable, :content, :properties, :release,
       :release_id, :release_comment
 
     # callbacks
@@ -18,6 +18,7 @@ module DataCycleCore
 
     include Releasable
     include ContentHelpers
+    include PlaceHelpers
 
 
     attr_accessor :datahash
@@ -26,7 +27,7 @@ module DataCycleCore
     # include ArelHelpers::JoinAssociation
 
     # associations
-    belongs_to :external_sources
+    belongs_to :external_source
 
     has_many :classification_places, dependent: :destroy
     has_many :classifications, through: :classification_places

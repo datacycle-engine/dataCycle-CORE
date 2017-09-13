@@ -62,6 +62,8 @@ module.exports.initialize = function () {
 
     var max = $(node).parent().data('max');
 
+    var readonly = $(node).attr('readonly') ? true : false;
+
     var options = {
       modules: {
         counter: {
@@ -71,7 +73,8 @@ module.exports.initialize = function () {
         toolbar: toolbar[mode]
       },
       theme: 'snow', // or 'bubble'
-      formats: formats[mode]
+      formats: formats[mode],
+      readOnly: readonly
     };
 
     var editor = new quill('#' + node.id, options);

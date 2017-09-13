@@ -48,9 +48,15 @@
     line-height: 1.2;
     font-weight: 200;
     color: $black;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
   .description {
     color: $black;
+    p {
+      margin: 0;
+    }
   }
   /* Icon Rows */
   .row {
@@ -87,42 +93,67 @@
 
 .media-thumbs {
   .media {
+    position: relative;
     display: block;
     float: left;
     overflow: hidden;
     width: auto;
     height: auto;
-    padding: 0.85rem 1rem;
+    padding: 0.65rem;
     margin: 0 1rem 1rem 0;
     background-position: center center;
     background-size: contain;
     background-repeat: no-repeat;
-    background-color: white;
+    outline: none;
+    border-radius: 0;
+    background-color: rgba(white, 0.5);
+    border: 0;
+    box-shadow: 0 0 0 1px rgba($dark-gray, 0.5);
+    transition: box-shadow 200ms ease-out;
+    line-height: 1.5;
+    .name {
+      padding: 0 0.3rem;
+    }
+    .delete-thumbnail {
+      position: relative;
+      float: right;
+    }
     &.thumbnail {
       position: relative;
-      width: 229px;
-      height: 157px;
+      width: 194px;
+      height: 170px;
       padding: 0;
       cursor: pointer;
-      &.has-restrictions {
-        box-shadow: 0 0 2px 1px red;
+      text-align: right;
+      border: 0;
+      .delete-thumbnail {
+        position: absolute;
+        float: none;
+      }
+      &:hover {
+        .description {
+          opacity: 1;
+        }
       }
       .description {
-        position: absolute;
-        left: 0;
-        bottom: 0;
-        width: 221px;
-        background: rgba(0, 0, 0, 0.5);
-        height: 2rem;
-        display: block;
+        opacity: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        height: 100%;
         line-height: 1rem;
-        font-size: 1rem;
-        color: white;
-        white-space: nowrap;
+        font-size: 0.8rem;
+        color: $body-font-color;
         overflow: hidden;
-        text-overflow: ellipsis;
+        /* white-space: nowrap; */
+        /* text-overflow: ellipsis; */
         padding: 0.5rem;
         text-align: center;
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-align: center;
+        align-items: center;
+        -ms-flex-pack: center;
+        justify-content: center;
       }
     }
     span.caption {
@@ -132,15 +163,18 @@
       border-color: $primary-color;
       background-color: $primary-color;
     }
-    .delete-thumbnail {
-      background: white;
-      color: $dark-gray;
-      padding: 0 0.2rem;
-      cursor: pointer;
-      &:hover {
-        color: map-get($foundation-palette, alert);
-      }
-    }
+  }
+}
+
+.delete-thumbnail {
+  color: $dark-gray;
+  padding: 0 0.2rem;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 0;
+  &:hover {
+    color: map-get($foundation-palette, alert) !important;
   }
 }
 
@@ -154,69 +188,34 @@
 }
 
 #object-browser {
-  margin: 8.1rem 0 0 0 !important;
+  margin: 7.9rem 0 0 0 !important;
   outline: none;
   padding: 0;
   .object-browser-header {
-    .buttons {
-      position: absolute;
-      right: 1rem;
-      top: 1rem;
-      .button,
-      button {
-        margin: 0;
-        vertical-align: top;
-      }
-      .new-item-button {
-        padding: 0.6rem 0.8rem;
-        cursor: pointer;
-      }
-      .close-object-browser {
-        margin: 0.5rem;
-        cursor: pointer;
-        .fa {
-          color: $dark-gray;
-          font-size: 1.5rem;
-          &:hover,
-          &:focus {
-            color: $black;
-          }
-        }
-      }
-      .save-object-browser {
-        .chosen-items {
-          display: none;
-          padding-top: 1rem;
-          .chosen-item {
-            padding: 0.5rem 2rem 0.5rem 0;
-            text-align: left;
-            position: relative;
-            .remove {
-              position: absolute;
-              right: 0;
-              top: 0.25rem;
-              display: block;
-              width: 1.5rem;
-              height: 1.5rem;
-              text-align: center;
-              line-height: 1.5rem;
-              &:hover,
-              &:focus {
-                color: red;
-              }
-            }
-          }
-        }
-        &:hover,
-        &:focus {
-          .chosen-items {
-            display: block;
-          }
-        }
-      }
+    h4 {
+      display: none;
     }
     #object-browser-search {
-      margin-top: 0.5rem;
+      border: 0;
+      line-height: 3rem;
+      font-weight: 200;
+      padding: 0 1rem 0 2rem;
+      box-shadow: 0 1px 1px 1px rgba($light-gray, 1);
+      min-width: 350px;
+    }
+    .search-icon {
+      position: absolute;
+      line-height: 3rem;
+      left: 0.5rem;
+      color: $dark-gray;
+    }
+    #item-count {
+      font-style: italic;
+      right: 1rem;
+      position: absolute;
+      top: 0;
+      line-height: 3rem;
+      color: $dark-gray;
     }
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
@@ -224,17 +223,80 @@
     color: $primary-color;
     font-size: 1.2rem;
     position: fixed;
-    width: calc(100% - 400px);
-    padding: 1rem 1rem 1rem 1rem;
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+50,ffffff+100&1+0,0.78+50,0+100 */
-    background: -moz-linear-gradient(top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.78) 50%, rgba(255, 255, 255, 0) 100%);
-    /* FF3.6-15 */
-    background: -webkit-linear-gradient(top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.78) 50%, rgba(255, 255, 255, 0) 100%);
-    /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.78) 50%, rgba(255, 255, 255, 0) 100%);
-    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#00ffffff', GradientType=0);
-    /* IE6-9 */
+    left: 1rem;
+    top: 8.9rem;
+  }
+  .object-browser-footer {
+    position: fixed;
+    z-index: 20;
+    background: rgba(white, 0.9);
+    right: 0;
+    left: 0;
+    bottom: 0;
+    box-shadow: 0 -3px 7px rgba(0, 0, 0, 0.1);
+    .chosen-items {
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 0.5rem;
+      margin-right: 0;
+      height: inherit;
+      min-height: 70px;
+    }
+    .chosen-items-container {
+      width: max-content;
+      line-height: 1;
+      >div {
+        display: inline-block;
+        margin: 0 0.3rem 0 0;
+      }
+      .description {
+        display: none;
+      }
+    }
+    .items .media {
+      position: relative;
+      line-height: 1.5;
+      .delete-thumbnail {
+        display: inline-block;
+        position: relative;
+        float: right;
+      }
+      &.thumbnail {
+        width: 80px;
+        height: 80px;
+        background-size: cover;
+        border: 0;
+        margin: 0;
+        display: block;
+        .delete-thumbnail {
+          float: none;
+          position: absolute;
+          top: 0.2rem;
+          right: 0.2rem;
+          color: white;
+          text-shadow: 1px 1px 1px rgba($black, 0.3);
+        }
+        .warning {
+          display: none;
+        }
+      }
+    }
+    .buttons {
+      position: absolute;
+      top: -2rem;
+      right: 2rem;
+      .button-prime {
+        display: inline-block;
+        cursor: pointer;
+      }
+      .button-title {
+        display: inline-block;
+        padding: 0 0.1rem 0 0.3rem;
+        i {
+          font-size: 0.9rem;
+        }
+      }
+    }
   }
   .pagination {
     text-align: center;
@@ -255,48 +317,50 @@
     }
   }
   .items {
-    padding: 7rem 1rem 1rem 1rem;
+    padding: 5rem 1rem 7rem 1rem;
     margin-right: 400px;
-    height: calc(100% - 8.1rem);
+    height: calc(100% - 7.9rem);
     overflow-y: scroll;
     .media {
       width: auto;
       height: auto;
-      padding: 0.85rem 1rem;
+      padding: 0.65rem;
       display: block;
       overflow: hidden;
-      box-shadow: none;
       outline: none;
       border-radius: 0;
-      overflow: hidden;
-      background-color: white;
-      border: solid 8px #fefefe;
-      box-shadow: 0 0 0 1px rgba(51, 51, 51, 0.2);
+      background-color: rgba(white, 0.5);
+      border: 0;
+      box-shadow: 0 0 0 1px rgba($dark-gray, 0.5);
       transition: box-shadow 200ms ease-out;
+      line-height: 1.5;
+      .name {
+        padding: 0 0.3rem;
+      }
       cursor: pointer;
       &:hover,
       &:focus {
         box-shadow: 0 0 6px 1px rgba($primary-color, 0.5);
       }
       &.thumbnail {
-        width: 247px;
+        width: 194px;
         height: 170px;
         margin: 0;
         padding: 0;
         background-position: center center;
         background-size: contain;
         background-repeat: no-repeat;
-        &.has-restrictions {
-          box-shadow: 0 0 2px 1px red;
-        }
+        position: relative;
       }
     }
     a.delete-thumbnail {
       display: none;
     }
     .loading {
+      float: left;
+      width: 100%;
       text-align: center;
-      padding: 10rem 0;
+      padding: 1rem 0;
       .fa {
         font-size: 3rem;
         color: $light-gray;
@@ -311,6 +375,13 @@
         .media {
           border-color: $primary-color;
           background-color: $primary-color;
+          box-shadow: 0 0 0 1px rgba($primary-color, 1);
+        }
+        .person {
+          color: white;
+        }
+        .warning {
+          opacity: 1;
         }
       }
       display: block;
@@ -326,13 +397,11 @@
   }
   .item-info {
     width: 400px;
-    background: $white;
-    position: fixed;
+    position: absolute;
     right: 0;
-    top: 8.1rem;
+    top: 0;
     bottom: 0;
-    padding: 3.5rem 1.5rem 1.5rem 1.5rem;
-    background: $white;
+    padding: 1.5rem 1.5rem 15rem 1.5rem;
     overflow-y: scroll;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
@@ -342,15 +411,42 @@
       right: 1rem;
       top: 3.5rem;
     }
+    .fa-exclamation-triangle {
+      color: $warning-color;
+    }
     dl {
       margin: 0;
-      dt,
-      dd {
+      display: flex;
+      flex-flow: row;
+      flex-wrap: wrap;
+      width: 100%;
+      /* set the container width*/
+      overflow: visible;
+      dt {
         margin: 0;
         display: block;
+        flex: 0 0 50%;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        &.block-flex {
+          flex: 0 0 100%;
+        }
       }
       dd {
-        margin-bottom: 0.5rem;
+        margin: 0;
+        padding-bottom: 0.7rem;
+        flex: 0 0 50%;
+        margin-left: auto;
+        text-align: left;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        img {
+          max-height: 360px;
+        }
+        &.block-flex {
+          flex: 0 0 100%;
+          line-height: 1;
+        }
       }
     }
   }
@@ -371,6 +467,19 @@ span.single_error.object-browser-error {
   &:hover,
   &:focus {
     color: $white;
+  }
+}
+
+.thumbnail span.warning {
+  position: absolute;
+  color: $warning-color;
+  bottom: 5px;
+  right: 5px;
+  display: block;
+  border-bottom: 0;
+  opacity: 0.5;
+  &:hover {
+    opacity: 1;
   }
 }
 
@@ -398,7 +507,7 @@ span.single_error.object-browser-error {
 /* embedded Objects */
 
 .detail-header {
-  .embeddedObject {
+  .embedded_object {
     margin-bottom: 1rem;
     padding: 0.5rem;
     &:not(:last-child) {
@@ -444,24 +553,28 @@ span.single_error.object-browser-error {
 
 /* Duration Slider */
 
-.duration-slider {
-  padding-left: 8rem;
-  .small-2 {
-    position: relative;
-    padding-right: 0;
-  }
-  input {
-    min-width: 100%;
-    text-align: right;
-    padding-right: 3rem;
-    height: 2.5rem;
-  }
-  .duration-label {
-    position: absolute;
-    right: 1rem;
-    top: 0;
-    display: inline-block;
-    height: 2.5rem;
-    line-height: 2.5rem;
+.detail-header.editor {
+  .duration {
+    .duration-slider {
+      padding-left: 8rem;
+      .small-2 {
+        position: relative;
+        padding-right: 0;
+      }
+      input {
+        min-width: 100%;
+        text-align: right;
+        padding: 1rem 3rem 1rem 1rem;
+        height: 2.5rem;
+      }
+      .duration-label {
+        position: absolute;
+        right: 1rem;
+        top: 0;
+        display: inline-block;
+        height: 2.5rem;
+        line-height: 2.5rem;
+      }
+    }
   }
 }

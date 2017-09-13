@@ -3,7 +3,8 @@ module.exports.initialize = function () {
 
   // Status Kommentar setzen
 
-  $(document).on('click', '.release-comment .save', function (e) {
+  $(document).on('click', '.release-comment-overlay .save', function (e) {
+    console.log("save");
     var input_field = $(e.target).siblings('.release-comment').first();
     var id = input_field.attr('id');
     var value = input_field.val();
@@ -160,7 +161,7 @@ module.exports.initialize = function () {
     var hidden_field_id = $(editor).attr('data-hidden-field-id');
     var hidden_field = document.querySelector('input#' + hidden_field_id);
     var text = $(editor).find('.ql-editor').html();
-    hidden_field.value = text.replace("<p><br></p>", "");
+    if (text != undefined) hidden_field.value = text.replace("<p><br></p>", "");
   }
 
   function validate_single_item(form, item) {
@@ -176,11 +177,11 @@ module.exports.initialize = function () {
     is_person = new RegExp('^' + 'person', 'i');
     is_place = new RegExp('^' + 'place', 'i');
 
-    if (is_creative_work.test(formdata[0].name)) {
+    if (formdata.length > 0 && is_creative_work.test(formdata[0].name)) {
       var validation_url = /validatecreativework/;
-    } else if (is_person.test(formdata[0].name)) {
+    } else if (formdata.length > 0 && is_person.test(formdata[0].name)) {
       var validation_url = /validateperson/;
-    } else if (is_place.test(formdata[0].name)) {
+    } else if (formdata.length > 0 && is_place.test(formdata[0].name)) {
       var validation_url = /validateplace/;
     } else {
       return false;

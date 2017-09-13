@@ -18,7 +18,7 @@
         :label: Titel
         :type: string
         :storage_type: string
-        :storage_location: content
+        :storage_location: column
         :validations:
           :minLength: 1
         :editor:
@@ -70,7 +70,7 @@
         :label: Beschreibung
         :type: string
         :storage_type: text
-        :storage_location: content
+        :storage_location: column
         :editor:
           :type: quillEditor
           :sorting: 3
@@ -160,4 +160,3 @@
         :storage_location: metadata
         :validations:
           :format: date_time
-          

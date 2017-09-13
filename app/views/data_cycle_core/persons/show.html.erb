@@ -2,52 +2,7 @@
 
 <% content_for :top_content do %>
 
-    <div class="column detail-header-wrapper">
-
-        <div class="detail-header">
-
-            <div class="detail-header-info">
-                <div class="type <%= @person.metadata['validation']['name'].downcase %>">
-                    <%= render 'data_cycle_core/shared/icon', icon_type: @person.metadata['validation']['name'].downcase %>
-                    <span class="title"><%= @person.metadata['validation']['name'] %></span>
-                </div>
-            </div>
-
-            <%= render 'data_cycle_core/creative_works/partials/detail_header_functions', dataCycleObject: @person %>
-
-            <div class="title">
-
-                <% if !@person.givenName.nil? && !@person.nil? %>
-                    <%= "#{@person.givenName} #{@person.familyName}" %>
-                <% end %>
-
-            </div>
-
-            <% if !@person.content.nil? && !@person.content['jobTitle'].blank? %>
-
-                <div class="description">
-                    <%= @person.content['jobTitle'].html_safe %>
-                </div>
-
-            <% end %>
-
-            <%= render 'data_cycle_core/creative_works/partials/show/top_content/classificationAliases', dataCycleObject: @person, dataCycleObjectSchema: @dataSchema %>
-
-            <%= render 'data_cycle_core/creative_works/partials/show/top_content/validityPeriod', dataCycleObject: @person %>
-
-            <% if !@person.metadata['validation']['permissions'].nil? && is_writable(@person.metadata['validation']['permissions']) %>
-
-                <div class="edit">
-                    <%= link_to edit_person_path(@person, trail: breadcrumb_trail), class:'button-prime small' do %>
-                        <i class="fa fa-pencil" aria-hidden="true"></i><span>Bearbeiten</span>
-                    <% end %>
-                </div>
-
-            <% end %>
-
-        </div>
-
-    </div>
+    <%= render_content_partial 'header', content: @person %>
 
 <% end %>
 

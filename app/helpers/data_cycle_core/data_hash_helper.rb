@@ -32,14 +32,18 @@ module DataCycleCore
       ordered_properties = ActiveSupport::OrderedHash.new
       unordered_properties = []
 
-      validation['properties'].each do |prop|
+      if !validation.nil? && !validation['properties'].blank?
 
-        if !prop[1]['editor'].nil?
+        validation['properties'].each do |prop|
 
-          if !prop[1]['editor']['sorting'].nil?
-            ordered_properties[prop[1]['editor']['sorting'].to_i] = prop
-          else
-            unordered_properties.push(prop)
+          if !prop[1]['editor'].nil?
+
+            if !prop[1]['editor']['sorting'].nil?
+              ordered_properties[prop[1]['editor']['sorting'].to_i] = prop
+            else
+              unordered_properties.push(prop)
+            end
+
           end
 
         end
@@ -47,7 +51,7 @@ module DataCycleCore
       end
 
       properties = Hash[ordered_properties.sort.map{ |k,v| v}]
-      return properties.merge(Hash[unordered_properties])
+      return properties.merge(Hash[unordered_properties]).nil? ? [] : properties.merge(Hash[unordered_properties])
 
     end
 
@@ -75,11 +79,11 @@ module DataCycleCore
       end
 
       if respond_to?('render_'+ data_type +'_field')
-          if(prop['releasable'])
-            render partial: "#{@@partials_path}releasable", locals: {key: object_key, prop: prop, value: normalize_value(value), options: options, parent_object_keys: parent_object_keys}
-          else
-            send('render_'+ data_type +'_field', object_key, prop, normalize_value(value), options, parent_object_keys)
-          end
+        if(prop['releasable'])
+          render partial: "#{@@partials_path}releasable", locals: {key: object_key, prop: prop, value: normalize_value(value), options: options, parent_object_keys: parent_object_keys}
+        else
+          send('render_'+ data_type +'_field', object_key, prop, normalize_value(value), options, parent_object_keys)
+        end
       else
          "Unknown data_type: #{prop['type']}"
       end
@@ -206,7 +210,7 @@ module DataCycleCore
       unless title.blank?
         html_title += '<i>'
         html_title += title
-        
+
         unless text.blank?
           html_title += ':'
         end
@@ -237,10 +241,6 @@ module DataCycleCore
         value = value.reject { |v| v.empty? }
       end
       return value
-    end
-
-    def is_in_watchlist?(watchlist, item)
-      !watchlist.watch_list_data_hashes.where('watch_list_id = ? AND hashable_type = ? AND hashable_id = ?', watchlist.id, item.class.name, item.id).empty?
     end
 
     private

@@ -282,7 +282,6 @@ module DataCycleCore
       data_set.save
       returned_data_hash = data_set.get_data_hash
       expected_hash['quotation'] = []
-
       assert_equal(0, error[:error].count)
       assert_equal(expected_hash, returned_data_hash.compact.except("id","data_type"))
 

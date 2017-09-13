@@ -19,6 +19,7 @@
 @import "modules/components/data-cycle-objects";
 @import "modules/components/offcanvas";
 @import "modules/components/vue_select";
+@import "modules/components/classifications";
 //load logs
 @import "modules/logs";
 @import "modules/develop";
@@ -27,3 +28,4 @@
 @import "modules/components/watch_list";
 @import '../../../node_modules/flatpickr/dist/flatpickr.min';
 @import '../../../node_modules/ol/ol';
+@import '../../../node_modules/select2/dist/css/select2.min';

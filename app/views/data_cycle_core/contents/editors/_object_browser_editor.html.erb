@@ -1,0 +1,50 @@
+<%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
+
+  <% object = ("DataCycleCore::"+("#{definition['storage_location']}".classify)).constantize %>
+  <div class="object-browser" id="<%= sanitize_to_id(key) %>">
+    <%= label_tag(key, definition['label']) %>
+    <div class="media-thumbs">
+      <object-browser
+        :existing="<%= object.where(id: value.try(:collect){ |o| o.try(:[], 'id') }).to_json %>"
+        object-class="<%= object %>"
+        :object-type="'<%= definition.dig('editor', 'options', 'data-type').try(:downcase) %>'"
+        :object-label="'<%= definition['label'] %>'"
+        :min="<%= definition.dig('validations', 'min') || 0 %>"
+        :max="<%= definition.dig('validations', 'max') || 0 %>"
+        :create-item="<%= can?(:create, object) %>"
+        new-id="new<%= definition['storage_location'].classify %>"
+        hidden-name="<%= key %>[]"
+        :readonly="<%= options['readonly'] ? true : false %>">
+        <template scope="props" slot="item">
+          <div v-if="props.item != undefined" class="media person">
+            <a v-if="!props.readonly" slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
+
+            <% if definition['storage_location'] == 'persons' %>
+
+              <i class="fa fa-user" aria-hidden="true"></i>
+              <span class="name">{{ props.item.givenName }} <strong>{{ props.item.familyName }}</strong></span>
+
+            <% elsif definition['storage_location'] == 'places' %>
+
+              <i class="fa fa-map-marker" aria-hidden="true"></i>
+              <span class="name">{{ props.item.name }} {{ props.item.address }} </span>
+              {{ props.objectType }}
+          <% end %>
+            <input type="hidden" name="<%= key %>[][id]" :value="props.item.id">
+          </div>
+        </template>
+
+        <% begin %>
+          <template slot="new-item" scope="newItem">
+
+           <%= render "data_cycle_core/#{definition['storage_location']}/partials/shared/new" %>
+
+          </template>
+        <% rescue %>
+        <% end %>
+
+      </object-browser>
+    </div>
+  </div>
+
+<% end %>

@@ -1,5 +1,5 @@
 module DataCycleCore
-  class Person < Content
+  class Person < DataHash
     class Translation < Globalize::ActiveRecord::Translation
         include ContentTranslationHelpers
     end
@@ -9,6 +9,8 @@ module DataCycleCore
 
     # callbacks
     before_destroy :destroy_translations, prepend: true
+
+    belongs_to :external_source
 
     has_many :creative_work_persons
     has_many :creative_works, through: :creative_work_persons
@@ -31,7 +33,9 @@ module DataCycleCore
     # custom setter
     include DataSetter
 
+    include Subscribable
     include ContentHelpers
+    include PersonHelpers
 
 
     attr_accessor :datahash

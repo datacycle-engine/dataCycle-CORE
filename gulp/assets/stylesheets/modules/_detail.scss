@@ -1,6 +1,6 @@
 .detail-header {
   background: $light-gray;
-  min-height: 8rem;
+  min-height: 10rem;
 }
 
 // Details for Show
@@ -43,35 +43,45 @@
             }
           }
           &.media {
+            position: relative;
             .thumbnail {
               position: relative;
-              width: 229px;
-              height: 157px;
+              width: 194px;
+              height: 170px;
               margin-right: 0.5rem;
               background-position: center center;
               background-size: contain;
               background-repeat: no-repeat;
               background-color: white;
               overflow: hidden;
+              border: 0;
               &.has-restrictions {
                 box-shadow: 0 0 2px 1px red;
               }
+              &:hover {
+                .description {
+                  opacity: 1;
+                }
+              }
               .description {
-                position: absolute;
-                left: 0;
-                bottom: 0;
-                width: 221px;
-                background: rgba(0, 0, 0, 0.5);
-                height: 2rem;
-                display: block;
+                opacity: 0;
+                width: 100%;
+                background: rgba(255, 255, 255, 0.9);
+                height: 100%;
                 line-height: 1rem;
-                font-size: 1rem;
-                color: white;
-                white-space: nowrap;
+                font-size: 0.8rem;
+                color: $body-font-color;
                 overflow: hidden;
-                text-overflow: ellipsis;
+                /* white-space: nowrap; */
+                /* text-overflow: ellipsis; */
                 padding: 0.5rem;
                 text-align: center;
+                display: -ms-flexbox;
+                display: flex;
+                -ms-flex-align: center;
+                align-items: center;
+                -ms-flex-pack: center;
+                justify-content: center;
               }
             }
           }

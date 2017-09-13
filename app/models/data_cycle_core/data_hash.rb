@@ -1,19 +1,24 @@
 module DataCycleCore
-  class DataHash < ApplicationRecord
+  class DataHash < Content
 
     self.abstract_class = true
 
     # get data as specified in the data template
     # data hash with keys named as in schema.org
     def get_data_hash
-      if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with pending data in it
-        data_type = metadata['validation']
-        data_hash = get_template_data_hash(data_type['properties'])
+      locale = self.translated_locales.include?(I18n.locale) ? I18n.locale : self.translated_locales.first
+      I18n.with_locale(locale) do
 
-        data_hash = merge_release(data_hash, release) if kind_of?(DataCycleCore::Releasable)
-        return data_hash
-      else
-        return nil
+        if translated_locales.include?(locale) || changes.count > 0 # for new data-sets with pending data in it
+          data_type = metadata['validation']
+          # data_hash = get_template_data_hash(data_type['properties'])
+          data_hash = self.to_h
+
+          data_hash = merge_release(data_hash, release) if kind_of?(DataCycleCore::Releasable)
+          return data_hash
+        else
+          return nil
+        end
       end
     end
 
@@ -36,6 +41,16 @@ module DataCycleCore
         end
       end
       validate(stripped_data_hash) # return error/warnings from validation
+    end
+
+    def set_data_hash_attribute(key, value)
+      key_hash = metadata.dig('validation', 'properties', key)
+
+      unless key_hash.nil?
+        ActiveRecord::Base.transaction do
+          storage_cases_set(key, value, key_hash)
+        end
+      end
     end
 
     def delete_childs(delete_relation)
@@ -107,7 +122,7 @@ module DataCycleCore
       class_id = self.class.to_s.demodulize.foreign_key
       class_string.constantize.
         where(class_id => id).
-        joins(classification: [classification_groups: [classification_alias: [classification_trees: [:classification_tree_label]]]]).
+        joins(classification: [classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]]).
         where("classification_tree_labels.name = ?", tree_label).
         pluck(:classification_id)
     end
@@ -119,8 +134,8 @@ module DataCycleCore
       #puts "#{storage_type} | #{ids} | #{tree_label} | #{default_value}"
       if is_blank?(ids)
         begin
-          unless default_value.blank?
-            classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
+          if !default_value.blank? && ids.nil? && get_relation_ids(storage_type, tree_label).count == 0
+            classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
                 .where("classification_tree_labels.name = ?", tree_label)
                 .where("classification_aliases.name = ?", default_value).first!.id
             class_string.constantize.
@@ -129,6 +144,8 @@ module DataCycleCore
                 classification_id: classification_id
               )
             ids = [classification_id]
+          elsif !default_value.blank? && ids.nil?
+            ids = get_relation_ids(storage_type, tree_label)
           end
         rescue ActiveRecord::RecordNotFound => e
           logger.error "Missing default value '#{default_value}' for classification tree '#{tree_label}'"
@@ -210,7 +227,7 @@ module DataCycleCore
           if properties.has_key?('name') && properties.has_key?('description')
             delete = false
             delete = true if properties.has_key?('delete') && properties['delete'] == true
-            #puts "set_linked_data_type(#key, #{value}, #{properties['storage_location']}, #{properties['name']}, #{properties['description']}, #{delete})"
+            #puts "set_linked_data_type(#{key}, #{value}, #{properties['storage_location']}, #{properties['name']}, #{properties['description']}, #{delete})"
             set_linked_data_type(key, value, properties['storage_location'], properties['name'], properties['description'], delete)
           else
             puts "wrong data_type #{key} | #{value}"
@@ -333,8 +350,9 @@ module DataCycleCore
             # insert
 
             # get validation template
-            template = ("DataCycleCore::"+table.classify).constantize.
-              find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name,  description )
+            template = ("DataCycleCore::"+table.classify).constantize
+              .with_translations('de')
+              .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name,  description )
 
             insert_item = ("DataCycleCore::"+table.classify).constantize.new
             insert_item.metadata = { 'validation' => template.metadata['validation'] }
@@ -387,8 +405,9 @@ module DataCycleCore
 
     def set_linked_via_tree(field_name, data, table, name, description, delete)
       # get validation template
-      template = ("DataCycleCore::"+table.classify).constantize.
-        find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name,  description )
+      template = ("DataCycleCore::"+table.classify).constantize
+        .with_translations('de')
+        .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name,  description )
 
       updated_item_keys = []
       field_has_part = "#{field_name}_hasPart"

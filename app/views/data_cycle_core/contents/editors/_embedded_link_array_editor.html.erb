@@ -1,0 +1,55 @@
+<%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
+
+	<% object = ("DataCycleCore::"+("#{definition['type_name']}".classify)).constantize %>
+	<div class="object-browser" id="<%= sanitize_to_id(key) %>">
+		<%= label_tag(key, definition['label']) %>
+		<div class="media-thumbs">
+
+			<% if definition['label'] != 'Videos' %>
+				<object-browser
+          :existing="<%= object.where(id: value).to_json %>"
+          object-class="<%= object %>"
+          :min="<%= definition.dig('validations', 'min') || 0 %>"
+          :max="<%= definition.dig('validations', 'max') || 0 %>"
+          object-type="<%= definition.dig('editor', 'options', 'data-type').try(:downcase) %>"
+          :object-label="'<%= definition['label'] %>'"
+          hidden-name="<%= key %>[]"
+          :reveal-link="true"
+          :readonly="<%= options['readonly'] ? true : false %>">
+					<template scope="props" slot="item">
+						<div v-if="props.item != undefined" :data-open="props.dataOpen" :class="[props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != '' && props.item.metadata.restrictions != 'Keine Einschränkung;' ? 'has-restrictions' : '', 'media thumbnail']" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnailUrl+')' }">
+  						<span v-if="props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != ''" data-tooltip aria-haspopup="true" class="has-tip warning" data-disable-hover="false" tabindex="1" :title="'Einschränkungen: '+props.item.metadata.restrictions"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
+
+							<span v-if="!props.readonly" class="delete-thumbnail" href="#" @click.stop="props.remove(props.item, $event)"><i aria-hidden="true" class="fa fa-times"></i></span>
+							<div class="description" v-if="props.item.headline">
+								{{ props.item.headline }}
+							</div>
+							<span class="caption"></span><input type="hidden" name="<%= key %>[]" :value="props.item.id">
+						</div>
+						<div class="large reveal media-preview" :id="'media-reveal-'+props.item.id+'_'+props.uid" data-reveal>
+								<button class="close-button" data-close aria-label="Close modal" type="button">
+										<span aria-hidden="true">&times;</span>
+								</button>
+								<span class="preview-title" v-if="props.item.headline">
+									{{ props.item.headline }}
+								</span>
+								<div class="image">
+										<img class="lazyload" :data-src="props.item.metadata.contentUrl" />
+								</div>
+								<div class="description">
+										<!-- todo: check only for empty string -->
+										<div v-if="props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != '' && props.item.metadata.restrictions != 'Keine Einschränkung;'">
+												<strong>Einschränkungen:</strong> {{ props.item.metadata.restrictions }} <br /><br />
+										</div>
+										<a :href="'/creative_works/'+props.item.id">zur Detailansicht</a> |
+										<a :href="props.item.metadata.url" v-if="props.item.metadata.url != undefined && props.item.metadata.url != ''" target="_blank">im Medienarchiv öffnen</a>
+								</div>
+						</div>
+					</template>
+				</object-browser>
+
+			<% end %>
+		</div>
+	</div>
+
+<% end %>

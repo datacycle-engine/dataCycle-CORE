@@ -58,10 +58,11 @@ module DataCycleCore
 
       error = data_set.set_data_hash(data_hash)
       data_set.save
+
       returned_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash_quiz, returned_data_hash.except("question","id","data_type").compact)
+      assert_equal(expected_hash_quiz, returned_data_hash.except("question","id","data_type",'validityPeriod').compact)
       assert_equal(2, returned_data_hash["question"].count)
       assert_equal(4, returned_data_hash["question"][0]["suggestedAnswer"].count)
       assert_equal(4, returned_data_hash["question"][1]["suggestedAnswer"].count)
@@ -135,7 +136,7 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash_quiz, returned_data_hash.except("question","id","data_type").compact)
+      assert_equal(expected_hash_quiz, returned_data_hash.except("question","id","data_type",'validityPeriod').compact)
       assert_equal(2, returned_data_hash["question"].count)
       assert_equal(4, returned_data_hash["question"][0]["suggestedAnswer"].count)
       assert_equal(4, returned_data_hash["question"][1]["suggestedAnswer"].count)

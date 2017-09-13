@@ -8,6 +8,7 @@ module DataCycleCore
 
     has_many :use_cases
     has_many :watch_lists, dependent: :destroy
+    has_many :subscriptions, dependent: :destroy
 
     def admin?
       self.admin

@@ -1,0 +1,17 @@
+<% if @classification_tree %>
+  $('#<%= @classification_tree.id %> ul:not(.classifications)').hide(0).empty();
+
+  $('<%= escape_javascript(render 'classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees) %>')
+    .appendTo('#<%= @classification_tree.id %> ul:not(.classifications)');
+
+  $('#<%= @classification_tree.id %> ul:not(.classifications)').show();
+<% elsif @classification_tree_label %>
+  $('#<%= @classification_tree_label.id %> ul:not(.classifications)').hide(0).empty();
+
+  $('<%= escape_javascript(render 'classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees) %>')
+    .appendTo('#<%= @classification_tree_label.id %> ul:not(.classifications)');
+
+  $('#<%= @classification_tree_label.id %> ul:not(.classifications)').show();
+<% else %>
+  <% raise 'Something unexpected has happend' %>
+<% end %>

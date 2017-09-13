@@ -29,10 +29,29 @@
 	<% unless @splitSource.nil? %>
 		<div class="flex-box">
 			<div class="split-content detail-content">
+				<% if can?(:subscribe, @splitSource) && @splitSource.subscriptions.by_user(current_user).count == 0 %>
+					<div class="subscribe-parent notice"><p>Sie sollten diesen Inhalt (<%=@splitSource.metadata['validation']['name']%>) abonnieren, um Ihren neu erstellten Inhalt (<%=dataObject.metadata['validation']['name']%>) aktuell halten zu können.</p>
+						<%= link_to "Abonnieren", subscriptions_path(subscribable_id: @splitSource.id, subscribable_type: @splitSource.class.name), method: :post %>
+
+						<button name="button" type="button" class="close-subscribe-notice" data-close="" aria-label="Dismiss Notice"><span aria-hidden="true">×</span></button>
+					</div>
+				<% end %>
+				<div class="show-content">
+					<div class="detail-header-info">
+						<div class="type thema">
+							<span class="icon">
+									<i class="fa fa-folder-open" aria-hidden="true"></i>
+							</span>
+							<span class="title"><%=@splitSource.metadata['validation']['name']%></span>
+              <span class="language">(<%= I18n.locale %>)</span>
+						</div>
+						<%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema %>
+					</div>
+
 					<%= render "data_cycle_core/#{@splitSource.model_name.route_key}/partials/show/"+@splitSource.model_name.route_key.singularize, dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema, exludedProperties: [] rescue render "data_cycle_core/#{@splitSource.model_name.route_key}/partials/show/default", dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema, exludedProperties: [] %>
 
 					<%#= render "data_cycle_core/#{@splitSource.model_name.route_key}/partials/show/top_content/classificationAliases", dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema %>
-
+				</div>
 			</div>
 	<% end %>
 
@@ -46,6 +65,7 @@
 								<i class="fa fa-folder-open" aria-hidden="true"></i>
 						</span>
 						<span class="title"><%=dataObject.metadata['validation']['name']%></span>
+            <span class="language">(<%= I18n.locale %>)</span>
 					</div>
 					<%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: dataObject, dataCycleObjectSchema: dataSchema %>
 				</div>
@@ -67,35 +87,7 @@
 
 						<% validation_properties.each do |key, prop| %>
 
-							<% if prop['type'] == 'object' && !prop['properties'].nil? %>
-
-								<% object_options = !prop['editor'].nil? && !prop['editor']['options'].nil? ? prop['editor']['options'] : nil %>
-								<!--<div class="object-title"><strong><%= prop['label'] %></strong></div>-->
-								<%= content_tag :div, object_options do %>
-
-									<% object_properties = get_ordered_validation_properties(prop) %>
-									<% object_properties.each do |object_key, object_property| %>
-
-										<% object_value = dataSchema[key].nil? ? "" : dataSchema[key][object_key] %>
-
-										<div class="clearfix <%= 'form-element' unless object_property['editor']['type'] == 'embeddedObject' %> <%= object_key %> <%= object_property['editor']['type'] %> <%= 'input' unless object_property['type'] == 'object' || object_property['type'] == 'embeddedLinkArray' || object_property['editor']['type'] == 'duration' || object_property['editor']['type'] == 'date' %>" data-label="<%= object_property['label'] %>" <%= "tabindex=-1" unless object_property['type'] == 'object' || object_property['type'] == 'embeddedLinkArray' || object_property['editor']['type'] == 'duration' || object_property['editor']['type'] == 'date' %>>
-
-											<%= data_cycle_field object_key, object_property, object_value, {class: 'form-control'}, [key] %>
-
-										</div>
-
-									<% end %>
-
-								<% end %>
-
-							<% else %>
-								<div class="clearfix <%= 'form-element validation-container' unless prop['editor']['type'] == 'embeddedObject' %> <%= key %> <%= prop['editor']['type'] %> <%= 'input' unless prop['type'] == 'object' || prop['type'] == 'embeddedLinkArray' || prop['editor']['type'] == 'duration' || prop['editor']['type'] == 'classificationSelector' %>" data-label="<%= prop['label'] %>" <%= "tabindex=-1" unless prop['type'] == 'object' || prop['type'] == 'embeddedLinkArray' || prop['editor']['type'] == 'duration' %>>
-
-									<%= data_cycle_field key, prop, dataSchema[key], class: 'form-control' %>
-
-								</div>
-
-							<% end %>
+							<%= render_attribute_editor key: "#{keyPrefix}[#{key}]", definition: prop, value: dataSchema[key], parameters: { options: prop.dig('editor', 'options') || {} } unless dataSchema.nil? %>
 
 						<% end %>
 
@@ -110,6 +102,5 @@
 		<% unless @splitSource.nil? %>
 			</div>
 		<% end %>
-
 
 <% end %>

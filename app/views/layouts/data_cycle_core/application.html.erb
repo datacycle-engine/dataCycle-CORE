@@ -15,11 +15,13 @@
 
             <%= render 'data_cycle_core/backend/breadcrumb' if user_signed_in? %>
 
-            <%= render 'data_cycle_core/shared/newObject' if user_signed_in? %>
+            <%= render 'new_content_links' if user_signed_in? %>
+
+            <%= display_flash_messages_new %>
 
             <div class="reveal-blur">
 
-                <%= render 'data_cycle_core/backend/filter' if user_signed_in? %>
+                <%= render 'data_cycle_core/application/filter' if user_signed_in? %>
 
                 <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
 

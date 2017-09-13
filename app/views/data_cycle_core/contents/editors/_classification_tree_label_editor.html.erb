@@ -1,0 +1,36 @@
+<%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
+  <% readonly = options['readonly'] ? true : false %>
+
+  <% if readonly %>
+    <div <%= !definition.dig('editor', 'options', 'data-validate').nil? ? "data-validate=#{definition['editor']['options']['data-validate']}" : '' %>>
+      <%= label_tag(key, definition['label']) %>
+      <div class="readonly-select v-select clearfix">
+        <% DataCycleCore::Classification.where(id: value)
+            .includes(:classification_aliases)
+            .map { |c| {id: c.id, alias: c.primary_classification_alias} }
+            .each do |c_alias| %>
+          <span class="selected-tag"><%= c_alias[:alias].name %></span>
+          <%= hidden_field_tag key+'[]', c_alias[:id] %>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <% types = DataCycleCore::ClassificationAlias.joins(classification_tree: [:classification_tree_label]).where("classification_tree_labels.name = ?", definition['type_name']).where("classification_trees.parent_classification_alias_id IS NULL") unless readonly %>
+
+    <% select_options = get_custom_select_values(types) %>
+
+    <% unless select_options.nil? %>
+
+        <div <%= !definition.dig('editor', 'options', 'data-validate').nil? ? "data-validate=#{definition['editor']['options']['data-validate']}" : '' %>>
+
+            <% selected_values = get_selected_values_for_classification select_options, value %>
+
+            <div class="custom-select-title"><%= definition['label'] %></div>
+            <%= label_tag(key, definition['label']) %>
+            <custom-select hidden-field-id="<%= key %>[]" :custom-options="<%= select_options.to_json %>" :selected-values="<%= selected_values.to_json %>" :read-only="<%= readonly %>"></custom-select>
+        </div>
+    <% end %>
+  <% end %>
+
+
+<% end %>

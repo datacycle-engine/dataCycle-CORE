@@ -6,6 +6,41 @@ de:
     updated: "Bearbeitet"
   submit: "Erstellen"
 
+  locales:
+    de: "deutsch"
+    en: "englisch"
+    ar: "arabisch"
+    bg: "bulgarisch"
+    cs: "tschechisch"
+    da: "dänisch"
+    es: "spanisch"
+    fr: "französisch"
+    it: "italienisch"
+    hu: "ungarisch"
+    hr: "kroatisch"
+    ja: "japanisch"
+    ko: "koreanisch"
+    nl: "holländisch"
+    pt: "portugiesisch"
+    pl: "polnisch"
+    ru: "russisch"
+    sl: "slowenisch"
+    sk: "slowakisch"
+    sv: "schwedisch"
+    tr: "türkisch"
+    uk: "ukrainisch"
+    'de-CH': "schweizer-deutsch"
+
+  contentpool:
+    'vorschläge': "Vorschläge"
+    'recherche': "Recherche"
+    'aktuelle inhalte': "Aktuelle Inhalte"
+    'archiv': "Archiv"
+
+  common:
+    loading: 'Laden ...'
+    are_you_sure: 'Sind Sie sicher?'
+
   validation:
     errors:
       min: "%{data} zu kurz, sollte mindestens %{min} lang sein, ist aber nur %{length} lang."
@@ -74,6 +109,10 @@ de:
     manage:
       all: "Keine Zugriffsberechtigung!"
   data_cycle_core:
+    administration: 'Administration'
+
+    classifications: 'Klassifizierungen'
+
     places:
       partials:
         shared:

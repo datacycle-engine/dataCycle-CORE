@@ -9,41 +9,44 @@ module.exports.initialize = function () {
 
   function init($element) {
     $($element).find('input[type=datetime-local]').each(function () {
-      var cal = $(this).flatpickr({
-        altFormat: "d.m.Y H:i",
-        enableTime: true,
-        altInput: true,
-        time_24hr: true,
-        allowInput: true,
-        static: true,
-        onClose: setSibling
-      });
+      if (!$(this).attr('readonly')) {
+        var cal = $(this).flatpickr({
+          altFormat: "d.m.Y H:i",
+          enableTime: true,
+          altInput: true,
+          time_24hr: true,
+          allowInput: true,
+          static: true,
+          onClose: setSibling
+        });
 
-      calenders.push(cal);
-      var input = $(this).next('input');
-      $(input).on('change', function (e) {
-        cal.setDate($(this).val(), false, cal.config.altFormat);
-        cal.close();
-      });
+        calenders.push(cal);
+        var input = $(this).next('input');
+        $(input).on('change', function (e) {
+          cal.setDate($(this).val(), false, cal.config.altFormat);
+          cal.close();
+        });
+      }
     });
 
     $($element).find('input[type=date]').each(function () {
-      var cal = $(this).flatpickr({
-        altFormat: "d.m.Y",
-        altInput: true,
-        time_24hr: true,
-        allowInput: true,
-        static: true,
-        onClose: setSibling
-      });
+      if (!$(this).attr('readonly')) {
+        var cal = $(this).flatpickr({
+          altFormat: "d.m.Y",
+          altInput: true,
+          time_24hr: true,
+          allowInput: true,
+          static: true,
+          onClose: setSibling
+        });
 
-      calenders.push(cal);
-      var input = $(this).next('input');
-      $(input).on('change', function (e) {
-        cal.setDate($(this).val(), true, cal.config.altFormat);
-        cal.close();
-      });
-
+        calenders.push(cal);
+        var input = $(this).next('input');
+        $(input).on('change', function (e) {
+          cal.setDate($(this).val(), true, cal.config.altFormat);
+          cal.close();
+        });
+      }
     });
 
     setup(calenders);

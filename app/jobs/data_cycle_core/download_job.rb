@@ -35,9 +35,7 @@ module DataCycleCore
     end
 
     def perform(uuid)
-      config = ExternalSource.where(id: uuid).first.config
-      "DataCycleCore::#{config['download']}".constantize.new(uuid).download
+      ExternalSource.find(uuid).download
     end
-
   end
 end

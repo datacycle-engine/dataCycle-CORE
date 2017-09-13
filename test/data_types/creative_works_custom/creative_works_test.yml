@@ -5,14 +5,14 @@
     :description: CreativeWork
     :type: object
     :properties:
-      :headline:
+      :headline1:
         :label: Titel
         :type: string
         :storage_type: string
         :storage_location: content
         :validations:
           :minLength: 1
-      :description:
+      :description1:
         :label: Beschreibung
         :type: string
         :storage_type: text
@@ -46,7 +46,7 @@
     :description: CreativeWork
     :type: object
     :properties:
-      :headline:
+      :headline1:
         :label: Titel
         :type: string
         :storage_type: string
@@ -116,7 +116,7 @@
         :label: Titel
         :type: string
         :storage_type: string
-        :storage_location: content
+        :storage_location: column
         :validations:
           :minLength: 1
         :editor:
@@ -128,7 +128,7 @@
         :label: Beschreibung
         :type: string
         :storage_type: text
-        :storage_location: content
+        :storage_location: column
         :editor:
           :type: quillEditor
           :sorting: 2
@@ -250,7 +250,7 @@
         :label: Titel
         :type: string
         :storage_type: string
-        :storage_location: content
+        :storage_location: column
         :validations:
           :minLength: 1
         :editor:
@@ -330,7 +330,7 @@
         :label: Titel
         :type: string
         :storage_type: string
-        :storage_location: content
+        :storage_location: column
       :caption:
         :label: Alt-Label
         :type: string
@@ -340,7 +340,7 @@
         :label: Beschreibung
         :type: string
         :storage_type: string
-        :storage_location: content
+        :storage_location: column
       :creator:
         :label: Fotograf
         :type: string
@@ -396,10 +396,6 @@
         :type: string
         :storage_type: string
         :storage_location: metadata
-        # :validations:
-        #   :daterange:
-        #     :from: datePublished
-        #     :to: expires
       :validityPeriod:
         :label: Gültigkeitszeitraum
         :type: object
@@ -500,7 +496,7 @@
         :label: Titel
         :type: string
         :storage_type: string
-        :storage_location: content
+        :storage_location: column
         :validations:
           :minLength: 1
         :editor:
@@ -520,7 +516,7 @@
         :label: Teasertext
         :type: string
         :storage_type: text
-        :storage_location: content
+        :storage_location: column
         :editor:
           :type: quillEditor
           :sorting: 3

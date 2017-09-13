@@ -4,7 +4,12 @@ crumb :root do
 end
 
 crumb :admin do
-  link to_html_string("Admin"), '#'
+  link to_html_string(t('data_cycle_core.administration')), '#'
+end
+
+crumb :classifications do
+  link to_html_string(t('data_cycle_core.classifications')), '#'
+  parent :admin
 end
 
 crumb :edit_resource do |resource|

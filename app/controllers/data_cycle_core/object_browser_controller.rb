@@ -1,7 +1,7 @@
 module DataCycleCore
   class ObjectBrowserController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
-    authorize_resource :class => false         # from cancancan (authorize)
+    load_and_authorize_resource :class => false         # from cancancan (authorize)
 
     def show
       @@default_per = 50
@@ -49,7 +49,7 @@ module DataCycleCore
       end
       @page ||= 1
 
-      @results = query.page(@page).per(@per)
+      @results = query.page(@page).per(@per).includes(:translations)
 
       render :json => { results: @results, total: total }
     end
