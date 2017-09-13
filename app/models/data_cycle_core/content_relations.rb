@@ -31,8 +31,7 @@ module DataCycleCore
           elsif
             content_relation_table_name = (content_relation_table + "_#{postfix}").pluralize.to_sym
             target_name = content_name + "_#{postfix}"
-            #puts "#{content_relation_table_name} | #{"DataCycleCore::"+(content_relation_table.to_s.classify)+"::History"} | #{table_given.singularize+"_history_id"}"
-            has_many content_relation_table_name, class_name: "DataCycleCore::" + (content_relation_table.to_s.classify) + "::History", dependent: :destroy, foreign_key: table_given.singularize + "_history_id"
+            has_many content_relation_table_name, class_name: "DataCycleCore::" + (content_relation_table.to_s.classify) + "::#{postfix.capitalize}", dependent: :destroy, foreign_key: table_given.singularize + "_#{postfix}_id"
             has_many target_name.pluralize.to_sym, through: content_relation_table_name
           end
         end
