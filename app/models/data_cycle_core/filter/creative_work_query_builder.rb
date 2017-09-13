@@ -5,7 +5,7 @@ module DataCycleCore
       def initialize(locale = 'de', query = nil)
         @locale = locale
         @query = query || CreativeWork.unscoped.distinct.
-          where(template: false).
+          where(template: false).includes(:watch_lists, :translations, :display_classification_aliases).
           joins(
             creative_work.join(creative_work_translation).
             on(creative_work[:id].eq(creative_work_translation[:creative_work_id])).

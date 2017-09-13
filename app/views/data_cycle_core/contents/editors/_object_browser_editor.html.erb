@@ -1,46 +1,35 @@
 <%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
 
-  <% object = "DataCycleCore::#{(definition['type_name'] || definition['storage_location']).classify}".constantize %>
+  <% object_class_name = definition['type_name'] || definition['storage_location'] %>
+  <% object_class = ("DataCycleCore::"+("#{object_class_name}".classify)).constantize %>
+
   <div class="object-browser" id="<%= sanitize_to_id(key) %>">
     <%= label_tag(key, definition['label']) %>
     <div class="media-thumbs">
       <object-browser
-        :existing="<%= object.where(id: value.try(:collect){ |o| o.try(:[], 'id') }).to_json %>"
-        object-class="<%= object %>"
+        :existing="<%= object_class.where(id: value.try(:collect){ |o| o.try(:[], 'id') || o }).to_json %>"
+        object-class="<%= object_class %>"
         :object-type="'<%= definition.dig('editor', 'options', 'data-type').try(:downcase) %>'"
         :object-label="'<%= definition['label'] %>'"
         :min="<%= definition.dig('validations', 'min') || 0 %>"
         :max="<%= definition.dig('validations', 'max') || 0 %>"
-        :create-item="<%= can?(:create, object) %>"
+        :create-item="<%= definition['type'] == "object" && can?(:create, object_class) %>"
         new-id="new<%= definition['storage_location'].classify %>"
         hidden-name="<%= key %>[]"
+        :reveal-link="true"
         :readonly="<%= options['readonly'] ? true : false %>">
+
         <template scope="props" slot="item">
-          <div v-if="props.item != undefined" class="media person">
-            <a v-if="!props.readonly" slot="remove" class="delete-thumbnail" href="#" @click.prevent="props.remove(props.item)"><i aria-hidden="true" class="fa fa-times"></i></a>
-
-            <% if definition['storage_location'] == 'persons' || definition['type_name'] == 'persons' %>
-
-              <i class="fa fa-user" aria-hidden="true"></i>
-              <span class="name">{{ props.item.givenName }} <strong>{{ props.item.familyName }}</strong></span>
-
-            <% elsif definition['storage_location'] == 'places' || definition['type_name'] == 'places' %>
-
-              <i class="fa fa-map-marker" aria-hidden="true"></i>
-              <span class="name">{{ props.item.name }} {{ props.item.address }} </span>
-              {{ props.objectType }}
-          <% end %>
-            <input type="hidden" name="<%= key %>[][id]" :value="props.item.id">
-          </div>
+          <%= render_object_browser_partial(key: key + (definition['type'] == "object" ? '[][id]' : '[]'), definition: definition) %>
         </template>
 
-        <% begin %>
-          <template slot="new-item" scope="newItem">
-
-           <%= render "data_cycle_core/#{definition['storage_location']}/partials/shared/new" %>
-
-          </template>
-        <% rescue %>
+        <% if definition['type'] == "object" && can?(:create, object_class) %>
+          <% begin %>
+            <template slot="new-item" scope="newItem">
+              <%= render_object_browser_partial(partial: 'new', key: key, definition: definition) %>
+            </template>
+          <% rescue %>
+          <% end %>
         <% end %>
 
       </object-browser>

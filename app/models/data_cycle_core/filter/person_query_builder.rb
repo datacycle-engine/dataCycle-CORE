@@ -5,7 +5,7 @@ module DataCycleCore
       def initialize(locale = 'de', query = nil)
         @locale = locale
         @query = query || Person.unscoped.distinct.
-          where(template: false).
+          where(template: false).includes(:watch_lists, :translations, :display_classification_aliases).
           joins(
             person.join(person_translation).
             on(person[:id].eq(person_translation[:person_id])).

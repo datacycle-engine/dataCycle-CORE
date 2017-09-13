@@ -1,18 +1,11 @@
 <li class="filter <%= li_class ||= '' %>" data-tree-label="<%= tree_label.downcase %>">
 
     <% excluded_types ||= [] %>
-    <% types = DataCycleCore::ClassificationTreeLabel
-          .find_by(name: tree_label).classification_trees
-          .includes(:parent_classification_alias, :sub_classification_alias)
-          .where(parent_classification_alias: nil)
-          .map(&:sub_classification_alias)
-          .select { |type| !excluded_types.include?(type.name) } %>
-
     <%= render 'data_cycle_core/shared/icon', icon_type: tree_label.downcase %>
     <span class="title"><%= display_label %></span>
     <div>
         <ul class="clearfix <%= ul_class ||= '' %>">
-            <% types.sort{|a,b| a.name <=> b.name}.each do |item| %>
+            <% classification_trees[tree_label].sort{|a,b| a.name <=> b.name}.each do |item| %>
                 <%= render 'data_cycle_core/application/filters/classification_items', item: item %>
             <% end %>
         </ul>

@@ -72,6 +72,14 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({key: key, definition: definition, value: value}))
     end
 
+    def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {})
+      partials = [
+        "#{definition.dig('editor', 'options', 'data-type').try(:underscore)}",
+        "default"
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_#{partial}" }
+
+      render_first_existing_partial(partials, parameters.merge({key: key, definition: definition}))
+    end
 
     private
 
