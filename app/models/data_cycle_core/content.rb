@@ -126,6 +126,28 @@ module DataCycleCore
       respond_to? "history_valid"
     end
 
+    def as_of(timestamp)
+      return self if timestamp > self.updated_at
+      return nil if self.updated_at.nil? || is_history?
+
+      base_content_class = self.class.to_s
+      history_table = "#{base_content_class}::History".safe_constantize.arel_table
+      history_table_translation = "#{base_content_class}::History::Translation".safe_constantize.arel_table
+
+      self.histories.
+        joins(
+          history_table.join(history_table_translation).
+          on(history_table[:id].eq(history_table_translation[:creative_work_history_id])).
+          join_sources
+        ).
+        where(
+          Arel::Nodes::InfixOperation.new( "@>",
+            history_table_translation[:history_valid],
+            Arel::Nodes::SqlLiteral.new("CAST('#{timestamp}' AS TIMESTAMP WITH TIME ZONE)")
+          )
+        ).first #rescue self
+    end
+
     private
 
     def embedded_relations
@@ -145,7 +167,7 @@ module DataCycleCore
       # only uuid(s) stored in content-data_set
       if linked_property_names.include?(property_name)
         load_linked_data(
-            "DataCycleCore::#{property_definition['type_name'].singularize.camelize}",
+            property_definition['type_name'],
             send(property_definition['storage_location'])[property_name.to_s]
           )
 
@@ -171,8 +193,7 @@ module DataCycleCore
       # embeddedObject is stored in a separate content-data_set
       # all properties from the embeddedObject are handled within this content-data_set
       elsif embedded_property_names.include?(property_name) && same_table?(property_definition['storage_location'])
-        load_linked_data(
-            self.class.to_s,
+        load_embedded_objects_same_table(
             send('metadata')[property_name.to_s + '_hasPart']
           )
 
@@ -203,11 +224,20 @@ module DataCycleCore
     end
 
     def load_embedded_objects(relation_name)
-      is_history? ? send("#{relation_name.singularize}_histories"): send(relation_name)
+      is_history? ? send("#{relation_name.singularize}_histories") : send(relation_name)
     end
 
-    def load_linked_data(class_name, ids)
-      class_name.safe_constantize.find(ids) rescue nil
+    def load_embedded_objects_same_table(ids)
+      self.class.to_s.safe_constantize.find(ids) rescue nil
+    end
+
+    def load_linked_data(type_name, ids)
+      # if is_history?
+      #
+      # else
+        class_name = "DataCycleCore::#{type_name.singularize.camelize}"
+        class_name.safe_constantize.find(ids) rescue nil
+      # end
     end
 
     def load_included_data(property_name, property_definition)
