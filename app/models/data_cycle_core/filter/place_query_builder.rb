@@ -5,7 +5,7 @@ module DataCycleCore
       def initialize(locale = 'de', query = nil)
         @locale = locale
         @query = query || Place.unscoped.distinct.
-          where(template: false).
+          where(template: false).includes(:watch_lists, :translations, :display_classification_aliases).
           joins(
             place.join(place_translation).
             on(place[:id].eq(place_translation[:place_id])).
