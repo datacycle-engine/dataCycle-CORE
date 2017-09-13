@@ -86,10 +86,10 @@ module DataCycleCore
     def render_first_existing_partial(partials, parameters)
       partials.each_with_index do |partial, idx|
         begin
-          logger.debug "  Rendering partial #{partial} ..."
+          logger.debug "  Try rendering partial #{partial} ..."
           return render(partial, parameters)
         rescue ActionView::MissingTemplate => e
-          logger.debug "  Rendering partial #{partial} ... [NOT FOUND]"
+          logger.debug "  Try rendering partial #{partial} ... [NOT FOUND]"
           raise e if idx == partials.size - 1
         end
       end
