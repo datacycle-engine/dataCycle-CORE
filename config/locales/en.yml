@@ -92,10 +92,10 @@ en:
             headline:
               blank: "Headline: Should be atleast 1 long."
   data_cycle_core:
-    places:
-      partials:
-        shared:
-          new:
+    contents:
+      editors:
+        object_browser:
+          place_new:
             name: "Name"
             street: "Street"
             plz: "Postal Code"

@@ -113,20 +113,17 @@ de:
 
     classifications: 'Klassifizierungen'
 
-    places:
-      partials:
-        shared:
-          new:
+    contents:
+      editors:
+        object_browser:
+          place_new:
             name: "Name"
             street: "Straße"
             plz: "PLZ"
             address: "Ort"
             longitude: "Längengrad"
             latitude: "Breitengrad"
-    persons:
-      partials:
-        shared:
-          new:
+          person_new:
             givenName: "Vorname"
             familyName: "Familienname"
             jobTitle: "Berufsbezeichnung"
