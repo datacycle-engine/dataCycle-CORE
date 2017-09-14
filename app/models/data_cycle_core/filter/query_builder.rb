@@ -49,6 +49,10 @@ module DataCycleCore
         reflect(@query.having(*params))
       end
 
+      def count(*params)
+        @query.count(*params).try(:length) || @query.count(*params)
+      end
+
     # different filters
       def with_classification_alias(name)
         unless @classification_alias # see if joins are necessary
