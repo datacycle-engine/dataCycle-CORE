@@ -8,7 +8,15 @@ module.exports.initialize = function () {
       var images_to_load = $(this).find('img.lazyload');
       if (images_to_load.length > 0) {
         images_to_load.each(function () {
-          $(this).attr('src', $(this).data('src'));
+          if ($(this).attr('src') == undefined || $(this).attr('src') == "") {
+            var self = this;
+            $(this).after('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>')
+            $(this).one('load', function () {
+              $(this).siblings('.loading').remove();
+              $(this).fadeIn();
+            }.bind(this));
+            $(this).hide().attr('src', $(this).data('src'));
+          }
         });
       }
     });

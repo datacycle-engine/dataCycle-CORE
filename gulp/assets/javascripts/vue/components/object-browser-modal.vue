@@ -154,6 +154,7 @@ export default {
   },
   activated() {
     this.chosenItems = this.preChosenItems.slice(0);
+    if (this.chosenItems.length > 0) this.activeItem = this.chosenItems[0];
     this.scrollTop = $(window).scrollTop();
     this.modal.foundation('open');
     $('.reveal-blur').addClass("show");
