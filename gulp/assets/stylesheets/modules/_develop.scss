@@ -371,3 +371,14 @@ select {
     margin: 0;
   }
 }
+
+.reveal {
+  .loading {
+    text-align: center;
+    padding: 8rem;
+    .fa {
+      font-size: 3rem;
+      color: $light-gray;
+    }
+  }
+}

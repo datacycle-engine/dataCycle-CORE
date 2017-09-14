@@ -467,7 +467,7 @@ form {
       display: none;
     }
     .input input,
-    .string input,
+    .string:not(.date) input,
     .number input {
       padding: 2.5rem 1rem 2rem 1rem;
       line-height: initial;

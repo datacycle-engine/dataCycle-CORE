@@ -13,34 +13,27 @@ module DataCycleCore
       @type ||= "image"
 
       if @type == "image"
-
         query = DataCycleCore::Filter::ImageQueryBuilder.new(@language)
         query = query.only_images
-        query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       elsif @type == "person"
-
         query = DataCycleCore::Filter::PersonQueryBuilder.new(@language)
-        query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       elsif @type == "place"
-
         query = DataCycleCore::Filter::PlaceQueryBuilder.new(@language)
         query = query.only_frontend_valid
-        query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       else
-
         query = DataCycleCore::Filter::ImageQueryBuilder.new(@language)
-        query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       end
+
+      query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       @per = params[:per] unless params[:per].blank?
       @per ||= @@default_per
 
       total = query.count
-
       pages = total.fdiv(@per.to_i).ceil
 
       unless params[:page].blank?
@@ -49,7 +42,7 @@ module DataCycleCore
       end
       @page ||= 1
 
-      @results = query.page(@page).per(@per).includes(:translations)
+      @results = query.page(@page).per(@per)
 
       render :json => { results: @results, total: total }
     end
