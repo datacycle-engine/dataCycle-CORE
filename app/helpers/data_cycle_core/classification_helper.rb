@@ -70,7 +70,7 @@ module DataCycleCore
 
     def get_next_content_pool(classification_id)
       c_index = ordered_content_pools.index{ |c| c.id == classification_id }
-      if c_index < ordered_content_pools.length - 1
+      if !c_index.nil? && c_index < ordered_content_pools.length - 1
         return ordered_content_pools[c_index + 1]
       end
     end
