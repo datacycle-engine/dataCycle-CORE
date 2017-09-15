@@ -23,16 +23,21 @@ module DataCycleCore
 
         set_property_value(name.to_s.gsub(/=$/, ''), property_definition, args.first)
       elsif property_definition
-        raise ArgumentError.new("wrong number of arguments (given #{args.size}, expected 0)") unless args.blank?
+        timestamp = args.try(:first)
+        raise ArgumentError.new("wrong number of arguments (given #{args.size}, expected 0)") if (args.size == 1 && timestamp.nil) || args.size > 1
 
-        get_property_value(name.to_s.gsub(/=$/, ''), property_definition)
+        if timestamp.nil?
+          get_property_value(name.to_s.gsub(/=$/, ''), property_definition)
+        else
+          get_property_value(name.to_s.gsub(/=$/, ''), property_definition, timestamp)
+        end
       else
         super
       end
     end
 
     def respond_to?(method_name, include_private = false)
-      property_names.map{|item| [item.to_sym, (item.to_s+"=").to_sym]}.flatten.include?(method_name.to_sym) || super
+      (property_names.map{|item| [item.to_sym, (item.to_s+"=").to_sym]}.flatten + linked_property_names.map{|item| item+'_ids'}).include?(method_name.to_sym) || super
     end
 
 
@@ -88,7 +93,7 @@ module DataCycleCore
       }.keys
     end
 
-    def to_h
+    def to_h(timestamp = Time.zone.now)
       property_names.map { |property_name|
         property_value =
         if property_name == "id" && is_history?
@@ -98,12 +103,13 @@ module DataCycleCore
         elsif classification_property_names.include?(property_name)
           send(property_name).try(:pluck, :classification_id)
         elsif linked_property_names.include?(property_name)
-          send(property_name).try(:pluck, :id) || send(property_name).try(:id)
+          get_property_value(property_name, property_definitions[property_name], timestamp, false)
         elsif included_property_names.include?(property_name)
           embedded_hash = send(property_name).to_h
           embedded_hash.blank? ? nil : embedded_hash
         elsif embedded_property_names.include?(property_name)
-          embedded_array = send(property_name).try(:map, &:get_data_hash)
+          embedded_array = send(property_name)
+          embedded_array = embedded_array.map{|item| item.get_data_hash(timestamp)} unless embedded_array.blank?
           embedded_array.blank? ? [] : embedded_array.compact
         else
           raise StandardError.new("cannot determine how to serialize #{property_name}")
@@ -135,6 +141,9 @@ module DataCycleCore
       history_table_translation = "#{base_content_class}::History::Translation".safe_constantize.arel_table
       history_id = "#{base_content_class}::History".safe_constantize.table_name.singularize.foreign_key.to_sym
 
+      #puts timestamp
+      format_string = "%Y-%m-%d %H:%M:%S.%N UTC"
+      return_data =
       self.histories.
         joins(
           history_table.join(history_table_translation).
@@ -146,7 +155,8 @@ module DataCycleCore
             history_table_translation[:history_valid],
             Arel::Nodes::SqlLiteral.new("CAST('#{timestamp}' AS TIMESTAMP WITH TIME ZONE)")
           )
-        ).first #rescue self
+        ).order(history_table[:updated_at])#.first #rescue self
+      return return_data.last
     end
 
     private
@@ -163,13 +173,15 @@ module DataCycleCore
       }
     end
 
-    def get_property_value(property_name, property_definition)
+    def get_property_value(property_name, property_definition, timestamp = Time.zone.now, object = true)
       # linked data via embeddedLink/embeddedLinkArray
       # only uuid(s) stored in content-data_set
       if linked_property_names.include?(property_name)
         load_linked_data(
             property_definition['type_name'],
-            send(property_definition['storage_location'])[property_name.to_s]
+            send(property_definition['storage_location'])[property_name.to_s],
+            timestamp,
+            object
           )
 
       # included subobjects
@@ -232,13 +244,10 @@ module DataCycleCore
       self.class.to_s.safe_constantize.find(ids) rescue nil
     end
 
-    def load_linked_data(type_name, ids)
-      # if is_history?
-      #
-      # else
-        class_name = "DataCycleCore::#{type_name.singularize.camelize}"
-        class_name.safe_constantize.find(ids) rescue nil
-      # end
+    def load_linked_data(type_name, ids, timestamp = Time.zone.now, objects = true)
+      return ids unless objects
+      class_name = "DataCycleCore::#{type_name.singularize.camelize}"
+      class_name.safe_constantize.find(ids).map{|item| item.as_of(timestamp)} rescue nil
     end
 
     def load_included_data(property_name, property_definition)

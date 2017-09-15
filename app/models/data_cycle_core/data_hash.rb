@@ -5,9 +5,21 @@ module DataCycleCore
 
     # get data as specified in the data template
     # data hash with keys named as in schema.org
+<<<<<<< 67c44807463a4811b6c8826f9b398dddd2c62b92
     def get_data_hash
       locale = self.translated_locales.include?(I18n.locale) ? I18n.locale : self.translated_locales.first
       I18n.with_locale(locale) do
+=======
+    def get_data_hash(timestamp = Time.zone.now)
+      if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with pending data in it
+        data_type = metadata['validation']
+        #data_hash = get_template_data_hash(data_type['properties'])
+        data_object = self.as_of(timestamp)
+
+        #puts data_object.class
+
+        data_hash = data_object.to_h(timestamp)
+>>>>>>> history wired to get_data_hash, set_data_hash
 
         if translated_locales.include?(locale) || changes.count > 0 # for new data-sets with pending data in it
           data_type = metadata['validation']
@@ -24,7 +36,7 @@ module DataCycleCore
 
     # set data as specified in the data template
     # data hash with keys named as in schema.org
-    def set_data_hash(data_hash)
+    def set_data_hash(data_hash, save_time = Time.zone.now)
       template_hash = metadata['validation']
 
       stripped_data_hash = data_hash
@@ -32,17 +44,20 @@ module DataCycleCore
 
       if validate?(stripped_data_hash)
         ActiveRecord::Base.transaction do
+          self.to_history(save_time) unless self.id.nil?
           data_hash, release_hash = extract_release(data_hash, false) if kind_of?(DataCycleCore::Releasable) # strip release data only from this objectt
-          set_template_data_hash(data_hash, template_hash['properties'])
+          set_template_data_hash(data_hash, template_hash['properties'], save_time)
           if kind_of?(DataCycleCore::Releasable)
             self.release = release_hash
             self.release_id = set_global_release(global_release_hash)
           end
+          self.updated_at = save_time
         end
       end
       validate(stripped_data_hash) # return error/warnings from validation
     end
 
+<<<<<<< 67c44807463a4811b6c8826f9b398dddd2c62b92
     def set_data_hash_attribute(key, value)
       key_hash = metadata.dig('validation', 'properties', key)
 
@@ -54,6 +69,9 @@ module DataCycleCore
     end
 
     def to_history (save_time)
+=======
+    def to_history(save_time)
+>>>>>>> history wired to get_data_hash, set_data_hash
       origin_table = self.class.to_s.split("::")[1].tableize
       data_set_history = (self.class.to_s + "::History").safe_constantize.new
 
@@ -64,6 +82,9 @@ module DataCycleCore
         self.attributes.except("id").each do |key,value|
           data_set_history.send("#{key}=", value)
         end
+
+        #puts "to_history: #{self.updated_at}//#{save_time}"
+
         data_set_history.history_valid = (self.updated_at .. save_time)
         data_set_history.save
 
@@ -98,9 +119,11 @@ module DataCycleCore
           name + '_hasPart'
         }.each { |key|
           data_set_history.metadata[key] = []
-          self.metadata[key].each do |content_id|
-            content_history = self.class.find(content_id).to_history(save_time)
-            data_set_history.metadata[key].push(content_history.id)
+          unless self.metadata[key].blank?
+            self.metadata[key].each do |content_id|
+              content_history = self.class.find(content_id).to_history(save_time)
+              data_set_history.metadata[key].push(content_history.id)
+            end
           end
         }
         data_set_history.save
@@ -239,10 +262,10 @@ module DataCycleCore
       data_hash
     end
 
-    def set_template_data_hash(data_hash, properties)
+    def set_template_data_hash(data_hash, properties, save_time)
       properties.each do |key,value|
         #puts " key ----> #{key} | value: #{value} || #{data_hash[key]} | #{data_hash}"
-        storage_cases_set(key, data_hash[key], value)
+        storage_cases_set(key, data_hash[key], value, save_time)
       end
     end
 
@@ -265,7 +288,7 @@ module DataCycleCore
       end
     end
 
-    def storage_cases_set(key, value, properties)
+    def storage_cases_set(key, value, properties, save_time)
       #puts " key ----> #{key} | value: #{value} | #{properties}"
       case properties['storage_location']
       when 'column'
@@ -284,7 +307,7 @@ module DataCycleCore
             delete = false
             delete = true if properties.has_key?('delete') && properties['delete'] == true
             #puts "set_linked_data_type(#{key}, #{value}, #{properties['storage_location']}, #{properties['name']}, #{properties['description']}, #{delete})"
-            set_linked_data_type(key, value, properties['storage_location'], properties['name'], properties['description'], delete)
+            set_linked_data_type(key, value, properties['storage_location'], properties['name'], properties['description'], delete, save_time)
           else
             puts "wrong data_type #{key} | #{value}"
           end
@@ -367,18 +390,18 @@ module DataCycleCore
       return_data.compact
     end
 
-    def set_linked_data_type(field_name, data, table, name, description, delete)
+    def set_linked_data_type(field_name, data, table, name, description, delete, save_time)
       # check if it is a relation to itself or external via relation_table
       if table == self.class.table_name
         #puts "set_linked_via_tree"
-        set_linked_via_tree(field_name, data, table, name, description, delete)
+        set_linked_via_tree(field_name, data, table, name, description, delete, save_time)
       else
         #puts "set_linked_via_relation"
-        set_linked_via_relation(data, table, name, description, delete)
+        set_linked_via_relation(data, table, name, description, delete, save_time)
       end
     end
 
-    def set_linked_via_relation(data, table, name, description, delete)
+    def set_linked_via_relation(data, table, name, description, delete, save_time)
       relation = get_relation_name(table)
       updated_item_keys = []
 
@@ -399,7 +422,7 @@ module DataCycleCore
           elsif item.has_key?('id') && !item['id'].blank?
             # update
             update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['id'])
-            update_item.set_data_hash(item)
+            update_item.set_data_hash(item, save_time)
             update_item.save
             updated_item_keys.push(update_item.id)
           else
@@ -413,7 +436,7 @@ module DataCycleCore
             insert_item = ("DataCycleCore::"+table.classify).constantize.new
             insert_item.metadata = { 'validation' => template.metadata['validation'] }
             insert_item.save
-            insert_item.set_data_hash(item)
+            insert_item.set_data_hash(item, save_time)
             insert_item.save
             updated_item_keys.push(insert_item.id)
 
@@ -459,7 +482,7 @@ module DataCycleCore
       self.method(table).call.reload # MO: force reload of the relation, otherwise cached data can obsure the next get_data_hash
     end
 
-    def set_linked_via_tree(field_name, data, table, name, description, delete)
+    def set_linked_via_tree(field_name, data, table, name, description, delete, save_time)
       # get validation template
       template = ("DataCycleCore::"+table.classify).constantize
         .with_translations('de')
@@ -477,7 +500,7 @@ module DataCycleCore
           elsif item.has_key?('id') && !item['id'].blank?
             # update
             update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['id'])
-            update_item.set_data_hash(item)
+            update_item.set_data_hash(item, save_time)
             update_item.save
             item_id = item['id']
           else
@@ -485,7 +508,7 @@ module DataCycleCore
             insert_item = ("DataCycleCore::"+table.classify).constantize.new
             insert_item.metadata = { 'validation' => template.metadata['validation'] }
             insert_item.save
-            insert_item.set_data_hash(item)
+            insert_item.set_data_hash(item, save_time)
             insert_item.isPartOf = self.id
             insert_item.save
             item_id = insert_item.id
