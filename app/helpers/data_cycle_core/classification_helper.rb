@@ -62,14 +62,12 @@ module DataCycleCore
     end
 
     def ordered_content_pools
-      Rails.cache.fetch('cached_ordered_content_pools', expires_in: 10.minutes) do
-        content_pool_order = ['Vorschläge', 'Recherche', 'Aktuelle Inhalte', 'Archiv']
-        pools = Hash[DataCycleCore::ClassificationAlias.where(name: content_pool_order).collect{ |c| [ c.try(:name), c ] }]
-        unless pools.blank?
-          cached_ordered_content_pools = content_pool_order.collect{ |c| {id: pools[c].classifications.ids.first, alias: pools[c]} }
-        end
-        cached_ordered_content_pools
+      content_pool_order = ['Vorschläge', 'Recherche', 'Aktuelle Inhalte', 'Archiv']
+      pools = Hash[DataCycleCore::ClassificationAlias.where(name: content_pool_order).collect{ |c| [ c.try(:name), c ] }]
+      unless pools.blank?
+        cached_ordered_content_pools = content_pool_order.collect{ |c| {id: pools[c].classifications.ids.first, alias: pools[c]} }
       end
+      cached_ordered_content_pools
     end
 
     def get_next_content_pool(classification_id)
