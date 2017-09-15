@@ -62,7 +62,7 @@ module DataCycleCore
     end
 
     def ordered_content_pools
-      Rails.cache.fetch('cached_ordered_content_pools') do
+      Rails.cache.fetch('cached_ordered_content_pools', expires_in: 10.minutes) do
         pools = Hash[DataCycleCore::Classification.where(name: DataCycleCore.content_pool_order).collect{ |c| [ c.try(:name), c ] }]
         cached_ordered_content_pools = DataCycleCore.content_pool_order.collect{ |c| pools[c] } || []
       end
