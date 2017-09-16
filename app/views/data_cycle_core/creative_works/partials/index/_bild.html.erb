@@ -10,10 +10,10 @@
 
             <% unless item.metadata.nil? %>
 
-                <% unless item.metadata['thumbnailUrl'].nil? %>
+                <% unless item.metadata['thumbnail_url'].nil? %>
 
                     <div class="image">
-                        <img src="<%= item.metadata['thumbnailUrl'] %>" alt="<%= item.content['name'] unless item.content.blank?%>" />
+                        <img src="<%= item.metadata['thumbnail_url'] %>" alt="<%= item.content['name'] unless item.content.blank?%>" />
                     </div>
 
                 <% end %>

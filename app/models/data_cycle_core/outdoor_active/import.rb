@@ -68,8 +68,8 @@ module DataCycleCore
         Mongoid.override_database("#{DownloadPoi.database_name}_#{@external_source_id}")
 
         import_logging do
-          # import_category
-          # import_region
+          import_category
+          import_region
           import_poi(options)
         end
 
