@@ -4,10 +4,12 @@ module DataCycleCore
       def import(**options, &block)
         callbacks = DataCycleCore::Callbacks.new(block)
 
-        # categories can only be imported for one single locale
-        import_categories(callbacks, **(options || {}).merge({locales: [I18n.default_locale]}))
-        # regions can only be imported for one single locale
-        import_regions(callbacks, **(options || {}).merge({locales: [I18n.default_locale]}))
+        # # categories can only be imported for one single locale
+        # import_categories(callbacks, **(options || {}).merge({locales: [I18n.default_locale]}))
+        # # regions can only be imported for one single locale
+        # import_regions(callbacks, **(options || {}).merge({locales: [I18n.default_locale]}))
+
+        import_pois(callbacks, **options)
       end
 
       def import_categories(callbacks = DataCycleCore::Callbacks.new, **options)
@@ -58,6 +60,29 @@ module DataCycleCore
           callbacks,
           **options
         )
+      end
+
+      def import_pois(callbacks = DataCycleCore::Callbacks.new, **options)
+        import_contents(
+          Poi,
+          DataCycleCore::Place,
+          ->(locale) { Poi.where("dump.#{locale}.frontendtype": 'poi') },
+          ->(raw_data, template, locale) {
+            poi = Place.find_or_initialize_by(external_source_id: external_source.id, external_key: raw_data['id'])
+            poi.metadata ||= {}
+            poi.metadata['validation'] = template.metadata['validation']
+            poi.set_data_hash(poi.get_data_hash.merge(extract_poi_data(raw_data).with_indifferent_access))
+            poi.save!
+          },
+          callbacks,
+          **options
+        )
+      end
+
+      protected
+
+      def extract_poi_data(raw_data)
+        raw_data.extend(PoiAttributeTransformation).to_h
       end
     end
 

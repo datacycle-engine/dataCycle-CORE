@@ -77,6 +77,21 @@ module DataCycleCore::Import
       end
     end
 
+    def import_contents(source_type, target_type, load_contents, process_content,
+                        callbacks = DataCycleCore::Callbacks.new, **options)
+      around_import(source_type, **options) do |locale|
+        item_count = 0
+
+        load_contents.(locale).each do |content|
+          item_count += 1
+
+          process_content.(content[:dump][locale], load_template(target_type, content[:dump][locale]), locale)
+
+          return if options[:max_count] && item_count >= options[:max_count]
+        end
+      end
+    end
+
     private
 
     def around_import(source_type, **options)
@@ -91,6 +106,43 @@ module DataCycleCore::Import
           Mongoid.override_database(nil)
         end
       end
+    end
+
+    def load_template(target_type, raw_data)
+      if self.class.to_s.deconstantize.constantize.content_template.nil?
+        raise 'Missing configuration for content templates'
+      elsif self.class.to_s.deconstantize.constantize.content_template.is_a? String
+        begin
+          target_type.find_by!(template: true, headline: self.class.to_s.deconstantize.constantize.content_template)
+        rescue ActiveRecord::RecordNotFound => e
+          raise "Missing template #{self.class.to_s.deconstantize.constantize.content_template} for #{target_type}"
+        end
+      else
+        raise NotImplementedError
+      end
+    end
+
+    def poi_template(raw_data)
+      # if DataCycleCore::OutdoorActive.poi_template.nil?
+      #   @log.error 'Missing configuration for poi template to use when importing pois from outdoor active'
+      #   raise 'Missing configuration for poi template'
+      # elsif DataCycleCore::OutdoorActive.poi_template.is_a? String
+      #   begin
+      #     Place.find_by!(template: true, headline: DataCycleCore::OutdoorActive.poi_template)
+      #   rescue ActiveRecord::RecordNotFound => e
+      #     @log.error "Missing template '#{DataCycleCore::OutdoorActive.poi_template}' for places"
+      #     raise e
+      #   end
+      # elsif DataCycleCore::OutdoorActive.poi_template.is_a? Proc
+      #   begin
+      #     Place.find_by!(template: true, headline: DataCycleCore::OutdoorActive.poi_template.call(raw_data))
+      #   rescue ActiveRecord::RecordNotFound => e
+      #     @log.error "Missing template '#{DataCycleCore::OutdoorActive.poi_template.call(raw_data)}' for places"
+      #     raise e
+      #   end
+      # else
+      #   raise NotImplementedError
+      # end
     end
   end
 end
