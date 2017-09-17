@@ -1,5 +1,8 @@
 module DataCycleCore
   class ExternalSource < ApplicationRecord
+    has_many :places
+    has_many :classifications_regions
+
     has_many :use_cases
 
     def download(options = {}, &block)
@@ -10,11 +13,11 @@ module DataCycleCore
       end
     end
 
-    def import(options = {}, &block)
+    def import(options = {}, &bock)
       if config['import'].starts_with?('::') || config['import'].starts_with?('DataCycleCore::')
-        "#{config['import']}".constantize.new(id).import(options, &block)
+        "#{config['import']}".constantize.new(id).import(options, &bock)
       else
-        "DataCycleCore::#{config['import']}".constantize.new(id).import(options, &block)
+        "DataCycleCore::#{config['import']}".constantize.new(id).import(options, &bock)
       end
     end
   end

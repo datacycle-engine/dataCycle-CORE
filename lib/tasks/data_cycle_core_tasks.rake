@@ -188,6 +188,21 @@ namespace :data_cycle_core do
           puts "Importing #{label.to_s.gsub(/_/, ' ')} ..." if total.nil?
           puts "Importing #{label.to_s.gsub(/_/, ' ')} (#{total} items) ..." if total
         }
+        on.item_processed { |title, id, num, total|
+          # puts " -> \"#{title} (\##{id})\" imported (#{num} of #{total || '?'})"
+        }
+        on.error { |title, id, data, error|
+          if title && id
+            puts "Error importing \"#{title} (\##{id})\": #{error}"
+          elsif title
+            puts "Error importing \"#{title}\": #{error}"
+          elsif id
+            puts "Error importing \"\##{id}\": #{error}"
+          else
+            puts "Error: #{error}"
+          end
+          puts "  DATA: #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}" if data
+        }
         on.phase_finished { |label, total|
           puts "Importing #{label.to_s.gsub(/_/, ' ')} (#{total} items) ... [DONE]"
         }

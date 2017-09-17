@@ -1,7 +1,6 @@
 module DataCycleCore::Import
   class DownloadBase < Base
 
-
     protected
 
     def download_data(type, extract_id, extract_name, callbacks = DataCycleCore::Callbacks.new, **options)
