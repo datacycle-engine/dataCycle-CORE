@@ -40,7 +40,7 @@ module DataCycleCore
           ->(parent_category_data, locale) {
             Region.where(
               "dump.#{locale}.parentId": parent_category_data['id'],
-              "dump.#{locale}.id": {'$ne' => parent_category_data['id']}
+              "dump.#{locale}.id": {'$ne': parent_category_data['id']}
             )
           },
           ->(raw_data) {

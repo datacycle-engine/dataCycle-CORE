@@ -6,22 +6,13 @@ module DataCycleCore::Import
     def import_classifications(type, tree_name, load_root_classifications, load_child_classifications,
                                load_parent_classification_alias, extract_data,
                                callbacks = DataCycleCore::Callbacks.new, **options)
-      options[:locales] ||= I18n.available_locales
-
-      if options[:locales].size != 1
-        options[:locales].each do |l|
-          import_classifications(type, extract_id, extract_name, callbacks,
-                                 options.except(:locales).merge({locales: [l]}))
-        end
-      else
-        locale = options[:locales].first
+      around_import(type, **options) do |locale|
+        phase_name = type.to_s.demodulize.underscore.pluralize
 
         item_count = 0
 
         begin
-          Mongoid.override_database("#{type.database_name}_#{external_source.id}")
-
-          callbacks.execute_callback(:phase_started, "#{type.to_s.demodulize.underscore.pluralize}_#{locale}")
+          callbacks.execute_callback(:phase_started, "#{phase_name}_#{locale}")
 
           raw_classification_data_stack = load_root_classifications.(locale).to_a
 
@@ -37,12 +28,11 @@ module DataCycleCore::Import
 
             callbacks.execute_callback(:item_processed, extracted_classification_data[:name],
                                        extracted_classification_data[:id], item_count, nil)
+
+           return if options[:max_count] && item_count >= options[:max_count]
           end
         ensure
-          Mongoid.override_database(nil)
-
-          callbacks.execute_callback(:phase_finished, "#{type.to_s.demodulize.underscore.pluralize}_#{locale}",
-                                     item_count)
+          callbacks.execute_callback(:phase_finished, "#{phase_name}_#{locale}", item_count)
         end
       end
     end
@@ -84,6 +74,22 @@ module DataCycleCore::Import
         classification_tree.save!
 
         primary_classification_alias
+      end
+    end
+
+    private
+
+    def around_import(source_type, **options)
+      options[:locales] ||= I18n.available_locales
+
+      options[:locales].each do |locale|
+        begin
+          Mongoid.override_database("#{source_type.database_name}_#{external_source.id}")
+
+          yield(locale)
+        ensure
+          Mongoid.override_database(nil)
+        end
       end
     end
   end
