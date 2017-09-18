@@ -15,9 +15,7 @@ module DataCycleCore
         data_type = metadata['validation']
         #data_hash = get_template_data_hash(data_type['properties'])
         data_object = self.as_of(timestamp)
-
-        #puts data_object.class
-
+        #puts "#{data_object.class} // #{timestamp.class}: #{timestamp.to_s(:long_usec)}"
         data_hash = data_object.to_h(timestamp)
 >>>>>>> history wired to get_data_hash, set_data_hash
 
@@ -83,21 +81,22 @@ module DataCycleCore
           data_set_history.send("#{key}=", value)
         end
 
-        #puts "to_history: #{self.updated_at}//#{save_time}"
-
-        data_set_history.history_valid = (self.updated_at .. save_time)
+        lower_bound = self.updated_at
+        if lower_bound > save_time
+          lower_bound = save_time
+        end
+        data_set_history.history_valid = (lower_bound ... save_time)
         data_set_history.save
 
         # cc classification_relation to history
-        classification_relation = "classification_"+origin_table
-        self.send(classification_relation).each do |item|
+        self.send("classification_"+origin_table).all.each do |item|
           classification_history = ("DataCycleCore::Classification" + origin_table.classify + "::History").safe_constantize.new
           classification_history.send(origin_table.singularize + "_history_id=", data_set_history.id)
           item.attributes.except("id", origin_table.singularize.foreign_key).each do |key,value|
             classification_history.send("#{key}=", value)
           end
           classification_history.classification_id = item.classification_id
-          #classification_history.history_valid = (item.updated_at .. save_time)
+          #classification_history.history_valid = (item.updated_at ... save_time)
           classification_history.save
         end
 
@@ -109,7 +108,7 @@ module DataCycleCore
             data_set_history.send(content_relation_table + "_histories").create({
                 (origin_table.singularize + "_history_id") => data_set_history.id,
                 (content_name + "_history_id") => new_content_history.id,
-                "history_valid" => (content_item.updated_at .. save_time)
+                "history_valid" => (content_item.updated_at ... save_time)
               })
           end
         end

@@ -35,7 +35,6 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
 
       assert_equal(data_set.get_data_hash(Time.zone.now), data_set.as_of(save_time).get_data_hash(save_time))
-
     end
 
     test "save data to History with included Object data in translated jsonb field" do
@@ -282,6 +281,94 @@ module DataCycleCore
       assert_nil(data_set.as_of(weeks4ago-2.week))
       assert_nil(data_set.as_of(Time.zone.now-3.months))
       assert_equal(data_hash_1w, data_set.get_data_hash(Time.zone.now+1.month))
+
+    end
+
+    test "save creative work with embeddedLink to history" do
+
+      template_cw = DataCycleCore::CreativeWork.count
+      template_cwt = DataCycleCore::CreativeWork::Translation.count
+      template_p = DataCycleCore::Place.count
+      template_pt = DataCycleCore::Place::Translation.count
+
+      template_data = DataCycleCore::CreativeWork.find_by(template: true, headline: "CreativeWorkEmbeddedLink", description: "CreativeWork")
+      validation_hash = template_data.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation_hash }
+      data_set.save
+
+      template_place = DataCycleCore::Place.find_by(template: true, headline: "testPlace", description: "Place")
+      data_place = DataCycleCore::Place.new
+      data_place.metadata = { 'validation' => template_place.metadata['validation']}
+      data_place.set_data_hash({ "name" => "Test place 1"})
+      data_place.save
+      data_place_id1 = data_place.id
+
+      template_place = DataCycleCore::Place.find_by(template: true, headline: "testPlace", description: "Place")
+      data_place = DataCycleCore::Place.new
+      data_place.metadata = { 'validation' => template_place.metadata['validation']}
+      data_place.set_data_hash({ "name" => "Test place 2"})
+      data_place.save
+      data_place_id2 = data_place.id
+
+      assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
+      assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
+      assert_equal(2, DataCycleCore::Place.count - template_p)
+      assert_equal(2, DataCycleCore::Place::Translation.count - template_pt)
+      assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(0, DataCycleCore::CreativeWork::History.count)
+      assert_equal(0, DataCycleCore::CreativeWork::History::Translation.count)
+      assert_equal(0, DataCycleCore::Place::History.count)
+      assert_equal(0, DataCycleCore::Place::History::Translation.count)
+      assert_equal(0, DataCycleCore::CreativeWorkPlace::History.count)
+
+      error = data_set.set_data_hash({ "headline" => "Test Link", "linked" => data_place_id1})
+      data_set.save
+
+      assert_equal(0, error[:error].size)
+      assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
+      assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
+      assert_equal(2, DataCycleCore::Place.count - template_p)
+      assert_equal(2, DataCycleCore::Place::Translation.count - template_pt)
+      assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::CreativeWork::History.count)
+      assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
+      assert_equal(0, DataCycleCore::Place::History.count)
+      assert_equal(0, DataCycleCore::Place::History::Translation.count)
+      assert_equal(0, DataCycleCore::CreativeWorkPlace::History.count)
+
+      error = data_set.set_data_hash({ "headline" => "Test Link2", "linked" => data_place_id2})
+      data_set.save
+
+      assert_equal(0, error[:error].size)
+      assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
+      assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
+      assert_equal(2, DataCycleCore::Place.count - template_p)
+      assert_equal(2, DataCycleCore::Place::Translation.count - template_pt)
+      assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(2, DataCycleCore::CreativeWork::History.count)
+      assert_equal(2, DataCycleCore::CreativeWork::History::Translation.count)
+      assert_equal(0, DataCycleCore::Place::History.count)
+      assert_equal(0, DataCycleCore::Place::History::Translation.count)
+      assert_equal(0, DataCycleCore::CreativeWorkPlace::History.count)
+
+      error = data_set.set_data_hash({ "headline" => "Test Link1", "linked" => data_place_id1})
+      data_set.save
+
+      assert_equal(0, error[:error].size)
+      assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
+      assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
+      assert_equal(2, DataCycleCore::Place.count - template_p)
+      assert_equal(2, DataCycleCore::Place::Translation.count - template_pt)
+      assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(3, DataCycleCore::CreativeWork::History.count)
+      assert_equal(3, DataCycleCore::CreativeWork::History::Translation.count)
+      assert_equal(0, DataCycleCore::Place::History.count)
+      assert_equal(0, DataCycleCore::Place::History::Translation.count)
+      assert_equal(0, DataCycleCore::CreativeWorkPlace::History.count)
+
+
+      assert_equal([data_place_id2, data_place_id1, nil], data_set.histories.map{|item| item.metadata.try(:[],'linked')})
 
     end
 

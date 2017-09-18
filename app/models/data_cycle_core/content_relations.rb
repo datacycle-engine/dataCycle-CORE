@@ -15,7 +15,7 @@ module DataCycleCore
         classification_relation_table = classification_relation_table.pluralize.to_sym
 
         # relation content to classification
-        has_many classification_relation_table, foreign_key: table_full.foreign_key, dependent: :destroy
+        has_many classification_relation_table
         has_many :classifications, through: classification_relation_table
         has_many :classification_groups, through: :classifications
         has_many :classification_aliases, through: :classification_groups

@@ -9,11 +9,17 @@ module DataCycleCore
     end
 
     test "different behaviour for embeddedObject without delete flag" do
+      template_cw = DataCycleCore::CreativeWork.count
+      template_cwt = DataCycleCore::CreativeWork::Translation.count
+      template_p = DataCycleCore::Place.count
+      template_pt = DataCycleCore::Place::Translation.count
+
       template_without_delete = DataCycleCore::CreativeWork.find_by(template: true, headline: "Bild", description: "ImageObject")
       validation_without_delete = template_without_delete.metadata['validation']
       data_set_without = DataCycleCore::CreativeWork.new
       data_set_without.metadata = { 'validation' => validation_without_delete }
       data_set_without.save
+
       data_hash = {
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
@@ -26,6 +32,7 @@ module DataCycleCore
       }
       error = data_set_without.set_data_hash(data_hash)
       data_set_without.save
+
       returned_data_hash_without = data_set_without.get_data_hash
       expected_hash = {
         "access" => [],
@@ -45,20 +52,59 @@ module DataCycleCore
       assert_equal(0, error[:error].count)
 
       # check consistency of data in DB
-      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
+      assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
       assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
-      assert_equal(1, DataCycleCore::Place.where(template: false).count)
+      assert_equal(1, DataCycleCore::ClassificationCreativeWork.count)
+      assert_equal(1, DataCycleCore::Place.count - template_p)
+      assert_equal(1, DataCycleCore::Place::Translation.count - template_pt)
+      assert_equal(0, DataCycleCore::ClassificationPlace.count)
+
+      assert_equal(1, DataCycleCore::CreativeWork::History.count)
+      assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
+      assert_equal(0, DataCycleCore::ClassificationCreativeWork::History.count)
+      assert_equal(0, DataCycleCore::CreativeWorkPlace::History.count)
+      assert_equal(1, DataCycleCore::Place::History.count)
+      assert_equal(1, DataCycleCore::Place::History::Translation.count)
+      assert_equal(0, DataCycleCore::ClassificationPlace::History.count)
 
       returned_data_hash_without["contentLocation"] = []
       error = data_set_without.set_data_hash(returned_data_hash_without)
       data_set_without.save
+
       returned_again = data_set_without.get_data_hash
       assert_equal(returned_data_hash_without, returned_again)
 
+      time_history = []
+      data_set_without.histories.each do |item|
+        time_history.push(Time.at((item.history_valid.begin.to_f + item.history_valid.end.to_f)/2))
+      end
+
+      time_history += [Time.zone.now]
+
+      time_history.sort{|one,two| one <=> two}.each do |item|
+        puts item.to_s(:long_usec)
+        puts data_set_without.as_of(item).class
+        ap data_set_without.get_data_hash(item).compact
+      end
+
       # check consistency of data in DB
-      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
+      assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
       assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
-      assert_equal(1, DataCycleCore::Place.where(template: false).count)
+      assert_equal(1, DataCycleCore::ClassificationCreativeWork.count)
+      assert_equal(1, DataCycleCore::Place.count - template_p)
+      assert_equal(1, DataCycleCore::Place::Translation.count - template_pt)
+      assert_equal(0, DataCycleCore::ClassificationPlace.count)
+
+      assert_equal(2, DataCycleCore::CreativeWork::History.count)
+      assert_equal(2, DataCycleCore::CreativeWork::History::Translation.count)
+      assert_equal(1, DataCycleCore::CreativeWorkPlace::History.count)
+      assert_equal(1, DataCycleCore::ClassificationCreativeWork.count)
+      assert_equal(2, DataCycleCore::Place::History.count)
+      assert_equal(2, DataCycleCore::Place::History::Translation.count)
+      assert_equal(0, DataCycleCore::ClassificationPlace.count)
+
     end
 
     test "save CreativeWork with embedded object contentLocation, then delete embedded object (last and only one)" do

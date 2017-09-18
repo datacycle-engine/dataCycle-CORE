@@ -18,7 +18,7 @@ module DataCycleCore
       belongs_to :event
     end
 
-    has_many :histories, class_name: 'DataCycleCore::Event::History', foreign_key: :event_id
+    has_many :histories, -> { order(updated_at: :desc) }, class_name: 'DataCycleCore::Event::History', foreign_key: :event_id
 
 
 

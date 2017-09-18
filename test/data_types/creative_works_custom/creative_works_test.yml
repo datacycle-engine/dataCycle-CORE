@@ -117,6 +117,30 @@
         :default_value: "Aktuelle Themen"
 
 - :data:
+    :name: CreativeWorkEmbeddedLink
+    :description: CreativeWork
+    :type: object
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: column
+      :linked:
+        :label: Verlinkt
+        :type: embeddedLink
+        :type_name: places
+        :storage_type: string
+        :storage_location: metadata
+
+- :data:
     :name: TestObject
     :description: CreativeWork
     :type: object

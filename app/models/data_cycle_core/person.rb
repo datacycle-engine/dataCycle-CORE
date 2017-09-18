@@ -18,7 +18,7 @@ module DataCycleCore
       belongs_to :person
     end
 
-    has_many :histories, class_name: 'DataCycleCore::Person::History', foreign_key: :person_id
+    has_many :histories, -> { order(updated_at: :desc) }, class_name: 'DataCycleCore::Person::History', foreign_key: :person_id
 
 
 

@@ -220,6 +220,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
       expect(subject.linked_property_names).to eq(['existing_locations', 'existing_main_location'])
     end
 
+    # Test does not work with Time.zone.now
     # it "provides existing data for linked array" do
     #   expect(subject).to receive(:load_linked_data)
     #     .with("places", [1, 2, 3], Time.zone.now, true)
@@ -227,7 +228,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
     #
     #   expect(subject.existing_locations.size).to eq(3)
     # end
-    # 
+    #
     # it "provides existing data for single linked object" do
     #   expect(subject).to receive(:load_linked_data)
     #     .with("places", 1, Time.zone.now , true)

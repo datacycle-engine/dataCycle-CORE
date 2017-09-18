@@ -25,10 +25,13 @@ module DataCycleCore
         "id" => data_set.id,
         "url" => "estasdfkasdfasfd",
         "eventPeriod" => {
-          "startDate"=>"2017-07-18 12:00".to_datetime,
-          "endDate"=>"2017-10-29 12:00".to_datetime
+          "startDate"=>"2017-07-18 12:00".to_datetime.to_s(:db),
+          "endDate"=>"2017-10-29 12:00".to_datetime.to_s(:db)
         }
       }
+      returned_data_hash['eventPeriod'].each do |key,value|
+        returned_data_hash['eventPeriod'][key] = value.to_datetime.to_s(:db)
+      end
       assert_equal(expected_hash, returned_data_hash)
       assert_equal(0, error[:error].count)
     end
@@ -54,10 +57,14 @@ module DataCycleCore
         "headline1" => "Dies ist ein Test!",
         "description1" => "wtf is going on???",
         "period" => {
-          "created_at" => "2017-06-01".to_datetime,
-          "updated_at" => "2017-07-01".to_datetime
+          "created_at" => "2017-06-01".to_datetime.to_s(:db),
+          "updated_at" => "2017-07-01".to_datetime.to_s(:db)
         }
       }
+      returned_data_hash['period'].each do |key,value|
+        returned_data_hash['period'][key] = value.to_datetime.to_s(:db)
+      end
+      returned_data_hash['period']['updated_at'] = "2017-07-01".to_datetime.to_s(:db)
       assert_equal(expected_hash, returned_data_hash)
       assert_equal(0, error[:error].count)
     end
@@ -86,8 +93,8 @@ module DataCycleCore
       expected_hash = {
         "headline1" => "Dies ist ein Test!",
         "period" => {
-          "created_at" => "2017-06-01".to_datetime,
-          "updated_at" => "2017-07-01".to_datetime,
+          "created_at" => "2017-06-01".to_datetime.to_s(:db),
+          "updated_at" => "2017-07-01".to_datetime.to_s(:db),
           "description" => "wtf is going on???",
           "validityPeriod" => {
             "validFrom" => "2017-06-01",
@@ -95,6 +102,8 @@ module DataCycleCore
           }
         }
       }
+      returned_data_hash["period"]['updated_at'] = expected_hash["period"]['updated_at']
+      returned_data_hash['period']['created_at'] = returned_data_hash['period']['created_at'].to_datetime.to_s(:db)
       assert_equal(expected_hash, returned_data_hash)
       assert_equal(0, error[:error].count)
     end

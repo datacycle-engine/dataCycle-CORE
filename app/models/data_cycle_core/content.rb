@@ -133,6 +133,9 @@ module DataCycleCore
     end
 
     def as_of(timestamp)
+      # puts "#{self.updated_at.nil?} || #{is_history?}"
+      # puts "#{timestamp.to_s(:long_usec)}"
+
       return self if timestamp > self.updated_at
       return nil if self.updated_at.nil? || is_history?
 
@@ -141,8 +144,6 @@ module DataCycleCore
       history_table_translation = "#{base_content_class}::History::Translation".safe_constantize.arel_table
       history_id = "#{base_content_class}::History".safe_constantize.table_name.singularize.foreign_key.to_sym
 
-      #puts timestamp
-      format_string = "%Y-%m-%d %H:%M:%S.%N UTC"
       return_data =
       self.histories.
         joins(
@@ -153,7 +154,7 @@ module DataCycleCore
         where(
           Arel::Nodes::InfixOperation.new( "@>",
             history_table_translation[:history_valid],
-            Arel::Nodes::SqlLiteral.new("CAST('#{timestamp}' AS TIMESTAMP WITH TIME ZONE)")
+            Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
           )
         ).order(history_table[:updated_at])#.first #rescue self
       return return_data.last
@@ -222,7 +223,11 @@ module DataCycleCore
       # plain properties (e.g. string,text, ... )
       # non-structured properties of this content-data_set
       elsif PLAIN_PROPERTY_TYPES.include?(property_definition['storage_type'])
+<<<<<<< ddb15e28f50cb0199330ebf726407294a26a7602
         send(property_definition['storage_location']).try(:[], property_name.to_s)
+=======
+        send(property_definition['storage_location']).try(:[],property_name.to_s)
+>>>>>>> history working
       else
         raise NotImplementedError
       end
