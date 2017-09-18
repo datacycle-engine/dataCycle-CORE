@@ -10,6 +10,8 @@ module DataCycleCore
     has_many :watch_lists, dependent: :destroy
     has_many :subscriptions, dependent: :destroy
 
+    include UserHelpers
+
     def admin?
       self.admin
     end

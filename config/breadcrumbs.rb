@@ -12,6 +12,16 @@ crumb :classifications do
   parent :admin
 end
 
+# User
+crumb :'data_cycle_core/users' do
+  link to_html_string(DataCycleCore::User.model_name.human(count: 2)), users_path
+end
+
+crumb :'data_cycle_core/user' do |user|
+  link to_html_string('User', user.email), user_path(user)
+  parent :'data_cycle_core/users'
+end
+
 crumb :edit_resource do |resource|
   link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>Bearbeiten"), edit_polymorphic_path(resource)
   parent resource

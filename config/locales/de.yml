@@ -41,6 +41,11 @@ de:
     loading: 'Laden ...'
     are_you_sure: 'Sind Sie sicher?'
 
+  actions:
+    edit: bearbeiten
+    new:
+      user: "Neuen User erstellen"
+
   validation:
     errors:
       min: "%{data} zu kurz, sollte mindestens %{min} lang sein, ist aber nur %{length} lang."
@@ -105,7 +110,16 @@ de:
           attributes:
             headline:
               blank: "Headline: Darf nicht leer sein."
+    models:
+      data_cycle_core/user:
+       one: User
+       other: Users
     attributes:
+      data_cycle_core/user:
+        given_name: Vorname
+        family_name: Familienname
+        password: Passwort
+        password_confirmation: "Passwort wiederholen"
       data_cycle_core/person:
         givenName: Vorname
         familyName: Familienname

@@ -382,3 +382,10 @@ select {
     }
   }
 }
+
+.button,
+.button-prime {
+  &.has-tip {
+    cursor: pointer;
+  }
+}

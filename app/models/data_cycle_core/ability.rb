@@ -21,8 +21,14 @@ module DataCycleCore
 
         if user.role == "admin" || user.admin?
           can :manage, :dash_board
+          can :manage, DataCycleCore::User
+          cannot :set_role, DataCycleCore::User do |the_user|
+            the_user.role == "admin"
+          end
 
         elsif user.role == "user"
+          can :manage, DataCycleCore::User, id: user.id
+          cannot :set_role, DataCycleCore::User
 
         elsif user.role == "guest"
           DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|

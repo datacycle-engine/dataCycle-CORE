@@ -1,0 +1,35 @@
+<% @user = DataCycleCore::User.new %>
+
+<div class="reveal new-item" id="newContent" data-reveal data-multiple-opened="true">
+    <h3><%= t('actions.new.user') %></h3>
+
+    <%= form_for @user, :url => {:controller => :users, :action => "create"} do |f| %>
+
+      <div class="form-element validation-container">
+          <%= f.email_field :email, required: true, autofocus: true %>
+      </div>
+
+      <div class="form-element validation-container">
+          <%= f.password_field :password, required: true %>
+      </div>
+
+      <div class="form-element validation-container">
+          <%= f.password_field :password_confirmation, required: true %>
+      </div>
+
+      <div class="form-element validation-container" tabindex="-1">
+          <% select_options = [{value: 'admin', label: 'admin'}, {value: 'user', label: 'user'}, {value: 'guest', label: 'guest'}] %>
+
+          <%= label_tag 'user[role]', 'Rolle' %>
+          <custom-select :multiple="false" hidden-field-id="user[role]" label="label" :custom-options="<%= select_options.to_json %>" :selected-values="<%= @user.role.to_json %>"></custom-select>
+
+      </div>
+
+      <%= f.submit t(:submit), class: "button primary" %>
+
+    <% end %>
+
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>

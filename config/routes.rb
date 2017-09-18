@@ -6,6 +6,7 @@ DataCycleCore::Engine.routes.draw do
 
   get  '/info',    to: 'frontend#info'
   get  '/settings',    to: 'backend#settings'
+  resources :users
 
   resources :creative_works, only: [:index, :show, :create, :edit, :update]
   resources :persons, only: [:index, :show, :create, :edit, :update]

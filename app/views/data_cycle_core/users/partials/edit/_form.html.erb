@@ -1,0 +1,81 @@
+<%= form_for content do |f| %>
+	<%= hidden_field_tag 'uuid', content.id %>
+
+	<section class="edit-header">
+		<div class="row expanded">
+			<div class="column">
+				<div class="edit-headline">
+					<i class="fa fa-pencil" aria-hidden="true"></i> <%== "#{DataCycleCore::User.model_name.human} #{t('actions.edit')}" %>
+				</div>
+				<ul>
+					<!--<li>-->
+					<!--<button type="button" class="button delete top" data-tooltip aria-haspopup="true" data-disable-hover="false" title="Löschen"><i class="fa fa-trash" aria-hidden="true"></i></button>-->
+					<!--</li>-->
+					<li>
+						<%= link_to content do %>
+							<button type="button" class="button discard top" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
+						<% end %>
+					</li>
+					<li class="submit">
+						<button class="button-prime" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</section>
+
+	<div class="row">
+		<div class="column">
+			<div class="detail-header editor">
+
+				<div class="detail-header-info">
+					<div class="type thema">
+						<span class="icon">
+								<i class="fa fa-folder-open" aria-hidden="true"></i>
+						</span>
+						<span class="title"><%= DataCycleCore::User.model_name.human %></span>
+					</div>
+				</div>
+
+				<div class="form-element validation-container input" tabindex="-1">
+						<%= f.text_field :given_name %>
+				</div>
+
+				<div class="form-element validation-container input" tabindex="-1">
+						<%= f.text_field :family_name %>
+				</div>
+
+				<div class="form-element validation-container input" tabindex="-1">
+						<%= f.email_field :email %>
+				</div>
+<%
+=begin
+%>
+				<div class="form-element validation-container input" tabindex="-1">
+						<%= f.password_field :password %>
+				</div>
+
+				<div class="form-element validation-container input" tabindex="-1">
+						<%= f.password_field :password_confirmation %>
+				</div>
+
+				<div class="form-element validation-container input" tabindex="-1">
+						<%= f.password_field :current_password %>
+				</div>
+<%
+=end
+%>
+        <% if can? :set_role, @user %>
+          <div class="form-element validation-container" tabindex="-1">
+              <% select_options = [{value: 'admin', label: 'admin'}, {value: 'user', label: 'user'}, {value: 'guest', label: 'guest'}] %>
+
+              <%= label_tag 'user[role]', 'Rolle' %>
+              <custom-select :multiple="false" hidden-field-id="user[role]" label="label" :custom-options="<%= select_options.to_json %>" :selected-values="<%= @user.role.to_json %>"></custom-select>
+
+          </div>
+        <% end %>
+			</div>
+		</div>
+	</div>
+
+<% end %>
