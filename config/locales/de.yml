@@ -105,6 +105,18 @@ de:
           attributes:
             headline:
               blank: "Headline: Darf nicht leer sein."
+    attributes:
+      data_cycle_core/person:
+        givenName: Vorname
+        familyName: Familienname
+        jobTitle: Berufsbezeichnung
+      data_cycle_core/place:
+        name: Name
+        street: Straße
+        plz: PLZ
+        address: Ort
+        longitude: Längengrad
+        latitude: Breitengrad
   unauthorized:
     manage:
       all: "Keine Zugriffsberechtigung!"
@@ -112,18 +124,3 @@ de:
     administration: 'Administration'
 
     classifications: 'Klassifizierungen'
-
-    contents:
-      editors:
-        object_browser:
-          place_new:
-            name: "Name"
-            street: "Straße"
-            plz: "PLZ"
-            address: "Ort"
-            longitude: "Längengrad"
-            latitude: "Breitengrad"
-          person_new:
-            givenName: "Vorname"
-            familyName: "Familienname"
-            jobTitle: "Berufsbezeichnung"
