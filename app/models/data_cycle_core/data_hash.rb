@@ -5,11 +5,6 @@ module DataCycleCore
 
     # get data as specified in the data template
     # data hash with keys named as in schema.org
-<<<<<<< 67c44807463a4811b6c8826f9b398dddd2c62b92
-    def get_data_hash
-      locale = self.translated_locales.include?(I18n.locale) ? I18n.locale : self.translated_locales.first
-      I18n.with_locale(locale) do
-=======
     def get_data_hash(timestamp = Time.zone.now)
       if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with pending data in it
         data_type = metadata['validation']
@@ -17,7 +12,6 @@ module DataCycleCore
         data_object = self.as_of(timestamp)
         #puts "#{data_object.class} // #{timestamp.class}: #{timestamp.to_s(:long_usec)}"
         data_hash = data_object.to_h(timestamp)
->>>>>>> history wired to get_data_hash, set_data_hash
 
         if translated_locales.include?(locale) || changes.count > 0 # for new data-sets with pending data in it
           data_type = metadata['validation']
@@ -29,6 +23,11 @@ module DataCycleCore
         else
           return nil
         end
+        data_hash = self.as_of(timestamp).to_h(timestamp)
+        data_hash = merge_release(data_hash, release) if kind_of?(DataCycleCore::Releasable)
+        return data_hash
+      else
+        return nil
       end
     end
 
@@ -55,7 +54,6 @@ module DataCycleCore
       validate(stripped_data_hash) # return error/warnings from validation
     end
 
-<<<<<<< 67c44807463a4811b6c8826f9b398dddd2c62b92
     def set_data_hash_attribute(key, value)
       key_hash = metadata.dig('validation', 'properties', key)
 
@@ -67,9 +65,6 @@ module DataCycleCore
     end
 
     def to_history (save_time)
-=======
-    def to_history(save_time)
->>>>>>> history wired to get_data_hash, set_data_hash
       origin_table = self.class.to_s.split("::")[1].tableize
       data_set_history = (self.class.to_s + "::History").safe_constantize.new
 
@@ -137,7 +132,6 @@ module DataCycleCore
       template_hash['properties'].each do |key,value|
         # cleanup embeddedObjects
         if value['type'] == 'object' && value.has_key?('name') && value.has_key?('description')
-          #puts "Object: #{value['name']}|#{value['description']}|#{value['delete']}"
           delete = false
           delete = value['delete'] unless value['delete'].blank?
           if value['storage_location'] == self.class.table_name
@@ -209,7 +203,6 @@ module DataCycleCore
       class_string = "DataCycleCore::" + storage_type.classify
       class_id = self.class.to_s.demodulize.foreign_key
 
-      #puts "#{storage_type} | #{ids} | #{tree_label} | #{default_value}"
       if is_blank?(ids)
         begin
           if !default_value.blank? && ids.nil? && get_relation_ids(storage_type, tree_label).count == 0
@@ -263,7 +256,6 @@ module DataCycleCore
 
     def set_template_data_hash(data_hash, properties, save_time)
       properties.each do |key,value|
-        #puts " key ----> #{key} | value: #{value} || #{data_hash[key]} | #{data_hash}"
         storage_cases_set(key, data_hash[key], value, save_time)
       end
     end
@@ -288,7 +280,6 @@ module DataCycleCore
     end
 
     def storage_cases_set(key, value, properties, save_time)
-      #puts " key ----> #{key} | value: #{value} | #{properties}"
       case properties['storage_location']
       when 'column'
         self.method("#{key}=").call(value)
@@ -305,7 +296,6 @@ module DataCycleCore
           if properties.has_key?('name') && properties.has_key?('description')
             delete = false
             delete = true if properties.has_key?('delete') && properties['delete'] == true
-            #puts "set_linked_data_type(#{key}, #{value}, #{properties['storage_location']}, #{properties['name']}, #{properties['description']}, #{delete})"
             set_linked_data_type(key, value, properties['storage_location'], properties['name'], properties['description'], delete, save_time)
           else
             puts "wrong data_type #{key} | #{value}"
@@ -315,7 +305,6 @@ module DataCycleCore
     end
 
     def get_from_jsonb(key, properties, origin, field_name)
-      #puts "#{key} | #{origin} | #{field_name} || #{properties}" #if properties['type'] == 'object'
       if properties['type'] == 'object'
         # object found ==> recursively retrieve data
         new_origin = origin + [key]
@@ -335,9 +324,7 @@ module DataCycleCore
     def save_to_jsonb(key, data, properties, location)
       # parse tree in json, to only set data specified in the data definitions
       if properties['type'] == 'object' && data.is_a?(::Hash) # object with potentially relevant data
-        #puts "#{key}|#{data}|#{new_origin}|#{location}"
         data = set_data_tree_hash(data, properties['properties'], location)
-        #puts "#{data}"
       end
 
       # dont overwrite creator with empty values
@@ -392,10 +379,8 @@ module DataCycleCore
     def set_linked_data_type(field_name, data, table, name, description, delete, save_time)
       # check if it is a relation to itself or external via relation_table
       if table == self.class.table_name
-        #puts "set_linked_via_tree"
         set_linked_via_tree(field_name, data, table, name, description, delete, save_time)
       else
-        #puts "set_linked_via_relation"
         set_linked_via_relation(data, table, name, description, delete, save_time)
       end
     end

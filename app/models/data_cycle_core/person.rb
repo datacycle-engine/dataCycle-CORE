@@ -5,9 +5,6 @@ module DataCycleCore
         include ContentTranslationHelpers
     end
 
-
-
-
     class History < DataHash
       # handle translations with gem Globalize
       translates :headline, :description, :content, :properties, :release,
@@ -17,11 +14,7 @@ module DataCycleCore
 
       belongs_to :person
     end
-
     has_many :histories, -> { order(updated_at: :desc) }, class_name: 'DataCycleCore::Person::History', foreign_key: :person_id
-
-
-
 
     # handle translations with gem Globalize
     translates :headline, :description, :content, :properties, :release,
