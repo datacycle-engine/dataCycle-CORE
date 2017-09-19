@@ -3,7 +3,7 @@
         <li>
             <% if !content.metadata.nil? && !content.metadata['last_updated_by'].nil? %>
               <% creator = get_user_for_id(content.metadata['last_updated_by']) %>
-              <% creator_text = "<a href='mailto:#{creator.email}'>#{creator.full_name}</a>" %>
+              <% creator_text = "<a href='mailto:#{creator.email}'>#{creator.name}</a>" %>
             <% else %>
               <% creator_text = "Unbekannt" %>
             <% end %>

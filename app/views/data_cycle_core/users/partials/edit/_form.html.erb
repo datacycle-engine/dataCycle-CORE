@@ -8,11 +8,8 @@
 					<i class="fa fa-pencil" aria-hidden="true"></i> <%== "#{DataCycleCore::User.model_name.human} #{t('actions.edit')}" %>
 				</div>
 				<ul>
-					<!--<li>-->
-					<!--<button type="button" class="button delete top" data-tooltip aria-haspopup="true" data-disable-hover="false" title="Löschen"><i class="fa fa-trash" aria-hidden="true"></i></button>-->
-					<!--</li>-->
 					<li>
-						<%= link_to content do %>
+						<%= link_to users_path do %>
 							<button type="button" class="button discard top" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
 						<% end %>
 					</li>
@@ -48,32 +45,26 @@
 				<div class="form-element validation-container input" tabindex="-1">
 						<%= f.email_field :email %>
 				</div>
-<%
-=begin
-%>
+
 				<div class="form-element validation-container input" tabindex="-1">
-						<%= f.password_field :password %>
+						<%= f.password_field :password, autocomplete: 'off' %>
 				</div>
 
 				<div class="form-element validation-container input" tabindex="-1">
-						<%= f.password_field :password_confirmation %>
+						<%= f.password_field :password_confirmation, autocomplete: 'off' %>
 				</div>
-
-				<div class="form-element validation-container input" tabindex="-1">
-						<%= f.password_field :current_password %>
-				</div>
-<%
-=end
-%>
-        <% if can? :set_role, @user %>
-          <div class="form-element validation-container" tabindex="-1">
-              <% select_options = [{value: 'admin', label: 'admin'}, {value: 'user', label: 'user'}, {value: 'guest', label: 'guest'}] %>
-
-              <%= label_tag 'user[role]', 'Rolle' %>
-              <custom-select :multiple="false" hidden-field-id="user[role]" label="label" :custom-options="<%= select_options.to_json %>" :selected-values="<%= @user.role.to_json %>"></custom-select>
-
+        <% if current_user == @user %>
+          <div class="form-element validation-container input" tabindex="-1">
+              <%= f.password_field :current_password %>
           </div>
         <% end %>
+
+        <% if can? :set_role, @user %>
+          <div class="form-element validation-container" tabindex="-1">
+              <%= f.select :role_id, DataCycleCore::Role.all.collect{|r| [t('roles.'+r.label), r.id]}, label: false %>
+          </div>
+        <% end %>
+
 			</div>
 		</div>
 	</div>

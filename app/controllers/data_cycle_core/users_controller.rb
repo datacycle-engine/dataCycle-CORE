@@ -2,33 +2,48 @@ module DataCycleCore
   class UsersController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
     load_and_authorize_resource         # from cancancan (authorize)
+    before_action :set_user, only: [:edit, :update, :destroy, :unlock]
 
     layout 'data_cycle_core/creative_works_edit'
 
     def index
-      @users = DataCycleCore::User.accessible_by(current_ability)
+      authorize! :manage, DataCycleCore::User
+      if current_user.role.rank > 1
+        @users = DataCycleCore::User.includes(:role)
+      else
+        @users = DataCycleCore::User.where(locked_at: nil).includes(:role)
+      end
     end
 
-    def show
-      @user = DataCycleCore::User.find(params[:id])
+    def create_user
+      user = DataCycleCore::User.new(user_params)
+      user.external = false
+
+      if user.save
+        flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'User'
+        redirect_to users_path
+      else
+        flash[:error] = I18n.t :invalid, scope: [:controllers, :error], data: 'User'
+        redirect_to users_path
+      end
     end
 
     def edit
-      @user = DataCycleCore::User.find(params[:id])
       render layout: "data_cycle_core/watch_lists_edit"
     end
 
     def update
-      @user = DataCycleCore::User.find(params[:id])
-      authorize! :set_role, @user if user_params[:role]
+      authorize! :set_role, @user if user_params[:role_id]
 
-      if @user.update(user_params) # update_with_password for passwordchange
+      method = current_user == @user ? 'update_with_password' : 'update'
+
+      if @user.send(method, user_params)
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'User'
 
         if Rails.env.development?
           redirect_to edit_user_path(@user) if Rails.env.development?
         else
-          redirect_to user_path(@user, trail: session[:trail])
+          redirect_to users_path
         end
 
       else
@@ -37,17 +52,29 @@ module DataCycleCore
     end
 
     def destroy
-      @user = DataCycleCore::User.find(params[:id])
-      @user.destroy
+      @user.lock_access!
 
       flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'User'
-      redirect_back(fallback_location: root_path)
+      redirect_to users_path
+    end
+
+    def unlock
+      @user.unlock_access!
+
+      flash[:success] = I18n.t :unlocked, scope: [:controllers, :success], data: 'User'
+      redirect_to users_path
     end
 
     private
-      def user_params
-        params.require(:user).permit(:email, :family_name, :given_name, :password, :password_confirmation, :current_password, :role)
-      end
+    def user_params
+      allowed_params = [:email, :family_name, :given_name, :current_password, :role_id]
+      allowed_params.push(:password, :password_confirmation) unless params[:user][:password].blank? || params[:user][:password_confirmation].blank?
+      params.require(:user).permit(allowed_params)
+    end
+
+    def set_user
+      @user = DataCycleCore::User.find(params[:id])
+    end
 
   end
 end

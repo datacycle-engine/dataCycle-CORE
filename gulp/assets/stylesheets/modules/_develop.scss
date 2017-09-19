@@ -389,3 +389,25 @@ select {
     cursor: pointer;
   }
 }
+
+.grid-item {
+  .item-links {
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+    .button-prime {
+      position: relative;
+      display: inline-block;
+      height: 2rem;
+      width: 2rem;
+      .fa {
+        font-size: 1rem;
+        line-height: 2rem;
+      }
+    }
+  }
+}
+
+del {
+  text-decoration: line-through;
+}

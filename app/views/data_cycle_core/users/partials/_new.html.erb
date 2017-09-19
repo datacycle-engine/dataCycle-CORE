@@ -3,10 +3,18 @@
 <div class="reveal new-item" id="newContent" data-reveal data-multiple-opened="true">
     <h3><%= t('actions.new.user') %></h3>
 
-    <%= form_for @user, :url => {:controller => :users, :action => "create"} do |f| %>
+    <%= form_for @user, url: {action: "create_user"} do |f| %>
 
       <div class="form-element validation-container">
           <%= f.email_field :email, required: true, autofocus: true %>
+      </div>
+
+      <div class="form-element validation-container">
+          <%= f.text_field :given_name, class: 'no-validation' %>
+      </div>
+
+      <div class="form-element validation-container">
+          <%= f.text_field :family_name, class: 'no-validation' %>
       </div>
 
       <div class="form-element validation-container">
@@ -17,12 +25,8 @@
           <%= f.password_field :password_confirmation, required: true %>
       </div>
 
-      <div class="form-element validation-container" tabindex="-1">
-          <% select_options = [{value: 'admin', label: 'admin'}, {value: 'user', label: 'user'}, {value: 'guest', label: 'guest'}] %>
-
-          <%= label_tag 'user[role]', 'Rolle' %>
-          <custom-select :multiple="false" hidden-field-id="user[role]" label="label" :custom-options="<%= select_options.to_json %>" :selected-values="<%= @user.role.to_json %>"></custom-select>
-
+      <div class="form-element validation-container">
+          <%= f.select :role_id, DataCycleCore::Role.all.collect{|r| [t('roles.'+r.label), r.id]} %>
       </div>
 
       <%= f.submit t(:submit), class: "button primary" %>

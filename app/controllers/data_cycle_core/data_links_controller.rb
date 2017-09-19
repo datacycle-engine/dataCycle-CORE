@@ -66,10 +66,11 @@ module DataCycleCore
     end
 
     def find_or_create_guest_user
-      if DataCycleCore::User.where(role: "guest").count > 0
-        u = DataCycleCore::User.where(role: "guest").first
+      guest = DataCycleCore::Role.find_by(rank: 0)
+      if DataCycleCore::User.where(role_id: guest.id).count > 0
+        u = DataCycleCore::User.find_by(role_id: guest.id)
       else
-        u = DataCycleCore::User.create(email: "guest@datacycle.at", name: "Guest", role: "guest")
+        u = DataCycleCore::User.create(email: "guest@datacycle.at", role_id: guest.id)
         u.save!(validate: false)
       end
 

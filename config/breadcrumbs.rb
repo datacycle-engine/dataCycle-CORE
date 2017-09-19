@@ -17,8 +17,8 @@ crumb :'data_cycle_core/users' do
   link to_html_string(DataCycleCore::User.model_name.human(count: 2)), users_path
 end
 
-crumb :'data_cycle_core/user' do |user|
-  link to_html_string('User', user.email), user_path(user)
+crumb :edit_user do |user|
+  link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>Bearbeiten", user.email), edit_user_path(user)
   parent :'data_cycle_core/users'
 end
 

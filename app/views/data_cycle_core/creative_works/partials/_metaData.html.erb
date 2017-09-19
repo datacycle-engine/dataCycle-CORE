@@ -4,7 +4,7 @@
         <span>erstellt am </span>
         <span><strong><%= dataCycleObject.created_at.to_s(:german_datetime_format) %></strong></span>
         <span> von </span>
-        <span><strong><a href="mailto:<%= "#{creator.email}" %>"><%= "#{creator.full_name}" %></strong></a>.</span>
+        <span><strong><a href="mailto:<%= "#{creator.email}" %>"><%= "#{creator.name}" %></strong></a>.</span>
 	    <!--<span>Letzte Bearbeitung: </span>
 	    <span><strong><%= dataCycleObject.updated_at.to_s(:german_datetime_format) %></strong></span>-->
 	</span>

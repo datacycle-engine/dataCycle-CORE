@@ -1,28 +1,44 @@
 <% I18n.with_locale(@language) do %>
 
-    <%= link_to item do %>
+    <div class="inner">
 
-        <div class="inner">
-
-            <div class="infoRow">
-                <%= render 'data_cycle_core/shared/icon', icon_type: 'person' %>
-                <span class="title"><%= DataCycleCore::User.model_name.human %></span>
-            </div>
-
-            <div class="title">
-              <%= item.full_name %>
-            </div>
-
-            <div class="description">
-              <%= item.email %>
-            </div>
-
-            <div class="tags">
-              <span class="tag"><%= item.role %></span>
-            </div>
-
+        <div class="infoRow">
+            <%= render 'data_cycle_core/shared/icon', icon_type: 'person' %>
+            <%== "<del>" if item.access_locked? %>
+              <span class="title"><%= DataCycleCore::User.model_name.human %> <%= "(SSO)" if item.external %></span>
+            <%== "</del>" if item.access_locked? %>
         </div>
 
-    <% end %>
+        <div class="title">
+          <%= item.name %>
+        </div>
+
+        <div class="description">
+          <%= item.email %>
+        </div>
+
+        <div class="tags">
+          <span class="tag"><%= t('roles.'+item.role.label) %></span>
+        </div>
+
+    </div>
+
+    <div class="item-links">
+      <% if can? :edit, item %>
+        <%= link_to edit_user_path(item, trail: breadcrumb_trail), class: 'button-prime small', title: 'Bearbeiten', data: { tooltip: "", 'disable-hover': false }, 'aria-haspopup': "true" do %>
+          <i class="fa fa-pencil" aria-hidden="true"></i>
+        <% end %>
+      <% end %>
+
+      <% if can?(:destroy, item) && !item.access_locked? %>
+        <%= link_to item, method: :delete, class:'button-prime small alert confirm', data: { 'confirmation-text': "#{DataCycleCore::User.model_name.human} löschen?", tooltip: "", 'disable-hover': false}, title: 'Sperren', 'aria-haspopup': "true" do %>
+            <i class="fa fa-lock" aria-hidden="true"></i>
+        <% end %>
+      <% elsif can?(:destroy, item) %>
+        <%= link_to unlock_user_path(item), method: :post, class:'button-prime small alert', data: { tooltip: "", 'disable-hover': false}, title: 'Freischalten', 'aria-haspopup': "true" do %>
+            <i class="fa fa-unlock" aria-hidden="true"></i>
+        <% end %>
+      <% end %>
+    </div>
 
 <% end %>

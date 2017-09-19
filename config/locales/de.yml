@@ -37,6 +37,11 @@ de:
     'aktuelle inhalte': "Aktuelle Inhalte"
     'archiv': "Archiv"
 
+  roles:
+    admin: Administrator
+    user: Benutzer
+    guest: Gast
+
   common:
     loading: 'Laden ...'
     are_you_sure: 'Sind Sie sicher?'
@@ -44,7 +49,7 @@ de:
   actions:
     edit: bearbeiten
     new:
-      user: "Neuen User erstellen"
+      user: "Neuen Benutzer erstellen"
 
   validation:
     errors:
@@ -92,6 +97,7 @@ de:
       invalid_parent: "Ungültiges Eltern Objekt."
       invalid_parent_attr: "Ungültige Eltern Attribute."
       no_permission: "Keine Berechtigung."
+      invalid: "%{data} konnte nicht erstellt werden."
     success:
       created: "%{data} wurde erfolgreich erstellt."
       updated: "%{data} wurde aktualisiert."
@@ -100,6 +106,8 @@ de:
       removedFrom: "Von Merkliste: %{data} entfernt."
       sent: "Email wurde versandt."
       invalid_mail: "Keine gültige E-Mail Adresse."
+      locked: "%{data} wurde gesperrt."
+      unlocked: "%{data} wurde freigegeben."
     job:
       added: "%{data}/%{uuid} zur Job-Queue hinzugefügt."
       imported: "'%{data}' wurden aus YAML Datei importiert."
@@ -110,16 +118,28 @@ de:
           attributes:
             headline:
               blank: "Headline: Darf nicht leer sein."
+        data_cycle_core/user:
+          attributes:
+            password:
+              too_short: "Passwort zu kurz."
+            password_confirmation:
+              confirmation: "Passwörter stimmen nicht überein."
+            current_password:
+              blank: "Aktuelles Passwort zur Bestätigung eingeben."
+              invalid: "Falsches Passwort."
+            email:
+              blank: "E-Mail darf nicht leer sein."
     models:
-      data_cycle_core/user:
-       one: User
-       other: Users
+      data_cycle_core/user: Benutzer
     attributes:
       data_cycle_core/user:
         given_name: Vorname
         family_name: Familienname
         password: Passwort
         password_confirmation: "Passwort wiederholen"
+        current_password: "Aktuelles Passwort"
+        email: E-Mail
+        role_id: Rolle
       data_cycle_core/person:
         givenName: Vorname
         familyName: Familienname
