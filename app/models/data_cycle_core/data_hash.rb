@@ -6,28 +6,15 @@ module DataCycleCore
     # get data as specified in the data template
     # data hash with keys named as in schema.org
     def get_data_hash(timestamp = Time.zone.now)
-      if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with pending data in it
-        data_type = metadata['validation']
-        #data_hash = get_template_data_hash(data_type['properties'])
-        data_object = self.as_of(timestamp)
-        #puts "#{data_object.class} // #{timestamp.class}: #{timestamp.to_s(:long_usec)}"
-        data_hash = data_object.to_h(timestamp)
-
-        if translated_locales.include?(locale) || changes.count > 0 # for new data-sets with pending data in it
-          data_type = metadata['validation']
-          # data_hash = get_template_data_hash(data_type['properties'])
-          data_hash = self.to_h
-
+      locale = self.translated_locales.include?(I18n.locale) ? I18n.locale : self.translated_locales.first
+      I18n.with_locale(locale) do
+        if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with pending data in it
+          data_hash = self.as_of(timestamp).to_h(timestamp)
           data_hash = merge_release(data_hash, release) if kind_of?(DataCycleCore::Releasable)
           return data_hash
         else
           return nil
         end
-        data_hash = self.as_of(timestamp).to_h(timestamp)
-        data_hash = merge_release(data_hash, release) if kind_of?(DataCycleCore::Releasable)
-        return data_hash
-      else
-        return nil
       end
     end
 

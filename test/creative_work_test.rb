@@ -25,7 +25,6 @@ module DataCycleCore
         "description" => "wtf is going on???",
         "contentLocation" => [{
             "name" => "Testort",
-            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
             "longitude" => 13.10,
             "latitude" => 25.30
         }]
@@ -41,7 +40,6 @@ module DataCycleCore
         "contentLocation" => [{
           "id" => returned_data_hash_without['contentLocation'][0]['id'],
           "name" => "Testort",
-          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "latitude" => 25.3,
           "location" => nil,
           "longitude" => 13.1,
@@ -119,7 +117,6 @@ module DataCycleCore
         "description" => "wtf is going on???",
         "contentLocation" => [{
             "name" => "Testort",
-            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
             "longitude" => 13.10,
             "latitude" => 25.30
         }]
@@ -135,7 +132,6 @@ module DataCycleCore
         "contentLocation" => [{
           "id" => returned_data_hash['contentLocation'][0]['id'],
           "name" => "Testort",
-          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "latitude" => 25.3,
           "location" => nil,
           "longitude" => 13.1,
@@ -174,7 +170,6 @@ module DataCycleCore
         "description" => "wtf is going on???",
         "contentLocation" => [{
             "name" => "Testort",
-            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
             "longitude" => 13.10,
             "latitude" => 25.30
         }]
@@ -190,7 +185,6 @@ module DataCycleCore
         "contentLocation" => [{
           "id" => returned_data_hash['contentLocation'][0]['id'],
           "name" => "Testort",
-          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "latitude" => 25.3,
           "location" => nil,
           "longitude" => 13.1,
@@ -227,7 +221,6 @@ module DataCycleCore
       data_set_place.save
       place_hash = {
           "name" => "Testort",
-          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "longitude" => 13.10,
           "latitude" => 25.30
       }
@@ -277,7 +270,6 @@ module DataCycleCore
       data_set_place.save
       place_hash = {
           "name" => "Testort",
-          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "longitude" => 13.10,
           "latitude" => 25.30
       }
@@ -345,17 +337,14 @@ module DataCycleCore
         "description" => "wtf is going on???",
         "contentLocation" => [{
           "name" => "Testort",
-          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "longitude" => 13.1,
           "latitude" => 25.3
         },{
           "name" => "2Testort",
-          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "latitude" => 25.3,
           "longitude" => 23.1
         },{
           "name" => "3Testort",
-          "address" => "3Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "latitude" => 35.3,
           "longitude" => 33.1
         }]
@@ -370,7 +359,6 @@ module DataCycleCore
         "contentLocation" => [{
           "id" => nil,
           "name" => "Testort",
-          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "latitude" => 25.3,
           "location" => nil,
           "longitude" => 13.1,
@@ -378,7 +366,6 @@ module DataCycleCore
         },{
           "id" => nil,
           "name" => "2Testort",
-          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "latitude" => 25.3,
           "location" => nil,
           "longitude" => 23.1,
@@ -386,7 +373,6 @@ module DataCycleCore
         },{
           "id" => nil,
           "name" => "3Testort",
-          "address" => "3Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "latitude" => 35.3,
           "location" => nil,
           "longitude" => 33.1,
@@ -429,7 +415,6 @@ module DataCycleCore
         "description" => "wtf is going on???",
         "contentLocation" => [{
             "name" => "Testort",
-            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
             "longitude" => 13.10,
             "latitude" => 25.30
         }]
@@ -446,7 +431,6 @@ module DataCycleCore
         "contentLocation" => [{
           "id" => returned_data_hash['contentLocation'][0]['id'],
           "name" => "Testort",
-          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "latitude" => 25.3,
           "location" => nil,
           "longitude" => 13.1,
@@ -480,7 +464,6 @@ module DataCycleCore
         "description" => "wtf is going on???",
         "contentLocation" => [{
             "name" => "Testort",
-            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
             "longitude" => 13.10,
             "latitude" => 25.30
         }]
@@ -493,7 +476,6 @@ module DataCycleCore
         "contentLocation" => [{
           "id" => nil,
           "name" => "Testort",
-          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "latitude" => 25.3,
           "location" => nil,
           "longitude" => 13.1,
@@ -523,7 +505,6 @@ module DataCycleCore
         "description" => "wtf is going on???",
         "contentLocation" => [{
             "name" => "Testort",
-            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
             "longitude" => 13.10,
             "latitude" => 25.30
         }]
@@ -539,7 +520,6 @@ module DataCycleCore
         "contentLocation" => [{
           "id" => nil,
           "name" => "Testort",
-          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "latitude" => 25.3,
           "location" => nil,
           "longitude" => 13.1,
@@ -569,12 +549,10 @@ module DataCycleCore
         "description" => "wtf is going on???",
         "contentLocation" => [{
             "name" => "Testort",
-            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
             "longitude" => 13.1,
             "latitude" => 25.3
         },{
           "name" => "2Testort",
-          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "latitude" => 25.3,
           "longitude" => 23.1,
         }]
@@ -587,7 +565,6 @@ module DataCycleCore
         "contentLocation" => [{
           "id" => nil,
           "name" => "Testort",
-          "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "latitude" => 25.3,
           "location" => nil,
           "longitude" => 13.1,
@@ -595,7 +572,6 @@ module DataCycleCore
         },{
           "id" => nil,
           "name" => "2Testort",
-          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "latitude" => 25.3,
           "location" => nil,
           "longitude" => 23.1,
@@ -626,12 +602,10 @@ module DataCycleCore
         "description" => "wtf is going on???",
         "contentLocation" => [{
             "name" => "Testort",
-            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
             "longitude" => 13.1,
             "latitude" => 25.3
         },{
           "name" => "2Testort",
-          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "latitude" => 25.3,
           "longitude" => 23.1,
         }]
@@ -689,12 +663,10 @@ module DataCycleCore
         "description" => "wooos laft??",
         "contentLocation" => [{
             "name" => "Testort",
-            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
             "longitude" => 13.1,
             "latitude" => 25.3
         },{
           "name" => "2Testort",
-          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "latitude" => 25.3,
           "longitude" => 23.1,
         }]
@@ -709,6 +681,7 @@ module DataCycleCore
       # check for german data-set, two embedded contentLocation // no english data-set
       assert_equal(de_expected, returned_data.compact.except("contentLocation","id","data_type"))
       assert_equal(data_hash["contentLocation"].size, returned_data["contentLocation"].size)
+
       assert_nil(I18n.with_locale(:en){data_set.get_data_hash})
 
       # check what is written to the database
@@ -733,13 +706,11 @@ module DataCycleCore
         "contentLocation" => [{
           "id" => ids[0],
           "name" => "Testplace",
-          "address" => "Sherwood forest 13, 12345 Dotcot",
           "longitude" => 13.1,
           "latitude" => 25.3
         },{
           "id" => ids[1],
           "name" => "2nd Testplace",
-          "address" => "Sherwood forest 23, 12345 Dotcot",
           "latitude" => 25.3,
           "longitude" => 23.1,
         }]
@@ -814,12 +785,10 @@ module DataCycleCore
         "description" => "wooos laft??",
         "contentLocation" => [{
             "name" => "Testort",
-            "address" => "Irgendwo im Nirgendwo 13, 12345 Buxdehude",
             "longitude" => 13.1,
             "latitude" => 25.3
         },{
           "name" => "2Testort",
-          "address" => "2Irgendwo im Nirgendwo 13, 12345 Buxdehude",
           "latitude" => 25.3,
           "longitude" => 23.1,
         }]
@@ -840,12 +809,10 @@ module DataCycleCore
         "description" => "wtf is going on???",
         "contentLocation" => [{
           "name" => "Testplace",
-          "address" => "Sherwood forest 13, 12345 Dotcot",
           "longitude" => 13.1,
           "latitude" => 25.3
         },{
           "name" => "2nd Testplace",
-          "address" => "Sherwood forest 23, 12345 Dotcot",
           "latitude" => 25.3,
           "longitude" => 23.1,
         }]

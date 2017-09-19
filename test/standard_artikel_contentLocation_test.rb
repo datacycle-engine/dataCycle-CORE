@@ -12,7 +12,6 @@ module DataCycleCore
       data_set_place_1.save
       place_hash1 = {
         "name" => "Wien",
-        "address" => "Wien 1.Bezirk",
         "latitude" => 1,
         "longitude" => 2
       }
@@ -38,7 +37,7 @@ module DataCycleCore
       data_set_person.save
       person_id = data_set_person.id
 
-      data_type_zitat_id = DataCycleCore::Classification.joins(classification_aliases: [classification_trees: [:classification_tree_label]])
+      data_type_zitat_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
           .where("classification_tree_labels.name = ?", "Inhaltstypen")
           .where("classification_aliases.name = ?", "Zitat").first.id
 
@@ -50,7 +49,6 @@ module DataCycleCore
       data_set_place_1.save
       place_hash1 = {
         "name" => "Wien",
-        "address" => "Wien 1.Bezirk",
         "latitude" => 1,
         "longitude" => 2
       }
@@ -63,7 +61,6 @@ module DataCycleCore
       data_set_place_2.save
       place_hash2 = {
         "name" => "Villach",
-        "address" => "Villach Lind",
         "latitude" => 10,
         "longitude" => 20
       }
@@ -126,7 +123,6 @@ module DataCycleCore
         "contentLocation"=>[{
           "id" => place_id_1,
           "name" => "Wien",
-          "address" => "Wien 1.Bezirk",
           "latitude" => 1,
           "longitude" => 2,
           "external_source_id" => nil,
@@ -157,7 +153,6 @@ module DataCycleCore
       expected_hash["contentLocation"] = [{
         "id" => place_id_2,
         "name" => "Villach",
-        "address" => "Villach Lind",
         "latitude" => 10,
         "longitude" => 20,
         "external_source_id" => nil,

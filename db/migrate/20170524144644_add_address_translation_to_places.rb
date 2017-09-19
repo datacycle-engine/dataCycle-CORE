@@ -2,7 +2,7 @@ class AddAddressTranslationToPlaces < ActiveRecord::Migration[5.0]
   def change
     reversible do |dir|
       dir.up do
-        DataCycleCore::Place.add_translation_fields! address: :string
+        add_column :place_translations, :address, :string
       end
 
       dir.down do
