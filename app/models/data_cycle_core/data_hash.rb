@@ -3,14 +3,6 @@ module DataCycleCore
 
     self.abstract_class = true
 
-    # get data_hash with language fallback
-    def get_data_hash_fallback(timestamp = Time.zone.now)
-      locale = self.translated_locales.include?(I18n.locale) ? I18n.locale : self.translated_locales.first
-      I18n.with_locale(locale) do
-        get_data_hash(timestamp)
-      end
-    end
-
     # get data as specified in the data template
     # data hash with keys named as in schema.org
     def get_data_hash(timestamp = Time.zone.now)
@@ -20,6 +12,14 @@ module DataCycleCore
         return data_hash
       else
         return nil
+      end
+    end
+
+    # get data_hash with language fallback
+    def get_data_hash_fallback(timestamp = Time.zone.now)
+      locale = self.translated_locales.include?(I18n.locale) ? I18n.locale : self.translated_locales.first
+      I18n.with_locale(locale) do
+        get_data_hash(timestamp)
       end
     end
 
