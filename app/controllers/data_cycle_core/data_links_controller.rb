@@ -70,7 +70,7 @@ module DataCycleCore
       if DataCycleCore::User.where(role_id: guest.id).count > 0
         u = DataCycleCore::User.find_by(role_id: guest.id)
       else
-        u = DataCycleCore::User.create(email: "guest@datacycle.at", given_name: 'Shared', family_name: 'Guest', role_id: guest.id)
+        u = DataCycleCore::User.create(email: "guest@datacycle.at", given_name: 'Shared', family_name: 'Guest', role_id: guest.id, external: false)
         u.save!(validate: false)
       end
 

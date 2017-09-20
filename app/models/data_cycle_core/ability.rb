@@ -37,7 +37,9 @@ module DataCycleCore
           end
         end
 
-        cannot [:update, :destroy], DataCycleCore::User, external: true
+        cannot [:update, :destroy], DataCycleCore::User do |the_user|
+          the_user.external || the_user.role.rank < 1
+        end
       end
     end
   end
