@@ -142,8 +142,6 @@ module DataCycleCore
       end
     end
 
-    # add dateformat with fractional seconds
-    Time::DATE_FORMATS[:long_usec] = '%Y-%m-%d %H:%M:%S.%N %z'
   end
 end
 

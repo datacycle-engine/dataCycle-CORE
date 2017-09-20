@@ -8,10 +8,10 @@
               <% creator_text = "Unbekannt" %>
             <% end %>
 
-            <a id="show-history-link" data-toggle="show-history"><i class="fa fa-history" aria-hidden="true"></i> erstellt am <%= content.created_at.to_s(:german_datetime_format) %></a>
+            <a id="show-history-link" data-toggle="show-history"><i class="fa fa-history" aria-hidden="true"></i> erstellt am <%= Time.at(content.created_at).to_s(:german_datetime_format) %></a>
 
             <ul class="dropdown-pane no-bullet bottom" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
-                <li>Letzte Bearbeitung: <%= creator_text.html_safe %><br><i><%= content.updated_at.to_s(:german_datetime_format) %></i></li>
+                <li>Letzte Bearbeitung: <%= creator_text.html_safe %><br><i><%= Time.at(content.updated_at).to_s(:german_datetime_format) %></i></li>
             </ul>
         </li>
         <% if can? :manage, DataCycleCore::DataLink %>
