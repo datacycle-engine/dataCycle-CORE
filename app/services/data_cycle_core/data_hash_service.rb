@@ -65,7 +65,7 @@ module DataCycleCore
         return nil
       end
 
-      object.set_data_hash(datahash)
+      object.set_data_hash(datahash, current_user)
 
       #validate ?
       if object.save

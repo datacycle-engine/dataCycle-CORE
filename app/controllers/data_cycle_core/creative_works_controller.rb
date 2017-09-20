@@ -52,9 +52,8 @@ module DataCycleCore
           return
         end
 
-        after_create(@creativeWork)
+        after_create(@creativeWork, current_user)
 
-        @creativeWork.metadata['last_updated_by'] = current_user.id
         if !@creativeWork.nil? && @creativeWork.save
           flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
           redirect_to edit_creative_work_path(@creativeWork, source)
@@ -97,7 +96,7 @@ module DataCycleCore
         object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], 'CreativeWork')
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'],false)
 
-        valid = @creativeWork.set_data_hash(datahash)
+        valid = @creativeWork.set_data_hash(datahash, current_user)
 
         if valid.key?(:error) && !valid[:error].empty?
           flash[:error] = valid[:error]
@@ -105,7 +104,6 @@ module DataCycleCore
           return
         end
 
-        @creativeWork.metadata['last_updated_by'] = current_user.id
         if @creativeWork.save
           flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
 

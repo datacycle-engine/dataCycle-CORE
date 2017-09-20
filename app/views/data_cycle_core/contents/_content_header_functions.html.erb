@@ -1,7 +1,7 @@
 <div class="detail-header-functions">
     <ul class="no-bullet">
         <li>
-            <% if !content.metadata.nil? && !content.metadata['last_updated_by'].nil? %>
+            <% if content.metadata.try(:[], 'last_updated_by') %>
               <% creator = get_user_for_id(content.metadata['last_updated_by']) %>
               <% creator_text = "<a href='mailto:#{creator.email}'>#{creator.name}</a>" %>
             <% else %>
@@ -19,7 +19,7 @@
               <% content.histories.limit(4).each do |item|%>
                 <li>
                   <% if item.metadata.try(:[], 'last_updated_by') %>
-                    <% person = DataCycleCore::User.find(item.metadata['last_updated_by']) %>
+                    <% person = get_user_for_id(item.metadata['last_updated_by']) %>
                     <%= "<a href='mailto:#{person.email}'>#{person.name}</a>".html_safe %>
                   <% else %>
                     <%= "Unbekannt".html_safe %>
