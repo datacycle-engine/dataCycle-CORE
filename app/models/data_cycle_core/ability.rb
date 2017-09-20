@@ -3,6 +3,7 @@ module DataCycleCore
     include CanCan::Ability
 
     def initialize(user, session = {})
+      alias_action :update, :destroy, to: :modify
 
       if user
         can :read, :all
@@ -26,18 +27,21 @@ module DataCycleCore
 
           can :manage, DataCycleCore::DataLink
 
-          can [:update, :destroy], DataCycleCore::User, id: user.id
+          can :modify, DataCycleCore::User, id: user.id
         end
 
         if user.has_rank?(2)
           can :manage, :dash_board
-          can :manage, DataCycleCore::User
-          cannot :set_role, DataCycleCore::User do |the_user|
+          can :manage, [DataCycleCore::User, DataCycleCore::UserGroup]
+          cannot [:set_role, :set_user_groups], DataCycleCore::User do |the_user|
+            the_user.has_rank?(user.role.rank)
+          end
+          cannot [:set_role, :set_user_groups], DataCycleCore::User do |the_user|
             the_user.has_rank?(user.role.rank)
           end
         end
 
-        cannot [:update, :destroy], DataCycleCore::User do |the_user|
+        cannot :modify, DataCycleCore::User do |the_user|
           the_user.external || the_user.role.rank < 1
         end
       end

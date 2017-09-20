@@ -20,7 +20,7 @@ module DataCycleCore
       @user.external = false
 
       if @user.save
-        flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'User'
+        flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Benutzer'
         redirect_back(fallback_location: root_path)
       else
         flash[:error] = @user.try(:errors).try(:first).try(:[], 1)
@@ -35,13 +35,15 @@ module DataCycleCore
     def update
       authorize! :set_role, @user if user_params[:role_id]
 
-      method = current_user == @user ? 'update_with_password' : 'update'
+      method = (current_user == @user && !user_params[:password].nil?) ? 'update_with_password' : 'update'
 
       if @user.send(method, user_params)
-        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'User'
+        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Benutzer'
+
+        bypass_sign_in(@user) if (current_user == @user && !user_params[:password].nil?)
 
         if Rails.env.development?
-          redirect_to edit_user_path(@user) if Rails.env.development?
+          redirect_to edit_user_path(@user)
         elsif can? :manage, DataCycleCore::User
           redirect_to users_path
         else
@@ -49,28 +51,28 @@ module DataCycleCore
         end
 
       else
-        render 'edit'
+        render :edit
       end
     end
 
     def destroy
       @user.lock_access!
 
-      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'User'
+      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Benutzer'
       redirect_to users_path
     end
 
     def unlock
       @user.unlock_access!
 
-      flash[:success] = I18n.t :unlocked, scope: [:controllers, :success], data: 'User'
+      flash[:success] = I18n.t :unlocked, scope: [:controllers, :success], data: 'Benutzer'
       redirect_to users_path
     end
 
     private
     def user_params
-      allowed_params = [:email, :family_name, :given_name, :current_password, :role_id]
-      allowed_params.push(:password, :password_confirmation) unless params[:user][:password].blank? || params[:user][:password_confirmation].blank?
+      allowed_params = [:email, :family_name, :given_name, :role_id, user_group_ids: []]
+      allowed_params.push(:password, :password_confirmation, :current_password) unless params[:user][:password].blank? || params[:user][:password_confirmation].blank?
       params.require(:user).permit(allowed_params)
     end
 

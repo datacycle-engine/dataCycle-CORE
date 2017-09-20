@@ -1,10 +1,10 @@
 class CreateRoles < ActiveRecord::Migration[5.0]
   def up
     create_table :roles, id: :uuid do |t|
-      t.string :label
+      t.string :name
       t.integer :rank
       t.timestamps
-      t.index :label
+      t.index :name
       t.index :rank
     end
     remove_column :users, :role

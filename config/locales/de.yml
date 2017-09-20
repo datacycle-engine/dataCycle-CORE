@@ -49,8 +49,12 @@ de:
   actions:
     edit: bearbeiten
     manage: verwalten
+    lock: sperren
+    unlock: freischalten
+    delete: löschen
     new:
       user: "Neuen Benutzer erstellen"
+      user_group: "Neue Benutzergruppe erstellen"
 
   validation:
     errors:
@@ -122,6 +126,7 @@ de:
         data_cycle_core/user:
           attributes:
             password:
+              blank: "Passwort darf nicht leer sein."
               too_short: "Passwort zu kurz."
             password_confirmation:
               confirmation: "Passwörter stimmen nicht überein."
@@ -133,7 +138,15 @@ de:
               taken: "Für diese E-Mail existiert schon ein Benutzer."
     models:
       data_cycle_core/user: Benutzer
+      data_cycle_core/user_group:
+        one: Benutzergruppe
+        other: Benutzergruppen
     attributes:
+      data_cycle_core/user_group:
+        name: Name
+        user_ids: Benutzer
+        classification_ids_markets: Märkte
+        classification_ids_output_channels: Ausgabekanäle
       data_cycle_core/user:
         given_name: Vorname
         family_name: Familienname
@@ -142,6 +155,8 @@ de:
         current_password: "Aktuelles Passwort"
         email: E-Mail
         role_id: Rolle
+        user_group_ids: Benutzergruppen
+        external: SSO
       data_cycle_core/person:
         givenName: Vorname
         familyName: Familienname

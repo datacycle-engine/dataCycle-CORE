@@ -11,6 +11,9 @@ module DataCycleCore
     has_many :subscriptions, dependent: :destroy
     belongs_to :role
 
+    has_many :user_group_users, dependent: :destroy
+    has_many :user_groups, through: :user_group_users
+
     before_create :set_default_role
 
     include UserHelpers

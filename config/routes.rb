@@ -10,6 +10,7 @@ DataCycleCore::Engine.routes.draw do
     post :unlock, on: :member
     post :create_user, on: :collection
   end
+  resources :user_groups
 
   resources :creative_works, only: [:index, :show, :create, :edit, :update]
   resources :persons, only: [:index, :show, :create, :edit, :update]
