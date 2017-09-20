@@ -48,6 +48,7 @@ de:
 
   actions:
     edit: bearbeiten
+    manage: verwalten
     new:
       user: "Neuen Benutzer erstellen"
 
@@ -129,6 +130,7 @@ de:
               invalid: "Falsches Passwort."
             email:
               blank: "E-Mail darf nicht leer sein."
+              taken: "Für diese E-Mail existiert schon ein Benutzer."
     models:
       data_cycle_core/user: Benutzer
     attributes:

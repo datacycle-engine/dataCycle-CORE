@@ -16,15 +16,15 @@ module DataCycleCore
     end
 
     def create_user
-      user = DataCycleCore::User.new(user_params)
-      user.external = false
+      @user = DataCycleCore::User.new(user_params)
+      @user.external = false
 
-      if user.save
+      if @user.save
         flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'User'
-        redirect_to users_path
+        redirect_back(fallback_location: root_path)
       else
-        flash[:error] = I18n.t :invalid, scope: [:controllers, :error], data: 'User'
-        redirect_to users_path
+        flash[:error] = @user.try(:errors).try(:first).try(:[], 1)
+        redirect_back(fallback_location: root_path)
       end
     end
 
@@ -42,8 +42,10 @@ module DataCycleCore
 
         if Rails.env.development?
           redirect_to edit_user_path(@user) if Rails.env.development?
-        else
+        elsif can? :manage, DataCycleCore::User
           redirect_to users_path
+        else
+          redirect_to root_path
         end
 
       else

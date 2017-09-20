@@ -19,7 +19,7 @@ end
 
 crumb :edit_user do |user|
   link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>Bearbeiten", user.email), edit_user_path(user)
-  parent :'data_cycle_core/users'
+  parent :'data_cycle_core/users' if can? :manage, DataCycleCore::User
 end
 
 crumb :edit_resource do |resource|
