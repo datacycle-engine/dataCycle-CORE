@@ -1,0 +1,18 @@
+<% excluded_types ||= [] %>
+
+<div class="row expanded-filter-listitem filter" data-tree-label="<%= tree_label.downcase %>">
+    <div class="columns small-12 large-2">
+        <span class="title">
+            <%= render 'data_cycle_core/shared/icon', icon_type: tree_label.downcase %>
+            <span class="inner-title"><%= display_label %></span>
+        </span>
+    </div>
+
+    <div class="columns small-12 large-10">
+        <ul class="clearfix">
+            <% classification_trees[tree_label].sort{|a,b| a.name <=> b.name}.each do |item| %>
+                <%= render 'data_cycle_core/application/filters/classification_items', item: item %>
+            <% end %>
+        </ul>
+    </div>
+</div>

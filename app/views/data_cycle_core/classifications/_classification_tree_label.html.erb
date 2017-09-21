@@ -1,0 +1,23 @@
+<li id="<%= tree_label.id %>">
+  <%= link_to tree_label.name,
+              classifications_path(classification_tree_label_id: tree_label.id),
+              data: {remote: true, 'disable-with' => '<i class="fa fa-spinner fa-spin"></i> ' + t("common.loading")} %>
+
+  <% if can?(:update, tree_label) %>
+    <a href="#" class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+
+    <%= render 'classification_tree_label_form', classification_tree_label: tree_label %>
+  <% end %>
+
+  <% if can?(:destroy, tree_label) %>
+    <%= link_to classifications_path(classification_tree_label_id: tree_label.id), class: 'destroy',
+                data: {remote: true, method: :delete,
+                       confirm: t('common.are_you_sure'),
+                       'disable-with' => '<i class="fa fa-spinner fa-spin"></i>'} do %>
+      <i class="fa fa-trash-o" aria-hidden="true"></i>
+    <% end %>
+  <% end %>
+
+  <ul class="children">
+  </ul>
+</li>

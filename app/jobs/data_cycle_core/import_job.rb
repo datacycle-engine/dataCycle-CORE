@@ -35,9 +35,7 @@ module DataCycleCore
     end
 
     def perform(uuid)
-      config = ExternalSource.where(id: uuid).first.config
-      "DataCycleCore::#{config['import']}".constantize.new(uuid).import
+      ExternalSource.find(uuid).import
     end
-
   end
 end

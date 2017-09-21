@@ -1,6 +1,3 @@
-<!-- todo: use translation file -->
-<% language_hash = {de: "deutsch", en: "englisch", ar: "arabisch", bg: "bulgarisch", cs: "tschechisch", da: "dänisch", es: "spanisch", fr: "französisch", it: "italienisch", hu: "ungarisch", hr: "kroatisch", ja: "japanisch", ko: "koreanisch", nl: "holländisch", pt: "portugiesisch", pl: "polnisch", ru: "russisch", sl: "slowenisch", sk: "slowakisch", sv: "schwedisch", tr: "türkisch", uk: "ukrainisch", "de-CH" => "schweizer-deutsch"} %>
-
 <% if !language.nil? && language == "de" %>
 
     <% german = dataCycleObject.translations.select{|l| l['locale'] == language}.first %>
@@ -8,7 +5,7 @@
 
 <% else %>
 
-    <% languages = dataCycleObject.translations.select{|l| l['locale'] != 'de'} %>
+    <% languages = dataCycleObject.translations.select{|l| l['locale'] != I18n.locale.to_s} %>
 
     <% if languages.count > 0 %>
 
@@ -35,7 +32,7 @@
 
             <div class="row">
                 <div class="large-2 columns">
-                    <h5><%= "#{language_hash[translation.locale]} (#{translation.locale})" %></h5>
+                    <h5><%= "#{available_locales_with_names[translation.locale]} (#{translation.locale})" %></h5>
                 </div>
 
                 <div class="large-10 columns">

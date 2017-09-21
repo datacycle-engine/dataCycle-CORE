@@ -1,6 +1,6 @@
 .detail-header {
   background: $light-gray;
-  min-height: 8rem;
+  min-height: 10rem;
 }
 
 // Details for Show
@@ -44,6 +44,7 @@
           }
           &.media {
             .media-thumbs { display: flex; }
+            position: relative;
             .thumbnail {
               position: relative;
               width: 194px;
@@ -59,7 +60,9 @@
                 box-shadow: 0 0 2px 1px red;
               }
               &:hover {
-                .description { opacity: 1;}
+                .description {
+                  opacity: 1;
+                }
               }
               .description {
                 opacity: 0;

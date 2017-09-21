@@ -1,9 +1,5 @@
 <% I18n.with_locale(@language) do %>
 
-    <% if can? :manage, @watch_list && !@watch_list.nil? && !@watch_list.id.nil? %>
-        <%= render 'data_cycle_core/watch_lists/partials/remove_item_link', item: item %>
-    <% end %>
-
     <%= link_to polymorphic_path(item, trail: (breadcrumb_trail unless request.path == root_path)) do %>
 
         <div class="inner">

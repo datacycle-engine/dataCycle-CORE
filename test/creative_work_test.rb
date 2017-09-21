@@ -615,8 +615,10 @@ module DataCycleCore
     end
 
     test "save CreativeWork with two embedded objects having two translations and then delete one translation (full access to embeddedObjects)" do
+      place_trans_templates = DataCycleCore::Place::Translation.count
+      cw_trans_templates = DataCycleCore::CreativeWork::Translation.count
       # setup data-set with a template
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "BildTest", description: "ImageObject").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Bild2", description: "ImageObject").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
@@ -655,11 +657,18 @@ module DataCycleCore
       }
       data_set.save
 
+      returned_data = I18n.with_locale(:de){data_set.get_data_hash}
+      creative_work_id = returned_data["id"]
       # check for german data-set, two embedded contentLocation // no english data-set
-      assert_equal(de_expected, I18n.with_locale(:de){data_set.get_data_hash.compact.except("contentLocation","id","data_type")})
-      assert_equal(data_hash["contentLocation"].size, I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].size})
+      assert_equal(de_expected, returned_data.compact.except("contentLocation","id","data_type"))
+      assert_equal(data_hash["contentLocation"].size, returned_data["contentLocation"].size)
       assert_nil(I18n.with_locale(:en){data_set.get_data_hash})
 
+      # check what is written to the database
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(1, DataCycleCore::CreativeWork::Translation.count - cw_trans_templates)
+      assert_equal(2, DataCycleCore::Place.where(template: false).count)
+      assert_equal(2, DataCycleCore::Place::Translation.count - place_trans_templates)
 
       # prepare a german hash with only one embedded object
       returned_data_hash = I18n.with_locale(:de){
@@ -702,6 +711,12 @@ module DataCycleCore
       de_ids = I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].map{|item| item["id"]}}
       en_ids = I18n.with_locale(:en){data_set.get_data_hash.compact["contentLocation"].map{|item| item["id"]}}
       assert_equal(de_ids.sort, en_ids.sort)
+
+      # check what is written to the database
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(2, DataCycleCore::CreativeWork::Translation.count - cw_trans_templates)
+      assert_equal(2, DataCycleCore::Place.where(template: false).count)
+      assert_equal(4, DataCycleCore::Place::Translation.count - place_trans_templates)
 
 
       # delete the german translation of one object
@@ -991,6 +1006,7 @@ module DataCycleCore
         "season" => [],
         "kind" => []
       }
+
       assert_equal(expected_hash, data_set.get_data_hash.compact.except('id',"data_pool"))
     end
 

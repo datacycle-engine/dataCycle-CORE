@@ -1,9 +1,14 @@
 module DataCycleCore
   class ApplicationController < ActionController::Base
     protect_from_forgery with: :exception
-    
+    before_action :load_watch_lists
+
+    def load_watch_lists
+      @accessible_watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
+    end
+
     def current_ability
-      @current_ability ||= Ability.new(current_user, session)
+      @current_ability ||= ::Ability.new(current_user, session)
     end
 
     rescue_from CanCan::AccessDenied do |exception|

@@ -1,0 +1,18 @@
+<li>
+    <%= render 'data_cycle_core/shared/icon', icon_type: "sprache" %>
+    <span class="title">Sprache</span>
+    <div>
+        <ul class="split-list clearfix">
+            <% available_locales_with_names.each do |key,value| %>
+                <li>
+                    <input type="radio" name="language" value="<%= key.to_s %>" id="<%= key.to_s %>" <%= "checked" if key.to_s == "de" || key.to_s == params[:language]%> />
+                    <label for="<%= key.to_s %>">
+                        <span class="title">
+                            <%= value %>
+                        </span>
+                    </label>
+                </li>
+            <% end %>
+        </ul>
+    </div>
+</li>

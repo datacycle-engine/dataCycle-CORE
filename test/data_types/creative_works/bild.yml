@@ -18,7 +18,7 @@
         :label: Titel
         :type: string
         :storage_type: string
-        :storage_location: content
+        :storage_location: column
       :caption:
         :label: Alt-Label
         :type: string
@@ -28,7 +28,7 @@
         :label: Beschreibung
         :type: string
         :storage_type: string
-        :storage_location: content
+        :storage_location: column
       :photographer:
         :label: Fotograf
         :type: string

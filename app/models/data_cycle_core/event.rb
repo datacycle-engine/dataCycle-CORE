@@ -1,5 +1,5 @@
 module DataCycleCore
-  class Event < Content
+  class Event < DataHash
     class Translation < Globalize::ActiveRecord::Translation
         include ContentTranslationHelpers
     end
@@ -10,6 +10,8 @@ module DataCycleCore
 
     # callbacks
     before_destroy :destroy_translations, prepend: true
+
+    belongs_to :external_source
 
     has_many :creative_work_events, dependent: :destroy
     has_many :creative_works, through: :creative_work_events
@@ -27,7 +29,7 @@ module DataCycleCore
     include Releasable
     include ContentHelpers
 
-
+    
     attr_accessor :datahash
 
 

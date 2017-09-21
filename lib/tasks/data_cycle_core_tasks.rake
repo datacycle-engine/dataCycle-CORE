@@ -14,10 +14,10 @@ namespace :data_cycle_core do
 
     desc "Remove all contents related data like creative works and places (does not remove classifications)"
     task :contents => :environment do
-      DataCycleCore::CreativeWork.destroy_all
-      DataCycleCore::Event.destroy_all
-      DataCycleCore::Person.destroy_all
-      DataCycleCore::Place.destroy_all
+      DataCycleCore::CreativeWork.where(template: false).destroy_all
+      DataCycleCore::Event.where(template: false).destroy_all
+      DataCycleCore::Person.where(template: false).destroy_all
+      DataCycleCore::Place.where(template: false).destroy_all
     end
   end
 
@@ -31,39 +31,63 @@ namespace :data_cycle_core do
 
     desc "Download and import data from given data source"
     task :perform, [:external_source_id, :max_count] => [:environment] do |t, args|
-      options = {max_count: FIXNUM_MAX}.merge(args.to_h)
+      options = Hash[{max_count: FIXNUM_MAX}.merge(args.to_h).map { |k, v|
+        if k == :max_count
+          [k, v.to_i]
+        else
+          [k, v]
+        end
+      }]
 
-      use_case = DataCycleCore::UseCase.find_by(external_source_id: options[:external_source_id])
-
-      download_class = Object.const_get("DataCycleCore::#{use_case.external_source.config["download"]}")
-      download_job = download_class.new(options[:external_source_id], false, 100, options[:max_count].to_i)
-      download_job.download
-
-      import_class = Object.const_get("DataCycleCore::#{use_case.external_source.config["import"]}")
-      import_job = import_class.new(options[:external_source_id])
-      import_job.import
-    end    
+      external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
+      external_source.download(options)
+      external_source.import(options)
+    end
 
     desc "Only download data from given data source"
     task :download, [:external_source_id, :max_count] => [:environment] do |t, args|
-      options = {max_count: FIXNUM_MAX}.merge(args.to_h)
+      options = Hash[{max_count: nil}.merge(args.to_h).map { |k, v|
+        if k == :max_count && v
+          [k, v.to_i]
+        else
+          [k, v]
+        end
+      }]
 
-      use_case = DataCycleCore::UseCase.find_by(external_source_id: options[:external_source_id])
-
-      download_class = Object.const_get("DataCycleCore::#{use_case.external_source.config["download"]}")
-      download_job = download_class.new(options[:external_source_id], false, 100, options[:max_count].to_i)
-      download_job.download
+      external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
+      external_source.download(options) do |on|
+        on.preparing_phase { |label|
+          puts "Preparing #{label.to_s.gsub(/_/, ' ')} ..."
+        }
+        on.phase_started { |label, total|
+          puts "Downloading #{label.to_s.gsub(/_/, ' ')} ..." if total.nil?
+          puts "Downloading #{label.to_s.gsub(/_/, ' ')} (#{total} items) ..." if total
+        }
+        on.item_processed { |title, id, num, total|
+          puts " -> \"#{title} (\##{id})\" downloaded (#{num} of #{total || '?'})"
+        }
+        on.error { |title, id, data, error|
+          puts "Error downloading \"#{title} (\##{id})\": #{error}"
+          puts "  DATA: #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}"
+        }
+        on.phase_finished { |label, total|
+          puts "Downloading #{label.to_s.gsub(/_/, ' ')} (#{total} items) ... [DONE]"
+        }
+      end
     end
 
     desc "Only import (without downloading) data from given data source"
     task :import, [:external_source_id, :max_count] => [:environment] do |t, args|
-      options = {}.merge(args.to_h)
+      options = Hash[{max_count: FIXNUM_MAX}.merge(args.to_h).map { |k, v|
+        if k == :max_count
+          [k, v.to_i]
+        else
+          [k, v]
+        end
+      }]
 
-      use_case = DataCycleCore::UseCase.find_by(external_source_id: options[:external_source_id])
-
-      import_class = Object.const_get("DataCycleCore::#{use_case.external_source.config["import"]}")
-      import_job = import_class.new(options[:external_source_id])
-      import_job.import(options)
+      external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
+      external_source.import(options)
     end
   end
 end

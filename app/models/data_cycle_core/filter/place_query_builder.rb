@@ -5,7 +5,7 @@ module DataCycleCore
       def initialize(locale = 'de', query = nil)
         @locale = locale
         @query = query || Place.unscoped.distinct.
-          where(template: false).
+          where(template: false).includes(:watch_lists, :translations, :display_classification_aliases).
           joins(
             place.join(place_translation).
             on(place[:id].eq(place_translation[:place_id])).
@@ -22,8 +22,7 @@ module DataCycleCore
 
         reflect(
           @query.where(place[:id].in(manager).or(
-            place_translation[:name].matches("%#{name}%").
-            or(place_translation[:address].matches("%#{name}%"))
+            place_translation[:name].matches("%#{name}%")
           ))
         )
       end
@@ -32,8 +31,7 @@ module DataCycleCore
         reflect(
           @query.where(
             place[:metadata].not_eq(nil).
-            and(place_translation[:name].not_eq(nil).
-              or(place_translation[:address].not_eq(nil))
+            and(place_translation[:name].not_eq(nil)
             )
           )
         )

@@ -52,6 +52,8 @@
                                         <%= render "data_cycle_core/creative_works/partials/show/datatype/#{object_property['type'].downcase}",
                                             label: object_property['label'],
                                             prop: object_property,
+                                            key: key,
+                                            object_id: object.id,
                                             value: object_value %>
 
                                     <% end %>
@@ -67,6 +69,8 @@
                                     <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
                                         label: prop['label'],
                                         prop: prop,
+                                        key: key,
+                                        object_id: object.id,
                                         value: object_value %>
 
                                 <% end %>

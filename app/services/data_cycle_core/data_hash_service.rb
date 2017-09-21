@@ -50,7 +50,6 @@ module DataCycleCore
     end
 
     def self.create_internal_object(storage_location, template_name, template_description, object_params, current_user)
-
       object = ("DataCycleCore::"+storage_location.classify).constantize.new(object_params)
 
       template = self.get_internal_template(storage_location, template_name, template_description)
@@ -74,7 +73,6 @@ module DataCycleCore
       else
         return nil
       end
-
     end
 
     private

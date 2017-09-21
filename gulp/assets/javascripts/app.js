@@ -23,12 +23,14 @@ var content_object_init = require('./modules/initializers/content_object_init');
 var slider_init = require('./modules/initializers/slider_init');
 var copy_contents_init = require('./modules/initializers/copy_contents_init');
 var map_init = require('./modules/initializers/map_init');
-
-
-// Initialize Masonry Grid
-masonry_init.initialize();
+var watch_lists_init = require('./modules/initializers/watch_lists_init');
+var lazy_loading_init = require('./modules/initializers/lazy_loading_init');
+var classifications = require('./modules/initializers/classifications');
 
 $(function () {
+  // Initialize Masonry Grid
+  masonry_init.initialize();
+
   // Initialize Foundation
   $(document).foundation();
 
@@ -91,10 +93,22 @@ $(function () {
   // initialize Copy_Contents
   copy_contents_init.initialize();
 
+  // initialize Watchlists
+  watch_lists_init.initialize();
+
+  // initialize Lazy Loading for Images
+  lazy_loading_init.initialize();
+
+  if ($('#classification-administration').length) {
+    classifications.initialize();
+  }
+
   // HOME RANDOMIZED IMAGES AND GLASSHACK!
-  if ( $( ".home-container" ).length ) {
-    $( ".home-container" ).appendTo("body");
-    setTimeout(function(){ $('.home-container').addClass('show') }, 500);
+  if ($(".home-container").length) {
+    $(".home-container").appendTo("body");
+    setTimeout(function () {
+      $('.home-container').addClass('show')
+    }, 500);
     $('body').addClass('login-page');
   }
 });

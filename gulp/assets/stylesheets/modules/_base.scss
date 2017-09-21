@@ -43,8 +43,7 @@ form {
 }
 
 .pagination {
-  border-radius: 30px;
-  //background: lighten($light-gray, 7%);
+  border-radius: 30px; //background: lighten($light-gray, 7%);
   a,
   button {
     border-radius: 0;
@@ -160,7 +159,7 @@ form {
   >.headline input {
     font-size: 2rem;
     font-weight: 200;
-    padding: 1rem 5rem 0 5rem;
+    padding: 0 5rem 0 5rem;
     text-align: center;
     position: relative;
   }
@@ -170,6 +169,15 @@ form {
   >.description {
     position: relative;
     padding: 0 5rem 3rem 5rem;
+  }
+  >.status-container {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    .status {
+      position: relative;
+      left: -50%;
+    }
   }
   .detail-header-info {
     position: absolute;
@@ -184,6 +192,32 @@ form {
     position: absolute;
     top: 1rem;
     right: 1rem;
+    input {
+      padding: 0 0.5rem;
+      height: 2.2rem;
+      &.copy-input {
+        padding-right: 2.3rem;
+        text-overflow: ellipsis;
+      }
+    }
+    .data-links {
+      .delete-button {
+        float: right;
+      }
+      .copy-button {
+        position: absolute;
+        right: 0;
+        top: 0;
+        padding: 0.5rem;
+        background: initial;
+        color: $black;
+        transition: color 0.5s;
+        &:hover,
+        &:focus {
+          color: lighten($black, 20%);
+        }
+      }
+    }
     >ul {
       position: relative;
       >li {
@@ -294,7 +328,7 @@ form {
     font-style: italic;
   }
   .daterange {
-    padding: 1rem;
+    padding: 1rem 1rem 0 1rem;
     text-align: left;
     &.validation-container {
       margin-bottom: 1rem;
@@ -336,11 +370,22 @@ form {
     color: rgba($dark-gray, 50%);
     transition: color ease-in-out 0.25s;
   }
+  .focus {
+    .ql-disabled {
+      .ql-editor {
+        background: $light-gray;
+        &:focus {
+          background: $light-gray;
+        }
+      }
+    }
+  }
   input,
   .ql-editor,
   .daterange,
   .v-select,
-  .embeddedObject {
+  .embedded_object,
+  .readonly-select {
     border: 1px solid $light-gray;
     background: $light-gray;
     outline: none;
@@ -363,6 +408,9 @@ form {
       font-weight: 200;
       color: $dark-gray;
     }
+    &[readonly] {
+      background: $light-gray;
+    }
   }
   .focus .ql-editor {
     border-color: $primary-color;
@@ -372,6 +420,9 @@ form {
     border-color: $primary-color;
     background: white;
     z-index: 16;
+    &.readonly {
+      background: $light-gray;
+    }
   }
   .focus {
     label {
@@ -391,6 +442,9 @@ form {
     .form-element {
       position: relative;
       margin-bottom: 1rem;
+      &.validation-container:last-of-type {
+        margin-bottom: 0;
+      }
       .custom-select-title {
         display: none;
       }
@@ -408,18 +462,15 @@ form {
     .detail-header-info {
       top: -2rem;
       left: 0.5rem;
-      .type {
-        opacity: 0.3;
-      }
-      &:hover .type {
-        opacity: 1;
-      }
     }
     .bookmark {
       display: none;
     }
-    .input input {
-      padding: 3rem 1rem;
+    .input input,
+    .string:not(.date) input,
+    .number input {
+      padding: 2.5rem 1rem 2rem 1rem;
+      line-height: initial;
     }
     .headline input {
       padding: 1rem 5rem 1.5rem 5rem;
@@ -469,6 +520,7 @@ form {
   }
   .ql-editor {
     padding-top: 3rem;
+    padding-bottom: 2rem;
     font-size: 1rem;
   }
   .ql-container.ql-snow {
@@ -775,6 +827,13 @@ body .v-select {
 /* Korrektur für Fehler im Neuen Eintrag erstellen reveal  */
 
 .new-item {
+  .notice {
+    padding: 1rem;
+    display: block;
+    background: rgba(map-get($foundation-palette, alert), 0.9);
+    color: #fefefe;
+    text-align: center;
+  }
   .validation-container {
     position: relative;
     span.single_error {

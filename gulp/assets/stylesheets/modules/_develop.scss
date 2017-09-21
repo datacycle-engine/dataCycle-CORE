@@ -1,10 +1,24 @@
 /* todo: merge styles */
 
+
+/* Fixes for Firefox */
+
+.detail-header.editor {
+  .form-element {
+    &.headline {
+      input {
+        height: 6rem;
+        padding: 1.5rem 0.5rem;
+      }
+    }
+  }
+}
+
 .release-status {
   display: inline-block;
   position: absolute;
   top: 1px;
-  right: 0;
+  right: 5px;
   width: auto;
   .release-select {
     width: auto;
@@ -21,7 +35,6 @@
     font-weight: bold;
   }
   .status-comment {
-    padding: 0.2rem 0.5rem;
     color: $black;
     cursor: pointer;
     &:hover,
@@ -31,7 +44,7 @@
   }
 }
 
-.release-comment {
+.release-comment-overlay {
   z-index: 13;
   textarea {
     min-height: 20rem;
@@ -62,10 +75,9 @@
 }
 
 .data-cycle-object {
-  .remove-from-watchlist-link {
-    position: absolute;
-    right: 3px;
-    top: 0;
+  >.remove-from-watchlist-link {
+    float: right;
+    margin-left: 0.5rem;
   }
 }
 
@@ -82,6 +94,10 @@
 
 .media-preview {
   padding-top: 2.5rem;
+  img.lazyload {
+    min-height: 10rem;
+    min-width: 10rem;
+  }
   .preview-title {
     position: absolute;
     top: 1rem;
@@ -92,7 +108,7 @@
   }
 }
 
-.confirm {
+.confirmation {
   position: absolute;
   top: -5rem;
   left: 1rem;
@@ -106,6 +122,21 @@
   -webkit-transition: all 0.4s ease;
   line-height: 1.5;
   text-align: left;
+  &.watchlist-dialog {
+    display: none;
+    left: auto;
+    transition: none;
+    span {
+      margin: 0.5rem 0;
+    }
+    button {
+      margin: 0.5rem 0.1rem;
+    }
+    &:before {
+      left: auto;
+      right: 1.2rem;
+    }
+  }
   span {
     display: block;
     margin-bottom: 1rem;
@@ -128,8 +159,14 @@
   }
 }
 
+select {
+  padding: 0 1.5rem 0 0.5rem;
+  line-height: initial;
+}
+
 #newContent {
   overflow-y: visible;
+  input[type=text],
   .custom-select .dropdown {
     display: block;
     box-sizing: border-box;
@@ -163,6 +200,9 @@
       margin-top: 2px;
     }
   }
+  input[type=text] {
+    padding: 0 0.5rem;
+  }
   .validation-container {
     clear: both;
   }
@@ -180,6 +220,14 @@
     height: calc(100vh - 13rem);
     .detail-content {
       padding: 0 1rem;
+      position: relative;
+      .show-content {
+        margin-top: 3rem;
+        position: relative;
+        >br {
+          display: none;
+        }
+      }
       .button-prime {
         &.small {
           width: 2rem;
@@ -209,27 +257,59 @@
         }
       }
     }
+    .detail-header-info {
+      text-align: left;
+      display: flex;
+      width: 100%;
+      left: 0;
+      position: absolute;
+      top: -2rem;
+      opacity: 0.3;
+      transition: opacity 0.3s ease;
+      &:hover,
+      &:focus {
+        opacity: 1;
+      }
+      .type,
+      .metadata {
+        display: flex;
+        white-space: nowrap;
+      }
+      .metadata {
+        padding-left: 0.5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: pre;
+      }
+    }
     .split-content {
       display: inline-block;
       width: 49%;
       vertical-align: top;
       height: 100%;
       overflow-y: scroll;
-      &.edit-content {
-        .detail-header-info {
-          text-align: left;
-          display: flex;
-          width: 100%;
-          left: 0;
-          .type,
-          .metadata {
-            display: flex;
-            white-space: pre;
-          }
-          .metadata {
-            padding-left: 0.5rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
+      .subscribe-parent {
+        position: absolute;
+        width: 100%;
+        left: 0;
+        top: 0;
+        padding: 1rem 2rem;
+        text-align: center;
+        background: rgba(map-get($foundation-palette, success), 0.95);
+        z-index: 1;
+        p {
+          margin-bottom: 0.5rem;
+        }
+        .close-subscribe-notice {
+          position: absolute;
+          right: 0.5rem;
+          top: 0;
+          font-size: 2em;
+          cursor: pointer;
+          color: rgba($black, 0.5);
+          &:hover,
+          &:focus {
+            color: $black;
           }
         }
       }
@@ -260,24 +340,45 @@
   }
 }
 
-.data-links {
-  .delete-button {
-    float: right;
-  }
-  .copy-button {
-    position: absolute;
-    right: 0;
-    top: 0;
-    background: initial;
-    color: $black;
-    transition: color 0.5s;
-    &:hover,
-    &:focus {
-      color: lighten($black, 20%);
+// Thumbnails in Grid Items
+.data-cycle-object {
+  .inner {
+    .grid-thumbnails {
+      height: 3rem;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: row;
+      &.has-more:after {
+        content: "...";
+        display: flex;
+        line-height: 1.2rem;
+        font-size: 1.5rem;
+        align-self: flex-end;
+      }
+      .grid-item-thumbnail {
+        height: 3rem;
+        display: flex;
+        margin-right: 3px;
+      }
     }
   }
-  .copy-input {
-    padding-right: 2.5rem;
-    text-overflow: ellipsis;
+}
+
+.content-pool-buttons {
+  margin-top: 1rem;
+  .button {
+    margin: 0;
+  }
+}
+
+.reveal {
+  .loading {
+    text-align: center;
+    padding: 8rem;
+    .fa {
+      font-size: 3rem;
+      color: $light-gray;
+    }
   }
 }

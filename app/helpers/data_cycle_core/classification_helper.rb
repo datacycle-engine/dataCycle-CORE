@@ -3,13 +3,11 @@ module DataCycleCore
 
     #todo refactor
     def get_classifications_for_name(name)
-
       if !name.nil? && !name.blank?
-        unless (DataCycleCore::ClassificationTreeLabel.find_by name: name).nil?
-          @classification_tree_label =  DataCycleCore::ClassificationTreeLabel.includes(classification_trees: :sub_classification_alias).find_by name: name
-        end
+        DataCycleCore::ClassificationTreeLabel
+          .includes(classification_trees: [:classification_tree_label, :sub_classification_alias])
+          .find_by name: name
       end
-
     end
 
     #todo refactor
@@ -17,7 +15,9 @@ module DataCycleCore
 
       unless uids.nil?
         if !treeLabel.nil?
-          allowed_classifications = get_classifications_for_name(treeLabel).classification_trees.map { |classification| classification.sub_classification_alias.id }
+          allowed_classifications = get_classifications_for_name(treeLabel)
+            .classification_trees
+            .map { |classification| classification.sub_classification_alias.id }
           allowed_uids = uids.select {|uid| allowed_classifications.include?(uid)}
           @selected_classifications = DataCycleCore::ClassificationAlias.find(allowed_uids) rescue return
         else
@@ -31,7 +31,7 @@ module DataCycleCore
     def get_classificationAliases_for_classificationIDs(uids)
       result = []
       unless uids.nil?
-        DataCycleCore::Classification.find(uids).each do |classification|
+        DataCycleCore::Classification.where(id: uids).each do |classification|
           result.push(classification.classification_aliases[0])
         end
       end
@@ -61,7 +61,23 @@ module DataCycleCore
       res = walk_classification_tree(classification_alias).flatten
     end
 
+    def ordered_content_pools
+      content_pool_order = ['Vorschläge', 'Recherche', 'Aktuelle Inhalte', 'Archiv']
+      pools = Hash[DataCycleCore::ClassificationAlias.where(name: content_pool_order).collect{ |c| [ c.try(:name), c ] }]
+      unless pools.blank?
+        cached_ordered_content_pools = content_pool_order.collect{ |c| {id: pools[c].classifications.ids.first, alias: pools[c]} }
+      end
+      cached_ordered_content_pools
+    end
 
+    def get_next_content_pool(classification_id)
+      unless ordered_content_pools.nil?
+        c_index = ordered_content_pools.index{ |c| c[:id] == classification_id }
+        if c_index < ordered_content_pools.length - 1
+          return ordered_content_pools[c_index + 1]
+        end
+      end
+    end
 
     def walk_classification_tree(classification_alias,level=0)
       classification_tree = []

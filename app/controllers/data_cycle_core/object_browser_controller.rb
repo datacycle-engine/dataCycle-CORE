@@ -1,7 +1,7 @@
 module DataCycleCore
   class ObjectBrowserController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
-    authorize_resource :class => false         # from cancancan (authorize)
+    load_and_authorize_resource :class => false         # from cancancan (authorize)
 
     def show
       @@default_per = 50
@@ -13,34 +13,27 @@ module DataCycleCore
       @type ||= "image"
 
       if @type == "image"
-
         query = DataCycleCore::Filter::ImageQueryBuilder.new(@language)
         query = query.only_images
-        query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       elsif @type == "person"
-
         query = DataCycleCore::Filter::PersonQueryBuilder.new(@language)
-        query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       elsif @type == "place"
-
         query = DataCycleCore::Filter::PlaceQueryBuilder.new(@language)
         query = query.only_frontend_valid
-        query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       else
-
         query = DataCycleCore::Filter::ImageQueryBuilder.new(@language)
-        query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       end
+
+      query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       @per = params[:per] unless params[:per].blank?
       @per ||= @@default_per
 
-      total = query.count
-
+      total = query.count(:id)
       pages = total.fdiv(@per.to_i).ceil
 
       unless params[:page].blank?

@@ -79,6 +79,11 @@ module DataCycleCore
         "external_source_id" => external_source_id
       }
       # location object deserializes to RGeo::Geos::CAPIPointImpl != RGeo::Geographic::SphericalPointImpl
+
+      # ap data_set.linked_property_names
+      # ap data_set.external_source_id
+      # ap data_set.get_data_hash
+
       assert_equal(expected_hash.except("location"), data_set.get_data_hash.except("location").compact)
       assert_equal(true, expected_hash['location'].x == data_set.get_data_hash['location'].x) # check for same x-coordinate
       assert_equal(true, expected_hash['location'].y == data_set.get_data_hash['location'].y) # check for same y-coordinate

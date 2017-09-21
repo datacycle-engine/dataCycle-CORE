@@ -1,0 +1,18 @@
+<% breadcrumb :classifications, autoroot: false %>
+
+<div id="classification-administration" class="row">
+  <div class="small-12 columns">
+    <h1><%= t('data_cycle_core.classifications') %></h1>
+
+    <ul>
+      <% @classification_tree_labels.each do |tree_label| %>
+        <%= render 'classification_tree_label', tree_label: tree_label %>
+      <% end %>
+
+      <li class="new-classification-tree-label">
+        <a href="#" class="create"><i class="fa fa-plus"></i></a>
+        <%= render 'classification_tree_label_form', classification_tree_label: DataCycleCore::ClassificationTreeLabel.new %>
+      </li>
+    </ul>
+  </div>
+</div>

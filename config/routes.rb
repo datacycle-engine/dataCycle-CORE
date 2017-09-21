@@ -10,12 +10,22 @@ DataCycleCore::Engine.routes.draw do
   resources :creative_works, only: [:index, :show, :create, :edit, :update]
   resources :persons, only: [:index, :show, :create, :edit, :update]
   resources :places, only: [:index, :show, :create, :edit, :update]
+  resources :subscriptions, only: [:create, :destroy]
+
   resources :data_links do
     post :send_mail, on: :member
   end
+
   resources :watch_lists do
     get :removeItem, on: :member
     get :addItem, on: :member
+  end
+
+  resources :classifications, only: [:index, :create] do
+    put :update, on: :collection
+    patch :update, on: :collection
+    delete :destroy, on: :collection
+    get :search, on: :collection
   end
 
   get  '/admin', to: 'dash_board#home'
@@ -37,6 +47,10 @@ DataCycleCore::Engine.routes.draw do
     namespace :api do
       namespace :v1 do
         resources :classification, only: [:index]
+
+        resources :classification_trees, only: [:index, :show] do
+          get :classifications, on: :member
+        end
 
         resources :collections, only: [:index, :show], controller: :watch_lists
 

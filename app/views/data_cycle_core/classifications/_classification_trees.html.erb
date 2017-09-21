@@ -1,0 +1,12 @@
+<% classification_trees.includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source]).each do |classification_tree| %>
+
+  <%= render 'classification_tree', classification_tree_label: classification_tree_label, classification_tree: classification_tree %>
+<% end %>
+
+<li>
+  <a href="#" class="create"><i class="fa fa-plus"></i></a>
+  <%= render 'classification_alias_form',
+              classification_tree_label: classification_tree_label,
+              classification_tree: classification_tree,
+              classification_alias: DataCycleCore::ClassificationAlias.new %>
+</li>

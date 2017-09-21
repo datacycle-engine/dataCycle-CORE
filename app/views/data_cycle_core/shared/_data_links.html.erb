@@ -11,7 +11,7 @@
             <input readonly="readonly" id="copyTarget" type="text" class="copy-input" style="" value="<%= h(data_link_url(dataCycleObject.show_link)) %>">
             <button id="copyButton" class="button small copy-button"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
         </li>
-        <%= form_tag send_mail_data_link_path(dataCycleObject.show_link), class: "send-link" do |f| %>
+        <%= form_tag send_mail_data_link_path(dataCycleObject.show_link, type: "anzeigen"), class: "send-link" do |f| %>
             <li>
                 <input type="email" id="data_link_receiver" name="data_link[receiver]" placeholder="E-Mail Adresse" style="" required>
             </li>
@@ -31,7 +31,7 @@
                 <input readonly="readonly" id="copyTarget" type="text" class="copy-input" style="" value="<%= h(data_link_url(dataCycleObject.edit_link)) %>">
                 <button id="copyButton" class="button small copy-button"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
             </li>
-            <%= form_tag send_mail_data_link_path(dataCycleObject.edit_link), class: "send-link" do |f| %>
+            <%= form_tag send_mail_data_link_path(dataCycleObject.edit_link, type: "bearbeiten"), class: "send-link" do |f| %>
                 <li>
                     <input type="email" id="data_link_receiver" name="data_link[receiver]" placeholder="E-Mail Adresse" style="" required>
                 </li>

@@ -1,0 +1,28 @@
+ul.classifications {
+  font-style: italic;
+  list-style: none;
+  margin-left: 0;
+
+  li {
+    display: inline-block;
+  }
+  li:first-child:before {
+    content: '(';
+  }
+  li:not(:last-child):after {
+    content: ', '
+  }
+  li:last-child:after {
+    content: ')';
+  }
+}
+
+#classification-administration {
+  li:not(.active) > form {
+    display: none;
+  }
+
+  li.active > :not(form) {
+    display: none;
+  }
+}

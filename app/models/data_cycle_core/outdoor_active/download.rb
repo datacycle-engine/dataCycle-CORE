@@ -14,7 +14,7 @@ module DataCycleCore
         @connRestClient = RestClient.new('http://www.outdooractive.com/', credentials, verbose)
       end
 
-      def download
+      def download(options = {})
         Mongoid.override_database(nil) #reset to default
         Mongoid.override_database("#{DownloadPoi.database_name}_#{@uuid}")
 

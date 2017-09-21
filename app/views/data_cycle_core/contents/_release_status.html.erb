@@ -1,3 +1,5 @@
 <% unless @release_status.nil? %>
-  <span class="status">Status: <strong><%= @release_status.release_text %></strong></span>
+  <div class="status-container">
+    <span class="status">Status: <strong><%= @release_status.release_text %></strong></span>
+  </div>
 <% end %>

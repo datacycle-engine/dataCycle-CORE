@@ -12,6 +12,10 @@ module DataCycleCore
       primary:   :primary
     }
 
+    def available_locales_with_names
+      Hash[I18n.available_locales.collect{ |l| [l, I18n.t('locales.'+l.to_s, default: l.to_s).try(:capitalize)] }]
+    end
+
     def display_flash_messages_new(closable: true)
       capture do
         concat "<div class='row' style='margin-top: 20px;'>".html_safe
@@ -53,17 +57,43 @@ module DataCycleCore
         "#{parameters[:content].class.class_name.underscore}_#{partial}",
         "content_#{partial}",
       ]
-      
+
+      render_first_existing_partial(partials, parameters)
+    end
+
+    def render_attribute_editor(key:, definition:, value:, parameters: {})
+      partials = [
+        "#{definition.try(:[], 'releasable') ? 'releasable' : ''}",
+        "#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'type').try(:underscore)}",
+        "#{definition.try(:[], 'editor').try(:[], 'type').try(:underscore)}",
+        "#{definition['type'].underscore}",
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/#{p}_editor" }
+
+      render_first_existing_partial(partials, parameters.merge({key: key, definition: definition, value: value}))
+    end
+
+    def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {})
+      partials = [
+        "#{definition.dig('editor', 'options', 'data-type').try(:underscore)}",
+        "default"
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_#{partial}" }
+
+      render_first_existing_partial(partials, parameters.merge({key: key, definition: definition}))
+    end
+
+    private
+
+    def render_first_existing_partial(partials, parameters)
       partials.each_with_index do |partial, idx|
         begin
+          logger.debug "  Try rendering partial #{partial} ..."
           return render(partial, parameters)
         rescue ActionView::MissingTemplate => e
+          logger.debug "  Try rendering partial #{partial} ... [NOT FOUND]"
           raise e if idx == partials.size - 1
         end
       end
     end
-
-    private
 
     def alert_box(value, alert_class, closable)
       options = { class: "flash callout #{alert_class}" }

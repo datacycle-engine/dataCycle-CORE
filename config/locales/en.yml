@@ -91,14 +91,11 @@ en:
           attributes:
             headline:
               blank: "Headline: Should be atleast 1 long."
-  data_cycle_core:
-    places:
-      partials:
-        shared:
-          new:
-            name: "Name"
-            street: "Street"
-            plz: "Postal Code"
-            address: "Address"
-            longitude: "Longitude"
-            latitude: "Latitude"
+    attributes:
+      data_cycle_core/place:
+        name: Name
+        street: Street
+        plz: "Postal Code"
+        address: Address
+        longitude: Longitude
+        latitude: Latitude

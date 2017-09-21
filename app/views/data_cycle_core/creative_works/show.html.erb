@@ -12,40 +12,4 @@
 
 <% end %>
 
-<section>
-
-    <% if @creativeWork.metadata['validation']['content_type'] == 'entity' %>
-
-        <% contentData = [] %>
-
-        <% @creativeWork.walk_tree do |content, level| %>
-
-            <% if content.metadata['validation']['content_type'] != 'embedded' %>
-                <% contentData.push(content) %>
-            <% end %>
-
-        <% end %>
-
-        <% if @mode == 'list' %>
-            <%= render 'data_cycle_core/backend/partials/list', dataCycleObjects: contentData %>
-        <% else %>
-            <%= render 'data_cycle_core/backend/partials/grid', dataCycleObjects: contentData %>
-        <% end %>
-
-    <% end %>
-
-</section>
-<% if @creativeWork.metadata['validation']['content_type'] == 'variant' %>
-
-    <div class="detail-content <%= @creativeWork.metadata['validation']['description'].downcase if !@creativeWork.metadata.nil? && !@creativeWork.metadata['validation'].nil? && !@creativeWork.metadata['validation']['description'].nil? %>">
-
-        <div class="row align-center">
-
-            <%= render 'data_cycle_core/creative_works/partials/show/'+@creativeWork.metadata['validation']['name'].downcase, dataCycleObject: @creativeWork, dataCycleObjectSchema: @dataSchema rescue render "data_cycle_core/creative_works/partials/show/default", dataCycleObject: @creativeWork, dataCycleObjectSchema: @dataSchema  %>
-            <%= render 'data_cycle_core/creative_works/partials/show/translation/translations', language: nil, dataCycleObject: @creativeWork %>
-
-        </div>
-
-    </div>
-
-<% end %>
+<%= render_content_partial 'details', content: @creativeWork %>

@@ -6,6 +6,41 @@ de:
     updated: "Bearbeitet"
   submit: "Erstellen"
 
+  locales:
+    de: "deutsch"
+    en: "englisch"
+    ar: "arabisch"
+    bg: "bulgarisch"
+    cs: "tschechisch"
+    da: "dänisch"
+    es: "spanisch"
+    fr: "französisch"
+    it: "italienisch"
+    hu: "ungarisch"
+    hr: "kroatisch"
+    ja: "japanisch"
+    ko: "koreanisch"
+    nl: "holländisch"
+    pt: "portugiesisch"
+    pl: "polnisch"
+    ru: "russisch"
+    sl: "slowenisch"
+    sk: "slowakisch"
+    sv: "schwedisch"
+    tr: "türkisch"
+    uk: "ukrainisch"
+    'de-CH': "schweizer-deutsch"
+
+  contentpool:
+    'vorschläge': "Vorschläge"
+    'recherche': "Recherche"
+    'aktuelle inhalte': "Aktuelle Inhalte"
+    'archiv': "Archiv"
+
+  common:
+    loading: 'Laden ...'
+    are_you_sure: 'Sind Sie sicher?'
+
   validation:
     errors:
       min: "%{data} zu kurz, sollte mindestens %{min} lang sein, ist aber nur %{length} lang."
@@ -70,24 +105,22 @@ de:
           attributes:
             headline:
               blank: "Headline: Darf nicht leer sein."
+    attributes:
+      data_cycle_core/person:
+        givenName: Vorname
+        familyName: Familienname
+        jobTitle: Berufsbezeichnung
+      data_cycle_core/place:
+        name: Name
+        street: Straße
+        plz: PLZ
+        address: Ort
+        longitude: Längengrad
+        latitude: Breitengrad
   unauthorized:
     manage:
       all: "Keine Zugriffsberechtigung!"
   data_cycle_core:
-    places:
-      partials:
-        shared:
-          new:
-            name: "Name"
-            street: "Straße"
-            plz: "PLZ"
-            address: "Ort"
-            longitude: "Längengrad"
-            latitude: "Breitengrad"
-    persons:
-      partials:
-        shared:
-          new:
-            givenName: "Vorname"
-            familyName: "Familienname"
-            jobTitle: "Berufsbezeichnung"
+    administration: 'Administration'
+
+    classifications: 'Klassifizierungen'
