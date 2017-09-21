@@ -7,7 +7,7 @@ module DataCycleCore
     layout 'data_cycle_core/creative_works_edit'
 
     def index
-      authorize! :manage, DataCycleCore::UserGroup
+      authorize! :crud, DataCycleCore::UserGroup
       @user_groups = DataCycleCore::UserGroup.all
     end
 

@@ -19,7 +19,7 @@ end
 
 crumb :edit_user do |user|
   link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>Bearbeiten", user.email), edit_user_path(user)
-  parent :'data_cycle_core/users' if can? :manage, DataCycleCore::User
+  parent :'data_cycle_core/users' if can? :crud, DataCycleCore::User
 end
 
 crumb :'data_cycle_core/user_groups' do
@@ -28,7 +28,7 @@ end
 
 crumb :edit_user_group do |user_group|
   link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>Bearbeiten", user_group.name), edit_user_group_path(user_group)
-  parent :'data_cycle_core/user_groups' if can? :manage, DataCycleCore::UserGroup
+  parent :'data_cycle_core/user_groups' if can? :crud, DataCycleCore::UserGroup
 end
 
 crumb :edit_resource do |resource|

@@ -7,8 +7,8 @@ module DataCycleCore
     layout 'data_cycle_core/creative_works_edit'
 
     def index
-      authorize! :manage, DataCycleCore::User
-      if current_user.role.rank > 1
+      authorize! :crud, DataCycleCore::User
+      if current_user.role.rank == 10
         @users = DataCycleCore::User.includes(:role)
       else
         @users = DataCycleCore::User.where(locked_at: nil).includes(:role)

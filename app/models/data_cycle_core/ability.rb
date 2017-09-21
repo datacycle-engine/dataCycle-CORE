@@ -4,6 +4,7 @@ module DataCycleCore
 
     def initialize(user, session = {})
       alias_action :update, :destroy, to: :modify
+      alias_action :create, :create_user, :read, :update, :destroy, :validate_single_data, to: :crud
 
       if user
         can :read, :all
@@ -18,31 +19,35 @@ module DataCycleCore
         end
 
         if user.has_rank?(1)
-          can :manage, [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]
-          can :manage, DataCycleCore::WatchList, user_id: user.id
           can :read, :backend
-
-          can :subscribe, [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]
-          can [:create, :destroy], DataCycleCore::Subscription
-
-          can :manage, DataCycleCore::DataLink
-
           can :modify, DataCycleCore::User, id: user.id
+          can :manage, DataCycleCore::WatchList, user_id: user.id
+          can :subscribe, [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]
         end
 
-        if user.has_rank?(2)
-          can :manage, :dash_board
-          can :manage, [DataCycleCore::User, DataCycleCore::UserGroup]
-          cannot [:set_role, :set_user_groups], DataCycleCore::User do |the_user|
-            the_user.has_rank?(user.role.rank)
-          end
-          cannot [:set_role, :set_user_groups], DataCycleCore::User do |the_user|
-            the_user.has_rank?(user.role.rank)
+        if user.has_rank?(10)
+          can :manage,
+            [
+              :dash_board,
+              DataCycleCore::DataLink
+            ]
+
+            can :crud,
+            [
+              DataCycleCore::User,
+              DataCycleCore::UserGroup,
+              DataCycleCore::CreativeWork,
+              DataCycleCore::Person,
+              DataCycleCore::Place
+            ]
+
+          can [:set_role, :set_user_groups], DataCycleCore::User do |the_user|
+            !the_user.has_rank?(user.role.rank)
           end
         end
 
         cannot :modify, DataCycleCore::User do |the_user|
-          the_user.external || the_user.role.rank < 1
+          the_user.role.rank == 0 || (the_user.has_rank?(user.role.rank) && the_user != user)
         end
       end
     end

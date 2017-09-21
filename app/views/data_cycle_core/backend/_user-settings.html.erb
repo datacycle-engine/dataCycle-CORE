@@ -38,7 +38,7 @@
                     </div>
                 <% end %>
 
-                <% if can? :manage, DataCycleCore::User %>
+                <% if can? :crud, DataCycleCore::User %>
                     <div class="row columns">
                         <%= link_to users_path do %>
                             <span class="icon"><i class="fa fa-user" aria-hidden="true"></i></span>
@@ -47,7 +47,7 @@
                     </div>
                 <% end %>
 
-                <% if can? :manage, DataCycleCore::UserGroup %>
+                <% if can? :crud, DataCycleCore::UserGroup %>
                     <div class="row columns">
                         <%= link_to user_groups_path do %>
                             <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
