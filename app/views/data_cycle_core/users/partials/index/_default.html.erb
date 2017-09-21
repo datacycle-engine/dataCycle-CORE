@@ -21,7 +21,7 @@
         <div class="tags">
           <span class="tag"><%= t('roles.'+item.role.name) %></span>
           <% item.user_groups.each do |user_group| %>
-            <span class="tag"><%= user_group.headline %></span>
+            <span class="tag"><%= user_group.name %></span>
           <% end %>
         </div>
 
