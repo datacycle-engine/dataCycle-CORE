@@ -1,0 +1,15 @@
+<% breadcrumb :edit_user_group, @user_group %>
+
+<% content_for :top_content do %>
+
+<div class="reveal-blur">
+
+    <div id="edit-form">
+
+        <%= render 'data_cycle_core/user_groups/partials/edit/form', content: @user_group %>
+
+    </div>
+
+</div>
+
+<% end %>

@@ -1,0 +1,39 @@
+<% @user = DataCycleCore::User.new %>
+
+<div class="reveal new-item" id="newContent" data-reveal data-multiple-opened="true">
+    <h3><%= t('actions.new.user') %></h3>
+
+    <%= form_for @user, url: {action: "create_user"} do |f| %>
+
+      <div class="form-element validation-container">
+          <%= f.email_field :email, required: true, autofocus: true %>
+      </div>
+
+      <div class="form-element validation-container">
+          <%= f.text_field :given_name, class: 'no-validation' %>
+      </div>
+
+      <div class="form-element validation-container">
+          <%= f.text_field :family_name, class: 'no-validation' %>
+      </div>
+
+      <div class="form-element validation-container">
+          <%= f.password_field :password, required: true %>
+      </div>
+
+      <div class="form-element validation-container">
+          <%= f.password_field :password_confirmation, required: true %>
+      </div>
+
+      <div class="form-element validation-container">
+          <%= f.select :role_id, DataCycleCore::Role.where('rank <= ?', current_user.role.rank).collect{|r| [t('roles.'+r.name), r.id]} %>
+      </div>
+
+      <%= f.submit t(:submit), class: "button primary" %>
+
+    <% end %>
+
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>

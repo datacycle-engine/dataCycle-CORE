@@ -1,5 +1,5 @@
 <div class="off-canvas position-right" id="settings-off-canvas" data-off-canvas data-content-overlay="false">
-    <% unless current_user.role == "guest" %>
+    <% if current_user.role.rank > 0 %>
         <div class="settings-row">
             <div class="row column">
                 <%= link_to data_cycle_core.destroy_user_session_path, method: :delete do %>
@@ -7,6 +7,14 @@
                     <span class="title">Ausloggen</span>
                 <% end %>
             </div>
+            <% if can? :update, current_user %>
+              <div class="row columns">
+                  <%= link_to edit_user_path(current_user) do %>
+                      <span class="icon"><i class="fa fa-pencil" aria-hidden="true"></i></span>
+                      <span class="title"><%= DataCycleCore::User.model_name.human %> <%= t('actions.edit') %></span>
+                  <% end %>
+              </div>
+            <% end %>
             <div class="row columns">
                 <%= link_to settings_path do %>
                     <span class="icon"><i class="fa fa-cogs" aria-hidden="true"></i></span>
@@ -26,6 +34,24 @@
                         <%= link_to classifications_path do %>
                             <span class="icon"><i class="fa fa-list" aria-hidden="true"></i></span>
                             <span class="title"><%= t('data_cycle_core.classifications') %></span>
+                        <% end %>
+                    </div>
+                <% end %>
+
+                <% if can? :manage, DataCycleCore::User %>
+                    <div class="row columns">
+                        <%= link_to users_path do %>
+                            <span class="icon"><i class="fa fa-user" aria-hidden="true"></i></span>
+                            <span class="title"><%= DataCycleCore::User.model_name.human(count: 2) %> <%= t('actions.manage') %></span>
+                        <% end %>
+                    </div>
+                <% end %>
+
+                <% if can? :manage, DataCycleCore::UserGroup %>
+                    <div class="row columns">
+                        <%= link_to user_groups_path do %>
+                            <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
+                            <span class="title"><%= DataCycleCore::UserGroup.model_name.human(count: 2) %> <%= t('actions.manage') %></span>
                         <% end %>
                     </div>
                 <% end %>

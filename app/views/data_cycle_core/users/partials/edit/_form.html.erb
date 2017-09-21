@@ -1,0 +1,83 @@
+<%= form_for content do |f| %>
+	<%= hidden_field_tag 'uuid', content.id %>
+
+	<section class="edit-header">
+		<div class="row expanded">
+			<div class="column">
+				<div class="edit-headline">
+					<i class="fa fa-pencil" aria-hidden="true"></i> <%== "#{content.model_name.human} #{t('actions.edit')}" %>
+				</div>
+				<ul>
+					<li>
+						<%= link_to breadcrumbs[-2].url do %>
+							<button type="button" class="button discard top" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
+						<% end %>
+					</li>
+					<li class="submit">
+						<button class="button-prime" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</section>
+
+	<div class="row">
+		<div class="column">
+			<div class="detail-header editor">
+
+				<div class="detail-header-info">
+					<div class="type thema">
+						<span class="icon">
+								<i class="fa fa-folder-open" aria-hidden="true"></i>
+						</span>
+						<span class="title"><%= content.model_name.human %></span>
+					</div>
+				</div>
+
+				<div class="form-element validation-container input" tabindex="-1">
+						<%= f.text_field :given_name %>
+				</div>
+
+				<div class="form-element validation-container input" tabindex="-1">
+						<%= f.text_field :family_name %>
+				</div>
+
+				<div class="form-element validation-container input" tabindex="-1">
+						<%= f.email_field :email, required: true %>
+				</div>
+
+        <div class="form-element validation-container input" tabindex="-1">
+            <%= f.password_field :password, autocomplete: 'off' %>
+        </div>
+
+        <div class="form-element validation-container input" tabindex="-1">
+            <%= f.password_field :password_confirmation, autocomplete: 'off' %>
+        </div>
+
+        <% if current_user == @user %>
+          <div class="form-element validation-container input" tabindex="-1">
+              <%= f.password_field :current_password %>
+          </div>
+        <% end %>
+
+        <% if can? :set_role, @user %>
+          <div class="form-element validation-container" tabindex="-1">
+              <%= f.select :role_id, DataCycleCore::Role.where('rank <= ?', current_user.role.rank).collect{|r| [t('roles.'+r.name), r.id]}, label: false %>
+          </div>
+        <% end %>
+
+        <% if can? :set_user_groups, @user %>
+          <div class="form-element validation-container" tabindex="-1">
+              <% select_options = DataCycleCore::UserGroup.all.map{|u| {value: u.id, label: u.name}} %>
+              <% selected_values = content.user_groups.map{|u| {value: u.id, label: u.name}} %>
+
+              <%= f.label :user_group_ids %>
+              <custom-select hidden-field-id="user[user_group_ids][]" :custom-options="<%= select_options.to_json %>" :selected-values="<%= selected_values.to_json %>"></custom-select>
+          </div>
+        <% end %>
+
+			</div>
+		</div>
+	</div>
+
+<% end %>
