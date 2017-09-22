@@ -8,7 +8,7 @@ module DataCycleCore
 
     def index
       authorize! :crud, DataCycleCore::User
-      if current_user.role.rank == 10
+      if current_user.role && current_user.role.rank == 10
         @users = DataCycleCore::User.includes(:role)
       else
         @users = DataCycleCore::User.where(locked_at: nil).includes(:role)

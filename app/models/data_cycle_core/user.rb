@@ -23,12 +23,12 @@ module DataCycleCore
     end
 
     def has_rank?(rank)
-      self.role.rank >= rank
+      self.role && self.role.rank >= rank
     end
 
     private
     def set_default_role
-      self.role ||= DataCycleCore::Role.find_by(label: 'user')
+      self.role ||= DataCycleCore::Role.find_by(name: 'standard')
     end
   end
 end

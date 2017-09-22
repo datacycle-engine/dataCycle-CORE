@@ -3,7 +3,7 @@
     <div class="inner">
 
         <div class="infoRow">
-            <% icon_type = item.role.rank > 0 ? 'person' : 'anonym' %>
+            <% icon_type = (item.role && item.role.rank > 0) ? 'person' : 'anonym' %>
             <%= render 'data_cycle_core/shared/icon', icon_type: icon_type %>
             <%== "<del>" if item.access_locked? %>
               <span class="title"><%= item.model_name.human %> <%= "("+item.class.human_attribute_name('external')+")" if item.external %></span>
@@ -19,7 +19,9 @@
         </div>
 
         <div class="tags">
-          <span class="tag"><%= t('roles.'+item.role.name) %></span>
+          <% if item.role %>
+            <span class="tag"><%= t('roles.'+item.role.name) %></span>
+          <% end %>
           <% item.user_groups.each do |user_group| %>
             <span class="tag"><%= user_group.name %></span>
           <% end %>

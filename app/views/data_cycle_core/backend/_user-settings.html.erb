@@ -1,5 +1,5 @@
 <div class="off-canvas position-right" id="settings-off-canvas" data-off-canvas data-content-overlay="false">
-    <% if current_user.role.rank > 0 %>
+    <% if current_user.role && current_user.role.rank > 0 %>
         <div class="settings-row">
             <div class="row column">
                 <%= link_to data_cycle_core.destroy_user_session_path, method: :delete do %>
