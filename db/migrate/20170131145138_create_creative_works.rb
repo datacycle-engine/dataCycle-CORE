@@ -1,23 +1,42 @@
 class CreateCreativeWorks < ActiveRecord::Migration[5.0]
 
   def up
-
     I18n.with_locale(:de) do
-      DataCycleCore::Place.create_translation_table!({
-        name: :string,
-        addressLocality: :string,
-        streetAddress: :string,
-        postalCode: :string,
-        addressCountry: :string,
-        faxNumber: :string,
-        telephone: :string,
-        email: :string,
-        url: :string,
-        hoursAvailable: :string
-      }, {
-        :migrate_data => true,
-        :remove_source_columns => true
-      })
+      begin
+        DataCycleCore::Place.create_translation_table!(
+          {
+            name: :string,
+            addressLocality: :string,
+            streetAddress: :string,
+            postalCode: :string,
+            addressCountry: :string,
+            faxNumber: :string,
+            telephone: :string,
+            email: :string,
+            url: :string,
+            hoursAvailable: :string
+          },
+          migrate_data: true,
+          remove_source_columns: true
+        )
+      rescue BadFieldName
+        DataCycleCore::Place.create_translation_table!(
+          {
+            name: :string,
+            address_locality: :string,
+            street_address: :string,
+            postal_code: :string,
+            address_country: :string,
+            fax_number: :string,
+            telephone: :string,
+            email: :string,
+            url: :string,
+            hours_available: :string
+          },
+          migrate_data: true,
+          remove_source_columns: true
+        )
+      end
     end
 
     create_table :creative_works, id: :uuid do |t|
