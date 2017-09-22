@@ -10,8 +10,7 @@ module DataCycleCore
     def show
       session[:trail] = params[:trail] unless params[:trail].nil?
       @creativeWork = DataCycleCore::CreativeWork.find_by(id: params[:id])
-      locale = @creativeWork.translated_locales.include?(I18n.locale) ? I18n.locale : @creativeWork.translated_locales.first
-      I18n.with_locale(locale) do
+      I18n.with_locale(@creativeWork.first_available_locale) do
 
         if @creativeWork.nil?
           redirect_back(fallback_location: root_path)
@@ -66,9 +65,18 @@ module DataCycleCore
     end
 
     def edit
-      @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
-      locale = @creativeWork.translated_locales.include?(I18n.locale) ? I18n.locale : @creativeWork.translated_locales.first
-      I18n.with_locale(locale) do
+      @creativeWork = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
+
+      # get show data for split view
+      @splitType = params[:source_type].constantize unless params[:source_type].nil?
+      @splitSource = @splitType.find(params[:source_id]) if !params[:source_id].nil? && !@splitType.nil?
+      @splitSchema = []
+
+      I18n.with_locale(@splitSource.first_available_locale) do
+        @splitSchema = @splitSource.get_data_hash
+      end unless @splitSource.nil?
+
+      I18n.with_locale(@creativeWork.first_available_locale) do
 
         unless @creativeWork.read_write?
           raise "read_only"
@@ -80,18 +88,13 @@ module DataCycleCore
         @person = DataCycleCore::Person.new
         @dataSchema = @creativeWork.get_data_hash
 
-        @splitType = params[:source_type].constantize unless params[:source_type].nil?
-        @splitSource = @splitType.find(params[:source_id]) if !params[:source_id].nil? && !@splitType.nil?
-        @splitSchema = @splitSource.get_data_hash unless @splitSource.nil?
-
         render layout: "data_cycle_core/creative_works_edit"
       end
     end
 
     def update
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
-      locale = @creativeWork.translated_locales.include?(I18n.locale) ? I18n.locale : @creativeWork.translated_locales.first
-      I18n.with_locale(locale) do
+      I18n.with_locale(@creativeWork.first_available_locale) do
 
         object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], 'CreativeWork')
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'],false)
@@ -157,22 +160,24 @@ module DataCycleCore
           return nil
         end
 
-        parent_data_hash = parent.get_data_hash
+        I18n.with_locale(parent.first_available_locale) do
+          parent_data_hash = parent.get_data_hash
 
-        #topics
-        data_hash['topics'] = parent_data_hash['topics']
-        #markets
-        data_hash['markets'] = parent_data_hash['markets']
-        #tags
-        data_hash['tags'] = parent_data_hash['tags']
-        #state
-        data_hash['state'] = parent_data_hash['state']
-        #kind
-        data_hash['kind'] = parent_data_hash['kind']
-        #season
-        data_hash['season'] = parent_data_hash['season']
-        #content_pool
-        data_hash['data_pool'] = parent_data_hash['data_pool']
+          #topics
+          data_hash['topics'] = parent_data_hash['topics']
+          #markets
+          data_hash['markets'] = parent_data_hash['markets']
+          #tags
+          data_hash['tags'] = parent_data_hash['tags']
+          #state
+          data_hash['state'] = parent_data_hash['state']
+          #kind
+          data_hash['kind'] = parent_data_hash['kind']
+          #season
+          data_hash['season'] = parent_data_hash['season']
+          #content_pool
+          data_hash['data_pool'] = parent_data_hash['data_pool']
+        end
 
         return data_hash.compact!
 

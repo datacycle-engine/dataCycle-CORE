@@ -382,3 +382,27 @@ select {
     }
   }
 }
+
+.grid-item {
+  .item-links {
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+    a.button-prime.small,
+    button.button-prime.small {
+      display: inline-block;
+      height: 2rem;
+      width: 2rem;
+      &.has-tip {
+        &:hover,
+        &:focus {
+          cursor: pointer;
+        }
+      }
+    }
+    .fa {
+      line-height: 2rem;
+      font-size: 1rem;
+    }
+  }
+}

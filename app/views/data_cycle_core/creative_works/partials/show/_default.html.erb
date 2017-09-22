@@ -16,13 +16,15 @@
 
                 <% validation_properties.each do |key, prop| %>
 
-                    <% if !dataCycleObjectSchema[key].nil? && !dataCycleObjectSchema[key].blank? && !exludedProperties.include?(key) %>
+                    <% value = prop.dig('type') == "object" ? dataCycleObject.try(key.to_sym) : dataCycleObjectSchema[key] %>
+
+                    <% if !value.blank? && !exludedProperties.include?(key) %>
 
                         <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
                                 label: prop['label'],
                                 prop: prop,
                                 key: key,
-                                value: normalize_value(dataCycleObjectSchema[key]) %>
+                                value: normalize_value(value) %>
 
                     <% end %>
 
