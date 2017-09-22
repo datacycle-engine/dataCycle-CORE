@@ -1,13 +1,13 @@
 module DataCycleCore
-  class CreativeWorkPerson < ApplicationRecord
+  class PersonPlace < ApplicationRecord
     include DataSetter
 
-    belongs_to :creative_work
     belongs_to :person
+    belongs_to :place
 
     class History < ApplicationRecord
-      belongs_to :creative_work_history, class_name: "DataCycleCore::CreativeWork::History"
       belongs_to :person_history, class_name: "DataCycleCore::Person::History"
+      belongs_to :place_history, class_name: "DataCycleCore::Place::History"
     end
   end
 end

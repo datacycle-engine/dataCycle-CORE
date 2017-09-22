@@ -5,26 +5,19 @@ module DataCycleCore
 
     # get data as specified in the data template
     # data hash with keys named as in schema.org
-    def get_data_hash
-      locale = self.translated_locales.include?(I18n.locale) ? I18n.locale : self.translated_locales.first
-      I18n.with_locale(locale) do
-
-        if translated_locales.include?(locale) || changes.count > 0 # for new data-sets with pending data in it
-          data_type = metadata['validation']
-          # data_hash = get_template_data_hash(data_type['properties'])
-          data_hash = self.to_h
-
-          data_hash = merge_release(data_hash, release) if kind_of?(DataCycleCore::Releasable)
-          return data_hash
-        else
-          return nil
-        end
+    def get_data_hash(timestamp = Time.zone.now)
+      if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with pending data in it
+        data_hash = self.as_of(timestamp).to_h(timestamp)
+        data_hash = merge_release(data_hash, release) if kind_of?(DataCycleCore::Releasable)
+        return data_hash
+      else
+        return nil
       end
     end
 
     # set data as specified in the data template
     # data hash with keys named as in schema.org
-    def set_data_hash(data_hash)
+    def set_data_hash(data_hash, current_user = nil, save_time = Time.zone.now)
       template_hash = metadata['validation']
 
       stripped_data_hash = data_hash
@@ -32,25 +25,91 @@ module DataCycleCore
 
       if validate?(stripped_data_hash)
         ActiveRecord::Base.transaction do
+          self.to_history(save_time) unless self.id.nil?
           data_hash, release_hash = extract_release(data_hash, false) if kind_of?(DataCycleCore::Releasable) # strip release data only from this objectt
-          set_template_data_hash(data_hash, template_hash['properties'])
+          set_template_data_hash(data_hash, template_hash['properties'], save_time, current_user)
           if kind_of?(DataCycleCore::Releasable)
             self.release = release_hash
             self.release_id = set_global_release(global_release_hash)
           end
+          self.updated_at = save_time
+          updated_by = {'last_updated_by' => current_user.try(:id)}
+          self.metadata.nil? ? self.metadata = updated_by : self.metadata.merge!(updated_by)
         end
       end
       validate(stripped_data_hash) # return error/warnings from validation
     end
 
-    def set_data_hash_attribute(key, value)
+    def set_data_hash_attribute(key, value, current_user, save_time = Time.zone.now)
       key_hash = metadata.dig('validation', 'properties', key)
 
       unless key_hash.nil?
         ActiveRecord::Base.transaction do
-          storage_cases_set(key, value, key_hash)
+          storage_cases_set(key, value, key_hash, save_time, current_user)
         end
       end
+    end
+
+    def to_history (save_time)
+      origin_table = self.class.to_s.split("::")[1].tableize
+      data_set_history = (self.class.to_s + "::History").safe_constantize.new
+
+      ActiveRecord::Base.transaction do
+
+        # cc self to history
+        data_set_history.send(origin_table.singularize.foreign_key+"=", self.id)
+        self.attributes.except("id").each do |key,value|
+          data_set_history.send("#{key}=", value)
+        end
+
+        lower_bound = self.updated_at
+        if lower_bound > save_time
+          lower_bound = save_time
+        end
+        data_set_history.history_valid = (lower_bound ... save_time)
+        data_set_history.save
+
+        # cc classification_relation to history
+        self.send("classification_"+origin_table).all.each do |item|
+          classification_history = ("DataCycleCore::Classification" + origin_table.classify + "::History").safe_constantize.new
+          classification_history.send(origin_table.singularize + "_history_id=", data_set_history.id)
+          item.attributes.except("id", origin_table.singularize.foreign_key).each do |key,value|
+            classification_history.send("#{key}=", value)
+          end
+          classification_history.classification_id = item.classification_id
+          #classification_history.history_valid = (item.updated_at ... save_time)
+          classification_history.save
+        end
+
+        # cc embedded data from other content tables
+        embedded_relations.map(&:singularize).each do |content_name|
+          content_relation_table = [content_name, origin_table.singularize].sort.join('_')
+          self.send(content_name.pluralize).each do |content_item|
+            new_content_history = content_item.to_history(save_time)
+            data_set_history.send(content_relation_table + "_histories").create({
+                (origin_table.singularize + "_history_id") => data_set_history.id,
+                (content_name + "_history_id") => new_content_history.id,
+                "history_valid" => (content_item.updated_at ... save_time)
+              })
+          end
+        end
+
+        # cc embedded data from same content table
+        data_refs = embedded_self_property_names.map{ |name|
+          name + '_hasPart'
+        }.each { |key|
+          data_set_history.metadata[key] = []
+          unless self.metadata[key].blank?
+            self.metadata[key].each do |content_id|
+              content_history = self.class.find(content_id).to_history(save_time)
+              data_set_history.metadata[key].push(content_history.id)
+            end
+          end
+        }
+        data_set_history.save
+      end
+
+      data_set_history
     end
 
     def delete_childs(delete_relation)
@@ -59,7 +118,6 @@ module DataCycleCore
       template_hash['properties'].each do |key,value|
         # cleanup embeddedObjects
         if value['type'] == 'object' && value.has_key?('name') && value.has_key?('description')
-          #puts "Object: #{value['name']}|#{value['description']}|#{value['delete']}"
           delete = false
           delete = value['delete'] unless value['delete'].blank?
           if value['storage_location'] == self.class.table_name
@@ -68,7 +126,7 @@ module DataCycleCore
             delete_item_keys = []
             delete_item_keys = self.metadata[field_has_part] if !self.metadata.blank? && self.metadata.has_key?(field_has_part)
             delete_item_keys.each do |key|
-              item = ("DataCycleCore::"+value['storage_location'].classify).constantize.find_by(id: key)
+              item = ("DataCycleCore::" + value['storage_location'].classify).constantize.find_by(id: key)
               item.delete_childs(delete)
               item.destroy if delete
             end
@@ -80,7 +138,7 @@ module DataCycleCore
               item.destroy if delete
             end
             relation = get_relation_name(value['storage_location'])
-            relations = ("DataCycleCore::"+relation.classify).constantize.
+            relations = ("DataCycleCore::" + relation.classify).constantize.
               where(self.class.table_name.singularize.foreign_key.to_sym => self.id, value['storage_location'].singularize.foreign_key.to_sym => present_relations)
             relations.destroy_all unless relations.blank?
           end
@@ -90,7 +148,7 @@ module DataCycleCore
           if value['storage_location'] == 'classification_relation'
             found_ids = get_relation_ids(value['storage_type'], value['type_name'])
             if found_ids.size > 0
-              class_string = "DataCycleCore::"+value['storage_type'].classify
+              class_string = "DataCycleCore::" + value['storage_type'].classify
               class_id = self.class.to_s.demodulize.foreign_key
               class_string.constantize.
                 where(
@@ -118,7 +176,7 @@ module DataCycleCore
     private
 
     def get_relation_ids(storage_type, tree_label)
-      class_string = "DataCycleCore::"+storage_type.classify
+      class_string = "DataCycleCore::" + storage_type.classify
       class_id = self.class.to_s.demodulize.foreign_key
       class_string.constantize.
         where(class_id => id).
@@ -128,10 +186,9 @@ module DataCycleCore
     end
 
     def set_relation_ids(storage_type, ids, tree_label, default_value)
-      class_string = "DataCycleCore::"+storage_type.classify
+      class_string = "DataCycleCore::" + storage_type.classify
       class_id = self.class.to_s.demodulize.foreign_key
 
-      #puts "#{storage_type} | #{ids} | #{tree_label} | #{default_value}"
       if is_blank?(ids)
         begin
           if !default_value.blank? && ids.nil? && get_relation_ids(storage_type, tree_label).count == 0
@@ -175,42 +232,40 @@ module DataCycleCore
       end
     end
 
-    def get_template_data_hash(properties, origin = [])
-      data_hash = {}
+    # def get_template_data_hash(properties, origin = [])
+    #   data_hash = {}
+    #   properties.each do |key,value|
+    #     data_hash[key] = storage_cases_get(key,properties[key], origin)
+    #   end
+    #   data_hash
+    # end
+
+    def set_template_data_hash(data_hash, properties, save_time, current_user)
       properties.each do |key,value|
-        data_hash[key] = storage_cases_get(key,properties[key], origin)
-      end
-      data_hash
-    end
-
-    def set_template_data_hash(data_hash, properties)
-      properties.each do |key,value|
-        #puts " key ----> #{key} | value: #{value} || #{data_hash[key]} | #{data_hash}"
-        storage_cases_set(key, data_hash[key], value)
+        storage_cases_set(key, data_hash[key], value, save_time, current_user)
       end
     end
 
-    def storage_cases_get(key, properties, origin)
-      case properties["storage_location"]
-      when "column"
-        self.method(key).call
-      when "content"
-        get_from_jsonb(key, properties, origin, 'content')
-      when "metadata"
-        get_from_jsonb(key, properties, origin, 'metadata')
-      when "properties"
-        get_from_jsonb(key, properties, origin, 'properties')
-      when "classification_relation"
-        get_relation_ids(properties["storage_type"], properties["type_name"])
-      when "key"
-        self.id
-      else
-        get_linked_data_type(key, properties['storage_location'], properties['name'], properties['description'])
-      end
-    end
+    # def storage_cases_get(key, properties, origin)
+    #   case properties["storage_location"]
+    #   when "column"
+    #     self.method(key).call
+    #   when "content"
+    #     get_from_jsonb(key, properties, origin, 'content')
+    #   when "metadata"
+    #     get_from_jsonb(key, properties, origin, 'metadata')
+    #   when "properties"
+    #     get_from_jsonb(key, properties, origin, 'properties')
+    #   when "classification_relation"
+    #     get_relation_ids(properties["storage_type"], properties["type_name"])
+    #   when "key"
+    #     self.id
+    #   else
+    #     get_linked_data_type(key, properties['storage_location'], properties['name'], properties['description'])
+    #   end
+    # end
 
-    def storage_cases_set(key, value, properties)
-      #puts " key ----> #{key} | value: #{value} | #{properties}"
+    def storage_cases_set(key, value, properties, save_time, current_user)
       case properties['storage_location']
       when 'column'
         self.method("#{key}=").call(value)
@@ -227,8 +282,7 @@ module DataCycleCore
           if properties.has_key?('name') && properties.has_key?('description')
             delete = false
             delete = true if properties.has_key?('delete') && properties['delete'] == true
-            #puts "set_linked_data_type(#{key}, #{value}, #{properties['storage_location']}, #{properties['name']}, #{properties['description']}, #{delete})"
-            set_linked_data_type(key, value, properties['storage_location'], properties['name'], properties['description'], delete)
+            set_linked_data_type(key, value, properties['storage_location'], properties['name'], properties['description'], delete, save_time, current_user)
           else
             puts "wrong data_type #{key} | #{value}"
           end
@@ -236,30 +290,27 @@ module DataCycleCore
       end
     end
 
-    def get_from_jsonb(key, properties, origin, field_name)
-      #puts "#{key} | #{origin} | #{field_name} || #{properties}" #if properties['type'] == 'object'
-      if properties['type'] == 'object'
-        # object found ==> recursively retrieve data
-        new_origin = origin + [key]
-        result = get_template_data_hash(properties['properties'], new_origin).compact
-      else
-        # data element found ==> get data within jsonb-tree-structure
-        result = self.method(field_name).call
-        origin = origin + [key]
-        origin.each do |item|
-          result = result[item] unless result.nil?
-          return nil if result.nil?
-        end
-      end
-      result.blank? ? nil : result  # conserve old behavior (empty objects return as nil)
-    end
+    # def get_from_jsonb(key, properties, origin, field_name)
+    #   if properties['type'] == 'object'
+    #     # object found ==> recursively retrieve data
+    #     new_origin = origin + [key]
+    #     result = get_template_data_hash(properties['properties'], new_origin).compact
+    #   else
+    #     # data element found ==> get data within jsonb-tree-structure
+    #     result = self.method(field_name).call
+    #     origin = origin + [key]
+    #     origin.each do |item|
+    #       result = result[item] unless result.nil?
+    #       return nil if result.nil?
+    #     end
+    #   end
+    #   result.blank? ? nil : result  # conserve old behavior (empty objects return as nil)
+    # end
 
     def save_to_jsonb(key, data, properties, location)
       # parse tree in json, to only set data specified in the data definitions
       if properties['type'] == 'object' && data.is_a?(::Hash) # object with potentially relevant data
-        #puts "#{key}|#{data}|#{new_origin}|#{location}"
         data = set_data_tree_hash(data, properties['properties'], location)
-        #puts "#{data}"
       end
 
       # dont overwrite creator with empty values
@@ -291,38 +342,36 @@ module DataCycleCore
       data_hash
     end
 
-    def get_linked_data_type(field_name, table, name, description)
-      return_data = []
+    # def get_linked_data_type(field_name, table, name, description)
+    #   return_data = []
+    #
+    #   # check if external relation or relation to itself
+    #   if table == self.class.table_name
+    #     field_has_part = "#{field_name}_hasPart"
+    #     if !self.metadata.blank? && self.metadata.has_key?(field_has_part)
+    #       self.metadata[field_has_part].each do |item|
+    #         data_set = self.class.find_by(id: item)
+    #         return_data.push(data_set.get_data_hash)
+    #       end
+    #     end
+    #   else
+    #     self.method(table).call.each do |item|
+    #       return_data.push(item.get_data_hash)
+    #     end
+    #   end
+    #   return_data.compact
+    # end
 
-      # check if external relation or relation to itself
-      if table == self.class.table_name
-        field_has_part = "#{field_name}_hasPart"
-        if !self.metadata.blank? && self.metadata.has_key?(field_has_part)
-          self.metadata[field_has_part].each do |item|
-            data_set = self.class.find_by(id: item)
-            return_data.push(data_set.get_data_hash)
-          end
-        end
-      else
-        self.method(table).call.each do |item|
-          return_data.push(item.get_data_hash)
-        end
-      end
-      return_data.compact
-    end
-
-    def set_linked_data_type(field_name, data, table, name, description, delete)
+    def set_linked_data_type(field_name, data, table, name, description, delete, save_time, current_user)
       # check if it is a relation to itself or external via relation_table
       if table == self.class.table_name
-        #puts "set_linked_via_tree"
-        set_linked_via_tree(field_name, data, table, name, description, delete)
+        set_linked_via_tree(field_name, data, table, name, description, delete, save_time, current_user)
       else
-        #puts "set_linked_via_relation"
-        set_linked_via_relation(data, table, name, description, delete)
+        set_linked_via_relation(data, table, name, description, delete, save_time, current_user)
       end
     end
 
-    def set_linked_via_relation(data, table, name, description, delete)
+    def set_linked_via_relation(data, table, name, description, delete, save_time, current_user)
       relation = get_relation_name(table)
       updated_item_keys = []
 
@@ -343,7 +392,7 @@ module DataCycleCore
           elsif item.has_key?('id') && !item['id'].blank?
             # update
             update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['id'])
-            update_item.set_data_hash(item)
+            update_item.set_data_hash(item, current_user, save_time)
             update_item.save
             updated_item_keys.push(update_item.id)
           else
@@ -357,7 +406,7 @@ module DataCycleCore
             insert_item = ("DataCycleCore::"+table.classify).constantize.new
             insert_item.metadata = { 'validation' => template.metadata['validation'] }
             insert_item.save
-            insert_item.set_data_hash(item)
+            insert_item.set_data_hash(item, current_user, save_time)
             insert_item.save
             updated_item_keys.push(insert_item.id)
 
@@ -403,7 +452,7 @@ module DataCycleCore
       self.method(table).call.reload # MO: force reload of the relation, otherwise cached data can obsure the next get_data_hash
     end
 
-    def set_linked_via_tree(field_name, data, table, name, description, delete)
+    def set_linked_via_tree(field_name, data, table, name, description, delete, save_time, current_user)
       # get validation template
       template = ("DataCycleCore::"+table.classify).constantize
         .with_translations('de')
@@ -421,7 +470,7 @@ module DataCycleCore
           elsif item.has_key?('id') && !item['id'].blank?
             # update
             update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['id'])
-            update_item.set_data_hash(item)
+            update_item.set_data_hash(item, current_user, save_time)
             update_item.save
             item_id = item['id']
           else
@@ -429,7 +478,7 @@ module DataCycleCore
             insert_item = ("DataCycleCore::"+table.classify).constantize.new
             insert_item.metadata = { 'validation' => template.metadata['validation'] }
             insert_item.save
-            insert_item.set_data_hash(item)
+            insert_item.set_data_hash(item, current_user, save_time)
             insert_item.isPartOf = self.id
             insert_item.save
             item_id = insert_item.id

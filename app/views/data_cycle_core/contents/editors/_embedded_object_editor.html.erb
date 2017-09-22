@@ -24,7 +24,9 @@
 
               <% validation_properties.each do |o_key, o_prop| %>
 
-                <%= render_attribute_editor key: "#{key}[#{index}][#{o_key}]", definition: o_prop, value: objectDataHash[o_key], parameters: { options: o_prop.dig('editor', 'options') || {} } %>
+                <% value = o_prop.dig('type') == "object" ? object.try(o_key.to_sym) : objectDataHash[o_key] %>
+
+                <%= render_attribute_editor key: "#{key}[#{index}][#{o_key}]", definition: o_prop, value: value, parameters: { options: o_prop.dig('editor', 'options') || {} } %>
 
               <% end %>
             </div>

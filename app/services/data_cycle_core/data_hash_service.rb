@@ -16,7 +16,7 @@ module DataCycleCore
     def self.get_internal_data(storage_location, value)
 
       internal_objects = []
-      if !value.empty? && value.count > 0
+      if !value.blank? && value.count > 0
         value.each do |object|
           internal_object = ("DataCycleCore::"+storage_location.classify).constantize.
               find_by(id: object['id'])
@@ -65,7 +65,7 @@ module DataCycleCore
         return nil
       end
 
-      object.set_data_hash(datahash)
+      object.set_data_hash(datahash, current_user)
 
       #validate ?
       if object.save

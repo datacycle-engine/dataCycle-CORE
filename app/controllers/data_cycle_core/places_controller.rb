@@ -46,7 +46,6 @@ module DataCycleCore
         return
       end
 
-      @place.metadata['last_updated_by'] = current_user.id
       respond_to do |format|
         #validate ?
         if !@place.nil? && @place.save
@@ -78,7 +77,7 @@ module DataCycleCore
       # todo: implement preprocessor
       datahash = set_location(datahash)
 
-      valid = @place.set_data_hash(datahash)
+      valid = @place.set_data_hash(datahash, current_user)
 
       if valid.key?(:error) && !valid[:error].empty?
         flash[:error] = valid[:error]
@@ -86,7 +85,6 @@ module DataCycleCore
         return
       end
 
-      @place.metadata['last_updated_by'] = current_user.id
       if @place.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Place'
 

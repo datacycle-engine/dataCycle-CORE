@@ -14,7 +14,7 @@
 
 <% elsif prop['type'] == 'object' %>
 
-    <% objects = get_object_data_for_show_action(prop['storage_location'], value) %>
+    <% objects = value #get_object_data_for_show_action(prop['storage_location'], value) %>
 
     <% if !objects.nil? && !objects.blank? %>
 
@@ -28,61 +28,65 @@
 
                 <%= link_to '<i class="fa fa-pencil" aria-hidden="true"></i>'.html_safe, edit_polymorphic_path(object), target: :_blank, class: "edit-link" if prop['editor']['type'] == "objectBrowser" %>
 
-                <% objectDataHash = object.get_data_hash %>
+                <% I18n.with_locale(object.first_available_locale) do %>
+                  <% objectDataHash = object.get_data_hash %>
 
-                <% if !object.metadata.nil? && !object.metadata['validation'].nil? %>
+                  <% if !object.metadata.nil? && !object.metadata['validation'].nil? %>
 
-                    <% validation_properties = get_ordered_validation_properties(object.metadata['validation']) %>
+                      <% validation_properties = get_ordered_validation_properties(object.metadata['validation']) %>
 
-                    <% if !validation_properties.nil? %>
+                      <% if !validation_properties.nil? %>
 
-                        <% validation_properties.each do |key, prop| %>
+                          <% validation_properties.each do |key, prop| %>
 
-                            <% if prop['type'] == 'object' && !prop['properties'].nil? %>
+                              <% if prop['type'] == 'object' && !prop['properties'].nil? %>
 
-                                <% object_options = !prop['editor'].nil? && !prop['editor']['options'].nil? ? prop['editor']['options'] : nil %>
-                                <% object_options['class'] << ' detail-type' unless object_options.nil? %>
-                                <%= content_tag :div, object_options do %>
+                                  <% object_options = !prop['editor'].nil? && !prop['editor']['options'].nil? ? prop['editor']['options'] : nil %>
+                                  <% object_options['class'] << ' detail-type' unless object_options.nil? %>
+                                  <%= content_tag :div, object_options do %>
 
-                                    <% object_properties = get_ordered_validation_properties(prop) %>
-                                    <% object_properties.each do |object_key, object_property| %>
+                                      <% object_properties = get_ordered_validation_properties(prop) %>
+                                      <% object_properties.each do |object_key, object_property| %>
 
-                                        <% object_value = objectDataHash[key].nil? ? "" : objectDataHash[key][object_key] %>
+                                          <% object_value = objectDataHash[key].nil? ? "" : objectDataHash[key][object_key] %>
 
-                                        <%= render "data_cycle_core/creative_works/partials/show/datatype/#{object_property['type'].downcase}",
-                                            label: object_property['label'],
-                                            prop: object_property,
-                                            key: key,
-                                            object_id: object.id,
-                                            value: object_value %>
+                                          <%= render "data_cycle_core/creative_works/partials/show/datatype/#{object_property['type'].downcase}",
+                                              label: object_property['label'],
+                                              prop: object_property,
+                                              key: key,
+                                              object_id: object.id,
+                                              value: object_value %>
 
-                                    <% end %>
+                                      <% end %>
 
-                                <% end %>
+                                  <% end %>
 
-                            <% else %>
+                              <% else %>
+                                  <% object_value = prop.dig('type') == "object" ? object.try(key.to_sym) : objectDataHash[key] %>
 
-                                <% object_value = !objectDataHash[key].nil? && !objectDataHash[key].blank? ? objectDataHash[key] : "" %>
+                                  <% object_value = !object_value.blank? ? object_value : "" %>
 
-                                <% if !object_value.blank? %>
+                                  <% if !object_value.blank? %>
 
-                                    <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
-                                        label: prop['label'],
-                                        prop: prop,
-                                        key: key,
-                                        object_id: object.id,
-                                        value: object_value %>
+                                      <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
+                                          label: prop['label'],
+                                          prop: prop,
+                                          key: key,
+                                          object_id: object.id,
+                                          value: object_value %>
 
-                                <% end %>
+                                  <% end %>
 
-                            <% end %>
+                              <% end %>
 
-                        <% end %>
+                          <% end %>
 
-                    <% end %>
+                      <% end %>
+
+                  <% end %>
 
                 <% end %>
-                
+
             </div>
 
         <% end %>

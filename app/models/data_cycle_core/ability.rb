@@ -4,7 +4,7 @@ module DataCycleCore
 
     def initialize(user, session = {})
       alias_action :update, :destroy, to: :modify
-      alias_action :create, :create_user, :read, :update, :destroy, :validate_single_data, to: :crud
+      alias_action :create, :create_user, :unlock, :read, :update, :destroy, :validate_single_data, to: :crud
 
       if user
         can :read, :all

@@ -18,13 +18,6 @@
         :storage_location: column
         :editor:
           :sorting: 1
-      :address:
-        :label: Adresse
-        :type: string
-        :storage_type: string
-        :storage_location: column
-        :editor:
-          :sorting: 2
       :longitude:
         :label: Longitude
         :type: number

@@ -65,14 +65,12 @@ module DataCycleCore
         "longitude" => 40.56,
         "latitude" => 13.13,
         "location" => point,
-        "address" => "irgendwo im Nirgendwo 666",
         "external_source_id" => external_source_id
       })
       data_set.save
       expected_hash = {
         "id" => data_set.id,
         "name" => "Dies ist ein Test!",
-        "address" => "irgendwo im Nirgendwo 666",
         "longitude" => 40.56,
         "latitude"=> 13.13,
         "location" => point,
