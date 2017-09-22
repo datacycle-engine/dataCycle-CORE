@@ -15,7 +15,8 @@ module DataCycleCore
             "storage_location" => "metadata"
           }
           DataCycleCore::User.create!(
-            name: "Test",
+            given_name: "Test",
+            family_name: "TEST",
             email: "test@pixelpoint.at",
             admin: false,
             password:"password"
@@ -34,13 +35,15 @@ module DataCycleCore
             "storage_location" => "metadata"
           }
           DataCycleCore::User.create!(
-            name: "Test",
+            given_name: "Test",
+            family_name: "TEST",
             email: "test@pixelpoint.at",
             admin: false,
             password:"password"
           )
           DataCycleCore::User.create!(
-            name: "Test2",
+            given_name: "Test 2",
+            family_name: "TEST 2",
             email: "test2@pixelpoint.at",
             admin: false,
             password:"password"
@@ -71,13 +74,15 @@ module DataCycleCore
             }
           }
           DataCycleCore::User.create!(
-            name: "Test",
+            given_name: "Test",
+            family_name: "TEST",
             email: "test@pixelpoint.at",
             admin: false,
             password:"password"
           )
           DataCycleCore::User.create!(
-            name: "Test2",
+            given_name: "Test 2",
+            family_name: "TEST 2",
             email: "test2@pixelpoint.at",
             admin: false,
             password:"password"
@@ -108,25 +113,29 @@ module DataCycleCore
             }
           }
           DataCycleCore::User.create!(
-            name: "Test",
+            given_name: "Test",
+            family_name: "TEST",
             email: "test@pixelpoint.at",
             admin: false,
             password:"password"
           )
           DataCycleCore::User.create!(
-            name: "Test2",
+            given_name: "Test 2",
+            family_name: "TEST 2",
             email: "test2@pixelpoint.at",
             admin: false,
             password:"password"
           )
           DataCycleCore::User.create!(
-            name: "Test3",
+            given_name: "Test 3",
+            family_name: "TEST 3",
             email: "test3@pixelpoint.at",
             admin: false,
             password:"password"
           )
           DataCycleCore::User.create!(
-            name: "Test4",
+            given_name: "Test 4",
+            family_name: "TEST 4",
             email: "test4@pixelpoint.at",
             admin: false,
             password:"password"

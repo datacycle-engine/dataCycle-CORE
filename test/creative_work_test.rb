@@ -1002,7 +1002,8 @@ module DataCycleCore
       data_set.metadata = { 'validation' => validation }
       data_set.save
       DataCycleCore::User.create!(
-        name: "Test",
+        given_name: "Test",
+        family_name: "TEST",
         email: "test@pixelpoint.at",
         admin: false,
         password:"password"
