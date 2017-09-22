@@ -12,6 +12,25 @@ crumb :classifications do
   parent :admin
 end
 
+# User
+crumb :'data_cycle_core/users' do
+  link to_html_string(DataCycleCore::User.model_name.human(count: 2)), users_path
+end
+
+crumb :edit_user do |user|
+  link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>Bearbeiten", user.email), edit_user_path(user)
+  parent :'data_cycle_core/users' if can? :crud, DataCycleCore::User
+end
+
+crumb :'data_cycle_core/user_groups' do
+  link to_html_string(DataCycleCore::UserGroup.model_name.human(count: 2)), user_groups_path
+end
+
+crumb :edit_user_group do |user_group|
+  link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>Bearbeiten", user_group.name), edit_user_group_path(user_group)
+  parent :'data_cycle_core/user_groups' if can? :crud, DataCycleCore::UserGroup
+end
+
 crumb :edit_resource do |resource|
   link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>Bearbeiten"), edit_polymorphic_path(resource)
   parent resource

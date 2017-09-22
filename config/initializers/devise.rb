@@ -13,6 +13,8 @@ Devise.setup do |config|
   config.email_regexp = /\A[^@\s]+@[^@\s]+\z/
   config.reset_password_within = 6.hours
   config.sign_out_via = :delete
+  config.lock_strategy = :none
+  config.unlock_strategy = :none
 
   config.warden do |manager|
     manager.default_strategies(scope: :user).unshift :guest_user

@@ -1,0 +1,15 @@
+<% breadcrumb :edit_user, @user %>
+
+<% content_for :top_content do %>
+
+<div class="reveal-blur">
+
+    <div id="edit-form">
+
+        <%= render 'data_cycle_core/users/partials/edit/form', content: @user %>
+
+    </div>
+
+</div>
+
+<% end %>
