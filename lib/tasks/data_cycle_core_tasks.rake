@@ -1,4 +1,21 @@
-FIXNUM_MAX = (2**(0.size * 8 -2) -1)
+FIXNUM_MAX = (2**(0.size * 8 - 2) - 1)
+
+Rake::Task['db:create'].enhance do
+  if ENV['RAILS_ENV']
+    ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
+    ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
+  else
+    ActiveRecord::Base.establish_connection(:development)
+                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
+    ActiveRecord::Base.establish_connection(:development)
+                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
+
+    ActiveRecord::Base.establish_connection(:test)
+                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
+    ActiveRecord::Base.establish_connection(:test)
+                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
+  end
+end
 
 namespace :data_cycle_core do
   namespace :clear do
