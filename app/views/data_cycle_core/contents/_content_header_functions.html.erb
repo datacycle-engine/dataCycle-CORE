@@ -1,21 +1,10 @@
 <div class="detail-header-functions">
     <ul class="no-bullet">
         <li>
-            <% if content.metadata.try(:[], 'last_updated_by') %>
-              <% creator = get_user_for_id(content.metadata['last_updated_by']) %>
-              <% creator_text = "<a href='mailto:#{creator.email}'>#{creator.name}</a>" %>
-            <% else %>
-              <% creator_text = "Unbekannt" %>
-            <% end %>
-
             <a id="show-history-link" data-toggle="show-history"><i class="fa fa-history" aria-hidden="true"></i> erstellt am <%= Time.at(content.created_at).to_s(:german_datetime_format) %></a>
 
             <ul class="dropdown-pane no-bullet bottom" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
               <li>Letzte Bearbeitungen:</li>
-              <li>
-                <%= creator_text.html_safe %>
-                <i><%= Time.at(content.updated_at).to_s(:german_datetime_format) %></i>
-              </li>
               <% content.histories.limit(4).each do |item|%>
                 <li>
                   <% if item.metadata.try(:[], 'last_updated_by') %>
