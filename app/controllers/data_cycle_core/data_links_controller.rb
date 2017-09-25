@@ -34,7 +34,7 @@ module DataCycleCore
       receiver = send_link_params[:receiver]
 
       if receiver =~ Devise.email_regexp
-        DataLinkMailer.mail_link(@data_link.creator, receiver, url_for(@data_link), params[:type]).deliver_later
+        DataLinkMailer.mail_link(@data_link.creator, receiver, url_for(@data_link), params[:type], send_link_params[:comment]).deliver_later
         redirect_back(fallback_location: root_path, notice: (I18n.t :sent, scope: [:controllers, :success]))
       else
         redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :success]))
@@ -54,7 +54,7 @@ module DataCycleCore
     end
 
     def send_link_params
-      params.require(:data_link).permit(:receiver)
+      params.require(:data_link).permit(:receiver, :comment, :type)
     end
 
     def guest_user

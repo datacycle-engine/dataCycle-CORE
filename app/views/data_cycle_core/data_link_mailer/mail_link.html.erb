@@ -10,5 +10,11 @@
       <%= link_to @url, @url %>.<br>
     </p>
     <p>Mit diesem Link können Sie einen spezifischen Inhalt <%= @action %>.</p>
+    <% unless @comment.blank? %>
+      <span>Kommentar:</span>
+      <p>
+        <%= simple_format(@comment) %>
+      </p>
+    <% end %>
   </body>
 </html>

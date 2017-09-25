@@ -1,7 +1,7 @@
 <% @user = DataCycleCore::User.new %>
 
 <div class="reveal new-item" id="newContent" data-reveal data-multiple-opened="true">
-    <h3><%= t('actions.new.user') %></h3>
+    <h3><%= t('actions.new', data: @user.model_name.human ) %></h3>
 
     <%= form_for @user, url: {action: "create_user"} do |f| %>
 

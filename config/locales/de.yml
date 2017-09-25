@@ -47,14 +47,17 @@ de:
     are_you_sure: 'Sind Sie sicher?'
 
   actions:
+    show: anzeigen
     edit: bearbeiten
     manage: verwalten
     lock: sperren
     unlock: freischalten
     delete: löschen
-    new:
-      user: "Neuen Benutzer erstellen"
-      user_group: "Neue Benutzergruppe erstellen"
+    new: "%{data} erstellen"
+    generate: "%{data} generieren"
+    send: versenden
+    send_with_data: "%{data} versenden"
+    delete_with_data: "%{data} löschen"
 
   validation:
     errors:
