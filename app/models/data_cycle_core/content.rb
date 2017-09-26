@@ -133,9 +133,6 @@ module DataCycleCore
     end
 
     def as_of(timestamp)
-      # puts "#{self.updated_at.nil?} || #{is_history?}"
-      # puts "#{timestamp.to_s(:long_usec)}"
-
       return self if timestamp > self.updated_at
       return nil if self.updated_at.nil? || is_history?
 
@@ -212,8 +209,7 @@ module DataCycleCore
           )
 
       # for classification relations
-      # classifications are stored in the respective relations Table
-      # ( "classification"+"content_table")
+      # classification relations are stored in the classification_contents table
       elsif classification_property_names.include?(property_name)
         load_relation_ids(property_definition['type_name'])
 
@@ -283,7 +279,6 @@ module DataCycleCore
         joins(classification: [classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]]).
         where("classification_tree_labels.name = ?", tree_label)
     end
-
 
     def set_property_value(property_name, property_definition, value)
       if PLAIN_PROPERTY_TYPES.include?(property_definition['storage_type'])

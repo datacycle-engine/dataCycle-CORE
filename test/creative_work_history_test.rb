@@ -205,7 +205,6 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.count - template_cw_count)
       assert_equal(2, DataCycleCore::CreativeWork::Translation.count - template_cwt_count)
-      assert_equal(0, DataCycleCore::ClassificationCreativeWork.count)
       assert_equal(1, DataCycleCore::ClassificationContent.count)
       assert_equal(4, DataCycleCore::CreativeWork::History.count)
       assert_equal(4, DataCycleCore::CreativeWork::History::Translation.count)

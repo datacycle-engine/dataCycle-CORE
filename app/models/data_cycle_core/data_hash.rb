@@ -230,38 +230,11 @@ module DataCycleCore
       end
     end
 
-    # def get_template_data_hash(properties, origin = [])
-    #   data_hash = {}
-    #   properties.each do |key,value|
-    #     data_hash[key] = storage_cases_get(key,properties[key], origin)
-    #   end
-    #   data_hash
-    # end
-
     def set_template_data_hash(data_hash, properties, save_time, current_user)
       properties.each do |key,value|
         storage_cases_set(key, data_hash[key], value, save_time, current_user)
       end
     end
-
-    # def storage_cases_get(key, properties, origin)
-    #   case properties["storage_location"]
-    #   when "column"
-    #     self.method(key).call
-    #   when "content"
-    #     get_from_jsonb(key, properties, origin, 'content')
-    #   when "metadata"
-    #     get_from_jsonb(key, properties, origin, 'metadata')
-    #   when "properties"
-    #     get_from_jsonb(key, properties, origin, 'properties')
-    #   when "classification_relation"
-    #     get_relation_ids(properties["type_name"])
-    #   when "key"
-    #     self.id
-    #   else
-    #     get_linked_data_type(key, properties['storage_location'], properties['name'], properties['description'])
-    #   end
-    # end
 
     def storage_cases_set(key, value, properties, save_time, current_user)
       case properties['storage_location']
@@ -287,23 +260,6 @@ module DataCycleCore
         end
       end
     end
-
-    # def get_from_jsonb(key, properties, origin, field_name)
-    #   if properties['type'] == 'object'
-    #     # object found ==> recursively retrieve data
-    #     new_origin = origin + [key]
-    #     result = get_template_data_hash(properties['properties'], new_origin).compact
-    #   else
-    #     # data element found ==> get data within jsonb-tree-structure
-    #     result = self.method(field_name).call
-    #     origin = origin + [key]
-    #     origin.each do |item|
-    #       result = result[item] unless result.nil?
-    #       return nil if result.nil?
-    #     end
-    #   end
-    #   result.blank? ? nil : result  # conserve old behavior (empty objects return as nil)
-    # end
 
     def save_to_jsonb(key, data, properties, location)
       # parse tree in json, to only set data specified in the data definitions
@@ -339,26 +295,6 @@ module DataCycleCore
       end
       data_hash
     end
-
-    # def get_linked_data_type(field_name, table, name, description)
-    #   return_data = []
-    #
-    #   # check if external relation or relation to itself
-    #   if table == self.class.table_name
-    #     field_has_part = "#{field_name}_hasPart"
-    #     if !self.metadata.blank? && self.metadata.has_key?(field_has_part)
-    #       self.metadata[field_has_part].each do |item|
-    #         data_set = self.class.find_by(id: item)
-    #         return_data.push(data_set.get_data_hash)
-    #       end
-    #     end
-    #   else
-    #     self.method(table).call.each do |item|
-    #       return_data.push(item.get_data_hash)
-    #     end
-    #   end
-    #   return_data.compact
-    # end
 
     def set_linked_data_type(field_name, data, table, name, description, delete, save_time, current_user)
       # check if it is a relation to itself or external via relation_table

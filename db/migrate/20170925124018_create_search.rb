@@ -53,10 +53,7 @@ class CreateSearch < ActiveRecord::Migration[5.0]
         FROM classification_#{item[:name]}s;
       eos
       result = @connection.exec_query(sql_query)
-      unless DataCycleCore::ClassificationContent.where(content_data_type: item[:content_type]).count == item[:old_class].count
-        raise ActiveRecord::StatementInvalid
-      end
-      #drop_table "classification_#{item[:name]}s".to_sym
+      drop_table "classification_#{item[:name]}s".to_sym
 
       sql_query = <<-eos
         INSERT INTO classification_content_histories
@@ -70,10 +67,7 @@ class CreateSearch < ActiveRecord::Migration[5.0]
         FROM classification_#{item[:name]}_histories;
       eos
       result = @connection.exec_query(sql_query)
-      unless DataCycleCore::ClassificationContent::History.where(content_data_history_type: "#{item[:content_type]}::History").count == (item[:old_class].to_s+"::History").safe_constantize.count
-        raise ActiveRecord::StatementInvalid
-      end
-      #drop_table "classification_#{item[:name]}_histories".to_sym
+      drop_table "classification_#{item[:name]}_histories".to_sym
     end
 
   end
@@ -88,53 +82,53 @@ class CreateSearch < ActiveRecord::Migration[5.0]
       {name: "person", content_type: "DataCycleCore::Person", old_class: DataCycleCore::ClassificationPerson}
     ]
 
-    # data_hash.each do |item|
-    #   create_table "classification_#{item[:name]}s".to_sym, id: :uuid do |t|
-    #     t.uuid "#{item[:name]}_id".to_sym
-    #     t.uuid :classification_id
-    #     t.boolean :tag
-    #     t.boolean :classification
-    #     t.datetime :seen_at
-    #     t.timestamps
-    #     t.uuid :external_source_id
-    #   end
-    #
-    #   create_table "classification_#{item[:name]}_histories", id: :uuid do |t|
-    #     t.uuid "#{item[:name]}_history_id"
-    #     t.uuid :classification_id
-    #     t.boolean :tag
-    #     t.boolean :classification
-    #     t.datetime :seen_at
-    #     t.timestamps
-    #     t.uuid :external_source_id
-    #   end
-    #
-    #   sql_query = <<-eos
-    #     INSERT INTO classification_#{item[:name]}s
-    #     SELECT id,
-    #       content_id AS #{item[:name]}_id,
-    #       classification_id,
-    #       tag, classification,
-    #       seen_at, created_at, updated_at,
-    #       external_source_id
-    #     FROM classification_contents
-    #     WHERE content_type = '#{item[:content_type]}';
-    #   eos
-    #   result = @connection.exec_query(sql_query)
-    #
-    #   sql_query = <<-eos
-    #     INSERT INTO classification_#{item[:name]}_histories
-    #     SELECT id,
-    #       content_history_id AS #{item[:name]}_history_id,
-    #       classification_id,
-    #       tag, classification,
-    #       seen_at, created_at, updated_at,
-    #       external_source_id
-    #     FROM classification_content_histories
-    #     WHERE content_history_type = '#{item[:content_type]}::History';
-    #   eos
-    #   result = @connection.exec_query(sql_query)
-    # end
+    data_hash.each do |item|
+      create_table "classification_#{item[:name]}s".to_sym, id: :uuid do |t|
+        t.uuid "#{item[:name]}_id".to_sym
+        t.uuid :classification_id
+        t.boolean :tag
+        t.boolean :classification
+        t.datetime :seen_at
+        t.timestamps
+        t.uuid :external_source_id
+      end
+
+      create_table "classification_#{item[:name]}_histories", id: :uuid do |t|
+        t.uuid "#{item[:name]}_history_id"
+        t.uuid :classification_id
+        t.boolean :tag
+        t.boolean :classification
+        t.datetime :seen_at
+        t.timestamps
+        t.uuid :external_source_id
+      end
+
+      sql_query = <<-eos
+        INSERT INTO classification_#{item[:name]}s
+        SELECT id,
+          content_id AS #{item[:name]}_id,
+          classification_id,
+          tag, classification,
+          seen_at, created_at, updated_at,
+          external_source_id
+        FROM classification_contents
+        WHERE content_type = '#{item[:content_type]}';
+      eos
+      result = @connection.exec_query(sql_query)
+
+      sql_query = <<-eos
+        INSERT INTO classification_#{item[:name]}_histories
+        SELECT id,
+          content_history_id AS #{item[:name]}_history_id,
+          classification_id,
+          tag, classification,
+          seen_at, created_at, updated_at,
+          external_source_id
+        FROM classification_content_histories
+        WHERE content_history_type = '#{item[:content_type]}::History';
+      eos
+      result = @connection.exec_query(sql_query)
+    end
 
     drop_table :classification_content_histories
     drop_table :classification_contents

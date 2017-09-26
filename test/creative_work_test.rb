@@ -56,7 +56,6 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::ClassificationContent.count)
       assert_equal(1, DataCycleCore::Place.count - template_p)
       assert_equal(1, DataCycleCore::Place::Translation.count - template_pt)
-      assert_equal(0, DataCycleCore::ClassificationPlace.count)
 
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)

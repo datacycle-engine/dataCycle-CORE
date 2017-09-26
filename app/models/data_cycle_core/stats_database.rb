@@ -2,8 +2,8 @@ module DataCycleCore
   class StatsDatabase
 
     attr_accessor :stat_update, :pg_name,
-                  :pg_classifications, :pg_places, :pg_classification_places, :pg_size,
-                  :pg_creative_works, :pg_creative_work_places, :pg_creative_work_classification, :pg_overlays,
+                  :pg_classifications, :pg_places, :pg_size, :pg_creative_works,
+                  :pg_creative_work_places, :pg_classification_content, :pg_overlays,
                   :mongo_categories, :mongo_pois, :mongo_regions,
                   :import_modules
 
@@ -30,10 +30,9 @@ module DataCycleCore
       @pg_size = ActiveRecord::Base.connection.execute(sql).first['pg_database_size']
       @pg_classifications = Classification.count
       @pg_places = Place.count
-      @pg_classification_places = ClassificationPlace.count
       @pg_creative_works = CreativeWork.count
       @pg_creative_work_places = CreativeWorkPlace.count
-      @pg_creative_work_classification = ClassificationCreativeWork.count
+      @pg_classification_content = ClassificationContent.count
       @pg_overlays = Overlay.count
     end
 
