@@ -169,7 +169,7 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
       assert_equal(1, DataCycleCore::CreativeWorkPerson.count)
       assert_equal(1, DataCycleCore::Person.where(template: false).count)
-      assert_equal(2, DataCycleCore::ClassificationCreativeWork.count) # 1x quotation, 1x "Standard-Artikel"
+      assert_equal(2, DataCycleCore::ClassificationContent.count) # 1x quotation, 1x "Standard-Artikel"
 
       # delete quotation
       data_hash['quotation'] = []
@@ -185,7 +185,7 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
       assert_equal(0, DataCycleCore::CreativeWorkPerson.count)
       assert_equal(1, DataCycleCore::Person.where(template: false).count)
-      assert_equal(1, DataCycleCore::ClassificationCreativeWork.count) # 1x "Standard-Artikel", quotation with references deleted
+      assert_equal(1, DataCycleCore::ClassificationContent.count) # 1x "Standard-Artikel", quotation with references deleted
     end
 
     test 'insert quotations, then delete quotations' do

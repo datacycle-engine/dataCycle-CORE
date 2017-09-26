@@ -69,17 +69,19 @@ module DataCycleCore
         data_set_history.history_valid = (lower_bound ... save_time)
         data_set_history.save
 
-        # cc classification_relation to history
-        self.send("classification_"+origin_table).all.each do |item|
-          classification_history = ("DataCycleCore::Classification" + origin_table.classify + "::History").safe_constantize.new
-          classification_history.send(origin_table.singularize + "_history_id=", data_set_history.id)
-          item.attributes.except("id", origin_table.singularize.foreign_key).each do |key,value|
+
+        # cc classification_content to history
+        self.classification_content.all.each do |item|
+          classification_history = DataCycleCore::ClassificationContent::History.new
+          classification_history.content_data_history_id = data_set_history.id
+          classification_history.content_data_history_type = data_set_history.class.to_s
+          item.attributes.except('id', 'content_data_id', 'content_data_type').each do |key,value|
             classification_history.send("#{key}=", value)
           end
           classification_history.classification_id = item.classification_id
-          #classification_history.history_valid = (item.updated_at ... save_time)
           classification_history.save
         end
+
 
         # cc embedded data from other content tables
         embedded_relations.map(&:singularize).each do |content_name|
@@ -149,10 +151,10 @@ module DataCycleCore
             found_ids = get_relation_ids(value['storage_type'], value['type_name'])
             if found_ids.size > 0
               class_string = "DataCycleCore::" + value['storage_type'].classify
-              class_id = self.class.to_s.demodulize.foreign_key
               class_string.constantize.
                 where(
-                  class_id => self.id,
+                  "content_data_id" => self.id,
+                  "content_data_type" => self.class.to_s,
                   classification_id: found_ids
                 ).destroy_all
             end
@@ -177,9 +179,8 @@ module DataCycleCore
 
     def get_relation_ids(storage_type, tree_label)
       class_string = "DataCycleCore::" + storage_type.classify
-      class_id = self.class.to_s.demodulize.foreign_key
       class_string.constantize.
-        where(class_id => id).
+        where("content_data_id" => id, "content_data_type" => self.class.to_s).
         joins(classification: [classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]]).
         where("classification_tree_labels.name = ?", tree_label).
         pluck(:classification_id)
@@ -187,7 +188,6 @@ module DataCycleCore
 
     def set_relation_ids(storage_type, ids, tree_label, default_value)
       class_string = "DataCycleCore::" + storage_type.classify
-      class_id = self.class.to_s.demodulize.foreign_key
 
       if is_blank?(ids)
         begin
@@ -197,7 +197,8 @@ module DataCycleCore
                 .where("classification_aliases.name = ?", default_value).first!.id
             class_string.constantize.
               find_or_create_by(
-                class_id => self.id,
+                "content_data_id" => self.id,
+                "content_data_type" => self.class.to_s,
                 classification_id: classification_id
               )
             ids = [classification_id]
@@ -213,7 +214,8 @@ module DataCycleCore
         ids.each do |classification_id|
           class_string.constantize.
             find_or_create_by(
-              class_id => self.id,
+              "content_data_id" => self.id,
+              "content_data_type" => self.class.to_s,
               classification_id: classification_id
             )
         end

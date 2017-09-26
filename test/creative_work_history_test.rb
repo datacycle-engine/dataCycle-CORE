@@ -93,10 +93,10 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw_count)
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt_count)
-      assert_equal(1, DataCycleCore::ClassificationCreativeWork.count)
+      assert_equal(1, DataCycleCore::ClassificationContent.count)
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(0, DataCycleCore::ClassificationCreativeWork::History.count)
+      assert_equal(0, DataCycleCore::ClassificationContent::History.count)
     end
 
     test "save data to History with embeddedObject from another content_table" do
@@ -202,16 +202,18 @@ module DataCycleCore
       data_set_new = data_set.get_data_hash
       data_set_history = data_set.get_data_hash(save_time + 6.seconds)
 
-      assert_equal(new_data_hash, data_set_new)
-      assert_equal(expected_hash, data_set_history)
-
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.count - template_cw_count)
       assert_equal(2, DataCycleCore::CreativeWork::Translation.count - template_cwt_count)
-      assert_equal(1, DataCycleCore::ClassificationCreativeWork.count)
+      assert_equal(0, DataCycleCore::ClassificationCreativeWork.count)
+      assert_equal(1, DataCycleCore::ClassificationContent.count)
       assert_equal(4, DataCycleCore::CreativeWork::History.count)
       assert_equal(4, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(1, DataCycleCore::ClassificationCreativeWork::History.count)
+      assert_equal(0, DataCycleCore::ClassificationCreativeWork::History.count)
+      assert_equal(1, DataCycleCore::ClassificationContent::History.count)
+
+      assert_equal(new_data_hash, data_set_new)
+      assert_equal(expected_hash, data_set_history)
     end
 
     test "create CreativeWork and store multiple Histories to test as_of method" do

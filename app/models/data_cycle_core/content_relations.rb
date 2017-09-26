@@ -10,13 +10,16 @@ module DataCycleCore
         table_full = table_given.to_s.singularize
         table_full += "_#{postfix}" unless postfix.nil?
 
-        classification_relation_table = ['classification', table_given.to_s.singularize].sort.join('_')
-        classification_relation_table += "_#{postfix}" unless postfix.nil?
-        classification_relation_table = classification_relation_table.pluralize.to_sym
+        classification_content_table = 'classification_content'
+        classification_content_table += "_#{postfix}" unless postfix.nil?
+        class_name = "DataCycleCore::ClassificationContent"
+        class_name += "::#{postfix.capitalize}" unless postfix.nil?
+        content_name = 'content_data'
+        content_name += "_#{postfix}" unless postfix.nil?
 
         # relation content to classification
-        has_many classification_relation_table
-        has_many :classifications, through: classification_relation_table
+        has_many classification_content_table.to_sym, class_name: class_name, as: content_name.to_sym, foreign_key: content_name.foreign_key
+        has_many :classifications, through: classification_content_table.to_sym
         has_many :classification_groups, through: :classifications
         has_many :classification_aliases, through: :classification_groups
         has_many :display_classification_aliases, -> { where("classification_aliases.internal = ?", false) }, through: :classification_groups, source: :classification_alias

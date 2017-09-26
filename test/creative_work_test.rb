@@ -53,18 +53,17 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
       assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
-      assert_equal(1, DataCycleCore::ClassificationCreativeWork.count)
+      assert_equal(1, DataCycleCore::ClassificationContent.count)
       assert_equal(1, DataCycleCore::Place.count - template_p)
       assert_equal(1, DataCycleCore::Place::Translation.count - template_pt)
       assert_equal(0, DataCycleCore::ClassificationPlace.count)
 
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(0, DataCycleCore::ClassificationCreativeWork::History.count)
+      assert_equal(0, DataCycleCore::ClassificationContent::History.count)
       assert_equal(0, DataCycleCore::CreativeWorkPlace::History.count)
       assert_equal(1, DataCycleCore::Place::History.count)
       assert_equal(1, DataCycleCore::Place::History::Translation.count)
-      assert_equal(0, DataCycleCore::ClassificationPlace::History.count)
 
       returned_data_hash_without["contentLocation"] = []
       error = data_set_without.set_data_hash(returned_data_hash_without)
@@ -92,18 +91,16 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
       assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
-      assert_equal(1, DataCycleCore::ClassificationCreativeWork.count)
+      assert_equal(1, DataCycleCore::ClassificationContent.count)
       assert_equal(1, DataCycleCore::Place.count - template_p)
       assert_equal(1, DataCycleCore::Place::Translation.count - template_pt)
-      assert_equal(0, DataCycleCore::ClassificationPlace.count)
 
       assert_equal(2, DataCycleCore::CreativeWork::History.count)
       assert_equal(2, DataCycleCore::CreativeWork::History::Translation.count)
       assert_equal(1, DataCycleCore::CreativeWorkPlace::History.count)
-      assert_equal(1, DataCycleCore::ClassificationCreativeWork.count)
+      assert_equal(1, DataCycleCore::ClassificationContent.count)
       assert_equal(2, DataCycleCore::Place::History.count)
       assert_equal(2, DataCycleCore::Place::History::Translation.count)
-      assert_equal(0, DataCycleCore::ClassificationPlace.count)
     end
 
     test "save CreativeWork with embedded object contentLocation, then delete embedded object (last and only one)" do

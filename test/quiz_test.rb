@@ -71,7 +71,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(13, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(13, DataCycleCore::ClassificationCreativeWork.count)
+      assert_equal(13, DataCycleCore::ClassificationContent.count)
 
       new_data_hash = returned_data_hash#.except("outputChannels")
       new_data_hash["question"] = []
@@ -80,7 +80,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::ClassificationCreativeWork.count)
+      assert_equal(1, DataCycleCore::ClassificationContent.count)
     end
 
     test "generate a Quiz with questions and answers, then delete one question" do
@@ -145,7 +145,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(13, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(13, DataCycleCore::ClassificationCreativeWork.count)
+      assert_equal(13, DataCycleCore::ClassificationContent.count)
 
       # leave one question alone, delete the second one incl. all related answers and classification_relations
       new_data_hash = returned_data_hash.except("question")
@@ -155,7 +155,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(7, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(7, DataCycleCore::ClassificationCreativeWork.count)
+      assert_equal(7, DataCycleCore::ClassificationContent.count)
     end
 
   end
