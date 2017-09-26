@@ -1,5 +1,5 @@
 <div class="grid-thumbnails <%= 'has-more' if DataCycleCore::CreativeWork.where(id: item.metadata['image']).count > 3 %>">
   <% DataCycleCore::CreativeWork.where(id: item.metadata['image'].try(:first, 3)).each do |image| %>
-    <%= image_tag(image.metadata['thumbnail_url'], class: "grid-item-thumbnail") %>
+    <%= image_tag(image.metadata['thumbnail_url'], class: "grid-item-thumbnail") if image.metadata['thumbnail_url'] %>
   <% end %>
 </div>
