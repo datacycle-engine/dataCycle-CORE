@@ -121,9 +121,6 @@ class CreateSearch < ActiveRecord::Migration[5.0]
     #     WHERE content_type = '#{item[:content_type]}';
     #   eos
     #   result = @connection.exec_query(sql_query)
-    #   unless DataCycleCore::ClassificationContent.where(content_type: item[:content_type]).count == item[:old_class].count
-    #     raise ActiveRecord::StatementInvalid
-    #   end
     #
     #   sql_query = <<-eos
     #     INSERT INTO classification_#{item[:name]}_histories
@@ -137,9 +134,6 @@ class CreateSearch < ActiveRecord::Migration[5.0]
     #     WHERE content_history_type = '#{item[:content_type]}::History';
     #   eos
     #   result = @connection.exec_query(sql_query)
-    #   unless DataCycleCore::ClassificationContent::Histories.where(content_type: "#{item[:content_type]}::History").count == (item[:old_class].to_s+"::History").safe_constantize.count
-    #     raise ActiveRecord::StatementInvalid
-    #   end
     # end
 
     drop_table :classification_content_histories

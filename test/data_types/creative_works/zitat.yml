@@ -58,7 +58,6 @@
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
-        :storage_type: classification_contents
         :storage_location: classification_relation
         :default_value: "Zitat"
       :creator:

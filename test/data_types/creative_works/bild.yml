@@ -145,7 +145,6 @@
         :label: Rechte/Einsatzgebiet
         :type: classificationTreeLabel
         :type_name: Rechte
-        :storage_type: classification_contents
         :storage_location: classification_relation
       :contentUrl:
         :label: Bild URL
@@ -172,6 +171,5 @@
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
-        :storage_type: classification_contents
         :storage_location: classification_relation
         :default_value: "Bild"

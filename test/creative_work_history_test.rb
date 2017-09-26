@@ -209,7 +209,6 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::ClassificationContent.count)
       assert_equal(4, DataCycleCore::CreativeWork::History.count)
       assert_equal(4, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(0, DataCycleCore::ClassificationCreativeWork::History.count)
       assert_equal(1, DataCycleCore::ClassificationContent::History.count)
 
       assert_equal(new_data_hash, data_set_new)

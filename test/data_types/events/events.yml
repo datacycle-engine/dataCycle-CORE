@@ -95,7 +95,6 @@
 #        :label: Inhaltstype
 #        :type: classificationTreeLabel
 #        :type_name: Inhaltstypen
-#        :storage_type: classification_persons
 #        :storage_location: classification_relation
 #        :default_value: "Event"
 #      :isPartOf:

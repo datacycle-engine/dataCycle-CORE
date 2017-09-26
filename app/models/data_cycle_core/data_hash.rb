@@ -42,7 +42,6 @@ module DataCycleCore
 
     def set_data_hash_attribute(key, value, current_user, save_time = Time.zone.now)
       key_hash = metadata.dig('validation', 'properties', key)
-
       unless key_hash.nil?
         ActiveRecord::Base.transaction do
           storage_cases_set(key, value, key_hash, save_time, current_user)
@@ -148,10 +147,9 @@ module DataCycleCore
         # cleanup classification_relation (only if present item can be deleted)
         if delete_relation
           if value['storage_location'] == 'classification_relation'
-            found_ids = get_relation_ids(value['storage_type'], value['type_name'])
+            found_ids = get_relation_ids(value['type_name'])
             if found_ids.size > 0
-              class_string = "DataCycleCore::" + value['storage_type'].classify
-              class_string.constantize.
+              DataCycleCore::ClassificationContent.
                 where(
                   "content_data_id" => self.id,
                   "content_data_type" => self.class.to_s,
@@ -177,25 +175,22 @@ module DataCycleCore
 
     private
 
-    def get_relation_ids(storage_type, tree_label)
-      class_string = "DataCycleCore::" + storage_type.classify
-      class_string.constantize.
+    def get_relation_ids(tree_label)
+      DataCycleCore::ClassificationContent.
         where("content_data_id" => id, "content_data_type" => self.class.to_s).
         joins(classification: [classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]]).
         where("classification_tree_labels.name = ?", tree_label).
         pluck(:classification_id)
     end
 
-    def set_relation_ids(storage_type, ids, tree_label, default_value)
-      class_string = "DataCycleCore::" + storage_type.classify
-
+    def set_relation_ids(ids, tree_label, default_value)
       if is_blank?(ids)
         begin
-          if !default_value.blank? && ids.nil? && get_relation_ids(storage_type, tree_label).count == 0
+          if !default_value.blank? && ids.nil? && get_relation_ids(tree_label).count == 0
             classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
                 .where("classification_tree_labels.name = ?", tree_label)
                 .where("classification_aliases.name = ?", default_value).first!.id
-            class_string.constantize.
+            DataCycleCore::ClassificationContent.
               find_or_create_by(
                 "content_data_id" => self.id,
                 "content_data_type" => self.class.to_s,
@@ -203,7 +198,7 @@ module DataCycleCore
               )
             ids = [classification_id]
           elsif !default_value.blank? && ids.nil?
-            ids = get_relation_ids(storage_type, tree_label)
+            ids = get_relation_ids(tree_label)
           end
         rescue ActiveRecord::RecordNotFound => e
           logger.error "Missing default value '#{default_value}' for classification tree '#{tree_label}'"
@@ -212,7 +207,7 @@ module DataCycleCore
       else
         # insert missing ids
         ids.each do |classification_id|
-          class_string.constantize.
+          DataCycleCore::ClassificationContent.
             find_or_create_by(
               "content_data_id" => self.id,
               "content_data_type" => self.class.to_s,
@@ -223,12 +218,13 @@ module DataCycleCore
 
       ids = [] if ids.blank? && default_value.blank?
       # delete missing ids
-      found_ids = get_relation_ids(storage_type, tree_label)
+      found_ids = get_relation_ids(tree_label)
       to_delete = found_ids - ids
       if to_delete.size > 0
-        class_string.constantize.
+        DataCycleCore::ClassificationContent.
           where(
-            class_id => self.id,
+            "content_data_id" => self.id,
+            "content_data_type" => self.class.to_s,
             classification_id: to_delete
           ).destroy_all
       end
@@ -259,7 +255,7 @@ module DataCycleCore
     #   when "properties"
     #     get_from_jsonb(key, properties, origin, 'properties')
     #   when "classification_relation"
-    #     get_relation_ids(properties["storage_type"], properties["type_name"])
+    #     get_relation_ids(properties["type_name"])
     #   when "key"
     #     self.id
     #   else
@@ -278,7 +274,7 @@ module DataCycleCore
       when 'properties'
         save_to_jsonb(key, value, properties, 'properties')
       when 'classification_relation'
-        set_relation_ids(properties['storage_type'], value, properties['type_name'], properties['default_value'])
+        set_relation_ids(value, properties['type_name'], properties['default_value'])
       else
         unless properties['storage_location'] == 'key'  # do nothing with key
           if properties.has_key?('name') && properties.has_key?('description')

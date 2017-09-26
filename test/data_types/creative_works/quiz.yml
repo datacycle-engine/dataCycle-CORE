@@ -99,7 +99,6 @@
         :label: Themenbereiche
         :type: classificationTreeLabel
         :type_name: Themenbereiche
-        :storage_type: classification_contents
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -108,7 +107,6 @@
         :label: Zielmarkt
         :type: classificationTreeLabel
         :type_name: Märkte
-        :storage_type: classification_contents
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -117,7 +115,6 @@
         :label: Inhaltsart
         :type: classificationTreeLabel
         :type_name: Inhaltsarten
-        :storage_type: classification_contents
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -126,7 +123,6 @@
         :label: Jahreszeit
         :type: classificationTreeLabel
         :type_name: Jahreszeiten
-        :storage_type: classification_contents
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -135,7 +131,6 @@
         :label: Bundesland
         :type: classificationTreeLabel
         :type_name: Bundesländer
-        :storage_type: classification_contents
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -146,7 +141,6 @@
         :label: Tags
         :type: classificationTreeLabel
         :type_name: Tags
-        :storage_type: classification_contents
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -155,7 +149,6 @@
         :label: Ausgabekanäle
         :type: classificationTreeLabel
         :type_name: Ausgabekanäle
-        :storage_type: classification_contents
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -164,14 +157,12 @@
 #        :label: Inhaltspool
 #        :type: classificationTreeLabel
 #        :type_name: Inhaltspools
-#        :storage_type: classification_contents
 #        :storage_location: classification_relation
 #        :default_value: "Aktuelle Themen"
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
-        :storage_type: classification_contents
         :storage_location: classification_relation
         :default_value: "Quiz"
       :creator:
@@ -269,14 +260,12 @@
 #        :label: Inhaltspool
 #        :type: classificationTreeLabel
 #        :type_name: Inhaltspools
-#        :storage_type: classification_contents
 #        :storage_location: classification_relation
 #        :default_value: "Aktuelle Themen"
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
-        :storage_type: classification_contents
         :storage_location: classification_relation
         :default_value: "Frage"
       :creator:
@@ -348,7 +337,6 @@
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
-        :storage_type: classification_contents
         :storage_location: classification_relation
         :default_value: "Zitat"
       :creator:

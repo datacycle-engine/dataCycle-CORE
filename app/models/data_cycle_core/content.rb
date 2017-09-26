@@ -215,10 +215,7 @@ module DataCycleCore
       # classifications are stored in the respective relations Table
       # ( "classification"+"content_table")
       elsif classification_property_names.include?(property_name)
-        load_relation_ids(
-            property_definition['storage_type'],
-            property_definition['type_name']
-          )
+        load_relation_ids(property_definition['type_name'])
 
       # plain properties (e.g. string,text, ... )
       # non-structured properties of this content-data_set
@@ -276,8 +273,8 @@ module DataCycleCore
       }.inject(&:merge)
     end
 
-    def load_relation_ids(storage_type, tree_label)
-      class_string = "DataCycleCore::"+storage_type.classify
+    def load_relation_ids(tree_label)
+      class_string = "DataCycleCore::ClassificationContent"
       class_string += "::History" if is_history?
       class_id = 'content_data_id'
       class_id = 'content_data_history_id' if is_history?
