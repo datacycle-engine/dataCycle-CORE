@@ -80,17 +80,17 @@ module DataCycleCore
 
     # joins
 
-      def join_classification_creative_work
-        @query.joins(creative_work.join(classification_creative_work)
-          .on(creative_work[:id].eq(classification_creative_work[:creative_work_id]))
+      def join_classification_content
+        @query.joins(creative_work.join(classification_content)
+          .on(creative_work[:id].eq(classification_content[:content_data_id]))
           .join_sources
         )
       end
 
 
       def join_classification
-        join_classification_creative_work.joins(classification_creative_work.join(classification)
-          .on(classification_creative_work[:classification_id].eq(classification[:id]))
+        join_classification_content.joins(classification_content.join(classification)
+          .on(classification_content[:classification_id].eq(classification[:id]))
           .join_sources
         )
       end
@@ -117,10 +117,10 @@ module DataCycleCore
           join(creative_work_translation).
             on(creative_work[:id].eq(creative_work_translation[:creative_work_id])).
           where(creative_work_translation[:locale].eq(quoted(@locale))).
-          join(classification_creative_work).
-            on(creative_work[:id].eq(classification_creative_work[:creative_work_id])).
+          join(classification_content).
+            on(creative_work[:id].eq(classification_content[:content_data_id])).
           join(classification).
-            on(classification_creative_work[:classification_id].eq(classification[:id])).
+            on(classification_content[:classification_id].eq(classification[:id])).
           join(classification_group).
             on(classification[:id].eq(classification_group[:classification_id])).
           join(classification_alias).
@@ -146,8 +146,8 @@ module DataCycleCore
         CreativeWork::Translation.arel_table
       end
 
-      def classification_creative_work
-        ClassificationCreativeWork.arel_table
+      def classification_content
+        ClassificationContent.arel_table
       end
 
     end

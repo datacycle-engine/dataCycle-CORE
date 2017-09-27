@@ -45,10 +45,10 @@ module DataCycleCore
           join(person_translation).
             on(person[:id].eq(person_translation[:person_id])).
           where(person_translation[:locale].eq(quoted(@locale))).
-          join(classification_person).
-            on(person[:id].eq(classification_person[:person_id])).
+          join(classification_content).
+            on(person[:id].eq(classification_content[:content_data_id])).
           join(classification).
-            on(classification_person[:classification_id].eq(classification[:id])).
+            on(classification_content[:classification_id].eq(classification[:id])).
           join(classification_group).
             on(classification[:id].eq(classification_group[:classification_id])).
           join(classification_alias).
@@ -73,8 +73,8 @@ module DataCycleCore
         Person::Translation.arel_table
       end
 
-      def classification_person
-        ClassificationPerson.arel_table
+      def classification_content
+        ClassificationContent.arel_table
       end
 
     end
