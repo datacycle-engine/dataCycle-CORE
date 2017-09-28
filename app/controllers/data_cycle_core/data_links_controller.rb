@@ -67,8 +67,9 @@ module DataCycleCore
 
     def find_or_create_guest_user
       guest = DataCycleCore::Role.find_by(rank: 0)
-      if DataCycleCore::User.where(role_id: guest.id).count > 0
-        u = DataCycleCore::User.find_by(role_id: guest.id)
+      if DataCycleCore::User.where(email: "noreply@datacycle.at").count > 0
+        u = DataCycleCore::User.find_by(email: "noreply@datacycle.at")
+        u.update_attribute(:role_id, guest.id)
       else
         u = DataCycleCore::User.create(email: "noreply@datacycle.at", given_name: 'Shared', family_name: 'Guest', role_id: guest.id, external: false)
         u.save!(validate: false)

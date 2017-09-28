@@ -26,7 +26,7 @@
       </div>
 
       <div class="form-element validation-container">
-          <%= f.select :role_id, DataCycleCore::Role.where('rank <= ?', current_user.role.try(:rank)).collect{|r| [t('roles.'+r.name), r.id]} %>
+          <%= f.select :role_id, DataCycleCore::Role.where('rank > 0 AND rank <= ?', current_user.role.try(:rank)).collect{|r| [t('roles.'+r.name), r.id]} %>
       </div>
 
       <%= f.submit t(:submit), class: "button primary" %>

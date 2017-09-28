@@ -64,7 +64,7 @@
 
         <% if can? :set_role, @user %>
           <div class="form-element validation-container" tabindex="-1">
-              <%= f.select :role_id, DataCycleCore::Role.where('rank <= ?', current_user.role.try(:rank)).collect{|r| [t('roles.'+r.name), r.id]}, label: false %>
+              <%= f.select :role_id, DataCycleCore::Role.where('rank > 0 AND rank <= ?', current_user.role.try(:rank)).collect{|r| [t('roles.'+r.name), r.id]}, label: false %>
           </div>
         <% end %>
 
