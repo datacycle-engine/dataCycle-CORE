@@ -27,7 +27,8 @@ module DataCycleCore
     content_relations table_name: self.table_name
 
     # callbacks
-    before_destroy :destroy_translations, prepend: true
+    after_save :set_search, on: [ :create, :update ]
+    before_destroy :destroy_relations, prepend: true
 
     # associations
     belongs_to :primaryImage, class_name: 'Place', primary_key: 'id', foreign_key: 'photo'
@@ -48,6 +49,7 @@ module DataCycleCore
 
     def destroy_translations
       self.translations.destroy_all
+      self.content_search.destroy_all
     end
 
   end

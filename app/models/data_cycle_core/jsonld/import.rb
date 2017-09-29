@@ -145,7 +145,7 @@ module DataCycleCore
                     contentLocation_hash = get_contentLocation(to_update_image.id, data_hash["contentLocation"], lang)
                     data['contentLocation'] = [ contentLocation_hash ]
                   end
-                  data['data_type'] = nil # touch data_type to get defalut_value
+                  data['data_type'] = nil # touch data_type to get default_value
                   errors = to_update_image.set_data_hash(data)
                   # check if data is set and validations are correct
                   if errors[:error].size > 0
@@ -167,9 +167,10 @@ module DataCycleCore
                 unless keywords.nil?
                   keywords.each do |keyword|
                     classification_id = check_for_classification_keyword(keyword)
-                    ClassificationCreativeWork
+                    ClassificationContent
                       .find_or_initialize_by(
-                        creative_work_id: to_update_image.id,
+                        content_data_id: to_update_image.id,
+                        content_data_type: to_update_image.class.to_s,
                         classification_id: classification_id,
                         external_source_id: @external_source_id,
                         tag: true

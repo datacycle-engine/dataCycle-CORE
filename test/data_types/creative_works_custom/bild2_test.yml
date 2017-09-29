@@ -18,21 +18,25 @@
         :type: string
         :storage_type: string
         :storage_location: column
+        :search: true
       :caption:
         :label: Alt-Label
         :type: string
         :storage_type: string
         :storage_location: content
+        :search: true
       :description:
         :label: Beschreibung
         :type: string
         :storage_type: string
         :storage_location: column
+        :search: true
       :photographer:
         :label: Fotograf
         :type: string
         :storage_type: string
         :storage_location: metadata
+        :search: true
       :creator:
         :label: Ersteller
         :type: embeddedLink
@@ -89,6 +93,7 @@
         :type: string
         :storage_type: string
         :storage_location: metadata
+        :search: true
       :validityPeriod:
         :label: Gültigkeitszeitraum
         :type: object

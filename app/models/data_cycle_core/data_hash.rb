@@ -173,6 +173,36 @@ module DataCycleCore
       validator.valid?(data, template_hash, strict)
     end
 
+    def set_search
+      # upsert with one SQL Statement
+      full_text = search_property_names.map{|item| self.send(item)}.join(' ').gsub(/[']/,"''")
+      connection = ActiveRecord::Base.connection
+      sql_query = <<-eos
+        INSERT INTO searches (id, content_data_id, content_data_type, locale, words, full_text, created_at, updated_at)
+        VALUES
+        ( DEFAULT,
+          '#{self.id}',
+          '#{self.class.to_s}',
+          '#{I18n.locale}',
+          to_tsvector('simple', '#{full_text}'),
+          '#{full_text}',
+          '#{Time.zone.now.to_s(:long_usec)}',
+          '#{Time.zone.now.to_s(:long_usec)}'
+        )
+        ON CONFLICT (content_data_id, content_data_type, locale)
+        WHERE content_data_id = '#{self.id}' AND content_data_type = '#{self.class.to_s}' AND locale = '#{I18n.locale}'
+        DO UPDATE SET
+          words = EXCLUDED.words,
+          full_text = EXCLUDED.full_text,
+          created_at = EXCLUDED.created_at,
+          updated_at = EXCLUDED.updated_at;
+      eos
+      result = connection.exec_query(sql_query)
+      # search_object = DataCycleCore::Search.find_or_create_by(content_data_id: self.id, content_data_type: self.class.to_s)
+      # search_object.update(data_hash)
+      # self.content_search = search_object
+    end
+
     private
 
     def get_relation_ids(tree_label)

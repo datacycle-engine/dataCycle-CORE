@@ -24,6 +24,11 @@ module DataCycleCore
         has_many :classification_aliases, through: :classification_groups
         has_many :display_classification_aliases, -> { where("classification_aliases.internal = ?", false) }, through: :classification_groups, source: :classification_alias
 
+        # relation content to search
+        if postfix.nil?
+          has_one :content_search, class_name: 'DataCycleCore::Search', foreign_key: content_name.foreign_key
+        end
+
         # relation content to all other contents
         (DataCycleCore.content_tables - [table_given]).map(&:singularize).each do |content_name|
           content_relation_table = [content_name, table_given.to_s.singularize].sort.join('_')

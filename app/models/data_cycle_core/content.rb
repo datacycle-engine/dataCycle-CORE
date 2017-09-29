@@ -93,6 +93,12 @@ module DataCycleCore
       }.keys
     end
 
+    def search_property_names
+      property_definitions.select { |property_name, definition|
+        definition['search'] == true
+      }.keys
+    end
+
     def to_h(timestamp = Time.zone.now)
       property_names.map { |property_name|
         property_value =
