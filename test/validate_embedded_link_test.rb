@@ -17,7 +17,7 @@ module DataCycleCore
           DataCycleCore::User.create!(
             given_name: "Test",
             family_name: "TEST",
-            email: "test@pixelpoint.at",
+            email: "SecureRandom.base64(12)@pixelpoint.at",
             admin: false,
             password:"password"
           )
@@ -37,7 +37,7 @@ module DataCycleCore
           DataCycleCore::User.create!(
             given_name: "Test",
             family_name: "TEST",
-            email: "test@pixelpoint.at",
+            email: "SecureRandom.base64(12)@pixelpoint.at",
             admin: false,
             password:"password"
           )
@@ -76,7 +76,7 @@ module DataCycleCore
           DataCycleCore::User.create!(
             given_name: "Test",
             family_name: "TEST",
-            email: "test@pixelpoint.at",
+            email: "SecureRandom.base64(12)@pixelpoint.at",
             admin: false,
             password:"password"
           )
@@ -115,7 +115,7 @@ module DataCycleCore
           DataCycleCore::User.create!(
             given_name: "Test",
             family_name: "TEST",
-            email: "test@pixelpoint.at",
+            email: "SecureRandom.base64(12)@pixelpoint.at",
             admin: false,
             password:"password"
           )
