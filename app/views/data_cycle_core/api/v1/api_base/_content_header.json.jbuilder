@@ -13,7 +13,6 @@ case options[:header_type]
     json.set! 'identifier', send("#{content.class.class_name.tableize.singularize}_url", content)
     json.set! 'dateCreated', content.created_at
     json.set! 'dateModified', content.updated_at
-    json.set! 'url', send("#{content.class.class_name.tableize.singularize}_url", content)
     json.set! 'classifications' do
       json.array! content.classifications, partial: 'classification', as: :classification
     end
