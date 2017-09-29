@@ -1002,11 +1002,11 @@ module DataCycleCore
       data_set.metadata = { 'validation' => validation }
       data_set.save
       DataCycleCore::User.create!(
-        given_name: "Test",
-        family_name: "TEST",
-        email: "test@pixelpoint.at",
-        admin: false,
-        password:"password"
+        given_name: 'Test',
+        family_name: 'TEST',
+        email: "#{SecureRandom.base64(12)}@pixelpoint.at",
+        admin: true,
+        password: 'password'
       )
       uuid = DataCycleCore::User.first.id
       data_set.set_data_hash({"headline" => "Dies ist ein Test!", "creator" => uuid})
