@@ -1,0 +1,25 @@
+<% if content.send(link_type).nil? %>
+    <h5><%= t('actions.new', data: link_type.titleize) %></h5>
+    <%= link_to t('actions.generate', data: link_type.titleize), new_data_link_path(item_id: content.id, item_type: content.class.name, permissions: permission), class: "button small" %>
+<% else %>
+    <h5><%= link_type.titleize %></h5>
+    <li>
+      <input readonly="readonly" type="text" class="copy-input" value="<%= h(data_link_url(content.send(link_type))) %>">
+      <button class="button small copy-button"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
+    </li>
+    <li>
+      <%= link_to t('actions.send_with_data', data: "Link"), "#", class: "button small send-link-button", data: { open: id } %>
+      <%= link_to t('actions.delete_with_data', data: "Link"), content.send(link_type), method: :delete, class: "button small alert delete-button" %>
+    </li>
+    <div class="reveal" id="<%= id %>" data-reveal>
+      <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <%= form_tag send_mail_data_link_path(content.send(link_type), type: type), class: "send-link" do |f| %>
+        <p class="lead">Link zum <%= type.capitalize %> verschicken</p>
+        <%= text_field_tag "data_link[receiver]", "", placeholder: "E-Mail Adresse", required: true %>
+        <%= text_area_tag "data_link[comment]", "", placeholder: "Kommentar" %>
+        <%= button_tag "Link versenden", class: "button small", data: {disable_with: "sending..."} %>
+      <% end %>
+    </div>
+<% end %>

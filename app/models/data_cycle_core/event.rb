@@ -1,38 +1,35 @@
 module DataCycleCore
   class Event < DataHash
+
     class Translation < Globalize::ActiveRecord::Translation
         include ContentTranslationHelpers
     end
+
+    class History < DataHash
+      # handle translations with gem Globalize
+      translates :headline, :description, :content, :properties, :release,
+        :release_id, :release_comment, :history_valid
+
+      content_relations table_name: "events", postfix: "history"
+
+      belongs_to :event
+    end
+    has_many :histories, -> { order(updated_at: :desc) }, class_name: 'DataCycleCore::Event::History', foreign_key: :event_id
 
     # handle translations with gem Globalize
     translates :headline, :description, :content, :properties, :release,
       :release_id, :release_comment
 
+    # include content specific relations
+    content_relations table_name: self.table_name
+
     # callbacks
     before_destroy :destroy_translations, prepend: true
-
-    belongs_to :external_source
-
-    has_many :creative_work_events, dependent: :destroy
-    has_many :creative_works, through: :creative_work_events
-
-    # associations
-    has_many :classification_events, dependent: :destroy
-    has_many :classifications, through: :classification_events
-    has_many :classification_groups, through: :classifications
-    has_many :classification_aliases, through: :classification_groups
-    has_many :display_classification_aliases, -> { where("classification_aliases.internal = ?", false) }, through: :classification_groups, source: :classification_alias
 
     # custom setter
     include DataSetter
 
-    include Releasable
     include ContentHelpers
-
-    
-    attr_accessor :datahash
-
-
 
     # to cash also translated values (comming from gem Globalize)
     def cache_key

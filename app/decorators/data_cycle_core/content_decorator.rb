@@ -4,7 +4,7 @@ class DataCycleCore::ContentDecorator < SimpleDelegator
   end
 
   def property_definitions
-    self.metadata['validation']['properties']   
+    self.metadata['validation']['properties']
   end
 
   def property_names
@@ -12,7 +12,7 @@ class DataCycleCore::ContentDecorator < SimpleDelegator
   end
 
   def linked_property_names
-    linked_object_definitions.keys 
+    linked_object_definitions.keys
   end
 
   def plain_property_names

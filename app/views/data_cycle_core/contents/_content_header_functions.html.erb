@@ -1,17 +1,21 @@
 <div class="detail-header-functions">
     <ul class="no-bullet">
         <li>
-            <% if !content.metadata.nil? && !content.metadata['last_updated_by'].nil? %>
-              <% creator = get_user_for_id(content.metadata['last_updated_by']) %>
-              <% creator_text = "<a href='mailto:#{creator.email}'>#{creator.name}</a>" %>
-            <% else %>
-              <% creator_text = "Unbekannt" %>
-            <% end %>
-
-            <a id="show-history-link" data-toggle="show-history"><i class="fa fa-history" aria-hidden="true"></i> erstellt am <%= content.created_at.to_s(:german_datetime_format) %></a>
+            <a id="show-history-link" data-toggle="show-history"><i class="fa fa-history" aria-hidden="true"></i> erstellt am <%= Time.at(content.created_at).to_s(:german_datetime_format) %></a>
 
             <ul class="dropdown-pane no-bullet bottom" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
-                <li>Letzte Bearbeitung: <%= creator_text.html_safe %><br><i><%= content.updated_at.to_s(:german_datetime_format) %></i></li>
+              <li>Letzte Bearbeitungen:</li>
+              <% content.histories.limit(4).each do |item|%>
+                <li>
+                  <% if item.metadata.try(:[], 'last_updated_by') %>
+                    <% person = get_user_for_id(item.metadata['last_updated_by']) %>
+                    <%= "<a href='mailto:#{person.email}'>#{person.name}</a>".html_safe %>
+                  <% else %>
+                    <%= "Unbekannt".html_safe %>
+                  <% end %>
+                  <i><%= Time.at(item.updated_at).to_s(:german_datetime_format) %></i>
+                </li>
+              <% end %>
             </ul>
         </li>
         <% if can? :manage, DataCycleCore::DataLink %>

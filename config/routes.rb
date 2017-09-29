@@ -6,6 +6,11 @@ DataCycleCore::Engine.routes.draw do
 
   get  '/info',    to: 'frontend#info'
   get  '/settings',    to: 'backend#settings'
+  resources :users, only: [:index, :edit, :update, :destroy] do
+    post :unlock, on: :member
+    post :create_user, on: :collection
+  end
+  resources :user_groups
 
   resources :creative_works, only: [:index, :show, :create, :edit, :update]
   resources :persons, only: [:index, :show, :create, :edit, :update]

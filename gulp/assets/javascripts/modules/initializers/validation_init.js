@@ -105,7 +105,7 @@ module.exports.initialize = function () {
 
   function check_fields(form) {
     var isValid = true;
-    $(form).find('input[type=text]').each(function (e) {
+    $(form).find('input[type=text]:not(.no-validation)').each(function (e) {
       if (check_field(this) == false) isValid = false;
     });
     return isValid;

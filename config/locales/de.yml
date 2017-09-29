@@ -37,9 +37,27 @@ de:
     'aktuelle inhalte': "Aktuelle Inhalte"
     'archiv': "Archiv"
 
+  roles:
+    admin: Administrator
+    user: Benutzer
+    guest: Gast
+
   common:
     loading: 'Laden ...'
     are_you_sure: 'Sind Sie sicher?'
+
+  actions:
+    show: anzeigen
+    edit: bearbeiten
+    manage: verwalten
+    lock: sperren
+    unlock: freischalten
+    delete: löschen
+    new: "%{data} erstellen"
+    generate: "%{data} generieren"
+    send: versenden
+    send_with_data: "%{data} versenden"
+    delete_with_data: "%{data} löschen"
 
   validation:
     errors:
@@ -87,6 +105,7 @@ de:
       invalid_parent: "Ungültiges Eltern Objekt."
       invalid_parent_attr: "Ungültige Eltern Attribute."
       no_permission: "Keine Berechtigung."
+      invalid: "%{data} konnte nicht erstellt werden."
     success:
       created: "%{data} wurde erfolgreich erstellt."
       updated: "%{data} wurde aktualisiert."
@@ -95,6 +114,8 @@ de:
       removedFrom: "Von Merkliste: %{data} entfernt."
       sent: "Email wurde versandt."
       invalid_mail: "Keine gültige E-Mail Adresse."
+      locked: "%{data} wurde gesperrt."
+      unlocked: "%{data} wurde freigegeben."
     job:
       added: "%{data}/%{uuid} zur Job-Queue hinzugefügt."
       imported: "'%{data}' wurden aus YAML Datei importiert."
@@ -105,6 +126,51 @@ de:
           attributes:
             headline:
               blank: "Headline: Darf nicht leer sein."
+        data_cycle_core/user:
+          attributes:
+            password:
+              blank: "Passwort darf nicht leer sein."
+              too_short: "Passwort zu kurz."
+            password_confirmation:
+              confirmation: "Passwörter stimmen nicht überein."
+            current_password:
+              blank: "Aktuelles Passwort zur Bestätigung eingeben."
+              invalid: "Falsches Passwort."
+            email:
+              blank: "E-Mail darf nicht leer sein."
+              taken: "Für diese E-Mail existiert schon ein Benutzer."
+    models:
+      data_cycle_core/user: Benutzer
+      data_cycle_core/user_group:
+        one: Benutzergruppe
+        other: Benutzergruppen
+    attributes:
+      data_cycle_core/user_group:
+        name: Name
+        user_ids: Benutzer
+        classification_ids_markets: Märkte
+        classification_ids_output_channels: Ausgabekanäle
+      data_cycle_core/user:
+        given_name: Vorname
+        family_name: Familienname
+        password: Passwort
+        password_confirmation: "Passwort wiederholen"
+        current_password: "Aktuelles Passwort"
+        email: E-Mail
+        role_id: Rolle
+        user_group_ids: Benutzergruppen
+        external: SSO
+      data_cycle_core/person:
+        givenName: Vorname
+        familyName: Familienname
+        jobTitle: Berufsbezeichnung
+      data_cycle_core/place:
+        name: Name
+        street: Straße
+        plz: PLZ
+        address: Ort
+        longitude: Längengrad
+        latitude: Breitengrad
   unauthorized:
     manage:
       all: "Keine Zugriffsberechtigung!"
@@ -112,18 +178,3 @@ de:
     administration: 'Administration'
 
     classifications: 'Klassifizierungen'
-
-    contents:
-      editors:
-        object_browser:
-          place_new:
-            name: "Name"
-            street: "Straße"
-            plz: "PLZ"
-            address: "Ort"
-            longitude: "Längengrad"
-            latitude: "Breitengrad"
-          person_new:
-            givenName: "Vorname"
-            familyName: "Familienname"
-            jobTitle: "Berufsbezeichnung"

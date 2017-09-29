@@ -1,12 +1,16 @@
 module DataCycleCore
   class Content < ApplicationRecord
     NESTED_STORAGE_LOCATIONS = ['metadata', 'content', 'properties']
-
     PLAIN_PROPERTY_TYPES = ['string', 'text', 'number', 'geographic']
 
     self.abstract_class = true
 
+    attr_accessor :datahash
+
+    include ContentRelations
     include Subscribable
+    include Releasable
+
 
     def property_definitions
       metadata['validation']['properties'] rescue {}
@@ -19,16 +23,21 @@ module DataCycleCore
 
         set_property_value(name.to_s.gsub(/=$/, ''), property_definition, args.first)
       elsif property_definition
-        raise ArgumentError.new("wrong number of arguments (given #{args.size}, expected 0)") unless args.blank?
+        timestamp = args.try(:first)
+        raise ArgumentError.new("wrong number of arguments (given #{args.size}, expected 0)") if (args.size == 1 && timestamp.nil) || args.size > 1
 
-        get_property_value(name.to_s.gsub(/=$/, ''), property_definition)
+        if timestamp.nil?
+          get_property_value(name.to_s.gsub(/=$/, ''), property_definition)
+        else
+          get_property_value(name.to_s.gsub(/=$/, ''), property_definition, timestamp)
+        end
       else
         super
       end
     end
 
     def respond_to?(method_name, include_private = false)
-      property_names.map{|item| [item.to_sym, (item.to_s+"=").to_sym]}.flatten.include?(method_name.to_sym) || super
+      (property_names.map{|item| [item.to_sym, (item.to_s+"=").to_sym]}.flatten + linked_property_names.map{|item| item+'_ids'}).include?(method_name.to_sym) || super
     end
 
 
@@ -49,7 +58,7 @@ module DataCycleCore
       untranslated_columns = self.class.column_names
 
       property_definitions.select { |property_name, definition|
-          ['key', 'metadata', 'classification_relation'].include?(definition['storage_location']) ||
+          ['key', 'metadata'].include?(definition['storage_location']) ||
           (definition['storage_location'] == 'column' && untranslated_columns.include?(property_name))
         }.keys
     end
@@ -84,26 +93,24 @@ module DataCycleCore
       }.keys
     end
 
-    def to_h
+    def to_h(timestamp = Time.zone.now)
       property_names.map { |property_name|
         property_value =
-        if plain_property_names.include?(property_name)
+        if property_name == "id" && is_history?
+          send(self.class.to_s.split("::")[1].foreign_key) # for history records original_key is saved in "content"_id
+        elsif plain_property_names.include?(property_name)
           send(property_name)
         elsif classification_property_names.include?(property_name)
           send(property_name).try(:pluck, :classification_id)
         elsif linked_property_names.include?(property_name)
-          send(property_name).try(:pluck, :id) || send(property_name).try(:id)
+          get_property_value(property_name, property_definitions[property_name], timestamp, false)
         elsif included_property_names.include?(property_name)
           embedded_hash = send(property_name).to_h
           embedded_hash.blank? ? nil : embedded_hash
         elsif embedded_property_names.include?(property_name)
-          if send(property_name).nil?
-            []
-          else
-            send(property_name).map{ |item|
-              item.get_data_hash
-            }.compact #to propagate the releasable functionality
-          end
+          embedded_array = send(property_name)
+          embedded_array = embedded_array.map{|item| item.get_data_hash(timestamp)} unless embedded_array.blank?
+          embedded_array.blank? ? [] : embedded_array.compact
         else
           raise StandardError.new("cannot determine how to serialize #{property_name}")
         end
@@ -121,16 +128,61 @@ module DataCycleCore
       self
     end
 
+    def is_history?
+      respond_to? "history_valid"
+    end
+
+    def as_of(timestamp)
+      # puts "#{self.updated_at.nil?} || #{is_history?}"
+      # puts "#{timestamp.to_s(:long_usec)}"
+
+      return self if timestamp > self.updated_at
+      return nil if self.updated_at.nil? || is_history?
+
+      base_content_class = self.class.to_s
+      history_table = "#{base_content_class}::History".safe_constantize.arel_table
+      history_table_translation = "#{base_content_class}::History::Translation".safe_constantize.arel_table
+      history_id = "#{base_content_class}::History".safe_constantize.table_name.singularize.foreign_key.to_sym
+
+      return_data =
+      self.histories.
+        joins(
+          history_table.join(history_table_translation).
+          on(history_table[:id].eq(history_table_translation[history_id])).
+          join_sources
+        ).
+        where(
+          Arel::Nodes::InfixOperation.new( "@>",
+            history_table_translation[:history_valid],
+            Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
+          )
+        ).order(history_table[:updated_at])#.first #rescue self
+      return return_data.last
+    end
 
     private
 
-    def get_property_value(property_name, property_definition)
+    def embedded_relations
+      embedded_property_names.map { |property_name|
+         property_definitions[property_name]['storage_location'] if property_definitions[property_name]['storage_location'] != self.class.table_name
+      }.compact.uniq
+    end
+
+    def embedded_self_property_names
+      embedded_property_names.select { |property_name|
+        property_definitions[property_name]['storage_location'] == self.class.table_name
+      }
+    end
+
+    def get_property_value(property_name, property_definition, timestamp = Time.zone.now, object = true)
       # linked data via embeddedLink/embeddedLinkArray
       # only uuid(s) stored in content-data_set
       if linked_property_names.include?(property_name)
-        loaded_data = load_linked_data(
-            "DataCycleCore::#{property_definition['type_name'].singularize.camelize}",
-            send(property_definition['storage_location'])[property_name.to_s]
+        load_linked_data(
+            property_definition['type_name'],
+            send(property_definition['storage_location'])[property_name.to_s],
+            timestamp,
+            object
           )
 
       # included subobjects
@@ -145,16 +197,17 @@ module DataCycleCore
       # relation is hadled via a separate table (an ActiveRecord::Relation has to be defined)
       # embeddedObject is stored in a separate content-data_set
       # all properties from the embeddedObject are handled within this content-data_set
-      elsif embedded_property_names.include?(property_name) && property_definition['storage_location'] != self.class.table_name
-        send(property_definition['storage_location'])
+      elsif embedded_property_names.include?(property_name) && !same_table?(property_definition['storage_location'])
+        load_embedded_objects(
+            property_definition['storage_location']
+          )
 
       # embeddedObject stored in same table
       # relation is handled via "property_name"+"_hasPart" uuid(s) array
       # embeddedObject is stored in a separate content-data_set
       # all properties from the embeddedObject are handled within this content-data_set
-      elsif embedded_property_names.include?(property_name) && property_definition['storage_location'] == self.class.table_name
-        load_linked_data(
-            self.class.to_s,
+      elsif embedded_property_names.include?(property_name) && same_table?(property_definition['storage_location'])
+        load_embedded_objects_same_table(
             send('metadata')[property_name.to_s + '_hasPart']
           )
 
@@ -176,8 +229,26 @@ module DataCycleCore
       end
     end
 
-    def load_linked_data(class_name, ids)
-      class_name.safe_constantize.find(ids) rescue nil
+    def same_table?(storage_location)
+      history = false
+      if self.class.table_name.split('_').last == 'histories'
+        history =  self.class.table_name.split('_')[0..-2].join('_').pluralize == storage_location
+      end
+      self.class.table_name == storage_location || history
+    end
+
+    def load_embedded_objects(relation_name)
+      is_history? ? send("#{relation_name.singularize}_histories") : send(relation_name)
+    end
+
+    def load_embedded_objects_same_table(ids)
+      self.class.to_s.safe_constantize.find(ids) rescue nil
+    end
+
+    def load_linked_data(type_name, ids, timestamp = Time.zone.now, objects = true)
+      return ids unless objects
+      class_name = "DataCycleCore::#{type_name.singularize.camelize}"
+      class_name.safe_constantize.find(ids).map{|item| item.as_of(timestamp)} rescue nil
     end
 
     def load_included_data(property_name, property_definition)
@@ -207,7 +278,10 @@ module DataCycleCore
 
     def load_relation_ids(storage_type, tree_label)
       class_string = "DataCycleCore::"+storage_type.classify
-      class_id = self.class.to_s.demodulize.foreign_key
+      class_string += "::History" if is_history?
+      module_names = self.class.to_s.split('::')
+      module_names.shift
+      class_id = module_names.join('').tableize.singularize.foreign_key
       class_string.constantize.
         where(class_id => id).
         joins(classification: [classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]]).

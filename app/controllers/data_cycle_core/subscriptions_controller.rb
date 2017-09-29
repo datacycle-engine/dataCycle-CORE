@@ -1,9 +1,9 @@
 module DataCycleCore
   class SubscriptionsController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
-    load_and_authorize_resource         # from cancancan (authorize)
 
     def create
+      authorize! :subscribe, subscription_params['subscribable_type'].constantize
       @subscription = current_user.subscriptions.build(subscription_params)
 
       respond_to do |format|
@@ -18,6 +18,8 @@ module DataCycleCore
 
     def destroy
       @subscription = DataCycleCore::Subscription.find(params[:id])
+
+      authorize! :subscribe, @subscription.subscribable_type.constantize
       @subscription.destroy
 
       respond_to do |format|

@@ -7,11 +7,13 @@ module DataCycleCore
 
     acts_as_paranoid
 
-    has_many :classification_places, dependent: :destroy
-    has_many :places, through: :classification_places
+    DataCycleCore.content_tables.each do |content_table|
+      has_many "classification_#{content_table}".to_sym, dependent: :destroy
+      has_many content_table.to_sym, through: "classification_#{content_table}".to_sym
 
-    has_many :classification_creative_works, dependent: :destroy
-    has_many :creative_works, through: :classification_creative_works
+      has_many "classification_#{content_table.singularize}_histories".to_sym
+      has_many "#{content_table.singularize}_histories".to_sym, through: "classification_#{content_table.singularize}_histories".to_sym
+    end
 
     has_many :classification_groups, dependent: :destroy
     has_many :classification_aliases, through: :classification_groups
@@ -31,5 +33,6 @@ module DataCycleCore
         [primary_classification_alias] + primary_classification_alias.ancestors
       end
     end
+
   end
 end

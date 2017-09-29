@@ -1,0 +1,20 @@
+<div class="grid <%= @mode %>">
+
+	<div class="grid-sizer"></div>
+	<div class="gutter-sizer"></div>
+	<div class="grid-loading">
+		<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+		<span class="sr-only">Loading...</span>
+	</div>
+
+	<% unless contents.nil? %>
+		<% contents.each do |content| %>
+
+			<div class="grid-item data-cycle-object">
+				<%= render "data_cycle_core/users/partials/index/default", item: content %>
+			</div>
+
+		<% end %>
+	<% end %>
+
+</div>

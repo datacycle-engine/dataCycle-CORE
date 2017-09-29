@@ -1,5 +1,6 @@
 module DataCycleCore
   class CreativeWork < DataHash
+
     extend ActsAsTree::TreeView
     extend ActsAsTree::TreeWalker
 
@@ -7,51 +8,36 @@ module DataCycleCore
       include ContentTranslationHelpers
     end
 
+    class History < DataHash
+      # handle translations with gem Globalize
+      translates :headline, :description, :content, :properties, :release,
+        :release_id, :release_comment, :history_valid
+
+      content_relations table_name: "creative_works", postfix: "history"
+
+      belongs_to :creative_work
+    end
+    has_many :histories, -> { order(updated_at: :desc) }, class_name: 'DataCycleCore::CreativeWork::History', foreign_key: :creative_work_id
+
     # handle translations with gem Globalize
     translates :headline, :description, :content, :properties, :release,
       :release_id, :release_comment
 
+    # include content specific relations
+    content_relations table_name: self.table_name
+
     # callbacks
     before_destroy :destroy_translations, prepend: true
 
-    belongs_to :external_source
-
     # associations
-    has_many :creative_work_places, dependent: :destroy
-    has_many :places, through: :creative_work_places
-
-    has_many :creative_work_persons, dependent: :destroy
-    has_many :persons, through: :creative_work_persons
-
-    has_many :creative_work_events, dependent: :destroy
-    has_many :events, through: :creative_work_events
-
-    has_many :classification_creative_works, dependent: :destroy
-    has_many :classifications, through: :classification_creative_works
-
-    has_many :classification_groups, through: :classifications
-    has_many :classification_aliases, through: :classification_groups
-    has_many :display_classification_aliases, -> { where("classification_aliases.internal = ?", false) }, through: :classification_groups, source: :classification_alias
-
     belongs_to :primaryImage, class_name: 'Place', primary_key: 'id', foreign_key: 'photo'
-
-    has_many :watch_list_data_hashes, as: :hashable, dependent: :destroy
-    has_many :watch_lists, through: :watch_list_data_hashes
-
-    has_one :show_link, -> { DataLink.show_links }, class_name: "DataLink", as: :item
-    has_one :edit_link, -> { DataLink.edit_links }, class_name: "DataLink", as: :item
-
     acts_as_tree order: "position", foreign_key: "isPartOf"
 
     # custom setter
     include DataSetter
 
-    include Releasable
     include ContentHelpers
     include CreativeWorkHelpers
-
-
-    attr_accessor :datahash
 
     # to cash also translated values (comming from gem Globalize)
     def cache_key

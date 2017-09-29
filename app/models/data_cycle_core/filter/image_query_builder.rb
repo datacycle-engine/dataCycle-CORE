@@ -4,13 +4,8 @@ module DataCycleCore
 
       def initialize(locale = 'de', query = nil)
         @locale = locale
-        @query = query || CreativeWork.unscoped.group(:id).
-          where(template: false).
-          joins(
-            creative_work.join(creative_work_translation).
-            on(creative_work[:id].eq(creative_work_translation[:creative_work_id])).
-            join_sources
-          ).includes(:translations)
+        @query = query || CreativeWork.unscoped.select('distinct on (creative_works.id) *').
+          where(template: false).includes(:translations)
       end
 
     # filters

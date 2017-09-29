@@ -1,0 +1,15 @@
+<% breadcrumb :'data_cycle_core/users' %>
+
+<% @mode = "flex" %>
+<%= render 'data_cycle_core/users/partials/grid', contents: @users %>
+
+<% if can? :create, DataCycleCore::User %>
+  <div id="new-object-circle">
+      <a data-toggle="new-object" class="button-prime"><i class="fa fa-plus" aria-hidden="true"></i></a>
+      <div class="reveal" id="new-object" data-reveal data-append-to="#new-object-circle" data-v-offset="auto">
+          <a class="option last" href="#" data-open="newContent"><i class="fa fa-folder-open-o" aria-hidden="true"></i><%= t('actions.new', data: @users.model_name.human ) %></a>
+      </div>
+  </div>
+
+  <%= render 'data_cycle_core/users/partials/new' %>
+<% end %>
