@@ -23,10 +23,10 @@
             </div>
         </div>
 
-        <% if can? :manage, DataCycleCore::Classification %>
+        <% if can?(:crud, DataCycleCore::Classification) || can?(:crud, DataCycleCore::User) || can?(:crud, DataCycleCore::UserGroup) %>
             <div class="settings-row">
                 <div class="row columns">
-                    <span><%= t('data_cycle_core.administration') %></span>
+                    <h5><%= t('data_cycle_core.administration') %></h5>
                 </div>
 
                 <% if can? :manage, DataCycleCore::Classification %>
