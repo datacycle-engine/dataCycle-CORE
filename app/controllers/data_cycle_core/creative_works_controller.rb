@@ -133,7 +133,7 @@ module DataCycleCore
     end
 
 
-    def after_create(content)
+    def after_create(content, user)
       # to be implemented by specific projects
     end
 
