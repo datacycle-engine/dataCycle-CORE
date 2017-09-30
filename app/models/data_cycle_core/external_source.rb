@@ -10,11 +10,11 @@ module DataCycleCore
       end
     end
 
-    def import(options = {})
+    def import(options = {}, &block)
       if config['import'].starts_with?('::') || config['import'].starts_with?('DataCycleCore::')
-        "#{config['import']}".constantize.new(id).import(options)
+        "#{config['import']}".constantize.new(id).import(options, &block)
       else
-        "DataCycleCore::#{config['import']}".constantize.new(id).import(options)
+        "DataCycleCore::#{config['import']}".constantize.new(id).import(options, &block)
       end
     end
   end

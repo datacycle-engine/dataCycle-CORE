@@ -104,7 +104,18 @@ namespace :data_cycle_core do
       }]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
-      external_source.import(options)
+      external_source.import(options) do |on|
+        on.preparing_phase { |label|
+          puts "Preparing #{label.to_s.gsub(/_/, ' ')} ..."
+        }
+        on.phase_started { |label, total|
+          puts "Importing #{label.to_s.gsub(/_/, ' ')} ..." if total.nil?
+          puts "Importing #{label.to_s.gsub(/_/, ' ')} (#{total} items) ..." if total
+        }
+        on.phase_finished { |label, total|
+          puts "Importing #{label.to_s.gsub(/_/, ' ')} (#{total} items) ... [DONE]"
+        }
+      end
     end
   end
 end
