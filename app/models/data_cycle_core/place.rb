@@ -7,10 +7,8 @@ module DataCycleCore
 
     class History < DataHash
       # handle translations with gem Globalize
-      translates :name, :headline, :description, :addressLocality, :streetAddress,
-        :postalCode, :addressCountry, :faxNumber, :telephone, :email,
-        :url, :hoursAvailable, :address, :content, :properties, :release,
-        :release_id, :release_comment, :history_valid
+      translates :name, :headline, :description, :url, :hours_available, :content,
+        :properties, :release, :release_id, :release_comment, :history_valid
 
       content_relations table_name: "places", postfix: "history"
 
@@ -19,10 +17,8 @@ module DataCycleCore
     has_many :histories, -> { order(updated_at: :desc) }, class_name: 'DataCycleCore::Place::History', foreign_key: :place_id
 
     # handle translations with gem Globalize
-    translates :name, :headline, :description, :addressLocality, :streetAddress,
-      :postalCode, :addressCountry, :faxNumber, :telephone, :email,
-      :url, :hoursAvailable, :content, :properties, :release,
-      :release_id, :release_comment
+    translates :name, :headline, :description, :url, :hours_available, :content,
+      :properties, :release, :release_id, :release_comment
 
     # include content specific relations
     content_relations table_name: self.table_name

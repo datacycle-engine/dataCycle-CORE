@@ -21,8 +21,10 @@ module DataCycleCore
         @mode = params[:mode].to_s
       end
 
-      render layout: "data_cycle_core/watch_lists_edit"
-
+      respond_to do |format|
+        format.html { render layout: 'data_cycle_core/watch_lists_edit' }
+        format.json { redirect_to api_v1_collection_path(@watch_list) }
+      end
     end
 
     def new

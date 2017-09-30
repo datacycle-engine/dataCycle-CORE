@@ -905,7 +905,14 @@ CREATE TABLE place_histories (
     seen_at timestamp without time zone,
     external_source_id uuid,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    address_locality character varying,
+    street_address character varying,
+    postal_code character varying,
+    address_country character varying,
+    fax_number character varying,
+    telephone character varying,
+    email character varying
 );
 
 
@@ -920,15 +927,8 @@ CREATE TABLE place_history_translations (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     name character varying,
-    "addressLocality" character varying,
-    "streetAddress" character varying,
-    "postalCode" character varying,
-    "addressCountry" character varying,
-    "faxNumber" character varying,
-    telephone character varying,
-    email character varying,
     url character varying,
-    "hoursAvailable" character varying,
+    hours_available character varying,
     address character varying,
     content jsonb,
     properties jsonb,
@@ -971,15 +971,8 @@ CREATE TABLE place_translations (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     name character varying,
-    "addressLocality" character varying,
-    "streetAddress" character varying,
-    "postalCode" character varying,
-    "addressCountry" character varying,
-    "faxNumber" character varying,
-    telephone character varying,
-    email character varying,
     url character varying,
-    "hoursAvailable" character varying,
+    hours_available character varying,
     content jsonb,
     properties jsonb,
     description text,
@@ -1027,7 +1020,14 @@ CREATE TABLE places (
     photo uuid,
     line geography(LineStringZ,4326),
     metadata jsonb,
-    template boolean DEFAULT false
+    template boolean DEFAULT false,
+    address_locality character varying,
+    street_address character varying,
+    postal_code character varying,
+    address_country character varying,
+    fax_number character varying,
+    telephone character varying,
+    email character varying
 );
 
 
@@ -2386,6 +2386,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20170919085841'),
 ('20170920071933'),
 ('20170921160600'),
-('20170921161200');
+('20170921161200'),
+('20170929140328');
 
 

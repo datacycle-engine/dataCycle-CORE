@@ -1,4 +1,4 @@
-<div v-if="props.item != undefined" :data-open="props.dataOpen" :class="[props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != '' && props.item.metadata.restrictions != 'Keine Einschränkung;' ? 'has-restrictions' : '', 'media thumbnail']" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnailUrl+')' }">
+<div v-if="props.item != undefined" :data-open="props.dataOpen" :class="[props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != '' && props.item.metadata.restrictions != 'Keine Einschränkung;' ? 'has-restrictions' : '', 'media thumbnail']" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnail_url+')' }">
   <span v-if="props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != ''" data-tooltip aria-haspopup="true" class="has-tip warning" data-disable-hover="false" tabindex="1" :title="'Einschränkungen: '+props.item.metadata.restrictions"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
 
   <span v-if="!props.readonly" class="delete-thumbnail" @click.stop="props.remove(props.item, $event)"><i aria-hidden="true" class="fa fa-times"></i></span>
@@ -16,7 +16,7 @@
       {{ props.item.headline }}
     </span>
     <div class="image">
-        <img class="lazyload" :data-src="props.item.metadata.contentUrl" />
+        <img class="lazyload" :data-src="props.item.metadata.content_url" />
     </div>
     <div class="description">
         <!-- todo: check only for empty string -->

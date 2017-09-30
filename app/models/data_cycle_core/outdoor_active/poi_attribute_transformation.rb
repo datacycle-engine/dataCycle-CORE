@@ -26,7 +26,7 @@ module DataCycleCore
       end
 
       def location
-        RGeo::Geographic.spherical_factory(srid: 4326).point(longitude, latitude)        
+        RGeo::Geographic.spherical_factory(srid: 4326).point(longitude, latitude)
       end
 
       def address_locality
@@ -37,7 +37,7 @@ module DataCycleCore
         unless self['address'].try(:[], 'street').try(:strip).blank?
           [
             self['address'].try(:[], 'street').try(:strip),
-            self['address'].try(:[], 'housenumber').try(:strip)            
+            self['address'].try(:[], 'housenumber').try(:strip)
           ].join(' ')
         end
       end
@@ -91,10 +91,10 @@ module DataCycleCore
       end
 
       def to_h
-        Hash[PoiAttributeTransformation.public_instance_methods.reject { |m| 
-          m == :to_h 
-        }.map { |m| 
-          [m, self.send(m)] 
+        Hash[PoiAttributeTransformation.public_instance_methods.reject { |m|
+          m == :to_h
+        }.map { |m|
+          [m, self.send(m)]
         }].reject { |k, v| v.nil? }
       end
     end
