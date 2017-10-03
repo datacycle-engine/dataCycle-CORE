@@ -3,8 +3,8 @@ class CreateCreativeWorks < ActiveRecord::Migration[5.0]
   def up
 
     create_table :place_translations do |t|
-      t.uuid :place_id
-      t.string :locale
+      t.uuid :place_id, null: false
+      t.string :locale, null: false
       t.string :name
       t.string :addressLocality
       t.string :streetAddress
@@ -15,6 +15,7 @@ class CreateCreativeWorks < ActiveRecord::Migration[5.0]
       t.string :email
       t.string :url
       t.string :hoursAvailable
+      t.timestamps
     end
 
     remove_column :places, :name

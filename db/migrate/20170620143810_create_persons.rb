@@ -23,10 +23,11 @@ class CreatePersons < ActiveRecord::Migration[5.0]
     end
 
     create_table :person_translations do |t|
-      t.uuid :person_id
-      t.string :locale
+      t.uuid :person_id, null: false
+      t.string :locale, null: false
       t.jsonb :content
       t.jsonb :properties
+      t.timestamps
     end
   end
 

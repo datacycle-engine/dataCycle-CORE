@@ -34,10 +34,11 @@ class CreateEvents < ActiveRecord::Migration[5.0]
     end
 
     create_table :event_translations do |t|
-      t.uuid :event_id
-      t.string :locale
+      t.uuid :event_id, null: false
+      t.string :locale, null: false
       t.jsonb :content
       t.jsonb :properties
+      t.timestamps
     end
   end
 

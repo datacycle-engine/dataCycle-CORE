@@ -13,8 +13,8 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
     end
 
     create_table :creative_work_history_translations do |t|
-      t.uuid :creative_work_history_id
-      t.string :locale
+      t.uuid :creative_work_history_id, null: false
+      t.string :locale, null: false
       t.jsonb :content
       t.jsonb :properties
       t.text :headline
@@ -23,6 +23,7 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
       t.uuid :release_id
       t.text :release_comment
       t.tstzrange :history_valid
+      t.timestamps
     end
 
     create_table :classification_creative_work_histories, id: :uuid do |t|
@@ -51,8 +52,8 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
     end
 
     create_table :event_history_translations do |t|
-      t.uuid :event_history_id
-      t.string :locale
+      t.uuid :event_history_id, null: false
+      t.string :locale, null: false
       t.jsonb :content
       t.jsonb :properties
       t.text :headline
@@ -61,6 +62,7 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
       t.uuid :release_id
       t.text :release_comment
       t.tstzrange :history_valid
+      t.timestamps
     end
 
     create_table :classification_event_histories, id: :uuid do |t|
@@ -89,8 +91,8 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
     end
 
     create_table :person_history_translations do |t|
-      t.uuid :person_history_id
-      t.string :locale
+      t.uuid :person_history_id, null: false
+      t.string :locale, null: false
       t.jsonb :content
       t.jsonb :properties
       t.text :headline
@@ -99,6 +101,7 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
       t.uuid :release_id
       t.text :release_comment
       t.tstzrange :history_valid
+      t.timestamps
     end
 
     create_table :classification_person_histories, id: :uuid do |t|
@@ -132,8 +135,8 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
     end
 
     create_table :place_history_translations do |t|
-      t.uuid :place_history_id
-      t.string :locale
+      t.uuid :place_history_id, null: false
+      t.string :locale, null: false
       t.string :name
       t.string :addressLocality
       t.string :streetAddress
@@ -153,6 +156,7 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
       t.uuid :release_id
       t.text :release_comment
       t.tstzrange :history_valid
+      t.timestamps
     end
 
     create_table :classification_place_histories, id: :uuid do |t|
