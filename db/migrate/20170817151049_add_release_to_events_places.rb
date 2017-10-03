@@ -3,8 +3,8 @@ class AddReleaseToEventsPlaces < ActiveRecord::Migration[5.0]
 
     reversible do |dir|
       dir.up do
-        DataCycleCore::Event.add_translation_fields! release: :jsonb
-        DataCycleCore::Place.add_translation_fields! release: :jsonb
+        add_column :event_translations, :release, :jsonb
+        add_column :place_translations, :release, :jsonb
       end
 
       dir.down do

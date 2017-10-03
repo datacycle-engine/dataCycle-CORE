@@ -2,23 +2,30 @@ class CreateCreativeWorks < ActiveRecord::Migration[5.0]
 
   def up
 
-    I18n.with_locale(:de) do
-      DataCycleCore::Place.create_translation_table!({
-        name: :string,
-        addressLocality: :string,
-        streetAddress: :string,
-        postalCode: :string,
-        addressCountry: :string,
-        faxNumber: :string,
-        telephone: :string,
-        email: :string,
-        url: :string,
-        hoursAvailable: :string
-      }, {
-        :migrate_data => true,
-        :remove_source_columns => true
-      })
+    create_table :place_translations do |t|
+      t.uuid :place_id
+      t.string :locale
+      t.string :name
+      t.string :addressLocality
+      t.string :streetAddress
+      t.string :postalCode
+      t.string :addressCountry
+      t.string :faxNumber
+      t.string :telephone
+      t.string :email
+      t.string :url
+      t.string :hoursAvailable
     end
+
+    remove_column :places, :name
+    remove_column :places, :streetAddress
+    remove_column :places, :postalCode
+    remove_column :places, :addressCountry
+    remove_column :places, :faxNumber
+    remove_column :places, :telephone
+    remove_column :places, :email
+    remove_column :places, :url
+    remove_column :places, :hoursAvailable
 
     create_table :creative_works, id: :uuid do |t|
       t.string :headline
@@ -53,7 +60,18 @@ class CreateCreativeWorks < ActiveRecord::Migration[5.0]
     drop_table :classifications_creative_works
     drop_table :creative_works_places
     drop_table :creative_works
-    DataCycleCore::Place.drop_translation_table! :migrate_data => true
+    drop_table :place_translations
+
+    add_column :places, :name, :string
+    add_column :places, :streetAddress, :string
+    add_column :places, :postalCode, :string
+    add_column :places, :addressCountry, :string
+    add_column :places, :faxNumber, :string
+    add_column :places, :telephone, :string
+    add_column :places, :email, :string
+    add_column :places, :url, :string
+    add_column :places, :hoursAvailable, :string
+
   end
 
 end

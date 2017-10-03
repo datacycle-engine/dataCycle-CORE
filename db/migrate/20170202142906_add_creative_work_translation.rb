@@ -1,14 +1,16 @@
 class AddCreativeWorkTranslation < ActiveRecord::Migration[5.0]
   def up
-    DataCycleCore::CreativeWork.create_translation_table!({
-      content: :jsonb,
-      properties: :jsonb
-    })
+    create_table :creative_work_translations do |t|
+      t.uuid :creative_work_id
+      t.string :locale
+      t.jsonb :content
+      t.jsonb :properties
+    end
     add_column :creative_works, :external_source_id, :uuid
   end
 
   def down
     remove_column :creative_works, :external_source_id, :uuid
-    DataCycleCore::CreativeWork.drop_translation_table!
+    drop_table :creative_work_translations
   end
 end
