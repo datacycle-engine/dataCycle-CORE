@@ -21,7 +21,13 @@ module DataCycleCore
         order_string = @order_by + ' ' + @order
       else
         # order by ranking
-        order_string = "ts_rank_cd(words, plainto_tsquery('#{params[:search]}'),16) DESC, updated_at DESC"
+        order_string = "
+          8 * word_similarity(classification_string,'#{params[:search]}') +
+          4 * word_similarity(headline, '#{params[:search]}') +
+          2 * ts_rank_cd(words, plainto_tsquery('#{params[:search]}'),16) +
+          1 * word_similarity(full_text, '#{params[:search]}')
+          DESC NULLS LAST,
+          updated_at DESC"
       end
 
       #query = DataCycleCore::Filter::QueryIndex.new(language: @language)

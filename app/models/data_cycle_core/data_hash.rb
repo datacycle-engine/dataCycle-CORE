@@ -35,6 +35,7 @@ module DataCycleCore
           self.updated_at = save_time
           updated_by = {'last_updated_by' => current_user.try(:id)}
           self.metadata.nil? ? self.metadata = updated_by : self.metadata.merge!(updated_by)
+          self.set_search
         end
       end
       validate(stripped_data_hash) # return error/warnings from validation
@@ -176,18 +177,29 @@ module DataCycleCore
     def set_search
       # upsert with one SQL Statement
       full_text = search_property_names.map{|item| self.send(item)}.join(' ').gsub(/[']/,"''")
+      full_text = "" if full_text.nil?
+      full_text_most = (search_property_names - ['headline']).map{|item| self.send(item)}.join(' ').gsub(/[']/,"''")
+      full_text_most = "" if full_text_most.nil?
+      headline = self.try('send','headline')
+      headline = headline.gsub(/[']/,"''") unless headline.nil?
+      headline = "" if headline.nil?
+      classification_string = self.classification_aliases.pluck(:name).try(:join, " ").try(:gsub, /[']/, "''")
+      classification_string = "" if classification_string.nil?
       connection = ActiveRecord::Base.connection
       sql_query = <<-eos
-        INSERT INTO searches (id, content_data_id, content_data_type, locale, words, full_text, created_at, updated_at)
+        INSERT INTO searches (id, content_data_id, content_data_type, locale, words, full_text, created_at, updated_at, headline, classification_string, data_type)
         VALUES
         ( DEFAULT,
           '#{self.id}',
           '#{self.class.to_s}',
           '#{I18n.locale}',
           to_tsvector('simple', '#{full_text}'),
-          '#{full_text}',
+          '#{full_text_most}',
           '#{Time.zone.now.to_s(:long_usec)}',
-          '#{Time.zone.now.to_s(:long_usec)}'
+          '#{Time.zone.now.to_s(:long_usec)}',
+          '#{headline}',
+          '#{classification_string}',
+          '#{self.metadata.try(:[],'validation').try(:[],'name')}'
         )
         ON CONFLICT (content_data_id, content_data_type, locale)
         WHERE content_data_id = '#{self.id}' AND content_data_type = '#{self.class.to_s}' AND locale = '#{I18n.locale}'
@@ -195,7 +207,10 @@ module DataCycleCore
           words = EXCLUDED.words,
           full_text = EXCLUDED.full_text,
           created_at = EXCLUDED.created_at,
-          updated_at = EXCLUDED.updated_at;
+          updated_at = EXCLUDED.updated_at,
+          headline = EXCLUDED.headline,
+          classification_string = EXCLUDED.classification_string,
+          data_type = EXCLUDED.data_type;
       eos
       result = connection.exec_query(sql_query)
       # search_object = DataCycleCore::Search.find_or_create_by(content_data_id: self.id, content_data_type: self.class.to_s)

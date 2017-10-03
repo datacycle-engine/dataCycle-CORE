@@ -34,10 +34,10 @@ class CreateSearch < ActiveRecord::Migration[5.0]
     # data_migration:
     @connection = ActiveRecord::Base.connection
     data_hash = [
-      {name: "creative_work", content_type: "DataCycleCore::CreativeWork", old_class: DataCycleCore::ClassificationCreativeWork},
-      {name: "event", content_type: "DataCycleCore::Event", old_class: DataCycleCore::ClassificationEvent},
-      {name: "place", content_type: "DataCycleCore::Place", old_class: DataCycleCore::ClassificationPlace},
-      {name: "person", content_type: "DataCycleCore::Person", old_class: DataCycleCore::ClassificationPerson}
+      {name: "creative_work", content_type: "DataCycleCore::CreativeWork"},
+      {name: "event", content_type: "DataCycleCore::Event"},
+      {name: "place", content_type: "DataCycleCore::Place"},
+      {name: "person", content_type: "DataCycleCore::Person"}
     ]
 
     data_hash.each do |item|
@@ -76,10 +76,10 @@ class CreateSearch < ActiveRecord::Migration[5.0]
     # data split:
     @connection = ActiveRecord::Base.connection
     data_hash = [
-      {name: "creative_work", content_type: "DataCycleCore::CreativeWork", old_class: DataCycleCore::ClassificationCreativeWork},
-      {name: "event", content_type: "DataCycleCore::Event", old_class: DataCycleCore::ClassificationEvent},
-      {name: "place", content_type: "DataCycleCore::Place", old_class: DataCycleCore::ClassificationPlace},
-      {name: "person", content_type: "DataCycleCore::Person", old_class: DataCycleCore::ClassificationPerson}
+      {name: "creative_work", content_type: "DataCycleCore::CreativeWork"},
+      {name: "event", content_type: "DataCycleCore::Event"},
+      {name: "place", content_type: "DataCycleCore::Place"},
+      {name: "person", content_type: "DataCycleCore::Person"}
     ]
 
     data_hash.each do |item|

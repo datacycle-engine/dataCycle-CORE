@@ -14,13 +14,15 @@ module DataCycleCore
 
       def fulltext_search(name)
         # include textsearch on classification_aliases.name
-        query = join_classification_alias2
-        manager = query.where(classification_alias[:name].matches("%#{name}%"))
+        # query = join_classification_alias2
+        # manager = query.where(classification_alias[:name].matches("%#{name}%"))
 
 
         reflect(
           @query.where(
-            search[:content_data_id].in(manager).
+            #search[:content_data_id].in(manager).
+            search[:classification_string].matches("%#{name}%").
+            or(search[:headline].matches("%#{name}%")).
             or(search[:full_text].matches("%#{name}%")).
             or(tsmatch(search[:words],to_tsquery(quoted(name))))
           )

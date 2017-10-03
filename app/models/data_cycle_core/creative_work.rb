@@ -27,7 +27,6 @@ module DataCycleCore
     content_relations table_name: self.table_name
 
     # callbacks
-    after_save :set_search, on: [ :create, :update ]
     before_destroy :destroy_relations, prepend: true
 
     # associations
@@ -47,9 +46,9 @@ module DataCycleCore
 
     private
 
-    def destroy_translations
+    def destroy_relations
       self.translations.destroy_all
-      self.content_search.destroy_all
+      self.content_search_all.destroy_all
     end
 
   end

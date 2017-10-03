@@ -26,7 +26,8 @@ module DataCycleCore
 
         # relation content to search
         if postfix.nil?
-          has_one :content_search, class_name: 'DataCycleCore::Search', foreign_key: content_name.foreign_key
+          #has_one :content_search, class_name: 'DataCycleCore::Search', foreign_key: content_name.foreign_key
+          has_many :content_search_all, class_name: 'DataCycleCore::Search', foreign_key: content_name.foreign_key
         end
 
         # relation content to all other contents
