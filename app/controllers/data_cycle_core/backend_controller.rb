@@ -30,6 +30,7 @@ module DataCycleCore
           updated_at DESC"
       end
 
+
       #query = DataCycleCore::Filter::QueryIndex.new(language: @language)
       query = DataCycleCore::Filter::Search.new(@language)
       query = query.order(order_string)
