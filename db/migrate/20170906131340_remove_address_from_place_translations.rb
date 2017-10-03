@@ -6,7 +6,7 @@ class RemoveAddressFromPlaceTranslations < ActiveRecord::Migration[5.0]
       end
 
       dir.down do
-        DataCycleCore::Place.add_translation_fields! address: :string
+        add_column :place_translations, :address, :string
       end
     end
   end

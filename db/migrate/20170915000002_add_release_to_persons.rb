@@ -2,9 +2,9 @@ class AddReleaseToPersons < ActiveRecord::Migration[5.0]
   def change
     reversible do |dir|
       dir.up do
-        DataCycleCore::Person.add_translation_fields! release: :jsonb
-        DataCycleCore::Person.add_translation_fields! release_id: :uuid
-        DataCycleCore::Person.add_translation_fields! release_comment: :text
+        add_column :person_translations, :release, :jsonb
+        add_column :person_translations, :release_id, :uuid
+        add_column :person_translations, :release_comment, :text
       end
 
       dir.down do

@@ -22,17 +22,19 @@ class CreatePersons < ActiveRecord::Migration[5.0]
       t.index :person_id
     end
 
-    DataCycleCore::Person.create_translation_table!({
-      content: :jsonb,
-      properties: :jsonb
-    })
-
+    create_table :person_translations do |t|
+      t.uuid :person_id, null: false
+      t.string :locale, null: false
+      t.jsonb :content
+      t.jsonb :properties
+      t.timestamps
+    end
   end
 
   def down
     drop_table :persons
     drop_table :creative_work_persons
-    DataCycleCore::Person.drop_translation_table!
+    drop_table :person_translations
   end
 
 end

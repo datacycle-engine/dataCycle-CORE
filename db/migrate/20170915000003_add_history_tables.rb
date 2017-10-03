@@ -12,16 +12,19 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
       t.timestamps
     end
 
-    DataCycleCore::CreativeWork::History.create_translation_table!({
-      content: :jsonb,
-      properties: :jsonb,
-      headline: :text,
-      description: :text,
-      release: :jsonb,
-      release_id: :uuid,
-      release_comment: :text,
-      history_valid: :tstzrange
-    })
+    create_table :creative_work_history_translations do |t|
+      t.uuid :creative_work_history_id, null: false
+      t.string :locale, null: false
+      t.jsonb :content
+      t.jsonb :properties
+      t.text :headline
+      t.text :description
+      t.jsonb :release
+      t.uuid :release_id
+      t.text :release_comment
+      t.tstzrange :history_valid
+      t.timestamps
+    end
 
     create_table :classification_creative_work_histories, id: :uuid do |t|
       t.uuid :creative_work_history_id
@@ -48,16 +51,19 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
       t.timestamps
     end
 
-    DataCycleCore::Event::History.create_translation_table!({
-      content: :jsonb,
-      properties: :jsonb,
-      headline: :text,
-      description: :text,
-      release: :jsonb,
-      release_id: :uuid,
-      release_comment: :text,
-      history_valid: :tstzrange
-    })
+    create_table :event_history_translations do |t|
+      t.uuid :event_history_id, null: false
+      t.string :locale, null: false
+      t.jsonb :content
+      t.jsonb :properties
+      t.text :headline
+      t.text :description
+      t.jsonb :release
+      t.uuid :release_id
+      t.text :release_comment
+      t.tstzrange :history_valid
+      t.timestamps
+    end
 
     create_table :classification_event_histories, id: :uuid do |t|
       t.uuid :event_history_id
@@ -84,16 +90,19 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
       t.timestamps
     end
 
-    DataCycleCore::Person::History.create_translation_table!({
-      content: :jsonb,
-      properties: :jsonb,
-      headline: :text,
-      description: :text,
-      release: :jsonb,
-      release_id: :uuid,
-      release_comment: :text,
-      history_valid: :tstzrange
-    })
+    create_table :person_history_translations do |t|
+      t.uuid :person_history_id, null: false
+      t.string :locale, null: false
+      t.jsonb :content
+      t.jsonb :properties
+      t.text :headline
+      t.text :description
+      t.jsonb :release
+      t.uuid :release_id
+      t.text :release_comment
+      t.tstzrange :history_valid
+      t.timestamps
+    end
 
     create_table :classification_person_histories, id: :uuid do |t|
       t.uuid :person_history_id
@@ -125,27 +134,30 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
       t.timestamps
     end
 
-    DataCycleCore::Place::History.create_translation_table!({
-      name: :string,
-      addressLocality: :string,
-      streetAddress: :string,
-      postalCode: :string,
-      addressCountry: :string,
-      faxNumber: :string,
-      telephone: :string,
-      email: :string,
-      url: :string,
-      hoursAvailable: :string,
-      address: :string, # MO: should be later deleted (as of now its gone from DataCycleCore::Place)
-      content: :jsonb,
-      properties: :jsonb,
-      headline: :text,
-      description: :text,
-      release: :jsonb,
-      release_id: :uuid,
-      release_comment: :text,
-      history_valid: :tstzrange
-    })
+    create_table :place_history_translations do |t|
+      t.uuid :place_history_id, null: false
+      t.string :locale, null: false
+      t.string :name
+      t.string :addressLocality
+      t.string :streetAddress
+      t.string :postalCode
+      t.string :addressCountry
+      t.string :faxNumber
+      t.string :telephone
+      t.string :email
+      t.string :url
+      t.string :hoursAvailable
+      t.string :address
+      t.jsonb :content
+      t.jsonb :properties
+      t.text :headline
+      t.text :description
+      t.jsonb :release
+      t.uuid :release_id
+      t.text :release_comment
+      t.tstzrange :history_valid
+      t.timestamps
+    end
 
     create_table :classification_place_histories, id: :uuid do |t|
       t.uuid :place_history_id

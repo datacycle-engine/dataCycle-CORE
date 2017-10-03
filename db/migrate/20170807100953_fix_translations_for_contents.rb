@@ -1,21 +1,21 @@
 class FixTranslationsForContents < ActiveRecord::Migration[5.0]
   def up
-    DataCycleCore::CreativeWork.add_translation_fields! headline: :text   
+    add_column :creative_work_translations, :headline, :text
     remove_column :creative_works, :headline
-    DataCycleCore::CreativeWork.add_translation_fields! description: :text   
+    add_column :creative_work_translations, :description, :text
     remove_column :creative_works, :description
 
-    DataCycleCore::Event.add_translation_fields! headline: :text   
+    add_column :event_translations, :headline, :text
     remove_column :events, :headline
-    DataCycleCore::Event.add_translation_fields! description: :text   
+    add_column :event_translations, :description, :text
     remove_column :events, :description
 
-    DataCycleCore::Person.add_translation_fields! headline: :text   
+    add_column :person_translations, :headline, :text
     remove_column :persons, :headline
-    DataCycleCore::Person.add_translation_fields! description: :text   
+    add_column :person_translations, :description, :text
     remove_column :persons, :description
 
-    DataCycleCore::Place.add_translation_fields! headline: :text   
+    add_column :place_translations, :headline, :text
     remove_column :places, :headline
   end
 

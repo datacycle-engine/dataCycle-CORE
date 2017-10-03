@@ -2,12 +2,12 @@ class AddGlobalStatus < ActiveRecord::Migration[5.0]
   def change
     reversible do |dir|
       dir.up do
-        DataCycleCore::CreativeWork.add_translation_fields! release_id: :uuid
-        DataCycleCore::CreativeWork.add_translation_fields! release_comment: :text
-        DataCycleCore::Event.add_translation_fields! release_id: :uuid
-        DataCycleCore::Event.add_translation_fields! release_comment: :text
-        DataCycleCore::Place.add_translation_fields! release_id: :uuid
-        DataCycleCore::Place.add_translation_fields! release_comment: :text
+        add_column :creative_work_translations, :release_id, :uuid
+        add_column :creative_work_translations, :release_comment, :text
+        add_column :event_translations, :release_id, :uuid
+        add_column :event_translations, :release_comment, :text
+        add_column :place_translations, :release_id, :uuid
+        add_column :place_translations, :release_comment, :text
       end
 
       dir.down do
