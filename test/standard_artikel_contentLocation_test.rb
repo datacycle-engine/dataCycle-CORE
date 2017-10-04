@@ -30,8 +30,8 @@ module DataCycleCore
       data_set_person.metadata = { 'validation' => person_validation }
       data_set_person.save
       person_hash = {
-        "givenName" => "Winston",
-        "familyName" => "Churchill"
+        "given_name" => "Winston",
+        "family_name" => "Churchill"
       }
       data_set_person.set_data_hash(person_hash)
       data_set_person.save
@@ -109,9 +109,9 @@ module DataCycleCore
           "image" => nil,
           "author" => [{
             "id" => person_id,
-            "jobTitle" => nil,
-            "givenName" => "Winston",
-            "familyName" => "Churchill"
+            "job_title" => nil,
+            "given_name" => "Winston",
+            "family_name" => "Churchill"
           }],
           "creator" => nil,
           "isPartOf" => parent_id,

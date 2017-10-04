@@ -135,6 +135,20 @@ CREATE TABLE classification_trees (
 
 
 --
+-- Name: classification_user_groups; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE classification_user_groups (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    classification_id uuid,
+    user_group_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: classifications; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -212,8 +226,6 @@ CREATE TABLE creative_work_history_translations (
     id integer NOT NULL,
     creative_work_history_id uuid NOT NULL,
     locale character varying NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
     content jsonb,
     properties jsonb,
     headline text,
@@ -313,8 +325,6 @@ CREATE TABLE creative_work_translations (
     id integer NOT NULL,
     creative_work_id uuid NOT NULL,
     locale character varying NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
     content jsonb,
     properties jsonb,
     headline text,
@@ -446,8 +456,6 @@ CREATE TABLE event_history_translations (
     id integer NOT NULL,
     event_history_id uuid NOT NULL,
     locale character varying NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
     content jsonb,
     properties jsonb,
     headline text,
@@ -548,8 +556,6 @@ CREATE TABLE event_translations (
     id integer NOT NULL,
     event_id uuid NOT NULL,
     locale character varying NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
     content jsonb,
     properties jsonb,
     headline text,
@@ -646,8 +652,8 @@ CREATE TABLE overlays (
 CREATE TABLE person_histories (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
     person_id uuid,
-    "givenName" character varying,
-    "familyName" character varying,
+    given_name character varying,
+    family_name character varying,
     metadata jsonb,
     template boolean DEFAULT false NOT NULL,
     seen_at timestamp without time zone,
@@ -666,8 +672,6 @@ CREATE TABLE person_history_translations (
     id integer NOT NULL,
     person_history_id uuid NOT NULL,
     locale character varying NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
     content jsonb,
     properties jsonb,
     headline text,
@@ -735,10 +739,8 @@ CREATE TABLE person_places (
 
 CREATE TABLE person_translations (
     id integer NOT NULL,
-    person_id uuid NOT NULL,
-    locale character varying NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
+    person_id uuid,
+    locale character varying,
     content jsonb,
     properties jsonb,
     headline text,
@@ -774,8 +776,8 @@ ALTER SEQUENCE person_translations_id_seq OWNED BY person_translations.id;
 
 CREATE TABLE persons (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    "givenName" character varying,
-    "familyName" character varying,
+    given_name character varying,
+    family_name character varying,
     metadata jsonb,
     template boolean DEFAULT false NOT NULL,
     seen_at timestamp without time zone,
@@ -824,8 +826,6 @@ CREATE TABLE place_history_translations (
     id integer NOT NULL,
     place_history_id uuid NOT NULL,
     locale character varying NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
     name character varying,
     url character varying,
     hours_available character varying,
@@ -868,11 +868,11 @@ CREATE TABLE place_translations (
     id integer NOT NULL,
     place_id uuid NOT NULL,
     locale character varying NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
     name character varying,
     url character varying,
     hours_available character varying,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     content jsonb,
     properties jsonb,
     description text,
@@ -1070,6 +1070,8 @@ CREATE TABLE users (
     last_sign_in_ip character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
+    provider character varying,
+    uid character varying,
     family_name character varying DEFAULT ''::character varying NOT NULL,
     locked_at timestamp without time zone,
     external boolean DEFAULT true NOT NULL,
@@ -1191,6 +1193,14 @@ ALTER TABLE ONLY classification_content_histories
 
 ALTER TABLE ONLY classification_contents
     ADD CONSTRAINT classification_contents_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: classification_user_groups classification_user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY classification_user_groups
+    ADD CONSTRAINT classification_user_groups_pkey PRIMARY KEY (id);
 
 
 --
@@ -1734,13 +1744,6 @@ CREATE INDEX headline_idx ON searches USING gin (headline gin_trgm_ops);
 
 
 --
--- Name: index_093e19da61b8e5c121ce1a9ca1c39433b209e7b6; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_093e19da61b8e5c121ce1a9ca1c39433b209e7b6 ON creative_work_history_translations USING btree (creative_work_history_id);
-
-
---
 -- Name: index_classification_aliases_on_deleted_at; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1832,6 +1835,20 @@ CREATE INDEX index_classification_trees_on_parent_classification_alias_id ON cla
 
 
 --
+-- Name: index_classification_user_groups_on_classification_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_user_groups_on_classification_id ON classification_user_groups USING btree (classification_id);
+
+
+--
+-- Name: index_classification_user_groups_on_user_group_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_user_groups_on_user_group_id ON classification_user_groups USING btree (user_group_id);
+
+
+--
 -- Name: index_classifications_on_deleted_at; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1867,13 +1884,6 @@ CREATE INDEX index_creative_work_events_on_event_id ON creative_work_events USIN
 
 
 --
--- Name: index_creative_work_history_translations_on_locale; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_creative_work_history_translations_on_locale ON creative_work_history_translations USING btree (locale);
-
-
---
 -- Name: index_creative_work_persons_on_creative_work_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1899,20 +1909,6 @@ CREATE INDEX index_creative_work_places_on_creative_work_id ON creative_work_pla
 --
 
 CREATE INDEX index_creative_work_places_on_place_id ON creative_work_places USING btree (place_id);
-
-
---
--- Name: index_creative_work_translations_on_creative_work_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_creative_work_translations_on_creative_work_id ON creative_work_translations USING btree (creative_work_id);
-
-
---
--- Name: index_creative_work_translations_on_locale; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_creative_work_translations_on_locale ON creative_work_translations USING btree (locale);
 
 
 --
@@ -1965,34 +1961,6 @@ CREATE INDEX index_data_links_on_item_type ON data_links USING btree (item_type)
 
 
 --
--- Name: index_event_history_translations_on_event_history_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_event_history_translations_on_event_history_id ON event_history_translations USING btree (event_history_id);
-
-
---
--- Name: index_event_history_translations_on_locale; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_event_history_translations_on_locale ON event_history_translations USING btree (locale);
-
-
---
--- Name: index_event_translations_on_event_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_event_translations_on_event_id ON event_translations USING btree (event_id);
-
-
---
--- Name: index_event_translations_on_locale; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_event_translations_on_locale ON event_translations USING btree (locale);
-
-
---
 -- Name: index_external_sources_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2025,62 +1993,6 @@ CREATE INDEX index_overlay_place_tags_on_tag_id ON overlay_place_tags USING btre
 --
 
 CREATE UNIQUE INDEX index_overlays_on_id ON overlays USING btree (id);
-
-
---
--- Name: index_person_history_translations_on_locale; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_person_history_translations_on_locale ON person_history_translations USING btree (locale);
-
-
---
--- Name: index_person_history_translations_on_person_history_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_person_history_translations_on_person_history_id ON person_history_translations USING btree (person_history_id);
-
-
---
--- Name: index_person_translations_on_locale; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_person_translations_on_locale ON person_translations USING btree (locale);
-
-
---
--- Name: index_person_translations_on_person_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_person_translations_on_person_id ON person_translations USING btree (person_id);
-
-
---
--- Name: index_place_history_translations_on_locale; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_place_history_translations_on_locale ON place_history_translations USING btree (locale);
-
-
---
--- Name: index_place_history_translations_on_place_history_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_place_history_translations_on_place_history_id ON place_history_translations USING btree (place_history_id);
-
-
---
--- Name: index_place_translations_on_locale; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_place_translations_on_locale ON place_translations USING btree (locale);
-
-
---
--- Name: index_place_translations_on_place_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_place_translations_on_place_id ON place_translations USING btree (place_id);
 
 
 --
@@ -2344,6 +2256,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20170524132123'),
 ('20170524144644'),
 ('20170612114242'),
+('20170619191047'),
 ('20170620143810'),
 ('20170621070615'),
 ('20170624083501'),
@@ -2369,6 +2282,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20170918093456'),
 ('20170919085841'),
 ('20170920071933'),
+('20170920141027'),
 ('20170921160600'),
 ('20170921161200'),
 ('20170929140328'),
@@ -2378,6 +2292,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20171002085329'),
 ('20171002132936'),
 ('20171003142621'),
-('20171004072726');
+('20171004072726'),
+('20171004114524'),
+('20171004120235');
 
 

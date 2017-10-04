@@ -16,8 +16,8 @@ module DataCycleCore
       def fulltext_search(name)
         query = join_person_translation
         manager = query.
-          where(person[:givenName].matches("%#{name}%").
-            or(person[:familyName].matches("%#{name}%"))
+          where(person[:given_name].matches("%#{name}%").
+            or(person[:family_name].matches("%#{name}%"))
           )
 
         reflect(

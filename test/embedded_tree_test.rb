@@ -16,8 +16,8 @@ module DataCycleCore
       data_set.metadata = { 'validation' => validation }
       data_set.save
       person_hash = {
-        "givenName" => "Winston",
-        "familyName" => "Churchill"
+        "given_name" => "Winston",
+        "family_name" => "Churchill"
       }
       data_set.set_data_hash(person_hash)
       data_set.save
@@ -65,9 +65,9 @@ module DataCycleCore
           "image" => nil,
           "author" => [{
             "id" => person_id,
-            "jobTitle" => nil,
-            "givenName" => "Winston",
-            "familyName" => "Churchill"
+            "job_title" => nil,
+            "given_name" => "Winston",
+            "family_name" => "Churchill"
           }],
           "creator" => nil,
           "isPartOf" => parent_id,
@@ -99,8 +99,8 @@ module DataCycleCore
       data_set.metadata = { 'validation' => validation }
       data_set.save
       person_hash = {
-        "givenName" => "Winston",
-        "familyName" => "Churchill"
+        "given_name" => "Winston",
+        "family_name" => "Churchill"
       }
       data_set.set_data_hash(person_hash)
       data_set.save
@@ -148,9 +148,9 @@ module DataCycleCore
           "image" => nil,
           "author" => [{
             "id" => person_id,
-            "jobTitle" => nil,
-            "givenName" => "Winston",
-            "familyName" => "Churchill"
+            "job_title" => nil,
+            "given_name" => "Winston",
+            "family_name" => "Churchill"
           }],
           "creator" => nil,
           "isPartOf" => parent_id,
@@ -199,8 +199,8 @@ module DataCycleCore
       data_set.metadata = { 'validation' => validation }
       data_set.save
       person_hash = {
-        "givenName" => "Winston",
-        "familyName" => "Churchill"
+        "given_name" => "Winston",
+        "family_name" => "Churchill"
       }
       data_set.set_data_hash(person_hash)
       data_set.save
@@ -249,9 +249,9 @@ module DataCycleCore
           "image" => nil,
           "author" => [{
             "id" => person_id,
-            "jobTitle" => nil,
-            "givenName" => "Winston",
-            "familyName" => "Churchill"
+            "job_title" => nil,
+            "given_name" => "Winston",
+            "family_name" => "Churchill"
           }],
           "isPartOf" => parent_id
         },{
@@ -259,9 +259,9 @@ module DataCycleCore
           "image" => nil,
           "author" => [{
             "id" => person_id,
-            "jobTitle" => nil,
-            "givenName" => "Winston",
-            "familyName" => "Churchill"
+            "job_title" => nil,
+            "given_name" => "Winston",
+            "family_name" => "Churchill"
           }],
           "isPartOf" => parent_id
         }]
@@ -299,8 +299,8 @@ module DataCycleCore
       data_set.metadata = { 'validation' => validation }
       data_set.save
       person_hash = {
-        "givenName" => "Winston",
-        "familyName" => "Churchill"
+        "given_name" => "Winston",
+        "family_name" => "Churchill"
       }
       data_set.set_data_hash(person_hash)
       data_set.save
@@ -350,9 +350,9 @@ module DataCycleCore
           "creator"=>nil,
           "author" => [{
             "id" => person_id,
-            "jobTitle" => nil,
-            "givenName" => "Winston",
-            "familyName" => "Churchill"
+            "job_title" => nil,
+            "given_name" => "Winston",
+            "family_name" => "Churchill"
           }],
           "isPartOf" => parent_id,
           "data_type"=>[data_type_zitat_id],
