@@ -203,9 +203,9 @@ module DataCycleCore
         }],
         "description" => "",
         "outputChannels" => [],
-        "validityPeriod" => {
-          "validFrom" => "",
-          "validUntil" => ""
+        "validity_period" => {
+          "valid_from" => "",
+          "valid_until" => ""
         },
         "contentLocation" => [],
         "metaDescription" => "",
@@ -253,9 +253,9 @@ module DataCycleCore
         }],
         "description" => "",
         "outputChannels" => [],
-        "validityPeriod" => {
-          "validFrom" => "",
-          "validUntil" => ""
+        "validity_period" => {
+          "valid_from" => "",
+          "valid_until" => ""
         },
         "contentLocation" => [],
         "metaDescription" => "",

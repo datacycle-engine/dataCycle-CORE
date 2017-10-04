@@ -91,14 +91,14 @@
         :storage_location: metadata
         # :validations:
         #   :daterange:
-        #     :from: datePublished
+        #     :from: date_published
         #     :to: expires
-      :validityPeriod:
+      :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
         :properties:
-          :datePublished:
+          :date_published:
             :label: Gültig von
             :type: string
             :storage_type: string

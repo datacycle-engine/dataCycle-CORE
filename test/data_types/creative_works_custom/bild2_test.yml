@@ -94,12 +94,12 @@
         :storage_type: string
         :storage_location: metadata
         :search: true
-      :validityPeriod:
+      :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
         :properties:
-          :datePublished:
+          :date_published:
             :label: Gültig von
             :type: string
             :storage_type: string

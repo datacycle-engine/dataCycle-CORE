@@ -219,23 +219,23 @@
             :type: string
             :storage_type: text
             :storage_location: metadata
-          :validityPeriod:
+          :validity_period:
             :label: Zeitraum
             :type: object
             :storage_location: metadata
             :validations:
               :daterange:
-                :from: validFrom
-                :to: validUntil
+                :from: valid_from
+                :to: valid_until
             :properties:
-              :validFrom:
+              :valid_from:
                 :label: Gültigkeit
                 :type: string
                 :storage_type: string
                 :storage_location: metadata
                 :validations:
                   :format: date_time
-              :validUntil:
+              :valid_until:
                 :label: bis
                 :type: string
                 :storage_type: string
@@ -308,20 +308,20 @@
           :sorting: 6
           :options:
             :data-validate: classification
-      :validityPeriod:
+      :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
         :validations:
           :daterange:
-            :from: validFrom
-            :to: validUntil
+            :from: valid_from
+            :to: valid_until
         :editor:
           :sorting: 7
           :options:
             :class: daterange validation-container
         :properties:
-          :validFrom:
+          :valid_from:
             :label: Gültigkeit
             :type: string
             :storage_type: string
@@ -333,7 +333,7 @@
               :options:
                 :data-type: datepicker
                 :data-validate: daterange
-          :validUntil:
+          :valid_until:
             :label: bis
             :type: string
             :storage_type: string
@@ -527,12 +527,12 @@
         :type: string
         :storage_type: string
         :storage_location: metadata
-      :validityPeriod:
+      :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
         :properties:
-          :datePublished:
+          :date_published:
             :label: Gültig von
             :type: string
             :storage_type: string
@@ -757,20 +757,20 @@
           :sorting: 23
           :options:
             :data-validate: classification
-      :validityPeriod:
+      :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
         :validations:
           :daterange:
-            :from: validFrom
-            :to: validUntil
+            :from: valid_from
+            :to: valid_until
         :editor:
           :sorting: 30
           :options:
             :class: daterange validation-container
         :properties:
-          :validFrom:
+          :valid_from:
             :label: Gültigkeit
             :type: string
             :storage_type: string
@@ -782,7 +782,7 @@
               :options:
                 :data-type: datepicker
                 :data-validate: daterange
-          :validUntil:
+          :valid_until:
             :label: bis
             :type: string
             :storage_type: string

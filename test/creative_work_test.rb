@@ -884,13 +884,13 @@ module DataCycleCore
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
-      data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validUntil" => "2017-06-01"}})
+      data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validity_period" => {"valid_from" => "2017-05-01", "valid_until" => "2017-06-01"}})
       data_set.save
       expected_hash = {
         "headline" => "Dies ist ein Test!",
-        "validityPeriod" => {
-          "validFrom" => "2017-05-01",
-          "validUntil" => "2017-06-01"
+        "validity_period" => {
+          "valid_from" => "2017-05-01",
+          "valid_until" => "2017-06-01"
         },
         "tags"=>[],
         "state"=>[],
@@ -908,13 +908,13 @@ module DataCycleCore
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
-      error = data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validUntil" => "2017-06-01", "test" => {"test1" => 1, "test2" => 2}}})
+      error = data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validity_period" => {"valid_from" => "2017-05-01", "valid_until" => "2017-06-01", "test" => {"test1" => 1, "test2" => 2}}})
       data_set.save
       expected_hash = {
         "headline" => "Dies ist ein Test!",
-        "validityPeriod" => {
-          "validFrom" => "2017-05-01",
-          "validUntil" => "2017-06-01"
+        "validity_period" => {
+          "valid_from" => "2017-05-01",
+          "valid_until" => "2017-06-01"
         },
         "tags"=>[],
         "state"=>[],
@@ -925,7 +925,7 @@ module DataCycleCore
       }
 
       assert_equal(expected_hash, data_set.get_data_hash.except('id',"data_pool").compact)
-      data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validUntil" => "2017-06-01"},"test" => {"test1" => 1, "test2" => 2, "test3" => {"hallo" => "World"}} })
+      data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validity_period" => {"valid_from" => "2017-05-01", "valid_until" => "2017-06-01"},"test" => {"test1" => 1, "test2" => 2, "test3" => {"hallo" => "World"}} })
       data_set.save
       assert_equal(expected_hash, data_set.get_data_hash.compact.except('id',"data_pool"))
     end
@@ -939,9 +939,9 @@ module DataCycleCore
 
       expected_hash = {
         "headline" => "Dies ist ein Test!",
-        "validityPeriod" => {
-          "validFrom" => "2017-05-01",
-          "validUntil" => "2017-06-01"
+        "validity_period" => {
+          "valid_from" => "2017-05-01",
+          "valid_until" => "2017-06-01"
         },
         "tags"=>[],
         "state"=>[],
@@ -953,18 +953,18 @@ module DataCycleCore
 
       test_data = {
         "headline" => "Dies ist ein Test!",
-        "validityPeriod" => {
-          "validFrom" => "2017-05-01",
-          "validUntil" => "2017-06-01"
+        "validity_period" => {
+          "valid_from" => "2017-05-01",
+          "valid_until" => "2017-06-01"
         }
       }
       data_set.set_data_hash(test_data)
       data_set.save
       assert_equal(expected_hash, data_set.get_data_hash.compact.except('id',"data_pool"))
       expected_data_hash = {
-        "validityPeriod" => {
-          "validFrom" => "2017-05-01",
-          "validUntil" => "2017-06-01"
+        "validity_period" => {
+          "valid_from" => "2017-05-01",
+          "valid_until" => "2017-06-01"
         }
       }
       assert_equal( expected_data_hash, data_set.metadata.except('validation').compact)
@@ -976,7 +976,7 @@ module DataCycleCore
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
-      error = data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validUntil" => "2017-16-01"}})
+      error = data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validity_period" => {"valid_from" => "2017-05-01", "valid_until" => "2017-16-01"}})
       data_set.save
       assert_equal(2, error[:error].count)
     end
@@ -987,7 +987,7 @@ module DataCycleCore
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
-      data_hash = {"headline" => "Dies ist ein Test!", "validityPeriod" => {"datePublished" => "2017-05-01", "validTo" => "2017-06-01"}}
+      data_hash = {"headline" => "Dies ist ein Test!", "validity_period" => {"date_published" => "2017-05-01", "validTo" => "2017-06-01"}}
       error = data_set.set_data_hash(data_hash)
       assert_equal(0, error[:error].count)
     end

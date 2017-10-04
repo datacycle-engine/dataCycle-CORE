@@ -81,9 +81,9 @@ module DataCycleCore
             "created_at" => "2017-06-01",
             "updated_at" => "2017-07-01",
             "description" => "wtf is going on???",
-            "validityPeriod" => {
-              "validFrom" => "2017-06-01",
-              "validUntil" => "2017-07-01"
+            "validity_period" => {
+              "valid_from" => "2017-06-01",
+              "valid_until" => "2017-07-01"
             }
         }
       }
@@ -96,9 +96,9 @@ module DataCycleCore
           "created_at" => "2017-06-01".to_datetime.to_s(:db),
           "updated_at" => "2017-07-01".to_datetime.to_s(:db),
           "description" => "wtf is going on???",
-          "validityPeriod" => {
-            "validFrom" => "2017-06-01",
-            "validUntil" => "2017-07-01"
+          "validity_period" => {
+            "valid_from" => "2017-06-01",
+            "valid_until" => "2017-07-01"
           }
         }
       }
