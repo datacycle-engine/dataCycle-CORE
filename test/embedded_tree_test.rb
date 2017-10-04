@@ -70,7 +70,7 @@ module DataCycleCore
             "family_name" => "Churchill"
           }],
           "creator" => nil,
-          "isPartOf" => parent_id,
+          "is_part_of" => parent_id,
           "data_type" => [data_type_zitat_id],
           "date_created"=>nil,
           "date_modified"=>nil
@@ -153,7 +153,7 @@ module DataCycleCore
             "family_name" => "Churchill"
           }],
           "creator" => nil,
-          "isPartOf" => parent_id,
+          "is_part_of" => parent_id,
           "data_type"=>[data_type_zitat_id],
           "date_created"=>nil,
           "date_modified"=>nil
@@ -253,7 +253,7 @@ module DataCycleCore
             "given_name" => "Winston",
             "family_name" => "Churchill"
           }],
-          "isPartOf" => parent_id
+          "is_part_of" => parent_id
         },{
           "text" => "Men occasionally stumble over the truth, but most of them pick themselves up and hurry off as if nothing ever happened.",
           "image" => nil,
@@ -263,7 +263,7 @@ module DataCycleCore
             "given_name" => "Winston",
             "family_name" => "Churchill"
           }],
-          "isPartOf" => parent_id
+          "is_part_of" => parent_id
         }]
       }
 
@@ -354,7 +354,7 @@ module DataCycleCore
             "given_name" => "Winston",
             "family_name" => "Churchill"
           }],
-          "isPartOf" => parent_id,
+          "is_part_of" => parent_id,
           "data_type"=>[data_type_zitat_id],
           "date_created"=>nil,
           "date_modified"=>nil

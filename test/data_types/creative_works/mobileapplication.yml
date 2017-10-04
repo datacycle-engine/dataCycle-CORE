@@ -30,7 +30,7 @@
         :editor:
           :type: input
           :sorting: 2
-      :isPartOf:
+      :is_part_of:
         :label: parent
         :type: string
         :storage_type: string

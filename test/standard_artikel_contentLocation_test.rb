@@ -114,7 +114,7 @@ module DataCycleCore
             "family_name" => "Churchill"
           }],
           "creator" => nil,
-          "isPartOf" => parent_id,
+          "is_part_of" => parent_id,
           "data_type" => [data_type_zitat_id],
           "date_created"=>nil,
           "date_modified"=>nil

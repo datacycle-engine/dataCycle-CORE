@@ -32,7 +32,7 @@
           :sorting: 2
           :options:
             :data-size: basic
-      :isPartOf:
+      :is_part_of:
         :label: parent
         :type: string
         :storage_type: string

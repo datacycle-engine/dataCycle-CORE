@@ -47,7 +47,7 @@
         :editor:
           :sorting: 3
           :type: objectBrowser
-      :isPartOf:
+      :is_part_of:
         :label: parent
         :type: string
         :storage_type: string

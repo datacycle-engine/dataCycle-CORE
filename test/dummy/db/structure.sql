@@ -207,7 +207,7 @@ CREATE TABLE creative_work_histories (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
     creative_work_id uuid,
     "position" integer,
-    "isPartOf" uuid,
+    is_part_of uuid,
     metadata jsonb,
     template boolean DEFAULT false NOT NULL,
     seen_at timestamp without time zone,
@@ -361,7 +361,7 @@ ALTER SEQUENCE creative_work_translations_id_seq OWNED BY creative_work_translat
 CREATE TABLE creative_works (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
     "position" integer DEFAULT 0,
-    "isPartOf" uuid,
+    is_part_of uuid,
     metadata jsonb,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
@@ -1933,10 +1933,10 @@ CREATE UNIQUE INDEX index_creative_works_on_id ON creative_works USING btree (id
 
 
 --
--- Name: index_creative_works_on_isPartOf; Type: INDEX; Schema: public; Owner: -
+-- Name: index_creative_works_on_is_part_of; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX "index_creative_works_on_isPartOf" ON creative_works USING btree ("isPartOf");
+CREATE INDEX index_creative_works_on_is_part_of ON creative_works USING btree (is_part_of);
 
 
 --
@@ -2295,6 +2295,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20171004072726'),
 ('20171004114524'),
 ('20171004120235'),
-('20171004125221');
+('20171004125221'),
+('20171004132930');
 
 

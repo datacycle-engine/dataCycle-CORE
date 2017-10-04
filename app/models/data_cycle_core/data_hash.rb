@@ -459,7 +459,7 @@ module DataCycleCore
             insert_item.metadata = { 'validation' => template.metadata['validation'] }
             insert_item.save
             insert_item.set_data_hash(item, current_user, save_time)
-            insert_item.isPartOf = self.id
+            insert_item.is_part_of = self.id
             insert_item.save
             item_id = insert_item.id
           end

@@ -97,7 +97,7 @@
 #        :type_name: Inhaltstypen
 #        :storage_location: classification_relation
 #        :default_value: "Event"
-#      :isPartOf:
+#      :is_part_of:
 #        :label: parent
 #        :type: string
 #        :storage_type: string
