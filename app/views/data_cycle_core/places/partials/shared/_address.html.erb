@@ -1,11 +1,11 @@
 <div class="description">
-    <% if !item.streetAddress.nil? && !item.streetAddress.blank? %>
-        <%= item.streetAddress.html_safe %><br />
+    <% if !item.street_address.nil? && !item.street_address.blank? %>
+        <%= item.street_address.html_safe %><br />
     <% end %>
-    <% if !item.postalCode.nil? && !item.postalCode.blank? %>
-        <%= item.postalCode.html_safe %>
+    <% if !item.postal_code.nil? && !item.postal_code.blank? %>
+        <%= item.postal_code.html_safe %>
     <% end %>
-    <% if !item.addressLocality.nil? && !item.addressLocality.blank? %>
-        <%= item.addressLocality.html_safe %>
+    <% if !item.address_locality.nil? && !item.address_locality.blank? %>
+        <%= item.address_locality.html_safe %>
     <% end %>
 </div>
