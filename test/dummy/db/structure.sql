@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.4
--- Dumped by pg_dump version 9.6.3
+-- Dumped from database version 9.5.7
+-- Dumped by pg_dump version 9.6.5
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -49,12 +49,13 @@ CREATE TABLE classification_aliases (
 
 
 --
--- Name: classification_creative_work_histories; Type: TABLE; Schema: public; Owner: -
+-- Name: classification_content_histories; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE classification_creative_work_histories (
+CREATE TABLE classification_content_histories (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    creative_work_history_id uuid,
+    content_data_history_id uuid,
+    content_data_history_type character varying,
     classification_id uuid,
     tag boolean,
     classification boolean,
@@ -66,49 +67,16 @@ CREATE TABLE classification_creative_work_histories (
 
 
 --
--- Name: classification_creative_works; Type: TABLE; Schema: public; Owner: -
+-- Name: classification_contents; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE classification_creative_works (
+CREATE TABLE classification_contents (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    creative_work_id uuid,
-    classification_id uuid,
-    tag boolean DEFAULT false NOT NULL,
-    classification boolean DEFAULT false NOT NULL,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid
-);
-
-
---
--- Name: classification_event_histories; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE classification_event_histories (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    event_history_id uuid,
+    content_data_id uuid,
+    content_data_type character varying,
     classification_id uuid,
     tag boolean,
     classification boolean,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid
-);
-
-
---
--- Name: classification_events; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE classification_events (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    event_id uuid,
-    classification_id uuid,
-    tag boolean DEFAULT false NOT NULL,
-    classification boolean DEFAULT false NOT NULL,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
@@ -129,74 +97,6 @@ CREATE TABLE classification_groups (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone
-);
-
-
---
--- Name: classification_person_histories; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE classification_person_histories (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    person_history_id uuid,
-    classification_id uuid,
-    tag boolean,
-    classification boolean,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid
-);
-
-
---
--- Name: classification_persons; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE classification_persons (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    person_id uuid,
-    classification_id uuid,
-    tag boolean DEFAULT false NOT NULL,
-    classification boolean DEFAULT false NOT NULL,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid
-);
-
-
---
--- Name: classification_place_histories; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE classification_place_histories (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    place_history_id uuid,
-    classification_id uuid,
-    tag boolean,
-    classification boolean,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid
-);
-
-
---
--- Name: classification_places; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE classification_places (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    place_id uuid,
-    classification_id uuid,
-    external_source_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    tag boolean DEFAULT false NOT NULL,
-    classification boolean DEFAULT false NOT NULL
 );
 
 
@@ -1065,6 +965,25 @@ CREATE TABLE schema_migrations (
 
 
 --
+-- Name: searches; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE searches (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    content_data_id uuid,
+    content_data_type character varying,
+    locale character varying,
+    words tsvector,
+    full_text text,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    headline character varying,
+    data_type character varying,
+    classification_string character varying
+);
+
+
+--
 -- Name: subscriptions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1259,51 +1178,19 @@ ALTER TABLE ONLY ar_internal_metadata
 
 
 --
--- Name: classification_creative_work_histories classification_creative_work_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: classification_content_histories classification_content_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY classification_creative_work_histories
-    ADD CONSTRAINT classification_creative_work_histories_pkey PRIMARY KEY (id);
-
-
---
--- Name: classification_event_histories classification_event_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY classification_event_histories
-    ADD CONSTRAINT classification_event_histories_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY classification_content_histories
+    ADD CONSTRAINT classification_content_histories_pkey PRIMARY KEY (id);
 
 
 --
--- Name: classification_events classification_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: classification_contents classification_contents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY classification_events
-    ADD CONSTRAINT classification_events_pkey PRIMARY KEY (id);
-
-
---
--- Name: classification_person_histories classification_person_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY classification_person_histories
-    ADD CONSTRAINT classification_person_histories_pkey PRIMARY KEY (id);
-
-
---
--- Name: classification_persons classification_persons_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY classification_persons
-    ADD CONSTRAINT classification_persons_pkey PRIMARY KEY (id);
-
-
---
--- Name: classification_place_histories classification_place_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY classification_place_histories
-    ADD CONSTRAINT classification_place_histories_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY classification_contents
+    ADD CONSTRAINT classification_contents_pkey PRIMARY KEY (id);
 
 
 --
@@ -1312,14 +1199,6 @@ ALTER TABLE ONLY classification_place_histories
 
 ALTER TABLE ONLY classification_aliases
     ADD CONSTRAINT classifications_aliases_pkey PRIMARY KEY (id);
-
-
---
--- Name: classification_creative_works classifications_creative_works_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY classification_creative_works
-    ADD CONSTRAINT classifications_creative_works_pkey PRIMARY KEY (id);
 
 
 --
@@ -1336,14 +1215,6 @@ ALTER TABLE ONLY classification_groups
 
 ALTER TABLE ONLY classifications
     ADD CONSTRAINT classifications_pkey PRIMARY KEY (id);
-
-
---
--- Name: classification_places classifications_places_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY classification_places
-    ADD CONSTRAINT classifications_places_pkey PRIMARY KEY (id);
 
 
 --
@@ -1651,6 +1522,14 @@ ALTER TABLE ONLY schema_migrations
 
 
 --
+-- Name: searches searches_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY searches
+    ADD CONSTRAINT searches_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1715,6 +1594,13 @@ ALTER TABLE ONLY watch_lists
 
 
 --
+-- Name: by_content_data_locale; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX by_content_data_locale ON searches USING btree (content_data_id, content_data_type, locale);
+
+
+--
 -- Name: by_ctl_esi; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1750,6 +1636,41 @@ CREATE UNIQUE INDEX child_parent_index ON classification_trees USING btree (clas
 
 
 --
+-- Name: classification_string_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX classification_string_idx ON searches USING gin (classification_string gin_trgm_ops);
+
+
+--
+-- Name: creative_work_history_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX creative_work_history_id_idx ON creative_work_history_translations USING btree (creative_work_history_id);
+
+
+--
+-- Name: creative_work_history_locale_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX creative_work_history_locale_idx ON creative_work_history_translations USING btree (locale);
+
+
+--
+-- Name: creative_work_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX creative_work_id_idx ON creative_work_translations USING btree (creative_work_id);
+
+
+--
+-- Name: creative_work_locale_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX creative_work_locale_idx ON creative_work_translations USING btree (locale);
+
+
+--
 -- Name: delayed_jobs_delayed_reference_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1778,6 +1699,41 @@ CREATE INDEX delayed_jobs_queue ON delayed_jobs USING btree (queue);
 
 
 --
+-- Name: event_history_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX event_history_id_idx ON event_history_translations USING btree (event_history_id);
+
+
+--
+-- Name: event_history_locale_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX event_history_locale_idx ON event_history_translations USING btree (locale);
+
+
+--
+-- Name: event_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX event_id_idx ON event_translations USING btree (event_id);
+
+
+--
+-- Name: event_locale_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX event_locale_idx ON event_translations USING btree (locale);
+
+
+--
+-- Name: headline_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX headline_idx ON searches USING gin (headline gin_trgm_ops);
+
+
+--
 -- Name: index_093e19da61b8e5c121ce1a9ca1c39433b209e7b6; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1799,31 +1755,17 @@ CREATE UNIQUE INDEX index_classification_aliases_on_id ON classification_aliases
 
 
 --
--- Name: index_classification_creative_works_on_classification_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_classification_contents_on_classification_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_classification_creative_works_on_classification_id ON classification_creative_works USING btree (classification_id);
-
-
---
--- Name: index_classification_creative_works_on_creative_work_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_classification_creative_works_on_creative_work_id ON classification_creative_works USING btree (creative_work_id);
+CREATE INDEX index_classification_contents_on_classification_id ON classification_contents USING btree (classification_id);
 
 
 --
--- Name: index_classification_events_on_classification_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_classification_contents_on_content_data_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_classification_events_on_classification_id ON classification_events USING btree (classification_id);
-
-
---
--- Name: index_classification_events_on_event_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_classification_events_on_event_id ON classification_events USING btree (event_id);
+CREATE INDEX index_classification_contents_on_content_data_id ON classification_contents USING btree (content_data_id);
 
 
 --
@@ -1852,34 +1794,6 @@ CREATE INDEX index_classification_groups_on_deleted_at ON classification_groups 
 --
 
 CREATE INDEX index_classification_groups_on_external_source_id ON classification_groups USING btree (external_source_id);
-
-
---
--- Name: index_classification_persons_on_classification_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_classification_persons_on_classification_id ON classification_persons USING btree (classification_id);
-
-
---
--- Name: index_classification_persons_on_person_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_classification_persons_on_person_id ON classification_persons USING btree (person_id);
-
-
---
--- Name: index_classification_places_on_classification_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_classification_places_on_classification_id ON classification_places USING btree (classification_id);
-
-
---
--- Name: index_classification_places_on_place_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_classification_places_on_place_id ON classification_places USING btree (place_id);
 
 
 --
@@ -2212,6 +2126,13 @@ CREATE INDEX index_roles_on_rank ON roles USING btree (rank);
 
 
 --
+-- Name: index_searches_on_words; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_searches_on_words ON searches USING gin (words);
+
+
+--
 -- Name: index_subscriptions_on_subscribable_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2324,6 +2245,13 @@ CREATE INDEX index_watch_list_data_hashes_on_watch_list_id ON watch_list_data_ha
 
 
 --
+-- Name: name_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX name_idx ON classification_aliases USING gin (name gin_trgm_ops);
+
+
+--
 -- Name: parent_child_index; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2331,10 +2259,66 @@ CREATE UNIQUE INDEX parent_child_index ON classification_trees USING btree (pare
 
 
 --
--- Name: place_classification_index; Type: INDEX; Schema: public; Owner: -
+-- Name: person_history_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX place_classification_index ON classification_places USING btree (external_source_id, place_id, classification_id);
+CREATE INDEX person_history_id_idx ON person_history_translations USING btree (person_history_id);
+
+
+--
+-- Name: person_history_locale_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX person_history_locale_idx ON person_history_translations USING btree (locale);
+
+
+--
+-- Name: person_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX person_id_idx ON person_translations USING btree (person_id);
+
+
+--
+-- Name: person_locale_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX person_locale_idx ON person_translations USING btree (locale);
+
+
+--
+-- Name: place_history_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX place_history_id_idx ON place_history_translations USING btree (place_history_id);
+
+
+--
+-- Name: place_history_locale_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX place_history_locale_idx ON place_history_translations USING btree (locale);
+
+
+--
+-- Name: place_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX place_id_idx ON place_translations USING btree (place_id);
+
+
+--
+-- Name: place_locale_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX place_locale_idx ON place_translations USING btree (locale);
+
+
+--
+-- Name: words_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX words_idx ON searches USING gin (full_text gin_trgm_ops);
 
 
 --
@@ -2387,6 +2371,13 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20170920071933'),
 ('20170921160600'),
 ('20170921161200'),
-('20170929140328');
+('20170929140328'),
+('20171000124018'),
+('20171001084323'),
+('20171001123612'),
+('20171002085329'),
+('20171002132936'),
+('20171003142621'),
+('20171004072726');
 
 
