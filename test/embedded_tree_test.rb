@@ -72,8 +72,8 @@ module DataCycleCore
           "creator" => nil,
           "isPartOf" => parent_id,
           "data_type" => [data_type_zitat_id],
-          "dateCreated"=>nil,
-          "dateModified"=>nil
+          "date_created"=>nil,
+          "date_modified"=>nil
         }],
         "outputChannels"=>[],
         "contentLocation"=>[]
@@ -155,8 +155,8 @@ module DataCycleCore
           "creator" => nil,
           "isPartOf" => parent_id,
           "data_type"=>[data_type_zitat_id],
-          "dateCreated"=>nil,
-          "dateModified"=>nil
+          "date_created"=>nil,
+          "date_modified"=>nil
         }],
         "outputChannels"=>[],
         "contentLocation"=>[]
@@ -356,8 +356,8 @@ module DataCycleCore
           }],
           "isPartOf" => parent_id,
           "data_type"=>[data_type_zitat_id],
-          "dateCreated"=>nil,
-          "dateModified"=>nil
+          "date_created"=>nil,
+          "date_modified"=>nil
         }],
         "outputChannels"=>[],
         "contentLocation"=>[]

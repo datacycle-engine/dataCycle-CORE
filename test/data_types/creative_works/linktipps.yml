@@ -183,14 +183,14 @@
         :type_name: users
         :storage_type: string
         :storage_location: metadata
-      :dateCreated:
+      :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: date_time
-      :dateModified:
+      :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string
