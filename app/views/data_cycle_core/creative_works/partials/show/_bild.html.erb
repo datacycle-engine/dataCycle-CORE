@@ -60,20 +60,20 @@
         <dd><%= dataCycleObject.metadata['width'] %>px/<%= dataCycleObject.metadata['height'] %>px, <%= dataCycleObject.metadata['content_size'] %>Bytes<br />
             <strong>Format:</strong> <%= dataCycleObject.metadata['file_format'] %>
 
-                    <% unless dataCycleObject.metadata['dateCreated'].nil? %>
+                    <% unless dataCycleObject.metadata['date_created'].nil? %>
                 <%= render 'data_cycle_core/creative_works/partials/show/datatype/datetime',
-                           label: dataCycleObject.metadata['validation']['properties']['dateCreated']['label'],
-                           prop: dataCycleObject.metadata['validation']['properties']['dateCreated'],
-                           key: 'dateCreated',
-                           value: dataCycleObject.metadata['dateCreated'] %>
+                           label: dataCycleObject.metadata['validation']['properties']['date_created']['label'],
+                           prop: dataCycleObject.metadata['validation']['properties']['date_created'],
+                           key: 'date_created',
+                           value: dataCycleObject.metadata['date_created'] %>
             <% end %>
 
-            <% unless dataCycleObject.metadata['dateModified'].nil? %>
+            <% unless dataCycleObject.metadata['date_modified'].nil? %>
                 <%= render 'data_cycle_core/creative_works/partials/show/datatype/datetime',
-                           label: dataCycleObject.metadata['validation']['properties']['dateModified']['label'],
-                           prop: dataCycleObject.metadata['validation']['properties']['dateModified'],
-                           key: 'dateModified',
-                           value: dataCycleObject.metadata['dateModified'] %>
+                           label: dataCycleObject.metadata['validation']['properties']['date_modified']['label'],
+                           prop: dataCycleObject.metadata['validation']['properties']['date_modified'],
+                           key: 'date_modified',
+                           value: dataCycleObject.metadata['date_modified'] %>
             <% end %>
           </dd>
       <% end %>

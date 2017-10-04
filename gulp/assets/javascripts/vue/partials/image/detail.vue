@@ -24,10 +24,10 @@
       <dd class="block-flex" v-if="item.metadata.license != undefined">{{ item.metadata.license }}</dd>
       <dt class="block-flex" v-if="item.metadata.restrictions != undefined && item.metadata.restrictions != '' && item.metadata.restrictions != 'Keine Einschränkung;'">Einschränkungen: </dt>
       <dd class="block-flex" v-if="item.metadata.restrictions != undefined && item.metadata.restrictions != '' && item.metadata.restrictions != 'Keine Einschränkung;'"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{ item.metadata.restrictions }}</dd>
-      <dt v-if="item.metadata.dateCreated != undefined">Erstellt: </dt>
-      <dd v-if="item.metadata.dateCreated != undefined">{{ formatDate(item.metadata.dateCreated) }}</dd>
-      <dt v-if="item.metadata.dateModified != undefined">Bearbeitet: </dt>
-      <dd v-if="item.metadata.dateModified != undefined">{{ formatDate(item.metadata.dateModified) }}</dd>
+      <dt v-if="item.metadata.date_created != undefined">Erstellt: </dt>
+      <dd v-if="item.metadata.date_created != undefined">{{ formatDate(item.metadata.date_created) }}</dd>
+      <dt v-if="item.metadata.date_modified != undefined">Bearbeitet: </dt>
+      <dd v-if="item.metadata.date_modified != undefined">{{ formatDate(item.metadata.date_modified) }}</dd>
     </dl>
   </div>
   <div v-else></div>
