@@ -12,9 +12,9 @@ module DataCycleCore
 
       data_hash = {
         "url" => "estasdfkasdfasfd",
-        "eventPeriod" => {
-          "startDate"=>"2017-07-18 12:00",
-          "endDate"=>"2017-10-29 12:00"
+        "event_period" => {
+          "start_date"=>"2017-07-18 12:00",
+          "end_date"=>"2017-10-29 12:00"
         }
       }
 
@@ -24,13 +24,13 @@ module DataCycleCore
       expected_hash = {
         "id" => data_set.id,
         "url" => "estasdfkasdfasfd",
-        "eventPeriod" => {
-          "startDate"=>"2017-07-18 12:00".to_datetime.to_s(:db),
-          "endDate"=>"2017-10-29 12:00".to_datetime.to_s(:db)
+        "event_period" => {
+          "start_date"=>"2017-07-18 12:00".to_datetime.to_s(:db),
+          "end_date"=>"2017-10-29 12:00".to_datetime.to_s(:db)
         }
       }
-      returned_data_hash['eventPeriod'].each do |key,value|
-        returned_data_hash['eventPeriod'][key] = value.to_datetime.to_s(:db)
+      returned_data_hash['event_period'].each do |key,value|
+        returned_data_hash['event_period'][key] = value.to_datetime.to_s(:db)
       end
       assert_equal(expected_hash, returned_data_hash)
       assert_equal(0, error[:error].count)

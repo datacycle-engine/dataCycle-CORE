@@ -436,8 +436,8 @@ ALTER SEQUENCE delayed_jobs_id_seq OWNED BY delayed_jobs.id;
 CREATE TABLE event_histories (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
     event_id uuid,
-    "startDate" timestamp without time zone,
-    "endDate" timestamp without time zone,
+    start_date timestamp without time zone,
+    end_date timestamp without time zone,
     metadata jsonb,
     template boolean DEFAULT false NOT NULL,
     seen_at timestamp without time zone,
@@ -591,8 +591,8 @@ ALTER SEQUENCE event_translations_id_seq OWNED BY event_translations.id;
 
 CREATE TABLE events (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    "startDate" timestamp without time zone,
-    "endDate" timestamp without time zone,
+    start_date timestamp without time zone,
+    end_date timestamp without time zone,
     metadata jsonb,
     template boolean DEFAULT false NOT NULL,
     seen_at timestamp without time zone,
@@ -2294,6 +2294,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20171003142621'),
 ('20171004072726'),
 ('20171004114524'),
-('20171004120235');
+('20171004120235'),
+('20171004125221');
 
 
