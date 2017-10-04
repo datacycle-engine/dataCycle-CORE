@@ -197,7 +197,7 @@ module DataCycleCore
         if !data_hash['name'].blank? && data_hash['name'].has_key?(lang) && !data_hash['name'][lang].blank?
           set_data['name'] = data_hash['name'][lang]
         end
-        set_data['address'] = { 'streetAddress' => data_hash['address'] }
+        set_data['address'] = { 'street_address' => data_hash['address'] }
         set_data['longitude'] = data_hash['geo']['longitude'] unless data_hash['geo'].blank?
         set_data['latitude'] = data_hash['geo']['latitude'] unless data_hash['geo'].blank?
         unless set_data['longitude'].blank? || set_data['latitude'].blank?

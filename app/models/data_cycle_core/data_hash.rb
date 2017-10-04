@@ -35,6 +35,7 @@ module DataCycleCore
           self.updated_at = save_time
           updated_by = {'last_updated_by' => current_user.try(:id)}
           self.metadata.nil? ? self.metadata = updated_by : self.metadata.merge!(updated_by)
+          self.id = SecureRandom.uuid if self.id.nil?
           self.set_search
         end
       end
