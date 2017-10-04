@@ -139,11 +139,11 @@ module DataCycleCore
                 puts "#{i.to_s.ljust(5)} | #{data_set.id.ljust(51)}| #{Time.zone.now}" if (i % 250) == 0
                 i += 1
 ## TODO: visibility when its properly defined
-                data = data_hash.except('@context', '@type', 'visibility', 'keywords', 'contentLocation')
+                data = underscore_keys(data_hash.except('@context', '@type', 'visibility', 'keywords', 'contentLocation'))
                 I18n.with_locale(lang) do
                   unless data_hash["contentLocation"].blank?
                     contentLocation_hash = get_contentLocation(to_update_image.id, data_hash["contentLocation"], lang)
-                    data['contentLocation'] = [ contentLocation_hash ]
+                    data['content_location'] = [ contentLocation_hash ]
                   end
                   data['data_type'] = nil # touch data_type to get default_value
                   errors = to_update_image.set_data_hash(data)
@@ -205,6 +205,10 @@ module DataCycleCore
         end
         set_data['external_source_id'] = @external_source_id
         set_data
+      end
+
+      def underscore_keys(data_hash)
+        Hash[data_hash.to_a.map { |k, v| [k.to_s.underscore, v.kind_of?(Hash) ? underscore_keys(v) : v] }]
       end
 
     # logging ceremony for import logic
