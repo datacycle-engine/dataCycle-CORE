@@ -1,10 +1,10 @@
 <% unless dataCycleObject.metadata.nil? %>
  <div class="image">
 
-    <% unless dataCycleObject.metadata['contentUrl'].nil? %>
+    <% unless dataCycleObject.metadata['content_url'].nil? %>
 
        
-            <div class="image-container stripes"><img src="<%= dataCycleObject.metadata['contentUrl'] %>" alt="<%= dataCycleObject.content['name'] unless dataCycleObject.content.blank?%>" /></div>
+            <div class="image-container stripes"><img src="<%= dataCycleObject.metadata['content_url'] %>" alt="<%= dataCycleObject.content['name'] unless dataCycleObject.content.blank?%>" /></div>
         
 
     <% end %>
@@ -34,11 +34,11 @@
       <% unless dataCycleObject.metadata['license'].nil? %>
         <dt><i class="fa fa-copyright" aria-hidden="true"></i> <%= dataCycleObject.metadata['validation']['properties']['license']['label'] %></dt>
         <dd><%= dataCycleObject.metadata['license'] %>
-        <% unless dataCycleObject.metadata['mandatoryLicense'].nil? %><br><%= render 'data_cycle_core/creative_works/partials/show/datatype/boolean',
-                   label: dataCycleObject.metadata['validation']['properties']['mandatoryLicense']['label'],
-                   prop: dataCycleObject.metadata['validation']['properties']['mandatoryLicense'],
-                   key: 'mandatoryLicense',
-                   value: dataCycleObject.metadata['mandatoryLicense'] %>
+        <% unless dataCycleObject.metadata['mandatory_license'].nil? %><br><%= render 'data_cycle_core/creative_works/partials/show/datatype/boolean',
+                   label: dataCycleObject.metadata['validation']['properties']['mandatory_license']['label'],
+                   prop: dataCycleObject.metadata['validation']['properties']['mandatory_license'],
+                   key: 'mandatory_license',
+                   value: dataCycleObject.metadata['mandatory_license'] %>
         <% end %>
         </dd>
       <% end %>
@@ -57,8 +57,8 @@
 
       <% unless dataCycleObject.metadata['width'].nil? %>
         <dt><i class="fa fa-info-circle" aria-hidden="true"></i> Bildinformationen</dt>
-        <dd><%= dataCycleObject.metadata['width'] %>px/<%= dataCycleObject.metadata['height'] %>px, <%= dataCycleObject.metadata['contentSize'] %>Bytes<br />
-            <strong>Format:</strong> <%= dataCycleObject.metadata['fileFormat'] %>
+        <dd><%= dataCycleObject.metadata['width'] %>px/<%= dataCycleObject.metadata['height'] %>px, <%= dataCycleObject.metadata['content_size'] %>Bytes<br />
+            <strong>Format:</strong> <%= dataCycleObject.metadata['file_format'] %>
 
                     <% unless dataCycleObject.metadata['dateCreated'].nil? %>
                 <%= render 'data_cycle_core/creative_works/partials/show/datatype/datetime',
@@ -80,20 +80,20 @@
 
         <dt><i class="fa fa-external-link-square" aria-hidden="true"></i> Bild-URLs</dt>
         <dd>
-            <% unless dataCycleObject.metadata['contentUrl'].nil? %>
+            <% unless dataCycleObject.metadata['content_url'].nil? %>
                 <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                           label: dataCycleObject.metadata['validation']['properties']['contentUrl']['label'],
-                           prop: dataCycleObject.metadata['validation']['properties']['contentUrl'],
-                           key: 'contentUrl',
-                           value: dataCycleObject.metadata['contentUrl'] %>
+                           label: dataCycleObject.metadata['validation']['properties']['content_url']['label'],
+                           prop: dataCycleObject.metadata['validation']['properties']['content_url'],
+                           key: 'content_url',
+                           value: dataCycleObject.metadata['content_url'] %>
             <% end %>
 
-            <% unless dataCycleObject.metadata['thumbnailUrl'].nil? %>
+            <% unless dataCycleObject.metadata['thumbnail_url'].nil? %>
                 <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                           label: dataCycleObject.metadata['validation']['properties']['thumbnailUrl']['label'],
-                           prop: dataCycleObject.metadata['validation']['properties']['thumbnailUrl'],
-                           key: 'thumbnailUrl',
-                           value: dataCycleObject.metadata['thumbnailUrl'] %>
+                           label: dataCycleObject.metadata['validation']['properties']['thumbnail_url']['label'],
+                           prop: dataCycleObject.metadata['validation']['properties']['thumbnail_url'],
+                           key: 'thumbnail_url',
+                           value: dataCycleObject.metadata['thumbnail_url'] %>
             <% end %>
 
             <% unless dataCycleObject.metadata['url'].nil? %>
@@ -131,12 +131,12 @@
                    value: dataCycleObject.metadata['source'] %>
     <% end %>
 
-    <% unless dataCycleObject.metadata['imageId'].nil? %>
+    <% unless dataCycleObject.metadata['image_id'].nil? %>
         <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                   label: dataCycleObject.metadata['validation']['properties']['imageId']['label'],
-                   prop: dataCycleObject.metadata['validation']['properties']['imageId'],
-                   key: 'imageId',
-                   value: dataCycleObject.metadata['imageId'] %>
+                   label: dataCycleObject.metadata['validation']['properties']['image_id']['label'],
+                   prop: dataCycleObject.metadata['validation']['properties']['image_id'],
+                   key: 'image_id',
+                   value: dataCycleObject.metadata['image_id'] %>
     <% end %>
 
     <% unless dataCycleObject.metadata['visibility'].nil? %>

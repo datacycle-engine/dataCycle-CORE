@@ -48,7 +48,7 @@
         :type: string
         :storage_type: string
         :storage_location: metadata
-      :mandatoryLicense:
+      :mandatory_license:
         :label: Copyright Nennung verpflichtend
         :type: string
         :storage_type: string
@@ -76,14 +76,14 @@
         :storage_location: metadata
         :validations:
           :format: integer
-      :contentSize:
+      :content_size:
         :label: Dateigröße
         :type: number
         :storage_type: number
         :storage_location: metadata
         :validations:
           :format: integer
-      :fileFormat:
+      :file_format:
         :label: Dateiformat
         :type: string
         :storage_type: string
@@ -132,7 +132,7 @@
         :type: string
         :storage_type: string
         :storage_location: metadata
-      :imageId:
+      :image_id:
         :label: Bildnummer
         :type: string
         :storage_type: string
@@ -147,14 +147,14 @@
         :type: classificationTreeLabel
         :type_name: Rechte
         :storage_location: classification_relation
-      :contentUrl:
+      :content_url:
         :label: Bild URL
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: url
-      :thumbnailUrl:
+      :thumbnail_url:
         :label: Thumbnail URL
         :type: string
         :storage_type: string
