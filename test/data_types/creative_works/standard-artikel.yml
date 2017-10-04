@@ -175,7 +175,7 @@
           :options:
             :data-validate: object
             :data-type: person
-      :contentLocation:
+      :content_location:
         :label: Ort
         :type: object
         :storage_location: places

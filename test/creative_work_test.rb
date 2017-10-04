@@ -23,7 +23,7 @@ module DataCycleCore
       data_hash = {
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
+        "content_location" => [{
             "name" => "Testort",
             "longitude" => 13.10,
             "latitude" => 25.30
@@ -37,8 +37,8 @@ module DataCycleCore
         "access" => [],
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
-          "id" => returned_data_hash_without['contentLocation'][0]['id'],
+        "content_location" => [{
+          "id" => returned_data_hash_without['content_location'][0]['id'],
           "name" => "Testort",
           "latitude" => 25.3,
           "location" => nil,
@@ -64,7 +64,7 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::Place::History.count)
       assert_equal(1, DataCycleCore::Place::History::Translation.count)
 
-      returned_data_hash_without["contentLocation"] = []
+      returned_data_hash_without["content_location"] = []
       error = data_set_without.set_data_hash(returned_data_hash_without)
       data_set_without.save
 
@@ -111,7 +111,7 @@ module DataCycleCore
       data_hash = {
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
+        "content_location" => [{
             "name" => "Testort",
             "longitude" => 13.10,
             "latitude" => 25.30
@@ -125,8 +125,8 @@ module DataCycleCore
         "access" => [],
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
-          "id" => returned_data_hash['contentLocation'][0]['id'],
+        "content_location" => [{
+          "id" => returned_data_hash['content_location'][0]['id'],
           "name" => "Testort",
           "latitude" => 25.3,
           "location" => nil,
@@ -143,7 +143,7 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
       assert_equal(1, DataCycleCore::Place.where(template: false).count)
 
-      returned_data_hash["contentLocation"] = []
+      returned_data_hash["content_location"] = []
       error = data_set.set_data_hash(returned_data_hash)
       data_set.save
       returned_again = data_set.get_data_hash
@@ -164,7 +164,7 @@ module DataCycleCore
       data_hash = {
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
+        "content_location" => [{
             "name" => "Testort",
             "longitude" => 13.10,
             "latitude" => 25.30
@@ -178,8 +178,8 @@ module DataCycleCore
         "access" => [],
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
-          "id" => returned_data_hash['contentLocation'][0]['id'],
+        "content_location" => [{
+          "id" => returned_data_hash['content_location'][0]['id'],
           "name" => "Testort",
           "latitude" => 25.3,
           "location" => nil,
@@ -196,7 +196,7 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
       assert_equal(1, DataCycleCore::Place.where(template: false).count)
 
-      returned_data_hash["contentLocation"] = [{'id' => returned_data_hash["contentLocation"][0]['id']}]
+      returned_data_hash["content_location"] = [{'id' => returned_data_hash["content_location"][0]['id']}]
       error = data_set.set_data_hash(returned_data_hash)
       data_set.save
       returned_again = data_set.get_data_hash
@@ -234,7 +234,7 @@ module DataCycleCore
       data_hash = {
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{ "id" => place_id }]
+        "content_location" => [{ "id" => place_id }]
       }
       error = data_set.set_data_hash(data_hash)
       data_set.save
@@ -245,7 +245,7 @@ module DataCycleCore
         "access" => [],
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [ returned_place ]
+        "content_location" => [ returned_place ]
       }
 
       assert_equal(expected_hash, returned_data_hash.compact.except('id','data_type'))
@@ -283,7 +283,7 @@ module DataCycleCore
       data_hash = {
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => []
+        "content_location" => []
       }
       error = data_set.set_data_hash(data_hash)
       data_set.save
@@ -295,7 +295,7 @@ module DataCycleCore
         "headline" => "Dies ist ein Test!",
         "data_type" => returned_data_hash['data_type'],
         "description" => "wtf is going on???",
-        "contentLocation" => []
+        "content_location" => []
       }
 
       assert_equal(expected_hash, returned_data_hash.compact.except('id'))
@@ -307,11 +307,11 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::Place.where(template: false).count)
 
       # make relation
-      data_hash["contentLocation"] = [{ "id" => place_id }]
+      data_hash["content_location"] = [{ "id" => place_id }]
       error = data_set.set_data_hash(data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
-      expected_hash["contentLocation"] = [ returned_place ]
+      expected_hash["content_location"] = [ returned_place ]
 
       assert_equal(expected_hash, returned_data_hash.compact.except('id'))
       assert_equal(0, error[:error].count)
@@ -331,7 +331,7 @@ module DataCycleCore
       data_hash = {
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
+        "content_location" => [{
           "name" => "Testort",
           "longitude" => 13.1,
           "latitude" => 25.3
@@ -352,7 +352,7 @@ module DataCycleCore
         "access" => [],
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
+        "content_location" => [{
           "id" => nil,
           "name" => "Testort",
           "latitude" => 25.3,
@@ -377,8 +377,8 @@ module DataCycleCore
       }
 
       returned_data_hash = data_set.get_data_hash.compact
-      assert_equal(expected_hash.except("contentLocation"), returned_data_hash.except("contentLocation","data_type"))
-      assert_equal(expected_hash["contentLocation"].count, returned_data_hash["contentLocation"].count)
+      assert_equal(expected_hash.except("content_location"), returned_data_hash.except("content_location","data_type"))
+      assert_equal(expected_hash["content_location"].count, returned_data_hash["content_location"].count)
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
@@ -386,12 +386,12 @@ module DataCycleCore
       assert_equal(3, DataCycleCore::Place.where(template: false).count)
 
       # delete all places at once
-      returned_data_hash["contentLocation"] = []
+      returned_data_hash["content_location"] = []
       error = data_set.set_data_hash(returned_data_hash)
       data_set.save
 
       returned_again = data_set.get_data_hash.compact
-      expected_hash["contentLocation"] = []
+      expected_hash["content_location"] = []
       assert_equal(expected_hash, returned_data_hash.except("data_type"))
 
       # check consistency of data in DB
@@ -409,7 +409,7 @@ module DataCycleCore
       data_hash = {
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
+        "content_location" => [{
             "name" => "Testort",
             "longitude" => 13.10,
             "latitude" => 25.30
@@ -424,8 +424,8 @@ module DataCycleCore
         "access" => [],
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
-          "id" => returned_data_hash['contentLocation'][0]['id'],
+        "content_location" => [{
+          "id" => returned_data_hash['content_location'][0]['id'],
           "name" => "Testort",
           "latitude" => 25.3,
           "location" => nil,
@@ -458,7 +458,7 @@ module DataCycleCore
       data_hash = {
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
+        "content_location" => [{
             "name" => "Testort",
             "longitude" => 13.10,
             "latitude" => 25.30
@@ -469,7 +469,7 @@ module DataCycleCore
         "access" => [],
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
+        "content_location" => [{
           "id" => nil,
           "name" => "Testort",
           "latitude" => 25.3,
@@ -480,7 +480,7 @@ module DataCycleCore
       }
       data_set.save
       returned_data_hash = data_set.get_data_hash.compact
-      expected_hash['contentLocation'][0]['id'] = returned_data_hash['contentLocation'][0]['id']
+      expected_hash['content_location'][0]['id'] = returned_data_hash['content_location'][0]['id']
       assert_equal(expected_hash, returned_data_hash.except('id','data_type'))
       assert_equal(0, error[:error].count)
 
@@ -499,7 +499,7 @@ module DataCycleCore
       data_hash = {
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
+        "content_location" => [{
             "name" => "Testort",
             "longitude" => 13.10,
             "latitude" => 25.30
@@ -513,7 +513,7 @@ module DataCycleCore
         "access" => [],
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
+        "content_location" => [{
           "id" => nil,
           "name" => "Testort",
           "latitude" => 25.3,
@@ -524,7 +524,7 @@ module DataCycleCore
       }
       data_set.save
       returned_data_hash = data_set.get_data_hash.compact
-      expected_hash['contentLocation'][0]['id'] = returned_data_hash['contentLocation'][0]['id']
+      expected_hash['content_location'][0]['id'] = returned_data_hash['content_location'][0]['id']
       assert_equal(expected_hash, returned_data_hash.except('id','data_type'))
       assert_equal(0, error[:error].count)
 
@@ -543,7 +543,7 @@ module DataCycleCore
       data_hash = {
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
+        "content_location" => [{
             "name" => "Testort",
             "longitude" => 13.1,
             "latitude" => 25.3
@@ -558,7 +558,7 @@ module DataCycleCore
         "access" => [],
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
+        "content_location" => [{
           "id" => nil,
           "name" => "Testort",
           "latitude" => 25.3,
@@ -576,10 +576,10 @@ module DataCycleCore
       }
       data_set.save
       returned_data_hash = data_set.get_data_hash.compact
-      returned_data_hash['contentLocation'][0]['id'] = nil
-      returned_data_hash['contentLocation'][1]['id'] = nil
-      assert_equal(expected_hash.except("contentLocation"), returned_data_hash.except("contentLocation",'id', "data_type"))
-      assert_equal(expected_hash["contentLocation"].count, returned_data_hash["contentLocation"].count)
+      returned_data_hash['content_location'][0]['id'] = nil
+      returned_data_hash['content_location'][1]['id'] = nil
+      assert_equal(expected_hash.except("content_location"), returned_data_hash.except("content_location",'id', "data_type"))
+      assert_equal(expected_hash["content_location"].count, returned_data_hash["content_location"].count)
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::Place.where(template: false).count)
@@ -596,7 +596,7 @@ module DataCycleCore
       data_hash = {
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
+        "content_location" => [{
             "name" => "Testort",
             "longitude" => 13.1,
             "latitude" => 25.3
@@ -610,8 +610,8 @@ module DataCycleCore
       data_set.save
       returned_data_hash = data_set.get_data_hash
       data_hash2 = returned_data_hash.compact
-      data_hash2["contentLocation"] = []
-      data_hash2["contentLocation"].push(returned_data_hash["contentLocation"][1])
+      data_hash2["content_location"] = []
+      data_hash2["content_location"].push(returned_data_hash["content_location"][1])
       error = data_set.set_data_hash(data_hash2.compact)
       data_set.save
 
@@ -619,9 +619,9 @@ module DataCycleCore
         "access" => [],
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "contentLocation" => []
+        "content_location" => []
       }
-      expected_hash["contentLocation"].push(returned_data_hash["contentLocation"][1])
+      expected_hash["content_location"].push(returned_data_hash["content_location"][1])
       returned_data_hash = data_set.get_data_hash
       assert_equal(expected_hash, returned_data_hash.compact.except('id','data_type'))
 
@@ -657,7 +657,7 @@ module DataCycleCore
       data_hash = {
         "headline" => "Das ist ein Test!",
         "description" => "wooos laft??",
-        "contentLocation" => [{
+        "content_location" => [{
             "name" => "Testort",
             "longitude" => 13.1,
             "latitude" => 25.3
@@ -675,8 +675,8 @@ module DataCycleCore
       returned_data = I18n.with_locale(:de){data_set.get_data_hash}
       creative_work_id = returned_data["id"]
       # check for german data-set, two embedded contentLocation // no english data-set
-      assert_equal(de_expected, returned_data.compact.except("contentLocation","id","data_type"))
-      assert_equal(data_hash["contentLocation"].size, returned_data["contentLocation"].size)
+      assert_equal(de_expected, returned_data.compact.except("content_location","id","data_type"))
+      assert_equal(data_hash["content_location"].size, returned_data["content_location"].size)
 
       assert_nil(I18n.with_locale(:en){data_set.get_data_hash})
 
@@ -691,15 +691,15 @@ module DataCycleCore
         data_set.get_data_hash
       }
       data_hash2 = returned_data_hash.compact
-      data_hash2["contentLocation"] = []
-      data_hash2["contentLocation"].push(returned_data_hash["contentLocation"][1])
+      data_hash2["content_location"] = []
+      data_hash2["content_location"].push(returned_data_hash["content_location"][1])
       ids = data_set.places.ids
 
       # save two embedded objects in english
       data_hash_en = {
         "headline" => "this is a test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
+        "content_location" => [{
           "id" => ids[0],
           "name" => "Testplace",
           "longitude" => 13.1,
@@ -718,12 +718,12 @@ module DataCycleCore
       data_set.save
 
       # check for two german and englisch data_sets (+ check that they are only translations of the same data-sets)
-      assert_equal(de_expected, I18n.with_locale(:de){data_set.get_data_hash.compact.except("contentLocation","id","data_type")})
-      assert_equal(data_hash["contentLocation"].size, I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].size})
-      assert_equal(en_expected, I18n.with_locale(:en){data_set.get_data_hash.compact.except("contentLocation","id","data_type")})
-      assert_equal(data_hash_en["contentLocation"].size, I18n.with_locale(:en){data_set.get_data_hash.compact["contentLocation"].size})
-      de_ids = I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].map{|item| item["id"]}}
-      en_ids = I18n.with_locale(:en){data_set.get_data_hash.compact["contentLocation"].map{|item| item["id"]}}
+      assert_equal(de_expected, I18n.with_locale(:de){data_set.get_data_hash.compact.except("content_location","id","data_type")})
+      assert_equal(data_hash["content_location"].size, I18n.with_locale(:de){data_set.get_data_hash.compact["content_location"].size})
+      assert_equal(en_expected, I18n.with_locale(:en){data_set.get_data_hash.compact.except("content_location","id","data_type")})
+      assert_equal(data_hash_en["content_location"].size, I18n.with_locale(:en){data_set.get_data_hash.compact["content_location"].size})
+      de_ids = I18n.with_locale(:de){data_set.get_data_hash.compact["content_location"].map{|item| item["id"]}}
+      en_ids = I18n.with_locale(:en){data_set.get_data_hash.compact["content_location"].map{|item| item["id"]}}
       assert_equal(de_ids.sort, en_ids.sort)
 
       # check what is written to the database
@@ -742,10 +742,10 @@ module DataCycleCore
       de_returned = I18n.with_locale(:de){ data_set.get_data_hash }
       en_returned = I18n.with_locale(:en){ data_set.get_data_hash }
 
-      de_embedded = de_returned["contentLocation"]
-      en_embedded = en_returned["contentLocation"]
-      assert_equal(de_expected, de_returned.compact.except("contentLocation","id","data_type"))
-      assert_equal(en_expected, en_returned.compact.except("contentLocation","id","data_type"))
+      de_embedded = de_returned["content_location"]
+      en_embedded = en_returned["content_location"]
+      assert_equal(de_expected, de_returned.compact.except("content_location","id","data_type"))
+      assert_equal(en_expected, en_returned.compact.except("content_location","id","data_type"))
       assert_equal(1, de_embedded.count)
       assert_equal(2, en_embedded.count)
 
@@ -779,7 +779,7 @@ module DataCycleCore
       data_hash = {
         "headline" => "Das ist ein Test!",
         "description" => "wooos laft??",
-        "contentLocation" => [{
+        "content_location" => [{
             "name" => "Testort",
             "longitude" => 13.1,
             "latitude" => 25.3
@@ -795,15 +795,15 @@ module DataCycleCore
       data_set.save
 
       # check for german data-set, two embedded contentLocation // no english data-set
-      assert_equal(de_expected, I18n.with_locale(:de){data_set.get_data_hash.compact.except("contentLocation","id","data_type")})
-      assert_equal(data_hash["contentLocation"].size, I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].size})
+      assert_equal(de_expected, I18n.with_locale(:de){data_set.get_data_hash.compact.except("content_location","id","data_type")})
+      assert_equal(data_hash["content_location"].size, I18n.with_locale(:de){data_set.get_data_hash.compact["content_location"].size})
       assert_nil(I18n.with_locale(:en){data_set.get_data_hash})
 
       # save two embedded objects in english (different locations from the german ones)
       data_hash_en = {
         "headline" => "this is a test!",
         "description" => "wtf is going on???",
-        "contentLocation" => [{
+        "content_location" => [{
           "name" => "Testplace",
           "longitude" => 13.1,
           "latitude" => 25.3
@@ -820,12 +820,12 @@ module DataCycleCore
       data_set.save
 
       # check for two german and englisch data_sets (+ check that they are different data-sets)
-      assert_equal(de_expected, I18n.with_locale(:de){data_set.get_data_hash.compact.except("contentLocation","id","data_type")})
-      assert_equal(data_hash["contentLocation"].size, I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].size})
-      assert_equal(en_expected, I18n.with_locale(:en){data_set.get_data_hash.compact.except("contentLocation","id","data_type")})
-      assert_equal(data_hash_en["contentLocation"].size, I18n.with_locale(:en){data_set.get_data_hash.compact["contentLocation"].size})
-      de_ids = I18n.with_locale(:de){data_set.get_data_hash.compact["contentLocation"].map{|item| item["id"]}}
-      en_ids = I18n.with_locale(:en){data_set.get_data_hash.compact["contentLocation"].map{|item| item["id"]}}
+      assert_equal(de_expected, I18n.with_locale(:de){data_set.get_data_hash.compact.except("content_location","id","data_type")})
+      assert_equal(data_hash["content_location"].size, I18n.with_locale(:de){data_set.get_data_hash.compact["content_location"].size})
+      assert_equal(en_expected, I18n.with_locale(:en){data_set.get_data_hash.compact.except("content_location","id","data_type")})
+      assert_equal(data_hash_en["content_location"].size, I18n.with_locale(:en){data_set.get_data_hash.compact["content_location"].size})
+      de_ids = I18n.with_locale(:de){data_set.get_data_hash.compact["content_location"].map{|item| item["id"]}}
+      en_ids = I18n.with_locale(:en){data_set.get_data_hash.compact["content_location"].map{|item| item["id"]}}
       assert_equal(2, de_ids.size)
       assert_equal(2, en_ids.size)
       assert_not_equal(de_ids.sort[0], en_ids.sort[0])

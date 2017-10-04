@@ -489,7 +489,7 @@
         :storage_location: metadata
         :validations:
           :format: boolean
-      :contentLocation:
+      :content_location:
         :label: Ort
         :type: object
         :delete: true

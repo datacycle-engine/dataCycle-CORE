@@ -84,7 +84,7 @@
         :editor:
           :type: input
           :sorting: 4
-      :contentLocation:
+      :content_location:
         :label: Veranstaltungsort
         :type: object
         :storage_location: places

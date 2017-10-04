@@ -76,7 +76,7 @@ module DataCycleCore
           "date_modified"=>nil
         }],
         "outputChannels"=>[],
-        "contentLocation"=>[]
+        "content_location"=>[]
       }
       expected_hash["quotation"][0]["id"]=returned_data_hash["quotation"][0]["id"]
       assert_equal(0, error[:error].count)
@@ -159,7 +159,7 @@ module DataCycleCore
           "date_modified"=>nil
         }],
         "outputChannels"=>[],
-        "contentLocation"=>[]
+        "content_location"=>[]
       }
       expected_hash["quotation"][0]["id"]=returned_data_hash["quotation"][0]["id"]
       assert_equal(0, error[:error].count)
@@ -243,7 +243,7 @@ module DataCycleCore
         "markets" => [],
         "headline" => "Dies ist ein Test!",
         "outputChannels"=>[],
-        "contentLocation"=>[],
+        "content_location"=>[],
         "quotation" => [{
           "text" => "However beautiful the strategy, you should occasionally look at the results.",
           "image" => nil,
@@ -360,7 +360,7 @@ module DataCycleCore
           "date_modified"=>nil
         }],
         "outputChannels"=>[],
-        "contentLocation"=>[]
+        "content_location"=>[]
       }
       expected_hash["quotation"][0]["id"] = returned_data_hash["quotation"][0]["id"]
       assert_equal(0, error[:error].count)

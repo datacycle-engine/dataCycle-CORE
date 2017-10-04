@@ -84,7 +84,7 @@ module DataCycleCore
           }],
           "data_type" => [data_type_zitat_id]
         }],
-        "contentLocation" => [{
+        "content_location" => [{
           "id" => place_id_1
           }]
       }
@@ -120,7 +120,7 @@ module DataCycleCore
           "date_modified"=>nil
         }],
         "outputChannels"=>[],
-        "contentLocation"=>[{
+        "content_location"=>[{
           "id" => place_id_1,
           "name" => "Wien",
           "latitude" => 1,
@@ -146,11 +146,11 @@ module DataCycleCore
       # ap DataCycleCore::Place.find(place_id_2).get_data_hash
 
 
-      returned_data_hash['contentLocation'] = [{"id" => place_id_2 }]
+      returned_data_hash['content_location'] = [{"id" => place_id_2 }]
       error = data_set.set_data_hash(returned_data_hash)
       data_set.save
       updated_data_hash = data_set.get_data_hash
-      expected_hash["contentLocation"] = [{
+      expected_hash["content_location"] = [{
         "id" => place_id_2,
         "name" => "Villach",
         "latitude" => 10,

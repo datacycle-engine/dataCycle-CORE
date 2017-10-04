@@ -107,12 +107,12 @@
       
     </dl>
 
-    <% unless dataCycleObject.metadata['contentLocation'].nil? %>
+    <% unless dataCycleObject.metadata['content_location'].nil? %>
         <%= render 'data_cycle_core/creative_works/partials/show/datatype/place',
-                   label: dataCycleObject.metadata['validation']['properties']['contentLocation']['label'],
-                   prop: dataCycleObject.metadata['validation']['properties']['contentLocation'],
-                   key: 'contentLocation',
-                   value: dataCycleObject.metadata['contentLocation'] %>
+                   label: dataCycleObject.metadata['validation']['properties']['content_location']['label'],
+                   prop: dataCycleObject.metadata['validation']['properties']['content_location'],
+                   key: 'content_location',
+                   value: dataCycleObject.metadata['content_locationv'] %>
     <% end %>
 
     <% unless dataCycleObject.metadata['accountablePerson'].nil? %>

@@ -267,7 +267,7 @@
           :sorting: 4
           :options:
             :data-validate: media
-      :contentLocation:
+      :content_location:
         :label: Ort
         :type: object
         :storage_location: places

@@ -207,7 +207,7 @@ module DataCycleCore
           "valid_from" => "",
           "valid_until" => ""
         },
-        "contentLocation" => [],
+        "content_location" => [],
         "metaDescription" => "",
         "alternativeHeadline" => ""
       }
@@ -257,7 +257,7 @@ module DataCycleCore
           "valid_from" => "",
           "valid_until" => ""
         },
-        "contentLocation" => [],
+        "content_location" => [],
         "metaDescription" => "",
         "alternativeHeadline" => ""
       }

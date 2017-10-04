@@ -89,7 +89,7 @@ module DataCycleCore
         }],
         "author" => [],
         "outputChannels" => [],
-        "contentLocation" => []
+        "content_location" => []
       }
 
       error = data_set.set_data_hash(data_hash)
