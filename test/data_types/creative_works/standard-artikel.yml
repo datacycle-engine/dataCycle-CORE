@@ -66,7 +66,7 @@
                 :data-type: datepicker
                 :data-validate: daterange
                 :placeholder: tt.mm.jjjj
-      :alternativeHeadline:
+      :alternative_headline:
         :label: Subüberschrift
         :type: string
         :storage_type: string
@@ -102,7 +102,7 @@
           :sorting: 6
           :options:
             :data-size: full
-      :metaTitle:
+      :meta_title:
         :label: Meta-Titel
         :type: string
         :storage_type: string
@@ -110,7 +110,7 @@
         :editor:
           :type: input
           :sorting: 7
-      :metaDescription:
+      :meta_description:
         :label: Meta-Description
         :type: string
         :storage_type: text
@@ -130,7 +130,7 @@
           :sorting: 9
           :options:
             :data-size: none
-      :sameAs:
+      :same_as:
         :label: Canonical Tag
         :type: string
         :storage_type: string
@@ -252,7 +252,7 @@
         :editor:
           :type: classificationSelector
           :sorting: 21
-      :outputChannels:
+      :output_channels:
         :label: Ausgabekanäle
         :type: classificationTreeLabel
         :type_name: Ausgabekanäle

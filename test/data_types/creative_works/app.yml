@@ -66,7 +66,7 @@
                 :data-type: datepicker
                 :data-validate: daterange
                 :placeholder: tt.mm.jjjj
-      :alternativeHeadline:
+      :alternative_headline:
         :label: Subüberschrift
         :type: string
         :storage_type: string
@@ -100,7 +100,7 @@
 #        :storage_location: metadata
 #        :editor:
 #          :sorting: 11
-      :mobileApplication:
+      :mobile_application:
         :label: Link
         :type: object
         :storage_location: creative_works
@@ -161,7 +161,7 @@
         :editor:
           :type: classificationSelector
           :sorting: 25
-      :outputChannels:
+      :output_channels:
         :label: Ausgabekanäle
         :type: classificationTreeLabel
         :type_name: Ausgabekanäle

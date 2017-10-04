@@ -147,7 +147,7 @@
         :editor:
           :type: classificationSelector
           :sorting: 25
-      :outputChannels:
+      :output_channels:
         :label: Ausgabekanäle
         :type: classificationTreeLabel
         :type_name: Ausgabekanäle

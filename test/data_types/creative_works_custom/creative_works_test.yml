@@ -633,7 +633,7 @@
           :sorting: 1
           :options:
             :data-validate: text
-      :alternativeHeadline:
+      :alternative_headline:
         :label: Subüberschrift
         :type: string
         :storage_type: string
@@ -669,7 +669,7 @@
           :sorting: 5
           :options:
             :data-size: full
-      :metaTitle:
+      :meta_title:
         :label: Meta-Titel
         :type: string
         :storage_type: string
@@ -677,7 +677,7 @@
         :editor:
           :type: input
           :sorting: 6
-      :metaDescription:
+      :meta_description:
         :label: Meta-Description
         :type: string
         :storage_type: text
@@ -697,7 +697,7 @@
           :sorting: 8
           :options:
             :data-size: none
-      :sameAs:
+      :same_as:
         :label: Canonical Tag
         :type: string
         :storage_type: string

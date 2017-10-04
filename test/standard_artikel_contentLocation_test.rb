@@ -119,7 +119,7 @@ module DataCycleCore
           "date_created"=>nil,
           "date_modified"=>nil
         }],
-        "outputChannels"=>[],
+        "output_channels"=>[],
         "content_location"=>[{
           "id" => place_id_1,
           "name" => "Wien",

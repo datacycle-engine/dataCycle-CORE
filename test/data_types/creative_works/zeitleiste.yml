@@ -76,7 +76,7 @@
           :sorting: 3
           :options:
             :data-size: basic
-      :timelineItem:
+      :timeline_item:
         :label: Eintrag
         :type: object
         :storage_location: creative_works
@@ -137,7 +137,7 @@
         :editor:
           :type: classificationSelector
           :sorting: 25
-      :outputChannels:
+      :output_channels:
         :label: Ausgabekanäle
         :type: classificationTreeLabel
         :type_name: Ausgabekanäle
@@ -205,7 +205,7 @@
           :sorting: 1
           :options:
             :data-validate: text
-      :temporalCoverage:
+      :temporal_coverage:
         :label: Zeitraum
         :type: object
         :storage_location: metadata

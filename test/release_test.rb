@@ -88,7 +88,7 @@ module DataCycleCore
           "author" => []
         }],
         "author" => [],
-        "outputChannels" => [],
+        "output_channels" => [],
         "content_location" => []
       }
 

@@ -22,7 +22,7 @@
         :editor:
           :type: input
           :sorting: 1
-      :operatingSystem:
+      :operating_system:
         :label: Plattform
         :type: string
         :storage_type: string
