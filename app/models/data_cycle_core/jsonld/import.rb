@@ -123,7 +123,7 @@ module DataCycleCore
               contentLocation = nil
               to_update_image = CreativeWork
                 .where(
-                  "metadata ->> 'external_key' = ? AND external_source_id = ?",
+                  "external_key = ? AND external_source_id = ?",
                   data_set.id,
                   @external_source_id
                 ).first_or_initialize
@@ -132,14 +132,14 @@ module DataCycleCore
               else
                 to_update_image.metadata['validation'] = validation
               end
-              to_update_image.metadata['external_key'] = data_set.id
+              to_update_image.external_key = data_set.id
               to_update_image.external_source_id = @external_source_id
 
               data_set.dump.each do |lang, data_hash|
                 puts "#{i.to_s.ljust(5)} | #{data_set.id.ljust(51)}| #{Time.zone.now}" if (i % 250) == 0
                 i += 1
 ## TODO: visibility when its properly defined
-                data = underscore_keys(data_hash.except('@context', '@type', 'visibility', 'keywords', 'content_location'))
+                data = underscore_keys(data_hash.except('@context', '@type', 'visibility', 'keywords', 'contentLocation'))
                 I18n.with_locale(lang) do
                   unless data_hash["contentLocation"].blank?
                     contentLocation_hash = get_contentLocation(to_update_image.id, data_hash["contentLocation"], lang)
@@ -156,6 +156,7 @@ module DataCycleCore
 
                     next
                   end
+                  to_update_image.seen_at = Time.zone.now
                   to_update_image.save
                 end
               end
