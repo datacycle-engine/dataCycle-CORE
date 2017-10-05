@@ -139,10 +139,10 @@ module DataCycleCore
                 puts "#{i.to_s.ljust(5)} | #{data_set.id.ljust(51)}| #{Time.zone.now}" if (i % 250) == 0
                 i += 1
 ## TODO: visibility when its properly defined
-                data = data_hash.except('@context', '@type', 'visibility', 'keywords', 'content_location')
+                data = underscore_keys(data_hash.except('@context', '@type', 'visibility', 'keywords', 'content_location'))
                 I18n.with_locale(lang) do
-                  unless data_hash["content_location"].blank?
-                    contentLocation_hash = get_contentLocation(to_update_image.id, data_hash["content_location"], lang)
+                  unless data_hash["contentLocation"].blank?
+                    contentLocation_hash = get_contentLocation(to_update_image.id, data_hash["contentLocation"], lang)
                     data['content_location'] = [ contentLocation_hash ]
                   end
                   data['data_type'] = nil # touch data_type to get default_value
