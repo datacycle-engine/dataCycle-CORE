@@ -68,7 +68,7 @@
     "pretty-hrtime": "1.0.3",
     "quill": "1.2.6",
     "require-dir": "0.3.2",
-    "select2": "^4.0.3",
+    "select2": "4.0.3",
     "turbolinks": "5.0.3",
     "vinyl-source-stream": "1.1.0",
     "vue": "2.3.4",

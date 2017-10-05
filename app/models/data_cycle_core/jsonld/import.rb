@@ -207,6 +207,10 @@ module DataCycleCore
         set_data
       end
 
+      def underscore_keys(data_hash)
+        Hash[data_hash.to_a.map { |k, v| [k.to_s.underscore, v.kind_of?(Hash) ? underscore_keys(v) : v] }]
+      end
+
     # logging ceremony for import logic
       def import_logging
         start_time = Time.zone.now
