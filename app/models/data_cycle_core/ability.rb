@@ -31,10 +31,13 @@ module DataCycleCore
             [
               DataCycleCore::User,
               DataCycleCore::UserGroup,
-              DataCycleCore::CreativeWork,
               DataCycleCore::Person,
               DataCycleCore::Place
             ]
+
+          can :crud, DataCycleCore::CreativeWork do |creative_work|
+            creative_work&.metadata&.dig('validation','permissions','read_write') != false
+          end
 
           can [:set_role, :set_user_groups], DataCycleCore::User do |the_user|
             !the_user.has_rank?(user.role.rank) || user == the_user
