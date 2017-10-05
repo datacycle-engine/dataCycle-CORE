@@ -66,25 +66,19 @@
 
                                     <% object_value = !object_value.blank? ? object_value : "" %>
 
+
                                     <% if !object_value.blank? %>
 
-                                        <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
-                                                   label: prop['label'],
-                                                   prop: prop,
-                                                   key: key,
-                                                   object_id: object.id,
-                                                   value: object_value %>
-
                                         <% begin %>
-                                            <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['editor']['type'].downcase}",
-                                                       label: prop['label'],
-                                                       prop: prop,
-                                                       key: key,
-                                                       object_id: object.id,
-                                                       value: object_value,
-                                                       force_render: true %>
+                                                <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['editor']['type'].try(:downcase)}",
+                                                           label: prop['label'],
+                                                           prop: prop,
+                                                           key: key,
+                                                           object_id: object.id,
+                                                           value: object_value,
+                                                           force_render: true %>
                                         <% rescue ActionView::MissingTemplate %>
-                                            <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
+                                            <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].try(:downcase)}",
                                                        label: prop['label'],
                                                        prop: prop,
                                                        key: key,
