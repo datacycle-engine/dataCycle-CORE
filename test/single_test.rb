@@ -12,9 +12,9 @@ module DataCycleCore
 
       expected_hash = {
         "headline" => "Dies ist ein Test!",
-        "validityPeriod" => {
-          "validFrom" => "2017-05-01",
-          "validUntil" => "2017-06-01"
+        "validity_period" => {
+          "valid_from" => "2017-05-01",
+          "valid_until" => "2017-06-01"
         },
         "tags"=>[],
         "state"=>[],
@@ -24,10 +24,10 @@ module DataCycleCore
         "kind" => []
       }
 
-      data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validityPeriod" => {"validFrom" => "2017-05-01", "validUntil" => "2017-06-01"}})
+      data_set.set_data_hash({"headline" => "Dies ist ein Test!", "validity_period" => {"valid_from" => "2017-05-01", "valid_until" => "2017-06-01"}})
       data_set.save
       assert_equal(expected_hash, data_set.get_data_hash.compact.except('id',"data_pool"))
-      assert_equal( {"validityPeriod" => {"validFrom" => "2017-05-01", "validUntil" => "2017-06-01"}}, data_set.metadata.except('validation').compact)
+      assert_equal( {"validity_period" => {"valid_from" => "2017-05-01", "valid_until" => "2017-06-01"}}, data_set.metadata.except('validation').compact)
     end
 
   end

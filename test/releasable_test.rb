@@ -191,25 +191,25 @@ module DataCycleCore
         "text" => "",
         "image" => ["108bbf5f-08b0-4c10-a7cc-6094750fd317", "76de5bef-3030-4315-a7f7-90951037a5c4", "43aa35f4-0c6b-4648-a7da-c403e6450640"],
         "state" => [],
-        "sameAs" => "",
+        "same_as" => "",
         "season" => [],
         "topics" => [],
         "markets" => [],
         "headline" => "Release Artikel 15",
-        "keywords" => "", "metaTitle" => "", "quotation" => [{
+        "keywords" => "", "meta_title" => "", "quotation" => [{
           "text" => "<p>sdfasf asdf adfasdf</p>",
           "image" => ["4fb7eb58-bdf9-402b-be29-1b822513a3fa"],
           "author" => []
         }],
         "description" => "",
-        "outputChannels" => [],
-        "validityPeriod" => {
-          "validFrom" => "",
-          "validUntil" => ""
+        "output_channels" => [],
+        "validity_period" => {
+          "valid_from" => "",
+          "valid_until" => ""
         },
-        "contentLocation" => [],
-        "metaDescription" => "",
-        "alternativeHeadline" => ""
+        "content_location" => [],
+        "meta_description" => "",
+        "alternative_headline" => ""
       }
       release_hash = {
         "image" => {
@@ -235,13 +235,13 @@ module DataCycleCore
           "release_comment" => "normales bild kommentar"
         },
         "state" => [],
-        "sameAs" => "",
+        "same_as" => "",
         "season" => [],
         "topics" => [],
         "markets" => [],
         "headline" => "Release Artikel 15",
         "keywords" => "",
-        "metaTitle" => "",
+        "meta_title" => "",
         "quotation" => [{
           "text" => "<p>sdfasf asdf adfasdf</p>",
           "image" => {
@@ -252,14 +252,14 @@ module DataCycleCore
           "author" => []
         }],
         "description" => "",
-        "outputChannels" => [],
-        "validityPeriod" => {
-          "validFrom" => "",
-          "validUntil" => ""
+        "output_channels" => [],
+        "validity_period" => {
+          "valid_from" => "",
+          "valid_until" => ""
         },
-        "contentLocation" => [],
-        "metaDescription" => "",
-        "alternativeHeadline" => ""
+        "content_location" => [],
+        "meta_description" => "",
+        "alternative_headline" => ""
       }
 
       assert_equal(expected_hash, data_set.merge_release(data_hash, release_hash))

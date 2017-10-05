@@ -1,7 +1,7 @@
 module DataCycleCore
   module PersonHelpers
     def title
-      "#{givenName} #{familyName}"
+      "#{given_name} #{family_name}"
     end
 
     def desc

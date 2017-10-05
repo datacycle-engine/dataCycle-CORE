@@ -26,21 +26,21 @@
           :sorting: 1
           :options:
             :data-validate: text
-      :validityPeriod:
+      :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
         :validations:
           :daterange:
-            :from: validFrom
-            :to: validUntil
+            :from: valid_from
+            :to: valid_until
         :editor:
           :sorting: 2
           :options:
             :class: daterange validation-container
             :tabindex: -1
         :properties:
-          :validFrom:
+          :valid_from:
             :label: Gültigkeit
             :type: string
             :storage_type: string
@@ -53,7 +53,7 @@
                 :data-type: datepicker
                 :data-validate: daterange
                 :placeholder: tt.mm.jjjj
-          :validUntil:
+          :valid_until:
             :label: bis
             :type: string
             :storage_type: string
@@ -66,7 +66,7 @@
                 :data-type: datepicker
                 :data-validate: daterange
                 :placeholder: tt.mm.jjjj
-      :alternativeHeadline:
+      :alternative_headline:
         :label: Subüberschrift
         :type: string
         :storage_type: string
@@ -145,7 +145,7 @@
         :editor:
           :type: classificationSelector
           :sorting: 25
-      :outputChannels:
+      :output_channels:
         :label: Ausgabekanäle
         :type: classificationTreeLabel
         :type_name: Ausgabekanäle
@@ -171,14 +171,14 @@
         :type_name: users
         :storage_type: string
         :storage_location: metadata
-      :dateCreated:
+      :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: date_time
-      :dateModified:
+      :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string
@@ -235,7 +235,7 @@
           :sorting: 3
           :options:
             :data-validate: media
-      :acceptedAnswer:
+      :accepted_answer:
         :label: Antwort
         :type: object
         :storage_location: creative_works
@@ -245,7 +245,7 @@
         :editor:
           :type: embeddedObject
           :sorting: 14
-      :suggestedAnswer:
+      :suggested_answer:
         :label: Antwort
         :type: object
         :storage_location: creative_works
@@ -274,14 +274,14 @@
         :type_name: users
         :storage_type: string
         :storage_location: metadata
-      :dateCreated:
+      :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: date_time
-      :dateModified:
+      :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string
@@ -326,7 +326,7 @@
           :sorting: 2
           :options:
             :data-validate: media
-      :isPartOf:
+      :is_part_of:
         :label: parent
         :type: string
         :storage_type: string
@@ -345,14 +345,14 @@
         :type_name: users
         :storage_type: string
         :storage_location: metadata
-      :dateCreated:
+      :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: date_time
-      :dateModified:
+      :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string

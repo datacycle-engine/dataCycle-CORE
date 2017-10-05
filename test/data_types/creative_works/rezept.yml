@@ -26,21 +26,21 @@
           :sorting: 1
           :options:
             :data-validate: text
-      :validityPeriod:
+      :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
         :validations:
           :daterange:
-            :from: validFrom
-            :to: validUntil
+            :from: valid_from
+            :to: valid_until
         :editor:
           :sorting: 2
           :options:
             :class: daterange validation-container
             :tabindex: -1
         :properties:
-          :validFrom:
+          :valid_from:
             :label: Gültigkeit
             :type: string
             :storage_type: string
@@ -53,7 +53,7 @@
                 :data-type: datepicker
                 :data-validate: daterange
                 :placeholder: tt.mm.jjjj
-          :validUntil:
+          :valid_until:
             :label: bis
             :type: string
             :storage_type: string
@@ -92,7 +92,7 @@
         :storage_location: metadata
         :editor:
           :sorting: 5
-      :recipeInstructions:
+      :recipe_instructions:
         :label: Fließtext
         :type: string
         :storage_type: text
@@ -102,7 +102,7 @@
           :sorting: 6
           :options:
             :data-size: full
-      :recipeYield:
+      :recipe_yield:
         :label: Portionen
         :type: string
         :storage_type: string
@@ -110,7 +110,7 @@
         :editor:
           :type: input
           :sorting: 7
-      :totalTime:
+      :total_time:
         :label: Kochzeit
         :type: number
         :storage_type: number
@@ -124,7 +124,7 @@
           :options:
             :data-type: duration
             :data-validate: integer
-      :recipeCourse:
+      :recipe_course:
         :label: 'Gang'
         :type: classificationTreeLabel
         :type_name: 'Rezept-Gänge'
@@ -132,7 +132,7 @@
         :editor:
           :type: classificationSelector
           :sorting: 9
-      :recipeCategory:
+      :recipe_category:
         :label: 'Kategorie'
         :type: classificationTreeLabel
         :type_name: 'Rezept-Kategorien'
@@ -140,7 +140,7 @@
         :editor:
           :type: classificationSelector
           :sorting: 10
-      :recipeIngredient:
+      :recipe_ingredient:
         :label: Zutat
         :type: string
         :storage_type: text
@@ -219,7 +219,7 @@
         :editor:
           :type: classificationSelector
           :sorting: 25
-      :outputChannels:
+      :output_channels:
         :label: Ausgabekanäle
         :type: classificationTreeLabel
         :type_name: Ausgabekanäle
@@ -245,14 +245,14 @@
         :type_name: users
         :storage_type: string
         :storage_location: metadata
-      :dateCreated:
+      :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: date_time
-      :dateModified:
+      :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string
@@ -275,7 +275,7 @@
         :storage_location: key
         :validations:
           :format: uuid
-      :recipeInstructions:
+      :recipe_instructions:
         :label: Fließtext
         :type: string
         :storage_type: text
@@ -285,7 +285,7 @@
           :sorting: 1
           :options:
             :data-size: full
-      :recipeIngredient:
+      :recipe_ingredient:
         :label: Zutat
         :type: string
         :storage_type: text
@@ -295,7 +295,7 @@
           :sorting: 2
           :options:
             :data-size: full
-      :totalTime:
+      :total_time:
         :label: Kochzeit
         :type: number
         :storage_type: number
@@ -327,14 +327,14 @@
         :type_name: users
         :storage_type: string
         :storage_location: metadata
-      :dateCreated:
+      :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: date_time
-      :dateModified:
+      :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string

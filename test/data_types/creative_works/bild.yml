@@ -45,14 +45,14 @@
         :type: string
         :storage_type: string
         :storage_location: metadata
-      :mandatoryLicense:
+      :mandatory_license:
         :label: Copyright Nennung verpflichtend
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: boolean
-      :contentLocation:
+      :content_location:
         :label: Ort
         :type: object
         :storage_location: places
@@ -72,14 +72,14 @@
         :storage_location: metadata
         :validations:
           :format: integer
-      :contentSize:
+      :content_size:
         :label: Dateigröße
         :type: number
         :storage_type: number
         :storage_location: metadata
         :validations:
           :format: integer
-      :fileFormat:
+      :file_format:
         :label: Dateiformat
         :type: string
         :storage_type: string
@@ -91,14 +91,14 @@
         :storage_location: metadata
         # :validations:
         #   :daterange:
-        #     :from: datePublished
+        #     :from: date_published
         #     :to: expires
-      :validityPeriod:
+      :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
         :properties:
-          :datePublished:
+          :date_published:
             :label: Gültig von
             :type: string
             :storage_type: string
@@ -112,14 +112,14 @@
             :storage_location: metadata
             :validations:
               :format: date_time
-      :dateCreated:
+      :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: date_time
-      :dateModified:
+      :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string
@@ -131,7 +131,7 @@
         :type: string
         :storage_type: string
         :storage_location: metadata
-      :imageId:
+      :image_id:
         :label: Bildnummer
         :type: string
         :storage_type: string
@@ -146,14 +146,14 @@
         :type: classificationTreeLabel
         :type_name: Rechte
         :storage_location: classification_relation
-      :contentUrl:
+      :content_url:
         :label: Bild URL
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: url
-      :thumbnailUrl:
+      :thumbnail_url:
         :label: Thumbnail URL
         :type: string
         :storage_type: string

@@ -30,8 +30,8 @@ module DataCycleCore
       data_set_person.metadata = { 'validation' => person_validation }
       data_set_person.save
       person_hash = {
-        "givenName" => "Winston",
-        "familyName" => "Churchill"
+        "given_name" => "Winston",
+        "family_name" => "Churchill"
       }
       data_set_person.set_data_hash(person_hash)
       data_set_person.save
@@ -84,7 +84,7 @@ module DataCycleCore
           }],
           "data_type" => [data_type_zitat_id]
         }],
-        "contentLocation" => [{
+        "content_location" => [{
           "id" => place_id_1
           }]
       }
@@ -109,18 +109,18 @@ module DataCycleCore
           "image" => nil,
           "author" => [{
             "id" => person_id,
-            "jobTitle" => nil,
-            "givenName" => "Winston",
-            "familyName" => "Churchill"
+            "job_title" => nil,
+            "given_name" => "Winston",
+            "family_name" => "Churchill"
           }],
           "creator" => nil,
-          "isPartOf" => parent_id,
+          "is_part_of" => parent_id,
           "data_type" => [data_type_zitat_id],
-          "dateCreated"=>nil,
-          "dateModified"=>nil
+          "date_created"=>nil,
+          "date_modified"=>nil
         }],
-        "outputChannels"=>[],
-        "contentLocation"=>[{
+        "output_channels"=>[],
+        "content_location"=>[{
           "id" => place_id_1,
           "name" => "Wien",
           "latitude" => 1,
@@ -131,7 +131,7 @@ module DataCycleCore
       }
       expected_hash["quotation"][0]["id"]=returned_data_hash["quotation"][0]["id"]
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except('id',"data_type",'validityPeriod'))
+      assert_equal(expected_hash, returned_data_hash.compact.except('id',"data_type",'validity_period'))
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
@@ -146,11 +146,11 @@ module DataCycleCore
       # ap DataCycleCore::Place.find(place_id_2).get_data_hash
 
 
-      returned_data_hash['contentLocation'] = [{"id" => place_id_2 }]
+      returned_data_hash['content_location'] = [{"id" => place_id_2 }]
       error = data_set.set_data_hash(returned_data_hash)
       data_set.save
       updated_data_hash = data_set.get_data_hash
-      expected_hash["contentLocation"] = [{
+      expected_hash["content_location"] = [{
         "id" => place_id_2,
         "name" => "Villach",
         "latitude" => 10,
@@ -159,7 +159,7 @@ module DataCycleCore
         "location" => nil
         }]
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, updated_data_hash.compact.except('id',"data_type",'validityPeriod'))
+      assert_equal(expected_hash, updated_data_hash.compact.except('id',"data_type",'validity_period'))
 
 
       # check consistency of data in DB

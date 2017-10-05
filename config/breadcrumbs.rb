@@ -64,7 +64,7 @@ crumb :'data_cycle_core/persons' do
 end
 
 crumb :'data_cycle_core/person' do |person|
-  link to_html_string("Person", person.givenName + " " + person.familyName), person_path(person)
+  link to_html_string("Person", person.given_name + " " + person.family_name), person_path(person)
 
   # parent :'data_cycle_core/persons'
 end

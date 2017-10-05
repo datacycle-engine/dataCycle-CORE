@@ -13,7 +13,7 @@
         :storage_location: key
         :validations:
           :format: uuid
-#      :startDate:
+#      :start_date:
 #        :label: Startzeitpunkt
 #        :type: string
 #        :storage_type: string
@@ -27,7 +27,7 @@
 #            :data-type: datepicker
 #            :data-validate: daterange
 #            :placeholder: "tt.mm.jjjj --:--"
-#      :endDate:
+#      :end_date:
 #        :label: Endzeitpunkt
 #        :type: string
 #        :storage_type: string
@@ -41,21 +41,21 @@
 #            :data-type: datepicker
 #            :data-validate: daterange
 #            :placeholder: "tt.mm.jjjj --:--"
-      :eventPeriod:
+      :event_period:
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
         :validations:
           :daterange:
-            :from: startDate
-            :to: endDate
+            :from: start_date
+            :to: end_date
         :editor:
           :sorting: 2
           :options:
             :class: daterange validation-container
             :tabindex: -1
         :properties:
-          :startDate:
+          :start_date:
             :label: Gültigkeit
             :type: string
             :storage_type: string
@@ -69,7 +69,7 @@
                 :data-type: datepicker
                 :data-validate: daterange
                 :placeholder: tt.mm.jjjj
-          :endDate:
+          :end_date:
             :label: bis
             :type: string
             :storage_type: string
@@ -97,7 +97,7 @@
 #        :type_name: Inhaltstypen
 #        :storage_location: classification_relation
 #        :default_value: "Event"
-#      :isPartOf:
+#      :is_part_of:
 #        :label: parent
 #        :type: string
 #        :storage_type: string
@@ -110,14 +110,14 @@
         :type_name: users
         :storage_type: string
         :storage_location: metadata
-      :dateCreated:
+      :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: date_time
-      :dateModified:
+      :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string

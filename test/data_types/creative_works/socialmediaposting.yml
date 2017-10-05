@@ -26,21 +26,21 @@
           :sorting: 1
           :options:
             :data-validate: text
-      :validityPeriod:
+      :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
         :validations:
           :daterange:
-            :from: validFrom
-            :to: validUntil
+            :from: valid_from
+            :to: valid_until
         :editor:
           :sorting: 2
           :options:
             :class: daterange validation-container
             :tabindex: -1
         :properties:
-          :validFrom:
+          :valid_from:
             :label: Gültigkeit
             :type: string
             :storage_type: string
@@ -53,7 +53,7 @@
                 :data-type: datepicker
                 :data-validate: daterange
                 :placeholder: tt.mm.jjjj
-          :validUntil:
+          :valid_until:
             :label: bis
             :type: string
             :storage_type: string
@@ -102,7 +102,7 @@
         :editor:
           :type: input
           :sorting: 6
-      :contentLocation:
+      :content_location:
         :label: Ort
         :type: object
         :storage_location: places
@@ -161,7 +161,7 @@
         :editor:
           :type: classificationSelector
           :sorting: 25
-      :outputChannels:
+      :output_channels:
         :label: Ausgabekanäle
         :type: classificationTreeLabel
         :type_name: Ausgabekanäle
@@ -187,14 +187,14 @@
         :type_name: users
         :storage_type: string
         :storage_location: metadata
-      :dateCreated:
+      :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: date_time
-      :dateModified:
+      :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string

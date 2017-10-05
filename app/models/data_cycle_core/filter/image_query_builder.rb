@@ -22,14 +22,14 @@ module DataCycleCore
         reflect (
           @query.where(
 
-            sql_date(json_path(creative_work[:metadata], quoted('{ validityPeriod, datePublished }'))).eq(nil).
+            sql_date(json_path(creative_work[:metadata], quoted('{ validity_period, date_published }'))).eq(nil).
               or(
-                sql_date(json_path(creative_work[:metadata], quoted('{ validityPeriod, datePublished }'))).lteq(sql_date(quoted(current_date)))
+                sql_date(json_path(creative_work[:metadata], quoted('{ validity_period, date_published }'))).lteq(sql_date(quoted(current_date)))
             ).
             and(
-              sql_date(json_path(creative_work[:metadata], quoted('{ validityPeriod, expires }'))).eq(nil).
+              sql_date(json_path(creative_work[:metadata], quoted('{ validity_period, expires }'))).eq(nil).
               or(
-                sql_date(json_path(creative_work[:metadata], quoted('{ validityPeriod, expires }'))).gteq(sql_date(quoted(current_date)))
+                sql_date(json_path(creative_work[:metadata], quoted('{ validity_period, expires }'))).gteq(sql_date(quoted(current_date)))
               )
             )
           )

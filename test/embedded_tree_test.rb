@@ -16,8 +16,8 @@ module DataCycleCore
       data_set.metadata = { 'validation' => validation }
       data_set.save
       person_hash = {
-        "givenName" => "Winston",
-        "familyName" => "Churchill"
+        "given_name" => "Winston",
+        "family_name" => "Churchill"
       }
       data_set.set_data_hash(person_hash)
       data_set.save
@@ -65,18 +65,18 @@ module DataCycleCore
           "image" => nil,
           "author" => [{
             "id" => person_id,
-            "jobTitle" => nil,
-            "givenName" => "Winston",
-            "familyName" => "Churchill"
+            "job_title" => nil,
+            "given_name" => "Winston",
+            "family_name" => "Churchill"
           }],
           "creator" => nil,
-          "isPartOf" => parent_id,
+          "is_part_of" => parent_id,
           "data_type" => [data_type_zitat_id],
-          "dateCreated"=>nil,
-          "dateModified"=>nil
+          "date_created"=>nil,
+          "date_modified"=>nil
         }],
-        "outputChannels"=>[],
-        "contentLocation"=>[]
+        "output_channels"=>[],
+        "content_location"=>[]
       }
       expected_hash["quotation"][0]["id"]=returned_data_hash["quotation"][0]["id"]
       assert_equal(0, error[:error].count)
@@ -99,8 +99,8 @@ module DataCycleCore
       data_set.metadata = { 'validation' => validation }
       data_set.save
       person_hash = {
-        "givenName" => "Winston",
-        "familyName" => "Churchill"
+        "given_name" => "Winston",
+        "family_name" => "Churchill"
       }
       data_set.set_data_hash(person_hash)
       data_set.save
@@ -148,18 +148,18 @@ module DataCycleCore
           "image" => nil,
           "author" => [{
             "id" => person_id,
-            "jobTitle" => nil,
-            "givenName" => "Winston",
-            "familyName" => "Churchill"
+            "job_title" => nil,
+            "given_name" => "Winston",
+            "family_name" => "Churchill"
           }],
           "creator" => nil,
-          "isPartOf" => parent_id,
+          "is_part_of" => parent_id,
           "data_type"=>[data_type_zitat_id],
-          "dateCreated"=>nil,
-          "dateModified"=>nil
+          "date_created"=>nil,
+          "date_modified"=>nil
         }],
-        "outputChannels"=>[],
-        "contentLocation"=>[]
+        "output_channels"=>[],
+        "content_location"=>[]
       }
       expected_hash["quotation"][0]["id"]=returned_data_hash["quotation"][0]["id"]
       assert_equal(0, error[:error].count)
@@ -199,8 +199,8 @@ module DataCycleCore
       data_set.metadata = { 'validation' => validation }
       data_set.save
       person_hash = {
-        "givenName" => "Winston",
-        "familyName" => "Churchill"
+        "given_name" => "Winston",
+        "family_name" => "Churchill"
       }
       data_set.set_data_hash(person_hash)
       data_set.save
@@ -242,28 +242,28 @@ module DataCycleCore
         "topics" => [],
         "markets" => [],
         "headline" => "Dies ist ein Test!",
-        "outputChannels"=>[],
-        "contentLocation"=>[],
+        "output_channels"=>[],
+        "content_location"=>[],
         "quotation" => [{
           "text" => "However beautiful the strategy, you should occasionally look at the results.",
           "image" => nil,
           "author" => [{
             "id" => person_id,
-            "jobTitle" => nil,
-            "givenName" => "Winston",
-            "familyName" => "Churchill"
+            "job_title" => nil,
+            "given_name" => "Winston",
+            "family_name" => "Churchill"
           }],
-          "isPartOf" => parent_id
+          "is_part_of" => parent_id
         },{
           "text" => "Men occasionally stumble over the truth, but most of them pick themselves up and hurry off as if nothing ever happened.",
           "image" => nil,
           "author" => [{
             "id" => person_id,
-            "jobTitle" => nil,
-            "givenName" => "Winston",
-            "familyName" => "Churchill"
+            "job_title" => nil,
+            "given_name" => "Winston",
+            "family_name" => "Churchill"
           }],
-          "isPartOf" => parent_id
+          "is_part_of" => parent_id
         }]
       }
 
@@ -299,8 +299,8 @@ module DataCycleCore
       data_set.metadata = { 'validation' => validation }
       data_set.save
       person_hash = {
-        "givenName" => "Winston",
-        "familyName" => "Churchill"
+        "given_name" => "Winston",
+        "family_name" => "Churchill"
       }
       data_set.set_data_hash(person_hash)
       data_set.save
@@ -350,17 +350,17 @@ module DataCycleCore
           "creator"=>nil,
           "author" => [{
             "id" => person_id,
-            "jobTitle" => nil,
-            "givenName" => "Winston",
-            "familyName" => "Churchill"
+            "job_title" => nil,
+            "given_name" => "Winston",
+            "family_name" => "Churchill"
           }],
-          "isPartOf" => parent_id,
+          "is_part_of" => parent_id,
           "data_type"=>[data_type_zitat_id],
-          "dateCreated"=>nil,
-          "dateModified"=>nil
+          "date_created"=>nil,
+          "date_modified"=>nil
         }],
-        "outputChannels"=>[],
-        "contentLocation"=>[]
+        "output_channels"=>[],
+        "content_location"=>[]
       }
       expected_hash["quotation"][0]["id"] = returned_data_hash["quotation"][0]["id"]
       assert_equal(0, error[:error].count)

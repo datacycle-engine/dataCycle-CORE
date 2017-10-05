@@ -154,7 +154,7 @@ module DataCycleCore
       def get_inherit_datahash(creativeWork)
 
         data_hash = creativeWork.get_data_hash
-        parent = DataCycleCore::CreativeWork.find_by(id: creativeWork.isPartOf)
+        parent = DataCycleCore::CreativeWork.find_by(id: creativeWork.is_part_of)
 
         if parent.nil?
           return nil
