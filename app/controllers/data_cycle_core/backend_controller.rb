@@ -21,11 +21,12 @@ module DataCycleCore
         order_string = @order_by + ' ' + @order
       else
         # order by ranking
+        search_string = params[:search].split(" ").join("%")
         order_string = "
-          8 * word_similarity(classification_string,'#{params[:search]}') +
-          4 * word_similarity(headline, '#{params[:search]}') +
-          2 * ts_rank_cd(words, plainto_tsquery('#{params[:search]}'),16) +
-          1 * word_similarity(full_text, '#{params[:search]}')
+          8 * word_similarity(classification_string,'%#{search_string}%') +
+          4 * word_similarity(headline, '%#{search_string}%') +
+          2 * ts_rank_cd(words, plainto_tsquery('simple', '#{params[:search].squish}'),16) +
+          1 * word_similarity(full_text, '%#{search_string}%')
           DESC NULLS LAST,
           updated_at DESC"
       end

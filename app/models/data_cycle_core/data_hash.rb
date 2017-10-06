@@ -35,7 +35,8 @@ module DataCycleCore
           self.updated_at = save_time
           updated_by = {'last_updated_by' => current_user.try(:id)}
           self.metadata.nil? ? self.metadata = updated_by : self.metadata.merge!(updated_by)
-          self.id = SecureRandom.uuid if self.id.nil?
+          #self.id = SecureRandom.uuid if self.id.nil?
+          self.save if self.id.nil?
           self.set_search
         end
       end
@@ -184,7 +185,7 @@ module DataCycleCore
       headline = self.try('send','headline')
       headline = headline.gsub(/[']/,"''") unless headline.nil?
       headline = "" if headline.nil?
-      classification_string = self.classification_aliases.pluck(:name).try(:join, " ").try(:gsub, /[']/, "''")
+      classification_string = self.display_classification_aliases.pluck(:name).try(:join, " ").try(:gsub, /[']/, "''")
       classification_string = "" if classification_string.nil?
       connection = ActiveRecord::Base.connection
       sql_query = <<-eos

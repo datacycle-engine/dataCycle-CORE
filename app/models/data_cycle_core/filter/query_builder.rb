@@ -117,7 +117,7 @@ module DataCycleCore
       end
 
       def to_tsquery(string)
-        Arel::Nodes::NamedFunction.new("plainto_tsquery", [string]) #[quoted("german"), string])
+        Arel::Nodes::NamedFunction.new("plainto_tsquery", [quoted("simple"), string]) #[quoted("german"), string])
       end
 
       def tsmatch(tsvector, tsquery)
@@ -130,6 +130,10 @@ module DataCycleCore
 
       def concatinate(string1, string2)
         Arel::Nodes::InfixOperation.new("||", string1, string2)
+      end
+
+      def similar_to(field, string)
+        Arel::Nodes::InfixOperation.new("SIMILAR TO", field, quoted(string))
       end
 
       def quoted(string)
