@@ -59,7 +59,7 @@ require 'transproc'
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name
-    self.breadcrumb_root_name = "Dashboard"
+    self.breadcrumb_root_name = 'Dashboard'
 
     # special data attributes are ignored by the standard json serializes and must be handled by the application itself
     mattr_accessor :special_data_attributes
@@ -89,18 +89,19 @@ module DataCycleCore
     }
   end
 
-  def self.setup(&block)
+  def self.setup
     yield self
   end
 
   module OutdoorActive
     mattr_accessor :content_template
 
-    def self.setup(&block)
+    mattr_accessor :image_template
+
+    def self.setup
       yield self
     end
   end
-
 
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
@@ -124,9 +125,9 @@ module DataCycleCore
 
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|
-      unless app.root.to_s.match root.to_s
-        config.paths["db/migrate"].expanded.each do |expanded_path|
-          app.config.paths["db/migrate"] << expanded_path
+      unless app.root.to_s.match? root.to_s
+        config.paths['db/migrate'].expanded.each do |expanded_path|
+          app.config.paths['db/migrate'] << expanded_path
         end
       end
     end
@@ -164,7 +165,7 @@ JbuilderTemplate.class_eval do
     partials = [
       "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].content_type.underscore}_#{partial}",
       "#{parameters[:content].class.class_name.underscore}_#{partial}",
-      "content_#{partial}",
+      "content_#{partial}"
     ]
 
     partials.each_with_index do |partial, idx|

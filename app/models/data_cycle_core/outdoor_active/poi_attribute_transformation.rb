@@ -1,6 +1,10 @@
 module DataCycleCore
   module OutdoorActive
     module PoiAttributeTransformation
+      def external_key
+        self['id'].try(:strip)
+      end
+
       def name
         self['title'].try(:strip)
       end

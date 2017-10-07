@@ -82,12 +82,12 @@ module DataCycleCore::Import
       around_import(source_type, **options) do |locale|
         item_count = 0
 
-        load_contents.(locale).each do |content|
+        load_contents.call(locale).each do |content|
           item_count += 1
 
-          process_content.(content[:dump][locale], load_template(target_type, content[:dump][locale]), locale)
+          process_content.call(content[:dump][locale], load_template(target_type, content[:dump][locale]), locale)
 
-          return if options[:max_count] && item_count >= options[:max_count]
+          break if options[:max_count] && item_count >= options[:max_count]
         end
       end
     end
@@ -114,8 +114,18 @@ module DataCycleCore::Import
       elsif self.class.to_s.deconstantize.constantize.content_template.is_a? String
         begin
           target_type.find_by!(template: true, headline: self.class.to_s.deconstantize.constantize.content_template)
-        rescue ActiveRecord::RecordNotFound => e
+        rescue ActiveRecord::RecordNotFound
           raise "Missing template #{self.class.to_s.deconstantize.constantize.content_template} for #{target_type}"
+        end
+      elsif self.class.to_s.deconstantize.constantize.content_template.is_a? Proc
+        begin
+          target_type.find_by!(
+            template: true,
+            headline: self.class.to_s.deconstantize.constantize.content_template.call(raw_data)
+          )
+        rescue ActiveRecord::RecordNotFound
+          raise "Missing template #{self.class.to_s.deconstantize.constantize.content_template.call(raw_data)} \
+                for #{target_type}"
         end
       else
         raise NotImplementedError

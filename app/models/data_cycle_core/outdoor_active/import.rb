@@ -68,11 +68,21 @@ module DataCycleCore
           DataCycleCore::Place,
           ->(locale) { Poi.where("dump.#{locale}.frontendtype": 'poi') },
           ->(raw_data, template, locale) {
-            poi = Place.find_or_initialize_by(external_source_id: external_source.id, external_key: raw_data['id'])
-            poi.metadata ||= {}
-            poi.metadata['validation'] = template.metadata['validation']
-            poi.set_data_hash(poi.get_data_hash.merge(extract_poi_data(raw_data).with_indifferent_access))
-            poi.save!
+            I18n.with_locale(locale) do
+              images = (raw_data.try(:[], 'images').try(:[], 'image') || []).map { |raw_image_data|
+                create_or_update_content(
+                  CreativeWork,
+                  load_image_template(raw_image_data),
+                  extract_image_data(raw_image_data).with_indifferent_access
+                )
+              }
+
+              create_or_update_content(
+                Place,
+                template,
+                extract_poi_data(raw_data).with_indifferent_access.merge(image: images.map(&:id))
+              )
+            end
           },
           callbacks,
           **options
@@ -83,6 +93,36 @@ module DataCycleCore
 
       def extract_poi_data(raw_data)
         raw_data.extend(PoiAttributeTransformation).to_h
+      end
+
+      def extract_image_data(raw_data)
+        raw_data.extend(ImageAttributeTransformation).to_h
+      end
+
+      def create_or_update_content(clazz, template, data)
+        content = clazz.find_or_initialize_by(external_source_id: external_source.id,
+                                              external_key: data['external_key'])
+        content.metadata ||= {}
+        content.metadata['validation'] = template.metadata['validation']
+
+        content.set_data_hash(content.get_data_hash.merge(data))
+
+        content.tap(&:save!)
+      end
+
+      def load_image_template(_)
+        if self.class.to_s.deconstantize.constantize.content_template.nil?
+          raise 'Missing configuration for image templates'
+        elsif self.class.to_s.deconstantize.constantize.image_template.is_a? String
+          begin
+            DataCycleCore::CreativeWork.find_by!(template: true,
+                                                 headline: self.class.to_s.deconstantize.constantize.image_template)
+          rescue ActiveRecord::RecordNotFound
+            raise "Missing template #{self.class.to_s.deconstantize.constantize.image_template} for #{target_type}"
+          end
+        else
+          raise NotImplementedError
+        end
       end
     end
 
