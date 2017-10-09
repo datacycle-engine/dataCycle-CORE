@@ -10,7 +10,7 @@
         <% if !validation_properties.nil? %>
 
             <!-- todo: make this more generic ? -->
-            <% exludedProperties = ['headline','validity_period'] if @splitSource.nil? %>
+            <% exludedProperties = @splitSource.nil? ? ['headline','validity_period'] : []  %>
 
             <div class="type properties">
 
@@ -18,7 +18,25 @@
 
                     <% value = prop.dig('type') == "object" ? dataCycleObject.try(key.to_sym) : dataCycleObjectSchema[key] %>
 
-                    <% if !value.blank? && !exludedProperties.include?(key) %>
+                    <% if !compare.nil? && compare %>
+                        <% if @diffSchema.include?(key) %>
+                            <div class="has-changes">
+                                <span class="changed"><i class="fa fa-exclamation-triangle"></i></span>
+                                <%#= key %>
+                                <%#= value %>
+
+                                <%= prop['label'] if value.blank? || prop.dig('type') == "object" %>
+                        <% end %>
+                        <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
+                                   label: prop['label'],
+                                   prop: prop,
+                                   key: key,
+                                   value: normalize_value(value) %>
+                        <% if @diffSchema.include?(key) %>
+                            </div>
+                        <% end %>
+
+                    <% elsif !value.blank? && !exludedProperties.include?(key) %>
 
                         <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
                                 label: prop['label'],

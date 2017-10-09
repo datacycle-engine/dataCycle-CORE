@@ -16,6 +16,25 @@
     }
     .type {
       &.properties {
+        .has-changes{
+          border: 2px solid red;
+          padding: 0.5rem;
+          margin-bottom: 0.1rem;
+          > span{
+            display: block;
+            float: left;
+            margin-right: 2rem;
+            i{
+              color: red;
+              font-size: 2rem;
+              top: 1rem;
+              position: relative;
+            }
+          }
+          .detail-type{
+            margin-left: 3rem;
+          }
+        }
         .detail-type {
           position: relative;
           box-shadow: 0 0 1px #9d9d9d;

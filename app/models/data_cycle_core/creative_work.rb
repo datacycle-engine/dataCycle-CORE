@@ -16,6 +16,7 @@ module DataCycleCore
       content_relations table_name: "creative_works", postfix: "history"
 
       belongs_to :creative_work
+      include ContentHelpers
     end
     has_many :histories, -> { order(updated_at: :desc) }, class_name: 'DataCycleCore::CreativeWork::History', foreign_key: :creative_work_id
 

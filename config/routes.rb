@@ -12,7 +12,9 @@ DataCycleCore::Engine.routes.draw do
   end
   resources :user_groups
 
-  resources :creative_works, only: [:index, :show, :create, :edit, :update]
+  resources :creative_works, only: [:index, :show, :create, :edit, :update, :history] do
+    get 'history', on: :member
+  end
   resources :persons, only: [:index, :show, :create, :edit, :update]
   resources :places, only: [:index, :show, :create, :edit, :update]
   resources :subscriptions, only: [:create, :destroy]

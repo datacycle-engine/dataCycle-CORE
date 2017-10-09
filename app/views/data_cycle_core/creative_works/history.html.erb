@@ -1,0 +1,73 @@
+<% breadcrumb :edit_resource, @creativeWork %>
+
+<% content_for :top_content do %>
+
+    <div class="reveal-blur">
+
+        <div id="edit-form">
+
+            <section class="edit-header">
+                <div class="row expanded">
+                    <div class="column">
+                        <div class="edit-headline">
+                            <i class="fa fa-pencil" aria-hidden="true"></i> <%= @creativeWork.content_type %> ansehen
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="flex-box">
+
+                <% I18n.with_locale(@creativeWork.first_available_locale) do %>
+
+                    <div class="row split-content detail-content">
+
+                        <div class="show-content">
+                            <div class="detail-header-info">
+                                <div class="type thema">
+                                    <span class="icon">
+                                        <i class="fa fa-folder-open" aria-hidden="true"></i>
+                                    </span>
+                                    <span class="title"><%= @creativeWork.content_type %></span>
+                                    <span class="language">(<%= I18n.locale %>)</span>
+                                </div>
+                                <%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @creativeWork, dataCycleObjectSchema: @dataSchema %>
+                            </div>
+
+                            <%= render_content_partial 'details', content: @creativeWork, schema: @dataSchema %>
+
+                        </div>
+
+                    </div>
+
+                <% end %>
+
+                <% I18n.with_locale(@splitSource.first_available_locale) do %>
+
+                    <div class="split-content detail-content">
+                        <div class="show-content">
+                            <div class="detail-header-info">
+                                <div class="type thema">
+                                    <span class="icon">
+                                        <i class="fa fa-folder-open" aria-hidden="true"></i>
+                                    </span>
+                                    <span class="title"><%=@splitSource.content_type %></span>
+                                    <span class="language">(<%= I18n.locale %>)</span>
+                                </div>
+                                <%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema %>
+                            </div>
+
+                            <%= render_content_partial 'details', content: @splitSource, schema: @splitSchema, compare: true %>
+
+                        </div>
+                    </div>
+
+                <% end %>
+
+            </div>
+
+        </div>
+
+    </div>
+
+<% end %>
