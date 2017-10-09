@@ -136,7 +136,7 @@ export default {
     }.bind(this));
 
     $('.new-item').on('open.zf.reveal', function(e) {
-      this.newModal.find('form')[0].reset();
+      if (this.newModal.find('form').length > 0) this.newModal.find('form')[0].reset();
       this.newModal.find('input[type=submit]').removeAttr('disabled');
 
     }.bind(this));

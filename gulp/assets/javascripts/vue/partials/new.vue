@@ -10,7 +10,8 @@ export default {
   },
   mounted() {
     var browser = this;
-    $('div.new-item form').on('submit', function (e) {
+    var $reveal = $(this.$el).find('.reveal');
+    $('div.new-item form').on('submit', function(e) {
       e.preventDefault();
 
       var url = $(this).attr('action');
@@ -19,12 +20,28 @@ export default {
       if (browser.checkFields(this)) browser.createNewItem(this, formData, url);
     });
 
-    $("div.new-item form input[type=text]:not('.no-validation')").each(function (e) {
-      $(this).on('change', function (e) {
+    $("div.new-item form input[type=text]:not('.no-validation')").each(function(e) {
+      $(this).on('change', function(e) {
         $(this).closest('form').find('input[type=submit]').removeAttr('disabled');
         $(this).closest('.validation-container').find('.single_error').remove();
         browser.checkField(this);
       });
+    });
+
+    $reveal.on('open.zf.reveal', function() {
+      var iframe = $(this).find('iframe');
+      if (iframe.length > 0) {
+        iframe.css('visibility', 'hidden');
+        iframe[0].src = iframe[0].src;
+        iframe.on('load', function() {
+          iframe.css('visibility', 'visible');
+        });
+      }
+    });
+
+    $(window).on('message', function() {
+      console.log(event.data);
+      $reveal.foundation('close');
     });
 
   },
@@ -40,14 +57,14 @@ export default {
         url: url,
         data: $.param(data)
       })
-        .done(function (data) {
+        .done(function(data) {
           browser.$emit('add', data);
         });
     },
     checkFields(form) {
       var isValid = true;
       var browser = this;
-      $(form).find("input[type=text]:not('.no-validation')").each(function (e) {
+      $(form).find("input[type=text]:not('.no-validation')").each(function(e) {
         if (browser.checkField(this) == false) isValid = false;
       });
       return isValid;
@@ -68,7 +85,7 @@ export default {
       else if (item != null && $(item).closest('.form-element').find('label').first().attr('for') != undefined) item_id = "id='" + $(item).closest('.form-element').find('label').first().attr('for') + "_error'";
 
       var item_label = (item != null) ? $(item).closest('.form-element').find('label').first().html() + ": " : "";
-      $.each(data.error, function (key, val) {
+      $.each(data.error, function(key, val) {
         out += "<span " + item_id + "class='single_error'><strong>" + item_label + "</strong>" + val + "</span>";
       });
       return out;
