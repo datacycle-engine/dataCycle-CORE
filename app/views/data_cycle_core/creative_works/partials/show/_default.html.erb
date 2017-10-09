@@ -18,31 +18,15 @@
 
                     <% value = prop.dig('type') == "object" ? dataCycleObject.try(key.to_sym) : dataCycleObjectSchema[key] %>
 
-                    <% if !compare.nil? && compare %>
-                        <% if @diffSchema.include?(key) %>
-                            <div class="has-changes">
-                                <span class="changed"><i class="fa fa-exclamation-triangle"></i></span>
-                                <%#= key %>
-                                <%#= value %>
+                    <% if !exludedProperties.include?(key) %>
 
-                                <%= prop['label'] if value.blank? || prop.dig('type') == "object" %>
-                        <% end %>
-                        <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
-                                   label: prop['label'],
-                                   prop: prop,
-                                   key: key,
-                                   value: normalize_value(value) %>
-                        <% if @diffSchema.include?(key) %>
-                            </div>
-                        <% end %>
-
-                    <% elsif !value.blank? && !exludedProperties.include?(key) %>
-
-                        <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
+                        <%#= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
                                 label: prop['label'],
                                 prop: prop,
                                 key: key,
                                 value: normalize_value(value) %>
+
+                    <%= render_attribute_viewer key: key, definition: prop, value: normalize_value(value), parameters: { options: prop.dig('editor', 'options') || {} } unless dataCycleObjectSchema.nil? %>
 
                     <% end %>
 
@@ -53,9 +37,6 @@
         <% end %>
 
     <% end %>
-
-
-
 
     <hr>
 

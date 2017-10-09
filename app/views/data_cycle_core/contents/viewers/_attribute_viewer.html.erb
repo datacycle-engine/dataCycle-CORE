@@ -1,0 +1,14 @@
+<div data-label="<%= definition['label'] %>" class="detail-type <%= [
+        key.split('[').count > 1 ? key.split('[').last[0...-1].underscore : key.underscore,
+        definition['type'].underscore,
+        definition.dig('editor', 'type').try(:underscore),
+        definition.dig('editor', 'options', 'type').try(:underscore),
+        definition.dig('editor', 'options', 'data-validate').try(:underscore),
+        definition.dig('editor', 'options', 'class').try(:underscore)
+    ].reject(&:blank?).join(' ') %>"
+     <%= data_attributes.map{|k,v| " data-#{k}='#{v.to_s}'" }.join(' ').html_safe if local_assigns.has_key? :data_attributes %>
+    >
+
+    <%= yield %>
+
+</div>

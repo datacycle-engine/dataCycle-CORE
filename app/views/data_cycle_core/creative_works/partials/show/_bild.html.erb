@@ -1,166 +1,167 @@
 <% unless dataCycleObject.metadata.nil? %>
- <div class="image">
+    <div class="image">
 
-    <% unless dataCycleObject.metadata['content_url'].nil? %>
+        <% unless dataCycleObject.metadata['content_url'].nil? %>
 
-       
+
             <div class="image-container stripes"><img src="<%= dataCycleObject.metadata['content_url'] %>" alt="<%= dataCycleObject.content['name'] unless dataCycleObject.content.blank?%>" /></div>
-        
 
-    <% end %>
 
-    <!--<%= dataCycleObject.classification_aliases.to_a.map{|item| item.name}.join("<br/>").html_safe %>-->
-
-  <div class="image-data">
-
-    <h5>Details</h5>
-
-              <%= render 'data_cycle_core/creative_works/partials/show/translation/translations', language: 'de', dataCycleObject: dataCycleObject %>
-
-                  <% unless dataCycleObject.metadata['comment'].nil? %>
-        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                   label: dataCycleObject.metadata['validation']['properties']['comment']['label'],
-                   prop: dataCycleObject.metadata['validation']['properties']['comment'],
-                   key: 'label',
-                   value: dataCycleObject.metadata['comment'] %>
-    <% end %>
-    <dl>
-
-      <% unless dataCycleObject.metadata['creator'].nil? %>
-        <dt><%= dataCycleObject.metadata['validation']['properties']['creator']['label'] %></dt>
-        <dd><%= dataCycleObject.metadata['creator'] %></dd>
-      <% end %>
-
-      <% unless dataCycleObject.metadata['license'].nil? %>
-        <dt><i class="fa fa-copyright" aria-hidden="true"></i> <%= dataCycleObject.metadata['validation']['properties']['license']['label'] %></dt>
-        <dd><%= dataCycleObject.metadata['license'] %>
-        <% unless dataCycleObject.metadata['mandatory_license'].nil? %><br><%= render 'data_cycle_core/creative_works/partials/show/datatype/boolean',
-                   label: dataCycleObject.metadata['validation']['properties']['mandatory_license']['label'],
-                   prop: dataCycleObject.metadata['validation']['properties']['mandatory_license'],
-                   key: 'mandatory_license',
-                   value: dataCycleObject.metadata['mandatory_license'] %>
         <% end %>
-        </dd>
-      <% end %>
 
-        <!-- todo: check only for empty string -->
-      <% if !dataCycleObject.metadata['restrictions'].nil? && dataCycleObject.metadata['restrictions'] != 'Keine Einschränkung;' && !dataCycleObject.metadata['restrictions'].blank? %>
-        <dt><i class="fa fa-info-circle" aria-hidden="true"></i> <%= dataCycleObject.metadata['validation']['properties']['restrictions']['label'] %></dt>
-        <dd>
+        <!--<%= dataCycleObject.classification_aliases.to_a.map{|item| item.name}.join("<br/>").html_safe %>-->
+
+        <div class="image-data">
+
+            <h5>Details</h5>
+
+            <%= render 'data_cycle_core/creative_works/partials/show/translation/translations', language: 'de', dataCycleObject: dataCycleObject %>
+
+            <% unless dataCycleObject.metadata['comment'].nil? %>
                 <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                           label: '',
-                           prop: dataCycleObject.metadata['validation']['properties']['restrictions'],
-                           key: 'restrictions',
-                           value: dataCycleObject.metadata['restrictions'] %>
-        </dd>
-      <% end %>
+                           label: dataCycleObject.metadata['validation']['properties']['comment']['label'],
+                           prop: dataCycleObject.metadata['validation']['properties']['comment'],
+                           key: 'label',
+                           value: dataCycleObject.metadata['comment'] %>
+            <% end %>
+            <dl>
 
-      <% unless dataCycleObject.metadata['width'].nil? %>
-        <dt><i class="fa fa-info-circle" aria-hidden="true"></i> Bildinformationen</dt>
-        <dd><%= dataCycleObject.metadata['width'] %>px/<%= dataCycleObject.metadata['height'] %>px, <%= dataCycleObject.metadata['content_size'] %>Bytes<br />
-            <strong>Format:</strong> <%= dataCycleObject.metadata['file_format'] %>
+                <% unless dataCycleObject.metadata['creator'].nil? %>
+                    <dt><%= dataCycleObject.metadata['validation']['properties']['creator']['label'] %></dt>
+                    <dd><%= dataCycleObject.metadata['creator'] %></dd>
+                <% end %>
 
-                    <% unless dataCycleObject.metadata['date_created'].nil? %>
-                <%= render 'data_cycle_core/creative_works/partials/show/datatype/datetime',
-                           label: dataCycleObject.metadata['validation']['properties']['date_created']['label'],
-                           prop: dataCycleObject.metadata['validation']['properties']['date_created'],
-                           key: 'date_created',
-                           value: dataCycleObject.metadata['date_created'] %>
+                <% unless dataCycleObject.metadata['license'].nil? %>
+                    <dt><i class="fa fa-copyright" aria-hidden="true"></i> <%= dataCycleObject.metadata['validation']['properties']['license']['label'] %></dt>
+                    <dd><%= dataCycleObject.metadata['license'] %>
+                        <% unless dataCycleObject.metadata['mandatory_license'].nil? %><br>
+                            <%= render 'data_cycle_core/creative_works/partials/show/datatype/boolean',
+                                       label: dataCycleObject.metadata['validation']['properties']['mandatory_license']['label'],
+                                       prop: dataCycleObject.metadata['validation']['properties']['mandatory_license'],
+                                       key: 'mandatory_license',
+                                       value: dataCycleObject.metadata['mandatory_license'] %>
+                        <% end %>
+                    </dd>
+                <% end %>
+
+                <!-- todo: check only for empty string -->
+                <% if !dataCycleObject.metadata['restrictions'].nil? && dataCycleObject.metadata['restrictions'] != 'Keine Einschränkung;' && !dataCycleObject.metadata['restrictions'].blank? %>
+                    <dt><i class="fa fa-info-circle" aria-hidden="true"></i> <%= dataCycleObject.metadata['validation']['properties']['restrictions']['label'] %></dt>
+                    <dd>
+                        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                                   label: '',
+                                   prop: dataCycleObject.metadata['validation']['properties']['restrictions'],
+                                   key: 'restrictions',
+                                   value: dataCycleObject.metadata['restrictions'] %>
+                    </dd>
+                <% end %>
+
+                <% unless dataCycleObject.metadata['width'].nil? %>
+                    <dt><i class="fa fa-info-circle" aria-hidden="true"></i> Bildinformationen</dt>
+                    <dd><%= dataCycleObject.metadata['width'] %>px/<%= dataCycleObject.metadata['height'] %>px, <%= dataCycleObject.metadata['content_size'] %>Bytes<br />
+                        <strong>Format:</strong> <%= dataCycleObject.metadata['file_format'] %>
+
+                        <% unless dataCycleObject.metadata['date_created'].nil? %>
+                            <%= render 'data_cycle_core/creative_works/partials/show/datatype/datetime',
+                                       label: dataCycleObject.metadata['validation']['properties']['date_created']['label'],
+                                       prop: dataCycleObject.metadata['validation']['properties']['date_created'],
+                                       key: 'date_created',
+                                       value: dataCycleObject.metadata['date_created'] %>
+                        <% end %>
+
+                        <% unless dataCycleObject.metadata['date_modified'].nil? %>
+                            <%= render 'data_cycle_core/creative_works/partials/show/datatype/datetime',
+                                       label: dataCycleObject.metadata['validation']['properties']['date_modified']['label'],
+                                       prop: dataCycleObject.metadata['validation']['properties']['date_modified'],
+                                       key: 'date_modified',
+                                       value: dataCycleObject.metadata['date_modified'] %>
+                        <% end %>
+                    </dd>
+                <% end %>
+
+                <dt><i class="fa fa-external-link-square" aria-hidden="true"></i> Bild-URLs</dt>
+                <dd>
+                    <% unless dataCycleObject.metadata['content_url'].nil? %>
+                        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                                   label: dataCycleObject.metadata['validation']['properties']['content_url']['label'],
+                                   prop: dataCycleObject.metadata['validation']['properties']['content_url'],
+                                   key: 'content_url',
+                                   value: dataCycleObject.metadata['content_url'] %>
+                    <% end %>
+
+                    <% unless dataCycleObject.metadata['thumbnail_url'].nil? %>
+                        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                                   label: dataCycleObject.metadata['validation']['properties']['thumbnail_url']['label'],
+                                   prop: dataCycleObject.metadata['validation']['properties']['thumbnail_url'],
+                                   key: 'thumbnail_url',
+                                   value: dataCycleObject.metadata['thumbnail_url'] %>
+                    <% end %>
+
+                    <% unless dataCycleObject.metadata['url'].nil? %>
+                        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                                   label: dataCycleObject.metadata['validation']['properties']['url']['label'],
+                                   prop: dataCycleObject.metadata['validation']['properties']['url'],
+                                   key: 'url',
+                                   value: dataCycleObject.metadata['url'] %>
+                    <% end %>
+                </dd>
+
+            </dl>
+
+            <% unless dataCycleObject.metadata['content_location'].nil? %>
+                <%= render 'data_cycle_core/creative_works/partials/show/datatype/place',
+                           label: dataCycleObject.metadata['validation']['properties']['content_location']['label'],
+                           prop: dataCycleObject.metadata['validation']['properties']['content_location'],
+                           key: 'content_location',
+                           value: dataCycleObject.metadata['content_locationv'] %>
             <% end %>
 
-            <% unless dataCycleObject.metadata['date_modified'].nil? %>
-                <%= render 'data_cycle_core/creative_works/partials/show/datatype/datetime',
-                           label: dataCycleObject.metadata['validation']['properties']['date_modified']['label'],
-                           prop: dataCycleObject.metadata['validation']['properties']['date_modified'],
-                           key: 'date_modified',
-                           value: dataCycleObject.metadata['date_modified'] %>
+            <% unless dataCycleObject.metadata['accountablePerson'].nil? %>
+                <%= render 'data_cycle_core/creative_works/partials/show/datatype/person',
+                           label: dataCycleObject.metadata['validation']['properties']['accountablePerson']['label'],
+                           prop: dataCycleObject.metadata['validation']['properties']['accountablePerson'],
+                           key: 'accountablePerson',
+                           value: dataCycleObject.metadata['accountablePerson'] %>
             <% end %>
-          </dd>
-      <% end %>
 
-        <dt><i class="fa fa-external-link-square" aria-hidden="true"></i> Bild-URLs</dt>
-        <dd>
-            <% unless dataCycleObject.metadata['content_url'].nil? %>
+            <% unless dataCycleObject.metadata['source'].nil? %>
                 <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                           label: dataCycleObject.metadata['validation']['properties']['content_url']['label'],
-                           prop: dataCycleObject.metadata['validation']['properties']['content_url'],
-                           key: 'content_url',
-                           value: dataCycleObject.metadata['content_url'] %>
+                           label: dataCycleObject.metadata['validation']['properties']['source']['label'],
+                           prop: dataCycleObject.metadata['validation']['properties']['source'],
+                           key: 'source',
+                           value: dataCycleObject.metadata['source'] %>
             <% end %>
 
-            <% unless dataCycleObject.metadata['thumbnail_url'].nil? %>
+            <% unless dataCycleObject.metadata['image_id'].nil? %>
                 <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                           label: dataCycleObject.metadata['validation']['properties']['thumbnail_url']['label'],
-                           prop: dataCycleObject.metadata['validation']['properties']['thumbnail_url'],
-                           key: 'thumbnail_url',
-                           value: dataCycleObject.metadata['thumbnail_url'] %>
+                           label: dataCycleObject.metadata['validation']['properties']['image_id']['label'],
+                           prop: dataCycleObject.metadata['validation']['properties']['image_id'],
+                           key: 'image_id',
+                           value: dataCycleObject.metadata['image_id'] %>
             <% end %>
 
-            <% unless dataCycleObject.metadata['url'].nil? %>
+            <% unless dataCycleObject.metadata['visibility'].nil? %>
                 <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                           label: dataCycleObject.metadata['validation']['properties']['url']['label'],
-                           prop: dataCycleObject.metadata['validation']['properties']['url'],
-                           key: 'url',
-                           value: dataCycleObject.metadata['url'] %>
+                           label: dataCycleObject.metadata['validation']['properties']['visibility']['label'],
+                           prop: dataCycleObject.metadata['validation']['properties']['visibility'],
+                           key: 'visibility',
+                           value: dataCycleObject.metadata['visibility'] %>
             <% end %>
-        </dd>
-      
-    </dl>
 
-    <% unless dataCycleObject.metadata['content_location'].nil? %>
-        <%= render 'data_cycle_core/creative_works/partials/show/datatype/place',
-                   label: dataCycleObject.metadata['validation']['properties']['content_location']['label'],
-                   prop: dataCycleObject.metadata['validation']['properties']['content_location'],
-                   key: 'content_location',
-                   value: dataCycleObject.metadata['content_locationv'] %>
-    <% end %>
-
-    <% unless dataCycleObject.metadata['accountablePerson'].nil? %>
-        <%= render 'data_cycle_core/creative_works/partials/show/datatype/person',
-                   label: dataCycleObject.metadata['validation']['properties']['accountablePerson']['label'],
-                   prop: dataCycleObject.metadata['validation']['properties']['accountablePerson'],
-                   key: 'accountablePerson',
-                   value: dataCycleObject.metadata['accountablePerson'] %>
-    <% end %>
-
-    <% unless dataCycleObject.metadata['source'].nil? %>
-        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                   label: dataCycleObject.metadata['validation']['properties']['source']['label'],
-                   prop: dataCycleObject.metadata['validation']['properties']['source'],
-                   key: 'source',
-                   value: dataCycleObject.metadata['source'] %>
-    <% end %>
-
-    <% unless dataCycleObject.metadata['image_id'].nil? %>
-        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                   label: dataCycleObject.metadata['validation']['properties']['image_id']['label'],
-                   prop: dataCycleObject.metadata['validation']['properties']['image_id'],
-                   key: 'image_id',
-                   value: dataCycleObject.metadata['image_id'] %>
-    <% end %>
-
-    <% unless dataCycleObject.metadata['visibility'].nil? %>
-        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                   label: dataCycleObject.metadata['validation']['properties']['visibility']['label'],
-                   prop: dataCycleObject.metadata['validation']['properties']['visibility'],
-                   key: 'visibility',
-                   value: dataCycleObject.metadata['visibility'] %>
-    <% end %>
-
-    <% unless dataCycleObject.metadata['access'].nil? %>
-        <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
-                   label: dataCycleObject.metadata['validation']['properties']['access']['label'],
-                   prop: dataCycleObject.metadata['validation']['properties']['access'],
-                   key: 'access',
-                   value: dataCycleObject.metadata['access'] %>
-    <% end %>
+            <% unless dataCycleObject.metadata['access'].nil? %>
+                <%= render 'data_cycle_core/creative_works/partials/show/datatype/string',
+                           label: dataCycleObject.metadata['validation']['properties']['access']['label'],
+                           prop: dataCycleObject.metadata['validation']['properties']['access'],
+                           key: 'access',
+                           value: dataCycleObject.metadata['access'] %>
+            <% end %>
 
 
 
-  </div>
+        </div>
 
-</div>
+    </div>
 
-<hr>
+    <hr>
 
 <% end %>

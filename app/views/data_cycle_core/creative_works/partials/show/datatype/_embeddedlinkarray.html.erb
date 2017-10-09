@@ -32,9 +32,9 @@
                     ].join(' ') %>">
 
                     <%= render_first_existing_partial [
-                            "data_cycle_core/contents/viewers/linked_#{item.class.name.demodulize.underscore}_#{item.content_type.underscore}_tile",
-                            "data_cycle_core/contents/viewers/linked_#{item.class.name.demodulize.underscore}_tile",
-                            'data_cycle_core/contents/viewers/linked_content_tile'
+                            "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_#{item.content_type.underscore}_tile",
+                            "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_tile",
+                            'data_cycle_core/contents/viewers/linked/content_tile'
                         ], {
                             content: item
                         } %>

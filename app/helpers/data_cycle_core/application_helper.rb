@@ -72,6 +72,18 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({key: key, definition: definition, value: value}))
     end
 
+    def render_attribute_viewer(key:, definition:, value:, parameters: {})
+      partials = [
+        #"#{definition['type'].underscore}_#{definition.try(:[], 'editor').try(:[], 'type').try(:underscore)}",
+        #"#{definition.try(:[], 'releasable') ? 'releasable' : ''}",
+        "#{definition['type'].underscore}_#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'data-type').try(:underscore)}",
+        "#{definition.try(:[], 'editor').try(:[], 'type').try(:underscore)}",
+        "#{definition['type'].underscore}",
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/#{p}_viewer" }
+
+      render_first_existing_partial(partials, parameters.merge({key: key, definition: definition, value: value}))
+    end
+
     def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {})
       partials = [
         "#{definition.dig('editor', 'options', 'data-type').try(:underscore)}",
