@@ -21,7 +21,8 @@ module.exports.initialize = function () {
               $(this).siblings('.loading').remove();
               $(this).fadeIn();
             }.bind(this)).one('error', function () {
-              $(this).append('<span class="load-error">Error: Image not found.</span>');
+              $(this).siblings('.loading').remove();
+              $(this).after('<span class="load-error">Ladefehler: Bild nicht gefunden.</span>');
             }.bind(this));
             $(this).hide().attr('src', $(this).data('src'));
           }
