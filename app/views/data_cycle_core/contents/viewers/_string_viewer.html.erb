@@ -1,6 +1,5 @@
-<%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: value, options: options do %>
+<%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: value, options: options do |hide_label|%>
 
-    <span class="detail-label"><%= definition['label'] %></span>
     <span class="detail-content"><%= value.html_safe unless value.nil? %></span>
 
 <% end %>

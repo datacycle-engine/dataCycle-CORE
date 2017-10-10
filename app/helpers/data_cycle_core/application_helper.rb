@@ -2,14 +2,14 @@ module DataCycleCore
   module ApplicationHelper
 
     DEFAULT_KEY_MATCHING = {
-      alert:     :alert,
-      notice:    :success,
-      info:      :info,
-      secondary: :secondary,
-      success:   :success,
-      error:     :alert,
-      warning:   :warning,
-      primary:   :primary
+        alert: :alert,
+        notice: :success,
+        info: :info,
+        secondary: :secondary,
+        success: :success,
+        error: :alert,
+        warning: :warning,
+        primary: :primary
     }
 
     def available_locales_with_names
@@ -77,6 +77,7 @@ module DataCycleCore
         #"#{definition['type'].underscore}_#{definition.try(:[], 'editor').try(:[], 'type').try(:underscore)}",
         #"#{definition.try(:[], 'releasable') ? 'releasable' : ''}",
         "#{definition['type'].underscore}_#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'data-type').try(:underscore)}",
+        "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
         "#{definition.try(:[], 'editor').try(:[], 'type').try(:underscore)}",
         "#{definition['type'].underscore}",
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/#{p}_viewer" }

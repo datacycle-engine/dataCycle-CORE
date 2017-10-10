@@ -3,7 +3,6 @@
 
     <% if value.try(:geometry_type) == RGeo::Feature::Point %> <%# only show points for now, not the lines %>
         <div class="detail-type geographic">
-            <span class="detail-label"><%= definition['label'] %>:</span>
 
             <% map_id = "map_#{SecureRandom.hex(16)}" %>
             <script>
@@ -18,7 +17,6 @@
         </div>
     <% elsif value.try(:geometry_type) == RGeo::Feature::LineString %> <%# only show points for now, not the lines %>
         <div class="detail-type geographic">
-            <span class="detail-label"><%= label %>:</span>
 
             <% map_id = "map_#{SecureRandom.hex(16)}" %>
             <script>

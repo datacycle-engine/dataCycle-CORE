@@ -14,9 +14,7 @@
 
     <div class="row">
 
-        <%= render 'data_cycle_core/persons/partials/show/person', dataCycleObject: @person, dataCycleObjectSchema: @dataSchema %>
-
-        <%= render 'data_cycle_core/creative_works/partials/show/translation/translations', language: nil, dataCycleObject: @person %>
+        <%= render_content_partial 'details', content: @person, schema: @dataSchema %>
 
     </div>
 

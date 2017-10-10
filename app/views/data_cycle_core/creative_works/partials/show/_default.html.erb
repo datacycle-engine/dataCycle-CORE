@@ -20,12 +20,6 @@
 
                     <% if !exludedProperties.include?(key) %>
 
-                        <%#= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
-                                label: prop['label'],
-                                prop: prop,
-                                key: key,
-                                value: normalize_value(value) %>
-
                     <%= render_attribute_viewer key: key, definition: prop, value: normalize_value(value), parameters: { options: prop.dig('editor', 'options') || {} } unless dataCycleObjectSchema.nil? %>
 
                     <% end %>
