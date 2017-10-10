@@ -4,9 +4,13 @@ module DataCycleCore
 
       def initialize(locale = 'de', query = nil)
         @locale = locale
-        @query = query || CreativeWork.unscoped.select('distinct on (creative_works.id) *').
+        @query = query || CreativeWork.#unscoped.select('distinct creative_works.id').
           joins(:content_search_all, :translations).
           includes(:translations)
+
+
+          # CreativeWork.unscoped.select('distinct on (creative_works.id) *').
+          # where(template: false).includes(:translations, :content_search_all).joins(:content_search_all)
       end
 
     # filters
@@ -32,11 +36,20 @@ module DataCycleCore
       end
 
       def fulltext_search(name)
+        search_string = name.split(" ").join("%")
+        order_string = "
+          8 * word_similarity(searches.classification_string,'%#{search_string}%') +
+          4 * word_similarity(searches.headline, '%#{search_string}%') +
+          2 * ts_rank_cd(searches.words, plainto_tsquery('simple', '#{name.squish}'),16) +
+          1 * word_similarity(searches.full_text, '%#{search_string}%')
+          DESC NULLS LAST,
+          searches.updated_at DESC"
+
         reflect(
           @query.where(
             search[:all_text].matches_all(name.split(' ').map{|item| "%#{item.strip}%"}).
             or(tsmatch(search[:words],to_tsquery(quoted(name.squish))))
-          )
+          ).order(order_string)
         )
       end
 
