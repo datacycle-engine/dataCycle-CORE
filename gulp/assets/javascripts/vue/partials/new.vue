@@ -7,6 +7,10 @@
 <script>
 export default {
   props: {
+    objectType: {
+      type: String,
+      default: "image"
+    },
   },
   mounted() {
     var browser = this;
@@ -40,8 +44,13 @@ export default {
     });
 
     $(window).on('message', function() {
-      console.log(event.data);
       $reveal.foundation('close');
+      if (event.data.action == 'import') {
+        var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
+        $.post('/creative_works/import', { authenticity_token: AUTH_TOKEN, type: browser.objectType + "_object", data: event.data.data }, function(data) {
+          browser.$emit('add', data);
+        });
+      }
     });
 
   },

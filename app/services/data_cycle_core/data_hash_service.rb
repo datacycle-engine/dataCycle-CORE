@@ -31,9 +31,8 @@ module DataCycleCore
     end
 
     def self.get_internal_template(storage_location, name, description)
-
       internal_template = ("DataCycleCore::"+storage_location.classify).constantize.
-          find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name,  description )
+      find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name,  description )
 
       if internal_template.blank?
         return nil
@@ -75,6 +74,15 @@ module DataCycleCore
       end
     end
 
+    def self.sanitize_and_import(data_hash, creator)
+      template_type = data_hash['@type'].split(':').last == 'ImageObject' ? 'Bild' : 'Video'
+      template_hash = DataCycleCore::DataHashService.get_object_params('creative_works', template_type, data_hash['@type'].split(':').last)
+      object_params = ActionController::Parameters.new(creative_work: ActionController::Parameters.new(datahash: data_hash.deep_transform_keys{ |k| k.to_s.underscore }))
+      object_params = object_params.require(:creative_work).permit(:datahash => template_hash)
+
+      DataCycleCore::DataHashService.create_internal_object('creative_works', template_type, data_hash['@type'].split(':').last, object_params, creator)
+    end
+
     private
 
       def self.get_params_from_hash(template_hash)
@@ -84,7 +92,7 @@ module DataCycleCore
           orig_key = key
           key = "value" if value['releasable']
 
-          if value['type'] == 'object' && !value['editor']['type'].nil? && (value['editor']['type'] == 'embeddedObject' || value['editor']['type'] == 'objectBrowser')
+          if value['type'] == 'object' && !value.dig('editor', 'type').nil?
             object_properties = self.get_internal_template(value['storage_location'],value['name'],value['description'])
             key = {key.to_sym => self.get_params_from_hash(object_properties.metadata['validation'])}
           elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
