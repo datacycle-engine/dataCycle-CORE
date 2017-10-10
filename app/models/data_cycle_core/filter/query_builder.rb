@@ -109,31 +109,35 @@ module DataCycleCore
       end
 
       def to_tsvector(field)
-        Arel::Nodes::NamedFunction.new("to_tsvector", [field]) #[quoted("german"), field])
+        Arel::Nodes::NamedFunction.new('to_tsvector', [field]) #[quoted('german'), field])
       end
 
       def coalesce(field1, field2)
-        Arel::Nodes::NamedFunction.new("coalesce", [field1, field2])
+        Arel::Nodes::NamedFunction.new('coalesce', [field1, field2])
       end
 
       def to_tsquery(string)
-        Arel::Nodes::NamedFunction.new("plainto_tsquery", [quoted("simple"), string]) #[quoted("german"), string])
+        Arel::Nodes::NamedFunction.new('plainto_tsquery', [quoted('simple'), string]) #[quoted('german'), string])
       end
 
       def tsmatch(tsvector, tsquery)
-        Arel::Nodes::InfixOperation.new("@@", tsvector, tsquery)
+        Arel::Nodes::InfixOperation.new('@@', tsvector, tsquery)
+      end
+
+      def in_range(range, date)
+        Arel::Nodes::InfixOperation.new('@>', range, date)
       end
 
       def trgm_match(text1, text2)
-        Arel::Nodes::InfixOperation.new("%", text1, text2)
+        Arel::Nodes::InfixOperation.new('%', text1, text2)
       end
 
       def concatinate(string1, string2)
-        Arel::Nodes::InfixOperation.new("||", string1, string2)
+        Arel::Nodes::InfixOperation.new('||', string1, string2)
       end
 
       def similar_to(field, string)
-        Arel::Nodes::InfixOperation.new("SIMILAR TO", field, quoted(string))
+        Arel::Nodes::InfixOperation.new('SIMILAR TO', field, quoted(string))
       end
 
       def quoted(string)
@@ -150,6 +154,17 @@ module DataCycleCore
 
       def sql_date(field)
         Arel::Nodes::NamedFunction.new("date", [field])
+      end
+
+      def cast_tstz(date)
+        Arel::Nodes::NamedFunction.new(
+          'CAST', [
+            Arel::Nodes::As.new(
+              quoted(date),
+              Arel::Nodes::SqlLiteral.new('timestamp with time zone')
+            )
+          ]
+        )
       end
 
     # define Arel-tables

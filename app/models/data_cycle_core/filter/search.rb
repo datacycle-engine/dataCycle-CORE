@@ -33,27 +33,27 @@ module DataCycleCore
 
     private
 
-    def join_classification_alias2
-      Arel::SelectManager.new.
-        project(search[:content_data_id]).
-        from(search).
-        join(classification_content).
-          on(search[:content_data_id].eq(classification_content[:content_data_id])).
-        join(classification).
-          on(classification_content[:classification_id].eq(classification[:id])).
-        join(classification_group).
-          on(classification[:id].eq(classification_group[:classification_id])).
-        join(classification_alias).
-          on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
-    end
+      def join_classification_alias2
+        Arel::SelectManager.new.
+          project(search[:content_data_id]).
+          from(search).
+          join(classification_content).
+            on(search[:content_data_id].eq(classification_content[:content_data_id])).
+          join(classification).
+            on(classification_content[:classification_id].eq(classification[:id])).
+          join(classification_group).
+            on(classification[:id].eq(classification_group[:classification_id])).
+          join(classification_alias).
+            on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+      end
 
-    def search
-      DataCycleCore::Search.arel_table
-    end
+      def search
+        DataCycleCore::Search.arel_table
+      end
 
-    def classification_content
-      DataCycleCore::ClassificationContent.arel_table
-    end
+      def classification_content
+        DataCycleCore::ClassificationContent.arel_table
+      end
 
     end
   end
