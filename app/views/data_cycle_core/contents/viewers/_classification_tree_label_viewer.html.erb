@@ -1,5 +1,5 @@
 <%# unless force_render ||= false %>
-<% unless local_assigns[:force_render] %>
+<% if local_assigns[:force_render] %>
     <%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: value, options: options do %>
         <div class="detail-type classification">
     <span class="detail-content tags">

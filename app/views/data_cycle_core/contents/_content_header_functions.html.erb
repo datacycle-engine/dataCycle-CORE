@@ -15,7 +15,6 @@
                         <% end %>
                         <i><%= Time.at(item.updated_at).to_s(:german_datetime_format) %></i>
                         <i>
-                            <%= item.class.class_name %>
                             <% if item.class.class_name == 'CreativeWorkHistory' %>
                                 <%= link_to polymorphic_url([:history, content], trail: breadcrumb_trail, history_id: item.id), class:'button-prime small' do  %>
                                     <i class="fa fa-pencil" aria-hidden="true"></i><span>Anzeigen</span>
