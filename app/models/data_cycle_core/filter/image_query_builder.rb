@@ -4,13 +4,10 @@ module DataCycleCore
 
       def initialize(locale = 'de', query = nil)
         @locale = locale
-        @query = query || CreativeWork.#unscoped.select('distinct creative_works.id').
+        @query = query || CreativeWork.
           joins(:content_search_all, :translations).
-          includes(:translations)
-
-
-          # CreativeWork.unscoped.select('distinct on (creative_works.id) *').
-          # where(template: false).includes(:translations, :content_search_all).joins(:content_search_all)
+          includes(:translations).
+          where(search[:data_type].eq(quoted("Bild")))
       end
 
     # filters
