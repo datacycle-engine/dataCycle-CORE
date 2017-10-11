@@ -3,7 +3,7 @@ ul.backend-treeview-list {
   list-style-type: none;
   margin: 2rem 0;
   > li {
-    border-top: 1px solid $light-gray;
+    border-top: 1px solid $medium-gray;
     > span.inner-item {
       padding: 0.7rem 1rem;
       display: inline-block;
@@ -23,7 +23,7 @@ ul.backend-treeview-list {
       margin: 0;
       > li {
         list-style-type: none;
-        border-left: 1px solid $light-gray; 
+        border-left: 1px solid $medium-gray; 
         margin-left: 2em;
         line-height: 1;
       }  
@@ -45,7 +45,7 @@ ul.backend-treeview-list {
             left: -1px;
             bottom: 30%;
             width: 0.75em;
-            border: 1px solid $light-gray;
+            border: 1px solid $medium-gray;
             border-top: 0 none transparent;
             border-right: 0 none transparent;
         }
@@ -129,7 +129,6 @@ ul.backend-treeview-list {
       transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
       min-width: 280px;
       padding: 0 0 0 0;
-
       .select2-container {
         border: 1px solid #e6e6e6;
         background: $light-gray;
@@ -171,8 +170,11 @@ ul.backend-treeview-list {
       .select2-search__field {
         height: auto;
         margin: 0 0.1rem;
-        padding: 0 0.3rem;
+        border-radius: 5px;
+        padding: 0.05rem 0.3rem 0.05rem 0.3rem;
         font-size: 0.8rem;
+        min-width: 100px;
+        background: $light-gray;
       }
     }
   }
@@ -181,3 +183,4 @@ ul.backend-treeview-list {
     border: 0; 
   }
 }
+
