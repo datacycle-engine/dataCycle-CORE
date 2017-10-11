@@ -1,28 +1,183 @@
-ul.classifications {
-  font-style: italic;
-  list-style: none;
-  margin-left: 0;
 
-  li {
-    display: inline-block;
+ul.backend-treeview-list {
+  list-style-type: none;
+  margin: 2rem 0;
+  > li {
+    border-top: 1px solid $light-gray;
+    > span.inner-item {
+      padding: 0.7rem 1rem;
+      display: inline-block;
+    }
+    a.edit, a.destroy {
+      margin: 0 0 0 0.2rem;
+      color: $dark-gray;
+    }
+    a.edit:hover {
+      color: $primary-color;
+    }
+    a.destroy:hover {
+      color: map-get($foundation-palette, alert);
+    }
+    ul.children {
+      list-style-type: none;
+      margin: 0;
+      > li {
+        list-style-type: none;
+        border-left: 1px solid $light-gray; 
+        margin-left: 2em;
+        line-height: 1;
+      }  
+      > li:nth-last-child(2), > li:last-child {
+        border-left: 1px solid transparent;
+      }   
+      > li:last-child {
+        padding: 0.5rem 0.5rem 1.5rem 1rem;
+        margin: 0;
+      }  
+      span.inner-item {
+        position: relative;
+        padding: 0.5rem 0 0 1rem;
+        display: inline-block;
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -1px;
+            bottom: 30%;
+            width: 0.75em;
+            border: 1px solid $light-gray;
+            border-top: 0 none transparent;
+            border-right: 0 none transparent;
+        }
+      }
+    }
+    ul.classifications {
+      font-style: italic;
+      list-style: none;
+      margin-left: 1rem;
+      > li {
+        display: inline-block;
+        color: $dark-gray;
+        font-size: 0.8rem;
+        padding-top: 0;
+      }
+      > li:first-child:before {
+        content: '(';
+      }
+      > li:not(:last-child):after {
+        content: ', '
+      }
+      > li:last-child:after {
+        content: ')';
+      }
+    }
   }
-  li:first-child:before {
-    content: '(';
-  }
-  li:not(:last-child):after {
-    content: ', '
-  }
-  li:last-child:after {
-    content: ')';
-  }
-}
-
-#classification-administration {
   li:not(.active) > form {
     display: none;
   }
-
   li.active > :not(form) {
     display: none;
+  }
+  form {
+    label:first-of-type {
+      display: none;
+    }
+    padding: 1rem;
+    input[type='text'] {
+      max-width: 400px;
+      display: inline-block;
+      margin-bottom: 0;
+      border: 1px solid $light-gray;
+      background: $light-gray;
+      box-shadow: none;
+      &:hover {
+        box-shadow: 0 0 7px $primary-color;
+      }
+      &:focus {
+        border-color: $primary-color;
+        background: white;
+      }
+    }
+    button {
+      display: inline-block;
+      margin: 0 0 0 0.5rem;
+      top: 0.2rem;
+    }
+    input.success {
+      display: none;
+    }
+    .v-select {
+      label {
+        display: block;
+        text-align: left;
+        position: absolute;
+        top: 0.2rem;
+        left: 1rem;
+        z-index: 12;
+        color: #9d9d9d;
+        transition: color ease-in-out 0.25s;
+        padding-top: 0.5rem;
+        opacity: 1;
+      }
+      outline: none;
+      height: auto;
+      line-height: 1;
+      margin: 0;
+      border-color: #e6e6e6;
+      box-shadow: 0 0 0 #9d9d9d;
+      position: relative;
+      transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
+      min-width: 280px;
+      padding: 0 0 0 0;
+
+      .select2-container {
+        border: 1px solid #e6e6e6;
+        background: $light-gray;
+        padding: 3rem 0.5rem 0.5rem 0.5rem;
+        .select2-selection {
+          border: 0;
+          border-radius:0;
+          background: none;
+        }
+        &:hover {
+          box-shadow: 0 0 7px $primary-color;
+        }
+        &:focus, &.select2-container--focus, &.select2-container--open {
+          border-color: $primary-color;
+          background: white;
+        }
+      }
+      .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        border-radius: 5px;
+        padding: 0 1rem 0 0.3rem;
+        background-color: rgba($primary-color, 0.5);
+        border: 0;
+        margin: 0 0.1rem;
+        position: relative;
+        span {
+          color: white;
+          position: absolute;
+          padding-right: 0.5rem;
+          width: 100%;
+          text-align: right;
+          font-size: 1rem;
+          font-weight: normal;
+          opacity: .7;
+        }
+        &:hover {
+          background-color: rgba(map-get($foundation-palette, alert), 0.5);
+        }
+      }
+      .select2-search__field {
+        height: auto;
+        margin: 0 0.1rem;
+        padding: 0 0.3rem;
+        font-size: 0.8rem;
+      }
+    }
+  }
+  .new-classification-tree-label {
+    margin: 0.5rem 0;
+    border: 0; 
   }
 }

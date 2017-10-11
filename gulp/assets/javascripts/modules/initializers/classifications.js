@@ -45,4 +45,8 @@ module.exports.initialize = function () {
 
     return false;
   });
+  $('#classification-administration').on('click', 'a.discard', function(event) {
+    $(this).parent('li').removeClass('active');
+    return false;
+  });
 }
