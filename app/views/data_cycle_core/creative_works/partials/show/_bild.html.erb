@@ -67,7 +67,7 @@
                         <%= render_attribute_viewer key: 'restrictions',
                                                     definition: dataCycleObject.metadata['validation']['properties']['restrictions'],
                                                     value: normalize_value(dataCycleObject.metadata['restrictions']),
-                                                    parameters: { options: {} } %>
+                                                    parameters: { options: {hide_label: true}} %>
                     </dd>
                 <% end %>
 

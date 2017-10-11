@@ -9,8 +9,7 @@
             ].reject(&:blank?).join(' ') %>"
          <%= data_attributes.map{|k,v| " data-#{k}='#{v.to_s}'" }.join(' ').html_safe if local_assigns.has_key? :data_attributes %>
     >
-        <%# unless hide_label ||= false %>
-        <% unless local_assigns[:hide_label] %>
+        <% unless options[:hide_label] ||= false %>
             <span class="detail-label"><%= definition['label'] %></span>
         <% end %>
         <%= yield %>

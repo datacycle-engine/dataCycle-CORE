@@ -13,15 +13,14 @@
                        key: key,
                        definition: definition,
                        value: value,
-                       options: options,
-                       hide_label: true,
+                       options: options.merge({hide_label: true}),
                        data_attributes: {id: object.id.split(','), editor: definition['editor']['type']} do %>
 
                 <span class="detail-label">
                     <%= render 'data_cycle_core/shared/icon', icon_type: objects[0].metadata['validation']['name'].downcase %><strong><%= definition['label'].capitalize %> <%= content_tag(:span, index+1) if objects_length > 1 %></strong>
                 </span>
 
-                <%= link_to '<i class="fa fa-pencil" aria-hidden="true"></i>'.html_safe, edit_polymorphic_path(object), target: :_blank, class: "edit-link" if definition['editor']['type'] == "objectBrowser" if @splitSource.nil? %>
+                <%= link_to '<i class="fa fa-pencil" aria-hidden="true"></i>'.html_safe, edit_polymorphic_path(object), target: :_blank, class: "edit-link" if definition['editor']['type'] == "objectBrowser" if @historySource.nil? %>
 
                 <% if !object.metadata.nil? && !object.metadata['validation'].nil? %>
 
@@ -32,7 +31,8 @@
                         <% validation_properties.each do |key, prop| %>
 
                             <% object_value = prop.dig('type') == "object" ? object.try(key.to_sym) : objectDataHash[key] %>
-                            <%= render_attribute_viewer key: key, definition: prop, value: object_value, parameters: { options: prop.dig('editor', 'options') || {} }%>
+
+                            <%= render_attribute_viewer key: key, definition: prop, value: object_value, parameters: { options: options }%>
 
                         <% end %>
 
