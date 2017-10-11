@@ -74,14 +74,48 @@ module DataCycleCore
       end
     end
 
-    def self.sanitize_and_import(data_hash, creator)
-      template_type = data_hash['@type'].split(':').last == 'ImageObject' ? 'Bild' : 'Video'
-      template_hash = DataCycleCore::DataHashService.get_object_params('creative_works', template_type, data_hash['@type'].split(':').last)
-      object_params = ActionController::Parameters.new(creative_work: ActionController::Parameters.new(datahash: data_hash.deep_transform_keys{ |k| k.to_s.underscore }))
-      object_params = object_params.require(:creative_work).permit(:datahash => template_hash)
+    def self.import_data(data_set, current_user)
+      objects = []
+      ActiveRecord::Base.transaction do
+        data_set.each do |lang, data_hash|
+          I18n.with_locale(lang) do
+            external_key ||= data_hash['url']
+            data_hash = data_hash.deep_transform_keys{ |k| k.to_s.underscore }
 
-      DataCycleCore::DataHashService.create_internal_object('creative_works', template_type, data_hash['@type'].split(':').last, object_params, creator)
+            template_hash = DataCycleCore::CreativeWork.find_by(template: true, description: data_hash['@type'].split(':').last)
+            template_params = DataCycleCore::DataHashService.get_object_params('creative_works', template_hash.headline, template_hash.description)
+
+            # set content_location
+            unless data_hash['content_location'].blank?
+              data_hash['content_location'] = [ DataCycleCore::DataHashService.sanitize_place_attributes(data_hash['content_location'], lang) ]
+            end
+            data_hash['data_type'] = nil
+
+            object_params = ActionController::Parameters.new(creative_work: ActionController::Parameters.new(datahash: data_hash))
+            object_params = object_params.require(:creative_work).permit(:datahash => template_params)
+
+            object = DataCycleCore::DataHashService.create_internal_object('creative_works', template_hash.headline, template_hash.description, object_params, current_user)
+
+            object.external_key = external_key || data_hash['url']
+            object.seen_at = Time.zone.now
+            object.save
+            objects << object
+          end
+        end
+      end
+      objects
     end
+
+    def self.sanitize_place_attributes(data_hash, lang)
+      location_hash = {}
+      location_hash['name'] = data_hash.dig('name', lang)
+      location_hash['address'] = { 'street_address' => data_hash.dig('address') }
+      location_hash['longitude'] = data_hash.dig('geo', 'longitude').to_f
+      location_hash['latitude'] = data_hash.dig('geo', 'latitude').to_f
+      location_hash
+    end
+
+
 
     private
 

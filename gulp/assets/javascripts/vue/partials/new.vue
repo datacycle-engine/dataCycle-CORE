@@ -48,7 +48,9 @@ export default {
       if (event.data.action == 'import') {
         var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
         $.post('/creative_works/import', { authenticity_token: AUTH_TOKEN, type: browser.objectType + "_object", data: event.data.data }, function(data) {
-          browser.$emit('add', data);
+          data.forEach(function(element) {
+            browser.$emit('add', element);
+          }, this);
         });
       }
     });

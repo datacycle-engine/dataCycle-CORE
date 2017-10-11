@@ -138,17 +138,13 @@ module DataCycleCore
     end
 
     def import
-      params[:data].each do |lang, data_hash|
-        I18n.with_locale(lang) do
-          @content = DataCycleCore::DataHashService.sanitize_and_import(data_hash, current_user)
-
-          if !@content.nil? && @content.save && data_hash['@type'].split(':').last == params[:type].camelize
-            render json: @content.to_json
-          else
-            render json: { errors: @content.errors.to_json }
-          end
-        end
+      @contents = DataCycleCore::DataHashService.import_data(params[:data], current_user)
+      if !@contents.blank?
+        render json: @contents.select{|c| c.metadata.dig('validation', 'description') == params[:type].camelize }.to_json
+      else
+        render json: { errors: "no data" }
       end
+
     end
 
     private
