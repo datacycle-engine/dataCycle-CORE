@@ -588,9 +588,20 @@ span.single_error:before,
     text-align: center;
     position: relative;
     .image-container {
+      position: relative;
       width: 66%;
       float: left;
       text-align: center;
+      .overlay-icon {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-left: -2.5rem;
+        margin-top: -2.5rem;
+        .fa {
+          font-size: 5rem;
+        }
+      }
     }
   }
   .video video {

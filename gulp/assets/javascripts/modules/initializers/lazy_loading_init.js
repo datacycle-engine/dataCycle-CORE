@@ -43,4 +43,9 @@ module.exports.initialize = function () {
     });
   });
 
+  // stop video playback on modal close
+  $('#video-overlay, .media-preview').on('closed.zf.reveal', function () {
+    $(this).find('video').trigger('pause');
+  });
+
 };
