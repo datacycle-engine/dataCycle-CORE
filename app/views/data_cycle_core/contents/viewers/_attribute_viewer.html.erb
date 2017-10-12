@@ -1,8 +1,8 @@
 <% if value.blank? == false || options[:force_render] ||= false %>
 
-    <%= debug(key)%>
-
-    <% item_diff = item_hash_changed @diffSchema, key, value, definition %>
+    <% if options.dig(:compare) && options.dig(:is_embedded).nil?  %>
+        <% item_diff = item_hash_changed @diffSchema, key, value, definition %>
+    <% end %>
 
     <div data-label="<%= definition['label'] %>" class="detail-type <%= [
                 key.split('[').count > 1 ? key.split('[').last[0...-1].underscore : key.underscore,
@@ -11,16 +11,16 @@
                 definition.dig('editor', 'options', 'type').try(:underscore),
                 definition.dig('editor', 'options', 'data-validate').try(:underscore),
                 definition.dig('editor', 'options', 'class').try(:underscore),
-                ((options[:compare] ||= false) && item_diff.blank? == false) ? "has-changes" : ""
+                (defined?(item_diff) && item_diff.blank? == false) ? "has-changes" : ""
             ].reject(&:blank?).join(' ') %>"
          <%= data_attributes.map{|k,v| " data-#{k}='#{v.to_s}'" }.join(' ').html_safe if local_assigns.has_key? :data_attributes %>
     >
 
-        <% unless options[:hide_label] ||= false %>
+        <% if options.dig(:hide_label).nil? %>
             <span class="detail-label"><%= definition['label'] %></span>
         <% end %>
 
-        <% if (options[:compare] ||= false) && item_diff.blank? == false  %>
+        <% if defined?(item_diff) && item_diff.blank? == false  %>
             <span class="changed"><i class="fa fa-exclamation-triangle"></i></span>
         <% end %>
 

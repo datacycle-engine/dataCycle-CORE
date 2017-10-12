@@ -19,21 +19,23 @@
     <% end %>
 
     <ul class="content-tiles">
-        <% object.find(value).each do |item| %>
-            <li class="<%= [
-                               'content',
-                               item.class.name.demodulize.underscore.sub('_', '-'),
-                               item.content_type.underscore.sub('_', '-')
-                           ].join(' ') %>">
+        <% unless value.nil? %>
+            <% object.find(value).each do |item| %>
+                <li class="<%= [
+                                   'content',
+                                   item.class.name.demodulize.underscore.sub('_', '-'),
+                                   item.content_type.underscore.sub('_', '-')
+                               ].join(' ') %>">
 
-                <%= render_first_existing_partial [
-                                                      "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_#{item.content_type.underscore}_tile",
-                                                      "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_tile",
-                                                      'data_cycle_core/contents/viewers/linked/content_tile'
-                                                  ], {
-                                                      content: item
-                                                  } %>
-            </li>
+                    <%= render_first_existing_partial [
+                                                          "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_#{item.content_type.underscore}_tile",
+                                                          "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_tile",
+                                                          'data_cycle_core/contents/viewers/linked/content_tile'
+                                                      ], {
+                                                          content: item
+                                                      } %>
+                </li>
+            <% end %>
         <% end %>
     </ul>
 

@@ -1,6 +1,5 @@
 module DataCycleCore
   module DataHashHelper
-    require 'hashdiff'
     @@partials_path = "data_cycle_core/creative_works/partials/edit/datatype/"
     @@key_prefix = "creative_work[datahash]"
 
@@ -28,9 +27,12 @@ module DataCycleCore
     end
 
     def get_diff(version, orig)
-      # diff = HashDiff.diff(version, orig, :array_path => true).collect {|item| transform_history_item item }
       diff_array = HashDiff.diff(version, orig, :array_path => true).collect {|item| transform_history_item item }
       diff_hash = transform_history_array_to_hash diff_array
+    end
+
+    def transform_history_item(item)
+      item_transformed = item[1].reverse.inject([item[0], item[2], item[3]]) { |hash, key|  {key => hash} }
     end
 
     def transform_history_array_to_hash(array)
@@ -45,24 +47,27 @@ module DataCycleCore
           (h[hash_key] ||= []) << hash_value
         end
       end
+
     end
 
     def item_hash_changed(diff, key, value, definition)
       item_path_array = key.split('[').collect{|v| v.delete("]") }
-      if key == 'quotation'
-        #raise diff.inspect
-      end
-      if definition.dig("type") == 'object' && definition.dig("editor","type") == "objectBrowser"
+
+      if definition.dig("type") == 'object' && definition.dig("properties")
         return nil
       else
-
-        return diff.dig(*item_path_array)
+        begin
+          item_difference = diff.dig(*item_path_array)
+        rescue
+          return nil
+        end
       end
 
-    end
+      if item_difference.kind_of?(Array)
+        return (item_difference[0][1].blank? && item_difference[0][2].blank?) ? nil : item_difference
+      end
 
-    def transform_history_item(item)
-      item_transformed = item[1].reverse.inject([item[0], item[2], item[3]]) { |hash, key|  {key => hash} }
+      return item_difference
     end
 
     def get_ordered_validation_properties(validation)
@@ -123,7 +128,7 @@ module DataCycleCore
           send('render_'+ data_type +'_field', object_key, prop, normalize_value(value), options, parent_object_keys)
         end
       else
-         "Unknown data_type: #{prop['type']}"
+        "Unknown data_type: #{prop['type']}"
       end
 
     end
@@ -163,7 +168,7 @@ module DataCycleCore
     end
 
     def render_object_field(key, prop, value=nil, options={}, parent_object_keys=[])
-      #raise prop.inspect
+
       if !prop['properties'].nil?
         output = []
 
@@ -172,9 +177,7 @@ module DataCycleCore
         end
 
         output.join('').html_safe
-
       else
-
         if !prop['name'].nil? && !prop['description'].nil? && !prop['editor']['type'].nil?
 
           case prop['editor']['type']
@@ -283,13 +286,13 @@ module DataCycleCore
 
     private
 
-      def get_object_key(key, parent_object_keys = [])
-        parent_object_keys_string = ''
-        if !parent_object_keys.empty?
-          parent_object_keys_string = parent_object_keys.map{ |parent| "[#{parent}]" }.join('')
-        end
-        object_key = "#{@@key_prefix}#{parent_object_keys_string}[#{key}]"
+    def get_object_key(key, parent_object_keys = [])
+      parent_object_keys_string = ''
+      if !parent_object_keys.empty?
+        parent_object_keys_string = parent_object_keys.map{ |parent| "[#{parent}]" }.join('')
       end
+      object_key = "#{@@key_prefix}#{parent_object_keys_string}[#{key}]"
+    end
 
   end
 end
