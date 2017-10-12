@@ -15,10 +15,16 @@ module DataCycleCore
       def fulltext_search(name)
         reflect(
           @query.where(
-            search[:classification_string].matches_all(name.split(' ').map{|item| "%#{item.strip}%"}).
-            or(search[:headline].matches_all(name.split(' ').map{|item| "%#{item.strip}%"})).
-            or(search[:full_text].matches_all(name.split(' ').map{|item| "%#{item.strip}%"})).
+            search[:all_text].matches_all(name.split(' ').map{|item| "%#{item.strip}%"}).
             or(tsmatch(search[:words],to_tsquery(quoted(name.squish))))
+          )
+        )
+      end
+
+      def only_frontend_valid
+        reflect(
+          @query.where(
+            search[:content_data_type].not_eq(quoted('DataCycleCore::Place'))
           )
         )
       end

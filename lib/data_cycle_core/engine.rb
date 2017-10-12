@@ -106,8 +106,10 @@ module DataCycleCore
     # set default language and no errors for non standard languages
     config.i18n.enforce_available_locales = false
     config.i18n.default_locale = :de
-    # fallbacks for i18n and Globalize
-    config.i18n.fallbacks = true
+    # fallbacks for i18n and Globalize (buggy with json db-fields)
+    # ! when set to true regression with translated jsonb fields occurs
+    # !!!!!!!!!!!!!!!! do not switch on !!!!!!!!!!!!!!!!
+    config.i18n.fallbacks = false
 
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|

@@ -178,8 +178,8 @@ module DataCycleCore
 
     def set_search
       # upsert with one SQL Statement
-      if search_property_names.blank? # no new serch entry and delete if one exists
-        self.content_search_all.destroy_all
+      if search_property_names.blank? # no new search entry and delete if one exists
+        #self.content_search_all.destroy_all
         return
       end
 
@@ -228,7 +228,7 @@ module DataCycleCore
           all_text = EXCLUDED.all_text,
           validity_period = EXCLUDED.validity_period;
       eos
-      result = connection.exec_query(sql_query)
+      connection.exec_query(sql_query)
       # search_object = DataCycleCore::Search.find_or_create_by(content_data_id: self.id, content_data_type: self.class.to_s)
       # search_object.update(data_hash)
       # self.content_search = search_object

@@ -32,8 +32,7 @@ module DataCycleCore
       end
 
 
-      #query = DataCycleCore::Filter::QueryIndex.new(language: @language)
-      query = DataCycleCore::Filter::Search.new(@language)
+      query = DataCycleCore::Filter::Search.new(@language).only_frontend_valid
       query = query.order(order_string)
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
       query = query.with_classification_alias_ids(@classification_array) unless @classification_array.blank?
