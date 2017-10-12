@@ -1,30 +1,6 @@
 <div class="detail-header-functions">
     <ul class="no-bullet">
-        <li>
-            <a id="show-history-link" data-toggle="show-history"><i class="fa fa-history" aria-hidden="true"></i> erstellt am <%= Time.at(content.created_at).to_s(:german_datetime_format) %></a>
-
-            <ul class="dropdown-pane no-bullet bottom" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
-                <li>Letzte Bearbeitungen:</li>
-                <% content.histories.limit(4).each do |item|%>
-                    <li>
-                        <% if item.metadata.try(:[], 'last_updated_by') %>
-                            <% person = get_user_for_id(item.metadata['last_updated_by']) %>
-                            <%= "<a href='mailto:#{person.email}'>#{person.name}</a>".html_safe %>
-                        <% else %>
-                            <%= "Unbekannt".html_safe %>
-                        <% end %>
-                        <i><%= Time.at(item.updated_at).to_s(:german_datetime_format) %></i>
-                        <i>
-                            <% if item.class.class_name == 'CreativeWorkHistory' %>
-                                <%= link_to polymorphic_url([:history, content], trail: breadcrumb_trail, history_id: item.id), class:'button-prime small' do  %>
-                                    <i class="fa fa-pencil" aria-hidden="true"></i><span>Anzeigen</span>
-                                <% end %>
-                            <% end %>
-                        </i>
-                    </li>
-                <% end %>
-            </ul>
-        </li>
+        <li><%= render 'data_cycle_core/shared/history_links', dataCycleObject: content %></li>
         <% if can? :manage, DataCycleCore::DataLink %>
             <li><%= render 'data_cycle_core/shared/data_links', dataCycleObject: content %></li>
         <% end %>

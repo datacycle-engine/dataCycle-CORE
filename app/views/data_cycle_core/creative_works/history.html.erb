@@ -1,4 +1,4 @@
-<% breadcrumb :edit_resource, @creativeWork %>
+<% breadcrumb :show_history, @creativeWork %>
 
 <% content_for :top_content do %>
 
@@ -8,9 +8,14 @@
 
             <section class="edit-header">
                 <div class="row expanded">
-                    <div class="column">
+                    <div class="column small-6">
                         <div class="edit-headline">
-                            <i class="fa fa-pencil" aria-hidden="true"></i> <%= @creativeWork.content_type %> ansehen
+                            <i class="fa fa-history" aria-hidden="true"></i> <%= @creativeWork.content_type %> vergleichen
+                        </div>
+                    </div>
+                    <div class="column small-6 text-right">
+                        <div class="history-switcher">
+                            <%= render 'data_cycle_core/shared/history_links', dataCycleObject: @creativeWork %>
                         </div>
                     </div>
                 </div>
@@ -31,7 +36,7 @@
                                     <span class="title"><%= @creativeWork.content_type %></span>
                                     <span class="language">(<%= I18n.locale %>)</span>
                                 </div>
-                                <%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @creativeWork, dataCycleObjectSchema: @dataSchema %>
+                                <%= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, dataCycleObjectSchema: @dataSchema %>
                             </div>
 
                             <%= render_content_partial 'details', content: @creativeWork, schema: @dataSchema, options: {force_render: true} %>
@@ -54,7 +59,7 @@
                                     <span class="title"><%= @historySource.content_type %></span>
                                     <span class="language">(<%= I18n.locale %>)</span>
                                 </div>
-                                <%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @historySource, dataCycleObjectSchema: @historySchema %>
+                                <%= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @historySource, dataCycleObjectSchema: @historySchema %>
                             </div>
 
                             <%= render_content_partial 'history', content: @historySource, schema: @historySchema, options: {force_render: true, compare: true} %>
