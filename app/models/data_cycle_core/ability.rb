@@ -44,7 +44,7 @@ module DataCycleCore
           end
         end
 
-        if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email == 'pixelpoint@austria.info')
+        if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email == 'pixelpoint@austria.info' || user.email =~ /@datacycle\.at/)
           can :manage, :dash_board
         end
 
