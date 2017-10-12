@@ -42,6 +42,12 @@ module DataCycleCore
         )
       end
 
+      def only_videos
+        reflect(
+          @query.where(json_path(creative_work[:metadata], quoted('{  validation, name }')).eq(quoted("Video")))
+        )
+      end
+
     private
 
     # joins

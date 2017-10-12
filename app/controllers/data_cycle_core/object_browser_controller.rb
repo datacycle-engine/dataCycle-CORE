@@ -16,6 +16,10 @@ module DataCycleCore
         query = DataCycleCore::Filter::ImageQueryBuilder.new(@language)
         query = query.only_images
 
+      elsif @type == "video"
+        query = DataCycleCore::Filter::ImageQueryBuilder.new(@language)
+        query = query.only_videos
+
       elsif @type == "person"
         query = DataCycleCore::Filter::PersonQueryBuilder.new(@language)
 
