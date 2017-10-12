@@ -8,6 +8,8 @@ module DataCycleCore
         # import_categories(callbacks, **(options || {}).merge(locales: [I18n.default_locale]))
         # # regions can only be imported for one single locale
         # import_regions(callbacks, **(options || {}).merge(locales: [I18n.default_locale]))
+        # # regions can only be imported for one single locale
+        # import_sources(callbacks, **(options || {}).merge(locales: [I18n.default_locale]))
 
         import_pois(callbacks, **options)
       end
@@ -15,7 +17,7 @@ module DataCycleCore
       def import_categories(callbacks = DataCycleCore::Callbacks.new, **options)
         import_classifications(
           Category,
-          'OutdoorActive - Kategorien',
+          "#{external_source.name} - Kategorien",
           ->(locale) { Category.where("dump.#{locale}.parentId": nil) },
           ->(parent_category_data, locale) { Category.where("dump.#{locale}.parentId": parent_category_data['id']) },
           ->(raw_data) {
@@ -37,7 +39,7 @@ module DataCycleCore
       def import_regions(callbacks = DataCycleCore::Callbacks.new, **options)
         import_classifications(
           Region,
-          'OutdoorActive - Regionen',
+          "#{external_source.name} - Regionen",
           ->(locale) { Region.where("this.dump.#{locale}.id == this.dump.#{locale}.parentId") },
           ->(parent_category_data, locale) {
             Region.where(
@@ -56,6 +58,34 @@ module DataCycleCore
             {
               external_id: raw_data['id'],
               name: raw_data['name']
+          },
+          callbacks,
+          **options
+        )
+      end
+
+      def import_sources(callbacks = DataCycleCore::Callbacks.new, **options)
+        import_classifications(
+          Category,
+          "#{external_source.name} - Quellen",
+          ->(locale) {
+            Poi.collection.aggregate(Poi.where(:_id.ne => nil)
+              .project(
+                "dump.#{locale}.id": "$dump.#{locale}.meta.source.id",
+                "dump.#{locale}.name": "$dump.#{locale}.meta.source.name"
+              ).group(
+                _id: "$dump.#{locale}.id",
+                :dump.first => "$dump"
+              ).pipeline
+            )
+          },
+          ->(_, _) { [] },
+          ->(_) { nil },
+          ->(raw_data) {
+            {
+              external_id: raw_data['id'],
+              name: raw_data['name']
+            }
           },
           callbacks,
           **options
@@ -85,13 +115,18 @@ module DataCycleCore
                 DataCycleCore::Classification.find_by(external_key: id)
               }.reject(&:nil?)
 
+              sources = [raw_data.dig('meta', 'source', 'id')].reject(&:blank?).map { |id|
+                DataCycleCore::Classification.find_by(external_key: id)
+              }
+
               create_or_update_content(
                 Place,
                 template,
                 extract_poi_data(raw_data).with_indifferent_access.merge(
                   image: images.map(&:id),
                   categories: categories.map(&:id),
-                  regions: regions.map(&:id)
+                  regions: regions.map(&:id),
+                  sources: sources.map(&:id)
                 ).with_indifferent_access
               )
             end
