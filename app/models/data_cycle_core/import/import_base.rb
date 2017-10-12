@@ -16,7 +16,7 @@ module DataCycleCore::Import
 
           raw_classification_data_stack = load_root_classifications.(locale).to_a
 
-          while(raw_classification_data = raw_classification_data_stack.pop.try(:[], 'dump').try(:[], locale)) do
+          while (raw_classification_data = raw_classification_data_stack.pop.try(:[], 'dump').try(:[], locale))
             item_count += 1
 
             extracted_classification_data = extract_data.(raw_classification_data)
@@ -29,7 +29,7 @@ module DataCycleCore::Import
             callbacks.execute_callback(:item_processed, extracted_classification_data[:name],
                                        extracted_classification_data[:id], item_count, nil)
 
-           return if options[:max_count] && item_count >= options[:max_count]
+            break if options[:max_count] && item_count >= options[:max_count]
           end
         ensure
           callbacks.execute_callback(:phase_finished, "#{phase_name}_#{locale}", item_count)
@@ -80,14 +80,22 @@ module DataCycleCore::Import
     def import_contents(source_type, target_type, load_contents, process_content,
                         callbacks = DataCycleCore::Callbacks.new, **options)
       around_import(source_type, **options) do |locale|
+        phase_name = source_type.to_s.demodulize.underscore.pluralize
+
         item_count = 0
 
-        load_contents.call(locale).each do |content|
-          item_count += 1
+        begin
+          callbacks.execute_callback(:phase_started, "#{phase_name}_#{locale}")
 
-          process_content.call(content[:dump][locale], load_template(target_type, content[:dump][locale]), locale)
+          load_contents.call(locale).each do |content|
+            item_count += 1
 
-          break if options[:max_count] && item_count >= options[:max_count]
+            process_content.call(content[:dump][locale], load_template(target_type, content[:dump][locale]), locale)
+
+            break if options[:max_count] && item_count >= options[:max_count]
+          end
+        ensure
+          callbacks.execute_callback(:phase_finished, "#{phase_name}_#{locale}", item_count)
         end
       end
     end
