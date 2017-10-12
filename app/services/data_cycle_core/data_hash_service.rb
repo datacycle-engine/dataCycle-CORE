@@ -74,47 +74,157 @@ module DataCycleCore
       end
     end
 
-    def self.import_data(data_set, current_user)
-      objects = []
+    def self.import_data(data_set:, current_user:, external_key: nil, external_source_id: nil)
+      # todo: refactor import logic to work with everything
+      # normalize data_set
+      if data_set.is_a?(ActionController::Parameters)
+        data_set = data_set.to_unsafe_h.to_h
+      end
+      external_key ||= data_set.values.first['url']
+      external_source_id ||= DataCycleCore::ExternalSource.find_by(name: 'JSON-LD OEW-Medienarchiv').id
+      classifications_tree_label_id = DataCycleCore::DataHashService.init_or_create_classifications_trees_label('imported', external_source_id)
+
+      data_template = DataCycleCore::CreativeWork.find_by(template: true, description: data_set.values.first['@type'].split(':').last)
+      validation = data_template.metadata['validation']
+
+      template_place = DataCycleCore::Place.find_by(template: true, headline: DataCycleCore.default_place_type)
+      contentLocation_template = template_place.metadata['validation']
+
+      template_params = DataCycleCore::DataHashService.get_object_params('creative_works', data_template.headline, data_template.description)
+
       ActiveRecord::Base.transaction do
+        content = DataCycleCore::CreativeWork.where("external_key = ? AND external_source_id = ?", external_key, external_source_id).first_or_initialize
+
+        if content.metadata.nil?
+          content.metadata = { 'validation' => validation }
+        else
+          content.metadata['validation'] = validation
+        end
+
+        content.external_key = external_key
+        content.external_source_id = external_source_id
+
         data_set.each do |lang, data_hash|
-          I18n.with_locale(lang) do
-            external_key ||= data_hash['url']
-            data_hash = data_hash.deep_transform_keys{ |k| k.to_s.underscore }
+          content = DataCycleCore::DataHashService.create_imported_content_with_lang(data_hash, lang, content, template_params, external_source_id)
+        end
 
-            template_hash = DataCycleCore::CreativeWork.find_by(template: true, description: data_hash['@type'].split(':').last)
-            template_params = DataCycleCore::DataHashService.get_object_params('creative_works', template_hash.headline, template_hash.description)
-
-            # set content_location
-            unless data_hash['content_location'].blank?
-              data_hash['content_location'] = [ DataCycleCore::DataHashService.sanitize_place_attributes(data_hash['content_location'], lang) ]
+        unless content.id.nil?
+          #create relation for keywords
+          keywords = data_set.each.first[1]['keywords']
+          unless keywords.nil?
+            keywords.each do |keyword|
+              classification_id = DataCycleCore::DataHashService.check_for_classification_keyword(keyword, external_source_id, classifications_tree_label_id)
+              ClassificationContent
+                .find_or_initialize_by(
+                  content_data_id: content.id,
+                  content_data_type: content.class.to_s,
+                  classification_id: classification_id,
+                  external_source_id: external_source_id,
+                  tag: true
+                ) do |relation|
+                  relation.seen_at = Time.zone.now
+              end.save
             end
-            data_hash['data_type'] = nil
-
-            object_params = ActionController::Parameters.new(creative_work: ActionController::Parameters.new(datahash: data_hash))
-            object_params = object_params.require(:creative_work).permit(:datahash => template_params)
-
-            object = DataCycleCore::DataHashService.create_internal_object('creative_works', template_hash.headline, template_hash.description, object_params, current_user)
-
-            object.external_key = external_key || data_hash['url']
-            object.seen_at = Time.zone.now
-            object.save
-            objects << object
           end
         end
+
+        return content
       end
-      objects
     end
 
-    def self.sanitize_place_attributes(data_hash, lang)
-      location_hash = {}
-      location_hash['name'] = data_hash.dig('name', lang)
-      location_hash['address'] = { 'street_address' => data_hash.dig('address') }
-      location_hash['longitude'] = data_hash.dig('geo', 'longitude').to_f
-      location_hash['latitude'] = data_hash.dig('geo', 'latitude').to_f
-      location_hash
+    def self.create_imported_content_with_lang(data_hash, lang, content, template_params, external_source_id)
+      data = data_hash.except('@context', '@type', 'visibility', 'keywords', 'contentLocation').deep_transform_keys{ |k| k.to_s.underscore }
+      I18n.with_locale(lang) do
+        unless data_hash["contentLocation"].blank?
+          content_location_hash = DataCycleCore::DataHashService.get_content_location(content.id, data_hash["contentLocation"], lang, external_source_id)
+          data['content_location'] = [ content_location_hash ]
+        end
+        data['data_type'] = nil # touch data_type to get default_value
+
+        object_params = ActionController::Parameters.new(creative_work: ActionController::Parameters.new(datahash: data))
+        object_params = object_params.require(:creative_work).permit(:datahash => template_params)
+
+        params_hash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], content.metadata['validation'])
+
+        errors = content.set_data_hash(params_hash)
+        # check if data is set and validations are correct
+        if errors[:error].size > 0
+          puts "received wrong data for id:#{content.external_key}, language: #{lang}, data: #{data} (skipping)"
+          errors[:error].each do |error|
+            puts error
+          end
+
+          next
+        end
+        content.seen_at = Time.zone.now
+        content.save
+      end
+      content
     end
 
+    def self.get_content_location(creative_work_id, data_hash, lang, external_source_id)
+      place_hash = {}
+      place = DataCycleCore::Place.joins(:creative_work_places)
+        .find_by("creative_work_places.creative_work_id" => creative_work_id)
+        place_hash['id'] = place.id unless place.blank?
+      if !data_hash['name'].blank? && data_hash['name'].has_key?(lang) && !data_hash['name'][lang].blank?
+        place_hash['name'] = data_hash['name'][lang]
+      end
+      place_hash['address'] = { 'street_address' => data_hash['address'] }
+      place_hash['longitude'] = data_hash.dig('geo', 'longitude').to_f
+      place_hash['latitude'] = data_hash.dig('geo', 'latitude').to_f
+      unless place_hash['longitude'].blank? || place_hash['latitude'].blank?
+        place_hash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(place_hash['longitude'].to_f, place_hash['latitude'].to_f)
+      end
+      place_hash['external_source_id'] = external_source_id
+      place_hash
+    end
+
+    def self.init_or_create_classifications_trees_label(label_string, external_source_id)
+      classifications_trees_label = DataCycleCore::ClassificationTreeLabel.find_or_initialize_by(name: label_string, external_source_id: external_source_id)
+      classifications_trees_label.seen_at = Time.zone.now
+      classifications_trees_label.save
+      classifications_trees_label.id
+    end
+
+    def self.check_for_classification_keyword(keyword, external_source_id, classifications_tree_label_id)
+      classification = DataCycleCore::Classification.find_or_initialize_by(name: keyword, external_source_id: external_source_id, external_type: 'keyword') do |data_set|
+        data_set.seen_at = Time.zone.now
+      end
+      classification.save
+
+      # check if entries up to classification_tree with label 'imported' exist
+      class_group = DataCycleCore::ClassificationGroup.
+        joins(classification_alias: [classification_tree: [:classification_tree_label]]).
+        where('classification_groups.classification_id = ?', classification.id).
+        where('classification_trees.external_source_id = ?', external_source_id).
+        where('classification_tree_labels.name = ?', 'imported')
+
+      if class_group.count < 1
+        classification_alias = DataCycleCore::ClassificationAlias.find_or_initialize_by(name: keyword, external_source_id: external_source_id) do |data_set|
+          data_set.seen_at = Time.zone.now
+        end
+        classification_alias.save
+        DataCycleCore::ClassificationGroup.
+          find_or_initialize_by(
+            classification_id: classification.id,
+            classification_alias_id: classification_alias.id,
+            external_source_id: external_source_id
+          ) do |data_set|
+            data_set.seen_at = Time.zone.now
+        end.save
+        DataCycleCore::ClassificationTree.
+          find_or_initialize_by(
+            classification_alias_id: classification_alias.id,
+            external_source_id: external_source_id,
+            classification_tree_label_id: classifications_tree_label_id,
+            parent_classification_alias_id: nil
+          ) do |data_set|
+            data_set.seen_at = Time.zone.now
+        end.save
+      end
+      return classification.id
+    end
 
 
     private
@@ -127,7 +237,7 @@ module DataCycleCore
           key = "value" if value['releasable']
 
           if value['type'] == 'object' && !value.dig('editor', 'type').nil?
-            object_properties = self.get_internal_template(value['storage_location'],value['name'],value['description'])
+            object_properties = self.get_internal_template(value['storage_location'], value['name'], value['description'])
             key = {key.to_sym => self.get_params_from_hash(object_properties.metadata['validation'])}
           elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
             key = {key.to_sym => self.get_params_from_hash(value)}
