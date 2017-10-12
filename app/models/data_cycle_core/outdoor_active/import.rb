@@ -5,9 +5,9 @@ module DataCycleCore
         callbacks = DataCycleCore::Callbacks.new(block)
 
         # # categories can only be imported for one single locale
-        # import_categories(callbacks, **(options || {}).merge({locales: [I18n.default_locale]}))
+        # import_categories(callbacks, **(options || {}).merge(locales: [I18n.default_locale]))
         # # regions can only be imported for one single locale
-        # import_regions(callbacks, **(options || {}).merge({locales: [I18n.default_locale]}))
+        # import_regions(callbacks, **(options || {}).merge(locales: [I18n.default_locale]))
 
         import_pois(callbacks, **options)
       end
@@ -77,10 +77,22 @@ module DataCycleCore
                 )
               }
 
+              categories = [raw_data.dig('category', 'id')].reject(&:blank?).map { |id|
+                DataCycleCore::Classification.find_by(external_key: id)
+              }.reject(&:nil?)
+
+              regions = raw_data.dig('regions', 'region').map { |r| r['id'] }.reject(&:blank?).map { |id|
+                DataCycleCore::Classification.find_by(external_key: id)
+              }.reject(&:nil?)
+
               create_or_update_content(
                 Place,
                 template,
-                extract_poi_data(raw_data).with_indifferent_access.merge(image: images.map(&:id))
+                extract_poi_data(raw_data).with_indifferent_access.merge(
+                  image: images.map(&:id),
+                  categories: categories.map(&:id),
+                  regions: regions.map(&:id)
+                ).with_indifferent_access
               )
             end
           },
