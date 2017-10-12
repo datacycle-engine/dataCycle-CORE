@@ -17,7 +17,7 @@ module DataCycleCore
       def import_categories(callbacks = DataCycleCore::Callbacks.new, **options)
         import_classifications(
           Category,
-          "#{external_source.name} - Kategorien",
+          "#{self.class.parent.to_s.demodulize} - Kategorien",
           ->(locale) { Category.where("dump.#{locale}.parentId": nil) },
           ->(parent_category_data, locale) { Category.where("dump.#{locale}.parentId": parent_category_data['id']) },
           ->(raw_data) {
@@ -39,7 +39,7 @@ module DataCycleCore
       def import_regions(callbacks = DataCycleCore::Callbacks.new, **options)
         import_classifications(
           Region,
-          "#{external_source.name} - Regionen",
+          "#{self.class.parent.to_s.demodulize} - Regionen",
           ->(locale) { Region.where("this.dump.#{locale}.id == this.dump.#{locale}.parentId") },
           ->(parent_category_data, locale) {
             Region.where(
@@ -67,7 +67,7 @@ module DataCycleCore
       def import_sources(callbacks = DataCycleCore::Callbacks.new, **options)
         import_classifications(
           Category,
-          "#{external_source.name} - Quellen",
+          "#{self.class.parent.to_s.demodulize} - Quellen",
           ->(locale) {
             Poi.collection.aggregate(Poi.where(:_id.ne => nil)
               .project(
@@ -126,7 +126,7 @@ module DataCycleCore
                   image: images.map(&:id),
                   categories: categories.map(&:id),
                   regions: regions.map(&:id),
-                  sources: sources.map(&:id)
+                  source: sources.map(&:id).take(1)
                 ).with_indifferent_access
               )
             end
