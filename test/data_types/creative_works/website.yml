@@ -32,7 +32,7 @@
           :sorting: 2
           :options:
             :data-size: basic
-      :isPartOf:
+      :is_part_of:
         :label: parent
         :type: string
         :storage_type: string
@@ -43,7 +43,6 @@
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :default_value: "Website"
       :creator:
@@ -52,14 +51,14 @@
         :type_name: users
         :storage_type: string
         :storage_location: metadata
-      :dateCreated:
+      :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: date_time
-      :dateModified:
+      :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string

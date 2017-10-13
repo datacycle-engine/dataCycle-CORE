@@ -26,21 +26,21 @@
           :sorting: 1
           :options:
             :data-validate: text
-      :validityPeriod:
+      :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
         :validations:
           :daterange:
-            :from: validFrom
-            :to: validUntil
+            :from: valid_from
+            :to: valid_until
         :editor:
           :sorting: 2
           :options:
             :class: daterange validation-container
             :tabindex: -1
         :properties:
-          :validFrom:
+          :valid_from:
             :label: Gültigkeit
             :type: string
             :storage_type: string
@@ -53,7 +53,7 @@
                 :data-type: datepicker
                 :data-validate: daterange
                 :placeholder: tt.mm.jjjj
-          :validUntil:
+          :valid_until:
             :label: bis
             :type: string
             :storage_type: string
@@ -66,7 +66,7 @@
                 :data-type: datepicker
                 :data-validate: daterange
                 :placeholder: tt.mm.jjjj
-      :alternativeHeadline:
+      :alternative_headline:
         :label: Subüberschrift
         :type: string
         :storage_type: string
@@ -102,7 +102,7 @@
           :sorting: 6
           :options:
             :data-size: full
-      :metaTitle:
+      :meta_title:
         :label: Meta-Titel
         :type: string
         :storage_type: string
@@ -110,7 +110,7 @@
         :editor:
           :type: input
           :sorting: 7
-      :metaDescription:
+      :meta_description:
         :label: Meta-Description
         :type: string
         :storage_type: text
@@ -130,7 +130,7 @@
           :sorting: 9
           :options:
             :data-size: none
-      :sameAs:
+      :same_as:
         :label: Canonical Tag
         :type: string
         :storage_type: string
@@ -175,7 +175,7 @@
           :options:
             :data-validate: object
             :data-type: person
-      :contentLocation:
+      :content_location:
         :label: Ort
         :type: object
         :storage_location: places
@@ -206,7 +206,6 @@
         :label: Themenbereiche
         :type: classificationTreeLabel
         :type_name: Themenbereiche
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -215,7 +214,6 @@
         :label: Zielmarkt
         :type: classificationTreeLabel
         :type_name: Märkte
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -224,7 +222,6 @@
         :label: Inhaltsart
         :type: classificationTreeLabel
         :type_name: Inhaltsarten
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -233,7 +230,6 @@
         :label: Jahreszeit
         :type: classificationTreeLabel
         :type_name: Jahreszeiten
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -242,7 +238,6 @@
         :label: Bundesland
         :type: classificationTreeLabel
         :type_name: Bundesländer
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -253,16 +248,14 @@
         :label: Tags
         :type: classificationTreeLabel
         :type_name: Tags
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
           :sorting: 21
-      :outputChannels:
+      :output_channels:
         :label: Ausgabekanäle
         :type: classificationTreeLabel
         :type_name: Ausgabekanäle
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -271,14 +264,12 @@
 #        :label: Inhaltspool
 #        :type: classificationTreeLabel
 #        :type_name: Inhaltspools
-#        :storage_type: classification_creative_works
 #        :storage_location: classification_relation
 #        :default_value: "Aktuelle Themen"
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :default_value: "Artikel"
       :creator:
@@ -287,14 +278,14 @@
         :type_name: users
         :storage_type: string
         :storage_location: metadata
-      :dateCreated:
+      :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: date_time
-      :dateModified:
+      :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string

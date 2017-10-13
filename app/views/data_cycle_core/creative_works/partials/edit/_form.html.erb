@@ -7,7 +7,7 @@
 		<div class="row expanded">
 			<div class="column">
 				<div class="edit-headline">
-					<i class="fa fa-pencil" aria-hidden="true"></i> <%= dataObject.metadata['validation']['name']%> bearbeiten
+					<i class="fa fa-pencil" aria-hidden="true"></i> <%= dataObject.content_type %> bearbeiten
 				</div>
 				<ul>
 					<!--<li>-->
@@ -27,34 +27,34 @@
 	</section>
 
 	<% unless @splitSource.nil? %>
-    <% I18n.with_locale(@splitSource.first_available_locale) do %>
-      <div class="flex-box">
-        <div class="split-content detail-content">
-          <% if can?(:subscribe, @splitSource) && @splitSource.subscriptions.by_user(current_user).count == 0 %>
-            <div class="subscribe-parent notice"><p>Sie sollten diesen Inhalt (<%=@splitSource.metadata['validation']['name']%>) abonnieren, um Ihren neu erstellten Inhalt (<%=dataObject.metadata['validation']['name']%>) aktuell halten zu können.</p>
-              <%= link_to "Abonnieren", subscriptions_path(subscribable_id: @splitSource.id, subscribable_type: @splitSource.class.name), method: :post %>
+		<% I18n.with_locale(@splitSource.first_available_locale) do %>
+			<div class="flex-box">
+				<div class="split-content detail-content">
+					<% if can?(:subscribe, @splitSource) && @splitSource.subscriptions.by_user(current_user).count == 0 %>
+						<div class="subscribe-parent notice"><p>Sie sollten diesen Inhalt (<%=@splitSource.metadata['validation']['name']%>) abonnieren, um Ihren neu erstellten Inhalt (<%=dataObject.metadata['validation']['name']%>) aktuell halten zu können.</p>
+							<%= link_to "Abonnieren", subscriptions_path(subscribable_id: @splitSource.id, subscribable_type: @splitSource.class.name), method: :post %>
 
-              <button name="button" type="button" class="close-subscribe-notice" data-close="" aria-label="Dismiss Notice"><span aria-hidden="true">×</span></button>
-            </div>
-          <% end %>
-          <div class="show-content">
-            <div class="detail-header-info">
-              <div class="type thema">
-                <span class="icon">
-                    <i class="fa fa-folder-open" aria-hidden="true"></i>
-                </span>
-                <span class="title"><%=@splitSource.metadata['validation']['name']%></span>
-                <span class="language">(<%= I18n.locale %>)</span>
-              </div>
-              <%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema %>
-            </div>
+							<button name="button" type="button" class="close-subscribe-notice" data-close="" aria-label="Dismiss Notice"><span aria-hidden="true">×</span></button>
+						</div>
+					<% end %>
+					<div class="show-content">
+						<div class="detail-header-info">
+							<div class="type <%= @splitSource.metadata['validation']['name'].downcase %>">
+								<%= render_content_partial 'icon', content: @splitSource %>
 
-            <%= render "data_cycle_core/#{@splitSource.model_name.route_key}/partials/show/"+@splitSource.model_name.route_key.singularize, dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema, exludedProperties: [] rescue render "data_cycle_core/#{@splitSource.model_name.route_key}/partials/show/default", dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema, exludedProperties: [] %>
+								<span class="title"><%= @splitSource.metadata['validation']['name'] %></span>
+								<% unless @splitSource.translated_locales.count > 1 %>
+									<span class="language">(<%= I18n.locale %>)</span>
+								<% end %>
+							</div>
+							<%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema %>
+						</div>
 
-            <%#= render "data_cycle_core/#{@splitSource.model_name.route_key}/partials/show/top_content/classificationAliases", dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema %>
-          </div>
-        </div>
-    <% end %>
+						<%= render_content_partial 'details', content: @splitSource, schema: @splitSchema, options: {force_render: true} %>
+
+					</div>
+				</div>
+		<% end %>
 	<% end %>
 
 	<div class="row<%= ' split-content edit-content' unless @splitSource.nil? %>">
@@ -62,12 +62,13 @@
 			<div class="detail-header editor">
 
 				<div class="detail-header-info">
-					<div class="type thema">
-						<span class="icon">
-								<i class="fa fa-folder-open" aria-hidden="true"></i>
-						</span>
-						<span class="title"><%=dataObject.metadata['validation']['name']%></span>
-            <span class="language">(<%= I18n.locale %>)</span>
+					<div class="type <%= dataObject.metadata['validation']['name'].downcase %>">
+						<%= render_content_partial 'icon', content: dataObject %>
+
+						<span class="title"><%= dataObject.metadata['validation']['name'] %></span>
+						<% unless dataObject.translated_locales.count > 1 %>
+							<span class="language">(<%= I18n.locale %>)</span>
+						<% end %>
 					</div>
 					<%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: dataObject, dataCycleObjectSchema: dataSchema %>
 				</div>
@@ -84,12 +85,12 @@
 				<% if !dataObject.metadata.nil? && !dataObject.metadata['validation'].nil? %>
 
 					<% validation_properties = get_ordered_validation_properties(dataObject.metadata['validation']) %>
-					<%#= dataObject.get_data_hash %>
+
 					<% if !validation_properties.nil? %>
 
 						<% validation_properties.each do |key, prop| %>
 
-              <% value = prop.dig('type') == "object" ? dataObject.try(key.to_sym) : dataSchema[key] %>
+							<% value = prop.dig('type') == "object" ? dataObject.try(key.to_sym) : dataSchema[key] %>
 
 							<%= render_attribute_editor key: "#{keyPrefix}[#{key}]", definition: prop, value: value, parameters: { options: prop.dig('editor', 'options') || {} } unless dataSchema.nil? %>
 
@@ -103,8 +104,8 @@
 		</div>
 	</div>
 
-		<% unless @splitSource.nil? %>
-			</div>
-		<% end %>
+	<% unless @splitSource.nil? %>
+		</div>
+	<% end %>
 
 <% end %>

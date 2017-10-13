@@ -1,4 +1,5 @@
 <li id="<%= classification_tree.id %>">
+  <span class="inner-item">
   <% if classification_tree.sub_classification_alias.internal? %>
     <i class="fa fa-eye-slash" aria-hidden="true"></i>
   <% end %>
@@ -9,11 +10,6 @@
 
   <% if can?(:update, classification_tree.sub_classification_alias) %>
     <a href="#" class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
-
-    <%= render 'classification_alias_form',
-                classification_tree_label: classification_tree_label,
-                classification_tree: classification_tree,
-                classification_alias: classification_tree.sub_classification_alias %>
   <% end %>
 
   <% if can?(:destroy, classification_tree) %>
@@ -24,13 +20,19 @@
       <i class="fa fa-trash-o" aria-hidden="true"></i>
     <% end %>
   <% end %>
+  </span>
+    <% if can?(:update, classification_tree.sub_classification_alias) %>
+    <%= render 'classification_alias_form',
+                classification_tree_label: classification_tree_label,
+                classification_tree: classification_tree,
+                classification_alias: classification_tree.sub_classification_alias %>
+  <% end %>
 
   <ul class="classifications">
     <% classification_tree.sub_classification_alias.classifications.each do |classification| %>
       <li><%= classification.name %></li>
     <% end %>
   </ul>
-
   <ul class="children">
   </ul>
 </li>

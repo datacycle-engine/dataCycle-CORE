@@ -15,17 +15,30 @@ module DataCycleCore
       @language = params[:language]
       @language ||= "de" #default-language
 
-      @order_by = !params[:order].nil? && params[:order].split('_').first == 'udpated' ? 'updated_at' : 'updated_at'
-      @order = !params[:order].nil? && params[:order].split('_').last == 'asc' ? 'ASC' : 'DESC'
-      order_string = @order_by + ' ' + @order
+      if params[:search].blank?
+        @order_by = !params[:order].nil? && params[:order].split('_').first == 'udpated' ? 'updated_at' : 'updated_at'
+        @order = !params[:order].nil? && params[:order].split('_').last == 'asc' ? 'ASC' : 'DESC'
+        order_string = @order_by + ' ' + @order
+      else
+        # order by ranking
+        search_string = params[:search].split(" ").join("%")
+        order_string = "
+          8 * similarity(classification_string,'%#{search_string}%') +
+          4 * similarity(headline, '%#{search_string}%') +
+          2 * ts_rank_cd(words, plainto_tsquery('simple', '#{params[:search].squish}'),16) +
+          1 * similarity(full_text, '%#{search_string}%')
+          DESC NULLS LAST,
+          updated_at DESC"
+      end
 
-      query = DataCycleCore::Filter::QueryIndex.new(language: @language)
+
+      query = DataCycleCore::Filter::Search.new(@language).only_frontend_valid
       query = query.order(order_string)
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
       query = query.with_classification_alias_ids(@classification_array) unless @classification_array.blank?
 
       @paginateObject = query.page(params[:page])
-      @dataCycleObjects = @paginateObject.page_data
+      @dataCycleObjects = @paginateObject.map(&:content_data)
 
       if params[:mode].nil?
         @mode = "flex"

@@ -8,16 +8,16 @@
 
             <div class="title">
 
-                <% if !item.givenName.nil? && !item.familyName.nil? %>
-                    <%= "#{item.givenName} #{item.familyName}" %>
+                <% if !item.given_name.nil? && !item.family_name.nil? %>
+                    <%= "#{item.given_name} #{item.family_name}" %>
                 <% end %>
 
             </div>
 
-            <% if !item.content.nil? && !item.content['jobTitle'].blank? %>
+            <% if !item.content.nil? && !item.content['job_title'].blank? %>
 
                 <div class="description">
-                    <%= item.content['jobTitle'].html_safe %>
+                    <%= item.content['job_title'].html_safe %>
                 </div>
 
             <% end %>

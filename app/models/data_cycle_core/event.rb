@@ -12,6 +12,7 @@ module DataCycleCore
 
       content_relations table_name: "events", postfix: "history"
 
+      include ContentHelpers
       belongs_to :event
     end
     has_many :histories, -> { order(updated_at: :desc) }, class_name: 'DataCycleCore::Event::History', foreign_key: :event_id
@@ -37,7 +38,8 @@ module DataCycleCore
     end
 
     def destroy_translations
-      self.translations.destroy_all
+      self.translations.delete_all
+      self.content_search_all.delete_all
     end
 
   end

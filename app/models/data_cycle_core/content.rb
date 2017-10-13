@@ -93,6 +93,12 @@ module DataCycleCore
       }.keys
     end
 
+    def search_property_names
+      property_definitions.select { |property_name, definition|
+        definition['search'] == true
+      }.keys
+    end
+
     def to_h(timestamp = Time.zone.now)
       property_names.map { |property_name|
         property_value =
@@ -133,11 +139,8 @@ module DataCycleCore
     end
 
     def as_of(timestamp)
-      # puts "#{self.updated_at.nil?} || #{is_history?}"
-      # puts "#{timestamp.to_s(:long_usec)}"
-
-      return self if timestamp > self.updated_at
-      return nil if self.updated_at.nil? || is_history?
+      return self if updated_at.nil? || timestamp > updated_at
+      return nil if is_history?
 
       base_content_class = self.class.to_s
       history_table = "#{base_content_class}::History".safe_constantize.arel_table
@@ -212,13 +215,9 @@ module DataCycleCore
           )
 
       # for classification relations
-      # classifications are stored in the respective relations Table
-      # ( "classification"+"content_table")
+      # classification relations are stored in the classification_contents table
       elsif classification_property_names.include?(property_name)
-        load_relation_ids(
-            property_definition['storage_type'],
-            property_definition['type_name']
-          )
+        load_relation_ids(property_definition['type_name'])
 
       # plain properties (e.g. string,text, ... )
       # non-structured properties of this content-data_set
@@ -276,18 +275,16 @@ module DataCycleCore
       }.inject(&:merge)
     end
 
-    def load_relation_ids(storage_type, tree_label)
-      class_string = "DataCycleCore::"+storage_type.classify
+    def load_relation_ids(tree_label)
+      class_string = "DataCycleCore::ClassificationContent"
       class_string += "::History" if is_history?
-      module_names = self.class.to_s.split('::')
-      module_names.shift
-      class_id = module_names.join('').tableize.singularize.foreign_key
+      class_id = 'content_data_id'
+      class_id = 'content_data_history_id' if is_history?
       class_string.constantize.
         where(class_id => id).
         joins(classification: [classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]]).
         where("classification_tree_labels.name = ?", tree_label)
     end
-
 
     def set_property_value(property_name, property_definition, value)
       if PLAIN_PROPERTY_TYPES.include?(property_definition['storage_type'])

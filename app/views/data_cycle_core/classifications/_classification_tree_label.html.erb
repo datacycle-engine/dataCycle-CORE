@@ -1,12 +1,11 @@
 <li id="<%= tree_label.id %>">
+<span class="inner-item">
   <%= link_to tree_label.name,
               classifications_path(classification_tree_label_id: tree_label.id),
               data: {remote: true, 'disable-with' => '<i class="fa fa-spinner fa-spin"></i> ' + t("common.loading")} %>
 
   <% if can?(:update, tree_label) %>
     <a href="#" class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
-
-    <%= render 'classification_tree_label_form', classification_tree_label: tree_label %>
   <% end %>
 
   <% if can?(:destroy, tree_label) %>
@@ -16,6 +15,10 @@
                        'disable-with' => '<i class="fa fa-spinner fa-spin"></i>'} do %>
       <i class="fa fa-trash-o" aria-hidden="true"></i>
     <% end %>
+ <% end %>
+</span>
+   <% if can?(:update, tree_label) %>
+    <%= render 'classification_tree_label_form', classification_tree_label: tree_label %>
   <% end %>
 
   <ul class="children">

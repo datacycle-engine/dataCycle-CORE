@@ -33,18 +33,20 @@ class CreateEvents < ActiveRecord::Migration[5.0]
       t.index :classification_id
     end
 
-    DataCycleCore::Event.create_translation_table!({
-      content: :jsonb,
-      properties: :jsonb
-    })
-
+    create_table :event_translations do |t|
+      t.uuid :event_id, null: false
+      t.string :locale, null: false
+      t.jsonb :content
+      t.jsonb :properties
+      t.timestamps
+    end
   end
 
   def down
     drop_table :events
     drop_table :creative_work_events
     drop_table :classification_events
-    DataCycleCore::Event.drop_translation_table!
+    drop_table :event_translations
   end
 
 end

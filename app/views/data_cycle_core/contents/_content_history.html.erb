@@ -1,0 +1,17 @@
+<div class="detail-content <%= content.try(:metadata).dig('validation', 'description').try(:downcase) || '' %>">
+
+    <div class="row align-center">
+      <%= render_first_existing_partial [
+            'data_cycle_core/creative_works/partials/history/' + content.content_type.downcase,
+            'data_cycle_core/creative_works/partials/history/default'
+          ], {
+            dataCycleObject: content,
+            dataCycleObjectSchema: schema,
+            options: options ||= {}
+          } %>
+
+      <%= render 'data_cycle_core/creative_works/partials/show/translation/translations', language: nil, dataCycleObject: content %>
+
+    </div>
+
+</div>

@@ -53,7 +53,7 @@ module DataCycleCore
 
         #check number for given format
         def integer(data)
-          unless data.is_a?(Fixnum)
+          unless data.is_a?(Integer)
             @error[:error].push I18n.t :integer, scope: [:validation, :errors], data: data
           end
         end

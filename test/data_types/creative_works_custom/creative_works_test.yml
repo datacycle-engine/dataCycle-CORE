@@ -51,7 +51,6 @@
         :label: Inhaltspool
         :type: classificationTreeLabel
         :type_name: Inhaltspools
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :default_value: "Aktuelle Themen"
 
@@ -112,7 +111,6 @@
         :label: Inhaltspool
         :type: classificationTreeLabel
         :type_name: Inhaltspools
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :default_value: "Aktuelle Themen"
 
@@ -221,23 +219,23 @@
             :type: string
             :storage_type: text
             :storage_location: metadata
-          :validityPeriod:
+          :validity_period:
             :label: Zeitraum
             :type: object
             :storage_location: metadata
             :validations:
               :daterange:
-                :from: validFrom
-                :to: validUntil
+                :from: valid_from
+                :to: valid_until
             :properties:
-              :validFrom:
+              :valid_from:
                 :label: Gültigkeit
                 :type: string
                 :storage_type: string
                 :storage_location: metadata
                 :validations:
                   :format: date_time
-              :validUntil:
+              :valid_until:
                 :label: bis
                 :type: string
                 :storage_type: string
@@ -278,7 +276,6 @@
         :label: Themenbereiche
         :type: classificationTreeLabel
         :type_name: Themenbereiche
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -287,7 +284,6 @@
         :label: Zielmarkt
         :type: classificationTreeLabel
         :type_name: Märkte
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -296,7 +292,6 @@
         :label: Tags
         :type: classificationTreeLabel
         :type_name: Sonstiges
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -305,7 +300,6 @@
         :label: Bundesland
         :type: classificationTreeLabel
         :type_name: Bundesländer
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :validations:
           :max: 1
@@ -314,20 +308,20 @@
           :sorting: 6
           :options:
             :data-validate: classification
-      :validityPeriod:
+      :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
         :validations:
           :daterange:
-            :from: validFrom
-            :to: validUntil
+            :from: valid_from
+            :to: valid_until
         :editor:
           :sorting: 7
           :options:
             :class: daterange validation-container
         :properties:
-          :validFrom:
+          :valid_from:
             :label: Gültigkeit
             :type: string
             :storage_type: string
@@ -339,7 +333,7 @@
               :options:
                 :data-type: datepicker
                 :data-validate: daterange
-          :validUntil:
+          :valid_until:
             :label: bis
             :type: string
             :storage_type: string
@@ -355,7 +349,6 @@
         :label: Inhaltspool
         :type: classificationTreeLabel
         :type_name: Inhaltspools
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :default_value: "Aktuelle Themen"
       :creator:
@@ -364,14 +357,14 @@
         :type_name: users
         :storage_type: string
         :storage_location: metadata
-      :dateCreated:
+      :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: date_time
-      :dateModified:
+      :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string
@@ -428,14 +421,12 @@
         :label: Inhaltspool
         :type: classificationTreeLabel
         :type_name: Inhaltspools
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :default_value: "Recherche"
 #      :data_type:
 #        :label: Inhaltstype
 #        :type: classificationTreeLabel
 #        :type_name: Inhaltstypen
-#        :storage_type: classification_creative_works
 #        :storage_location: classification_relation
 #        :default_value: "Aktuelle Themen"
       :creator:
@@ -444,14 +435,14 @@
         :type_name: users
         :storage_type: string
         :storage_location: metadata
-      :dateCreated:
+      :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: date_time
-      :dateModified:
+      :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string
@@ -491,14 +482,14 @@
         :type: string
         :storage_type: string
         :storage_location: metadata
-      :mandatoryLicense:
+      :mandatory_license:
         :label: Copyright Nennung verpflichtend
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: boolean
-      :contentLocation:
+      :content_location:
         :label: Ort
         :type: object
         :delete: true
@@ -519,14 +510,14 @@
         :storage_location: metadata
         :validations:
           :format: integer
-      :contentSize:
+      :content_size:
         :label: Dateigröße
         :type: number
         :storage_type: number
         :storage_location: metadata
         :validations:
           :format: integer
-      :fileFormat:
+      :file_format:
         :label: Dateiformat
         :type: string
         :storage_type: string
@@ -536,12 +527,12 @@
         :type: string
         :storage_type: string
         :storage_location: metadata
-      :validityPeriod:
+      :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
         :properties:
-          :datePublished:
+          :date_published:
             :label: Gültig von
             :type: string
             :storage_type: string
@@ -561,14 +552,14 @@
         :type_name: users
         :storage_type: string
         :storage_location: metadata
-      :dateCreated:
+      :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: date_time
-      :dateModified:
+      :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string
@@ -580,7 +571,7 @@
         :type: string
         :storage_type: string
         :storage_location: metadata
-      :imageId:
+      :image_id:
         :label: Bildnummer
         :type: string
         :storage_type: string
@@ -594,16 +585,15 @@
         :label: Rechte/Einsatzgebiet
         :type: classificationTreeLabel
         :type_name: Rechte
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
-      :contentUrl:
+      :content_url:
         :label: Bild URL
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: url
-      :thumbnailUrl:
+      :thumbnail_url:
         :label: Thumbnail URL
         :type: string
         :storage_type: string
@@ -621,7 +611,6 @@
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :default_value: "Bild"
 
@@ -644,7 +633,7 @@
           :sorting: 1
           :options:
             :data-validate: text
-      :alternativeHeadline:
+      :alternative_headline:
         :label: Subüberschrift
         :type: string
         :storage_type: string
@@ -680,7 +669,7 @@
           :sorting: 5
           :options:
             :data-size: full
-      :metaTitle:
+      :meta_title:
         :label: Meta-Titel
         :type: string
         :storage_type: string
@@ -688,7 +677,7 @@
         :editor:
           :type: input
           :sorting: 6
-      :metaDescription:
+      :meta_description:
         :label: Meta-Description
         :type: string
         :storage_type: text
@@ -708,7 +697,7 @@
           :sorting: 8
           :options:
             :data-size: none
-      :sameAs:
+      :same_as:
         :label: Canonical Tag
         :type: string
         :storage_type: string
@@ -736,7 +725,6 @@
         :label: Themenbereiche
         :type: classificationTreeLabel
         :type_name: Themenbereiche
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -745,7 +733,6 @@
         :label: Zielmarkt
         :type: classificationTreeLabel
         :type_name: Märkte
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -754,7 +741,6 @@
         :label: Tags
         :type: classificationTreeLabel
         :type_name: Sonstiges
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -763,7 +749,6 @@
         :label: Bundesland
         :type: classificationTreeLabel
         :type_name: Bundesländer
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :validations:
           :max: 1
@@ -772,20 +757,20 @@
           :sorting: 23
           :options:
             :data-validate: classification
-      :validityPeriod:
+      :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
         :validations:
           :daterange:
-            :from: validFrom
-            :to: validUntil
+            :from: valid_from
+            :to: valid_until
         :editor:
           :sorting: 30
           :options:
             :class: daterange validation-container
         :properties:
-          :validFrom:
+          :valid_from:
             :label: Gültigkeit
             :type: string
             :storage_type: string
@@ -797,7 +782,7 @@
               :options:
                 :data-type: datepicker
                 :data-validate: daterange
-          :validUntil:
+          :valid_until:
             :label: bis
             :type: string
             :storage_type: string
@@ -813,14 +798,12 @@
 #        :label: Inhaltspool
 #        :type: classificationTreeLabel
 #        :type_name: Inhaltspools
-#        :storage_type: classification_creative_works
 #        :storage_location: classification_relation
 #        :default_value: "Aktuelle Themen"
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :default_value: "Artikel"
       :creator:
@@ -829,14 +812,14 @@
         :type_name: users
         :storage_type: string
         :storage_location: metadata
-      :dateCreated:
+      :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: date_time
-      :dateModified:
+      :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string

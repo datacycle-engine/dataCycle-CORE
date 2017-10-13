@@ -10,7 +10,7 @@
         <% if !validation_properties.nil? %>
 
             <!-- todo: make this more generic ? -->
-            <% exludedProperties = ['headline','validityPeriod'] if @splitSource.nil? %>
+            <% exludedProperties = @splitSource.nil? && @historySource.nil? ? ['headline','validity_period'] : []  %>
 
             <div class="type properties">
 
@@ -18,14 +18,8 @@
 
                     <% value = prop.dig('type') == "object" ? dataCycleObject.try(key.to_sym) : dataCycleObjectSchema[key] %>
 
-                    <% if !value.blank? && !exludedProperties.include?(key) %>
-
-                        <%= render "data_cycle_core/creative_works/partials/show/datatype/#{prop['type'].downcase}",
-                                label: prop['label'],
-                                prop: prop,
-                                key: key,
-                                value: normalize_value(value) %>
-
+                    <% if !exludedProperties.include?(key) %>
+                        <%= render_attribute_viewer key: key, definition: prop, value: normalize_value(value), parameters: { options: options } %>
                     <% end %>
 
                 <% end %>
@@ -35,9 +29,6 @@
         <% end %>
 
     <% end %>
-
-
-
 
     <hr>
 

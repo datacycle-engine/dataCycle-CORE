@@ -1,0 +1,40 @@
+<a data-open="media-reveal-<%= content.id %>">
+    <div class="thumbnail" style="background-image: url(<%= content.metadata['thumbnail_url'] %>)">
+        <% unless content.title.blank? %>
+            <div class="description">
+                <%= content.title %>
+            </div>
+        <% end %>
+
+        <% if !content.metadata['restrictions'].blank? && content.metadata['restrictions'] != 'Keine Einschränkung;' %>
+            <span data-tooltip aria-haspopup="true" class="has-tip warning" data-disable-hover="false" tabindex="1"
+                  title="Einschränkungen: <%= content.metadata['restrictions'] %>">
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+            </span>
+        <% end %>
+    </div>
+</a>
+
+<div class="large reveal media-preview" id="media-reveal-<%= content.id %>" data-reveal>
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <span class="preview-title"><%= content.title %></span>
+    <div class="image">
+        <img class="lazyload" data-src="<%= content.metadata['content_url'] %>" />
+    </div>
+    <div class="description">
+
+        <!-- todo: check only for empty string -->
+        <% if !content.metadata['restrictions'].nil? && !content.metadata['restrictions'].blank? && content.metadata['restrictions'] != 'Keine Einschränkung;' %>
+            <strong>Einschränkungen:</strong> <%= content.metadata['restrictions'].html_safe %><br /><br />
+        <% end %>
+
+        <%= link_to content do %>
+            zur Detailansicht
+        <% end %> |
+        <% unless content.metadata['url'].nil? && content.metadata['url'].blank? %>
+            <a href="<%= content.metadata['url'] %>" target="_blank">im Medienarchiv öffnen</a>
+        <% end %>
+    </div>
+</div>

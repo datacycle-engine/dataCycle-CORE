@@ -12,7 +12,7 @@ export default {
   },
   computed: {
     headline() {
-      return this.item.givenName != undefined && this.item.familyName != undefined ? this.item.givenName + " <b>" + this.item.familyName + "</b>" : "namenlose Person";
+      return this.item.given_name != undefined && this.item.family_name != undefined ? this.item.given_name + " <b>" + this.item.family_name + "</b>" : "namenlose Person";
     }
   }
 }

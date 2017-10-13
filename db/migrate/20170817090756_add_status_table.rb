@@ -9,7 +9,7 @@ class AddStatusTable < ActiveRecord::Migration[5.0]
 
     reversible do |dir|
       dir.up do
-        DataCycleCore::CreativeWork.add_translation_fields! release: :jsonb
+        add_column :creative_work_translations, :release, :jsonb
       end
 
       dir.down do

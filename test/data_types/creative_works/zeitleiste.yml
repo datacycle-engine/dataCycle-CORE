@@ -26,21 +26,21 @@
           :sorting: 1
           :options:
             :data-validate: text
-      :validityPeriod:
+      :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
         :storage_location: metadata
         :validations:
           :daterange:
-            :from: validFrom
-            :to: validUntil
+            :from: valid_from
+            :to: valid_until
         :editor:
           :sorting: 2
           :options:
             :class: daterange validation-container
             :tabindex: -1
         :properties:
-          :validFrom:
+          :valid_from:
             :label: Gültigkeit
             :type: string
             :storage_type: string
@@ -53,7 +53,7 @@
                 :data-type: datepicker
                 :data-validate: daterange
                 :placeholder: tt.mm.jjjj
-          :validUntil:
+          :valid_until:
             :label: bis
             :type: string
             :storage_type: string
@@ -76,7 +76,7 @@
           :sorting: 3
           :options:
             :data-size: basic
-      :timelineItem:
+      :timeline_item:
         :label: Eintrag
         :type: object
         :storage_location: creative_works
@@ -91,7 +91,6 @@
         :label: Themenbereiche
         :type: classificationTreeLabel
         :type_name: Themenbereiche
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -100,7 +99,6 @@
         :label: Zielmarkt
         :type: classificationTreeLabel
         :type_name: Märkte
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -109,7 +107,6 @@
         :label: Inhaltsart
         :type: classificationTreeLabel
         :type_name: Inhaltsarten
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -118,7 +115,6 @@
         :label: Jahreszeit
         :type: classificationTreeLabel
         :type_name: Jahreszeiten
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -127,7 +123,6 @@
         :label: Bundesland
         :type: classificationTreeLabel
         :type_name: Bundesländer
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -138,16 +133,14 @@
         :label: Tags
         :type: classificationTreeLabel
         :type_name: Tags
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
           :sorting: 25
-      :outputChannels:
+      :output_channels:
         :label: Ausgabekanäle
         :type: classificationTreeLabel
         :type_name: Ausgabekanäle
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
@@ -156,14 +149,12 @@
 #        :label: Inhaltspool
 #        :type: classificationTreeLabel
 #        :type_name: Inhaltspools
-#        :storage_type: classification_creative_works
 #        :storage_location: classification_relation
 #        :default_value: "Aktuelle Themen"
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :default_value: "Zeitleiste"
       :creator:
@@ -172,14 +163,14 @@
         :type_name: users
         :storage_type: string
         :storage_location: metadata
-      :dateCreated:
+      :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: date_time
-      :dateModified:
+      :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string
@@ -214,21 +205,21 @@
           :sorting: 1
           :options:
             :data-validate: text
-      :temporalCoverage:
+      :temporal_coverage:
         :label: Zeitraum
         :type: object
         :storage_location: metadata
         :validations:
           :daterange:
-            :from: validFrom
-            :to: validUntil
+            :from: valid_from
+            :to: valid_until
         :editor:
           :sorting: 2
           :options:
             :class: daterange validation-container
             :tabindex: -1
         :properties:
-          :validFrom:
+          :valid_from:
             :label: Zeitraum
             :type: string
             :storage_type: string
@@ -241,7 +232,7 @@
                 :data-type: datepicker
                 :data-validate: daterange
                 :placeholder: "tt.mm.jjjj --:--"
-          :validUntil:
+          :valid_until:
             :label: bis
             :type: string
             :storage_type: string
@@ -276,7 +267,7 @@
           :sorting: 4
           :options:
             :data-validate: media
-      :contentLocation:
+      :content_location:
         :label: Ort
         :type: object
         :storage_location: places
@@ -286,7 +277,7 @@
         :editor:
           :sorting: 5
           :type: objectBrowser
-      :isPartOf:
+      :is_part_of:
         :label: parent
         :type: string
         :storage_type: string
@@ -297,7 +288,6 @@
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
-        :storage_type: classification_creative_works
         :storage_location: classification_relation
         :default_value: "Zeitleiste-Eintrag"
       :creator:
@@ -306,14 +296,14 @@
         :type_name: users
         :storage_type: string
         :storage_location: metadata
-      :dateCreated:
+      :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
         :storage_location: metadata
         :validations:
           :format: date_time
-      :dateModified:
+      :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string

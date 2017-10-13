@@ -1,6 +1,12 @@
 // Add Lazy Loading to Images
 module.exports.initialize = function () {
 
+  $(document).ajaxStart(function () {
+    if (event != undefined && $(event.target).closest('#subscribe').length > 0) {
+      $(event.target).closest('li').html('<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
+    };
+  });
+
   // lazy load for images in foundation raveal
   function init_lazy_loader() {
     $('.reveal.media-preview').off('open.zf.reveal');
@@ -15,7 +21,8 @@ module.exports.initialize = function () {
               $(this).siblings('.loading').remove();
               $(this).fadeIn();
             }.bind(this)).one('error', function () {
-              $(this).append('<span class="load-error">Error: Image not found.</span>');
+              $(this).siblings('.loading').remove();
+              $(this).after('<span class="load-error">Ladefehler: Bild nicht gefunden.</span>');
             }.bind(this));
             $(this).hide().attr('src', $(this).data('src'));
           }
@@ -34,6 +41,11 @@ module.exports.initialize = function () {
     $(this).find('.media-thumbs > div').on('media_previews_added', function () {
       init_lazy_loader();
     });
+  });
+
+  // stop video playback on modal close
+  $('#video-overlay, .media-preview').on('closed.zf.reveal', function () {
+    $(this).find('video').trigger('pause');
   });
 
 };

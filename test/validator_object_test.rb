@@ -171,18 +171,18 @@ module DataCycleCore
 
         test "object validator daterange with proper template, and varying test-data" do
           template_hash = {
-            "validityPeriod" => {
+            "validity_period" => {
               "label" =>  "Gültigkeitszeitraum",
               "type" => "object",
               "storage_location" => "metadata",
               "validations" => {
                 "daterange" => {
-                  "from" => "validFrom",
-                  "to" => "validUntil"
+                  "from" => "valid_from",
+                  "to" => "valid_until"
                 }
               },
               "properties" => {
-                "validFrom" => {
+                "valid_from" => {
                   "label" => "Gültigkeit",
                   "type" => "string",
                   "storage_type" => "string",
@@ -191,7 +191,7 @@ module DataCycleCore
                     "format" => "date_time"
                   }
                 },
-                "validUntil" => {
+                "valid_until" => {
                   "label" => "bis",
                   "type" => "string",
                   "storage_type" => "string",
@@ -205,9 +205,9 @@ module DataCycleCore
           }
 
           data_hash = {
-            "validityPeriod" => {
-              "validFrom" => "2016-01-01",
-              "validUntil" => "2017-01-01"
+            "validity_period" => {
+              "valid_from" => "2016-01-01",
+              "valid_until" => "2017-01-01"
             }
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
@@ -215,9 +215,9 @@ module DataCycleCore
           assert_equal(0, validator.error[:warning].size)
 
           data_hash = {
-            "validityPeriod" => {
-              "validFrom" => "2017-01-01",
-              "validUntil" => "2016-01-01"
+            "validity_period" => {
+              "valid_from" => "2017-01-01",
+              "valid_until" => "2016-01-01"
             }
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
@@ -225,9 +225,9 @@ module DataCycleCore
           assert_equal(0, validator.error[:warning].size)
 
           data_hash = {
-            "validityPeriod" => {
-              "validFrom" => "a",
-              "validUntil" => "b"
+            "validity_period" => {
+              "valid_from" => "a",
+              "valid_until" => "b"
             }
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
@@ -235,9 +235,9 @@ module DataCycleCore
           assert_equal(2, validator.error[:warning].size)
 
           data_hash = {
-            "validityPeriod" => {
-              "validFrom" => "a",
-              "validUntil" => "2017-01-01"
+            "validity_period" => {
+              "valid_from" => "a",
+              "valid_until" => "2017-01-01"
             }
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
@@ -245,9 +245,9 @@ module DataCycleCore
           assert_equal(1, validator.error[:warning].size)
 
           data_hash = {
-            "validityPeriod" => {
-              "validFrom" => "",
-              "validUntil" => "2017-01-01"
+            "validity_period" => {
+              "valid_from" => "",
+              "valid_until" => "2017-01-01"
             }
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
@@ -255,9 +255,9 @@ module DataCycleCore
           assert_equal(1, validator.error[:warning].size)
 
           data_hash = {
-            "validityPeriod" => {
-              "validFrom" => "",
-              "validUntil" => ""
+            "validity_period" => {
+              "valid_from" => "",
+              "valid_until" => ""
             }
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
@@ -267,18 +267,18 @@ module DataCycleCore
 
         test "object validator daterange with faulty templates, and fixed test-data" do
           template_hash = {
-            "validityPeriod" => {
+            "validity_period" => {
               "label" =>  "Gültigkeitszeitraum",
               "type" => "object",
               "storage_location" => "metadata",
               "validations" => {
                 "daterange" => {
                   "from" => "from",
-                  "to" => "validUntil"
+                  "to" => "valid_until"
                 }
               },
               "properties" => {
-                "validFrom" => {
+                "valid_from" => {
                   "label" => "Gültigkeit",
                   "type" => "string",
                   "storage_type" => "string",
@@ -287,7 +287,7 @@ module DataCycleCore
                     "format" => "date_time"
                   }
                 },
-                "validUntil" => {
+                "valid_until" => {
                   "label" => "bis",
                   "type" => "string",
                   "storage_type" => "string",
@@ -301,9 +301,9 @@ module DataCycleCore
           }
 
           data_hash = {
-            "validityPeriod" => {
-              "validFrom" => "2016-01-01",
-              "validUntil" => "2017-01-01"
+            "validity_period" => {
+              "valid_from" => "2016-01-01",
+              "valid_until" => "2017-01-01"
             }
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
@@ -311,18 +311,18 @@ module DataCycleCore
           assert_equal(1, validator.error[:warning].size)
 
           template_hash = {
-            "validityPeriod" => {
+            "validity_period" => {
               "label" =>  "Gültigkeitszeitraum",
               "type" => "object",
               "storage_location" => "metadata",
               "validations" => {
                 "daterange" => {
-                  "from" => "validFrom",
+                  "from" => "valid_from",
                   "to" => "to"
                 }
               },
               "properties" => {
-                "validFrom" => {
+                "valid_from" => {
                   "label" => "Gültigkeit",
                   "type" => "string",
                   "storage_type" => "string",
@@ -331,7 +331,7 @@ module DataCycleCore
                     "format" => "date_time"
                   }
                 },
-                "validUntil" => {
+                "valid_until" => {
                   "label" => "bis",
                   "type" => "string",
                   "storage_type" => "string",
@@ -348,17 +348,17 @@ module DataCycleCore
           assert_equal(1, validator.error[:warning].size)
 
           template_hash = {
-            "validityPeriod" => {
+            "validity_period" => {
               "label" =>  "Gültigkeitszeitraum",
               "type" => "object",
               "storage_location" => "metadata",
               "validations" => {
                 "daterange" => {
-                  "from" => "validFrom"
+                  "from" => "valid_from"
                 }
               },
               "properties" => {
-                "validFrom" => {
+                "valid_from" => {
                   "label" => "Gültigkeit",
                   "type" => "string",
                   "storage_type" => "string",
@@ -367,7 +367,7 @@ module DataCycleCore
                     "format" => "date_time"
                   }
                 },
-                "validUntil" => {
+                "valid_until" => {
                   "label" => "bis",
                   "type" => "string",
                   "storage_type" => "string",
@@ -384,17 +384,17 @@ module DataCycleCore
           assert_equal(0, validator.error[:warning].size)
 
           template_hash = {
-            "validityPeriod" => {
+            "validity_period" => {
               "label" =>  "Gültigkeitszeitraum",
               "type" => "object",
               "storage_location" => "metadata",
               "validations" => {
                 "daterange" => {
-                  "to" => "validUntil"
+                  "to" => "valid_until"
                 }
               },
               "properties" => {
-                "validFrom" => {
+                "valid_from" => {
                   "label" => "Gültigkeit",
                   "type" => "string",
                   "storage_type" => "string",
@@ -403,7 +403,7 @@ module DataCycleCore
                     "format" => "date_time"
                   }
                 },
-                "validUntil" => {
+                "valid_until" => {
                   "label" => "bis",
                   "type" => "string",
                   "storage_type" => "string",
@@ -420,7 +420,7 @@ module DataCycleCore
           assert_equal(0, validator.error[:warning].size)
 
           template_hash = {
-            "validityPeriod" => {
+            "validity_period" => {
               "label" =>  "Gültigkeitszeitraum",
               "type" => "object",
               "storage_location" => "metadata",
@@ -428,7 +428,7 @@ module DataCycleCore
                 "daterange" => {}
               },
               "properties" => {
-                "validFrom" => {
+                "valid_from" => {
                   "label" => "Gültigkeit",
                   "type" => "string",
                   "storage_type" => "string",
@@ -437,7 +437,7 @@ module DataCycleCore
                     "format" => "date_time"
                   }
                 },
-                "validUntil" => {
+                "valid_until" => {
                   "label" => "bis",
                   "type" => "string",
                   "storage_type" => "string",
@@ -456,23 +456,23 @@ module DataCycleCore
 
         test "object validator daterange with template validations not implemented" do
           template_hash = {
-            "validityPeriod" => {
+            "validity_period" => {
               "label" =>  "Gültigkeitszeitraum",
               "type" => "object",
               "storage_location" => "metadata",
               "validations" => {
                 "daterange" => {
-                  "from" => "validFrom",
-                  "to" => "validUntil"
+                  "from" => "valid_from",
+                  "to" => "valid_until"
                 },
                 "integerrange" => {
-                  "from" => "validFrom",
-                  "to" => "validUntil"
+                  "from" => "valid_from",
+                  "to" => "valid_until"
                 },
                 "format" => "data_time"
               },
               "properties" => {
-                "validFrom" => {
+                "valid_from" => {
                   "label" => "Gültigkeit",
                   "type" => "string",
                   "storage_type" => "string",
@@ -481,7 +481,7 @@ module DataCycleCore
                     "format" => "date_time"
                   }
                 },
-                "validUntil" => {
+                "valid_until" => {
                   "label" => "bis",
                   "type" => "string",
                   "storage_type" => "string",
@@ -495,9 +495,9 @@ module DataCycleCore
           }
 
           data_hash = {
-            "validityPeriod" => {
-              "validFrom" => "2016-01-01",
-              "validUntil" => "2017-01-01"
+            "validity_period" => {
+              "valid_from" => "2016-01-01",
+              "valid_until" => "2017-01-01"
             }
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
@@ -507,18 +507,18 @@ module DataCycleCore
 
         test "object validator daterange test data edge-cases" do
           template_hash= {
-            "validityPeriod" => {
+            "validity_period" => {
               "label" => "Gültigkeitszeitraum",
               "type" => "object",
               "storage_location" => "metadata",
               "validations" => {
                 "daterange" => {
-                  "from" => "validFrom",
-                  "to" => "validUntil"
+                  "from" => "valid_from",
+                  "to" => "valid_until"
                 }
               },
               "properties" => {
-                "validFrom" => {
+                "valid_from" => {
                   "label" => "Gültigkeit",
                   "type" => "string",
                   "storage_type" => "string",
@@ -527,7 +527,7 @@ module DataCycleCore
                     "format" => "date_time"
                   }
                 },
-                "validUntil" => {
+                "valid_until" => {
                   "label" => "bis",
                   "type" => "string",
                   "storage_type" => "string",
@@ -540,9 +540,9 @@ module DataCycleCore
             }
           }
           data_hash = {
-            "validityPeriod" => {
-              "validFrom" => "2016-01-01",
-              "validUntil" => "2017-01-01"
+            "validity_period" => {
+              "valid_from" => "2016-01-01",
+              "valid_until" => "2017-01-01"
             }
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)

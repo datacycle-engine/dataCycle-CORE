@@ -16,6 +16,7 @@ module DataCycleCore
       content_relations table_name: "creative_works", postfix: "history"
 
       belongs_to :creative_work
+      include ContentHelpers
     end
     has_many :histories, -> { order(updated_at: :desc) }, class_name: 'DataCycleCore::CreativeWork::History', foreign_key: :creative_work_id
 
@@ -27,11 +28,11 @@ module DataCycleCore
     content_relations table_name: self.table_name
 
     # callbacks
-    before_destroy :destroy_translations, prepend: true
+    before_destroy :destroy_relations, prepend: true
 
     # associations
     belongs_to :primaryImage, class_name: 'Place', primary_key: 'id', foreign_key: 'photo'
-    acts_as_tree order: "position", foreign_key: "isPartOf"
+    acts_as_tree order: 'position', foreign_key: 'is_part_of'
 
     # custom setter
     include DataSetter
@@ -46,8 +47,9 @@ module DataCycleCore
 
     private
 
-    def destroy_translations
-      self.translations.destroy_all
+    def destroy_relations
+      self.translations.delete_all
+      self.content_search_all.delete_all
     end
 
   end

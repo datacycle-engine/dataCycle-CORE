@@ -160,10 +160,10 @@ module DataCycleCore
               ActiveRecord::Base.transaction do
                 image = create_creative_work_place( load_poi.dump[load_poi.dump.keys.first]['images'], to_update_place.id )
                 primaryImage = set_primary_image( load_poi.dump[load_poi.dump.keys.first]['primaryImage'], to_update_place.id )
-                load_poi.dump.each do |lang, lang_dump|
+                load_poi.dump.select { |l, _| I18n.available_locales.include?(l.to_sym) }.each do |lang, lang_dump|
                   I18n.with_locale(lang) do
                     place_hash = ((to_update_place.get_data_hash || {}) rescue {}).merge(extract_place_data(lang_dump))
-                    place_hash['primaryImage'] = primaryImage if primaryImage
+                    place_hash['primary_image'] = primaryImage if primaryImage
                     place_hash['image'] = image if image.count > 0
                     to_update_place.set_data_hash(place_hash)
                     to_update_place.save!
@@ -442,8 +442,8 @@ module DataCycleCore
           data_image = {
             'headline' => record['title'],
             'url' => "http://img.oastatic.com/img/#{record['id']}",
-            'contentUrl' => "http://img.oastatic.com/img/#{record['id']}/.jpg",
-            'thumbnailUrl' => "http://img.oastatic.com/img/400/400/fit/#{record['id']}/.jpg",
+            'content_url' => "http://img.oastatic.com/img/#{record['id']}/.jpg",
+            'thumbnail_url' => "http://img.oastatic.com/img/400/400/fit/#{record['id']}/.jpg",
             'gallery' => gallery,
             'seen_at' => Time.zone.now
           }

@@ -161,9 +161,9 @@ de:
         user_group_ids: Benutzergruppen
         external: SSO
       data_cycle_core/person:
-        givenName: Vorname
-        familyName: Familienname
-        jobTitle: Berufsbezeichnung
+        given_name: Vorname
+        family_name: Familienname
+        job_title: Berufsbezeichnung
       data_cycle_core/place:
         name: Name
         street: Straße

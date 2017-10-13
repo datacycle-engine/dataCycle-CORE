@@ -4,7 +4,6 @@ module DataCycleCore
     load_and_authorize_resource except: [:validate_single_data]      # from cancancan (authorize)
 
     def index
-
     end
 
     def show
@@ -60,6 +59,34 @@ module DataCycleCore
           redirect_back(fallback_location: root_path)
           return
         end
+      end
+
+    end
+
+    def history
+      @creativeWork = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
+
+      # get show data for split view
+      @historySource = @creativeWork.histories.find(params[:history_id]) if !params[:history_id].nil?
+
+      I18n.with_locale(@historySource.first_available_locale) do
+        @historySchema = @historySource.get_data_hash
+      end unless @historySource.nil?
+
+      I18n.with_locale(@creativeWork.first_available_locale) do
+
+        unless @creativeWork.read_write?
+          raise "read_only"
+          redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error])
+          return
+        end
+
+        @place = DataCycleCore::Place.new
+        @person = DataCycleCore::Person.new
+        @dataSchema = @creativeWork.get_data_hash
+        @diffSchema = helpers.get_diff(@historySchema, @dataSchema)
+
+        render layout: "data_cycle_core/creative_works_edit"
       end
 
     end
@@ -133,10 +160,19 @@ module DataCycleCore
     end
 
 
-    def after_create(content)
+    def after_create(content, user)
       # to be implemented by specific projects
     end
 
+    def import
+      @content = DataCycleCore::DataHashService.import_data(data_set: params[:data])
+      if !@content.blank? && @content.metadata.dig('validation', 'description') == params[:type].camelize
+        render json: @content.to_json
+      else
+        render json: { errors: "no data" }
+      end
+
+    end
 
     private
       def create_params
@@ -154,7 +190,7 @@ module DataCycleCore
       def get_inherit_datahash(creativeWork)
 
         data_hash = creativeWork.get_data_hash
-        parent = DataCycleCore::CreativeWork.find_by(id: creativeWork.isPartOf)
+        parent = DataCycleCore::CreativeWork.find_by(id: creativeWork.is_part_of)
 
         if parent.nil?
           return nil

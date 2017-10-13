@@ -48,7 +48,7 @@ module DataCycleCore
 
       #todo: make this more fancy
       @selected_values = []
-      value.each do |v|
+      Array(value).each do |v|
         options.each do |o|
           if o[:value] == v
             @selected_values.push(o)

@@ -4,16 +4,21 @@ Rake::Task['db:create'].enhance do
   if ENV['RAILS_ENV']
     ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
     ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
+    ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
   else
     ActiveRecord::Base.establish_connection(:development)
                       .connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
     ActiveRecord::Base.establish_connection(:development)
                       .connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
+    ActiveRecord::Base.establish_connection(:development)
+                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
 
     ActiveRecord::Base.establish_connection(:test)
                       .connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
     ActiveRecord::Base.establish_connection(:test)
                       .connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
+    ActiveRecord::Base.establish_connection(:test)
+                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
   end
 end
 
@@ -81,11 +86,19 @@ namespace :data_cycle_core do
           puts "Downloading #{label.to_s.gsub(/_/, ' ')} (#{total} items) ..." if total
         }
         on.item_processed { |title, id, num, total|
-          puts " -> \"#{title} (\##{id})\" downloaded (#{num} of #{total || '?'})"
+          # puts " -> \"#{title} (\##{id})\" downloaded (#{num} of #{total || '?'})"
         }
         on.error { |title, id, data, error|
-          puts "Error downloading \"#{title} (\##{id})\": #{error}"
-          puts "  DATA: #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}"
+          if title && id
+            puts "Error downloading \"#{title} (\##{id})\": #{error}"
+          elsif title
+            puts "Error downloading \"#{title}\": #{error}"
+          elsif id
+            puts "Error downloading \"\##{id}\": #{error}"
+          else
+            puts "Error: #{error}"
+          end
+          puts "  DATA: #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}" if data
         }
         on.phase_finished { |label, total|
           puts "Downloading #{label.to_s.gsub(/_/, ' ')} (#{total} items) ... [DONE]"
@@ -104,7 +117,18 @@ namespace :data_cycle_core do
       }]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
-      external_source.import(options)
+      external_source.import(options) do |on|
+        on.preparing_phase { |label|
+          puts "Preparing #{label.to_s.gsub(/_/, ' ')} ..."
+        }
+        on.phase_started { |label, total|
+          puts "Importing #{label.to_s.gsub(/_/, ' ')} ..." if total.nil?
+          puts "Importing #{label.to_s.gsub(/_/, ' ')} (#{total} items) ..." if total
+        }
+        on.phase_finished { |label, total|
+          puts "Importing #{label.to_s.gsub(/_/, ' ')} (#{total} items) ... [DONE]"
+        }
+      end
     end
   end
 end

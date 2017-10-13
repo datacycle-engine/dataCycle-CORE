@@ -4,8 +4,8 @@
         <span>erstellt am </span>
         <span><strong><%= Time.at(dataCycleObject.created_at).to_s(:german_datetime_format) %></strong></span>
         <span> von </span>
-        <span><strong><a href="mailto:<%= "#{creator.email}" %>"><%= "#{creator.name}" %></strong></a>.</span>
-	    <!--<span>Letzte Bearbeitung: </span>
-	    <span><strong><%= Time.at(dataCycleObject.updated_at).to_s(:german_datetime_format) %></strong></span>-->
+        <span><strong><a href="mailto:<%= "#{creator.email}" %>"><%= "#{creator.name}" %></a></strong></span>
+	    <!--<span>, bearbeitet am </span>-->
+	    <!--<span><strong><%= Time.at(dataCycleObject.updated_at).to_s(:german_datetime_format) %></strong></span>-->
 	</span>
 <% end %>

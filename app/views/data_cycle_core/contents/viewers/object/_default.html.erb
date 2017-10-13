@@ -1,0 +1,49 @@
+<% objects = value %>
+<% if !objects.nil? && !objects.blank? %>
+
+    <% objects_length = objects.count %>
+
+    <% objects.each_with_index do |object,index| %>
+
+        <% I18n.with_locale(object.first_available_locale) do %>
+
+            <% objectDataHash = object.get_data_hash %>
+
+            <%= render 'data_cycle_core/contents/viewers/attribute_viewer',
+                       key: key,
+                       definition: definition,
+                       value: value,
+                       options: options.merge({hide_label: true}),
+                       data_attributes: {id: object.id.split(','), editor: definition['editor']['type']} do %>
+
+                <span class="detail-label">
+                    <%= render 'data_cycle_core/shared/icon', icon_type: objects[0].metadata['validation']['name'].downcase %><strong><%= definition['label'].capitalize %> <%= content_tag(:span, index+1) if objects_length > 1 %></strong>
+                </span>
+
+                <%= link_to '<i class="fa fa-pencil" aria-hidden="true"></i>'.html_safe, edit_polymorphic_path(object), target: :_blank, class: "edit-link" if definition['editor']['type'] == "objectBrowser" if @historySource.nil? %>
+
+                <% if !object.metadata.nil? && !object.metadata['validation'].nil? %>
+
+                    <% validation_properties = get_ordered_validation_properties(object.metadata['validation']) %>
+
+                    <% if !validation_properties.nil? %>
+
+                        <% validation_properties.each do |key, prop| %>
+
+                            <% object_value = prop.dig('type') == "object" ? object.try(key.to_sym) : objectDataHash[key] %>
+
+                            <%= render_attribute_viewer key: key, definition: prop, value: object_value, parameters: { options: options.merge({is_embedded: true})} %>
+
+                        <% end %>
+
+                    <% end %>
+
+                <% end %>
+
+            <% end %>
+
+        <% end %>
+
+    <% end %>
+
+<% end %>

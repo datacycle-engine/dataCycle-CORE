@@ -123,7 +123,7 @@ module DataCycleCore
               contentLocation = nil
               to_update_image = CreativeWork
                 .where(
-                  "metadata ->> 'external_key' = ? AND external_source_id = ?",
+                  "external_key = ? AND external_source_id = ?",
                   data_set.id,
                   @external_source_id
                 ).first_or_initialize
@@ -132,20 +132,20 @@ module DataCycleCore
               else
                 to_update_image.metadata['validation'] = validation
               end
-              to_update_image.metadata['external_key'] = data_set.id
+              to_update_image.external_key = data_set.id
               to_update_image.external_source_id = @external_source_id
 
               data_set.dump.each do |lang, data_hash|
                 puts "#{i.to_s.ljust(5)} | #{data_set.id.ljust(51)}| #{Time.zone.now}" if (i % 250) == 0
                 i += 1
 ## TODO: visibility when its properly defined
-                data = data_hash.except('@context', '@type', 'visibility', 'keywords', 'contentLocation')
+                data = underscore_keys(data_hash.except('@context', '@type', 'visibility', 'keywords', 'contentLocation'))
                 I18n.with_locale(lang) do
                   unless data_hash["contentLocation"].blank?
                     contentLocation_hash = get_contentLocation(to_update_image.id, data_hash["contentLocation"], lang)
-                    data['contentLocation'] = [ contentLocation_hash ]
+                    data['content_location'] = [ contentLocation_hash ]
                   end
-                  data['data_type'] = nil # touch data_type to get defalut_value
+                  data['data_type'] = nil # touch data_type to get default_value
                   errors = to_update_image.set_data_hash(data)
                   # check if data is set and validations are correct
                   if errors[:error].size > 0
@@ -156,6 +156,7 @@ module DataCycleCore
 
                     next
                   end
+                  to_update_image.seen_at = Time.zone.now
                   to_update_image.save
                 end
               end
@@ -167,9 +168,10 @@ module DataCycleCore
                 unless keywords.nil?
                   keywords.each do |keyword|
                     classification_id = check_for_classification_keyword(keyword)
-                    ClassificationCreativeWork
+                    ClassificationContent
                       .find_or_initialize_by(
-                        creative_work_id: to_update_image.id,
+                        content_data_id: to_update_image.id,
+                        content_data_type: to_update_image.class.to_s,
                         classification_id: classification_id,
                         external_source_id: @external_source_id,
                         tag: true
@@ -196,7 +198,7 @@ module DataCycleCore
         if !data_hash['name'].blank? && data_hash['name'].has_key?(lang) && !data_hash['name'][lang].blank?
           set_data['name'] = data_hash['name'][lang]
         end
-        set_data['address'] = { 'streetAddress' => data_hash['address'] }
+        set_data['address'] = { 'street_address' => data_hash['address'] }
         set_data['longitude'] = data_hash['geo']['longitude'] unless data_hash['geo'].blank?
         set_data['latitude'] = data_hash['geo']['latitude'] unless data_hash['geo'].blank?
         unless set_data['longitude'].blank? || set_data['latitude'].blank?
@@ -204,6 +206,10 @@ module DataCycleCore
         end
         set_data['external_source_id'] = @external_source_id
         set_data
+      end
+
+      def underscore_keys(data_hash)
+        Hash[data_hash.to_a.map { |k, v| [k.to_s.underscore, v.kind_of?(Hash) ? underscore_keys(v) : v] }]
       end
 
     # logging ceremony for import logic

@@ -9,12 +9,12 @@ json.content_partial! 'header', content: content, options: options
 
 options[:hidden_attributes] += [
     'latitude',  'longitude',  'elevation', 'location',
-    'addressLocality', 'streetAddress', 'postalCode', 'addressCountry'  
+    'address_locality', 'street_address', 'postal_code', 'address_country'
 ]
 
 json.partial! 'untranslated_properties', content: content, locale: content.translations.first.locale, options: options
 
-if (!['addressLocality', 'streetAddress', 'postalCode', 'addressCountry'].map { |k| content.send(k) }.join.blank?)
+if (!['address_locality', 'street_address', 'postal_code', 'address_country'].map { |k| content.send(k) }.join.blank?)
   json.set! 'address' do
     json.partial! 'address', addressData: content
   end
@@ -26,7 +26,7 @@ if (content.latitude && content.longitude) || content.elevation
   end
 end
 
-if content.translations.size == 1 
+if content.translations.size == 1
   json.set! 'inLanguage', content.translations.first.locale
   json.partial! 'translated_properties', content: content, locale: content.translations.first.locale, options: options
 else

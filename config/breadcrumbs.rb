@@ -36,6 +36,11 @@ crumb :edit_resource do |resource|
   parent resource
 end
 
+crumb :show_history do |resource|
+  link to_html_string("<i aria-hidden='true' class='fa fa-history'></i>Ansehen"), edit_polymorphic_path(resource)
+  parent resource
+end
+
 # Creative Work
 crumb :'data_cycle_core/creative_work' do |creative_work|
   link to_html_string(creative_work.content_type, creative_work.title), creative_work_path(creative_work)
@@ -64,7 +69,7 @@ crumb :'data_cycle_core/persons' do
 end
 
 crumb :'data_cycle_core/person' do |person|
-  link to_html_string("Person", person.givenName + " " + person.familyName), person_path(person)
+  link to_html_string("Person", person.given_name + " " + person.family_name), person_path(person)
 
   # parent :'data_cycle_core/persons'
 end

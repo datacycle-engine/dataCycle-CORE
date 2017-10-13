@@ -93,10 +93,10 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw_count)
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt_count)
-      assert_equal(1, DataCycleCore::ClassificationCreativeWork.count)
+      assert_equal(1, DataCycleCore::ClassificationContent.count)
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(0, DataCycleCore::ClassificationCreativeWork::History.count)
+      assert_equal(0, DataCycleCore::ClassificationContent::History.count)
     end
 
     test "save data to History with embeddedObject from another content_table" do
@@ -202,16 +202,16 @@ module DataCycleCore
       data_set_new = data_set.get_data_hash
       data_set_history = data_set.get_data_hash(save_time + 6.seconds)
 
-      assert_equal(new_data_hash, data_set_new)
-      assert_equal(expected_hash, data_set_history)
-
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.count - template_cw_count)
       assert_equal(2, DataCycleCore::CreativeWork::Translation.count - template_cwt_count)
-      assert_equal(1, DataCycleCore::ClassificationCreativeWork.count)
+      assert_equal(1, DataCycleCore::ClassificationContent.count)
       assert_equal(4, DataCycleCore::CreativeWork::History.count)
       assert_equal(4, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(1, DataCycleCore::ClassificationCreativeWork::History.count)
+      assert_equal(1, DataCycleCore::ClassificationContent::History.count)
+
+      assert_equal(new_data_hash, data_set_new)
+      assert_equal(expected_hash, data_set_history)
     end
 
     test "create CreativeWork and store multiple Histories to test as_of method" do
@@ -300,6 +300,7 @@ module DataCycleCore
       template_place = DataCycleCore::Place.find_by(template: true, headline: "testPlace", description: "Place")
       data_place = DataCycleCore::Place.new
       data_place.metadata = { 'validation' => template_place.metadata['validation']}
+      data_place.save
       data_place.set_data_hash({ "name" => "Test place 1"})
       data_place.save
       data_place_id1 = data_place.id
@@ -307,6 +308,7 @@ module DataCycleCore
       template_place = DataCycleCore::Place.find_by(template: true, headline: "testPlace", description: "Place")
       data_place = DataCycleCore::Place.new
       data_place.metadata = { 'validation' => template_place.metadata['validation']}
+      data_place.save
       data_place.set_data_hash({ "name" => "Test place 2"})
       data_place.save
       data_place_id2 = data_place.id
@@ -318,8 +320,8 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(0, DataCycleCore::Place::History.count)
-      assert_equal(0, DataCycleCore::Place::History::Translation.count)
+      assert_equal(2, DataCycleCore::Place::History.count)
+      assert_equal(2, DataCycleCore::Place::History::Translation.count)
       assert_equal(0, DataCycleCore::CreativeWorkPlace::History.count)
 
       error = data_set.set_data_hash({ "headline" => "Test Link", "linked" => data_place_id1})
@@ -333,8 +335,8 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(0, DataCycleCore::Place::History.count)
-      assert_equal(0, DataCycleCore::Place::History::Translation.count)
+      assert_equal(2, DataCycleCore::Place::History.count)
+      assert_equal(2, DataCycleCore::Place::History::Translation.count)
       assert_equal(0, DataCycleCore::CreativeWorkPlace::History.count)
 
       error = data_set.set_data_hash({ "headline" => "Test Link2", "linked" => data_place_id2})
@@ -348,8 +350,8 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
       assert_equal(2, DataCycleCore::CreativeWork::History.count)
       assert_equal(2, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(0, DataCycleCore::Place::History.count)
-      assert_equal(0, DataCycleCore::Place::History::Translation.count)
+      assert_equal(2, DataCycleCore::Place::History.count)
+      assert_equal(2, DataCycleCore::Place::History::Translation.count)
       assert_equal(0, DataCycleCore::CreativeWorkPlace::History.count)
 
       error = data_set.set_data_hash({ "headline" => "Test Link1", "linked" => data_place_id1})
@@ -363,8 +365,8 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
       assert_equal(3, DataCycleCore::CreativeWork::History.count)
       assert_equal(3, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(0, DataCycleCore::Place::History.count)
-      assert_equal(0, DataCycleCore::Place::History::Translation.count)
+      assert_equal(2, DataCycleCore::Place::History.count)
+      assert_equal(2, DataCycleCore::Place::History::Translation.count)
       assert_equal(0, DataCycleCore::CreativeWorkPlace::History.count)
 
 
