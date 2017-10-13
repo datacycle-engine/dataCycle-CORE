@@ -15,13 +15,13 @@
             <i><%= Time.at(item.updated_at).to_s(:german_datetime_format) %></i>
 
             <% if can? :history, dataCycleObject %>
-            <i>
-                <% if item.class.class_name == 'CreativeWorkHistory' %>
-                    <%= link_to polymorphic_url([:history, dataCycleObject], history_id: item.id) do  %>
-                        <i class="fa fa-history" aria-hidden="true"></i>
+                <i>
+                    <% if item.class.class_name == 'CreativeWorkHistory' %>
+                        <%= link_to polymorphic_url([:history, dataCycleObject], history_id: item.id) do  %>
+                            <i class="fa fa-history" aria-hidden="true"></i>
+                        <% end %>
                     <% end %>
-                <% end %>
-            </i>
+                </i>
             <% end %>
 
         </li>
