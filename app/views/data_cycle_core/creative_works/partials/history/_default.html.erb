@@ -9,18 +9,12 @@
 
         <% if !validation_properties.nil? %>
 
-            <!-- todo: make this more generic ? -->
-            <% exludedProperties = @splitSource.nil? && @historySource.nil? ? ['headline','validity_period'] : []  %>
-
             <div class="type properties">
 
                 <% validation_properties.each do |key, prop| %>
 
                     <% value = prop.dig('type') == "object" ? dataCycleObject.try(key.to_sym) : dataCycleObjectSchema[key] %>
-
-                    <% if !exludedProperties.include?(key) %>
-                        <%= render_attribute_viewer key: key, definition: prop, value: normalize_value(value), parameters: { options: options } %>
-                    <% end %>
+                    <%= render_attribute_history_viewer key: key, definition: prop, value: normalize_value(value), parameters: { options: options } %>
 
                 <% end %>
 

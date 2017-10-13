@@ -1,40 +1,23 @@
 <div class="detail-header-functions">
     <ul class="no-bullet">
-        <li>
-            <a id="show-history-link" data-toggle="show-history"><i class="fa fa-history" aria-hidden="true"></i> erstellt am <%= Time.at(content.created_at).to_s(:german_datetime_format) %></a>
-
-            <ul class="dropdown-pane no-bullet bottom" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
-              <li>Letzte Bearbeitungen:</li>
-              <% content.histories.limit(4).each do |item|%>
-                <li>
-                  <% if item.metadata.try(:[], 'last_updated_by') %>
-                    <% person = get_user_for_id(item.metadata['last_updated_by']) %>
-                    <%= "<a href='mailto:#{person.email}'>#{person.name}</a>".html_safe %>
-                  <% else %>
-                    <%= "Unbekannt".html_safe %>
-                  <% end %>
-                  <i><%= Time.at(item.updated_at).to_s(:german_datetime_format) %></i>
-                </li>
-              <% end %>
-            </ul>
-        </li>
+        <li><%= render 'data_cycle_core/shared/history_links', dataCycleObject: content %></li>
         <% if can? :manage, DataCycleCore::DataLink %>
-          <li><%= render 'data_cycle_core/shared/data_links', dataCycleObject: content %></li>
+            <li><%= render 'data_cycle_core/shared/data_links', dataCycleObject: content %></li>
         <% end %>
         <% if can? :subscribe, content %>
             <li>
-                <a id="subscribe-link" data-toggle="subscribe"><i class="fa <%= content.subscriptions.by_user(current_user).count > 0 ? 'fa-bell' : 'fa-bell-o' %>" aria-hidden="true"></i> abonnieren (<span class="subscriber-count"><%= content.subscriptions.count %></span>)</span></a>
+                <a id="subscribe-link" data-toggle="subscribe"><i class="fa <%= content.subscriptions.by_user(current_user).count > 0 ? 'fa-bell' : 'fa-bell-o' %>" aria-hidden="true"></i> abonnieren (<span class="subscriber-count"><%= content.subscriptions.count %></span>)</a>
                 <ul class="dropdown-pane no-bullet bottom" id="subscribe" data-dropdown data-hover="true" data-hover-pane="true">
                     <% if content.subscriptions.by_user(current_user).count > 0 %>
-                      <li><%= render 'data_cycle_core/subscriptions/partials/shared/destroy_link', content: content %></li>
+                        <li><%= render 'data_cycle_core/subscriptions/partials/shared/destroy_link', content: content %></li>
                     <% else %>
-                      <li><%= render 'data_cycle_core/subscriptions/partials/shared/create_link', content: content %></li>
+                        <li><%= render 'data_cycle_core/subscriptions/partials/shared/create_link', content: content %></li>
                     <% end %>
                 </ul>
             </li>
         <% end %>
         <% if can? :manage, DataCycleCore::WatchList %>
-          <li><%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: content %></li>
+            <li><%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: content %></li>
         <% end %>
         <li><a href="<%= breadcrumbs[-2].url %>" class="hascontent"><i aria-hidden="true" class="fa fa-times"></i></a></li>
     </ul>

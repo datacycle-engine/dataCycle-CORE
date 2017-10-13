@@ -16,6 +16,21 @@
     }
     .type {
       &.properties {
+        .has-changes{
+          border: 2px solid red;
+          > span{
+            display: inline-block;
+            margin-right: 2rem;
+            i{
+              color: red;
+              font-size: 2rem;
+              position: relative;
+            }
+          }
+          .detail-type{
+            margin-left: 3rem;
+          }
+        }
         .detail-type {
           position: relative;
           box-shadow: 0 0 1px #9d9d9d;
@@ -37,14 +52,27 @@
                 float: none;
               }
             }
+            span.changed {
+              position: absolute;
+              left: 0.3rem;
+              top: 0.3rem;
+            }
             .detail-label {
               position: relative;
               margin-right: 1rem;
+            }
+
+            &.has-changes{
+              .detail-label{
+                margin-left: 3.5rem;
+                padding: 0.5rem 0;
+              }
             }
           }
           &.media {
             .media-thumbs { display: flex; }
             position: relative;
+            text-align: left;
             .thumbnail {
               position: relative;
               width: 194px;

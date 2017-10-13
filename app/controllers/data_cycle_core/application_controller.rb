@@ -2,6 +2,8 @@ module DataCycleCore
   class ApplicationController < ActionController::Base
     protect_from_forgery with: :exception
     before_action :load_watch_lists
+    before_action :better_errors_hack, if: -> { Rails.env.development? }
+
 
     def load_watch_lists
       @accessible_watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
@@ -18,5 +20,10 @@ module DataCycleCore
         format.js   { head :forbidden, content_type: 'text/html' }
       end
     end
+
+    private
+      def better_errors_hack
+        request.env['puma.config'].options.user_options.delete(:app) if request.env.has_key?('puma.config')
+      end
   end
 end

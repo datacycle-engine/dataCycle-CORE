@@ -1,7 +1,7 @@
 <% if !language.nil? && language == "de" %>
 
     <% german = dataCycleObject.translations.select{|l| l['locale'] == language}.first %>
-    <%= render 'data_cycle_core/creative_works/partials/show/translation/translation_item', translation: german, dataCycleObject: dataCycleObject %>
+    <%= render 'data_cycle_core/places/partials/show/translation/translation_item', translation: german, dataCycleObject: dataCycleObject %>
 
 <% else %>
 

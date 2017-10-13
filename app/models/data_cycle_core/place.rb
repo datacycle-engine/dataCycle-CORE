@@ -12,6 +12,7 @@ module DataCycleCore
 
       content_relations table_name: "places", postfix: "history"
 
+      include ContentHelpers
       belongs_to :place
     end
     has_many :histories, -> { order(updated_at: :desc) }, class_name: 'DataCycleCore::Place::History', foreign_key: :place_id

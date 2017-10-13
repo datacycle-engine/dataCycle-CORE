@@ -71,6 +71,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'jbuilder'
 
   s.add_dependency 'acts_as_paranoid', '~> 0.5.0'
+  s.add_dependency 'hashdiff'
 
   # development tools
   s.add_development_dependency 'web-console'
