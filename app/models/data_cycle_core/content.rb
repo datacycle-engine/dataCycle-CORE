@@ -139,8 +139,8 @@ module DataCycleCore
     end
 
     def as_of(timestamp)
-      return self if timestamp > self.updated_at
-      return nil if self.updated_at.nil? || is_history?
+      return self if updated_at.nil? || timestamp > updated_at
+      return nil if is_history?
 
       base_content_class = self.class.to_s
       history_table = "#{base_content_class}::History".safe_constantize.arel_table

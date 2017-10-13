@@ -86,11 +86,19 @@ namespace :data_cycle_core do
           puts "Downloading #{label.to_s.gsub(/_/, ' ')} (#{total} items) ..." if total
         }
         on.item_processed { |title, id, num, total|
-          puts " -> \"#{title} (\##{id})\" downloaded (#{num} of #{total || '?'})"
+          # puts " -> \"#{title} (\##{id})\" downloaded (#{num} of #{total || '?'})"
         }
         on.error { |title, id, data, error|
-          puts "Error downloading \"#{title} (\##{id})\": #{error}"
-          puts "  DATA: #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}"
+          if title && id
+            puts "Error downloading \"#{title} (\##{id})\": #{error}"
+          elsif title
+            puts "Error downloading \"#{title}\": #{error}"
+          elsif id
+            puts "Error downloading \"\##{id}\": #{error}"
+          else
+            puts "Error: #{error}"
+          end
+          puts "  DATA: #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}" if data
         }
         on.phase_finished { |label, total|
           puts "Downloading #{label.to_s.gsub(/_/, ' ')} (#{total} items) ... [DONE]"

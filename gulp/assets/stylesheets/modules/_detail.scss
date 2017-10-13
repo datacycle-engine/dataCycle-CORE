@@ -70,6 +70,7 @@
             }
           }
           &.media {
+            .media-thumbs { display: flex; }
             position: relative;
             text-align: left;
             .thumbnail {

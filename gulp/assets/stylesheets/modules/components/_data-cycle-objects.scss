@@ -105,13 +105,12 @@
     box-shadow: 0 0 0 1px rgba(157, 157, 157, 0.5);
     transition: box-shadow 200ms ease-out;
   }
-
-  .content.creative-work.bild {
+  .content.creative-work.bild,
+  .content.creative-work.video {
     padding: 1px;
     margin: 0;
     box-shadow: 0 0 0 0;
   }
-
   &:before,
   &:after {
     content: "";
@@ -159,15 +158,6 @@
       cursor: pointer;
       text-align: right;
       border: 0;
-      .delete-thumbnail {
-        position: absolute;
-        float: none;
-      }
-      &:hover {
-        .description {
-          opacity: 1;
-        }
-      }
       .description {
         opacity: 0;
         width: 100%;
@@ -515,10 +505,7 @@ span.single_error.object-browser-error {
     opacity: 1;
   }
 }
-
-
 /* Object Browser New Items */
-
 .reveal {
   &.new-item {
     background: $white;

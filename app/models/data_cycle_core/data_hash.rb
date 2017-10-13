@@ -35,7 +35,8 @@ module DataCycleCore
           self.updated_at = save_time
           updated_by = {'last_updated_by' => current_user.try(:id)}
           self.metadata.nil? ? self.metadata = updated_by : self.metadata.merge!(updated_by)
-          self.id = SecureRandom.uuid if self.id.nil?
+          #self.id = SecureRandom.uuid if self.id.nil?
+          self.save if self.id.nil?
           self.set_search
         end
       end
@@ -177,6 +178,11 @@ module DataCycleCore
 
     def set_search
       # upsert with one SQL Statement
+      if search_property_names.blank? # no new search entry and delete if one exists
+        #self.content_search_all.destroy_all
+        return
+      end
+
       full_text = search_property_names.map{|item| self.send(item)}.join(' ').gsub(/[']/,"''")
       full_text = "" if full_text.nil?
       full_text_most = (search_property_names - ['headline']).map{|item| self.send(item)}.join(' ').gsub(/[']/,"''")
@@ -184,11 +190,16 @@ module DataCycleCore
       headline = self.try('send','headline')
       headline = headline.gsub(/[']/,"''") unless headline.nil?
       headline = "" if headline.nil?
-      classification_string = self.classification_aliases.pluck(:name).try(:join, " ").try(:gsub, /[']/, "''")
+      classification_string = self.display_classification_aliases.pluck(:name).try(:join, " ").try(:gsub, /[']/, "''")
       classification_string = "" if classification_string.nil?
+      all_text = [headline, classification_string, full_text].join(' ')
+      validity_hash = metadata.nil? ? nil : metadata['validity_period']
+      validity_string = get_validity(validity_hash)
+
       connection = ActiveRecord::Base.connection
       sql_query = <<-eos
-        INSERT INTO searches (id, content_data_id, content_data_type, locale, words, full_text, created_at, updated_at, headline, classification_string, data_type)
+        INSERT INTO searches (id, content_data_id, content_data_type, locale, words, full_text,
+          created_at, updated_at, headline, classification_string, data_type, all_text, validity_period)
         VALUES
         ( DEFAULT,
           '#{self.id}',
@@ -200,7 +211,9 @@ module DataCycleCore
           '#{Time.zone.now.to_s(:long_usec)}',
           '#{headline}',
           '#{classification_string}',
-          '#{self.metadata.try(:[],'validation').try(:[],'name')}'
+          '#{self.metadata.try(:[],'validation').try(:[],'name')}',
+          '#{all_text}',
+          '#{validity_string}'
         )
         ON CONFLICT (content_data_id, content_data_type, locale)
         WHERE content_data_id = '#{self.id}' AND content_data_type = '#{self.class.to_s}' AND locale = '#{I18n.locale}'
@@ -211,9 +224,11 @@ module DataCycleCore
           updated_at = EXCLUDED.updated_at,
           headline = EXCLUDED.headline,
           classification_string = EXCLUDED.classification_string,
-          data_type = EXCLUDED.data_type;
+          data_type = EXCLUDED.data_type,
+          all_text = EXCLUDED.all_text,
+          validity_period = EXCLUDED.validity_period;
       eos
-      result = connection.exec_query(sql_query)
+      connection.exec_query(sql_query)
       # search_object = DataCycleCore::Search.find_or_create_by(content_data_id: self.id, content_data_type: self.class.to_s)
       # search_object.update(data_hash)
       # self.content_search = search_object
@@ -516,6 +531,30 @@ module DataCycleCore
         return true if data.length == 1 && data[0].blank?
       end
       return false
+    end
+
+    def get_validity(validity_hash)
+      from, to = nil, nil
+      if validity_hash && (validity_hash['date_published'] || validity_hash['valid_from'])
+        from = validity_hash['date_published'] || validity_hash['valid_from']
+      end
+      if validity_hash && (validity_hash['expires'] || validity_hash['valid_until'])
+        to = validity_hash['expires'] || validity_hash['valid_until']
+      end
+
+      from = from.blank? ? nil : from.to_datetime
+      from = nil if !from.blank? && from < DateTime.new(1980,1,1,0,0)
+      to = to.blank? ? nil : to.to_datetime
+      to = nil if !to.blank? && to > DateTime.new(9999,1,1,0,0)
+
+      [
+        '[',
+        from.kind_of?(DateTime) ? from.to_s(:long_usec) : '',
+        ',',
+        to.kind_of?(DateTime) ? to.to_s(:long_usec) : '',
+        ']'
+      ].join('')
+
     end
 
   end

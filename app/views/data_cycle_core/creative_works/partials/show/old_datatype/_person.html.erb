@@ -1,4 +1,4 @@
 <div class="detail-type person">
     <span class="detail-label"><%= label %></span>
-    <span class="detail-content"><%= value %></span>
+    <span class="detail-content"><%= value.dig('given_name') %> <%= value.dig('family_name') %></span>
 </div>

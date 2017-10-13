@@ -1,0 +1,26 @@
+<% unless @creativeWork.nil? %>
+
+    <div class="reveal new-item" id="<%= reveal_id %>" data-reveal>
+        <h3><%= reveal_title %></h3>
+
+        <% if !params[:search].present? %>
+            <span class="notice">Sie müssen eine Suche durchführen, bevor Sie einen neuen Inhalt erstellen können.</span>
+        <% end %>
+
+        <%= form_for(@creativeWork) do |f| %>
+            <%= hidden_field_tag 'template', reveal_template %>
+            <div class="validation-container form-element">
+                <%= label_tag 'creative_work[datahash][name]', 'Titel' %>
+                <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value: params[:search], disabled: !params[:search].present? %>
+            </div>
+            <% if params[:search].present? %>
+                <%= f.submit "Erstellen", class: "button primary" %>
+            <% end %>
+        <% end %>
+
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+<% end %>

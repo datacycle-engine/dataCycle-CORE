@@ -22,7 +22,6 @@
             </div>
             <% value = value['value'] unless value.blank? %>
         <% end %>
-
         <ul class="content-tiles">
             <% object.find(value).each do |item| %>
                 <li class="<%= [

@@ -42,6 +42,17 @@ form {
   }
 }
 
+button, .button {
+  cursor: pointer;
+}
+
+.button.success {
+  color: white;
+  &:focus, &:hover {
+    color: white;
+  }
+}
+
 .pagination {
   border-radius: 30px; //background: lighten($light-gray, 7%);
   a,
@@ -624,9 +635,20 @@ span.single_error:before,
     text-align: center;
     position: relative;
     .image-container {
+      position: relative;
       width: 66%;
       float: left;
       text-align: center;
+      .overlay-icon {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-left: -2.5rem;
+        margin-top: -2.5rem;
+        .fa {
+          font-size: 5rem;
+        }
+      }
     }
   }
   .video video {
@@ -747,7 +769,8 @@ span.single_error:before,
 .tags,
 body .v-select {
   .tag,
-  .selected-tag {
+  .selected-tag, 
+  .select2-selection__choice {
     display: inline-block;
     background-color: rgba($primary-color, 0.5);
     font-size: 0.8rem;
@@ -884,3 +907,5 @@ body .v-select {
 body.login-page {
   background-color: darkgrey;
 }
+
+

@@ -174,3 +174,24 @@
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Bild"
+
+- :data:
+    :name: BildMinimal
+    :description: ImageObject
+    :type: object
+    :content_type: variant
+    :permissions:
+      :read_write: false
+    :properties:
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :search: true
+      :test_content:
+        :label: Alt-Label
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :search: true
