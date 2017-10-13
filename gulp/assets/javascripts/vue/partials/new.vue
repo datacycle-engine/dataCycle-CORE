@@ -36,8 +36,10 @@ export default {
       var iframe = $(this).find('iframe');
       if (iframe.length > 0) {
         iframe.css('visibility', 'hidden');
+        iframe.after('<div class="loading-iframe"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>')
         iframe[0].src = iframe[0].src;
         iframe.on('load', function() {
+          iframe.siblings('.loading-iframe').remove();
           iframe.css('visibility', 'visible');
         });
       }

@@ -138,7 +138,7 @@ module DataCycleCore
     end
 
     def import
-      @content = DataCycleCore::DataHashService.import_data(data_set: params[:data], current_user: current_user)
+      @content = DataCycleCore::DataHashService.import_data(data_set: params[:data])
       if !@content.blank? && @content.metadata.dig('validation', 'description') == params[:type].camelize
         render json: @content.to_json
       else

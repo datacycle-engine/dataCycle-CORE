@@ -74,7 +74,7 @@ module DataCycleCore
       end
     end
 
-    def self.import_data(data_set:, current_user:, external_key: nil, external_source_id: nil)
+    def self.import_data(data_set:, external_key: nil, external_source_id: nil)
       # todo: refactor import logic to work with everything
       # normalize data_set
       if data_set.is_a?(ActionController::Parameters)
@@ -86,9 +86,6 @@ module DataCycleCore
 
       data_template = DataCycleCore::CreativeWork.find_by(template: true, description: data_set.values.first['@type'].split(':').last)
       validation = data_template.metadata['validation']
-
-      template_place = DataCycleCore::Place.find_by(template: true, headline: DataCycleCore.default_place_type)
-      contentLocation_template = template_place.metadata['validation']
 
       template_params = DataCycleCore::DataHashService.get_object_params('creative_works', data_template.headline, data_template.description)
 
@@ -140,7 +137,6 @@ module DataCycleCore
           data['content_location'] = [ content_location_hash ]
         end
         data['data_type'] = nil # touch data_type to get default_value
-
         object_params = ActionController::Parameters.new(creative_work: ActionController::Parameters.new(datahash: data))
         object_params = object_params.require(:creative_work).permit(:datahash => template_params)
 
@@ -265,7 +261,7 @@ module DataCycleCore
 
           if value.is_a?(::Hash)
 
-            if properties['type'] == 'object' && !properties['editor']['type'].nil? && properties['editor']['type'] == 'embeddedObject'
+            if properties['type'] == 'object' && !properties.dig('editor', 'type').nil? && properties.dig('editor', 'type') == 'embeddedObject'
               object_properties = self.get_internal_template(properties['storage_location'],properties['name'],properties['description'])
               temp_value = []
 
