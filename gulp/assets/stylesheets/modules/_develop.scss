@@ -418,3 +418,25 @@ select {
 #subscribe li {
   text-align: center;
 }
+
+.new-item {
+  iframe {
+    box-shadow: 0 0 1px #9d9d9d;
+    border: none;
+  }
+  .loading-iframe {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -1.5rem;
+    margin-top: -1.5rem;
+    .fa {
+      font-size: 3rem;
+      color: $light-gray;
+    }
+  }
+}
+
+video {
+  max-width: 100%;
+}

@@ -105,13 +105,12 @@
     box-shadow: 0 0 0 1px rgba(157, 157, 157, 0.5);
     transition: box-shadow 200ms ease-out;
   }
-
-  .content.creative-work.bild {
+  .content.creative-work.bild,
+  .content.creative-work.video {
     padding: 1px;
     margin: 0;
     box-shadow: 0 0 0 0;
   }
-
   &:before,
   &:after {
     content: "";

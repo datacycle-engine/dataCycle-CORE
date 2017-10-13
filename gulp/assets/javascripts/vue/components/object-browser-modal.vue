@@ -51,7 +51,7 @@
         <button class="button-prime small close-object-browser" @click.prevent="$emit('close')">
           <i aria-hidden="true" class="fa fa-times"></i>
         </button>
-        <new v-on:add="addItem">
+        <new v-on:add="addItem" :object-type="objectType">
           <template scope="newItem" slot="new-item">
             <slot name="new-item"></slot>
           </template>
@@ -136,7 +136,7 @@ export default {
     }.bind(this));
 
     $('.new-item').on('open.zf.reveal', function(e) {
-      this.newModal.find('form')[0].reset();
+      if (this.newModal.find('form').length > 0) this.newModal.find('form')[0].reset();
       this.newModal.find('input[type=submit]').removeAttr('disabled');
 
     }.bind(this));
@@ -221,8 +221,10 @@ export default {
       this.$emit('close');
     },
     addItem(item) {
-      this.items.push(item);
-      if (this.newModal != '') this.newModal.foundation('close');
+      if (item.id != undefined && item.errors == undefined) {
+        this.items.push(item);
+        if (this.newModal != '') this.newModal.foundation('close');
+      }
     }
   },
   asyncComputed: {

@@ -3,6 +3,9 @@ var New = require('./new.vue');
 var image_chosen = require('./image/chosen.vue');
 var image_detail = require('./image/detail.vue');
 
+var video_chosen = require('./video/chosen.vue');
+var video_detail = require('./video/detail.vue');
+
 var place_chosen = require('./place/chosen.vue');
 var place_detail = require('./place/detail.vue');
 
@@ -17,6 +20,8 @@ module.exports = {
     place_chosen,
     place_detail,
     person_chosen,
-    person_detail
+    person_detail,
+    video_chosen,
+    video_detail
   }
 }
