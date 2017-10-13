@@ -1,5 +1,4 @@
 <%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: value, options: options do %>
-
     <% get_ordered_validation_properties(definition).each do |o_key, o_definition| %>
         <%= render_attribute_viewer key: "#{key}[#{o_key}]", definition: o_definition, value: value.try(:[], o_key), parameters: { options: options } %>
     <% end %>

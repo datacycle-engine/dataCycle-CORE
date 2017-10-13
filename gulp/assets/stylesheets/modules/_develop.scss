@@ -59,7 +59,8 @@
       }
     }
   }
-  &.imageobject {
+  &.imageobject,
+  &.videoobject {
     span.detail-label {
       font-weight: bold;
     }

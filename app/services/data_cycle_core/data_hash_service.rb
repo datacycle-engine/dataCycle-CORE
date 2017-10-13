@@ -155,7 +155,7 @@ module DataCycleCore
         content.seen_at = Time.zone.now
         content.save
       end
-      content
+      return content
     end
 
     def self.get_content_location(creative_work_id, data_hash, lang, external_source_id)
@@ -173,7 +173,7 @@ module DataCycleCore
         place_hash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(place_hash['longitude'].to_f, place_hash['latitude'].to_f)
       end
       place_hash['external_source_id'] = external_source_id
-      place_hash
+      return place_hash
     end
 
     def self.init_or_create_classifications_trees_label(label_string, external_source_id)
