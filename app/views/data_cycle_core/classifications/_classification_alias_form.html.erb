@@ -3,13 +3,17 @@
   <%= hidden_field(nil, :classification_tree_id, value: classification_tree.id) if classification_tree %>
   <%= f.hidden_field :id %>
   <%= f.text_field :name %>
+  <button class="button-prime small success update"><i aria-hidden="true" class="fa fa-check"></i></button>
+  <button class="button-prime small discard"><i aria-hidden="true" class="fa fa-times"></i></button>
   <%= f.check_box :internal %>
   <% if classification_alias.persisted? %>
+    <div class="v-select">
     <%= f.select(:classification_ids,
                  options_for_select(classification_alias.classifications.map { |c| [c.name, c.id] },
                                     classification_alias.classifications.map(&:id)),
                  {},
                  {multiple: true}) %>
+    </div>
   <% end %>
   <%= f.submit %>
 <% end %>

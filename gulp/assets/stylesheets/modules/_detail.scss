@@ -43,6 +43,7 @@
             }
           }
           &.media {
+            .media-thumbs { display: flex; }
             position: relative;
             .thumbnail {
               position: relative;

@@ -158,15 +158,6 @@
       cursor: pointer;
       text-align: right;
       border: 0;
-      .delete-thumbnail {
-        position: absolute;
-        float: none;
-      }
-      &:hover {
-        .description {
-          opacity: 1;
-        }
-      }
       .description {
         opacity: 0;
         width: 100%;
@@ -514,10 +505,7 @@ span.single_error.object-browser-error {
     opacity: 1;
   }
 }
-
-
 /* Object Browser New Items */
-
 .reveal {
   &.new-item {
     background: $white;

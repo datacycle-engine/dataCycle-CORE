@@ -58,7 +58,6 @@
         </new>
       </div>
     </div>
-
   </div>
 </template>
 
