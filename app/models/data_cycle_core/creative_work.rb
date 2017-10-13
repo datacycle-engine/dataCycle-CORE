@@ -31,7 +31,7 @@ module DataCycleCore
 
     # associations
     belongs_to :primaryImage, class_name: 'Place', primary_key: 'id', foreign_key: 'photo'
-    acts_as_tree order: "position", foreign_key: "is_part_of"
+    acts_as_tree order: 'position', foreign_key: 'is_part_of'
 
     # custom setter
     include DataSetter
@@ -47,8 +47,8 @@ module DataCycleCore
     private
 
     def destroy_relations
-      self.translations.destroy_all
-      self.content_search_all.destroy_all
+      self.translations.delete_all
+      self.content_search_all.delete_all
     end
 
   end

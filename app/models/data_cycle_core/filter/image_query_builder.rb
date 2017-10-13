@@ -4,8 +4,10 @@ module DataCycleCore
 
       def initialize(locale = 'de', query = nil)
         @locale = locale
-        @query = query || CreativeWork.unscoped.select('distinct on (creative_works.id) *').
-          where(template: false).includes(:translations)
+        @query = query || CreativeWork.
+          joins(:content_search_all, :translations).
+          includes(:translations).
+          where(search[:data_type].eq(quoted("Bild")))
       end
 
     # filters
@@ -20,25 +22,31 @@ module DataCycleCore
 
       def in_validity_period(current_date = Time.now)
         reflect (
-          @query.where(
-
-            sql_date(json_path(creative_work[:metadata], quoted('{ validity_period, date_published }'))).eq(nil).
-              or(
-                sql_date(json_path(creative_work[:metadata], quoted('{ validity_period, date_published }'))).lteq(sql_date(quoted(current_date)))
-            ).
-            and(
-              sql_date(json_path(creative_work[:metadata], quoted('{ validity_period, expires }'))).eq(nil).
-              or(
-                sql_date(json_path(creative_work[:metadata], quoted('{ validity_period, expires }'))).gteq(sql_date(quoted(current_date)))
-              )
-            )
-          )
+          @query.where(in_range(search[:validity_period], cast_tstz(current_date)))
         )
       end
 
       def only_images
         reflect(
-          @query.where(json_path(creative_work[:metadata], quoted('{  validation, name }')).eq(quoted("Bild")))
+          @query.where(search[:data_type].eq(quoted("Bild")))
+        )
+      end
+
+      def fulltext_search(name)
+        search_string = name.split(" ").join("%")
+        order_string = "
+          8 * word_similarity(searches.classification_string,'%#{search_string}%') +
+          4 * word_similarity(searches.headline, '%#{search_string}%') +
+          2 * ts_rank_cd(searches.words, plainto_tsquery('simple', '#{name.squish}'),16) +
+          1 * word_similarity(searches.full_text, '%#{search_string}%')
+          DESC NULLS LAST,
+          searches.updated_at DESC"
+
+        reflect(
+          @query.where(
+            search[:all_text].matches_all(name.split(' ').map{|item| "%#{item.strip}%"}).
+            or(tsmatch(search[:words],to_tsquery(quoted(name.squish))))
+          ).order(order_string)
         )
       end
 
@@ -59,6 +67,10 @@ module DataCycleCore
 
       def classification_tree_label
         ClassificationTreeLabel.arel_table
+      end
+
+      def search
+        DataCycleCore::Search.arel_table
       end
 
     end
