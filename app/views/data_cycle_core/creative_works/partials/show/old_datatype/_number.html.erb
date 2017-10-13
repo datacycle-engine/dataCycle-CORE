@@ -1,7 +1,0 @@
-<div class="detail-type string">
-    <span class="detail-label"><%= label %></span>
-    <span class="detail-content">
-        <%= !prop.nil? && prop.has_key?('validations') && prop['validations'].has_key?('format') && prop['validations']['format'] == 'float' ? value.to_f : value.to_i %>
-        <% if !prop.nil? && !prop['editor'].nil? && !prop['editor']['options'].nil? && !prop['editor']['options']['data-unit'].nil? %><%= prop['editor']['options']['data-unit'].html_safe %><% end %>
-    </span>
-</div>
