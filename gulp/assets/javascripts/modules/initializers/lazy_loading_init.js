@@ -2,7 +2,7 @@
 module.exports.initialize = function () {
 
   $(document).ajaxStart(function () {
-    if ($(event.target).closest('#subscribe').length > 0) {
+    if (event != undefined && $(event.target).closest('#subscribe').length > 0) {
       $(event.target).closest('li').html('<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
     };
   });

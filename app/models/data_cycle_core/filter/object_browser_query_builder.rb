@@ -13,6 +13,11 @@ module DataCycleCore
               joins(:content_search_all, :translations).
               where(search[:content_data_type].eq(quoted('DataCycleCore::CreativeWork'))).
               where(search[:data_type].eq(quoted('Bild')))
+          when @type == 'video'
+            @query = DataCycleCore::CreativeWork.
+              joins(:content_search_all, :translations).
+              where(search[:content_data_type].eq(quoted('DataCycleCore::CreativeWork'))).
+              where(search[:data_type].eq(quoted('Video')))
           when @type == 'person'
             @query = DataCycleCore::Person.
               joins(:content_search_all, :translations).
