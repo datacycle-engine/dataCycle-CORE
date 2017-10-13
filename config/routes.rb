@@ -18,6 +18,7 @@ DataCycleCore::Engine.routes.draw do
   resources :persons, only: [:index, :show, :create, :edit, :update]
   resources :places, only: [:index, :show, :create, :edit, :update]
   resources :subscriptions, only: [:create, :destroy]
+  resources :events, only: [:index, :show, :create, :edit, :update]
 
   resources :data_links do
     post :send_mail, on: :member
