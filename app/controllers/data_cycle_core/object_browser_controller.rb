@@ -12,26 +12,7 @@ module DataCycleCore
       @type = params[:type] unless params[:type].blank?
       @type ||= "image"
 
-      if @type == "image"
-        query = DataCycleCore::Filter::ImageQueryBuilder.new(@language)
-        query = query.only_images
-
-      elsif @type == "video"
-        query = DataCycleCore::Filter::ImageQueryBuilder.new(@language)
-        query = query.only_videos
-
-      elsif @type == "person"
-        query = DataCycleCore::Filter::PersonQueryBuilder.new(@language)
-
-      elsif @type == "place"
-        query = DataCycleCore::Filter::PlaceQueryBuilder.new(@language)
-        query = query.only_frontend_valid
-
-      else
-        query = DataCycleCore::Filter::ImageQueryBuilder.new(@language)
-
-      end
-
+      query = DataCycleCore::Filter::ObjectBrowserQueryBuilder.new(@language, @type)
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       @per = params[:per] unless params[:per].blank?

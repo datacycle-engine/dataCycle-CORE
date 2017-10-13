@@ -11,7 +11,7 @@
 
 		<% dataCycleObjects.reject(&:nil?).each do |dataCycleObject| %>
 
-			<% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['validation'].nil? %>
+			<% if !dataCycleObject.nil? && !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['validation'].nil? %>
 
 				<%# if !dataCycleObject.metadata['validation']['content_type'].nil? && dataCycleObject.metadata['validation']['content_type'] != 'embedded' %>
 

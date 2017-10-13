@@ -15,10 +15,16 @@ module DataCycleCore
       def fulltext_search(name)
         reflect(
           @query.where(
-            search[:classification_string].matches_all(name.split(' ').map{|item| "%#{item.strip}%"}).
-            or(search[:headline].matches_all(name.split(' ').map{|item| "%#{item.strip}%"})).
-            or(search[:full_text].matches_all(name.split(' ').map{|item| "%#{item.strip}%"})).
+            search[:all_text].matches_all(name.split(' ').map{|item| "%#{item.strip}%"}).
             or(tsmatch(search[:words],to_tsquery(quoted(name.squish))))
+          )
+        )
+      end
+
+      def only_frontend_valid
+        reflect(
+          @query.where(
+            search[:content_data_type].not_eq(quoted('DataCycleCore::Place'))
           )
         )
       end
@@ -33,27 +39,27 @@ module DataCycleCore
 
     private
 
-    def join_classification_alias2
-      Arel::SelectManager.new.
-        project(search[:content_data_id]).
-        from(search).
-        join(classification_content).
-          on(search[:content_data_id].eq(classification_content[:content_data_id])).
-        join(classification).
-          on(classification_content[:classification_id].eq(classification[:id])).
-        join(classification_group).
-          on(classification[:id].eq(classification_group[:classification_id])).
-        join(classification_alias).
-          on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
-    end
+      def join_classification_alias2
+        Arel::SelectManager.new.
+          project(search[:content_data_id]).
+          from(search).
+          join(classification_content).
+            on(search[:content_data_id].eq(classification_content[:content_data_id])).
+          join(classification).
+            on(classification_content[:classification_id].eq(classification[:id])).
+          join(classification_group).
+            on(classification[:id].eq(classification_group[:classification_id])).
+          join(classification_alias).
+            on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+      end
 
-    def search
-      DataCycleCore::Search.arel_table
-    end
+      def search
+        DataCycleCore::Search.arel_table
+      end
 
-    def classification_content
-      DataCycleCore::ClassificationContent.arel_table
-    end
+      def classification_content
+        DataCycleCore::ClassificationContent.arel_table
+      end
 
     end
   end

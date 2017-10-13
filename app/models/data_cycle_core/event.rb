@@ -37,7 +37,8 @@ module DataCycleCore
     end
 
     def destroy_translations
-      self.translations.destroy_all
+      self.translations.delete_all
+      self.content_search_all.delete_all
     end
 
   end
