@@ -1,5 +1,5 @@
 <% object = ("DataCycleCore::"+("#{definition['type_name']}".classify)).constantize %>
-<%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: (value.is_a?(Hash) ? value['value'] : value), options: options, data_attributes: {id: (value.is_a?(Hash) ? value['value'] : value) } do %>
+<%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: (value.is_a?(Hash) ? value['value'] : value), options: options, data_attributes: {id: (value.is_a?(Hash) ? value['value'] : value), editor: "objectBrowser" } do %>
 
     <% if definition['releasable'] && value.is_a?(Hash) %>
         <div class="release-status">
