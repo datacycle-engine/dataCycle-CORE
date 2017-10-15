@@ -32,7 +32,7 @@ module DataCycleCore
         save_logger_level = Rails.logger.level
         Rails.logger.level = 4 unless @verbose
 
-        @classifications_tree_label_id = init_or_create_classifications_trees_label('imported')
+        @classifications_tree_label_id = init_or_create_classifications_trees_label('Tags')
 
         @image_classification = DataCycleCore::Classification.where(name: 'Bild').
           joins(classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]).
@@ -57,12 +57,12 @@ module DataCycleCore
         end
         classification.save
 
-        # check if entries up to classification_tree with label 'imported' exist
+        # check if entries up to classification_tree with label 'Tags' exist
         class_group = ClassificationGroup.
           joins(classification_alias: [classification_tree: [:classification_tree_label]]).
           where('classification_groups.classification_id = ?', classification.id).
           where('classification_trees.external_source_id = ?', @external_source_id).
-          where('classification_tree_labels.name = ?', 'imported')
+          where('classification_tree_labels.name = ?', 'Tags')
 
         if class_group.count < 1
           classification_alias = ClassificationAlias.find_or_initialize_by(name: keyword, external_source_id: @external_source_id) do |data_set|
