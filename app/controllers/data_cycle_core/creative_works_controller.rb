@@ -84,7 +84,7 @@ module DataCycleCore
         @place = DataCycleCore::Place.new
         @person = DataCycleCore::Person.new
         @dataSchema = @creativeWork.get_data_hash
-        @diffSchema = helpers.get_diff(@historySchema, @dataSchema)
+        @diffSchema = helpers.get_diff(@historySchema.merge(@historySource.get_releasable_hash), @dataSchema.merge(@creativeWork.get_releasable_hash))
 
         render layout: "data_cycle_core/creative_works_edit"
       end

@@ -39,6 +39,7 @@
                                 <%= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, dataCycleObjectSchema: @dataSchema %>
                             </div>
 
+                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable_viewer', value: @creativeWork.get_releasable_hash, key: 'creative_work', definition: {'type' => 'releasable'}, options:{force_render: true} %>
                             <%= render_content_partial 'details', content: @creativeWork, schema: @dataSchema, options: {force_render: true} %>
 
                         </div>
@@ -62,6 +63,7 @@
                                 <%= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @historySource, dataCycleObjectSchema: @historySchema %>
                             </div>
 
+                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable_viewer', value: @historySource.get_releasable_hash, key: 'creative_work', definition: {'type' => 'releasable'}, options:{compare: true, force_render: true} %>
                             <%= render_content_partial 'history', content: @historySource, schema: @historySchema, options: {force_render: true, compare: true} %>
 
                         </div>
