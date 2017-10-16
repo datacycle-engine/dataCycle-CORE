@@ -1,0 +1,23 @@
+<div data-label="releasable" class="clearfix form-element releasable" tabindex="-1">
+
+    <% value = value.blank? ? {} : value %>
+    <div class="type properties" id="release_container_<%= sanitize_to_id(key) %>">
+
+        <div class="detail-type string input">
+            <span class="detail-label">Status</span>
+            <span class="detail-content"><%= DataCycleCore::Release.find(value['release_id']).release_text unless value['release_id'].blank? %></span>
+        </div>
+
+
+        <div class="detail-type string input">
+            <span class="detail-label">Kommentar</span>
+            <span class="release-comment form-element detail-content">
+                <%= simple_format(value['release_comment']) unless value['release_comment'].nil? %>
+            </span>
+        </div>
+
+    </div>
+
+    <hr />
+
+</div>

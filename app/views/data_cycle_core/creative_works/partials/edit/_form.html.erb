@@ -86,6 +86,8 @@
 
 					<% validation_properties = get_ordered_validation_properties(dataObject.metadata['validation']) %>
 
+					<%= render 'data_cycle_core/contents/editors/metadata/releasable_editor', value: {'release_id' => dataObject.release_id, 'release_comment' => dataObject.release_comment}, key: 'creative_work', definition: {'type' => 'releasable'}, options:{} %>
+
 					<% if !validation_properties.nil? %>
 
 						<% validation_properties.each do |key, prop| %>

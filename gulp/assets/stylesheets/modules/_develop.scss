@@ -51,6 +51,25 @@
   }
 }
 
+#edit-form .releasable{
+  text-align: left;
+  label{
+    position: relative;
+    left: 0;
+    span{
+      &.button{
+        padding: 0;
+        margin: 0 0 0.5rem 0;
+        color: inherit;
+        background: transparent;
+      }
+    }
+  }
+  .release-comment{
+    white-space: pre-line;
+  }
+}
+
 .detail-content {
   .type {
     &.translations {

@@ -114,7 +114,6 @@ module DataCycleCore
         @place = DataCycleCore::Place.new
         @person = DataCycleCore::Person.new
         @dataSchema = @creativeWork.get_data_hash
-
         render layout: "data_cycle_core/creative_works_edit"
       end
     end
@@ -133,6 +132,9 @@ module DataCycleCore
           redirect_to edit_creative_work_path(@creativeWork)
           return
         end
+
+        @creativeWork.release_id = object_params[:release_id]
+        @creativeWork.release_comment = object_params[:release_comment]
 
         if @creativeWork.save
           flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
@@ -180,7 +182,7 @@ module DataCycleCore
 
       def creative_work_params(storage_location, template_name, template_description)
         datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
-        params.require(:creative_work).permit(:datahash => datahash)
+        params.require(:creative_work).permit(:release_id, :release_comment, :datahash => datahash)
       end
 
       def is_number? string
