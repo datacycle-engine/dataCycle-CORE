@@ -22,6 +22,16 @@ module.exports.initialize = function () {
           }
         });
       }
+
+      var videos_to_load = $(this).find('video.lazyload');
+      if (videos_to_load.length > 0) {
+        videos_to_load.each(function () {
+          if ($(this).attr('src') == undefined || $(this).attr('src') == "") {
+            $(this).attr('src', $(this).data('src'));
+          }
+        });
+      }
+
     });
   }
 

@@ -45,7 +45,7 @@ export default {
       }
     });
 
-    $(window).on('message', function() {
+    window.addEventListener("message", function(event) {
       $reveal.foundation('close');
       if (event.data.action == 'import') {
         var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
@@ -53,10 +53,11 @@ export default {
           browser.$emit('add', data);
         });
       }
-    });
+    }, false);
 
   },
   beforeDestroy() {
+    window.removeEventListener("message");
     $('div.new-item form').off('submit');
   },
   methods: {
