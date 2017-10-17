@@ -192,7 +192,7 @@ module DataCycleCore
           where('classification_tree_labels.name = ?', label_name).
           first!
 
-        DataCycleCore::ClassificationPlace.find_or_create_by(place_id: place_id, classification_id: classification.id, external_source_id: @external_source_id) do |item|
+        DataCycleCore::ClassificationContent.find_or_create_by(place_id: place_id, classification_id: classification.id, external_source_id: @external_source_id) do |item|
           item.seen_at = Time.zone.now
         end
       end
@@ -417,10 +417,11 @@ module DataCycleCore
           'place_id' => place_id,
           'classification_id' => classification_id
         }
-        to_update_classification_place = ClassificationPlace
+        to_update_classification_place = ClassificationContent
           .find_or_initialize_by(
             external_source_id: @external_source_id,
-            place_id: place_id,
+            content_data_id: place_id,
+            content_data_type: 'DataCycleCore::Place',
             classification_id: classification_id
           )
         to_update_classification_place.set_data(data_hash).save!
@@ -553,7 +554,7 @@ module DataCycleCore
       def import_poi_logging
         start_time = Time.zone.now
         places_present = Place.where(external_source_id: @external_source_id).count
-        places_classifications_present = ClassificationPlace.where(external_source_id: @external_source_id).count
+        places_classifications_present = ClassificationContent.where(external_source_id: @external_source_id).count
         pois_imported = DownloadPoi.count
         pois_upsert_imported = DownloadPoiUpsert.count
         #images_present = Image.where(external_source_id: @external_source_id).count
@@ -566,7 +567,7 @@ module DataCycleCore
         yield
 
         places_present = Place.where(external_source_id: @external_source_id).count
-        places_classifications_present = ClassificationPlace.where(external_source_id: @external_source_id).count
+        places_classifications_present = ClassificationContent.where(external_source_id: @external_source_id).count
         #images_present = Image.where(external_source_id: @external_source_id).count
         #images_place_present = ImagesPlace.where(external_source_id: @external_source_id).count
         @log.info "  -- after : Places: #{places_present} / PlacesClassifications: #{places_classifications_present}"

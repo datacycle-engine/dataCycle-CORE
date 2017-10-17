@@ -5,7 +5,7 @@
           'form-element',
           definition.dig('editor', 'type').in?(['date', 'datetime', 'embeddedObject']) ? '' : 'validation-container',
           key.split('[').last[0...-1].underscore,
-          definition['type'].underscore,
+          definition.dig('type').try(:underscore),
           definition.dig('editor', 'type').try(:underscore),
           definition.dig('editor', 'options', 'type').try(:underscore),
           definition.dig('editor', 'options', 'class').try(:underscore)
