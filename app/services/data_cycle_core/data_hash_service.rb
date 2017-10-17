@@ -82,7 +82,7 @@ module DataCycleCore
       end
       external_key ||= data_set.values.first['url']
       external_source_id ||= DataCycleCore::ExternalSource.find_by(name: 'JSON-LD OEW-Medienarchiv').id
-      classifications_tree_label_id = DataCycleCore::DataHashService.init_or_create_classifications_trees_label('imported', external_source_id)
+      classifications_tree_label_id = DataCycleCore::DataHashService.init_or_create_classifications_trees_label('Tags', external_source_id)
 
       data_template = DataCycleCore::CreativeWork.find_by(template: true, description: data_set.values.first['@type'].split(':').last)
       validation = data_template.metadata['validation']
@@ -189,12 +189,12 @@ module DataCycleCore
       end
       classification.save
 
-      # check if entries up to classification_tree with label 'imported' exist
+      # check if entries up to classification_tree with label 'Tags' exist
       class_group = DataCycleCore::ClassificationGroup.
         joins(classification_alias: [classification_tree: [:classification_tree_label]]).
         where('classification_groups.classification_id = ?', classification.id).
         where('classification_trees.external_source_id = ?', external_source_id).
-        where('classification_tree_labels.name = ?', 'imported')
+        where('classification_tree_labels.name = ?', 'Tags')
 
       if class_group.count < 1
         classification_alias = DataCycleCore::ClassificationAlias.find_or_initialize_by(name: keyword, external_source_id: external_source_id) do |data_set|

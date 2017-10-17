@@ -88,12 +88,10 @@
   }
 }
 
-
 .content-tiles {
   margin: 0;
   margin-bottom: 1rem;
   list-style-type: none;
-
   .content {
     display: inline-block;
     float: left;
@@ -158,6 +156,15 @@
       cursor: pointer;
       text-align: right;
       border: 0;
+      .delete-thumbnail {
+        position: absolute;
+        float: none;
+      }
+      &:hover {
+        .description {
+          opacity: 1;
+        }
+      }
       .description {
         opacity: 0;
         width: 100%;
