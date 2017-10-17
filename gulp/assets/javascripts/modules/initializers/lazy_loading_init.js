@@ -1,12 +1,6 @@
 // Add Lazy Loading to Images
 module.exports.initialize = function () {
 
-  $(document).ajaxStart(function () {
-    if (event != undefined && $(event.target).closest('#subscribe').length > 0) {
-      $(event.target).closest('li').html('<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
-    };
-  });
-
   // lazy load for images in foundation raveal
   function init_lazy_loader() {
     $('.reveal.media-preview').off('open.zf.reveal');
