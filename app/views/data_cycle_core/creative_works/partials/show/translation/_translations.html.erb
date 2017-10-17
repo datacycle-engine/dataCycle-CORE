@@ -14,36 +14,22 @@
                 <span class="icon"><i class="fa fa-comment" aria-hidden="true"></i></span>
                 <span class="title">Übersetzungen</span>
             </div>
-
-        <ul class="tabs" data-tabs id="example-tabs">
-          <li class="tabs-title is-active"><a href="#panel1" aria-selected="true">Tab 1</a></li>
-          <li class="tabs-title"><a data-tabs-target="#panel2" href="#panel2">Tab 2</a></li>
-        </ul>
+            <ul class="tabs" data-tabs id="example-tabs">
+                <% languages.each_with_index do |translation, index| %>
+                    <li class="tabs-title <% if index == 0 %>is-active<% end  %>"><a href="#panel<%= index + 1 %>" aria-selected="true"><%= "#{available_locales_with_names[translation.locale]}" %> <span><%= "(#{translation.locale})" %></span></a></li>
+                <% end %>
+            </ul>
             <div class="tabs-content" data-tabs-content="example-tabs">
-              <div class="tabs-panel is-active" id="panel1">
-                <p>Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus.</p>
-              </div>
-              <div class="tabs-panel" id="panel2">
-                <p>Suspendisse dictum feugiat nisl ut dapibus.  Vivamus hendrerit arcu sed erat molestie vehicula. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor.  Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor.</p>
-              </div>
+                <% languages.each_with_index do |translation, index| %>
+                  <div class="tabs-panel" id="panel<%= index + 1 %>">
+                    <h5><%=index%>Die Albertina bei Nacht</h5>
+                    <p><%= render 'data_cycle_core/creative_works/partials/show/translation/translation_item', translation: translation, dataCycleObject: dataCycleObject %>
+                        Alt-Label Albertinamuseet i Wien <br>Kommentar albertina
+
+                    </p>
+                  </div>
+                <% end %>
             </div>
-
-        <% languages.each do |translation| %>
-
-            <div class="row">
-                <div class="large-2 columns">
-                    <h5><%= "#{available_locales_with_names[translation.locale]} (#{translation.locale})" %></h5>
-                </div>
-
-                <div class="large-10 columns">
-                    <%= render 'data_cycle_core/creative_works/partials/show/translation/translation_item', translation: translation, dataCycleObject: dataCycleObject %>
-                </div>
-            </div>
-
-            <hr>
-
-        <% end %>
-
         </div>
 
     <% end %>

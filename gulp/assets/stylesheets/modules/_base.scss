@@ -595,6 +595,7 @@ span.single_error:before,
     padding: 0;
     text-align: center;
     position: relative;
+    overflow: hidden;
     .image-container {
       width: 66%;
       float: left;
@@ -650,7 +651,7 @@ span.single_error:before,
   font-size: 1rem;
   font-weight: normal;
   &.translations {
-    margin-bottom: 2rem;
+    margin: 2rem 0;
   }
   &.bild,
   &.bilder {
@@ -859,3 +860,18 @@ body.login-page {
 }
 
 
+/* tabs  */
+
+.tabs {
+  border: 0;
+  .tabs-title > a {
+    span {
+      color: $dark-gray;
+      font-size: rem-calc(12);
+    }
+  }
+}
+.tabs-content {
+  border: 0;
+  border-top: 1px solid $light-gray;
+}
