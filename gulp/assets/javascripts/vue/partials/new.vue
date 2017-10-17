@@ -11,6 +11,9 @@ export default {
       type: String,
       default: "image"
     },
+    creator: {
+      type: Object
+    }
   },
   mounted() {
     var browser = this;
@@ -41,6 +44,7 @@ export default {
         iframe.on('load', function() {
           iframe.siblings('.loading-iframe').remove();
           iframe.css('visibility', 'visible');
+          iframe[0].contentWindow.postMessage({ email: browser.creator.email, firstname: browser.creator.given_name, lastname: browser.creator.family_name }, "*");
         });
       }
     });

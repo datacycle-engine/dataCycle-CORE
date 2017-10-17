@@ -17,7 +17,8 @@
         new-id="new<%= definition.dig('editor', 'options', 'data-type').try(:classify) %>"
         hidden-name="<%= key %>[]"
         :reveal-link="true"
-        :readonly="<%= options['readonly'] ? true : false %>">
+        :readonly="<%= options['readonly'] ? true : false %>"
+        :creator="<%= current_user.to_json %>">
 
         <template scope="props" slot="item">
           <%= render_object_browser_partial(key: key + (definition['type'] == "object" ? '[][id]' : '[]'), definition: definition) %>
