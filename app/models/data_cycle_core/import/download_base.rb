@@ -7,8 +7,8 @@ module DataCycleCore::Import
       options[:locales] ||= I18n.available_locales
 
       if options[:locales].size != 1
-        options[:locales].each do |l|
-          download_data(type, extract_id, extract_name, callbacks, options.except(:locales).merge({locales: [l]}))
+        options[:locales].each do |language|
+          download_data(type, extract_id, extract_name, callbacks, options.except(:locales).merge({locales: [language]}))
         end
       else
         locale = options[:locales].first
@@ -22,7 +22,9 @@ module DataCycleCore::Import
         begin
           items = endpoint.send("#{type.to_s.demodulize.underscore.pluralize}", lang: locale)
 
-          callbacks.execute_callback(:phase_started, "#{type.to_s.demodulize.underscore.pluralize}_#{locale}")
+          max_string = ""
+          max_string += "#{options[:max_count]}" if options[:max_count]
+          callbacks.execute_callback(:phase_started, "#{type.to_s.demodulize.underscore.pluralize}_#{locale}", max_string)
 
           items.each do |item_data|
             item_count += 1
@@ -37,7 +39,7 @@ module DataCycleCore::Import
               item.dump[locale] = item_data
               item.save!
 
-              callbacks.execute_callback(:item_processed, item_name, item_id, item_count, nil)
+              callbacks.execute_callback(:item_processed, item_name, item_id, item_count, max_string)
             rescue => e
               callbacks.execute_callback(:error, item_name, item_id, item_data, e)
             end

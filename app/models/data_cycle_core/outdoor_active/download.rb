@@ -25,7 +25,6 @@ module DataCycleCore::OutdoorActive
       download_data(Tour, ->(data) { data['id'] }, ->(data) { data['name'] }, callbacks, options)
     end
 
-
     protected
 
     def endpoint

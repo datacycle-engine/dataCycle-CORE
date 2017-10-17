@@ -138,18 +138,19 @@ namespace :data_cycle_core do
           [k, v]
         end
       }]
+      options[:locales] = [:ar, :bg, :cs, :da, :de, :"de-CH", :en, :es, :fr, :hr, :hu, :it, :ja, :ko, :nl, :pl, :pt, :ro, :ru, :sk, :sl, :sv, :tr, :uk]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.download(options) do |on|
         on.preparing_phase { |label|
-          puts "Preparing #{label.to_s.gsub(/_/, ' ')} ..."
+          puts "Preparing  #{label.to_s.gsub(/_/, ' ')} ..."
         }
         on.phase_started { |label, total|
-          puts "Downloading #{label.to_s.gsub(/_/, ' ')} ..." if total.nil?
-          puts "Downloading #{label.to_s.gsub(/_/, ' ')} (#{total} items) ..." if total
+          puts "Download   #{label.to_s.gsub(/_/, ' ')} ..." if total.nil?
+          puts "Download   #{label.to_s.gsub(/_/, ' ')} (#{total} items) ..." if total
         }
         on.item_processed { |title, id, num, total|
-          # puts " -> \"#{title} (\##{id})\" downloaded (#{num} of #{total || '?'})"
+          puts " -> \"#{title} (\##{id})\" downloaded (#{num} of #{total || '?'})"
         }
         on.error { |title, id, data, error|
           if title && id
@@ -164,7 +165,7 @@ namespace :data_cycle_core do
           puts "  DATA: #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}" if data
         }
         on.phase_finished { |label, total|
-          puts "Downloading #{label.to_s.gsub(/_/, ' ')} (#{total} items) ... [DONE]"
+          puts "Downloaded #{label.to_s.gsub(/_/, ' ')} (#{total} items) ... [DONE]"
         }
       end
     end
