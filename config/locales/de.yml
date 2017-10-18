@@ -66,6 +66,7 @@ de:
     subscribe: "abonnieren"
     subscribed: "abonniert"
     reset: "zurücksetzen"
+    move_to: "In %{data} verschieben"
 
   validation:
     errors:
