@@ -1,0 +1,12 @@
+<% if can? :subscribe, DataCycleCore::CreativeWork %>
+  <a class="hascontent" data-toggle="abos-for-user"><%= t("pronoun.my", count: 2).capitalize %> <%= DataCycleCore::Subscription.model_name.human(count: 2) %></a>
+  <ul class="dropdown-pane no-bullet bottom abos" id="abos-for-user" data-dropdown data-hover="true" data-hover-pane="true">
+    <% if current_user.subscriptions.count > 0 %>
+      <% current_user.subscriptions.each do |subsciption| %>
+          <li><%= link_to subsciption.subscribable.try(:headline), polymorphic_path(subsciption.subscribable) %></li>
+      <% end %>
+    <% else %>
+      <li><%= DataCycleCore::Subscription.model_name.human(count: 0) %></li>
+    <% end %>
+  </ul>
+<% end %>

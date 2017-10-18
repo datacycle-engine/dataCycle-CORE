@@ -46,6 +46,11 @@ de:
     loading: 'Laden ...'
     are_you_sure: 'Sind Sie sicher?'
 
+  pronoun:
+    my:
+      one: mein
+      other: meine
+
   actions:
     show: anzeigen
     edit: bearbeiten
@@ -58,6 +63,8 @@ de:
     send: versenden
     send_with_data: "%{data} versenden"
     delete_with_data: "%{data} löschen"
+    subscribe: "abonnieren"
+    subscribed: "abonniert"
 
   validation:
     errors:
@@ -144,6 +151,13 @@ de:
       data_cycle_core/user_group:
         one: Benutzergruppe
         other: Benutzergruppen
+      data_cycle_core/subscription:
+        zero: "Keine Abos"
+        one: Abo
+        other: Abos
+      data_cycle_core/watch_list:
+        one: Merkliste
+        other: Merklisten
     attributes:
       data_cycle_core/user_group:
         name: Name

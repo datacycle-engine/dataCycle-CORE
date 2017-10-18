@@ -42,13 +42,15 @@ form {
   }
 }
 
-button, .button {
+button,
+.button {
   cursor: pointer;
 }
 
 .button.success {
   color: white;
-  &:focus, &:hover {
+  &:focus,
+  &:hover {
     color: white;
   }
 }
@@ -108,10 +110,10 @@ button, .button {
       margin-right: 0.5rem;
     }
   }
-  .history-switcher{
-    position:absolute;
+  .history-switcher {
+    position: absolute;
     right: 2rem;
-     a#show-history-link{
+    a#show-history-link {
       padding-bottom: 12px;
     }
     ul {
@@ -130,7 +132,7 @@ button, .button {
         border-width: 0 25px 12px 25px;
         border-color: transparent transparent #ffffff transparent;
       }
-      li{
+      li {
         position: relative;
         text-align: left;
         font-size: 0.8rem;
@@ -145,7 +147,7 @@ button, .button {
     margin: 0;
     list-style: none;
     line-height: 3.5rem;
-    &.no-bullet{
+    &.no-bullet {
       margin: auto;
       text-align: left;
       position: relative;
@@ -204,6 +206,7 @@ button, .button {
   padding: 4rem 0 1rem 0;
   margin: 1rem 0;
   >.title,
+  >.headline_external input,
   >.headline input {
     font-size: 2rem;
     font-weight: 200;
@@ -211,6 +214,7 @@ button, .button {
     text-align: center;
     position: relative;
   }
+  .headline_external,
   .headline {
     position: relative;
   }
@@ -517,11 +521,12 @@ button, .button {
       display: none;
     }
     .input input,
-    .string:not(.date, .datetime, .headline) input,
+    .string:not(.date, .datetime, .headline, .headline_external) input,
     .number input {
       padding: 2.5rem 1rem 2rem 1rem;
       line-height: initial;
     }
+    .headline_external input,
     .headline input {
       padding: 1rem 5rem 1.5rem 5rem;
     }
@@ -769,7 +774,7 @@ span.single_error:before,
 .tags,
 body .v-select {
   .tag,
-  .selected-tag, 
+  .selected-tag,
   .select2-selection__choice {
     display: inline-block;
     background-color: rgba($primary-color, 0.5);
@@ -907,5 +912,3 @@ body .v-select {
 body.login-page {
   background-color: darkgrey;
 }
-
-

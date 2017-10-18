@@ -5,7 +5,8 @@
 
 .detail-header.editor {
   .form-element {
-    &.headline {
+    &.headline,
+    &.headline_external {
       input {
         height: 6rem;
         padding: 1.5rem 0.5rem;
@@ -51,13 +52,13 @@
   }
 }
 
-#edit-form .releasable{
+#edit-form .releasable {
   text-align: left;
-  label{
+  label {
     position: relative;
     left: 0;
-    span{
-      &.button{
+    span {
+      &.button {
         padding: 0;
         margin: 0 0 0.5rem 0;
         color: inherit;
@@ -65,7 +66,7 @@
       }
     }
   }
-  .release-comment{
+  .release-comment {
     white-space: pre-line;
   }
 }
