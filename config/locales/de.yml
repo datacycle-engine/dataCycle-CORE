@@ -65,6 +65,7 @@ de:
     delete_with_data: "%{data} löschen"
     subscribe: "abonnieren"
     subscribed: "abonniert"
+    reset: "zurücksetzen"
 
   validation:
     errors:
