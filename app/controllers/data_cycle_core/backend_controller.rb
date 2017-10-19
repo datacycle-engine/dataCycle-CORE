@@ -5,9 +5,9 @@ module DataCycleCore
 
     def index
       @classification_array = []
-      if params[:classification].blank?
-        # @classification_array = [DataCycleCore::ClassificationAlias.find_by(name: "Aktuelle Inhalte").try(:id)]
-      else
+      @classification_array.push(helpers.ordered_content_pools.detect{|o| o[:alias].name == "Aktuelle Inhalte"}[:alias].id) if params[:classification].blank? || helpers.ordered_content_pools.count{|o| params[:classification].map{|c| c[:selected]}.include?(o[:alias].id)}.zero?
+
+      unless params[:classification].blank?
         params[:classification].each do |item|
           @classification_array.push(item['selected'])
         end
