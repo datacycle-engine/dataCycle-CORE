@@ -93,6 +93,7 @@ module DataCycleCore
       end
 
       def import_pois(callbacks = DataCycleCore::Callbacks.new, **options)
+        # import_contents(source_type, target_type, load_contents, process_content, callbacks, **options)
         import_contents(
           Poi,
           DataCycleCore::Place,

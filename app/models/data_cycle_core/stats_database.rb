@@ -1,9 +1,10 @@
 module DataCycleCore
   class StatsDatabase
 
-    attr_accessor :stat_update, :pg_name,
-                  :pg_classifications, :pg_places, :pg_size, :pg_creative_works,
-                  :pg_creative_work_places, :pg_classification_content, :pg_overlays,
+    attr_accessor :stat_update, :pg_name, :pg_size,
+                  :pg_content, :pg_content_content, :pg_classification_content,
+                  :pg_classifications, :pg_aliases, :pg_overlays,
+                  :pg_tree_label, :pg_tree_nodes,
                   :mongo_categories, :mongo_pois, :mongo_regions,
                   :import_modules
 
@@ -29,16 +30,32 @@ module DataCycleCore
 
       @pg_size = ActiveRecord::Base.connection.execute(sql).first['pg_database_size']
       @pg_classifications = Classification.count
-      @pg_places = Place.count
-      @pg_creative_works = CreativeWork.count
-      @pg_creative_work_places = CreativeWorkPlace.count
+      @pg_aliases = ClassificationAlias.count
       @pg_classification_content = ClassificationContent.count
+      @pg_tree_label = ClassificationTreeLabel.count
+      @pg_tree_nodes = ClassificationTree.count
+
+
+      @pg_content = {}
+      DataCycleCore.content_tables.each do |item|
+        @pg_content[item.humanize] = ("DataCycleCore::"+item.classify).safe_constantize.count
+      end
+
+      @pg_content_content = 0
+      DataCycleCore.content_tables.each do |from|
+        DataCycleCore.content_tables.each do |to|
+          unless from == to
+            @pg_content_content += ('DataCycleCore::'+[from, to].map(&:singularize).sort.join('_').pluralize.classify).safe_constantize.count
+          end
+        end
+      end
+
       @pg_overlays = Overlay.count
     end
 
 
     def load_mongo_data ( user_id )
-      mongo_dbs = OutdoorActive::DownloadPoi.mongo_client.list_databases
+      mongo_dbs = OutdoorActive::Poi.mongo_client.list_databases
 
       UseCase.where(user_id: user_id).each do |use_case|
         external_source_id = use_case.external_source_id
@@ -46,7 +63,7 @@ module DataCycleCore
         import_name = external_source.name
 
         Mongoid.override_database(nil)
-        mongo_database = "#{OutdoorActive::DownloadPoi.database_name}_#{external_source_id}"
+        mongo_database = "#{OutdoorActive::Poi.database_name}_#{external_source_id}"
         Mongoid.override_database(mongo_database)
         mongo_dbs_index = mongo_dbs.find_index { |db| db["name"]==mongo_database }
 
@@ -57,19 +74,19 @@ module DataCycleCore
               database: mongo_database,
               db_size: 0,
               tables: {
-                pois: 0,
-                categories: 0,
-                regions: 0
+                "no collections found": 0
               },
               last_import: "never",
               last_download: "never"
           })
         else
           mongo_dbsize = mongo_dbs[mongo_dbs_index]['sizeOnDisk']
-          mongo_categories = OutdoorActive::DownloadCategory.count
-          mongo_pois = OutdoorActive::DownloadPoi.count
-          mongo_regions = OutdoorActive::DownloadRegion.count
-          mongo_creative_works = Jsonld::DownloadCreativeWork.count
+          Mongoid.clients[external_source_id] = {
+            "database" => mongo_database,
+            "hosts" => Mongoid.default_client.cluster.servers.map(&:address).map{|adr| "#{adr.host}:#{adr.port}"},
+            "options" => nil
+          }
+          mongo_data = Hash[Mongoid.client(external_source_id).collections.map{ |item| [ item.name.humanize, item.count ]}]
 
           if external_source.last_import.nil?
             last_import = "never"
@@ -88,12 +105,7 @@ module DataCycleCore
               name: import_name,
               database: mongo_database,
               db_size: mongo_dbsize,
-              tables: {
-                pois: mongo_pois,
-                categories: mongo_categories,
-                regions: mongo_regions,
-                creative_work: mongo_creative_works
-              },
+              tables: mongo_data,
               last_import: last_import,
               last_download: last_download
           })

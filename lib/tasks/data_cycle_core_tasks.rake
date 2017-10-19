@@ -138,7 +138,9 @@ namespace :data_cycle_core do
           [k, v]
         end
       }]
-      options[:locales] = [:ar, :bg, :cs, :da, :de, :"de-CH", :en, :es, :fr, :hr, :hu, :it, :ja, :ko, :nl, :pl, :pt, :ro, :ru, :sk, :sl, :sv, :tr, :uk]
+
+      # TODO: remove --- to test multilingual support
+      options[:locales] = [:de, :en, :fr, :it, :nl]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.download(options) do |on|

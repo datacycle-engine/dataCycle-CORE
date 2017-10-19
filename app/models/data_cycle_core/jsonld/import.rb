@@ -12,44 +12,58 @@ module DataCycleCore
         import_contents(
           ImageObject,
           DataCycleCore::CreativeWork,
-          ->(locale) { ImageObject.where("dump.#{locale}": locale) },
+          ->(locale) { ImageObject.where("dump.#{locale}.@type": "schema:ImageObject") },
           ->(raw_data, template, locale) {
+
             I18n.with_locale(locale) do
-              images = (raw_data.try(:[], 'images').try(:[], 'image') || []).map { |raw_image_data|
-                create_or_update_content(
-                  CreativeWork,
-                  load_image_template(raw_image_data),
-                  extract_image_data(raw_image_data).with_indifferent_access
-                )
-              }
 
-              categories = [raw_data.dig('category', 'id')].reject(&:blank?).map { |id|
-                DataCycleCore::Classification.find_by(external_key: id)
-              }.reject(&:nil?)
+              # keywords anlegen (zur Zeit nur als string)
 
-              regions = raw_data.dig('regions', 'region').map { |r| r['id'] }.reject(&:blank?).map { |id|
-                DataCycleCore::Classification.find_by(external_key: id)
-              }.reject(&:nil?)
-
-              sources = [raw_data.dig('meta', 'source', 'id')].reject(&:blank?).map { |id|
-                DataCycleCore::Classification.find_by(external_key: id)
-              }
+              # content_location auslesen
+              content_location = create_or_update_content(
+                Place,
+                load_template(DataCycleCore::Place, 'ContentLocation'),
+                extract_content_location_data(raw_data['contentLocation'])
+                  .merge({'external_key' => raw_data['url']}).with_indifferent_access
+              )
 
               create_or_update_content(
-                Place,
-                template,
-                extract_poi_data(raw_data).with_indifferent_access.merge(
-                  image: images.map(&:id),
-                  categories: categories.map(&:id),
-                  regions: regions.map(&:id),
-                  source: sources.map(&:id).take(1)
-                ).with_indifferent_access
+                CreativeWork,
+                load_template(DataCycleCore::CreativeWork, raw_data),
+                extract_image_data(raw_data.merge({'content_location' => [{ 'id' => content_location.try(:id) }]})).with_indifferent_access
               )
             end
           },
           callbacks,
           **options
         )
+      end
+
+      protected
+
+      def extract_image_data(raw_data)
+        raw_data.extend(ImageAttributeTransformation).to_h
+      end
+
+      def extract_content_location_data(raw_data)
+        raw_data.extend(ContentLocationTransformation).to_h
+      end
+
+      def create_or_update_content(clazz, template, data)
+
+        puts clazz
+        puts "template: #{template.metadata['validation']['name']} / #{template.metadata['validation']['description']}"
+        #ap template.metadata['validation']
+        ap data
+
+        content = clazz.find_or_initialize_by(external_source_id: external_source.id,
+                                              external_key: data['external_key'])
+        content.metadata ||= {}
+        content.metadata['validation'] = template.metadata['validation']
+
+        content.set_data_hash(content.get_data_hash.merge(data))
+
+        content.tap(&:save!)
       end
 
     end
