@@ -30,10 +30,12 @@ module DataCycleCore
                   .merge({'external_key' => raw_data['url']}).with_indifferent_access
               )
 
+              raw_data.merge!({'content_location' => [{ 'id' => content_location.try(:id) }]}) unless content_location.blank?
+
               create_or_update_content(
                 CreativeWork,
                 load_template(DataCycleCore::CreativeWork, raw_data),
-                extract_image_data(raw_data.merge({'content_location' => [{ 'id' => content_location.try(:id) }]})).with_indifferent_access
+                extract_image_data(raw_data).with_indifferent_access
               )
             end
           },
@@ -52,6 +54,8 @@ module DataCycleCore
       end
 
       def create_or_update_content(clazz, template, data)
+        return nil if data.except('external_key', 'locale').blank?
+
         content = clazz.find_or_initialize_by(external_source_id: external_source.id,
                                               external_key: data['external_key'])
         content.metadata ||= {}
