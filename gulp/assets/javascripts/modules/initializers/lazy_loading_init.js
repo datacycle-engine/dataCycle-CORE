@@ -1,12 +1,6 @@
 // Add Lazy Loading to Images
 module.exports.initialize = function () {
 
-  $(document).ajaxStart(function () {
-    if (event != undefined && $(event.target).closest('#subscribe').length > 0) {
-      $(event.target).closest('li').html('<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
-    };
-  });
-
   // lazy load for images in foundation raveal
   function init_lazy_loader() {
     $('.reveal.media-preview').off('open.zf.reveal');
@@ -28,6 +22,16 @@ module.exports.initialize = function () {
           }
         });
       }
+
+      var videos_to_load = $(this).find('video.lazyload');
+      if (videos_to_load.length > 0) {
+        videos_to_load.each(function () {
+          if ($(this).attr('src') == undefined || $(this).attr('src') == "") {
+            $(this).attr('src', $(this).data('src'));
+          }
+        });
+      }
+
     });
   }
 

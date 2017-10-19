@@ -51,7 +51,7 @@
         <button class="button-prime small close-object-browser" @click.prevent="$emit('close')">
           <i aria-hidden="true" class="fa fa-times"></i>
         </button>
-        <new v-on:add="addItem" :object-type="objectType">
+        <new v-on:add="addItem" :object-type="objectType" :creator="creator">
           <template scope="newItem" slot="new-item">
             <slot name="new-item"></slot>
           </template>
@@ -72,6 +72,9 @@ export default {
     objectType: {
       type: String,
       default: "image"
+    },
+    creator: {
+      type: Object
     },
     objectLabel: {
       type: String,

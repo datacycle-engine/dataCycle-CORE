@@ -31,7 +31,7 @@ ul.backend-treeview-list {
         line-height: 1;
       }  
       li:not(.active) { 
-        span.inner-item {
+        > span.inner-item {
           position: relative;
           padding: 0.5rem 0 0 1rem;
           display: inline-block;

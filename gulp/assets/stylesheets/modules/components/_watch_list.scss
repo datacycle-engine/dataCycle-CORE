@@ -17,8 +17,13 @@
 }
 
 #main-menu {
-  .watch-lists {
+  .watch-lists,
+  .abos {
     background: white;
+    a {
+      color: $black;
+      line-height: 1rem;
+    }
     li {
       .watch-list-item {
         padding: 0 0 0.5rem 0;

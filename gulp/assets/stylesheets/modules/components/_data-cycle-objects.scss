@@ -88,12 +88,10 @@
   }
 }
 
-
 .content-tiles {
   margin: 0;
   margin-bottom: 1rem;
   list-style-type: none;
-
   .content {
     display: inline-block;
     float: left;
@@ -120,6 +118,7 @@
     clear: both;
   }
 }
+
 
 /* Objectbrowser */
 
@@ -158,6 +157,15 @@
       cursor: pointer;
       text-align: right;
       border: 0;
+      .delete-thumbnail {
+        position: absolute;
+        float: none;
+      }
+      &:hover {
+        .description {
+          opacity: 1;
+        }
+      }
       .description {
         opacity: 0;
         width: 100%;
@@ -505,7 +513,10 @@ span.single_error.object-browser-error {
     opacity: 1;
   }
 }
+
+
 /* Object Browser New Items */
+
 .reveal {
   &.new-item {
     background: $white;
@@ -584,7 +595,7 @@ span.single_error.object-browser-error {
       input {
         min-width: 100%;
         text-align: right;
-        padding: 1rem 3rem 1rem 1rem;
+        padding: 0 3rem 0 1rem;
         height: 2.5rem;
       }
       .duration-label {

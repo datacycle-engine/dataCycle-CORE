@@ -60,6 +60,7 @@ module DataCycleCore
       if !object_params[:datahash].nil?
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],object.metadata['validation'])
         datahash['creator'] = current_user[:id]
+        datahash['headline_external'] = datahash['headline']
       else
         return nil
       end
@@ -82,7 +83,7 @@ module DataCycleCore
       end
       external_key ||= data_set.values.first['url']
       external_source_id ||= DataCycleCore::ExternalSource.find_by(name: 'JSON-LD OEW-Medienarchiv').id
-      classifications_tree_label_id = DataCycleCore::DataHashService.init_or_create_classifications_trees_label('imported', external_source_id)
+      classifications_tree_label_id = DataCycleCore::DataHashService.init_or_create_classifications_trees_label('Tags', external_source_id)
 
       data_template = DataCycleCore::CreativeWork.find_by(template: true, description: data_set.values.first['@type'].split(':').last)
       validation = data_template.metadata['validation']
@@ -155,7 +156,7 @@ module DataCycleCore
         content.seen_at = Time.zone.now
         content.save
       end
-      content
+      return content
     end
 
     def self.get_content_location(creative_work_id, data_hash, lang, external_source_id)
@@ -173,7 +174,7 @@ module DataCycleCore
         place_hash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(place_hash['longitude'].to_f, place_hash['latitude'].to_f)
       end
       place_hash['external_source_id'] = external_source_id
-      place_hash
+      return place_hash
     end
 
     def self.init_or_create_classifications_trees_label(label_string, external_source_id)
@@ -189,12 +190,12 @@ module DataCycleCore
       end
       classification.save
 
-      # check if entries up to classification_tree with label 'imported' exist
+      # check if entries up to classification_tree with label 'Tags' exist
       class_group = DataCycleCore::ClassificationGroup.
         joins(classification_alias: [classification_tree: [:classification_tree_label]]).
         where('classification_groups.classification_id = ?', classification.id).
         where('classification_trees.external_source_id = ?', external_source_id).
-        where('classification_tree_labels.name = ?', 'imported')
+        where('classification_tree_labels.name = ?', 'Tags')
 
       if class_group.count < 1
         classification_alias = DataCycleCore::ClassificationAlias.find_or_initialize_by(name: keyword, external_source_id: external_source_id) do |data_set|

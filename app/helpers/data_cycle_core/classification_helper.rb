@@ -73,15 +73,6 @@ module DataCycleCore
       cached_ordered_content_pools
     end
 
-    def get_next_content_pool(classification_id)
-      unless ordered_content_pools.nil?
-        c_index = ordered_content_pools.index{ |c| c[:id] == classification_id }
-        if c_index < ordered_content_pools.length - 1
-          return ordered_content_pools[c_index + 1]
-        end
-      end
-    end
-
     def walk_classification_tree(classification_alias,level=0)
       classification_tree = []
       return if classification_alias.nil?

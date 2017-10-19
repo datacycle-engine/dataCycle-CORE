@@ -35,6 +35,15 @@ module DataCycleCore
               DataCycleCore::Place
             ]
 
+            can :manage,
+            [
+              DataCycleCore::Classification,
+              DataCycleCore::ClassificationTreeLabel,
+              DataCycleCore::ClassificationTree,
+              DataCycleCore::ClassificationAlias
+            ],
+            external_source_id: nil
+
           can :crud, DataCycleCore::CreativeWork do |creative_work|
             creative_work&.metadata&.dig('validation','permissions','read_write') != false
           end

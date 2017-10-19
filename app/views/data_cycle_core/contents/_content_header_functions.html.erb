@@ -6,7 +6,7 @@
         <% end %>
         <% if can? :subscribe, content %>
             <li>
-                <a id="subscribe-link" data-toggle="subscribe"><i class="fa <%= content.subscriptions.by_user(current_user).count > 0 ? 'fa-bell' : 'fa-bell-o' %>" aria-hidden="true"></i> abonnieren (<span class="subscriber-count"><%= content.subscriptions.count %></span>)</a>
+                <a id="subscribe-link" data-toggle="subscribe"><i class="fa <%= content.subscriptions.by_user(current_user).count > 0 ? 'fa-bell' : 'fa-bell-o' %>" aria-hidden="true"></i> <span class="text"><%= content.subscriptions.by_user(current_user).count > 0 ? t('actions.subscribed') : t('actions.subscribe') %></span></a>
                 <ul class="dropdown-pane no-bullet bottom" id="subscribe" data-dropdown data-hover="true" data-hover-pane="true">
                     <% if content.subscriptions.by_user(current_user).count > 0 %>
                         <li><%= render 'data_cycle_core/subscriptions/partials/shared/destroy_link', content: content %></li>

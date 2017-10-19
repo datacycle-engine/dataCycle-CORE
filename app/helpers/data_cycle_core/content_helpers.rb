@@ -16,6 +16,10 @@ module DataCycleCore
       raise NotImplementedError
     end
 
+    def get_releasable_hash
+      {"release_id" => release_id, "release_comment" => release_comment}
+    end
+
     # def creator
     #   DataCycleCore::User.find(metadata['creator']) if metadata && metadata['creator']
     # end

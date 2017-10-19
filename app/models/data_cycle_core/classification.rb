@@ -8,11 +8,11 @@ module DataCycleCore
     acts_as_paranoid
 
     DataCycleCore.content_tables.each do |content_table|
-      has_many "classification_#{content_table}".to_sym, dependent: :destroy
-      has_many content_table.to_sym, through: "classification_#{content_table}".to_sym
+      has_many :classification_contents, dependent: :destroy
+      has_many content_table.to_sym, through: :classification_contents, source: "content_data", source_type: "DataCycleCore::#{content_table.singularize.classify}"
 
-      has_many "classification_#{content_table.singularize}_histories".to_sym
-      has_many "#{content_table.singularize}_histories".to_sym, through: "classification_#{content_table.singularize}_histories".to_sym
+      has_many :classification_content_histories, class_name: "DataCycleCore::ClassificationContent::History"
+      has_many "#{content_table.singularize}_histories".to_sym, through: :classification_content_histories, source: "content_data_history", source_type: "DataCycleCore::#{content_table.singularize.classify}::History"
     end
 
     has_many :classification_groups, dependent: :destroy

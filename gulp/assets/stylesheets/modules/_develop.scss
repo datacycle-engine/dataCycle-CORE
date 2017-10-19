@@ -5,7 +5,8 @@
 
 .detail-header.editor {
   .form-element {
-    &.headline {
+    &.headline,
+    &.headline_external {
       input {
         height: 6rem;
         padding: 1.5rem 0.5rem;
@@ -51,6 +52,25 @@
   }
 }
 
+#edit-form .releasable {
+  text-align: left;
+  label {
+    position: relative;
+    left: 0;
+    span {
+      &.button {
+        padding: 0;
+        margin: 0 0 0.5rem 0;
+        color: inherit;
+        background: transparent;
+      }
+    }
+  }
+  .release-comment {
+    white-space: pre-line;
+  }
+}
+
 .detail-content {
   .type {
     &.translations {
@@ -59,7 +79,8 @@
       }
     }
   }
-  &.imageobject {
+  &.imageobject,
+  &.videoobject {
     span.detail-label {
       font-weight: bold;
     }
@@ -439,4 +460,21 @@ select {
 
 video {
   max-width: 100%;
+}
+
+// content_pool buttons
+.content-pool-buttons {
+  .fa {
+    font-size: inherit;
+    padding: 0.5rem;
+    vertical-align: middle;
+    color: map-get($foundation-palette, primary);
+  }
+  .content-pool {
+    padding: 0.5rem 0.7rem;
+    vertical-align: middle;
+    &.active {
+      cursor: auto;
+    }
+  }
 }

@@ -50,9 +50,8 @@
 							<%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema %>
 						</div>
 
-						<%= render "data_cycle_core/#{@splitSource.model_name.route_key}/partials/show/"+@splitSource.model_name.route_key.singularize, dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema, exludedProperties: [] rescue render "data_cycle_core/#{@splitSource.model_name.route_key}/partials/show/default", dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema, exludedProperties: [], compare: false %>
+						<%= render_content_partial 'details', content: @splitSource, schema: @splitSchema, options: {force_render: true} %>
 
-						<%#= render "data_cycle_core/#{@splitSource.model_name.route_key}/partials/show/top_content/classificationAliases", dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema %>
 					</div>
 				</div>
 		<% end %>
@@ -86,6 +85,8 @@
 				<% if !dataObject.metadata.nil? && !dataObject.metadata['validation'].nil? %>
 
 					<% validation_properties = get_ordered_validation_properties(dataObject.metadata['validation']) %>
+
+					<%= render 'data_cycle_core/contents/editors/metadata/releasable_editor', value: {'release_id' => dataObject.release_id, 'release_comment' => dataObject.release_comment}, key: 'creative_work', definition: {'type' => 'releasable'}, options:{} %>
 
 					<% if !validation_properties.nil? %>
 

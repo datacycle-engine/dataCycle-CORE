@@ -18,7 +18,7 @@
     </div>
     <transition name="fade">
       <keep-alive>
-        <object-browser-modal v-if="showModal" @save="save" :object-type="objectType" :object-label="objectLabel" :url="url" :preChosenItems="existingItems" :select-one="selectOne" :new-id="newId" @close="showModal = false" :create-item="createItem" :min="min" :max="max">
+        <object-browser-modal v-if="showModal" @save="save" :object-type="objectType" :object-label="objectLabel" :url="url" :preChosenItems="existingItems" :select-one="selectOne" :new-id="newId" @close="showModal = false" :create-item="createItem" :min="min" :max="max" :creator="creator">
           <template scope="props" slot="item">
             <slot name="item" :item="props.item" :remove="props.remove"></slot>
           </template>
@@ -46,6 +46,9 @@ export default {
     },
     objectType: {
       type: String
+    },
+    creator: {
+      type: Object
     },
     objectClass: {
       type: String,

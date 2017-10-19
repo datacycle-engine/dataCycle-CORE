@@ -18,7 +18,7 @@ module DataCycleCore
         content_name += "_#{postfix}" unless postfix.nil?
 
         # relation content to classification
-        has_many classification_content_table.to_sym, class_name: class_name, as: content_name.to_sym, foreign_key: content_name.foreign_key
+        has_many classification_content_table.to_sym, class_name: class_name, foreign_key: content_name.foreign_key
         has_many :classifications, through: classification_content_table.to_sym
         has_many :classification_groups, through: :classifications
         has_many :classification_aliases, through: :classification_groups

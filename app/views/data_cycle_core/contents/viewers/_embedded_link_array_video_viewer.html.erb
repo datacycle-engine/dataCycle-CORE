@@ -1,5 +1,5 @@
 <% object = ("DataCycleCore::"+("#{definition['type_name']}".classify)).constantize %>
-<%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: (value.is_a?(Hash) ? value['value'] : value), options: options, data_attributes: {id: (value.is_a?(Hash) ? value['value'] : value), editor: "objectBrowser" } do %>
+<%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: (value.is_a?(Hash) ? value['value'] : value), options: options, data_attributes: {id: (value.is_a?(Hash) ? value['value'] : value) } do %>
 
     <% if definition['releasable'] && value.is_a?(Hash) %>
         <div class="release-status">
@@ -26,7 +26,6 @@
                                    item.class.name.demodulize.underscore.sub('_', '-'),
                                    item.content_type.underscore.sub('_', '-')
                                ].join(' ') %>">
-
                     <%= render_first_existing_partial [
                                                           "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_#{item.content_type.underscore}_tile",
                                                           "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_tile",
