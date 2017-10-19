@@ -14,23 +14,22 @@
                 <span class="icon"><i class="fa fa-comment" aria-hidden="true"></i></span>
                 <span class="title">Übersetzungen</span>
             </div>
-        <% languages.each do |translation| %>
+            <ul class="tabs" data-tabs id="example-tabs">
+                <% languages.each_with_index do |translation, index| %>
+                    <li class="tabs-title <% if index == 0 %>is-active<% end  %>"><a href="#panel<%= index + 1 %>" aria-selected="true"><%= "#{available_locales_with_names[translation.locale]}" %> <span><%= "(#{translation.locale})" %></span></a></li>
+                <% end %>
+            </ul>
+            <div class="tabs-content" data-tabs-content="example-tabs">
+                <% languages.each_with_index do |translation, index| %>
+                  <div class="tabs-panel" id="panel<%= index + 1 %>">
+                    <h5><%=index%>Die Albertina bei Nacht</h5>
+                    <p><%= render 'data_cycle_core/creative_works/partials/show/translation/translation_item', translation: translation, dataCycleObject: dataCycleObject %>
+                        Alt-Label Albertinamuseet i Wien <br>Kommentar albertina
 
-            <div class="row">
-                <div class="large-2 columns">
-                    <h5><%= "#{available_locales_with_names[translation.locale]} (#{translation.locale})" %></h5>
-                </div>
-
-                <div class="large-10 columns">
-                    <strong><%= translation.headline %></strong>
-                    <%= render 'data_cycle_core/creative_works/partials/show/translation/translation_item', translation: translation, dataCycleObject: dataCycleObject %>
-                </div>
+                    </p>
+                  </div>
+                <% end %>
             </div>
-
-            <hr>
-
-        <% end %>
-
         </div>
 
     <% end %>
