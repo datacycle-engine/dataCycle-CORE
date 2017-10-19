@@ -32,7 +32,7 @@
 
                             <% object_value = prop.dig('type') == "object" ? object.try(key.to_sym) : objectDataHash[key] %>
 
-                            <%= render_attribute_viewer key: key, definition: prop, value: object_value, parameters: { options: options.merge({is_embedded: true})} %>
+                            <%= render_attribute_viewer key: key, definition: prop, value: object_value, parameters: { options: options } %>
 
                         <% end %>
 

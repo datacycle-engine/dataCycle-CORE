@@ -4,7 +4,7 @@
     <br /><br />
 
     <% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['validation'].nil? %>
-
+        <!-- get validation Properties from template ? -->
         <% validation_properties = get_ordered_validation_properties(dataCycleObject.metadata['validation']) %>
 
         <% if !validation_properties.nil? %>

@@ -1,7 +1,22 @@
-<% if value.blank? == false || options[:force_render] ||= false %>
+<% if value.blank? == false || options.dig(:force_render) %>
 
-    <% if options.dig(:compare) && options.dig(:is_embedded).nil?  %>
-        <% item_diff = item_hash_changed @diffSchema, key, value, definition %>
+    <% pp_debug = false %>
+
+
+    <% if options.dig(:compare) && options.dig(:item_diff).nil? == false %>
+        <% if pp_debug %><%= "<strong>is set</strong><br />".html_safe %><% end %>
+        <% item_diff = options[:item_diff] %>
+    <% elsif options.dig(:compare) %>
+        <% if pp_debug %><%= "<strong>not set</strong><br />".html_safe %><% end %>
+        <% item_diff = item_has_changed @diffSchema, key, value, definition %>
+    <% else %>
+        <% item_diff = nil %>
+    <% end %>
+
+    <% if pp_debug %>
+        <%= "<strong>attribute_view_item_diff</strong><br />".html_safe %>
+        <%= item_diff %>
+        <%= "<br /><strong>attribute_view_item_diff_end</strong>".html_safe %>
     <% end %>
 
     <div data-label="<%= definition['label'] %>" class="detail-type <%= [
@@ -11,7 +26,7 @@
                 definition.dig('editor', 'options', 'type').try(:underscore),
                 definition.dig('editor', 'options', 'data-validate').try(:underscore),
                 definition.dig('editor', 'options', 'class').try(:underscore),
-                (defined?(item_diff) && item_diff.blank? == false) ? "has-changes" : ""
+                item_diff.blank? == false ? "has-changes" : ""
             ].reject(&:blank?).join(' ') %>"
          <%= data_attributes.map{|k,v| " data-#{k}='#{v.to_s}'" }.join(' ').html_safe if local_assigns.has_key? :data_attributes %>
     >
@@ -20,10 +35,11 @@
             <span class="detail-label"><%= definition['label'] %></span>
         <% end %>
 
-        <% if defined?(item_diff) && item_diff.blank? == false  %>
+        <% if item_diff.blank? == false  %>
             <span class="changed"><i class="fa fa-exclamation-triangle"></i></span>
         <% end %>
 
-        <%= yield %>
+        <%= yield(item_diff) %>
+
     </div>
 <% end %>
