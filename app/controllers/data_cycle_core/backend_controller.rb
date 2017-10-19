@@ -5,7 +5,10 @@ module DataCycleCore
 
     def index
       @classification_array = []
-      @classification_array.push(helpers.ordered_content_pools.detect{|o| o[:alias].name == "Aktuelle Inhalte"}[:alias].id) if params[:classification].blank? || helpers.ordered_content_pools.count{|o| params[:classification].map{|c| c[:selected]}.include?(o[:alias].id)}.zero?
+
+      if helpers.ordered_content_pools && (params[:classification].blank? || helpers.ordered_content_pools.count{|o| params[:classification].map{|c| c[:selected]}.include?(o[:alias].id)}.zero?)
+        @classification_array.push(helpers.ordered_content_pools.detect{|o| o[:alias].name == "Aktuelle Inhalte"}[:alias].id)
+      end
 
       unless params[:classification].blank?
         params[:classification].each do |item|
@@ -32,7 +35,7 @@ module DataCycleCore
       end
 
 
-      query = DataCycleCore::Filter::Search.new(@language).only_frontend_valid
+      query = DataCycleCore::Filter::Search.new(@language)
       query = query.order(order_string)
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
       query = query.with_classification_alias_ids(@classification_array) unless @classification_array.blank?

@@ -25,12 +25,12 @@
         </template>
 
         <% if can?(:create, object_class) %>
-          <% begin %>
-            <template slot="new-item" scope="newItem">
+          <template slot="new-item" scope="newItem">
+            <% begin %>
               <%= render_object_browser_partial(partial: 'new', key: key, definition: definition) %>
-            </template>
-          <% rescue %>
-          <% end %>
+            <% rescue %>
+            <% end %>
+          </template>
         <% end %>
 
       </object-browser>
