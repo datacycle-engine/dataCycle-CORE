@@ -1,14 +1,18 @@
 module DataCycleCore
-  module Jsonld
-    class Import < DataCycleCore::Import::ImportBase
+  module Json
+    class Import < DataCycleCore::Generic::ImportBase
       def import(**options, &block)
-        callbacks = DataCycleCore::Callbacks.new(block)
+        if options.try(:[], :logging_strategy).blank?
+          @logging = DataCycleCore::Generic::Logger::Console.new
+        else
+          @logging = options[:logging_strategy]
+        end
 
-        import_images(callbacks, **options)
+        import_images(**options)
       end
 
-      def import_images(callbacks = DataCycleCore::Callbacks.new, **options)
-      # import_contents(source_type, target_type, load_contents, process_content, callbacks, **options)
+      def import_images(**options)
+      # import_contents(source_type, target_type, load_contents, process_content, **options)
         import_contents(
           ImageObject,
           DataCycleCore::CreativeWork,
@@ -33,7 +37,6 @@ module DataCycleCore
               )
             end
           },
-          callbacks,
           **options
         )
       end

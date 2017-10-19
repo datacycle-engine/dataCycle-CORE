@@ -211,6 +211,43 @@ namespace :data_cycle_core do
         }
       end
     end
+
+
+    desc "DEBUG: Only download data from given data source"
+    task :download_new, [:external_source_id, :max_count] => [:environment] do |t, args|
+      options = Hash[{max_count: nil}.merge(args.to_h).map { |k, v|
+        if k == :max_count && v
+          [k, v.to_i]
+        else
+          [k, v]
+        end
+      }]
+
+      options[:locales] = [:de, :en, :fr, :it, :nl]
+      options[:logging_strategy] = DataCycleCore::Generic::Logger::Console.new("download")
+
+      external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
+      external_source.download(options)
+    end
+
+    desc "DEBUG: Only import (without downloading) data from given data source"
+    task :import_new, [:external_source_id, :max_count] => [:environment] do |t, args|
+      options = Hash[{max_count: FIXNUM_MAX}.merge(args.to_h).map { |k, v|
+        if k == :max_count
+          [k, v.to_i]
+        else
+          [k, v]
+        end
+      }]
+
+      options[:locales] = [:de, :fr, :en, :it, :nl]
+      options[:logging_strategy] = DataCycleCore::Generic::Logger::Console.new("import")
+
+      external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
+      external_source.import(options)
+    end
+
+
   end
 
   namespace :update do

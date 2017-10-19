@@ -1,5 +1,5 @@
 module DataCycleCore
-  module Jsonld
+  module Json
     class Endpoint
       def initialize(host: nil, end_point: nil, token: nil)
         @host = host
