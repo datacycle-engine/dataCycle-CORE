@@ -357,7 +357,6 @@ body.login-page {
 .callout {
   &.alert,
   &.success {
-    border-top: 0.3rem solid $customercolor;
     position: fixed;
     display: none;
     line-height: 4rem;
@@ -365,10 +364,11 @@ body.login-page {
     padding: 0.1rem 1rem;
     left: 0;
     right: 0;
-    top: 5px;
+    top: 0;
     width: 100%;
     z-index: 10001;
     border: 0;
+    border-top: 0.3rem solid $customercolor;
     color: white;
     .close-button,
     .close-button.medium {
