@@ -22,10 +22,8 @@
             <div class="tabs-content" data-tabs-content="example-tabs">
                 <% languages.each_with_index do |translation, index| %>
                   <div class="tabs-panel" id="panel<%= index + 1 %>">
-                    <h5><%=index%>Die Albertina bei Nacht</h5>
+                    <h5><%= translation.headline %></h5>
                     <p><%= render 'data_cycle_core/creative_works/partials/show/translation/translation_item', translation: translation, dataCycleObject: dataCycleObject %>
-                        Alt-Label Albertinamuseet i Wien <br>Kommentar albertina
-
                     </p>
                   </div>
                 <% end %>
