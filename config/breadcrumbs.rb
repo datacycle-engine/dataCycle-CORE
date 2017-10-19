@@ -84,3 +84,6 @@ crumb :'data_cycle_core/watch_list' do |watch_list|
 
   # parent :'data_cycle_core/watch_lists'
 end
+crumb :'data_cycle_core/subscriptions' do
+  link to_html_string("Abos"), subscriptions_path
+end

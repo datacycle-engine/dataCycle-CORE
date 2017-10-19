@@ -1,0 +1,16 @@
+<% breadcrumb :'data_cycle_core/subscriptions', @subscriptions %>
+
+<div class="row">
+    <div class="small-12">
+        <%= paginate @subscriptions %>
+    </div>
+</div>
+
+<% @mode = "flex" %>
+<%= render 'data_cycle_core/backend/partials/grid', dataCycleObjects: @subscriptions.map(&:subscribable) %>
+
+<div class="row">
+    <div class="small-12">
+        <%= paginate @subscriptions %>
+    </div>
+</div>

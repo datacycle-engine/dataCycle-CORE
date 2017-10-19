@@ -19,7 +19,7 @@ DataCycleCore::Engine.routes.draw do
 
   resources :persons, only: [:index, :show, :create, :edit, :update]
   resources :places, only: [:index, :show, :create, :edit, :update]
-  resources :subscriptions, only: [:create, :destroy]
+  resources :subscriptions, only: [:index, :create, :destroy]
   resources :events, only: [:index, :show, :create, :edit, :update]
 
   resources :data_links do
