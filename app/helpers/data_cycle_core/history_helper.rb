@@ -33,6 +33,9 @@ module DataCycleCore
     end
 
     def get_new_objects(history, original)
+      if history.blank?
+        return original
+      end
       history_objects = transform_object_array_to_hash(history.collect(&:get_data_hash))
       original_objects = transform_object_array_to_hash(original.collect(&:get_data_hash))
       new_objects = original_objects.delete_if { |k, _| history_objects.key?(k) }.

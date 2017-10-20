@@ -6,7 +6,7 @@
         <% item_diff = item_diff.kind_of?(Hash) ? item_diff.dig(o_key) : item_diff  %>
         <% item_diff_options = options.clone %>
         <% item_diff_options[:item_diff] = item_diff %>
-        <%# raise item_diff.inspect if key == 'offer_period' %>
+
         <%= render_attribute_history_viewer key: "#{key}[#{o_key}]", definition: o_definition, value: value.try(:[], o_key), parent_object: parent_object,  parameters: { options: item_diff_options } %>
 
     <% end %>
