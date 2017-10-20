@@ -33,6 +33,9 @@ module.exports.initialize = function () {
       }
 
     });
+    $('.reveal.media-preview').on('closed.zf.reveal', function () {
+      $(this).find('video').trigger('pause');
+    });
   }
 
   if ($('.reveal.media-preview').length > 0) init_lazy_loader();
@@ -45,11 +48,6 @@ module.exports.initialize = function () {
     $(this).find('.media-thumbs > div').on('media_previews_added', function () {
       init_lazy_loader();
     });
-  });
-
-  // stop video playback on modal close
-  $('#video-overlay, .media-preview').on('closed.zf.reveal', function () {
-    $(this).find('video').trigger('pause');
   });
 
 };
