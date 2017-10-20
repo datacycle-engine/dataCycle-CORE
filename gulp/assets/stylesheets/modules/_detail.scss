@@ -17,13 +17,25 @@
     .type {
       &.properties {
         .has-changes{
-          border: 2px solid red;
+          border: 2px solid $primary-color;
+          &.new{
+            border: 2px solid $success-color;
+            > span i{
+              color: $success-color;
+            }
+          }
+          &.remove{
+            border: 2px solid $alert-color;
+            > span i{
+              color: $alert-color;
+            }
+          }
           > span{
             display: inline-block;
             margin-right: 2rem;
             i{
-              color: red;
-              font-size: 2rem;
+              color: $primary-color;
+              font-size: 1.5rem;
               position: relative;
             }
           }
@@ -54,8 +66,8 @@
             }
             span.changed {
               position: absolute;
-              left: 0.3rem;
-              top: 0.3rem;
+              left: 0.5rem;
+              top: 0.5rem;
             }
             .detail-label {
               position: relative;

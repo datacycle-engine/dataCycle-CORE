@@ -83,7 +83,7 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({key: key, definition: definition, value: value}))
     end
 
-    def render_attribute_history_viewer(key:, definition:, value:, parent_object:, parameters: {})
+    def render_attribute_history_viewer(key:, definition:, value:, parameters: {})
       partials = [
         "#{definition['type'].underscore}_#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'data-type').try(:underscore)}",
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
@@ -91,17 +91,12 @@ module DataCycleCore
         "#{definition['type'].underscore}",
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/history_viewers/#{p}_history_viewer" }
 
-      if key == 'quotation' || key == 'author' || key == 'content_location' || key == 'website' || key == 'offer_period' || key == 'offer_periods' || key == 'validity_period' || key == 'question' || key == 'accepted_answer' || key == 'suggested_answer'
-        render_first_existing_partial(partials, parameters.merge({key: key, definition: definition, value: value, parent_object: parent_object}))
-      else
-
-        begin
-          render_first_existing_partial(partials, parameters.merge({key: key, definition: definition, value: value, parent_object: parent_object}))
-        rescue
-          render_attribute_viewer key: key, definition: definition, value: value, parameters: parameters
-        end
-
+      begin
+        render_first_existing_partial(partials, parameters.merge({key: key, definition: definition, value: value}))
+      rescue
+        render_attribute_viewer key: key, definition: definition, value: value, parameters: parameters
       end
+
     end
 
     def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {})
