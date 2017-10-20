@@ -14,7 +14,7 @@
                 <% validation_properties.each do |key, prop| %>
 
                     <% value = prop.dig('type') == "object" ? dataCycleObject.try(key.to_sym) : dataCycleObjectSchema[key] %>
-                    <%= render_attribute_history_viewer key: key, definition: prop, value: normalize_value(value), parent_object: dataCycleObject, parameters: { options: options } %>
+                    <%= render_attribute_history_viewer key: key, definition: prop, value: normalize_value(value), parameters: { options: options } %>
 
                 <% end %>
 
