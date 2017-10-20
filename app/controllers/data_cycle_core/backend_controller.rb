@@ -4,11 +4,7 @@ module DataCycleCore
     authorize_resource :class => false         # from cancancan (authorize)
 
     def index
-      @classification_array = []
-
-      if helpers.ordered_content_pools && (params[:classification].blank? || helpers.ordered_content_pools.count{|o| params[:classification].map{|c| c[:selected]}.include?(o[:alias].id)}.zero?)
-        @classification_array.push(helpers.ordered_content_pools.detect{|o| o[:alias].name == "Aktuelle Inhalte"}[:alias].id)
-      end
+      @classification_array ||= []
 
       unless params[:classification].blank?
         params[:classification].each do |item|
@@ -38,7 +34,12 @@ module DataCycleCore
       query = DataCycleCore::Filter::Search.new(@language)
       query = query.order(order_string)
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
-      query = query.with_classification_alias_ids(@classification_array) unless @classification_array.blank?
+
+      unless @classification_array.blank?
+        parse_classifications(@classification_array).each do |tree_label, class_array|
+          query = query.with_classification_alias_ids(class_array)
+        end
+      end
 
       @paginateObject = query.page(params[:page])
       @dataCycleObjects = @paginateObject.map(&:content_data)
@@ -59,6 +60,18 @@ module DataCycleCore
 
     def vue
 
+    end
+
+    private
+
+    def parse_classifications(class_array)
+      grouping_class = {}
+      class_array.each do |class_id|
+        name = DataCycleCore::ClassificationAlias.find(class_id).classification_tree_label.name
+        grouping_class[name] ||= []
+        grouping_class[name].push(class_id)
+      end
+      grouping_class
     end
 
   end
