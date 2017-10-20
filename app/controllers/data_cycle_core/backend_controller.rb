@@ -34,7 +34,14 @@ module DataCycleCore
       query = DataCycleCore::Filter::Search.new(@language)
       query = query.order(order_string)
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
-      query = query.with_classification_alias_ids(@classification_array) unless @classification_array.blank?
+
+
+      unless @classification_array.blank?
+        classification_groups = parse_classifications(@classification_array)
+        classification_groups.each do |tree_label, class_array|
+          query = query.with_classification_alias_ids(class_array)
+        end
+      end 
 
       @paginateObject = query.page(params[:page])
       @dataCycleObjects = @paginateObject.map(&:content_data)
@@ -55,6 +62,18 @@ module DataCycleCore
 
     def vue
 
+    end
+
+    private
+
+    def parse_classifications(class_array)
+      grouping_class = {}
+      class_array.each do |classi_id|
+        name = DataCycleCore::ClassificationAlias.find(classi_id).classification_tree_label.name
+        grouping_class[name] ||= []
+        grouping_class[name].push(classi_id)
+      end
+      grouping_class
     end
 
   end
