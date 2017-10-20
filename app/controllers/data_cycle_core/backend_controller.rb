@@ -4,11 +4,7 @@ module DataCycleCore
     authorize_resource :class => false         # from cancancan (authorize)
 
     def index
-      @classification_array = []
-
-      if helpers.ordered_content_pools && (params[:classification].blank? || helpers.ordered_content_pools.count{|o| params[:classification].map{|c| c[:selected]}.include?(o[:alias].id)}.zero?)
-        @classification_array.push(helpers.ordered_content_pools.detect{|o| o[:alias].name == "Aktuelle Inhalte"}[:alias].id)
-      end
+      @classification_array ||= []
 
       unless params[:classification].blank?
         params[:classification].each do |item|
