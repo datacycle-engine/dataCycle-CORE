@@ -35,13 +35,11 @@ module DataCycleCore
       query = query.order(order_string)
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
-
       unless @classification_array.blank?
-        classification_groups = parse_classifications(@classification_array)
-        classification_groups.each do |tree_label, class_array|
+        parse_classifications(@classification_array).each do |tree_label, class_array|
           query = query.with_classification_alias_ids(class_array)
         end
-      end 
+      end
 
       @paginateObject = query.page(params[:page])
       @dataCycleObjects = @paginateObject.map(&:content_data)
@@ -68,10 +66,10 @@ module DataCycleCore
 
     def parse_classifications(class_array)
       grouping_class = {}
-      class_array.each do |classi_id|
-        name = DataCycleCore::ClassificationAlias.find(classi_id).classification_tree_label.name
+      class_array.each do |class_id|
+        name = DataCycleCore::ClassificationAlias.find(class_id).classification_tree_label.name
         grouping_class[name] ||= []
-        grouping_class[name].push(classi_id)
+        grouping_class[name].push(class_id)
       end
       grouping_class
     end
