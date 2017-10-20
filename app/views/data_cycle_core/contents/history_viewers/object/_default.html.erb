@@ -1,45 +1,35 @@
-<% modified_objects = options.dig(:modified_objects) ? options[:modified_objects] : get_modified_objects(key, definition, value, @dataSchema) %>
-<%# modified_objects = options.dig(:modified_objects).blank? ? get_modified_objects(key, definition, value, @dataSchema) : options.dig(:modified_objects) %>
-<% pp_debug = false %>
-<% if pp_debug %>
-    <%= "<strong>|modified_object|</strong><br />".html_safe %>
-    <%= modified_objects %>
-    <%= "<br /><strong>|modified_object end|</strong>".html_safe %>
-<% end %>
+<% original_objects = options.dig(:original_objects) ? options[:original_objects].try(key.to_sym) : @creativeWork.try(key.to_sym) %>
 
-<% if key == 'quotation' || key == 'website' %>
-    <%# raise key.inspect %>
-<% end %>
 <% objects = value %>
 <% if !objects.nil? && !objects.blank? %>
 
-    <% objects_length = objects.count %>
+    <% removed_objects = get_removed_objects(objects, original_objects) %>
+    <% edited_objects = substract_removed_objects(objects, removed_objects) %>
+
 
     <!--
-        render Main object if count > 1 ?
+        find new Objects ?
     -->
 
-    <% objects.each_with_index do |object,index| %>
+    <% objects_length = edited_objects.count %>
+    <!-- render edited aobjects -->
+    <% edited_objects.each_with_index do |object,index| %>
 
         <% I18n.with_locale(object.first_available_locale) do %>
 
             <% objectDataHash = object.get_data_hash %>
 
+            <% object_id = objectDataHash['id'] %>
+            <% original_object = find_original_object original_objects, object_id %>
+            <% object_has_changed = get_object_changes(object, original_object) %>
+            <!--
+                if original_object.nil? => not found handling
+            -->
+
             <!-- todo: single object validation
                 renders single object
                 check if object exists
             -->
-            <% object_has_changed = modified_objects.try(:[], objectDataHash['id']) ? {objectDataHash['id'] => modified_objects.try(:[], objectDataHash['id']) } : false %>
-            <% if objectDataHash['id'] == 'dc8d404a-1cfa-4f38-b3bb-6d7f744edb16' %>
-                <%# raise "fasdf".inspect %>
-            <% end %>
-
-            <% if pp_debug %>
-                <%= "<strong>|object_has_changed|</strong><br />".html_safe %>
-                <%= object_has_changed %>
-                <%= objectDataHash['id'] %>
-                <%= "<br /><strong>|object_has_changed end|</strong>".html_safe %>
-            <% end %>
 
             <%= render 'data_cycle_core/contents/viewers/attribute_viewer',
                        key: key,
@@ -60,48 +50,13 @@
 
                     <% if !validation_properties.nil? %>
 
-                        <% if pp_debug %>
-                            <%= "|object|" %>
-                            <%= key %>
-                        <% end %>
-
                         <% validation_properties.each do |key, prop| %>
 
                             <% object_value = prop.dig('type') == "object" ? object.try(key.to_sym) : objectDataHash[key] %>
 
-                            <% item_has_changed = object_item_has_changed key, prop, object, definition, object_value, modified_objects %>
+                            <% item_has_changed = object_item_has_changed key, prop, object_value, object_has_changed, definition %>
 
-
-                            <% if pp_debug %>
-                                <%= '|property|' %>
-                                <%= key %>
-
-                                <%= "<br /><strong>item_has_changed?</strong><br/>".html_safe %>
-                                <%= item_has_changed %>
-                                <%= "<br /><strong>item_has_changed? end</strong><br />".html_safe %>
-
-                            <% end %>
-
-                            <% new_modified_objects = item_has_changed.clone %>
-
-                            <% test = false %>
-                            <% if key == 'accepted_answer' %>
-                                <%# raise key.inspect %>
-                                <%# test = true %>
-                            <% end %>
-                            <% if prop.dig('type') == "object" %>
-                                <% parent_id = object_value[0].try(:get_data_hash)['id'] if object_value.kind_of?(Array) %>
-                            <% else %>
-                                <% parent_id = nil %>
-                            <% end %>
-                            <% new_modified_objects = transform_new_modified_objects(item_has_changed, parent_id, options: {test: test}) %>
-
-                            <% if pp_debug %>
-                                <%= "<strong>new_modified_objects</strong><br />".html_safe %>
-                                <%= new_modified_objects %>
-                                <%= "<br /><strong>new_modified_objects end</strong>".html_safe %>
-                            <% end %>
-                            <%= render_attribute_history_viewer key: key, definition: prop, value: object_value, parameters: { options: options.merge({item_diff: item_has_changed, modified_objects: new_modified_objects})} %>
+                            <%= render_attribute_history_viewer key: key, definition: prop, value: object_value, parent_object: nil, parameters: { options: options.merge({item_diff: item_has_changed, original_objects: original_object})} %>
 
                         <% end %>
 
@@ -114,5 +69,112 @@
         <% end %>
 
     <% end %>
+
+    <!-- render new objects -->
+    <% new_objects = get_new_objects(objects, original_objects) %>
+    <% objects_length = new_objects.count %>
+    <h1>new Objects</h1>
+    <% new_objects.each_with_index do |object,index| %>
+
+        <% I18n.with_locale(object.first_available_locale) do %>
+
+            <% objectDataHash = object.get_data_hash %>
+
+            <% object_id = objectDataHash['id'] %>
+            <% object_has_changed = true %>
+
+            <%= render 'data_cycle_core/contents/viewers/attribute_viewer',
+                       key: key,
+                       definition: definition,
+                       value: value,
+                       options: options.merge({hide_label: true, item_diff: object_has_changed}),
+                       data_attributes: {id: object.id.split(','), editor: definition['editor']['type']} do %>
+
+                <span class="detail-label">
+                    <%= render 'data_cycle_core/shared/icon', icon_type: objects[0].metadata['validation']['name'].downcase %><strong><%= definition['label'].capitalize %> <%= content_tag(:span, index+1) if objects_length > 1 %></strong>
+                </span>
+
+                <%= link_to '<i class="fa fa-pencil" aria-hidden="true"></i>'.html_safe, edit_polymorphic_path(object), target: :_blank, class: "edit-link" if definition['editor']['type'] == "objectBrowser" if @historySource.nil? %>
+
+                <% if !object.metadata.nil? && !object.metadata['validation'].nil? %>
+
+                    <% validation_properties = get_ordered_validation_properties(object.metadata['validation']) %>
+
+                    <% if !validation_properties.nil? %>
+
+                        <% validation_properties.each do |key, prop| %>
+
+                            <% object_value = prop.dig('type') == "object" ? object.try(key.to_sym) : objectDataHash[key] %>
+
+                            <% item_has_changed = false %>
+
+                            <%= render_attribute_history_viewer key: key, definition: prop, value: object_value, parent_object: nil, parameters: { options: options.merge({item_diff: item_has_changed, original_objects: object})} %>
+
+                        <% end %>
+
+                    <% end %>
+
+                <% end %>
+
+            <% end %>
+
+        <% end %>
+
+    <% end %>
+
+
+    <!-- render removed objects -->
+    <% objects_length = removed_objects.count %>
+    <h1>removed Objects</h1>
+    <% removed_objects.each_with_index do |object,index| %>
+
+        <% I18n.with_locale(object.first_available_locale) do %>
+
+            <% objectDataHash = object.get_data_hash %>
+
+            <% object_id = objectDataHash['id'] %>
+            <% object_has_changed = true %>
+
+            <%= render 'data_cycle_core/contents/viewers/attribute_viewer',
+                       key: key,
+                       definition: definition,
+                       value: value,
+                       options: options.merge({hide_label: true, item_diff: object_has_changed}),
+                       data_attributes: {id: object.id.split(','), editor: definition['editor']['type']} do %>
+
+                <span class="detail-label">
+                    <%= render 'data_cycle_core/shared/icon', icon_type: objects[0].metadata['validation']['name'].downcase %><strong><%= definition['label'].capitalize %> <%= content_tag(:span, index+1) if objects_length > 1 %></strong>
+                </span>
+
+                <%= link_to '<i class="fa fa-pencil" aria-hidden="true"></i>'.html_safe, edit_polymorphic_path(object), target: :_blank, class: "edit-link" if definition['editor']['type'] == "objectBrowser" if @historySource.nil? %>
+
+                <% if !object.metadata.nil? && !object.metadata['validation'].nil? %>
+
+                    <% validation_properties = get_ordered_validation_properties(object.metadata['validation']) %>
+
+                    <% if !validation_properties.nil? %>
+
+                        <% validation_properties.each do |key, prop| %>
+
+                            <% object_value = prop.dig('type') == "object" ? object.try(key.to_sym) : objectDataHash[key] %>
+
+                            <% item_has_changed = false %>
+
+                            <%= render_attribute_history_viewer key: key, definition: prop, value: object_value, parent_object: nil, parameters: { options: options.merge({item_diff: item_has_changed, original_objects: object})} %>
+
+                        <% end %>
+
+                    <% end %>
+
+                <% end %>
+
+            <% end %>
+
+        <% end %>
+
+    <% end %>
+
+
+
 
 <% end %>

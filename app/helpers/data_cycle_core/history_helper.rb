@@ -2,64 +2,70 @@ module DataCycleCore
   module HistoryHelper
     require 'hashdiff'
 
-    def get_modified_objects(key,definition,objects,original_source)
-      history_objects = transform_object_array_to_hash(objects.collect(&:get_data_hash))
-      original_objects = transform_object_array_to_hash(original_source[key])
-      diff_objects = get_diff(history_objects, original_objects)
-      #raise diff_objects.inspect
-    end
-
+    # OK
     def get_diff(version, orig)
       diff_array = HashDiff.diff(version, orig, :array_path => true, :use_lcs => true).collect {|item| transform_history_item item }
       diff_hash = transform_history_array_to_hash diff_array
     end
 
-    def object_item_has_changed(key, definition, parent, parent_definition, object_value, modified_objects)
+    def get_object_changes(history, original)
+      history_objects = transform_object_array_to_hash(history.try(:get_data_hash))
+      if original.nil?
+        original_objects = {}
+      else
+        original_objects = transform_object_array_to_hash(original.try(:get_data_hash))
+      end
+      diff_objects = get_diff(history_objects, original_objects)
+    end
 
-      # if (parent_definition.dig("type") == 'object' && (parent_definition.try(:[], 'editor').try(:[],'type') == 'objectBrowser')) ||
-      #    (definition.dig("type") == 'object' && definition.dig("properties"))
-      #   return false
-      # end
+    def find_original_object(original_object, id)
+      original_object.each do |object|
+        return object if object.id == id
+      end
+      return nil
+    end
+
+    def find_history_object(original_object, id)
+      original_object.each do |object|
+        return object if object.try(:get_data_hash)['id'] == id
+      end
+      return nil
+    end
+
+    def get_new_objects(history, original)
+      history_objects = transform_object_array_to_hash(history.collect(&:get_data_hash))
+      original_objects = transform_object_array_to_hash(original.collect(&:get_data_hash))
+      new_objects = original_objects.delete_if { |k, _| history_objects.key?(k) }.
+          collect {|k, _| find_original_object(original,k) }
+    end
+
+    def get_removed_objects(history, original)
+      if original.blank?
+        return history
+      end
+      history_objects = transform_object_array_to_hash(history.collect(&:get_data_hash))
+      original_objects = transform_object_array_to_hash(original.collect(&:get_data_hash))
+      removed_objects = history_objects.delete_if { |k, _| original_objects.key?(k) }.
+          collect {|k, _| find_history_object(history,k) }
+    end
+
+    def substract_removed_objects(history, removed)
+      if removed.blank?
+        return history
+      end
+      history_objects = transform_object_array_to_hash(history.collect(&:get_data_hash))
+      removed_objects = transform_object_array_to_hash(removed.collect(&:get_data_hash))
+      substracted_objects = history_objects.delete_if { |k, _| removed_objects.key?(k) }.
+          collect {|k, _| find_history_object(history,k) }
+    end
+
+    def object_item_has_changed(key, definition, object_value, object_has_changed, parent_definition)
+
       if (parent_definition.dig("type") == 'object' && (parent_definition.try(:[], 'editor').try(:[],'type') == 'objectBrowser'))
         return false
       end
 
-      debug = false
-      #if (key == 'text')
-      if (parent.try(:get_data_hash)['id'] == 'dc8d404a-1cfa-4f38-b3bb-6d7f744edb16' && key == 'image')
-        #debug = true
-      end
-      raise nil.inspect if debug
-      unless modified_objects[parent.try(:get_data_hash)['id']].nil?
-        modified_objects[parent.try(:get_data_hash)['id']].each do |object_key,object|
-          if object.count == 2
-            #diff with +/-
-            object1 = object[0].kind_of?(Array) ? object[0][1] : object[0]
-            object2 = object[1].kind_of?(Array) ? object[1][1] : object[1]
-            # diff = get_diff(transform_object_array_to_hash([object1]), transform_object_array_to_hash([object2]))
-            diff = get_diff(object1, object2)
-            return diff[key] if diff.keys.to_a.include?(key)
-          else
-            #diff with ~ or only +/-
-            object.each do |a, b|
-              return b if a == key
-              # unless b.nil?
-              #   return b[key] if b.keys.to_a.include?(key)
-              # end
-              # return a[key] if a.keys.to_a.include?(key)
-            end
-            # object.each do |a, b|
-            #   return b if a == key
-            #   unless b.nil?
-            #     return b[key] if b.keys.to_a.include?(key)
-            #   end
-            #   return a[key] if a.keys.to_a.include?(key)
-            # end
-          end
-        end
-      end
-
-      return false
+      return item_has_changed(object_has_changed, key, object_value, definition)
     end
 
     def item_has_changed(diff, key, value, definition)
@@ -71,34 +77,7 @@ module DataCycleCore
         return false
       end
 
-      if item_difference.kind_of?(Array)
-        return (item_difference[0][1].blank? && item_difference[0][2].blank?) ? false : item_difference
-      end
-
       return item_difference
-    end
-
-    def transform_new_modified_objects(array, parent_id, options: {})
-      if array.kind_of?(Hash)
-        hash = array.each_with_object Hash.new do |(k, v), h|
-          hash_key = 'id'
-          if is_object?(v)
-            hash_value = v[0][1].try(:[], hash_key)
-          else
-            hash_value = parent_id
-          end
-          raise "kasdf".inspect if options.dig(:test)
-          unless hash_value.nil?
-            h[hash_value] = {k => v}
-          end
-        end
-        return hash unless hash.blank?
-      end
-      array
-    end
-
-    def is_object?(object)
-      return object[0].try(:[],1).kind_of?(Hash)
     end
 
     private
@@ -107,12 +86,12 @@ module DataCycleCore
       item_transformed = item[1].reverse.inject([item[0], item[2], item[3]]) { |hash, key|  {key => hash} }
     end
 
+    #refactor
     def transform_object_array_to_hash(array, options: {})
       if array.kind_of?(Array)
         hash = array.each_with_object Hash.new do |(k, _), h|
           hash_key = 'id'
           hash_value = k[hash_key]
-          raise "debug".inspect if options.dig(:test)
           unless hash_value.nil?
             (h[hash_value] ||= []) << k
           end
