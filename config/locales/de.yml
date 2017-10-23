@@ -127,7 +127,7 @@ de:
       destroyed: "%{data} wurde gelöscht."
       addedTo: "Zu Merkliste: %{data} hinzugefügt."
       removedFrom: "Von Merkliste: %{data} entfernt."
-      sent: "Email wurde versandt."
+      sent: "E-Mail wurde versandt."
       invalid_mail: "Keine gültige E-Mail Adresse."
       locked: "%{data} wurde gesperrt."
       unlocked: "%{data} wurde freigegeben."
