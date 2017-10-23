@@ -10,7 +10,7 @@
 
             <% object_id = objectDataHash['id'] %>
             <% original_object = find_original_object original_objects, object_id %>
-            <% object_has_changed = mode == 'edit' ? get_object_changes(object, original_object) : true%>
+            <% object_has_changed = mode == 'edit' ? get_object_changes(object, original_object) : true %>
 
             <%= render 'data_cycle_core/contents/viewers/attribute_viewer',
                        key: key,

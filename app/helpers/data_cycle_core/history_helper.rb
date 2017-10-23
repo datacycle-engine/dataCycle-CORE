@@ -2,6 +2,10 @@ module DataCycleCore
   module HistoryHelper
     require 'hashdiff'
 
+    REMOVED_INDICATOR = '-'
+    ADDED_INDICATOR = '+'
+    CHANGED_INDICATOR = '~'
+
     # OK
     def get_diff(version, orig)
       diff_array = HashDiff.diff(version, orig, :array_path => true, :use_lcs => true).collect {|item| transform_history_item item }
@@ -68,6 +72,28 @@ module DataCycleCore
         return false
       end
 
+    end
+
+    #todo: refactor
+    def getEmbeddedLinkArrayChanges diff
+      added_objects, removed_objects = [],[]
+
+      unless diff.blank?
+        diff.each do |k,v|
+          v.each do |val|
+            indicator = val[0]
+            value = val[1]
+            case indicator
+              when REMOVED_INDICATOR
+                removed_objects.push(value)
+              when ADDED_INDICATOR
+                added_objects.push(value)
+            end
+          end
+        end
+      end
+
+      return (added_objects-removed_objects), (removed_objects-added_objects)
     end
 
     private

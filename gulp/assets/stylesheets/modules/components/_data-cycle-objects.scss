@@ -119,7 +119,20 @@
   }
 }
 
-
+.detail-content:not(.imageobject) .type.properties .detail-type.media {
+  .has-changed {
+    &.removed {
+      .thumbnail {
+        border: 2px solid $alert-color;
+      }
+    }
+    &.added{
+      .thumbnail {
+        border: 2px solid $success-color;
+      }
+    }
+  }
+}
 /* Objectbrowser */
 
 .media-thumbs {
