@@ -65,6 +65,10 @@ module.exports.initialize = function () {
       removeFilter($(this));
     });
 
+    $(document).on('click', '.filters .sprache ul label', function (e) {
+      $('.filters .your-choice.tags.sprache .tag').text($(this).text());
+    });
+
     $(document).on('click', '.filters .filter ul label', function (e) {
       var id = $(this).attr('for');
       var title = $(this).find('span.inner-title').first().html();

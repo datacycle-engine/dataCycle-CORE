@@ -11,7 +11,7 @@
                     <div class="input-group-button">
                         <button type="submit" class="search_icon "><i class="fa fa-search" aria-hidden="true"></i></button>
                     </div>
-                    <%= text_field_tag :search, params[:search], placeholder: "Suchbegriff",class:"input-group-field" %>
+                    <%= text_field_tag :search, params[:search], placeholder: t('common.searchterm'),class:"input-group-field" %>
                 </div>
             </div>
         </div>
@@ -35,8 +35,9 @@
         </div>
 
         <div class="filtertags activefilter">
-            <span class="icon"><i class="fa fa-check" aria-hidden="true"></i> <strong>Angewendete Filter:</strong> </span>
-            <% ['Inhaltstypen'].each do |label| %>
+            <span class="icon"><i class="fa fa-check" aria-hidden="true"></i> <strong><%= t('common.active_filters') %>:</strong> </span>
+
+            <% classification_tree_labels.each do |label| %>
                 <% selected_classifications = get_classifications_for_id(@classification_array, label)  %>
                 <span class="your-choice tags <%= label.downcase %>" style="<%= "display: none;" if selected_classifications.blank? %>">
                     <i class="choice-label"><%= label %>:</i>
@@ -55,8 +56,8 @@
 
         <div class=" filterbuttons">
 
-            <button type="reset" id="reset-filter" class="button">Alle zurücksetzen</button>
-            <%= button_tag("Filter anwenden", class: "button success") %>
+            <button type="reset" id="reset-filter" class="button"><%= t('actions.reset', count: 2) %></button>
+            <%= button_tag(t('actions.filter'), class: "button success") %>
 
         </div>
 

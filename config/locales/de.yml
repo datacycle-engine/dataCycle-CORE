@@ -45,6 +45,9 @@ de:
   common:
     loading: 'Laden ...'
     are_you_sure: 'Sind Sie sicher?'
+    language: "Sprache"
+    searchterm: "Suchbegriff"
+    active_filters: "Angewendete Filter"
 
   pronoun:
     my:
@@ -65,7 +68,10 @@ de:
     delete_with_data: "%{data} löschen"
     subscribe: "abonnieren"
     subscribed: "abonniert"
-    reset: "zurücksetzen"
+    reset:
+      one: "Zurücksetzen"
+      other: "Alle zurücksetzen"
+    filter: "Filter anwenden"
     move_to: "In %{data} verschieben"
 
   validation:
@@ -121,7 +127,7 @@ de:
       destroyed: "%{data} wurde gelöscht."
       addedTo: "Zu Merkliste: %{data} hinzugefügt."
       removedFrom: "Von Merkliste: %{data} entfernt."
-      sent: "Email wurde versandt."
+      sent: "E-Mail wurde versandt."
       invalid_mail: "Keine gültige E-Mail Adresse."
       locked: "%{data} wurde gesperrt."
       unlocked: "%{data} wurde freigegeben."
