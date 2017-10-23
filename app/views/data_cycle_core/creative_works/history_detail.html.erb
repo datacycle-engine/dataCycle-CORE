@@ -28,10 +28,8 @@
                     <div class="detail-content">
                         <div class="show-content">
                             <div class="detail-header-info">
-                                <div class="type thema">
-                                    <span class="icon">
-                                        <i class="fa fa-folder-open" aria-hidden="true"></i>
-                                    </span>
+                                <div class="type <%= @historySource.metadata['validation']['name'].downcase %>">
+                                    <%= render 'data_cycle_core/shared/icon', icon_type: @historySource.metadata['validation']['name'].downcase %>
                                     <span class="title"><%= @historySource.content_type %></span>
                                     <span class="language">(<%= I18n.locale %>)</span>
                                 </div>
