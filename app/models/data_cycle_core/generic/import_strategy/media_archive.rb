@@ -24,8 +24,6 @@ module DataCycleCore::Generic::ImportStrategy::MediaArchive
       )
 
       keywords = raw_data['keywords'] || []
-
-      raw_data['keywords'] = ['awesome']
       keywords.each do |item|
         import_classification({name: item, external_id: nil, tree_name: 'Tags'})
       end
