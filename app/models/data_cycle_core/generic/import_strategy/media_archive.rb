@@ -33,12 +33,30 @@ module DataCycleCore::Generic::ImportStrategy::MediaArchive
     end
   end
 
+  def t(*args)
+    DataCycleCore::Generic::Transformations::Functions[*args]
+  end
+
   def extract_image_data(raw_data)
-    raw_data.extend(DataCycleCore::Generic::ImportStrategy::ImageAttributeTransformation).to_h
+    transformation = t(:stringify_keys).
+      >> t(:reject_keys, ['@context','@name','@type', 'visibility', 'contentLocation']).
+      >> t(:underscore_keys).
+      >> t(:map_value, 'keywords', -> s {s.try(:join, ' ')}).
+      >> t(:copy_keys, 'url' => 'external_key')
+
+    raw_data.nil? ? {} : transformation.call(raw_data)
   end
 
   def extract_content_location_data(raw_data)
-    raw_data.extend(DataCycleCore::Generic::ImportStrategy::ContentLocationTransformation).to_h
+    transformation = t(:stringify_keys).
+     >> t(:underscore_keys).
+     >> t(:unwrap, 'geo', ['longitude', 'latitude']).
+     >> t(:rename_keys, 'address' => 'street_address').
+     >> t(:map_value, 'name', -> s {s.try:[], I18n.locale.to_s}).
+     >> t(:location).
+     >> t(:compact)
+
+    raw_data.nil? ? {} : transformation.call(raw_data)
   end
 
   def create_or_update_content(clazz, template, data)

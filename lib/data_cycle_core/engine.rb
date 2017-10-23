@@ -113,16 +113,6 @@ module DataCycleCore
     end
   end
 
-  module Json
-    mattr_accessor :content_template
-
-    mattr_accessor :image_template
-
-    def self.setup
-      yield self
-    end
-  end
-
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
 
