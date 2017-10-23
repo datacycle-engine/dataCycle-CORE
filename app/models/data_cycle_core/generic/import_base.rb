@@ -98,6 +98,20 @@ module DataCycleCore::Generic
       end
     end
 
+    def create_or_update_content(clazz, template, data)
+      return nil if data.except('external_key', 'locale').blank?
+
+      content = clazz.find_or_initialize_by(external_source_id: external_source.id,
+                                            external_key: data['external_key'])
+      content.metadata ||= {}
+      content.metadata['validation'] = template.metadata['validation']
+
+      old_data = content.get_data_hash || {}
+      content.set_data_hash(old_data.merge(data))
+
+      content.tap(&:save!)
+    end
+
     private
 
     def around_import(source_type, **options)
