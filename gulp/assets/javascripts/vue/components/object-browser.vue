@@ -18,7 +18,7 @@
     </div>
     <transition name="fade">
       <keep-alive>
-        <object-browser-modal v-if="showModal" @save="save" :object-type="objectType" :object-label="objectLabel" :url="url" :preChosenItems="existingItems" :select-one="selectOne" :new-id="newId" @close="showModal = false" :create-item="createItem" :min="min" :max="max" :creator="creator">
+        <object-browser-modal v-if="showModal" @save="save" :object-type="objectType" :object-label="objectLabel" :url="url" :preChosenItems="existingItems" :select-one="selectOne" :new-id="newId" @close="showModal = false" :create-item="createItem" :min="min" :max="max" :creator="creator" :language="language">
           <template scope="props" slot="item">
             <slot name="item" :item="props.item" :remove="props.remove"></slot>
           </template>
@@ -35,8 +35,8 @@
 </template>
 
 <script>
-import ObjectBrowserModal from './object-browser-modal.vue'
-import Error from './../mixins/errors.js'
+import ObjectBrowserModal from "./object-browser-modal.vue";
+import Error from "./../mixins/errors.js";
 
 export default {
   mixins: [Error],
@@ -52,7 +52,7 @@ export default {
     },
     objectClass: {
       type: String,
-      default: 'DataCycleCore::CreativeWork'
+      default: "DataCycleCore::CreativeWork"
     },
     newId: {
       type: String
@@ -82,6 +82,10 @@ export default {
     readonly: {
       type: Boolean,
       default: false
+    },
+    language: {
+      type: String,
+      default: "de"
     }
   },
   components: {
@@ -91,33 +95,43 @@ export default {
     return {
       showModal: false,
       existingItems: [],
-      url: '/objectbrowser',
+      url: "/objectbrowser",
       confirm: false,
       confirmData: [],
       confirmText: ""
-    }
+    };
   },
   created() {
     this.existingItems = this.existing;
   },
   mounted() {
-    $(this.$el).find('.media-preview').foundation();
+    $(this.$el)
+      .find(".media-preview")
+      .foundation();
     if (!this.readonly) {
-      $(this.$el).on('import-data', function(ev, data) {
-        $.getJSON(this.url + "/find", { ids: data.ids, class: this.objectClass }).done(function(json_data) {
-          if (this.getDelta(json_data, this.existingItems).length > 0) {
-            if (this.max == 0 || this.existingItems.length < this.max) {
-              this.mergeArrays(this.existingItems, json_data);
-            }
-            else this.confirmation(json_data, "Auswahl überschreiben?");
-          }
-        }.bind(this));
-      }.bind(this));
+      $(this.$el).on(
+        "import-data",
+        function(ev, data) {
+          $.getJSON(this.url + "/find", {
+            ids: data.ids,
+            class: this.objectClass
+          }).done(
+            function(json_data) {
+              if (this.getDelta(json_data, this.existingItems).length > 0) {
+                if (this.max == 0 || this.existingItems.length < this.max) {
+                  this.mergeArrays(this.existingItems, json_data);
+                } else this.confirmation(json_data, "Auswahl überschreiben?");
+              }
+            }.bind(this)
+          );
+        }.bind(this)
+      );
     }
   },
   methods: {
     remove(item, event) {
-      if (this.min > 0 && this.existingItems.length <= this.min) return this.renderError("min", this.min, event, this.objectType);
+      if (this.min > 0 && this.existingItems.length <= this.min)
+        return this.renderError("min", this.min, event, this.objectType);
       var index = this.compareIndex(this.existingItems, item);
       if (index >= 0) {
         this.removeOverlay([this.existingItems[index]]);
@@ -129,12 +143,18 @@ export default {
       var rest = 0;
       for (var i = 0; i < arr2.length; i++) {
         var idx = this.compareIndex(arr1, arr2[i]);
-        if (idx < 0 && this.max > 0 && combined.length < this.max) combined.push(arr2[i]);
+        if (idx < 0 && this.max > 0 && combined.length < this.max)
+          combined.push(arr2[i]);
         else if (idx < 0 && this.max == 0) combined.push(arr2[i]);
         else if (idx < 0 && combined.length >= this.max) rest++;
       }
       if (rest > 0) {
-        this.confirmation(combined, "Zu viele hinzugefügt. " + rest + " werden nicht hinzugefügt.<br />Trotzdem fortfahren?");
+        this.confirmation(
+          combined,
+          "Zu viele hinzugefügt. " +
+            rest +
+            " werden nicht hinzugefügt.<br />Trotzdem fortfahren?"
+        );
       } else {
         this.save(combined);
       }
@@ -156,7 +176,9 @@ export default {
     },
     removeOverlay(delta) {
       for (var i = 0; i < delta.length; i++) {
-        $('#media-reveal-' + delta[i].id + '_' + this._uid).parent('.reveal-overlay').remove();
+        $("#media-reveal-" + delta[i].id + "_" + this._uid)
+          .parent(".reveal-overlay")
+          .remove();
       }
     },
     confirmation(data, text) {
@@ -171,12 +193,14 @@ export default {
     save(data) {
       this.removeOverlay(this.getDelta(this.existingItems, data));
       this.existingItems = data.slice(0);
-      this.$parent.$emit('objects-saved', { name: this.hiddenName });
+      this.$parent.$emit("objects-saved", { name: this.hiddenName });
       this.$nextTick(function() {
-        $(this.$el).find('.media-preview').foundation();
-        $(this.$el).trigger('media_previews_added');
+        $(this.$el)
+          .find(".media-preview")
+          .foundation();
+        $(this.$el).trigger("media_previews_added");
       });
     }
   }
-}
+};
 </script>

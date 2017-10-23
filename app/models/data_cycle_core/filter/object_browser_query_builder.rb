@@ -25,6 +25,7 @@ module DataCycleCore
           when @type == 'place'
             @query = DataCycleCore::Place.
               joins(:content_search_all, :translations).
+              where(place_translation[:locale].eq(quoted(@locale))).
               where(search[:content_data_type].eq(quoted('DataCycleCore::Place'))).
               where(place[:metadata].not_eq(nil).and(place_translation[:name].not_eq(nil)))
           end

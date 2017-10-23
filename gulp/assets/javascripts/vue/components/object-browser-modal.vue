@@ -62,9 +62,9 @@
 </template>
 
 <script>
-import Pagination from './pagination.vue'
-import Error from './../mixins/errors.js'
-import Components from './../partials'
+import Pagination from "./pagination.vue";
+import Error from "./../mixins/errors.js";
+import Components from "./../partials";
 
 export default {
   mixins: [Error, Components],
@@ -106,11 +106,15 @@ export default {
     max: {
       type: Number,
       default: 0
+    },
+    language: {
+      type: String,
+      default: "de"
     }
   },
   data() {
     return {
-      searchTerm: '',
+      searchTerm: "",
       loading: true,
       items: [],
       itemsPerPage: 25,
@@ -119,79 +123,110 @@ export default {
       totalItems: 0,
       chosenItems: this.preChosenItems.slice(0),
       scrollTop: 0,
-      modal: '',
-      newModal: '',
-      editUrl: ''
-    }
+      modal: "",
+      newModal: "",
+      editUrl: "",
+      adjustedStartItems: false
+    };
   },
   mounted() {
-    this.modal = $('#object-browser').foundation();
-    if ($('#' + this.newId).length > 0) {
-      this.newModal = $('#' + this.newId).foundation();
-      $('#' + this.newId).parent().css('z-index', '10000');
-      this.editUrl = this.newModal.find('form').attr('action');
+    this.modal = $("#object-browser").foundation();
+    if ($("#" + this.newId).length > 0) {
+      this.newModal = $("#" + this.newId).foundation();
+      $("#" + this.newId)
+        .parent()
+        .css("z-index", "10000");
+      this.editUrl = this.newModal.find("form").attr("action");
     }
 
-    $('.new-item').on('closed.zf.reveal', function(e) {
-      $('body').addClass('is-reveal-open');
-      e.stopPropagation();
-    }.bind(this));
+    $(".new-item").on(
+      "closed.zf.reveal",
+      function(e) {
+        $("body").addClass("is-reveal-open");
+        e.stopPropagation();
+      }.bind(this)
+    );
 
-    $('.new-item').on('open.zf.reveal', function(e) {
-      if (this.newModal.find('form').length > 0) this.newModal.find('form')[0].reset();
-      this.newModal.find('input[type=submit]').removeAttr('disabled');
+    $(".new-item").on(
+      "open.zf.reveal",
+      function(e) {
+        if (this.newModal.find("form").length > 0)
+          this.newModal.find("form")[0].reset();
+        this.newModal.find("input[type=submit]").removeAttr("disabled");
+      }.bind(this)
+    );
 
-    }.bind(this));
+    $(this.$el)
+      .find("#media-content")
+      .first()
+      .on(
+        "scroll",
+        function(event) {
+          if (this.items.length < this.totalItems) {
+            var elem = $(event.currentTarget);
 
-    $(this.$el).find('#media-content').first().on('scroll', function(event) {
-      if (this.items.length < this.totalItems) {
-        var elem = $(event.currentTarget);
-
-        if (elem[0].scrollHeight - elem.scrollTop() - 100 <= elem.outerHeight() && !this.loading) {
-          this.currentPage += 1;
-        }
-      }
-    }.bind(this));
-
+            if (
+              elem[0].scrollHeight - elem.scrollTop() - 100 <=
+                elem.outerHeight() &&
+              !this.loading
+            ) {
+              this.currentPage += 1;
+            }
+          }
+        }.bind(this)
+      );
   },
   activated() {
     this.chosenItems = this.preChosenItems.slice(0);
     if (this.chosenItems.length > 0) this.activeItem = this.chosenItems[0];
     this.scrollTop = $(window).scrollTop();
-    this.modal.foundation('open');
-    $('.reveal-blur').addClass("show");
+    this.modal.foundation("open");
+    $(".reveal-blur").addClass("show");
     window.scrollTo(0, 0);
 
     // set breadcrumb link + text
-    var text = $('.breadcrumb ul li:last-child').html();
-    $('.breadcrumb ul li:last-child').html('<a class="close-object-browser" href="#">' + text + '</a><i class="fa fa-angle-right breadcrumb-separator" aria-hidden="true"></i>');
-    $('.breadcrumb ul').append('<li><span class="breadcrumb-text"><i><i class="fa fa-files-o" aria-hidden="true"></i>' + this.objectLabel + ' auswählen</i></span></li>');
+    var text = $(".breadcrumb ul li:last-child").html();
+    $(".breadcrumb ul li:last-child").html(
+      '<a class="close-object-browser" href="#">' +
+        text +
+        '</a><i class="fa fa-angle-right breadcrumb-separator" aria-hidden="true"></i>'
+    );
+    $(".breadcrumb ul").append(
+      '<li><span class="breadcrumb-text"><i><i class="fa fa-files-o" aria-hidden="true"></i>' +
+        this.objectLabel +
+        " auswählen</i></span></li>"
+    );
 
-    $('.breadcrumb ul li').on('click', '.close-object-browser', function(e) {
-      e.preventDefault();
-      this.$emit('close');
-    }.bind(this));
+    $(".breadcrumb ul li").on(
+      "click",
+      ".close-object-browser",
+      function(e) {
+        e.preventDefault();
+        this.$emit("close");
+      }.bind(this)
+    );
   },
   deactivated() {
     $(window).scrollTop(this.scrollTop);
-    if (this.newModal != '') this.newModal.foundation('close');
-    this.modal.foundation('close');
-    $('.reveal-blur').removeClass("show");
+    if (this.newModal != "") this.newModal.foundation("close");
+    this.modal.foundation("close");
+    $(".reveal-blur").removeClass("show");
 
     // remove breadcrumb link + text
-    $('.breadcrumb ul li:last-child').remove();
-    var text = $('.breadcrumb ul li:last-child a.close-object-browser').html();
-    $('.breadcrumb ul li:last-child').html(text);
+    $(".breadcrumb ul li:last-child").remove();
+    var text = $(".breadcrumb ul li:last-child a.close-object-browser").html();
+    $(".breadcrumb ul li:last-child").html(text);
   },
   watch: {
     searchTerm(val) {
       this.items = [];
+      this.adjustedStartItems = false;
       this.currentPage = 1;
     }
   },
   methods: {
     pageChanged(pageNum) {
-      this.currentPage = pageNum
+      this.currentPage = pageNum;
     },
     toggleActive(item, event) {
       this.activeItem = item;
@@ -200,10 +235,12 @@ export default {
       var index = this.compareIndex(this.items, item);
 
       if (chosenIndex >= 0) {
-        if (this.min > 0 && this.totalChosen == this.min) return this.renderError("min", this.min, event, this.objectLabel);
+        if (this.min > 0 && this.totalChosen == this.min)
+          return this.renderError("min", this.min, event, this.objectLabel);
         this.chosenItems.splice(chosenIndex, 1);
       } else {
-        if (this.max > 1 && this.totalChosen >= this.max) return this.renderError("max", this.max, event, this.objectLabel);
+        if (this.max > 1 && this.totalChosen >= this.max)
+          return this.renderError("max", this.max, event, this.objectLabel);
         if (this.max == 1) this.chosenItems = [];
         this.chosenItems.push(item);
       }
@@ -219,14 +256,36 @@ export default {
       else return false;
     },
     save() {
-      this.$emit('save', this.chosenItems);
-      this.$emit('close');
+      this.$emit("save", this.chosenItems);
+      this.$emit("close");
     },
     addItem(item) {
       if (item.id != undefined && item.errors == undefined) {
         this.items.push(item);
-        if (this.newModal != '') this.newModal.foundation('close');
+        if (this.newModal != "") this.newModal.foundation("close");
       }
+    },
+    adjustItems() {
+      this.$nextTick(
+        function() {
+          if (
+            $(this.$el).find("#media-content .item").length > 0 &&
+            $(this.$el)
+              .find("#media-content .item")
+              .last()
+              .offset().top <
+              $(this.$el)
+                .find("#media-content")
+                .first()
+                .outerHeight() &&
+            this.items.length < this.totalItems
+          ) {
+            this.currentPage += 1;
+          } else {
+            this.adjustedStartItems = true;
+          }
+        }.bind(this)
+      );
     }
   },
   asyncComputed: {
@@ -234,16 +293,26 @@ export default {
       get() {
         var self = this;
         this.loading = true;
-        return $.getJSON(self.url, { search: self.searchTerm, page: self.currentPage, per: self.itemsPerPage, type: self.objectType }).done(function(json_data) {
+        return $.getJSON(self.url, {
+          search: self.searchTerm,
+          page: self.currentPage,
+          per: self.itemsPerPage,
+          type: self.objectType,
+          language: self.language
+        }).done(function(json_data) {
           self.totalItems = json_data.total;
           var items = self.items.concat(json_data.results);
           self.items = items.slice(0);
           self.loading = false;
+          if (!self.adjustedStartItems) {
+            self.adjustItems();
+          }
+
           return self.items;
         });
       },
       watch() {
-        this.searchTerm
+        this.searchTerm;
       }
     }
   },
@@ -252,5 +321,5 @@ export default {
       return this.chosenItems.length;
     }
   }
-}
+};
 </script>
