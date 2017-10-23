@@ -273,7 +273,10 @@ export default {
             $(this.$el)
               .find("#media-content .item")
               .last()
-              .offset().top <
+              .offset().top -
+              $(this.$el)
+                .find("#media-content")
+                .offset().top <
               $(this.$el)
                 .find("#media-content")
                 .first()

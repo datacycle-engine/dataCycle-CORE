@@ -3,7 +3,8 @@ module.exports.initialize = function () {
 
   $('.flex-box .detail-content .properties > div[data-editor=objectBrowser]').each(function () {
     var label = $(this).data('label');
-    if ($('.flex-box .edit-content [data-label=' + label + ']').length > 0) $(this).append('<a class="button-prime small copy"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>');
+    var ids = $(this).data('id');
+    if ($('.flex-box .edit-content [data-label=' + label + ']').length > 0 && ids.length > 0) $(this).append('<a class="button-prime small copy"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>');
   });
 
   $(document).on('click', '.flex-box .copy', function (ev) {
