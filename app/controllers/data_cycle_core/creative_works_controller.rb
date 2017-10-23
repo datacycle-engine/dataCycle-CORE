@@ -91,6 +91,10 @@ module DataCycleCore
 
     end
 
+    def history_detail
+      return history
+    end
+
     def edit
       @creativeWork = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
 

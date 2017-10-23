@@ -25,8 +25,14 @@
             <% if can? :history, dataCycleObject %>
                 <i>
                     <% if item.class.class_name == 'CreativeWorkHistory' %>
-                        <%= link_to polymorphic_url([:history, dataCycleObject], history_id: item.id) do  %>
-                            <i class="fa fa-history" aria-hidden="true"></i>
+                        <% if action_name == 'history_detail' %>
+                            <%= link_to polymorphic_url([:history_detail, dataCycleObject], history_id: item.id) do %>
+                                <i class="fa fa-history" aria-hidden="true"></i>
+                            <% end %>
+                        <% else %>
+                            <%= link_to polymorphic_url([:history, dataCycleObject], history_id: item.id) do %>
+                                <i class="fa fa-history" aria-hidden="true"></i>
+                            <% end %>
                         <% end %>
                     <% end %>
                 </i>

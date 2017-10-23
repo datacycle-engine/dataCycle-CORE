@@ -239,6 +239,9 @@ select {
   }
   .flex-box {
     height: calc(100vh - 13rem);
+    &.full-size{
+      height: inherit;
+    }
     .detail-content {
       padding: 0 1rem;
       position: relative;
@@ -333,6 +336,9 @@ select {
             color: $black;
           }
         }
+      }
+      .history-metadata{
+        margin-left: 1rem;
       }
     }
     .topleftinfo {
