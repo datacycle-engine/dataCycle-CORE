@@ -1,8 +1,16 @@
-<a id="show-history-link" data-toggle="show-history"><i class="fa fa-clock-o" aria-hidden="true"></i> erstellt am <%= Time.at(dataCycleObject.created_at).to_s(:german_datetime_format) %></a>
+<% historyObject ||= nil %>
+
+<a id="show-history-link" data-toggle="show-history"><i class="fa fa-clock-o" aria-hidden="true"></i>
+    <% unless historyObject.nil? %>
+        bearbeitet am <%= Time.at(historyObject.updated_at).to_s(:german_datetime_format) %>
+    <% else %>
+        erstellt am <%= Time.at(dataCycleObject.created_at).to_s(:german_datetime_format) %>
+    <% end %>
+</a>
 
 <ul class="dropdown-pane no-bullet bottom" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
     <li>Letzte Bearbeitungen:</li>
-    <% dataCycleObject.histories.limit(4).each do |item|%>
+    <% dataCycleObject.histories.each do |item|%>
         <li>
 
             <% if item.metadata.try(:[], 'last_updated_by') %>

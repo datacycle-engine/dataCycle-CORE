@@ -90,7 +90,10 @@ button,
 .no-edit-bar {
   padding-top: 3.5rem;
 }
-
+#show-history{
+  max-height: 24rem;
+  overflow-y: scroll;
+}
 .edit-header {
   background-color: lighten($primary-color, 50%);
   height: 3.5rem;
