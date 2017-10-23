@@ -90,7 +90,10 @@ button,
 .no-edit-bar {
   padding-top: 3.5rem;
 }
-
+#show-history{
+  max-height: 24rem;
+  overflow-y: scroll;
+}
 .edit-header {
   background-color: lighten($primary-color, 50%);
   height: 3.5rem;
@@ -827,6 +830,14 @@ body .v-select {
   }
   span.tag {
     background-color: rgba($dark-gray, 0.8);
+    &.has-changed{
+      &.removed{
+        background-color: rgba($alert-color, 0.8);
+      }
+      &.added{
+        background-color: rgba($success-color, 0.8);
+      }
+    }
   }
 }
 

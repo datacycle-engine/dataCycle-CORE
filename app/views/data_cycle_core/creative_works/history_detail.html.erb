@@ -10,7 +10,7 @@
                 <div class="row expanded">
                     <div class="column small-6">
                         <div class="edit-headline">
-                            <i class="fa fa-history" aria-hidden="true"></i> <%= @creativeWork.content_type %> vergleichen
+                            <i class="fa fa-history" aria-hidden="true"></i> <%= @creativeWork.content_type %> Version ansehen
                         </div>
                     </div>
                     <div class="column small-6">
@@ -21,34 +21,11 @@
                 </div>
             </section>
 
-            <div class="flex-box">
-
-                <% I18n.with_locale(@creativeWork.first_available_locale) do %>
-
-                    <div class="row split-content detail-content">
-
-                        <div class="show-content">
-                            <div class="detail-header-info">
-                                <div class="type <%= @historySource.metadata['validation']['name'].downcase %>">
-                                    <%= render 'data_cycle_core/shared/icon', icon_type: @historySource.metadata['validation']['name'].downcase %>
-                                    <span class="title"><%= @creativeWork.content_type %></span>
-                                    <span class="language">(<%= I18n.locale %>)</span>
-                                </div>
-                                <%= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, historyObject: @historySource %>
-                            </div>
-
-                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable_viewer', value: @creativeWork.get_releasable_hash, key: 'creative_work', definition: {'type' => 'releasable'}, options:{force_render: true} %>
-                            <%= render_content_partial 'details', content: @creativeWork, schema: @dataSchema, options: {force_render: true} %>
-
-                        </div>
-
-                    </div>
-
-                <% end %>
+            <div class="flex-box full-size">
 
                 <% I18n.with_locale(@historySource.first_available_locale) do %>
 
-                    <div class="split-content detail-content">
+                    <div class="detail-content">
                         <div class="show-content">
                             <div class="detail-header-info">
                                 <div class="type <%= @historySource.metadata['validation']['name'].downcase %>">
@@ -56,7 +33,7 @@
                                     <span class="title"><%= @historySource.content_type %></span>
                                     <span class="language">(<%= I18n.locale %>)</span>
                                 </div>
-                                <%= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, historyObject: @historySource, history: true %>
+                                <%= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, historyObject: @historySource %>
                             </div>
 
                             <%= render 'data_cycle_core/contents/viewers/metadata/releasable_viewer', value: @historySource.get_releasable_hash, key: 'creative_work', definition: {'type' => 'releasable'}, options:{compare: true, force_render: true} %>

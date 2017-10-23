@@ -1,11 +1,25 @@
-<% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['creator'].nil? %>
-	<% creator = get_user_for_id(dataCycleObject.metadata['creator']) %>
+<% if history ||= false %>
+	<% object = historyObject %>
+<% else %>
+	<% object = dataCycleObject %>
+<% end %>
+
+<% if !object.metadata.nil? && !object.metadata['creator'].nil? %>
+	<% creator = get_user_for_id(object.metadata['creator']) %>
 	<span class="metadata">
         <span>erstellt am </span>
-        <span><strong><%= Time.at(dataCycleObject.created_at).to_s(:german_datetime_format) %></strong></span>
+        <span><strong><%= Time.at(object.created_at).to_s(:german_datetime_format) %></strong></span>
         <span> von </span>
         <span><strong><a href="mailto:<%= "#{creator.email}" %>"><%= "#{creator.name}" %></a></strong></span>
 	    <span>, bearbeitet am </span>
-	    <span><strong><%= Time.at(dataCycleObject.updated_at).to_s(:german_datetime_format) %></strong></span>
+	    <span><strong><%= Time.at(object.updated_at).to_s(:german_datetime_format) %></strong></span>
 	</span>
+
+	<% if history ||= false %>
+		<span class="history-metadata">
+            <%= link_to polymorphic_url([:history_detail, dataCycleObject], history_id: historyObject.id) do  %>
+				<i class="fa fa-eye" aria-hidden="true"></i>
+			<% end %>
+		</span>
+	<% end %>
 <% end %>

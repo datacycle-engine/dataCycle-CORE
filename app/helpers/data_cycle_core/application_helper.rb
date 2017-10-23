@@ -89,13 +89,14 @@ module DataCycleCore
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
         "#{definition.try(:[], 'editor').try(:[], 'type').try(:underscore)}",
         "#{definition['type'].underscore}",
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/#{p}_history_viewer" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/history_viewers/#{p}_history_viewer" }
 
       begin
         render_first_existing_partial(partials, parameters.merge({key: key, definition: definition, value: value}))
       rescue
         render_attribute_viewer key: key, definition: definition, value: value, parameters: parameters
       end
+
     end
 
     def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {})
