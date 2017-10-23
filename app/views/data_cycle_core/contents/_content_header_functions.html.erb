@@ -19,6 +19,8 @@
         <% if can? :manage, DataCycleCore::WatchList %>
             <li><%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: content %></li>
         <% end %>
-        <li><a href="<%= breadcrumbs[-2].url %>" class="hascontent"><i aria-hidden="true" class="fa fa-times"></i></a></li>
+        <% unless current_user.role.rank == 0 %>
+          <li><a href="<%= breadcrumbs[-2].url %>" class="hascontent"><i aria-hidden="true" class="fa fa-times"></i></a></li>
+        <% end %>
     </ul>
 </div>
