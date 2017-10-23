@@ -26,7 +26,7 @@ module DataCycleCore
 
       @data_link.save
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Data Link'))
+      redirect_back(fallback_location: root_path, notice: (I18n.t :ready_to_send, scope: [:controllers, :success], data: 'Externer Link'))
     end
 
     def send_mail
@@ -44,7 +44,7 @@ module DataCycleCore
 
     def destroy
       link = DataCycleCore::DataLink.find_by(id: params[:id]).destroy
-      redirect_back fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Data Link')
+      redirect_back fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Externer Link')
     end
 
     private
