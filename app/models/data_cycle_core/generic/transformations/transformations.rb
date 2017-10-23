@@ -8,7 +8,8 @@ module DataCycleCore::Generic::Transformations::Transformations
     t(:stringify_keys).
     >> t(:reject_keys, ['@context','@name','@type', 'visibility', 'contentLocation']).
     >> t(:underscore_keys).
-    >> t(:map_value, 'keywords', -> s {s.try(:join, ' ')}).
+    >> t(:tags_to_ids, 'keywords', 'Tags').
+    >> t(:merge, {'data_type' => nil}).
     >> t(:copy_keys, 'url' => 'external_key')
   end
 

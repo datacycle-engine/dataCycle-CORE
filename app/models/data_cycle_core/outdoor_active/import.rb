@@ -15,6 +15,7 @@ module DataCycleCore
       end
 
       def import_categories(callbacks = DataCycleCore::Callbacks.new, **options)
+        #import_classifications(type, tree_name, load_root_classifications, load_child_classifications, load_parent_classification_alias, extract_data, **options)
         import_classifications(
           Category,
           "#{self.class.parent.to_s.demodulize} - Kategorien",

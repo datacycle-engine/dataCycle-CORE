@@ -19,4 +19,20 @@ module DataCycleCore::Generic::Transformations::Functions
   def self.merge(data_hash, new_hash)
     data_hash.merge(new_hash)
   end
+
+  def self.tags_to_ids(data_hash, attribute, tree_label)
+    if data_hash[attribute].blank?
+      data_hash[attribute] = []
+    else
+      data_hash[attribute] = data_hash[attribute].map{ |keyword|
+        DataCycleCore::Classification.
+          joins(classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]).
+          where("classification_tree_labels.name = ? and classifications.name = ? and classifications.external_key IS NULL", tree_label, keyword).
+          first.id
+      } || []
+    end 
+    data_hash
+  end
+
+
 end
