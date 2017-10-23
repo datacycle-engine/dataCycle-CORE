@@ -75,7 +75,7 @@ module DataCycleCore
     end
 
     #todo: refactor
-    def getEmbeddedLinkArrayChanges diff
+    def getRelationObjectChanges diff
       added_objects, removed_objects = [],[]
 
       unless diff.blank?
