@@ -4,10 +4,9 @@ module.exports.initialize = function () {
   // Status Kommentar setzen
 
   $(document).on('click', '.release-comment-overlay .save', function (e) {
-    var input_field = $(e.target).siblings('.release-comment').first();
-    var id = $input_field.attr('id');
+    var $input_field = $(e.target).siblings('.release-comment').first();
+    var id = $(e.target).data('hidden-field-id');
     var value = $input_field.val();
-
     $('input[type=hidden]#' + id).val(value);
   });
 
@@ -82,8 +81,9 @@ module.exports.initialize = function () {
         }
       }
       promises = [];
-      if (isValid && submit) form.submit();
-      else if (submit) {
+      if (isValid && submit) {
+        form.submit();
+      } else if (submit) {
         var first_error_offset, container;
         var error_container = $('.single_error').first();
 
@@ -117,6 +117,7 @@ module.exports.initialize = function () {
       $(field).closest('.validation-container').append(render_error_msg(data, field));
       return false;
     }
+    remove_submit_button_errors(field);
     return true;
   }
 
@@ -196,6 +197,8 @@ module.exports.initialize = function () {
       if (data != undefined && data.error.length > 0) {
         $(item).closest('.validation-container').append(render_error_msg(data, item));
         $(item).closest('.validation-container').addClass('has-error');
+      } else {
+        remove_submit_button_errors(item);
       }
     }));
   }
@@ -203,16 +206,39 @@ module.exports.initialize = function () {
   function render_error_msg(data, item) {
     var out = '';
     var item_id = '';
-    if (item != null && $(item).attr('id') != undefined) item_id = "id='" + $(item).attr('id') + "_error'";
-    else if (item != null && $(item).closest('.form-element').find('label').first().attr('for') != undefined) item_id = "id='" + $(item).closest('.form-element').find('label').first().attr('for') + "_error'";
+    var button_text = '';
+    $('.submit button').addClass('alert');
+
+    if (item != null && $(item).attr('id') != undefined) item_id = $(item).attr('id') + "_error";
+    else if (item != null && $(item).closest('.form-element').find('label').first().attr('for') != undefined) item_id = $(item).closest('.form-element').find('label').first().attr('for') + "_error";
 
     item_label = (item != null) ? $(item).closest('.form-element').find('label').first().html() + ": " : "";
-    out = "<span " + item_id + "class='single_error'>";
+    $('#' + $('.submit button').data('toggle')).find('#button_' + item_id).remove();
+    button_text = '<span id="button_' + item_id + '" class="tooltip-error">';
+    out = "<span id='" + item_id + "' class='single_error'>";
     $.each(data.error, function (key, val) {
+      button_text += '<strong>' + item_label + '</strong><br>' + val + '<br>';
       out += "<strong>" + item_label + "</strong>" + val + "</br>";
     });
+    $('#' + $('.submit button').data('toggle')).append(button_text + '</span>');
     out += "</span>";
     return out;
+  }
+
+  function remove_submit_button_errors(item = null) {
+    var item_id = '';
+    if (item != null && $(item).attr('id') != undefined) item_id = $(item).attr('id') + "_error";
+    else if (item != null && $(item).closest('.form-element').find('label').first().attr('for') != undefined) item_id = $(item).closest('.form-element').find('label').first().attr('for') + "_error";
+
+    if (item == null) {
+      $('.submit button').removeClass('alert');
+      $('#' + $('.submit button').data('toggle') + ' .tooltip-error').remove();
+    } else {
+      $('#' + $('.submit button').data('toggle')).find('#button_' + item_id).remove();
+      if ($('#' + $('.submit button').data('toggle') + ' .tooltip-error').length == 0) {
+        $('.submit button').removeClass('alert');
+      }
+    }
   }
 
 };

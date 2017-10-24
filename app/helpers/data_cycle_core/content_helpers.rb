@@ -24,7 +24,7 @@ module DataCycleCore
     #   DataCycleCore::User.find(metadata['creator']) if metadata && metadata['creator']
     # end
 
-    def first_available_locale(locale = :de)
+    def first_available_locale(locale = nil)
       case
         when translated_locales.include?(locale.try(:to_sym)) then locale.try(:to_sym)
         when translated_locales.include?(I18n.locale) then I18n.locale

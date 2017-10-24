@@ -18,7 +18,8 @@
         hidden-name="<%= key %>[]"
         :reveal-link="true"
         :readonly="<%= options['readonly'] ? true : false %>"
-        :creator="<%= current_user.to_json %>">
+        :creator="<%= current_user.to_json %>"
+        language="<%= I18n.locale.to_s %>">
 
         <template scope="props" slot="item">
           <%= render_object_browser_partial(key: key + (definition['type'] == "object" ? '[][id]' : '[]'), definition: definition) %>

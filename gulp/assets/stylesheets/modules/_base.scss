@@ -233,6 +233,11 @@ button,
       position: relative;
       left: -50%;
     }
+    .release-comment-button {
+      position: relative;
+      left: -48%;
+      cursor: pointer;
+    }
   }
   .detail-header-info {
     position: absolute;
@@ -930,13 +935,14 @@ body.login-page {
 
 .tabs {
   border: 0;
-  .tabs-title > a {
+  .tabs-title>a {
     span {
       color: $dark-gray;
       font-size: rem-calc(12);
     }
   }
 }
+
 .tabs-content {
   border: 0;
   border-top: 1px solid $light-gray;

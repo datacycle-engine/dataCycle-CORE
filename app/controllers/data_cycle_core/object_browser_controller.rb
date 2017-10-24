@@ -4,32 +4,34 @@ module DataCycleCore
     load_and_authorize_resource :class => false         # from cancancan (authorize)
 
     def show
-      @@default_per = 50
+      I18n.with_locale(params[:language] || I18n.locale) do
+        @language = params[:language] unless params[:language].blank?
+        @language ||= "de"
 
-      @language = params[:language] unless params[:language].blank?
-      @language ||= "de"
+        @@default_per = 50
 
-      @type = params[:type] unless params[:type].blank?
-      @type ||= "image"
+        @type = params[:type] unless params[:type].blank?
+        @type ||= "image"
 
-      query = DataCycleCore::Filter::ObjectBrowserQueryBuilder.new(@language, @type)
-      query = query.fulltext_search(params[:search]) unless params[:search].blank?
+        query = DataCycleCore::Filter::ObjectBrowserQueryBuilder.new(@language, @type)
+        query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
-      @per = params[:per] unless params[:per].blank?
-      @per ||= @@default_per
+        @per = params[:per] unless params[:per].blank?
+        @per ||= @@default_per
 
-      total = query.count(:id)
-      pages = total.fdiv(@per.to_i).ceil
+        total = query.count(:id)
+        pages = total.fdiv(@per.to_i).ceil
 
-      unless params[:page].blank?
-        @page = params[:page]
-        @page = pages if params[:page].to_i > pages
+        unless params[:page].blank?
+          @page = params[:page]
+          @page = pages if params[:page].to_i > pages
+        end
+        @page ||= 1
+
+        @results = query.page(@page).per(@per)
+
+        render :json => { results: @results, total: total }
       end
-      @page ||= 1
-
-      @results = query.page(@page).per(@per)
-
-      render :json => { results: @results, total: total }
     end
 
     def find

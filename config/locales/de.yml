@@ -123,6 +123,7 @@ de:
       invalid: "%{data} konnte nicht erstellt werden."
     success:
       created: "%{data} wurde erfolgreich erstellt."
+      ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."
       updated: "%{data} wurde aktualisiert."
       destroyed: "%{data} wurde gelöscht."
       addedTo: "Zu Merkliste: %{data} hinzugefügt."

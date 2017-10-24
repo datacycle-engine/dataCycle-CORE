@@ -75,6 +75,7 @@ en:
       no_permission: "No Permisssion."
     success:
       created: "%{data} successfully created."
+      ready_to_send: "%{data} has been created successfully and can be sent."
       updated: "%{data} updated."
       destroyed: "%{data} deleted."
       addedTo: "Added to Watchlist: %{data}."

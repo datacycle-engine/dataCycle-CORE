@@ -10,7 +10,11 @@
         </div>
         <div class="top-bar-right" id="main-menu">
             <ul class="menu">
-                <li><%= render 'data_cycle_core/subscriptions/partials/shared/abos' if user_signed_in? %></li>
+                <li>
+                  <%= link_to subscriptions_path do %>
+                    <%= t("pronoun.my", count: 2, default: 'My').capitalize %> <%= DataCycleCore::Subscription.model_name.human(count: 2) %>
+                  <% end if user_signed_in? && current_user.role.rank > 0 %>
+                </li>
                 <li><%= render 'data_cycle_core/watch_lists/partials/shared/watch_lists' if user_signed_in? %></li>
                 <li>
                     <%= link_to '#' do %>

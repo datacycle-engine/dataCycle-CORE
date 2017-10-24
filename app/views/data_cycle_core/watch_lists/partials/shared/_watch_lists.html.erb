@@ -1,5 +1,5 @@
 <% if can? :manage, DataCycleCore::WatchList %>
-  <a id="add-to-watchlist-link" class="hascontent watch-lists-link" data-toggle="watch-lists-for-user"><%= t("pronoun.my", count: 2).capitalize %> <%= DataCycleCore::WatchList.model_name.human(count: 2) %></a>
+  <a id="add-to-watchlist-link" class="hascontent watch-lists-link" data-toggle="watch-lists-for-user"><%= t("pronoun.my", count: 2, default: 'My').capitalize %> <%= DataCycleCore::WatchList.model_name.human(count: 2) %></a>
   <ul class="dropdown-pane no-bullet bottom watch-lists" id="watch-lists-for-user" data-dropdown data-hover="true" data-hover-pane="true">
       <% current_user.watch_lists.each do |watchlist| %>
           <li>

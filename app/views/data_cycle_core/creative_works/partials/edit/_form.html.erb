@@ -2,6 +2,7 @@
 
 <%= form_for dataObject, builder: DataCycleCore::DataHashHelper::DataCycleFormBuilder do |f| %>
 	<%= hidden_field_tag 'uuid', dataObject.id %>
+  <%= hidden_field_tag 'locale', I18n.locale %>
 
 	<section class="edit-header">
 		<div class="row expanded">
@@ -66,9 +67,7 @@
 						<%= render_content_partial 'icon', content: dataObject %>
 
 						<span class="title"><%= dataObject.metadata['validation']['name'] %></span>
-						<% unless dataObject.translated_locales.count > 1 %>
-							<span class="language">(<%= I18n.locale %>)</span>
-						<% end %>
+            <span class="language">(<%= I18n.locale %>)</span>
 					</div>
 					<%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: dataObject, dataCycleObjectSchema: dataSchema %>
 				</div>

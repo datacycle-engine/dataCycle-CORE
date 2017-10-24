@@ -21,71 +21,76 @@ module DataCycleCore
       else
         @mode = params[:mode].to_s
       end
+      I18n.with_locale(@person.first_available_locale) do
+        @dataSchema = @person.get_data_hash
 
-      @dataSchema = @person.get_data_hash
-
-      respond_to do |format|
-        format.json { redirect_to api_v1_content_path(type: 'persons', id: params[:id]) }
-        format.html {
-          render layout: "data_cycle_core/creative_works_edit"
-        }
+        respond_to do |format|
+          format.json { redirect_to api_v1_content_path(type: 'persons', id: params[:id]) }
+          format.html {
+            render layout: "data_cycle_core/creative_works_edit"
+          }
+        end
       end
     end
 
     def create
-      object_params = person_params('persons', params[:template], 'Person')
-      @person = DataCycleCore::DataHashService.create_internal_object('persons', params[:template], 'Person', object_params, current_user)
+      I18n.with_locale(params[:locale] || I18n.locale) do
+        object_params = person_params('persons', params[:template], 'Person')
+        @person = DataCycleCore::DataHashService.create_internal_object('persons', params[:template], 'Person', object_params, current_user)
 
-      if @person.nil?
-        redirect_back(fallback_location: root_path)
-        return
-      end
-
-      respond_to do |format|
-        #validate ?
-        if !@person.nil? && @person.save
-          flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Person'
-          format.html { redirect_to @person }
-          format.json { render :json => @person }
-        else
+        if @person.nil?
           redirect_back(fallback_location: root_path)
           return
         end
-      end
 
+        respond_to do |format|
+          #validate ?
+          if !@person.nil? && @person.save
+            flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Person'
+            format.html { redirect_to @person }
+            format.json { render :json => @person }
+          else
+            redirect_back(fallback_location: root_path)
+            return
+          end
+        end
+      end
     end
 
     def edit
       @person = DataCycleCore::Person.find(params[:id])
-      @dataSchema = @person.get_data_hash
-      render layout: "data_cycle_core/creative_works_edit"
+      I18n.with_locale(@person.first_available_locale(params[:locale])) do
+        @dataSchema = @person.get_data_hash
+        render layout: "data_cycle_core/creative_works_edit"
+      end
     end
 
     def update
       @person = DataCycleCore::Person.find(params[:id])
+      I18n.with_locale(@person.first_available_locale(params[:locale])) do
+        object_params = person_params('persons', @person.metadata['validation']['name'], 'Person')
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@person.metadata['validation'], false)
 
-      object_params = person_params('persons', @person.metadata['validation']['name'], 'Person')
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@person.metadata['validation'], false)
+        valid = @person.set_data_hash(datahash, current_user)
 
-      valid = @person.set_data_hash(datahash, current_user)
-
-      if valid.key?(:error) && !valid[:error].empty?
-        flash[:error] = valid[:error]
-        redirect_to edit_person_path(@person)
-        return
-      end
-
-      if @person.save
-        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Person'
-
-        if Rails.env.development?
-          redirect_back(fallback_location: root_path)
-        else
-          redirect_to person_path(@person, trail: session[:trail])
+        if valid.key?(:error) && !valid[:error].empty?
+          flash[:error] = valid[:error]
+          redirect_to edit_person_path(@person)
+          return
         end
 
-      else
-        render 'edit'
+        if @person.save
+          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Person'
+
+          if Rails.env.development?
+            redirect_back(fallback_location: root_path)
+          else
+            redirect_to person_path(@person, trail: session[:trail])
+          end
+
+        else
+          render 'edit'
+        end
       end
     end
 
