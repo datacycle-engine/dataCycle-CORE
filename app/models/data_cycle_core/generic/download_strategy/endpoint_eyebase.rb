@@ -5,7 +5,6 @@ class DataCycleCore::Generic::DownloadStrategy::EndpointEyebase
     @token = token
   end
 
-
   def media_assets(lang: :de)
     Enumerator.new do |yielder|
       load_folders.xpath('//folder/id').map(&:text).map(&:to_i).sort.reverse.each do |folder_id|
@@ -33,6 +32,7 @@ class DataCycleCore::Generic::DownloadStrategy::EndpointEyebase
           end
 
           yielder << raw_asset_data
+          
         end
       end
     end

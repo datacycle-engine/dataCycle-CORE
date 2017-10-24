@@ -1,6 +1,5 @@
 class DataCycleCore::Generic::SourceType::MediaAsset
   include Mongoid::Document
-
   store_in collection: 'media_assets'
 
   field :external_id,  type: String

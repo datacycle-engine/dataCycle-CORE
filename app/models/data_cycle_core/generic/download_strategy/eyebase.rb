@@ -1,6 +1,4 @@
 module DataCycleCore::Generic::DownloadStrategy::Eyebase
-
-
   def download_content(**options)
     download_data(@source_type, ->(data) { data['item_id'] }, ->(data) { data['titel'] }, options)
   end

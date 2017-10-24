@@ -36,8 +36,7 @@ module DataCycleCore::Generic::Transformations::Transformations
         'resolution_x' => 'width',
         'resolution_y' => 'height',
         'size_mb' => 'content_size'}).
-    >> t(:map_value, 'content_size',
-      -> s {(s.try(:gsub, ',', '.').try(:to_f) * 1024 * 1024).to_i}).
+    >> t(:map_value, 'content_size', -> s {(s.try(:gsub, ',', '.').try(:to_f) * 1024 * 1024).to_i}).
     >> t(:map_value, 'width', -> s {s.to_i}).
     >> t(:map_value, 'height', -> s {s.to_i}).
     >> t(:add_field, 'content_url',
