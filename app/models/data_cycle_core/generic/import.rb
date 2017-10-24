@@ -4,7 +4,7 @@ module DataCycleCore
 
       def import(**options, &block)
         if options.try(:[], :logging_strategy).blank?
-          @logging = DataCycleCore::Generic::Logger::Console.new
+          @logging = DataCycleCore::Generic::Logger::Console.new('import')
         else
           @logging = instance_eval(options[:logging_strategy])
         end
