@@ -20,7 +20,9 @@
                     <%= render 'data_cycle_core/shared/icon', icon_type: objects[0].metadata['validation']['name'].downcase %><strong><%= definition['label'].capitalize %> <%= content_tag(:span, index+1) if objects_length > 1 %></strong>
                 </span>
 
-                <%= link_to '<i class="fa fa-pencil" aria-hidden="true"></i>'.html_safe, edit_polymorphic_path(object, locale: I18n.locale), target: :_blank, class: "edit-link" if definition['editor']['type'] == "objectBrowser" && @historySource.nil? && can?(:crud, object) %>
+                <div class="buttons">
+                  <%= link_to '<i class="fa fa-pencil" aria-hidden="true"></i>'.html_safe, edit_polymorphic_path(object, locale: I18n.locale), target: :_blank, class: "edit-link" if definition['editor']['type'] == "objectBrowser" && @historySource.nil? && can?(:crud, object) %>
+                </div>
 
                 <% if !object.metadata.nil? && !object.metadata['validation'].nil? %>
 

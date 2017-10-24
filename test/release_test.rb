@@ -44,8 +44,8 @@ module DataCycleCore
       assert_equal(release_id, data_set.release_id)
     end
 
-    test "save releasable embeddedObjects (Standard-Artikel/Zitat)" do
-      template = DataCycleCore::CreativeWork.find_by(template: true, headline: "Standard-Artikel", description: "CreativeWork")
+    test "save releasable embeddedObjects (Artikel/Zitat)" do
+      template = DataCycleCore::CreativeWork.find_by(template: true, headline: "Artikel", description: "CreativeWork")
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
