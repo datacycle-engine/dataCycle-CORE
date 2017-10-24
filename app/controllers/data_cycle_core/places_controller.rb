@@ -64,7 +64,7 @@ module DataCycleCore
     def edit
 
       @place = DataCycleCore::Place.find(params[:id])
-      I18n.with_locale(@place.first_available_locale) do
+      I18n.with_locale(@place.first_available_locale(params[:locale])) do
         @dataSchema = @place.get_data_hash
         render layout: "data_cycle_core/creative_works_edit"
       end
@@ -72,32 +72,33 @@ module DataCycleCore
 
     def update
       @place = DataCycleCore::Place.find(params[:id])
+      I18n.with_locale(@place.first_available_locale(params[:locale])) do
+        object_params = place_params('places', @place.metadata['validation']['name'], @place.metadata['validation']['description'])
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@place.metadata['validation'], false)
 
-      object_params = place_params('places', @place.metadata['validation']['name'], @place.metadata['validation']['description'])
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@place.metadata['validation'], false)
+        # todo: implement preprocessor
+        datahash = set_location(datahash)
 
-      # todo: implement preprocessor
-      datahash = set_location(datahash)
+        valid = @place.set_data_hash(datahash, current_user)
 
-      valid = @place.set_data_hash(datahash, current_user)
-
-      if valid.key?(:error) && !valid[:error].empty?
-        flash[:error] = valid[:error]
-        redirect_to edit_place_path(@place)
-        return
-      end
-
-      if @place.save
-        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Place'
-
-        if Rails.env.development?
-          redirect_back(fallback_location: root_path)
-        else
-          redirect_to place_path(@place, trail: session[:trail])
+        if valid.key?(:error) && !valid[:error].empty?
+          flash[:error] = valid[:error]
+          redirect_to edit_place_path(@place)
+          return
         end
 
-      else
-        render 'edit'
+        if @place.save
+          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Place'
+
+          if Rails.env.development?
+            redirect_back(fallback_location: root_path)
+          else
+            redirect_to place_path(@place, trail: session[:trail])
+          end
+
+        else
+          render 'edit'
+        end
       end
     end
 
