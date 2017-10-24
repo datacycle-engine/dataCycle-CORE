@@ -17,7 +17,6 @@ module DataCycleCore
 
     # set data as specified in the data template
     # data hash with keys named as in schema.org
-    def set_data_hash(data_hash, current_user = nil, save_time = Time.zone.now)
     def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false)
       template_hash = metadata['validation']
 
@@ -26,7 +25,6 @@ module DataCycleCore
 
       if validate?(stripped_data_hash)
         ActiveRecord::Base.transaction do
-          self.to_history(save_time) unless self.id.nil?
           self.to_history(save_time) if self.id.nil? == false && prevent_history == false
           data_hash, release_hash = extract_release(data_hash, false) if kind_of?(DataCycleCore::Releasable) # strip release data only from this objectt
           set_template_data_hash(data_hash, template_hash['properties'], save_time, current_user)
@@ -389,7 +387,6 @@ module DataCycleCore
           elsif item.has_key?('id') && !item['id'].blank?
             # update
             update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['id'])
-            update_item.set_data_hash(item, current_user, save_time)
             update_item.set_data_hash(data_hash: item, current_user: current_user, save_time: save_time)
             update_item.save
             updated_item_keys.push(update_item.id)
@@ -404,7 +401,6 @@ module DataCycleCore
             insert_item = ("DataCycleCore::"+table.classify).constantize.new
             insert_item.metadata = { 'validation' => template.metadata['validation'] }
             insert_item.save
-            insert_item.set_data_hash(item, current_user, save_time)
             insert_item.set_data_hash(data_hash: item, current_user: current_user, save_time: save_time)
             insert_item.save
             updated_item_keys.push(insert_item.id)
@@ -469,7 +465,6 @@ module DataCycleCore
           elsif item.has_key?('id') && !item['id'].blank?
             # update
             update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['id'])
-            update_item.set_data_hash(item, current_user, save_time)
             update_item.set_data_hash(data_hash: item, current_user: current_user, save_time: save_time)
             update_item.save
             item_id = item['id']
@@ -478,7 +473,6 @@ module DataCycleCore
             insert_item = ("DataCycleCore::"+table.classify).constantize.new
             insert_item.metadata = { 'validation' => template.metadata['validation'] }
             insert_item.save
-            insert_item.set_data_hash(item, current_user, save_time)
             insert_item.set_data_hash(data_hash: item, current_user: current_user, save_time: save_time)
             insert_item.is_part_of = self.id
             insert_item.save
