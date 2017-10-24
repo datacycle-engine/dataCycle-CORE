@@ -222,12 +222,7 @@ namespace :data_cycle_core do
           [k, v]
         end
       }]
-
       options[:locales] = [:de, :en, :fr, :it, :nl]
-      options[:logging_strategy] = DataCycleCore::Generic::Logger::Console.new("download")
-      options[:source_type] = DataCycleCore::Generic::SourceType::ImageObject
-      options[:endpoint] = DataCycleCore::Generic::DownloadStrategy::EndpointMediaArchive
-      options[:download_strategy] = DataCycleCore::Generic::DownloadStrategy::MediaArchive
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.download(options)
@@ -242,13 +237,7 @@ namespace :data_cycle_core do
           [k, v]
         end
       }]
-
       options[:locales] = [:de, :fr, :en, :it, :nl]
-      options[:data_template] = 'BildJsonld'
-      options[:logging_strategy] = DataCycleCore::Generic::Logger::Console.new("import")
-      options[:import_strategy] = DataCycleCore::Generic::ImportStrategy::MediaArchive
-      options[:source_type] = DataCycleCore::Generic::SourceType::ImageObject
-      options[:target_type] = DataCycleCore::CreativeWork
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.import(options)
