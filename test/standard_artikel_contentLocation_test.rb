@@ -15,7 +15,7 @@ module DataCycleCore
         "latitude" => 1,
         "longitude" => 2
       }
-      data_set_place_1.set_data_hash(place_hash1)
+      data_set_place_1.set_data_hash(data_hash: place_hash1)
       data_set_place_1.save
       place_id_1 = data_set_place_1.id
       expected_hash = data_set_place_1.get_data_hash
@@ -33,7 +33,7 @@ module DataCycleCore
         "given_name" => "Winston",
         "family_name" => "Churchill"
       }
-      data_set_person.set_data_hash(person_hash)
+      data_set_person.set_data_hash(data_hash: person_hash)
       data_set_person.save
       person_id = data_set_person.id
 
@@ -52,7 +52,7 @@ module DataCycleCore
         "latitude" => 1,
         "longitude" => 2
       }
-      data_set_place_1.set_data_hash(place_hash1)
+      data_set_place_1.set_data_hash(data_hash: place_hash1)
       data_set_place_1.save
       place_id_1 = data_set_place_1.id
 
@@ -64,7 +64,7 @@ module DataCycleCore
         "latitude" => 10,
         "longitude" => 20
       }
-      data_set_place_2.set_data_hash(place_hash2)
+      data_set_place_2.set_data_hash(data_hash: place_hash2)
       data_set_place_2.save
       place_id_2 = data_set_place_2.id
 
@@ -88,7 +88,7 @@ module DataCycleCore
           "id" => place_id_1
           }]
       }
-      error = data_set.set_data_hash(data_hash)
+      error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
       parent_id = data_set.id
@@ -147,7 +147,7 @@ module DataCycleCore
 
 
       returned_data_hash['content_location'] = [{"id" => place_id_2 }]
-      error = data_set.set_data_hash(returned_data_hash)
+      error = data_set.set_data_hash(data_hash: returned_data_hash)
       data_set.save
       updated_data_hash = data_set.get_data_hash
       expected_hash["content_location"] = [{

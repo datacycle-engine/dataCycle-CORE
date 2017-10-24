@@ -14,7 +14,7 @@ module DataCycleCore
       data_set = DataCycleCore::Place.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
-      error = data_set.set_data_hash({"name" => "Dies ist ein Test!", "longitude" => 40.56, "latitude" => 13.13})
+      error = data_set.set_data_hash(data_hash: {"name" => "Dies ist ein Test!", "longitude" => 40.56, "latitude" => 13.13})
       data_set.save
       expected_hash = {
         "id" => data_set.id,
@@ -32,7 +32,7 @@ module DataCycleCore
       data_set.metadata = { 'validation' => validation }
       data_set.save
       point = RGeo::Geographic.spherical_factory(srid: 4326).point(40.56 , 13.13)
-      error = data_set.set_data_hash({"name" => "Dies ist ein Test!", "longitude" => 40.56, "latitude" => 13.13, "location" => point})
+      error = data_set.set_data_hash(data_hash: {"name" => "Dies ist ein Test!", "longitude" => 40.56, "latitude" => 13.13, "location" => point})
       data_set.save
       expected_hash = {
         "id" => data_set.id,
@@ -60,7 +60,7 @@ module DataCycleCore
       external_source.save
       external_source_id = external_source.id
       point = RGeo::Geographic.spherical_factory(srid: 4326).point(40.56 , 13.13)
-      error = data_set.set_data_hash({
+      error = data_set.set_data_hash(data_hash: {
         "name" => "Dies ist ein Test!",
         "longitude" => 40.56,
         "latitude" => 13.13,

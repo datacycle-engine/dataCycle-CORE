@@ -19,7 +19,7 @@ module DataCycleCore
         "description" => "Description Test",
         "photographer" => "Photographer Test"
       }
-      data_set.set_data_hash(data_hash)
+      data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       data_set.set_search
       data_set.save

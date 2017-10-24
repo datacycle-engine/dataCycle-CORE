@@ -19,7 +19,7 @@ module DataCycleCore
         "given_name" => "Winston",
         "family_name" => "Churchill"
       }
-      data_set.set_data_hash(person_hash)
+      data_set.set_data_hash(data_hash: person_hash)
       data_set.save
       person_id = data_set.id
 
@@ -44,7 +44,7 @@ module DataCycleCore
           "data_type" => [data_type_zitat_id]
         }]
       }
-      error = data_set.set_data_hash(data_hash)
+      error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
       parent_id = data_set.id
@@ -102,7 +102,7 @@ module DataCycleCore
         "given_name" => "Winston",
         "family_name" => "Churchill"
       }
-      data_set.set_data_hash(person_hash)
+      data_set.set_data_hash(data_hash: person_hash)
       data_set.save
       person_id = data_set.id
 
@@ -127,7 +127,7 @@ module DataCycleCore
           "data_type" => [data_type_zitat_id]
         }]
       }
-      error = data_set.set_data_hash(data_hash)
+      error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
       parent_id = data_set.id
@@ -173,7 +173,7 @@ module DataCycleCore
 
       # delete quotation
       data_hash['quotation'] = []
-      error = data_set.set_data_hash(data_hash)
+      error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
       expected_hash['quotation'] = []
@@ -202,7 +202,7 @@ module DataCycleCore
         "given_name" => "Winston",
         "family_name" => "Churchill"
       }
-      data_set.set_data_hash(person_hash)
+      data_set.set_data_hash(data_hash: person_hash)
       data_set.save
       person_id = data_set.id
 
@@ -227,7 +227,7 @@ module DataCycleCore
           }]
         }]
     }
-      error = data_set.set_data_hash(data_hash)
+      error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
       parent_id = data_set.id
@@ -278,7 +278,7 @@ module DataCycleCore
 
       # delete quotation
       data_hash['quotation'] = []
-      error = data_set.set_data_hash(data_hash)
+      error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
       expected_hash['quotation'] = []
@@ -302,7 +302,7 @@ module DataCycleCore
         "given_name" => "Winston",
         "family_name" => "Churchill"
       }
-      data_set.set_data_hash(person_hash)
+      data_set.set_data_hash(data_hash: person_hash)
       data_set.save
       person_id = data_set.id
 
@@ -327,7 +327,7 @@ module DataCycleCore
           }]
         }]
       }
-      error = data_set.set_data_hash(data_hash)
+      error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
       parent_id = data_set.id
@@ -378,7 +378,7 @@ module DataCycleCore
           "id" => person_id
         }]
       })
-      error = data_set.set_data_hash(data_hash)
+      error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
       parent_id = data_set.id
