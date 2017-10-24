@@ -71,7 +71,7 @@ module DataCycleCore
         object_params = person_params('persons', @person.metadata['validation']['name'], 'Person')
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@person.metadata['validation'], false)
 
-        valid = @person.set_data_hash(datahash, current_user)
+        valid = @person.set_data_hash(data_hash: datahash, current_user: current_user)
 
         if valid.key?(:error) && !valid[:error].empty?
           flash[:error] = valid[:error]

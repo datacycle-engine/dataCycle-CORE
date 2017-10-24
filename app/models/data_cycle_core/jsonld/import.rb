@@ -146,7 +146,7 @@ module DataCycleCore
                     data['content_location'] = [ contentLocation_hash ]
                   end
                   data['data_type'] = nil # touch data_type to get default_value
-                  errors = to_update_image.set_data_hash(data)
+                  errors = to_update_image.set_data_hash(data_hash: data)
                   # check if data is set and validations are correct
                   if errors[:error].size > 0
                     @log.error "received wrong data for id:#{data_set.id}, language: #{lang}, data: #{data} (skipping)"

@@ -165,7 +165,7 @@ module DataCycleCore
                     place_hash = ((to_update_place.get_data_hash || {}) rescue {}).merge(extract_place_data(lang_dump))
                     place_hash['primary_image'] = primaryImage if primaryImage
                     place_hash['image'] = image if image.count > 0
-                    to_update_place.set_data_hash(place_hash)
+                    to_update_place.set_data_hash(data_hash: place_hash)
                     to_update_place.save!
                   end
                 end
@@ -456,7 +456,7 @@ module DataCycleCore
           end
           to_update_image.save!
 
-          error = to_update_image.set_data_hash(data_image)
+          error = to_update_image.set_data_hash(data_hash: data_image)
           if error[:error].count > 0
             ap error[:error]
             @log.info "  could not import Image for #{place_id}!"
