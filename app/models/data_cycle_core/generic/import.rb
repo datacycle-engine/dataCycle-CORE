@@ -14,9 +14,9 @@ module DataCycleCore
         raise "Missing data_template for #{self.class.to_s}, options given: #{options}"    if options[:data_template].blank?
         raise "Missing target_type for #{self.class.to_s}, options given: #{options}"      if options[:target_type].nil?
 
-        self.extend(options[:import_strategy].safe_constantize)
-        @source_type = options[:source_type].safe_constantize
-        @target_type = options[:target_type].safe_constantize
+        self.extend(options[:import_strategy].constantize)
+        @source_type = options[:source_type].constantize
+        @target_type = options[:target_type].constantize
         @data_template = options[:data_template]
 
         import_data(**options)

@@ -23,4 +23,37 @@ module DataCycleCore::Generic::Transformations::Transformations
     >> t(:compact)
   end
 
+  def self.eyebase_to_bild
+    t(:stringify_keys).
+    >> t(:reject_keys, ['quality_256', 'quality_1024', 'picturepins', 'ordnerstruktur']).
+    >> t(:unwrap, 'quality_1', ['resolution_x', 'resolution_y', 'size_mb']).
+    >> t(:rename_keys, {
+        'item_id' => 'external_key',
+        'titel' => 'headline',
+        'field_202' => 'photographer',
+        'copyright' => 'license',
+        'field_216' => 'restrictions',
+        'resolution_x' => 'width',
+        'resolution_y' => 'height',
+        'size_mb' => 'content_size'}).
+    >> t(:map_value, 'content_size',
+      -> s {(s.try(:gsub, ',', '.').try(:to_f) * 1024 * 1024).to_i}).
+    >> t(:map_value, 'width', -> s {s.to_i}).
+    >> t(:map_value, 'height', -> s {s.to_i}).
+    >> t(:add_field, 'content_url',
+      -> s {File.join(ActionMailer::Base.default_url_options[:host], 'eyebase', 'media_assets', 'files',  s['quality_1']['filename']) rescue nil}).
+    >> t(:add_field, 'thumbnail_url',
+      -> s {File.join(ActionMailer::Base.default_url_options[:host], 'eyebase', 'media_assets', 'files', s['quality_512']['filename']) rescue nil}).
+    >> t(:add_field, 'keywords',
+      -> s { [s['field_204'].try(:split, ','), s['field_215'].try(:split, ',') ].flatten.reject(&:nil?).map(&:strip).uniq || []}).
+    >> t(:tags_to_ids, 'keywords', 'Tags').
+    >> t(:reject_keys, ['quality_1', 'quality_512']).
+    >> t(:compact).
+    >> t(:strip_all)
+  end
+
+  def self.eyebase_get_keywords
+    t(:add_field, 'keywords',
+      -> s { [s['field_204'].try(:split, ','), s['field_215'].try(:split, ',') ].flatten.reject(&:nil?).map(&:strip).uniq || []})
+  end
 end

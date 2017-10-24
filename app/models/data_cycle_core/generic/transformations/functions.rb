@@ -6,6 +6,10 @@ module DataCycleCore::Generic::Transformations::Functions
     Hash[data_hash.to_a.map { |k, v| [k.to_s.underscore, v.kind_of?(Hash) ? underscore_keys(v) : v] }]
   end
 
+  def self.strip_all(data_hash)
+    Hash[data_hash.to_a.map { |k, v| [k, v.kind_of?(Hash) ? strip_all(v) : (v.kind_of?(String) ? v.strip : v)]}]
+  end
+
   def self.location(data_hash)
     location = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f)  unless data_hash['longitude'].blank? || data_hash['latitude'].blank?
     location ||= nil
@@ -30,9 +34,12 @@ module DataCycleCore::Generic::Transformations::Functions
           where("classification_tree_labels.name = ? and classifications.name = ? and classifications.external_key IS NULL", tree_label, keyword).
           first.id
       } || []
-    end 
+    end
     data_hash
   end
 
+  def self.add_field(data_hash, name, function)
+    data_hash.merge({name => function.call(data_hash)})
+  end
 
 end

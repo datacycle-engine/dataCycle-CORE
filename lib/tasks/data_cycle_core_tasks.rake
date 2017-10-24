@@ -222,7 +222,7 @@ namespace :data_cycle_core do
           [k, v]
         end
       }]
-      options[:locales] = [:de, :en, :fr, :it, :nl]
+      options[:locales] = [:de] #, :en, :fr, :it, :nl]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.download(options)
@@ -237,7 +237,7 @@ namespace :data_cycle_core do
           [k, v]
         end
       }]
-      options[:locales] = [:de, :fr, :en, :it, :nl]
+      options[:locales] = [:de] #, :fr, :en, :it, :nl]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.import(options)

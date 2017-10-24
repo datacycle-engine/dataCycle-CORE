@@ -13,9 +13,9 @@ module DataCycleCore
         raise "Missing endpoint for #{self.class.to_s}, options given: #{options}"          if options[:endpoint].nil?
         raise "Missing download_strategy for #{self.class.to_s}, options given: #{options}" if options[:download_strategy].nil?
 
-        self.extend(options[:download_strategy].safe_constantize)
-        @source_type = options[:source_type].safe_constantize
-        @end_point_object = options[:endpoint].safe_constantize
+        self.extend(options[:download_strategy].constantize)
+        @source_type = options[:source_type].constantize
+        @end_point_object = options[:endpoint].constantize
 
         download_content(**options)
       end

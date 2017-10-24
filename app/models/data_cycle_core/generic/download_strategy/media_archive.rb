@@ -7,7 +7,7 @@ module DataCycleCore::Generic::DownloadStrategy::MediaArchive
   protected
 
   def endpoint
-    @endpoint ||= @end_point_object.new(Hash[credentials.map { |k, v| [k.to_sym, v] }])
+    @end_point_object.new(credentials.symbolize_keys)
   end
 
 end
