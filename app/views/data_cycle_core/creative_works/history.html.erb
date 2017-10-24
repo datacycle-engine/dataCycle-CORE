@@ -38,7 +38,7 @@
                             </div>
 
                             <%= render 'data_cycle_core/contents/viewers/metadata/releasable_viewer', value: @creativeWork.get_releasable_hash, key: 'creative_work', definition: {'type' => 'releasable'}, options:{force_render: true} %>
-                            <%= render_content_partial 'details', content: @creativeWork, schema: @dataSchema, options: {force_render: true} %>
+                            <%= render_content_partial 'history_details', content: @creativeWork, schema: @dataSchema, options: {force_render: true} %>
 
                         </div>
 
