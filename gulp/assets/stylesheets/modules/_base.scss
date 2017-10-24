@@ -90,10 +90,12 @@ button,
 .no-edit-bar {
   padding-top: 3.5rem;
 }
-#show-history{
+
+#show-history {
   max-height: 24rem;
   overflow-y: scroll;
 }
+
 .edit-header {
   background-color: lighten($primary-color, 50%);
   height: 3.5rem;
@@ -488,7 +490,7 @@ button,
   }
   .focus {
     label {
-      z-index: 1000
+      z-index: 20
     }
   }
   .ql-editor {
@@ -529,7 +531,7 @@ button,
       display: none;
     }
     .input input,
-    .string:not(.date, .datetime, .headline, .headline_external) input,
+    .string:not(.date, .datetime, .headline, .headline_external, .quill_editor) input,
     .number input {
       padding: 2.5rem 1rem 2rem 1rem;
       line-height: initial;
@@ -590,7 +592,7 @@ button,
     border: 0;
   }
   .ql-tooltip {
-    z-index: 12;
+    z-index: 21;
   }
 }
 
@@ -835,11 +837,11 @@ body .v-select {
   }
   span.tag {
     background-color: rgba($dark-gray, 0.8);
-    &.has-changed{
-      &.removed{
+    &.has-changed {
+      &.removed {
         background-color: rgba($alert-color, 0.8);
       }
-      &.added{
+      &.added {
         background-color: rgba($success-color, 0.8);
       }
     }
