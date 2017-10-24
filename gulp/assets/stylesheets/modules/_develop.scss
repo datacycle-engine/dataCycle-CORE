@@ -240,7 +240,7 @@ select {
   }
   .flex-box {
     height: calc(100vh - 13rem);
-    &.full-size{
+    &.full-size {
       height: inherit;
     }
     .detail-content {
@@ -338,7 +338,7 @@ select {
           }
         }
       }
-      .history-metadata{
+      .history-metadata {
         margin-left: 1rem;
       }
     }
@@ -483,5 +483,15 @@ video {
     &.active {
       cursor: auto;
     }
+  }
+}
+
+// Submit button errors
+.tooltip {
+  .tooltip-error {
+    display: block;
+    border-top: 1px solid white;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
   }
 }
