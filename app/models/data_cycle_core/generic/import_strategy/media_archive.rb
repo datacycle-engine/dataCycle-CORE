@@ -24,13 +24,11 @@ module DataCycleCore::Generic::ImportStrategy::MediaArchive
       )
 
       keywords = raw_data['keywords'] || []
-      keywords.each do |item|
-        import_classification({name: item, external_id: nil, tree_name: 'Tags'})
-      end
+      keywords.each{ |item| import_classification({name: item, external_id: nil, tree_name: 'Tags'}) }
 
       raw_data.merge!({'content_location' => [{ 'id' => content_location.try(:id) }]}) unless content_location.blank?
 
-      content_object = create_or_update_content(
+      create_or_update_content(
         @target_type,
         load_template(@target_type, @data_template),
         extract_image_data(raw_data).with_indifferent_access
