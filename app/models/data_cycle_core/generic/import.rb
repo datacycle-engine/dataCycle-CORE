@@ -3,9 +3,6 @@ module DataCycleCore
     class Import < DataCycleCore::Generic::ImportBase
 
       def import(**options, &block)
-        ap options
-        byebug
-
         if options.try(:[], :logging_strategy).blank?
           @logging = DataCycleCore::Generic::Logger::Console.new
         else
