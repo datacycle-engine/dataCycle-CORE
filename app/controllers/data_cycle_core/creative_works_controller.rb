@@ -7,11 +7,6 @@ module DataCycleCore
     end
 
     def show
-      if params[:trail]
-        session[:trail] = params[:trail]
-      else
-        session.delete(:trail)
-      end
       @creativeWork = DataCycleCore::CreativeWork.find_by(id: params[:id])
       I18n.with_locale(@creativeWork.first_available_locale) do
 
