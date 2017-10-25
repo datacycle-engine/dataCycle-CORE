@@ -87,6 +87,35 @@ module DataCycleCore::Generic::Transformations::Transformations
     >> t(:strip_all)
   end
 
+  def self.outdoor_active_to_tour ### to be changed
+    t(:stringify_keys).
+    >> t(:rename_keys, {
+      'id' => 'external_key',
+      'title' => 'name',
+      'shortText' => 'description',
+      'longText' => 'text',
+      'altitude' => 'elevation',
+      'countryCode' => 'address_country',
+      'fax' => 'fax_number',
+      'phone' => 'telephone',
+      'homepage' => 'url',
+      'businessHours' => 'hours_available',
+      'fee' => 'price',
+      'gettingThere' => 'directions'}).
+    >> t(:map_value, 'elevation', -> s {s.to_f}).
+    >> t(:add_field, 'latitude', -> s {s['geometry'].try(:split, /[, ]/, 3).try(:[], 1).try(:to_f)}).
+    >> t(:add_field, 'longitude', -> s {s['geometry'].try(:split, /[, ]/, 3).try(:[], 0).try(:to_f)}).
+    >> t(:location).
+    >> t(:add_field, 'address_locality', -> s {s['address'].try(:[], 'town')}).
+    >> t(:add_field, 'street_address', -> s {
+      unless s['address'].try(:[], 'street').try(:strip).blank?
+        [s['address'].try(:[], 'street').try(:strip), s['address'].try(:[], 'housenumber').try(:strip)].join(' ')
+      end}).
+    >> t(:add_field, 'postal_code', -> s {s['address'].try(:[], 'zipcode')}).
+    >> t(:add_field, 'author', -> s {s['meta'].try(:[], 'author')}).
+    >> t(:strip_all)
+  end
+
   def self.outdoor_active_to_image
     t(:stringify_keys).
     >> t(:add_field, 'content_url', -> s {"http://img.oastatic.com/img/#{s['id']}/.jpg"}).

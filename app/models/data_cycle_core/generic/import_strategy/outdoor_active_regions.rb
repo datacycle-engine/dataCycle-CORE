@@ -1,13 +1,5 @@
 module DataCycleCore::Generic::ImportStrategy::OutdoorActiveRegions
   def import_data(**options)
-    #import_classifications(
-    # type,
-    # tree_name,
-    # load_root_classifications,
-    # load_child_classifications,
-    # load_parent_classification_alias,
-    # extract_data,
-    # **options)
     import_classifications(
       @source_type,
       "#{options.try(:[], :import).try(:[], :tree_label) || 'OutdoorActive'} - Regionen",

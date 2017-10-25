@@ -4,7 +4,6 @@ module DataCycleCore::Generic::ImportStrategy::MediaArchive
     @image_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_bild
     @content_location_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_content_location
 
-    # import_contents(source_type, target_type, load_contents, process_content, callbacks, **options)
     import_contents(@source_type, @target_type, self.method(:load_contents).to_proc, self.method(:process_content).to_proc, **options)
   end
 
