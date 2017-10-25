@@ -7,11 +7,6 @@ module DataCycleCore
     end
 
     def show
-      if params[:trail]
-        session[:trail] = params[:trail]
-      else
-        session.delete(:trail)
-      end
       @creativeWork = DataCycleCore::CreativeWork.find_by(id: params[:id])
       I18n.with_locale(@creativeWork.first_available_locale) do
 
@@ -35,7 +30,6 @@ module DataCycleCore
             if @creativeWork.metadata['validation']['content_type'] == 'variant'
               render layout: "data_cycle_core/creative_works_edit"
             else
-              @sources = get_sources
               render layout: "data_cycle_core/creative_works_show"
             end
           }
@@ -227,23 +221,6 @@ module DataCycleCore
 
         return data_hash.compact!
 
-      end
-
-      def get_sources
-        tree_labels = helpers.get_allowed_content_types.keys
-        tree_labels.push('Recherche')
-
-        types = DataCycleCore::ClassificationAlias.where("name IN (?) AND internal = true", tree_labels).pluck(:id)
-
-        @language = params[:language]
-        @language ||= "de"
-
-        query = DataCycleCore::Filter::CreativeWorkQueryBuilder.new(@language)
-        query = query.with_classification_alias_ids(types)
-
-        query = query.map{|c| { value: "source_id=>#{c.id}, source_type=>#{c.class.name}", label: (c.title || '') + " (" + c.content_type + ")" } }.compact
-
-        return query
       end
 
   end

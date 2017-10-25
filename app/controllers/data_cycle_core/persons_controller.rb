@@ -9,7 +9,6 @@ module DataCycleCore
     end
 
     def show
-      session[:trail] = params[:trail] unless params[:trail].nil?
       @person = DataCycleCore::Person.find_by(id: params[:id])
 
       if @person.nil?

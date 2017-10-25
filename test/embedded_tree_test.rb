@@ -28,7 +28,7 @@ module DataCycleCore
           .where("classification_aliases.name = ?", "Zitat").first.id
 
       # create an Article
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Standard-Artikel", description: "CreativeWork").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Artikel", description: "CreativeWork").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
@@ -111,7 +111,7 @@ module DataCycleCore
           .where("classification_aliases.name = ?", "Zitat").first.id
 
       # create an Article
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Standard-Artikel", description: "CreativeWork").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Artikel", description: "CreativeWork").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
@@ -169,7 +169,7 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
       assert_equal(1, DataCycleCore::CreativeWorkPerson.count)
       assert_equal(1, DataCycleCore::Person.where(template: false).count)
-      assert_equal(2, DataCycleCore::ClassificationContent.count) # 1x quotation, 1x "Standard-Artikel"
+      assert_equal(2, DataCycleCore::ClassificationContent.count) # 1x quotation, 1x "Artikel"
 
       # delete quotation
       data_hash['quotation'] = []
@@ -185,7 +185,7 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
       assert_equal(0, DataCycleCore::CreativeWorkPerson.count)
       assert_equal(1, DataCycleCore::Person.where(template: false).count)
-      assert_equal(1, DataCycleCore::ClassificationContent.count) # 1x "Standard-Artikel", quotation with references deleted
+      assert_equal(1, DataCycleCore::ClassificationContent.count) # 1x "Artikel", quotation with references deleted
     end
 
     test 'insert quotations, then delete quotations' do
@@ -207,7 +207,7 @@ module DataCycleCore
       person_id = data_set.id
 
       # create an Article
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Standard-Artikel", description: "CreativeWork").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Artikel", description: "CreativeWork").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
@@ -312,7 +312,7 @@ module DataCycleCore
           .where("classification_aliases.name = ?", "Zitat").first.id
 
       # create an Article
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Standard-Artikel", description: "CreativeWork").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Artikel", description: "CreativeWork").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }

@@ -69,7 +69,7 @@ module DataCycleCore
       place_id_2 = data_set_place_2.id
 
       # create an Article
-      template = DataCycleCore::CreativeWork.where(template: true, headline: "Standard-Artikel", description: "CreativeWork").first
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Artikel", description: "CreativeWork").first
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }

@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: Standard-Artikel
+    :name: Artikel
     :description: CreativeWork
     :type: object
     :content_type: variant

@@ -44,7 +44,7 @@ module DataCycleCore
 
         if Rails.env.development?
           redirect_to edit_user_path(@user)
-        elsif can? :manage, DataCycleCore::User
+        elsif can? :crud, DataCycleCore::User
           redirect_to users_path
         else
           redirect_to root_path

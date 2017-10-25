@@ -615,7 +615,7 @@
         :default_value: "Bild"
 
 - :data:
-    :name: Standard-ArtikelTest
+    :name: ArtikelTest
     :description: CreativeWork
     :type: object
     :permissions:
