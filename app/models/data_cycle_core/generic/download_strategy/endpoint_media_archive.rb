@@ -3,7 +3,7 @@ class DataCycleCore::Generic::DownloadStrategy::EndpointMediaArchive
     @host = host
     @end_point = end_point
     @token = token
-    @per = 10
+    @per = 100
   end
 
   def image_objects(lang: :de)

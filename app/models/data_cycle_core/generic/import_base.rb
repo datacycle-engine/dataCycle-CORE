@@ -66,6 +66,7 @@ module DataCycleCore::Generic
           sub_classification_alias: classification_alias
         })
 
+        classification_alias
       else
         classification.name = classification_data[:name]
         classification.save!
@@ -77,8 +78,9 @@ module DataCycleCore::Generic
         classification_tree = primary_classification_alias.classification_tree
         classification_tree.parent_classification_alias = parent_classification_alias
         classification_tree.save!
+
+        primary_classification_alias
       end
-      classification
     end
 
     def import_contents(source_type, target_type, load_contents, process_content, **options)

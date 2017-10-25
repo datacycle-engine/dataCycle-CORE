@@ -1,6 +1,6 @@
-class DataCycleCore::Generic::SourceType::MediaAsset
+class DataCycleCore::Generic::SourceType::Poi
   include Mongoid::Document
-  store_in collection: 'media_assets'
+  store_in collection: 'pois'
 
   field :external_id, type: String
   field :dump,        type: Hash

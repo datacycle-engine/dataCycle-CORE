@@ -11,6 +11,7 @@ module DataCycleCore::Generic
           download_data(type, extract_id, extract_name, options.except(:locales).merge({locales: [language]}))
         end
       else
+
         locale = options[:locales].first
 
         Mongoid.override_database("#{type.database_name}_#{external_source.id}")
