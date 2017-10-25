@@ -74,6 +74,7 @@ module DataCycleCore
 
     def render_attribute_viewer(key:, definition:, value:, parameters: {})
       partials = [
+        "#{parameters.dig(:options).dig(:force_partial).try(:underscore)}",
         "#{definition['type'].underscore}_#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'data-type').try(:underscore)}",
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
         "#{definition.try(:[], 'editor').try(:[], 'type').try(:underscore)}",
