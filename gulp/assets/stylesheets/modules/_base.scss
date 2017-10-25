@@ -715,41 +715,6 @@ span.single_error:before,
 .type {
   font-size: 1rem;
   font-weight: normal;
-  &.translations {
-    margin: 2rem 0;
-  }
-  &.bild,
-  &.bilder {
-    color: $ccpicture;
-  }
-  &.website {
-    color: $ccwebsite;
-  }
-  &.video {
-    color: $ccvideo;
-  }
-  &.text,
-  &.standard-artikel,
-  &.artikel,
-  &.angebot {
-    color: $cctext;
-  }
-  &.social {
-    color: $ccsocial;
-  }
-  &.print {
-    color: $ccprint;
-  }
-  &.event {
-    color: $ccevent;
-  }
-  &.content-einheit,
-  &.thema {
-    color: $ccthema;
-  }
-  &.recherche {
-    color: $ccrecherche;
-  }
 }
 
 .tags {
