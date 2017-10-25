@@ -11,7 +11,7 @@
     <div id="media-content" class="items">
 
       <div v-if="items.length == 0 && !loading" class="no-entries">Keine Einträge gefunden</div>
-      <div v-else class="item" v-for="item in items" :key="item" @click.prevent="toggleActive(item, $event)" v-bind:class="{ active: isActive(item) }">
+      <div v-else class="item" v-for="item in items" :key="item" @click.prevent="toggleActive(item, $event)" v-bind:class="{ active: isActive(item) }" :id="item.id">
         <slot name="item" :item="item"></slot>
       </div>
       <div v-if="loading" class="loading">
@@ -126,7 +126,7 @@ export default {
       modal: "",
       newModal: "",
       editUrl: "",
-      adjustedStartItems: false
+      filledViewPort: false
     };
   },
   mounted() {
@@ -220,7 +220,7 @@ export default {
   watch: {
     searchTerm(val) {
       this.items = [];
-      this.adjustedStartItems = false;
+      this.filledViewPort = false;
       this.currentPage = 1;
     }
   },
@@ -262,10 +262,17 @@ export default {
     addItem(item) {
       if (item.id != undefined && item.errors == undefined) {
         this.items.push(item);
+        this.chosenItems.push(item);
+        this.activeItem = item;
         if (this.newModal != "") this.newModal.foundation("close");
+        this.$nextTick(function() {
+          document
+            .getElementById(item.id)
+            .scrollIntoView({ behavior: "smooth" });
+        });
       }
     },
-    adjustItems() {
+    fillViewPortWithItems() {
       this.$nextTick(
         function() {
           if (
@@ -285,7 +292,7 @@ export default {
           ) {
             this.currentPage += 1;
           } else {
-            this.adjustedStartItems = true;
+            this.filledViewPort = true;
           }
         }.bind(this)
       );
@@ -307,8 +314,8 @@ export default {
           var items = self.items.concat(json_data.results);
           self.items = items.slice(0);
           self.loading = false;
-          if (!self.adjustedStartItems) {
-            self.adjustItems();
+          if (!self.filledViewPort) {
+            self.fillViewPortWithItems();
           }
 
           return self.items;

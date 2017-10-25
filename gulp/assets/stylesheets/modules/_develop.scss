@@ -490,3 +490,14 @@ video {
     padding-top: 0.5rem;
   }
 }
+
+.reveal {
+  &.width-content {
+    width: min-content;
+    img,
+    video {
+      max-width: 90vw;
+      max-height: 90vh;
+    }
+  }
+}
