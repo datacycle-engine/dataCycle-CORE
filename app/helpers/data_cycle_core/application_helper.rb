@@ -83,6 +83,17 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({key: key, definition: definition, value: value}))
     end
 
+    def render_content_tile(item:, parameters: {})
+      partials = [
+        "#{item.try(:metadata).try(:dig, 'validation', 'name')}_#{item.try(:metadata).try(:dig, 'validation', 'description')}".underscore.parameterize(separator: '_'),
+        "#{item.try(:metadata).try(:dig, 'validation', 'description')}".underscore.parameterize(separator: '_'),
+        "#{item.try(:class).try(:name).try(:demodulize)}".underscore.parameterize(separator: '_'),
+        "default"
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}_tile" }
+
+      render_first_existing_partial(partials, parameters.merge({item: item}))
+    end
+
     def render_attribute_history_viewer(key:, definition:, value:, parameters: {})
       partials = [
         "#{definition['type'].underscore}_#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'data-type').try(:underscore)}",

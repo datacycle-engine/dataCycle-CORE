@@ -11,7 +11,7 @@
 		<% dataCycleObjects.each do |dataCycleObject| %>
 
 			<div class="grid-item data-cycle-object">
-				<%= render "data_cycle_core/watch_lists/partials/index/default", item: dataCycleObject %>
+        <%= render_content_tile item: dataCycleObject %>
 			</div>
 
 		<% end %>
