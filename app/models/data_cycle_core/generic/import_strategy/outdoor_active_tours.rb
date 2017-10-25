@@ -3,7 +3,7 @@ module DataCycleCore::Generic::ImportStrategy::OutdoorActiveTours
   def import_data(**options)
     @image_template = options[:import][:image_template] || 'Bild'
 
-    @tour_transformation = DataCycleCore::Generic::Transformations::Transformations.outdoor_active_to_poi
+    @tour_transformation = DataCycleCore::Generic::Transformations::Transformations.outdoor_active_to_tour
     @tour_image_transformation = DataCycleCore::Generic::Transformations::Transformations.outdoor_active_to_image
 
     import_contents(@source_type, @target_type, self.method(:load_contents).to_proc, self.method(:process_content).to_proc, **options)
@@ -29,7 +29,7 @@ module DataCycleCore::Generic::ImportStrategy::OutdoorActiveTours
         DataCycleCore::Classification.find_by(external_key: id)
       }.reject(&:nil?)
 
-      regions = raw_data.dig('regions', 'region').map { |r| r['id'] }.reject(&:blank?).map { |id|
+      regions = (raw_data.dig('regions', 'region') || []).map { |r| r['id'] }.reject(&:blank?).map { |id|
         DataCycleCore::Classification.find_by(external_key: id)
       }.reject(&:nil?)
 

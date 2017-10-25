@@ -29,7 +29,7 @@ module DataCycleCore::Generic::ImportStrategy::OutdoorActivePois
         DataCycleCore::Classification.find_by(external_key: id)
       }.reject(&:nil?)
 
-      regions = raw_data.dig('regions', 'region').map { |r| r['id'] }.reject(&:blank?).map { |id|
+      regions = (raw_data.dig('regions', 'region') || []).map { |r| r['id'] }.reject(&:blank?).map { |id|
         DataCycleCore::Classification.find_by(external_key: id)
       }.reject(&:nil?)
 
