@@ -1,5 +1,7 @@
 module DataCycleCore
   class CreativeWorksController < ContentsController
+    include DataCycleCore::NormalizeService
+
     before_action :authenticate_user!                                # from devise (authenticate)
     load_and_authorize_resource except: [:validate_single_data]      # from cancancan (authorize)
 
@@ -127,16 +129,31 @@ module DataCycleCore
         object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], 'CreativeWork')
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'],false)
 
+        #
+        #known bugs:
+        #saving without changed properites after initial create is identified as change. (nil => "")
+        #adding embedded objects, save, reopen, save is identified as change (is_part_of changes from nil to parent_id)
+        #
+        data_hash_has_changes = data_hash_is_dirty?(
+            datahash.merge({'id' => @creativeWork.id, 'release_id' => object_params[:release_id], 'release_comment' => object_params[:release_comment]}),
+            @creativeWork.get_data_hash.merge({'release_id' => @creativeWork.release_id, 'release_comment' => @creativeWork.release_comment})
+        )
+
+        unless data_hash_has_changes
+          redirect_back(fallback_location: root_path)
+          return
+        end
+
         valid = @creativeWork.set_data_hash(data_hash: datahash, current_user: current_user)
+
+        @creativeWork.release_id = object_params[:release_id]
+        @creativeWork.release_comment = object_params[:release_comment]
 
         if valid.key?(:error) && !valid[:error].empty?
           flash[:error] = valid[:error]
           redirect_to edit_creative_work_path(@creativeWork)
           return
         end
-
-        @creativeWork.release_id = object_params[:release_id]
-        @creativeWork.release_comment = object_params[:release_comment]
 
         if @creativeWork.save
           flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
