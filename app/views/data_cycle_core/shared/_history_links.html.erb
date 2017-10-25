@@ -3,10 +3,29 @@
 <a id="show-history-link" data-toggle="show-history"><i class="fa fa-clock-o" aria-hidden="true"></i>
     <% unless historyObject.nil? %>
         bearbeitet am <%= Time.at(historyObject.updated_at).to_s(:german_datetime_format) %>
+
+        <% if historyObject.metadata.try(:[], 'last_updated_by') %>
+            <% person = get_user_for_id(historyObject.metadata['last_updated_by']) %>
+        <% end %>
+
     <% else %>
         erstellt am <%= Time.at(dataCycleObject.created_at).to_s(:german_datetime_format) %>
+
+        <% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['creator'].nil? %>
+            <% person = get_user_for_id(dataCycleObject.metadata['creator']) %>
+        <% end %>
+
+    <% end %>
+
+    <% if person.kind_of?(Object) && person.nil? == false %>
+        <span> von </span>
+        <span><strong><a href="mailto:<%= "#{person.email}" %>"><%= "#{person.name}" %></a></strong></span>
+    <% else %>
+        <span> von </span>
+        <span><strong>Unbekannt</strong></span>
     <% end %>
 </a>
+
 <% if dataCycleObject.histories.count > 0 %>
     <ul class="dropdown-pane no-bullet bottom" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
         <li>Letzte Bearbeitungen:</li>
@@ -42,3 +61,5 @@
         <% end %>
     </ul>
 <% end %>
+
+
