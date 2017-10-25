@@ -41,7 +41,8 @@ module DataCycleCore::Generic::ImportStrategy::OutdoorActivePois
       create_or_update_content(
         @target_type,
         load_template(@target_type, @data_template),
-        extract_poi_data(raw_data).with_indifferent_access.merge(
+        extract_poi_data(raw_data).merge(
+          data_type: nil,
           image: images.map(&:id),
           categories: categories.map(&:id),
           regions: regions.map(&:id),

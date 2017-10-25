@@ -12,7 +12,7 @@ module DataCycleCore::Generic::ImportStrategy::OutdoorActiveTours
   protected
 
   def load_contents(locale)
-    @source_type.where("dump.#{locale}.frontendtype": 'tour') ### still wrong ...  frontendtype: ["poi", "hut", "lodging", "skiresort", "offerer"] 
+    @source_type.where("dump.#{locale}.frontendtype": 'tour') ### still wrong ...  frontendtype: ["poi", "hut", "lodging", "skiresort", "offerer"]
   end
 
   def process_content(raw_data, template, locale)
@@ -41,6 +41,7 @@ module DataCycleCore::Generic::ImportStrategy::OutdoorActiveTours
         @target_type,
         load_template(@target_type, @data_template),
         extract_poi_data(raw_data).with_indifferent_access.merge(
+          data_type: nil,
           image: images.map(&:id),
           categories: categories.map(&:id),
           regions: regions.map(&:id),
