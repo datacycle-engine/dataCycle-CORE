@@ -28,13 +28,13 @@ module DataCycleCore::Generic::ImportStrategy::OutdoorActiveRegions
     return nil if raw_data['parentId'] == raw_data['id']
 
     DataCycleCore::Classification
-      .find_by(external_source_id: external_source.id, external_key: raw_data['parentId'])
+      .find_by(external_source_id: external_source.id, external_key: "REGION:#{raw_data['parentId']}")
       .try(:primary_classification_alias)
   end
 
   def extract_data(raw_data)
     {
-      external_id: raw_data['id'],
+      external_id: "REGION:#{raw_data['id']}",
       name: raw_data['name']
     }
   end

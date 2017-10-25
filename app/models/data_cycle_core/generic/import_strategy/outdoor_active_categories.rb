@@ -23,13 +23,13 @@ module DataCycleCore::Generic::ImportStrategy::OutdoorActiveCategories
 
   def load_parent_classification_alias(raw_data)
     DataCycleCore::Classification
-      .find_by(external_source_id: external_source.id, external_key: raw_data['parentId'])
+      .find_by(external_source_id: external_source.id, external_key: "CATEGORY:#{raw_data['parentId']}")
       .try(:primary_classification_alias)
   end
 
   def extract_data(raw_data)
     {
-      external_id: raw_data['id'],
+      external_id: "CATEGORY:#{raw_data['id']}",
       name: raw_data['name']
     }
   end

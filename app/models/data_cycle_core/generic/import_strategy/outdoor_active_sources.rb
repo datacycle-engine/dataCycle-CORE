@@ -29,7 +29,7 @@ module DataCycleCore::Generic::ImportStrategy::OutdoorActiveSources
 
   def extract_data(raw_data)
     {
-      external_id: raw_data['id'],
+      external_id: "SOURCE:#{raw_data['id']}",
       name: raw_data['name']
     }
   end
