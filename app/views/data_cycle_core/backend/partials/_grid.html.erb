@@ -23,14 +23,7 @@
 								<%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: dataCycleObject unless !@watch_list.nil? && !@watch_list.id.nil? %>
 							<% end %>
 
-							<% case dataCycleObject.metadata['validation']['description'] %>
-								<% when "Person" %>
-									<%= render "data_cycle_core/persons/partials/index/#{dataCycleObject.metadata['validation']['name'].downcase}", item: dataCycleObject rescue render "data_cycle_core/persons/partials/index/default", item: dataCycleObject  %>
-								<% when "Place" %>
-									<%= render "data_cycle_core/places/partials/index/#{dataCycleObject.metadata['validation']['name'].downcase}", item: dataCycleObject rescue render "data_cycle_core/places/partials/index/default", item: dataCycleObject  %>
-								<% else %>
-									<%= render "data_cycle_core/creative_works/partials/index/#{dataCycleObject.metadata['validation']['name'].downcase}", item: dataCycleObject rescue render "data_cycle_core/creative_works/partials/index/default", item: dataCycleObject  %>
-							<% end %>
+              <%= render_content_tile item: dataCycleObject %>
 
 						</div>
 

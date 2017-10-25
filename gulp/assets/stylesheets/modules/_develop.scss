@@ -253,25 +253,6 @@ select {
           display: none;
         }
       }
-      .buttons {
-        position: absolute;
-        right: 0.5rem;
-        top: 0.5rem;
-        margin: 0;
-        a {
-          display: inline-block;
-        }
-        .button-prime {
-          &.small {
-            width: 2rem;
-            height: 2rem;
-            .fa {
-              line-height: 2rem;
-              font-size: 1.2rem;
-            }
-          }
-        }
-      }
       .copy-to-clipboard {
         position: absolute;
         right: 0.5rem;
@@ -391,9 +372,11 @@ select {
         align-self: flex-end;
       }
       .grid-item-thumbnail {
-        height: 3rem;
+        height: auto;
+        max-height: 3rem;
         display: flex;
         margin-right: 3px;
+        max-width: 29%;
       }
     }
   }
@@ -418,6 +401,12 @@ select {
 }
 
 .grid-item {
+  .image {
+    img {
+      width: 100%;
+      min-height: 3rem;
+    }
+  }
   .item-links {
     position: absolute;
     right: 0.5rem;
