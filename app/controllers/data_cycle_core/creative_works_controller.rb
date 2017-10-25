@@ -1,6 +1,5 @@
 module DataCycleCore
   class CreativeWorksController < ContentsController
-    include DataCycleCore::NormalizeService
 
     before_action :authenticate_user!                                # from devise (authenticate)
     load_and_authorize_resource except: [:validate_single_data]      # from cancancan (authorize)
@@ -134,7 +133,7 @@ module DataCycleCore
         #saving without changed properites after initial create is identified as change. (nil => "")
         #adding embedded objects, save, reopen, save is identified as change (is_part_of changes from nil to parent_id)
         #
-        data_hash_has_changes = data_hash_is_dirty?(
+        data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
             datahash.merge({'id' => @creativeWork.id, 'release_id' => object_params[:release_id], 'release_comment' => object_params[:release_comment]}),
             @creativeWork.get_data_hash.merge({'release_id' => @creativeWork.release_id, 'release_comment' => @creativeWork.release_comment})
         )

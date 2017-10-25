@@ -1,5 +1,8 @@
 module DataCycleCore
   class DataHashService
+    #todo refactor: class => module
+    extend NormalizeService
+    require 'hashdiff'
 
     def self.flatten_datahash_value(datahash, template_hash, debug=false)
 
@@ -11,6 +14,10 @@ module DataCycleCore
 
       return datahash
 
+    end
+
+    def self.data_hash_is_dirty?(data_hash, orig_data_hash)
+      return !HashDiff.diff(normalize_data_hash(data_hash), normalize_data_hash(orig_data_hash), :array_path => true).blank?
     end
 
     def self.get_internal_data(storage_location, value)

@@ -1,12 +1,7 @@
 module DataCycleCore
   module NormalizeService
-    require 'hashdiff'
 
     INTERNAL_PROPERTIES = ['creator', 'data_pool', 'data_type', 'is_part_of']
-
-    def data_hash_is_dirty?(data_hash, orig_data_hash)
-      return !HashDiff.diff(normalize_data_hash(data_hash), normalize_data_hash(orig_data_hash), :array_path => true).blank?
-    end
 
     def normalize_data_hash(data_hash)
       deep_reject(data_hash) { |k,v| v.blank? || INTERNAL_PROPERTIES.include?(k) }
