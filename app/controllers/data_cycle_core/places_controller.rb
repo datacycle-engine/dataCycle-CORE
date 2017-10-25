@@ -78,7 +78,7 @@ module DataCycleCore
         # todo: implement preprocessor
         datahash = set_location(datahash)
 
-        valid = @place.set_data_hash(datahash, current_user)
+        valid = @place.set_data_hash(data_hash: datahash, current_user: current_user)
 
         if valid.key?(:error) && !valid[:error].empty?
           flash[:error] = valid[:error]

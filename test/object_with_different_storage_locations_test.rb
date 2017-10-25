@@ -18,7 +18,7 @@ module DataCycleCore
         }
       }
 
-      error = data_set.set_data_hash(data_hash)
+      error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash.compact
       expected_hash = {
@@ -50,7 +50,7 @@ module DataCycleCore
             "updated_at" => "2017-07-01"
         }
       }
-      error = data_set.set_data_hash(data_hash)
+      error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
       expected_hash = {
@@ -87,7 +87,7 @@ module DataCycleCore
             }
         }
       }
-      error = data_set.set_data_hash(data_hash)
+      error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
       expected_hash = {

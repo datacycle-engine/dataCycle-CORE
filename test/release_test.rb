@@ -14,7 +14,7 @@ module DataCycleCore
         "description" => "description",
         "description2" => "description2"
       }
-      error = data_set.set_data_hash(data_hash)
+      error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       assert_equal(data_hash, data_set.get_data_hash.compact)
     end
@@ -37,7 +37,7 @@ module DataCycleCore
         },
         "description2" => "description2"
       }
-      error = data_set.set_data_hash(data_hash)
+      error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
 
       assert_equal(data_hash, data_set.get_data_hash)
@@ -56,13 +56,13 @@ module DataCycleCore
       bild1 = DataCycleCore::CreativeWork.new
       bild1.metadata = { 'validation' => template_bild.metadata['validation'] }
       bild1.save
-      bild1.set_data_hash({"headline" => "Testbild1"})
+      bild1.set_data_hash(data_hash: {"headline" => "Testbild1"})
       bild1.save
 
       bild2 = DataCycleCore::CreativeWork.new
       bild2.metadata = { 'validation' => template_bild.metadata['validation'] }
       bild2.save
-      bild2.set_data_hash({"headline" => "Testbild2"})
+      bild2.set_data_hash(data_hash: {"headline" => "Testbild2"})
       bild2.save
 
       data_hash = {
@@ -92,7 +92,7 @@ module DataCycleCore
         "content_location" => []
       }
 
-      error = data_set.set_data_hash(data_hash)
+      error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
 
       returned_data_hash = data_set.get_data_hash

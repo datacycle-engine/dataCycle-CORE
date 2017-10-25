@@ -15,7 +15,6 @@ module DataCycleCore
     def get_object_changes(history, original)
       history_objects = transform_object_array_to_hash(history.try(:get_data_hash))
       original_objects = original.nil? ? {} : transform_object_array_to_hash(original.try(:get_data_hash))
-
       get_diff(history_objects, original_objects)
     end
 
@@ -67,11 +66,18 @@ module DataCycleCore
       item_path_array = key.split('[').collect{|v| v.delete("]") }
 
       begin
-        diff.dig(*item_path_array)
+        has_valid_changes diff.dig(*item_path_array)
       rescue
         return false
       end
 
+    end
+
+    def has_valid_changes(item)
+      if item.kind_of?(Array)
+        return false if item[0][0] == CHANGED_INDICATOR && item[0][1].blank? && item[0][2].blank?
+      end
+      item
     end
 
     #todo: refactor

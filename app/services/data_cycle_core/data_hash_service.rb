@@ -65,7 +65,7 @@ module DataCycleCore
         return nil
       end
 
-      object.set_data_hash(datahash, current_user)
+      object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true)
 
       #validate ?
       if object.save
@@ -143,7 +143,7 @@ module DataCycleCore
 
         params_hash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], content.metadata['validation'])
 
-        errors = content.set_data_hash(params_hash)
+        errors = content.set_data_hash(data_hash: params_hash)
         # check if data is set and validations are correct
         if errors[:error].size > 0
           puts "received wrong data for id:#{content.external_key}, language: #{lang}, data: #{data} (skipping)"

@@ -979,7 +979,9 @@ CREATE TABLE searches (
     updated_at timestamp without time zone NOT NULL,
     headline character varying,
     data_type character varying,
-    classification_string character varying
+    classification_string character varying,
+    validity_period tstzrange,
+    all_text text
 );
 
 
@@ -1601,6 +1603,13 @@ ALTER TABLE ONLY watch_list_data_hashes
 
 ALTER TABLE ONLY watch_lists
     ADD CONSTRAINT watch_lists_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: all_text_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX all_text_idx ON searches USING gin (all_text gin_trgm_ops);
 
 
 --
@@ -2227,6 +2236,13 @@ CREATE INDEX place_locale_idx ON place_translations USING btree (locale);
 
 
 --
+-- Name: validity_period_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX validity_period_idx ON searches USING gist (validity_period);
+
+
+--
 -- Name: words_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2296,6 +2312,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20171004114524'),
 ('20171004120235'),
 ('20171004125221'),
-('20171004132930');
+('20171004132930'),
+('20171009130405');
 
 

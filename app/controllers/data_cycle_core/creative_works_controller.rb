@@ -127,7 +127,7 @@ module DataCycleCore
         object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], 'CreativeWork')
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'],false)
 
-        valid = @creativeWork.set_data_hash(datahash, current_user)
+        valid = @creativeWork.set_data_hash(data_hash: datahash, current_user: current_user)
 
         if valid.key?(:error) && !valid[:error].empty?
           flash[:error] = valid[:error]
