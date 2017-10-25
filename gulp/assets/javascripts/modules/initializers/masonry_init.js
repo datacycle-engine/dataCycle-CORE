@@ -13,7 +13,8 @@ module.exports.initialize = function () {
         // use element for option
         columnWidth: '.grid-sizer',
         gutter: '.gutter-sizer',
-        percentPosition: true
+        percentPosition: true,
+        transitionDuration: 0
       });
       $('.grid .grid-loading').removeClass("show");
       $.each($('.grid-item'), function (i, el) {
@@ -21,9 +22,13 @@ module.exports.initialize = function () {
           $(el).addClass("show");
         }, 50 + (i * 20));
       });
+      $(document).on('lazyloaded', function () {
+        grid.layout();
+      });
 
     }
   }
+
 
   // realign masonry after all images are loaded
   var chkReadyState = setInterval(function () {

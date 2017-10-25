@@ -61,6 +61,7 @@
     "gulp-watch": "4.3.11",
     "jquery-ujs": "1.2.2",
     "jshint": "2.9.5",
+    "lazysizes": "4.0.1-beta1",
     "lodash": "4.17.4",
     "masonry-layout": "4.2.0",
     "merge-stream": "1.0.1",
