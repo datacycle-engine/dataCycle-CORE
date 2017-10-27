@@ -139,7 +139,7 @@ module DataCycleCore::Generic
       begin
         target_type.find_by!(template: true, headline: template_name)
       rescue ActiveRecord::RecordNotFound
-        rails "Missing template #{template_name} for #{target_type}"
+        raise "Missing template #{template_name} for #{target_type}"
       end
     end
 

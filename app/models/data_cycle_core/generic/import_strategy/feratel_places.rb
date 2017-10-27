@@ -15,11 +15,25 @@ module DataCycleCore::Generic::ImportStrategy::FeratelPlaces
 
   def process_content(raw_data, template, locale)
     I18n.with_locale(locale) do
+      topics = if raw_data.dig('Details', 'Topics', 'Topic', 'Id')
+                 [DataCycleCore::Classification.find_by(external_key: raw_data.dig('Details', 'Topics', 'Topic', 'Id'))]
+               else
+                 []
+               end
+
+      holiday_themes = if raw_data.dig('Details', 'HolidayThemes', 'Item', 'Id')
+                         [DataCycleCore::Classification.find_by(external_key: raw_data.dig('Details', 'HolidayThemes', 'Item', 'Id'))]
+                       else
+                         []
+                       end
+
       create_or_update_content(
         @target_type,
         load_template(@target_type, @data_template),
         extract_place_data(raw_data).with_indifferent_access.merge(
-          data_type: nil
+          data_type: nil,
+          topics: topics.map(&:id),
+          holiday_themes: holiday_themes.map(&:id)
         ).with_indifferent_access
       )
     end
