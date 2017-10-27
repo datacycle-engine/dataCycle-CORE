@@ -63,6 +63,9 @@ module DataCycleCore
     mattr_accessor :special_data_attributes
     self.special_data_attributes = []
 
+    mattr_accessor :internal_data_attributes
+    self.internal_data_attributes = ['creator', 'data_pool', 'data_type', 'is_part_of']
+
     mattr_accessor :default_image_type
     self.default_image_type = nil
 

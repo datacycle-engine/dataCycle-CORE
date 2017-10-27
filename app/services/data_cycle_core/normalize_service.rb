@@ -1,8 +1,7 @@
 module DataCycleCore
   module NormalizeService
-
-    #todo: make internal properties configurable
-    INTERNAL_PROPERTIES = ['creator', 'data_pool', 'data_type', 'is_part_of']
+    
+    INTERNAL_PROPERTIES = DataCycleCore.internal_data_attributes
 
     def normalize_data_hash(data_hash)
       deep_reject(data_hash) { |k,v| v.blank? || INTERNAL_PROPERTIES.include?(k) }
