@@ -24,6 +24,14 @@ class DataCycleCore::Generic::DownloadStrategy::Feratel
     end
   end
 
+  def infrastructure_types(lang: :de)
+    Enumerator.new do |yielder|
+      load_data(:infrastructure_types, lang: lang).xpath('//InfrastructureType').each do |xml_data|
+        yielder << xml_data.to_hash
+      end
+    end
+  end
+
   def infrastructure_topics(lang: :de)
     Enumerator.new do |yielder|
       load_data(:infrastructure_topics, lang: lang).xpath('//InfrastructureTopic').each do |xml_data|
@@ -140,6 +148,20 @@ class DataCycleCore::Generic::DownloadStrategy::Feratel
         end
 
         xml.HolidayThemes('Show' => true)
+      end
+    end
+  end
+
+  def create_infrastructure_types_request_xml(lang: :de)
+    create_request_xml do |xml|
+      xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
+        xml.Translations do
+          Array(lang).each do |l|
+            xml.Language('Value' => l.to_s)
+          end
+        end
+
+        xml.InfrastructureTypes('Show' => true)
       end
     end
   end
