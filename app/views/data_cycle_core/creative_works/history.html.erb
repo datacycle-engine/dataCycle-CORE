@@ -37,7 +37,12 @@
                                 <%= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, historyObject: @historySource %>
                             </div>
 
-                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable_viewer', value: @creativeWork.get_releasable_hash, key: 'creative_work', definition: {'type' => 'releasable'}, options:{force_render: true} %>
+                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable_viewer',
+                                       value: @creativeWork.get_releasable_hash,
+                                       key: 'creative_work',
+                                       definition: {'type' => 'releasable'},
+                                       options:{force_render: true} if @creativeWork.metadata['validation'].dig('releasable') == true %>
+
                             <%= render_content_partial 'history_details', content: @creativeWork, schema: @dataSchema, options: {force_render: true} %>
 
                         </div>
@@ -59,7 +64,12 @@
                                 <%= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, historyObject: @historySource, history: true %>
                             </div>
 
-                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable_viewer', value: @historySource.get_releasable_hash, key: 'creative_work', definition: {'type' => 'releasable'}, options:{compare: true, force_render: true} %>
+                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable_viewer',
+                                       value: @historySource.get_releasable_hash,
+                                       key: 'creative_work',
+                                       definition: {'type' => 'releasable'},
+                                       options:{compare: true, force_render: true} if @historySource.metadata['validation'].dig('releasable') == true%>
+
                             <%= render_content_partial 'history', content: @historySource, schema: @historySchema, options: {force_render: true, compare: true} %>
 
                         </div>
