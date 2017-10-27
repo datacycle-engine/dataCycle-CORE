@@ -139,6 +139,7 @@ module DataCycleCore
         )
 
         unless data_hash_has_changes
+          flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @creativeWork.metadata['validation']['name']
           redirect_back(fallback_location: root_path)
           return
         end

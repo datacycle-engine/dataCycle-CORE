@@ -132,6 +132,8 @@ de:
       invalid_mail: "Keine gültige E-Mail Adresse."
       locked: "%{data} wurde gesperrt."
       unlocked: "%{data} wurde freigegeben."
+    info:
+      not_modified: "%{data} wurde nicht geändert."
     job:
       added: "%{data}/%{uuid} zur Job-Queue hinzugefügt."
       imported: "'%{data}' wurden aus YAML Datei importiert."
