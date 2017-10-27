@@ -1,7 +1,7 @@
-class DataCycleCore::Feratel::CustomAttribute
+class DataCycleCore::Generic::SourceType::FacilityGroup
   include Mongoid::Document
 
-  store_in collection: 'custom_attributes'
+  store_in collection: 'facility_groups'
 
   field :external_id,  type: String
   field :dump,         type: Hash

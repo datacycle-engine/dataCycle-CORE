@@ -1,7 +1,7 @@
-class DataCycleCore::Feratel::HolidayTheme
+class DataCycleCore::Generic::SourceType::CustomAttribute
   include Mongoid::Document
 
-  store_in collection: 'holiday_themes'
+  store_in collection: 'custom_attributes'
 
   field :external_id,  type: String
   field :dump,         type: Hash

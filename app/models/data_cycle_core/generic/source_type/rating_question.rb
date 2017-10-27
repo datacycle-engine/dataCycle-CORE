@@ -1,7 +1,7 @@
-class DataCycleCore::Feratel::FacilityGroup
+class DataCycleCore::Generic::SourceType::RatingQuestion
   include Mongoid::Document
 
-  store_in collection: 'facility_groups'
+  store_in collection: 'rating_questions'
 
   field :external_id,  type: String
   field :dump,         type: Hash

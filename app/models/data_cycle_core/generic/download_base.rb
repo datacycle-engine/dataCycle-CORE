@@ -48,7 +48,7 @@ module DataCycleCore::Generic
             end
             return if options[:max_count] && item_count >= options[:max_count]
           end
-        rescue DataCycleCore::Import::RecoverableError => e
+        rescue => e
           @logging.error(nil, nil, nil, e)
         ensure
           Mongoid.override_database(nil)

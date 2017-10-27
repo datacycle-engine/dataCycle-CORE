@@ -1,7 +1,7 @@
-class DataCycleCore::Feratel::Facility
+class DataCycleCore::Generic::SourceType::HolidayTheme
   include Mongoid::Document
 
-  store_in collection: 'facilities'
+  store_in collection: 'holiday_themes'
 
   field :external_id,  type: String
   field :dump,         type: Hash

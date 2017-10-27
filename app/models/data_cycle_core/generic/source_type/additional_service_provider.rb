@@ -1,7 +1,7 @@
-class DataCycleCore::Feratel::Location
+class DataCycleCore::Generic::SourceType::AdditionalServiceProvider
   include Mongoid::Document
 
-  store_in collection: 'locations'
+  store_in collection: 'additional_service_providers'
 
   field :external_id,  type: String
   field :dump,         type: Hash

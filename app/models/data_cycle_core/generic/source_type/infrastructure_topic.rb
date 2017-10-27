@@ -1,7 +1,7 @@
-class DataCycleCore::Feratel::Event
+class DataCycleCore::Generic::SourceType::InfrastructureTopic
   include Mongoid::Document
 
-  store_in collection: 'events'
+  store_in collection: 'infrastructure_topics'
 
   field :external_id,  type: String
   field :dump,         type: Hash

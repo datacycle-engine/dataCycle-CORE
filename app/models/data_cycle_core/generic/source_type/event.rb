@@ -1,7 +1,7 @@
-class DataCycleCore::Feratel::AdditionalServiceProvider
+class DataCycleCore::Generic::SourceType::Event
   include Mongoid::Document
 
-  store_in collection: 'additional_service_providers'
+  store_in collection: 'events'
 
   field :external_id,  type: String
   field :dump,         type: Hash

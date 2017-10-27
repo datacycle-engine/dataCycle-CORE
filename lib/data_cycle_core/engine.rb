@@ -191,6 +191,38 @@ end
 # add dateformat with fractional seconds
 Time::DATE_FORMATS[:long_usec] = '%Y-%m-%d %H:%M:%S.%N %z'
 
+Nokogiri::XML::Node.class_eval do
+  def to_hash
+    attributes_hash = attributes.map { |_, attribute| {attribute.name => attribute.value} }.reduce({}, &:merge)
+
+    children_hash = children.map { |child| {child.name => child.to_hash} }.reduce({}, &:merge)
+
+    if !attributes.empty? && children.empty?
+      attributes_hash
+    elsif attributes.empty? && !children.empty?
+      children_hash
+    elsif !attributes.empty? && !children.empty?
+      if (attributes_hash.keys & children_hash.keys).empty?
+        attributes_hash.merge(children_hash)
+      else
+        {
+          'attributes' => attributes_hash,
+          'children' => children_hash
+        }
+      end
+    elsif self.kind_of?(Nokogiri::XML::Text)
+      self.text
+    elsif self.kind_of?(Nokogiri::XML::Element)
+      nil
+    else
+      binding.pry
+
+      raise 'NotImplemented'
+    end
+  end
+end
+
+
 # patch for ActiveRecord, to allow fractional seconds to be saved for PostgreSQL tstzrange datatype
 # TODO: remove if updated upstream
 module ActiveRecord
