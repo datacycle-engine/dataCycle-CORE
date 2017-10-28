@@ -193,31 +193,49 @@ Time::DATE_FORMATS[:long_usec] = '%Y-%m-%d %H:%M:%S.%N %z'
 
 Nokogiri::XML::Node.class_eval do
   def to_hash
-    attributes_hash = attributes.map { |_, attribute| {attribute.name => attribute.value} }.reduce({}, &:merge)
+    begin
+      attributes_hash = attributes.map { |_, attribute|
+        { attribute.name => attribute.value }
+      }.reduce({}, &:merge).reject { |_, v|
+        v.blank?
+      }
 
-    children_hash = children.map { |child| {child.name => child.to_hash} }.reduce({}, &:merge)
+      children_hash = children.map { |child|
+        { child.name => child.to_hash }
+      }.reject { |h|
+        h.values.first.blank?
+      }.group_by { |h|
+        h.keys.first
+      }.map { |k, v|
+        Hash[k, v.size == 1 ? v.map(&:values).flatten.first : v.map(&:values).flatten]
+      }.reduce({}, &:merge)
 
-    if !attributes.empty? && children.empty?
-      attributes_hash
-    elsif attributes.empty? && !children.empty?
-      children_hash
-    elsif !attributes.empty? && !children.empty?
-      if (attributes_hash.keys & children_hash.keys).empty?
-        attributes_hash.merge(children_hash)
+      if !attributes.empty? && children.empty?
+        attributes_hash
+      elsif attributes.empty? && !children.empty?
+        children_hash
+      elsif !attributes.empty? && !children.empty?
+        if (attributes_hash.keys & children_hash.keys).empty?
+          attributes_hash.merge(children_hash)
+        else
+          {
+            'attributes' => attributes_hash,
+            'children' => children_hash
+          }
+        end
+      elsif is_a? Nokogiri::XML::Text
+        text.strip
+      elsif is_a? Nokogiri::XML::Element
+        nil
       else
-        {
-          'attributes' => attributes_hash,
-          'children' => children_hash
-        }
+        binding.pry
+
+        raise 'NotImplemented'
       end
-    elsif self.kind_of?(Nokogiri::XML::Text)
-      self.text
-    elsif self.kind_of?(Nokogiri::XML::Element)
-      nil
-    else
+    rescue => e
       binding.pry
 
-      raise 'NotImplemented'
+      raise e
     end
   end
 end

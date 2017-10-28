@@ -15,17 +15,13 @@ module DataCycleCore::Generic::ImportStrategy::FeratelPlaces
 
   def process_content(raw_data, template, locale)
     I18n.with_locale(locale) do
-      topics = if raw_data.dig('Details', 'Topics', 'Topic', 'Id')
-                 [DataCycleCore::Classification.find_by(external_key: raw_data.dig('Details', 'Topics', 'Topic', 'Id'))]
-               else
-                 []
-               end
+      topics = [raw_data.dig('Details', 'Topics', 'Topic')].flatten.reject(&:nil?).map { |topic|
+        DataCycleCore::Classification.find_by(external_key: topic['Id'])
+      }.reject(&:nil?)
 
-      holiday_themes = if raw_data.dig('Details', 'HolidayThemes', 'Item', 'Id')
-                         [DataCycleCore::Classification.find_by(external_key: raw_data.dig('Details', 'HolidayThemes', 'Item', 'Id'))]
-                       else
-                         []
-                       end
+      holiday_themes = [raw_data.dig('Details', 'HolidayThemes', 'Item')].flatten.reject(&:nil?).map { |holiday_theme|
+        DataCycleCore::Classification.find_by(external_key: holiday_theme['Id'])
+      }.reject(&:nil?)
 
       create_or_update_content(
         @target_type,
@@ -42,20 +38,36 @@ module DataCycleCore::Generic::ImportStrategy::FeratelPlaces
   def extract_place_data(raw_data)
     return {} if raw_data.nil?
 
+    short_description = [raw_data.dig('Descriptions', 'Description')].flatten.reject(&:nil?).find { |d|
+      d['Type'] == 'InfrastructureShort'
+    }
+    long_description = [raw_data.dig('Descriptions', 'Description')].flatten.reject(&:nil?).find { |d|
+      d['Type'] == 'InfrastructureLong'
+    }
+    hours_available = [raw_data.dig('Descriptions', 'Description')].flatten.reject(&:nil?).find { |d|
+      d['Type'] == 'InfrastructureOpeningTimes'
+    }
+
+    address = [raw_data.dig('Addresses', 'Address')].flatten.reject(&:nil?).find { |d|
+      d['Type'] == 'InfrastructureExternal'
+    }
+
     {
       external_key: raw_data['Id'],
       name: raw_data['Details']['Names']['Translation']['text'],
-      description: raw_data.dig('Descriptions', 'Description', 'text'),
+      description: (short_description || {}).dig('text').try(:gsub, /\n/, '<br />'),
+      text: (long_description || {}).dig('text').try(:gsub, /\n/, '<br />'),
+      hours_available: (hours_available || {}).dig('text').try(:gsub, /\n/, '<br />'),
       street_address: [
-        raw_data.dig('Addresses', 'Address').try(:dig, 'AddressLine1', 'text'),
-        raw_data.dig('Addresses', 'Address').try(:dig, 'AddressLine2', 'text')
+        address.try(:dig, 'AddressLine1', 'text'),
+        address.try(:dig, 'AddressLine2', 'text')
       ].reject(&:blank?).join("\n"),
-      address_locality: raw_data.dig('Addresses', 'Address').try(:dig, 'Town', 'text'),
-      postal_code: raw_data.dig('Addresses', 'Address').try(:dig, 'ZipCode', 'text'),
-      fax_number: raw_data.dig('Addresses', 'Address').try(:dig, 'Fax', 'text'),
-      telephone: raw_data.dig('Addresses', 'Address').try(:dig, 'Phone', 'text'),
-      email: raw_data.dig('Addresses', 'Address').try(:dig, 'Email', 'text'),
-      url: raw_data.dig('Addresses', 'Address').try(:dig, 'URL', 'text')
+      address_locality: address.try(:dig, 'Town', 'text'),
+      postal_code: address.try(:dig, 'ZipCode', 'text'),
+      fax_number: address.try(:dig, 'Fax', 'text'),
+      telephone: address.try(:dig, 'Phone', 'text'),
+      email: address.try(:dig, 'Email', 'text'),
+      url: address.try(:dig, 'URL', 'text')
     }
   end
 
