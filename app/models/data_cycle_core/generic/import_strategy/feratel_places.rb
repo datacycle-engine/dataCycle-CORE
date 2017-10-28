@@ -1,5 +1,7 @@
 module DataCycleCore::Generic::ImportStrategy::FeratelPlaces
   def import_data(**options)
+    @image_template = options[:import][:image_template] || 'Bild'
+
     import_contents(@source_type,
                     @target_type,
                     method(:load_contents).to_proc,
@@ -15,6 +17,16 @@ module DataCycleCore::Generic::ImportStrategy::FeratelPlaces
 
   def process_content(raw_data, template, locale)
     I18n.with_locale(locale) do
+      images = [raw_data.dig('Documents', 'Document')].flatten.reject(&:nil?).select { |d|
+        d['Class'] == 'Image'
+      }.map { |raw_image_data|
+        create_or_update_content(
+          DataCycleCore::CreativeWork,
+          load_template(DataCycleCore::CreativeWork, @image_template),
+          extract_image_data(raw_image_data).with_indifferent_access
+        )
+      }
+
       topics = [raw_data.dig('Details', 'Topics', 'Topic')].flatten.reject(&:nil?).map { |topic|
         DataCycleCore::Classification.find_by(external_key: topic['Id'])
       }.reject(&:nil?)
@@ -28,11 +40,21 @@ module DataCycleCore::Generic::ImportStrategy::FeratelPlaces
         load_template(@target_type, @data_template),
         extract_place_data(raw_data).with_indifferent_access.merge(
           data_type: nil,
+          image: images.map(&:id),
           topics: topics.map(&:id),
           holiday_themes: holiday_themes.map(&:id)
         ).with_indifferent_access
       )
     end
+  end
+
+  def extract_image_data(raw_data)
+    {
+      external_key: raw_data['Id'],
+      headline: raw_data.dig('Names', 'Translation', 'text'),
+      thumbnail_url: raw_data.dig('URL', 'text'),
+      content_url: raw_data.dig('URL', 'text')
+    }
   end
 
   def extract_place_data(raw_data)
