@@ -358,8 +358,6 @@ class DataCycleCore::Generic::DownloadStrategy::Feratel
           xml.HandicapFacilities('DateFrom' => '1980-01-01')
           xml.HandicapClassifications('DateFrom' => '1980-01-01')
           xml.GTC('DateFrom' => '1980-01-01')
-          xml.QualityDetails('DateFrom' => '1980-01-01')
-          xml.HousePackageMasters('DateFrom' => '1980-01-01')
         end
       end
     end
