@@ -96,8 +96,16 @@ class DataCycleCore::Generic::DownloadStrategy::Feratel
     end
   end
 
+  def accommodations(lang: :de)
+    Enumerator.new do |yielder|
+      load_data(:accommodations, lang: lang).xpath('//ServiceProvider').each do |xml_data|
+        yielder << xml_data.to_hash
+      end
+    end
+  end
+
   def load_data(type, lang: :de)
-    if [:additional_service_providers, :events, :infrastructure_items].include?(type)
+    if [:additional_service_providers, :events, :infrastructure_items, :accommodations].include?(type)
       url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
     else
       url = 'http://interface.deskline.net/DSI/KeyValue.asmx/GetKeyValues'
@@ -277,7 +285,8 @@ class DataCycleCore::Generic::DownloadStrategy::Feratel
 
         xml.ServiceProviders('ShowDataOwner' => true, 'IncludeVTInfo' => true) do
           xml.Details('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
-          xml.Documents('DateFrom' => '1980-01-01')
+          xml.Documents('DateFrom' => '1980-01-01', 'IncludeResolution' => true)
+          xml.Descriptions('DateFrom' => '1980-01-01')
           xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
           xml.Facilities('DateFrom' => '1980-01-01')
           xml.Addresses('DateFrom' => '1980-01-01', 'GetSettlementAddresses' => true)
@@ -311,15 +320,45 @@ class DataCycleCore::Generic::DownloadStrategy::Feratel
         end
 
         xml.Events('ShowDataOwner' => true) do
-          xml.Details('DateFrom' => "1980-01-01")
-          xml.Documents('DateFrom' => "1980-01-01")
-          xml.Descriptions('DateFrom' => "1980-01-01")
-          xml.Links('DateFrom' => "1980-01-01")
-          xml.Facilities('DateFrom' => "1980-01-01")
-          xml.Addresses('DateFrom' => "1980-01-01")
-          xml.CustomAttributes('DateFrom' => "1980-01-01")
-          xml.HandicapFacilities('DateFrom' => "1980-01-01")
-          xml.HandicapClassifications('DateFrom' => "1980-01-01")
+          xml.Details('DateFrom' => '1980-01-01')
+          xml.Documents('DateFrom' => '1980-01-01')
+          xml.Descriptions('DateFrom' => '1980-01-01')
+          xml.Links('DateFrom' => '1980-01-01')
+          xml.Facilities('DateFrom' => '1980-01-01')
+          xml.Addresses('DateFrom' => '1980-01-01')
+          xml.CustomAttributes('DateFrom' => '1980-01-01')
+          xml.HandicapFacilities('DateFrom' => '1980-01-01')
+          xml.HandicapClassifications('DateFrom' => '1980-01-01')
+        end
+      end
+    end
+  end
+
+  def create_accommodations_request_xml(lang: :de)
+    create_request_xml do |xml|
+      xml.BasicData do
+        xml.Filters do
+          xml.ServiceProvider('Type' => 'Accommodation')
+          xml.Languages do
+            Array(lang).each do |l|
+              xml.Language('Value' => l.to_s)
+            end
+          end
+        end
+
+        xml.ServiceProviders('ShowDataOwner' => true, 'IncludeVTInfo' => true) do
+          xml.Details('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
+          xml.Documents('DateFrom' => '1980-01-01', 'IncludeResolution' => true)
+          xml.Descriptions('DateFrom' => '1980-01-01')
+          xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
+          xml.Facilities('DateFrom' => '1980-01-01')
+          xml.Addresses('DateFrom' => '1980-01-01', 'GetSettlementAddresses' => true)
+          xml.HotSpots('DateFrom' => '1980-01-01')
+          xml.HandicapFacilities('DateFrom' => '1980-01-01')
+          xml.HandicapClassifications('DateFrom' => '1980-01-01')
+          xml.GTC('DateFrom' => '1980-01-01')
+          xml.QualityDetails('DateFrom' => '1980-01-01')
+          xml.HousePackageMasters('DateFrom' => '1980-01-01')
         end
       end
     end
