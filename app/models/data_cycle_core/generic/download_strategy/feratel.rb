@@ -114,7 +114,7 @@ class DataCycleCore::Generic::DownloadStrategy::Feratel
     response = Faraday.new.post do |req|
       req.url url
       req.options.timeout = 120
-      req.body = {"xmlString" => send("create_#{type}_request_xml", {lang: lang})}
+      req.body = { 'xmlString' => send("create_#{type}_request_xml", lang: lang) }
     end
 
     envelop = Nokogiri::XML(response.body)
@@ -311,7 +311,8 @@ class DataCycleCore::Generic::DownloadStrategy::Feratel
     create_request_xml do |xml|
       xml.BasicData do
         xml.Filters do
-          xml.Events('Start' => (Date.today - 1.years).strftime('%Y-%m-%d'), 'End' => (Date.today + 10.years).strftime('%Y-%m-%d'))
+          xml.Events('Start' => (Date.today - 1.years).strftime('%Y-%m-%d'),
+                     'End' => (Date.today + 10.years).strftime('%Y-%m-%d'))
           xml.Languages do
             Array(lang).each do |l|
               xml.Language('Value' => l.to_s)
@@ -366,12 +367,12 @@ class DataCycleCore::Generic::DownloadStrategy::Feratel
 
   def create_request_xml
     Nokogiri::XML::Builder.new { |xml|
-      xml.FeratelDsiRQ("xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
-                       "xmlns:xsd" => "http://www.w3.org/2001/XMLSchema",
-                       "xmlns" => "http://interface.deskline.net/DSI/XSD") do
-        xml.Request("Originator" => @pos_code, "Company" => @company_code) do
-          xml.Range("Code" => @range_code) do
-            xml.Item("Id" => @range_id)
+      xml.FeratelDsiRQ('xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
+                       'xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema',
+                       'xmlns' => 'http://interface.deskline.net/DSI/XSD') do
+        xml.Request('Originator' => @pos_code, 'Company' => @company_code) do
+          xml.Range('Code' => @range_code) do
+            xml.Item('Id' => @range_id)
           end
 
           yield(xml)
