@@ -77,6 +77,14 @@ module DataCycleCore
 
     mattr_accessor :content_tables
     self.content_tables = ['creative_works', 'events', 'persons', 'places']
+
+    #webhooks
+    mattr_accessor :webhooks
+    self.webhooks = {
+        :create => [],
+        :delete => [],
+        :update => []
+    }
   end
 
   def self.setup(&block)

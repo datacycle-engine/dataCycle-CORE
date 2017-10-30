@@ -158,6 +158,9 @@ module DataCycleCore
         if @creativeWork.save
           flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
 
+          #webhooks
+          execute_after_update_webhooks @creativeWork
+
           if Rails.env.development?
             redirect_back(fallback_location: root_path)
           else
@@ -196,49 +199,53 @@ module DataCycleCore
     end
 
     private
-      def create_params
+    def create_params
+    end
+
+    def creative_work_params(storage_location, template_name, template_description)
+      datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
+      params.require(:creative_work).permit(:release_id, :release_comment, :datahash => datahash)
+    end
+
+    def is_number? string
+      true if Float(string) rescue false
+    end
+
+    def get_inherit_datahash(creativeWork)
+
+      data_hash = creativeWork.get_data_hash
+      parent = DataCycleCore::CreativeWork.find_by(id: creativeWork.is_part_of)
+
+      if parent.nil?
+        return nil
       end
 
-      def creative_work_params(storage_location, template_name, template_description)
-        datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
-        params.require(:creative_work).permit(:release_id, :release_comment, :datahash => datahash)
+      I18n.with_locale(parent.first_available_locale) do
+        parent_data_hash = parent.get_data_hash
+
+        #topics
+        data_hash['topics'] = parent_data_hash['topics']
+        #markets
+        data_hash['markets'] = parent_data_hash['markets']
+        #tags
+        data_hash['tags'] = parent_data_hash['tags']
+        #state
+        data_hash['state'] = parent_data_hash['state']
+        #kind
+        data_hash['kind'] = parent_data_hash['kind']
+        #season
+        data_hash['season'] = parent_data_hash['season']
+        #content_pool
+        data_hash['data_pool'] = parent_data_hash['data_pool']
       end
 
-      def is_number? string
-        true if Float(string) rescue false
-      end
+      return data_hash.compact!
 
-      def get_inherit_datahash(creativeWork)
+    end
 
-        data_hash = creativeWork.get_data_hash
-        parent = DataCycleCore::CreativeWork.find_by(id: creativeWork.is_part_of)
-
-        if parent.nil?
-          return nil
-        end
-
-        I18n.with_locale(parent.first_available_locale) do
-          parent_data_hash = parent.get_data_hash
-
-          #topics
-          data_hash['topics'] = parent_data_hash['topics']
-          #markets
-          data_hash['markets'] = parent_data_hash['markets']
-          #tags
-          data_hash['tags'] = parent_data_hash['tags']
-          #state
-          data_hash['state'] = parent_data_hash['state']
-          #kind
-          data_hash['kind'] = parent_data_hash['kind']
-          #season
-          data_hash['season'] = parent_data_hash['season']
-          #content_pool
-          data_hash['data_pool'] = parent_data_hash['data_pool']
-        end
-
-        return data_hash.compact!
-
-      end
+    def execute_after_update_webhooks data
+      Webhook::Update.execute_all(data)
+    end
 
   end
 end
