@@ -1,4 +1,4 @@
-module DataCycleCore::Generic::ImportStrategy::FeratelCategories
+module DataCycleCore::Generic::Feratel::ImportCategories
   def import_data(**options)
     import_classifications(@source_type,
                            options.try(:[], :import).try(:[], :tree_label) || 'Feratel - Kategorien',

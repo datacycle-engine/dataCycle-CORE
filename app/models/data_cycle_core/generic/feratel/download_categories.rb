@@ -1,4 +1,4 @@
-module DataCycleCore::Generic::DownloadStrategy::FeratelCategories
+module DataCycleCore::Generic::Feratel::DownloadCategories
   def download_content(**options)
     download_data(@source_type,
                   ->(data) { data['Id'] },

@@ -1,4 +1,4 @@
-module DataCycleCore::Generic::ImportStrategy::FeratelPlaces
+module DataCycleCore::Generic::Feratel::ImportPlaces
   def import_data(**options)
     @image_template = options[:import][:image_template] || 'Bild'
 

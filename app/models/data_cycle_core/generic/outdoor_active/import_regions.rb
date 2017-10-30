@@ -1,4 +1,4 @@
-module DataCycleCore::Generic::ImportStrategy::OutdoorActiveRegions
+module DataCycleCore::Generic::OutdoorActive::ImportRegions
   def import_data(**options)
     import_classifications(
       @source_type,

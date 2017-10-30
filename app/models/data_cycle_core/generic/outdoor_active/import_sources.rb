@@ -1,4 +1,4 @@
-module DataCycleCore::Generic::ImportStrategy::OutdoorActiveSources
+module DataCycleCore::Generic::OutdoorActive::ImportSources
   def import_data(**options)
     @source_target = options.try(:[], :import).try(:[], :source_target).constantize
 

@@ -1,4 +1,4 @@
-module DataCycleCore::Generic::DownloadStrategy::OutdoorActiveRegions
+module DataCycleCore::Generic::OutdoorActive::DownloadCategories
   def download_content(**options)
     download_data(@source_type, ->(data) { data['id'] }, ->(data) { data['name'] }, options)
   end

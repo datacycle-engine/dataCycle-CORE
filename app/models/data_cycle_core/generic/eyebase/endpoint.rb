@@ -1,4 +1,4 @@
-class DataCycleCore::Generic::DownloadStrategy::EndpointEyebase
+class DataCycleCore::Generic::Eyebase::Endpoint
   def initialize(host: nil, end_point: nil, token: nil)
     @host = host
     @end_point = end_point
@@ -32,7 +32,7 @@ class DataCycleCore::Generic::DownloadStrategy::EndpointEyebase
           end
 
           yielder << raw_asset_data
-          
+
         end
       end
     end

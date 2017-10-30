@@ -1,8 +1,8 @@
-module DataCycleCore::Generic::DownloadStrategy::FeratelContents
+module DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
   def download_content(**options)
     download_data(@source_type,
                   ->(data) { data['Id'] },
-                  ->(data) { [data['Details']['Names']['Translation']].flatten.first.try(:[], 'text') },
+                  ->(data) { [data['Name']['Translation']].flatten.first.try(:[], 'text') },
                   options)
   end
 

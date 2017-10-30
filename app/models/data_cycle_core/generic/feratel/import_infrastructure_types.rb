@@ -1,7 +1,7 @@
-module DataCycleCore::Generic::ImportStrategy::FeratelFacilities
+module DataCycleCore::Generic::Feratel::ImportInfrastructureTypes
   def import_data(**options)
     import_classifications(@source_type,
-                           options.try(:[], :import).try(:[], :tree_label) || 'Feratel - Facilities',
+                           options.try(:[], :import).try(:[], :tree_label) || 'Feratel - InfrastructureTypes',
                            method(:load_root_classifications).to_proc,
                            method(:load_child_classifications).to_proc,
                            method(:load_parent_classification_alias).to_proc,
@@ -12,21 +12,21 @@ module DataCycleCore::Generic::ImportStrategy::FeratelFacilities
   protected
 
   def load_root_classifications(locale)
-    DataCycleCore::Generic::SourceType::FacilityGroup.where("dump.#{locale}.Name.Translation.Language": 'de')
+    DataCycleCore::Generic::SourceType::InfrastructureType.where("dump.#{locale}.Name.Translation.Language": 'de')
   end
 
   def load_child_classifications(parent_category_data, locale)
-    if parent_category_data['GroupID']
+    if parent_category_data['Id']
       []
     else
-      DataCycleCore::Generic::SourceType::Facility.where("dump.#{locale}.GroupID": parent_category_data['Id'])
+      DataCycleCore::Generic::SourceType::InfrastructureTopic.where("dump.#{locale}.Type": parent_category_data['Type'])
     end
   end
 
   def load_parent_classification_alias(raw_data)
-    if raw_data['GroupID']
+    if raw_data['Id']
       DataCycleCore::Classification
-        .find_by(external_source_id: external_source.id, external_key: raw_data['GroupID'])
+        .find_by(external_source_id: external_source.id, external_key: "INFRASTRUCTURE_TYPE:#{raw_data['Type']}")
         .try(:primary_classification_alias)
     else
       nil
@@ -35,7 +35,7 @@ module DataCycleCore::Generic::ImportStrategy::FeratelFacilities
 
   def extract_data(raw_data)
     {
-      external_id: raw_data['Id'],
+      external_id: raw_data['Id'].blank? ? "INFRASTRUCTURE_TYPE:#{raw_data['Type']}" : raw_data['Id'],
       name: raw_data.dig('Name', 'Translation', 'text')
     }
   end

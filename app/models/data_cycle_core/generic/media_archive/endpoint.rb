@@ -1,4 +1,4 @@
-class DataCycleCore::Generic::DownloadStrategy::EndpointMediaArchive
+class DataCycleCore::Generic::MediaArchive::Endpoint
   def initialize(host: nil, end_point: nil, token: nil)
     @host = host
     @end_point = end_point

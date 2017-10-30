@@ -1,4 +1,4 @@
-class DataCycleCore::Generic::DownloadStrategy::EndpointOutdoorActive
+class DataCycleCore::Generic::OutdoorActive::Endpoint
   def initialize(host: nil, end_point: nil, project: nil, key: nil)
     @host = host
     @end_point = end_point
@@ -71,7 +71,7 @@ class DataCycleCore::Generic::DownloadStrategy::EndpointOutdoorActive
     if response.success?
       JSON.parse(response.body)
     else
-      raise DataCycleCore::Import::RecoverableError.new(
+      raise DataCycleCore::Generic::RecoverableError.new(
         "error loading data from #{File.join([@host, @end_point, @project] + url_path)}"
       )
     end

@@ -1,4 +1,4 @@
-class DataCycleCore::Generic::DownloadStrategy::Feratel
+class DataCycleCore::Generic::Feratel::Endpoint
   def initialize(pos_code: nil, company_code: nil, range_code: nil, db_code: nil, range_id: nil, sales_channel_id: nil)
     @pos_code = pos_code
     @company_code = company_code

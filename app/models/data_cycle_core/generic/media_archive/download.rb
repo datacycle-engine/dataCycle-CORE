@@ -1,4 +1,4 @@
-module DataCycleCore::Generic::DownloadStrategy::MediaArchive
+module DataCycleCore::Generic::MediaArchive::Download
   def download_content(**options)
     download_data(@source_type, ->(data) { data['url'] }, ->(data) { data['headline'] }, options)
   end

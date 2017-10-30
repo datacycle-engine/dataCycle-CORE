@@ -1,4 +1,4 @@
-module DataCycleCore::Generic::ImportStrategy::MediaArchive
+module DataCycleCore::Generic::MediaArchive::Import
 
   def import_data(**options)
     @image_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_bild
