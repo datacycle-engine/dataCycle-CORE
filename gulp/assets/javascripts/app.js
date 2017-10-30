@@ -3,6 +3,7 @@ var $ = require('jquery');
 var jqueryujs = require('jquery-ujs');
 var foundation = require('foundation-sites');
 var lazysizes = require('lazysizes');
+var lazysizes_unveilhooks = require('lazysizes/plugins/unveilhooks/ls.unveilhooks.min.js');
 
 var Vue = require('vue');
 var AsyncComputed = require('vue-async-computed');
@@ -26,6 +27,7 @@ var copy_contents_init = require('./modules/initializers/copy_contents_init');
 var map_init = require('./modules/initializers/map_init');
 var watch_lists_init = require('./modules/initializers/watch_lists_init');
 var classifications = require('./modules/initializers/classifications');
+var lazyloading_init = require('./modules/initializers/lazyloading_init');
 
 $(function () {
   // Initialize Masonry Grid
@@ -95,6 +97,9 @@ $(function () {
 
   // initialize Watchlists
   watch_lists_init.initialize();
+
+  // initialize Watchlists
+  lazyloading_init.initialize();
 
   if ($('#classification-administration').length) {
     classifications.initialize();

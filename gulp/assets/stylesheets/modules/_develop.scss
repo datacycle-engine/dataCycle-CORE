@@ -393,6 +393,7 @@ select {
   .loading {
     text-align: center;
     padding: 8rem;
+    display: block;
     .fa {
       font-size: 3rem;
       color: $light-gray;

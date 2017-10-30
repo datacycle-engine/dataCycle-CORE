@@ -9,8 +9,6 @@
 
 <% content_data = content.get_data_hash %>
 
-<%= render 'release_status', dataCycleObject: content, status: @release_status %>
-
 <% if can? :edit, content %>
   <div class="edit">
     <%= link_to edit_polymorphic_path(content, trail: breadcrumb_trail), class:'button-prime small' do %>
@@ -33,3 +31,5 @@
     <% end %>
   <% end %>
 </div>
+
+<%= render 'release_status', dataCycleObject: content, status: @release_status %>

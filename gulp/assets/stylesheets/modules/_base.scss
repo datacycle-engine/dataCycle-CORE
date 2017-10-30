@@ -229,12 +229,9 @@ button,
     padding: 0 5rem 3rem 5rem;
   }
   >.status-container {
-    position: absolute;
-    bottom: 1rem;
-    left: 50%;
+    position: relative;
     .status {
       position: relative;
-      left: -50%;
     }
     .release-comment-button {
       position: relative;
