@@ -30,9 +30,10 @@
             <strong>Einschränkungen:</strong> <%= content.metadata['restrictions'].html_safe %><br /><br />
         <% end %>
 
-        <%= link_to content do %>
+        <%= link_to content, target: '_blank' do %>
             zur Detailansicht
         <% end %> |
+        <%= link_to 'in voller Größe öffnen', content.metadata['content_url'], target: '_blank' %> |
         <% unless content.metadata['url'].nil? && content.metadata['url'].blank? %>
             <a href="<%= content.metadata['url'] %>" target="_blank">im Medienarchiv öffnen</a>
         <% end %>

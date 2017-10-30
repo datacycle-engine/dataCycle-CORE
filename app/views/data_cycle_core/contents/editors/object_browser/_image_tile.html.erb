@@ -23,7 +23,8 @@
         <div v-if="props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != '' && props.item.metadata.restrictions != 'Keine Einschränkung;'">
             <strong>Einschränkungen:</strong> {{ props.item.metadata.restrictions }} <br /><br />
         </div>
-        <a :href="'/creative_works/'+props.item.id">zur Detailansicht</a> |
+        <a :href="'/creative_works/'+props.item.id" target="_blank">zur Detailansicht</a> |
+        <a :href="props.item.metadata.content_url" target="_blank">in voller Größe öffnen</a> |
         <a :href="props.item.metadata.url" v-if="props.item.metadata.url != undefined && props.item.metadata.url != ''" target="_blank">im Medienarchiv öffnen</a>
     </div>
 </div>

@@ -1,6 +1,8 @@
 <div class="type <%= item.metadata['validation']['name'].downcase %>">
     <div class="infoRow parent">
         <%= render 'data_cycle_core/shared/icon', icon_type: item.metadata['validation']['name'].downcase %>
-        <span class="title"><%= item.title %></span>
+        <% I18n.with_locale(item.first_available_locale(@language)) do %>
+          <span class="title"><%= item.title %></span>
+        <% end %>
     </div>
 </div>
