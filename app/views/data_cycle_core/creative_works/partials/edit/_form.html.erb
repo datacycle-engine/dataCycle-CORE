@@ -1,31 +1,35 @@
 <% set_key_prefix keyPrefix %>
 
+<section class="edit-header">
+  <div class="row expanded">
+    <div class="column">
+      <div class="edit-headline">
+        <i class="fa fa-pencil" aria-hidden="true"></i> <%= dataObject.content_type %> bearbeiten
+      </div>
+      <ul class="edit-header-functions">
+        <% if can? :manage, DataCycleCore::DataLink %>
+          <li><%= render 'data_cycle_core/shared/data_links', dataCycleObject: dataObject %></li>
+        <% end %>
+
+        <!--<li>-->
+        <!--<button type="button" class="button delete top" data-tooltip aria-haspopup="true" data-disable-hover="false" title="Löschen"><i class="fa fa-trash" aria-hidden="true"></i></button>-->
+        <!--</li>-->
+        <li>
+          <%= link_to breadcrumbs[-2].url do %>
+            <button type="button" class="button discard top" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
+          <% end %>
+        </li>
+        <li class="submit submit-edit-form">
+          <button class="button-prime" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
 <%= form_for dataObject, builder: DataCycleCore::DataHashHelper::DataCycleFormBuilder do |f| %>
 	<%= hidden_field_tag 'uuid', dataObject.id %>
   <%= hidden_field_tag 'locale', I18n.locale %>
-
-	<section class="edit-header">
-		<div class="row expanded">
-			<div class="column">
-				<div class="edit-headline">
-					<i class="fa fa-pencil" aria-hidden="true"></i> <%= dataObject.content_type %> bearbeiten
-				</div>
-				<ul>
-					<!--<li>-->
-					<!--<button type="button" class="button delete top" data-tooltip aria-haspopup="true" data-disable-hover="false" title="Löschen"><i class="fa fa-trash" aria-hidden="true"></i></button>-->
-					<!--</li>-->
-					<li>
-						<%= link_to breadcrumbs[-2].url do %>
-							<button type="button" class="button discard top" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
-						<% end %>
-					</li>
-					<li class="submit">
-						<button class="button-prime" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
-					</li>
-				</ul>
-			</div>
-		</div>
-	</section>
 
 	<% unless @splitSource.nil? %>
 		<% I18n.with_locale(@splitSource.first_available_locale) do %>

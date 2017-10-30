@@ -511,3 +511,45 @@ video {
   border-radius: 3px;
   box-shadow: 1px 1px 2px #ddd;
 }
+
+.edit-header-functions {
+  #send-link-link {
+    display: block;
+  }
+  ul.data-links {
+    left: auto !important;
+    right: 0;
+    text-align: center;
+    z-index: 100;
+    li {
+      position: relative;
+      input[readonly] {
+        cursor: pointer !important;
+      }
+      .copy-input {
+        padding-right: 2.3rem;
+        text-overflow: ellipsis;
+      }
+      .copy-button {
+        position: absolute;
+        right: 0;
+        top: 0;
+        padding: 0.5rem;
+        background: initial;
+        color: #333333;
+        transition: color 0.5s;
+      }
+    }
+    &::before {
+      content: '';
+      position: absolute;
+      top: -12px;
+      right: 50px;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 25px 12px 25px;
+      border-color: transparent transparent #ffffff transparent;
+    }
+  }
+}

@@ -14,6 +14,10 @@ module.exports.initialize = function () {
 
   if ($('#edit-form form').html() != undefined) {
     var form = document.querySelector('#edit-form form');
+    $('.submit-edit-form button').on('click', function (ev) {
+      ev.preventDefault();
+      $(form).trigger('submit');
+    });
     var promises = [];
 
     $(form).on("focusout", '.validation-container', function (ev) {

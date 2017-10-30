@@ -147,7 +147,7 @@ button,
       }
     }
   }
-  ul {
+  ul:not(.data-links) {
     text-align: right;
     margin: 0;
     list-style: none;
@@ -157,14 +157,15 @@ button,
       text-align: left;
       position: relative;
     }
-    li {
+    >li {
       display: inline-block;
       position: relative;
       button.has-tip {
         border-bottom: none;
         cursor: pointer;
       }
-      .button {
+      >.button,
+      >a>.button {
         margin: 0;
         display: block;
         background: none;

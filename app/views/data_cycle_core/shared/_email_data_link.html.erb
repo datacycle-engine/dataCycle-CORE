@@ -4,11 +4,11 @@
 <% else %>
     <h5><%= link_type.titleize %></h5>
     <li>
-      <input readonly="readonly" type="text" class="copy-input" value="<%= h(data_link_url(content.send(link_type))) %>">
+      <input readonly="readonly" type="text" class="copy-input" value="<%= h(data_link_url(content.send(link_type), source_id: params[:source_id], source_type: params[:source_type] )) %>">
       <button class="button small copy-button"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
     </li>
     <li>
-      <%= link_to t('actions.send_with_data', data: "Link"), "#", class: "button small send-link-button", data: { open: id } %>
+      <span class="button small send-link-button" data-open="<%= id %>"><%= t('actions.send_with_data', data: "Link") %></span>
       <%= link_to t('actions.delete_with_data', data: "Link"), content.send(link_type), method: :delete, class: "button small alert delete-button" %>
     </li>
     <div class="reveal" id="<%= id %>" data-reveal>
@@ -17,9 +17,11 @@
       </button>
       <%= form_tag send_mail_data_link_path(content.send(link_type), type: type), class: "send-link" do |f| %>
         <p class="lead">Link zum <%= type.capitalize %> verschicken</p>
+        <%= hidden_field_tag 'data_link[url_params][source_type]', @splitType unless @splitType.blank? %>
+        <%= hidden_field_tag 'data_link[url_params][source_id]', @splitSource.id unless @splitSource.blank? %>
         <%= text_field_tag "data_link[receiver]", "", placeholder: "E-Mail Adresse", required: true %>
         <%= text_area_tag "data_link[comment]", "", placeholder: "Kommentar" %>
-        <%= button_tag "Link versenden", class: "button small", data: {disable_with: "sending..."} %>
+        <%= button_tag "Link versenden", class: "button small submit-button" %>
       <% end %>
     </div>
 <% end %>

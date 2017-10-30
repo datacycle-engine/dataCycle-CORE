@@ -15,7 +15,7 @@ module DataCycleCore
       if link.permissions != "write"
         redirect_to polymorphic_path(@item)
       else
-        redirect_to edit_polymorphic_path(@item)
+        redirect_to edit_polymorphic_path(@item, split_params)
       end
 
     end
@@ -34,7 +34,7 @@ module DataCycleCore
       receiver = send_link_params[:receiver]
 
       if receiver =~ Devise.email_regexp
-        DataLinkMailer.mail_link(@data_link.creator, receiver, url_for(@data_link), params[:type], send_link_params[:comment]).deliver_later
+        DataLinkMailer.mail_link(@data_link.creator, receiver, data_link_url(@data_link, send_link_params[:url_params]), params[:type], send_link_params[:comment]).deliver_later
         redirect_back(fallback_location: root_path, notice: (I18n.t :sent, scope: [:controllers, :success]))
       else
         redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :success]))
@@ -53,8 +53,12 @@ module DataCycleCore
       params.permit(:item_id, :item_type, :permissions)
     end
 
+    def split_params
+      params.permit(:source_type, :source_id)
+    end
+
     def send_link_params
-      params.require(:data_link).permit(:receiver, :comment, :type)
+      params.require(:data_link).permit(:receiver, :comment, :type, url_params: [:source_type, :source_id])
     end
 
     def guest_user
