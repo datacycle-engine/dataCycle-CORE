@@ -501,3 +501,13 @@ video {
     }
   }
 }
+
+.copied-to-clipboard {
+  position: absolute;
+  top: 0.3rem;
+  right: 3rem;
+  background: white;
+  padding: 0.3rem 0.5rem;
+  border-radius: 3px;
+  box-shadow: 1px 1px 2px #ddd;
+}
