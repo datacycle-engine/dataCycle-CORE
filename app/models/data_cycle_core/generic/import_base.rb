@@ -117,7 +117,12 @@ module DataCycleCore::Generic
         metadata: content.metadata.except('validation'),
         validation: template.metadata['validation']
       }.stringify_keys)
-      content.set_data_hash(old_data.merge(data))
+
+      error = content.set_data_hash(old_data.merge(data))
+
+      unless error[:error].blank?
+        @logging.error('Validating import data', data['external_key'], data, error[:error].join('\n'))
+      end
 
       content.tap(&:save!)
     end

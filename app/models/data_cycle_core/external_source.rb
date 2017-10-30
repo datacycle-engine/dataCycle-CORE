@@ -7,7 +7,7 @@ module DataCycleCore
       if config['download'].starts_with?('::') || config['download'].starts_with?('DataCycleCore::')
 
 
-#full_options[:download] = full_options[:download].except(:categories, :regions, :tours) # :pois
+full_options[:download] = full_options[:download].except(:categories, :regions, :pois) # :tours,
 
 
         config['download'].constantize.new(id).download(full_options, &block)
@@ -21,7 +21,7 @@ module DataCycleCore
       if config['import'].starts_with?('::') || config['import'].starts_with?('DataCycleCore::')
 
 
-#full_options[:import] = full_options[:import].except(:tours) # :pois, :categories, :regions, :sources
+full_options[:import] = full_options[:import].except(:pois, :categories, :regions, :sources) #  :tours
 
 
         config['import'].constantize.new(id).import(full_options, &bock)
