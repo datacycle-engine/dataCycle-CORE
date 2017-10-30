@@ -28,11 +28,15 @@ module DataCycleCore::Generic::ImportStrategy::FeratelPlaces
       }
 
       topics = [raw_data.dig('Details', 'Topics', 'Topic')].flatten.reject(&:nil?).map { |topic|
-        DataCycleCore::Classification.find_by(external_key: topic['Id'])
+        DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: topic['Id'])
       }.reject(&:nil?)
 
       holiday_themes = [raw_data.dig('Details', 'HolidayThemes', 'Item')].flatten.reject(&:nil?).map { |holiday_theme|
-        DataCycleCore::Classification.find_by(external_key: holiday_theme['Id'])
+        DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: holiday_theme['Id'])
+      }.reject(&:nil?)
+
+      facilities = [raw_data.dig('Facilities', 'Facility')].flatten.reject(&:nil?).map { |facility|
+        DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: facility['Id'])
       }.reject(&:nil?)
 
       create_or_update_content(
@@ -42,7 +46,8 @@ module DataCycleCore::Generic::ImportStrategy::FeratelPlaces
           data_type: nil,
           image: images.map(&:id),
           topics: topics.map(&:id),
-          holiday_themes: holiday_themes.map(&:id)
+          holiday_themes: holiday_themes.map(&:id),
+          facilities: facilities.map(&:id)
         ).with_indifferent_access
       )
     end
