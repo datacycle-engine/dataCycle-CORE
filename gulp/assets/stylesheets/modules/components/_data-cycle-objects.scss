@@ -39,6 +39,10 @@
   .type {
     font-size: 1rem;
     font-weight: normal;
+    .parent {
+      font-style: italic;
+      opacity: 0.5;
+    }
   }
   .inner>.title {
     font-size: 1.2rem;
@@ -123,13 +127,15 @@
         border: 2px solid $alert-color;
       }
     }
-    &.added{
+    &.added {
       .thumbnail {
         border: 2px solid $success-color;
       }
     }
   }
 }
+
+
 /* Objectbrowser */
 
 .media-thumbs {

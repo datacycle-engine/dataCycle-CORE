@@ -431,6 +431,12 @@ button,
     z-index: 12;
     color: rgba($dark-gray, 50%);
     transition: color ease-in-out 0.25s;
+    &.fixed-toolbar {
+      position: fixed;
+      top: 55px;
+      left: 2rem;
+      z-index: 13;
+    }
   }
   .focus {
     .ql-disabled {
@@ -473,6 +479,9 @@ button,
     &[readonly] {
       background: $light-gray;
     }
+  }
+  .focus .ql-toolbar.fixed-toolbar {
+    background: white;
   }
   .focus .ql-editor {
     border-color: $primary-color;
@@ -580,6 +589,14 @@ button,
     z-index: 12;
     right: 0;
     border: 0;
+    &.fixed-toolbar {
+      background: $light-gray;
+      position: fixed;
+      top: 55px;
+      right: 1rem;
+      width: calc(100% - 2rem);
+      box-shadow: 0 1px 0 $dark-gray;
+    }
   }
   .ql-editor {
     padding-top: 3rem;

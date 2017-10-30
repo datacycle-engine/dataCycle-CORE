@@ -1,0 +1,6 @@
+<div class="type <%= item.metadata['validation']['name'].downcase %>">
+    <div class="infoRow parent">
+        <%= render 'data_cycle_core/shared/icon', icon_type: item.metadata['validation']['name'].downcase %>
+        <span class="title"><%= item.title %></span>
+    </div>
+</div>
