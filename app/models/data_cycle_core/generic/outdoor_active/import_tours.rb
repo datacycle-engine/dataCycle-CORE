@@ -26,15 +26,15 @@ module DataCycleCore::Generic::OutdoorActive::ImportTours
       }
 
       categories = [raw_data.dig('category', 'id')].reject(&:blank?).map { |id|
-        DataCycleCore::Classification.find_by(external_key: id)
+        DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "CATEGORY:#{id}")
       }.reject(&:nil?)
 
       regions = (raw_data.dig('regions', 'region') || []).map { |r| r['id'] }.reject(&:blank?).map { |id|
-        DataCycleCore::Classification.find_by(external_key: id)
+        DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "REGION:#{id}")
       }.reject(&:nil?)
 
       sources = [raw_data.dig('meta', 'source', 'id')].reject(&:blank?).map { |id|
-        DataCycleCore::Classification.find_by(external_key: id)
+        DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "SOURCE:#{id}")
       }
       sources_hash = sources.compact.blank? ? [] : sources.map(&:id).take(1)
 
