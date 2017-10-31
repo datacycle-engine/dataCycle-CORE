@@ -207,9 +207,10 @@ module DataCycleCore
       params.require(:creative_work).permit(:release_id, :release_comment, :datahash => datahash)
     end
 
-      def is_number? string
-        true if Float(string) rescue false
-      end
+    def is_number? string
+      true if Float(string) rescue false
+    end
+
     def execute_after_update_webhooks data
       Webhook::Update.execute_all(data)
     end
