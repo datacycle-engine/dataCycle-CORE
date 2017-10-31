@@ -3,8 +3,8 @@
     <%= link_to polymorphic_path(item, trail: (breadcrumb_trail unless request.path == root_path)) do %>
 
         <div class="inner">
-            <%= render 'data_cycle_core/contents/tiles/attributes/type', item: item %>
             <%= render 'data_cycle_core/contents/tiles/attributes/parent', item: item.parent if item.parent %>
+            <%= render 'data_cycle_core/contents/tiles/attributes/type', item: item %>
             <%= render 'data_cycle_core/contents/tiles/attributes/title', item: item %>
             <%= render 'data_cycle_core/contents/tiles/attributes/description', item: item %>
 

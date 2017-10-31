@@ -43,6 +43,20 @@
       font-style: italic;
       opacity: 0.5;
     }
+    .has-parent {
+      &:before {
+        content: "\f148";
+        transform: rotate(90deg);
+        font-family: FontAwesome;
+        font-style: normal;
+        font-weight: normal;
+        text-decoration: inherit;
+        position: relative;
+        display: inline-block;
+        width: 1rem;
+        color: $dark-gray;
+      }
+    }
   }
   .inner>.title {
     font-size: 1.2rem;
