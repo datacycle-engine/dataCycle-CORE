@@ -158,6 +158,9 @@ module DataCycleCore
         if @creativeWork.save
           flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
 
+          #after update webhooks
+          execute_after_update_webhooks @creativeWork
+
           if Rails.env.development?
             redirect_back(fallback_location: root_path)
           else
@@ -196,16 +199,19 @@ module DataCycleCore
     end
 
     private
-      def create_params
-      end
+    def create_params
+    end
 
-      def creative_work_params(storage_location, template_name, template_description)
-        datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
-        params.require(:creative_work).permit(:release_id, :release_comment, :datahash => datahash)
-      end
+    def creative_work_params(storage_location, template_name, template_description)
+      datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
+      params.require(:creative_work).permit(:release_id, :release_comment, :datahash => datahash)
+    end
 
       def is_number? string
         true if Float(string) rescue false
       end
+    def execute_after_update_webhooks data
+      Webhook::Update.execute_all(data)
+    end
   end
 end
