@@ -158,7 +158,7 @@ module DataCycleCore
         if @creativeWork.save
           flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
 
-          #webhooks
+          #after update webhooks
           execute_after_update_webhooks @creativeWork
 
           if Rails.env.development?
