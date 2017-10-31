@@ -2,9 +2,9 @@ module DataCycleCore
   module Webhook
     class Base
 
-      def self.log(webhook,message)
+      def self.log(webhook, message)
         logger = Logger.new('./log/webhook.log')
-        logger.debug("#{webhook}: #{message}")
+        logger.info("#{webhook}: #{message}")
       end
 
       def self.get_webhooks_for(action)
