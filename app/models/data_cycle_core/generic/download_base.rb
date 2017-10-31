@@ -16,44 +16,48 @@ module DataCycleCore::Generic
 
         Mongoid.override_database("#{type.database_name}_#{external_source.id}")
 
-        @logging.preparing_phase("#{type.to_s.demodulize.underscore.pluralize}_#{locale}")
+        @logging.preparing_phase("#{type.collection_name}_#{locale}")
 
         item_count = 0
 
         begin
-          items = endpoint.send("#{type.to_s.demodulize.underscore.pluralize}", lang: locale)
 
-          max_string = ""
-          max_string += "#{options[:max_count]}" if options[:max_count]
-          @logging.phase_started("#{type.to_s.demodulize.underscore.pluralize}_#{locale}", max_string)
+          @source_object.with(@source_type) do |mongo_item|
 
-          items.each do |item_data|
-            item_count += 1
+            items = endpoint.send("#{type.collection_name}", lang: locale)
 
-            unless item_data.nil?
-              begin
-                item_id = extract_id.(item_data)
-                item_name = extract_name.(item_data)
+            max_string = ""
+            max_string += "#{options[:max_count]}" if options[:max_count]
+            @logging.phase_started("#{type.collection_name}_#{locale}", max_string)
 
-                item = type.find_or_initialize_by('external_id': item_id)
+            items.each do |item_data|
+              item_count += 1
 
-                item.dump ||= {}
-                item.dump[locale] = item_data
-                item.save!
+              unless item_data.nil?
+                begin
+                  item_id = extract_id.(item_data)
+                  item_name = extract_name.(item_data)
 
-                @logging.item_processed(item_name, item_id, item_count, max_string)
-              rescue => e
-                @logging.error(item_name, item_id, item_data, e)
+                  item = mongo_item.find_or_initialize_by('external_id': item_id)
+
+                  item.dump ||= {}
+                  item.dump[locale] = item_data
+                  item.save!
+
+                  @logging.item_processed(item_name, item_id, item_count, max_string)
+                rescue => e
+                  @logging.error(item_name, item_id, item_data, e)
+                end
               end
+              return if options[:max_count] && item_count >= options[:max_count]
             end
-            return if options[:max_count] && item_count >= options[:max_count]
           end
         rescue => e
           @logging.error(nil, nil, nil, e)
         ensure
           Mongoid.override_database(nil)
 
-          @logging.phase_finished("#{type.to_s.demodulize.underscore.pluralize}_#{locale}", item_count)
+          @logging.phase_finished("#{type.collection_name}_#{locale}", item_count)
         end
       end
     end

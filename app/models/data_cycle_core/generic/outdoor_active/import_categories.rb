@@ -13,12 +13,12 @@ module DataCycleCore::Generic::OutdoorActive::ImportCategories
 
   protected
 
-  def load_root_classifications(locale)
-    @source_type.where("dump.#{locale}.parentId": nil)
+  def load_root_classifications(mongo_item, locale)
+    mongo_item.where("dump.#{locale}.parentId": nil)
   end
 
-  def load_child_classifications(parent_category_data, locale)
-    @source_type.where("dump.#{locale}.parentId": parent_category_data['id'])
+  def load_child_classifications(mongo_item, parent_category_data, locale)
+    mongo_item.where("dump.#{locale}.parentId": parent_category_data['id'])
   end
 
   def load_parent_classification_alias(raw_data)

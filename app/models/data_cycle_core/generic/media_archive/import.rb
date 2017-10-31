@@ -9,8 +9,8 @@ module DataCycleCore::Generic::MediaArchive::Import
 
   protected
 
-  def load_contents(locale)
-    @source_type.where("dump.#{locale}.@type": "schema:ImageObject")
+  def load_contents(mongo_item, locale)
+    mongo_item.where("dump.#{locale}.@type": "schema:ImageObject")
   end
 
   def process_content(raw_data, template, locale)

@@ -1,12 +1,10 @@
 module DataCycleCore::Generic::OutdoorActive::ImportSources
   def import_data(**options)
-    @source_target = options.try(:[], :import).try(:[], :source_target).constantize
-
     import_classifications(
       @source_type,
       "#{options.try(:[], :import).try(:[], :tree_label) || 'OutdoorActive'} - Quellen",
       self.method(:load_root_classifications).to_proc,
-      ->(_, _) { [] },
+      ->(_, _, _) { [] },
       ->(_) { nil },
       self.method(:extract_data).to_proc,
       **options
@@ -15,8 +13,8 @@ module DataCycleCore::Generic::OutdoorActive::ImportSources
 
   protected
 
-  def load_root_classifications(locale)
-    @source_target.collection.aggregate(@source_target.where(:_id.ne => nil)
+  def load_root_classifications(mongo_item, locale)
+    mongo_item.collection.aggregate(mongo_item.where(:_id.ne => nil)
       .project(
         "dump.#{locale}.id": "$dump.#{locale}.meta.source.id",
         "dump.#{locale}.name": "$dump.#{locale}.meta.source.name"

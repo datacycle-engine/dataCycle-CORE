@@ -11,8 +11,8 @@ module DataCycleCore::Generic::OutdoorActive::ImportTours
 
   protected
 
-  def load_contents(locale)
-    @source_type.where("dump.#{locale}.frontendtype": 'tour')
+  def load_contents(mongo_item, locale)
+    mongo_item.where("dump.#{locale}.frontendtype": 'tour')
   end
 
   def process_content(raw_data, template, locale)
