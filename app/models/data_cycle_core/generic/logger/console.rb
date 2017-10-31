@@ -14,7 +14,7 @@ class DataCycleCore::Generic::Logger::Console
   end
 
   def item_processed(title, id, num, total)
-    #puts " -> \"#{title} (\##{id})\" downloaded (#{num} of #{total || '?'})"
+    #puts " -> \"#{title} (\##{id})\" #{@kind}ed (#{num} of #{total || '?'})"
   end
 
   def error(title, id, data, error)

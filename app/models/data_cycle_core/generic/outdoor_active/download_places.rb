@@ -1,4 +1,4 @@
-module DataCycleCore::Generic::OutdoorActive::DownloadPois
+module DataCycleCore::Generic::OutdoorActive::DownloadPlaces
   def download_content(**options)
     download_data(@source_type, ->(data) { data['id'] }, ->(data) { data['name'] }, options)
   end

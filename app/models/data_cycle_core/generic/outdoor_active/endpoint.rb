@@ -38,7 +38,7 @@ class DataCycleCore::Generic::OutdoorActive::Endpoint
     end
   end
 
-  def pois(lang: :de)
+  def places(lang: :de)
     Enumerator.new do |yielder|
       load_data(['pois'], lang)['data'].each do |poi_id_container|
         yielder << load_data(['oois', poi_id_container['id']], lang)['poi'][0]
