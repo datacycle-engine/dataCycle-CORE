@@ -3,7 +3,7 @@ module DataCycleCore
     class Base
 
       def self.log(webhook, message)
-        logger = Logger.new(Rails.root.join('log', 'webhook.log'))
+        logger = Logger.new('webhook')
         logger.info("#{webhook}: #{message}")
       end
 
