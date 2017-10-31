@@ -295,11 +295,11 @@ select {
       }
     }
     .split-content {
-      display: inline-block;
-      width: 49%;
-      vertical-align: top;
+      display: block;
+      width: 50%;
       height: 100%;
       overflow-y: scroll;
+      float: left;
       .subscribe-parent {
         position: absolute;
         width: 100%;
@@ -397,6 +397,18 @@ select {
     .fa {
       font-size: 3rem;
       color: $light-gray;
+    }
+  }
+}
+
+a.button,
+a.button-prime,
+button {
+  &.has-tip {
+    cursor: pointer;
+    &:hover,
+    &:focus {
+      cursor: pointer;
     }
   }
 }

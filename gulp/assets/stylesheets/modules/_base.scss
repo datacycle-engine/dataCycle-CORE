@@ -220,6 +220,9 @@ button,
     text-align: center;
     position: relative;
   }
+  .button-prime {
+    display: inline-block;
+  }
   .headline_external,
   .headline {
     position: relative;
@@ -438,6 +441,12 @@ button,
       left: 2rem;
       z-index: 13;
     }
+    &.fixed-split-toolbar {
+      position: fixed;
+      top: 182px;
+      left: 51%;
+      z-index: 13;
+    }
   }
   .focus {
     .ql-disabled {
@@ -481,7 +490,8 @@ button,
       background: $light-gray;
     }
   }
-  .focus .ql-toolbar.fixed-toolbar {
+  .focus .ql-toolbar.fixed-toolbar,
+  .focus .ql-toolbar.fixed-split-toolbar {
     background: white;
   }
   .focus .ql-editor {
@@ -596,6 +606,14 @@ button,
       top: 55px;
       right: 1rem;
       width: calc(100% - 2rem);
+      box-shadow: 0 1px 0 $dark-gray;
+    }
+    &.fixed-split-toolbar {
+      background: $light-gray;
+      position: fixed;
+      top: 182px;
+      right: 2rem;
+      width: calc(50% - 3rem);
       box-shadow: 0 1px 0 $dark-gray;
     }
   }
