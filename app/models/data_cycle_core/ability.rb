@@ -27,7 +27,7 @@ module DataCycleCore
         end
 
         if user.has_rank?(10)
-          can :manage, DataCycleCore::DataLink
+          can :manage, [DataCycleCore::DataLink, DataCycleCore::Classification]
           can :crud,
             [
               DataCycleCore::User,
