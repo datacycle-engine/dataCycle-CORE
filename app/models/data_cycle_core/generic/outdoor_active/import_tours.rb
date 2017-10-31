@@ -36,6 +36,7 @@ module DataCycleCore::Generic::OutdoorActive::ImportTours
       sources = [raw_data.dig('meta', 'source', 'id')].reject(&:blank?).map { |id|
         DataCycleCore::Classification.find_by(external_key: id)
       }
+      sources_hash = sources.compact.blank? ? [] : sources.map(&:id).take(1)
 
       create_or_update_content(
         @target_type,
@@ -45,7 +46,7 @@ module DataCycleCore::Generic::OutdoorActive::ImportTours
           image: images.map(&:id),
           categories: categories.map(&:id),
           regions: regions.map(&:id),
-          source: sources.map(&:id).take(1)
+          source: sources_hash
         ).with_indifferent_access
       )
     end
