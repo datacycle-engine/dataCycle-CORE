@@ -86,11 +86,18 @@ module.exports.initialize = function () {
         $('.editor-block').each(function () {
           var pos = $(this).offset().top - $(window).scrollTop();
           if (pos < 182 && pos > -$(this).height() + 230) {
+            var right = $(window).width() - ($(this).offset().left + $(this).width());
+            var rest_width = right + $(this).offset().left;
+            $(this).find('.ql-toolbar').css({
+              right: right,
+              width: "calc(100% - " + rest_width + "px)"
+            });
+            $(this).siblings('label').css('left', $(this).offset().left + 10);
             $(this).find('.ql-toolbar').addClass('fixed-split-toolbar');
             $(this).siblings('label').addClass('fixed-split-toolbar');
           } else {
-            $(this).find('.ql-toolbar').removeClass('fixed-split-toolbar');
-            $(this).siblings('label').removeClass('fixed-split-toolbar');
+            $(this).find('.ql-toolbar').removeClass('fixed-split-toolbar').removeAttr('style');
+            $(this).siblings('label').removeClass('fixed-split-toolbar').removeAttr('style');
           }
         });
       });
@@ -99,11 +106,18 @@ module.exports.initialize = function () {
         $('.editor-block').each(function () {
           var pos = $(this).offset().top - $(window).scrollTop();
           if (pos < 55 && pos > -$(this).height() + 130) {
+            var right = $(window).width() - ($(this).offset().left + $(this).width());
+            var rest_width = right + $(this).offset().left;
+            $(this).find('.ql-toolbar').css({
+              right: right,
+              width: "calc(100% - " + rest_width + "px)"
+            });
+            $(this).siblings('label').css('left', $(this).offset().left + 10);
             $(this).find('.ql-toolbar').addClass('fixed-toolbar');
             $(this).siblings('label').addClass('fixed-toolbar');
           } else {
-            $(this).find('.ql-toolbar').removeClass('fixed-toolbar');
-            $(this).siblings('label').removeClass('fixed-toolbar');
+            $(this).find('.ql-toolbar').removeClass('fixed-toolbar').removeAttr('style');
+            $(this).siblings('label').removeClass('fixed-toolbar').removeAttr('style');
           }
         });
       });
