@@ -426,6 +426,9 @@ button,
       display: block;
       text-indent: -9999px;
     }
+    .delete {
+      background-color: map-get($foundation-palette, alert);
+    }
   }
   label {
     text-align: left;

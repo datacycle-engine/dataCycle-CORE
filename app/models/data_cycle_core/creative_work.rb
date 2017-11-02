@@ -1,6 +1,8 @@
 module DataCycleCore
   class CreativeWork < DataHash
 
+    acts_as_paranoid
+
     extend ActsAsTree::TreeView
     extend ActsAsTree::TreeWalker
 
