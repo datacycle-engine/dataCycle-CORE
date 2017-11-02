@@ -147,7 +147,7 @@ button,
       }
     }
   }
-  ul {
+  ul:not(.data-links) {
     text-align: right;
     margin: 0;
     list-style: none;
@@ -157,14 +157,15 @@ button,
       text-align: left;
       position: relative;
     }
-    li {
+    >li {
       display: inline-block;
       position: relative;
       button.has-tip {
         border-bottom: none;
         cursor: pointer;
       }
-      .button {
+      >.button,
+      >a>.button {
         margin: 0;
         display: block;
         background: none;
@@ -219,6 +220,9 @@ button,
     text-align: center;
     position: relative;
   }
+  .button-prime {
+    display: inline-block;
+  }
   .headline_external,
   .headline {
     position: relative;
@@ -228,12 +232,10 @@ button,
     padding: 0 5rem 3rem 5rem;
   }
   >.status-container {
-    position: absolute;
-    bottom: 1rem;
-    left: 50%;
+    position: relative;
+    display: inline-block;
     .status {
       position: relative;
-      left: -50%;
     }
     .release-comment-button {
       position: relative;
@@ -433,6 +435,18 @@ button,
     z-index: 12;
     color: rgba($dark-gray, 50%);
     transition: color ease-in-out 0.25s;
+    &.fixed-toolbar {
+      position: fixed;
+      top: 55px;
+      left: 2rem;
+      z-index: 13;
+    }
+    &.fixed-split-toolbar {
+      position: fixed;
+      top: 182px;
+      left: 52%;
+      z-index: 13;
+    }
   }
   .focus {
     .ql-disabled {
@@ -475,6 +489,10 @@ button,
     &[readonly] {
       background: $light-gray;
     }
+  }
+  .focus .ql-toolbar.fixed-toolbar,
+  .focus .ql-toolbar.fixed-split-toolbar {
+    background: white;
   }
   .focus .ql-editor {
     border-color: $primary-color;
@@ -582,6 +600,22 @@ button,
     z-index: 12;
     right: 0;
     border: 0;
+    &.fixed-toolbar {
+      background: $light-gray;
+      position: fixed;
+      top: 55px;
+      right: 1rem;
+      width: calc(100% - 2rem);
+      box-shadow: 0 1px 0 $dark-gray;
+    }
+    &.fixed-split-toolbar {
+      background: $light-gray;
+      position: fixed;
+      top: 182px;
+      right: 2rem;
+      width: calc(50% - 3rem);
+      box-shadow: 0 1px 0 $dark-gray;
+    }
   }
   .ql-editor {
     padding-top: 3rem;

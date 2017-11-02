@@ -80,4 +80,48 @@ module.exports.initialize = function () {
     var editor = new quill('#' + node.id, options);
   }
 
+  if ($('.editor-block').length > 0) {
+    if ($('.split-content').length > 0) {
+      $('.split-content.edit-content').on('scroll', function (ev) {
+        $('.editor-block').each(function () {
+          var pos = $(this).offset().top - $(window).scrollTop();
+          if (pos < 182 && pos > -$(this).height() + 230) {
+            var right = $(window).width() - ($(this).offset().left + $(this).width());
+            var rest_width = right + $(this).offset().left;
+            $(this).find('.ql-toolbar').css({
+              right: right,
+              width: "calc(100% - " + rest_width + "px)"
+            });
+            $(this).siblings('label').css('left', $(this).offset().left + 10);
+            $(this).find('.ql-toolbar').addClass('fixed-split-toolbar');
+            $(this).siblings('label').addClass('fixed-split-toolbar');
+          } else {
+            $(this).find('.ql-toolbar').removeClass('fixed-split-toolbar').removeAttr('style');
+            $(this).siblings('label').removeClass('fixed-split-toolbar').removeAttr('style');
+          }
+        });
+      });
+    } else {
+      $(window).on('scroll', function (ev) {
+        $('.editor-block').each(function () {
+          var pos = $(this).offset().top - $(window).scrollTop();
+          if (pos < 55 && pos > -$(this).height() + 130) {
+            var right = $(window).width() - ($(this).offset().left + $(this).width());
+            var rest_width = right + $(this).offset().left;
+            $(this).find('.ql-toolbar').css({
+              right: right,
+              width: "calc(100% - " + rest_width + "px)"
+            });
+            $(this).siblings('label').css('left', $(this).offset().left + 10);
+            $(this).find('.ql-toolbar').addClass('fixed-toolbar');
+            $(this).siblings('label').addClass('fixed-toolbar');
+          } else {
+            $(this).find('.ql-toolbar').removeClass('fixed-toolbar').removeAttr('style');
+            $(this).siblings('label').removeClass('fixed-toolbar').removeAttr('style');
+          }
+        });
+      });
+    }
+  }
+
 };

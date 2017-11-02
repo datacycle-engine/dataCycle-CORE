@@ -211,41 +211,8 @@ module DataCycleCore
       true if Float(string) rescue false
     end
 
-    def get_inherit_datahash(creativeWork)
-
-      data_hash = creativeWork.get_data_hash
-      parent = DataCycleCore::CreativeWork.find_by(id: creativeWork.is_part_of)
-
-      if parent.nil?
-        return nil
-      end
-
-      I18n.with_locale(parent.first_available_locale) do
-        parent_data_hash = parent.get_data_hash
-
-        #topics
-        data_hash['topics'] = parent_data_hash['topics']
-        #markets
-        data_hash['markets'] = parent_data_hash['markets']
-        #tags
-        data_hash['tags'] = parent_data_hash['tags']
-        #state
-        data_hash['state'] = parent_data_hash['state']
-        #kind
-        data_hash['kind'] = parent_data_hash['kind']
-        #season
-        data_hash['season'] = parent_data_hash['season']
-        #content_pool
-        data_hash['data_pool'] = parent_data_hash['data_pool']
-      end
-
-      return data_hash.compact!
-
-    end
-
     def execute_after_update_webhooks data
       Webhook::Update.execute_all(data)
     end
-
   end
 end

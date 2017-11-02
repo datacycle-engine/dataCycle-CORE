@@ -1,5 +1,6 @@
 <div data-label="releasable" class="clearfix form-element releasable" tabindex="-1">
 
+  <% if can? :update_release_status, @creative_work %>
     <% value = value.blank? ? {} : value %>
     <div class="" id="release_container_<%= sanitize_to_id(key) %>">
         <label for="<%= sanitize_to_id("#{key}_release_id") %>">Status</label>
@@ -15,5 +16,6 @@
     </div>
 
     <hr />
+  <% end %>
 
 </div>

@@ -35,7 +35,9 @@ module DataCycleCore
               DataCycleCore::Place
             ]
 
-            can :manage,
+          can :update_release_status, [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]
+
+          can :manage,
             [
               DataCycleCore::Classification,
               DataCycleCore::ClassificationTreeLabel,

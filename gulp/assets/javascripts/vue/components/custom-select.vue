@@ -26,7 +26,7 @@
       </div>
 
       <transition :name="transition">
-        <ul ref="dropdownMenu" v-if="dropdownOpen" class="dropdown-menu" :style="{ 'max-height': maxHeight }">
+        <ul ref="dropdownMenu" v-if="dropdownOpen" class="dropdown-menu" :style="{ 'max-height': maxHeight }" @mousedown.prevent>
           <li v-for="(option, index) in filteredOptions" v-bind:key="index" :class="[{ active: isOptionSelected(option), highlight: index === typeAheadPointer},getLevelForOption(option)]" @mouseover="typeAheadPointer = index">
             <a @mousedown.prevent="select(option)">
               {{ getOptionLabel(option) }}
@@ -42,9 +42,9 @@
 </template>
 
 <script>
-import pointerScroll from '../mixins/pointerScroll'
-import typeAheadPointer from '../mixins/typeAheadPointer'
-import ajax from '../mixins/ajax'
+import pointerScroll from "../mixins/pointerScroll";
+import typeAheadPointer from "../mixins/typeAheadPointer";
+import ajax from "../mixins/ajax";
 export default {
   mixins: [pointerScroll, typeAheadPointer, ajax],
 
@@ -55,8 +55,8 @@ export default {
     options: {
       type: Array,
       default() {
-        return []
-      },
+        return [];
+      }
     },
     selectedValues: {
       default: null
@@ -86,7 +86,7 @@ export default {
      */
     maxHeight: {
       type: String,
-      default: '400px'
+      default: "400px"
     },
 
     /**
@@ -104,7 +104,7 @@ export default {
      */
     placeholder: {
       type: String,
-      default: ''
+      default: ""
     },
 
     /**
@@ -114,7 +114,7 @@ export default {
      */
     transition: {
       type: String,
-      default: 'fade'
+      default: "fade"
     },
 
     /**
@@ -133,7 +133,7 @@ export default {
      */
     label: {
       type: String,
-      default: 'label'
+      default: "label"
     },
 
     /**
@@ -145,9 +145,9 @@ export default {
     getOptionLabel: {
       type: Function,
       default(option) {
-        if (typeof option === 'object') {
+        if (typeof option === "object") {
           if (this.label && option[this.label]) {
-            return option[this.label]
+            return option[this.label];
           }
         }
         return option;
@@ -164,7 +164,7 @@ export default {
     onChange: {
       type: Function,
       default: function(val) {
-        this.$emit('input', val)
+        this.$emit("input", val);
       }
     },
 
@@ -194,11 +194,11 @@ export default {
     createOption: {
       type: Function,
       default(newOption) {
-        if (typeof this.mutableOptions[0] === 'object') {
-          newOption = { [this.label]: newOption }
+        if (typeof this.mutableOptions[0] === "object") {
+          newOption = { [this.label]: newOption };
         }
-        this.$emit('option:created', newOption)
-        return newOption
+        this.$emit("option:created", newOption);
+        return newOption;
       }
     },
 
@@ -224,12 +224,12 @@ export default {
   data() {
     return {
       hiddenFields: null,
-      search: '',
+      search: "",
       open: false,
       mutableValue: null,
       mutableOptions: [],
       changeCallback: this.onChange
-    }
+    };
   },
 
   watch: {
@@ -240,7 +240,7 @@ export default {
      * @return {void}
      */
     value(val) {
-      this.mutableValue = val
+      this.mutableValue = val;
     },
 
     /**
@@ -251,9 +251,9 @@ export default {
      */
     mutableValue(val, old) {
       if (this.multiple) {
-        this.changeCallback ? this.changeCallback(val) : null
+        this.changeCallback ? this.changeCallback(val) : null;
       } else {
-        this.changeCallback && val !== old ? this.changeCallback([val]) : null
+        this.changeCallback && val !== old ? this.changeCallback([val]) : null;
       }
     },
 
@@ -264,7 +264,7 @@ export default {
      * @return {void}
      */
     options(val) {
-      this.mutableOptions = val
+      this.mutableOptions = val;
     },
 
     /**
@@ -274,7 +274,7 @@ export default {
      */
     mutableOptions() {
       if (!this.taggable && this.resetOnOptionsChange) {
-        this.mutableValue = this.multiple ? [] : null
+        this.mutableValue = this.multiple ? [] : null;
       }
     },
 
@@ -285,7 +285,7 @@ export default {
      * @return {void}
      */
     multiple(val) {
-      this.mutableValue = val ? [] : null
+      this.mutableValue = val ? [] : null;
     }
   },
 
@@ -294,17 +294,17 @@ export default {
    * attach any event listeners.
    */
   created() {
-    this.mutableValue = this.selectedValues
-    this.mutableOptions = this.customOptions.slice(0)
-    this.changeCallback = this.generateHiddenFields
-    this.mutableLoading = this.loading
+    this.mutableValue = this.selectedValues;
+    this.mutableOptions = this.customOptions.slice(0);
+    this.changeCallback = this.generateHiddenFields;
+    this.mutableLoading = this.loading;
 
-    this.$on('option:created', this.maybePushTag)
+    this.$on("option:created", this.maybePushTag);
   },
 
   methods: {
     generateHiddenFields(val) {
-      val = val.filter(n => n)
+      val = val.filter(n => n);
       this.hiddenFields = val;
       if (val.length == 0) {
         this.hiddenFields = null;
@@ -317,7 +317,7 @@ export default {
      * @return {String}        return lvl
      */
     getLevelForOption(option) {
-      var level = "level-" + option['level'];
+      var level = "level-" + option["level"];
       return level;
     },
 
@@ -328,22 +328,22 @@ export default {
      */
     select(option) {
       if (this.isOptionSelected(option)) {
-        this.deselect(option)
+        this.deselect(option);
       } else {
         if (this.taggable && !this.optionExists(option)) {
-          option = this.createOption(option)
+          option = this.createOption(option);
         }
 
         if (this.multiple && !this.mutableValue) {
-          this.mutableValue = [option]
+          this.mutableValue = [option];
         } else if (this.multiple) {
-          this.mutableValue.push(option)
+          this.mutableValue.push(option);
         } else {
-          this.mutableValue = option
+          this.mutableValue = option;
         }
       }
 
-      this.onAfterSelect(option)
+      this.onAfterSelect(option);
     },
 
     /**
@@ -353,16 +353,19 @@ export default {
      */
     deselect(option) {
       if (this.multiple) {
-        let ref = -1
-        this.mutableValue.forEach((val) => {
-          if (val === option || typeof val === 'object' && val[this.label] === option[this.label]) {
-            ref = val
+        let ref = -1;
+        this.mutableValue.forEach(val => {
+          if (
+            val === option ||
+            (typeof val === "object" && val[this.label] === option[this.label])
+          ) {
+            ref = val;
           }
-        })
-        var index = this.mutableValue.indexOf(ref)
-        this.mutableValue.splice(index, 1)
+        });
+        var index = this.mutableValue.indexOf(ref);
+        this.mutableValue.splice(index, 1);
       } else {
-        this.mutableValue = null
+        this.mutableValue = null;
       }
     },
 
@@ -373,12 +376,12 @@ export default {
      */
     onAfterSelect(option) {
       if (!this.multiple) {
-        this.open = !this.open
-        this.$refs.search.blur()
+        this.open = !this.open;
+        this.$refs.search.blur();
       }
 
       if (this.clearSearchOnSelect) {
-        this.search = ''
+        this.search = "";
       }
     },
 
@@ -388,12 +391,18 @@ export default {
      * @return {void}
      */
     toggleDropdown(e) {
-      if (!this.readOnly && (e.target === this.$refs.openIndicator || e.target === this.$refs.search || e.target === this.$refs.toggle || e.target === this.$el)) {
+      if (
+        !this.readOnly &&
+        (e.target === this.$refs.openIndicator ||
+          e.target === this.$refs.search ||
+          e.target === this.$refs.toggle ||
+          e.target === this.$el)
+      ) {
         if (this.open) {
-          this.$refs.search.blur() // dropdown will close on blur
+          this.$refs.search.blur(); // dropdown will close on blur
         } else {
-          this.open = true
-          this.$refs.search.focus()
+          this.open = true;
+          this.$refs.search.focus();
         }
       }
     },
@@ -405,20 +414,22 @@ export default {
      */
     isOptionSelected(option) {
       if (this.multiple && this.mutableValue) {
-        let selected = false
+        let selected = false;
         this.mutableValue.forEach(opt => {
-          if (typeof opt === 'object' && opt[this.label] === option[this.label]) {
-            selected = true
-          } else if (typeof opt === 'object' && opt[this.label] === option) {
-            selected = true
+          if (
+            typeof opt === "object" &&
+            opt[this.label] === option[this.label]
+          ) {
+            selected = true;
+          } else if (typeof opt === "object" && opt[this.label] === option) {
+            selected = true;
+          } else if (opt === option) {
+            selected = true;
           }
-          else if (opt === option) {
-            selected = true
-          }
-        })
-        return selected
+        });
+        return selected;
       }
-      return this.mutableValue === option
+      return this.mutableValue === option;
     },
 
     /**
@@ -428,9 +439,9 @@ export default {
      */
     onEscape() {
       if (!this.search.length) {
-        this.$refs.search.blur()
+        this.$refs.search.blur();
       } else {
-        this.search = ''
+        this.search = "";
       }
     },
 
@@ -440,8 +451,8 @@ export default {
      * @return {void}
      */
     onSearchBlur() {
-      this.open = false
-      this.$emit('search:blur')
+      this.open = false;
+      this.$emit("search:blur");
     },
 
     /**
@@ -451,8 +462,8 @@ export default {
      */
     onSearchFocus() {
       if (!this.readOnly) {
-        this.open = true
-        this.$emit('search:focus')
+        this.open = true;
+        this.$emit("search:focus");
       }
     },
 
@@ -463,7 +474,9 @@ export default {
      */
     maybeDeleteValue() {
       if (!this.$refs.search.value.length && this.mutableValue) {
-        return this.multiple ? this.mutableValue.pop() : this.mutableValue = null
+        return this.multiple
+          ? this.mutableValue.pop()
+          : (this.mutableValue = null);
       }
     },
 
@@ -475,17 +488,17 @@ export default {
      * @return {boolean}
      */
     optionExists(option) {
-      let exists = false
+      let exists = false;
 
       this.mutableOptions.forEach(opt => {
-        if (typeof opt === 'object' && opt[this.label] === option) {
-          exists = true
+        if (typeof opt === "object" && opt[this.label] === option) {
+          exists = true;
         } else if (opt === option) {
-          exists = true
+          exists = true;
         }
-      })
+      });
 
-      return exists
+      return exists;
     },
 
     /**
@@ -497,13 +510,12 @@ export default {
      */
     maybePushTag(option) {
       if (this.pushTags) {
-        this.mutableOptions.push(option)
+        this.mutableOptions.push(option);
       }
     }
   },
 
   computed: {
-
     /**
      * Classes to be output on .dropdown
      * @return {Object}
@@ -515,7 +527,7 @@ export default {
         unsearchable: !this.searchable,
         loading: this.mutableLoading,
         readonly: this.readOnly
-      }
+      };
     },
 
     /**
@@ -524,7 +536,7 @@ export default {
      * @return {Boolean} True if open
      */
     dropdownOpen() {
-      return this.noDrop ? false : this.open && !this.mutableLoading
+      return this.noDrop ? false : this.open && !this.mutableLoading;
     },
 
     /**
@@ -547,18 +559,32 @@ export default {
      * @return {array}
      */
     filteredOptions() {
-      let options = this.mutableOptions.filter((option) => {
-        if (typeof option === 'object' && option.hasOwnProperty(this.label)) {
-          return option[this.label].toLowerCase().indexOf(this.search.toLowerCase()) > -1
-        } else if (typeof option === 'object' && !option.hasOwnProperty(this.label)) {
-          return console.warn(`[vue-select warn]: Label key "option.${this.label}" does not exist in options object.\nhttp://sagalbot.github.io/vue-select/#ex-labels`)
+      let options = this.mutableOptions.filter(option => {
+        if (typeof option === "object" && option.hasOwnProperty(this.label)) {
+          return (
+            option[this.label]
+              .toLowerCase()
+              .indexOf(this.search.toLowerCase()) > -1
+          );
+        } else if (
+          typeof option === "object" &&
+          !option.hasOwnProperty(this.label)
+        ) {
+          return console.warn(
+            `[vue-select warn]: Label key "option.${this
+              .label}" does not exist in options object.\nhttp://sagalbot.github.io/vue-select/#ex-labels`
+          );
         }
-        return option.toLowerCase().indexOf(this.search.toLowerCase()) > -1
-      })
-      if (this.taggable && this.search.length && !this.optionExists(this.search)) {
-        options.unshift(this.search)
+        return option.toLowerCase().indexOf(this.search.toLowerCase()) > -1;
+      });
+      if (
+        this.taggable &&
+        this.search.length &&
+        !this.optionExists(this.search)
+      ) {
+        options.unshift(this.search);
       }
-      return options
+      return options;
     },
 
     /**
@@ -567,10 +593,10 @@ export default {
      */
     isValueEmpty() {
       if (this.mutableValue) {
-        if (typeof this.mutableValue === 'object') {
-          return !Object.keys(this.mutableValue).length
+        if (typeof this.mutableValue === "object") {
+          return !Object.keys(this.mutableValue).length;
         }
-        return !this.mutableValue.length
+        return !this.mutableValue.length;
       }
 
       return true;
@@ -582,16 +608,15 @@ export default {
      */
     valueAsArray() {
       if (this.multiple) {
-        return this.mutableValue
+        return this.mutableValue;
       } else if (this.mutableValue) {
-        return [this.mutableValue]
+        return [this.mutableValue];
       }
 
-      return []
+      return [];
     }
   }
-}
-
+};
 </script>
 
 <style>

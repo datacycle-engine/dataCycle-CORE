@@ -39,6 +39,25 @@
   .type {
     font-size: 1rem;
     font-weight: normal;
+    .parent {
+      font-style: italic;
+      opacity: 0.5;
+    }
+    .has-parent {
+      &:before {
+        content: "\f148";
+        transform: rotate(90deg);
+        font-family: FontAwesome;
+        font-style: normal;
+        font-weight: normal;
+        text-decoration: inherit;
+        position: relative;
+        display: inline-block;
+        width: 1rem;
+        color: $dark-gray;
+        margin-right: 0.25rem;
+      }
+    }
   }
   .inner>.title {
     font-size: 1.2rem;
@@ -123,13 +142,15 @@
         border: 2px solid $alert-color;
       }
     }
-    &.added{
+    &.added {
       .thumbnail {
         border: 2px solid $success-color;
       }
     }
   }
 }
+
+
 /* Objectbrowser */
 
 .media-thumbs {
