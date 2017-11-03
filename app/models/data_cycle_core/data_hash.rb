@@ -60,7 +60,7 @@ module DataCycleCore
 
         # cc self to history
         data_set_history.send(origin_table.singularize.foreign_key+"=", self.id)
-        self.attributes.except("id","deleted_at").each do |key,value|
+        self.attributes.except("id").each do |key,value|
           data_set_history.send("#{key}=", value)
         end
 
