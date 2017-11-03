@@ -239,7 +239,7 @@ button,
     }
     .release-comment-button {
       position: relative;
-      left: -48%;
+      //left: -48%;
       cursor: pointer;
     }
   }
@@ -425,6 +425,9 @@ button,
     a span {
       display: block;
       text-indent: -9999px;
+    }
+    .delete {
+      background-color: map-get($foundation-palette, alert);
     }
   }
   label {

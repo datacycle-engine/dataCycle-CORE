@@ -93,6 +93,15 @@ module DataCycleCore
       end
     end
 
+    def destroy
+      @person = DataCycleCore::Person.find(params[:id])
+      @person.destroy
+
+      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Person'
+
+      redirect_to persons_path
+    end
+
     def validate_single_data
       @person = DataCycleCore::Person.find(params[:id])
 

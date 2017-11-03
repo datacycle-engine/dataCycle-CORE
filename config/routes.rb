@@ -12,14 +12,14 @@ DataCycleCore::Engine.routes.draw do
   end
   resources :user_groups
 
-  resources :creative_works, only: [:index, :show, :create, :edit, :update, :history, :history_detail] do
+  resources :creative_works, only: [:index, :show, :create, :edit, :update, :history, :history_detail, :destroy] do
     post :import, on: :collection
     get 'history', on: :member
     get 'history_detail', on: :member
   end
 
-  resources :persons, only: [:index, :show, :create, :edit, :update]
-  resources :places, only: [:index, :show, :create, :edit, :update]
+  resources :persons, only: [:index, :show, :create, :edit, :update, :destroy]
+  resources :places, only: [:index, :show, :create, :edit, :update, :destroy]
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :events, only: [:index, :show, :create, :edit, :update]
 
@@ -66,7 +66,9 @@ DataCycleCore::Engine.routes.draw do
         resources :collections, only: [:index, :show], controller: :watch_lists
 
         type_regexp = Regexp.new([:creative_works, :persons, :places].join("|"))
-        resources :contents, path: ':type', constraints: { type: type_regexp }, only: [:show]
+        resources :contents, path: ':type', constraints: { type: type_regexp }, only: [:show] do
+          patch :update, on: :member
+        end
       end
     end
   end

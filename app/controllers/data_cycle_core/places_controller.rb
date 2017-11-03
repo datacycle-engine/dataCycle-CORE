@@ -101,6 +101,15 @@ module DataCycleCore
       end
     end
 
+    def destroy
+      @place = DataCycleCore::Place.find(params[:id])
+      @place.destroy
+
+      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Ort'
+
+      redirect_to places_path
+    end
+
     def validate_single_data
       @place = DataCycleCore::Place.find(params[:id])
       object_params = place_params('places', @place.metadata['validation']['name'], 'Place')

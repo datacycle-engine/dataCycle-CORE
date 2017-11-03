@@ -25,7 +25,7 @@ module DataCycleCore
     content_relations table_name: self.table_name
 
     # callbacks
-    before_destroy :destroy_translations, prepend: true
+    before_destroy :destroy_relations, prepend: true
 
     # custom setter
     include DataSetter
@@ -38,7 +38,8 @@ module DataCycleCore
       super + '-' + Globalize.locale.to_s
     end
 
-    def destroy_translations
+    def destroy_relations
+      self.to_history Time.zone.now
       self.translations.delete_all
       self.content_search_all.delete_all
     end

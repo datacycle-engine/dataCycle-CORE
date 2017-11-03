@@ -173,6 +173,20 @@ module DataCycleCore
       end
     end
 
+    def destroy
+      @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
+      @creativeWork.destroy
+
+      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Creative Work'
+
+      if @creativeWork.parent.nil?
+        redirect_to root_path
+      else
+        redirect_to creative_work_path(@creativeWork.parent, trail: session[:trail])
+      end
+
+    end
+
     def validate_single_data
 
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
