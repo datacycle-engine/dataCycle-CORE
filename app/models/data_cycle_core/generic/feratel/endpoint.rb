@@ -8,6 +8,14 @@ class DataCycleCore::Generic::Feratel::Endpoint
     @sales_channel_id = sales_channel_id
   end
 
+  def categories(lang: :de)
+    Enumerator.new do |yielder|
+      load_data(:categories, lang: lang).xpath('//Category').each do |xml_data|
+        yielder << xml_data.to_hash
+      end
+    end
+  end
+
   def locations(lang: :de)
     Enumerator.new do |yielder|
       load_data(:locations, lang: lang).xpath('//Location').each do |xml_data|
@@ -59,6 +67,22 @@ class DataCycleCore::Generic::Feratel::Endpoint
   def facilities(lang: :de)
     Enumerator.new do |yielder|
       load_data(:facilities, lang: lang).xpath('//Facility').each do |xml_data|
+        yielder << xml_data.to_hash
+      end
+    end
+  end
+
+  def stars(lang: :de)
+    Enumerator.new do |yielder|
+      load_data(:stars, lang: lang).xpath('//Star').each do |xml_data|
+        yielder << xml_data.to_hash
+      end
+    end
+  end
+
+  def classifications(lang: :de)
+    Enumerator.new do |yielder|
+      load_data(:classifications, lang: lang).xpath('//Classification').each do |xml_data|
         yielder << xml_data.to_hash
       end
     end
@@ -126,6 +150,20 @@ class DataCycleCore::Generic::Feratel::Endpoint
       raise data.xpath('//@Message').first.value
     else
       data
+    end
+  end
+
+  def create_categories_request_xml(lang: :de)
+    create_request_xml do |xml|
+      xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
+        xml.Translations do
+          Array(lang).each do |l|
+            xml.Language('Value' => l.to_s)
+          end
+        end
+
+        xml.Categories('Show' => true)
+      end
     end
   end
 
@@ -226,6 +264,34 @@ class DataCycleCore::Generic::Feratel::Endpoint
         end
 
         xml.Facilities('Show' => true)
+      end
+    end
+  end
+
+  def create_stars_request_xml(lang: :de)
+    create_request_xml do |xml|
+      xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
+        xml.Translations do
+          Array(lang).each do |l|
+            xml.Language('Value' => l.to_s)
+          end
+        end
+
+        xml.Stars('Show' => true)
+      end
+    end
+  end
+
+  def create_classifications_request_xml(lang: :de)
+    create_request_xml do |xml|
+      xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
+        xml.Translations do
+          Array(lang).each do |l|
+            xml.Language('Value' => l.to_s)
+          end
+        end
+
+        xml.Classifications('Show' => true)
       end
     end
   end

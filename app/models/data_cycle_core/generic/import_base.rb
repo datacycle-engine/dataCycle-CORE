@@ -116,6 +116,7 @@ module DataCycleCore::Generic
 
       content = clazz.find_or_initialize_by(external_source_id: external_source.id,
                                             external_key: data['external_key'])
+
       content.metadata ||= {}
       content.metadata['validation'] = template.metadata['validation']
 
@@ -130,7 +131,8 @@ module DataCycleCore::Generic
         @logging.error('Validating import data', data['external_key'], data, error[:error].join('\n'))
       end
 
-      content.tap(&:save!)
+      # content.tap(&:save!)
+      content
     end
 
     private

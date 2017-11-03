@@ -11,11 +11,11 @@ module DataCycleCore::Generic::Feratel::ImportCategories
 
   protected
 
-  def load_root_classifications(locale)
-    @source_type.where("dump.#{locale}.Name.Translation.Language": 'de')
+  def load_root_classifications(mongo_item, locale)
+    mongo_item.where("dump.#{locale}.Name.Translation.Language": 'de')
   end
 
-  def load_child_classifications(_, _)
+  def load_child_classifications(_, _, _)
     []
   end
 

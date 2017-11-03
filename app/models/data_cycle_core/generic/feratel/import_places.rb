@@ -11,8 +11,8 @@ module DataCycleCore::Generic::Feratel::ImportPlaces
 
   protected
 
-  def load_contents(locale)
-    @source_type.where("dump.#{locale}" => { '$exists' => true })
+  def load_contents(mongo_item, locale)
+    mongo_item.where("dump.#{locale}" => { '$exists' => true })
   end
 
   def process_content(raw_data, template, locale)
@@ -27,16 +27,28 @@ module DataCycleCore::Generic::Feratel::ImportPlaces
         )
       }
 
-      topics = [raw_data.dig('Details', 'Topics', 'Topic')].flatten.reject(&:nil?).map { |topic|
-        DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: topic['Id'])
+      topics = [raw_data.dig('Details', 'Topics', 'Topic')].flatten.reject(&:nil?).map { |t|
+        DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: t['Id'].downcase)
       }.reject(&:nil?)
 
-      holiday_themes = [raw_data.dig('Details', 'HolidayThemes', 'Item')].flatten.reject(&:nil?).map { |holiday_theme|
-        DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: holiday_theme['Id'])
+      holiday_themes = [raw_data.dig('Details', 'HolidayThemes', 'Item')].flatten.reject(&:nil?).map { |t|
+        DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: t['Id'].downcase)
       }.reject(&:nil?)
 
-      facilities = [raw_data.dig('Facilities', 'Facility')].flatten.reject(&:nil?).map { |facility|
-        DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: facility['Id'])
+      facilities = [raw_data.dig('Facilities', 'Facility')].flatten.reject(&:nil?).map { |f|
+        DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: f['Id'].downcase)
+      }.reject(&:nil?)
+
+      accommodation_categories = [raw_data.dig('Details', 'Categories', 'Item')].flatten.reject(&:nil?).map { |c|
+        DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: c['Id'].downcase)
+      }.reject(&:nil?)
+
+      feratel_classifications = [raw_data.dig('Details', 'Classifications', 'Item')].flatten.reject(&:nil?).map { |c|
+        DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: c['Id'].downcase)
+      }.reject(&:nil?)
+
+      stars = [raw_data.dig('Details', 'Stars')].flatten.reject(&:nil?).map { |s|
+        DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: s['Id'].downcase)
       }.reject(&:nil?)
 
       create_or_update_content(
@@ -47,7 +59,10 @@ module DataCycleCore::Generic::Feratel::ImportPlaces
           image: images.map(&:id),
           topics: topics.map(&:id),
           holiday_themes: holiday_themes.map(&:id),
-          facilities: facilities.map(&:id)
+          facilities: facilities.map(&:id),
+          accommodation_categories: accommodation_categories.map(&:id),
+          feratel_classifications: feratel_classifications.map(&:id),
+          stars: stars.map(&:id)
         ).with_indifferent_access
       )
     end
