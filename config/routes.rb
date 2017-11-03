@@ -18,8 +18,8 @@ DataCycleCore::Engine.routes.draw do
     get 'history_detail', on: :member
   end
 
-  resources :persons, only: [:index, :show, :create, :edit, :update]
-  resources :places, only: [:index, :show, :create, :edit, :update]
+  resources :persons, only: [:index, :show, :create, :edit, :update, :destroy]
+  resources :places, only: [:index, :show, :create, :edit, :update, :destroy]
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :events, only: [:index, :show, :create, :edit, :update]
 

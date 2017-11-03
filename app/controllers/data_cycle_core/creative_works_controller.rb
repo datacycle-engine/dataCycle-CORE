@@ -174,7 +174,6 @@ module DataCycleCore
     end
 
     def destroy
-
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       @creativeWork.destroy
 
