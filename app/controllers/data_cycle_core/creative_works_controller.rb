@@ -180,8 +180,12 @@ module DataCycleCore
 
       flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Creative Work'
 
-      redirect_back(fallback_location: root_path)
-      return
+      if @creativeWork.parent.nil?
+        redirect_to root_path
+      else
+        redirect_to creative_work_path(@creativeWork.parent, trail: session[:trail])
+      end
+
     end
 
     def validate_single_data
