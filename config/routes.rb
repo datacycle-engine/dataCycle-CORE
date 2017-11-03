@@ -68,6 +68,7 @@ DataCycleCore::Engine.routes.draw do
         type_regexp = Regexp.new([:creative_works, :persons, :places].join("|"))
         resources :contents, path: ':type', constraints: { type: type_regexp }, only: [:show] do
           patch :update, on: :member
+          delete :destroy, on: :member
         end
       end
     end
