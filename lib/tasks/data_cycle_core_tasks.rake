@@ -131,4 +131,17 @@ namespace :data_cycle_core do
       end
     end
   end
+
+  namespace :update do
+    desc "DEBUG: hook to wire custom data update"
+    task :update_template => [:environment] do
+      template = DataCycleCore::CreativeWork.find(headline: 'Bild', template: true)
+      type = DataCycleCore::CreativeWork
+      strategy = DataCycleCore::Update::UpdateTemplate
+      transformation = nil
+
+      DataCycleCore::Update::Update.new(type: type, template: template, strategy: DataCycleCore::Update::UpdateFull, transformation: nil)
+    end
+  end
+
 end

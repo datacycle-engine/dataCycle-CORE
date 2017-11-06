@@ -205,7 +205,7 @@
         :label: Frage
         :type: string
         :storage_type: string
-        :storage_location: content
+        :storage_location: column
         :validations:
           :minLength: 1
         :editor:

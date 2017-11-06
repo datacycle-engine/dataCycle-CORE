@@ -1,0 +1,194 @@
+require 'test_helper'
+
+module DataCycleCore
+  class HistoryDeleteTest < ActiveSupport::TestCase
+
+    test "generate a Quiz with questions, then delete history" do
+      cw_temp = 39
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Quiz", description: "CreativeWork").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(1, DataCycleCore::CreativeWork::Translation.count - cw_temp)
+      assert_equal(0, DataCycleCore::ClassificationContent.count)
+      assert_equal(0, DataCycleCore::CreativeWork::History.count)
+      assert_equal(0, DataCycleCore::CreativeWork::History::Translation.count)
+
+      data_hash = {
+        "headline" => "Dies ist ein Test Quiz!",
+        "alternative_headline" => "ein lustiges Quiz für jeden Tag!",
+        "question" => [
+        {
+          "headline" => "beliebtestes Handy-OS?",
+          "suggested_answer" => [
+            { "text" => "Android" },
+            { "text" => "iOS" },
+            { "text" => "Sailfish"},
+            { "text" => "Ubuntu Phone"}
+          ],
+          "accepted_answer" => [
+            { "text" => "Android"}
+          ]
+        },
+        {
+          "headline" => "bestes Desktop OS?",
+          "suggested_answer" => [
+            { "text" => "Linux"},
+            { "text" => "BSD"},
+            { "text" => "Windows"},
+            { "text" => "sonstige"}
+          ],
+          "accepted_answer" => [
+            { "text" => "Linux"}
+          ]
+        }
+        ]
+      }
+      expected_hash_quiz = {
+        "kind" => [],
+        "tags" => [],
+        "state" => [],
+        "season" => [],
+        "topics" => [],
+        "markets" => [],
+        "headline" => "Dies ist ein Test Quiz!",
+        "output_channels" => [],
+        "alternative_headline" => "ein lustiges Quiz für jeden Tag!"
+       }
+
+      error = data_set.set_data_hash(data_hash: data_hash)
+      data_set.save
+      returned_data_hash = data_set.get_data_hash
+
+      assert_equal(0, error[:error].count)
+      assert_equal(expected_hash_quiz, returned_data_hash.except("question","id","data_type",'validity_period').compact)
+      assert_equal(2, returned_data_hash["question"].count)
+      assert_equal(4, returned_data_hash["question"][0]["suggested_answer"].count)
+      assert_equal(4, returned_data_hash["question"][1]["suggested_answer"].count)
+      assert_equal(1, returned_data_hash["question"][0]["accepted_answer"].count)
+      assert_equal(1, returned_data_hash["question"][1]["accepted_answer"].count)
+
+      # check consistency of data in DB
+      assert_equal(13, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(13, DataCycleCore::CreativeWork::Translation.count - cw_temp)
+      assert_equal(13, DataCycleCore::ClassificationContent.count)
+      assert_equal(1, DataCycleCore::CreativeWork::History.count)
+      assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
+
+      error = data_set.set_data_hash(data_hash: data_hash.merge({"headline" => "changed Quiz!"}))
+      data_set.save
+
+      assert_equal(13, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(13, DataCycleCore::CreativeWork::Translation.count - cw_temp)
+      assert_equal(13, DataCycleCore::ClassificationContent.count)
+
+      assert_equal(14, DataCycleCore::CreativeWork::History.count)
+      assert_equal(14, DataCycleCore::CreativeWork::History::Translation.count)
+
+      data_set.histories.destroy_all
+    end
+
+    test "generate simple Quiz with one question, then delete history" do
+      cw_temp = 39
+      template = DataCycleCore::CreativeWork.where(template: true, headline: "Quiz", description: "CreativeWork").first
+      validation = template.metadata['validation']
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.metadata = { 'validation' => validation }
+      data_set.save
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(1, DataCycleCore::CreativeWork::Translation.count - cw_temp)
+      assert_equal(0, DataCycleCore::ClassificationContent.count)
+      assert_equal(0, DataCycleCore::CreativeWork::History.count)
+      assert_equal(0, DataCycleCore::CreativeWork::History::Translation.count)
+
+      data_hash = {
+        "headline" => "Dies ist ein Test Quiz!",
+        "alternative_headline" => "ein lustiges Quiz für jeden Tag!",
+        "question" => [
+        {
+          "headline" => "beliebtestes Handy-OS?",
+          "suggested_answer" => [],
+          "accepted_answer" => []
+        }
+        ]
+      }
+      expected_hash_quiz = {
+        "kind" => [],
+        "tags" => [],
+        "state" => [],
+        "season" => [],
+        "topics" => [],
+        "markets" => [],
+        "headline" => "Dies ist ein Test Quiz!",
+        "output_channels" => [],
+        "alternative_headline" => "ein lustiges Quiz für jeden Tag!"
+       }
+
+      error = data_set.set_data_hash(data_hash: data_hash)
+      data_set.save
+
+puts "****************************************************************************"
+puts DataCycleCore::CreativeWork::History.count
+DataCycleCore::CreativeWork::History.all.each{ |item|
+  puts "#{item.id} | #{item.metadata['validation']['name']} | #{item.get_data_hash.compact}"
+}
+puts "****************************************************************************"
+      returned_data_hash = data_set.get_data_hash
+
+      assert_equal(0, error[:error].count)
+      assert_equal(expected_hash_quiz, returned_data_hash.except("question","id","data_type",'validity_period').compact)
+      assert_equal(data_hash['question'][0], returned_data_hash['question'][0].except("id","data_type").compact)
+
+      # check consistency of data in DB
+      assert_equal(2, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(2, DataCycleCore::CreativeWork::Translation.count - cw_temp)
+      assert_equal(2, DataCycleCore::ClassificationContent.count)
+      assert_equal(1, DataCycleCore::CreativeWork::History.count)
+      assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
+
+      error = data_set.set_data_hash(data_hash: data_hash.merge({"headline" => "changed Quiz!"}))
+      data_set.save
+
+
+puts "\n\n\n\n\n"
+puts DataCycleCore::CreativeWork::History.count
+puts DataCycleCore::CreativeWork::History::Translation.count
+DataCycleCore::CreativeWork::History.all.each{ |item|
+  puts "#{item.id} | #{item.metadata['validation']['name']} | is_part_of: #{item.is_part_of}"
+  ap item.get_data_hash.compact
+}
+
+
+      assert_equal(2, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(2, DataCycleCore::CreativeWork::Translation.count - cw_temp)
+      assert_equal(2, DataCycleCore::ClassificationContent.count)
+
+      assert_equal(3, DataCycleCore::CreativeWork::History.count)
+      assert_equal(3, DataCycleCore::CreativeWork::History::Translation.count)
+      assert_equal(2, DataCycleCore::ClassificationContent::History.count)
+
+      data_set.histories.destroy_all
+
+
+
+puts "\n\n\n\n\n"
+puts DataCycleCore::CreativeWork::History.count
+puts DataCycleCore::CreativeWork::History::Translation.count
+DataCycleCore::CreativeWork::History.all.each{ |item|
+  puts "#{item.id} | #{item.metadata['validation']['name']} | is_part_of: #{item.is_part_of}"
+  ap item.get_data_hash.compact
+}
+
+
+    end
+
+
+
+  end
+end

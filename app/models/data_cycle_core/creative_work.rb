@@ -17,6 +17,15 @@ module DataCycleCore
 
       belongs_to :creative_work
       include ContentHelpers
+
+      # callbacks
+      before_destroy :destroy_relations, prepend: true
+
+      def destroy_relations
+        self.delete_children true
+        self.translations.delete_all
+      end
+
     end
     has_many :histories, -> { order(updated_at: :desc) }, class_name: 'DataCycleCore::CreativeWork::History', foreign_key: :creative_work_id
 
@@ -48,7 +57,6 @@ module DataCycleCore
     private
 
     def destroy_relations
-      self.to_history Time.zone.now
       self.delete_childs true
       self.translations.delete_all
       self.content_search_all.delete_all
