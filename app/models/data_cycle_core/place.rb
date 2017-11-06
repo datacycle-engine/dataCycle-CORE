@@ -52,7 +52,6 @@ module DataCycleCore
     private
 
     def destroy_relations
-      self.delete_childs true
       self.translations.delete_all
       self.content_search_all.delete_all
     end
