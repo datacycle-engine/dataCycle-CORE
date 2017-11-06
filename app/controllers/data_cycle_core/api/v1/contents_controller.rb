@@ -24,9 +24,8 @@ module DataCycleCore
         .includes({classifications: [], translations: []})
         .find(params[:id])
 
-      @content.destroy
-
-      render json: {"success" => @content.destroyed?}
+      # @content.destroy
+      # render json: {"success" => @content.destroyed?}
 
     end
 
