@@ -239,13 +239,13 @@ module DataCycleCore
 
     def get_classification_relation(tree_label)
       if is_history?
-        relation = DataCycleCore::ClassificationContent::History
+        classification_object = DataCycleCore::ClassificationContent::History
         where_hash = {"content_data_history_id" => id, "content_data_history_type" => self.class.to_s}
       else
-        relation = DataCycleCore::ClassificationContent
+        classification_object = DataCycleCore::ClassificationContent
         where_hash = {"content_data_id" => id, "content_data_type" => self.class.to_s}
       end
-      relation.where(where_hash).
+      classification_object.where(where_hash).
         joins(classification: [classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]]).
         where("classification_tree_labels.name = ?", tree_label)
     end
