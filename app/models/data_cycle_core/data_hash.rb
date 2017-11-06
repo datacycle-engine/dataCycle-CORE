@@ -193,7 +193,7 @@ module DataCycleCore
       all_text = [headline, classification_string, full_text].join(' ')
       validity_hash = metadata.nil? ? nil : metadata['validity_period']
       validity_string = get_validity(validity_hash)
-      boost =self.metadata['validation']['boost'] || 1.0
+      boost = self.metadata['validation']['boost'] || 1.0
 
       connection = ActiveRecord::Base.connection
       sql_query = <<-eos
@@ -230,9 +230,6 @@ module DataCycleCore
           boost = EXCLUDED.boost;
       eos
       connection.exec_query(sql_query)
-      # search_object = DataCycleCore::Search.find_or_create_by(content_data_id: self.id, content_data_type: self.class.to_s)
-      # search_object.update(data_hash)
-      # self.content_search = search_object
     end
 
     private
@@ -528,7 +525,7 @@ module DataCycleCore
     def get_relation_name(table)
       if is_history?
         tables = [ table, self.class.table_name.split('_')[0...-1].join('_') ].sort
-        return "#{table[0].singularize}_#{tables[1]}_histories"
+        return "#{tables[0].singularize}_#{tables[1]}_histories"
       else
         tables = [ table , self.class.table_name ].sort
         return tables[0].singularize+"_"+tables[1]
