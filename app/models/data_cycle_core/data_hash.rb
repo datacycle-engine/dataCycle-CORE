@@ -42,9 +42,9 @@ module DataCycleCore
     end
 
     def destroy_content
-      self.to_history Time.zone.now
-      self.destroy
-    end 
+      self.to_history(Time.zone.now)
+      self.delete_childs(true)
+    end
 
     def set_data_hash_attribute(key, value, current_user, save_time = Time.zone.now)
       key_hash = metadata.dig('validation', 'properties', key)
@@ -55,7 +55,7 @@ module DataCycleCore
       end
     end
 
-    def to_history (save_time, parent_id = nil)
+    def to_history(save_time, parent_id = nil)
       origin_table = self.class.to_s.split("::")[1].tableize
       data_set_history = (self.class.to_s + "::History").safe_constantize.new
 
@@ -75,7 +75,6 @@ module DataCycleCore
         data_set_history.history_valid = (lower_bound ... save_time)
         data_set_history.save
 
-
         # cc classification_content to history
         self.classification_content.all.each do |item|
           classification_history = DataCycleCore::ClassificationContent::History.new
@@ -87,7 +86,6 @@ module DataCycleCore
           classification_history.classification_id = item.classification_id
           classification_history.save
         end
-
 
         # cc embedded data from other content tables
         embedded_relations.map(&:singularize).each do |content_name|
@@ -119,12 +117,14 @@ module DataCycleCore
       data_set_history
     end
 
-
-    def delete_children(delete_relation)
+    def delete_childs(delete_relation)
       embedded_property_names.each do |name|
-        delete = false
         definition = property_definitions[name]
+
+        delete = false
         delete = definition['delete'] unless definition['delete'].blank?
+        delete = true if is_history?
+
         relation_name = definition['storage_location']
         if same_table?(relation_name)
           if delete
@@ -133,18 +133,21 @@ module DataCycleCore
             delete_item_keys = metadata[field_has_part] if !metadata.blank? && metadata.has_key?(field_has_part)
             embedded_objects = load_embedded_objects_same_table(delete_item_keys)
             embedded_objects.each{ |item|
-              item.delete_children(delete)
+              item.delete_childs(delete)
               item.destroy
             } unless embedded_objects.blank?
           end
         else
-          load_embedded_objects.each do |item|
-            item.delete_children(delete)
-            item.destroy if delete
+          if delete
+            load_embedded_objects.each do |item|
+              item.delete_childs(delete)
+              item.destroy
+            end
           end
-          relation = get_relation_name(value['storage_location'])
+          relation = get_relation_name(definition['storage_location'])
           relations = ("DataCycleCore::" + relation.classify).constantize.
-            where(self.class.table_name.singularize.foreign_key.to_sym => self.id, value['storage_location'].singularize.foreign_key.to_sym => present_relations)
+            where(self.class.table_name.singularize.foreign_key.to_sym => self.id,
+              definition['storage_location'].singularize.foreign_key.to_sym => self.method(definition['storage_location']).call.ids)
           relations.destroy_all unless relations.blank?
         end
       end
@@ -153,72 +156,8 @@ module DataCycleCore
       if delete_relation
         classification_property_names.each do |classification_name|
           type_name = property_definitions[classification_name]['type_name']
-          content_relation = get_content_relations(type_name)
+          content_relation = get_classification_relation(type_name)
           content_relation.destroy_all unless content_relation.blank?
-        end
-      end
-    end
-
-    def get_content_relations(tree_label)
-      if is_history?
-        relation = DataCycleCore::ClassificationContent::History
-        where_hash = {"content_data_history_id" => self.send(self.class.table_name.split('_')[0...-1].join('_')+'_id'), "content_data_history_type" => self.class.to_s}
-      else
-        relation = DataCycleCore::ClassificationContent
-        where_hash = {"content_data_id" => id, "content_data_type" => self.class.to_s}
-      end
-      relation.where(where_hash).
-        joins(classification: [classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]]).
-        where("classification_tree_labels.name = ?", tree_label)
-    end
-
-
-    def delete_childs(delete_relation)
-      template_hash = metadata['validation']
-      # check for subtrees
-      template_hash['properties'].each do |key,value|
-        # cleanup embeddedObjects
-        if value['type'] == 'object' && value.has_key?('name') && value.has_key?('description')
-          delete = false
-          delete = value['delete'] unless value['delete'].blank?
-          if value['storage_location'] == self.class.table_name
-            #puts "delete same table"
-            field_has_part = "#{key}_hasPart"
-            delete_item_keys = []
-            delete_item_keys = self.metadata[field_has_part] if !self.metadata.blank? && self.metadata.has_key?(field_has_part)
-            delete_item_keys.each do |key|
-              item = ("DataCycleCore::" + value['storage_location'].classify).constantize.find_by(id: key)
-              unless item.blank?
-                item.delete_childs(delete)
-                item.destroy if delete
-              end
-            end
-          else
-            #puts "delete relation table"
-            present_relations = self.method(value['storage_location']).call.ids
-            self.method(value['storage_location']).call.each do |item|
-              item.delete_childs(delete)
-              item.destroy if delete
-            end
-            relation = get_relation_name(value['storage_location'])
-            relations = ("DataCycleCore::" + relation.classify).constantize.
-              where(self.class.table_name.singularize.foreign_key.to_sym => self.id, value['storage_location'].singularize.foreign_key.to_sym => present_relations)
-            relations.destroy_all unless relations.blank?
-          end
-        end
-        # cleanup classification_relation (only if present item can be deleted)
-        if delete_relation
-          if value['storage_location'] == 'classification_relation'
-            found_ids = get_relation_ids(value['type_name'])
-            if found_ids.size > 0
-              DataCycleCore::ClassificationContent.
-                where(
-                  "content_data_id" => self.id,
-                  "content_data_type" => self.class.to_s,
-                  classification_id: found_ids
-                ).destroy_all
-            end
-          end
         end
       end
     end
@@ -298,18 +237,23 @@ module DataCycleCore
 
     private
 
-    def get_relation_ids(tree_label)
-      DataCycleCore::ClassificationContent.
-        where("content_data_id" => id, "content_data_type" => self.class.to_s).
+    def get_classification_relation(tree_label)
+      if is_history?
+        relation = DataCycleCore::ClassificationContent::History
+        where_hash = {"content_data_history_id" => id, "content_data_history_type" => self.class.to_s}
+      else
+        relation = DataCycleCore::ClassificationContent
+        where_hash = {"content_data_id" => id, "content_data_type" => self.class.to_s}
+      end
+      relation.where(where_hash).
         joins(classification: [classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]]).
-        where("classification_tree_labels.name = ?", tree_label).
-        pluck(:classification_id)
+        where("classification_tree_labels.name = ?", tree_label)
     end
 
     def set_relation_ids(ids, tree_label, default_value)
       if is_blank?(ids)
         begin
-          if !default_value.blank? && ids.nil? && get_relation_ids(tree_label).count == 0
+          if !default_value.blank? && ids.nil? && get_classification_relation(tree_label).count == 0
             classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
                 .where("classification_tree_labels.name = ?", tree_label)
                 .where("classification_aliases.name = ?", default_value).first!.id
@@ -321,7 +265,7 @@ module DataCycleCore
               )
             ids = [classification_id]
           elsif !default_value.blank? && ids.nil?
-            ids = get_relation_ids(tree_label)
+            ids = get_classification_relation(tree_label).pluck(:classification_id)
           end
         rescue ActiveRecord::RecordNotFound => e
           logger.error "Missing default value '#{default_value}' for classification tree '#{tree_label}'"
@@ -341,7 +285,7 @@ module DataCycleCore
 
       ids = [] if ids.blank? && default_value.blank?
       # delete missing ids
-      found_ids = get_relation_ids(tree_label)
+      found_ids = get_classification_relation(tree_label).pluck(:classification_id)
       to_delete = found_ids - ids
       if to_delete.size > 0
         DataCycleCore::ClassificationContent.

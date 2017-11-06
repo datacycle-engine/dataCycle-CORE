@@ -132,13 +132,6 @@ module DataCycleCore
 
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
-
-puts "****************************************************************************"
-puts DataCycleCore::CreativeWork::History.count
-DataCycleCore::CreativeWork::History.all.each{ |item|
-  puts "#{item.id} | #{item.metadata['validation']['name']} | #{item.get_data_hash.compact}"
-}
-puts "****************************************************************************"
       returned_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
@@ -155,16 +148,6 @@ puts "**************************************************************************
       error = data_set.set_data_hash(data_hash: data_hash.merge({"headline" => "changed Quiz!"}))
       data_set.save
 
-
-puts "\n\n\n\n\n"
-puts DataCycleCore::CreativeWork::History.count
-puts DataCycleCore::CreativeWork::History::Translation.count
-DataCycleCore::CreativeWork::History.all.each{ |item|
-  puts "#{item.id} | #{item.metadata['validation']['name']} | is_part_of: #{item.is_part_of}"
-  ap item.get_data_hash.compact
-}
-
-
       assert_equal(2, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(2, DataCycleCore::CreativeWork::Translation.count - cw_temp)
       assert_equal(2, DataCycleCore::ClassificationContent.count)
@@ -175,20 +158,13 @@ DataCycleCore::CreativeWork::History.all.each{ |item|
 
       data_set.histories.destroy_all
 
-
-
-puts "\n\n\n\n\n"
-puts DataCycleCore::CreativeWork::History.count
-puts DataCycleCore::CreativeWork::History::Translation.count
-DataCycleCore::CreativeWork::History.all.each{ |item|
-  puts "#{item.id} | #{item.metadata['validation']['name']} | is_part_of: #{item.is_part_of}"
-  ap item.get_data_hash.compact
-}
-
-
+      assert_equal(2, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(2, DataCycleCore::CreativeWork::Translation.count - cw_temp)
+      assert_equal(2, DataCycleCore::ClassificationContent.count)
+      assert_equal(0, DataCycleCore::CreativeWork::History.count)
+      assert_equal(0, DataCycleCore::CreativeWork::History::Translation.count)
+      assert_equal(0, DataCycleCore::ClassificationContent::History.count)
     end
-
-
 
   end
 end

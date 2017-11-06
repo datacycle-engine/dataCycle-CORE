@@ -103,7 +103,7 @@ module DataCycleCore
 
     def destroy
       @place = DataCycleCore::Place.find(params[:id])
-      @place.destroy
+      @place.destroy_content
 
       flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Ort'
 

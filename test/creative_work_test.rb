@@ -61,8 +61,8 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
       assert_equal(0, DataCycleCore::ClassificationContent::History.count)
       assert_equal(0, DataCycleCore::CreativeWorkPlace::History.count)
-      assert_equal(1, DataCycleCore::Place::History.count)
-      assert_equal(1, DataCycleCore::Place::History::Translation.count)
+      assert_equal(0, DataCycleCore::Place::History.count)
+      assert_equal(0, DataCycleCore::Place::History::Translation.count)
 
       returned_data_hash_without["content_location"] = []
       error = data_set_without.set_data_hash(data_hash: returned_data_hash_without)
@@ -70,21 +70,6 @@ module DataCycleCore
 
       returned_again = data_set_without.get_data_hash
       assert_equal(returned_data_hash_without, returned_again)
-
-      # print history chronological
-
-      # time_history = []
-      # data_set_without.histories.each do |item|
-      #   time_history.push(Time.at((item.history_valid.begin.to_f + item.history_valid.end.to_f)/2))
-      # end
-      #
-      # time_history += [Time.zone.now]
-      #
-      # puts ""
-      # time_history.sort{|one,two| one <=> two}.each do |item|
-      #   puts "#{data_set_without.as_of(item).class} \n@#{item.to_s(:long_usec)}"
-      #   ap data_set_without.get_data_hash(item).compact
-      # end
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
@@ -98,8 +83,8 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::CreativeWork::History::Translation.count)
       assert_equal(1, DataCycleCore::CreativeWorkPlace::History.count)
       assert_equal(1, DataCycleCore::ClassificationContent.count)
-      assert_equal(2, DataCycleCore::Place::History.count)
-      assert_equal(2, DataCycleCore::Place::History::Translation.count)
+      assert_equal(1, DataCycleCore::Place::History.count)
+      assert_equal(1, DataCycleCore::Place::History::Translation.count)
     end
 
     test "save CreativeWork with embedded object contentLocation, then delete embedded object (last and only one)" do

@@ -175,7 +175,7 @@ module DataCycleCore
 
     def destroy
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
-      @creativeWork.destroy
+      @creativeWork.destroy_content
 
       flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Creative Work'
 
