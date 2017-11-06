@@ -21,10 +21,12 @@
     <ul class="content-tiles">
         <% unless value.nil? %>
             <% object.find(value).each do |item| %>
+
                 <li class="<%= [
                                    'content',
                                    item.class.name.demodulize.underscore.sub('_', '-'),
-                                   item.content_type.underscore.sub('_', '-')
+                                   item.content_type.underscore.sub('_', '-'),
+                                   item.is_valid ? '' : 'expired-item'
                                ].join(' ') %>">
 
                     <%= render_first_existing_partial [

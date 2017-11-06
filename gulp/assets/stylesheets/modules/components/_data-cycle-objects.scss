@@ -124,6 +124,9 @@
     padding: 1px;
     margin: 0;
     box-shadow: 0 0 0 0;
+    &.expired-item{
+      border: 2px solid $alert-color;
+    }
   }
   &:before,
   &:after {

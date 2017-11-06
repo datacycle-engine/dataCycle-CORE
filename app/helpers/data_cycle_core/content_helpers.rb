@@ -8,6 +8,17 @@ module DataCycleCore
       metadata['validation']['permissions']['read_write']
     end
 
+    def is_valid
+      if content_type == 'Bild'
+        valid_from = get_data_hash.dig('validity_period').dig('date_published')
+        valid_to = get_data_hash.dig('validity_period').dig('expires')
+        return Date.today.between?(valid_from.to_date, valid_to.to_date) if (valid_from.blank? == false && valid_to.blank? == false)
+        return Date.today <= valid_to.to_date if (valid_to.blank? == false)
+        return Date.today >= valid_from.to_date if (valid_from.blank? == false)
+      end
+      true
+    end
+
     def title
       raise NotImplementedError
     end
