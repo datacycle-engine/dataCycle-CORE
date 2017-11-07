@@ -16,7 +16,7 @@
             <div class="content-object-item" id="<%= sanitize_to_id(key) %>_item_<%= index %>">
               <span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.metadata['validation']['name'].downcase %> <%= definition['label'] %></span>
 
-              <% unless options['readonly'] %>
+              <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
                 <button class="button removeContentObject"><i class="fa fa-times"></i></button>
               <% end %>
 
@@ -43,7 +43,7 @@
         :min="<%= definition.dig('validations', 'minLength') || 0 %>"
         :max="<%= definition.dig('validations', 'maxLength') || 0 %>"
         label="<%= definition['label'] %>"
-        :readonly="<%= options['readonly'] ? true : false %>">
+        :readonly="<%= !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>">
         <template scope="props" slot="embedded-item" >
           <span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.metadata['validation']['name'].downcase %> <%= definition['label'] %></span>
           <% validation_properties.each do |o_key, o_prop| %>

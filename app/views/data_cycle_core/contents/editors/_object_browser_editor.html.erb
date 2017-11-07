@@ -3,6 +3,7 @@
 
     <% object_class_name = definition['type_name'] || definition['storage_location'] %>
     <% object_class = ("DataCycleCore::"+("#{object_class_name}".classify)).constantize %>
+        :readonly="<%= !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>"
 
     <div class="object-browser" id="<%= sanitize_to_id(key) %>">
         <%= label_tag(key, definition['label']) %>

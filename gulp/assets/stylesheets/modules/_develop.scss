@@ -459,6 +459,9 @@ button {
   iframe {
     box-shadow: 0 0 1px #9d9d9d;
     border: none;
+    width: 90vw;
+    height: 90vh;
+    max-width: 1200px;
   }
   .loading-iframe {
     position: absolute;
@@ -565,4 +568,12 @@ video {
       border-color: transparent transparent #ffffff transparent;
     }
   }
+}
+
+[readonly],
+[readonly]:hover,
+[readonly]:focus,
+[contenteditable=false],
+.readonly-select {
+  cursor: not-allowed;
 }

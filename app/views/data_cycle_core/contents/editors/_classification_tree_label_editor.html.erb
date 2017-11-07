@@ -1,6 +1,5 @@
 <%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
-  <% readonly = options['readonly'] ? true : false %>
-
+  <% readonly = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
   <% if readonly %>
     <div <%= !definition.dig('editor', 'options', 'data-validate').nil? ? "data-validate=#{definition['editor']['options']['data-validate']}" : '' %>>
       <%= label_tag(key, definition['label']) %>

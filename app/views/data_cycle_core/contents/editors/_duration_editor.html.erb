@@ -8,7 +8,7 @@
   <% end %>
   <div class="duration-slider">
       <div class="small-10 columns">
-          <div class="slider <%= options['readonly'] ? 'disabled' : '' %>" data-slider data-initial-start="<%= value.try(:to_i) || 0 %>" data-step="1" data-position-value-function="pow" data-non-linear-base="5" data-start="<%= definition.dig('validations', 'min').try(:to_i) %>" data-end="<%= definition.dig('validations', 'max').try(:to_i) %>" data-decimal="0">
+          <div class="slider <%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) ? '' : 'disabled' %>" data-slider data-initial-start="<%= value.try(:to_i) || 0 %>" data-step="1" data-position-value-function="pow" data-non-linear-base="5" data-start="<%= definition.dig('validations', 'min').try(:to_i) %>" data-end="<%= definition.dig('validations', 'max').try(:to_i) %>" data-decimal="0">
               <span class="slider-handle" data-slider-handle role="slider" tabindex="1" aria-controls="<%= sanitize_to_id(key) %>"></span>
           </div>
       </div>

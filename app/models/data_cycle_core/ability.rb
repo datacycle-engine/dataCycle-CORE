@@ -59,6 +59,10 @@ module DataCycleCore
           can :manage, :dash_board
         end
 
+        can :edit, DataCycleCore::DataAttribute do |attribute|
+          !attribute.options['readonly']
+        end
+
         cannot :modify, DataCycleCore::User do |the_user|
           (the_user.role && the_user.role.rank == 0) || (the_user.has_rank?(user.role.try(:rank)) && the_user != user)
         end
