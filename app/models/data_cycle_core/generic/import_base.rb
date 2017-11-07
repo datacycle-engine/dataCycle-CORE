@@ -119,6 +119,7 @@ module DataCycleCore::Generic
 
       content.metadata ||= {}
       content.metadata['validation'] = template.metadata['validation']
+      content.save!
 
       old_data = (content.get_data_hash || {}).merge({
         metadata: content.metadata.except('validation'),

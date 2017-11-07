@@ -51,6 +51,11 @@ module DataCycleCore::Generic::Feratel::ImportPlaces
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: s['Id'].downcase)
       }.reject(&:nil?)
 
+      owners = [raw_data.dig('Details', 'DataOwner')].flatten.reject(&:nil?).map { |s|
+        DataCycleCore::Classification.find_by(external_source_id: external_source.id,
+                                              external_key: "OWNER:#{Digest::MD5.hexdigest(s['text'])}")
+      }.reject(&:nil?)
+
       create_or_update_content(
         @target_type,
         load_template(@target_type, @data_template),
@@ -62,7 +67,8 @@ module DataCycleCore::Generic::Feratel::ImportPlaces
           facilities: facilities.map(&:id),
           accommodation_categories: accommodation_categories.map(&:id),
           feratel_classifications: feratel_classifications.map(&:id),
-          stars: stars.map(&:id)
+          stars: stars.map(&:id),
+          feratel_owners: owners.map(&:id)
         ).with_indifferent_access
       )
     end
