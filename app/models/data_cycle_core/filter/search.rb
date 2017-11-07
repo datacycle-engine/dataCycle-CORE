@@ -29,6 +29,14 @@ module DataCycleCore
         )
       end
 
+      def in_validity_period(current_date = Time.now)
+        reflect (
+          @query.where(
+            in_range(search[:validity_period], cast_tstz(current_date))
+          )
+        )
+      end
+
       def with_classification_alias_ids(ids = nil)
         manager = create_classification_alias_recursion(ids)
         # get everything including parents (or-clause)

@@ -124,6 +124,9 @@
     padding: 1px;
     margin: 0;
     box-shadow: 0 0 0 0;
+    &.expired-item{
+      border: 2px solid $alert-color;
+    }
   }
   &:before,
   &:after {
@@ -216,6 +219,9 @@
         align-items: center;
         -ms-flex-pack: center;
         justify-content: center;
+      }
+      &.expired-item{
+        border: 2px solid $alert-color;
       }
     }
     span.caption {
@@ -341,6 +347,9 @@
         .warning {
           display: none;
         }
+        &.expired-item{
+          border: 2px solid $alert-color;
+        }
       }
     }
     .buttons {
@@ -414,6 +423,9 @@
         background-repeat: no-repeat;
         position: relative;
       }
+      &.expired-item{
+        border: 2px solid $alert-color;
+      }
     }
     a.delete-thumbnail {
       display: none;
@@ -438,6 +450,9 @@
           border-color: $primary-color;
           background-color: $primary-color;
           box-shadow: 0 0 0 1px rgba($primary-color, 1);
+          &.expired-item{
+            border: 2px solid $alert-color;
+          }
         }
         .person {
           color: white;

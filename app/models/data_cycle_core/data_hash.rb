@@ -542,6 +542,18 @@ module DataCycleCore
     end
 
     def get_validity(validity_hash)
+      from, to = get_validity_values validity_hash
+      [
+        '[',
+        from.kind_of?(DateTime) ? from.to_s(:long_usec) : '',
+        ',',
+        to.kind_of?(DateTime) ? to.to_s(:long_usec) : '',
+        ']'
+      ].join('')
+
+    end
+
+    def get_validity_values(validity_hash)
       from, to = nil, nil
       if validity_hash && (validity_hash['date_published'] || validity_hash['valid_from'])
         from = validity_hash['date_published'] || validity_hash['valid_from']
@@ -555,13 +567,7 @@ module DataCycleCore
       to = to.blank? ? nil : to.to_datetime
       to = nil if !to.blank? && to > DateTime.new(9999,1,1,0,0)
 
-      [
-        '[',
-        from.kind_of?(DateTime) ? from.to_s(:long_usec) : '',
-        ',',
-        to.kind_of?(DateTime) ? to.to_s(:long_usec) : '',
-        ']'
-      ].join('')
+      [from, to]
 
     end
 

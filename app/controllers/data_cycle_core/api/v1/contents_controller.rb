@@ -17,5 +17,17 @@ module DataCycleCore
       render json: @content.get_data_hash
 
     end
+
+    def destroy
+
+      @content = Object.const_get("DataCycleCore::#{params[:type].classify}")
+        .includes({classifications: [], translations: []})
+        .find(params[:id])
+
+      # @content.destroy
+      # render json: {"success" => @content.destroyed?}
+
+    end
+
   end
 end

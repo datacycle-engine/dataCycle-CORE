@@ -30,7 +30,7 @@ module DataCycleCore
 
         @results = query.page(@page).per(@per)
 
-        render :json => { results: @results, total: total }
+        render :json => { results: @results.as_json({'add_validity' =>true}), total: total }
       end
     end
 

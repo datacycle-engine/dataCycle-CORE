@@ -1,41 +1,42 @@
 <%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
 
-  <% object_class_name = definition['type_name'] || definition['storage_location'] %>
-  <% object_class = ("DataCycleCore::"+("#{object_class_name}".classify)).constantize %>
 
-  <div class="object-browser" id="<%= sanitize_to_id(key) %>">
-    <%= label_tag(key, definition['label']) %>
-    <div class="media-thumbs">
-      <object-browser
-        :existing="<%= object_class.where(id: value.try(:collect){ |o| o.try(:[], 'id') || o }).to_json %>"
-        object-class="<%= object_class %>"
-        :object-type="'<%= definition.dig('editor', 'options', 'data-type').try(:downcase) %>'"
-        :object-label="'<%= definition['label'] %>'"
-        :min="<%= definition.dig('validations', 'min') || 0 %>"
-        :max="<%= definition.dig('validations', 'max') || 0 %>"
-        :create-item="<%= can?(:create, object_class) %>"
-        new-id="new<%= definition.dig('editor', 'options', 'data-type').try(:classify) %>"
-        hidden-name="<%= key %>[]"
-        :reveal-link="true"
-        :readonly="<%= options['readonly'] ? true : false %>"
-        :creator="<%= current_user.to_json %>"
-        language="<%= I18n.locale.to_s %>">
+    <% object_class_name = definition['type_name'] || definition['storage_location'] %>
+    <% object_class = ("DataCycleCore::"+("#{object_class_name}".classify)).constantize %>
 
-        <template scope="props" slot="item">
-          <%= render_object_browser_partial(key: key + (definition['type'] == "object" ? '[][id]' : '[]'), definition: definition) %>
-        </template>
+    <div class="object-browser" id="<%= sanitize_to_id(key) %>">
+        <%= label_tag(key, definition['label']) %>
+        <div class="media-thumbs">
+            <object-browser
+            :existing="<%= object_class.where(id: value.try(:collect){ |o| o.try(:[], 'id') || o }).to_json(:methods => [:is_valid, :formatted_validity_period]) %>"
+            object-class="<%= object_class %>"
+            :object-type="'<%= definition.dig('editor', 'options', 'data-type').try(:downcase) %>'"
+            :object-label="'<%= definition['label'] %>'"
+            :min="<%= definition.dig('validations', 'min') || 0 %>"
+            :max="<%= definition.dig('validations', 'max') || 0 %>"
+            :create-item="<%= can?(:create, object_class) %>"
+            new-id="new<%= definition.dig('editor', 'options', 'data-type').try(:classify) %>"
+            hidden-name="<%= key %>[]"
+            :reveal-link="true"
+            :readonly="<%= options['readonly'] ? true : false %>"
+            :creator="<%= current_user.to_json %>"
+            language="<%= I18n.locale.to_s %>">
 
-        <% if can?(:create, object_class) %>
-          <template slot="new-item" scope="newItem">
-            <% begin %>
-              <%= render_object_browser_partial(partial: 'new', key: key, definition: definition) %>
-            <% rescue %>
-            <% end %>
-          </template>
-        <% end %>
+                <template scope="props" slot="item">
+                    <%= render_object_browser_partial(key: key + (definition['type'] == "object" ? '[][id]' : '[]'), definition: definition) %>
+                </template>
 
-      </object-browser>
+                <% if can?(:create, object_class) %>
+                    <template slot="new-item" scope="newItem">
+                        <% begin %>
+                            <%= render_object_browser_partial(partial: 'new', key: key, definition: definition) %>
+                        <% rescue %>
+                        <% end %>
+                    </template>
+                <% end %>
+
+            </object-browser>
+        </div>
     </div>
-  </div>
 
 <% end %>

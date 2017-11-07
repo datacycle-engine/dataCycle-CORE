@@ -28,6 +28,11 @@
       <dd v-if="item.metadata.date_created != undefined">{{ formatDate(item.metadata.date_created) }}</dd>
       <dt v-if="item.metadata.date_modified != undefined">Bearbeitet: </dt>
       <dd v-if="item.metadata.date_modified != undefined">{{ formatDate(item.metadata.date_modified) }}</dd>
+      <dt v-if="item.metadata.date_modified != undefined">Gültigkeit: </dt>
+      <dd v-if="item.metadata.date_modified != undefined">
+        {{ formatDate(item.metadata.validity_period.date_published) }} <br />
+          bis {{ formatDate(item.metadata.validity_period.expires) }}
+      </dd>
     </dl>
   </div>
   <div v-else></div>
