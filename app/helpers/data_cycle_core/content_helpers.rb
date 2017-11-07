@@ -16,6 +16,11 @@ module DataCycleCore
       raise NotImplementedError
     end
 
+    def as_json(options = {})
+      return super(:methods => :is_valid) if options.blank? == false && options['add_validity'] == true
+      super
+    end
+
     def get_releasable_hash
       {"release_id" => release_id, "release_comment" => release_comment}
     end

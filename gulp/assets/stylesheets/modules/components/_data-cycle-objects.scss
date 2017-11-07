@@ -423,6 +423,9 @@
         background-repeat: no-repeat;
         position: relative;
       }
+      &.expired-item{
+        border: 2px solid $alert-color;
+      }
     }
     a.delete-thumbnail {
       display: none;
@@ -447,6 +450,9 @@
           border-color: $primary-color;
           background-color: $primary-color;
           box-shadow: 0 0 0 1px rgba($primary-color, 1);
+          &.expired-item{
+            border: 2px solid $alert-color;
+          }
         }
         .person {
           color: white;
