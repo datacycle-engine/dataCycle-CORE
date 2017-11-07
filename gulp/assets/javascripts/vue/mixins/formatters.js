@@ -20,7 +20,7 @@ module.exports = {
         month = "0" + month;
       }
       var date = day + "." + month + "." + year;
-
+      if (year == '9999') return "";
       return date;
     }
   }

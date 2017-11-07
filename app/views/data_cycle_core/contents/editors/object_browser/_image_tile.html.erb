@@ -1,4 +1,5 @@
-<div v-if="props.item != undefined" :data-open="props.dataOpen" :class="[props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != '' && props.item.metadata.restrictions != 'Keine Einschränkung;' ? 'has-restrictions' : '', 'media thumbnail']" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnail_url+')' }">
+
+<div v-if="props.item != undefined" :data-open="props.dataOpen" :class="[props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != '' && props.item.metadata.restrictions != 'Keine Einschränkung;' ? 'has-restrictions' : '', 'media thumbnail', props.item.is_valid == false ? 'expired-item' : '']" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnail_url+')' }">
   <span v-if="props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != ''" data-tooltip aria-haspopup="true" class="has-tip warning" data-disable-hover="false" tabindex="1" :title="'Einschränkungen: '+props.item.metadata.restrictions"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
 
   <span v-if="!props.readonly" class="delete-thumbnail" @click.stop="props.remove(props.item, $event)"><i aria-hidden="true" class="fa fa-times"></i></span>
@@ -20,6 +21,10 @@
     </div>
     <div class="description">
         <!-- todo: check only for empty string -->
+
+        <div v-if="props.item.formatted_validity_period != undefined && props.item.formatted_validity_period != false">
+            <strong>Gültigkeit</strong> {{ props.item.formatted_validity_period.date_published }} <strong>bis</strong> {{ props.item.formatted_validity_period.expires }}<br /><br />
+        </div>
         <div v-if="props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != '' && props.item.metadata.restrictions != 'Keine Einschränkung;'">
             <strong>Einschränkungen:</strong> {{ props.item.metadata.restrictions }} <br /><br />
         </div>

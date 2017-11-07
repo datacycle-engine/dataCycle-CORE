@@ -220,6 +220,9 @@
         -ms-flex-pack: center;
         justify-content: center;
       }
+      &.expired-item{
+        border: 2px solid $alert-color;
+      }
     }
     span.caption {
       display: none;
@@ -343,6 +346,9 @@
         }
         .warning {
           display: none;
+        }
+        &.expired-item{
+          border: 2px solid $alert-color;
         }
       }
     }
