@@ -1,6 +1,8 @@
 module DataCycleCore::Generic::Transformations::Functions
   extend Transproc::Registry
   import Transproc::HashTransformations
+  import Transproc::Conditional
+  import Transproc::Recursion
 
   def self.underscore_keys(data_hash)
     Hash[data_hash.to_a.map { |k, v| [k.to_s.underscore, v.kind_of?(Hash) ? underscore_keys(v) : v] }]

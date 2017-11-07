@@ -9,8 +9,6 @@ module DataCycleCore::Generic::Feratel::ImportPlaces
                     **options)
   end
 
-  protected
-
   def load_contents(mongo_item, locale)
     mongo_item.where("dump.#{locale}" => { '$exists' => true })
   end
@@ -86,67 +84,102 @@ module DataCycleCore::Generic::Feratel::ImportPlaces
   def extract_place_data(raw_data)
     return {} if raw_data.nil?
 
-    short_description = [raw_data.dig('Descriptions', 'Description')].flatten.reject(&:nil?).find { |d|
-      d['Type'] == 'InfrastructureShort' || d['Type'] == 'ServiceProviderDescription'
-    }
-    long_description = [raw_data.dig('Descriptions', 'Description')].flatten.reject(&:nil?).find { |d|
-      d['Type'] == 'InfrastructureLong'
-    }
-    hours_available = [raw_data.dig('Descriptions', 'Description')].flatten.reject(&:nil?).find { |d|
-      d['Type'] == 'InfrastructureOpeningTimes'
-    }
-
-    address = [raw_data.dig('Addresses', 'Address')].flatten.reject(&:nil?).find { |d|
-      d['Type'] == 'InfrastructureExternal' || d['Type'] == 'Object'
-    }
-
-    if raw_data.dig('Details', 'Position', 'Latitude').to_i != 0 &&
-       raw_data.dig('Details', 'Position', 'Longitude').to_i != 0
-      {
-        external_key: raw_data['Id'],
-        name: raw_data['Details']['Names']['Translation']['text'],
-        description: (short_description || {}).dig('text').try(:gsub, /\n/, '<br />'),
-        text: (long_description || {}).dig('text').try(:gsub, /\n/, '<br />'),
-        hours_available: (hours_available || {}).dig('text').try(:gsub, /\n/, '<br />'),
-        street_address: [
-          address.try(:dig, 'AddressLine1', 'text'),
-          address.try(:dig, 'AddressLine2', 'text')
-        ].reject(&:blank?).join("\n"),
-        address_locality: address.try(:dig, 'Town', 'text'),
-        postal_code: address.try(:dig, 'ZipCode', 'text'),
-        fax_number: address.try(:dig, 'Fax', 'text'),
-        telephone: address.try(:dig, 'Phone', 'text'),
-        email: address.try(:dig, 'Email', 'text'),
-        url: address.try(:dig, 'URL', 'text'),
-        latitude: raw_data.dig('Details', 'Position', 'Latitude').to_f,
-        longitude: raw_data.dig('Details', 'Position', 'Longitude').to_f,
-        location: DataCycleCore::Generic::Transformations::Functions.location({
-          'latitude' => raw_data.dig('Details', 'Position', 'Latitude').to_f,
-          'longitude' => raw_data.dig('Details', 'Position', 'Longitude').to_f,
-        })['location']
-      }
-    else
-      {
-        external_key: raw_data['Id'],
-        name: raw_data['Details']['Names']['Translation']['text'],
-        description: (short_description || {}).dig('text').try(:gsub, /\n/, '<br />'),
-        text: (long_description || {}).dig('text').try(:gsub, /\n/, '<br />'),
-        hours_available: (hours_available || {}).dig('text').try(:gsub, /\n/, '<br />'),
-        street_address: [
-          address.try(:dig, 'AddressLine1', 'text'),
-          address.try(:dig, 'AddressLine2', 'text')
-        ].reject(&:blank?).join("\n"),
-        address_locality: address.try(:dig, 'Town', 'text'),
-        postal_code: address.try(:dig, 'ZipCode', 'text'),
-        fax_number: address.try(:dig, 'Fax', 'text'),
-        telephone: address.try(:dig, 'Phone', 'text'),
-        email: address.try(:dig, 'Email', 'text'),
-        url: address.try(:dig, 'URL', 'text')
-      }
-    end
+    place_transformation.call(raw_data)
   end
 
+  def place_transformation
+    t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
+    .>> t(:flatten_translations)
+    .>> t(:flatten_texts)
+    .>> t(:unwrap, 'Details')
+    .>> t(:rename_keys,
+          'Id' => 'external_key',
+          'Names' => 'name')
+    .>> t(:unwrap, 'Position')
+    .>> t(:rename_keys,
+          'Latitude' => 'latitude',
+          'Longitude' => 'longitude')
+    .>> t(:map_value, 'latitude', ->(v) { v.to_f })
+    .>> t(:map_value, 'longitude', ->(v) { v.to_f })
+    .>> t(:location)
+    .>> t(:unwrap_description, 'ServiceProviderDescription')
+    .>> t(:rename_keys, 'ServiceProviderDescription' => 'description')
+    .>> t(:unwrap_address, 'Object')
+    .>> t(:unwrap, 'Address')
+    .>> t(:rename_keys,
+          'AddressLine1' => 'street_address',
+          'Town' => 'address_locality',
+          'ZipCode' => 'postal_code',
+          'Fax' => 'fax_number',
+          'Phone' => 'telephone',
+          'Email' => 'email',
+          'URL' => 'url')
+  end
+
+  # def extract_place_data(raw_data)
+  #   return {} if raw_data.nil?
+  #
+  #   short_description = [raw_data.dig('Descriptions', 'Description')].flatten.reject(&:nil?).find { |d|
+  #     d['Type'] == 'InfrastructureShort' || d['Type'] == 'ServiceProviderDescription'
+  #   }
+  #   long_description = [raw_data.dig('Descriptions', 'Description')].flatten.reject(&:nil?).find { |d|
+  #     d['Type'] == 'InfrastructureLong'
+  #   }
+  #   hours_available = [raw_data.dig('Descriptions', 'Description')].flatten.reject(&:nil?).find { |d|
+  #     d['Type'] == 'InfrastructureOpeningTimes'
+  #   }
+  #
+  #   address = [raw_data.dig('Addresses', 'Address')].flatten.reject(&:nil?).find { |d|
+  #     d['Type'] == 'InfrastructureExternal' || d['Type'] == 'Object'
+  #   }
+  #
+  #   if raw_data.dig('Details', 'Position', 'Latitude').to_i != 0 &&
+  #      raw_data.dig('Details', 'Position', 'Longitude').to_i != 0
+  #     {
+  #       external_key: raw_data['Id'],
+  #       name: raw_data['Details']['Names']['Translation']['text'],
+  #       description: (short_description || {}).dig('text').try(:gsub, /\n/, '<br />'),
+  #       text: (long_description || {}).dig('text').try(:gsub, /\n/, '<br />'),
+  #       hours_available: (hours_available || {}).dig('text').try(:gsub, /\n/, '<br />'),
+  #       street_address: [
+  #         address.try(:dig, 'AddressLine1', 'text'),
+  #         address.try(:dig, 'AddressLine2', 'text')
+  #       ].reject(&:blank?).join("\n"),
+  #       address_locality: address.try(:dig, 'Town', 'text'),
+  #       postal_code: address.try(:dig, 'ZipCode', 'text'),
+  #       fax_number: address.try(:dig, 'Fax', 'text'),
+  #       telephone: address.try(:dig, 'Phone', 'text'),
+  #       email: address.try(:dig, 'Email', 'text'),
+  #       url: address.try(:dig, 'URL', 'text'),
+  #       latitude: raw_data.dig('Details', 'Position', 'Latitude').to_f,
+  #       longitude: raw_data.dig('Details', 'Position', 'Longitude').to_f,
+  #       location: DataCycleCore::Generic::Transformations::Functions.location({
+  #         'latitude' => raw_data.dig('Details', 'Position', 'Latitude').to_f,
+  #         'longitude' => raw_data.dig('Details', 'Position', 'Longitude').to_f,
+  #       })['location']
+  #     }
+  #   else
+  #     {
+  #       external_key: raw_data['Id'],
+  #       name: raw_data['Details']['Names']['Translation']['text'],
+  #       description: (short_description || {}).dig('text').try(:gsub, /\n/, '<br />'),
+  #       text: (long_description || {}).dig('text').try(:gsub, /\n/, '<br />'),
+  #       hours_available: (hours_available || {}).dig('text').try(:gsub, /\n/, '<br />'),
+  #       street_address: [
+  #         address.try(:dig, 'AddressLine1', 'text'),
+  #         address.try(:dig, 'AddressLine2', 'text')
+  #       ].reject(&:blank?).join("\n"),
+  #       address_locality: address.try(:dig, 'Town', 'text'),
+  #       postal_code: address.try(:dig, 'ZipCode', 'text'),
+  #       fax_number: address.try(:dig, 'Fax', 'text'),
+  #       telephone: address.try(:dig, 'Phone', 'text'),
+  #       email: address.try(:dig, 'Email', 'text'),
+  #       url: address.try(:dig, 'URL', 'text')
+  #     }
+  #   end
+  # end
+
   def t(*args)
-    DataCycleCore::Generic::Transformations::Functions[*args]
+    DataCycleCore::Generic::Feratel::TransformationFunctions[*args]
   end
 end

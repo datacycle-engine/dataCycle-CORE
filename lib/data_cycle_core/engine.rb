@@ -54,7 +54,7 @@ require 'jbuilder'
 
 require 'acts_as_paranoid'
 
-require 'transproc'
+require 'transproc/all'
 
 module DataCycleCore
   class << self
