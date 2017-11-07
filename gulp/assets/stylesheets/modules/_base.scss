@@ -91,9 +91,9 @@ button,
   padding-top: 3.5rem;
 }
 
-#show-history {
+.history-items {
   max-height: 24rem;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .edit-header {
@@ -238,8 +238,7 @@ button,
       position: relative;
     }
     .release-comment-button {
-      position: relative;
-      //left: -48%;
+      position: relative; //left: -48%;
       cursor: pointer;
     }
   }
@@ -310,11 +309,13 @@ button,
         }
         display: inline-block;
         position: relative;
-        >a {
+        >a,
+        >.link {
           color: $body-font-color;
           opacity: 0.3;
           transition: all ease-in-out 0.25s;
           padding: 0 0 0.5rem 1rem;
+          cursor: pointer;
           &:hover {
             opacity: 1;
             color: lighten($body-font-color, 30%);

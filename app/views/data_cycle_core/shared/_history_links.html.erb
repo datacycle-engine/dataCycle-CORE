@@ -1,6 +1,6 @@
 <% historyObject ||= nil %>
 
-<a id="show-history-link" data-toggle="show-history"><i class="fa fa-clock-o" aria-hidden="true"></i>
+<div id="show-history-link" data-toggle="show-history" class="link"><i class="fa fa-clock-o" aria-hidden="true"></i>
     <% unless historyObject.nil? %>
         bearbeitet am <%= Time.at(historyObject.updated_at).to_s(:german_datetime_format) %>
 
@@ -24,14 +24,22 @@
         <span> von </span>
         <span><strong>Unbekannt</strong></span>
     <% end %>
-</a>
+
+    <% if history ||= false %>
+      <span class="history-metadata">
+              <%= link_to polymorphic_url([:history_detail, dataCycleObject], history_id: historyObject.id) do  %>
+          <i class="fa fa-eye" aria-hidden="true"></i>
+        <% end %>
+      </span>
+    <% end %>
+</div>
 
 <% if dataCycleObject.histories.count > 0 %>
     <ul class="dropdown-pane no-bullet bottom" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
+      <div class="history-items">
         <li>Letzte Bearbeitungen:</li>
         <% dataCycleObject.histories.each do |item|%>
-            <li>
-
+            <li class="<%= item == @historySource ? 'active' : '' %>">
                 <% if item.metadata.try(:[], 'last_updated_by') %>
                     <% person = get_user_for_id(item.metadata['last_updated_by']) %>
                     <%= "<a href='mailto:#{person.email}'>#{person.name}</a>".html_safe %>
@@ -41,24 +49,27 @@
 
                 <i><%= Time.at(item.updated_at).to_s(:german_datetime_format) %></i>
 
-                <% if can? :history, dataCycleObject %>
-                    <i>
-                        <% if item.class.class_name == 'CreativeWorkHistory' %>
-                            <% if action_name == 'history_detail' %>
-                                <%= link_to polymorphic_url([:history_detail, dataCycleObject], history_id: item.id) do %>
-                                    <i class="fa fa-history" aria-hidden="true"></i>
-                                <% end %>
-                            <% else %>
-                                <%= link_to polymorphic_url([:history, dataCycleObject], history_id: item.id) do %>
-                                    <i class="fa fa-history" aria-hidden="true"></i>
-                                <% end %>
-                            <% end %>
-                        <% end %>
-                    </i>
+                <% if can?(:history, dataCycleObject) && item != @historySource %>
+                    <span class="history-link">
+                      <i>
+                          <% if item.class.class_name == 'CreativeWorkHistory' %>
+                              <% if action_name == 'history_detail' %>
+                                  <%= link_to polymorphic_url([:history_detail, dataCycleObject], history_id: item.id) do %>
+                                      <i class="fa fa-history" aria-hidden="true"></i>
+                                  <% end %>
+                              <% else %>
+                                  <%= link_to polymorphic_url([:history, dataCycleObject], history_id: item.id) do %>
+                                      <i class="fa fa-history" aria-hidden="true"></i>
+                                  <% end %>
+                              <% end %>
+                          <% end %>
+                      </i>
+                    </span>
                 <% end %>
 
             </li>
         <% end %>
+      </div>
     </ul>
 <% end %>
 
