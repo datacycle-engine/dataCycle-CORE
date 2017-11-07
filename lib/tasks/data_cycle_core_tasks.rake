@@ -133,14 +133,104 @@ namespace :data_cycle_core do
   end
 
   namespace :update do
-    desc "DEBUG: hook to wire custom data update"
-    task :update_template => [:environment] do
-      template = DataCycleCore::CreativeWork.find(headline: 'Bild', template: true)
-      type = DataCycleCore::CreativeWork
+    desc "import template definitions"
+    task :import_templates => [:environment] do
+      path = Rails.root.join('config','data_definitions','creative_works','*.yml')
+      DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::CreativeWork)
+      path = Rails.root.join('config','data_definitions','places','*.yml')
+      DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Place)
+      path = Rails.root.join('config','data_definitions','persons','*.yml')
+      DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Person)
+      path = Rails.root.join('config','data_definitions','events','*.yml')
+      DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Event)
+    end
+
+    desc "replace the data-definitions of all data-types in the Database with the templates in the Database"
+    task :update_all_templates => [:environment] do
+      puts "updating templates:"
+      DataCycleCore.content_tables.each do |content_table|
+        data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
+        data_object.where(template: true).each do |template_object|
+          template_name = template_object.headline
+          data_count = data_object.where(template: false).where("metadata #>> '{validation, name}' = ?", template_name).count
+          puts "#{content_table.ljust(25)} | #{template_name.ljust(25)} | #{data_count.to_s.rjust(10)}"
+
+          strategy = DataCycleCore::Update::UpdateTemplate
+          DataCycleCore::Update::Update.new(type: data_object, template: template_object, strategy: strategy, transformation: nil)
+        end
+      end
+    end
+
+    desc "update weigths (boost) in search table"
+    task :update_search => [:environment] do
+      puts "#{'content_class'.ljust(30)} | #{'data_definition_name'.ljust(25)} | #{'#entries'.ljust(10)} | #{'new weight'}"
+      puts '-'*84
+      DataCycleCore.content_tables.each do |content_table|
+        data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
+        data_object.where(template: true).each do |template_object|
+          template_name = template_object.headline
+          boost = template_object.metadata['validation']['boost']
+
+          unless boost.blank?
+            search_entries = DataCycleCore::Search.where(content_data_type: data_object.to_s, data_type: template_name).count
+
+            connection = ActiveRecord::Base.connection
+            sql_update = "UPDATE searches SET boost = #{boost} WHERE content_data_type = '#{data_object.to_s}' AND data_type = '#{template_name}'"
+            connection.exec_query(sql_update)
+          end
+
+          puts "#{data_object.to_s.ljust(30)} | #{template_name.ljust(25)} | #{search_entries.to_s.rjust(10)} | #{(boost||'no search').to_s.rjust(10)}"
+        end
+      end
+    end
+
+    desc "replace a given data-definition with its recent template for a content_table"
+    task :update_template, [:content_table_name, :template_name] => [:environment] do |t, args|
+      unless DataCycleCore.content_tables.include?(args[:content_table_name])
+        puts "ERROR: only the following content_table_names are known to the system:"
+        puts "#{DataCycleCore.content_tables}"
+        exit -1
+      end
+
+      data_object = "DataCycleCore::#{args[:content_table_name].classify}".safe_constantize
+      template = data_object.find_by(headline: args[:template_name], template: true)
+
+      if template.nil?
+        puts "ERROR: template not found. For the given #{args[:content_table_name]} table only the following templates are available:"
+        puts data_object.where(template: true).map(&:headline)
+        exit -1
+      end
+
+      type = data_object
       strategy = DataCycleCore::Update::UpdateTemplate
       transformation = nil
 
-      DataCycleCore::Update::Update.new(type: type, template: template, strategy: DataCycleCore::Update::UpdateFull, transformation: nil)
+      DataCycleCore::Update::Update.new(type: type, template: template, strategy: strategy, transformation: transformation)
+    end
+
+
+    desc "DEBUG: hook to wire custom data update for a given content_table_name/template_name"
+    task :update_data, [:content_table_name, :template_name] => [:environment] do |t, args|
+      unless DataCycleCore.content_tables.include?(args[:content_table_name])
+        puts "ERROR: only the following content_table_names are known to the system:"
+        puts "#{DataCycleCore.content_tables}"
+        exit -1
+      end
+
+      data_object = "DataCycleCore::#{args[:content_table_name].classify}".safe_constantize
+      template = data_object.find_by(headline: args[:template_name], template: true)
+
+      if template.nil?
+        puts "ERROR: template not found. For the given #{args[:content_table_name]} table only the following templates are available:"
+        puts data_object.where(template: true).map(&:headline)
+        exit -1
+      end
+
+      type = data_object
+      strategy = DataCycleCore::Update::UpdateData
+      transformation = nil
+
+      DataCycleCore::Update::Update.new(type: type, template: template, strategy: strategy, transformation: transformation)
     end
   end
 

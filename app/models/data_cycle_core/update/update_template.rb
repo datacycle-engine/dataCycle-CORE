@@ -5,10 +5,8 @@ module DataCycleCore::Update::UpdateTemplate
       where(json_path(@type.arel_table[:metadata], quoted('{  validation, name }')).eq(quoted(@template.headline)))
   end
 
-  def read(content_item)
-    data_hash = content_item.get_data_hash
-    data_hash = @transformation.call(data_hash) unless @transformation.nil?
-    data_hash
+  def read(_)
+    {}
   end
 
   def modify_content(content_item)
@@ -16,8 +14,8 @@ module DataCycleCore::Update::UpdateTemplate
     content_item.save
   end
 
-  def write(content_item, data_hash, timestamp)
-    content_item.set_data_hash(data_hash: data_hash, save_time: timestamp, prevent_history: true)
+  def write(_, _, _)
+    {}
   end
 
 end
