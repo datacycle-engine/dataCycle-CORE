@@ -17,15 +17,15 @@ module DataCycleCore
       if params[:search].blank?
         @order_by = !params[:order].nil? && params[:order].split('_').first == 'udpated' ? 'updated_at' : 'updated_at'
         @order = !params[:order].nil? && params[:order].split('_').last == 'asc' ? 'ASC' : 'DESC'
-        order_string = @order_by + ' ' + @order
+        order_string = 'boost DESC, ' + @order_by + ' ' + @order
       else
         # order by ranking
         search_string = params[:search].split(" ").join("%")
-        order_string = "
+        order_string = "boost * (
           8 * similarity(classification_string,'%#{search_string}%') +
           4 * similarity(headline, '%#{search_string}%') +
           2 * ts_rank_cd(words, plainto_tsquery('simple', '#{params[:search].squish}'),16) +
-          1 * similarity(full_text, '%#{search_string}%')
+          1 * similarity(full_text, '%#{search_string}%'))
           DESC NULLS LAST,
           updated_at DESC"
       end

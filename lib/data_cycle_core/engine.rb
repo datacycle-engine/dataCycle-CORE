@@ -54,6 +54,8 @@ require 'jbuilder'
 
 require 'acts_as_paranoid'
 
+require 'transproc'
+
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name
@@ -177,6 +179,8 @@ JbuilderTemplate.class_eval do
   end
 end
 
+# add dateformat with fractional seconds
+Time::DATE_FORMATS[:long_usec] = '%Y-%m-%d %H:%M:%S.%N %z'
 
 # patch for ActiveRecord, to allow fractional seconds to be saved for PostgreSQL tstzrange datatype
 # TODO: remove if updated upstream
@@ -191,9 +195,9 @@ module ActiveRecord
               to = type_cast_single_for_database(value.end)
               [
                 '[',
-                from.is_a?(Time) ? from.strftime('%Y-%m-%d %H:%M:%S.%N %z') : from,
+                from.is_a?(Time) ? from.to_s(:long_usec) : from,
                 ',',
-                to.is_a?(Time) ? to.strftime('%Y-%m-%d %H:%M:%S.%N %z') : to,
+                to.is_a?(Time) ? to.to_s(:long_usec) : to,
                 value.exclude_end? ? ')' : ']'
               ].join('')
             else
