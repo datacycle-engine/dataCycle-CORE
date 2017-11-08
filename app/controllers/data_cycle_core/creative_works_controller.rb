@@ -163,6 +163,8 @@ module DataCycleCore
 
           if Rails.env.development?
             redirect_back(fallback_location: root_path)
+          elsif params[:splitview]
+            redirect_back(fallback_location: root_path)
           else
             redirect_to creative_work_path(@creativeWork, trail: session[:trail])
           end
