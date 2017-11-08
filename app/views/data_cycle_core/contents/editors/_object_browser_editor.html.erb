@@ -13,7 +13,7 @@
             :object-label="'<%= definition['label'] %>'"
             :min="<%= definition.dig('validations', 'min') || 0 %>"
             :max="<%= definition.dig('validations', 'max') || 0 %>"
-            :create-item="<%= can?(:create, object_class) %>"
+            :create-item="<%= can?(:create_in_objectbrowser, object_class) %>"
             new-id="new<%= definition.dig('editor', 'options', 'data-type').try(:classify) %>"
             hidden-name="<%= key %>[]"
             :reveal-link="true"
@@ -25,7 +25,7 @@
                     <%= render_object_browser_partial(key: key + (definition['type'] == "object" ? '[][id]' : '[]'), definition: definition) %>
                 </template>
 
-                <% if can?(:create, object_class) %>
+                <% if can?(:create_in_objectbrowser, object_class) %>
                     <template slot="new-item" scope="newItem">
                         <% begin %>
                             <%= render_object_browser_partial(partial: 'new', key: key, definition: definition) %>
