@@ -1,5 +1,66 @@
 FIXNUM_MAX = (2**(0.size * 8 - 2) - 1)
 
+delete_classifications = <<-eos
+  DELETE FROM classifications;
+  DELETE FROM classification_groups;
+  DELETE FROM classification_aliases;
+  DELETE FROM classification_trees;
+  DELETE FROM classification_tree_labels;
+eos
+
+delete_secondary_data = <<-eos
+  DELETE FROM watch_list_data_hashes;
+  DELETE FROM watch_lists;
+  DELETE FROM subscriptions;
+  DELETE FROM data_links;
+eos
+
+delete_contents = <<-eos
+  DELETE FROM creative_works;
+  DELETE FROM creative_work_translations;
+  DELETE FROM events;
+  DELETE FROM event_translations;
+  DELETE FROM persons;
+  DELETE FROM person_translations;
+  DELETE FROM places;
+  DELETE FROM place_translations;
+
+  DELETE FROM creative_work_events;
+  DELETE FROM creative_work_persons;
+  DELETE FROM creative_work_places;
+  DELETE FROM event_persons;
+  DELETE FROM event_places;
+  DELETE FROM person_places;
+
+  DELETE FROM classification_contents;
+  DELETE FROM searches;
+
+  DELETE FROM overlays;
+  DELETE FROM tags;
+  DELETE FROM overlay_place_tags;
+eos
+
+delete_content_histories = <<-eos
+  DELETE FROM creative_work_histories;
+  DELETE FROM creative_work_history_translations;
+  DELETE FROM event_histories;
+  DELETE FROM event_history_translations;
+  DELETE FROM person_histories;
+  DELETE FROM person_history_translations;
+  DELETE FROM place_histories;
+  DELETE FROM place_history_translations;
+
+  DELETE FROM creative_work_event_histories;
+  DELETE FROM creative_work_person_histories;
+  DELETE FROM creative_work_place_histories;
+  DELETE FROM event_person_histories;
+  DELETE FROM event_place_histories;
+  DELETE FROM person_place_histories;
+
+  DELETE FROM classification_content_histories;
+eos
+
+
 Rake::Task['db:create'].enhance do
   if ENV['RAILS_ENV']
     ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
@@ -26,20 +87,22 @@ namespace :data_cycle_core do
   namespace :clear do
     desc "Remove all data except for configuration data like users"
     task :all => :environment do
-      DataCycleCore::Classification.destroy_all
-      DataCycleCore::ClassificationAlias.destroy_all
-      DataCycleCore::CreativeWork.destroy_all
-      DataCycleCore::Event.destroy_all
-      DataCycleCore::Person.destroy_all
-      DataCycleCore::Place.destroy_all
+      ActiveRecord::Base.connection.exec_query(delete_classifications)
+      ActiveRecord::Base.connection.exec_query(delete_secondary_data)
+      ActiveRecord::Base.connection.exec_query(delete_contents)
+      ActiveRecord::Base.connection.exec_query(delete_content_histories)
     end
 
     desc "Remove all contents related data like creative works and places (does not remove classifications)"
     task :contents => :environment do
-      DataCycleCore::CreativeWork.where(template: false).destroy_all
-      DataCycleCore::Event.where(template: false).destroy_all
-      DataCycleCore::Person.where(template: false).destroy_all
-      DataCycleCore::Place.where(template: false).destroy_all
+      ActiveRecord::Base.connection.exec_query(delete_secondary_data)
+      ActiveRecord::Base.connection.exec_query(delete_contents)
+      ActiveRecord::Base.connection.exec_query(delete_content_histories)
+    end
+
+    desc "Remove the history of all content data"
+    task :history => :environment do
+      ActiveRecord::Base.connection.exec_query(delete_content_histories)
     end
   end
 
