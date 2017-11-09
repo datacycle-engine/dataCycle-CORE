@@ -55,7 +55,7 @@ module DataCycleCore
 
 
     def load_mongo_data ( user_id )
-      mongo_dbs = OutdoorActive::Poi.mongo_client.list_databases
+      mongo_dbs = Generic::Collection.mongo_client.list_databases
 
       UseCase.where(user_id: user_id).each do |use_case|
         external_source_id = use_case.external_source_id
@@ -63,7 +63,7 @@ module DataCycleCore
         import_name = external_source.name
 
         Mongoid.override_database(nil)
-        mongo_database = "#{OutdoorActive::Poi.database_name}_#{external_source_id}"
+        mongo_database = "#{Generic::Collection.database_name}_#{external_source_id}"
         Mongoid.override_database(mongo_database)
         mongo_dbs_index = mongo_dbs.find_index { |db| db["name"]==mongo_database }
 

@@ -87,22 +87,22 @@ namespace :data_cycle_core do
   namespace :clear do
     desc "Remove all data except for configuration data like users"
     task :all => :environment do
-      ActiveRecord::Base.connection.exec_query(delete_classifications)
-      ActiveRecord::Base.connection.exec_query(delete_secondary_data)
-      ActiveRecord::Base.connection.exec_query(delete_contents)
-      ActiveRecord::Base.connection.exec_query(delete_content_histories)
+      ActiveRecord::Base.connection.execute(delete_classifications)
+      ActiveRecord::Base.connection.execute(delete_secondary_data)
+      ActiveRecord::Base.connection.execute(delete_contents)
+      ActiveRecord::Base.connection.execute(delete_content_histories)
     end
 
     desc "Remove all contents related data like creative works and places (does not remove classifications)"
     task :contents => :environment do
-      ActiveRecord::Base.connection.exec_query(delete_secondary_data)
-      ActiveRecord::Base.connection.exec_query(delete_contents)
-      ActiveRecord::Base.connection.exec_query(delete_content_histories)
+      ActiveRecord::Base.connection.execute(delete_secondary_data)
+      ActiveRecord::Base.connection.execute(delete_contents)
+      ActiveRecord::Base.connection.execute(delete_content_histories)
     end
 
     desc "Remove the history of all content data"
     task :history => :environment do
-      ActiveRecord::Base.connection.exec_query(delete_content_histories)
+      ActiveRecord::Base.connection.execute(delete_content_histories)
     end
   end
 
@@ -129,7 +129,7 @@ namespace :data_cycle_core do
       external_source.import(options)
     end
 
-    desc "Only download data from given data source"
+    desc "DEBUG: Only download data from given data source"
     task :download, [:external_source_id, :max_count] => [:environment] do |t, args|
       options = Hash[{max_count: nil}.merge(args.to_h).map { |k, v|
         if k == :max_count && v
@@ -138,41 +138,13 @@ namespace :data_cycle_core do
           [k, v]
         end
       }]
-
-      # TODO: remove --- to test multilingual support
-      options[:locales] = [:de, :en, :fr, :it, :nl]
+      #options[:locales] = [:de] #, :en, :fr, :it, :nl]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
-      external_source.download(options) do |on|
-        on.preparing_phase { |label|
-          puts "Preparing  #{label.to_s.gsub(/_/, ' ')} ..."
-        }
-        on.phase_started { |label, total|
-          puts "Download   #{label.to_s.gsub(/_/, ' ')} ..." if total.nil?
-          puts "Download   #{label.to_s.gsub(/_/, ' ')} (#{total} items) ..." if total
-        }
-        on.item_processed { |title, id, num, total|
-          puts " -> \"#{title} (\##{id})\" downloaded (#{num} of #{total || '?'})"
-        }
-        on.error { |title, id, data, error|
-          if title && id
-            puts "Error downloading \"#{title} (\##{id})\": #{error}"
-          elsif title
-            puts "Error downloading \"#{title}\": #{error}"
-          elsif id
-            puts "Error downloading \"\##{id}\": #{error}"
-          else
-            puts "Error: #{error}"
-          end
-          puts "  DATA: #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}" if data
-        }
-        on.phase_finished { |label, total|
-          puts "Downloaded #{label.to_s.gsub(/_/, ' ')} (#{total} items) ... [DONE]"
-        }
-      end
+      external_source.download(options)
     end
 
-    desc "Only import (without downloading) data from given data source"
+    desc "DEBUG: Only import (without downloading) data from given data source"
     task :import, [:external_source_id, :max_count] => [:environment] do |t, args|
       options = Hash[{max_count: FIXNUM_MAX}.merge(args.to_h).map { |k, v|
         if k == :max_count
@@ -181,63 +153,7 @@ namespace :data_cycle_core do
           [k, v]
         end
       }]
-
-      external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
-      external_source.import(options) do |on|
-        on.preparing_phase { |label|
-          puts "Preparing #{label.to_s.gsub(/_/, ' ')} ..."
-        }
-        on.phase_started { |label, total|
-          puts "Importing #{label.to_s.gsub(/_/, ' ')} ..." if total.nil?
-          puts "Importing #{label.to_s.gsub(/_/, ' ')} (#{total} items) ..." if total
-        }
-        on.item_processed { |title, id, num, total|
-          # puts " -> \"#{title} (\##{id})\" imported (#{num} of #{total || '?'})"
-        }
-        on.error { |title, id, data, error|
-          if title && id
-            puts "Error importing \"#{title} (\##{id})\": #{error}"
-          elsif title
-            puts "Error importing \"#{title}\": #{error}"
-          elsif id
-            puts "Error importing \"\##{id}\": #{error}"
-          else
-            puts "Error: #{error}"
-          end
-          puts "  DATA: #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}" if data
-        }
-        on.phase_finished { |label, total|
-          puts "Importing #{label.to_s.gsub(/_/, ' ')} (#{total} items) ... [DONE]"
-        }
-      end
-    end
-
-
-    desc "DEBUG: Only download data from given data source"
-    task :download_new, [:external_source_id, :max_count] => [:environment] do |t, args|
-      options = Hash[{max_count: nil}.merge(args.to_h).map { |k, v|
-        if k == :max_count && v
-          [k, v.to_i]
-        else
-          [k, v]
-        end
-      }]
-      options[:locales] = [:de] #, :en, :fr, :it, :nl]
-
-      external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
-      external_source.download(options)
-    end
-
-    desc "DEBUG: Only import (without downloading) data from given data source"
-    task :import_new, [:external_source_id, :max_count] => [:environment] do |t, args|
-      options = Hash[{max_count: FIXNUM_MAX}.merge(args.to_h).map { |k, v|
-        if k == :max_count
-          [k, v.to_i]
-        else
-          [k, v]
-        end
-      }]
-      options[:locales] = [:de] #, :fr, :en, :it, :nl]
+      #options[:locales] = [:de] #, :fr, :en, :it, :nl]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.import(options)

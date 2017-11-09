@@ -5,11 +5,6 @@ module DataCycleCore
     def download(options = {}, &block)
       full_options = options.merge({download: config['download_config'].symbolize_keys})
       if config['download'].starts_with?('::') || config['download'].starts_with?('DataCycleCore::')
-
-
-#full_options[:download] = full_options[:download].except(:categories, :regions, :pois) # :tours,
-
-
         config['download'].constantize.new(id).download(full_options, &block)
       else
         "DataCycleCore::#{config['download']}".constantize.new(id).download(full_options, &block)
@@ -19,11 +14,6 @@ module DataCycleCore
     def import(options = {}, &bock)
       full_options = options.merge({import: config['import_config'].symbolize_keys})
       if config['import'].starts_with?('::') || config['import'].starts_with?('DataCycleCore::')
-
-
-#full_options[:import] = full_options[:import].except(:pois, :categories, :regions, :sources) #  :tours
-
-
         config['import'].constantize.new(id).import(full_options, &bock)
       else
         "DataCycleCore::#{config['import']}".constantize.new(id).import(full_options, &bock)

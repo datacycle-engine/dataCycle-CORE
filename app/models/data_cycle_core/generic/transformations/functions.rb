@@ -33,7 +33,7 @@ module DataCycleCore::Generic::Transformations::Functions
       data_hash[attribute] = data_hash[attribute].map{ |keyword|
         DataCycleCore::Classification.
           joins(classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]).
-          where("classification_tree_labels.name = ? and classifications.name = ? and classifications.external_key IS NULL", tree_label, keyword).
+          where("classification_tree_labels.name = ? and classifications.name = ? ", tree_label, keyword).
           first.id
       } || []
     end

@@ -37,7 +37,7 @@ class DataCycleCore::Generic::MediaArchive::Endpoint
     if response.success?
       JSON.parse(response.body)
     else
-      raise DataCycleCore::Import::RecoverableError.new(
+      raise DataCycleCore::Generic::RecoverableError.new(
         "error loading data from #{@host + @end_point}"
       )
     end

@@ -92,12 +92,12 @@ module DataCycleCore::Generic
         phase_name = source_type.collection_name
 
         item_count = 0
-
+        fixnum_max = (2**(0.size * 4 -2) -1)
         begin
           @logging.phase_started("#{phase_name}_#{locale}")
 
           @source_object.with(source_type) do |mongo_item|
-            load_contents.call(mongo_item, locale).each do |content|
+            load_contents.call(mongo_item, locale).all.no_timeout.max_time_ms(fixnum_max).each do |content|
               item_count += 1
 
               process_content.call(content[:dump][locale], load_template(target_type, @data_template), locale)
@@ -126,14 +126,13 @@ module DataCycleCore::Generic
         validation: template.metadata['validation']
       }.stringify_keys)
 
-      error = content.set_data_hash(old_data.merge(data))
+      error = content.set_data_hash(data_hash: old_data.merge(data))
 
       unless error[:error].blank?
         @logging.error('Validating import data', data['external_key'], data, error[:error].join('\n'))
       end
 
-      # content.tap(&:save!)
-      content
+      content.tap(&:save!)
     end
 
     private
@@ -154,7 +153,9 @@ module DataCycleCore::Generic
 
     def load_template(target_type, template_name)
       begin
-        target_type.find_by!(template: true, headline: template_name)
+        I18n.with_locale(:de) {
+          target_type.find_by!(template: true, headline: template_name)
+        }
       rescue ActiveRecord::RecordNotFound
         raise "Missing template #{template_name} for #{target_type}"
       end
