@@ -14,8 +14,9 @@ module DataCycleCore
 
         if user.has_rank?(0)
           DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
-            can [:update, :validate_single_data], link.item_type.constantize, {id: link.item_id}
+            can [:update, :validate_single_data, :import], link.item_type.constantize, {id: link.item_id}
           end
+          can :create_in_objectbrowser, [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]
         end
 
         if user.has_rank?(1)
@@ -57,6 +58,10 @@ module DataCycleCore
 
         if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email == 'pixelpoint@austria.info' || user.email =~ /@datacycle\.at/)
           can :manage, :dash_board
+        end
+
+        can :edit, DataCycleCore::DataAttribute do |attribute|
+          !attribute.options['readonly']
         end
 
         cannot :modify, DataCycleCore::User do |the_user|

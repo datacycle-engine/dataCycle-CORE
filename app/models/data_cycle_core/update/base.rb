@@ -32,10 +32,10 @@ module DataCycleCore
 
 
           item_count +=1
-          puts "#{item_count.to_s.rjust(7)} items processed. (#{Time.zone.now.strftime("%H:%M:%S.%3N")})" if (item_count % 100) == 0
+          puts "#{item_count.to_s.rjust(7)} items processed. (#{Time.zone.now.strftime("%H:%M:%S.%3N")})" if (item_count % 1000) == 0
         end
 
-        puts "END (#{Tine.zone.now.strftime("%H:%M:%S.%3N")})"
+        puts "END (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
 
       end
 

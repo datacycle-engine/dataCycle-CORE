@@ -5,7 +5,6 @@
     <div class="reveal-blur">
 
         <div id="edit-form">
-
             <section class="edit-header">
                 <div class="row expanded">
                     <div class="column small-6">
@@ -13,10 +12,15 @@
                             <i class="fa fa-history" aria-hidden="true"></i> <%= @creativeWork.content_type %> vergleichen
                         </div>
                     </div>
-                    <div class="column small-6">
-                        <div class="history-switcher">
-                            <%= render 'data_cycle_core/shared/history_links', dataCycleObject: @creativeWork, historyObject: @historySource %>
-                        </div>
+                    <div class="column small-6 text-overflow-hidden">
+                      <% I18n.with_locale(@creativeWork.first_available_locale) do %>
+                        <span class="type <%= @historySource.metadata['validation']['name'].downcase %>">
+                        <%= render 'data_cycle_core/shared/icon', icon_type: @historySource.metadata['validation']['name'].downcase %>
+                        <span class="title"><%= @creativeWork.content_type %></span>
+                        <span class="language">(<%= I18n.locale %>)</span>
+                        <%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @creativeWork %>
+                        </span>
+                      <% end %>
                     </div>
                 </div>
             </section>
@@ -30,9 +34,7 @@
                         <div class="show-content">
                             <div class="detail-header-info">
                                 <div class="type <%= @historySource.metadata['validation']['name'].downcase %>">
-                                    <%= render 'data_cycle_core/shared/icon', icon_type: @historySource.metadata['validation']['name'].downcase %>
-                                    <span class="title"><%= @creativeWork.content_type %></span>
-                                    <span class="language">(<%= I18n.locale %>)</span>
+                                    <span>Aktuelle Version: </span>
                                 </div>
                                 <%= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, historyObject: @historySource %>
                             </div>
@@ -57,18 +59,18 @@
                         <div class="show-content">
                             <div class="detail-header-info">
                                 <div class="type <%= @historySource.metadata['validation']['name'].downcase %>">
-                                    <%= render 'data_cycle_core/shared/icon', icon_type: @historySource.metadata['validation']['name'].downcase %>
-                                    <span class="title"><%= @historySource.content_type %></span>
-                                    <span class="language">(<%= I18n.locale %>)</span>
+                                    <span>Version: </span>
                                 </div>
-                                <%= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, historyObject: @historySource, history: true %>
+                                <%#= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, historyObject: @historySource, history: true %>
+                                <%= render 'data_cycle_core/shared/history_links', dataCycleObject: @creativeWork, historyObject: @historySource, history: true %>
+
                             </div>
 
                             <%= render 'data_cycle_core/contents/viewers/metadata/releasable_viewer',
                                        value: @historySource.get_releasable_hash,
                                        key: 'creative_work',
                                        definition: {'type' => 'releasable'},
-                                       options:{compare: true, force_render: true} if @historySource.metadata['validation'].dig('releasable') == true%>
+                                       options:{compare: true, force_render: true} if @historySource.metadata['validation'].dig('releasable') == true %>
 
                             <%= render_content_partial 'history', content: @historySource, schema: @historySchema, options: {force_render: true, compare: true} %>
 

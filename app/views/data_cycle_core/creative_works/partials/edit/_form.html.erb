@@ -35,6 +35,7 @@
 		<% I18n.with_locale(@splitSource.first_available_locale) do %>
 			<div class="flex-box">
 				<div class="split-content detail-content">
+          <%= hidden_field_tag 'splitview', true %>
 					<% if can?(:subscribe, @splitSource) && @splitSource.subscriptions.by_user(current_user).count == 0 %>
 						<div class="subscribe-parent notice"><p>Sie sollten diesen Inhalt (<%=@splitSource.metadata['validation']['name']%>) abonnieren, um Ihren neu erstellten Inhalt (<%=dataObject.metadata['validation']['name']%>) aktuell halten zu können.</p>
 							<%= link_to "Abonnieren", subscriptions_path(subscribable_id: @splitSource.id, subscribable_type: @splitSource.class.name), method: :post %>

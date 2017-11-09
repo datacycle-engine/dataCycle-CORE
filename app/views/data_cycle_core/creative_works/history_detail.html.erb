@@ -13,10 +13,13 @@
                             <i class="fa fa-history" aria-hidden="true"></i> <%= @creativeWork.content_type %> Version ansehen
                         </div>
                     </div>
-                    <div class="column small-6">
-                        <div class="history-switcher">
-                            <%= render 'data_cycle_core/shared/history_links', dataCycleObject: @creativeWork, historyObject: @historySource %>
-                        </div>
+                    <div class="column small-6 text-overflow-hidden">
+                      <span class="type <%= @historySource.metadata['validation']['name'].downcase %>">
+                          <%= render 'data_cycle_core/shared/icon', icon_type: @historySource.metadata['validation']['name'].downcase %>
+                          <span class="title"><%= @historySource.content_type %></span>
+                          <span class="language">(<%= I18n.locale %>)</span>
+                      </span>
+                      <%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @creativeWork %>
                     </div>
                 </div>
             </section>
@@ -28,12 +31,8 @@
                     <div class="detail-content">
                         <div class="show-content">
                             <div class="detail-header-info">
-                                <div class="type <%= @historySource.metadata['validation']['name'].downcase %>">
-                                    <%= render 'data_cycle_core/shared/icon', icon_type: @historySource.metadata['validation']['name'].downcase %>
-                                    <span class="title"><%= @historySource.content_type %></span>
-                                    <span class="language">(<%= I18n.locale %>)</span>
-                                </div>
-                                <%= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, historyObject: @historySource %>
+                                <%= render 'data_cycle_core/shared/history_links', dataCycleObject: @creativeWork, historyObject: @historySource %>
+
                             </div>
 
                             <%= render 'data_cycle_core/contents/viewers/metadata/releasable_viewer', value: @historySource.get_releasable_hash, key: 'creative_work', definition: {'type' => 'releasable'}, options:{compare: true, force_render: true} %>

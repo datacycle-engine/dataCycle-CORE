@@ -981,7 +981,8 @@ CREATE TABLE searches (
     data_type character varying,
     classification_string character varying,
     validity_period tstzrange,
-    all_text text
+    all_text text,
+    boost double precision DEFAULT 1.0 NOT NULL
 );
 
 
@@ -2313,6 +2314,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20171004120235'),
 ('20171004125221'),
 ('20171004132930'),
-('20171009130405');
+('20171009130405'),
+('20171102091700');
 
 
