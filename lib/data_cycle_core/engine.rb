@@ -54,12 +54,12 @@ require 'jbuilder'
 
 require 'acts_as_paranoid'
 
-require 'transproc'
+require 'transproc/all'
 
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name
-    self.breadcrumb_root_name = "Dashboard"
+    self.breadcrumb_root_name = 'Dashboard'
 
     # special data attributes are ignored by the standard json serializes and must be handled by the application itself
     mattr_accessor :special_data_attributes
@@ -89,20 +89,29 @@ module DataCycleCore
     }
   end
 
-  def self.setup(&block)
+  def self.setup
     yield self
   end
 
   module OutdoorActive
-    mattr_accessor :poi_template
+    mattr_accessor :content_template
 
-    mattr_accessor :poi_filter
+    mattr_accessor :image_template
 
-    def self.setup(&block)
+    def self.setup
       yield self
     end
   end
 
+  module Jsonld
+    mattr_accessor :content_template
+
+    mattr_accessor :image_template
+
+    def self.setup
+      yield self
+    end
+  end
 
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
@@ -126,9 +135,9 @@ module DataCycleCore
 
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|
-      unless app.root.to_s.match root.to_s
-        config.paths["db/migrate"].expanded.each do |expanded_path|
-          app.config.paths["db/migrate"] << expanded_path
+      unless app.root.to_s.match? root.to_s
+        config.paths['db/migrate'].expanded.each do |expanded_path|
+          app.config.paths['db/migrate'] << expanded_path
         end
       end
     end
@@ -166,7 +175,7 @@ JbuilderTemplate.class_eval do
     partials = [
       "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].content_type.underscore}_#{partial}",
       "#{parameters[:content].class.class_name.underscore}_#{partial}",
-      "content_#{partial}",
+      "content_#{partial}"
     ]
 
     partials.each_with_index do |partial, idx|
@@ -181,6 +190,56 @@ end
 
 # add dateformat with fractional seconds
 Time::DATE_FORMATS[:long_usec] = '%Y-%m-%d %H:%M:%S.%N %z'
+
+Nokogiri::XML::Node.class_eval do
+  def to_hash
+    begin
+      attributes_hash = attributes.map { |_, attribute|
+        { attribute.name => attribute.value }
+      }.reduce({}, &:merge).reject { |_, v|
+        v.blank?
+      }
+
+      children_hash = children.map { |child|
+        { child.name => child.to_hash }
+      }.reject { |h|
+        h.values.first.blank?
+      }.group_by { |h|
+        h.keys.first
+      }.map { |k, v|
+        Hash[k, v.size == 1 ? v.map(&:values).flatten.first : v.map(&:values).flatten]
+      }.reduce({}, &:merge)
+
+      if !attributes.empty? && children.empty?
+        attributes_hash
+      elsif attributes.empty? && !children.empty?
+        children_hash
+      elsif !attributes.empty? && !children.empty?
+        if (attributes_hash.keys & children_hash.keys).empty?
+          attributes_hash.merge(children_hash)
+        else
+          {
+            'attributes' => attributes_hash,
+            'children' => children_hash
+          }
+        end
+      elsif is_a? Nokogiri::XML::Text
+        text.strip
+      elsif is_a? Nokogiri::XML::Element
+        nil
+      else
+        binding.pry
+
+        raise 'NotImplemented'
+      end
+    rescue => e
+      binding.pry
+
+      raise e
+    end
+  end
+end
+
 
 # patch for ActiveRecord, to allow fractional seconds to be saved for PostgreSQL tstzrange datatype
 # TODO: remove if updated upstream

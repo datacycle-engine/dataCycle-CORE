@@ -326,7 +326,9 @@ select {
         }
       }
       .history-metadata {
-        margin-left: 1rem;
+        position: absolute;
+        right: 0;
+        top: 0;
       }
     }
     .topleftinfo {
@@ -595,6 +597,8 @@ video {
 
 #show-history {
   box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
+  min-width: 300px;
+  width: auto;
   &::before {
     content: '';
     position: absolute;
@@ -611,13 +615,23 @@ video {
     text-align: left;
     font-size: 0.8rem;
     line-height: 1rem;
-    padding: 0 0 0.5rem 0;
+    padding: 0 2rem 0.5rem 0;
     &.active {
       color: $dark-gray;
     }
     .history-link {
       position: absolute;
       right: 0;
+      top: 0;
     }
   }
+}
+
+a.email-link {
+  display: inline-block;
+  vertical-align: bottom;
+  max-width: 10rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }

@@ -12,7 +12,7 @@
         Collections: <br />
         <ul>
             <% locals[:import_data][:tables].each do |key, value| %>
-                <%=content_tag(:li, "#{key.capitalize}: #{value}")%>
+                <%=content_tag(:li, "#{key}: #{value}")%>
             <% end %>
         </ul>
     </div>

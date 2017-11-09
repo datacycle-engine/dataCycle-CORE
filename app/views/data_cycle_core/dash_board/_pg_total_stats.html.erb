@@ -3,20 +3,33 @@
         <%=content_tag(:h5, "<i class='material-icons'>all_inclusive</i> #{@statOutdoorActive.pg_name}".html_safe)%>
     </div>
     <div class="card-section">
-        Total-size:
+        Total-size<%="&nbsp;&#8614&nbsp;#{number_to_human_size(@statOutdoorActive.pg_size)}".html_safe %>
+    </div>
+
+    <div class="card-section">
+        Content: <br />
         <ul>
-            <%=content_tag(:li, "size: #{number_to_human_size(@statOutdoorActive.pg_size)}")%>
+            <% @statOutdoorActive.pg_content.each do |key, value| %>
+                <%=content_tag(:li, "#{key}: #{value}")%>
+            <% end %>
+            <%=content_tag(:li, "Overlays: #{@statOutdoorActive.pg_overlays}")%>
         </ul>
     </div>
     <div class="card-section">
-        Total:
+        Relations: <br />
         <ul>
-            <%=content_tag(:li, "Places: #{@statOutdoorActive.pg_places}")%>
+          <%=content_tag(:li, "Content &#8644 Content: #{@statOutdoorActive.pg_content_content}".html_safe)%>
+          <%=content_tag(:li, "Content &#8644 Classifications: #{@statOutdoorActive.pg_classification_content}".html_safe)%>
+        </ul>
+    </div>
+
+    <div class="card-section">
+        Categorization:
+        <ul>
             <%=content_tag(:li, "Classifications: #{@statOutdoorActive.pg_classifications}")%>
-            <%=content_tag(:li, "ContentClass: #{@statOutdoorActive.pg_classification_content}")%>
-            <%=content_tag(:li, "CreativeWorks: #{@statOutdoorActive.pg_creative_works}")%>
-            <%=content_tag(:li, "CWorkPlaces: #{@statOutdoorActive.pg_creative_work_places}")%>
-            <%=content_tag(:li, "Overlays: #{@statOutdoorActive.pg_overlays}")%>
+            <%=content_tag(:li, "Class. Aliases: #{@statOutdoorActive.pg_aliases}") %>
+            <%=content_tag(:li, "Class. Tree Labels: #{@statOutdoorActive.pg_tree_label}") %>
+            <%=content_tag(:li, "Class. Tree Nodes: #{@statOutdoorActive.pg_tree_nodes}") %>
         </ul>
     </div>
 </div>
