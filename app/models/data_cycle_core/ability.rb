@@ -4,7 +4,7 @@ module DataCycleCore
 
     def initialize(user, session = {})
       alias_action :update, :destroy, to: :modify
-      alias_action :create, :import, :read, :update, :destroy, :create_user, :unlock, :validate_single_data, :history, :history_detail, to: :crud
+      alias_action :create, :import, :read, :update, :create_user, :unlock, :validate_single_data, :history, :history_detail, to: :crud
 
       if user
         can :read, :all
@@ -58,6 +58,7 @@ module DataCycleCore
 
         if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email == 'pixelpoint@austria.info' || user.email =~ /@datacycle\.at/)
           can :manage, :dash_board
+          can :destroy, DataCycleCore::CreativeWork
         end
 
         can :edit, DataCycleCore::DataAttribute do |attribute|
