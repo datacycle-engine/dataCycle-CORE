@@ -29,7 +29,7 @@ module DataCycleCore::Generic::MediaArchive::Import
 
       content = create_or_update_content(
         @target_type,
-        load_template(@target_type, @data_template),
+        template,
         extract_image_data(raw_data).with_indifferent_access
       )
     end
