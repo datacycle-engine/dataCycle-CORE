@@ -124,7 +124,7 @@
     padding: 1px;
     margin: 0;
     box-shadow: 0 0 0 0;
-    &.expired-item{
+    &.expired-item {
       border: 2px solid $alert-color;
     }
   }
@@ -220,7 +220,7 @@
         -ms-flex-pack: center;
         justify-content: center;
       }
-      &.expired-item{
+      &.expired-item {
         border: 2px solid $alert-color;
       }
     }
@@ -347,7 +347,7 @@
         .warning {
           display: none;
         }
-        &.expired-item{
+        &.expired-item {
           border: 2px solid $alert-color;
         }
       }
@@ -423,7 +423,7 @@
         background-repeat: no-repeat;
         position: relative;
       }
-      &.expired-item{
+      &.expired-item {
         border: 2px solid $alert-color;
       }
     }
@@ -450,7 +450,7 @@
           border-color: $primary-color;
           background-color: $primary-color;
           box-shadow: 0 0 0 1px rgba($primary-color, 1);
-          &.expired-item{
+          &.expired-item {
             border: 2px solid $alert-color;
           }
         }
@@ -478,11 +478,15 @@
     right: 0;
     top: 0;
     bottom: 0;
-    padding: 1.5rem 1.5rem 15rem 1.5rem;
+    padding: 1.5rem;
+    height: calc(100% - 7.9rem);
     overflow-y: scroll;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     z-index: 3;
+    .padding-bottom-10 {
+      padding-bottom: 10rem;
+    }
     .edit-link {
       position: absolute;
       right: 1rem;
