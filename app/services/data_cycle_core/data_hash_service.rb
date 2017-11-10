@@ -90,7 +90,7 @@ module DataCycleCore
       if data_set.is_a?(ActionController::Parameters)
         data_set = data_set.to_unsafe_h.to_h
       end
-      external_key ||= data_set.values.first['url']
+      external_key ||= data_set.values.first['url'].split('/').last
       external_source_id ||= DataCycleCore::ExternalSource.find_by(name: 'JSON-LD OEW-Medienarchiv').id
       classifications_tree_label_id = DataCycleCore::DataHashService.init_or_create_classifications_trees_label('Tags', external_source_id)
 
