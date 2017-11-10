@@ -125,6 +125,11 @@
     top: 1rem;
     left: 1rem;
   }
+  .image,
+  .video {
+    min-height: 5rem;
+    min-width: 20rem;
+  }
   .description {
     margin-top: 0.5rem;
   }
