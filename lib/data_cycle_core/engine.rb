@@ -55,6 +55,7 @@ require 'jbuilder'
 require 'acts_as_paranoid'
 
 require 'transproc/all'
+require 'dry-validation'
 
 module DataCycleCore
   class << self

@@ -34,6 +34,32 @@ module DataCycleCore
         end
       end
 
+      def validator
+        Dry::Validation.Schema do
+          required(:data).schema do
+            required(:name) {str?}
+            required(:description) { str? & included_in?(DataCycleCore.content_tables.map(&:classify)) }
+            required(:type) { str? & eql?('object') }
+
+            optional(:content_type) { str? & included_in?(['variant', 'embedded', 'entity']) }
+            optional(:releasable) { bool? }
+            optional(:permissions) do
+              schema do
+                required(:read_write) { bool? }
+              end
+            end
+            optional(:boost) { float? }
+
+            required(:properties).schema do
+
+            end
+
+          end
+        end
+      end
+
+      def attribute_validation
+      end 
     end
   end
 end
