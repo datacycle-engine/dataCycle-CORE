@@ -4,17 +4,17 @@ crumb :root do
 end
 
 crumb :admin do
-  link to_html_string(t('data_cycle_core.administration')), '#'
+  link to_html_string(t('data_cycle_core.administration', locale: DataCycleCore.ui_language)), '#'
 end
 
 crumb :classifications do
-  link to_html_string(t('data_cycle_core.classifications')), '#'
+  link to_html_string(t('data_cycle_core.classifications', locale: DataCycleCore.ui_language)), '#'
   parent :admin
 end
 
 # User
 crumb :'data_cycle_core/users' do
-  link to_html_string(DataCycleCore::User.model_name.human(count: 2)), users_path
+  link to_html_string(DataCycleCore::User.model_name.human(count: 2, locale: DataCycleCore.ui_language)), users_path
 end
 
 crumb :edit_user do |user|
@@ -23,7 +23,7 @@ crumb :edit_user do |user|
 end
 
 crumb :'data_cycle_core/user_groups' do
-  link to_html_string(DataCycleCore::UserGroup.model_name.human(count: 2)), user_groups_path
+  link to_html_string(DataCycleCore::UserGroup.model_name.human(count: 2, locale: DataCycleCore.ui_language)), user_groups_path
 end
 
 crumb :edit_user_group do |user_group|

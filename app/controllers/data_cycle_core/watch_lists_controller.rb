@@ -37,7 +37,7 @@ module DataCycleCore
       respond_to do |format|
         if !@watch_list.nil? && @watch_list.save
           format.json { render json: { headline: @watch_list.headline, url: watch_list_path(@watch_list) } }
-          format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Merkliste')) }
+          format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Merkliste', locale: DataCycleCore.ui_language)) }
         else
           format.json { render json: { error: "Konnte nicht gespeichert werden." } }
           format.html { redirect_back(fallback_location: root_path) }
@@ -63,7 +63,7 @@ module DataCycleCore
       @watch_list.update_attributes(update_params)
 
       if @watch_list.save
-        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Merkliste'
+        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Merkliste', locale: DataCycleCore.ui_language
 
         if Rails.env.development?
           redirect_to edit_watch_list_path(@watch_list) if Rails.env.development?
@@ -80,7 +80,7 @@ module DataCycleCore
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       @watch_list.destroy
 
-      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Merkliste'
+      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Merkliste', locale: DataCycleCore.ui_language
       redirect_to watch_lists_path
     end
 
@@ -94,7 +94,7 @@ module DataCycleCore
 
       respond_to do |format|
         format.json { render json: { url: addItem_watch_list_path(watch_list, hashable_params), count: content_object.watch_lists.by_user(current_user).count, headline: watch_list.headline } }
-        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :removedFrom, scope: [:controllers, :success], data: watch_list.headline)) }
+        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :removedFrom, scope: [:controllers, :success], data: watch_list.headline, locale: DataCycleCore.ui_language)) }
       end
 
     end
@@ -109,7 +109,7 @@ module DataCycleCore
 
       respond_to do |format|
         format.json { render json: { url: removeItem_watch_list_path(watch_list, hashable_params), count: content_object.watch_lists.by_user(current_user).count, headline: watch_list.headline } }
-        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :addedTo, scope: [:controllers, :success], data: watch_list.headline)) }
+        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :addedTo, scope: [:controllers, :success], data: watch_list.headline, locale: DataCycleCore.ui_language)) }
       end
     end
 

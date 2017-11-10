@@ -80,6 +80,9 @@ module DataCycleCore
     mattr_accessor :content_tables
     self.content_tables = ['creative_works', 'events', 'persons', 'places']
 
+    mattr_accessor :ui_language
+    self.ui_language = :de
+
     #webhooks
     mattr_accessor :webhooks
     self.webhooks = {

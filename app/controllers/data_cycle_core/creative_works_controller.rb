@@ -52,7 +52,7 @@ module DataCycleCore
         after_create(@creativeWork, current_user)
 
         if !@creativeWork.nil? && @creativeWork.save
-          flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
+          flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name'], locale: DataCycleCore.ui_language
           redirect_to edit_creative_work_path(@creativeWork, source)
         else
           redirect_back(fallback_location: root_path)
@@ -76,7 +76,7 @@ module DataCycleCore
 
         unless @creativeWork.read_write?
           raise "read_only"
-          redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error])
+          redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end
 
@@ -110,7 +110,7 @@ module DataCycleCore
 
         unless @creativeWork.read_write?
           raise "read_only"
-          redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error])
+          redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end
 
@@ -139,7 +139,7 @@ module DataCycleCore
         )
 
         unless data_hash_has_changes
-          flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @creativeWork.metadata['validation']['name']
+          flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @creativeWork.metadata['validation']['name'], locale: DataCycleCore.ui_language
           redirect_back(fallback_location: root_path)
           return
         end
@@ -156,7 +156,7 @@ module DataCycleCore
         end
 
         if @creativeWork.save
-          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name']
+          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name'], locale: DataCycleCore.ui_language
 
           #after update webhooks
           execute_after_update_webhooks @creativeWork
@@ -179,7 +179,7 @@ module DataCycleCore
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       @creativeWork.destroy_content
 
-      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Creative Work'
+      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Creative Work', locale: DataCycleCore.ui_language
 
       if @creativeWork.parent.nil?
         redirect_to root_path

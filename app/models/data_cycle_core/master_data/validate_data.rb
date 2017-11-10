@@ -11,11 +11,11 @@ module DataCycleCore
       # keys of the data-hash defined as keys in the template
       def validate(data, validation_hash, strict = false, verbose = false)
         if data.blank?
-          @error[:error].push I18n.t :no_data, scope: [:validation, :errors]
+          @error[:error].push I18n.t :no_data, scope: [:validation, :errors], locale: DataCycleCore.ui_language
           return @error
         end
         if validation_hash.blank?
-          @error[:error].push I18n.t :no_validation, scope: [:validation, :errors]
+          @error[:error].push I18n.t :no_validation, scope: [:validation, :errors], locale: DataCycleCore.ui_language
           return @error
         end
 

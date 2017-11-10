@@ -11,7 +11,7 @@
               <div class="row columns">
                   <%= link_to edit_user_path(current_user) do %>
                       <span class="icon"><i class="fa fa-pencil" aria-hidden="true"></i></span>
-                      <span class="title"><%= DataCycleCore::User.model_name.human %> <%= t('actions.edit') %></span>
+                      <span class="title"><%= DataCycleCore::User.model_name.human(locale: DataCycleCore.ui_language) %> <%= t('actions.edit', locale: DataCycleCore.ui_language) %></span>
                   <% end %>
               </div>
             <% end %>
@@ -26,14 +26,14 @@
         <% if can?(:crud, DataCycleCore::Classification) || can?(:crud, DataCycleCore::User) || can?(:crud, DataCycleCore::UserGroup) %>
             <div class="settings-row">
                 <div class="row columns">
-                    <h5><%= t('data_cycle_core.administration') %></h5>
+                    <h5><%= t('data_cycle_core.administration', locale: DataCycleCore.ui_language) %></h5>
                 </div>
 
                 <% if can? :manage, DataCycleCore::Classification %>
                     <div class="row columns">
                         <%= link_to classifications_path do %>
                             <span class="icon"><i class="fa fa-sitemap" aria-hidden="true"></i></span>
-                            <span class="title"><%= t('data_cycle_core.classifications') %></span>
+                            <span class="title"><%= t('data_cycle_core.classifications', locale: DataCycleCore.ui_language) %></span>
                         <% end %>
                     </div>
                 <% end %>
@@ -42,7 +42,7 @@
                     <div class="row columns">
                         <%= link_to users_path do %>
                             <span class="icon"><i class="fa fa-user" aria-hidden="true"></i></span>
-                            <span class="title"><%= DataCycleCore::User.model_name.human(count: 2) %> <%= t('actions.manage') %></span>
+                            <span class="title"><%= DataCycleCore::User.model_name.human(count: 2, locale: DataCycleCore.ui_language) %> <%= t('actions.manage', locale: DataCycleCore.ui_language) %></span>
                         <% end %>
                     </div>
                 <% end %>
@@ -51,7 +51,7 @@
                     <div class="row columns">
                         <%= link_to user_groups_path do %>
                             <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
-                            <span class="title"><%= DataCycleCore::UserGroup.model_name.human(count: 2) %> <%= t('actions.manage') %></span>
+                            <span class="title"><%= DataCycleCore::UserGroup.model_name.human(count: 2, locale: DataCycleCore.ui_language) %> <%= t('actions.manage', locale: DataCycleCore.ui_language) %></span>
                         <% end %>
                     </div>
                 <% end %>

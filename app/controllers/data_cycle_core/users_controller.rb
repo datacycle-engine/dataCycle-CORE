@@ -20,7 +20,7 @@ module DataCycleCore
       @user.external = false
 
       if @user.save
-        flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Benutzer'
+        flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
         redirect_back(fallback_location: root_path)
       else
         flash[:error] = @user.try(:errors).try(:first).try(:[], 1)
@@ -38,7 +38,7 @@ module DataCycleCore
       method = (current_user == @user && !user_params[:password].nil?) ? 'update_with_password' : 'update'
 
       if @user.send(method, user_params)
-        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Benutzer'
+        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
 
         bypass_sign_in(@user) if (current_user == @user && !user_params[:password].nil?)
 
@@ -58,14 +58,14 @@ module DataCycleCore
     def destroy
       @user.lock_access!
 
-      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Benutzer'
+      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
       redirect_to users_path
     end
 
     def unlock
       @user.unlock_access!
 
-      flash[:success] = I18n.t :unlocked, scope: [:controllers, :success], data: 'Benutzer'
+      flash[:success] = I18n.t :unlocked, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
       redirect_to users_path
     end
 
