@@ -71,10 +71,9 @@ DataCycleCore::Engine.routes.draw do
           # delete :destroy, on: :member
         end
         resources :external_sources, only: [] do
-          get ':external_source_id/:type/:external_key', to: 'external_sources#test', on: :collection
           post ':external_source_id/:type/:external_key', to: 'external_sources#create', on: :collection
           patch ':external_source_id/:type/:external_key', to: 'external_sources#update', on: :collection
-          delete ':external_source_id/:type/:external_key', to: 'external_sources#destory', on: :collection
+          delete ':external_source_id/:type/:external_key', to: 'external_sources#destroy', on: :collection
         end
       end
     end
