@@ -11,7 +11,7 @@
                     <div class="input-group-button">
                         <button type="submit" class="search_icon "><i class="fa fa-search" aria-hidden="true"></i></button>
                     </div>
-                    <%= text_field_tag :search, params[:search], placeholder: t('common.searchterm'),class:"input-group-field" %>
+                    <%= text_field_tag :search, params[:search], placeholder: t('common.searchterm', locale: DataCycleCore.ui_language),class:"input-group-field" %>
                 </div>
             </div>
         </div>
@@ -35,7 +35,7 @@
         </div>
 
         <div class="filtertags activefilter">
-            <span class="icon"><i class="fa fa-check" aria-hidden="true"></i> <strong><%= t('common.active_filters') %>:</strong> </span>
+            <span class="icon"><i class="fa fa-check" aria-hidden="true"></i> <strong><%= t('common.active_filters', locale: DataCycleCore.ui_language) %>:</strong> </span>
 
             <% classification_tree_labels.each do |label| %>
                 <% selected_classifications = get_classifications_for_id(@classification_array, label)  %>
@@ -56,8 +56,8 @@
 
         <div class=" filterbuttons">
 
-            <button type="reset" id="reset-filter" class="button"><%= t('actions.reset', count: 2) %></button>
-            <%= button_tag(t('actions.filter'), class: "button success") %>
+            <button type="reset" id="reset-filter" class="button"><%= t('actions.reset', count: 2, locale: DataCycleCore.ui_language) %></button>
+            <%= button_tag(t('actions.filter', locale: DataCycleCore.ui_language), class: "button success") %>
 
         </div>
 

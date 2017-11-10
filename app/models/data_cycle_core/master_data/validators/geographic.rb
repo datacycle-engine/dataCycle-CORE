@@ -6,11 +6,11 @@ module DataCycleCore
         # TODO: dummy evaluator for now
         def validate(data, template)
           if data.blank?
-            @error[:warning].push I18n.t :no_data, scope: [:validation, :warning], data: template['label']
+            @error[:warning].push I18n.t :no_data, scope: [:validation, :warning], data: template['label'], locale: DataCycleCore.ui_language
           elsif data.methods.include?(:geometry_type)
             # all ok
           else
-            @error[:error].push I18n.t :geo, scope: [:validation, :errors], data: data, template: template['label']
+            @error[:error].push I18n.t :geo, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language
           end
           return @error
         end

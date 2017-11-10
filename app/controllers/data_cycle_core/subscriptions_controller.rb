@@ -13,7 +13,7 @@ module DataCycleCore
 
       respond_to do |format|
         if !@subscription.nil? && @subscription.save
-          format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Abonnement')) }
+          format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Abonnement', locale: DataCycleCore.ui_language)) }
           format.js
         else
           format.html { redirect_back(fallback_location: root_path) }
@@ -28,7 +28,7 @@ module DataCycleCore
       @subscription.destroy
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Abonnement')) }
+        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Abonnement', locale: DataCycleCore.ui_language)) }
         format.js
       end
     end

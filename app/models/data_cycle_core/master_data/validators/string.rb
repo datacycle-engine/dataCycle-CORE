@@ -14,15 +14,15 @@ module DataCycleCore
                 if @@string_keywords.include?(key)
                   self.method(key).call(data, template["validations"][key])
                 else
-                  @error[:warning].push I18n.t :string, scope: [:validation, :warnings], data: data, key: key, template: template unless key == "type"
+                  @error[:warning].push I18n.t :string, scope: [:validation, :warnings], data: data, key: key, template: template, locale: DataCycleCore.ui_language unless key == "type"
                 end
               end
             end
           else
             if data.blank?
-              @error[:warning].push I18n.t :no_data, scope: [:validation, :warnings], data: template["label"]
+              @error[:warning].push I18n.t :no_data, scope: [:validation, :warnings], data: template["label"], locale: DataCycleCore.ui_language
             else
-              @error[:error].push I18n.t :string, scope: [:validation, :errors], template: data.class, label: template["label"]
+              @error[:error].push I18n.t :string, scope: [:validation, :errors], template: data.class, label: template["label"], locale: DataCycleCore.ui_language
             end
           end
           return @error
@@ -33,13 +33,13 @@ module DataCycleCore
 
         def minLength(data,value)
           if data.length < value.to_i
-            @error[:error].push I18n.t :min, scope: [:validation, :errors], data: data, min: value.to_i, length: data.length
+            @error[:error].push I18n.t :min, scope: [:validation, :errors], data: data, min: value.to_i, length: data.length, locale: DataCycleCore.ui_language
           end
         end
 
         def maxLength(data,value)
           if data.length > value.to_i
-            @error[:error].push I18n.t :max, scope: [:validation, :errors], data: data, max: value.to_i, length: data.length
+            @error[:error].push I18n.t :max, scope: [:validation, :errors], data: data, max: value.to_i, length: data.length, locale: DataCycleCore.ui_language
           end
         end
 
@@ -47,7 +47,7 @@ module DataCycleCore
           regex = /#{expression[1..expression.length-2]}/
           matched = data.match(regex)
           if matched.nil? || matched.offset(0) != [0,data.size]
-            @error[:error].push I18n.t :match, scope: [:validation, :errors], data: data, expression: expression
+            @error[:error].push I18n.t :match, scope: [:validation, :errors], data: data, expression: expression, locale: DataCycleCore.ui_language
           end
         end
 
@@ -55,7 +55,7 @@ module DataCycleCore
           if @@string_formats.include?(format_string)
             self.method(format_string).call(data)
           else
-            @error[:error].push I18n.t :format, scope: [:validation, :errors], data: data, format_string: format_string
+            @error[:error].push I18n.t :format, scope: [:validation, :errors], data: data, format_string: format_string, locale: DataCycleCore.ui_language
           end
         end
 
@@ -66,7 +66,7 @@ module DataCycleCore
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
           check_uuid = data.length == 36 && !(data=~uuid).nil?
           unless check_uuid
-            @error[:error].push I18n.t :uuid, scope: [:validation, :errors], data: data
+            @error[:error].push I18n.t :uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
           end
         end
 
@@ -82,7 +82,7 @@ module DataCycleCore
           begin
             data.to_datetime
           rescue
-            @error[:error].push I18n.t :date_time, scope: [:validation, :errors], data: data
+            @error[:error].push I18n.t :date_time, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
           end
         end
 
@@ -90,13 +90,13 @@ module DataCycleCore
           begin
             data.to_date
           rescue
-            @error[:error].push I18n.t :date, scope: [:validation, :errors], data: data
+            @error[:error].push I18n.t :date, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
           end
         end
 
         def boolean(data)
           unless data.squish == "true" || data.squish == "false"
-            @error[:error].push I18n.t :boolean, scope: [:validation, :errors], data: data
+            @error[:error].push I18n.t :boolean, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
           end
         end
 
@@ -104,10 +104,10 @@ module DataCycleCore
           begin
             uri = URI.parse data
             unless uri.kind_of? URI::HTTP
-              @error[:error].push I18n.t :url, scope: [:validation, :errors], data: data
+              @error[:error].push I18n.t :url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
             end
           rescue URI::InvalidURIError
-            @error[:error].push I18n.t :url, scope: [:validation, :errors], data: data
+            @error[:error].push I18n.t :url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
           end
         end
 

@@ -6,11 +6,11 @@ module DataCycleCore
         # only allow single uuid referencing to a given table
         def validate(data, template)
           if data.blank?
-            @error[:warning].push I18n.t :no_data, scope: [:validation, :warning], data: template['label']
+            @error[:warning].push I18n.t :no_data, scope: [:validation, :warning], data: template['label'], locale: DataCycleCore.ui_language
           elsif data.is_a?(::String)
             check_reference(data,template)
           else
-            @error[:error].push I18n.t :data_type, scope: [:validation, :errors], data: data, template: template['label']
+            @error[:error].push I18n.t :data_type, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language
           end
           return @error
         end
@@ -19,7 +19,7 @@ module DataCycleCore
           if uuid?(key)
             data_set = "DataCycleCore::#{template['type_name'].classify}".constantize.where(id: key)
             if data_set.count < 1
-              @error[:error].push I18n.t :not_found, scope: [:validation, :errors], key: key, template: template['label'], table: template['type_name']
+              @error[:error].push I18n.t :not_found, scope: [:validation, :errors], key: key, template: template['label'], table: template['type_name'], locale: DataCycleCore.ui_language
             end
           end
         end
@@ -29,7 +29,7 @@ module DataCycleCore
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
           check_uuid = data.length == 36 && !(data=~uuid).nil?
           unless check_uuid
-            @error[:error].push I18n.t :uuid, scope: [:validation, :errors], data: data
+            @error[:error].push I18n.t :uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
           end
           check_uuid
         end

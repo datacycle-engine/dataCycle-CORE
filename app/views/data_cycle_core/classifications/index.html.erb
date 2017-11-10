@@ -2,7 +2,7 @@
 
 <div id="classification-administration" class="row">
   <div class="small-12 columns">
-    <h1><%= t('data_cycle_core.classifications') %></h1>
+    <h1><%= t('data_cycle_core.classifications', locale: DataCycleCore.ui_language) %></h1>
 
     <ul class="backend-treeview-list">
       <% @classification_tree_labels.each do |tree_label| %>

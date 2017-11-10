@@ -1,4 +1,4 @@
-$('#subscribe-link .text').text("<%= t('actions.subscribe') %>");
+$('#subscribe-link .text').text("<%= t('actions.subscribe', locale: DataCycleCore.ui_language) %>");
 $('#subscribe-link i.fa').removeClass('fa-bell').addClass('fa-bell-o');
 $('#subscribe-link .subscriber-count').html(parseInt($('#subscribe-link .subscriber-count').text()) - 1);
 $('#subscribe li').html('<%= escape_javascript(render 'data_cycle_core/subscriptions/partials/shared/create_link', content: @subscription.subscribable) %>');

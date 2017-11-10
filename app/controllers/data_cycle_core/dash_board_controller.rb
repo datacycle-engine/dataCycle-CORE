@@ -12,7 +12,7 @@ module DataCycleCore
       @uuid = params[:uuid]
       DownloadJob.perform_later(@uuid)
       name = ExternalSource.where(id: @uuid).first.name
-      flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: name, uuid: @uuid
+      flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: name, uuid: @uuid, locale: DataCycleCore.ui_language
       redirect_to admin_path
     end
 
@@ -20,7 +20,7 @@ module DataCycleCore
       @uuid = params[:uuid]
       ImportJob.perform_later(@uuid)
       name = ExternalSource.where(id: @uuid).first.name
-      flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: name, uuid: @uuid
+      flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: name, uuid: @uuid, locale: DataCycleCore.ui_language
       redirect_to admin_path
     end
 
@@ -33,14 +33,14 @@ module DataCycleCore
       MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Person)
       path = Rails.root.join('config','data_definitions','events','*.yml')
       MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Event)
-      flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: "data types"
+      flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: "data types", locale: DataCycleCore.ui_language
       redirect_to admin_path
     end
 
     def import_classifications
       path = Rails.root.join('config','data_definitions','classifications.yml')
       MasterData::ImportClassifications.new.import(path.to_s)
-      flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: "basic classification trees"
+      flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: "basic classification trees", locale: DataCycleCore.ui_language
       redirect_to admin_path
     end
 
