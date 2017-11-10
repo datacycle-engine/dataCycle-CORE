@@ -1,7 +1,7 @@
 <% @user = DataCycleCore::User.new %>
 
 <div class="reveal new-item" id="newContent" data-reveal data-multiple-opened="true">
-    <h3><%= t('actions.new', data: @user.model_name.human ) %></h3>
+    <h3><%= t('actions.new', data: @user.model_name.human(locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language ) %></h3>
 
     <%= form_for @user, url: {action: "create_user"} do |f| %>
 
@@ -26,10 +26,10 @@
       </div>
 
       <div class="form-element validation-container">
-          <%= f.select :role_id, DataCycleCore::Role.where('rank > 0 AND rank <= ?', current_user.role.try(:rank)).collect{|r| [t('roles.'+r.name), r.id]} %>
+          <%= f.select :role_id, DataCycleCore::Role.where('rank > 0 AND rank <= ?', current_user.role.try(:rank)).collect{|r| [t('roles.'+r.name, locale: DataCycleCore.ui_language), r.id]} %>
       </div>
 
-      <%= f.submit t(:submit), class: "button primary" %>
+      <%= f.submit t(:submit, locale: DataCycleCore.ui_language), class: "button primary" %>
 
     <% end %>
 

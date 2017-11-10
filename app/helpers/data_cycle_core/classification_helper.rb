@@ -78,11 +78,11 @@ module DataCycleCore
       return if classification_alias.nil?
       classification_alias.each do |value|
         classification_tree.push({:value => value.classifications.ids.first, :label => value.name, :level => level})
-        if value.sub_classification_alias.count > 0
-          level += 1
-          classification_tree.push(walk_classification_tree(value.sub_classification_alias, level))
-          level -= 1
-        end
+        # if value.sub_classification_alias.count > 0
+        level += 1
+        classification_tree.push(walk_classification_tree(value.sub_classification_alias, level))
+        level -= 1
+        # end
       end
       classification_tree
     end

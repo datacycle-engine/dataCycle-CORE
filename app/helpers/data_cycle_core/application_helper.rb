@@ -13,7 +13,7 @@ module DataCycleCore
     }
 
     def available_locales_with_names
-      Hash[I18n.available_locales.collect{ |l| [l, I18n.t('locales.'+l.to_s, default: l.to_s).try(:capitalize)] }]
+      Hash[I18n.available_locales.collect{ |l| [l, I18n.t('locales.'+l.to_s, locale: DataCycleCore.ui_language).try(:capitalize)] }]
     end
 
     def display_flash_messages_new(closable: true)

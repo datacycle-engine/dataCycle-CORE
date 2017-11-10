@@ -45,7 +45,7 @@ module DataCycleCore
         respond_to do |format|
           #validate ?
           if !@person.nil? && @person.save
-            flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Person'
+            flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Person', locale: DataCycleCore.ui_language
             format.html { redirect_to @person }
             format.json { render :json => @person }
           else
@@ -79,7 +79,7 @@ module DataCycleCore
         end
 
         if @person.save
-          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Person'
+          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Person', locale: DataCycleCore.ui_language
 
           if Rails.env.development?
             redirect_back(fallback_location: root_path)
@@ -97,7 +97,7 @@ module DataCycleCore
       @person = DataCycleCore::Person.find(params[:id])
       @person.destroy_content
 
-      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Person'
+      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Person', locale: DataCycleCore.ui_language
 
       redirect_to persons_path
     end

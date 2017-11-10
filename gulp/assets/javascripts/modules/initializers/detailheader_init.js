@@ -5,7 +5,7 @@ module.exports.initialize = function () {
     ev.preventDefault();
     var succeeded = copyToClipboard($(this).siblings('.copy-input')[0]);
     if (succeeded) {
-      $(this).before('<span class="copied-to-clipboard">Copied to Clipboard.</span>');
+      $(this).before('<span class="copied-to-clipboard">In Zwischenablage kopiert.</span>');
       setTimeout(function () {
         $('.copied-to-clipboard').fadeOut(function () {
           $(this).remove();

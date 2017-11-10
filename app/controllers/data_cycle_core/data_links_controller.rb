@@ -26,7 +26,7 @@ module DataCycleCore
 
       @data_link.save
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t :ready_to_send, scope: [:controllers, :success], data: 'Externer Link'))
+      redirect_back(fallback_location: root_path, notice: (I18n.t :ready_to_send, scope: [:controllers, :success], data: 'Externer Link', locale: DataCycleCore.ui_language))
     end
 
     def send_mail
@@ -35,16 +35,16 @@ module DataCycleCore
 
       if receiver =~ Devise.email_regexp
         DataLinkMailer.mail_link(@data_link.creator, receiver, data_link_url(@data_link, send_link_params[:url_params]), params[:type], send_link_params[:comment]).deliver_later
-        redirect_back(fallback_location: root_path, notice: (I18n.t :sent, scope: [:controllers, :success]))
+        redirect_back(fallback_location: root_path, notice: (I18n.t :sent, scope: [:controllers, :success], locale: DataCycleCore.ui_language))
       else
-        redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :success]))
+        redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :success], locale: DataCycleCore.ui_language))
       end
 
     end
 
     def destroy
       link = DataCycleCore::DataLink.find_by(id: params[:id]).destroy
-      redirect_back fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Externer Link')
+      redirect_back fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Externer Link', locale: DataCycleCore.ui_language)
     end
 
     private
