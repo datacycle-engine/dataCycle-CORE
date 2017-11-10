@@ -39,8 +39,8 @@
 				</div>
 
 				<div class="form-element validation-container" tabindex="-1">
-            <% select_options = DataCycleCore::User.all.map{|u| {value: u.id, label: u.email}} %>
-            <% selected_values = content.users.map{|u| {value: u.id, label: u.email}} %>
+            <% select_options = DataCycleCore::User.all.map{|u| {value: u.id, label: "#{u.given_name} #{u.family_name}"}} %>
+            <% selected_values = content.users.map{|u| {value: u.id, label: "#{u.given_name} #{u.family_name}"}} %>
 
             <%= f.label :user_ids %>
             <custom-select hidden-field-id="user_group[user_ids][]" :custom-options="<%= select_options.to_json %>" :selected-values="<%= selected_values.to_json %>"></custom-select>
