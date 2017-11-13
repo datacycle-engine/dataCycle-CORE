@@ -86,8 +86,12 @@ module.exports.initialize = function () {
   }
 
   function getIdFromCalender(instance) {
+    var ignore = ['from', 'until', 'start', 'end'];
     var id = instance.element.id.split('_');
-    id.pop();
+    id = id.filter(function (val) {
+      return ignore.indexOf(val) == -1;
+    });
+
     id = id.join('_');
 
     return id;
