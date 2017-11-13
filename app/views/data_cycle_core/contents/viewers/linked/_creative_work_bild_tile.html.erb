@@ -26,6 +26,21 @@
     <div class="description">
 
         <!-- todo: check only for empty string -->
+
+        <% if !content.metadata['validity_period'].nil? && !content.metadata['validity_period'].blank? %>
+
+            <strong>Gültigkeit</strong>
+            <% if !content.metadata['validity_period']['date_published'].nil? && !content.metadata['validity_period']['date_published'].blank? %>
+                <%= content.metadata['validity_period']['date_published'].to_datetime.to_s(:german_date_format) %>
+            <% end %>
+
+            <% if !content.metadata['validity_period']['expires'].nil? && !content.metadata['validity_period']['expires'].blank? %>
+                <strong>bis</strong>
+                <%= content.metadata['validity_period']['expires'].to_datetime.to_s(:german_date_format) unless content.metadata['validity_period']['expires'].include?('9999') %>
+            <% end %>
+            <br /><br />
+        <% end %>
+        
         <% if !content.metadata['restrictions'].nil? && !content.metadata['restrictions'].blank? && content.metadata['restrictions'] != 'Keine Einschränkung;' %>
             <strong>Einschränkungen:</strong> <%= content.metadata['restrictions'].html_safe %><br /><br />
         <% end %>

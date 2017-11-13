@@ -8,7 +8,7 @@ module DataCycleCore
 
     def update
 
-      content = params.permit(:content)
+      content = params[:content]
 
       @content = Object.const_get("DataCycleCore::#{params[:type].classify}")
         .includes({classifications: [], translations: []})
