@@ -305,20 +305,48 @@ describe DataCycleCore::MasterData::ImportTemplates do
       }
     end
 
-    it 'generates a validator' do
-      puts subject.validator.(data_template).errors.to_h.inspect.to_s
-      subject.validator.(data_template).errors.to_h.inspect.to_s.must_equal '{}'
+    let(:header_hash) do
+      {
+        data: {
+          name: 'whatever',
+          description: 'CreativeWork',
+          type: 'object'
+        }
+      }
     end
-    #
-    #
-    # it 'extracts address' do
-    #   subject.extract_place_data(raw_data)['street_address'].must_equal 'Dorfstraße 10'
-    #   subject.extract_place_data(raw_data)['address_locality'].must_equal 'Feld am See'
-    #   subject.extract_place_data(raw_data)['postal_code'].must_equal '9544'
-    #   subject.extract_place_data(raw_data)['telephone'].must_equal '+43 4246 2297'
-    #   subject.extract_place_data(raw_data)['fax_number'].must_equal '+43 4246 3952'
-    #   subject.extract_place_data(raw_data)['email'].must_equal 'hotel@burgstallerhof.at'
-    #   subject.extract_place_data(raw_data)['url'].must_equal 'http://www.burgstallerhof.at'
-    # end
+
+    it 'generates a validator' do
+      assert subject.validate_header.(data_template).success?
+    end
+
+    it 'checks all attributes' do
+      subject.validate(data_template)
+
+    end
+
+    it 'checks for valid value of name attribute in header' do
+      test_hash = header_hash
+      test_hash[:data][:name] = nil
+      assert !subject.validate_header.(test_hash).success?
+    end
+
+    it 'checks for presence of name attribute in header' do
+      test_hash = {}
+      test_hash[:data] = header_hash[:data].except(:name)
+      assert !subject.validate_header.(test_hash).success?
+    end
+
+    it 'checks for valid value of description in header' do
+      test_hash = header_hash
+      test_hash[:data][:description] = nil
+      assert !subject.validate_header.(test_hash).success?
+    end
+
+    it 'checks for presence of description attribute in header' do
+      test_hash = {}
+      test_hash[:data] = header_hash[:data].except(:description)
+      assert !subject.validate_header.(test_hash).success?
+    end
+
   end
 end

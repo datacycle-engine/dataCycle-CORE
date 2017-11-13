@@ -34,32 +34,146 @@ module DataCycleCore
         end
       end
 
-      def validator
+      def validate(template)
+        result_header = validate_header.call(template)
+        errors = result_header.errors(full: true)
+        if result_header.success?
+          errors = validate_properties(template[:data])
+        end
+        puts "all errors:"
+        ap errors
+        errors
+      end
+
+      def validate_properties(template)
+        errors = {}
+        template[:properties].each do |attribute_name, attribute_definition|
+          result_attribute = validate_attribute.call(attribute_definition)
+          error = result_attribute.errors(full: true)
+          if attribute_definition.has_key?(:properties)
+            error.merge!(validate_properties(attribute_definition))
+          end
+
+          ap attribute_definition if !result_attribute.success?
+
+          errors[attribute_name] = error unless error.blank?
+        end
+        errors
+      end
+
+      def validate_header
         Dry::Validation.Schema do
           required(:data).schema do
             required(:name) {str?}
             required(:description) { str? & included_in?(DataCycleCore.content_tables.map(&:classify)) }
             required(:type) { str? & eql?('object') }
-
             optional(:content_type) { str? & included_in?(['variant', 'embedded', 'entity']) }
             optional(:releasable) { bool? }
-            optional(:permissions) do
-              schema do
-                required(:read_write) { bool? }
-              end
+            optional(:permissions).schema do
+              required(:read_write) { bool? }
             end
             optional(:boost) { float? }
-
-            required(:properties).schema do
-
-            end
-
+            required(:properties)
           end
         end
       end
 
-      def attribute_validation
-      end 
+      def validate_attribute
+        Dry::Validation.Schema do
+          configure do
+            def self.messages
+              super.merge(
+                en: { errors: {
+                  key_attribute: 'keys are UUIDs in DataCycleCore, therefore :type and :storage_type must be defined as strings',
+                  embeddedLinkArray: 'type_name must be a table_name (plural), storage_type = array, storage_location = jsonb field(metadata, content)',
+                  embeddedLink: 'type_name must be a table_name (plural), storage_location = jsonb field(metadata, content)',
+                  classification_relation: "type must be 'classificationTreeLabel' and type_name must be a name of ClassificationTreeLabel record: #{DataCycleCore::ClassificationTreeLabel.pluck(:name)}",
+                  embedded_object: 'type must be object, description must be a content_table class_name',
+                  included_object: 'storage_location must be a jsonb field, type must be object and must have properties'
+                }
+              })
+            end
+          end
+
+          required(:label) { str? }
+          required(:type) {
+            str? &
+            included_in?([
+              'string',
+              'text',
+              'object',
+              'embeddedLinkArray',
+              'embeddedLink',
+              'classificationTreeLabel'
+            ])
+          }
+          required(:storage_location) {
+            str? &
+            included_in?([
+              'key',
+              'column',
+              'metadata',
+              'content',
+              'properties',
+              'classification_relation'
+            ] + DataCycleCore.content_tables)
+          }
+          optional(:type_name) {
+            str? &
+            included_in?(
+              DataCycleCore.content_tables+['users']+
+              DataCycleCore::ClassificationTreeLabel.pluck(:name)
+            )
+          }
+          optional(:storage_type) { str? & included_in?(['string','text','array'])}
+          optional(:delete) { bool? }
+          optional(:search) { bool? }
+          optional(:editor) { hash? }
+          optional(:validations) { hash? }
+          optional(:properties) { hash? }
+
+          rule(key_attribute: [:storage_location, :type, :storage_type]) do |storage_location, type, storage_type|
+            storage_location.eql?('key') > (storage_type.eql?('string') & type.eql?('string'))
+          end
+
+          rule(embeddedLinkArray: [:type, :type_name, :storage_type, :storage_location]) do |type, type_name, storage_type, storage_location|
+            type.eql?('embeddedLinkArray') > (
+              type_name.included_in?(DataCycleCore.content_tables) &
+              storage_type.eql?('array') &
+              storage_location.included_in?(['metadata', 'content', 'properties'])
+            )
+          end
+
+          rule(embeddedLink: [:type, :type_name, :storage_type, :storage_location]) do |type, type_name, storage_type, storage_location|
+            type.eql?('embeddedLink') > (
+              type_name.included_in?(DataCycleCore.content_tables+['users']) &
+              storage_location.included_in?(['metadata', 'content', 'properties'])
+            )
+          end
+
+          rule(classification_relation: [:storage_location, :type, :type_name]) do |storage_location, type, type_name|
+            storage_location.eql?('classification_relation') > (
+              type.eql?('classificationTreeLabel') &
+              type_name.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name))
+            )
+          end
+
+          rule(embedded_object: [:storage_location, :type, :description]) do |storage_location, type, description|
+            storage_location.included_in?(DataCycleCore.content_tables+['users']) > (
+              type.eql?('object') &
+              description.included_in?(DataCycleCore.content_tables.map(&:classify))
+            )
+          end
+
+          rule(included_object: [:storage_location, :type, :properties]) do |storage_location, type, properties|
+            properties.filled? > (
+              type.eql?('object') &
+              storage_location.included_in?(['metadata', 'content', 'properties'])
+            )
+          end
+        end
+      end
+
     end
   end
 end

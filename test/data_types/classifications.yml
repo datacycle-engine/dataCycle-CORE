@@ -19,8 +19,7 @@
   - $$Statistik
   - $$Veranstaltung
   - $$Firma
-  - $$Person:
-    - $$Autor
+  - $$Person
   - $$Bild
   - $$Video
   - $$Audio
@@ -32,16 +31,17 @@
   - $$Frage
   - $$Antwort
   - $$Rezept-Komponente
+  - $$Angebotszeitraum
 
 - Inhaltspools:
-  - $$Themenvorschläge
+  - $$Vorschläge
   - $$Recherche
-  - $$Aktuelle Themen
+  - $$Aktuelle Inhalte
   - $$Archiv
 
 - Ausgabekanäle:
   - Web:
-    - CMS
+    - austria.info
     - Online Magazin
     - Online Presseportal
     - Newsletter
@@ -60,7 +60,6 @@
   - Tirol
   - Salzburg
   - Vorarlberg
-  - Osttirol
 
 - Themenbereiche:
   - Sommer:
@@ -96,7 +95,7 @@
       - Gipfelwandern
       - Seilbahnen/Aussichtsplattformen
       - Pilgern/Gehen
-      - Weitwandern / Höhenwege
+      - Weitwandern / Höhenwege
       - Themenwege
       - Wanderguides, Bergführer
       - Naturlehrpfade
@@ -225,42 +224,69 @@
   - Wissensbasis
   - Tagesaktueller Content
   - User Generated Content
-  - Auslagenthema (Sehnsuchtsthema):
-    - Den Winter aktiv erleben  
-    - Spuren ziehen
-    - Winterzauber  
-    - Legenden des Winters
-    - Wintersonne
-    - Am Puls der Zeit
-    - Kulturelles Erbe
-    - Leidenschaft für Tradition
-    - Stadtleben
-    - Weltbühne
-    - Alpines Lebensgefühl
-    - Magie des Gehens
-    - Einfach wandern
-    - Gipfel erobern
-    - Kulinarischer Treffpunkt Europas
-    - Feines aus der Region
-    - Kulinarische Hochkultur
-    - Es wird ein Wein sein
-    - Die Sinne auf Reisen schicken
-    - Auf Entdeckungsreise durchs Land
-    - Rad POIs
-    - Red Entdeckungsreise
-    - Tempo machen
-    - Ich-Zeit
-    - Mädelstag deluxe
-    - Der Natur auf der Spur
-    - See Grandezza
-    - Einfach staunen
-    - Eins mit dem Wasser
-    - Endlich Regenwetter
-    - We are family
-    - Erlebnis Schnee = familie
+  - Markencontent:
+    - Stadt und Kultur:
+      - Imperiale Eleganz
+      - Stadtleben 2018
+      - Leidenschaft für Tradition 2018
+      - Am Puls der Zeit 2018
+      - Kulturelles Erbe
+      - Am Puls der Zeit 2017
+      - Weltbühne
+      - Leidenschaft für Tradition 2017
+      - Stadtleben 2017
+    - Ski und Winter:
+      - Spuren ziehen 2018/19
+      - Winterzauber
+      - Spuren ziehen 2017/18
+      - Legendes des Winter
+      - Den Winter aktiv erleben
+      - Wintersonne
+    - Wandern und Alpen:
+      - Von Hütte zu Hütte
+      - Ruhe der Berge aber dennoch im Geschehen
+      - Gipfel erobern
+      - Einfach wandern
+      - Alpines Lebensgefühl
+      - Die Magie des Gehens
+    - Seen und Natur:
+      - Wasserreichtum
+      - Faszination Wald
+      - Einfach Staunen
+      - Der Natur auf der Spur
+      - See Grandezza
+      - Eins mit dem Wasser
+    - Essen und Trinken:
+      - Feines aus der Region 2018
+      - Kunstfertig Gebrautes
+      - Es wird ein Wein sein
+      - Feines aus der Region 2017
+      - Es wird ein Wein sein
+      - Kulinarische Hochkultur
+      - Kulinarischer Treffpunkt Europas
+    - Familie:
+      - Endlich Regenwetter! 2018
+      - Erlebnis Schnee
+      - Endlich Regenwetter! 2017
+      - Familienurlaub
+    - Rundreisen:
+      - Auf Entdeckungstour durchs Land 2018
+      - Auf Entdeckungstour durch's Land 2017
+      - Die Sinne auf Reisen schicken
+    - Radfahren:
+      - Mit dem Rad durch die Stadt
+      - Rad Entdeckungsreisen
+      - Tempo machen
+      - Points of Interest
+    - Wellness:
+      - Ich-Zeit
+      - Mädelstag deluxe
   - Kampagne:
-    - Hauptkampagne - Beispiel
-      - Unterkampagne - Beispiel
+    - Sehnsuchtskampagnen:
+      - Austria in Residence
+      - Atme Leben
+      - Playground Austria
+      - Austrian Gemütlichkeit
   - Besondere Empfehlung
 
 - Partner:
@@ -285,6 +311,8 @@
   - Vegetarische Speisen
   - Süßspeisen
 
+- Ersteller:
+  - Team CM
+  - Markt Office
+
 - Tags:
-  - Tag 1
-  - Tag 2
