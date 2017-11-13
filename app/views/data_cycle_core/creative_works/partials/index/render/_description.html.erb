@@ -1,3 +1,3 @@
 <div class="description">
-    <%= truncate(item.desc, length: 70, separator: " ", escape: false) %>
+    <%= sanitize(truncate(item.desc, length: 70, separator: " ", escape: false)) %>
 </div>
