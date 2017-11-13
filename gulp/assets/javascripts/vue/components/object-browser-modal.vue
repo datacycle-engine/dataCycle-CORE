@@ -19,8 +19,10 @@
       </div>
 
     </div>
-    <component :is="objectType + '_detail'" :item="activeItem" :link="editUrl" class="item-info">
-    </component>
+    <div class="item-info">
+      <component :is="objectType + '_detail'" :item="activeItem" :link="editUrl" class="padding-bottom-10">
+      </component>
+    </div>
 
     <div class="object-browser-footer">
       <div class="chosen-items items">
