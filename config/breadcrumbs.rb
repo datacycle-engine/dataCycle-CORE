@@ -43,7 +43,9 @@ end
 
 # Creative Work
 crumb :'data_cycle_core/creative_work' do |creative_work|
-  link to_html_string(creative_work.content_type, creative_work.title), creative_work_path(creative_work)
+  I18n.with_locale(creative_work.first_available_locale) do
+    link to_html_string(creative_work.content_type, creative_work.title), creative_work_path(creative_work)
+  end
 
   if creative_work.parent
     parent creative_work.parent
