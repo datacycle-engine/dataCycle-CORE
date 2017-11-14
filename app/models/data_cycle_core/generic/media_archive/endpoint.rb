@@ -38,7 +38,7 @@ class DataCycleCore::Generic::MediaArchive::Endpoint
       JSON.parse(response.body)
     else
       raise DataCycleCore::Generic::RecoverableError.new(
-        "error loading data from #{@host + @end_point}"
+        "error loading data from #{@host + @end_point} / page:#{page} / per:#{per} / lang:#{lang}" << response.body
       )
     end
   end

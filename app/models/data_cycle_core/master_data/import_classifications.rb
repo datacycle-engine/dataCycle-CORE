@@ -21,6 +21,7 @@ module DataCycleCore
       end
 
       def walk_tree(data_tree, parent)
+        return nil if data_tree.blank?
         data_tree.each do |data|
           internal = false
           if data.kind_of?(String)
