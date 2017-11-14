@@ -25,15 +25,25 @@ module DataCycleCore
     end
 
     def import_templates
+      errors = {}
       path = Rails.root.join('config','data_definitions','creative_works','*.yml')
-      MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::CreativeWork)
+      error = MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::CreativeWork)
+      errors.merge!({ creative_works: error}) unless error.blank?
       path = Rails.root.join('config','data_definitions','places','*.yml')
-      MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Place)
+      error = MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Place)
+      errors.merge!({ places: error}) unless error.blank?
       path = Rails.root.join('config','data_definitions','persons','*.yml')
-      MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Person)
+      error = MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Person)
+      errors.merge!({ persons: error}) unless error.blank?
       path = Rails.root.join('config','data_definitions','events','*.yml')
-      MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Event)
-      flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: "data types", locale: DataCycleCore.ui_language
+      error = MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Event)
+      errors.merge!({events: error}) unless error.blank?
+      if errors.blank?
+        flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: "data types", locale: DataCycleCore.ui_language
+      else
+        ap errors
+        flash[:error] = "the following errors were encountered: #{errors}"
+      end
       redirect_to admin_path
     end
 

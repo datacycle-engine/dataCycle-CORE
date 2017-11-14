@@ -4,11 +4,14 @@ module DataCycleCore
 
       def import(files, object)
         begin
+          errors = {}
           file_names = Dir[files]
           file_names.each do |filename|
             data_templates = YAML.load(File.open(filename.to_s))
-            iterate_templates(data_templates, object)
+            error = iterate_templates(data_templates, object)
+            errors[filename] = error unless error.blank?
           end
+          errors
         rescue Exception => e
           puts "could not access a YML File in directory #{files}"
           puts e.message
@@ -17,31 +20,37 @@ module DataCycleCore
       end
 
       def iterate_templates(data_templates, object)
+        errors = {}
         data_templates.each do |template|
-          data_set = object
-            .find_or_initialize_by(
-              headline: template[:data][:name],
-              description: template[:data][:description],
-              template: true
-            )
-          data_set.seen_at = Time.zone.now
-          if data_set.metadata.blank?
-            data_set.metadata = {validation: template[:data]}
+          error = validate(template)
+          if error.blank?
+            data_set = object
+              .find_or_initialize_by(
+                headline: template[:data][:name],
+                description: template[:data][:description],
+                template: true
+              )
+            data_set.seen_at = Time.zone.now
+            if data_set.metadata.blank?
+              data_set.metadata = {validation: template[:data]}
+            else
+              data_set.metadata[:validation] = template[:data]
+            end
+            data_set.save
           else
-            data_set.metadata[:validation] = template[:data]
+            errors[template[:data][:name]] = error unless error.blank?
           end
-          data_set.save
         end
+        errors
       end
 
       def validate(template)
         result_header = validate_header.call(template)
-        errors = result_header.errors(full: true)
-        if result_header.success?
-          errors = validate_properties(template[:data])
-        end
-        puts "all errors:"
-        ap errors
+        errors = {}
+        error = result_header.errors
+        errors[:head] = error unless error.blank?
+        error = validate_properties(template[:data])
+        errors[:properties] = error unless error.blank?
         errors
       end
 
@@ -53,9 +62,7 @@ module DataCycleCore
           if property_definition.has_key?(:properties)
             error.merge!(validate_properties(property_definition))
           end
-
-          ap property_definition if !result_property.success?
-
+          #ap property_definition if !result_property.success?
           errors[property_name] = error unless error.blank?
         end
         errors
@@ -65,7 +72,7 @@ module DataCycleCore
         Dry::Validation.Schema do
           required(:data).schema do
             required(:name) {str?}
-            required(:description) { str? & included_in?(DataCycleCore.content_tables.map(&:classify)) }
+            required(:description) { str? & included_in?(DataCycleCore.content_tables.map(&:classify)+['ImageObject', 'VideoObject']) }
             required(:type) { str? & eql?('object') }
             optional(:content_type) { str? & included_in?(['variant', 'embedded', 'entity']) }
             optional(:releasable) { bool? }
@@ -88,8 +95,7 @@ module DataCycleCore
 
             def instantiable?(value)
               clazz = ("DataCycleCore::"+value.classify).safe_constantize
-              class_made = (clazz == nil) ? false : true
-              class_made && clazz.new.kind_of?(ActiveRecord::Base)
+              (clazz != nil) && clazz.new.kind_of?(ActiveRecord::Base)
             end
 
             def self.messages
@@ -137,7 +143,7 @@ module DataCycleCore
           optional(:type_name) {
             str? &
             included_in?(
-              DataCycleCore.content_tables+['users']+
+              DataCycleCore.content_tables+['users','Rechte']+
               DataCycleCore::ClassificationTreeLabel.pluck(:name)
             )
           }
@@ -182,10 +188,10 @@ module DataCycleCore
           rule(classification_relation: [:storage_location, :type, :type_name, :default_value]) do |storage_location, type, type_name, default_value|
             (storage_location.eql?('classification_relation') > (
               type.eql?('classificationTreeLabel') &
-              type_name.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name))
+              type_name.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name)+['Rechte'])
             )) & (type.eql?('classificationTreeLabel') > (
               storage_location.eql?('classification_relation') &
-              type_name.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name))
+              type_name.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name)+['Rechte'])
             ))
           end
 
