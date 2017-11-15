@@ -96,6 +96,7 @@ module DataCycleCore
     def destroy
       @person = DataCycleCore::Person.find(params[:id])
       @person.destroy_content
+      @person.destroy
 
       flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Person', locale: DataCycleCore.ui_language
 
