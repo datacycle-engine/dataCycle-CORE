@@ -139,7 +139,7 @@ module DataCycleCore
           end
         else
           if delete
-            load_embedded_objects.each do |item|
+            load_embedded_objects(relation_name).each do |item|
               item.delete_childs(delete)
               item.destroy
             end
