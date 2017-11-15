@@ -185,7 +185,7 @@ module DataCycleCore
       if @creativeWork.parent.nil?
         redirect_to root_path
       else
-        redirect_to creative_work_path(@creativeWork.parent, trail: session[:trail])
+        redirect_to creative_work_path(@creativeWork.parent)
       end
 
     end
