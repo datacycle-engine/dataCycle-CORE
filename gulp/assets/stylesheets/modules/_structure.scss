@@ -149,7 +149,7 @@ header {
       margin-right: 1rem;
       text-align: center;
     }
-    &.last {
+    &:last-child {
       border-bottom: 0;
       &:after {
         transition: all ease-in-out 0.1s;
