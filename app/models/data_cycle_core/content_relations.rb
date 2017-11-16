@@ -31,17 +31,27 @@ module DataCycleCore
         end
 
         # relation content to all other contents
+        if postfix.nil?
+          has_many :content_content_a, class_name: "DataCycleCore::ContentContent", as: :content_a, dependent: :destroy
+          has_many :content_content_b, class_name: "DataCycleCore::ContentContent", as: :content_b, dependent: :destroy
+        else
+          has_many :content_content_a_history, class_name: "DataCycleCore::ContentContent::History", as: :content_a_history, dependent: :destroy
+          has_many :content_content_b_history, class_name: "DataCycleCore::ContentContent::History", as: :content_b_history, dependent: :destroy
+        end
         (DataCycleCore.content_tables - [table_given]).map(&:singularize).each do |content_name|
           content_relation_table = [content_name, table_given.to_s.singularize].sort.join('_')
           if postfix.nil?
-            content_relation_table_name = content_relation_table.pluralize.to_sym
-            has_many content_relation_table_name, dependent: :destroy
-            has_many content_name.pluralize.to_sym, through: content_relation_table_name
+            if table_given.to_s.singularize < content_name
+              has_many content_name.pluralize.to_sym, through: :content_content_a, source: :content_b, source_type: "DataCycleCore::#{content_name.classify}"
+            else
+              has_many content_name.pluralize.to_sym, through: :content_content_b, source: :content_a, source_type: "DataCycleCore::#{content_name.classify}"
+            end
           elsif
-            content_relation_table_name = (content_relation_table + "_#{postfix}").pluralize.to_sym
-            target_name = content_name + "_#{postfix}"
-            has_many content_relation_table_name, class_name: "DataCycleCore::" + (content_relation_table.to_s.classify) + "::#{postfix.capitalize}", dependent: :destroy, foreign_key: table_given.singularize + "_#{postfix}_id"
-            has_many target_name.pluralize.to_sym, through: content_relation_table_name
+            if table_given.to_s.singularize < content_name
+              has_many "#{content_name}_#{postfix}".pluralize.to_sym, through: :content_content_a_history, source: :content_b_history, source_type: "DataCycleCore::#{content_name.classify}::#{postfix.capitalize}"
+            else
+              has_many "#{content_name}_#{postfix}".pluralize.to_sym, through: :content_content_b_history, source: :content_a_history, source_type: "DataCycleCore::#{content_name.classify}::#{postfix.capitalize}"
+            end
           end
         end
 

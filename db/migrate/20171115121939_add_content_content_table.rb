@@ -1,6 +1,11 @@
 class AddContentContentTable < ActiveRecord::Migration[5.0]
   def change
 
+    # homogenize all content relation tables
+    add_column :creative_work_persons, :external_source_id, :uuid
+    add_column :creative_work_events, :external_source_id, :uuid
+
+    # new content relation table
     create_table :content_contents, id: :uuid do |t|
       t.uuid :content_a_id
       t.string :content_a_type

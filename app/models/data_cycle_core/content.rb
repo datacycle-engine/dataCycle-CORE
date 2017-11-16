@@ -163,11 +163,9 @@ module DataCycleCore
       return return_data.last
     end
 
-    private
-
     def embedded_relations
       embedded_property_names.map { |property_name|
-         property_definitions[property_name]['storage_location'] if property_definitions[property_name]['storage_location'] != self.class.table_name
+         {name: property_name, table: property_definitions[property_name]['storage_location']} if property_definitions[property_name]['storage_location'] != self.class.table_name
       }.compact.uniq
     end
 
@@ -176,6 +174,8 @@ module DataCycleCore
         property_definitions[property_name]['storage_location'] == self.class.table_name
       }
     end
+
+    private
 
     def get_property_value(property_name, property_definition, timestamp = Time.zone.now, object = true)
       # linked data via embeddedLink/embeddedLinkArray

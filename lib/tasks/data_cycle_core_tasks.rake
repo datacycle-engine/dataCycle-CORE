@@ -270,8 +270,9 @@ namespace :data_cycle_core do
 
       @connection = ActiveRecord::Base.connection
       data_hash = [
-        {a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', relation_a: 'content_location', b: 'place', type_b: 'DataCycleCore::Place'},
-        {a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', ralation_a: 'event', b: 'event', type_b: 'DataCycleCore::Event'}
+        #{a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', relation_a: 'content_location', b: 'place', type_b: 'DataCycleCore::Place'},
+        #{a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', ralation_a: 'event', b: 'event', type_b: 'DataCycleCore::Event'},
+        {a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', ralation_a: 'about', b: 'person', type_b: 'DataCycleCore::Person'}
       ]
 
       data_hash.each do |item|
@@ -288,7 +289,7 @@ namespace :data_cycle_core do
             external_source_id,
             created_at,
             updated_at
-          FROM #{item[:a]}_#{item[:b].plural};
+          FROM #{item[:a]}_#{item[:b].pluralize};
         eos
         @connection.exec_query(sql_query)
 
@@ -302,7 +303,7 @@ namespace :data_cycle_core do
             #{item[:b]}_history_id AS content_b_history_id,
             '#{item[:type_b]}::History' AS content_b_history_type,
             '' AS relation_b,
-            external_source_id
+            external_source_id,
             history_valid,
             created_at,
             updated_at
@@ -310,8 +311,16 @@ namespace :data_cycle_core do
         eos
         @connection.exec_query(sql_query)
       end
-
     end
+
+    task :undo_stage1 => [:environment] do
+      @connection = ActiveRecord::Base.connection
+      delete = "DELETE FROM content_contents;"
+      @connection.exec_query(delete)
+      delete = "DELETE FROM content_content_histories;"
+      @connection.exec_query(delete)
+    end
+
 
   end
 end

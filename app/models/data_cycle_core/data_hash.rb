@@ -89,14 +89,27 @@ module DataCycleCore
 
         # cc embedded data from other content tables
         embedded_relations.map(&:singularize).each do |content_name|
-          content_relation_table = [content_name, origin_table.singularize].sort.join('_')
-          self.send(content_name.pluralize).each do |content_item|
+          content_relation = content_name[:table] < origin_table.singularize ? 'content_content_a_history' : 'content_content_b_history'
+          self.send(content_name[:table]).each do |content_item|
             new_content_history = content_item.to_history(save_time)
-            data_set_history.send(content_relation_table + "_histories").create({
-                (origin_table.singularize + "_history_id") => data_set_history.id,
-                (content_name + "_history_id") => new_content_history.id,
-                "history_valid" => (content_item.updated_at ... save_time)
-              })
+            content_relation_history_data = content_name[:table] < origin_table.singularize ?
+                {
+                  content_a_id: new_content_history.id,
+                  content_a_type: new_content_history.class.to_s,
+                  relation_a: '',
+                  content_b_id: data_set_history.id,
+                  content_b_id: data_set_history.class.to_s,
+                  relation_b: content_name[:name]
+                } : {
+                  content_a_id: data_set_history.id,
+                  content_a_type: data_set_history.class.to_s,
+                  relation_a: content_name[:name],
+                  content_b_id: new_content_history.id,
+                  content_b_id: new_content_history.class.to_s,
+                  relation_b: ''
+                }
+            content_relation_history_data["history_valid"] = (content_item.updated_at ... save_time)
+            data_set_history.send(content_relation).create(content_relation_history_data)
           end
         end
 
@@ -365,12 +378,12 @@ module DataCycleCore
       if table == self.class.table_name
         set_linked_via_tree(field_name, data, table, name, description, delete, save_time, current_user)
       else
-        set_linked_via_relation(data, table, name, description, delete, save_time, current_user)
+        set_linked_via_relation(field_name, data, table, name, description, delete, save_time, current_user)
       end
     end
 
-    def set_linked_via_relation(data, table, name, description, delete, save_time, current_user)
-      relation = get_relation_name(table)
+    def set_linked_via_relation(field_name, data, table, name, description, delete, save_time, current_user)
+      relation = "content_contents"
       updated_item_keys = []
 
       unless is_blank?(data)
@@ -380,12 +393,9 @@ module DataCycleCore
             # id is the only item --> no update
             updated_item_keys.push(item['id'])
             # relation update/insert
-            upsert_relation = ("DataCycleCore::"+relation.classify).
-              constantize.
-              find_or_create_by(
-                self.class.table_name.singularize.foreign_key.to_sym => self.id,
-                table.singularize.foreign_key.to_sym => item['id']
-                )
+            upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
+              get_relation_data_hash(field_name, table, item['id'])
+            )
             upsert_relation.save
           elsif item.has_key?('id') && !item['id'].blank?
             # update
@@ -409,10 +419,9 @@ module DataCycleCore
             updated_item_keys.push(insert_item.id)
 
             # insert_relation
-            insert_relation = ("DataCycleCore::"+relation.classify).constantize.new
-            insert_relation.method(self.class.table_name.singularize.foreign_key+"=").call(self.id)
-            insert_relation.method(table.singularize.foreign_key+"=").call(insert_item.id)
-            insert_relation.save
+            DataCycleCore::ContentContent.create!(
+              get_relation_data_hash(field_name, table, item['id'])
+            )
           end
         end
       end
@@ -442,12 +451,31 @@ module DataCycleCore
       else
         # only destroy relations (independend of how many translations in self/embeddedObject exist)
         potentially_delete.each do |key|
-          ("DataCycleCore::"+relation.classify).constantize.
-            find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
+          DataCycleCore::ContentContent.
+            find_by(get_relation_data_hash(field_name, table, key)).
             destroy
         end
       end
       self.method(table).call.reload # MO: force reload of the relation, otherwise cached data can obsure the next get_data_hash
+    end
+
+    def get_relation_data_hash(field_name, table, item_id)
+      table < self.class.table_name ?
+        {
+          content_a_id: item_id,
+          content_a_type: "DataCycleCore::#{table.classify}",
+          relation_a: "",
+          content_b_id: self.id,
+          content_b_id: self.class.to_s,
+          relation_b: field_name
+        } : {
+          content_a_id: self.id,
+          content_a_type: self.class.to_s,
+          relation_a: field_name,
+          content_b_id: item_id,
+          content_b_id: "DataCycleCore::#{table.classify}",
+          relation_b: ""
+        }
     end
 
     def set_linked_via_tree(field_name, data, table, name, description, delete, save_time, current_user)
