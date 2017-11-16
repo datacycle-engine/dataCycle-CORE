@@ -532,7 +532,7 @@ module DataCycleCore
       end
     end
 
-    # validate nil,"",[],[nil],[""] as blank.
+    # validate nil,"",[],{},[nil],[""] as blank.
     def is_blank?(data)
       return true if data.blank?
       if data.is_a?(::Array)
@@ -550,7 +550,6 @@ module DataCycleCore
         to.kind_of?(DateTime) ? to.to_s(:long_usec) : '',
         ']'
       ].join('')
-
     end
 
     def get_validity_values(validity_hash)
@@ -568,7 +567,6 @@ module DataCycleCore
       to = nil if !to.blank? && to > DateTime.new(9999,1,1,0,0)
 
       [from, to]
-
     end
 
   end
