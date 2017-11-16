@@ -90,7 +90,9 @@ module DataCycleCore
           configure do
 
             def valid_classification?(value)
-              ! DataCycleCore::ClassificationAlias.find_by(name: value).nil?
+              # todo: check if required ? (external categories can not be found before import)
+              # ! DataCycleCore::ClassificationAlias.find_by(name: value).nil?
+              true
             end
 
             def instantiable?(value)
