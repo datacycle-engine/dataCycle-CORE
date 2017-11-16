@@ -37,6 +37,14 @@
         <div class="filtertags activefilter">
             <span class="icon"><i class="fa fa-check" aria-hidden="true"></i> <strong><%= t('common.active_filters', locale: DataCycleCore.ui_language) %>:</strong> </span>
 
+            <span class="your-choice tags sprache">
+              <i class="choice-label"><%= t('common.language', locale: DataCycleCore.ui_language) %>:</i>
+                <% lang = params[:language] || 'de' %>
+                <a class="tag">
+                  <%= available_locales_with_names[lang.try(:to_sym)] %>
+                </a>
+              </span>
+
             <% classification_tree_labels.each do |label| %>
                 <% selected_classifications = get_classifications_for_id(@classification_array, label)  %>
                 <span class="your-choice tags <%= label.downcase %>" style="<%= "display: none;" if selected_classifications.blank? %>">
