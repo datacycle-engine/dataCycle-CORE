@@ -1,5 +1,5 @@
 <%= form_tag(root_path, :method => "get", id: "search-form") do %>
-<% excluded_types = ['Website','MobileApplication','Inklusiv-Leistungen','Zeitleiste-Eintrag','Frage','Antwort','Rezept-Komponente', 'Angebotszeitraum'] %>
+<% excluded_types = DataCycleCore.excluded_filter_classifications %>
 
 <section class="filters">
   <div class="row">

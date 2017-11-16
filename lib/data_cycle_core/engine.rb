@@ -81,6 +81,9 @@ module DataCycleCore
     mattr_accessor :content_tables
     self.content_tables = ['creative_works', 'events', 'persons', 'places']
 
+    mattr_accessor :excluded_filter_classifications
+    self.excluded_filter_classifications = ['Website','MobileApplication','Inklusiv-Leistungen','Zeitleiste-Eintrag','Frage','Antwort','Rezept-Komponente', 'Angebotszeitraum']
+
     mattr_accessor :ui_language
     self.ui_language = :de
 
