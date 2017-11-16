@@ -94,7 +94,7 @@ module DataCycleCore
       external_source_id ||= DataCycleCore::ExternalSource.find_by(name: 'JSON-LD OEW-Medienarchiv').id
       classifications_tree_label_id = DataCycleCore::DataHashService.init_or_create_classifications_trees_label('Tags', external_source_id)
 
-      data_template = DataCycleCore::CreativeWork.find_by(template: true, description: data_set.values.first['@type'].split(':').last)
+      data_template = DataCycleCore::CreativeWork.find_by(template: true, headline: data_set.values.first['contentType'])
       validation = data_template.metadata['validation']
 
       template_params = DataCycleCore::DataHashService.get_object_params('creative_works', data_template.headline, data_template.description)
@@ -140,7 +140,7 @@ module DataCycleCore
     end
 
     def self.create_imported_content_with_lang(data_hash, lang, content, template_params, external_source_id)
-      data = data_hash.except('@context', '@type', 'visibility', 'keywords', 'contentLocation').deep_transform_keys{ |k| k.to_s.underscore }
+      data = data_hash.except('@context', 'contentType', 'visibility', 'keywords', 'contentLocation').deep_transform_keys{ |k| k.to_s.underscore }
       I18n.with_locale(lang) do
         unless data_hash["contentLocation"].blank?
           content_location_hash = DataCycleCore::DataHashService.get_content_location(content.id, data_hash["contentLocation"], lang, external_source_id)
