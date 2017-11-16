@@ -5,8 +5,7 @@
                 <%= content.title %>
             </div>
         <% end %>
-
-        <% if !content.metadata['restrictions'].blank? && content.metadata['restrictions'] != 'Keine Einschränkung;' %>
+        <% if content.try(:restrictions).try(:include?, 'gesperrt') %>
             <span data-tooltip aria-haspopup="true" class="has-tip warning" data-disable-hover="false" tabindex="1"
                   title="Einschränkungen: <%= content.metadata['restrictions'] %>">
                 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
@@ -40,9 +39,13 @@
             <% end %>
             <br /><br />
         <% end %>
-        
+
         <% if !content.metadata['restrictions'].nil? && !content.metadata['restrictions'].blank? && content.metadata['restrictions'] != 'Keine Einschränkung;' %>
-            <strong>Einschränkungen:</strong> <%= content.metadata['restrictions'].html_safe %><br /><br />
+            <strong>Einschränkungen: </strong>
+            <% if content.try(:restrictions).try(:include?, 'gesperrt') %>
+              <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+            <% end %>
+            <%= content.metadata['restrictions'].html_safe %><br /><br />
         <% end %>
 
         <%= link_to content, target: '_blank' do %>

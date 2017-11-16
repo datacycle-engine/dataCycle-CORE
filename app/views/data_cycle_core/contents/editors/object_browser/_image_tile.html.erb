@@ -1,6 +1,6 @@
 
 <div v-if="props.item != undefined" :data-open="props.dataOpen" :class="[props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != '' && props.item.metadata.restrictions != 'Keine Einschränkung;' ? 'has-restrictions' : '', 'media thumbnail', props.item.is_valid == false ? 'expired-item' : '']" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnail_url+')' }">
-  <span v-if="props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != ''" data-tooltip aria-haspopup="true" class="has-tip warning" data-disable-hover="false" tabindex="1" :title="'Einschränkungen: '+props.item.metadata.restrictions"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
+  <span v-if="props.item.metadata.restrictions.indexOf('gesperrt') !== -1" data-tooltip aria-haspopup="true" class="has-tip warning" data-disable-hover="false" tabindex="1" :title="'Einschränkungen: '+props.item.metadata.restrictions"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
 
   <span v-if="!props.readonly" class="delete-thumbnail" @click.stop="props.remove(props.item, $event)"><i aria-hidden="true" class="fa fa-times"></i></span>
   <div class="description" v-if="props.item.headline">
@@ -26,7 +26,7 @@
             <strong>Gültigkeit</strong> {{ props.item.formatted_validity_period.date_published }} <strong>bis</strong> {{ props.item.formatted_validity_period.expires }}<br /><br />
         </div>
         <div v-if="props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != '' && props.item.metadata.restrictions != 'Keine Einschränkung;'">
-            <strong>Einschränkungen:</strong> {{ props.item.metadata.restrictions }} <br /><br />
+            <strong>Einschränkungen:</strong> <i v-if="props.item.metadata.restrictions.indexOf('gesperrt') !== -1" class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{ props.item.metadata.restrictions }} <br /><br />
         </div>
         <a :href="'/creative_works/'+props.item.id" target="_blank">zur Detailansicht</a> |
         <a :href="props.item.metadata.content_url" target="_blank">in voller Größe öffnen</a> |

@@ -28,7 +28,7 @@
       <dd class="block-flex" v-if="item.metadata.license != undefined">{{ item.metadata.license }}</dd>
       <dt class="block-flex" v-if="item.metadata.restrictions != undefined && item.metadata.restrictions != '' && item.metadata.restrictions != 'Keine Einschränkung;'">Einschränkungen: </dt>
       <dd class="block-flex" v-if="item.metadata.restrictions != undefined && item.metadata.restrictions != '' && item.metadata.restrictions != 'Keine Einschränkung;'">
-        <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{ item.metadata.restrictions }}</dd>
+        <i v-if="item.metadata.restrictions.indexOf('gesperrt') !== -1" class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{ item.metadata.restrictions }}</dd>
       <dt v-if="item.metadata.date_created != undefined">Erstellt: </dt>
       <dd v-if="item.metadata.date_created != undefined">{{ formatDate(item.metadata.date_created) }}</dd>
       <dt v-if="item.metadata.date_modified != undefined">Bearbeitet: </dt>
@@ -38,7 +38,7 @@
   <div v-else></div>
 </template>
 <script>
-import Formatter from './../../mixins/formatters.js'
+import Formatter from "./../../mixins/formatters.js";
 
 export default {
   mixins: [Formatter],
@@ -47,5 +47,5 @@ export default {
       type: Object
     }
   }
-}
+};
 </script>
