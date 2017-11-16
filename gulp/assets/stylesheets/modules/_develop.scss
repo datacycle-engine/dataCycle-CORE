@@ -643,3 +643,11 @@ a.email-link {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+.row{
+  &.dashboard-cards{
+    > .columns{
+      float:left;
+    }
+  }
+}

@@ -40,11 +40,15 @@ module DataCycleCore
       errors.merge!({events: error}) unless error.blank?
       if errors.blank?
         flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: "data types", locale: DataCycleCore.ui_language
+        redirect_to admin_path
+        return
       else
+        @statOutdoorActive = StatsDatabase.new(current_user.id)
+        @statJobQueue = StatsJobQueue.new.update
+        @errors = errors
         ap errors
-        flash[:error] = "the following errors were encountered: #{errors}"
+        flash[:error] = "errors were encountered: ##{errors.count}"
       end
-      redirect_to admin_path
     end
 
     def import_classifications

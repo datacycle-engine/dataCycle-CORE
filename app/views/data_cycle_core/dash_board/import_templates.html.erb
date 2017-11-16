@@ -33,7 +33,7 @@
             <%= render 'pg_total_stats' %>
         </div>
         <div class="small-9 columns">
-            <%= render 'job_queue_stats' unless @statJobQueue.count == 0 %>
+            <%= ap(@errors).html_safe %>
         </div>
     </div>
 
