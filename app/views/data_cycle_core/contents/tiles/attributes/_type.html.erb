@@ -1,13 +1,13 @@
 
 <% if !item.metadata.nil? && !item.metadata['validation'].nil? && !item.metadata['validation']['name'].nil? %>
 
-    <div class="type <%= item.metadata['validation']['name'].downcase %>">
+    <div class="type <%= item.content_type.downcase %>">
         <div class="infoRow <%= "has-parent" if item.parent %>">
-            <%= render 'data_cycle_core/shared/icon', icon_type: item.metadata['validation']['name'].downcase %>
-            <% if item.metadata['validation']['name'].downcase == 'contentlocation' %>
+            <%= render 'data_cycle_core/shared/icon', icon_type: item.content_type.downcase %>
+            <% if item.content_type.downcase == 'contentlocation' %>
                 <span class="title">Ort</span>
             <% else %>
-                <span class="title"><%= item.metadata['validation']['name'] %></span>
+                <span class="title"><%= item.content_type %></span>
             <% end %>
             <span class="locale">(<%= I18n.locale.to_s %>)</span>
         </div>

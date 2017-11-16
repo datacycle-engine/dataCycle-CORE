@@ -1,8 +1,8 @@
 <div class="detail-header-info">
-    <div class="type <%= content.metadata['validation']['name'].downcase %>">
+    <div class="type <%= content.content_type.downcase %>">
         <%= render_content_partial 'icon', content: content %>
 
-        <span class="title"><%= content.metadata['validation']['name'] %></span>
+        <span class="title"><%= content.content_type %></span>
         <% unless content.translated_locales.count > 1 %>
           <span class="language">(<%= I18n.locale %>)</span>
         <% end %>

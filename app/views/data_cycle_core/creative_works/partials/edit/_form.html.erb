@@ -68,10 +68,10 @@
 			<div class="detail-header editor">
 
 				<div class="detail-header-info">
-					<div class="type <%= dataObject.metadata['validation']['name'].downcase %>">
+					<div class="type <%= dataObject.content_type.downcase %>">
 						<%= render_content_partial 'icon', content: dataObject %>
 
-						<span class="title"><%= dataObject.metadata['validation']['name'] %></span>
+						<span class="title"><%= dataObject.content_type %></span>
             <span class="language">(<%= I18n.locale %>)</span>
 					</div>
 					<%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: dataObject, dataCycleObjectSchema: dataSchema %>
