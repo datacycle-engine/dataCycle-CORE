@@ -169,7 +169,7 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
       assert_equal(1, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Person.where(template: false).count)
-      assert_equal(2, DataCycleCore::ClassificationContent.count) # 1x quotation, 1x "Artikel"
+      assert_equal(3, DataCycleCore::ClassificationContent.count) 
 
       # delete quotation
       data_hash['quotation'] = []
@@ -183,9 +183,9 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(0, DataCycleCore::CcontentContent.count)
+      assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Person.where(template: false).count)
-      assert_equal(1, DataCycleCore::ClassificationContent.count) # 1x "Artikel", quotation with references deleted
+      assert_equal(2, DataCycleCore::ClassificationContent.count)
     end
 
     test 'insert quotations, then delete quotations' do

@@ -96,7 +96,7 @@ module DataCycleCore
       expected_hash = {
         "kind" => [],
         "tags" => [],
-        "author" => [],
+        "permitted_creator" => [],
         "text" => "wtf is going on???",
         "state" => [],
         "season" => [],
@@ -131,19 +131,18 @@ module DataCycleCore
       }
       expected_hash["quotation"][0]["id"]=returned_data_hash["quotation"][0]["id"]
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except('id',"data_type",'validity_period'))
+      assert_equal(expected_hash, returned_data_hash.compact.except('id',"data_type",'validity_period', 'data_pool'))
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::CreativeWorkPerson.count)
+      assert_equal(2, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Person.where(template: false).count)
-      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
       assert_equal(2, DataCycleCore::Place.where(template: false).count)
 
-      # change contentLocation via new id
-
-      # ap DataCycleCore::Place.find(place_id_1).get_data_hash
-      # ap DataCycleCore::Place.find(place_id_2).get_data_hash
+      assert_equal(['DataCycleCore::CreativeWork'], DataCycleCore::ContentContent.all.pluck(:content_a_type).uniq)
+      assert_equal(['DataCycleCore::Place', 'DataCycleCore::Person'].sort , DataCycleCore::ContentContent.all.pluck(:content_b_type).uniq.sort)
+      assert_equal(['author', 'content_location'], DataCycleCore::ContentContent.all.pluck(:relation_a).uniq.sort)
+      assert_equal([''], DataCycleCore::ContentContent.all.pluck(:relation_b).uniq)
 
 
       returned_data_hash['content_location'] = [{"id" => place_id_2 }]
@@ -159,14 +158,13 @@ module DataCycleCore
         "location" => nil
         }]
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, updated_data_hash.compact.except('id',"data_type",'validity_period'))
+      assert_equal(expected_hash, updated_data_hash.compact.except('id',"data_type",'validity_period', 'data_pool'))
 
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::CreativeWorkPerson.count)
+      assert_equal(2, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Person.where(template: false).count)
-      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
       assert_equal(2, DataCycleCore::Place.where(template: false).count)
 
     end
