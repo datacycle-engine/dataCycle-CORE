@@ -92,22 +92,17 @@ module DataCycleCore
           content_relation = content_name[:table] < origin_table.singularize ? 'content_content_a_history' : 'content_content_b_history'
           self.send(content_name[:table]).each do |content_item|
             new_content_history = content_item.to_history(save_time)
-            content_relation_history_data = content_name[:table] < origin_table.singularize ?
-                {
-                  content_a_id: new_content_history.id,
-                  content_a_type: new_content_history.class.to_s,
-                  relation_a: '',
-                  content_b_id: data_set_history.id,
-                  content_b_id: data_set_history.class.to_s,
-                  relation_b: content_name[:name]
-                } : {
-                  content_a_id: data_set_history.id,
-                  content_a_type: data_set_history.class.to_s,
-                  relation_a: content_name[:name],
-                  content_b_id: new_content_history.id,
-                  content_b_id: new_content_history.class.to_s,
-                  relation_b: ''
-                }
+            content_one_data = [new_content_history.id, new_content_history.class.to_s, '']
+            content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name[:name]]
+            content_relation_history_data = ['a', 'b'].map { |selector|
+              [ "content_#{selector}_history_id".to_sym,
+                "content_#{selector}_history_type".to_sym,
+                "relation_#{selector}".to_sym]
+            }.flatten
+              .zip(content_name[:table] < origin_table.singularize ?
+                content_one_data+content_two_data :
+                content_two_data+content_one_data
+              ).to_h
             content_relation_history_data["history_valid"] = (content_item.updated_at ... save_time)
             data_set_history.send(content_relation).create(content_relation_history_data)
           end
@@ -157,10 +152,28 @@ module DataCycleCore
               item.destroy
             end
           end
-          relation = get_relation_name(definition['storage_location'])
-          relations = ("DataCycleCore::" + relation.classify).constantize.
-            where(self.class.table_name.singularize.foreign_key.to_sym => self.id,
-              definition['storage_location'].singularize.foreign_key.to_sym => self.method(definition['storage_location']).call.ids)
+
+          relation_class = is_history? DataCycleCore::ContentContent::History : DataCycleCore::ContentContent
+          target_class = is_history? "DataCycleCore::#{relation_name.classify}::History" : "DataCycleCore::#{relation_name.classify}"
+          content_one_data = [self.method(relation_name).call.ids, target_class, '']
+          content_two_data = [self.id, self.class.to_s, name]
+          where_hash = ['a', 'b'].map { |selector|
+            if is_history?
+              [ "content_#{selector}_history_id".to_sym,
+                "content_#{selector}_history_type".to_sym,
+                "relation_#{selector}".to_sym]
+            else
+              [ "content_#{selector}_id".to_sym,
+                "content_#{selector}_type".to_sym,
+                "relation_#{selector}".to_sym]
+            end
+          }.flatten
+            .zip(relation_name < self.class.table_name ?
+              content_one_data+content_two_data :
+              content_two_data+content_one_data
+            ).to_h
+
+          relations = relation_class.where(where_hash)
           relations.destroy_all unless relations.blank?
         end
       end
@@ -460,22 +473,12 @@ module DataCycleCore
     end
 
     def get_relation_data_hash(field_name, table, item_id)
-      table < self.class.table_name ?
-        {
-          content_a_id: item_id,
-          content_a_type: "DataCycleCore::#{table.classify}",
-          relation_a: "",
-          content_b_id: self.id,
-          content_b_id: self.class.to_s,
-          relation_b: field_name
-        } : {
-          content_a_id: self.id,
-          content_a_type: self.class.to_s,
-          relation_a: field_name,
-          content_b_id: item_id,
-          content_b_id: "DataCycleCore::#{table.classify}",
-          relation_b: ""
-        }
+      item_data = [item_id, "DataCycleCore::#{table.classify}", ""]
+      self_data = [self.id, self.class.to_s, field_name]
+      ['a', 'b'].map { |selector|
+        ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
+      }.flatten
+      .zip(table < self.class.table_name ? item_data+self_data : self_data+item_data).to_h
     end
 
     def set_linked_via_tree(field_name, data, table, name, description, delete, save_time, current_user)
@@ -546,17 +549,6 @@ module DataCycleCore
       else
         # replace hasPart with given updated_item_keys
         self.metadata[field_has_part] = updated_item_keys
-      end
-    end
-
-    # make a rails conform name for a relation table
-    def get_relation_name(table)
-      if is_history?
-        tables = [ table, self.class.table_name.split('_')[0...-1].join('_') ].sort
-        return "#{tables[0].singularize}_#{tables[1]}_histories"
-      else
-        tables = [ table , self.class.table_name ].sort
-        return tables[0].singularize+"_"+tables[1]
       end
     end
 
