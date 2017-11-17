@@ -4,8 +4,10 @@
     :description: CreativeWork
     :type: object
     :content_type: entity
+    :releasable: true
     :permissions:
       :read_write: true
+    :boost: 10000.0
     :properties:
       :id:
         :label: id
@@ -15,10 +17,11 @@
         :validations:
           :format: uuid
       :headline:
-        :label: Titel
+        :label: Arbeitstitel
         :type: string
         :storage_type: string
         :storage_location: column
+        :search: true
         :validations:
           :minLength: 1
         :editor:
@@ -31,11 +34,13 @@
         :type: string
         :storage_type: text
         :storage_location: content
+        :search: true
         :editor:
           :type: quillEditor
-          :sorting: 2
+          :sorting: 3
           :options:
             :data-size: full
+            :tabindex: -1
       :image:
         :label: Bilder
         :type: embeddedLinkArray
@@ -43,15 +48,23 @@
         :storage_type: array
         :storage_location: metadata
         :editor:
-          :sorting: 3
-#      :video:
-#        :label: Videos
-#        :type: embeddedLinkArray
-#        :type_name: creative_works
-#        :storage_type: array
-#        :storage_location: metadata
-#        :editor:
-#          :sorting: 4
+          :sorting: 4
+          :type: objectBrowser
+          :options:
+            :data-validate: media
+            :data-type: image
+      :video:
+        :label: Videos
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+        :editor:
+          :sorting: 5
+          :type: objectBrowser
+          :options:
+            :data-validate: media
+            :data-type: video
       #meta attributes
       :data_pool:
         :label: Inhaltspool

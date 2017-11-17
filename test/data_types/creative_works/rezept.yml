@@ -4,8 +4,10 @@
     :description: CreativeWork
     :type: object
     :content_type: variant
+    :releasable: true
     :permissions:
       :read_write: true
+    :boost: 100.0
     :properties:
       :id:
         :label: id
@@ -15,15 +17,29 @@
         :validations:
           :format: uuid
       :headline:
-        :label: Titel
+        :label: Arbeitstitel
         :type: string
         :storage_type: string
         :storage_location: column
+        :search: true
         :validations:
           :minLength: 1
         :editor:
           :type: input
           :sorting: 1
+          :options:
+            :data-validate: text
+      :headline_external:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :search: true
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 2
           :options:
             :data-validate: text
       :validity_period:
@@ -35,9 +51,9 @@
             :from: valid_from
             :to: valid_until
         :editor:
-          :sorting: 2
+          :sorting: 3
           :options:
-            :class: daterange validation-container
+            :class: daterange
             :tabindex: -1
         :properties:
           :valid_from:
@@ -70,12 +86,14 @@
         :label: Teasertext
         :type: string
         :storage_type: text
-        :storage_location: content
+        :storage_location: column
+        :search: true
         :editor:
           :type: quillEditor
-          :sorting: 3
+          :sorting: 4
           :options:
             :data-size: basic
+            :tabindex: -1
       :name:
         :label: Linktext
         :type: string
@@ -83,7 +101,7 @@
         :storage_location: content
         :editor:
           :type: input
-          :sorting: 4
+          :sorting: 5
       :image:
         :label: Bilder
         :type: embeddedLinkArray
@@ -91,17 +109,48 @@
         :storage_type: array
         :storage_location: metadata
         :editor:
-          :sorting: 5
+          :sorting: 6
+          :type: objectBrowser
+          :options:
+            :data-validate: media
+            :data-type: image
+      :video:
+        :label: Videos
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+        :editor:
+          :sorting: 7
+          :type: objectBrowser
+          :options:
+            :data-validate: media
+            :data-type: video
+      :content_location:
+        :label: Ort
+        :type: object
+        :storage_location: places
+        :name: contentLocation
+        :description: Place
+        :delete: false
+        :editor:
+          :sorting: 8
+          :type: objectBrowser
+          :options:
+            :data-validate: object
+            :data-type: place
       :recipe_instructions:
         :label: Fließtext
         :type: string
         :storage_type: text
         :storage_location: content
+        :search: true
         :editor:
           :type: quillEditor
-          :sorting: 6
+          :sorting: 9
           :options:
             :data-size: full
+            :tabindex: -1
       :recipe_yield:
         :label: Portionen
         :type: string
@@ -109,7 +158,7 @@
         :storage_location: content
         :editor:
           :type: input
-          :sorting: 7
+          :sorting: 10
       :total_time:
         :label: Kochzeit
         :type: number
@@ -120,10 +169,11 @@
           :max: 300
         :editor:
           :type: duration
-          :sorting: 8
+          :sorting: 11
           :options:
             :data-type: duration
             :data-validate: integer
+            :data-unit: min
       :recipe_course:
         :label: 'Gang'
         :type: classificationTreeLabel
@@ -131,7 +181,9 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 9
+          :sorting: 12
+          :options:
+            :tabindex: -1
       :recipe_category:
         :label: 'Kategorie'
         :type: classificationTreeLabel
@@ -139,35 +191,20 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 10
+          :sorting: 13
+          :options:
+            :tabindex: -1
       :recipe_ingredient:
-        :label: Zutat
+        :label: Zutaten
         :type: string
         :storage_type: text
         :storage_location: content
         :editor:
           :type: quillEditor
-          :sorting: 11
+          :sorting: 14
           :options:
             :data-size: full
-      :recipeComponent:
-        :label: Komponente
-        :type: object
-        :storage_location: creative_works
-        :delete: true
-        :name: Rezept-Komponente
-        :description: CreativeWork
-        :editor:
-          :type: embeddedObject
-          :sorting: 12
-#      :video:
-#        :label: Videos
-#        :type: embeddedLinkArray
-#        :type_name: creative_works
-#        :storage_type: array
-#        :storage_location: metadata
-#        :editor:
-#          :sorting: 13
+            :tabindex: -1
       #meta attributes
       :topics:
         :label: Themenbereiche
@@ -177,6 +214,8 @@
         :editor:
           :type: classificationSelector
           :sorting: 20
+          :options:
+            :tabindex: -1
       :markets:
         :label: Zielmarkt
         :type: classificationTreeLabel
@@ -185,6 +224,8 @@
         :editor:
           :type: classificationSelector
           :sorting: 21
+          :options:
+            :tabindex: -1
       :kind:
         :label: Inhaltsart
         :type: classificationTreeLabel
@@ -193,6 +234,8 @@
         :editor:
           :type: classificationSelector
           :sorting: 22
+          :options:
+            :tabindex: -1
       :season:
         :label: Jahreszeit
         :type: classificationTreeLabel
@@ -201,6 +244,8 @@
         :editor:
           :type: classificationSelector
           :sorting: 23
+          :options:
+            :tabindex: -1
       :state:
         :label: Bundesland
         :type: classificationTreeLabel
@@ -211,6 +256,7 @@
           :sorting: 24
           :options:
             :data-validate: classification
+            :tabindex: -1
       :tags:
         :label: Tags
         :type: classificationTreeLabel
@@ -219,6 +265,8 @@
         :editor:
           :type: classificationSelector
           :sorting: 25
+          :options:
+            :tabindex: -1
       :output_channels:
         :label: Ausgabekanäle
         :type: classificationTreeLabel
@@ -227,100 +275,30 @@
         :editor:
           :type: classificationSelector
           :sorting: 27
-#      :data_pool:
-#        :label: Inhaltspool
-#        :type: classificationTreeLabel
-#        :type_name: Inhaltspools
-#        :storage_location: classification_relation
-#        :default_value: "Aktuelle Themen"
+          :options:
+            :tabindex: -1
+      :permitted_creator:
+        :label: Ersteller
+        :type: classificationTreeLabel
+        :type_name: Ersteller
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 28
+          :options:
+            :tabindex: -1
+      :data_pool:
+        :label: Inhaltspool
+        :type: classificationTreeLabel
+        :type_name: Inhaltspools
+        :storage_location: classification_relation
+        :default_value: "Aktuelle Inhalte"
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Rezept"
-      :creator:
-        :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
-      :date_created:
-        :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
-      :date_modified:
-        :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
-
-- :data:
-    :name: Rezept-Komponente
-    :description: CreativeWork
-    :type: object
-    :content_type: embedded
-    :permissions:
-      :read_write: true
-    :properties:
-      :id:
-        :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
-      :recipe_instructions:
-        :label: Fließtext
-        :type: string
-        :storage_type: text
-        :storage_location: content
-        :editor:
-          :type: quillEditor
-          :sorting: 1
-          :options:
-            :data-size: full
-      :recipe_ingredient:
-        :label: Zutat
-        :type: string
-        :storage_type: text
-        :storage_location: content
-        :editor:
-          :type: quillEditor
-          :sorting: 2
-          :options:
-            :data-size: full
-      :total_time:
-        :label: Kochzeit
-        :type: number
-        :storage_type: number
-        :storage_location: content
-        :validations:
-          :format: integer
-          :max: 300
-        :editor:
-          :type: duration
-          :sorting: 3
-          :options:
-            :data-type: duration
-            :data-validate: integer
-#      :data_pool:
-#        :label: Inhaltspool
-#        :type: classificationTreeLabel
-#        :type_name: Inhaltspools
-#        :storage_location: classification_relation
-#        :default_value: "Aktuelle Themen"
-      :data_type:
-        :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
-        :default_value: "Rezept-Komponente"
       :creator:
         :label: Ersteller
         :type: embeddedLink

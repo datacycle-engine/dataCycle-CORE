@@ -52,7 +52,7 @@
         :type: classificationTreeLabel
         :type_name: Inhaltspools
         :storage_location: classification_relation
-        :default_value: "Aktuelle Themen"
+        :default_value: "Aktuelle Inhalte"
 
 - :data:
     :name: TestEmbeddedPlaceData
@@ -112,7 +112,7 @@
         :type: classificationTreeLabel
         :type_name: Inhaltspools
         :storage_location: classification_relation
-        :default_value: "Aktuelle Themen"
+        :default_value: "Aktuelle Inhalte"
 
 - :data:
     :name: CreativeWorkEmbeddedLink
@@ -350,7 +350,7 @@
         :type: classificationTreeLabel
         :type_name: Inhaltspools
         :storage_location: classification_relation
-        :default_value: "Aktuelle Themen"
+        :default_value: "Aktuelle Inhalte"
       :creator:
         :label: Ersteller
         :type: embeddedLink

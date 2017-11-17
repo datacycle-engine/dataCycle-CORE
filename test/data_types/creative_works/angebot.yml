@@ -4,8 +4,10 @@
     :description: CreativeWork
     :type: object
     :content_type: variant
+    :releasable: true
     :permissions:
       :read_write: true
+    :boost: 100.0
     :properties:
       :id:
         :label: id
@@ -15,15 +17,29 @@
         :validations:
           :format: uuid
       :headline:
-        :label: Titel
+        :label: Arbeitstitel
         :type: string
         :storage_type: string
         :storage_location: column
+        :search: true
         :validations:
           :minLength: 1
         :editor:
           :type: input
           :sorting: 1
+          :options:
+            :data-validate: text
+      :headline_external:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :search: true
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 2
           :options:
             :data-validate: text
       :validity_period:
@@ -35,9 +51,9 @@
             :from: valid_from
             :to: valid_until
         :editor:
-          :sorting: 2
+          :sorting: 3
           :options:
-            :class: daterange validation-container
+            :class: daterange
             :tabindex: -1
         :properties:
           :valid_from:
@@ -71,19 +87,22 @@
         :type: string
         :storage_type: string
         :storage_location: content
+        :search: true
         :editor:
           :type: input
-          :sorting: 3
+          :sorting: 4
       :description:
         :label: Teasertext
         :type: string
         :storage_type: text
-        :storage_location: content
+        :storage_location: column
+        :search: true
         :editor:
           :type: quillEditor
-          :sorting: 4
+          :sorting: 5
           :options:
             :data-size: basic
+            :tabindex: -1
       :name:
         :label: Linktext
         :type: string
@@ -91,27 +110,27 @@
         :storage_location: content
         :editor:
           :type: input
-          :sorting: 5
+          :sorting: 6
       :text:
         :label: Fließtext
         :type: string
         :storage_type: text
         :storage_location: content
+        :search: true
         :editor:
           :type: quillEditor
-          :sorting: 6
+          :sorting: 7
           :options:
             :data-size: full
+            :tabindex: -1
       :price:
         :label: Preis
         :type: string
         :storage_type: text
         :storage_location: content
         :editor:
-          :type: quillEditor
-          :sorting: 7
-          :options:
-            :data-size: full
+          :type: input
+          :sorting: 8
       :service:
         :label: Inklusivleistungen
         :type: string
@@ -119,49 +138,20 @@
         :storage_location: content
         :editor:
           :type: quillEditor
-          :sorting: 8
-          :options:
-            :data-size: full
-      :offer_period:
-        :label: Angebotszeitraum
-        :type: object
-        :storage_location: metadata
-        :validations:
-          :daterange:
-            :from: valid_from
-            :to: valid_until
-        :editor:
           :sorting: 9
           :options:
-            :class: daterange validation-container
+            :data-size: full
             :tabindex: -1
-        :properties:
-          :valid_from:
-            :label: Angebotszeitraum
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date
-            :editor:
-              :type: datetime
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: "tt.mm.jjjj --:--"
-          :valid_until:
-            :label: bis
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date
-            :editor:
-              :type: datetime
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: "tt.mm.jjjj --:--"
+      :offer_periods:
+        :label: Angebotszeitraum
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: Angebotszeitraum
+        :description: CreativeWork
+        :editor:
+          :type: embeddedObject
+          :sorting: 10
       :image:
         :label: Bilder
         :type: embeddedLinkArray
@@ -169,7 +159,11 @@
         :storage_type: array
         :storage_location: metadata
         :editor:
-          :sorting: 10
+          :sorting: 11
+          :type: objectBrowser
+          :options:
+            :data-validate: media
+            :data-type: image
       :logo:
         :label: Logo
         :type: embeddedLinkArray
@@ -179,9 +173,36 @@
         :validations:
           :max: 1
         :editor:
-          :sorting: 11
+          :sorting: 12
+          :type: objectBrowser
           :options:
             :data-validate: media
+            :data-type: image
+      :video:
+        :label: Videos
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+        :editor:
+          :sorting: 13
+          :type: objectBrowser
+          :options:
+            :data-validate: media
+            :data-type: video
+      :content_location:
+        :label: Ort
+        :type: object
+        :storage_location: places
+        :name: contentLocation
+        :description: Place
+        :delete: false
+        :editor:
+          :sorting: 14
+          :type: objectBrowser
+          :options:
+            :data-validate: object
+            :data-type: place
       :website:
         :label: Link
         :type: object
@@ -191,7 +212,7 @@
         :description: CreativeWork
         :editor:
           :type: embeddedObject
-          :sorting: 12
+          :sorting: 15
       #meta attributes
       :topics:
         :label: Themenbereiche
@@ -200,7 +221,9 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 20
+          :sorting: 16
+          :options:
+            :tabindex: -1
       :markets:
         :label: Zielmarkt
         :type: classificationTreeLabel
@@ -208,7 +231,9 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 21
+          :sorting: 17
+          :options:
+            :tabindex: -1
       :kind:
         :label: Inhaltsart
         :type: classificationTreeLabel
@@ -216,7 +241,9 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 22
+          :sorting: 18
+          :options:
+            :tabindex: -1
       :season:
         :label: Jahreszeit
         :type: classificationTreeLabel
@@ -224,7 +251,9 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 23
+          :sorting: 19
+          :options:
+            :tabindex: -1
       :state:
         :label: Bundesland
         :type: classificationTreeLabel
@@ -232,9 +261,10 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 24
+          :sorting: 20
           :options:
             :data-validate: classification
+            :tabindex: -1
       :tags:
         :label: Tags
         :type: classificationTreeLabel
@@ -242,7 +272,9 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 25
+          :sorting: 21
+          :options:
+            :tabindex: -1
       :output_channels:
         :label: Ausgabekanäle
         :type: classificationTreeLabel
@@ -250,13 +282,25 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 26
-#      :data_pool:
-#        :label: Inhaltspool
-#        :type: classificationTreeLabel
-#        :type_name: Inhaltspools
-#        :storage_location: classification_relation
-#        :default_value: "Aktuelle Themen"
+          :sorting: 22
+          :options:
+            :tabindex: -1
+      :permitted_creator:
+        :label: Ersteller
+        :type: classificationTreeLabel
+        :type_name: Ersteller
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 23
+          :options:
+            :tabindex: -1
+      :data_pool:
+        :label: Inhaltspool
+        :type: classificationTreeLabel
+        :type_name: Inhaltspools
+        :storage_location: classification_relation
+        :default_value: "Aktuelle Inhalte"
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
@@ -283,3 +327,92 @@
         :storage_location: metadata
         :validations:
           :format: date_time
+
+- :data:
+    :name: Angebotszeitraum
+    :description: CreativeWork
+    :type: object
+    :content_type: embedded
+    :permissions:
+      :read_write: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :is_part_of:
+        :label: parent
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :validations:
+          :format: uuid
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :date_created:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :date_modified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_location: classification_relation
+        :default_value: "Angebotszeitraum"
+      :offer_period:
+        :label: Zeitraum
+        :type: object
+        :storage_location: metadata
+        :validations:
+          :daterange:
+            :from: valid_from
+            :to: valid_until
+        :editor:
+          :sorting: 1
+          :options:
+            :class: daterange
+            :tabindex: -1
+        :properties:
+          :valid_from:
+            :label: "Zeitraum von"
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: "tt.mm.jjjj"
+          :valid_until:
+            :label: "bis"
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: "tt.mm.jjjj"

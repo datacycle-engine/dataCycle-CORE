@@ -46,21 +46,22 @@ module DataCycleCore
           "external_source_id" => nil
         }]
       }
-      assert_equal(expected_hash, returned_data_hash_without.compact.except('id','data_type'))
+
+      assert_equal(expected_hash, returned_data_hash_without.compact.except('id','data_type','data_pool', 'keywords'))
       assert_equal(0, error[:error].count)
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
-      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
-      assert_equal(1, DataCycleCore::ClassificationContent.count)
+      assert_equal(1, DataCycleCore::ContentContent.count)
+      assert_equal(2, DataCycleCore::ClassificationContent.count)
       assert_equal(1, DataCycleCore::Place.count - template_p)
       assert_equal(1, DataCycleCore::Place::Translation.count - template_pt)
 
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
       assert_equal(0, DataCycleCore::ClassificationContent::History.count)
-      assert_equal(0, DataCycleCore::CreativeWorkPlace::History.count)
+      assert_equal(0, DataCycleCore::ContentContent::History.count)
       assert_equal(0, DataCycleCore::Place::History.count)
       assert_equal(0, DataCycleCore::Place::History::Translation.count)
 
@@ -74,15 +75,15 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
-      assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
-      assert_equal(1, DataCycleCore::ClassificationContent.count)
+      assert_equal(0, DataCycleCore::ContentContent.count)
+      assert_equal(2, DataCycleCore::ClassificationContent.count)
       assert_equal(1, DataCycleCore::Place.count - template_p)
       assert_equal(1, DataCycleCore::Place::Translation.count - template_pt)
 
       assert_equal(2, DataCycleCore::CreativeWork::History.count)
       assert_equal(2, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(1, DataCycleCore::CreativeWorkPlace::History.count)
-      assert_equal(1, DataCycleCore::ClassificationContent.count)
+      assert_equal(1, DataCycleCore::ContentContent::History.count)
+      assert_equal(2, DataCycleCore::ClassificationContent::History.count)
       assert_equal(1, DataCycleCore::Place::History.count)
       assert_equal(1, DataCycleCore::Place::History::Translation.count)
     end
@@ -125,7 +126,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Place.where(template: false).count)
 
       returned_data_hash["content_location"] = []
@@ -173,23 +174,23 @@ module DataCycleCore
         }]
       }
 
-      assert_equal(expected_hash, returned_data_hash.compact.except('id','data_type'))
+      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'keywords', 'data_pool'))
       assert_equal(0, error[:error].count)
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Place.where(template: false).count)
 
       returned_data_hash["content_location"] = [{'id' => returned_data_hash["content_location"][0]['id']}]
       error = data_set.set_data_hash(data_hash: returned_data_hash)
       data_set.save
       returned_again = data_set.get_data_hash
-      assert_equal(expected_hash, returned_again.compact.except('id',"data_type"))
+      assert_equal(expected_hash, returned_again.compact.except('id', 'data_type', 'keywords', 'data_pool'))
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Place.where(template: false).count)
     end
 
@@ -233,12 +234,12 @@ module DataCycleCore
         "content_location" => [ returned_place ]
       }
 
-      assert_equal(expected_hash, returned_data_hash.compact.except('id','data_type'))
+      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'keywords', 'data_pool'))
       assert_equal(0, error[:error].count)
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Place.where(template: false).count)
     end
 
@@ -283,7 +284,7 @@ module DataCycleCore
         "content_location" => []
       }
 
-      assert_equal(expected_hash, returned_data_hash.compact.except('id'))
+      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'keywords', 'data_pool'))
       assert_equal(0, error[:error].count)
 
       # check consistency of data in DB
@@ -298,12 +299,12 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
       expected_hash["content_location"] = [ returned_place ]
 
-      assert_equal(expected_hash, returned_data_hash.compact.except('id'))
+      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'keywords', 'data_pool'))
       assert_equal(0, error[:error].count)
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Place.where(template: false).count)
     end
 
@@ -367,7 +368,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(3, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(3, DataCycleCore::ContentContent.count)
       assert_equal(3, DataCycleCore::Place.where(template: false).count)
 
       # delete all places at once
@@ -419,7 +420,7 @@ module DataCycleCore
         }]
       }
 
-      assert_equal(expected_hash, returned_data_hash.except('id','data_type').compact)
+      assert_equal(expected_hash, returned_data_hash.except('id', 'data_type', 'keywords', 'data_pool').compact)
       assert_equal(0, error[:error].count)
 
       error = data_set.set_data_hash(data_hash: returned_data_hash)
@@ -431,7 +432,7 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Place.where(template: false).count)
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::ContentContent.count)
     end
 
     test "save CreativeWork with embedded object contentLocation" do
@@ -466,13 +467,13 @@ module DataCycleCore
       data_set.save
       returned_data_hash = data_set.get_data_hash.compact
       expected_hash['content_location'][0]['id'] = returned_data_hash['content_location'][0]['id']
-      assert_equal(expected_hash, returned_data_hash.except('id','data_type'))
+      assert_equal(expected_hash, returned_data_hash.except('id', 'data_type', 'keywords', 'data_pool'))
       assert_equal(0, error[:error].count)
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Place.where(template: false).count)
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::ContentContent.count)
     end
 
     test "save CreativeWork with embedded object contentLocation consistency check get(set)=set" do
@@ -516,7 +517,7 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Place.where(template: false).count)
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::ContentContent.count)
     end
 
     test "save CreativeWork with more than one embedded object contentLocation" do
@@ -563,13 +564,13 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash.compact
       returned_data_hash['content_location'][0]['id'] = nil
       returned_data_hash['content_location'][1]['id'] = nil
-      assert_equal(expected_hash.except("content_location"), returned_data_hash.except("content_location",'id', "data_type"))
+      assert_equal(expected_hash.except("content_location"), returned_data_hash.except("content_location",'id', "data_type", 'keywords', 'data_pool'))
       assert_equal(expected_hash["content_location"].count, returned_data_hash["content_location"].count)
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::Place.where(template: false).count)
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(2, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(2, DataCycleCore::ContentContent.count)
     end
 
     test "save CreativeWork with two embedded objects then delete one" do
@@ -613,7 +614,7 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Place.where(template: false).count)
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(1, DataCycleCore::ContentContent.count)
     end
 
     test "save CreativeWork with two embedded objects having two translations and then delete one translation (full access to embeddedObjects)" do
@@ -737,7 +738,7 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::Place.where(template: false).count)
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(2, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(2, DataCycleCore::ContentContent.count)
     end
 
     test "save CreativeWork with two embedded objects each for every translation (full access to embeddedObjects)" do
@@ -819,7 +820,7 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(4, DataCycleCore::Place.where(template: false).count)
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(4, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(4, DataCycleCore::ContentContent.count)
     end
 
     test "save proper CreativeWork data-set with hash method" do
@@ -840,7 +841,7 @@ module DataCycleCore
         "season" => [],
         "kind" => []
       }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id',"data_pool"))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', "data_pool", 'permitted_creator'))
     end
 
     test "save CreativeWork with only Titel" do
@@ -860,7 +861,7 @@ module DataCycleCore
         "season" => [],
         "kind" => []
       }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except("id","data_pool"))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except("id","data_pool", 'permitted_creator'))
     end
 
     test "save CreativeWork with sub-properties" do
@@ -884,7 +885,7 @@ module DataCycleCore
         "season" => [],
         "kind" => []
       }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except("id","data_pool"))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except("id", "data_pool", 'permitted_creator'))
     end
 
     test "save CreativeWork with sub-properties_tree" do
@@ -909,10 +910,10 @@ module DataCycleCore
         "kind" => []
       }
 
-      assert_equal(expected_hash, data_set.get_data_hash.except('id',"data_pool").compact)
+      assert_equal(expected_hash, data_set.get_data_hash.except('id', "data_pool", 'permitted_creator').compact)
       data_set.set_data_hash(data_hash: {"headline" => "Dies ist ein Test!", "validity_period" => {"valid_from" => "2017-05-01", "valid_until" => "2017-06-01"},"test" => {"test1" => 1, "test2" => 2, "test3" => {"hallo" => "World"}} })
       data_set.save
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id',"data_pool"))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', "data_pool", 'permitted_creator'))
     end
 
     test "save CreativeWork, Data properly written to metadata" do
@@ -945,7 +946,7 @@ module DataCycleCore
       }
       data_set.set_data_hash(data_hash: test_data)
       data_set.save
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id',"data_pool"))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id',"data_pool", 'permitted_creator'))
       expected_data_hash = {
         "validity_period" => {
           "valid_from" => "2017-05-01",
@@ -1004,7 +1005,7 @@ module DataCycleCore
         "kind" => []
       }
 
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id',"data_pool"))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', "data_pool", 'permitted_creator'))
     end
 
     test "save Recherche and read back" do

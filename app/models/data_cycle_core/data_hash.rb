@@ -88,8 +88,8 @@ module DataCycleCore
         end
 
         # cc embedded data from other content tables
-        embedded_relations.map(&:singularize).each do |content_name|
-          content_relation = content_name[:table] < origin_table.singularize ? 'content_content_a_history' : 'content_content_b_history'
+        embedded_relations.each do |content_name|
+          content_relation = content_name[:table] < origin_table ? 'content_content_a_history' : 'content_content_b_history'
           self.send(content_name[:table]).each do |content_item|
             new_content_history = content_item.to_history(save_time)
             content_one_data = [new_content_history.id, new_content_history.class.to_s, '']
@@ -99,7 +99,7 @@ module DataCycleCore
                 "content_#{selector}_history_type".to_sym,
                 "relation_#{selector}".to_sym]
             }.flatten
-              .zip(content_name[:table] < origin_table.singularize ?
+              .zip(content_name[:table] < origin_table ?
                 content_one_data+content_two_data :
                 content_two_data+content_one_data
               ).to_h
@@ -153,8 +153,8 @@ module DataCycleCore
             end
           end
 
-          relation_class = is_history? DataCycleCore::ContentContent::History : DataCycleCore::ContentContent
-          target_class = is_history? "DataCycleCore::#{relation_name.classify}::History" : "DataCycleCore::#{relation_name.classify}"
+          relation_class = is_history? ? DataCycleCore::ContentContent::History : DataCycleCore::ContentContent
+          target_class = is_history? ? "DataCycleCore::#{relation_name.classify}::History" : "DataCycleCore::#{relation_name.classify}"
           content_one_data = [self.method(relation_name).call.ids, target_class, '']
           content_two_data = [self.id, self.class.to_s, name]
           where_hash = ['a', 'b'].map { |selector|
@@ -433,7 +433,7 @@ module DataCycleCore
 
             # insert_relation
             DataCycleCore::ContentContent.create!(
-              get_relation_data_hash(field_name, table, item['id'])
+              get_relation_data_hash(field_name, table, insert_item.id)
             )
           end
         end

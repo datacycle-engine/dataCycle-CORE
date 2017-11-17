@@ -22,17 +22,17 @@ Minitest.backtrace_filter = Minitest::BacktraceFilter.new
 
 # load template, classifications for all tests
 cw_path = Rails.root.join('..','data_types','creative_works','*.yml')
-DataCycleCore::MasterData::ImportTemplates.new.import(cw_path, DataCycleCore::CreativeWork)
+DataCycleCore::MasterData::ImportTemplates.new.import(cw_path, DataCycleCore::CreativeWork, false)
 place_path = Rails.root.join('..','data_types','places','*.yml')
-DataCycleCore::MasterData::ImportTemplates.new.import(place_path, DataCycleCore::Place)
+DataCycleCore::MasterData::ImportTemplates.new.import(place_path, DataCycleCore::Place, false)
 person_path = Rails.root.join('..','data_types','persons','*.yml')
-DataCycleCore::MasterData::ImportTemplates.new.import(person_path, DataCycleCore::Person)
+DataCycleCore::MasterData::ImportTemplates.new.import(person_path, DataCycleCore::Person, false)
 event_path = Rails.root.join('..','data_types','events','*.yml')
-DataCycleCore::MasterData::ImportTemplates.new.import(event_path, DataCycleCore::Event)
+DataCycleCore::MasterData::ImportTemplates.new.import(event_path, DataCycleCore::Event, false)
 
 
 cwc_path = Rails.root.join('..','data_types','creative_works_custom','*.yml')
-DataCycleCore::MasterData::ImportTemplates.new.import(cwc_path, DataCycleCore::CreativeWork)
+DataCycleCore::MasterData::ImportTemplates.new.import(cwc_path, DataCycleCore::CreativeWork, false)
 
 
 classification_yaml = Rails.root.join('..','data_types','classifications.yml')
