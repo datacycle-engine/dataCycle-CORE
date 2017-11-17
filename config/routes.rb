@@ -12,16 +12,20 @@ DataCycleCore::Engine.routes.draw do
   end
   resources :user_groups
 
-  resources :creative_works, only: [:index, :show, :create, :edit, :update, :history, :history_detail, :destroy] do
-    post :import, on: :collection
-    get 'history', on: :member
-    get 'history_detail', on: :member
+  scope '(/watch_lists/:watch_list_id)' do
+    resources :creative_works, only: [:index, :show, :create, :edit, :update, :history, :history_detail, :destroy] do
+      post :import, on: :collection
+      get 'history', on: :member
+      get 'history_detail', on: :member
+    end
+
+    resources :persons, only: [:index, :show, :create, :edit, :update, :destroy]
+    resources :places, only: [:index, :show, :create, :edit, :update, :destroy]
   end
 
-  resources :persons, only: [:index, :show, :create, :edit, :update, :destroy]
-  resources :places, only: [:index, :show, :create, :edit, :update, :destroy]
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :events, only: [:index, :show, :create, :edit, :update]
+
 
   resources :data_links do
     post :send_mail, on: :member
@@ -30,6 +34,7 @@ DataCycleCore::Engine.routes.draw do
   resources :watch_lists do
     get :removeItem, on: :member
     get :addItem, on: :member
+
   end
 
   resources :classifications, only: [:index, :create] do
