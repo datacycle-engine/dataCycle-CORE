@@ -39,7 +39,6 @@ module DataCycleCore
           has_many :content_content_b_history, class_name: "DataCycleCore::ContentContent::History", as: :content_b_history, dependent: :destroy
         end
         (DataCycleCore.content_tables - [table_given]).map(&:singularize).each do |content_name|
-          content_relation_table = [content_name, table_given.to_s.singularize].sort.join('_')
           if postfix.nil?
             if table_given.to_s.singularize < content_name
               has_many content_name.pluralize.to_sym, through: :content_content_a, source: :content_b, source_type: "DataCycleCore::#{content_name.classify}"

@@ -137,7 +137,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(0, DataCycleCore::Place.where(template: false).count)
     end
 
@@ -289,7 +289,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Place.where(template: false).count)
 
       # make relation
@@ -382,7 +382,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(0, DataCycleCore::CreativeWorkPlace.count)
+      assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(0, DataCycleCore::Place.where(template: false).count)
     end
 
