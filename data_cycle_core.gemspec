@@ -66,7 +66,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'simple_form'
   # Breadcrumbs
   s.add_dependency 'gretel'
-  s.add_dependency 'gretel-trails'
 
   s.add_dependency 'jbuilder'
 

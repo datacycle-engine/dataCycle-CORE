@@ -92,7 +92,7 @@ module DataCycleCore
           if Rails.env.development?
             redirect_back(fallback_location: root_path)
           else
-            redirect_to place_path(@place, trail: session[:trail])
+            redirect_to place_path(@place, watch_list_id: @watch_list)
           end
 
         else

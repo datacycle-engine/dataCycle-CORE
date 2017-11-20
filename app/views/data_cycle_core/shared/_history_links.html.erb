@@ -27,7 +27,7 @@
 
     <% if history ||= false %>
       <span class="history-metadata">
-              <%= link_to polymorphic_url([:history_detail, dataCycleObject], history_id: historyObject.id) do  %>
+              <%= link_to polymorphic_url([:history_detail, dataCycleObject], history_id: historyObject.id, watch_list_id: @watch_list) do  %>
           <i class="fa fa-eye" aria-hidden="true"></i>
         <% end %>
       </span>
@@ -54,11 +54,11 @@
                       <i>
                           <% if item.class.class_name == 'CreativeWorkHistory' %>
                               <% if action_name == 'history_detail' %>
-                                  <%= link_to polymorphic_url([:history_detail, dataCycleObject], history_id: item.id) do %>
+                                  <%= link_to polymorphic_url([:history_detail, dataCycleObject], history_id: item.id, watch_list_id: @watch_list) do %>
                                       <i class="fa fa-history" aria-hidden="true"></i>
                                   <% end %>
                               <% else %>
-                                  <%= link_to polymorphic_url([:history, dataCycleObject], history_id: item.id) do %>
+                                  <%= link_to polymorphic_url([:history, dataCycleObject], history_id: item.id, watch_list_id: @watch_list) do %>
                                       <i class="fa fa-history" aria-hidden="true"></i>
                                   <% end %>
                               <% end %>

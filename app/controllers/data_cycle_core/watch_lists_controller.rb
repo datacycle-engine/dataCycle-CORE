@@ -8,7 +8,6 @@ module DataCycleCore
     end
 
     def show
-      session[:trail] = params[:trail] unless params[:trail].nil?
       @watch_list = DataCycleCore::WatchList.find_by(id: params[:id])
 
       if @watch_list.nil?
@@ -68,7 +67,7 @@ module DataCycleCore
         if Rails.env.development?
           redirect_to edit_watch_list_path(@watch_list) if Rails.env.development?
         else
-          redirect_to watch_list_path(@watch_list, trail: session[:trail])
+          redirect_to watch_list_path(@watch_list, watch_list_id: @watch_list)
         end
 
       else

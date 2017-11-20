@@ -53,7 +53,7 @@ module DataCycleCore
 
         if !@creativeWork.nil? && @creativeWork.save
           flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name'], locale: DataCycleCore.ui_language
-          redirect_to edit_creative_work_path(@creativeWork, source)
+          redirect_to edit_creative_work_path(@creativeWork, (source || {}).merge(watch_list_id: @watch_list))
         else
           redirect_back(fallback_location: root_path)
           return
@@ -166,7 +166,7 @@ module DataCycleCore
           elsif params[:splitview]
             redirect_back(fallback_location: root_path)
           else
-            redirect_to creative_work_path(@creativeWork, trail: session[:trail])
+            redirect_to creative_work_path(@creativeWork, watch_list_id: @watch_list)
           end
 
         else
@@ -185,7 +185,7 @@ module DataCycleCore
       if @creativeWork.parent.nil?
         redirect_to root_path
       else
-        redirect_to creative_work_path(@creativeWork.parent)
+        redirect_to creative_work_path(@creativeWork.parent, watch_list_id: @watch_list)
       end
 
     end

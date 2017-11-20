@@ -12,7 +12,7 @@ DataCycleCore::Engine.routes.draw do
   end
   resources :user_groups
 
-  scope '(/watch_lists/:watch_list_id)' do
+  scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
     resources :creative_works, only: [:index, :show, :create, :edit, :update, :history, :history_detail, :destroy] do
       post :import, on: :collection
       get 'history', on: :member

@@ -31,21 +31,21 @@ crumb :edit_user_group do |user_group|
   parent :'data_cycle_core/user_groups' if can? :crud, DataCycleCore::UserGroup
 end
 
-crumb :edit_resource do |resource|
+crumb :edit_resource do |resource, watch_list|
   link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>Bearbeiten"), edit_polymorphic_path(resource)
-  parent resource
+  parent resource, watch_list
 end
 
-crumb :show_history do |resource|
+crumb :show_history do |resource, watch_list|
   link to_html_string("<i aria-hidden='true' class='fa fa-history'></i>Ansehen"), edit_polymorphic_path(resource)
-  parent resource
+  parent resource, watch_list
 end
 
 # Creative Work
 crumb :'data_cycle_core/creative_work' do |creative_work, watch_list|
 
   I18n.with_locale(creative_work.first_available_locale) do
-    link to_html_string(creative_work.content_type, creative_work.title), polymorphic_path([watch_list, creative_work])
+    link to_html_string(creative_work.content_type, creative_work.title), polymorphic_path(creative_work, watch_list_id: watch_list)
   end
 
   if creative_work.parent
@@ -62,9 +62,12 @@ crumb :'data_cycle_core/places' do
   link to_html_string("Orte"), places_path
 end
 
-crumb :'data_cycle_core/place' do |place|
-  link to_html_string(place.metadata['validation']['name'], place.name), place_path(place)
+crumb :'data_cycle_core/place' do |place, watch_list|
+  link to_html_string(place.metadata['validation']['name'], place.name), place_path(place, watch_list_id: watch_list)
 
+  if watch_list
+    parent watch_list
+  end
   # parent :'data_cycle_core/places'
 end
 
@@ -73,9 +76,12 @@ crumb :'data_cycle_core/persons' do
   link to_html_string("Personen"), persons_path
 end
 
-crumb :'data_cycle_core/person' do |person|
-  link to_html_string("Person", person.given_name + " " + person.family_name), person_path(person)
+crumb :'data_cycle_core/person' do |person, watch_list|
+  link to_html_string("Person", person.given_name + " " + person.family_name), person_path(person, watch_list_id: watch_list)
 
+  if watch_list
+    parent watch_list
+  end
   # parent :'data_cycle_core/persons'
 end
 
