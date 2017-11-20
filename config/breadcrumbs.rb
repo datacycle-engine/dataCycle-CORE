@@ -48,10 +48,14 @@ crumb :'data_cycle_core/creative_work' do |creative_work, watch_list|
     link to_html_string(creative_work.content_type, creative_work.title), polymorphic_path(creative_work, watch_list_id: watch_list)
   end
 
-  if creative_work.parent
+  if watch_list
+    if creative_work.parent && creative_work.parent.watch_lists.include?(watch_list)
+      parent creative_work.parent, watch_list
+    else
+      parent watch_list
+    end
+  elsif creative_work.parent
     parent creative_work.parent, watch_list
-  elsif watch_list
-    parent watch_list
   else
     parent :root
   end
