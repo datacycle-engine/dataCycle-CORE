@@ -42,7 +42,7 @@ module DataCycleCore
     end
 
     def destroy_content
-      self.to_history(Time.zone.now)
+      self.to_history(Time.zone.now) unless is_history?
       self.delete_childs(true)
     end
 
@@ -104,7 +104,7 @@ module DataCycleCore
                 content_two_data+content_one_data
               ).to_h
             content_relation_history_data["history_valid"] = (content_item.updated_at ... save_time)
-            data_set_history.send(content_relation).create(content_relation_history_data)
+            DataCycleCore::ContentContent::History.create!(content_relation_history_data)
           end
         end
 
@@ -147,34 +147,34 @@ module DataCycleCore
           end
         else
           if delete
-            load_embedded_objects.each do |item|
+            load_embedded_objects(relation_name).each do |item|
               item.delete_childs(delete)
               item.destroy
             end
+          else
+            relation_class = is_history? ? DataCycleCore::ContentContent::History : DataCycleCore::ContentContent
+            target_class = is_history? ? "DataCycleCore::#{relation_name.classify}::History" : "DataCycleCore::#{relation_name.classify}"
+            content_one_data = [self.method(relation_name).call.ids, target_class, '']
+            content_two_data = [self.id, self.class.to_s, name]
+            where_hash = ['a', 'b'].map { |selector|
+              if is_history?
+                [ "content_#{selector}_history_id".to_sym,
+                  "content_#{selector}_history_type".to_sym,
+                  "relation_#{selector}".to_sym]
+              else
+                [ "content_#{selector}_id".to_sym,
+                  "content_#{selector}_type".to_sym,
+                  "relation_#{selector}".to_sym]
+              end
+            }.flatten
+              .zip(relation_name < self.class.table_name ?
+                content_one_data+content_two_data :
+                content_two_data+content_one_data
+              ).to_h
+
+            relations = relation_class.where(where_hash)
+            relations.destroy_all unless relations.blank?
           end
-
-          relation_class = is_history? ? DataCycleCore::ContentContent::History : DataCycleCore::ContentContent
-          target_class = is_history? ? "DataCycleCore::#{relation_name.classify}::History" : "DataCycleCore::#{relation_name.classify}"
-          content_one_data = [self.method(relation_name).call.ids, target_class, '']
-          content_two_data = [self.id, self.class.to_s, name]
-          where_hash = ['a', 'b'].map { |selector|
-            if is_history?
-              [ "content_#{selector}_history_id".to_sym,
-                "content_#{selector}_history_type".to_sym,
-                "relation_#{selector}".to_sym]
-            else
-              [ "content_#{selector}_id".to_sym,
-                "content_#{selector}_type".to_sym,
-                "relation_#{selector}".to_sym]
-            end
-          }.flatten
-            .zip(relation_name < self.class.table_name ?
-              content_one_data+content_two_data :
-              content_two_data+content_one_data
-            ).to_h
-
-          relations = relation_class.where(where_hash)
-          relations.destroy_all unless relations.blank?
         end
       end
 
