@@ -146,11 +146,13 @@ module DataCycleCore
           content_location_hash = DataCycleCore::DataHashService.get_content_location(content.id, data_hash["contentLocation"], lang, external_source_id)
           data['content_location'] = [ content_location_hash ]
         end
-        data['data_type'] = nil # touch data_type to get default_value
         object_params = ActionController::Parameters.new(creative_work: ActionController::Parameters.new(datahash: data))
         object_params = object_params.require(:creative_work).permit(:datahash => template_params)
 
         params_hash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], content.metadata['validation'])
+
+        params_hash['data_type'] = [DataCycleCore::Classification.where(name: content.metadata.dig('validation', 'properties', 'data_type', 'default_value')).try(:first).try(:id)]
+        params_hash['data_pool'] = [DataCycleCore::Classification.where(name: content.metadata.dig('validation', 'properties', 'data_pool', 'default_value')).try(:first).try(:id)]
 
         errors = content.set_data_hash(data_hash: params_hash)
         # check if data is set and validations are correct

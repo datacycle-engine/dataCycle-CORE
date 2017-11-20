@@ -142,13 +142,14 @@ module DataCycleCore
               'classification_relation'
             ] + DataCycleCore.content_tables)
           }
-          optional(:type_name) {
-            str? &
-            included_in?(
-              DataCycleCore.content_tables+['users','Rechte']+
-              DataCycleCore::ClassificationTreeLabel.pluck(:name)
-            )
-          }
+          #todo: add type_name validation after polymorphic relation tables
+          # optional(:type_name) {
+          #   str? &
+          #   included_in?(
+          #     DataCycleCore.content_tables+['users','Rechte']+
+          #     DataCycleCore::ClassificationTreeLabel.pluck(:name)
+          #   )
+          # }
           optional(:storage_type) {
             str? &
             included_in?([
