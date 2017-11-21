@@ -20,13 +20,36 @@ module DataCycleCore
 
     end
 
-    def new
+    def create
+      raise "test"
+      if DataCycleCore::DataLink.joins(:receiver).where(item_type: create_link_params[:item_type], item_id: create_link_params[:item_id], receiver: { email: receiver_params[:email]}).size > 0
+        redirect_back(fallback_location: root_path, alert: (I18n.t :email_exists, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) and return
+      end
       @data_link = DataCycleCore::DataLink.new(create_link_params)
       @data_link.creator = current_user unless current_user.nil?
 
+      @receiver = DataCycleCore::User.where(email: receiver_params[:email]).first_or_create(receiver_params.merge(password: SecureRandom.hex, role_id: DataCycleCore::Role.find_by(rank: 0)))
+
+      @data_link.receiver = @receiver
       @data_link.save
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t :ready_to_send, scope: [:controllers, :success], data: 'Externer Link', locale: DataCycleCore.ui_language))
+      redirect_back(fallback_location: root_path, notice: (I18n.t :saved_and_sent, scope: [:controllers, :success], locale: DataCycleCore.ui_language))
+    end
+
+    def update
+      @data_link = DataCycleCore::DataLink.find(params[:id])
+
+      validity_period = [
+        '[',
+        validity_period_params[:valid_from].to_datetime.kind_of?(DateTime) ? validity_period_params[:valid_from].to_datetime.to_s(:long_usec) : DateTime.now.to_s(:long_usec),
+        ',',
+        validity_period_params[:valid_until].to_datetime.kind_of?(DateTime) ? validity_period_params[:valid_until].to_datetime.to_s(:long_usec) : '',
+        ']'
+      ].join('')
+
+      @data_link.update_attributes(create_link_params.merge(creator: current_user, validity_period: validity_period))
+
+      redirect_back(fallback_location: root_path, notice: (I18n.t :updated_and_sent, scope: [:controllers, :success], locale: DataCycleCore.ui_language))
     end
 
     def send_mail
@@ -42,15 +65,14 @@ module DataCycleCore
 
     end
 
-    def destroy
-      link = DataCycleCore::DataLink.find_by(id: params[:id]).destroy
-      redirect_back fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Externer Link', locale: DataCycleCore.ui_language)
-    end
-
     private
 
     def create_link_params
-      params.permit(:item_id, :item_type, :permissions)
+      params.require(:data_link).permit(:item_id, :item_type, :permissions, :comment, :valid_from, :valid_until)
+    end
+
+    def receiver_params
+      params.require(:data_link).require(:receiver).permit(:email, :given_name, :family_name)
     end
 
     def split_params

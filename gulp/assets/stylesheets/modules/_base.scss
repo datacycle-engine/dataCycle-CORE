@@ -264,23 +264,31 @@ button,
       }
     }
     .data-links {
-      .delete-button {
-        float: right;
+      .center-text {
+        text-align: center;
       }
-      .send-link-button {
+      .new-data-link {
         margin: 0;
       }
-      .copy-button {
-        position: absolute;
-        right: 0;
-        top: 0;
-        padding: 0.5rem;
-        background: initial;
-        color: $black;
-        transition: color 0.5s;
-        &:hover,
-        &:focus {
-          color: lighten($black, 20%);
+      .email {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: calc(100% - 3rem);
+        display: inline-block;
+        vertical-align: middle;
+      }
+      .buttons {
+        float: right;
+        vertical-align: middle;
+        span,
+        a {
+          color: $primary-color;
+          cursor: pointer;
+          &:hover,
+          &:focus {
+            color: darken($primary-color, 30%);
+          }
         }
       }
     }

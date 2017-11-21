@@ -547,25 +547,6 @@ video {
     right: 0;
     text-align: center;
     z-index: 100;
-    li {
-      position: relative;
-      input[readonly] {
-        cursor: pointer !important;
-      }
-      .copy-input {
-        padding-right: 2.3rem;
-        text-overflow: ellipsis;
-      }
-      .copy-button {
-        position: absolute;
-        right: 0;
-        top: 0;
-        padding: 0.5rem;
-        background: initial;
-        color: #333333;
-        transition: color 0.5s;
-      }
-    }
     &::before {
       content: '';
       position: absolute;
@@ -644,10 +625,19 @@ a.email-link {
   text-overflow: ellipsis;
 }
 
-.row{
-  &.dashboard-cards{
-    > .columns{
-      float:left;
+.row {
+  &.dashboard-cards {
+    >.columns {
+      float: left;
     }
+  }
+}
+
+.data-link-reveal {
+  textarea {
+    min-height: 10rem;
+  }
+  button[type=submit].button {
+    padding: 0.85rem 1rem;
   }
 }

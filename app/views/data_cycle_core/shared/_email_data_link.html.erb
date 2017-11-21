@@ -1,27 +1,38 @@
-<% if content.send(link_type).nil? %>
-    <h5><%= t('actions.new', data: link_type.titleize, locale: DataCycleCore.ui_language) %></h5>
-    <%= link_to t('actions.generate', data: link_type.titleize, locale: DataCycleCore.ui_language), new_data_link_path(item_id: content.id, item_type: content.class.name, permissions: permission), class: "button small" %>
+<% if data_link.receiver.nil? %>
+  <li class="center-text">
+    <span class="button new-data-link" data-open="data-link-<%= data_link.id || "new" %>">Neuen Link erstellen</span>
+  </li>
 <% else %>
-    <h5><%= link_type.titleize %></h5>
-    <li>
-      <input readonly="readonly" type="text" class="copy-input" value="<%= h(data_link_url(content.send(link_type), source_id: params[:source_id], source_type: params[:source_type] )) %>">
-      <button class="button small copy-button"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
-    </li>
-    <li>
-      <span class="button small send-link-button" data-open="<%= id %>"><%= t('actions.send_with_data', data: "Link", locale: DataCycleCore.ui_language) %></span>
-      <%= link_to t('actions.delete_with_data', data: "Link", locale: DataCycleCore.ui_language), content.send(link_type), method: :delete, class: "button small alert delete-button" %>
-    </li>
-    <div class="reveal" id="<%= id %>" data-reveal>
-      <button class="close-button" data-close aria-label="Close modal" type="button">
-        <span aria-hidden="true">&times;</span>
-      </button>
-      <%= form_tag send_mail_data_link_path(content.send(link_type), type: type), class: "send-link" do |f| %>
-        <p class="lead">Link zum <%== type.capitalize %> verschicken</p>
-        <%= hidden_field_tag 'data_link[url_params][source_type]', @splitType unless @splitType.blank? %>
-        <%= hidden_field_tag 'data_link[url_params][source_id]', @splitSource.id unless @splitSource.blank? %>
-        <%= text_field_tag "data_link[receiver]", "", placeholder: "E-Mail Adresse", required: true %>
-        <%= text_area_tag "data_link[comment]", "", placeholder: "Kommentar" %>
-        <%= button_tag "Link versenden", class: "button small submit-button" %>
-      <% end %>
-    </div>
+  <li>
+    <span class="email"><%= data_link.receiver.email %></span>
+    <span class="buttons">
+      <span class="send-link-button" data-open="data-link-<%= data_link.id || "new" %>"><i class="fa fa-pencil" aria-hidden="true"></i></span>
+      <a href="#" class="invalidate-data-link"><i class="fa fa-ban" aria-hidden="true"></i></a>
+    </span>
+  </li>
 <% end %>
+<div class="reveal data-link-reveal" id="data-link-<%= data_link.id || "new" %>" data-reveal>
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <%= form_for data_link, namespace: data_link.id, class: "send-link" do |f| %>
+    <p class="lead"><%= DataCycleCore::DataLink.model_name.human(locale: DataCycleCore.ui_language).titleize %></p>
+    <%= f.hidden_field 'source_type', value: @splitType unless @splitType.blank? %>
+    <%= f.hidden_field 'source_id', value: @splitSource.id unless @splitSource.blank? %>
+    <%= f.hidden_field 'item_type', value: content.class.name %>
+    <%= f.hidden_field 'item_id', value: content.id %>
+    <%= f.label :permissions, DataCycleCore::DataLink.human_attribute_name("permissions", locale: DataCycleCore.ui_language) %>
+    <%= f.radio_button(:permissions, 'read') %>
+    <%= f.radio_button(:permissions, 'write') %>
+    <%= f.label :validity_period %>
+    <%= date_field_tag "data_link[valid_from]", nil, {placeholder: "tt.mm.jjjj", id: "#{data_link.id}-data_link_valid_from"} %> -
+    <%= date_field_tag "data_link[valid_until]", nil, {placeholder: "tt.mm.jjjj", id: "#{data_link.id}-data_link_valid_until"} %>
+    <%= f.fields_for :receiver, data_link.receiver || DataCycleCore::User.new do |r| %>
+      <%= r.text_field :email, placeholder: DataCycleCore::User.human_attribute_name("email", locale: DataCycleCore.ui_language), required: true, readonly: data_link.id.nil? ? false : true %>
+      <%= r.text_field :given_name, placeholder: DataCycleCore::User.human_attribute_name("given_name", locale: DataCycleCore.ui_language), required: true, readonly: data_link.id.nil? ? false : true %>
+      <%= r.text_field :family_name, placeholder: DataCycleCore::User.human_attribute_name("family_name", locale: DataCycleCore.ui_language), required: true, readonly: data_link.id.nil? ? false : true %>
+    <% end %>
+    <%= f.text_area :comment, placeholder: "Kommentar", class: "large-textfield" %>
+    <%= f.button "Link versenden", class: "button submit-button", data: { disable_with: "Loading..." } %>
+  <% end %>
+</div>

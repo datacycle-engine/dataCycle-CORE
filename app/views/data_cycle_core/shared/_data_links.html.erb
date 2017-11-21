@@ -1,14 +1,12 @@
-<a id="send-link-link" data-toggle="send-link"><i class="fa fa-share" aria-hidden="true"></i><i class="fa <%= !dataCycleObject.show_link.nil? || (defined?(dataCycleObject.edit_link) && !dataCycleObject.edit_link.nil?) ? 'fa-user' : 'fa-user-o' %>" aria-hidden="true"></i> <%= t('actions.send', locale: DataCycleCore.ui_language) %></span></a>
+<a id="send-link-link" data-toggle="send-link"><i class="fa fa-share" aria-hidden="true"></i><i class="fa fa-user" aria-hidden="true"></i> <%= t('actions.send', locale: DataCycleCore.ui_language) %></span></a>
 
 <ul class="dropdown-pane no-bullet bottom data-links" id="send-link" data-dropdown data-hover="true" data-hover-pane="true">
+  <h5><%= DataCycleCore::DataLink.model_name.human(count: 2, locale: DataCycleCore.ui_language).titleize %></h5>
 
-  <% if defined?(dataCycleObject.show_link) %>
-    <%= render 'data_cycle_core/shared/email_data_link', id: "show-link-email-overlay", type: t('actions.show', locale: DataCycleCore.ui_language), content: dataCycleObject, link_type: "show_link", permission: 'read' %>
+  <% dataCycleObject.data_links.each do |data_link| %>
+    <%= render 'data_cycle_core/shared/email_data_link', content: dataCycleObject, data_link: data_link %>
   <% end %>
 
-  <% if defined?(dataCycleObject.edit_link) && dataCycleObject.metadata.dig('validation', 'permissions', 'read_write') %>
-    <hr />
-    <%= render 'data_cycle_core/shared/email_data_link', id: "edit-link-email-overlay", type: t('actions.edit', locale: DataCycleCore.ui_language), content: dataCycleObject, link_type: "edit_link", permission: 'write' %>
-  <% end %>
-
+  <hr />
+  <%= render 'data_cycle_core/shared/email_data_link', content: dataCycleObject, data_link: DataCycleCore::DataLink.new %>
 </ul>
