@@ -111,6 +111,8 @@ module DataCycleCore
         content.external_key = external_key
         content.external_source_id = external_source_id
 
+        content.save
+
         data_set.each do |lang, data_hash|
           content = DataCycleCore::DataHashService.create_imported_content_with_lang(data_hash, lang, content, template_params, external_source_id)
         end
@@ -151,8 +153,8 @@ module DataCycleCore
 
         params_hash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], content.metadata['validation'])
 
-        params_hash['data_type'] = [DataCycleCore::Classification.where(name: content.metadata.dig('validation', 'properties', 'data_type', 'default_value')).try(:first).try(:id)]
-        params_hash['data_pool'] = [DataCycleCore::Classification.where(name: content.metadata.dig('validation', 'properties', 'data_pool', 'default_value')).try(:first).try(:id)]
+        params_hash['data_type'] = nil
+        params_hash['data_pool'] = nil
 
         errors = content.set_data_hash(data_hash: params_hash)
         # check if data is set and validations are correct
