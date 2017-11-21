@@ -194,15 +194,19 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Person::History.count)
       assert_equal(2, DataCycleCore::Place::History.count)
 
+      # delete data_set
+      data_set.destroy_content
+      data_set.destroy
+
       # delete history
       data_set.histories.each do |item|
         item.destroy_content
         item.destroy
       end
 
-      assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
-      assert_equal(2, DataCycleCore::ContentContent.count)
-      assert_equal(3, DataCycleCore::ClassificationContent.count)
+      assert_equal(0, DataCycleCore::CreativeWork.count - count_cw)
+      assert_equal(0, DataCycleCore::ContentContent.count)
+      assert_equal(0, DataCycleCore::ClassificationContent.count)
       assert_equal(1, DataCycleCore::Person.count - count_person)
       assert_equal(2, DataCycleCore::Place.count - count_place)
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
