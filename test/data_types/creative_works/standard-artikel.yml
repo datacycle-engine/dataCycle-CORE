@@ -265,7 +265,7 @@
 #        :type: classificationTreeLabel
 #        :type_name: Inhaltspools
 #        :storage_location: classification_relation
-#        :default_value: "Aktuelle Themen"
+#        :default_value: "Aktuelle Inhalte"
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
