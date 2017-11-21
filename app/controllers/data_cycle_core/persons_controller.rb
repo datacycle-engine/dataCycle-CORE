@@ -67,7 +67,7 @@ module DataCycleCore
     def update
       @person = DataCycleCore::Person.find(params[:id])
       I18n.with_locale(@person.first_available_locale(params[:locale])) do
-        object_params = person_params('persons', @person.metadata['validation']['name'], 'Person')
+        object_params = person_params('persons', @person.metadata['validation']['name'], @person.metadata['validation']['description'])
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@person.metadata['validation'], false)
 
         valid = @person.set_data_hash(data_hash: datahash, current_user: current_user)
@@ -106,7 +106,7 @@ module DataCycleCore
     def validate_single_data
       @person = DataCycleCore::Person.find(params[:id])
 
-      object_params = person_params('persons', @person.metadata['validation']['name'], 'Person')
+      object_params = person_params('persons', @person.metadata['validation']['name'], @person.metadata['validation']['description'])
 
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@person.metadata['validation'])
       valid = @person.validate(datahash)
