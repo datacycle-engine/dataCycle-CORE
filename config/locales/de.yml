@@ -76,6 +76,7 @@ de:
     move_to: "In %{data} verschieben"
     read: lesen
     write: schreiben
+    save_and_send: "Speichern und Senden"
 
   validation:
     errors:
@@ -138,6 +139,7 @@ de:
       invalid_mail: "Keine gültige E-Mail Adresse."
       locked: "%{data} wurde gesperrt."
       unlocked: "%{data} wurde freigegeben."
+      invalidated: "Externer Link wurde deaktiviert."
     info:
       not_modified: "%{data} wurde nicht geändert."
     job:
@@ -209,6 +211,8 @@ de:
         comment: Kommentar
         permissions: Berechtigungen
         validity_period: Gültigkeitszeitraum (von - bis)
+        valid_from: Gültig von
+        valid_until: bis
   unauthorized:
     manage:
       all: "Keine Zugriffsberechtigung!"

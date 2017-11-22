@@ -3,11 +3,11 @@
     <span class="button new-data-link" data-open="data-link-<%= data_link.id || "new" %>">Neuen Link erstellen</span>
   </li>
 <% else %>
-  <li>
+  <li class="<%= "invalid" unless data_link.is_valid? %>">
     <span class="email"><%= data_link.receiver.email %></span>
     <span class="buttons">
       <span class="send-link-button" data-open="data-link-<%= data_link.id || "new" %>"><i class="fa fa-pencil" aria-hidden="true"></i></span>
-      <a href="#" class="invalidate-data-link"><i class="fa fa-ban" aria-hidden="true"></i></a>
+      <%= link_to '<i class="fa fa-ban" aria-hidden="true"></i>'.html_safe, data_link, method: :delete, class: 'invalidate-data-link' if data_link.is_valid? %>
     </span>
   </li>
 <% end %>
@@ -21,18 +21,18 @@
     <%= f.hidden_field 'source_id', value: @splitSource.id unless @splitSource.blank? %>
     <%= f.hidden_field 'item_type', value: content.class.name %>
     <%= f.hidden_field 'item_id', value: content.id %>
-    <%= f.label :permissions, DataCycleCore::DataLink.human_attribute_name("permissions", locale: DataCycleCore.ui_language) %>
-    <%= f.radio_button(:permissions, 'read') %>
-    <%= f.radio_button(:permissions, 'write') %>
-    <%= f.label :validity_period %>
-    <%= date_field_tag "data_link[valid_from]", nil, {placeholder: "tt.mm.jjjj", id: "#{data_link.id}-data_link_valid_from"} %> -
-    <%= date_field_tag "data_link[valid_until]", nil, {placeholder: "tt.mm.jjjj", id: "#{data_link.id}-data_link_valid_until"} %>
     <%= f.fields_for :receiver, data_link.receiver || DataCycleCore::User.new do |r| %>
       <%= r.text_field :email, placeholder: DataCycleCore::User.human_attribute_name("email", locale: DataCycleCore.ui_language), required: true, readonly: data_link.id.nil? ? false : true %>
       <%= r.text_field :given_name, placeholder: DataCycleCore::User.human_attribute_name("given_name", locale: DataCycleCore.ui_language), required: true, readonly: data_link.id.nil? ? false : true %>
       <%= r.text_field :family_name, placeholder: DataCycleCore::User.human_attribute_name("family_name", locale: DataCycleCore.ui_language), required: true, readonly: data_link.id.nil? ? false : true %>
     <% end %>
-    <%= f.text_area :comment, placeholder: "Kommentar", class: "large-textfield" %>
-    <%= f.button "Link versenden", class: "button submit-button", data: { disable_with: "Loading..." } %>
+    <%= f.label :validity_period %>
+    <%= f.date_field :valid_from, {placeholder: "tt.mm.jjjj", label: false} %> -
+    <%= f.date_field :valid_until, {placeholder: "tt.mm.jjjj", label: false} %>
+    <%= f.label :permissions, DataCycleCore::DataLink.human_attribute_name("permissions", locale: DataCycleCore.ui_language) %>
+    <%= f.radio_button(:permissions, 'read', checked: true) %>
+    <%= f.radio_button(:permissions, 'write') %>
+    <%= f.text_area :comment, placeholder: DataCycleCore::DataLink.human_attribute_name("comment", locale: DataCycleCore.ui_language), class: "large-textfield" %>
+    <%= f.button t('actions.save_and_send', locale: DataCycleCore.ui_language), class: "button submit-button", data: { disable_with: t('common.loading', locale: DataCycleCore.ui_language) } %>
   <% end %>
 </div>
