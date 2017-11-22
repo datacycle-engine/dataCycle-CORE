@@ -15,8 +15,6 @@
 
             <%= render 'data_cycle_core/backend/breadcrumb' if user_signed_in? %>
 
-            <%= render 'new_content_links' if user_signed_in? %>
-
             <%= yield :top_content %>
 
             <%= display_flash_messages_new %>
