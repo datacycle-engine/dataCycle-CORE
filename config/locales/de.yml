@@ -192,6 +192,7 @@ de:
       data_cycle_core/place:
         name: Name
         street: Straße
+        country: Land
         plz: PLZ
         address: Ort
         longitude: Längengrad
