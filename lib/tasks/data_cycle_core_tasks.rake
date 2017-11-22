@@ -163,6 +163,13 @@ namespace :data_cycle_core do
   end
 
   namespace :update do
+
+    desc "import classifications"
+    task :import_classifications => [:environment] do
+      path = Rails.root.join('config','data_definitions','classifications.yml')
+      DataCycleCore::MasterData::ImportClassifications.new.import(path.to_s)
+    end
+
     desc "import template definitions"
     task :import_templates => [:environment] do
       path = Rails.root.join('config','data_definitions','creative_works','*.yml')
