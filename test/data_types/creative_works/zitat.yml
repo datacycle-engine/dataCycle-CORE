@@ -6,6 +6,7 @@
     :content_type: embedded
     :permissions:
       :read_write: true
+    :boost: 1.0      
     :properties:
       :id:
         :label: id
@@ -19,26 +20,32 @@
         :type: string
         :storage_type: text
         :storage_location: content
+        :search: true
+        :validations:
+          :minLength: 1
         :editor:
           :type: quillEditor
           :sorting: 1
           :options:
             :data-size: basic
+            :data-validate: text
+            :tabindex: -1
       :image:
         :label: Bild
         :type: embeddedLinkArray
         :type_name: creative_works
         :storage_type: array
         :storage_location: metadata
-        :releasable: true
         :validations:
           :max: 1
         :editor:
           :sorting: 2
+          :type: objectBrowser
           :options:
             :data-validate: media
+            :data-type: image
       :author:
-        :label: Autor
+        :label: "Zitat von"
         :type: object
         :storage_location: persons
         :name: Person
@@ -47,6 +54,9 @@
         :editor:
           :sorting: 3
           :type: objectBrowser
+          :options:
+            :data-validate: object
+            :data-type: person
       :is_part_of:
         :label: parent
         :type: string

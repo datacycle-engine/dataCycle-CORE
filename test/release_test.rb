@@ -87,16 +87,16 @@ module DataCycleCore
           },
           "author" => []
         }],
-        "author" => [],
         "output_channels" => [],
-        "content_location" => []
+        "content_location" => [],
+        'permitted_creator' => []
       }
 
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
 
       returned_data_hash = data_set.get_data_hash
-      assert_equal(data_hash.except('quotation'), returned_data_hash.compact.except('id','data_type','quotation'))
+      assert_equal(data_hash.except('quotation'), returned_data_hash.compact.except('id','data_type','quotation', 'data_pool'))
       assert_equal(data_hash['quotation'][0], returned_data_hash['quotation'][0].compact.except('id', 'data_type', 'is_part_of'))
 
       expected_release_main_object = {

@@ -264,4 +264,102 @@ namespace :data_cycle_core do
     end
   end
 
+  namespace :data_update do
+    desc "copy data to content_content(+history) table"
+    task :stage1 => [:environment] do
+
+      @connection = ActiveRecord::Base.connection
+      data_hash = [
+        {a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', relation_a: 'content_location', b: 'place', type_b: 'DataCycleCore::Place'},
+        {a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', ralation_a: 'event', b: 'event', type_b: 'DataCycleCore::Event'},
+        {a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', relation_a: '', b: 'person', type_b: 'DataCycleCore::Person'}
+      ]
+
+      data_hash.each do |item|
+        sql_query = <<-eos
+          INSERT INTO content_contents
+          SELECT
+            id,
+            #{item[:a]}_id AS content_a_id,
+            '#{item[:type_a]}' AS content_a_type,
+            '#{item[:relation_a]}' AS relation_a,
+            #{item[:b]}_id AS  content_b_id,
+            '#{item[:type_b]}' AS content_b_type,
+            '' AS relation_b,
+            external_source_id,
+            created_at,
+            updated_at
+          FROM #{item[:a]}_#{item[:b].pluralize};
+        eos
+        @connection.exec_query(sql_query)
+
+        sql_query = <<-eos
+          INSERT INTO content_content_histories
+          SELECT
+            id,
+            #{item[:a]}_history_id AS content_a_history_id,
+            '#{item[:type_a]}::History' AS content_a_history_type,
+            '#{item[:relation_a]}' AS relation_a,
+            #{item[:b]}_history_id AS content_b_history_id,
+            '#{item[:type_b]}::History' AS content_b_history_type,
+            '' AS relation_b,
+            external_source_id,
+            history_valid,
+            created_at,
+            updated_at
+          FROM #{item[:a]}_#{item[:b]}_histories;
+        eos
+        @connection.exec_query(sql_query)
+      end
+    end
+
+    desc "cleanup relation_names in content_content(+history) table"
+    task :stage1_1 => [:environment] do
+
+      @connection = ActiveRecord::Base.connection
+      parameter_hash = [
+        { relation: 'author', template: "= 'Zitat'" },
+        { relation: 'person', template: "= 'Interview'" },
+        { relation: 'about', template: "IN ('Interview','Portrait')" }
+      ]
+
+      parameter_hash.each do |params|
+        update = <<-eos
+          UPDATE content_contents
+          SET relation_a = '#{params[:relation]}'
+          FROM creative_works
+          WHERE content_contents.content_a_id = creative_works.id
+            AND content_contents.content_a_type = 'DataCycleCore::CreativeWork'
+            AND content_contents.relation_a = ''
+            AND content_contents.content_b_type = 'DataCycleCore::Person'
+            AND content_contents.relation_b = ''
+            AND creative_works.metadata #>> '{validation,name}' #{params[:template]};
+        eos
+        @connection.exec_query(update)
+        update = <<-eos
+          UPDATE content_content_histories
+          SET relation_a = '#{params[:relation]}'
+          FROM creative_work_histories
+          WHERE content_content_histories.content_a_history_id = creative_work_histories.id
+            AND content_content_histories.content_a_history_type = 'DataCycleCore::CreativeWork::History'
+            AND content_content_histories.relation_a = ''
+            AND content_content_histories.content_b_history_type = 'DataCycleCore::Person:History'
+            AND content_content_histories.relation_b = ''
+            AND creative_work_histories.metadata #>> '{validation,name}' #{params[:template]};
+        eos
+        @connection.exec_query(update)
+      end
+    end
+
+    desc "delete data in content_content(+history) table"
+    task :undo_stage1 => [:environment] do
+      @connection = ActiveRecord::Base.connection
+      delete = "DELETE FROM content_contents;"
+      @connection.exec_query(delete)
+      delete = "DELETE FROM content_content_histories;"
+      @connection.exec_query(delete)
+    end
+
+
+  end
 end
