@@ -96,6 +96,63 @@ button,
   overflow-y: auto;
 }
 
+.detail-header-functions,
+.edit-header-functions {
+  .fa {
+    min-width: 1rem;
+  }
+  .dropdown-pane {
+    box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
+  }
+  .data-links {
+    font-size: 0.8rem;
+    li {
+      text-align: left;
+    }
+    .center-text {
+      text-align: center;
+    }
+    .new-data-link {
+      margin: 0;
+    }
+    .invalid {
+      color: $dark-gray;
+    }
+    .email {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: calc(100% - 3rem);
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .buttons {
+      float: right;
+      vertical-align: middle;
+      span,
+      a {
+        color: $primary-color;
+        cursor: pointer;
+        &:hover,
+        &:focus {
+          color: darken($primary-color, 30%);
+        }
+        &.invalidate-data-link {
+          color: map-get($foundation-palette, alert);
+          &:hover,
+          &:focus {
+            color: darken(map-get($foundation-palette, alert), 30%);
+          }
+        }
+      }
+    }
+  }
+}
+
+.validation-container {
+  position: relative;
+}
+
 .edit-header {
   background-color: lighten($primary-color, 50%);
   height: 3.5rem;
@@ -263,27 +320,6 @@ button,
         text-overflow: ellipsis;
       }
     }
-    .data-links {
-      .delete-button {
-        float: right;
-      }
-      .send-link-button {
-        margin: 0;
-      }
-      .copy-button {
-        position: absolute;
-        right: 0;
-        top: 0;
-        padding: 0.5rem;
-        background: initial;
-        color: $black;
-        transition: color 0.5s;
-        &:hover,
-        &:focus {
-          color: lighten($black, 20%);
-        }
-      }
-    }
     >ul {
       position: relative;
       >li {
@@ -341,8 +377,8 @@ button,
             position: relative;
             text-align: left;
             font-size: 0.8rem;
-            line-height: 1rem;
-            padding: 0 0 0.5rem 0;
+            line-height: 1.2rem;
+            padding: 0 0 0.2rem 0;
             i:not(.fa) {
               color: $dark-gray;
             }

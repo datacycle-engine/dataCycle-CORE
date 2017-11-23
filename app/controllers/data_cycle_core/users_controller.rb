@@ -69,6 +69,12 @@ module DataCycleCore
       redirect_to users_path
     end
 
+    def search
+      users = DataCycleCore::User.where('email ILIKE :q', q: "%#{params[:q]}%").limit(20)
+
+      render json: users
+    end
+
     private
     def user_params
       allowed_params = [:email, :family_name, :given_name, :role_id, user_group_ids: []]
