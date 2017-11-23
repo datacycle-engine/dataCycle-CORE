@@ -10,8 +10,9 @@ module DataCycleCore
         @watch_lists = DataCycleCore::WatchList.where(user: User.find_by!(email: params[:user_email])).all
       end
 
-      render json: {
-        collections: @watch_lists.map { |l| 
+      # FIXME: Jbuilder Bug: tries to render jbuilder partial
+      render plain: {
+        collections: @watch_lists.map { |l|
           {
             id: l.id,
             name: l.headline,
@@ -19,7 +20,7 @@ module DataCycleCore
             item_count: l.watch_list_data_hashes.count
           }
         }
-      }
+      }.to_json, content_type: 'application/json'
     end
 
     # method to show a particular WatchList
