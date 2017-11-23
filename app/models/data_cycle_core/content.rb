@@ -158,20 +158,14 @@ module DataCycleCore
             history_table_translation[:history_valid],
             Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
           )
-        ).order(history_table[:updated_at])#.first #rescue self
+        ).order(history_table[:updated_at])
       return return_data.last
     end
 
     def embedded_relations
       embedded_property_names.map { |property_name|
-         {name: property_name, table: property_definitions[property_name]['storage_location']} if property_definitions[property_name]['storage_location'] != self.class.table_name
+         {name: property_name, table: property_definitions[property_name]['storage_location']}
       }.compact.uniq
-    end
-
-    def embedded_self_property_names
-      embedded_property_names.select { |property_name|
-        property_definitions[property_name]['storage_location'] == self.class.table_name
-      }
     end
 
     private
@@ -195,23 +189,12 @@ module DataCycleCore
             property_definition
           )
 
-      # embeddedObject stored in different table
-      # relation is hadled via a separate table (an ActiveRecord::Relation has to be defined)
-      # embeddedObject is stored in a separate content-data_set
+      # embeddedObject stored via contnet_content(s)(_histories)
       # all properties from the embeddedObject are handled within this content-data_set
-      elsif embedded_property_names.include?(property_name) && !same_table?(property_definition['storage_location'])
+      elsif embedded_property_names.include?(property_name)
         load_embedded_objects(
             property_definition['storage_location'],
             property_name
-          )
-
-      # embeddedObject stored in same table
-      # relation is handled via "property_name"+"_hasPart" uuid(s) array
-      # embeddedObject is stored in a separate content-data_set
-      # all properties from the embeddedObject are handled within this content-data_set
-      elsif embedded_property_names.include?(property_name) && same_table?(property_definition['storage_location'])
-        load_embedded_objects_same_table(
-            send('metadata')[property_name.to_s + '_hasPart']
           )
 
       # for classification relations
@@ -265,10 +248,6 @@ module DataCycleCore
         query = query.where("#{relation_table}.#{key} = ?", value)
       end
       query
-    end
-
-    def load_embedded_objects_same_table(ids)
-      self.class.to_s.safe_constantize.find(ids) rescue nil
     end
 
     def load_linked_data(type_name, ids, timestamp = Time.zone.now, objects = true)
