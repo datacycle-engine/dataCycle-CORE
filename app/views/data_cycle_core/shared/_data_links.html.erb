@@ -1,5 +1,4 @@
-<a id="send-link-link" data-toggle="send-link"><i class="fa fa-share" aria-hidden="true"></i><i class="fa fa-user" aria-hidden="true"></i> <%= t('actions.send', locale: DataCycleCore.ui_language) %></span></a>
-
+<a id="send-link-link" data-toggle="send-link"><i class="fa fa-share" aria-hidden="true"></i><i class="fa <%= dataCycleObject.data_links.size.zero? ? "fa-user-o" : "fa-user" %>" aria-hidden="true"></i> <%= t('actions.send', locale: DataCycleCore.ui_language) %></span></a>
 <ul class="dropdown-pane no-bullet bottom data-links" id="send-link" data-dropdown data-hover="true" data-hover-pane="true">
   <h5><%= DataCycleCore::DataLink.model_name.human(count: 2, locale: DataCycleCore.ui_language).titleize %></h5>
 

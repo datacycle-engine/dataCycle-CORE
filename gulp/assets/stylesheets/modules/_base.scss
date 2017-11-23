@@ -98,10 +98,14 @@ button,
 
 .detail-header-functions,
 .edit-header-functions {
+  .fa {
+    min-width: 1rem;
+  }
   .dropdown-pane {
     box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
   }
   .data-links {
+    font-size: 0.8rem;
     li {
       text-align: left;
     }
@@ -133,9 +137,20 @@ button,
         &:focus {
           color: darken($primary-color, 30%);
         }
+        &.invalidate-data-link {
+          color: map-get($foundation-palette, alert);
+          &:hover,
+          &:focus {
+            color: darken(map-get($foundation-palette, alert), 30%);
+          }
+        }
       }
     }
   }
+}
+
+.validation-container {
+  position: relative;
 }
 
 .edit-header {
@@ -362,8 +377,8 @@ button,
             position: relative;
             text-align: left;
             font-size: 0.8rem;
-            line-height: 1rem;
-            padding: 0 0 0.5rem 0;
+            line-height: 1.2rem;
+            padding: 0 0 0.2rem 0;
             i:not(.fa) {
               color: $dark-gray;
             }

@@ -10,6 +10,7 @@ module DataCycleCore
         can :read, :all
         cannot :read, DataCycleCore::WatchList
         cannot :read, :backend
+        can :search, DataCycleCore::User
         can [:show, :find], :object_browser
 
         if user.has_rank?(0)
