@@ -11,7 +11,6 @@ module DataCycleCore
     include Subscribable
     include Releasable
 
-
     def property_definitions
       metadata['validation']['properties'] rescue {}
     end
@@ -202,7 +201,8 @@ module DataCycleCore
       # all properties from the embeddedObject are handled within this content-data_set
       elsif embedded_property_names.include?(property_name) && !same_table?(property_definition['storage_location'])
         load_embedded_objects(
-            property_definition['storage_location']
+            property_definition['storage_location'],
+            property_name
           )
 
       # embeddedObject stored in same table
@@ -236,8 +236,35 @@ module DataCycleCore
       self.class.table_name == storage_location || history
     end
 
-    def load_embedded_objects(relation_name)
-      is_history? ? send("#{relation_name.singularize}_histories") : send(relation_name)
+    def load_embedded_objects(target_name, relation_name)
+      target_class = is_history? ? "DataCycleCore::#{target_name.classify}::History" : "DataCycleCore::#{target_name.classify}"
+      selector = target_name < self.class.table_name
+      content_one_data = [nil, target_class, '']
+      content_two_data = [self.id, self.class.to_s, relation_name]
+      where_hash = ['a', 'b'].map { |selector|
+        if is_history?
+          [ "content_#{selector}_history_id".to_sym,
+            "content_#{selector}_history_type".to_sym,
+            "relation_#{selector}".to_sym]
+        else
+          [ "content_#{selector}_id".to_sym,
+            "content_#{selector}_type".to_sym,
+            "relation_#{selector}".to_sym]
+        end
+      }.flatten
+        .zip(selector ?
+          content_one_data+content_two_data :
+          content_two_data+content_one_data
+        ).to_h.compact
+
+      relation_table = is_history? ? :content_content_histories : :content_contents
+      join_table = selector ? :content_content_a_history : :content_content_b_history if is_history?
+      join_table = selector ? :content_content_a : :content_content_b unless is_history?
+      query = target_class.constantize.joins(join_table)
+      where_hash.each do |key,value|
+        query = query.where("#{relation_table}.#{key} = ?", value)
+      end
+      query
     end
 
     def load_embedded_objects_same_table(ids)
