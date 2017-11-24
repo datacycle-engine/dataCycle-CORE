@@ -20,7 +20,7 @@ class DataCycleCore::Generic::MediaArchive::Endpoint
   end
 
   def videos(lang: :de)
-    first_page = load_data(page: 1)
+    first_page = load_data(page: 1,type: 'video')
     total_items = first_page['count'].to_i
     max_pages = total_items.fdiv(@per).ceil
     Enumerator.new do |yielder|
