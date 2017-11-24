@@ -10,9 +10,7 @@
 
     <% if item.sub_classification_alias.select { |type| !excluded_types.include?(type.name) }.size > 0 %>
         <ul class="sub-classifications">
-            <% item.sub_classification_alias.select { |type| !excluded_types.include?(type.name) }.sort{|a,b| a.name <=> b.name}.each do |sub_item| %>
-                <%= render 'data_cycle_core/application/filters/classification_items', item: sub_item %>
-            <% end %>
+          <%= render partial: 'data_cycle_core/application/filters/classification_items', collection: item.sub_classification_alias.select { |type| !excluded_types.include?(type.name) }.sort{|a,b| a.name <=> b.name}, as: :item %>
         </ul>
     <% end %>
 
