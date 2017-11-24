@@ -7,7 +7,8 @@ module DataCycleCore
       content = params[:content].as_json
 
       updated = api_strategy.update content
-      render json: {'updated' => updated}
+      # FIXME: Jbuilder Bug: tries to render jbuilder partial
+      render plain: {'updated' => updated}.to_json, content_type: 'application/json'
 
     end
 
@@ -17,7 +18,8 @@ module DataCycleCore
       content = params[:content].as_json
 
       created = api_strategy.create content
-      render json: {'created' => created}
+      # FIXME: Jbuilder Bug: tries to render jbuilder partial
+      render plain: {'created' => created}.to_json, content_type: 'application/json'
 
     end
 
@@ -26,7 +28,8 @@ module DataCycleCore
       api_strategy = get_api_strategy
 
       deleted = api_strategy.delete external_sources_params[:external_key]
-      render json: {'deleted' => deleted}
+      # FIXME: Jbuilder Bug: tries to render jbuilder partial
+      render plain: {'deleted' => deleted}.to_json, content_type: 'application/json'
 
     end
 
