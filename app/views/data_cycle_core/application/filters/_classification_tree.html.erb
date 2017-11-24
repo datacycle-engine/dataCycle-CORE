@@ -5,9 +5,7 @@
     <div>
         <ul class="clearfix <%= ul_class ||= '' %>">
             <% if classification_trees %>
-                <% classification_trees[tree_label].sort{|a,b| a.name <=> b.name}.each do |item| %>
-                    <%= render 'data_cycle_core/application/filters/classification_items', item: item, excluded_types: excluded_types %>
-                <% end %>
+              <%= render partial: 'data_cycle_core/application/filters/classification_items', collection: classification_trees[tree_label].sort{|a,b| a.name <=> b.name}, as: :item %>
             <% end %>
         </ul>
     </div>
