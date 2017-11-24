@@ -41,8 +41,7 @@ module DataCycleCore
 
     def get_api_strategy
       external_source = DataCycleCore::ExternalSource.find(external_sources_params[:external_source_id])
-      import_config = external_source.config["import_config"].symbolize_keys
-      api_strategy = import_config[:api_strategy].safe_constantize
+      api_strategy = external_source.config["api_strategy"].safe_constantize
       api_strategy.new(external_source, external_sources_params[:type], external_sources_params[:external_key])
     end
 
