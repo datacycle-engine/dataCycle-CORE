@@ -45,6 +45,17 @@ module DataCycleCore
         )
       end
 
+      def self.get_order_by_query_string(search)
+        search_string = (search || '').split(' ').join('%')
+        "boost * (
+          8 * similarity(classification_string,'%#{search_string}%') +
+          4 * similarity(headline, '%#{search_string}%') +
+          2 * ts_rank_cd(words, plainto_tsquery('simple', '#{(search || '').squish}'),16) +
+          1 * similarity(full_text, '%#{search_string}%'))
+          DESC NULLS LAST,
+          updated_at DESC"
+      end
+
     private
 
       def join_classification_alias2

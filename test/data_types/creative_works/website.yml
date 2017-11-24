@@ -6,6 +6,7 @@
     :content_type: embedded
     :permissions:
       :read_write: true
+    :boost: 1.0
     :properties:
       :id:
         :label: id
@@ -19,19 +20,40 @@
         :type: string
         :storage_type: string
         :storage_location: content
+        :validations:
+          :minLength: 1
+          :format: url
         :editor:
           :type: input
           :sorting: 1
+          :options:
+            :data-validate: text
       :name:
-        :label: Text
+        :label: Linktitel
         :type: string
         :storage_type: text
         :storage_location: content
+        :validations:
+          :minLength: 1
         :editor:
           :type: quillEditor
           :sorting: 2
           :options:
             :data-size: basic
+            :data-validate: text
+            :tabindex: -1
+      :description:
+        :label: Linkbeschreibung
+        :type: string
+        :storage_type: text
+        :storage_location: column
+        :editor:
+          :type: quillEditor
+          :sorting: 3
+          :options:
+            :data-size: basic
+            :data-validate: text
+            :tabindex: -1
       :is_part_of:
         :label: parent
         :type: string

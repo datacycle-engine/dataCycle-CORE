@@ -4,8 +4,10 @@
     :description: CreativeWork
     :type: object
     :content_type: variant
+    :releasable: true
     :permissions:
       :read_write: true
+    :boost: 100.0
     :properties:
       :id:
         :label: id
@@ -15,15 +17,29 @@
         :validations:
           :format: uuid
       :headline:
-        :label: Titel
+        :label: Arbeitstitel
         :type: string
         :storage_type: string
         :storage_location: column
+        :search: true
         :validations:
           :minLength: 1
         :editor:
           :type: input
           :sorting: 1
+          :options:
+            :data-validate: text
+      :headline_external:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :search: true
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 2
           :options:
             :data-validate: text
       :validity_period:
@@ -35,9 +51,9 @@
             :from: valid_from
             :to: valid_until
         :editor:
-          :sorting: 2
+          :sorting: 3
           :options:
-            :class: daterange validation-container
+            :class: daterange
             :tabindex: -1
         :properties:
           :valid_from:
@@ -71,32 +87,64 @@
         :type: string
         :storage_type: text
         :storage_location: content
+        :search: true
         :editor:
           :type: quillEditor
-          :sorting: 3
+          :sorting: 4
           :options:
             :data-size: full
+            :tabindex: -1
       :image:
-        :label: Bild
+        :label: Bilder
         :type: embeddedLinkArray
         :type_name: creative_works
         :storage_type: array
         :storage_location: metadata
-        :validations:
-          :max: 1
         :editor:
-          :sorting: 4
+          :sorting: 5
+          :type: objectBrowser
           :options:
             :data-validate: media
+            :data-type: image
+      :video:
+        :label: Videos
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+        :editor:
+          :sorting: 6
+          :type: objectBrowser
+          :options:
+            :data-validate: media
+            :data-type: video
+      :content_location:
+        :label: Ort
+        :type: object
+        :storage_location: places
+        :name: contentLocation
+        :description: Place
+        :delete: false
+        :editor:
+          :sorting: 7
+          :type: objectBrowser
+          :options:
+            :data-validate: object
+            :data-type: place
       :about:
         :label: Person
         :type: object
         :storage_location: persons
         :name: Person
         :description: Person
+        :validations:
+          :max: 1
         :editor:
-          :sorting: 5
+          :sorting: 8
           :type: objectBrowser
+          :options:
+            :data-validate: object
+            :data-type: person
       :topics:
         :label: Themenbereiche
         :type: classificationTreeLabel
@@ -105,6 +153,8 @@
         :editor:
           :type: classificationSelector
           :sorting: 20
+          :options:
+            :tabindex: -1
       :markets:
         :label: Zielmarkt
         :type: classificationTreeLabel
@@ -113,6 +163,8 @@
         :editor:
           :type: classificationSelector
           :sorting: 21
+          :options:
+            :tabindex: -1
       :kind:
         :label: Inhaltsart
         :type: classificationTreeLabel
@@ -121,6 +173,8 @@
         :editor:
           :type: classificationSelector
           :sorting: 22
+          :options:
+            :tabindex: -1
       :season:
         :label: Jahreszeit
         :type: classificationTreeLabel
@@ -129,6 +183,8 @@
         :editor:
           :type: classificationSelector
           :sorting: 23
+          :options:
+            :tabindex: -1
       :state:
         :label: Bundesland
         :type: classificationTreeLabel
@@ -139,6 +195,7 @@
           :sorting: 24
           :options:
             :data-validate: classification
+            :tabindex: -1
       :tags:
         :label: Tags
         :type: classificationTreeLabel
@@ -147,6 +204,8 @@
         :editor:
           :type: classificationSelector
           :sorting: 25
+          :options:
+            :tabindex: -1
       :output_channels:
         :label: Ausgabekanäle
         :type: classificationTreeLabel
@@ -155,12 +214,24 @@
         :editor:
           :type: classificationSelector
           :sorting: 26
-#      :data_pool:
-#        :label: Inhaltspool
-#        :type: classificationTreeLabel
-#        :type_name: Inhaltspools
-#        :storage_location: classification_relation
-#        :default_value: "Aktuelle Inhalte"
+          :options:
+            :tabindex: -1
+      :permitted_creator:
+        :label: Ersteller
+        :type: classificationTreeLabel
+        :type_name: Ersteller
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 27
+          :options:
+            :tabindex: -1
+      :data_pool:
+        :label: Inhaltspool
+        :type: classificationTreeLabel
+        :type_name: Inhaltspools
+        :storage_location: classification_relation
+        :default_value: "Aktuelle Inhalte"
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel

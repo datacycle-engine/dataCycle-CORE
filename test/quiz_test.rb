@@ -53,7 +53,8 @@ module DataCycleCore
         "markets" => [],
         "headline" => "Dies ist ein Test Quiz!",
         "output_channels" => [],
-        "alternative_headline" => "ein lustiges Quiz für jeden Tag!"
+        "alternative_headline" => "ein lustiges Quiz für jeden Tag!",
+        'permitted_creator' => []
        }
 
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -62,7 +63,7 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash_quiz, returned_data_hash.except("question","id","data_type",'validity_period').compact)
+      assert_equal(expected_hash_quiz, returned_data_hash.except("question","id","data_type",'validity_period', 'data_pool').compact)
       assert_equal(2, returned_data_hash["question"].count)
       assert_equal(4, returned_data_hash["question"][0]["suggested_answer"].count)
       assert_equal(4, returned_data_hash["question"][1]["suggested_answer"].count)
@@ -71,7 +72,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(13, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(13, DataCycleCore::ClassificationContent.count)
+      assert_equal(14, DataCycleCore::ClassificationContent.count)
 
       new_data_hash = returned_data_hash#.except("output_channels")
       new_data_hash["question"] = []
@@ -80,7 +81,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::ClassificationContent.count)
+      assert_equal(2, DataCycleCore::ClassificationContent.count)
     end
 
     test "generate a Quiz with questions and answers, then delete one question" do
@@ -128,7 +129,8 @@ module DataCycleCore
         "markets" => [],
         "headline" => "Dies ist ein Test Quiz!",
         "output_channels" => [],
-        "alternative_headline" => "ein lustiges Quiz für jeden Tag!"
+        "alternative_headline" => "ein lustiges Quiz für jeden Tag!",
+        'permitted_creator' => []
        }
 
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -136,7 +138,7 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash_quiz, returned_data_hash.except("question","id","data_type",'validity_period').compact)
+      assert_equal(expected_hash_quiz, returned_data_hash.except("question","id","data_type",'validity_period', 'data_pool').compact)
       assert_equal(2, returned_data_hash["question"].count)
       assert_equal(4, returned_data_hash["question"][0]["suggested_answer"].count)
       assert_equal(4, returned_data_hash["question"][1]["suggested_answer"].count)
@@ -145,7 +147,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(13, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(13, DataCycleCore::ClassificationContent.count)
+      assert_equal(14, DataCycleCore::ClassificationContent.count)
 
       # leave one question alone, delete the second one incl. all related answers and classification_relations
       new_data_hash = returned_data_hash.except("question")
@@ -155,7 +157,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(7, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(7, DataCycleCore::ClassificationContent.count)
+      assert_equal(8, DataCycleCore::ClassificationContent.count)
     end
 
   end

@@ -22,7 +22,6 @@ module DataCycleCore
       before_destroy :destroy_relations, prepend: true
 
       def destroy_relations
-        self.delete_childs(true)
         self.translations.delete_all
       end
     end

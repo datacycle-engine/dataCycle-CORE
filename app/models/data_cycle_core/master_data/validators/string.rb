@@ -101,13 +101,15 @@ module DataCycleCore
         end
 
         def url(data)
-          begin
-            uri = URI.parse data
-            unless uri.kind_of? URI::HTTP
+          unless data.blank?
+            begin
+              uri = URI.parse data
+              unless uri.kind_of? URI::HTTP
+                @error[:error].push I18n.t :url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
+              end
+            rescue URI::InvalidURIError
               @error[:error].push I18n.t :url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
             end
-          rescue URI::InvalidURIError
-            @error[:error].push I18n.t :url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
           end
         end
 

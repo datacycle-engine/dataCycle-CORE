@@ -113,7 +113,7 @@ module DataCycleCore
 
     def validate_single_data
       @place = DataCycleCore::Place.find(params[:id])
-      object_params = place_params('places', @place.metadata['validation']['name'], 'Place')
+      object_params = place_params('places', @place.metadata['validation']['name'], @place.metadata['validation']['description'])
 
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@place.metadata['validation'])
       valid = @place.validate(datahash)
