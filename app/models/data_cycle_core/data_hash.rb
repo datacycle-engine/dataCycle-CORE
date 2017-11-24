@@ -391,7 +391,7 @@ module DataCycleCore
             insert_item = ("DataCycleCore::"+table.classify).constantize.new
             insert_item.metadata = { 'validation' => template.metadata['validation'] }
             insert_item.save
-            insert_item.set_data_hash(data_hash: item, current_user: current_user, save_time: save_time, prevent_history: true)
+            insert_item.set_data_hash(data_hash: item.merge({"is_part_of" => self.id}), current_user: current_user, save_time: save_time, prevent_history: true)
             insert_item.save
             updated_item_keys.push(insert_item.id)
 
@@ -403,7 +403,7 @@ module DataCycleCore
         end
       end
 
-      available_update_item_keys = self.method(table).call.ids
+      available_update_item_keys = self.send(field_name).ids
       potentially_delete = available_update_item_keys - updated_item_keys
 
       if delete
