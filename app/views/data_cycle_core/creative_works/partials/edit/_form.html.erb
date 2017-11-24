@@ -27,7 +27,7 @@
   </div>
 </section>
 
-<%= form_for dataObject, builder: DataCycleCore::DataHashHelper::DataCycleFormBuilder do |f| %>
+<%= form_for dataObject, url: polymorphic_path(dataObject, watch_list_id: @watch_list), builder: DataCycleCore::DataHashHelper::DataCycleFormBuilder do |f| %>
 	<%= hidden_field_tag 'uuid', dataObject.id %>
   <%= hidden_field_tag 'locale', I18n.locale %>
 

@@ -2,13 +2,13 @@ module DataCycleCore
   module MasterData
     class ImportTemplates
 
-      def import(files, object)
+      def import(files, object, validation = true)
         begin
           errors = {}
           file_names = Dir[files]
           file_names.each do |filename|
             data_templates = YAML.load(File.open(filename.to_s))
-            error = iterate_templates(data_templates, object)
+            error = iterate_templates(data_templates, object, validation)
             errors[filename] = error unless error.blank?
           end
           errors
@@ -19,10 +19,11 @@ module DataCycleCore
         end
       end
 
-      def iterate_templates(data_templates, object)
+      def iterate_templates(data_templates, object, validation)
         errors = {}
         data_templates.each do |template|
-          error = validate(template)
+          error = {}
+          error = validate(template) if validation
           if error.blank?
             data_set = object
               .find_or_initialize_by(

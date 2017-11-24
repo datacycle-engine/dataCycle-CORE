@@ -26,7 +26,6 @@ PATH
       foundation-rails (~> 6.2.4)
       foundation_rails_helper (>= 3.0.0.rc2, < 4.0)
       gretel
-      gretel-trails
       hashdiff
       jbuilder
       jquery-rails
@@ -111,7 +110,7 @@ GEM
     bson (4.2.2)
     builder (3.2.3)
     byebug (9.0.6)
-    cancancan (2.0.0)
+    cancancan (2.1.1)
     codemirror-rails (5.16.0)
       railties (>= 3.0, < 6.0)
     coderay (1.1.1)
@@ -177,9 +176,6 @@ GEM
       activesupport (>= 4.2.0)
     gretel (3.0.9)
       rails (>= 3.1.0)
-    gretel-trails (0.0.5)
-      gretel (>= 3.0.0.beta6)
-      rails (>= 3.2.0)
     hashdiff (0.3.7)
     i18n (0.8.6)
     inflecto (0.0.2)
@@ -313,7 +309,7 @@ GEM
       rspec-support (~> 3.6.0)
     rspec-support (3.6.0)
     sass (3.4.23)
-    sass-rails (5.0.6)
+    sass-rails (5.0.7)
       railties (>= 4.0.0, < 6)
       sass (~> 3.1)
       sprockets (>= 2.8, < 4.0)

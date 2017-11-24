@@ -1,7 +1,7 @@
 module DataCycleCore
   class BackendController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
-    authorize_resource :class => false         # from cancancan (authorize)
+    authorize_resource :class => false  # from cancancan (authorize)
 
     def index
       @classification_array ||= []
@@ -42,7 +42,7 @@ module DataCycleCore
       end
 
       @paginateObject = query.page(params[:page])
-      @dataCycleObjects = @paginateObject.map(&:content_data)
+      @dataCycleObjects = @paginateObject.includes(content_data: [:display_classification_aliases, :translations, :watch_lists]).map(&:content_data)
 
       if params[:mode].nil?
         @mode = "flex"

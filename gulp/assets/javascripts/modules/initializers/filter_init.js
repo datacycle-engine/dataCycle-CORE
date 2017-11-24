@@ -89,16 +89,18 @@ module.exports.initialize = function () {
       }
     });
 
-    $('#primary_nav_wrap > ul > li.subtree').hover(function () {
-      ulminheight = $(this).find('ul').first();
-      $(this).find('ul').each(function () {
-        $(this).css('min-height', ulminheight.height());
+    var category_filter_heights = [];
+    $('#primary_nav_wrap ul li').hover(function() {
+      category_filter_heights.push($(this).find('ul').height() || 0);
+      var height = Math.max.apply(null, category_filter_heights);
+      $(this).parentsUntil('#primary_nav_wrap').find('ul:visible').each(function() {
+        $(this).css('min-height', height);
       });
-    });
-    $('#primary_nav_wrap > ul > li.subtree ul li').hover(function () {
-      ulminheight = $(this).find('ul').first();
-      $(this).parentsUntil($('#primary_nav_wrap > ul'), 'ul').each(function () {
-        $(this).css('min-height', ulminheight.height());
+    }, function() {
+      category_filter_heights.pop();
+      var height = Math.max.apply(null, category_filter_heights);
+      $(this).parentsUntil('#primary_nav_wrap').find('ul:visible').each(function() {
+        $(this).css('min-height', height);
       });
     });
   }

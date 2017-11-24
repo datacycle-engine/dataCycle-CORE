@@ -6,6 +6,7 @@
     :content_type: entity
     :permissions:
       :read_write: true
+    :boost: 10000.0      
     :properties:
       :id:
         :label: id
@@ -19,6 +20,7 @@
         :type: string
         :storage_type: string
         :storage_location: column
+        :search: true
         :validations:
           :minLength: 1
         :editor:
@@ -35,9 +37,9 @@
             :from: valid_from
             :to: valid_until
         :editor:
-          :sorting: 2
+          :sorting: 3
           :options:
-            :class: daterange validation-container
+            :class: daterange
             :tabindex: -1
         :properties:
           :valid_from:
@@ -71,11 +73,13 @@
         :type: string
         :storage_type: text
         :storage_location: column
+        :search: true
         :editor:
           :type: quillEditor
-          :sorting: 3
+          :sorting: 4
           :options:
             :data-size: basic
+            :tabindex: -1
       #meta attributes
       :topics:
         :label: Themenbereiche
@@ -84,7 +88,9 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 4
+          :sorting: 5
+          :options:
+            :tabindex: -1
       :markets:
         :label: Zielmarkt
         :type: classificationTreeLabel
@@ -92,7 +98,9 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 5
+          :sorting: 6
+          :options:
+            :tabindex: -1
       :kind:
         :label: Inhaltsart
         :type: classificationTreeLabel
@@ -100,7 +108,9 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 6
+          :sorting: 7
+          :options:
+            :tabindex: -1
       :season:
         :label: Jahreszeit
         :type: classificationTreeLabel
@@ -108,7 +118,9 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 7
+          :sorting: 8
+          :options:
+            :tabindex: -1
       :state:
         :label: Bundesland
         :type: classificationTreeLabel
@@ -116,9 +128,10 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 8
+          :sorting: 9
           :options:
             :data-validate: classification
+            :tabindex: -1
       :tags:
         :label: Tags
         :type: classificationTreeLabel
@@ -126,13 +139,25 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 9
+          :sorting: 10
+          :options:
+            :tabindex: -1
+      :permitted_creator:
+        :label: Ersteller
+        :type: classificationTreeLabel
+        :type_name: Ersteller
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 27
+          :options:
+            :tabindex: -1
       :data_pool:
         :label: Inhaltspool
         :type: classificationTreeLabel
         :type_name: Inhaltspools
         :storage_location: classification_relation
-        :default_value: "Aktuelle Themen"
+        :default_value: "Aktuelle Inhalte"
       :creator:
         :label: Ersteller
         :type: embeddedLink

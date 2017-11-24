@@ -23,6 +23,11 @@ module DataCycleCore
     end
 
     test "insert embeddedObject within same table" do
+
+      count_person = DataCycleCore::Person.count
+      count_place = DataCycleCore::Place.count
+      count_cw = DataCycleCore::CreativeWork.count
+
       # create an author
       person_template = DataCycleCore::Person.find_by(template: true, headline: "Autor", description: "Person")
       person_validation = person_template.metadata['validation']
@@ -33,7 +38,7 @@ module DataCycleCore
         "given_name" => "Winston",
         "family_name" => "Churchill"
       }
-      data_set_person.set_data_hash(data_hash: person_hash)
+      data_set_person.set_data_hash(data_hash: person_hash, prevent_history: true)
       data_set_person.save
       person_id = data_set_person.id
 
@@ -52,7 +57,7 @@ module DataCycleCore
         "latitude" => 1,
         "longitude" => 2
       }
-      data_set_place_1.set_data_hash(data_hash: place_hash1)
+      data_set_place_1.set_data_hash(data_hash: place_hash1, prevent_history: true)
       data_set_place_1.save
       place_id_1 = data_set_place_1.id
 
@@ -64,7 +69,7 @@ module DataCycleCore
         "latitude" => 10,
         "longitude" => 20
       }
-      data_set_place_2.set_data_hash(data_hash: place_hash2)
+      data_set_place_2.set_data_hash(data_hash: place_hash2, prevent_history: true)
       data_set_place_2.save
       place_id_2 = data_set_place_2.id
 
@@ -96,7 +101,7 @@ module DataCycleCore
       expected_hash = {
         "kind" => [],
         "tags" => [],
-        "author" => [],
+        "permitted_creator" => [],
         "text" => "wtf is going on???",
         "state" => [],
         "season" => [],
@@ -131,19 +136,18 @@ module DataCycleCore
       }
       expected_hash["quotation"][0]["id"]=returned_data_hash["quotation"][0]["id"]
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except('id',"data_type",'validity_period'))
+      assert_equal(expected_hash, returned_data_hash.compact.except('id',"data_type",'validity_period', 'data_pool'))
 
       # check consistency of data in DB
-      assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::CreativeWorkPerson.count)
-      assert_equal(1, DataCycleCore::Person.where(template: false).count)
-      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
-      assert_equal(2, DataCycleCore::Place.where(template: false).count)
+      assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
+      assert_equal(2, DataCycleCore::ContentContent.count)
+      assert_equal(1, DataCycleCore::Person.count - count_person)
+      assert_equal(2, DataCycleCore::Place.count - count_place)
 
-      # change contentLocation via new id
-
-      # ap DataCycleCore::Place.find(place_id_1).get_data_hash
-      # ap DataCycleCore::Place.find(place_id_2).get_data_hash
+      assert_equal(['DataCycleCore::CreativeWork'], DataCycleCore::ContentContent.all.pluck(:content_a_type).uniq)
+      assert_equal(['DataCycleCore::Place', 'DataCycleCore::Person'].sort , DataCycleCore::ContentContent.all.pluck(:content_b_type).uniq.sort)
+      assert_equal(['author', 'content_location'], DataCycleCore::ContentContent.all.pluck(:relation_a).uniq.sort)
+      assert_equal([''], DataCycleCore::ContentContent.all.pluck(:relation_b).uniq)
 
 
       returned_data_hash['content_location'] = [{"id" => place_id_2 }]
@@ -159,16 +163,57 @@ module DataCycleCore
         "location" => nil
         }]
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, updated_data_hash.compact.except('id',"data_type",'validity_period'))
-
+      assert_equal(expected_hash, updated_data_hash.compact.except('id',"data_type",'validity_period', 'data_pool'))
 
       # check consistency of data in DB
-      assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::CreativeWorkPerson.count)
-      assert_equal(1, DataCycleCore::Person.where(template: false).count)
-      assert_equal(1, DataCycleCore::CreativeWorkPlace.count)
-      assert_equal(2, DataCycleCore::Place.where(template: false).count)
+      assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
+      assert_equal(2, DataCycleCore::ContentContent.count)
+      assert_equal(3, DataCycleCore::ClassificationContent.count)
+      assert_equal(1, DataCycleCore::Person.count - count_person)
+      assert_equal(2, DataCycleCore::Place.count - count_place)
+      assert_equal(3, DataCycleCore::CreativeWork::History.count)
+      assert_equal(2, DataCycleCore::ContentContent::History.count)
+      assert_equal(3, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(1, DataCycleCore::Person::History.count)
+      assert_equal(1, DataCycleCore::Place::History.count)
 
+
+      # update the whole data_set to see if it is properly moved to history
+      new_hash = data_set.get_data_hash
+      new_hash['headline'] = 'updated Test'
+      error = data_set.set_data_hash(data_hash: new_hash)
+
+      assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
+      assert_equal(2, DataCycleCore::ContentContent.count)
+      assert_equal(3, DataCycleCore::ClassificationContent.count)
+      assert_equal(1, DataCycleCore::Person.count - count_person)
+      assert_equal(2, DataCycleCore::Place.count - count_place)
+      assert_equal(5, DataCycleCore::CreativeWork::History.count)
+      assert_equal(4, DataCycleCore::ContentContent::History.count)
+      assert_equal(6, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(2, DataCycleCore::Person::History.count)
+      assert_equal(2, DataCycleCore::Place::History.count)
+
+      # delete data_set
+      data_set.destroy_content
+      data_set.destroy
+
+      # delete history
+      data_set.histories.each do |item|
+        item.destroy_content
+        item.destroy
+      end
+
+      assert_equal(0, DataCycleCore::CreativeWork.count - count_cw)
+      assert_equal(0, DataCycleCore::ContentContent.count)
+      assert_equal(0, DataCycleCore::ClassificationContent.count)
+      assert_equal(1, DataCycleCore::Person.count - count_person)
+      assert_equal(2, DataCycleCore::Place.count - count_place)
+      assert_equal(0, DataCycleCore::CreativeWork::History.count)
+      assert_equal(0, DataCycleCore::ContentContent::History.count)
+      assert_equal(0, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(0, DataCycleCore::Person::History.count)
+      assert_equal(0, DataCycleCore::Place::History.count)
     end
 
 

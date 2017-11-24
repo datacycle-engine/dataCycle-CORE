@@ -53,7 +53,7 @@ module DataCycleCore
 
         if !@creativeWork.nil? && @creativeWork.save
           flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name'], locale: DataCycleCore.ui_language
-          redirect_to edit_creative_work_path(@creativeWork, source)
+          redirect_to edit_creative_work_path(@creativeWork, (source || {}).merge(watch_list_id: @watch_list))
         else
           redirect_back(fallback_location: root_path)
           return
@@ -125,7 +125,7 @@ module DataCycleCore
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       I18n.with_locale(@creativeWork.first_available_locale) do
 
-        object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], 'CreativeWork')
+        object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], @creativeWork.metadata['validation']['description'])
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'],false)
 
         #
@@ -166,7 +166,7 @@ module DataCycleCore
           elsif params[:splitview]
             redirect_back(fallback_location: root_path)
           else
-            redirect_to creative_work_path(@creativeWork, trail: session[:trail])
+            redirect_to creative_work_path(@creativeWork, watch_list_id: @watch_list)
           end
 
         else
@@ -185,7 +185,7 @@ module DataCycleCore
       if @creativeWork.parent.nil?
         redirect_to root_path
       else
-        redirect_to creative_work_path(@creativeWork.parent)
+        redirect_to creative_work_path(@creativeWork.parent, watch_list_id: @watch_list)
       end
 
     end
@@ -193,7 +193,7 @@ module DataCycleCore
     def validate_single_data
 
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
-      object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], 'CreativeWork')
+      object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], @creativeWork.metadata['validation']['description'])
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'])
       valid = @creativeWork.validate(datahash)
       render :json => valid.to_json

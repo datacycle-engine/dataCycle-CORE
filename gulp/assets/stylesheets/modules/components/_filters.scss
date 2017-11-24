@@ -152,9 +152,11 @@
             /*background: lighten($light-gray, 4%);
             border-radius: 10px;*/
             label {
-               font-size: 0.8rem;
-               margin-right: 0.5rem;
-              &:before { padding-top: 1px; }
+              font-size: 0.8rem;
+              margin-right: 0.5rem;
+              &:before {
+                padding-top: 1px;
+              }
             }
           }
         }
@@ -173,7 +175,7 @@
         position: relative;
         cursor: pointer;
         transition: all 0.4s ease;
-        font-size: 0.9rem; 
+        font-size: 0.9rem;
         i {
           position: absolute;
           top: 1px;
@@ -350,16 +352,18 @@
         left: 18rem;
         position: absolute;
         margin: 0;
-        background: lighten( $light-gray, 4%);
-        li:hover {
-          background: lighten($light-gray, 7%);
+        &:not(.sub-list) {
+          background: lighten( $light-gray, 4%);
+          li:hover {
+            background: lighten($light-gray, 7%);
+          }
         }
-        ul {
+        ul:not(.sub-list) {
           background: lighten( $light-gray, 7%);
           li:hover {
             background: lighten($light-gray, 10%);
           }
-          ul {
+          ul:not(.sub-list) {
             background: lighten( $light-gray, 10%);
           }
         }
@@ -421,7 +425,7 @@
       display: inline-block;
     }
     a:hover {
-        background: $alert-color;
+      background: $alert-color;
     }
   }
 }

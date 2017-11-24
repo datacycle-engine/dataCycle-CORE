@@ -4,8 +4,10 @@
     :description: CreativeWork
     :type: object
     :content_type: variant
+    :releasable: true
     :permissions:
       :read_write: true
+    :boost: 100.0
     :properties:
       :id:
         :label: id
@@ -15,15 +17,29 @@
         :validations:
           :format: uuid
       :headline:
-        :label: Titel
+        :label: Arbeitstitel
         :type: string
         :storage_type: string
         :storage_location: column
+        :search: true
         :validations:
           :minLength: 1
         :editor:
           :type: input
           :sorting: 1
+          :options:
+            :data-validate: text
+      :headline_external:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :search: true
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 2
           :options:
             :data-validate: text
       :validity_period:
@@ -35,9 +51,9 @@
             :from: valid_from
             :to: valid_until
         :editor:
-          :sorting: 2
+          :sorting: 3
           :options:
-            :class: daterange validation-container
+            :class: daterange
             :tabindex: -1
         :properties:
           :valid_from:
@@ -70,12 +86,14 @@
         :label: Teasertext
         :type: string
         :storage_type: text
-        :storage_location: content
+        :storage_location: column
+        :search: true
         :editor:
           :type: quillEditor
-          :sorting: 3
+          :sorting: 4
           :options:
             :data-size: basic
+            :tabindex: -1
       :name:
         :label: Linktext
         :type: string
@@ -83,7 +101,7 @@
         :storage_location: content
         :editor:
           :type: input
-          :sorting: 4
+          :sorting: 5
       :content_location:
         :label: Veranstaltungsort
         :type: object
@@ -91,8 +109,10 @@
         :name: contentLocation
         :description: Place
         :delete: false
+        :validations:
+          :max: 1
         :editor:
-          :sorting: 5
+          :sorting: 6
           :type: objectBrowser
           :options:
             :data-validate: object
@@ -106,7 +126,7 @@
         :description: Event
         :editor:
           :type: embeddedObject
-          :sorting: 6
+          :sorting: 7
       :image:
         :label: Bilder
         :type: embeddedLinkArray
@@ -114,10 +134,23 @@
         :storage_type: array
         :storage_location: metadata
         :editor:
-          :sorting: 7
+          :sorting: 8
+          :type: objectBrowser
           :options:
             :data-validate: media
             :data-type: image
+      :video:
+        :label: Videos
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+        :editor:
+          :sorting: 9
+          :type: objectBrowser
+          :options:
+            :data-validate: media
+            :data-type: video
       #meta attributes
       :topics:
         :label: Themenbereiche
@@ -127,6 +160,8 @@
         :editor:
           :type: classificationSelector
           :sorting: 20
+          :options:
+            :tabindex: -1
       :markets:
         :label: Zielmarkt
         :type: classificationTreeLabel
@@ -135,6 +170,8 @@
         :editor:
           :type: classificationSelector
           :sorting: 21
+          :options:
+            :tabindex: -1
       :kind:
         :label: Inhaltsart
         :type: classificationTreeLabel
@@ -143,6 +180,8 @@
         :editor:
           :type: classificationSelector
           :sorting: 22
+          :options:
+            :tabindex: -1
       :season:
         :label: Jahreszeit
         :type: classificationTreeLabel
@@ -151,6 +190,8 @@
         :editor:
           :type: classificationSelector
           :sorting: 23
+          :options:
+            :tabindex: -1
       :state:
         :label: Bundesland
         :type: classificationTreeLabel
@@ -161,6 +202,7 @@
           :sorting: 24
           :options:
             :data-validate: classification
+            :tabindex: -1
       :tags:
         :label: Tags
         :type: classificationTreeLabel
@@ -169,6 +211,8 @@
         :editor:
           :type: classificationSelector
           :sorting: 25
+          :options:
+            :tabindex: -1
       :output_channels:
         :label: Ausgabekanäle
         :type: classificationTreeLabel
@@ -177,12 +221,24 @@
         :editor:
           :type: classificationSelector
           :sorting: 26
-#      :data_pool:
-#        :label: Inhaltspool
-#        :type: classificationTreeLabel
-#        :type_name: Inhaltspools
-#        :storage_location: classification_relation
-#        :default_value: "Aktuelle Themen"
+          :options:
+            :tabindex: -1
+      :permitted_creator:
+        :label: Ersteller
+        :type: classificationTreeLabel
+        :type_name: Ersteller
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 27
+          :options:
+            :tabindex: -1
+      :data_pool:
+        :label: Inhaltspool
+        :type: classificationTreeLabel
+        :type_name: Inhaltspools
+        :storage_location: classification_relation
+        :default_value: "Aktuelle Inhalte"
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel

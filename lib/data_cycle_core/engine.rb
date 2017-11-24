@@ -44,7 +44,6 @@ require 'globalize'
 
 # Breadcrumbs
 require 'gretel'
-require 'gretel-trails'
 
 # support for forms
 require 'simple_form'
