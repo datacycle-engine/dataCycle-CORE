@@ -7,13 +7,14 @@ module DataCycleCore::Generic::MediaArchive::Import
 
   def load_transformations
     @image_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_bild
+    @video_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_video
     @content_location_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_content_location
   end
 
   protected
 
   def load_contents(mongo_item, locale)
-    mongo_item.where("dump.#{locale}.contentType": "Bild")
+    mongo_item.where("dump.#{locale}" => { '$exists' => true })
   end
 
   def process_content(raw_data, template, locale)
@@ -30,16 +31,30 @@ module DataCycleCore::Generic::MediaArchive::Import
 
       raw_data.merge!({'content_location' => [{ 'id' => content_location.try(:id) }]}) unless content_location.blank?
 
+      case raw_data['contentType']
+        when "Bild"
+          data = extract_image_data(raw_data).with_indifferent_access
+        when "Video"
+          data = extract_video_data(raw_data).with_indifferent_access
+        else
+          data = nil
+          ap "Unkown contentType #{raw_data}"
+      end
+
       content = create_or_update_content(
         @target_type,
         template,
-        extract_image_data(raw_data).with_indifferent_access
-      )
+        data
+      ) unless data.nil?
     end
   end
 
   def extract_image_data(raw_data)
     raw_data.nil? ? {} : @image_transformation.call(raw_data)
+  end
+
+  def extract_video_data(raw_data)
+    raw_data.nil? ? {} : @video_transformation.call(raw_data)
   end
 
   def extract_content_location_data(raw_data)

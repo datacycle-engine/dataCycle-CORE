@@ -6,24 +6,35 @@ class DataCycleCore::Generic::MediaArchive::Endpoint
     @per = 100
   end
 
-  def image_objects(lang: :de)
-    first_page = load_data(1)
+  def images(lang: :de)
+    first_page = load_data(page: 1)
     total_items = first_page['count'].to_i
     max_pages = total_items.fdiv(@per).ceil
-
     Enumerator.new do |yielder|
       (1..max_pages).each do |page|
-        load_data(page, @per, lang)['CreativeWorks'].each do |image_record|
+        load_data(page: page, per: @per, lang: lang)['CreativeWorks'].each do |image_record|
           yielder << image_record[lang.to_s]
         end
       end
     end
   end
 
+  def videos(lang: :de)
+    first_page = load_data(page: 1)
+    total_items = first_page['count'].to_i
+    max_pages = total_items.fdiv(@per).ceil
+    Enumerator.new do |yielder|
+      (1..max_pages).each do |page|
+        load_data(page: page, per: @per, lang: lang, type: 'video')['CreativeWorks'].each do |video_record|
+          yielder << video_record[lang.to_s]
+        end
+      end
+    end
+  end
 
   protected
 
-  def load_data(page = 1, per = 1, lang = :de)
+  def load_data(page: 1, per: 1, lang: :de, type: 'image')
     response = Faraday.new.get do |req|
       req.url (@host + @end_point)
 
@@ -32,13 +43,14 @@ class DataCycleCore::Generic::MediaArchive::Endpoint
       req.params['page'] = page
       req.params['per'] = per
       req.params['token'] = @token
+      req.params['type'] = type
     end
 
     if response.success?
       JSON.parse(response.body)
     else
       raise DataCycleCore::Generic::RecoverableError.new(
-        "error loading data from #{@host + @end_point} / page:#{page} / per:#{per} / lang:#{lang}" << response.body
+        "error loading data from #{@host + @end_point} / page:#{page} / per:#{per} / lang:#{lang} / type:#{type}" << response.body
       )
     end
   end
