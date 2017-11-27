@@ -363,11 +363,6 @@ namespace :data_cycle_core do
     desc "update .._hasPart arrays to content_content relation table"
     task :stage2 => [:environment] do
 
-      #determine array_names from type specifications
-
-      
-
-
       array_names = ['question_hasPart','website_hasPart','offer_periods_hasPart',
         'mobile_application_hasPart','quotation_hasPart','accepted_answer_hasPart',
         'suggested_answer_hasPart','timeline_item_hasPart']
