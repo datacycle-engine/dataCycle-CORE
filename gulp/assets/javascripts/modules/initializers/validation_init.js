@@ -10,6 +10,19 @@ module.exports.initialize = function () {
     $('input[type=hidden]#' + id).val(value);
   });
 
+  // check if data changed and confirm leaving the page
+
+  if ($('.editor').length > 0) {
+    var form_data = "";
+    setTimeout(function () {
+      form_data = $('.editor').closest('form').serialize();
+    }, 500);
+    $(window).on("beforeunload", function () {
+      var new_form_data = $('.editor').closest('form').serialize();
+      if (form_data != new_form_data) return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
+    });
+  }
+
   // Validation
 
   if ($('#edit-form form').html() != undefined) {
@@ -86,6 +99,7 @@ module.exports.initialize = function () {
       }
       promises = [];
       if (isValid && submit) {
+        $(window).off("beforeunload");
         form.submit();
       } else if (submit) {
         var first_error_offset, container;
