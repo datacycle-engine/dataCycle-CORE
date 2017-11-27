@@ -140,13 +140,13 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
-      assert_equal(2, DataCycleCore::ContentContent.count)
+      assert_equal(3, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Person.count - count_person)
       assert_equal(2, DataCycleCore::Place.count - count_place)
 
       assert_equal(['DataCycleCore::CreativeWork'], DataCycleCore::ContentContent.all.pluck(:content_a_type).uniq)
-      assert_equal(['DataCycleCore::Place', 'DataCycleCore::Person'].sort , DataCycleCore::ContentContent.all.pluck(:content_b_type).uniq.sort)
-      assert_equal(['author', 'content_location'], DataCycleCore::ContentContent.all.pluck(:relation_a).uniq.sort)
+      assert_equal(['DataCycleCore::CreativeWork', 'DataCycleCore::Place', 'DataCycleCore::Person'].sort , DataCycleCore::ContentContent.all.pluck(:content_b_type).uniq.sort)
+      assert_equal(['author', 'content_location', 'quotation'], DataCycleCore::ContentContent.all.pluck(:relation_a).uniq.sort)
       assert_equal([''], DataCycleCore::ContentContent.all.pluck(:relation_b).uniq)
 
 
@@ -167,12 +167,12 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
-      assert_equal(2, DataCycleCore::ContentContent.count)
+      assert_equal(3, DataCycleCore::ContentContent.count)
       assert_equal(3, DataCycleCore::ClassificationContent.count)
       assert_equal(1, DataCycleCore::Person.count - count_person)
       assert_equal(2, DataCycleCore::Place.count - count_place)
       assert_equal(3, DataCycleCore::CreativeWork::History.count)
-      assert_equal(2, DataCycleCore::ContentContent::History.count)
+      assert_equal(3, DataCycleCore::ContentContent::History.count)
       assert_equal(3, DataCycleCore::ClassificationContent::History.count)
       assert_equal(1, DataCycleCore::Person::History.count)
       assert_equal(1, DataCycleCore::Place::History.count)
@@ -184,12 +184,12 @@ module DataCycleCore
       error = data_set.set_data_hash(data_hash: new_hash)
 
       assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
-      assert_equal(2, DataCycleCore::ContentContent.count)
+      assert_equal(3, DataCycleCore::ContentContent.count)
       assert_equal(3, DataCycleCore::ClassificationContent.count)
       assert_equal(1, DataCycleCore::Person.count - count_person)
       assert_equal(2, DataCycleCore::Place.count - count_place)
       assert_equal(5, DataCycleCore::CreativeWork::History.count)
-      assert_equal(4, DataCycleCore::ContentContent::History.count)
+      assert_equal(6, DataCycleCore::ContentContent::History.count)
       assert_equal(6, DataCycleCore::ClassificationContent::History.count)
       assert_equal(2, DataCycleCore::Person::History.count)
       assert_equal(2, DataCycleCore::Place::History.count)

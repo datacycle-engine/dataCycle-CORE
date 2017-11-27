@@ -58,7 +58,9 @@ module DataCycleCore
         end
         if find_alias.count > 0
           updated_data = find_alias.first
-          updated_data.set_data({seen_at: Time.zone.now, internal: internal}).save
+          updated_data.seen_at = Time.zone.now
+          updated_data.internal = internal
+          updated_data.save
         else
           # new Alias, create respective tree-entry
           updated_data = DataCycleCore::ClassificationAlias.create(name: data, internal: internal, seen_at: Time.zone.now)

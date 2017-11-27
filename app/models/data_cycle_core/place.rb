@@ -35,9 +35,6 @@ module DataCycleCore
     # callbacks
     before_destroy :destroy_relations, prepend: true
 
-    # custom setter
-    include DataSetter
-
     include ContentHelpers
     include PlaceHelpers
 

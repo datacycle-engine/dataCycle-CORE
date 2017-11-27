@@ -11,7 +11,6 @@ module DataCycleCore
     include Subscribable
     include Releasable
 
-
     def property_definitions
       metadata['validation']['properties'] rescue {}
     end
@@ -159,20 +158,14 @@ module DataCycleCore
             history_table_translation[:history_valid],
             Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
           )
-        ).order(history_table[:updated_at])#.first #rescue self
+        ).order(history_table[:updated_at])
       return return_data.last
     end
 
     def embedded_relations
       embedded_property_names.map { |property_name|
-         {name: property_name, table: property_definitions[property_name]['storage_location']} if property_definitions[property_name]['storage_location'] != self.class.table_name
+         {name: property_name, table: property_definitions[property_name]['storage_location']}
       }.compact.uniq
-    end
-
-    def embedded_self_property_names
-      embedded_property_names.select { |property_name|
-        property_definitions[property_name]['storage_location'] == self.class.table_name
-      }
     end
 
     private
@@ -196,22 +189,12 @@ module DataCycleCore
             property_definition
           )
 
-      # embeddedObject stored in different table
-      # relation is hadled via a separate table (an ActiveRecord::Relation has to be defined)
-      # embeddedObject is stored in a separate content-data_set
+      # embeddedObject stored via contnet_content(s)(_histories)
       # all properties from the embeddedObject are handled within this content-data_set
-      elsif embedded_property_names.include?(property_name) && !same_table?(property_definition['storage_location'])
+      elsif embedded_property_names.include?(property_name)
         load_embedded_objects(
-            property_definition['storage_location']
-          )
-
-      # embeddedObject stored in same table
-      # relation is handled via "property_name"+"_hasPart" uuid(s) array
-      # embeddedObject is stored in a separate content-data_set
-      # all properties from the embeddedObject are handled within this content-data_set
-      elsif embedded_property_names.include?(property_name) && same_table?(property_definition['storage_location'])
-        load_embedded_objects_same_table(
-            send('metadata')[property_name.to_s + '_hasPart']
+            property_definition['storage_location'],
+            property_name
           )
 
       # for classification relations
@@ -236,12 +219,35 @@ module DataCycleCore
       self.class.table_name == storage_location || history
     end
 
-    def load_embedded_objects(relation_name)
-      is_history? ? send("#{relation_name.singularize}_histories") : send(relation_name)
-    end
+    def load_embedded_objects(target_name, relation_name)
+      target_class = is_history? ? "DataCycleCore::#{target_name.classify}::History" : "DataCycleCore::#{target_name.classify}"
+      selector = target_name < self.class.table_name
+      content_one_data = [nil, target_class, '']
+      content_two_data = [self.id, self.class.to_s, relation_name]
+      where_hash = ['a', 'b'].map { |selector|
+        if is_history?
+          [ "content_#{selector}_history_id".to_sym,
+            "content_#{selector}_history_type".to_sym,
+            "relation_#{selector}".to_sym]
+        else
+          [ "content_#{selector}_id".to_sym,
+            "content_#{selector}_type".to_sym,
+            "relation_#{selector}".to_sym]
+        end
+      }.flatten
+        .zip(selector ?
+          content_one_data+content_two_data :
+          content_two_data+content_one_data
+        ).to_h.compact
 
-    def load_embedded_objects_same_table(ids)
-      self.class.to_s.safe_constantize.find(ids) rescue nil
+      relation_table = is_history? ? :content_content_histories : :content_contents
+      join_table = selector ? :content_content_a_history : :content_content_b_history if is_history?
+      join_table = selector ? :content_content_a : :content_content_b unless is_history?
+      query = target_class.constantize.joins(join_table)
+      where_hash.each do |key,value|
+        query = query.where("#{relation_table}.#{key} = ?", value)
+      end
+      query
     end
 
     def load_linked_data(type_name, ids, timestamp = Time.zone.now, objects = true)
