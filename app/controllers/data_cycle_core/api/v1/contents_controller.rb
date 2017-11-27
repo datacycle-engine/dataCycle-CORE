@@ -47,9 +47,16 @@ module DataCycleCore
           }
       )
 
-      query = DataCycleCore::Filter::Search.new(@language).where(content_data_type: DataCycleCore::CreativeWork).in_validity_period
+      query = DataCycleCore::Filter::Search.new(@language).where(content_data_type: DataCycleCore::CreativeWork)
       query = query.with_classification_alias_ids(classification_aliases.map(&:id))
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
+
+      if params[:modified_since]
+        query = query.modified_since(params[:modified_since])
+      else
+        query = query.in_validity_period
+      end
+
       query = query.order(order_string)
 
       @per = params[:per] unless params[:per].blank?
@@ -67,7 +74,7 @@ module DataCycleCore
       @contents = query.page(@page).per(@per).map(&:content_data)
     end
 
-    def get_modified
+    def get_deleted
       @language = params[:language] unless params[:language].blank?
       @language ||= 'de'
 
@@ -84,8 +91,8 @@ module DataCycleCore
       query = DataCycleCore::Filter::Search.new(@language).where(content_data_type: DataCycleCore::CreativeWork)
       query = query.with_classification_alias_ids(classification_aliases.map(&:id))
 
-      if params[:modified_since]
-        query = query.modified_since(params[:modified_since])
+      if params[:deleted_since]
+        query = query.modified_since(params[:deleted_since])
       end
 
       query = query.order(order_string)
@@ -108,7 +115,7 @@ module DataCycleCore
     private
 
     def content_params
-      params.permit(:page, :per, :language, :search, :token, :modified_since)
+      params.permit(:page, :per, :language, :search, :token, :modified_since, :deleted_since)
     end
 
   end

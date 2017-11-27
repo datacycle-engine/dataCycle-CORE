@@ -76,7 +76,7 @@ DataCycleCore::Engine.routes.draw do
           patch :update, on: :member
         end
         get 'contents/search', to: 'contents#search'
-        get 'contents/get_modified', to: 'contents#get_modified'
+        get 'contents/get_deleted', to: 'contents#get_deleted'
         resources :external_sources, only: [] do
           post ':external_source_id/:type/:external_key', to: 'external_sources#create', on: :collection
           patch ':external_source_id/:type/:external_key', to: 'external_sources#update', on: :collection
