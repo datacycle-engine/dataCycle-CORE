@@ -47,10 +47,10 @@
         <a class="button-prime success small save-object-browser" @click.stop="save">
           <i class="fa fa-check" aria-hidden="true"></i>
         </a>
-        <button v-if="createItem" :data-open="newId" class="new-item-button button-prime small">
+        <button v-if="createItem" :data-open="newId" class="new-item-button button-prime small" type="button">
           <i class="fa fa-plus"></i>
         </button>
-        <button class="button-prime small close-object-browser" @click.prevent="$emit('close')">
+        <button class="button-prime small close-object-browser" @click.prevent="$emit('close')" type="button">
           <i aria-hidden="true" class="fa fa-times"></i>
         </button>
         <new v-on:add="addItem" :object-type="objectType" :creator="creator">
