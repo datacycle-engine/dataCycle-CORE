@@ -41,14 +41,7 @@ module DataCycleCore
         @pg_content[item.humanize] = ("DataCycleCore::"+item.classify).safe_constantize.count
       end
 
-      @pg_content_content = 0
-      DataCycleCore.content_tables.each do |from|
-        DataCycleCore.content_tables.each do |to|
-          unless from == to
-            @pg_content_content += ('DataCycleCore::'+[from, to].map(&:singularize).sort.join('_').pluralize.classify).safe_constantize.count
-          end
-        end
-      end
+      @pg_content_content = DataCycleCore::ContentContent.count
 
       @pg_overlays = Overlay.count
     end
