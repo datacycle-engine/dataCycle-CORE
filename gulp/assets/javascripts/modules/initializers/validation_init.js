@@ -18,6 +18,7 @@ module.exports.initialize = function () {
       form_data = $('.editor').closest('form').serialize();
     }, 500);
     $(window).on("beforeunload", function () {
+      update_editor_values();
       var new_form_data = $('.editor').closest('form').serialize();
       if (form_data != new_form_data) return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
     });
