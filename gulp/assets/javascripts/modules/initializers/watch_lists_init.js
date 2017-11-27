@@ -106,8 +106,8 @@ module.exports.initialize = function () {
   function render_confirmation(text) {
     var html = '<div class="confirmation watchlist-dialog">';
     html += '<span class="text">' + text + '</span>';
-    html += '<button class="button accept-confirmation">Ok</button>';
-    html += '<button class="button cancel-confirmation">Abbrechen</button>';
+    html += '<button class="button accept-confirmation" type="button">Ok</button>';
+    html += '<button class="button cancel-confirmation" type="button">Abbrechen</button>';
     html += '</div>';
     return html;
   };
