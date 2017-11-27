@@ -28,7 +28,7 @@ module.exports.initialize = function () {
 
   if ($('#edit-form form').html() != undefined) {
     var form = document.querySelector('#edit-form form');
-    $('.submit-edit-form button').on('click', function (ev) {
+    $('button.submit-edit-form').on('click', function (ev) {
       ev.preventDefault();
       $(form).trigger('submit');
     });

@@ -58,6 +58,10 @@ module DataCycleCore
 
     def edit
       @person = DataCycleCore::Person.find(params[:id])
+      I18n.with_locale(params[:locale]) do
+        @person.save
+      end if params[:locale] && !@person.translated_locales.include?(params[:locale])
+
       I18n.with_locale(@person.first_available_locale(params[:locale])) do
         @dataSchema = @person.get_data_hash
         render layout: "data_cycle_core/creative_works_edit"
