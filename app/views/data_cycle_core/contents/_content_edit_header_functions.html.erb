@@ -1,0 +1,35 @@
+<section class="edit-header">
+  <div class="row expanded">
+    <div class="column edit-header-functions">
+      <div class="edit-headline">
+        <i class="fa fa-pencil" aria-hidden="true"></i> <%== "#{content.content_type} #{t('actions.edit', locale: DataCycleCore.ui_language)}" %>
+      </div>
+      <ul>
+        <% if DataCycleCore.translatable_types.include?(content.class.name) %>
+          <li class="has-dropdown">
+            <a data-toggle="language-menu"><i class="fa fa-language" aria-hidden="true"></i> <%= t('common.language', locale: DataCycleCore.ui_language) %></a>
+            <ul class="dropdown-pane no-bullet bottom" id="language-menu" data-dropdown data-hover="true" data-hover-pane="true">
+              <% available_locales_with_names.each do |locale| %>
+                <li class="<%= "active" if locale.first == I18n.locale %>"><%= link_to_unless locale.first == I18n.locale, locale.last, edit_polymorphic_path(content, locale: locale.first)  %></li>
+              <% end %>
+            </ul>
+          </li>
+        <% end %>
+
+        <% if can? :manage, DataCycleCore::DataLink %>
+          <li class="has-dropdown"><%= render 'data_cycle_core/shared/data_links', dataCycleObject: content %></li>
+        <% end %>
+
+        <!--<li>-->
+        <!--<button type="button" class="button delete top" data-tooltip aria-haspopup="true" data-disable-hover="false" title="Löschen"><i class="fa fa-trash" aria-hidden="true"></i></button>-->
+        <!--</li>-->
+        <li class="buttons">
+          <%= link_to breadcrumbs[-2].url do %>
+            <button type="button" class="button discard top" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
+          <% end %>
+          <button class="button-prime submit submit-edit-form" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
