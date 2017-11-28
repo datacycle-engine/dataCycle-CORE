@@ -15,22 +15,29 @@
 
 				<%# if !dataCycleObject.metadata['validation']['content_type'].nil? && dataCycleObject.metadata['validation']['content_type'] != 'embedded' %>
 
-					<% if !dataCycleObject.metadata['validation']['name'].nil? && !dataCycleObject.metadata['validation']['name'].blank? %>
+				<% if !dataCycleObject.metadata['validation']['name'].nil? && !dataCycleObject.metadata['validation']['name'].blank? %>
 
-						<div class="grid-item data-cycle-object">
-							<% if can? :manage, DataCycleCore::WatchList %>
-                <% if !@watch_list.nil? && !@watch_list.id.nil? && controller_name == 'watch_lists' %>
-                  <%= render 'data_cycle_core/watch_lists/partials/remove_item_link', item: dataCycleObject %>
-                <% else %>
-								  <%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: dataCycleObject %>
-                <% end %>
+					<div class="grid-item data-cycle-object <%= "expired" unless dataCycleObject.is_valid %>">
+
+						<% unless dataCycleObject.is_valid %>
+							<span class="status expired">
+								<i class="fa fa-lock" aria-hidden="true"></i>
+							</span>
+						<% end %>
+
+						<% if can? :manage, DataCycleCore::WatchList %>
+							<% if !@watch_list.nil? && !@watch_list.id.nil? && controller_name == 'watch_lists' %>
+								<%= render 'data_cycle_core/watch_lists/partials/remove_item_link', item: dataCycleObject %>
+							<% else %>
+								<%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: dataCycleObject %>
 							<% end %>
+						<% end %>
 
-              <%= render_content_tile item: dataCycleObject %>
+						<%= render_content_tile item: dataCycleObject %>
 
-						</div>
+					</div>
 
-					<% end %>
+				<% end %>
 
 				<%# end %>
 
