@@ -363,6 +363,12 @@ button,
     padding: 0 0 30rem 0;
     margin-top: 3rem;
     background: none;
+    .translated {
+      position: absolute;
+      z-index: 1;
+      right: 0.5rem;
+      margin-top: 0.5rem;
+    }
     .validation-container {
       position: relative;
     }
