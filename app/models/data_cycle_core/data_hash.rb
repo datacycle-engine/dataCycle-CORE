@@ -23,8 +23,8 @@ module DataCycleCore
 
       if validate?(stripped_data_hash)
         ActiveRecord::Base.transaction do
-          self.to_history(save_time) if self.id.nil? == false && prevent_history == false
-          data_hash, release_hash = extract_release(data_hash, false) if kind_of?(DataCycleCore::Releasable) # strip release data only from this objectt
+          self.to_history(save_time: save_time) if self.id.nil? == false && prevent_history == false
+          data_hash, release_hash = extract_release(data_hash, false) if kind_of?(DataCycleCore::Releasable) # strip release data only from this object
           set_template_data_hash(data_hash, property_definitions, save_time, current_user)
           if kind_of?(DataCycleCore::Releasable)
             self.release = release_hash
@@ -42,7 +42,7 @@ module DataCycleCore
     end
 
     def destroy_content
-      self.to_history(Time.zone.now) unless is_history?
+      self.to_history(save_time: Time.zone.now, delete: true) unless is_history?
       self.delete_childs(true)
     end
 
@@ -55,7 +55,7 @@ module DataCycleCore
       end
     end
 
-    def to_history(save_time, parent_id = nil)
+    def to_history(save_time:, parent_id: nil, delete: false)
       origin_table = self.class.to_s.split("::")[1].tableize
       data_set_history = (self.class.to_s + "::History").safe_constantize.new
 
@@ -73,6 +73,8 @@ module DataCycleCore
           lower_bound = save_time
         end
         data_set_history.history_valid = (lower_bound ... save_time)
+        data_set_history.deleted_at = Time.zone.now.to_s(:long_usec) if delete
+
         data_set_history.save
 
         # cc classification_content to history
@@ -91,7 +93,7 @@ module DataCycleCore
         embedded_relations.each do |content_name|
           content_relation = content_name[:table] < origin_table ? 'content_content_a_history' : 'content_content_b_history'
           self.send(content_name[:table]).each do |content_item|
-            new_content_history = content_item.to_history(save_time)
+            new_content_history = content_item.to_history(save_time: save_time)
             content_one_data = [new_content_history.id, new_content_history.class.to_s, '']
             content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name[:name]]
             content_relation_history_data = ['a', 'b'].map { |selector|
@@ -115,7 +117,7 @@ module DataCycleCore
           data_set_history.metadata[key] = []
           unless self.metadata[key].blank?
             self.metadata[key].each do |content_id|
-              content_history = self.class.find(content_id).to_history(save_time)
+              content_history = self.class.find(content_id).to_history(save_time: save_time)
               data_set_history.metadata[key].push(content_history.id)
             end
           end
