@@ -88,7 +88,6 @@ module DataCycleCore
 
         # cc embedded data from other content tables
         embedded_relations.each do |content_name|
-          content_relation = content_name[:table] < origin_table ? 'content_content_a_history' : 'content_content_b_history'
           self.send(content_name[:table]).each do |content_item|
             new_content_history = content_item.to_history(save_time)
             content_one_data = [new_content_history.id, new_content_history.class.to_s, '']
@@ -105,6 +104,24 @@ module DataCycleCore
             content_relation_history_data["history_valid"] = (content_item.updated_at ... save_time)
             DataCycleCore::ContentContent::History.create!(content_relation_history_data)
           end
+        end
+
+        linked_relations.each do |content_name|
+          self.send(content_name[:name]).each do |content_item|
+            content_one_data = [content_item.id, content_item.class.to_s, '']
+            content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name[:name]]
+            content_relation_history_data = ['a', 'b'].map { |selector|
+              [ "content_#{selector}_history_id".to_sym,
+                "content_#{selector}_history_type".to_sym,
+                "relation_#{selector}".to_sym]
+            }.flatten
+              .zip(content_name[:table] < origin_table ?
+                content_one_data+content_two_data :
+                content_two_data+content_one_data
+              ).to_h
+            content_relation_history_data["history_valid"] = (content_item.updated_at ... save_time)
+            DataCycleCore::ContentContent::History.create!(content_relation_history_data)
+          end 
         end
 
         data_set_history.save
@@ -300,25 +317,29 @@ module DataCycleCore
     end
 
     def storage_cases_set(key, value, properties, save_time, current_user)
-      case properties['storage_location']
-      when 'column'
-        self.method("#{key}=").call(value)
-      when 'content'
-        save_to_jsonb(key, value, properties, 'content')
-      when 'metadata'
-        save_to_jsonb(key, value, properties, 'metadata')
-      when 'properties'
-        save_to_jsonb(key, value, properties, 'properties')
-      when 'classification_relation'
-        set_relation_ids(value, properties['type_name'], properties['default_value'])
+      if properties['type'] == 'embeddedLinkArray' || properties['type'] == 'embeddedLink'
+        set_linked_data_type(key, value, properties['type_name'], key, properties['type_name'].classify, false, save_time, current_user)
       else
-        unless properties['storage_location'] == 'key'  # do nothing with key
-          if properties.has_key?('name') && properties.has_key?('description')
-            delete = false
-            delete = true if properties.has_key?('delete') && properties['delete'] == true
-            set_linked_data_type(key, value, properties['storage_location'], properties['name'], properties['description'], delete, save_time, current_user)
-          else
-            puts "wrong data_type #{key} | #{value}"
+        case properties['storage_location']
+        when 'column'
+          self.method("#{key}=").call(value)
+        when 'content'
+          save_to_jsonb(key, value, properties, 'content')
+        when 'metadata'
+          save_to_jsonb(key, value, properties, 'metadata')
+        when 'properties'
+          save_to_jsonb(key, value, properties, 'properties')
+        when 'classification_relation'
+          set_relation_ids(value, properties['type_name'], properties['default_value'])
+        else
+          unless properties['storage_location'] == 'key'  # do nothing with key
+            if properties.has_key?('name') && properties.has_key?('description')
+              delete = false
+              delete = true if properties.has_key?('delete') && properties['delete'] == true
+              set_linked_data_type(key, value, properties['storage_location'], properties['name'], properties['description'], delete, save_time, current_user)
+            else
+              puts "wrong data_type #{key} | #{value}"
+            end
           end
         end
       end
@@ -362,6 +383,13 @@ module DataCycleCore
     def set_linked_data_type(field_name, data, table, name, description, delete, save_time, current_user)
       relation = "content_contents"
       updated_item_keys = []
+
+      # for embeddedLink and embeddedLinkArray transform data
+      if data.kind_of?(::Array) && !data.blank? && data.first.kind_of?(::String)
+        data.map!{|item| {"id" => item} }
+      elsif data.kind_of?(::String)
+        data = [{"id" => data}]
+      end
 
       unless is_blank?(data)
         # update/insert linked_data

@@ -65,3 +65,34 @@ if DataCycleCore::Release.count == 0
     release_text: "gesperrt"
   )
 end
+
+if DataCycleCore::Role.count == 0
+  DataCycleCore::Role.create!(
+    rank: 0,
+    name: 'guest'
+  )
+  DataCycleCore::Role.create!(
+    rank: 1,
+    name: 'external_partner'
+  )
+  DataCycleCore::Role.create!(
+    rank: 2,
+    name: 'standard'
+  )
+  DataCycleCore::Role.create!(
+    rank: 3,
+    name: 'editor_market_office'
+  )
+  DataCycleCore::Role.create!(
+    rank: 4,
+    name: 'basic_editor'
+  )
+  DataCycleCore::Role.create!(
+    rank: 5,
+    name: 'super_editor'
+  )
+  DataCycleCore::Role.create!(
+    rank: 10,
+    name: 'admin'
+  )
+end

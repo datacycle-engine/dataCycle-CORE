@@ -52,6 +52,8 @@ module DataCycleCore
       expected_hash = {
         "kind" => [],
         "tags" => [],
+        "image" => [],
+        "video" => [],
         "text" => "wtf is going on???",
         "state" => [],
         "season" => [],
@@ -61,7 +63,7 @@ module DataCycleCore
         "quotation" => [{
           "id" => "",
           "text" => "However beautiful the strategy, you should occasionally look at the results.",
-          "image" => nil,
+          "image" => [],
           "author" => [{
             "id" => person_id,
             "job_title" => nil,
@@ -135,6 +137,8 @@ module DataCycleCore
       expected_hash = {
         "kind" => [],
         "tags" => [],
+        "image" => [],
+        "video" => [],
         "text" => "wtf is going on???",
         "state" => [],
         "season" => [],
@@ -144,7 +148,7 @@ module DataCycleCore
         "quotation" => [{
           "id" => "",
           "text" => "However beautiful the strategy, you should occasionally look at the results.",
-          "image" => nil,
+          "image" => [],
           "author" => [{
             "id" => person_id,
             "job_title" => nil,
@@ -235,6 +239,8 @@ module DataCycleCore
       expected_hash = {
         "kind" => [],
         "tags" => [],
+        "image" => [],
+        "video" => [],
         "text" => "wtf is going on???",
         "state" => [],
         "season" => [],
@@ -246,7 +252,7 @@ module DataCycleCore
         "permitted_creator"=>[],
         "quotation" => [{
           "text" => "However beautiful the strategy, you should occasionally look at the results.",
-          "image" => nil,
+          "image" => [],
           "author" => [{
             "id" => person_id,
             "job_title" => nil,
@@ -336,6 +342,8 @@ module DataCycleCore
       expected_hash = {
         "kind" => [],
         "tags" => [],
+        "image" => [],
+        "video" => [],
         "text" => "wtf is going on???",
         "state" => [],
         "season" => [],
@@ -345,7 +353,7 @@ module DataCycleCore
         "quotation" => [{
           "id" => "",
           "text" => "However beautiful the strategy, you should occasionally look at the results.",
-          "image" => nil,
+          "image" => [],
           "creator"=>nil,
           "author" => [{
             "id" => person_id,
