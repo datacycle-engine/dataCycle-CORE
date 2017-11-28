@@ -232,7 +232,7 @@ module DataCycleCore
           '#{I18n.locale}',
           to_tsvector('simple', '#{full_text}'),
           '#{full_text_most}',
-          '#{Time.zone.now.to_s(:long_usec)}',
+          '#{self.created_at}',
           '#{Time.zone.now.to_s(:long_usec)}',
           '#{headline}',
           '#{classification_string}',
