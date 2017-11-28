@@ -33,9 +33,9 @@ module DataCycleCore
     end
 
     def search
+
       @language = params[:language] unless params[:language].blank?
       @language ||= 'de'
-
 
       order_string = DataCycleCore::Filter::ObjectBrowserQueryBuilder::get_order_by_query_string(params[:search])
 
@@ -60,7 +60,6 @@ module DataCycleCore
       end
 
       if params[:modified_since].blank? && params[:created_since].blank?
-        raise params[:created_since]
         query = query.in_validity_period
       end
 
@@ -82,32 +81,24 @@ module DataCycleCore
     end
 
     def get_deleted
+
+      deleted_contents = DataCycleCore::CreativeWork::History.where(
+          DataCycleCore::CreativeWork::History.arel_table[:deleted_at].not_eq(nil)
+      )
+
       @language = params[:language] unless params[:language].blank?
       @language ||= 'de'
 
-      order_string = "updated_at DESC"
-
-      classification_aliases = DataCycleCore::ClassificationAlias.joins(
-          :classification_tree_label
-      ).where(
-          classification_trees: {
-              classification_tree_label: DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltstypen')
-          }
-      )
-
-      query = DataCycleCore::Filter::Search.new(@language).where(content_data_type: DataCycleCore::CreativeWork)
-      query = query.with_classification_alias_ids(classification_aliases.map(&:id))
-
       if params[:deleted_since]
-        query = query.modified_since(params[:deleted_since])
+        deleted_contents = deleted_contents.where(
+            DataCycleCore::CreativeWork::History.arel_table[:deleted_at].gteq(DateTime.parse(params[:deleted_since]))
+        )
       end
-
-      query = query.order(order_string)
 
       @per = params[:per] unless params[:per].blank?
       @per ||= @@default_per
 
-      @total = query.count
+      @total = deleted_contents.count
       pages = @total.fdiv(@per.to_i).ceil
 
       unless params[:page].blank?
@@ -116,7 +107,7 @@ module DataCycleCore
       end
       @page ||= 1
 
-      @contents = query.page(@page).per(@per).map(&:content_data)
+      @contents = deleted_contents.page(@page).per(@per)
     end
 
     private
