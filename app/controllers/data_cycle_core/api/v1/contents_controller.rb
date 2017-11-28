@@ -53,7 +53,14 @@ module DataCycleCore
 
       if params[:modified_since]
         query = query.modified_since(params[:modified_since])
-      else
+      end
+
+      if params[:created_since]
+        query = query.created_since(params[:created_since])
+      end
+
+      if params[:modified_since].blank? && params[:created_since].blank?
+        raise params[:created_since]
         query = query.in_validity_period
       end
 
@@ -115,7 +122,7 @@ module DataCycleCore
     private
 
     def content_params
-      params.permit(:page, :per, :language, :search, :token, :modified_since, :deleted_since)
+      params.permit(:page, :per, :language, :search, :token, :modified_since, :created_since, :deleted_since)
     end
 
   end
