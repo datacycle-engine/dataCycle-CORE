@@ -7,7 +7,7 @@
 
     <% languages = dataCycleObject.translations.select{|l| l['locale'] != I18n.locale.to_s} %>
 
-    <% if languages.count > 0 %>
+    <% if languages.size > 0 %>
 
         <div class="type translations">
             <div class="header">

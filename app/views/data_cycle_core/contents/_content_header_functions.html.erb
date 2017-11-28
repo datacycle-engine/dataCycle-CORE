@@ -6,9 +6,9 @@
         <% end %>
         <% if can? :subscribe, content %>
             <li class="has-dropdown">
-                <a id="subscribe-link" data-toggle="subscribe"><i class="fa <%= content.subscriptions.by_user(current_user).count > 0 ? 'fa-bell' : 'fa-bell-o' %>" aria-hidden="true"></i> <span class="text"><%= content.subscriptions.by_user(current_user).count > 0 ? t('actions.subscribed', locale: DataCycleCore.ui_language) : t('actions.subscribe', locale: DataCycleCore.ui_language) %></span></a>
+                <a id="subscribe-link" data-toggle="subscribe"><i class="fa <%= content.subscriptions.by_user(current_user).size > 0 ? 'fa-bell' : 'fa-bell-o' %>" aria-hidden="true"></i> <span class="text"><%= content.subscriptions.by_user(current_user).size > 0 ? t('actions.subscribed', locale: DataCycleCore.ui_language) : t('actions.subscribe', locale: DataCycleCore.ui_language) %></span></a>
                 <ul class="dropdown-pane no-bullet bottom" id="subscribe" data-dropdown data-hover="true" data-hover-pane="true">
-                    <% if content.subscriptions.by_user(current_user).count > 0 %>
+                    <% if content.subscriptions.by_user(current_user).size > 0 %>
                         <li><%= render 'data_cycle_core/subscriptions/partials/shared/destroy_link', content: content %></li>
                     <% else %>
                         <li><%= render 'data_cycle_core/subscriptions/partials/shared/create_link', content: content %></li>
