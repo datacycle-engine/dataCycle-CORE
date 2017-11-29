@@ -40,6 +40,9 @@ module DataCycleCore
             if key.is_a?(::String)
               validate_link = EmbeddedLink.new(key,template)
               merge_errors(validate_link.error) unless validate_link.nil?
+            elsif key.is_a?(::Hash) && key.has_key?('id')
+              validate_link = EmbeddedLink.new(key['id'],template)
+              merge_errors(validate_link.error) unless validate_link.nil?
             else
               @error[:error].push I18n.t :data_format, scope: [:validation, :errors], key: key, template: template['label'], locale: DataCycleCore.ui_language
             end

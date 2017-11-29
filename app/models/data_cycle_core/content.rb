@@ -170,7 +170,7 @@ module DataCycleCore
 
     def linked_relations
       linked_property_names.map { |property_name|
-         {name: property_name, table: property_definitions[property_name]['type_name']}
+         {name: property_name, table: property_definitions[property_name]['type_name'], type: property_definitions[property_name]['type']}
       }.compact.uniq
     end
 

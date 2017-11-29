@@ -121,7 +121,7 @@ module DataCycleCore
               ).to_h
             content_relation_history_data["history_valid"] = (content_item.updated_at ... save_time)
             DataCycleCore::ContentContent::History.create!(content_relation_history_data)
-          end 
+          end
         end
 
         data_set_history.save

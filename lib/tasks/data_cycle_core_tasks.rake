@@ -422,5 +422,81 @@ namespace :data_cycle_core do
 
     end
 
+    desc "update ..embeddedLink(Array) to content_content relation table"
+    task :stage3 => [:environment] do
+
+      # all embeddedLink(Array) are stored in metadata --> translations irrelevant
+
+      puts "updating embeddedLink and embeddedLinkArray:"
+      index = 0
+      # DataCycleCore.content_tables.each do |content_table|
+      #   content_class = "DataCycleCore::#{content_table.classify}"
+      #   puts "updating ==> #{content_class}"
+      #   content_class.constantize.all.each do |item|
+      #     item.linked_relations.each do |link_definition|
+      #       next if item.metadata[link_definition[:name]].blank?
+      #       index += 1
+      #
+      #       values = item.metadata[link_definition[:name]]
+      #       uuid_list = link_definition[:type] == 'embeddedLink' ? [ values ] : values
+      #
+      #       puts "#{index.to_s.rjust(3)}: #{item.id}"
+      #       puts "     #{link_definition[:name]}(#{link_definition[:type]}):"
+      #       uuid_list.each do |uuid|
+      #         puts "     --> #{uuid}"
+      #         item_data = [uuid, "DataCycleCore::#{link_definition[:table].classify}", ""]
+      #         self_data = [item.id, item.class.to_s, link_definition[:name]]
+      #         relation_data = ['a', 'b'].map { |selector|
+      #           ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
+      #         }.flatten
+      #         .zip(link_definition[:table] < item.class.table_name ? item_data+self_data : self_data+item_data).to_h
+      #
+      #         DataCycleCore::ContentContent.find_or_create_by!(relation_data)
+      #
+      #       end
+      #
+      #       # save without metadata embeddeLink(Array) field
+      #       item.metadata = item.metadata.except(link_definition[:name])
+      #       I18n.with_locale(item.available_locales.first){ item.save }
+      #     end
+      #   end
+      # end
+
+      DataCycleCore.content_tables.each do |content_table|
+        content_class = "DataCycleCore::#{content_table.classify}::History"
+        puts "updating ==> #{content_class}"
+        content_class.constantize.all.each do |item|
+          item.linked_relations.each do |link_definition|
+            next if item.metadata[link_definition[:name]].blank?
+            index += 1
+
+            values = item.metadata[link_definition[:name]]
+            uuid_list = link_definition[:type] == 'embeddedLink' ? [ values ] : values
+
+            puts "#{index.to_s.rjust(3)}: #{item.id}"
+            puts "     #{link_definition[:name]}(#{link_definition[:type]}):"
+            uuid_list.each do |uuid|
+              puts "     --> #{uuid}"
+              item_data = [uuid, "DataCycleCore::#{link_definition[:table].classify}", ""]
+              self_data = [item.id, item.class.to_s, link_definition[:name]]
+              relation_data = ['a', 'b'].map { |selector|
+                ["content_#{selector}_history_id".to_sym, "content_#{selector}_history_type".to_sym, "relation_#{selector}".to_sym]
+              }.flatten
+              .zip(link_definition[:table] < item.class.table_name ? item_data+self_data : self_data+item_data).to_h
+
+              DataCycleCore::ContentContent::History.find_or_create_by!(relation_data)
+
+            end
+
+            # save without metadata embeddeLink(Array) field
+            # item.metadata = item.metadata.except(link_definition[:name])
+            # I18n.with_locale(item.available_locales.first){ item.save }
+          end
+        end
+      end
+
+
+    end
+
   end
 end
