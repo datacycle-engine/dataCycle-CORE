@@ -7,6 +7,9 @@ module DataCycleCore
       content = params[:content].as_json
 
       updated = api_strategy.update content
+
+      #execute_after_update_webhooks updated
+
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
       render plain: {'updated' => updated}.to_json, content_type: 'application/json'
 
@@ -43,6 +46,10 @@ module DataCycleCore
       external_source = DataCycleCore::ExternalSource.find(external_sources_params[:external_source_id])
       api_strategy = external_source.config["api_strategy"].safe_constantize
       api_strategy.new(external_source, external_sources_params[:type], external_sources_params[:external_key])
+    end
+
+    def execute_after_update_webhooks data
+      Webhook::Update.execute_all(data)
     end
 
   end
