@@ -4,8 +4,6 @@ module DataCycleCore
     load_and_authorize_resource         # from cancancan (authorize)
     before_action :set_user_group, only: [:edit, :update, :destroy]
 
-    layout 'data_cycle_core/creative_works_edit'
-
     def index
       authorize! :crud, DataCycleCore::UserGroup
       @paginateObject = DataCycleCore::UserGroup.all.page(params[:page])
@@ -24,7 +22,6 @@ module DataCycleCore
     end
 
     def edit
-      render layout: "data_cycle_core/watch_lists_edit"
     end
 
     def update

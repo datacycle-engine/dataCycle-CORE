@@ -18,23 +18,19 @@ module DataCycleCore
 
     def display_flash_messages_new(closable: true)
       capture do
-        concat "<div class='row' style='margin-top: 20px;'>".html_safe
         flash.each do |key, value|
           alert_class = DEFAULT_KEY_MATCHING[key.to_sym]
           concat alert_box(value, alert_class, closable)
         end
-        concat "</div>".html_safe
       end
     end
 
     def display_flash_messages_resource(closable: true)
       capture do
-        concat "<div class='row' style='margin-top: 20px;'>".html_safe
         resource.errors.messages.each do |value|
           text_string = "#{value[0].to_s} #{value[1][0]}"
           concat alert_box(text_string, :alert, closable)
         end
-        concat "</div>".html_safe
       end
 
     end

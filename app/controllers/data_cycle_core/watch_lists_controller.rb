@@ -18,7 +18,7 @@ module DataCycleCore
       @watch_list_items = get_filtered_results(method_name: "by_watch_list_id", parameters: @watch_list.id)
 
       respond_to do |format|
-        format.html { render layout: 'data_cycle_core/watch_lists_edit' }
+        format.html
         format.json { redirect_to api_v1_collection_path(@watch_list) }
       end
     end
@@ -44,9 +44,7 @@ module DataCycleCore
     def edit
       @watch_list = DataCycleCore::WatchList.find(params[:id])
 
-      if params[:data_id].nil?
-        render layout: "data_cycle_core/watch_lists_edit"
-      else
+      unless params[:data_id].nil?
         add_remove_data params
         redirect_back(fallback_location: root_path)
       end

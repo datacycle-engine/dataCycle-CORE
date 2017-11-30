@@ -25,9 +25,7 @@ module DataCycleCore
 
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: 'persons', id: params[:id]) }
-          format.html {
-            render layout: "data_cycle_core/creative_works_edit"
-          }
+          format.html
         end
       end
     end
@@ -64,7 +62,6 @@ module DataCycleCore
 
       I18n.with_locale(@person.first_available_locale(params[:locale])) do
         @dataSchema = @person.get_data_hash
-        render layout: "data_cycle_core/creative_works_edit"
       end
     end
 
