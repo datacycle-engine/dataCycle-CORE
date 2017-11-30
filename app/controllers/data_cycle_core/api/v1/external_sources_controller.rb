@@ -48,9 +48,9 @@ module DataCycleCore
       api_strategy.new(external_source, external_sources_params[:type], external_sources_params[:external_key])
     end
 
-    def execute_after_update_webhooks data
-      Webhook::Update.execute_all(data)
-    end
+    # def execute_after_update_webhooks data
+    #   Webhook::Update.execute_all(data)
+    # end
 
   end
 end
