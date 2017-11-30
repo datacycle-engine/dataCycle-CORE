@@ -27,7 +27,7 @@ module DataCycleCore
 
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: 'creative_works', id: params[:id]) }
-          format.html
+          format.html { render 'show' }
         end
       end
     end
@@ -109,6 +109,7 @@ module DataCycleCore
         @place = DataCycleCore::Place.new
         @person = DataCycleCore::Person.new
         @dataSchema = @creativeWork.get_data_hash
+        render 'edit'
       end
     end
 

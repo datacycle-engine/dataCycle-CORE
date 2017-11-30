@@ -62,6 +62,7 @@ module DataCycleCore
 
       I18n.with_locale(@person.first_available_locale(params[:locale])) do
         @dataSchema = @person.get_data_hash
+        render 'edit'
       end
     end
 

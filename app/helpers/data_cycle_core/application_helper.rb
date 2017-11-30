@@ -32,7 +32,6 @@ module DataCycleCore
           concat alert_box(text_string, :alert, closable)
         end
       end
-
     end
 
     # Returns the full title on a per-page basis.
