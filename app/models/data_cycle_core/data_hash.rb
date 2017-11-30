@@ -434,11 +434,6 @@ module DataCycleCore
       available_update_item_keys = self.send(field_name).ids
       potentially_delete = available_update_item_keys - updated_item_keys
 
-      # puts "available:  #{available_update_item_keys}"
-      # puts "updated:    #{updated_item_keys}"
-      # puts "pot_delete: #{potentially_delete}"
-      # puts "delete: #{delete} | embedded: #{embedded}"
-
       if delete
         # full access to embeddedObjects
         potentially_delete.each do |key|
