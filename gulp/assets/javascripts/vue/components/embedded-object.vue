@@ -1,6 +1,6 @@
 <template>
   <div class="content-object-item" :id="embeddedObjectKey + '_item_' + index">
-    <button v-if="!readonly" @click.prevent="$emit('remove')" class="button removeContentObject">
+    <button v-if="!readonly" @click.prevent="$emit('remove')" class="button removeContentObject" type="button">
       <i class="fa fa-times"></i>
     </button>
     <slot name="embedded-item"></slot>

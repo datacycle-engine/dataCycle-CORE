@@ -5,7 +5,7 @@
         <slot name="embedded-item"></slot>
       </template>
     </embedded-object>
-    <button v-if="(embeddedObjectsLength + preLength) < max || max == 0" :id="'add_' + embeddedObjectKey" class="button addContentObject" @click.prevent="addItem" :disabled="readonly">
+    <button v-if="(embeddedObjectsLength + preLength) < max || max == 0" :id="'add_' + embeddedObjectKey" class="button addContentObject" @click.prevent="addItem" :disabled="readonly" type="button">
       {{ label }} hinzufügen
     </button>
   </div>

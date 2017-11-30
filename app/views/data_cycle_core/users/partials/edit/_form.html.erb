@@ -3,18 +3,16 @@
 
 	<section class="edit-header">
 		<div class="row expanded">
-			<div class="column">
+			<div class="column edit-header-functions">
 				<div class="edit-headline">
 					<i class="fa fa-pencil" aria-hidden="true"></i> <%== "#{content.model_name.human(locale: DataCycleCore.ui_language)} #{t('actions.edit', locale: DataCycleCore.ui_language)}" %>
 				</div>
 				<ul>
-					<li>
+					<li class="buttons">
 						<%= link_to breadcrumbs[-2].url do %>
 							<button type="button" class="button discard top" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
 						<% end %>
-					</li>
-					<li class="submit">
-						<button class="button-prime" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
+            <button class="button-prime submit submit-edit-form" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
 					</li>
 				</ul>
 			</div>

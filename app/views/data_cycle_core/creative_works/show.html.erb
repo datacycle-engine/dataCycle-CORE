@@ -4,7 +4,7 @@
 
     <%= render_content_partial 'header', content: @creativeWork %>
 
-    <% if @creativeWork.metadata['validation']['content_type'] == 'entity' %>
+    <% if @creativeWork.metadata.dig('validation', 'name') == 'Thema' %>
 
         <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
 

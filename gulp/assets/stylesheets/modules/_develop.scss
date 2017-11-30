@@ -239,13 +239,6 @@ select {
 }
 
 #edit-form {
-  .edit-header {
-    .submit {
-      button {
-        z-index: 1000;
-      }
-    }
-  }
   .flex-box {
     height: calc(100vh - 13rem);
     &.full-size {
@@ -536,29 +529,6 @@ video {
   padding: 0.3rem 0.5rem;
   border-radius: 3px;
   box-shadow: 1px 1px 2px #ddd;
-}
-
-.edit-header-functions {
-  #send-link-link {
-    display: block;
-  }
-  ul.data-links {
-    left: auto !important;
-    right: 0;
-    text-align: center;
-    z-index: 100;
-    &::before {
-      content: '';
-      position: absolute;
-      top: -12px;
-      right: 50px;
-      width: 0;
-      height: 0;
-      border-style: solid;
-      border-width: 0 25px 12px 25px;
-      border-color: transparent transparent #ffffff transparent;
-    }
-  }
 }
 
 [readonly],

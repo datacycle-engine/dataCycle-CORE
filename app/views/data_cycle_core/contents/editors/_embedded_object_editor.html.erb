@@ -17,7 +17,7 @@
               <span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.metadata['validation']['name'].downcase %> <%= definition['label'] %></span>
 
               <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
-                <button class="button removeContentObject"><i class="fa fa-times"></i></button>
+                <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
               <% end %>
 
               <%= hidden_field_tag("#{key}[#{index}][id]", objectDataHash['id']) %>

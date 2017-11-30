@@ -89,6 +89,9 @@ module DataCycleCore
     mattr_accessor :ui_language
     self.ui_language = :de
 
+    mattr_accessor :translatable_types
+    self.translatable_types = ['DataCycleCore::Person', 'DataCycleCore::Place']
+
     #webhooks
     mattr_accessor :webhooks
     self.webhooks = {

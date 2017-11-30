@@ -92,7 +92,7 @@ module DataCycleCore
       end
 
       respond_to do |format|
-        format.json { render json: { url: addItem_watch_list_path(watch_list, hashable_params), count: content_object.watch_lists.by_user(current_user).count, headline: watch_list.headline } }
+        format.json { render json: { url: addItem_watch_list_path(watch_list, hashable_params), count: content_object.watch_lists.by_user(current_user).size, headline: watch_list.headline } }
         format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :removedFrom, scope: [:controllers, :success], data: watch_list.headline, locale: DataCycleCore.ui_language)) }
       end
 
@@ -107,7 +107,7 @@ module DataCycleCore
       end
 
       respond_to do |format|
-        format.json { render json: { url: removeItem_watch_list_path(watch_list, hashable_params), count: content_object.watch_lists.by_user(current_user).count, headline: watch_list.headline } }
+        format.json { render json: { url: removeItem_watch_list_path(watch_list, hashable_params), count: content_object.watch_lists.by_user(current_user).size, headline: watch_list.headline } }
         format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :addedTo, scope: [:controllers, :success], data: watch_list.headline, locale: DataCycleCore.ui_language)) }
       end
     end

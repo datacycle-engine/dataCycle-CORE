@@ -3,7 +3,8 @@ module DataCycleCore
 
     class Translation < Globalize::ActiveRecord::Translation
         include ContentTranslationHelpers
-    end
+        include PlaceTranslationHelpers
+      end
 
     class History < DataHash
       # handle translations with gem Globalize
@@ -33,9 +34,6 @@ module DataCycleCore
 
     # callbacks
     before_destroy :destroy_relations, prepend: true
-
-    # custom setter
-    include DataSetter
 
     include ContentHelpers
     include PlaceHelpers

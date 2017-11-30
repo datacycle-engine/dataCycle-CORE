@@ -1,19 +1,19 @@
 <% if data_link.receiver.nil? %>
   <li class="center-text">
-    <span class="button new-data-link" data-open="data-link-<%= data_link.id || "new" %>">Neuen Link erstellen</span>
+    <span class="button new-data-link" data-open="data-link-overlay-<%= data_link.id || "new" %>">Neuen Link erstellen</span>
   </li>
 <% else %>
-  <li class="<%= "invalid" unless data_link.is_valid? %>" id="data-link-<%= data_link.id %>%">
+  <li class="<%= "invalid" unless data_link.is_valid? %>" id="data-link-<%= data_link.id %>">
     <span class="email"><%= data_link.receiver.email %></span>
     <% if can?(:edit, data_link) %>
       <span class="buttons">
-        <span class="send-link-button" data-open="data-link-<%= data_link.id || "new" %>"><i class="fa fa-pencil" aria-hidden="true"></i></span>
+        <span class="send-link-button" data-open="data-link-overlay-<%= data_link.id || "new" %>"><i class="fa fa-pencil" aria-hidden="true"></i></span>
         <%= link_to '<i class="fa fa-ban" aria-hidden="true"></i>'.html_safe, data_link, method: :delete, class: 'invalidate-data-link' if data_link.is_valid? %>
       </span>
     <% end %>
   </li>
 <% end %>
-<div class="reveal data-link-reveal" id="data-link-<%= data_link.id || "new" %>" data-reveal>
+<div class="reveal data-link-reveal" id="data-link-overlay-<%= data_link.id || "new" %>" data-reveal>
   <button class="close-button" data-close aria-label="Close modal" type="button">
     <span aria-hidden="true">&times;</span>
   </button>

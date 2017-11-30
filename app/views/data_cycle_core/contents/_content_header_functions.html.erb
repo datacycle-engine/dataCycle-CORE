@@ -1,14 +1,14 @@
 <div class="detail-header-functions">
     <ul class="no-bullet">
-        <li><%= render 'data_cycle_core/shared/history_links', dataCycleObject: content %></li>
+        <li class="has-dropdown"><%= render 'data_cycle_core/shared/history_links', dataCycleObject: content %></li>
         <% if can?(:manage, DataCycleCore::DataLink) %>
-            <li><%= render 'data_cycle_core/shared/data_links', dataCycleObject: content %></li>
+            <li class="has-dropdown"><%= render 'data_cycle_core/shared/data_links', dataCycleObject: content %></li>
         <% end %>
         <% if can? :subscribe, content %>
-            <li>
-                <a id="subscribe-link" data-toggle="subscribe"><i class="fa <%= content.subscriptions.by_user(current_user).count > 0 ? 'fa-bell' : 'fa-bell-o' %>" aria-hidden="true"></i> <span class="text"><%= content.subscriptions.by_user(current_user).count > 0 ? t('actions.subscribed', locale: DataCycleCore.ui_language) : t('actions.subscribe', locale: DataCycleCore.ui_language) %></span></a>
+            <li class="has-dropdown">
+                <a id="subscribe-link" data-toggle="subscribe"><i class="fa <%= content.subscriptions.by_user(current_user).size > 0 ? 'fa-bell' : 'fa-bell-o' %>" aria-hidden="true"></i> <span class="text"><%= content.subscriptions.by_user(current_user).size > 0 ? t('actions.subscribed', locale: DataCycleCore.ui_language) : t('actions.subscribe', locale: DataCycleCore.ui_language) %></span></a>
                 <ul class="dropdown-pane no-bullet bottom" id="subscribe" data-dropdown data-hover="true" data-hover-pane="true">
-                    <% if content.subscriptions.by_user(current_user).count > 0 %>
+                    <% if content.subscriptions.by_user(current_user).size > 0 %>
                         <li><%= render 'data_cycle_core/subscriptions/partials/shared/destroy_link', content: content %></li>
                     <% else %>
                         <li><%= render 'data_cycle_core/subscriptions/partials/shared/create_link', content: content %></li>
@@ -17,10 +17,12 @@
             </li>
         <% end %>
         <% if can? :manage, DataCycleCore::WatchList %>
-            <li><%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: content %></li>
+            <li class="has-dropdown"><%= render 'data_cycle_core/watch_lists/partials/add_to_watchlist', dataCycleObject: content %></li>
         <% end %>
-        <% unless current_user.role.rank == 0 %>
-          <li><a href="<%= breadcrumbs[-2].url %>" class="hascontent"><i aria-hidden="true" class="fa fa-times"></i></a></li>
-        <% end %>
+        <li class="buttons">
+          <% unless current_user.role.rank == 0 %>
+            <a href="<%= breadcrumbs[-2].url %>" class="hascontent"><i aria-hidden="true" class="fa fa-times"></i></a>
+          <% end %>
+        </li>
     </ul>
 </div>
