@@ -1,7 +1,6 @@
 <% breadcrumb :'data_cycle_core/users' %>
 
-<% @mode = "flex" %>
-<%= render 'data_cycle_core/users/partials/grid', contents: @users %>
+<%= render 'results', contents: @paginateObject %>
 
 <% if can? :create, DataCycleCore::User %>
   <div id="new-object-circle">
@@ -11,5 +10,5 @@
       </div>
   </div>
 
-  <%= render 'data_cycle_core/users/partials/new' %>
+  <%= render 'new' %>
 <% end %>

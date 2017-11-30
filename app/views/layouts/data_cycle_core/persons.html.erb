@@ -13,14 +13,14 @@
 
         <div class="off-canvas-content" data-off-canvas-content>
 
-            <%= render 'data_cycle_core/backend/breadcrumb' if user_signed_in? %>
+            <%= render 'breadcrumb' if user_signed_in? %>
 
             <%= render 'new_content_links' if user_signed_in? %>
 
             <div class="reveal-blur">
                 <div class="row expanded">
 
-                    <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
+                    <%#= render 'data_cycle_core/backend/views' if user_signed_in? %>
 
                     <%= yield :top_content %>
 

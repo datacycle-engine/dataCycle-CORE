@@ -36,6 +36,8 @@ module DataCycleCore
               DataCycleCore::Place
             ]
 
+          can :destroy, DataCycleCore::User
+
           can :update_release_status, [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]
 
           can :manage,
@@ -67,7 +69,7 @@ module DataCycleCore
 
         if !(user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)
           cannot :modify, DataCycleCore::User do |the_user|
-            (the_user.role && the_user.role.rank == 0) || (the_user.has_rank?(user.role.try(:rank)) && the_user != user)
+            the_user.has_rank?(user.role.try(:rank)) && the_user != user
           end
         end
       end

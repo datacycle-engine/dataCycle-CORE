@@ -15,7 +15,11 @@
                     <%= t("pronoun.my", count: 2, locale: DataCycleCore.ui_language).capitalize %> <%= DataCycleCore::Subscription.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>
                   <% end if user_signed_in? && current_user.role.rank > 0 %>
                 </li>
-                <li><%= render 'data_cycle_core/watch_lists/partials/shared/watch_lists' if user_signed_in? %></li>
+                <li>
+                  <% if can?(:manage, DataCycleCore::WatchList) %>
+                    <%= render 'watch_lists' %>
+                  <% end %>
+                </li>
                 <li>
                     <%= link_to '#' do %>
                         <i class="fa fa-question" aria-hidden="true"></i><span>Info</span>

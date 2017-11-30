@@ -8,7 +8,7 @@ module DataCycleCore
 
     def index
       authorize! :crud, DataCycleCore::UserGroup
-      @user_groups = DataCycleCore::UserGroup.all
+      @paginateObject = DataCycleCore::UserGroup.all.page(params[:page])
     end
 
     def create

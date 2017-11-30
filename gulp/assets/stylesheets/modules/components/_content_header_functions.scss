@@ -49,6 +49,26 @@
           }
         }
       }
+      .buttons {
+        float: right;
+        vertical-align: middle;
+        span,
+        a {
+          color: $primary-color;
+          cursor: pointer;
+          &:hover,
+          &:focus {
+            color: darken($primary-color, 30%);
+          }
+          &.invalidate-data-link {
+            color: map-get($foundation-palette, alert);
+            &:hover,
+            &:focus {
+              color: darken(map-get($foundation-palette, alert), 30%);
+            }
+          }
+        }
+      }
       &:nth-last-child(2) {
         ul {
           right: 0 !important;
@@ -136,26 +156,6 @@
             max-width: calc(100% - 3rem);
             display: inline-block;
             vertical-align: middle;
-          }
-          .buttons {
-            float: right;
-            vertical-align: middle;
-            span,
-            a {
-              color: $primary-color;
-              cursor: pointer;
-              &:hover,
-              &:focus {
-                color: darken($primary-color, 30%);
-              }
-              &.invalidate-data-link {
-                color: map-get($foundation-palette, alert);
-                &:hover,
-                &:focus {
-                  color: darken(map-get($foundation-palette, alert), 30%);
-                }
-              }
-            }
           }
         }
       }
