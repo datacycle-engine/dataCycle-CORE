@@ -88,7 +88,7 @@ module DataCycleCore
 
         # cc embedded data from other content tables
         embedded_relations.each do |content_name|
-          self.send(content_name[:table]).each do |content_item|
+          self.send(content_name[:name]).each do |content_item|
             new_content_history = content_item.to_history(save_time)
             content_one_data = [new_content_history.id, new_content_history.class.to_s, '']
             content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name[:name]]
@@ -395,7 +395,7 @@ module DataCycleCore
         # update/insert linked_data
         data.each do |item|
           if item.has_key?('id') && !item['id'].blank? && item.keys.count == 1
-            # id is the only item --> no update
+            #puts "id is the only item --> no update"
             updated_item_keys.push(item['id'])
             # relation update/insert
             upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
@@ -403,13 +403,13 @@ module DataCycleCore
             )
             upsert_relation.save
           elsif item.has_key?('id') && !item['id'].blank?
-            # update
+            #puts "update"
             update_item = ("DataCycleCore::"+table.classify).constantize.find_by(id: item['id'])
             update_item.set_data_hash(data_hash: item, current_user: current_user, save_time: save_time, prevent_history: true)
             update_item.save
             updated_item_keys.push(update_item.id)
           else
-            # insert
+            #puts "insert"
 
             # get validation template
             template = ("DataCycleCore::"+table.classify).constantize
@@ -433,6 +433,11 @@ module DataCycleCore
 
       available_update_item_keys = self.send(field_name).ids
       potentially_delete = available_update_item_keys - updated_item_keys
+
+      # puts "available:  #{available_update_item_keys}"
+      # puts "updated:    #{updated_item_keys}"
+      # puts "pot_delete: #{potentially_delete}"
+      # puts "delete: #{delete} | embedded: #{embedded}"
 
       if delete
         # full access to embeddedObjects
