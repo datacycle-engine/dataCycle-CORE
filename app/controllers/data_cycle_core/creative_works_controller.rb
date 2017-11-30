@@ -223,5 +223,9 @@ module DataCycleCore
     def execute_after_update_webhooks data
       Webhook::Update.execute_all(data)
     end
+
+    def execute_after_delete_webhooks data
+      Webhook::Delete.execute_all(data)
+    end
   end
 end
