@@ -16,11 +16,13 @@ module.exports.initialize = function () {
     var form_data = "";
     setTimeout(function () {
       form_data = $('.editor').closest('form').serialize();
-    }, 500);
+    }, 1000);
+
     $(window).on("beforeunload", function () {
-      update_editor_values();
+      // TODO: check for updated editor values
+      // update_editor_values();
       var new_form_data = $('.editor').closest('form').serialize();
-      if (form_data != new_form_data) return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
+      if (form_data != new_form_data && form_data != "") return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
     });
   }
 
