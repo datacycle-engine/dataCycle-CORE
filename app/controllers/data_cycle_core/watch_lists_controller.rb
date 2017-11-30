@@ -1,10 +1,11 @@
 module DataCycleCore
   class WatchListsController < ApplicationController
+    include DataCycleCore::Filter
     before_action :authenticate_user!   # from devise (authenticate)
     load_and_authorize_resource         # from cancancan (authorize)
 
     def index
-      @watch_lists = current_user.watch_lists
+      @paginateObject = current_user.watch_lists.page(params[:page])
     end
 
     def show
@@ -14,11 +15,7 @@ module DataCycleCore
         redirect_to root
       end
 
-      if params[:mode].nil?
-        @mode = "flex"
-      else
-        @mode = params[:mode].to_s
-      end
+      @watch_list_items = get_filtered_results(method_name: "by_watch_list_id", parameters: @watch_list.id)
 
       respond_to do |format|
         format.html { render layout: 'data_cycle_core/watch_lists_edit' }

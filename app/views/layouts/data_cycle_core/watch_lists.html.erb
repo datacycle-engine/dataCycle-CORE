@@ -13,9 +13,9 @@
 
         <div class="off-canvas-content" data-off-canvas-content>
 
-            <%= render 'data_cycle_core/backend/breadcrumb' if user_signed_in? %>
+            <%= render 'breadcrumb' if user_signed_in? %>
 
-            <%= render 'data_cycle_core/shared/newWatchList' if user_signed_in? %>
+            <%#= render 'data_cycle_core/shared/newWatchList' if user_signed_in? %>
 
             <div class="reveal-blur">
                 <div class="row expanded">

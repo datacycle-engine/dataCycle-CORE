@@ -13,15 +13,15 @@
 
         <div class="off-canvas-content" data-off-canvas-content>
 
-            <%= render 'data_cycle_core/backend/breadcrumb' if user_signed_in? %>
+            <%= render 'breadcrumb' if user_signed_in? %>
 
             <%= render 'new_content_links' if user_signed_in? && can?(:create, DataCycleCore::CreativeWork) %>
 
             <div class="reveal-blur">
 
-                <%= render 'data_cycle_core/application/filter' if user_signed_in? %>
+                <%= render 'filter' if user_signed_in? %>
 
-                <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
+                <%#= render 'data_cycle_core/backend/views' if user_signed_in? %>
 
                 <div class="expanded row">
                     <div class="column">

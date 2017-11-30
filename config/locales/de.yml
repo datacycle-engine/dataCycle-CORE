@@ -49,6 +49,13 @@ de:
     language: "Sprache"
     searchterm: "Suchbegriff"
     active_filters: "Angewendete Filter"
+    no_results: "Es wurden keine Inhalte für Ihre Filterkriterien gefunden."
+    additional_filters:
+      show: weitere Filter anzeigen
+      hide: weitere Filter ausblenden
+    filter:
+      show: Filter anzeigen
+      hide: Filter ausblenden
 
   pronoun:
     my:
