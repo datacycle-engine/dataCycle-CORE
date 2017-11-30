@@ -47,6 +47,10 @@ module DataCycleCore
           }
       )
 
+      unless DataCycleCore.allowed_content_api_classifications.blank?
+        classification_aliases = classification_aliases.where(name: DataCycleCore.allowed_content_api_classifications)
+      end
+
       query = DataCycleCore::Filter::Search.new(@language).where(content_data_type: DataCycleCore::CreativeWork)
       query = query.with_classification_alias_ids(classification_aliases.map(&:id))
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
