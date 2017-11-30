@@ -31,7 +31,7 @@ module DataCycleCore
       end
 
 
-      query = DataCycleCore::Filter::Search.new(@language).in_validity_period
+      query = DataCycleCore::Filter::Search.new(@language)
       query = query.order(order_string)
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
 

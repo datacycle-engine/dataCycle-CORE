@@ -37,6 +37,22 @@ module DataCycleCore
         )
       end
 
+      def modified_since(date = Time.now)
+        reflect (
+          @query.where(
+            search[:updated_at].gteq(DateTime.parse(date))
+          )
+        )
+      end
+
+      def created_since(date = Time.now)
+        reflect (
+          @query.where(
+            search[:created_at].gteq(DateTime.parse(date))
+          )
+        )
+      end
+
       def with_classification_alias_ids(ids = nil)
         manager = create_classification_alias_recursion(ids)
         # get everything including parents (or-clause)

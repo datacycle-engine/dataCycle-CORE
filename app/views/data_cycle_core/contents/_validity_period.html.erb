@@ -1,0 +1,43 @@
+<% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['validity_period'].nil? && !dataCycleObject.metadata['validity_period'].empty? %>
+
+    <% if (!dataCycleObject.metadata['validity_period']['valid_from'].nil? && !dataCycleObject.metadata['validity_period']['valid_from'].blank?) || (!dataCycleObject.metadata['validity_period']['valid_until'].nil? && !dataCycleObject.metadata['validity_period']['valid_until'].blank?) %>
+
+        <div class="gueltigkeit">
+
+            <span class="icon">
+                <i class="fa fa-clock-o" aria-hidden="true"></i> Gültigkeit:
+            </span>
+
+            <% if !dataCycleObject.metadata['validity_period']['valid_from'].nil? && !dataCycleObject.metadata['validity_period']['valid_from'].blank? %>
+                <%= dataCycleObject.metadata['validity_period']['valid_from'].to_datetime.to_s(:german_date_format) %>
+            <% end %>
+
+            <% if !dataCycleObject.metadata['validity_period']['valid_until'].nil? && !dataCycleObject.metadata['validity_period']['valid_until'].blank? %>
+                <span class="bis">bis</span>
+                <%= dataCycleObject.metadata['validity_period']['valid_until'].to_datetime.to_s(:german_date_format) %>
+            <% end %>
+
+        </div>
+
+    <% elsif (!dataCycleObject.metadata['validity_period']['date_published'].nil? && !dataCycleObject.metadata['validity_period']['date_published'].blank?) || (!dataCycleObject.metadata['validity_period']['expires'].nil? && !dataCycleObject.metadata['validity_period']['expires'].blank?) %>
+
+        <div class="gueltigkeit">
+
+            <span class="icon">
+                <i class="fa fa-clock-o" aria-hidden="true"></i> Gültigkeit:
+            </span>
+
+            <% if !dataCycleObject.metadata['validity_period']['date_published'].nil? && !dataCycleObject.metadata['validity_period']['date_published'].blank? %>
+                <%= dataCycleObject.metadata['validity_period']['date_published'].to_datetime.to_s(:german_date_format) %>
+            <% end %>
+
+            <% if !dataCycleObject.metadata['validity_period']['expires'].nil? && !dataCycleObject.metadata['validity_period']['expires'].blank? %>
+                <span class="bis">bis</span>
+                <%= dataCycleObject.metadata['validity_period']['expires'].to_datetime.to_s(:german_date_format) unless dataCycleObject.metadata['validity_period']['expires'].include?('9999') %>
+            <% end %>
+
+        </div>
+
+    <% end %>
+
+<% end %>
