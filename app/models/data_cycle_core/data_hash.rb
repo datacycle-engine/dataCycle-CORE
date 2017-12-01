@@ -90,7 +90,6 @@ module DataCycleCore
 
         # cc embedded data from other content tables
         embedded_relations.each do |content_name|
-          content_relation = content_name[:table] < origin_table ? 'content_content_a_history' : 'content_content_b_history'
           self.send(content_name[:table]).each do |content_item|
             new_content_history = content_item.to_history(save_time: save_time)
             content_one_data = [new_content_history.id, new_content_history.class.to_s, '']
