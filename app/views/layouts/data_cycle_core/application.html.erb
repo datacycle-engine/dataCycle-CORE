@@ -1,38 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-    <%= render 'data_cycle_core/shared/head' %>
+    <%= render 'head' %>
 </head>
 <body>
+    <%= display_flash_messages_new %>
 
-    <%= render 'data_cycle_core/shared/header' %>
+    <%= render 'header' %>
 
     <div class="off-canvas-wrapper">
 
-        <%= render 'data_cycle_core/backend/user-settings' if user_signed_in? %>
+        <%= render 'user-settings' if user_signed_in? %>
 
         <div class="off-canvas-content" data-off-canvas-content>
 
             <%= render 'breadcrumb' if user_signed_in? %>
 
-            <%= render 'new_content_links' if user_signed_in? && can?(:create, DataCycleCore::CreativeWork) %>
+            <%= yield :new_button %>
 
             <div class="reveal-blur">
 
-                <%= render 'filter' if user_signed_in? %>
+                <%= yield :top_content %>
 
                 <%#= render 'data_cycle_core/backend/views' if user_signed_in? %>
 
                 <div class="expanded row">
                     <div class="column">
 
-                        <%= display_flash_messages_new %>
-
                         <%= yield %>
                     </div>
                 </div>
 
-                <%= render 'data_cycle_core/shared/footer' %>
+                <%= render 'footer' %>
 
             </div>
 
