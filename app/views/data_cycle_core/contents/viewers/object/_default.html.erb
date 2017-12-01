@@ -1,7 +1,7 @@
 <% objects = value %>
 <% if !objects.nil? && !objects.blank? %>
 
-    <% objects_length = objects.count %>
+    <% objects_length = objects.size %>
 
     <% objects.each_with_index do |object,index| %>
 
@@ -21,6 +21,15 @@
                 </span>
 
                 <div class="buttons">
+                  <% if DataCycleCore.translatable_types.include?(object.class.name) %>
+                    <a data-toggle="translated-locales-<%= object.id %>"><i class="fa fa-language" aria-hidden="true"></i></a>
+                    <ul class="dropdown-pane no-bullet bottom translated-locales" id="translated-locales-<%= object.id %>" data-dropdown data-hover="true" data-hover-pane="true">
+                      <% object.translated_locales.each do |locale| %>
+                        <li><%= t("locales.#{locale}") %></li>
+                      <% end %>
+                    </ul>
+
+                  <% end %>
                   <%= link_to '<i class="fa fa-pencil" aria-hidden="true"></i>'.html_safe, edit_polymorphic_path(object, locale: I18n.locale), target: :_blank, class: "edit-link" if definition['editor']['type'] == "objectBrowser" && @historySource.nil? && can?(:crud, object) %>
                 </div>
 

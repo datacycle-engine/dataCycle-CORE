@@ -1,8 +1,6 @@
 module DataCycleCore
   class Classification < ApplicationRecord
 
-    include DataSetter
-
     belongs_to :external_sources
 
     acts_as_paranoid

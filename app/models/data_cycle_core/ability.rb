@@ -28,7 +28,7 @@ module DataCycleCore
 
         if user.has_rank?(10)
           can :manage, [DataCycleCore::DataLink, DataCycleCore::Classification]
-          can :crud,
+          can [:crud, :destroy],
             [
               DataCycleCore::User,
               DataCycleCore::UserGroup,
@@ -67,7 +67,7 @@ module DataCycleCore
 
         if !(user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)
           cannot :modify, DataCycleCore::User do |the_user|
-            (the_user.role && the_user.role.rank == 0) || (the_user.has_rank?(user.role.try(:rank)) && the_user != user)
+            the_user.has_rank?(user.role.try(:rank)) && the_user != user
           end
         end
       end

@@ -4,12 +4,21 @@ module DataCycleCore::Generic::Transformations::Transformations
     DataCycleCore::Generic::Transformations::Functions[*args]
   end
 
+  def self.media_archive_to_video
+    t(:stringify_keys).
+    >> t(:reject_keys, ['@context','@name','@type', 'visibility', 'contentLocation']).
+    >> t(:underscore_keys).
+    >> t(:tags_to_ids, 'keywords', 'MediaArchive - Tags').
+    >> t(:copy_keys, 'url' => 'external_key').
+    >> t(:map_value, 'external_key', -> s {s.split('/').last}).
+    >> t(:strip_all)
+  end
+
   def self.media_archive_to_bild
     t(:stringify_keys).
     >> t(:reject_keys, ['@context','@name','@type', 'visibility', 'contentLocation']).
     >> t(:underscore_keys).
     >> t(:tags_to_ids, 'keywords', 'MediaArchive - Tags').
-    >> t(:merge, {'data_type' => nil}).
     >> t(:copy_keys, 'url' => 'external_key').
     >> t(:map_value, 'external_key', -> s {s.split('/').last}).
     >> t(:strip_all)

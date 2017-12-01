@@ -107,8 +107,11 @@
         //color: white;
       }
       span {
-        &::after {
-          content: "weitere Filter anzeigen";
+        .closed {
+          display: inline-block;
+        }
+        .open {
+          display: none;
         }
         z-index: 1;
         position: relative;
@@ -126,8 +129,11 @@
       }
     }
     .is-active .accordion-title span {
-      &::after {
-        content: 'weitere Filter ausblenden'
+      .closed {
+        display: none;
+      }
+      .open {
+        display: inline-block;
       }
       i::before {
         content: '\f077';
@@ -348,6 +354,9 @@
         padding: 10px 15px;
       }
       ul {
+        &.sub-list {
+          width: 25%;
+        }
         top: 0;
         left: 18rem;
         position: absolute;
@@ -403,6 +412,7 @@
 .filtertags {
   font-size: 0.8rem;
   padding: 0 0 1rem 1rem;
+  display: inline-block;
   .fa-check {
     color: $primary-color;
   }
@@ -432,10 +442,80 @@
 
 .filterbuttons {
   clear: both;
-  width: 100%;
   text-align: right;
+  float: right;
   margin-top: 0.5rem;
   button {
     margin: 0 0 0 1rem;
+  }
+}
+
+.search-results {
+  margin-top: 1rem;
+}
+
+.filter-minimal {
+  .filters {
+    background: white;
+    padding-bottom: 0;
+    .filtertags {
+      padding: 0 1rem;
+    }
+    .accordion {
+      background: initial;
+      #primary_nav_wrap {
+        margin: 0;
+      }
+      .accordion2-content {
+        display: none;
+        background: $light-gray;
+        padding: 0.5rem;
+        margin-top: 1rem;
+      }
+      .accordion-title {
+        display: block;
+        padding: 0;
+        text-align: center;
+        border: none !important;
+        background: transparent;
+        margin-top: 0.2rem;
+        &::before {
+          position: absolute;
+          content: "";
+          height: 1px;
+          border-bottom: 1px solid $medium-gray;
+          right: 0;
+          left: 0;
+          top: 1.1rem;
+        }
+        span {
+          color: $dark-gray;
+          font-size: 1rem;
+          padding: 0 0.5rem;
+          position: relative;
+          z-index: 1;
+          background: white;
+        }
+      }
+    }
+  }
+  .search {
+    padding-top: 0;
+    margin: 0 0.5rem;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .filterbuttons {
+    margin: 0;
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+  }
+}
+
+.result-count {
+  color: $dark-gray;
+  strong {
+    color: $dark-gray;
   }
 }

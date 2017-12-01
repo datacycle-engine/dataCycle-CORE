@@ -173,4 +173,10 @@
       }
     }
   }
+  .object.detail_object {
+    padding-bottom: 1rem;
+    > .detail-type{
+      padding-left: 1rem;
+    }
+  }
 }

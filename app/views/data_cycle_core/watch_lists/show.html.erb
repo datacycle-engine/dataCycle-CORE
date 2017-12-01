@@ -9,7 +9,7 @@
                 <div class="detail-header-functions">
                     <ul class="no-bullet">
                         <% if can? :manage, @data_link %>
-                            <li><%= render 'data_cycle_core/shared/data_links', dataCycleObject: @watch_list %></li>
+                            <li><%= render 'data_links', content: @watch_list %></li>
                         <% end %>
                         <li><a href="<%= breadcrumbs[-2].url %>" class="hascontent"><i aria-hidden="true" class="fa fa-times"></i></a></li>
                 </ul>
@@ -30,27 +30,26 @@
 
             </div>
 
-            <% if can? :edit, @watch_list %>
-                <div class="edit">
+            <div class="edit">
+                <% if can? :edit, @watch_list %>
                     <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small' do %>
                         <i class="fa fa-pencil" aria-hidden="true"></i>
                     <% end %>
-                </div>
-            <% end %>
-
-            <% if can? :destroy, @watch_list %>
-                <div class="destroy">
+              <% end %>
+               <% if can? :destroy, @watch_list %>
                     <%= link_to @watch_list, method: :delete, class:'button-prime small alert confirm', data: { 'confirmation-text': "Merkliste löchen?"} do %>
                         <i class="fa fa-trash-o" aria-hidden="true"></i>
                     <% end %>
-                </div>
-            <% end %>
+                <% end %>
+            </div>
 
         </div>
 
     </div>
 
-    <%= render 'data_cycle_core/backend/views' if user_signed_in? %>
+    <%= render 'filter_minimal' if user_signed_in? %>
+
+    <%#= render 'data_cycle_core/backend/views' if user_signed_in? %>
 
 <% end %>
 
@@ -58,7 +57,7 @@
 
     <div class="row">
 
-        <%= render 'data_cycle_core/watch_lists/partials/show/watch_list' %>
+        <%= render 'results', contents: @contents unless @contents.nil? %>
 
     </div>
 

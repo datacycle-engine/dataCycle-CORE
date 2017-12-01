@@ -84,7 +84,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::ContentContent.count)
+      assert_equal(2, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Person.where(template: false).count)
     end
 
@@ -167,9 +167,9 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::ContentContent.count)
+      assert_equal(2, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Person.where(template: false).count)
-      assert_equal(3, DataCycleCore::ClassificationContent.count) 
+      assert_equal(3, DataCycleCore::ClassificationContent.count)
 
       # delete quotation
       data_hash['quotation'] = []
@@ -273,7 +273,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(3, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(2, DataCycleCore::ContentContent.count)
+      assert_equal(4, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Person.where(template: false).count)
 
       # delete quotation
@@ -368,7 +368,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(1, DataCycleCore::ContentContent.count)
+      assert_equal(2, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Person.where(template: false).count)
 
       data_hash["quotation"][0]["id"] = quotation_id
@@ -389,7 +389,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(3, DataCycleCore::CreativeWork.where(template: false).count)
-      assert_equal(2, DataCycleCore::ContentContent.count)
+      assert_equal(4, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Person.where(template: false).count)
     end
 

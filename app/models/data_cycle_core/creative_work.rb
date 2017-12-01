@@ -41,9 +41,6 @@ module DataCycleCore
     belongs_to :primaryImage, class_name: 'Place', primary_key: 'id', foreign_key: 'photo'
     acts_as_tree order: 'position', foreign_key: 'is_part_of'
 
-    # custom setter
-    include DataSetter
-
     include ContentHelpers
     include CreativeWorkHelpers
 

@@ -1,0 +1,198 @@
+.detail-header-functions,
+.edit-header-functions {
+  .fa {
+    min-width: 1.2rem;
+  }
+  .dropdown-pane {
+    z-index: 100;
+    box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
+  }
+  >ul {
+    position: relative;
+    >li {
+      &.buttons {
+        .submit {
+          float: right;
+          margin-top: -10%;
+        }
+        button,
+        a {
+          display: inline-block;
+        }
+        >.button,
+        >a>.button {
+          margin: 0;
+          display: block;
+          background: none;
+          outline: none;
+          color: rgba($primary-color, 0.5);
+          i {
+            font-size: 1.5rem;
+          }
+          &:hover,
+          &:focus {
+            color: $primary-color;
+          }
+          &.discard {
+            color: rgba($black, 0.5);
+            &:hover,
+            &:focus {
+              color: $black;
+            }
+          }
+          &.delete {
+            color: rgba(map-get($foundation-palette, alert), 0.5);
+            &:hover,
+            &:focus {
+              color: map-get($foundation-palette, alert);
+            }
+          }
+        }
+      }
+      .buttons {
+        float: right;
+        vertical-align: middle;
+        span,
+        a {
+          color: $primary-color;
+          cursor: pointer;
+          &:hover,
+          &:focus {
+            color: darken($primary-color, 30%);
+          }
+          &.invalidate-data-link {
+            color: map-get($foundation-palette, alert);
+            &:hover,
+            &:focus {
+              color: darken(map-get($foundation-palette, alert), 30%);
+            }
+          }
+        }
+      }
+      &:nth-last-child(2) {
+        ul {
+          right: 0 !important;
+          left: auto !important; // top: 2rem !important;
+          &::before {
+            content: '';
+            position: absolute;
+            position: absolute;
+            top: -12px;
+            right: 50px;
+            left: auto;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 25px 12px 25px;
+            border-color: transparent transparent #ffffff transparent;
+          }
+        }
+      }
+      display: inline-block;
+      position: relative;
+      >a,
+      >.link {
+        color: $body-font-color;
+        opacity: 0.3;
+        transition: all ease-in-out 0.25s;
+        padding: 0 0 0.5rem 1rem;
+        cursor: pointer;
+        &:hover {
+          opacity: 1;
+          color: lighten($body-font-color, 30%);
+        }
+        &.hascontent {
+          opacity: 1;
+        }
+      }
+      ul {
+        box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
+        &::before {
+          content: '';
+          position: absolute;
+          top: -12px;
+          left: 50px;
+          width: 0;
+          height: 0;
+          border-style: solid;
+          border-width: 0 25px 12px 25px;
+          border-color: transparent transparent #ffffff transparent;
+        }
+        li {
+          position: relative;
+          text-align: left;
+          font-size: 0.8rem;
+          line-height: 1.2rem;
+          padding: 0 0 0.2rem 0;
+          i:not(.fa) {
+            color: $dark-gray;
+          }
+          input {
+            max-width: 100%;
+            min-width: initial;
+            &[readonly] {
+              cursor: pointer !important;
+            }
+          }
+        }
+        &.data-links {
+          text-align: center;
+          li {
+            text-align: left;
+          }
+          .center-text {
+            text-align: center;
+          }
+          .new-data-link {
+            margin: 0;
+          }
+          .invalid {
+            color: $dark-gray;
+          }
+          .email {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: calc(100% - 3rem);
+            display: inline-block;
+            vertical-align: middle;
+          }
+        }
+      }
+    }
+  }
+}
+
+.detail-header-functions {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  input {
+    padding: 0 0.5rem;
+    height: 2.2rem;
+    &.copy-input {
+      padding-right: 2.3rem;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.edit-header-functions {
+  ul {
+    text-align: right;
+    margin: 0;
+    list-style: none;
+    line-height: 3.5rem;
+    &.no-bullet {
+      margin: auto;
+      text-align: left;
+    }
+    >li {
+      position: relative;
+      button.has-tip {
+        border-bottom: none;
+        cursor: pointer;
+      }
+    }
+  }
+}
