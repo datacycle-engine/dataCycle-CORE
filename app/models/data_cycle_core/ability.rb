@@ -28,15 +28,13 @@ module DataCycleCore
 
         if user.has_rank?(10)
           can :manage, [DataCycleCore::DataLink, DataCycleCore::Classification]
-          can :crud,
+          can [:crud, :destroy],
             [
               DataCycleCore::User,
               DataCycleCore::UserGroup,
               DataCycleCore::Person,
               DataCycleCore::Place
             ]
-
-          can :destroy, DataCycleCore::User
 
           can :update_release_status, [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]
 

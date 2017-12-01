@@ -53,13 +53,15 @@ module DataCycleCore
         end
       end
 
+      @total = query.count(:id)
+
       @paginateObject = query.page(params[:page])
 
-      if params[:mode].nil?
-        @mode = "flex"
-      else
-        @mode = params[:mode].to_s
-      end
+      # if params[:mode].nil?
+      #   @mode = "flex"
+      # else
+      #   @mode = params[:mode].to_s
+      # end
 
       @paginateObject.includes(content_data: [:display_classification_aliases, :translations, :watch_lists]).map(&:content_data)
     end
