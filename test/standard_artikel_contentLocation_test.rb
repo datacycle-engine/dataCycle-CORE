@@ -107,11 +107,13 @@ module DataCycleCore
         "season" => [],
         "topics" => [],
         "markets" => [],
+        "image" => [],
+        "video" => [],
         "headline" => "Dies ist ein Test!",
         "quotation" => [{
           "id" => "",
           "text" => "However beautiful the strategy, you should occasionally look at the results.",
-          "image" => nil,
+          "image" => [],
           "author" => [{
             "id" => person_id,
             "job_title" => nil,
@@ -128,8 +130,8 @@ module DataCycleCore
         "content_location"=>[{
           "id" => place_id_1,
           "name" => "Wien",
-          "latitude" => 1,
-          "longitude" => 2,
+          "latitude" => 1.0,
+          "longitude" => 2.0,
           "external_source_id" => nil,
           "location" => nil
           }]

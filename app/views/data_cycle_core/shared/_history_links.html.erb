@@ -11,8 +11,8 @@
     <% else %>
         erstellt am <%= Time.at(dataCycleObject.created_at).to_s(:german_datetime_format) %>
 
-        <% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['creator'].nil? %>
-            <% person = get_user_for_id(dataCycleObject.metadata['creator']) %>
+        <% if !dataCycleObject.metadata.nil? && !dataCycleObject.creator.blank? %>
+            <% person = dataCycleObject.creator.first %>
         <% end %>
 
     <% end %>
@@ -72,5 +72,3 @@
       </div>
     </ul>
 <% end %>
-
-

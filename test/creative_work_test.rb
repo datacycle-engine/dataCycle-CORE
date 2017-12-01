@@ -1024,7 +1024,8 @@ module DataCycleCore
         "text" => "Dies ist ein Test!",
         "image" => [uuid,uuid2]
       }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id',"data_pool"))
+      assert_equal(expected_hash.except('image'), data_set.get_data_hash.compact.except('id',"data_pool",'video', 'image'))
+      assert_equal(expected_hash['image'].sort, data_set.get_data_hash['image'].sort)
     end
 
   end
