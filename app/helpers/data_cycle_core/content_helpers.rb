@@ -53,12 +53,7 @@ module DataCycleCore
       return Date.today <= valid_to.to_date if (valid_to.blank? == false)
       return Date.today >= valid_from.to_date if (valid_from.blank? == false)
 
-        return Date.today.between?(valid_from.to_date, valid_to.to_date) if (valid_from.blank? == false && valid_to.blank? == false)
-        return Date.today <= valid_to.to_date if (valid_to.blank? == false)
-        return Date.today >= valid_from.to_date if (valid_from.blank? == false)
-
-        true
-      end
+      true
     end
 
     #todo: move method to vuejs object browser
