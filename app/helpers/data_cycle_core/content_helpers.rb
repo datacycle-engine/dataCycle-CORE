@@ -48,18 +48,21 @@ module DataCycleCore
     end
 
     def is_valid
-      valid_from, valid_to = get_validity_values(validity_period.to_h)
-      return Date.today.between?(valid_from.to_date, valid_to.to_date) if (valid_from.blank? == false && valid_to.blank? == false)
-      return Date.today <= valid_to.to_date if (valid_to.blank? == false)
-      return Date.today >= valid_from.to_date if (valid_from.blank? == false)
-
+      if self.try(:validity_period)
+        valid_from, valid_to = get_validity_values(validity_period.to_h)
+        return Date.today.between?(valid_from.to_date, valid_to.to_date) if (valid_from.blank? == false && valid_to.blank? == false)
+        return Date.today <= valid_to.to_date if (valid_to.blank? == false)
+        return Date.today >= valid_from.to_date if (valid_from.blank? == false)
+      end
       true
     end
 
     #todo: move method to vuejs object browser
     def formatted_validity_period
-      valid_from, valid_to = get_validity_values(validity_period.to_h)
-      return {'date_published' => valid_from.blank? ? '' : valid_from.to_s(:german_date_format), 'expires' => valid_to.blank? || valid_to.to_s(:german_date_format).include?('9999') ? '' : valid_to.to_s(:german_date_format)}
+      if self.try(:validity_period)
+        valid_from, valid_to = get_validity_values(validity_period.to_h)
+        return {'date_published' => valid_from.blank? ? '' : valid_from.to_s(:german_date_format), 'expires' => valid_to.blank? || valid_to.to_s(:german_date_format).include?('9999') ? '' : valid_to.to_s(:german_date_format)}
+      end
     end
 
   end
