@@ -1,8 +1,5 @@
 module DataCycleCore
   class User < ApplicationRecord
-    # Include default devise modules. Others available are:
-    # :confirmable, :lockable, :timeoutable and :omniauthable
-    #:saml_authenticatable, :trackable
      devise :database_authenticatable, :registerable,
             :recoverable, :rememberable, :trackable, :validatable, :lockable
 
@@ -10,6 +7,13 @@ module DataCycleCore
     has_many :watch_lists, dependent: :destroy
     has_many :subscriptions, dependent: :destroy
     belongs_to :role
+
+
+    has_many :content_content_a, class_name: "DataCycleCore::ContentContent", as: :content_a, dependent: :destroy
+    has_many :content_content_b, class_name: "DataCycleCore::ContentContent", as: :content_b, dependent: :destroy
+    has_many :content_content_a_history, class_name: "DataCycleCore::ContentContent::History", as: :content_a_history, dependent: :destroy
+    has_many :content_content_b_history, class_name: "DataCycleCore::ContentContent::History", as: :content_b_history, dependent: :destroy
+
 
     has_many :user_group_users, dependent: :destroy
     has_many :user_groups, through: :user_group_users

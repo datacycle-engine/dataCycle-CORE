@@ -1,5 +1,5 @@
-<% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['creator'].nil? %>
-	<% creator = get_user_for_id(dataCycleObject.metadata['creator']) %>
+<% if !dataCycleObject.metadata.nil? && !dataCycleObject.creator.blank? %>
+	<% creator = dataCycleObject.creator.first %>
 	<span class="metadata">
         <span>bearbeitet am </span>
         <span><strong><%= Time.at(dataCycleObject.updated_at).to_s(:german_datetime_format) %></strong></span>

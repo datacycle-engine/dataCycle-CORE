@@ -87,10 +87,9 @@ module DataCycleCore
       assert_equal(13, DataCycleCore::CreativeWork::Translation.count - cw_temp)
       assert_equal(14, DataCycleCore::ClassificationContent.count)
 
-      # check why it is not 14!!!!!
-      assert_equal(24, DataCycleCore::CreativeWork::History.count)
-      assert_equal(24, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(24, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(14, DataCycleCore::CreativeWork::History.count)
+      assert_equal(14, DataCycleCore::CreativeWork::History::Translation.count)
+      assert_equal(14, DataCycleCore::ClassificationContent::History.count)
 
       data_set.histories.each{ |item|
         item.destroy_content
@@ -150,7 +149,7 @@ module DataCycleCore
 
       assert_equal(0, error[:error].count)
       assert_equal(expected_hash_quiz, returned_data_hash.except("question","id","data_type",'validity_period', 'data_pool').compact)
-      assert_equal(data_hash['question'][0], returned_data_hash['question'][0].except("id","data_type").compact)
+      assert_equal(data_hash['question'][0], returned_data_hash['question'][0].except("id","data_type",'image').compact)
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.count - cw_temp)

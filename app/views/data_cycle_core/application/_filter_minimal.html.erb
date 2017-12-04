@@ -43,9 +43,12 @@
 
             </div>
           </div>
-
           <div class="filtertags activefilter">
-              <span class="icon"><i class="fa fa-check" aria-hidden="true"></i> <strong><%= t('common.active_filters', locale: DataCycleCore.ui_language) %>:</strong> </span>
+              <span class="icon"><i class="fa fa-check" aria-hidden="true"></i> <strong><%= t('common.active_filters', locale: DataCycleCore.ui_language) %></strong>
+              <% unless @total.zero? %>
+                <span class="result-count">(<strong><%= @total %></strong> <%= t('common.contents', count: @total, locale: DataCycleCore.ui_language) %>)</span>
+              <% end %>
+              <strong>:</strong> </span>
 
               <span class="your-choice tags sprache">
                 <i class="choice-label"><%= t('common.language', locale: DataCycleCore.ui_language) %>:</i>

@@ -5,7 +5,7 @@ module DataCycleCore
     authorize_resource :class => false  # from cancancan (authorize)
 
     def index
-      @dataCycleObjects = get_filtered_results
+      @contents = get_filtered_results
 
       @creativeWork = CreativeWork.new
     end

@@ -512,3 +512,10 @@
     float: none;
   }
 }
+
+.result-count {
+  color: $dark-gray;
+  strong {
+    color: $dark-gray;
+  }
+}

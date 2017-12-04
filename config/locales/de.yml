@@ -56,6 +56,9 @@ de:
     filter:
       show: Filter anzeigen
       hide: Filter ausblenden
+    contents:
+      one: Inhalt
+      other: Inhalte
 
   pronoun:
     my:

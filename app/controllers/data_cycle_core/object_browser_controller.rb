@@ -32,8 +32,8 @@ module DataCycleCore
         end
         @page ||= 1
 
-        @results = query.page(@page).per(@per).map(&:content_data)
-        render :json => { results: @results.as_json({'add_validity' =>true}), total: total }
+        @results = query.page(@page).per(@per).includes(content_data: [:translations]).map(&:content_data)
+        render :json => { results: @results.as_json({'add_validity' => true }), total: total }
       end
     end
 

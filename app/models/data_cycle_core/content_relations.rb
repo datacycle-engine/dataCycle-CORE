@@ -30,14 +30,12 @@ module DataCycleCore
         end
 
         # relation content to all other contents
-        if postfix.nil?
-          has_many :content_content_a, class_name: "DataCycleCore::ContentContent", as: :content_a, dependent: :destroy
-          has_many :content_content_b, class_name: "DataCycleCore::ContentContent", as: :content_b, dependent: :destroy
-        else
-          has_many :content_content_a_history, class_name: "DataCycleCore::ContentContent::History", as: :content_a_history, dependent: :destroy
-          has_many :content_content_b_history, class_name: "DataCycleCore::ContentContent::History", as: :content_b_history, dependent: :destroy
-        end
-        (DataCycleCore.content_tables).map(&:singularize).each do |content_name|
+        has_many :content_content_a, class_name: "DataCycleCore::ContentContent", as: :content_a, dependent: :destroy
+        has_many :content_content_b, class_name: "DataCycleCore::ContentContent", as: :content_b, dependent: :destroy
+        has_many :content_content_a_history, class_name: "DataCycleCore::ContentContent::History", as: :content_a_history, dependent: :destroy
+        has_many :content_content_b_history, class_name: "DataCycleCore::ContentContent::History", as: :content_b_history, dependent: :destroy
+
+        (DataCycleCore.content_tables+DataCycleCore.linked_tables).map(&:singularize).each do |content_name|
           if postfix.nil?
             if table_given.to_s.singularize <= content_name
               has_many content_name.pluralize.to_sym, through: :content_content_a, source: :content_b, source_type: "DataCycleCore::#{content_name.classify}"
