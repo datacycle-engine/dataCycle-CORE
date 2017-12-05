@@ -338,6 +338,8 @@ button,
   .focus .ql-toolbar.fixed-toolbar,
   .focus .ql-toolbar.fixed-split-toolbar {
     background: white;
+    border-right: 1px solid $primary-color;
+    border-left: 1px solid $primary-color;
   }
   .focus .ql-editor {
     border-color: $primary-color;
@@ -451,6 +453,7 @@ button,
     z-index: 12;
     right: 0;
     border: 0;
+    transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
     &.fixed-toolbar {
       background: $light-gray;
       position: fixed;
@@ -458,6 +461,8 @@ button,
       right: 1rem;
       width: calc(100% - 2rem);
       box-shadow: 0 1px 0 $dark-gray;
+      border-right: 1px solid $light-gray;
+      border-left: 1px solid $light-gray;
     }
     &.fixed-split-toolbar {
       background: $light-gray;
@@ -466,6 +471,8 @@ button,
       right: 2rem;
       width: calc(50% - 3rem);
       box-shadow: 0 1px 0 $dark-gray;
+      border-right: 1px solid $light-gray;
+      border-left: 1px solid $light-gray;
     }
   }
   .ql-editor {

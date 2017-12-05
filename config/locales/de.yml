@@ -59,6 +59,8 @@ de:
     contents:
       one: Inhalt
       other: Inhalte
+    splitsource: Vorlage
+    load_splitsource: Vorlage laden
 
   pronoun:
     my:

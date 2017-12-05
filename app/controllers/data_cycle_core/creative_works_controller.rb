@@ -90,13 +90,15 @@ module DataCycleCore
       @creativeWork = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
 
       # get show data for split view
-      @splitType = params[:source_type].constantize unless params[:source_type].nil?
-      @splitSource = @splitType.find(params[:source_id]) if !params[:source_id].nil? && !@splitType.nil?
-      @splitSchema = []
+      unless source_params.blank?
+        @splitType = source_params[:source_type].constantize
+        @splitSource = @splitType.find(source_params[:source_id])
+        @splitSchema = []
 
-      I18n.with_locale(@splitSource.first_available_locale) do
-        @splitSchema = @splitSource.get_data_hash
-      end unless @splitSource.nil?
+        I18n.with_locale(@splitSource.first_available_locale) do
+          @splitSchema = @splitSource.get_data_hash
+        end unless @splitSource.nil?
+      end
 
       I18n.with_locale(@creativeWork.first_available_locale) do
 
@@ -214,6 +216,14 @@ module DataCycleCore
     def creative_work_params(storage_location, template_name, template_description)
       datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
       params.require(:creative_work).permit(:release_id, :release_comment, :datahash => datahash)
+    end
+
+    def source_params
+      if params[:source]
+        ActionController::Parameters.new(Hash[params[:source].split(",").collect{|x| x.strip.split("=>")}]).permit(:source_id, :source_type)
+      elsif params[:source_id] && params[:source_type]
+        params.permit(:source_id, :source_type)
+      end
     end
 
     def is_number? string

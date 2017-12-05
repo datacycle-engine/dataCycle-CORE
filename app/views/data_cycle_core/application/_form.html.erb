@@ -2,7 +2,7 @@
 
 <%= render_content_partial 'edit_header_functions', content: content %>
 
-<%= form_for content, url: polymorphic_path(content, watch_list_id: @watch_list), builder: DataCycleCore::DataHashHelper::DataCycleFormBuilder do |f| %>
+<%= form_for content, url: polymorphic_path(content, watch_list_id: @watch_list), html: {class: 'edit-content-form'}, builder: DataCycleCore::DataHashHelper::DataCycleFormBuilder do |f| %>
 	<%= hidden_field_tag 'uuid', content.id %>
   <%= hidden_field_tag 'locale', I18n.locale %>
 

@@ -5,6 +5,30 @@
         <i class="fa fa-pencil" aria-hidden="true"></i> <%== "#{content.content_type} #{t('actions.edit', locale: DataCycleCore.ui_language)}" %>
       </div>
       <ul>
+        <% if content.try(:siblings) && content.try(:parent) && !content.try(:siblings).try(:size).nil? && !content.try(:siblings).try(:size).zero? %>
+          <li class="has-dropdown">
+            <a data-toggle="split-sources"><i class="fa fa-columns" aria-hidden="true"></i> <%= t('common.splitsource', locale: DataCycleCore.ui_language) %></a>
+            <ul class="dropdown-pane no-bullet bottom" id="split-sources" data-dropdown data-hover="true" data-hover-pane="true">
+              <li id="split-source-selector">
+                <%= form_tag('', method: :get) do %>
+                  <% sources = [] %>
+                  <% content.siblings.each do |child| %>
+                    <% I18n.with_locale(child.first_available_locale) do %>
+                      <% sources.push({ value: "source_id=>#{child.id},source_type=>#{child.class.name}", label: "#{child.title} (#{child.content_type}, #{I18n.locale})", level: 0 }) %>
+                    <% end %>
+                  <% end %>
+
+                  <% selected = @splitSource ? { value: "source_id=>#{@splitSource.id},source_type=>#{@splitSource.class.name}", label: "#{@splitSource.title} (#{@splitSource.content_type}, #{@splitSource.translated_locales.first})", level: 0 } : '' %>
+
+                  <custom-select :multiple="false" hidden-field-id="source" label="label" :custom-options="<%= sources.to_json %>" :selected-values="<%= selected.to_json %>"></custom-select>
+
+                  <button class="button"><%= t('common.load_splitsource', locale: DataCycleCore.ui_language) %></button>
+                <% end %>
+              </li>
+            </ul>
+          </li>
+        <% end %>
+
         <% if DataCycleCore.translatable_types.include?(content.class.name) %>
           <li class="has-dropdown">
             <a data-toggle="language-menu"><i class="fa fa-language" aria-hidden="true"></i> <%= t('common.language', locale: DataCycleCore.ui_language) %></a>

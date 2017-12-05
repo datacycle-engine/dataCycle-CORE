@@ -72,6 +72,10 @@
   }
 }
 
+.detail-content-wrapper {
+  margin-top: 1rem;
+}
+
 .detail-content {
   .type {
     &.translations {
@@ -194,6 +198,7 @@ select {
   line-height: initial;
 }
 
+#split-source-selector,
 #newContent {
   overflow-y: visible;
   input[type=text],
@@ -216,6 +221,17 @@ select {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+    .dropdown-toggle {
+      white-space: nowrap;
+      overflow: hidden;
+      .selected-tag,
+      input[type=search] {
+        float: none;
+        display: inline-block;
+        vertical-align: top;
+        margin: 0;
+      }
+    }
     .selected-tag {
       font-family: inherit;
       font-size: 1rem;
@@ -225,6 +241,9 @@ select {
       display: inline-block;
       padding: 0.5rem;
       margin: 2px 0 0 0;
+      max-width: calc(100% - 3rem);
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     input[type=search] {
       margin-top: 2px;
