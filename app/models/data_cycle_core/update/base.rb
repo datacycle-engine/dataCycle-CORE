@@ -3,7 +3,8 @@ module DataCycleCore
     class Base
 
       def update()
-        puts "BEGIN Update (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
+        total_updates = query().count
+        puts "UPDATE '#{@template.metadata['validation']['name']}' templates - #{total_updates} items (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
 
         item_count = 0
         query().each do |content_item|
@@ -28,15 +29,16 @@ module DataCycleCore
             end
           end
 
-          # remove history
-
-
+          # progress bar
+          if (item_count % 1000) == 0
+            total_count = [total_updates, 1].max
+            fraction = [100, (item_count*100.0 /total_count).round(0) ].min
+            print "[#{'*'*fraction}#{' '*(100-fraction)}] #{fraction}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+          end
           item_count +=1
-          puts "#{item_count.to_s.rjust(7)} items processed. (#{Time.zone.now.strftime("%H:%M:%S.%3N")})" if (item_count % 1000) == 0
         end
 
-        puts "END (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
-
+        puts "[#{'*'*100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
       end
 
     private
