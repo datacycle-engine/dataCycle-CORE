@@ -73,7 +73,7 @@
 }
 
 .detail-content-wrapper {
-  margin-top: 1rem;
+  margin: 1rem 0;
 }
 
 .detail-content {
@@ -259,7 +259,7 @@ select {
 
 #edit-form {
   .flex-box {
-    height: calc(100vh - 13rem);
+    height: calc(100vh - 11.4rem);
     &.full-size {
       height: inherit;
     }

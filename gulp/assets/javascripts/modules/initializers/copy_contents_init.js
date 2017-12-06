@@ -18,7 +18,7 @@ module.exports.initialize = function () {
     ev.preventDefault();
     var id = $(this).parents('[data-editor]').data('id');
     var label = $(this).parents('[data-editor]').data('label');
-    copy_contents(id);
+    copy_contents(id, label);
   });
 
   $(document).on('click', '.flex-box .copy-single-button', function (ev) {
