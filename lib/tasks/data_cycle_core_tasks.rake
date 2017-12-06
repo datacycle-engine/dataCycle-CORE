@@ -25,12 +25,7 @@ delete_contents = <<-eos
   DELETE FROM places;
   DELETE FROM place_translations;
 
-  DELETE FROM creative_work_events;
-  DELETE FROM creative_work_persons;
-  DELETE FROM creative_work_places;
-  DELETE FROM event_persons;
-  DELETE FROM event_places;
-  DELETE FROM person_places;
+  DELETE FROM content_contents;
 
   DELETE FROM classification_contents;
   DELETE FROM searches;
@@ -50,12 +45,7 @@ delete_content_histories = <<-eos
   DELETE FROM place_histories;
   DELETE FROM place_history_translations;
 
-  DELETE FROM creative_work_event_histories;
-  DELETE FROM creative_work_person_histories;
-  DELETE FROM creative_work_place_histories;
-  DELETE FROM event_person_histories;
-  DELETE FROM event_place_histories;
-  DELETE FROM person_place_histories;
+  DELETE FROM content_content_histories;
 
   DELETE FROM classification_content_histories;
 eos
