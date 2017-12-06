@@ -269,6 +269,60 @@ namespace :data_cycle_core do
 
       DataCycleCore::Update::Update.new(type: type, template: template, strategy: strategy, transformation: transformation)
     end
+
+    desc "delete history of a specific content_table_name/template_name"
+    task :delete_history, [:content_table_name, :template_name] => [:environment] do |t, args|
+
+      unless DataCycleCore.content_tables.include?(args[:content_table_name])
+        puts "ERROR: only the following content_table_names are known to the system:"
+        puts "#{DataCycleCore.content_tables}"
+        exit -1
+      end
+
+      template_object = "DataCycleCore::#{args[:content_table_name].classify}".safe_constantize
+      template = template_object.find_by(headline: args[:template_name], template: true)
+
+      if template.nil?
+        puts "ERROR: template not found. For the given #{args[:content_table_name]} table only the following templates are available:"
+        puts template_object.where(template: true).map(&:headline)
+        exit -1
+      end
+
+      data_object = "DataCycleCore::#{args[:content_table_name].classify}::History".safe_constantize.
+        where("metadata #>> '{validation, name}' = '#{args[:template_name]}'")
+
+      total_items = data_object.count
+      puts "DELETE history for: #{args[:content_table_name]}/#{args[:template_name]} (#{total_items}) - (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
+      index = 0
+
+      data_object.find_each do |data_item|
+
+        # progress_bar
+        if total_items > 49
+          if index % 500 == 0
+            fraction = (index / (total_items/100.0)).round(0)
+            fraction = 100 if fraction > 100
+            print "[#{'*'*fraction}#{' '*(100-fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+          end
+        else
+          fraction = (((index*1.0)/total_items) * 100.0).round(0)
+          fraction = 100 if fraction > 100
+          print"[#{'*'*fraction}#{' '*(100-fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+        end
+        index += 1
+
+        data_item.destroy_content
+        data_item.destroy
+
+        # delete_history
+        # data_item.histories.each{ |item|
+        #   item.destroy_content
+        #   item.destroy
+        # }
+      end
+      puts "[#{'*'*100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+
+    end
   end
 
   namespace :data_update do
@@ -465,7 +519,7 @@ namespace :data_cycle_core do
       DataCycleCore.content_tables.each do |content_table|
         content_class = "DataCycleCore::#{content_table.classify}::History"
         puts "updating ==> #{content_class}"
-        content_class.constantize.all.each do |item|
+        content_class.constantize.all.find_each do |item|
           item.linked_relations.each do |link_definition|
             next if item.metadata[link_definition[:name]].blank?
             index += 1
@@ -572,8 +626,11 @@ namespace :data_cycle_core do
 
           end
         end
-        puts "\n"
+        puts "[#{'*'*100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
       end
+
+      # delete Bild history
+      Rake::Task['data_cycle_core:update:delete_history'].invoke('creative_works','Bild')
 
       # update classification_content_histories
       index = 0
@@ -581,7 +638,7 @@ namespace :data_cycle_core do
         content_class = "DataCycleCore::#{content_table.classify}::History"
         items_count = content_class.constantize.count
         puts "UPDATING ==> #{content_class} (#{items_count})"
-        content_class.constantize.all.each do |item|
+        content_class.constantize.all.find_each do |item|
 
           # progress bar
           if items_count > 49
@@ -599,7 +656,7 @@ namespace :data_cycle_core do
 
           item.classification_property_names.each do |classification_name|
 
-            item.send(classification_name).all.each do |classification_relation|
+            item.send(classification_name).all.find_each do |classification_relation|
               if classification_relation.kind_of?(DataCycleCore::ClassificationContent::History)
                 classification_relation.update!(relation: classification_name)
               else
@@ -609,7 +666,7 @@ namespace :data_cycle_core do
 
           end
         end
-        puts "\n"
+        puts "[#{'*'*100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
       end
 
       puts "END"
