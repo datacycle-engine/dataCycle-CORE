@@ -278,7 +278,7 @@ module DataCycleCore
               )
             ids = [classification_id]
           elsif !default_value.blank? && ids.nil?
-            ids = get_classification_relation(relation_name).ids
+            ids = get_classification_relation(relation_name).pluck(:classification_id)
           end
         rescue ActiveRecord::RecordNotFound => e
           logger.error "Missing default value '#{default_value}' for attribute '#{relation_name}'"
@@ -299,16 +299,18 @@ module DataCycleCore
 
       ids = [] if ids.blank? && default_value.blank?
       # delete missing ids
-      found_ids = get_classification_relation(relation_name).ids
+      found_ids = get_classification_relation(relation_name).pluck(:classification_id)
       to_delete = found_ids - ids
       if to_delete.size > 0
-        DataCycleCore::ClassificationContent.
-          where(
-            "content_data_id" => self.id,
-            "content_data_type" => self.class.to_s,
-            classification_id: to_delete,
-            relation: relation_name
-          ).destroy_all
+        to_delete.each do |to_delete_id|
+          DataCycleCore::ClassificationContent.
+            find_by(
+              "content_data_id" => self.id,
+              "content_data_type" => self.class.to_s,
+              classification_id: to_delete_id,
+              relation: relation_name
+            ).destroy
+        end
       end
     end
 
