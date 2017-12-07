@@ -305,7 +305,7 @@ module DataCycleCore
         join_relation = :classification_contents
         class_id = :content_data_id
       end
-      DataCycleCore::Classification.joins(join_relation).where(classification_contents: {class_id => id, relation: relation_name})
+      DataCycleCore::Classification.joins(join_relation).where(join_relation => {class_id => id, relation: relation_name})
     end
 
     def set_property_value(property_name, property_definition, value)
