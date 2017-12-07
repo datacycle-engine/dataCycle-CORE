@@ -302,15 +302,13 @@ module DataCycleCore
       found_ids = get_classification_relation(relation_name).pluck(:classification_id)
       to_delete = found_ids - ids
       if to_delete.size > 0
-        to_delete.each do |to_delete_id|
-          DataCycleCore::ClassificationContent.
-            find_by(
-              "content_data_id" => self.id,
-              "content_data_type" => self.class.to_s,
-              classification_id: to_delete_id,
-              relation: relation_name
-            ).destroy
-        end
+        DataCycleCore::ClassificationContent.
+          where(
+            "content_data_id" => self.id,
+            "content_data_type" => self.class.to_s,
+            classification_id: to_delete,
+            relation: relation_name
+          ).destroy_all
       end
     end
 
