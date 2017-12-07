@@ -573,7 +573,7 @@ namespace :data_cycle_core do
           WHERE classification_contents.relation IS NULL
       );
       eos
-      puts "DELETE inconsistent data:"
+      puts "DELETE inconsistent data"
       ActiveRecord::Base.connection.execute(delete_sql)
       puts "[#{'*'*100}] 100%"
 
@@ -631,6 +631,20 @@ namespace :data_cycle_core do
 
       # delete Bild history
       Rake::Task['data_cycle_core:update:delete_history'].invoke('creative_works','Bild')
+
+      # delete classification_content_histories due to wrong template in history
+      delete_sql = <<-eos
+      DELETE FROM classification_content_histories
+      WHERE id IN (
+        SELECT classification_content_histories.id
+        FROM classification_content_histories
+        WHERE relation IS NULL
+        AND classification_content_histories.content_data_history_type = 'DataCycleCore::CreativeWork::History'
+      );
+      eos
+      puts "DELETE keywords for history"
+      ActiveRecord::Base.connection.execute(delete_sql)
+      puts "[#{'*'*100}] 100%"
 
       # update classification_content_histories
       index = 0
