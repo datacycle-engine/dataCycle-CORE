@@ -115,9 +115,6 @@ button,
     color: $primary-color;
     position: absolute;
     left: 1.5rem;
-    i {
-      margin-right: 0.5rem;
-    }
   }
   .history-switcher {
     position: absolute;
@@ -131,9 +128,8 @@ button,
       &::before {
         content: '';
         position: absolute;
-        position: absolute;
         top: -12px;
-        right: 50px;
+        right: 10px;
         left: auto;
         width: 0;
         height: 0;
@@ -454,6 +450,8 @@ button,
     right: 0;
     border: 0;
     transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
+    border-right: 1px solid $light-gray;
+    border-left: 1px solid $light-gray;
     &.fixed-toolbar {
       background: $light-gray;
       position: fixed;
@@ -461,8 +459,6 @@ button,
       right: 1rem;
       width: calc(100% - 2rem);
       box-shadow: 0 1px 0 $dark-gray;
-      border-right: 1px solid $light-gray;
-      border-left: 1px solid $light-gray;
     }
     &.fixed-split-toolbar {
       background: $light-gray;
@@ -471,8 +467,6 @@ button,
       right: 2rem;
       width: calc(50% - 3rem);
       box-shadow: 0 1px 0 $dark-gray;
-      border-right: 1px solid $light-gray;
-      border-left: 1px solid $light-gray;
     }
   }
   .ql-editor {

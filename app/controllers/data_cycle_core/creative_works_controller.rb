@@ -2,16 +2,16 @@ module DataCycleCore
   class CreativeWorksController < ContentsController
 
     before_action :authenticate_user!                                # from devise (authenticate)
-    load_and_authorize_resource except: [:validate_single_data]      # from cancancan (authorize)
+    load_and_authorize_resource except: [:validate_single_data, :compare]      # from cancancan (authorize)
 
     def index
     end
 
     def show
-      @creativeWork = DataCycleCore::CreativeWork.find_by(id: params[:id])
-      I18n.with_locale(@creativeWork.first_available_locale) do
+      @content = DataCycleCore::CreativeWork.find_by(id: params[:id])
+      I18n.with_locale(@content.first_available_locale) do
 
-        if @creativeWork.nil?
+        if @content.nil?
           redirect_back(fallback_location: root_path)
           return
         end
@@ -22,8 +22,8 @@ module DataCycleCore
           @mode = params[:mode].to_s
         end
 
-        @release_status = DataCycleCore::Release.find_by(id: @creativeWork.release_id) if @creativeWork.metadata['validation']['releasable'] && !@creativeWork.release_id.nil?
-        @dataSchema = @creativeWork.get_data_hash
+        @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if @content.metadata['validation']['releasable'] && !@content.release_id.nil?
+        @dataSchema = @content.get_data_hash
 
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: 'creative_works', id: params[:id]) }
@@ -54,6 +54,27 @@ module DataCycleCore
         end
       end
 
+    end
+
+    def compare
+      @creativeWork = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
+      authorize! :show, @creativeWork
+
+      if source_params.blank?
+        redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) and return
+      end
+
+      @source = source_params[:source_type].constantize.find(source_params[:source_id]) unless source_params.blank?
+
+      I18n.with_locale(@creativeWork.first_available_locale) do
+        @dataSchema = @creativeWork.get_data_hash.merge(@creativeWork.get_releasable_hash)
+      end
+
+      I18n.with_locale(@source.first_available_locale) do
+        @sourceSchema = @source.get_data_hash.merge(@source.get_releasable_hash)
+      end
+
+      @diffSchema = helpers.get_diff(@sourceSchema, @dataSchema)
     end
 
     def history
@@ -87,7 +108,7 @@ module DataCycleCore
     end
 
     def edit
-      @creativeWork = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
+      @content = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
 
       # get show data for split view
       unless source_params.blank?
@@ -100,17 +121,17 @@ module DataCycleCore
         end unless @splitSource.nil?
       end
 
-      I18n.with_locale(@creativeWork.first_available_locale) do
+      I18n.with_locale(@content.first_available_locale) do
 
-        unless @creativeWork.read_write?
+        unless @content.read_write?
           raise "read_only"
-          redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
+          redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end
 
         @place = DataCycleCore::Place.new
         @person = DataCycleCore::Person.new
-        @dataSchema = @creativeWork.get_data_hash
+        @dataSchema = @content.get_data_hash
         render 'edit'
       end
     end
@@ -185,13 +206,11 @@ module DataCycleCore
     end
 
     def validate_single_data
-
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], @creativeWork.metadata['validation']['description'])
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'])
       valid = @creativeWork.validate(datahash)
       render :json => valid.to_json
-
     end
 
 

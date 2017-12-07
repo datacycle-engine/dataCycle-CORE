@@ -18,7 +18,7 @@
 
             <% end %>
 
-            <%= render 'data_cycle_core/contents/tiles/attributes/images', item: item if item.respond_to?('image') && item.image.count > 0 %>
+            <%= render 'data_cycle_core/contents/tiles/attributes/images', item: item if item.respond_to?('image') && item.image.size > 0 %>
 
         </div>
 

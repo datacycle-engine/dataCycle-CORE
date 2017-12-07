@@ -73,7 +73,7 @@
 }
 
 .detail-content-wrapper {
-  margin: 1rem 0;
+  margin: 1rem 0 3rem 0;
 }
 
 .detail-content {
@@ -198,11 +198,19 @@ select {
   line-height: initial;
 }
 
+#split-source-selector {
+  text-align: center;
+  .button {
+    margin: 0;
+  }
+}
+
 #split-source-selector,
 #newContent {
   overflow-y: visible;
   input[type=text],
   .custom-select .dropdown {
+    min-width: auto;
     display: block;
     box-sizing: border-box;
     width: 100%;
@@ -264,8 +272,8 @@ select {
       height: inherit;
     }
     .detail-content {
-      padding: 0 1rem;
       position: relative;
+      padding: 0 1rem;
       .show-content {
         margin-top: 3rem;
         position: relative;
@@ -301,17 +309,6 @@ select {
       &:hover,
       &:focus {
         opacity: 1;
-      }
-      .type,
-      .metadata {
-        display: flex;
-        white-space: nowrap;
-      }
-      .metadata {
-        padding-left: 0.5rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: pre;
       }
     }
     .split-content {
@@ -577,25 +574,21 @@ video {
   box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
   min-width: 300px;
   width: auto;
-  &::before {
-    content: '';
-    position: absolute;
-    top: -12px;
-    left: 50px;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 0 25px 12px 25px;
-    border-color: transparent transparent #ffffff transparent;
-  }
   li {
     position: relative;
     text-align: left;
     font-size: 0.8rem;
     line-height: 1.2rem;
     padding: 0 2rem 0.2rem 0;
+    white-space: nowrap;
     &.active {
-      color: $dark-gray;
+      i:not(.fa) {
+        color: $light-gray;
+      }
+      color: $light-gray;
+      a {
+        color: $dark-gray;
+      }
     }
     .history-link {
       position: absolute;
@@ -608,7 +601,6 @@ video {
 a.email-link {
   display: inline-block;
   vertical-align: bottom;
-  max-width: 10rem;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -635,4 +627,23 @@ ul.translated-locales {
   width: auto;
   right: 0;
   left: auto !important;
+}
+
+.metadata {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  .icon {
+    margin-right: 0.2rem;
+  }
+  >.type {
+    margin-right: 0.2rem;
+  }
+  .show-history-link {
+    position: absolute;
+    right: 0;
+  }
+  &.has-history-link {
+    margin-right: 1rem;
+  }
 }

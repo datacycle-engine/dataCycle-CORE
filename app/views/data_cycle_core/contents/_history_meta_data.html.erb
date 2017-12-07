@@ -1,0 +1,8 @@
+<span class="created-at">
+  <%= t('history.updated_at', locale: DataCycleCore.ui_language) %>
+  <strong><%= Time.at(content.updated_at).to_s(:german_datetime_format) %></strong>
+  <% unless content.metadata.nil? || content.metadata['last_updated_by'].blank? %>
+    <% updater = get_user_for_id(content.metadata['last_updated_by']) %>
+    <%= t('terms.from', locale: DataCycleCore.ui_language) %> <strong><a href="mailto:<%= updater.email %>"><%= updater.name %></a></strong>
+  <% end %>
+</span>
