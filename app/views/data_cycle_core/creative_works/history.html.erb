@@ -73,7 +73,7 @@
                                        definition: {'type' => 'releasable'},
                                        options:{force_render: true} if @creativeWork.metadata['validation'].dig('releasable') == true %>
 
-                            <%= render_content_partial 'details', content: @creativeWork, schema: @dataSchema, options: {force_render: true} %>
+                            <%= render_content_partial 'history_details', content: @creativeWork, schema: @dataSchema, options: {force_render: true} %>
 
                         </div>
 
