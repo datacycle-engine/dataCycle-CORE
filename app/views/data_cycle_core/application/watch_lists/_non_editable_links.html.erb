@@ -1,0 +1,15 @@
+<a id="add-to-watchlist-link" class="hascontent watch-lists-link" data-toggle="watch-lists-for-user"><%= t("pronoun.my", count: 2, locale: DataCycleCore.ui_language).capitalize %> <%= DataCycleCore::WatchList.model_name.human(count: 2, locale: DataCycleCore.ui_language) %></a>
+<ul class="dropdown-pane no-bullet bottom watch-lists" id="watch-lists-for-user" data-dropdown data-hover="true" data-hover-pane="true">
+    <% @accessible_watch_lists.each do |watchlist| %>
+        <li>
+            <span class="watch-list-item">
+                <span class="watchlist-headline">
+                  <%= link_to watchlist.headline, watch_list_path(watchlist), class: 'watchlist-link' %>
+                </span>
+            </span>
+        </li>
+    <% end %>
+
+    <%= render 'data_cycle_core/application/watch_lists/new', content: nil %>
+
+</ul>

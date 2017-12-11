@@ -10,11 +10,27 @@ module.exports.initialize = function () {
     $('input[type=hidden]#' + id).val(value);
   });
 
+  // check if data changed and confirm leaving the page
+
+  if ($('.editor').length > 0) {
+    var form_data = "";
+    setTimeout(function () {
+      form_data = $('.editor').closest('form').serialize();
+    }, 1000);
+
+    $(window).on("beforeunload", function () {
+      // TODO: check for updated editor values
+      // update_editor_values();
+      var new_form_data = $('.editor').closest('form').serialize();
+      if (form_data != new_form_data && form_data != "") return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
+    });
+  }
+
   // Validation
 
   if ($('#edit-form form').html() != undefined) {
     var form = document.querySelector('#edit-form form');
-    $('.submit-edit-form button').on('click', function (ev) {
+    $('button.submit-edit-form').on('click', function (ev) {
       ev.preventDefault();
       $(form).trigger('submit');
     });
@@ -86,6 +102,7 @@ module.exports.initialize = function () {
       }
       promises = [];
       if (isValid && submit) {
+        $(window).off("beforeunload");
         form.submit();
       } else if (submit) {
         var first_error_offset, container;

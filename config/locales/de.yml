@@ -49,6 +49,16 @@ de:
     language: "Sprache"
     searchterm: "Suchbegriff"
     active_filters: "Angewendete Filter"
+    no_results: "Es wurden keine Inhalte für Ihre Filterkriterien gefunden."
+    additional_filters:
+      show: weitere Filter anzeigen
+      hide: weitere Filter ausblenden
+    filter:
+      show: Filter anzeigen
+      hide: Filter ausblenden
+    contents:
+      one: Inhalt
+      other: Inhalte
 
   pronoun:
     my:
@@ -180,6 +190,15 @@ de:
       data_cycle_core/data_link:
         one: Externer Link
         other: Externe Links
+      data_cycle_core/creative_work:
+        one: Creative Work
+        other: Creative Works
+      data_cycle_core/place:
+        one: Ort
+        other: Orte
+      data_cycle_core/person:
+        one: Person
+        other: Personen
     attributes:
       data_cycle_core/user_group:
         name: Name

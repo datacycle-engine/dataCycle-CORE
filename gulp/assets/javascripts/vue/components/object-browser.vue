@@ -3,8 +3,8 @@
     <div class='confirmation' v-if="confirm">
       <span v-html="confirmText"></span>
       <div class="buttons">
-        <button class='button abort' @click.prevent="confirm = false">Abbrechen</button>
-        <button class='button ok' @click.prevent="confirmed">Ok</button>
+        <button class='button abort' @click.prevent="confirm = false" type="button">Abbrechen</button>
+        <button class='button ok' @click.prevent="confirmed" type="button">Ok</button>
       </div>
     </div>
 
@@ -28,7 +28,7 @@
         </object-browser-modal>
       </keep-alive>
     </transition>
-    <button v-if="!readonly" class="button" id="show" @click.prevent="showModal = true">
+    <button v-if="!readonly" class="button" id="show" @click.prevent="showModal = true" type="button">
       <i class="fa fa-plus"></i>
     </button>
   </div>

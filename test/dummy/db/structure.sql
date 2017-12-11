@@ -3,7 +3,7 @@
 --
 
 -- Dumped from database version 9.6.3
--- Dumped by pg_dump version 9.6.5
+-- Dumped by pg_dump version 9.6.6
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -170,6 +170,43 @@ CREATE TABLE classifications (
 
 
 --
+-- Name: content_content_histories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE content_content_histories (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    content_a_history_id uuid,
+    content_a_history_type character varying,
+    relation_a character varying,
+    content_b_history_id uuid,
+    content_b_history_type character varying,
+    relation_b character varying,
+    external_source_id uuid,
+    history_valid tstzrange,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: content_contents; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE content_contents (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    content_a_id uuid,
+    content_a_type character varying,
+    relation_a character varying,
+    content_b_id uuid,
+    content_b_type character varying,
+    relation_b character varying,
+    external_source_id uuid,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: creative_work_event_histories; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -195,7 +232,8 @@ CREATE TABLE creative_work_events (
     event_id uuid,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    external_source_id uuid
 );
 
 
@@ -214,7 +252,8 @@ CREATE TABLE creative_work_histories (
     external_source_id uuid,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    external_key character varying
+    external_key character varying,
+    deleted_at timestamp without time zone
 );
 
 
@@ -282,7 +321,8 @@ CREATE TABLE creative_work_persons (
     person_id uuid,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    external_source_id uuid
 );
 
 
@@ -384,7 +424,11 @@ CREATE TABLE data_links (
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    permissions character varying
+    permissions character varying,
+    receiver_id uuid,
+    comment text,
+    valid_from timestamp without time zone,
+    valid_until timestamp without time zone
 );
 
 
@@ -444,7 +488,8 @@ CREATE TABLE event_histories (
     external_source_id uuid,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    external_key character varying
+    external_key character varying,
+    deleted_at timestamp without time zone
 );
 
 
@@ -660,7 +705,8 @@ CREATE TABLE person_histories (
     external_source_id uuid,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    external_key character varying
+    external_key character varying,
+    deleted_at timestamp without time zone
 );
 
 
@@ -814,7 +860,8 @@ CREATE TABLE place_histories (
     address_country character varying,
     fax_number character varying,
     telephone character varying,
-    email character varying
+    email character varying,
+    deleted_at timestamp without time zone
 );
 
 
@@ -1247,6 +1294,22 @@ ALTER TABLE ONLY classification_trees
 
 
 --
+-- Name: content_content_histories content_content_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY content_content_histories
+    ADD CONSTRAINT content_content_histories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: content_contents content_contents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY content_contents
+    ADD CONSTRAINT content_contents_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: creative_work_event_histories creative_work_event_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1660,6 +1723,34 @@ CREATE UNIQUE INDEX child_parent_index ON classification_trees USING btree (clas
 --
 
 CREATE INDEX classification_string_idx ON searches USING gin (classification_string gin_trgm_ops);
+
+
+--
+-- Name: content_a_history_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX content_a_history_idx ON content_content_histories USING btree (content_a_history_type, content_a_history_id);
+
+
+--
+-- Name: content_a_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX content_a_idx ON content_contents USING btree (content_a_type, content_a_id);
+
+
+--
+-- Name: content_b_history_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX content_b_history_idx ON content_content_histories USING btree (content_b_history_type, content_b_history_id);
+
+
+--
+-- Name: content_b_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX content_b_idx ON content_contents USING btree (content_b_type, content_b_id);
 
 
 --
@@ -2315,6 +2406,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20171004125221'),
 ('20171004132930'),
 ('20171009130405'),
-('20171102091700');
+('20171102091700'),
+('20171115121939'),
+('20171121084202'),
+('20171128091456');
 
 

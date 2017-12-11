@@ -367,6 +367,60 @@ namespace :data_cycle_core do
       @connection.exec_query(delete)
     end
 
+    desc "update .._hasPart arrays to content_content relation table"
+    task :stage2 => [:environment] do
+
+      array_names = ['question_hasPart','website_hasPart','offer_periods_hasPart',
+        'mobile_application_hasPart','quotation_hasPart','accepted_answer_hasPart',
+        'suggested_answer_hasPart','timeline_item_hasPart']
+
+      where_string = "metadata ?| array['"+array_names.join("','")+"']"
+      DataCycleCore::CreativeWork.where(where_string).each do |item|
+        #puts "#{item.id} || #{item.metadata['validation']['name']}"
+        array_names.each do |name|
+          if item.metadata.has_key?(name)
+            #puts "#{name.split('_hasPart')[0]} -> "
+            item.metadata[name].each do |content_id|
+              DataCycleCore::ContentContent.create!(
+                content_a_id: item.id,
+                content_a_type: 'DataCycleCore::CreativeWork',
+                relation_a: name.split('_hasPart')[0],
+                content_b_id: content_id,
+                content_b_type: 'DataCycleCore::CreativeWork',
+                relation_b: ''
+              )
+              puts "relation: #{name.split('_hasPart')[0]} | CreativeWork"
+            end
+            item.metadata = item.metadata.except(name)
+            I18n.with_locale(item.available_locales.first){ item.save }
+          end
+        end
+      end
+
+      DataCycleCore::CreativeWork::History.where(where_string).each do |item|
+        #puts "#{item.id} || #{item.creative_work_id} || #{item.metadata['validation']['name']}"
+        array_names.each do |name|
+          if item.metadata.has_key?(name)
+            #puts "#{name.split('_hasPart')[0]} -> "
+            item.metadata[name].each do |content_id|
+              DataCycleCore::ContentContent::History.create!(
+                content_a_history_id: item.id,
+                content_a_history_type: 'DataCycleCore::CreativeWork::History',
+                relation_a: name.split('_hasPart')[0],
+                content_b_history_id: content_id,
+                content_b_history_type: 'DataCycleCore::CreativeWork::History',
+                relation_b: '',
+                history_valid: item.history_valid
+              )
+              puts "relation: #{name.split('_hasPart')[0]} | CreativeWork::History"
+            end
+            item.metadata = item.metadata.except(name)
+            I18n.with_locale(item.available_locales.first){ item.save }
+          end
+        end
+      end
+
+    end
 
   end
 end

@@ -34,9 +34,6 @@ module DataCycleCore
     # callbacks
     before_destroy :destroy_translations, prepend: true
 
-    # custom setter
-    include DataSetter
-
     include ContentHelpers
 
     # to cash also translated values (comming from gem Globalize)

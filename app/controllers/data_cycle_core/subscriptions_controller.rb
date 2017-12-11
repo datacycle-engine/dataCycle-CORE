@@ -1,10 +1,9 @@
 module DataCycleCore
   class SubscriptionsController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
-    layout 'data_cycle_core/list_contents'
 
     def index
-      @subscriptions = current_user.subscriptions.includes(:subscribable).order(updated_at: :desc).page(params[:page])
+      @paginateObject = current_user.subscriptions.includes(:subscribable).order(updated_at: :desc).page(params[:page])
     end
 
     def create

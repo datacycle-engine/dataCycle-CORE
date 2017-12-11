@@ -77,8 +77,9 @@ DataCycleCore::Engine.routes.draw do
         type_regexp = Regexp.new([:creative_works, :persons, :places].join("|"))
         resources :contents, path: ':type', constraints: { type: type_regexp }, only: [:show] do
           patch :update, on: :member
-          # delete :destroy, on: :member
         end
+        get 'contents/search', to: 'contents#search'
+        get 'contents/get_deleted', to: 'contents#get_deleted'
         resources :external_sources, only: [] do
           post ':external_source_id/:type/:external_key', to: 'external_sources#create', on: :collection
           patch ':external_source_id/:type/:external_key', to: 'external_sources#update', on: :collection

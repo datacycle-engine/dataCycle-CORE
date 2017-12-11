@@ -37,10 +37,34 @@ module DataCycleCore
         )
       end
 
+      def by_watch_list_id(id = nil)
+        manager = get_watch_list_items(id)
+
+        reflect (
+          @query.where(search[:content_data_id].in(manager))
+        )
+      end
+
+      def modified_since(date = Time.now)
+        reflect (
+          @query.where(
+            search[:updated_at].gteq(DateTime.parse(date))
+          )
+        )
+      end
+
+      def created_since(date = Time.now)
+        reflect (
+          @query.where(
+            search[:created_at].gteq(DateTime.parse(date))
+          )
+        )
+      end
+
       def with_classification_alias_ids(ids = nil)
         manager = create_classification_alias_recursion(ids)
         # get everything including parents (or-clause)
-        reflect(
+        reflect (
           @query.where(search[:content_data_id].in(manager))
         )
       end
@@ -78,6 +102,23 @@ module DataCycleCore
 
       def classification_content
         DataCycleCore::ClassificationContent.arel_table
+      end
+
+      def join_watch_list
+        Arel::SelectManager.new.
+        project(search[:content_data_id]).
+        from(search).
+        join(watch_list_data_hash).
+          on(search[:content_data_id].eq(watch_list_data_hash[:hashable_id]).and(search[:content_data_type].eq(watch_list_data_hash[:hashable_type])))
+      end
+
+      def watch_list_data_hash
+        DataCycleCore::WatchListDataHash.arel_table
+      end
+
+      def get_watch_list_items(id)
+        query = join_watch_list
+        query.where(watch_list_data_hash[:watch_list_id].eq(id))
       end
 
     end

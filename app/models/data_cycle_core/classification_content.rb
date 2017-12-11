@@ -1,8 +1,6 @@
 module DataCycleCore
   class ClassificationContent < ApplicationRecord
 
-    include DataSetter
-
     belongs_to :content_data, polymorphic: true
     belongs_to :classification
 

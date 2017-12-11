@@ -27,13 +27,7 @@ module DataCycleCore
 
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: 'creative_works', id: params[:id]) }
-          format.html {
-            if @creativeWork.metadata['validation']['content_type'] == 'variant'
-              render layout: "data_cycle_core/creative_works_edit"
-            else
-              render layout: "data_cycle_core/creative_works_show"
-            end
-          }
+          format.html { render 'show' }
         end
       end
     end
@@ -84,8 +78,6 @@ module DataCycleCore
         @person = DataCycleCore::Person.new
         @dataSchema = @creativeWork.get_data_hash
         @diffSchema = helpers.get_diff(@historySchema.merge(@historySource.get_releasable_hash), @dataSchema.merge(@creativeWork.get_releasable_hash))
-
-        render layout: "data_cycle_core/creative_works_edit"
       end
 
     end
@@ -117,7 +109,7 @@ module DataCycleCore
         @place = DataCycleCore::Place.new
         @person = DataCycleCore::Person.new
         @dataSchema = @creativeWork.get_data_hash
-        render layout: "data_cycle_core/creative_works_edit"
+        render 'edit'
       end
     end
 
@@ -230,6 +222,10 @@ module DataCycleCore
 
     def execute_after_update_webhooks data
       Webhook::Update.execute_all(data)
+    end
+
+    def execute_after_delete_webhooks data
+      Webhook::Delete.execute_all(data)
     end
   end
 end

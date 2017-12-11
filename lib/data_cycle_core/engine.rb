@@ -81,10 +81,16 @@ module DataCycleCore
     self.content_tables = ['creative_works', 'events', 'persons', 'places']
 
     mattr_accessor :excluded_filter_classifications
-    self.excluded_filter_classifications = ['Website','MobileApplication','Inklusiv-Leistungen','Zeitleiste-Eintrag','Frage','Antwort','Rezept-Komponente', 'Angebotszeitraum']
+    self.excluded_filter_classifications = []
+
+    mattr_accessor :allowed_content_api_classifications
+    self.allowed_content_api_classifications = []
 
     mattr_accessor :ui_language
     self.ui_language = :de
+
+    mattr_accessor :translatable_types
+    self.translatable_types = ['DataCycleCore::Person', 'DataCycleCore::Place']
 
     #webhooks
     mattr_accessor :webhooks

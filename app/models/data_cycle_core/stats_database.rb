@@ -35,24 +35,13 @@ module DataCycleCore
       @pg_tree_label = ClassificationTreeLabel.count
       @pg_tree_nodes = ClassificationTree.count
 
-
       @pg_content = {}
       DataCycleCore.content_tables.each do |item|
         @pg_content[item.humanize] = ("DataCycleCore::"+item.classify).safe_constantize.count
       end
-
-      @pg_content_content = 0
-      DataCycleCore.content_tables.each do |from|
-        DataCycleCore.content_tables.each do |to|
-          unless from == to
-            @pg_content_content += ('DataCycleCore::'+[from, to].map(&:singularize).sort.join('_').pluralize.classify).safe_constantize.count
-          end
-        end
-      end
-
+      @pg_content_content = DataCycleCore::ContentContent.count
       @pg_overlays = Overlay.count
     end
-
 
     def load_mongo_data ( user_id )
       mongo_dbs = Generic::Collection.mongo_client.list_databases

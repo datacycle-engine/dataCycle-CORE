@@ -1,0 +1,51 @@
+<% if data_link.receiver.nil? %>
+  <li class="center-text">
+    <span class="button new-data-link" data-open="data-link-overlay-<%= data_link.id || "new" %>">Neuen Link erstellen</span>
+  </li>
+<% else %>
+  <li class="<%= "invalid" unless data_link.is_valid? %>" id="data-link-<%= data_link.id %>">
+    <span class="email"><%= data_link.receiver.email %></span>
+    <% if can?(:edit, data_link) %>
+      <span class="buttons">
+        <span class="send-link-button" data-open="data-link-overlay-<%= data_link.id || "new" %>"><i class="fa fa-pencil" aria-hidden="true"></i></span>
+        <%= link_to '<i class="fa fa-ban" aria-hidden="true"></i>'.html_safe, data_link, method: :delete, class: 'invalidate-data-link' if data_link.is_valid? %>
+      </span>
+    <% end %>
+  </li>
+<% end %>
+<div class="reveal data-link-reveal" id="data-link-overlay-<%= data_link.id || "new" %>" data-reveal>
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <%= form_for data_link, namespace: data_link.id, class: "send-link" do |f| %>
+    <p class="lead"><%= DataCycleCore::DataLink.model_name.human(locale: DataCycleCore.ui_language).titleize %></p>
+    <%= f.hidden_field 'source_type', value: @splitType unless @splitType.blank? %>
+    <%= f.hidden_field 'source_id', value: @splitSource.id unless @splitSource.blank? %>
+    <%= f.hidden_field 'item_type', value: content.class.name %>
+    <%= f.hidden_field 'item_id', value: content.id %>
+    <%= f.fields_for :receiver, data_link.receiver || DataCycleCore::User.new do |r| %>
+      <%= r.label :email, DataCycleCore::User.human_attribute_name("email", locale: DataCycleCore.ui_language) %>
+      <% if data_link.receiver.nil? %>
+        <%= r.text_field :email, required: true, readonly: data_link.id.nil? ? false : true, label: false, list: "users", class: "ajax-datalist", autocomplete: :off %>
+        <datalist id="users"></datalist>
+      <% else %>
+        <%= r.text_field :email, required: true, readonly: data_link.id.nil? ? false : true, label: false %>
+      <% end %>
+      <%= r.label :given_name, DataCycleCore::User.human_attribute_name("given_name", locale: DataCycleCore.ui_language) %>
+      <%= r.text_field :given_name, readonly: data_link.id.nil? ? false : true, label: false %>
+      <%= r.label :family_name, DataCycleCore::User.human_attribute_name("family_name", locale: DataCycleCore.ui_language) %>
+      <%= r.text_field :family_name, readonly: data_link.id.nil? ? false : true, label: false %>
+    <% end %>
+    <%= f.label :validity_period, DataCycleCore::DataLink.human_attribute_name("validity_period", locale: DataCycleCore.ui_language) %>
+    <%= f.date_field :valid_from, {placeholder: "tt.mm.jjjj", label: false} %> -
+    <%= f.date_field :valid_until, {placeholder: "tt.mm.jjjj", label: false} %>
+    <%= f.label :permissions, DataCycleCore::DataLink.human_attribute_name("permissions", locale: DataCycleCore.ui_language) %>
+    <%= f.radio_button(:permissions, 'read', checked: true) %>
+    <% if can?(:edit, content) %>
+      <%= f.radio_button(:permissions, 'write') %>
+    <% end %>
+    <%= f.label :comment, DataCycleCore::DataLink.human_attribute_name("comment", locale: DataCycleCore.ui_language) %>
+    <%= f.text_area :comment, class: "large-textfield", label: false %>
+    <%= f.button t('actions.save_and_send', locale: DataCycleCore.ui_language), class: "button submit-button", data: { disable_with: t('common.loading', locale: DataCycleCore.ui_language) } %>
+  <% end %>
+</div>

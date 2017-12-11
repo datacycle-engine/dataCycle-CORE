@@ -1,16 +1,3 @@
-<% breadcrumb :'data_cycle_core/places', @places, @watch_list %>
+<% breadcrumb :'data_cycle_core/places', @paginateObject, @watch_list %>
 
-<div class="row">
-    <div class="small-12">
-        <%= paginate @places %>
-    </div>
-</div>
-
-<% @mode = "flex" %>
-<%= render 'data_cycle_core/places/partials/grid', dataCycleObjects: @places %>
-
-<div class="row">
-    <div class="small-12">
-        <%= paginate @places %>
-    </div>
-</div>
+<%= render 'results', contents: @paginateObject %>

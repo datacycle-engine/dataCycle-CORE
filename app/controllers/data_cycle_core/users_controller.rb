@@ -4,14 +4,12 @@ module DataCycleCore
     load_and_authorize_resource         # from cancancan (authorize)
     before_action :set_user, only: [:edit, :update, :destroy, :unlock]
 
-    layout 'data_cycle_core/creative_works_edit'
-
     def index
       authorize! :crud, DataCycleCore::User
       if current_user.role && current_user.role.rank == 10
-        @users = DataCycleCore::User.includes(:role)
+        @paginateObject = DataCycleCore::User.includes(:role).page(params[:page])
       else
-        @users = DataCycleCore::User.where(locked_at: nil).includes(:role)
+        @paginateObject = DataCycleCore::User.where(locked_at: nil).includes(:role).page(params[:page])
       end
     end
 
@@ -29,7 +27,6 @@ module DataCycleCore
     end
 
     def edit
-      render layout: "data_cycle_core/watch_lists_edit"
     end
 
     def update

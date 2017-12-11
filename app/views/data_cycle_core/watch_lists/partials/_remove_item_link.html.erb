@@ -1,5 +1,0 @@
-<% if @watch_list && @watch_list.persisted? %>
-  <%= link_to removeItem_watch_list_path(@watch_list, hashable_type: item.class.name, hashable_id: item.id), class: 'remove-from-watchlist-link watch-lists-link confirm', data: {'confirmation-text': 'Von Merkliste entfernen?'} do %>
-      <i aria-hidden="true" class="fa fa-times"></i>
-  <% end %>
-<% end %>

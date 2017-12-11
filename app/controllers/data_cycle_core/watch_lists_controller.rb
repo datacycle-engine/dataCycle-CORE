@@ -1,10 +1,11 @@
 module DataCycleCore
   class WatchListsController < ApplicationController
+    include DataCycleCore::Filter
     before_action :authenticate_user!   # from devise (authenticate)
     load_and_authorize_resource         # from cancancan (authorize)
 
     def index
-      @watch_lists = current_user.watch_lists
+      @paginateObject = current_user.watch_lists.page(params[:page])
     end
 
     def show
@@ -14,14 +15,10 @@ module DataCycleCore
         redirect_to root
       end
 
-      if params[:mode].nil?
-        @mode = "flex"
-      else
-        @mode = params[:mode].to_s
-      end
+      @contents = get_filtered_results(method_name: "by_watch_list_id", parameters: @watch_list.id)
 
       respond_to do |format|
-        format.html { render layout: 'data_cycle_core/watch_lists_edit' }
+        format.html
         format.json { redirect_to api_v1_collection_path(@watch_list) }
       end
     end
@@ -47,9 +44,7 @@ module DataCycleCore
     def edit
       @watch_list = DataCycleCore::WatchList.find(params[:id])
 
-      if params[:data_id].nil?
-        render layout: "data_cycle_core/watch_lists_edit"
-      else
+      unless params[:data_id].nil?
         add_remove_data params
         redirect_back(fallback_location: root_path)
       end
@@ -92,7 +87,7 @@ module DataCycleCore
       end
 
       respond_to do |format|
-        format.json { render json: { url: addItem_watch_list_path(watch_list, hashable_params), count: content_object.watch_lists.by_user(current_user).count, headline: watch_list.headline } }
+        format.json { render json: { url: addItem_watch_list_path(watch_list, hashable_params), count: content_object.watch_lists.by_user(current_user).size, headline: watch_list.headline } }
         format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :removedFrom, scope: [:controllers, :success], data: watch_list.headline, locale: DataCycleCore.ui_language)) }
       end
 
@@ -107,7 +102,7 @@ module DataCycleCore
       end
 
       respond_to do |format|
-        format.json { render json: { url: removeItem_watch_list_path(watch_list, hashable_params), count: content_object.watch_lists.by_user(current_user).count, headline: watch_list.headline } }
+        format.json { render json: { url: removeItem_watch_list_path(watch_list, hashable_params), count: content_object.watch_lists.by_user(current_user).size, headline: watch_list.headline } }
         format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :addedTo, scope: [:controllers, :success], data: watch_list.headline, locale: DataCycleCore.ui_language)) }
       end
     end

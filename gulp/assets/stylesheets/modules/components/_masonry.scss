@@ -54,6 +54,15 @@
         border-color: transparent transparent #ffffff transparent;
       }
     }
+    .status{
+      &.expired{
+        right: 2.5rem;
+        position:absolute;
+        i{
+          color: $alert-color;
+        }
+      }
+    }
     &.show {
       opacity: 1;
     }

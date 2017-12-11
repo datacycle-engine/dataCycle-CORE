@@ -1,6 +1,5 @@
 module DataCycleCore
   class ClassificationsController < ApplicationController
-    layout 'data_cycle_core/admin'
 
     def index
       respond_to do |format|

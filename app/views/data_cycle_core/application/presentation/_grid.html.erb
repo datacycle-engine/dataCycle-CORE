@@ -1,0 +1,20 @@
+<div class="grid <%= @mode %>">
+	<div class="grid-sizer"></div>
+	<div class="gutter-sizer"></div>
+	<div class="grid-loading">
+		<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+		<span class="sr-only">Loading...</span>
+	</div>
+
+	<% unless contents.nil? %>
+		<% contents.each do |content| %>
+      <div class="grid-item data-cycle-object">
+        <% if can?(:manage, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && content.class != DataCycleCore::WatchList %>
+          <%= render 'watch_lists', content: content %>
+        <% end %>
+
+        <%= render_content_tile item: content %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
