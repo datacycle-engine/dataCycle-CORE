@@ -2,6 +2,7 @@
 .edit-header-functions {
   .button {
     margin: 1rem 0 0 0;
+    font-weight: bold;
   }
   .fa {
     min-width: 1.2rem;
@@ -157,9 +158,6 @@
           }
           .center-text {
             text-align: center;
-          }
-          .new-data-link {
-            margin: 0;
           }
           .invalid {
             color: $dark-gray;
