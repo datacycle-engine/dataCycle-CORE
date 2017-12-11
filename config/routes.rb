@@ -2,7 +2,10 @@ DataCycleCore::Engine.routes.draw do
 
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise
 
-  root to: 'backend#index'
+  authenticated :user do
+    root to: 'backend#index', as: :authenticated_root
+  end
+  root to: redirect('/users/sign_in')
 
   get  '/info',    to: 'frontend#info'
   get  '/settings',    to: 'backend#settings'
