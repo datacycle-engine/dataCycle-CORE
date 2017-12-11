@@ -42,7 +42,7 @@ module DataCycleCore
     end
 
     def destroy_content
-      self.to_history(Time.zone.now)
+      self.to_history(Time.zone.now) unless is_history?
       self.delete_childs(true)
     end
 
@@ -88,15 +88,23 @@ module DataCycleCore
         end
 
         # cc embedded data from other content tables
-        embedded_relations.map(&:singularize).each do |content_name|
-          content_relation_table = [content_name, origin_table.singularize].sort.join('_')
-          self.send(content_name.pluralize).each do |content_item|
+        embedded_relations.each do |content_name|
+          content_relation = content_name[:table] < origin_table ? 'content_content_a_history' : 'content_content_b_history'
+          self.send(content_name[:table]).each do |content_item|
             new_content_history = content_item.to_history(save_time)
-            data_set_history.send(content_relation_table + "_histories").create({
-                (origin_table.singularize + "_history_id") => data_set_history.id,
-                (content_name + "_history_id") => new_content_history.id,
-                "history_valid" => (content_item.updated_at ... save_time)
-              })
+            content_one_data = [new_content_history.id, new_content_history.class.to_s, '']
+            content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name[:name]]
+            content_relation_history_data = ['a', 'b'].map { |selector|
+              [ "content_#{selector}_history_id".to_sym,
+                "content_#{selector}_history_type".to_sym,
+                "relation_#{selector}".to_sym]
+            }.flatten
+              .zip(content_name[:table] < origin_table ?
+                content_one_data+content_two_data :
+                content_two_data+content_one_data
+              ).to_h
+            content_relation_history_data["history_valid"] = (content_item.updated_at ... save_time)
+            DataCycleCore::ContentContent::History.create!(content_relation_history_data)
           end
         end
 
@@ -143,12 +151,30 @@ module DataCycleCore
               item.delete_childs(delete)
               item.destroy
             end
+          else
+            relation_class = is_history? ? DataCycleCore::ContentContent::History : DataCycleCore::ContentContent
+            target_class = is_history? ? "DataCycleCore::#{relation_name.classify}::History" : "DataCycleCore::#{relation_name.classify}"
+            content_one_data = [self.method(relation_name).call.ids, target_class, '']
+            content_two_data = [self.id, self.class.to_s, name]
+            where_hash = ['a', 'b'].map { |selector|
+              if is_history?
+                [ "content_#{selector}_history_id".to_sym,
+                  "content_#{selector}_history_type".to_sym,
+                  "relation_#{selector}".to_sym]
+              else
+                [ "content_#{selector}_id".to_sym,
+                  "content_#{selector}_type".to_sym,
+                  "relation_#{selector}".to_sym]
+              end
+            }.flatten
+              .zip(relation_name < self.class.table_name ?
+                content_one_data+content_two_data :
+                content_two_data+content_one_data
+              ).to_h
+
+            relations = relation_class.where(where_hash)
+            relations.destroy_all unless relations.blank?
           end
-          relation = get_relation_name(definition['storage_location'])
-          relations = ("DataCycleCore::" + relation.classify).constantize.
-            where(self.class.table_name.singularize.foreign_key.to_sym => self.id,
-              definition['storage_location'].singularize.foreign_key.to_sym => self.method(definition['storage_location']).call.ids)
-          relations.destroy_all unless relations.blank?
         end
       end
 
@@ -365,12 +391,12 @@ module DataCycleCore
       if table == self.class.table_name
         set_linked_via_tree(field_name, data, table, name, description, delete, save_time, current_user)
       else
-        set_linked_via_relation(data, table, name, description, delete, save_time, current_user)
+        set_linked_via_relation(field_name, data, table, name, description, delete, save_time, current_user)
       end
     end
 
-    def set_linked_via_relation(data, table, name, description, delete, save_time, current_user)
-      relation = get_relation_name(table)
+    def set_linked_via_relation(field_name, data, table, name, description, delete, save_time, current_user)
+      relation = "content_contents"
       updated_item_keys = []
 
       unless is_blank?(data)
@@ -380,12 +406,9 @@ module DataCycleCore
             # id is the only item --> no update
             updated_item_keys.push(item['id'])
             # relation update/insert
-            upsert_relation = ("DataCycleCore::"+relation.classify).
-              constantize.
-              find_or_create_by(
-                self.class.table_name.singularize.foreign_key.to_sym => self.id,
-                table.singularize.foreign_key.to_sym => item['id']
-                )
+            upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
+              get_relation_data_hash(field_name, table, item['id'])
+            )
             upsert_relation.save
           elsif item.has_key?('id') && !item['id'].blank?
             # update
@@ -409,10 +432,9 @@ module DataCycleCore
             updated_item_keys.push(insert_item.id)
 
             # insert_relation
-            insert_relation = ("DataCycleCore::"+relation.classify).constantize.new
-            insert_relation.method(self.class.table_name.singularize.foreign_key+"=").call(self.id)
-            insert_relation.method(table.singularize.foreign_key+"=").call(insert_item.id)
-            insert_relation.save
+            DataCycleCore::ContentContent.create!(
+              get_relation_data_hash(field_name, table, insert_item.id)
+            )
           end
         end
       end
@@ -442,12 +464,21 @@ module DataCycleCore
       else
         # only destroy relations (independend of how many translations in self/embeddedObject exist)
         potentially_delete.each do |key|
-          ("DataCycleCore::"+relation.classify).constantize.
-            find_by(self.class.table_name.singularize.foreign_key.to_sym => self.id, table.singularize.foreign_key.to_sym => key).
+          DataCycleCore::ContentContent.
+            find_by(get_relation_data_hash(field_name, table, key)).
             destroy
         end
       end
       self.method(table).call.reload # MO: force reload of the relation, otherwise cached data can obsure the next get_data_hash
+    end
+
+    def get_relation_data_hash(field_name, table, item_id)
+      item_data = [item_id, "DataCycleCore::#{table.classify}", ""]
+      self_data = [self.id, self.class.to_s, field_name]
+      ['a', 'b'].map { |selector|
+        ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
+      }.flatten
+      .zip(table < self.class.table_name ? item_data+self_data : self_data+item_data).to_h
     end
 
     def set_linked_via_tree(field_name, data, table, name, description, delete, save_time, current_user)
@@ -521,18 +552,7 @@ module DataCycleCore
       end
     end
 
-    # make a rails conform name for a relation table
-    def get_relation_name(table)
-      if is_history?
-        tables = [ table, self.class.table_name.split('_')[0...-1].join('_') ].sort
-        return "#{tables[0].singularize}_#{tables[1]}_histories"
-      else
-        tables = [ table , self.class.table_name ].sort
-        return tables[0].singularize+"_"+tables[1]
-      end
-    end
-
-    # validate nil,"",[],[nil],[""] as blank.
+    # validate nil,"",[],{},[nil],[""] as blank.
     def is_blank?(data)
       return true if data.blank?
       if data.is_a?(::Array)
@@ -550,7 +570,6 @@ module DataCycleCore
         to.kind_of?(DateTime) ? to.to_s(:long_usec) : '',
         ']'
       ].join('')
-
     end
 
     def get_validity_values(validity_hash)
@@ -568,7 +587,6 @@ module DataCycleCore
       to = nil if !to.blank? && to > DateTime.new(9999,1,1,0,0)
 
       [from, to]
-
     end
 
   end

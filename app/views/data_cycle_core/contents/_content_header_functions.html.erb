@@ -1,7 +1,7 @@
 <div class="detail-header-functions">
     <ul class="no-bullet">
         <li><%= render 'data_cycle_core/shared/history_links', dataCycleObject: content %></li>
-        <% if can? :manage, DataCycleCore::DataLink %>
+        <% if can?(:manage, DataCycleCore::DataLink) %>
             <li><%= render 'data_cycle_core/shared/data_links', dataCycleObject: content %></li>
         <% end %>
         <% if can? :subscribe, content %>

@@ -1,6 +1,6 @@
 <% I18n.with_locale(@language) do %>
 
-    <%= link_to polymorphic_path(item, trail: (breadcrumb_trail unless request.path == root_path)) do %>
+    <%= link_to polymorphic_path(item, watch_list_id: @watch_list) do %>
 
         <div class="inner">
 
@@ -12,7 +12,7 @@
 
                 <% if item.image %>
 
-                    <div class="video">
+                    <div class="video-thumbnail">
                       <img data-src="<%= item.image %>" alt="<%= item.content['name'] unless item.content.blank?%>" class="lazyload" />
                     </div>
 

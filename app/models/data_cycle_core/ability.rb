@@ -10,13 +10,13 @@ module DataCycleCore
         can :read, :all
         cannot :read, DataCycleCore::WatchList
         cannot :read, :backend
+        can :search, DataCycleCore::User
         can [:show, :find], :object_browser
 
         if user.has_rank?(0)
           DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
-            can [:update, :validate_single_data, :import], link.item_type.constantize, {id: link.item_id}
+            can [:update, :validate_single_data, :import], link.item_type.constantize, {id: link.item_id} if link.is_valid?
           end
-          can :create_in_objectbrowser, [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]
         end
 
         if user.has_rank?(1)

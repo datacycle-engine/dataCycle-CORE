@@ -6,14 +6,25 @@
   <body>
     <h1>Sehr geehrter Besucher,</h1>
     <p>
-      <%= @user.name %> hat einen Link mit Ihnen geteilt: <br>
-      <%= link_to @url, @url %>.<br>
+      <%= @user.name %> hat einen Inhalt mit Ihnen geteilt: <br>
+      <%= link_to @headline, @url %>.<br>
     </p>
-    <p>Mit diesem Link können Sie einen spezifischen Inhalt <%= @action %>.</p>
-    <% unless @comment.blank? %>
+    <p>
+      <b>Berechtigung: </b> <%= t('helpers.label.data_link.permissions.' + @data_link.permissions) %>
+    </p>
+    <p>
+      <b>Gültigkeit: </b>
+      <% if @data_link.valid_from.nil? && @data_link.valid_until.nil? %>
+        unbeschränkt
+      <% else %>
+        <%= "von: #{@data_link.valid_from.to_datetime.to_s(:german_datetime_format)} " unless @data_link.valid_from.nil? %>
+        <%= "bis: #{@data_link.valid_until.to_datetime.to_s(:german_datetime_format)} " unless @data_link.valid_until.nil? %>
+      <% end %>
+    </p>
+    <% unless @data_link.comment.blank? %>
       <span>Kommentar:</span>
       <p>
-        <%= simple_format(@comment) %>
+        <%= simple_format(@data_link.comment) %>
       </p>
     <% end %>
   </body>

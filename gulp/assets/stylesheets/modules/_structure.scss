@@ -9,7 +9,7 @@ body {
   height: inherit;
   width: 100%;
   position: absolute;
-  padding-top: 70px;
+  padding-top: 4.4rem;
   top: 0;
 }
 
@@ -36,11 +36,11 @@ header {
   z-index: 3;
   position: relative;
   .top-bar {
-    max-height: 65px;
+    max-height: 4.1rem;
     overflow: hidden;
     padding: 0;
     background-color: $black;
-    line-height: 65px;
+    line-height: 4.1rem;
     background: linear-gradient(to bottom, darken($black, 15%) 0%, $black 50%, lighten($black, 7%) 100%);
     .logo {
       padding: 0 0 0 1rem;

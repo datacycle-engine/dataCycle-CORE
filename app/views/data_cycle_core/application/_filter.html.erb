@@ -26,7 +26,9 @@
 
 
             <ul>
-              <%= render 'data_cycle_core/application/filters/classification_tree', tree_label: 'Inhaltstypen', display_label: 'Inhaltstyp', excluded_types: excluded_types, classification_trees: classification_trees %>
+              <%= render 'data_cycle_core/application/filters/classification_tree', tree_label: 'Inhaltstypen',
+                  display_label: 'Inhaltstyp', excluded_types: excluded_types,
+                  classification_trees: classification_trees, li_class: 'subtree' %>
 
               <%= render 'data_cycle_core/application/filters/sprache'%>
             </ul>
