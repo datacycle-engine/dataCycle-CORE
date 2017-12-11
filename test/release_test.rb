@@ -69,11 +69,12 @@ module DataCycleCore
         "kind" => [],
         "tags" => [],
         "image" => {
-          "value" => [bild1.id],
+          "value" => [ bild1.id ],
           "release_id" => DataCycleCore::Release.first.id,
           "release_comment" => "normales bild kommentar"
         },
         "state" => [],
+        "video" => [],
         "season" => [],
         "topics" => [],
         "markets" => [],
@@ -81,7 +82,7 @@ module DataCycleCore
         "quotation" => [{
           "text" => "<p>sdfasf asdf adfasdf</p>",
           "image" => {
-            "value" => [bild2.id],
+            "value" => [ bild2.id ],
             "release_id" => DataCycleCore::Release.second.id,
             "release_comment" => "zitat bild kommentar"
           },
@@ -92,7 +93,9 @@ module DataCycleCore
         'permitted_creator' => []
       }
 
-      error = data_set.set_data_hash(data_hash: data_hash)
+      set_hash = data_hash.deep_dup
+
+      error = data_set.set_data_hash(data_hash: set_hash)
       data_set.save
 
       returned_data_hash = data_set.get_data_hash

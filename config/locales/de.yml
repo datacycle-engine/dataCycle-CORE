@@ -47,6 +47,7 @@ de:
     loading: 'Laden ...'
     are_you_sure: 'Sind Sie sicher?'
     language: "Sprache"
+    choose_language: "Sprache wählen"
     searchterm: "Suchbegriff"
     active_filters: "Angewendete Filter"
     no_results: "Es wurden keine Inhalte für Ihre Filterkriterien gefunden."
@@ -59,6 +60,23 @@ de:
     contents:
       one: Inhalt
       other: Inhalte
+    splitsource: Vorlage
+    choose_splitsource: Vorlage wählen
+    load_splitsource: Vorlage laden
+    compare: vergleichen
+    compare_contents: Inhalte vergleichen
+    version: Version
+
+  history:
+    latest_edits: Letzte Bearbeitungen
+    created_at: erstellt am
+    updated_at: bearbeitet am
+    differences_to_version: Unterschiede zu Version
+    active_version: Aktuelle Version
+    look_at_version: Version ansehen
+
+  terms:
+    from: von
 
   pronoun:
     my:
@@ -136,6 +154,7 @@ de:
       no_permission: "Keine Berechtigung."
       invalid: "%{data} konnte nicht erstellt werden."
       email_exists: "Für diese E-Mail existiert bereits ein Link"
+      no_source: "Keine gültige Vorlage angegeben"
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."

@@ -60,6 +60,15 @@ $(function () {
     });
   }
 
+  if ($('#split-source-selector').length > 0) {
+    var new_vue = new Vue({
+      el: '#split-source-selector',
+      components: {
+        CustomSelect
+      }
+    });
+  }
+
   // Initialize Filter Events
   filter_init.initialize();
 

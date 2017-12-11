@@ -108,6 +108,20 @@
   margin: 0;
   margin-bottom: 1rem;
   list-style-type: none;
+  .copy-single {
+    position: relative;
+    .copy-single-button {
+      position: absolute;
+      right: 15px;
+      top: 5px;
+      width: 2rem;
+      height: 2rem;
+      .fa {
+        line-height: 2rem;
+        font-size: 1.2rem;
+      }
+    }
+  }
   .content {
     display: inline-block;
     float: left;

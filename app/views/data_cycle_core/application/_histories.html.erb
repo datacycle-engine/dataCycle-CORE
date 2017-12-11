@@ -1,0 +1,36 @@
+<ul class="dropdown-pane no-bullet bottom" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
+  <div class="history-items">
+    <h5><%= t('history.latest_edits', locale: DataCycleCore.ui_language) %>:</h5>
+    <% content.histories.each do |item|%>
+        <li class="<%= item == @historySource ? 'active' : '' %>">
+            <% if item.metadata.try(:[], 'last_updated_by') %>
+                <% person = get_user_for_id(item.metadata['last_updated_by']) %>
+                <%= "<a class='email-link' href='mailto:#{person.email}'>#{person.name}</a>".html_safe %>
+            <% else %>
+                <%= "Unbekannt".html_safe %>
+            <% end %>
+
+            <i><%= Time.at(item.updated_at).to_s(:german_datetime_format) %></i>
+
+            <% if can?(:history, content) && item != @historySource %>
+                <span class="history-link">
+                  <i>
+                      <% if item.class.class_name == 'CreativeWorkHistory' %>
+                          <% if action_name == 'history_detail' %>
+                              <%= link_to polymorphic_url([:history_detail, content], history_id: item.id, watch_list_id: @watch_list) do %>
+                                  <i class="fa fa-history" aria-hidden="true"></i>
+                              <% end %>
+                          <% else %>
+                              <%= link_to polymorphic_url([:history, content], history_id: item.id, watch_list_id: @watch_list) do %>
+                                  <i class="fa fa-history" aria-hidden="true"></i>
+                              <% end %>
+                          <% end %>
+                      <% end %>
+                  </i>
+                </span>
+            <% end %>
+
+        </li>
+    <% end %>
+  </div>
+</ul>

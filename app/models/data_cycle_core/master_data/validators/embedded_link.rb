@@ -9,6 +9,12 @@ module DataCycleCore
             @error[:warning].push I18n.t :no_data, scope: [:validation, :warning], data: template['label'], locale: DataCycleCore.ui_language
           elsif data.is_a?(::String)
             check_reference(data,template)
+          elsif data.is_a?(::Hash)
+            if data.has_key?('id')
+              check_reference(data['id'],template)
+            else
+              @error[:error].push I18n.t :data_type, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language
+            end   
           else
             @error[:error].push I18n.t :data_type, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language
           end

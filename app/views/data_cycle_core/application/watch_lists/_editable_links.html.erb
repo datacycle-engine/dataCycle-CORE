@@ -1,5 +1,6 @@
-<a id="add-to-watchlist-link" class="hascontent watch-lists-link" data-toggle="watch-lists-<%= content.id %>"><i class="fa <%= (@accessible_watch_lists - content.watch_lists).length < @accessible_watch_lists.length ? 'fa-bookmark' : 'fa-bookmark-o' %>" aria-hidden="true"></i><span> Zu Merkliste hinzufügen</span></a>
+<a id="add-to-watchlist-link" class="hascontent watch-lists-link" data-toggle="watch-lists-<%= content.id %>"><i class="fa <%= (@accessible_watch_lists - content.watch_lists).length < @accessible_watch_lists.length ? 'fa-bookmark' : 'fa-bookmark-o' %>" aria-hidden="true"></i></a>
 <ul class="dropdown-pane no-bullet bottom watch-lists" id="watch-lists-<%= content.id %>" data-dropdown data-hover="true" data-hover-pane="true">
+    <h5>Zu Merkliste hinzufügen</h5>
     <% @accessible_watch_lists.each do |watchlist| %>
         <li>
             <% if content.watch_lists.include?(watchlist) %>

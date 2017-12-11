@@ -278,6 +278,11 @@ body.login-page {
     line-height: initial;
     li.accordion-item {
       a.accordion-title {
+        &.without-content {
+          &::before {
+            content: '';
+          }
+        }
         border: 0;
         color: white;
         text-align: center;

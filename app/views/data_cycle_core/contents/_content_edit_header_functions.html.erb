@@ -5,10 +5,17 @@
         <i class="fa fa-pencil" aria-hidden="true"></i> <%== "#{content.content_type} #{t('actions.edit', locale: DataCycleCore.ui_language)}" %>
       </div>
       <ul>
+        <% if content.try(:siblings) && content.try(:parent) && !content.try(:siblings).try(:size).nil? && !content.try(:siblings).try(:size).zero? %>
+          <li class="has-dropdown right">
+            <%= render 'split_sources', contents: content.siblings, selected: @splitSource, url: '', title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
+          </li>
+        <% end %>
+
         <% if DataCycleCore.translatable_types.include?(content.class.name) %>
-          <li class="has-dropdown">
-            <a data-toggle="language-menu"><i class="fa fa-language" aria-hidden="true"></i> <%= t('common.language', locale: DataCycleCore.ui_language) %></a>
+          <li class="has-dropdown right">
+            <a data-toggle="language-menu"><i class="fa fa-language" aria-hidden="true"></i></a>
             <ul class="dropdown-pane no-bullet bottom" id="language-menu" data-dropdown data-hover="true" data-hover-pane="true">
+              <h5><%= t('common.choose_language', locale: DataCycleCore.ui_language) %></h5>
               <% available_locales_with_names.each do |locale| %>
                 <li class="<%= "active" if locale.first == I18n.locale %>">
                   <%= link_to_unless locale.first == I18n.locale, locale.last, edit_polymorphic_path(content, watch_list_id: @watch_list, locale: locale.first) %>
@@ -20,7 +27,7 @@
         <% end %>
 
         <% if can? :manage, DataCycleCore::DataLink %>
-          <li class="has-dropdown"><%= render 'data_links', content: content %></li>
+          <li class="has-dropdown right"><%= render 'data_links', content: content %></li>
         <% end %>
 
         <!--<li>-->

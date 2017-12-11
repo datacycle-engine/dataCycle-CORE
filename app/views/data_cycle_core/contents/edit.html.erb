@@ -1,0 +1,15 @@
+<% breadcrumb :edit_resource, @content, @watch_list %>
+
+<% content_for :top_content do %>
+
+<div class="reveal-blur">
+
+    <div id="edit-form">
+
+        <%= render 'form', keyPrefix: "#{@content.class.name.demodulize.underscore}[datahash]", content: @content, dataSchema: @dataSchema %>
+
+    </div>
+
+</div>
+
+<% end %>

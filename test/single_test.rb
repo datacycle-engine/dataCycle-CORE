@@ -4,27 +4,32 @@ module DataCycleCore
   class SingleTest < ActiveSupport::TestCase
 
     test "faulty test" do
-      template = DataCycleCore::CreativeWork.find_by(template: true, headline: "BildMinimal", description: "ImageObject")
+
+      cw_temp = DataCycleCore::CreativeWork.count
+
+      template = DataCycleCore::CreativeWork.find_by(template: true, headline: "CreativeWorkEmbeddedLinkUser", description: "CreativeWork")
       validation = template.metadata['validation']
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
 
-      data_hash_de = {"headline" => "Dies ist ein Test!", "test_content" => "Deutsch"}
-      data_hash_en = {"headline" => "This is a Test!", "test_content" => "English"}
+      temp = DataCycleCore::User.create!(
+        given_name: 'test',
+        email: 'test@pixelpoint.at',
+        admin: true,
+        external: false,
+        password: 'k2*8NTxhrU2VDXqH',
+        role_id: DataCycleCore::Role.order('rank DESC').first.id
+      )
 
-      data_set.set_data_hash(data_hash: data_hash_de)
+      data_hash = {"headline" => "Dies ist ein Test!", "linked" => temp.id}
+
+      data_set.set_data_hash(data_hash: data_hash, current_user: temp)
       data_set.save
-      assert_equal(data_hash_de, data_set.get_data_hash)
 
-      I18n.with_locale(:en) do
-        data_set.set_data_hash(data_hash: data_hash_en)
-        data_set.save
-        assert_equal(data_hash_en, data_set.get_data_hash)
-      end
-
-      assert_equal(data_hash_de, data_set.get_data_hash)
-      assert_equal(data_hash_en, I18n.with_locale(:en){data_set.get_data_hash})
+      assert_equal(1, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(1, DataCycleCore::ContentContent.count)
+      assert_equal(data_hash, data_set.get_data_hash.except('id'))
     end
 
   end

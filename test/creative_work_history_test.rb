@@ -359,7 +359,7 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
       assert_equal(2, DataCycleCore::Place.count - template_p)
       assert_equal(2, DataCycleCore::Place::Translation.count - template_pt)
-      assert_equal(0, DataCycleCore::ContentContent.count)
+      assert_equal(1, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
       assert_equal(2, DataCycleCore::Place::History.count)
@@ -374,12 +374,12 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
       assert_equal(2, DataCycleCore::Place.count - template_p)
       assert_equal(2, DataCycleCore::Place::Translation.count - template_pt)
-      assert_equal(0, DataCycleCore::ContentContent.count)
+      assert_equal(1, DataCycleCore::ContentContent.count)
       assert_equal(2, DataCycleCore::CreativeWork::History.count)
       assert_equal(2, DataCycleCore::CreativeWork::History::Translation.count)
       assert_equal(2, DataCycleCore::Place::History.count)
       assert_equal(2, DataCycleCore::Place::History::Translation.count)
-      assert_equal(0, DataCycleCore::ContentContent::History.count)
+      assert_equal(1, DataCycleCore::ContentContent::History.count)
 
       error = data_set.set_data_hash(data_hash: { "headline" => "Test Link1", "linked" => data_place_id1})
       data_set.save
@@ -389,15 +389,14 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
       assert_equal(2, DataCycleCore::Place.count - template_p)
       assert_equal(2, DataCycleCore::Place::Translation.count - template_pt)
-      assert_equal(0, DataCycleCore::ContentContent.count)
+      assert_equal(1, DataCycleCore::ContentContent.count)
       assert_equal(3, DataCycleCore::CreativeWork::History.count)
       assert_equal(3, DataCycleCore::CreativeWork::History::Translation.count)
       assert_equal(2, DataCycleCore::Place::History.count)
       assert_equal(2, DataCycleCore::Place::History::Translation.count)
-      assert_equal(0, DataCycleCore::ContentContent::History.count)
+      assert_equal(2, DataCycleCore::ContentContent::History.count)
 
-
-      assert_equal([data_place_id2, data_place_id1, nil], data_set.histories.map{|item| item.metadata.try(:[],'linked')})
+      assert_equal([data_place_id2, data_place_id1], data_set.histories.map{|item| item.linked.ids}.flatten)
 
     end
 
