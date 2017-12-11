@@ -16,10 +16,10 @@ module DataCycleCore
     has_many :classification_groups, dependent: :destroy
     has_many :classification_aliases, through: :classification_groups
 
-    has_one :primary_classification_group, -> { max_by(&:created_at) }, class_name: ClassificationGroup
+    has_one :primary_classification_group, -> { min_by(&:created_at) }, class_name: ClassificationGroup
 
     def primary_classification_group
-      classification_groups.max_by(&:created_at)
+      classification_groups.min_by(&:created_at)
     end
 
     def primary_classification_alias

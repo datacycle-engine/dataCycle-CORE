@@ -59,7 +59,8 @@ module DataCycleCore::Generic
                                                                           name: classification_data[:name])
 
         classification_group = DataCycleCore::ClassificationGroup.create!(classification: classification,
-                                                                          classification_alias: classification_alias)
+                                                                          classification_alias: classification_alias,
+                                                                          external_source_id: external_source.id)
 
         tree_label = DataCycleCore::ClassificationTreeLabel.find_or_create_by(external_source_id: external_source.id,
                                                                               name: classification_data[:tree_name])
