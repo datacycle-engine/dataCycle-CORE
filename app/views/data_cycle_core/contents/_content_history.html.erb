@@ -1,16 +1,33 @@
-<div class="detail-content <%= content.try(:metadata).dig('validation', 'description').try(:downcase) || '' %>">
+<div class="detail-content detail-content-wrapper <%= content.try(:metadata).dig('validation', 'description').try(:downcase) || '' %>">
 
     <div class="row align-center">
-        <%= render_first_existing_partial [
-                                              'data_cycle_core/creative_works/partials/history/' + content.content_type.downcase,
-                                              'data_cycle_core/creative_works/partials/history/default'
-                                          ], {
-                                              dataCycleObject: content,
-                                              dataCycleObjectSchema: schema,
-                                              options: options ||= {}
-                                          } %>
 
-        <%= render 'data_cycle_core/creative_works/partials/show/translation/translations', language: nil, dataCycleObject: content %>
+      <% unless content.metadata.nil? %>
+
+          <% if !content.metadata.nil? && !content.metadata['validation'].nil? %>
+
+              <% validation_properties = get_ordered_validation_properties(content.metadata['validation']) %>
+
+              <% if !validation_properties.nil? %>
+
+                  <div class="type properties">
+
+                      <% validation_properties.each do |key, prop| %>
+
+                          <% value = prop.dig('type') == "object" ? content.try(key.to_sym) : schema[key] %>
+                          <%= render_attribute_history_viewer key: key, definition: prop, value: normalize_value(value), parameters: { options: options ||= {} } %>
+
+                      <% end %>
+
+                  </div>
+
+              <% end %>
+
+          <% end %>
+
+      <% end %>
+
+      <%= render 'translations', language: nil, dataCycleObject: content %>
 
     </div>
 

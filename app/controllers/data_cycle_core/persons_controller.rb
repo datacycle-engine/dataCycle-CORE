@@ -9,9 +9,9 @@ module DataCycleCore
     end
 
     def show
-      @person = DataCycleCore::Person.find_by(id: params[:id])
+      @content = DataCycleCore::Person.find_by(id: params[:id])
 
-      if @person.nil?
+      if @content.nil?
         redirect_back(fallback_location: root_path)
       end
 
@@ -20,8 +20,8 @@ module DataCycleCore
       else
         @mode = params[:mode].to_s
       end
-      I18n.with_locale(@person.first_available_locale) do
-        @dataSchema = @person.get_data_hash
+      I18n.with_locale(@content.first_available_locale) do
+        @dataSchema = @content.get_data_hash
 
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: 'persons', id: params[:id]) }
@@ -55,13 +55,13 @@ module DataCycleCore
     end
 
     def edit
-      @person = DataCycleCore::Person.find(params[:id])
+      @content = DataCycleCore::Person.find(params[:id])
       I18n.with_locale(params[:locale]) do
-        @person.save
-      end if params[:locale] && !@person.translated_locales.include?(params[:locale])
+        @content.save
+      end if params[:locale] && !@content.translated_locales.include?(params[:locale])
 
-      I18n.with_locale(@person.first_available_locale(params[:locale])) do
-        @dataSchema = @person.get_data_hash
+      I18n.with_locale(@content.first_available_locale(params[:locale])) do
+        @dataSchema = @content.get_data_hash
         render 'edit'
       end
     end

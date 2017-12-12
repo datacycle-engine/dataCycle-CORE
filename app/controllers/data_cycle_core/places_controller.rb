@@ -9,9 +9,9 @@ module DataCycleCore
     end
 
     def show
-      @place = DataCycleCore::Place.find_by(id: params[:id])
+      @content = DataCycleCore::Place.find_by(id: params[:id])
 
-      if @place.nil?
+      if @content.nil?
         redirect_back(fallback_location: root_path)
       end
 
@@ -20,11 +20,11 @@ module DataCycleCore
       else
         @mode = params[:mode].to_s
       end
-      I18n.with_locale(@place.first_available_locale) do
-        @dataSchema = @place.get_data_hash
+      I18n.with_locale(@content.first_available_locale) do
+        @dataSchema = @content.get_data_hash
         # do something if no german version exists
         if @dataSchema.nil?
-          @dataSchema = I18n.with_locale(@place.translated_locales.first){@place.get_data_hash}
+          @dataSchema = I18n.with_locale(@content.translated_locales.first){@content.get_data_hash}
         end
 
         respond_to do |format|
@@ -59,13 +59,13 @@ module DataCycleCore
     end
 
     def edit
-      @place = DataCycleCore::Place.find(params[:id])
+      @content = DataCycleCore::Place.find(params[:id])
       I18n.with_locale(params[:locale]) do
-        @place.save
-      end if params[:locale] && !@place.translated_locales.include?(params[:locale])
+        @content.save
+      end if params[:locale] && !@content.translated_locales.include?(params[:locale])
 
-      I18n.with_locale(@place.first_available_locale(params[:locale])) do
-        @dataSchema = @place.get_data_hash
+      I18n.with_locale(@content.first_available_locale(params[:locale])) do
+        @dataSchema = @content.get_data_hash
         render 'edit'
       end
     end

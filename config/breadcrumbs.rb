@@ -41,6 +41,11 @@ crumb :show_history do |resource, watch_list|
   parent resource, watch_list
 end
 
+crumb :show_compare do |resource, watch_list|
+  link to_html_string("<i aria-hidden='true' class='fa fa-columns'></i>Vergleichen"), edit_polymorphic_path(resource)
+  parent resource, watch_list
+end
+
 # Creative Work
 crumb :'data_cycle_core/creative_work' do |creative_work, watch_list|
 

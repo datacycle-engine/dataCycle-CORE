@@ -1,9 +1,0 @@
-<% breadcrumb @creativeWork, @watch_list %>
-
-<% content_for :top_content do %>
-
-    <%= render_content_partial 'header', content: @creativeWork %>
-
-<% end %>
-
-<%= render_content_partial 'details', content: @creativeWork, schema: @dataSchema %>

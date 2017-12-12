@@ -2,7 +2,10 @@ DataCycleCore::Engine.routes.draw do
 
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise
 
-  root to: 'backend#index'
+  authenticated :user do
+    root to: 'backend#index', as: :authenticated_root
+  end
+  root to: redirect('/users/sign_in')
 
   get  '/info',    to: 'frontend#info'
   get  '/settings',    to: 'backend#settings'
@@ -18,6 +21,7 @@ DataCycleCore::Engine.routes.draw do
       post :import, on: :collection
       get 'history', on: :member
       get 'history_detail', on: :member
+      get 'compare', on: :member
     end
 
     resources :persons, only: [:index, :show, :create, :edit, :update, :destroy]

@@ -476,7 +476,7 @@ namespace :data_cycle_core do
       DataCycleCore.content_tables.each do |content_table|
         content_class = "DataCycleCore::#{content_table.classify}"
         puts "updating ==> #{content_class}"
-        content_class.constantize.all.each do |item|
+        content_class.constantize.all.find_each do |item|
           item.linked_relations.each do |link_definition|
             next if item.metadata[link_definition[:name]].blank?
             index += 1
