@@ -12,6 +12,6 @@
 
 <% DataCycleCore::CreativeWork.where("template = true AND metadata -> 'validation' ->> 'content_type' = ?", 'entity').each do |default_type| %>
     <% if !excluded_types.include?(default_type.metadata.dig('validation', 'name')) %>
-        <%= render 'data_cycle_core/creative_works/partials/shared/new', reveal_id: default_type.metadata.dig('validation', 'name'), reveal_title: default_type.metadata.dig('validation', 'name') + ' erstellen', reveal_template: default_type.metadata.dig('validation', 'name') %>
+        <%= render 'new_content_reveal', reveal_id: default_type.metadata.dig('validation', 'name'), reveal_title: default_type.metadata.dig('validation', 'name') + ' erstellen', reveal_template: default_type.metadata.dig('validation', 'name') %>
     <% end %>
 <% end %>
