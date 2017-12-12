@@ -2,6 +2,89 @@
 
     <% object_class_name = definition['type_name'] || definition['storage_location'] %>
     <% object_class = ("DataCycleCore::"+("#{object_class_name}".classify)).constantize %>
+    <% objects = object_class.where(id: value) %>
+
+    <div class="object-browser" id="<%= sanitize_to_id(key) %>" data-type="<%= definition.dig('editor', 'options', 'data-type').try(:downcase) %>" data-language="<%= I18n.locale.to_s %>" data-key="<%= key %>" data-definition="<%= definition.to_json %>" data-options="<%= options.to_json %>">
+        <%= label_tag(key, definition['label']) %>
+        <div class="media-thumbs">
+          <div class='confirmation' style="display: none;">
+            <span>confirmation</span>
+            <div class="buttons">
+              <button class='button abort'type="button">Abbrechen</button>
+              <button class='button ok' type="button">Ok</button>
+            </div>
+          </div>
+
+          <div class="object-thumbs">
+            <% if objects.each do |object| %>
+              <%= render_object_browser_partial(key: key + (definition['type'] == "object" ? '[][id]' : '[]'), definition: definition, parameters: {object: object, options: options}) %>
+            <% end.empty? %>
+              <%= hidden_field_tag key + '[]' %>
+            <% end %>
+          </div>
+          <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
+            <button class="button" id="show" type="button" data-open="object_browser_<%= sanitize_to_id(key) %>">
+              <i class="fa fa-plus"></i>
+            </button>
+          <% end %>
+        </div>
+    </div>
+
+    <div id="object_browser_<%= sanitize_to_id(key) %>" data-overlay="false" class="object-browser-overlay full reveal without-overlay" data-reveal data-v-offset="0">
+      <div class="object-browser-header">
+        <span class="search-icon">
+          <i class="fa fa-search" aria-hidden="true"></i>
+        </span>
+        <input placeholder="Volltext Suche" autofocus class="object-browser-search">
+        <span class="item-count">100</span>
+      </div>
+
+      <div class="items">
+        <div class="loading">
+          <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+        </div>
+      </div>
+
+      <div class="item-info">
+      </div>
+
+      <div class="object-browser-footer">
+        <div class="chosen-items items">
+          <div class="chosen-items-container">
+          </div>
+        </div>
+        <div class="buttons">
+          <span class="button-title">
+            <sup>
+              <strong>100</strong>Elemente auswählen
+              <i class="fa fa-chevron-right" aria-hidden="true"></i>
+            </sup>
+          </span>
+          <a class="button-prime success small save-object-browser">
+            <i class="fa fa-check" aria-hidden="true"></i>
+          </a>
+          <% if can?(:create_in_objectbrowser, object_class) %>
+            <button v-if="createItem" data-open="new_<%= object_class_name %>" class="new-item-button button-prime small" type="button">
+              <i class="fa fa-plus"></i>
+            </button>
+          <% end %>
+          <button class="button-prime small close-object-browser" type="button" data-close>
+            <i aria-hidden="true" class="fa fa-times"></i>
+          </button>
+
+          <% if can?(:create_in_objectbrowser, object_class) %>
+            <% begin %>
+                <%= render_object_browser_partial(partial: 'new', key: key, definition: definition) %>
+            <% rescue %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+<%
+=begin
+%>
 
     <div class="object-browser" id="<%= sanitize_to_id(key) %>">
         <%= label_tag(key, definition['label']) %>
@@ -37,5 +120,7 @@
             </object-browser>
         </div>
     </div>
-
+<%
+=end
+%>
 <% end %>

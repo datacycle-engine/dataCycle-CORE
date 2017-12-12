@@ -1,0 +1,3 @@
+$('<%= params[:overlay_id] %>').data("total", <%= @total || 0 %>);
+$('<%= params[:overlay_id] %>').find('.items .loading').hide();
+$('<%= params[:overlay_id] %>').find('.items .loading').before('<%= escape_javascript(render 'items', contents: @results, key: params[:key], definition: params[:definition], options: params[:options]) %>');

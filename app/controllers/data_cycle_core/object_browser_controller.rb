@@ -23,17 +23,19 @@ module DataCycleCore
         @per = params[:per] unless params[:per].blank?
         @per ||= @@default_per
 
-        total = query.count
-        pages = total.fdiv(@per.to_i).ceil
+        @total = query.count
+        @pages = @total.fdiv(@per.to_i).ceil
 
         unless params[:page].blank?
           @page = params[:page]
-          @page = pages if params[:page].to_i > pages
+          @page = @pages if params[:page].to_i > @pages
         end
         @page ||= 1
 
         @results = query.page(@page).per(@per).includes(content_data: [:translations]).map(&:content_data)
-        render :json => { results: @results.as_json({'add_validity' => true }), total: total }
+
+        respond_to(:js)
+        # render :json => { results: @results.as_json({'add_validity' => true }), total: total }
       end
     end
 

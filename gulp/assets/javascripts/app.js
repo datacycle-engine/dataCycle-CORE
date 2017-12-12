@@ -29,6 +29,7 @@ var watch_lists_init = require('./modules/initializers/watch_lists_init');
 var classifications = require('./modules/initializers/classifications');
 var lazyloading_init = require('./modules/initializers/lazyloading_init');
 var datalist_init = require('./modules/initializers/datalist_init');
+var object_browser_init = require('./modules/initializers/object_browser_init');
 
 $(function () {
   // Initialize Masonry Grid
@@ -113,6 +114,9 @@ $(function () {
 
   // initialize Datalists
   datalist_init.initialize();
+
+  // initialize ObjectBrowsers
+  object_browser_init.initialize();
 
   if ($('#classification-administration').length) {
     classifications.initialize();
