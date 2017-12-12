@@ -3,6 +3,7 @@ module DataCycleCore
 
     class Translation < Globalize::ActiveRecord::Translation
         include ContentTranslationHelpers
+        include EventHelpers
     end
 
     class History < DataHash
@@ -35,6 +36,7 @@ module DataCycleCore
     before_destroy :destroy_translations, prepend: true
 
     include ContentHelpers
+    include EventHelpers
 
     # to cash also translated values (comming from gem Globalize)
     def cache_key

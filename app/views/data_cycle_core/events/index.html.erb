@@ -1,0 +1,7 @@
+<% breadcrumb :"data_cycle_core/#{controller_name}", @paginateObject, @watch_list %>
+
+<%= render 'results', contents: @paginateObject %>
+
+<% content_for :new_button do %>
+    <%= render 'new_content_links' if user_signed_in? && can?(:create, DataCycleCore::CreativeWork) %>
+<% end %>

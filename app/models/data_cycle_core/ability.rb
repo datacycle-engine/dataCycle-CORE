@@ -33,7 +33,8 @@ module DataCycleCore
               DataCycleCore::User,
               DataCycleCore::UserGroup,
               DataCycleCore::Person,
-              DataCycleCore::Place
+              DataCycleCore::Place,
+              DataCycleCore::Event
             ]
 
           can :update_release_status, [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]
