@@ -106,7 +106,7 @@ module DataCycleCore
         elsif plain_property_names.include?(property_name)
           send(property_name)
         elsif classification_property_names.include?(property_name)
-          send(property_name).try(:pluck, :classification_id)
+          send(property_name).try(:pluck, :id)
         elsif linked_property_names.include?(property_name)
           get_property_value(property_name, property_definitions[property_name], timestamp, false)
         elsif included_property_names.include?(property_name)
@@ -221,7 +221,7 @@ module DataCycleCore
       # for classification relations
       # classification relations are stored in the classification_contents table
       elsif classification_property_names.include?(property_name)
-        load_relation_ids(property_definition['type_name'])
+        load_relation_ids(property_name)
 
       # plain properties (e.g. string,text, ... )
       # non-structured properties of this content-data_set
@@ -297,15 +297,15 @@ module DataCycleCore
       }.inject(&:merge)
     end
 
-    def load_relation_ids(tree_label)
-      class_string = "DataCycleCore::ClassificationContent"
-      class_string += "::History" if is_history?
-      class_id = 'content_data_id'
-      class_id = 'content_data_history_id' if is_history?
-      class_string.constantize.
-        where(class_id => id).
-        joins(classification: [classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]]).
-        where("classification_tree_labels.name = ?", tree_label)
+    def load_relation_ids(relation_name)
+      if is_history?
+        join_relation = :classification_content_histories
+        class_id = :content_data_history_id
+      else
+        join_relation = :classification_contents
+        class_id = :content_data_id
+      end
+      DataCycleCore::Classification.joins(join_relation).where(join_relation => {class_id => id, relation: relation_name})
     end
 
     def set_property_value(property_name, property_definition, value)
