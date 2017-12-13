@@ -54,7 +54,9 @@ module DataCycleCore
           can [:set_role, :set_user_groups], DataCycleCore::User do |the_user|
             !the_user.has_rank?(user.role.rank) || user == the_user
           end
-          can :destroy, DataCycleCore::CreativeWork
+          can :destroy, DataCycleCore::CreativeWork do |creative_work|
+            creative_work&.metadata&.dig('validation','permissions','read_write') != false
+          end
         end
 
         if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)
