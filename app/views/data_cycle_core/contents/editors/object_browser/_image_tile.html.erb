@@ -1,4 +1,6 @@
-<div class="media thumbnail item <%= 'has-restrictions' if object.try(:restrictions).try(:include?, 'gesperrt') %> <%= 'expired-item' unless object.try(:is_valid) %>" style="background-image: url(<%= object.try(:thumbnail_url) %>)" data-open="media_reveal_<%= object.id %>">
+<div class="media thumbnail item <%= 'has-restrictions' if object.try(:restrictions).try(:include?, 'gesperrt') %> <%= 'expired-item' unless object.try(:is_valid) %> <%= 'active' if (objects ||= []).include?(object.id) %>" style="background-image: url(<%= object.try(:thumbnail_url) %>)" data-open="media_reveal_<%= object.id %>" data-id="<%= object.id %>">
+
+  <%= hidden_field_tag key, object.id %>
 
   <% if object.try(:restrictions).try(:include?, 'gesperrt') %>
     <span data-tooltip aria-haspopup="true" class="has-tip warning" data-disable-hover="false" tabindex="1" title="Einschränkungen: <%= object.try(:restrictions) %>"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>

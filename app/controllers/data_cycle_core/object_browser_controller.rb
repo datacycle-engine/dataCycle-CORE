@@ -1,7 +1,7 @@
 module DataCycleCore
   class ObjectBrowserController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
-    load_and_authorize_resource :class => false, except: :find         # from cancancan (authorize)
+    load_and_authorize_resource :class => false, except: [:find, :details]         # from cancancan (authorize)
 
     def show
       I18n.with_locale(params[:language] || I18n.locale) do
@@ -47,6 +47,14 @@ module DataCycleCore
 
         render :json => result
       end
+    end
+
+    def details
+      authorize! :show, :object_browser
+      unless params[:class].blank? || params[:id].blank?
+        @object = params[:class].constantize.find(params[:id])
+      end
+      respond_to(:js)
     end
 
     private

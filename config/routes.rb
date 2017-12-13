@@ -91,6 +91,7 @@ DataCycleCore::Engine.routes.draw do
   end
 
   post '/objectbrowser', to: 'object_browser#show'
-  get '/objectbrowser/find', to: 'object_browser#find'
+  post '/objectbrowser/details', to: 'object_browser#details'
+  post '/objectbrowser/find', to: 'object_browser#find'
 
 end

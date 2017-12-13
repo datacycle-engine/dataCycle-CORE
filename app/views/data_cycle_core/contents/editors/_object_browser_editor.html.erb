@@ -4,7 +4,7 @@
     <% object_class = ("DataCycleCore::"+("#{object_class_name}".classify)).constantize %>
     <% objects = object_class.where(id: value) %>
 
-    <div class="object-browser" id="<%= sanitize_to_id(key) %>" data-type="<%= definition.dig('editor', 'options', 'data-type').try(:downcase) %>" data-language="<%= I18n.locale.to_s %>" data-key="<%= key %>" data-definition="<%= definition.to_json %>" data-options="<%= options.to_json %>">
+    <div class="object-browser" id="<%= sanitize_to_id(key) %>" data-type="<%= definition.dig('editor', 'options', 'data-type').try(:downcase) %>" data-language="<%= I18n.locale.to_s %>" data-key="<%= key %>" data-definition="<%= definition.to_json %>" data-options="<%= options.to_json %>" data-class="<%= object_class %>" data-objects="<%= value %>">
         <%= label_tag(key, definition['label']) %>
         <div class="media-thumbs">
           <div class='confirmation' style="display: none;">
@@ -36,7 +36,7 @@
           <i class="fa fa-search" aria-hidden="true"></i>
         </span>
         <input placeholder="Volltext Suche" autofocus class="object-browser-search">
-        <span class="item-count">100</span>
+        <span class="item-count"></span>
       </div>
 
       <div class="items">
@@ -74,7 +74,7 @@
 
           <% if can?(:create_in_objectbrowser, object_class) %>
             <% begin %>
-                <%= render_object_browser_partial(partial: 'new', key: key, definition: definition) %>
+                <%#= render_object_browser_partial(partial: 'new', key: key, definition: definition) %>
             <% rescue %>
             <% end %>
           <% end %>

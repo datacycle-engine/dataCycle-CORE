@@ -1,0 +1,1 @@
+$('<%= params[:overlay_id] %>').find('.item-info').html('<%= escape_javascript(render_object_browser_partial(partial: 'detail', key: params[:key], definition: params[:definition], parameters: {object: @object, options: params[:options]})) %>');
