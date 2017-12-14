@@ -15,14 +15,13 @@ var Objectbrowser = function ($selector) {
   this.page = 1;
   this.loading = false;
   this.search = "";
-  this.url = "/objectbrowser";
+  this.url = "/object_browser";
   this.total = 0;
   this.chosen = $($selector).data('objects');
   this.setup();
 };
 
 Objectbrowser.prototype.setup = function () {
-  console.log(this.chosen);
   var that = this;
   this.$overlay.on('open.zf.reveal', this.open_overlay.bind(this));
   this.$overlay.on('closed.zf.reveal', this.close_overlay.bind(this));
@@ -30,7 +29,7 @@ Objectbrowser.prototype.setup = function () {
   this.$overlay.children(".items").on("scroll", function (event) {
     var elem = $(event.currentTarget);
 
-    if (elem[0].scrollHeight - elem.scrollTop() - 100 <= elem.outerHeight() && !this.loading && this.$overlay.children('.items').children('.item').length < this.total) {
+    if (elem[0].scrollHeight - elem.scrollTop() - 200 <= elem.outerHeight() && !this.loading && this.$overlay.children('.items').children('.item').length < this.total) {
       this.page += 1;
       this.load_objects();
     }
@@ -39,6 +38,7 @@ Objectbrowser.prototype.setup = function () {
   this.$overlay.find('.object-browser-search').on('change', function (event) {
     event.preventDefault();
     that.search = $(this).val();
+    that.page = 1;
     that.load_objects(false);
   });
 
@@ -53,7 +53,7 @@ Objectbrowser.prototype.setup = function () {
     event.stopImmediatePropagation();
     that.load_details($(this).data('id'));
     if (that.chosen.indexOf($(this).data('id')) == -1) {
-      that.add_object($(this).data('id'), $(this).clone());
+      that.add_object($(this).data('id'), $(this).clone(true));
     } else {
       that.remove_object($(this).data('id'));
     }
@@ -61,7 +61,8 @@ Objectbrowser.prototype.setup = function () {
 
   this.$element.on('click', '.delete-thumbnail', function (event) {
     event.preventDefault();
-
+    event.stopPropagation();
+    $(this).parent().remove();
   });
 
   this.$overlay.find('.chosen-items-container').on('click', '.delete-thumbnail', function (event) {
@@ -78,21 +79,32 @@ Objectbrowser.prototype.setup = function () {
 };
 
 Objectbrowser.prototype.set_chosen = function () {
-  this.$element.find('.object-thumbs').html(this.$overlay.find('.chosen-items-container .item').clone());
-  this.$element.find('.object-thumbs .item .reveal').foundation();
-  this.$element.find('.object-thumbs .item').foundation();
+  this.$element.find('.object-thumbs').html(this.$overlay.find('.chosen-items-container .item').clone()).find('.item .reveal.media-preview').each(function () {
+    if ($(this).prop('id').indexOf('overlay_') != -1) $(this).prop('id', $(this).prop('id').replace('overlay_', ''));
+    $(this).foundation();
+  });
 };
 
 Objectbrowser.prototype.add_object = function (id, $element) {
   this.chosen.push(id);
   this.$overlay.find('.chosen-items-container').append($element);
   this.$overlay.children(".items").find('.item[data-id=' + id + ']').addClass('active');
+  this.update_chosen_counter();
 };
 
 Objectbrowser.prototype.remove_object = function (id) {
   this.chosen.splice(this.chosen.indexOf(id), 1);
   this.$overlay.find('.chosen-items-container [data-id=' + id + ']').remove();
   this.$overlay.children(".items").find('.item[data-id=' + id + ']').removeClass('active');
+  this.update_chosen_counter();
+};
+
+Objectbrowser.prototype.update_chosen_counter = function () {
+  var html = '';
+  if (this.chosen.length > 1) html = '<strong>' + this.chosen.length + '</strong> Elemente auswählen';
+  else if (this.chosen.length == 1) html = '<strong>' + this.chosen.length + '</strong> Element auswählen';
+  else html = 'Keine Elemente auswählen';
+  this.$overlay.find('.chosen-counter').html(html);
 };
 
 Objectbrowser.prototype.load_details = function (id) {
@@ -122,12 +134,16 @@ Objectbrowser.prototype.reset_overlay = function () {
 };
 
 Objectbrowser.prototype.set_preselected = function () {
-  this.$overlay.find('.chosen-items-container').html(this.$element.find('.object-thumbs .item').clone());
+  this.$overlay.find('.chosen-items-container').html(this.$element.find('.object-thumbs .item').clone(true));
+  this.chosen = $.map(this.$element.find('.object-thumbs .item'), function (val, i) {
+    return $(val).data('id');
+  });
 }
 
 Objectbrowser.prototype.open_overlay = function (ev) {
   this.reset_overlay();
   this.set_preselected();
+  this.update_chosen_counter();
 
   this.scrollTop = $(window).scrollTop();
   window.scrollTo(0, 0);
@@ -173,7 +189,7 @@ Objectbrowser.prototype.load_objects = function (append = true) {
   this.$overlay.find('.items .loading').show();
   this.loading = true;
   $.ajax({
-    url: this.url,
+    url: this.url + '/show',
     method: 'POST',
     data: JSON.stringify({
       page: this.page,
@@ -190,6 +206,9 @@ Objectbrowser.prototype.load_objects = function (append = true) {
     contentType: 'application/json'
   }).done(function (data) {
     this.total = this.$overlay.data("total");
+    this.$overlay.find('.items .item .reveal.media-preview').each(function () {
+      if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
+    });
     this.loading = false;
     if (this.$overlay.children('.items').children('.item').length < this.total && (this.$overlay.children('.items').children('.item').last().offset().top - this.$overlay.children('.items').offset().top < this.$overlay.children('.items').first().outerHeight())) {
       this.page += 1;

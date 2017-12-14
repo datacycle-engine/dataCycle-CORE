@@ -10,7 +10,7 @@
     <dl>
       <% unless object.try(:thumbnail_url).nil? %>
         <dt class="block-flex"></dt>
-        <dd class="block-flex"><img src="<%= object.try(:thumbnail_url) %>" /></dd>
+        <dd class="block-flex"><img class="lazyload" data-src="<%= object.try(:thumbnail_url) %>" /></dd>
       <% end %>
 
       <% unless object.try(:url).nil? %>

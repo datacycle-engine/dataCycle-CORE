@@ -1,4 +1,11 @@
 $('<%= params[:overlay_id] %>').data("total", <%= @total || 0 %>);
 $('<%= params[:overlay_id] %>').find('.object-browser-header .item-count').text(<%= @total || 0 %>);
 $('<%= params[:overlay_id] %>').find('.items .loading').hide();
-$('<%= params[:overlay_id] %>').find('.items .loading').before('<%= escape_javascript(render 'items', contents: @results, key: params[:key], definition: params[:definition], options: params[:options], objects: params[:objects]) %>');
+
+<% content_for :rendered_items do %>
+  <% @results.each do |content| %>
+    <%= render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: {object: content, options: params[:options], objects: params[:objects]}) %>
+  <% end %>
+<% end %>
+
+$('<%= params[:overlay_id] %>').find('.items .loading').before('<%= j yield :rendered_items %>');

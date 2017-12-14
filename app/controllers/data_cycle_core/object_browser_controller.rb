@@ -1,9 +1,9 @@
 module DataCycleCore
   class ObjectBrowserController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
-    load_and_authorize_resource :class => false, except: [:find, :details]         # from cancancan (authorize)
 
     def show
+      authorize! :show, :object_browser
       I18n.with_locale(params[:language] || I18n.locale) do
         @language = params[:language] unless params[:language].blank?
         @language ||= "de"

@@ -39,7 +39,7 @@
         <span class="item-count"></span>
       </div>
 
-      <div class="items">
+      <div class="items margin-bottom-10">
         <div class="loading">
           <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
         </div>
@@ -56,7 +56,7 @@
         <div class="buttons">
           <span class="button-title">
             <sup>
-              <strong>100</strong>Elemente auswählen
+              <span class="chosen-counter"></span>
               <i class="fa fa-chevron-right" aria-hidden="true"></i>
             </sup>
           </span>
@@ -64,7 +64,7 @@
             <i class="fa fa-check" aria-hidden="true"></i>
           </a>
           <% if can?(:create_in_objectbrowser, object_class) %>
-            <button v-if="createItem" data-open="new_<%= object_class_name %>" class="new-item-button button-prime small" type="button">
+            <button data-open="new_<%= sanitize_to_id(key) %>" class="new-item-button button-prime small" type="button">
               <i class="fa fa-plus"></i>
             </button>
           <% end %>
@@ -74,7 +74,7 @@
 
           <% if can?(:create_in_objectbrowser, object_class) %>
             <% begin %>
-                <%#= render_object_browser_partial(partial: 'new', key: key, definition: definition) %>
+                <%= render_object_browser_partial(partial: 'new', key: key, definition: definition, parameters: {new_overlay_key: sanitize_to_id(key)}) %>
             <% rescue %>
             <% end %>
           <% end %>

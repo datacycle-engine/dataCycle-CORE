@@ -398,6 +398,13 @@
     }
   }
   >.items {
+    &.margin-bottom-10::after {
+      content: '';
+      float: none;
+      clear: both;
+      margin-bottom: 10rem;
+      display: block;
+    }
     padding: 5rem 1rem 7rem 1rem;
     margin-right: 400px;
     height: calc(100% - 7.9rem);

@@ -90,8 +90,9 @@ DataCycleCore::Engine.routes.draw do
     end
   end
 
-  post '/objectbrowser', to: 'object_browser#show'
-  post '/objectbrowser/details', to: 'object_browser#details'
-  post '/objectbrowser/find', to: 'object_browser#find'
-
+  namespace :object_browser do
+    post :show
+    post :details
+    post :find
+  end
 end
