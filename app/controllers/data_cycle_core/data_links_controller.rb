@@ -39,7 +39,7 @@ module DataCycleCore
       @data_link.receiver = @receiver
       @data_link.save
 
-      DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver
+      DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later
 
       redirect_back(fallback_location: root_path, notice: (I18n.t :saved_and_sent, scope: [:controllers, :success], locale: DataCycleCore.ui_language))
     end
@@ -49,7 +49,7 @@ module DataCycleCore
 
       @data_link.update_attributes(create_link_params.merge(creator_id: current_user.id))
 
-      DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver
+      DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later
 
       redirect_back(fallback_location: root_path, notice: (I18n.t :updated_and_sent, scope: [:controllers, :success], locale: DataCycleCore.ui_language))
     end
