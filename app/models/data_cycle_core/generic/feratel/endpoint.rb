@@ -1,134 +1,102 @@
 class DataCycleCore::Generic::Feratel::Endpoint
-  def initialize(pos_code: nil, company_code: nil, range_code: nil, db_code: nil, range_id: nil, sales_channel_id: nil)
+  def initialize(pos_code: nil, company_code: nil, range_code: nil, range_id: nil, **options, &block)
     @pos_code = pos_code
     @company_code = company_code
-    @range_code = range_code
-    @db_code = db_code
-    @range_id = range_id
-    @sales_channel_id = sales_channel_id
+    @primary_range_code = range_code
+    @primary_range_id = range_id
+
+    @load_range_ids = block
+  end
+
+  def load_range_ids(range_code = 'RG')
+    if @load_range_ids && !@load_range_ids.call(range_code).blank?
+      @load_range_ids.call(range_code)
+    elsif range_code == @primary_range_code
+      [@primary_range_id]
+    else
+      []
+    end
   end
 
   def categories(lang: :de)
-    Enumerator.new do |yielder|
-      load_data(:categories, lang: lang).xpath('//Category').each do |xml_data|
-        yielder << xml_data.to_hash
-      end
-    end
+    enumerate_items(:categories, '//Category', lang: lang)
   end
 
   def locations(lang: :de)
-    Enumerator.new do |yielder|
-      load_data(:locations, lang: lang).xpath('//Location').each do |xml_data|
-        yielder << xml_data.to_hash
-      end
-    end
+    enumerate_items(:locations, '//Location', lang: lang)
   end
 
   def holiday_themes(lang: :de)
-    Enumerator.new do |yielder|
-      load_data(:holiday_themes, lang: lang).xpath('//HolidayTheme').each do |xml_data|
-        yielder << xml_data.to_hash
-      end
-    end
+    enumerate_items(:holiday_themes, '//HolidayTheme', lang: lang)
   end
 
   def infrastructure_types(lang: :de)
-    Enumerator.new do |yielder|
-      load_data(:infrastructure_types, lang: lang).xpath('//InfrastructureType').each do |xml_data|
-        yielder << xml_data.to_hash
-      end
-    end
+    enumerate_items(:infrastructure_types, '//InfrastructureType', lang: lang)
   end
 
   def infrastructure_topics(lang: :de)
-    Enumerator.new do |yielder|
-      load_data(:infrastructure_topics, lang: lang).xpath('//InfrastructureTopic').each do |xml_data|
-        yielder << xml_data.to_hash
-      end
-    end
+    enumerate_items(:infrastructure_topics, '//InfrastructureTopic', lang: lang)
   end
 
   def custom_attributes(lang: :de)
-    Enumerator.new do |yielder|
-      load_data(:custom_attributes, lang: lang).xpath('//CustomAttribute').each do |xml_data|
-        yielder << xml_data.to_hash
-      end
-    end
+    enumerate_items(:custom_attributes, '//CustomAttribute', lang: lang)
   end
 
   def facility_groups(lang: :de)
-    Enumerator.new do |yielder|
-      load_data(:facility_groups, lang: lang).xpath('//FacilityGroup').each do |xml_data|
-        yielder << xml_data.to_hash
-      end
-    end
+    enumerate_items(:facility_groups, '//FacilityGroup', lang: lang)
   end
 
   def facilities(lang: :de)
-    Enumerator.new do |yielder|
-      load_data(:facilities, lang: lang).xpath('//Facility').each do |xml_data|
-        yielder << xml_data.to_hash
-      end
-    end
+    enumerate_items(:facilities, '//Facility', lang: lang)
   end
 
   def stars(lang: :de)
-    Enumerator.new do |yielder|
-      load_data(:stars, lang: lang).xpath('//Star').each do |xml_data|
-        yielder << xml_data.to_hash
-      end
-    end
+    enumerate_items(:stars, '//Star', lang: lang)
   end
 
   def classifications(lang: :de)
-    Enumerator.new do |yielder|
-      load_data(:classifications, lang: lang).xpath('//Classification').each do |xml_data|
-        yielder << xml_data.to_hash
-      end
-    end
+    enumerate_items(:classifications, '//Classification', lang: lang)
   end
 
   def rating_questions(lang: :de)
-    Enumerator.new do |yielder|
-      load_data(:rating_questions, lang: lang).xpath('//RatingQuestion').each do |xml_data|
-        yielder << xml_data.to_hash
-      end
-    end
+    enumerate_items(:rating_questions, '//RatingQuestion', lang: lang)
   end
 
   def infrastructure_items(lang: :de)
-    Enumerator.new do |yielder|
-      load_data(:infrastructure_items, lang: lang).xpath('//InfrastructureItem').each do |xml_data|
-        yielder << xml_data.to_hash
-      end
-    end
+    enumerate_items(:infrastructure_items, '//InfrastructureItem', lang: lang)
   end
 
   def additional_service_providers(lang: :de)
-    Enumerator.new do |yielder|
-      load_data(:additional_service_providers, lang: lang).xpath('//ServiceProvider').each do |xml_data|
-        yielder << xml_data.to_hash
-      end
-    end
+    enumerate_items(:additional_service_providers, '//ServiceProvider', lang: lang)
   end
 
   def events(lang: :de)
-    Enumerator.new do |yielder|
-      load_data(:events, lang: lang).xpath('//Event').each do |xml_data|
-        yielder << xml_data.to_hash
-      end
-    end
+    enumerate_items(:events, '//Event', lang: lang)
   end
 
   def accommodations(lang: :de)
+    enumerate_items(:accommodations, '//ServiceProvider', lang: lang)
+  end
+
+  def enumerate_items(type, xpath, lang: :de)
     Enumerator.new do |yielder|
-      load_data(:accommodations, lang: lang).xpath('//ServiceProvider').each do |xml_data|
-        yielder << xml_data.to_hash
+      item_ids = []
+
+      ['RG', 'DI', 'TO'].each do |range_code|
+        load_range_ids(range_code).each do |range_id|
+          load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|
+            item = { '_Type': xml_data.parent.name.singularize }.merge(xml_data.to_hash)
+            unless item_ids.include?(item['Id'] || item['Order'])
+              item_ids << item['Id'] || item['Order']
+              yielder << item
+            end
+          end
+        end
       end
     end
   end
 
-  def load_data(type, lang: :de)
+  def load_data(type, lang: :de, range_code: 'RG', range_ids: @range_id)
     if [:additional_service_providers, :events, :infrastructure_items, :accommodations].include?(type)
       url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
     else
@@ -138,7 +106,7 @@ class DataCycleCore::Generic::Feratel::Endpoint
     response = Faraday.new.post do |req|
       req.url url
       req.options.timeout = 120
-      req.body = { 'xmlString' => send("create_#{type}_request_xml", lang: lang) }
+      req.body = { 'xmlString' => send("create_#{type}_request_xml", lang: lang, range_code: range_code, range_ids: range_ids) }
     end
 
     envelop = Nokogiri::XML(response.body)
@@ -153,7 +121,7 @@ class DataCycleCore::Generic::Feratel::Endpoint
     end
   end
 
-  def create_categories_request_xml(lang: :de)
+  def create_categories_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
     create_request_xml do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
@@ -167,8 +135,8 @@ class DataCycleCore::Generic::Feratel::Endpoint
     end
   end
 
-  def create_locations_request_xml(lang: :de)
-    create_request_xml do |xml|
+  def create_locations_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+    create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
           Array(lang).each do |l|
@@ -184,7 +152,7 @@ class DataCycleCore::Generic::Feratel::Endpoint
     end
   end
 
-  def create_holiday_themes_request_xml(lang: :de)
+  def create_holiday_themes_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
     create_request_xml do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
@@ -198,7 +166,7 @@ class DataCycleCore::Generic::Feratel::Endpoint
     end
   end
 
-  def create_infrastructure_types_request_xml(lang: :de)
+  def create_infrastructure_types_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
     create_request_xml do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
@@ -212,7 +180,7 @@ class DataCycleCore::Generic::Feratel::Endpoint
     end
   end
 
-  def create_infrastructure_topics_request_xml(lang: :de)
+  def create_infrastructure_topics_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
     create_request_xml do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
@@ -226,7 +194,7 @@ class DataCycleCore::Generic::Feratel::Endpoint
     end
   end
 
-  def create_custom_attributes_request_xml(lang: :de)
+  def create_custom_attributes_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
     create_request_xml do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
@@ -240,7 +208,7 @@ class DataCycleCore::Generic::Feratel::Endpoint
     end
   end
 
-  def create_facility_groups_request_xml(lang: :de)
+  def create_facility_groups_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
     create_request_xml do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
@@ -254,7 +222,7 @@ class DataCycleCore::Generic::Feratel::Endpoint
     end
   end
 
-  def create_facilities_request_xml(lang: :de)
+  def create_facilities_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
     create_request_xml do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
@@ -268,7 +236,7 @@ class DataCycleCore::Generic::Feratel::Endpoint
     end
   end
 
-  def create_stars_request_xml(lang: :de)
+  def create_stars_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
     create_request_xml do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
@@ -282,7 +250,7 @@ class DataCycleCore::Generic::Feratel::Endpoint
     end
   end
 
-  def create_classifications_request_xml(lang: :de)
+  def create_classifications_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
     create_request_xml do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
@@ -296,7 +264,7 @@ class DataCycleCore::Generic::Feratel::Endpoint
     end
   end
 
-  def create_rating_questions_request_xml(lang: :de)
+  def create_rating_questions_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
     create_request_xml do |xml|
       xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
         xml.Translations do
@@ -310,7 +278,7 @@ class DataCycleCore::Generic::Feratel::Endpoint
     end
   end
 
-  def create_infrastructure_items_request_xml(lang: :de)
+  def create_infrastructure_items_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
     create_request_xml do |xml|
       xml.BasicData do
         xml.Filters do
@@ -337,7 +305,7 @@ class DataCycleCore::Generic::Feratel::Endpoint
     end
   end
 
-  def create_additional_service_providers_request_xml(lang: :de)
+  def create_additional_service_providers_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
     create_request_xml do |xml|
       xml.BasicData do
         xml.Filters do
@@ -373,7 +341,7 @@ class DataCycleCore::Generic::Feratel::Endpoint
     end
   end
 
-  def create_events_request_xml(lang: :de)
+  def create_events_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
     create_request_xml do |xml|
       xml.BasicData do
         xml.Filters do
@@ -401,11 +369,11 @@ class DataCycleCore::Generic::Feratel::Endpoint
     end
   end
 
-  def create_accommodations_request_xml(lang: :de)
-    create_request_xml do |xml|
+  def create_accommodations_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+    create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
       xml.BasicData do
         xml.Filters do
-          xml.ServiceProvider('Type' => 'Accommodation')
+          xml.ServiceProvider('Type' => 'Accommodation', 'Status' => 'All')
           xml.Languages do
             Array(lang).each do |l|
               xml.Language('Value' => l.to_s)
@@ -429,14 +397,16 @@ class DataCycleCore::Generic::Feratel::Endpoint
     end
   end
 
-  def create_request_xml
+  def create_request_xml(range_code: 'RG', range_ids: @primary_range_id)
     Nokogiri::XML::Builder.new { |xml|
       xml.FeratelDsiRQ('xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
                        'xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema',
                        'xmlns' => 'http://interface.deskline.net/DSI/XSD') do
         xml.Request('Originator' => @pos_code, 'Company' => @company_code) do
-          xml.Range('Code' => @range_code) do
-            xml.Item('Id' => @range_id)
+          xml.Range('Code' => range_code) do
+            Array(range_ids).each do |range_id|
+              xml.Item('Id' => range_id)
+            end
           end
 
           yield(xml)

@@ -280,17 +280,19 @@ module DataCycleCore
         "access" => [],
         "headline" => "Dies ist ein Test!",
         "data_type" => returned_data_hash['data_type'],
+        "data_pool" => returned_data_hash['data_pool'],
         "description" => "wtf is going on???",
         "content_location" => []
       }
 
-      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'keywords', 'data_pool'))
+      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'keywords'))
       assert_equal(0, error[:error].count)
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
       assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Place.where(template: false).count)
+      assert_equal(2, DataCycleCore::ClassificationContent.count)
 
       # make relation
       data_hash["content_location"] = [{ "id" => place_id }]
@@ -299,7 +301,7 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
       expected_hash["content_location"] = [ returned_place ]
 
-      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'keywords', 'data_pool'))
+      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'keywords'))
       assert_equal(0, error[:error].count)
 
       # check consistency of data in DB
