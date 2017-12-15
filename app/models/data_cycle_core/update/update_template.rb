@@ -11,10 +11,8 @@ module DataCycleCore::Update::UpdateTemplate
 
   def modify_content(content_item)
     content_item.metadata['validation'] = @template.metadata['validation']
-    old_updated = content_item.updated_at
     I18n.with_locale(content_item.available_locales.first) do
-      content_item.updated_at = old_updated
-      content_item.save
+      content_item.save(touch: false)
     end
   end
 
