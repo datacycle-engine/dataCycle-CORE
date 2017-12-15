@@ -5,6 +5,10 @@
         <i class="fa fa-pencil" aria-hidden="true"></i> <%== "#{content.content_type} #{t('actions.edit', locale: DataCycleCore.ui_language)}" %>
       </div>
       <ul>
+        <% if current_user.try(:role).try(:rank).nil? || current_user.try(:role).try(:rank).zero? %>
+          <%= render 'agbs' %>
+        <% end %>
+
         <% if content.respond_to?(:siblings) && content.respond_to?(:parent) && !content.parent.nil? && !content.siblings.try(:size).nil? && !content.siblings.try(:size).zero? %>
           <li class="has-dropdown right">
             <%= render 'split_sources', contents: content.siblings, selected: @splitSource, url: '', title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
