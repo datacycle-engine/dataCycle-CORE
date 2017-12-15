@@ -28,9 +28,12 @@ module.exports.initialize = function () {
 
   function check_agbs_accepted() {
     if ($('#accept_agbs').length > 0 && $('#accept_agbs').is(':checked')) {
+      $('#' + $('.submit-edit-form').data('toggle') + ' #button_agbs_accepted').remove();
       return true;
-    } else if ($('#accept_agbs').length > 0) return false;
-    else return true;
+    } else if ($('#accept_agbs').length > 0) {
+      $('#' + $('.submit-edit-form').data('toggle')).append('<span id="button_agbs_accepted" class="tooltip-error"><strong>AGBs</strong><br>Die AGBs müssen noch akzeptiert werden.<br></span>');
+      return false;
+    } else return true;
   }
 
   // Validation
