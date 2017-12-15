@@ -27,7 +27,7 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
       image = create_or_update_content(
           DataCycleCore::CreativeWork,
           load_template(DataCycleCore::CreativeWork, @image_template),
-          extract_event_image_data(raw_data.dig('image'),raw_data['name'], raw_data['id']).with_indifferent_access
+          extract_event_image_data(raw_data.dig('image'),raw_data['name']).with_indifferent_access
       ) unless raw_data.dig('image').nil?
 
       content_location = create_or_update_content(
@@ -39,6 +39,9 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
       categories = raw_data.dig('categories').map { |category|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "CATEGORY:#{category.try(:[], 'id')}")
       }.reject(&:nil?)
+
+      tags = raw_data['tags'] || []
+      tags.each{ |item| import_classification({name: item, external_id: "Veranstaltungsdatenbank - tags - #{item}", tree_name: 'Veranstaltungsdatenbank - Tag'}) }
 
       sub_events = raw_data.dig('subEvents').nil? ? {} : extract_sub_event_data(raw_data['subEvents'])
 
@@ -72,9 +75,9 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
     end
   end
 
-  def extract_event_image_data(raw_data, event_name, event_id)
+  def extract_event_image_data(raw_data, event_name)
     {
-        external_key: "IMAGE:#{event_id}",
+        external_key: "IMAGE:#{raw_data.dig('id')}",
         headline: event_name,
         thumbnail_url: raw_data.dig('contentUrl'),
         content_url: raw_data.dig('contentUrl'),

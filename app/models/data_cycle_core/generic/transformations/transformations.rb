@@ -193,13 +193,15 @@ module DataCycleCore::Generic::Transformations::Transformations
 
   def self.event_database_item_to_event
     t(:recursion, t(:is, ::Hash, t(:stringify_keys))).
-    >> t(:reject_keys, ['@context', '@type', 'image', 'subEvents', 'allDay', 'tags', 'location', 'categories']).
+    >> t(:reject_keys, ['@context', '@type', 'image', 'subEvents', 'allDay', 'location', 'categories']).
     >> t(:underscore_keys).
     # >> t(:map_value, 'infos', -> s {s.try(:join, ', ')}).
     >> t(:rename_keys,
       'id' => 'external_key',
+      'tags' => 'tag',
       'name' => 'headline').
     >> t(:nest, 'event_period', ['start_date', 'end_date']).
+    >> t(:tags_to_ids, 'tag', 'Veranstaltungsdatenbank - Tag').
     >> t(:compact).
     >> t(:strip_all)
   end
@@ -218,10 +220,10 @@ module DataCycleCore::Generic::Transformations::Transformations
     >> t(:underscore_keys).
     >> t(:add_field, 'latitude', ->(s) { s['geo'].try(:[], 'latitude').to_f }).
     >> t(:add_field, 'longitude', ->(s) { s['geo'].try(:[], 'longitude').to_f }).
-    >> t(:add_field, 'external_key', ->(s) { "PLACE:#{s['name'].camelize.strip.underscore.delete(' ')}" }).
+    >> t(:add_field, 'external_key', ->(s) { "PLACE:#{s['id']}" }).
     >> t(:location).
     >> t(:unwrap, 'address', ['street_address', 'postal_code', 'address_country', 'address_locality']).
-    >> t(:reject_keys, ['geo', '@type', 'address']).
+    >> t(:reject_keys, ['id', 'geo', '@type', 'address']).
     >> t(:nest, 'address', ['street_address', 'postal_code', 'address_country', 'address_locality']).
     >> t(:compact).
     >> t(:strip_all)
