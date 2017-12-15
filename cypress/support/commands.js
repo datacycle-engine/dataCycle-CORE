@@ -23,3 +23,29 @@
 //
 // -- This is will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+Cypress.Commands.add('login', function (userType, options = {}) {
+  cy.fixture('login_users').as('usersJSON').then(() => {
+    cy.visit('/users/sign_in')
+    var authenticity_token = ""
+    cy.get('input[name=authenticity_token]').then(($elem) => {
+      authenticity_token = $elem.val()
+      const user = this.usersJSON[userType]
+
+      cy.request({
+        url: '/users/sign_in',
+        method: 'POST',
+        body: {
+          utf8: "✓",
+          authenticity_token: authenticity_token,
+          user: {
+            email: user.email,
+            password: user.password,
+            remember_me: 0
+          }
+        },
+        followRedirect: false
+      })
+      cy.visit('/')
+    })
+  })
+})
