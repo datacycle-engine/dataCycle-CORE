@@ -1,15 +1,14 @@
 <% historyObject ||= nil %>
-
 <div id="show-history-link" data-toggle="show-history" class="link"><i class="fa fa-clock-o" aria-hidden="true"></i>
     <% unless historyObject.nil? %>
-        bearbeitet am <%= Time.at(historyObject.updated_at).to_s(:german_datetime_format) %>
+        erstellt am <%= Time.zone.at(I18n.with_locale(historyObject.first_available_locale){historyObject.history_valid.last}).to_s(:german_datetime_format) %>
 
         <% if historyObject.metadata.try(:[], 'last_updated_by') %>
             <% person = get_user_for_id(historyObject.metadata['last_updated_by']) %>
         <% end %>
 
     <% else %>
-        erstellt am <%= Time.at(dataCycleObject.created_at).to_s(:german_datetime_format) %>
+        bearbeitet am <%= Time.zone.at(dataCycleObject.updated_at).to_s(:german_datetime_format) %>
 
         <% if !dataCycleObject.metadata.nil? && !dataCycleObject.creator.blank? %>
             <% person = dataCycleObject.creator.first %>

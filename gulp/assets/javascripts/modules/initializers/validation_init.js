@@ -26,9 +26,27 @@ module.exports.initialize = function () {
     });
   }
 
+  function check_agbs_accepted() {
+    if ($('#accept_agbs').length > 0 && $('#accept_agbs').is(':checked')) {
+      $('#' + $('.submit-edit-form').data('toggle') + ' #button_agbs_accepted').remove();
+      return true;
+    } else if ($('#accept_agbs').length > 0) {
+      $('#' + $('.submit-edit-form').data('toggle')).append('<span id="button_agbs_accepted" class="tooltip-error"><strong>AGBs</strong><br>Die AGBs müssen noch akzeptiert werden.<br></span>');
+      return false;
+    } else return true;
+  }
+
   // Validation
 
   if ($('.edit-content-form').length > 0) {
+    $('button.submit-edit-form').prop('disabled', !check_agbs_accepted());
+
+    if ($('#accept_agbs').length > 0) {
+      $('#accept_agbs').on('change', function (event) {
+        $('button.submit-edit-form').prop('disabled', !check_agbs_accepted());
+      });
+    }
+
     var form = document.querySelector('.edit-content-form');
     $('button.submit-edit-form').on('click', function (ev) {
       ev.preventDefault();
@@ -45,10 +63,16 @@ module.exports.initialize = function () {
         }
       }.bind(this), 50);
     });
-    form.onsubmit = function () {
+
+    $(form).on('submit', function (event) {
+      event.preventDefault();
       submit_creative_work_form(form);
-      return false;
-    };
+    });
+
+    // form.onsubmit = function () {
+    //   submit_creative_work_form(form);
+    //   return false;
+    // };
   }
 
   if ($('.new-item form').html() != undefined) {
@@ -228,20 +252,20 @@ module.exports.initialize = function () {
     var out = '';
     var item_id = '';
     var button_text = '';
-    $('.submit button').addClass('alert');
+    $('.submit-edit-form').addClass('alert');
 
     if (item != null && $(item).attr('id') != undefined) item_id = $(item).attr('id') + "_error";
     else if (item != null && $(item).closest('.form-element').find('label').first().attr('for') != undefined) item_id = $(item).closest('.form-element').find('label').first().attr('for') + "_error";
 
     item_label = (item != null) ? $(item).closest('.form-element').find('label').first().html() + ": " : "";
-    $('#' + $('.submit button').data('toggle')).find('#button_' + item_id).remove();
+    $('#' + $('.submit-edit-form').data('toggle')).find('#button_' + item_id).remove();
     button_text = '<span id="button_' + item_id + '" class="tooltip-error">';
     out = "<span id='" + item_id + "' class='single_error'>";
     $.each(data.error, function (key, val) {
       button_text += '<strong>' + item_label + '</strong><br>' + val + '<br>';
       out += "<strong>" + item_label + "</strong>" + val + "</br>";
     });
-    $('#' + $('.submit button').data('toggle')).append(button_text + '</span>');
+    $('#' + $('.submit-edit-form').data('toggle')).append(button_text + '</span>');
     out += "</span>";
     return out;
   }
@@ -252,12 +276,12 @@ module.exports.initialize = function () {
     else if (item != null && $(item).closest('.form-element').find('label').first().attr('for') != undefined) item_id = $(item).closest('.form-element').find('label').first().attr('for') + "_error";
 
     if (item == null) {
-      $('.submit button').removeClass('alert');
-      $('#' + $('.submit button').data('toggle') + ' .tooltip-error').remove();
+      $('.submit-edit-form').removeClass('alert');
+      $('#' + $('.submit-edit-form').data('toggle') + ' .tooltip-error').remove();
     } else {
-      $('#' + $('.submit button').data('toggle')).find('#button_' + item_id).remove();
-      if ($('#' + $('.submit button').data('toggle') + ' .tooltip-error').length == 0) {
-        $('.submit button').removeClass('alert');
+      $('#' + $('.submit-edit-form').data('toggle')).find('#button_' + item_id).remove();
+      if ($('#' + $('.submit-edit-form').data('toggle') + ' .tooltip-error').length == 0) {
+        $('.submit-edit-form').removeClass('alert');
       }
     }
   }

@@ -10,7 +10,7 @@
                 <%= "Unbekannt".html_safe %>
             <% end %>
 
-            <i><%= Time.at(item.updated_at).to_s(:german_datetime_format) %></i>
+            <i><%= Time.zone.at(I18n.with_locale(item.first_available_locale){item.history_valid.last}).to_s(:german_datetime_format) %></i>
 
             <% if can?(:history, content) && item != @historySource %>
                 <span class="history-link">
