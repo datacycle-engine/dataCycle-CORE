@@ -1,6 +1,6 @@
 <% I18n.with_locale(@language) do %>
 
-    <%= link_to polymorphic_path(item, watch_list_id: @watch_list) do %>
+    <%= link_to polymorphic_path(item, watch_list_id: @watch_list), class: 'content-link' do %>
 
         <div class="inner">
 
@@ -39,7 +39,7 @@
                 </div>
 
             <% end %>
-            
+
             <%= render 'data_cycle_core/contents/tiles/attributes/images', item: item if item.respond_to?('image') && item.image.count > 0 %>
 
         </div>

@@ -46,6 +46,7 @@ Cypress.Commands.add('login', function (userType, options = {}) {
         followRedirect: false
       })
       cy.visit('/')
+      cy.get('.flash.callout .close-button').click()
     })
   })
 })
