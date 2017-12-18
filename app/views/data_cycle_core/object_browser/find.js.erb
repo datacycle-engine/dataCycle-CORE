@@ -1,0 +1,7 @@
+<% content_for :rendered_items do %>
+  <% @objects.each do |content| %>
+    <%= render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: {object: content, options: params[:options], objects: params[:objects]}) unless params[:objects].include?(content.id) %>
+  <% end %>
+<% end %>
+
+$('<%= params[:object_browser_id] %>').find('.object-thumbs').append('<%= j yield :rendered_items %>');

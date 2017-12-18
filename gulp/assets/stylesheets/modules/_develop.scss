@@ -131,6 +131,7 @@
   }
   .image,
   .video {
+    position: relative;
     min-height: 5rem;
     min-width: 20rem;
   }
@@ -188,8 +189,8 @@
     border-right: 20px solid transparent;
     -webkit-transition: all 0.4s ease;
     -moz-transition: all 0.4s ease;
-    left: 30%;
-    bottom: -1.3rem;
+    left: 30px;
+    bottom: -20px;
   }
 }
 

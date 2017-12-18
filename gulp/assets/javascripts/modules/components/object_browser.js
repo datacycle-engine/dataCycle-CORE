@@ -12,6 +12,8 @@ var Objectbrowser = function ($selector) {
   this.definition = $($selector).data('definition');
   this.options = $($selector).data('options');
   this.class = $($selector).data('class');
+  this.max = $($selector).data('max');
+  this.min = $($selector).data('min');
   this.page = 1;
   this.loading = false;
   this.search = "";
@@ -23,6 +25,8 @@ var Objectbrowser = function ($selector) {
 
 Objectbrowser.prototype.setup = function () {
   var that = this;
+
+  // initialize all eventhandlers
   this.$overlay.on('open.zf.reveal', this.open_overlay.bind(this));
   this.$overlay.on('closed.zf.reveal', this.close_overlay.bind(this));
 
@@ -53,28 +57,74 @@ Objectbrowser.prototype.setup = function () {
     event.stopImmediatePropagation();
     that.load_details($(this).data('id'));
     if (that.chosen.indexOf($(this).data('id')) == -1) {
-      that.add_object($(this).data('id'), $(this).clone(true));
+      that.add_object($(this).data('id'), $(this).clone(true), event);
     } else {
-      that.remove_object($(this).data('id'));
+      that.remove_object($(this).data('id'), event);
     }
   });
 
   this.$element.on('click', '.delete-thumbnail', function (event) {
     event.preventDefault();
     event.stopPropagation();
-    $(this).parent().remove();
+    if (that.min != 0 && that.chosen.length <= that.min) {
+      that.show_confirmation(that.$element, event, "Mindestanzahl: " + that.min, false);
+    } else {
+      that.chosen.splice(that.chosen.indexOf($(this).parent().data('id')), 1);
+      $('.reveal-overlay > #media_reveal_' + $(this).parent().data('id')).parent('.reveal-overlay').remove();
+      $(this).parent().remove();
+    }
   });
 
   this.$overlay.find('.chosen-items-container').on('click', '.delete-thumbnail', function (event) {
     event.preventDefault();
     event.stopPropagation();
-    that.remove_object($(this).parent().data('id'));
+    that.remove_object($(this).parent().data('id'), event);
   });
 
   this.$overlay.find('.buttons .save-object-browser').on('click', function (event) {
     event.preventDefault();
     this.set_chosen();
     this.$overlay.foundation("close");
+  }.bind(this));
+
+  this.$element.on('import-data', function (event, data) {
+    var new_items = this.get_delta(this.chosen, data.ids);
+    if (new_items.length > 0 && ((this.chosen.length + new_items.length) <= this.max || this.max == 0)) {
+      $.ajax({
+        url: this.url + '/find',
+        method: 'POST',
+        data: JSON.stringify({
+          type: this.type,
+          language: this.language,
+          object_browser_id: '#' + this.$element.prop('id'),
+          key: this.key,
+          definition: this.definition,
+          options: this.options,
+          ids: data.ids,
+          class: this.class,
+          objects: this.chosen
+        }),
+        contentType: 'application/json'
+      }).done(function (return_data) {
+        this.chosen = this.chosen.concat(data.ids.filter(function (elem) {
+          return this.chosen.indexOf(elem) === -1;
+        }.bind(this)));
+
+        this.$element.find('.object-thumbs .item .reveal.media-preview').each(function () {
+          $(this).foundation();
+        });
+
+      }.bind(this));
+    } else if (this.max != 0 && (this.chosen.length + new_items.length) > this.max) {
+      that.show_confirmation(this.$element, event, "Maximalanzahl: " + that.max, false);
+    }
+  }.bind(this));
+
+  this.$overlay.on('import-complete', function (event, data) {
+    this.$overlay.children('.items').find('[data-id=' + data.id + ']').get(0).scrollIntoView({
+      behavior: "smooth"
+    });
+    this.add_object(data.id, this.$overlay.find('[data-id=' + data.id + ']').clone(true), event);
   }.bind(this));
 };
 
@@ -85,18 +135,26 @@ Objectbrowser.prototype.set_chosen = function () {
   });
 };
 
-Objectbrowser.prototype.add_object = function (id, $element) {
-  this.chosen.push(id);
-  this.$overlay.find('.chosen-items-container').append($element);
-  this.$overlay.children(".items").find('.item[data-id=' + id + ']').addClass('active');
-  this.update_chosen_counter();
+Objectbrowser.prototype.add_object = function (id, $element, event) {
+  if (this.max != 0 && this.chosen.length >= this.max) {
+    this.show_confirmation(this.$overlay, event, "Maximalanzahl: " + this.max, false);
+  } else {
+    this.chosen.push(id);
+    this.$overlay.find('.chosen-items-container').append($element);
+    this.$overlay.children(".items").find('.item[data-id=' + id + ']').addClass('active');
+    this.update_chosen_counter();
+  }
 };
 
-Objectbrowser.prototype.remove_object = function (id) {
-  this.chosen.splice(this.chosen.indexOf(id), 1);
-  this.$overlay.find('.chosen-items-container [data-id=' + id + ']').remove();
-  this.$overlay.children(".items").find('.item[data-id=' + id + ']').removeClass('active');
-  this.update_chosen_counter();
+Objectbrowser.prototype.remove_object = function (id, event) {
+  if (this.min != 0 && this.chosen.length <= this.min) {
+    this.show_confirmation(this.$overlay, event, "Mindestanzahl: " + this.min, false);
+  } else {
+    this.chosen.splice(this.chosen.indexOf(id), 1);
+    this.$overlay.find('.chosen-items-container [data-id=' + id + ']').remove();
+    this.$overlay.children(".items").find('.item[data-id=' + id + ']').removeClass('active');
+    this.update_chosen_counter();
+  }
 };
 
 Objectbrowser.prototype.update_chosen_counter = function () {
@@ -167,6 +225,33 @@ Objectbrowser.prototype.open_overlay = function (ev) {
     this.$overlay.foundation("close");
   }.bind(this));
 
+  window.addEventListener("message", function (event) {
+    $('#new_' + this.id).foundation('close');
+    if (event.data.action == 'import') {
+      var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
+      $.ajax({
+        type: 'POST',
+        url: '/creative_works/import',
+        data: JSON.stringify({
+          authenticity_token: AUTH_TOKEN,
+          type: this.type + "_object",
+          data: event.data.data,
+          language: this.language,
+          overlay_id: '#object_browser_' + this.id,
+          key: this.key,
+          definition: this.definition,
+          options: this.options,
+          objects: this.chosen
+        }),
+        contentType: "application/json"
+      });
+    }
+  }.bind(this), false);
+
+  $('#new_' + this.id).on('closed.zf.reveal', function (event) {
+    if ($(this).children('iframe').hasClass('lazyloaded')) $(this).children('iframe').removeClass('lazyloaded').addClass('lazyload');
+  });
+
   this.load_objects(false);
 };
 
@@ -215,6 +300,40 @@ Objectbrowser.prototype.load_objects = function (append = true) {
       this.load_objects();
     }
   }.bind(this));
+};
+
+Objectbrowser.prototype.get_delta = function (arr1, arr2) {
+  var delta = [];
+  for (var i = 0; i < arr2.length; i++) {
+    if (arr1.indexOf(arr2[i]) === -1) delta.push(arr2[i]);
+  }
+  return delta;
+};
+
+Objectbrowser.prototype.show_confirmation = function ($parent, event, text, abort = true) {
+  $parent.find('.confirmation').remove();
+  var html = '<div class="confirmation" style="position: absolute; transition: none;"><span>';
+  html += text
+  html += '</span><div class="buttons">';
+  if (abort) html += '<button class="button abort" type="button">Abbrechen</button>';
+  html += '<button class="button ok" type="button">Ok</button></div></div>';
+  $parent.append(html);
+  $parent.find('.confirmation').css({
+    top: event.pageY - $parent.offset().top - $parent.find('.confirmation').outerHeight() - 20,
+    left: event.pageX - $parent.offset().left - 50
+  });
+
+  $parent.find('.confirmation .button.ok').click(function (event) {
+    event.preventDefault();
+    $parent.find('.confirmation').remove();
+  });
+
+  if (abort) {
+    $parent.find('.confirmation .button.abort').click(function (event) {
+      event.preventDefault();
+      $parent.find('.confirmation').remove();
+    });
+  }
 };
 
 module.exports = Objectbrowser;

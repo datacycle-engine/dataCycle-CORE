@@ -9,4 +9,9 @@ module.exports.initialize = function () {
     }, 100);
   });
 
+  document.addEventListener('lazybeforeunveil', function (e) {
+    console.log($(e.target));
+    $(e.target).siblings('.lazy-loading').hide();
+  });
+
 };

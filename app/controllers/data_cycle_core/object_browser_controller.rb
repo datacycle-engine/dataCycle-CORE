@@ -35,24 +35,27 @@ module DataCycleCore
         @results = query.page(@page).per(@per).includes(content_data: [:translations]).map(&:content_data)
 
         respond_to(:js)
-        # render :json => { results: @results.as_json({'add_validity' => true }), total: total }
       end
     end
 
     def find
       authorize! :show, :object_browser
       if !params[:class].blank? && !params[:ids].blank?
-        object = params[:class].constantize
-        result = object.where(id: params[:ids])
+        I18n.with_locale(params[:language] || I18n.locale) do
+          object = params[:class].constantize
+          @objects = object.where(id: params[:ids])
+        end
 
-        render :json => result
+        respond_to(:js)
       end
     end
 
     def details
       authorize! :show, :object_browser
       unless params[:class].blank? || params[:id].blank?
-        @object = params[:class].constantize.find(params[:id])
+        I18n.with_locale(params[:language] || I18n.locale) do
+          @object = params[:class].constantize.find(params[:id])
+        end
       end
       respond_to(:js)
     end

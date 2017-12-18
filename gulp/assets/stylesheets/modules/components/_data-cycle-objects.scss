@@ -586,6 +586,7 @@ span.single_error.object-browser-error {
 .reveal {
   &.new-item {
     background: $white;
+    position: relative;
     .loading {
       display: none;
       vertical-align: text-bottom;

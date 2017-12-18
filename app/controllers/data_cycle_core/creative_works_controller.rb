@@ -218,16 +218,6 @@ module DataCycleCore
       # to be implemented by specific projects
     end
 
-    def import
-      @content = DataCycleCore::DataHashService.import_data(data_set: params[:data])
-      if !@content.blank? && @content.metadata.dig('validation', 'description') == params[:type].camelize
-        render json: @content.to_json
-      else
-        render json: { errors: "no data" }
-      end
-
-    end
-
     private
     def create_params
     end

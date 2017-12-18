@@ -15,7 +15,7 @@
 
       <% unless object.try(:url).nil? %>
         <dt>Datei Url: </dt>
-        <dd><%= link_to object.try(:url), target: :_blank %></dd>
+        <dd><%= link_to object.try(:url), object.try(:url), target: :_blank %></dd>
       <% end %>
 
       <% unless object.try(:file_format).nil? %>

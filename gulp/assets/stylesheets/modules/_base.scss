@@ -801,3 +801,16 @@ body.login-page {
   border: 0;
   border-top: 1px solid $light-gray;
 }
+
+
+/* Animations für lazyloaded iamges */
+
+.lazyload,
+.lazyloading {
+  opacity: 0;
+}
+
+.lazyloaded {
+  opacity: 1;
+  transition: opacity 300ms;
+}

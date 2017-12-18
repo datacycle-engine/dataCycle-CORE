@@ -23,14 +23,14 @@ module.exports.initialize = function () {
 
   $(document).on('click', '.flex-box .copy-single-button', function (ev) {
     ev.preventDefault();
-    var id = $(this).parents('.copy-single').data('id');
+    var id = [$(this).parents('.copy-single').data('id')];
     var label = $(this).parents('[data-editor]').data('label');
     copy_contents(id, label);
   });
 
   function copy_contents(ids, label) {
     var target_container = $('.flex-box .edit-content [data-label=' + label + ']');
-    target_container.find('.media-thumbs > div').trigger('import-data', {
+    target_container.find('.object-browser').trigger('import-data', {
       ids: ids
     });
 
