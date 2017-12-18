@@ -27,7 +27,7 @@
 
     <% if history ||= false %>
       <span class="history-metadata">
-              <%= link_to polymorphic_url([:history_detail, dataCycleObject], history_id: historyObject.id, watch_list_id: @watch_list) do  %>
+              <%= link_to polymorphic_url([:history_detail, dataCycleObject], history_id: historyObject.id, watch_list_id: @watch_list), class:'has-tip', title:'Artikel Version ansehen', data:{tooltip:'', 'disable-hover':''},'aria-haspopup':'true' do  %>
           <i class="fa fa-eye" aria-hidden="true"></i>
         <% end %>
       </span>

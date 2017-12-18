@@ -25,20 +25,21 @@
                 </div>
             </section>
 
-            <div class="flex-box">
+            <div class="flex-box detail-header-fixed">
 
                 <% I18n.with_locale(@historySource.first_available_locale) do %>
 
-                    <div class="split-content detail-content">
-                        <div class="show-content">
-                            <div class="detail-header-info">
-                                <div class="type <%= @historySource.metadata['validation']['name'].downcase %>">
-                                    <span>Unterschiede zu Version: </span>
-                                </div>
-                                <%#= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, historyObject: @historySource, history: true %>
-                                <%= render 'data_cycle_core/shared/history_links', dataCycleObject: @creativeWork, historyObject: @historySource, history: true %>
+                    <div class="detail-header-info no-transparency fixed">
+                        <div class="type <%= @historySource.metadata['validation']['name'].downcase %>">
+                            <span>Unterschiede zu Version</span>
+                        </div>
+                        <%#= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, historyObject: @historySource, history: true %>
+                        <%= render 'data_cycle_core/shared/history_links', dataCycleObject: @creativeWork, historyObject: @historySource, history: true %>
 
-                            </div>
+                    </div>
+
+                    <div class="row split-content detail-content">
+                        <div class="show-content">
 
                             <%= render 'data_cycle_core/contents/viewers/metadata/releasable_viewer',
                                        value: @historySource.get_releasable_hash,
@@ -55,15 +56,16 @@
 
                 <% I18n.with_locale(@creativeWork.first_available_locale) do %>
 
+                    <div class="detail-header-info no-transparency fixed right">
+                        <div class="type <%= @historySource.metadata['validation']['name'].downcase %>">
+                            <span>Aktuelle Version</span>
+                        </div>
+                        <%= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, historyObject: @historySource %>
+                    </div>
+
                     <div class="row split-content detail-content">
 
                         <div class="show-content">
-                            <div class="detail-header-info">
-                                <div class="type <%= @historySource.metadata['validation']['name'].downcase %>">
-                                    <span>Aktuelle Version: </span>
-                                </div>
-                                <%= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, historyObject: @historySource %>
-                            </div>
 
                             <%= render 'data_cycle_core/contents/viewers/metadata/releasable_viewer',
                                        value: @creativeWork.get_releasable_hash,
