@@ -30,7 +30,7 @@ describe('CreativeWork', function () {
     const updated_name = name + '_updated'
     cy.get('.edit-content-link').click()
     cy.wait(1000)
-    cy.get('.headline input[type=text]').type('{selectall}{del}').type(updated_name)
+    cy.get('.headline input[type=text]').should('be.visible').should('have.value', name).type('{selectall}{del}').type(updated_name)
     cy.get('.submit-edit-form').click()
     cy.get('.headline input[type=text]').should('have.value', updated_name)
   })
