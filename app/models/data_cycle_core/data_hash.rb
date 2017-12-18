@@ -389,7 +389,7 @@ module DataCycleCore
       # for embeddedLink and embeddedLinkArray transform data
       if data.kind_of?(::Array) && !data.blank? && data.first.kind_of?(::String)
         data.map!{|item| {"id" => item} }
-      elsif data.kind_of?(::String)
+      elsif data.kind_of?(::String) && !data.blank?
         data = [{"id" => data}]
       end
 
