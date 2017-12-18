@@ -292,7 +292,7 @@ select {
       &.fixed {
         padding: 1rem;
         top: 0rem;
-        background: linear-gradient(to bottom, rgba(255,255,255,1) 0%,rgba(255,255,255,0) 100%);
+        background: linear-gradient(to bottom, white 0%, white 30%, rgba(255,255,255,0) 100%);
         z-index: 2;
         width: 49%;
       }
@@ -325,9 +325,9 @@ select {
       height: 100%;
       overflow-y: scroll; 
       float: left;
-      background: rgba($light-gray, 0.5);
-      &:hover {  
-        background: white;
+      transition: background ease-in-out 0.1s;
+      &.nothover {  
+        background: rgba($light-gray, 0.2);
       }
       .subscribe-parent {
         position: absolute;
