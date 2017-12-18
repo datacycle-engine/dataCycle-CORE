@@ -319,7 +319,7 @@ select {
       &.fixed {
         padding: 1rem;
         top: 0rem;
-        background: linear-gradient(to bottom, white 0%, white 30%, rgba(255,255,255,0) 100%);
+        background: linear-gradient(to bottom, white 0%, white 30%, rgba(255, 255, 255, 0) 100%);
         z-index: 2;
         width: 49%;
       }
@@ -345,15 +345,21 @@ select {
           border-bottom: 0;
         }
       }
+      .created-at {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-left: 0.5rem;
+      }
     }
     .split-content {
       display: block;
       width: 50%;
       height: 100%;
-      overflow-y: scroll; 
+      overflow-y: scroll;
       float: left;
       transition: background ease-in-out 0.1s;
-      &.nothover {  
+      &.nothover {
         background: rgba($light-gray, 0.2);
       }
       .subscribe-parent {
@@ -609,26 +615,6 @@ video {
   box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
   min-width: 300px;
   width: auto;
-  &::before {
-    content: '▲';
-    
-    font-size: 28px;
-    top: -32px;
-    color: white;
-    transform: scaleX(3);
-    text-shadow: 0 -2px 1px rgba(0, 0, 0, 0.1);
-
-    position: absolute;
-    left: 50px;
-    width: 0;
-    height: 0;
-    /*
-    top: -12px;
-    border-style: solid;
-    border-width: 0 25px 12px 25px;
-    border-color: transparent transparent #ffffff transparent;
-    */
-  }
   li {
     position: relative;
     text-align: left;

@@ -156,14 +156,12 @@
   .has-changed {
     &.removed {
       .thumbnail {
-        box-shadow: 0 0 1px 1px $alert-color;
-        background: rgba($alert-color, 0.1);
+        box-shadow: 0 0 1px 1px $alert-color; // background: rgba($alert-color, 0.1);
       }
     }
     &.added {
       .thumbnail {
-        box-shadow: 0 0 1px 1px $success-color;
-        background: rgba($success-color, 0.3);
+        box-shadow: 0 0 1px 1px $success-color; // background: rgba($success-color, 0.3);
       }
     }
   }

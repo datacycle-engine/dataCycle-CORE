@@ -27,23 +27,20 @@
                 <% I18n.with_locale(@historySource.first_available_locale) do %>
 
                     <div class="detail-header-info no-transparency fixed">
-                        <div class="type <%= @historySource.metadata['validation']['name'].downcase %>">
-                            <span>Unterschiede zu Version</span>
-                        </div>
-                        <%#= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, historyObject: @historySource, history: true %>
-                        <%= render 'data_cycle_core/shared/history_links', dataCycleObject: @creativeWork, historyObject: @historySource, history: true %>
-
+                        <span class="type <%= @historySource.metadata['validation']['name'].downcase %>">
+                          <%= t('history.differences_to_version', locale: DataCycleCore.ui_language) %>:
+                        </span>
+                        <%= render 'history_meta_data', content: @historySource %>
+                        <span class="show-history-link">
+                          <%= link_to polymorphic_url([:history_detail, @creativeWork], history_id: @historySource.id, watch_list_id: @watch_list) do  %>
+                            <i class="fa fa-eye" aria-hidden="true"></i>
+                          <% end %>
+                        <span>
                     </div>
 
                     <div class="row split-content detail-content">
                         <div class="show-content">
                             <div class="detail-header-info">
-                                <div class="type <%= @historySource.metadata['validation']['name'].downcase %>">
-                                    <span>Unterschiede zu Version: </span>
-                                </div>
-                                <%#= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, historyObject: @historySource, history: true %>
-                                <%= render 'data_cycle_core/shared/history_links', dataCycleObject: @creativeWork, historyObject: @historySource, history: true %>
-
                             </div>
 
                             <%= render 'data_cycle_core/contents/viewers/metadata/releasable_viewer',
@@ -62,19 +59,15 @@
                 <% I18n.with_locale(@creativeWork.first_available_locale) do %>
 
                     <div class="detail-header-info no-transparency fixed right">
-                        <div class="type <%= @historySource.metadata['validation']['name'].downcase %>">
-                            <span>Aktuelle Version</span>
-                        </div>
-                        <%= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, historyObject: @historySource %>
+                      <span class="type <%= @creativeWork.metadata['validation']['name'].downcase %>">
+                        <%= t('history.active_version', locale: DataCycleCore.ui_language) %>:
+                      </span>
+                      <%= render 'history_meta_data', content: @creativeWork %>
                     </div>
 
                     <div class="row split-content detail-content">
                         <div class="show-content">
                             <div class="detail-header-info">
-                                <div class="type <%= @historySource.metadata['validation']['name'].downcase %>">
-                                    <span>Aktuelle Version: </span>
-                                </div>
-                                <%= render 'data_cycle_core/creative_works/partials/history/metaData', dataCycleObject: @creativeWork, historyObject: @historySource %>
                             </div>
 
                             <%= render 'data_cycle_core/contents/viewers/metadata/releasable_viewer',
