@@ -310,6 +310,26 @@ select {
       top: -2rem;
       opacity: 0.3;
       transition: opacity 0.3s ease;
+      &.metadata {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        .icon {
+          margin-right: 0.2rem;
+        }
+        >.type {
+          margin-right: 0.2rem;
+        }
+        .show-history-link {
+          position: absolute;
+          right: 1rem;
+        }
+        &.has-history-link {
+          .created-at {
+            padding-right: 1rem;
+          }
+        }
+      }
       &:hover,
       &:focus {
         opacity: 1;
@@ -669,23 +689,4 @@ ul.translated-locales {
   width: auto;
   right: 0;
   left: auto !important;
-}
-
-.metadata {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  .icon {
-    margin-right: 0.2rem;
-  }
-  >.type {
-    margin-right: 0.2rem;
-  }
-  .show-history-link {
-    position: absolute;
-    right: 0;
-  }
-  &.has-history-link {
-    margin-right: 1rem;
-  }
 }
