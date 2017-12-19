@@ -12,8 +12,8 @@ module DataCycleCore::Update::UpdateTemplate
   def modify_content(content_item)
     content_item.metadata['validation'] = @template.metadata['validation']
     I18n.with_locale(content_item.available_locales.first) do
-      content_item.save
-    end 
+      content_item.save(touch: false)
+    end
   end
 
   def write(_, _, _)

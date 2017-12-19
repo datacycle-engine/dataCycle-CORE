@@ -126,16 +126,17 @@ button,
       margin-top: 20px;
       box-shadow: 0 3px 3px rgba(0, 0, 0, 0.1);
       &::before {
-        content: '';
+        content: '▲';
+        font-size: 28px;
+        top: -32px;
+        color: white;
+        transform: scaleX(3);
+        text-shadow: 0 -2px 1px rgba(0, 0, 0, 0.1);
         position: absolute;
-        top: -12px;
-        right: 10px;
         left: auto;
+        right: 10px;
         width: 0;
         height: 0;
-        border-style: solid;
-        border-width: 0 25px 12px 25px;
-        border-color: transparent transparent #ffffff transparent;
       }
       li {
         position: relative;

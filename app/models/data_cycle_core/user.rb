@@ -30,6 +30,10 @@ module DataCycleCore
       self.role && self.role.rank >= rank
     end
 
+    def is_rank?(rank)
+      self.role && self.role.try(:rank) == rank
+    end
+
     private
     def set_default_role
       self.role ||= DataCycleCore::Role.find_by(name: 'standard')

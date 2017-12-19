@@ -29,7 +29,7 @@ DataCycleCore::Engine.routes.draw do
   end
 
   resources :subscriptions, only: [:index, :create, :destroy]
-  resources :events, only: [:index, :show, :create, :edit, :update]
+  resources :events, only: [:index, :show, :create, :edit, :update, :destroy]
 
 
   resources :data_links do
