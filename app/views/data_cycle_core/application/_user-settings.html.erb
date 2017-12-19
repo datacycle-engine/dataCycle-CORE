@@ -1,5 +1,4 @@
 <div class="off-canvas position-right" id="settings-off-canvas" data-off-canvas data-content-overlay="false">
-    <% if current_user.role && current_user.role.rank > 0 %>
         <div class="settings-row">
             <div class="row column">
                 <%= link_to data_cycle_core.destroy_user_session_path, method: :delete do %>
@@ -7,6 +6,7 @@
                     <span class="title">Ausloggen</span>
                 <% end %>
             </div>
+          <% if current_user.role && current_user.role.rank > 0 %>
             <% if can? :update, current_user %>
               <div class="row columns">
                   <%= link_to edit_user_path(current_user) do %>
@@ -21,6 +21,7 @@
                     <span class="title">Einstellungen</span>
                 <% end %>
             </div>
+          <% end %>
         </div>
 
         <% if can?(:crud, DataCycleCore::Classification) || can?(:crud, DataCycleCore::User) || can?(:crud, DataCycleCore::UserGroup) %>
@@ -57,7 +58,7 @@
                 <% end %>
             </div>
         <% end %>
-    <% end %>
+
     <!--<div class="settings-row">-->
     <!--<div class="row column">-->
     <!--<div class="heading">Meine letzten Suchen</div>-->
