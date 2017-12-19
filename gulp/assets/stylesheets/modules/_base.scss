@@ -450,9 +450,12 @@ button,
     z-index: 12;
     right: 0;
     border: 0;
-    transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
-    border-right: 1px solid $light-gray;
-    border-left: 1px solid $light-gray;
+    &.fixed-toolbar,
+    &.fixed-split-toolbar {
+      // transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
+      border-right: 1px solid $light-gray;
+      border-left: 1px solid $light-gray;
+    }
     &.fixed-toolbar {
       background: $light-gray;
       position: fixed;
