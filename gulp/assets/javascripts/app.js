@@ -1,5 +1,6 @@
 // app.js - Data cylce Core
 var $ = require('jquery');
+var jquery_to_json = require('jquery-serializejson');
 var jqueryujs = require('jquery-ujs');
 var foundation = require('foundation-sites');
 var lazysizes = require('lazysizes');
@@ -30,6 +31,7 @@ var classifications = require('./modules/initializers/classifications');
 var lazyloading_init = require('./modules/initializers/lazyloading_init');
 var datalist_init = require('./modules/initializers/datalist_init');
 var object_browser_init = require('./modules/initializers/object_browser_init');
+
 
 $(function () {
   // Initialize Masonry Grid
@@ -137,13 +139,17 @@ $(function () {
       $(".split-content").addClass('nothover');
       $(this).removeClass('nothover');
     });
-    $(".has-changes").on("click",function() {
-      $( ".split-content .properties .selected" ).removeClass('selected');
-      current = $(this).data( "label" );
+    $(".has-changes").on("click", function () {
+      $(".split-content .properties .selected").removeClass('selected');
+      current = $(this).data("label");
       newelem = $(".split-content").last().find("[data-label='" + current + "']");
       newelem.addClass('selected');
-      $('.split-content').last().animate({  scrollTop: newelem.offset().top - $('.split-content').last().offset().top + $('.split-content').last().scrollTop() - 150  }, 500);
-      $('.split-content').first().animate({  scrollTop: $(this).offset().top - $('.split-content').first().offset().top + $('.split-content').first().scrollTop()  - 150 }, 500);
+      $('.split-content').last().animate({
+        scrollTop: newelem.offset().top - $('.split-content').last().offset().top + $('.split-content').last().scrollTop() - 150
+      }, 500);
+      $('.split-content').first().animate({
+        scrollTop: $(this).offset().top - $('.split-content').first().offset().top + $('.split-content').first().scrollTop() - 150
+      }, 500);
     });
   }
 

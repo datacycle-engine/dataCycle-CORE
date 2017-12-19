@@ -76,44 +76,44 @@ module.exports.initialize = function () {
   }
 
   if ($('.new-item form').html() != undefined) {
-    var forms = $('.new-item form');
+    // var forms = $('.new-item form');
 
-    $(document).on('open.zf.reveal', '.new-item', function (e) {
-      $(this).find('form').on('submit', function (e) {
-        e.preventDefault();
-        if (check_fields(this)) this.submit();
-      }.bind(this));
+    // $(document).on('open.zf.reveal', '.new-item', function (e) {
+    //   $(this).find('form').on('submit', function (e) {
+    //     e.preventDefault();
+    //     if (check_fields(this)) this.submit();
+    //   }.bind(this));
 
-      $(this).find('form input[type=text]').each(function (e) {
-        $(this).on('change', function () {
-          $(this).closest('form').find('input[type=submit]').removeAttr('disabled');
-          $(this).closest('.validation-container').find('.single_error').remove();
-          check_field(this);
-        });
-      });
-    }.bind(this));
+    //   $(this).find('form input[type=text]').each(function (e) {
+    //     $(this).on('change', function () {
+    //       $(this).closest('form').find('input[type=submit]').removeAttr('disabled');
+    //       $(this).closest('.validation-container').find('.single_error').remove();
+    //       check_field(this);
+    //     });
+    //   });
+    // }.bind(this));
 
-    $(document).on('closed.zf.reveal', '.new-item', function (e) {
-      $(this).find('form').off('submit');
-      $(this).find('form input[type=text]').each(function (e) {
-        $(this).off('change');
-      });
-    }.bind(this));
+    // $(document).on('closed.zf.reveal', '.new-item', function (e) {
+    //   $(this).find('form').off('submit');
+    //   $(this).find('form input[type=text]').each(function (e) {
+    //     $(this).off('change');
+    //   });
+    // }.bind(this));
 
-    $(forms).each(function () {
-      $(this).on('submit', function (e) {
-        e.preventDefault();
-        if (check_fields(this)) this.submit();
-      }.bind(this));
+    // $(forms).each(function () {
+    //   $(this).on('submit', function (e) {
+    //     e.preventDefault();
+    //     if (check_fields(this)) this.submit();
+    //   }.bind(this));
 
-      $(this).find('input[type=text]').each(function (e) {
-        $(this).on('change', function () {
-          $(this).closest('form').find('input[type=submit]').removeAttr('disabled');
-          $(this).closest('.validation-container').find('.single_error').remove();
-          check_field(this);
-        });
-      });
-    });
+    //   $(this).find('input[type=text]').each(function (e) {
+    //     $(this).on('change', function () {
+    //       $(this).closest('form').find('input[type=submit]').removeAttr('disabled');
+    //       $(this).closest('.validation-container').find('.single_error').remove();
+    //       check_field(this);
+    //     });
+    //   });
+    // });
   }
 
   function catch_promises(form, submit) {

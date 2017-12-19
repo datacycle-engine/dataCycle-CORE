@@ -1,0 +1,44 @@
+<div class="padding-bottom-10">
+  <h5>Details</h5>
+  <% if can?(:edit, object) %>
+    <%= link_to edit_polymorphic_path(object), class: 'edit-link', target: :_blank do %>
+      <i class="fa fa-pencil" aria-hidden="true"></i>
+    <% end %>
+  <% end %>
+
+  <% unless object.title.blank? %>
+    <dl>
+      <dt>Name: </dt>
+      <dd><%= object.title %></dd>
+    </dl>
+  <% end %>
+
+  <% unless object.metadata.nil? %>
+    <dl>
+      <% unless object.try(:honorific_prefix).nil? %>
+        <dt>Titel: </dt>
+        <dd><%= object.try(:honorific_prefix) %></dd>
+      <% end %>
+
+      <% unless object.try(:job_title).nil? %>
+        <dt>Beruf: </dt>
+        <dd><%= object.try(:job_title) %></dd>
+      <% end %>
+
+      <% unless object.try(:email).nil? %>
+        <dt>E-Mail: </dt>
+        <dd><%= object.try(:email) %></dd>
+      <% end %>
+
+      <% unless object.try(:telephone).nil? %>
+        <dt>Telefon: </dt>
+        <dd><%= object.try(:telephone) %></dd>
+      <% end %>
+
+      <% unless object.try(:fax_number).nil? %>
+        <dt>Fax: </dt>
+        <dd><%= object.try(:fax_number) %></dd>
+      <% end %>
+    </dl>
+  <% end %>
+</div>

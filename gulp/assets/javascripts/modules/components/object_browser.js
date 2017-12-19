@@ -126,6 +126,38 @@ Objectbrowser.prototype.setup = function () {
     });
     this.add_object(data.id, this.$overlay.find('[data-id=' + data.id + ']').clone(true), event);
   }.bind(this));
+
+  $('#new_' + this.id).on('open.zf.reveal', function (event) {
+    $(this).find('form').on('submit', function (ev) {
+      ev.preventDefault();
+      var form_data = $(this).serializeJSON();
+      $.extend(form_data, {
+        type: that.type,
+        language: that.language,
+        overlay_id: '#object_browser_' + that.id,
+        key: that.key,
+        definition: that.definition,
+        options: that.options,
+        class: that.class,
+        objects: that.chosen,
+        new_overlay_id: '#new_' + that.id
+      });
+
+      $.ajax({
+        url: $(this).prop('action'),
+        method: 'POST',
+        data: JSON.stringify(form_data),
+        dataType: 'script',
+        contentType: 'application/json'
+      });
+    });
+  });
+
+  $('#new_' + this.id).on('closed.zf.reveal', function (event) {
+    $("body").addClass("is-reveal-open");
+    if ($(this).children('iframe').hasClass('lazyloaded')) $(this).children('iframe').removeClass('lazyloaded').addClass('lazyload');
+    if ($(this).children('iframe').hasClass('lazyloading')) $(this).children('iframe').removeClass('lazyloading').addClass('lazyload');
+  });
 };
 
 Objectbrowser.prototype.set_chosen = function () {
@@ -225,32 +257,7 @@ Objectbrowser.prototype.open_overlay = function (ev) {
     this.$overlay.foundation("close");
   }.bind(this));
 
-  window.addEventListener("message", function (event) {
-    $('#new_' + this.id).foundation('close');
-    if (event.data.action == 'import') {
-      var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
-      $.ajax({
-        type: 'POST',
-        url: '/creative_works/import',
-        data: JSON.stringify({
-          authenticity_token: AUTH_TOKEN,
-          type: this.type + "_object",
-          data: event.data.data,
-          language: this.language,
-          overlay_id: '#object_browser_' + this.id,
-          key: this.key,
-          definition: this.definition,
-          options: this.options,
-          objects: this.chosen
-        }),
-        contentType: "application/json"
-      });
-    }
-  }.bind(this), false);
-
-  $('#new_' + this.id).on('closed.zf.reveal', function (event) {
-    if ($(this).children('iframe').hasClass('lazyloaded')) $(this).children('iframe').removeClass('lazyloaded').addClass('lazyload');
-  });
+  $(window).on('message onmessage', this.import.bind(this));
 
   this.load_objects(false);
 };
@@ -258,12 +265,38 @@ Objectbrowser.prototype.open_overlay = function (ev) {
 Objectbrowser.prototype.close_overlay = function (ev) {
   $(window).scrollTop(this.scrollTop);
   $(".reveal-blur").removeClass("show");
-
-  // remove breadcrumb link + text
   $(".breadcrumb ul li:last-child").remove();
   var text = $(".breadcrumb ul li:last-child a.close-object-browser").html();
   $(".breadcrumb ul li:last-child").html(text);
   $(".breadcrumb ul li").off("click");
+  $(window).off('message onmessage');
+};
+
+Objectbrowser.prototype.import = function (event) {
+  $('#new_' + this.id).foundation('close');
+  if (event.originalEvent.data.action == 'import') {
+    var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
+    $.ajax({
+      type: 'POST',
+      url: '/creative_works/import',
+      data: JSON.stringify({
+        authenticity_token: AUTH_TOKEN,
+        type: this.type + "_object",
+        data: event.originalEvent.data.data,
+        language: this.language,
+        overlay_id: '#object_browser_' + this.id,
+        key: this.key,
+        definition: this.definition,
+        options: this.options,
+        objects: this.chosen
+      }),
+      contentType: "application/json"
+    }).done(function (data) {
+      this.$overlay.find('.items .item .reveal.media-preview').each(function () {
+        if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
+      });
+    }.bind(this));
+  }
 };
 
 Objectbrowser.prototype.load_objects = function (append = true) {

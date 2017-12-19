@@ -1,6 +1,6 @@
 <% if !@person.nil? %>
-
-    <div class="reveal new-item" id="newPerson" data-reveal data-multiple-opened="true">
+  <% content_for :forms do %>
+    <div class="reveal new-item" id="new_<%= new_overlay_key ||= '' %>" data-reveal data-multiple-opened="true" data-overlay="false" data-reset-on-close="true">
         <h3>Neue Person erstellen</h3>
 
         <%= form_for :person, :url => {:controller => :persons, :action => "create"} do |f| %>
@@ -23,5 +23,5 @@
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-
+  <% end %>
 <% end %>

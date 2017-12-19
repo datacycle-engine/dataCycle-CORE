@@ -1,6 +1,6 @@
 <% if !@place.nil? %>
-
-    <div class="reveal new-item" id="newPlace" data-reveal data-multiple-opened="true">
+  <% content_for :forms do %>
+    <div class="reveal new-item" id="new_<%= new_overlay_key ||= '' %>" data-reveal data-multiple-opened="true" data-overlay="false" data-reset-on-close="true">
         <h3>Neuen Ort erstellen</h3>
 
         <%= form_for :place, :url => {:controller => :places, :action => "create"} do |f| %>
@@ -43,5 +43,5 @@
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-
+  <% end %>
 <% end %>

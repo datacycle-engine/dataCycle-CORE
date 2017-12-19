@@ -59,6 +59,7 @@
     "gulp-uglify": "2.1.2",
     "gulp-util": "3.0.8",
     "gulp-watch": "4.3.11",
+    "jquery-serializejson": "2.8.1",
     "jquery-ujs": "1.2.2",
     "jshint": "2.9.5",
     "lazysizes": "4.0.1-beta1",
