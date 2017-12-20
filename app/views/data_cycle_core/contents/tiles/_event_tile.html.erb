@@ -1,0 +1,38 @@
+<% I18n.with_locale(item.first_available_locale(@language)) do %>
+
+    <%= link_to polymorphic_path(item, watch_list_id: @watch_list) do %>
+
+        <div class="inner">
+
+            <% if !item.metadata.nil? && !item.metadata['validation'].nil? && !item.metadata['validation']['name'].nil? %>
+
+                <div class="type <%= item.metadata['validation']['name'].downcase %>">
+                    <div class="infoRow">
+                        <%= render 'data_cycle_core/shared/icon', icon_type: item.metadata['validation']['name'].downcase %>
+                        <span class="title"><%= item.metadata['validation']['name'] %></span>
+                        <span class="locale">(<%= I18n.locale.to_s %>)</span>
+                    </div>
+                </div>
+
+            <% end %>
+
+            <%= render 'data_cycle_core/contents/tiles/attributes/title', item: item %>
+            <%= render 'data_cycle_core/contents/tiles/attributes/description', item: item %>
+
+            <% unless item.display_classification_aliases.nil? %>
+
+                <div class="tags">
+                    <% item.display_classification_aliases.each do |classificationAlias| %>
+                        <span class="tag"><%= classificationAlias.name %></span>
+                    <% end %>
+                </div>
+
+            <% end %>
+
+            <%= render 'data_cycle_core/contents/tiles/attributes/images', item: item if item.respond_to?('image') && item.image.size > 0 %>
+
+        </div>
+
+    <% end %>
+
+<% end %>

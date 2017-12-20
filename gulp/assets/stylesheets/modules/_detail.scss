@@ -37,24 +37,22 @@
     .type {
       &.properties {
         .has-changes {
-          border: 2px solid $primary-color;
+          //border: 2px solid map-get($foundation-palette, alert);
+          background: rgba($light-gray, 0.5);
+          cursor: pointer;
           &.new {
-            border: 2px solid $success-color;
-            >span i {
-              color: $success-color;
-            }
+            background: rgba($success-color, 0.3);
+            box-shadow: 0 0 1px darken($success-color, 20%);
           }
           &.remove {
-            border: 2px solid $alert-color;
-            >span i {
-              color: $alert-color;
-            }
+            background: rgba($alert-color, 0.1);
+            box-shadow: 0 0 1px $alert-color;
           }
-          >span {
+          >span { 
             display: inline-block;
             margin-right: 2rem;
             i {
-              color: $primary-color;
+              color:  $dark-gray;
               font-size: 1.5rem;
               position: relative;
             }
@@ -63,10 +61,17 @@
             margin-left: 3rem;
           }
         }
+        .detail-type.has-changes .detail-label, .detail-type.selected .detail-label {
+          background: none;
+        }
         .detail-type {
           position: relative;
           box-shadow: 0 0 1px #9d9d9d;
           padding: 2.2rem 1rem 1rem 1rem;
+          &.selected {
+            background: rgba($primary-color, 0.1);
+            box-shadow: 0 0 1px $primary-color;
+          }
           &:not(:last-child) {
             margin-bottom: 1rem;
           }

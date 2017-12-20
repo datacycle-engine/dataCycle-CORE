@@ -9,7 +9,7 @@
           <%= render 'agbs' %>
         <% end %>
 
-        <% if content.try(:siblings) && content.try(:parent) && !content.try(:siblings).try(:size).nil? && !content.try(:siblings).try(:size).zero? %>
+        <% if content.respond_to?(:siblings) && content.respond_to?(:parent) && !content.parent.nil? && !content.siblings.try(:size).nil? && !content.siblings.try(:size).zero? %>
           <li class="has-dropdown right">
             <%= render 'split_sources', contents: content.siblings, selected: @splitSource, url: '', title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
           </li>
