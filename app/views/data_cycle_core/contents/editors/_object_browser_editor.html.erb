@@ -76,7 +76,7 @@
 
           <% if can?(:create_in_objectbrowser, object_class) %>
             <% begin %>
-                <%= render_object_browser_partial(partial: 'new', key: key, definition: definition, parameters: {new_overlay_key: sanitize_to_id(key)}) %>
+              <%= render_object_browser_partial(partial: 'new', key: key, definition: definition, parameters: {new_overlay_key: sanitize_to_id(key)}) %>
             <% rescue %>
             <% end %>
           <% end %>

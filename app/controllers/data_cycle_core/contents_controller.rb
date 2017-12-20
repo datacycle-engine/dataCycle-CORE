@@ -2,6 +2,10 @@ module DataCycleCore
   class ContentsController < ApplicationController
     before_action :set_watch_list
 
+    def render_embedded_object
+      respond_to(:js)
+    end
+
     private
 
     def set_watch_list

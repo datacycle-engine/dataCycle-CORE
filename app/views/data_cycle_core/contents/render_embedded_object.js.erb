@@ -1,0 +1,23 @@
+<% internal_template = DataCycleCore::DataHashService.get_internal_template(params[:definition]['storage_location'], params[:definition]['name'], params[:definition]['description']) %>
+
+<% validation_properties = get_ordered_validation_properties(internal_template.metadata['validation']) %>
+
+<% content_for :rendered_items do %>
+  <% unless validation_properties.nil? %>
+    <div class="content-object-item" id="<%= sanitize_to_id(params[:key]) %>_item_<%= params[:index] %>">
+      <span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.metadata['validation']['name'].downcase %> <%= params[:definition]['label'] %></span>
+
+      <% if params[:can_write] %>
+        <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
+      <% end %>
+
+      <% validation_properties.each do |o_key, o_prop| %>
+        <%= render_attribute_editor key: "#{params[:key]}[#{params[:index]}][#{o_key}]", definition: o_prop, value: "", parameters: { options: o_prop.dig('editor', 'options') || {} } %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+$('<%= params[:embedded_object_id] %>').children('.addContentObject').before('<%= j yield :rendered_items %>');
+$('#<%= sanitize_to_id(params[:key]) %>_item_<%= params[:index] %>').foundation().trigger('clone-added');
+$('<%= j content_for :forms %>').appendTo('body').foundation();

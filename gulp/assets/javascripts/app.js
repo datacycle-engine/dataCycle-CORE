@@ -22,7 +22,6 @@ var flash_init = require('./modules/initializers/flash_init');
 var validation_init = require('./modules/initializers/validation_init');
 var counter_init = require('./modules/initializers/counter_init');
 var datepicker_init = require('./modules/initializers/date_picker_init');
-var content_object_init = require('./modules/initializers/content_object_init');
 var slider_init = require('./modules/initializers/slider_init');
 var copy_contents_init = require('./modules/initializers/copy_contents_init');
 var map_init = require('./modules/initializers/map_init');
@@ -31,6 +30,7 @@ var classifications = require('./modules/initializers/classifications');
 var lazyloading_init = require('./modules/initializers/lazyloading_init');
 var datalist_init = require('./modules/initializers/datalist_init');
 var object_browser_init = require('./modules/initializers/object_browser_init');
+var embedded_objects_init = require('./modules/initializers/embedded_objects_init');
 
 
 $(function () {
@@ -99,9 +99,6 @@ $(function () {
   // initialize Word Counter
   counter_init.initialize();
 
-  // initialize Content Objects
-  content_object_init.initialize();
-
   // initialize Foundation Sliders
   slider_init.initialize();
 
@@ -119,6 +116,9 @@ $(function () {
 
   // initialize ObjectBrowsers
   object_browser_init.initialize();
+
+  // initialize Embedded Objects
+  embedded_objects_init.initialize();
 
   if ($('#classification-administration').length) {
     classifications.initialize();

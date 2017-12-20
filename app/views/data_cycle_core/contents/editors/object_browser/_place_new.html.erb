@@ -1,47 +1,45 @@
-<% if !@place.nil? %>
-  <% content_for :forms do %>
-    <div class="reveal new-item" id="new_<%= new_overlay_key ||= '' %>" data-reveal data-multiple-opened="true" data-overlay="false" data-reset-on-close="true">
-        <h3>Neuen Ort erstellen</h3>
+<% content_for :forms do %>
+  <div class="reveal new-item" id="new_<%= new_overlay_key ||= '' %>" data-reveal data-multiple-opened="true" data-overlay="false" data-reset-on-close="true">
+      <h3>Neuen Ort erstellen</h3>
 
-        <%= form_for :place, :url => {:controller => :places, :action => "create"} do |f| %>
+      <%= form_for :place, :url => {:controller => :places, :action => "create"} do |f| %>
 
-            <%= hidden_field_tag 'template', 'Ort' %>
-            <%= hidden_field_tag 'locale', I18n.locale %>
-            <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][name]', DataCycleCore::Place.human_attribute_name("name", locale: DataCycleCore.ui_language) %>
-                <%= text_field_tag 'place[datahash][name]', '', class: 'form-control', value:'' %>
-            </div>
-            <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][address][street_address]', DataCycleCore::Place.human_attribute_name("street", locale: DataCycleCore.ui_language) %>
-                <%= text_field_tag 'place[datahash][address][street_address]', '', class: 'form-control no-validation', value:'' %>
-            </div>
-            <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][address][postal_code]', DataCycleCore::Place.human_attribute_name("plz", locale: DataCycleCore.ui_language) %>
-                <%= text_field_tag 'place[datahash][address][postal_code]', '', class: 'form-control no-validation', value:'' %>
-            </div>
-            <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][address][address_locality]', DataCycleCore::Place.human_attribute_name("address", locale: DataCycleCore.ui_language) %>
-                <%= text_field_tag 'place[datahash][address][address_locality]', '', class: 'form-control no-validation', value:'' %>
-            </div>
-            <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][address][address_country]', DataCycleCore::Place.human_attribute_name("country", locale: DataCycleCore.ui_language) %>
-                <%= text_field_tag 'place[datahash][address][address_country]', '', class: 'form-control no-validation', value:'' %>
-            </div>
-            <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][longitude]', DataCycleCore::Place.human_attribute_name("longitude", locale: DataCycleCore.ui_language) %>
-                <%= text_field_tag 'place[datahash][longitude]', '', class: 'form-control no-validation', value:'' %>
-            </div>
-            <div class="validation-container form-element">
-                <%= label_tag 'place[datahash][latitude]', DataCycleCore::Place.human_attribute_name("latitude", locale: DataCycleCore.ui_language) %>
-                <%= text_field_tag 'place[datahash][latitude]', '', class: 'form-control no-validation', value:'' %>
-            </div>
-            <%= f.submit t(:submit, locale: DataCycleCore.ui_language), class: "button primary" %>
+          <%= hidden_field_tag 'template', 'Ort' %>
+          <%= hidden_field_tag 'locale', I18n.locale %>
+          <div class="validation-container form-element">
+              <%= label_tag 'place[datahash][name]', DataCycleCore::Place.human_attribute_name("name", locale: DataCycleCore.ui_language) %>
+              <%= text_field_tag 'place[datahash][name]', '', class: 'form-control', value:'' %>
+          </div>
+          <div class="validation-container form-element">
+              <%= label_tag 'place[datahash][address][street_address]', DataCycleCore::Place.human_attribute_name("street", locale: DataCycleCore.ui_language) %>
+              <%= text_field_tag 'place[datahash][address][street_address]', '', class: 'form-control no-validation', value:'' %>
+          </div>
+          <div class="validation-container form-element">
+              <%= label_tag 'place[datahash][address][postal_code]', DataCycleCore::Place.human_attribute_name("plz", locale: DataCycleCore.ui_language) %>
+              <%= text_field_tag 'place[datahash][address][postal_code]', '', class: 'form-control no-validation', value:'' %>
+          </div>
+          <div class="validation-container form-element">
+              <%= label_tag 'place[datahash][address][address_locality]', DataCycleCore::Place.human_attribute_name("address", locale: DataCycleCore.ui_language) %>
+              <%= text_field_tag 'place[datahash][address][address_locality]', '', class: 'form-control no-validation', value:'' %>
+          </div>
+          <div class="validation-container form-element">
+              <%= label_tag 'place[datahash][address][address_country]', DataCycleCore::Place.human_attribute_name("country", locale: DataCycleCore.ui_language) %>
+              <%= text_field_tag 'place[datahash][address][address_country]', '', class: 'form-control no-validation', value:'' %>
+          </div>
+          <div class="validation-container form-element">
+              <%= label_tag 'place[datahash][longitude]', DataCycleCore::Place.human_attribute_name("longitude", locale: DataCycleCore.ui_language) %>
+              <%= text_field_tag 'place[datahash][longitude]', '', class: 'form-control no-validation', value:'' %>
+          </div>
+          <div class="validation-container form-element">
+              <%= label_tag 'place[datahash][latitude]', DataCycleCore::Place.human_attribute_name("latitude", locale: DataCycleCore.ui_language) %>
+              <%= text_field_tag 'place[datahash][latitude]', '', class: 'form-control no-validation', value:'' %>
+          </div>
+          <%= f.submit t(:submit, locale: DataCycleCore.ui_language), class: "button primary" %>
 
-        <% end %>
+      <% end %>
 
-        <button class="close-button" data-close aria-label="Close modal" type="button">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-  <% end %>
+      <button class="close-button" data-close aria-label="Close modal" type="button">
+          <span aria-hidden="true">&times;</span>
+      </button>
+  </div>
 <% end %>
