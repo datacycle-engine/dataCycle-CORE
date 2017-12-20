@@ -11,7 +11,7 @@
 
 <% if can? :edit, content %>
     <div class="edit">
-        <%= link_to edit_polymorphic_path(content, watch_list_id: @watch_list), class:'button-prime small' do %>
+        <%= link_to edit_polymorphic_path(content, watch_list_id: @watch_list), class:'button-prime small edit-content-link' do %>
             <i class="fa fa-pencil" aria-hidden="true"></i>
         <% end %>
 
