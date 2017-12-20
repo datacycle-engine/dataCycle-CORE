@@ -260,8 +260,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
                 storage_location: 'creative_works'
               }
             }
-          },
-          nested_creative_works_hasPart: [3, 6, 9]
+          }
         })
     }
 
@@ -270,15 +269,14 @@ RSpec.describe DataCycleCore::Content, type: :model do
     end
 
     it "provides existing data from different table" do
-      expect(subject).to receive(:places)
+      expect(subject).to receive(:existing_locations)
         .and_return([double('DataCycleCore::Place'), double('DataCycleCore::Place'), double('DataCycleCore::Place')])
-
       expect(subject.existing_locations.size).to eq(3)
     end
 
     it "provides existing data from same table" do
-      expect(subject).to receive(:load_embedded_objects_same_table)
-        .with([3, 6, 9])
+      ap subject
+      expect(subject).to receive(:nested_creative_works)
         .and_return([double('DataCycleCore::CreativeWork'), double('DataCycleCore::CreativeWork'), double('DataCycleCore::CreativeWork')])
 
       expect(subject.nested_creative_works.size).to eq(3)
