@@ -275,7 +275,6 @@ RSpec.describe DataCycleCore::Content, type: :model do
     end
 
     it "provides existing data from same table" do
-      ap subject
       expect(subject).to receive(:nested_creative_works)
         .and_return([double('DataCycleCore::CreativeWork'), double('DataCycleCore::CreativeWork'), double('DataCycleCore::CreativeWork')])
 
