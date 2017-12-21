@@ -43,6 +43,7 @@ Cypress.Commands.add('login', function (userType, options = {}) {
             remember_me: 0
           }
         },
+        failOnStatusCode: false,
         followRedirect: false
       })
       cy.visit('/')
