@@ -83,5 +83,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'spring'
   s.add_development_dependency 'spring-watcher-listen', '~> 2.0.0'
   # admin db-interface
-  #s.add_development_dependency  'rails_db'
+  s.add_development_dependency  'rspec'
 end
