@@ -128,6 +128,13 @@ ObjectBrowser.prototype.setup = function () {
   }.bind(this));
 
   $('#new_' + this.id).on('open.zf.reveal', function (event) {
+    if ($(this).find('iframe').length > 0) {
+      $(this).append('<div class="loading-iframe"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
+      $(this).find('iframe').on('lazyloaded', function () {
+        $(this).find('.loading-iframe').remove();
+      }.bind(this));
+    }
+
     $(this).find('form').on('submit', function (ev) {
       ev.preventDefault();
       var form_data = $(this).serializeJSON();

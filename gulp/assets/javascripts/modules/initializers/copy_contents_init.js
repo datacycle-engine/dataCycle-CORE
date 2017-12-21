@@ -9,7 +9,16 @@ module.exports.initialize = function () {
       // console.log($(this).find('.copy-single'));
       $(this).find('.copy-single').append('<a class="button-prime small copy-single-button"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>');
 
-      if ($(this).find('.buttons').length > 0) $(this).find('.buttons').append('<a class="button-prime small copy"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>');
+      if ($(this).children('.buttons').length > 0) $(this).children('.buttons').append('<a class="button-prime small copy"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>');
+      else $(this).append('<div class="buttons"><a class="button-prime small copy"><i class="fa fa-arrow-right" aria-hidden="true"></i></a></div>');
+    }
+  });
+
+  $('.flex-box .detail-content .properties > div[data-editor=embeddedObject]').each(function () {
+    var label = $(this).data('label');
+    var ids = $(this).data('id');
+    if ($('.flex-box .edit-content [data-label=' + label + ']').length > 0 && ids.length > 0) {
+      if ($(this).children('.buttons').length > 0) $(this).children('.buttons').append('<a class="button-prime small copy"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>');
       else $(this).append('<div class="buttons"><a class="button-prime small copy"><i class="fa fa-arrow-right" aria-hidden="true"></i></a></div>');
     }
   });
@@ -30,7 +39,7 @@ module.exports.initialize = function () {
 
   function copy_contents(ids, label) {
     var target_container = $('.flex-box .edit-content [data-label=' + label + ']');
-    target_container.find('.object-browser').trigger('import-data', {
+    target_container.children('.object-browser, .embedded-object').trigger('import-data', {
       ids: ids
     });
 

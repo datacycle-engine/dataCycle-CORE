@@ -271,6 +271,17 @@
   }
 }
 
+.loading {
+  float: left;
+  width: 100%;
+  text-align: center;
+  padding: 1rem 0;
+  .fa {
+    font-size: 3rem;
+    color: $dark-gray;
+  }
+}
+
 .object-browser-overlay {
   margin: 7.9rem 0 0 0 !important;
   outline: none;
@@ -478,16 +489,6 @@
     a.delete-thumbnail {
       display: none;
     }
-    .loading {
-      float: left;
-      width: 100%;
-      text-align: center;
-      padding: 1rem 0;
-      .fa {
-        font-size: 3rem;
-        color: $light-gray;
-      }
-    }
     .no-entries {
       text-align: center;
       padding: 10rem 0;
@@ -591,7 +592,6 @@ span.single_error.object-browser-error {
 .reveal {
   &.new-item {
     background: $white;
-    position: fixed;
     .loading {
       display: none;
       vertical-align: text-bottom;
@@ -625,8 +625,13 @@ span.single_error.object-browser-error {
     }
     .addContentObject {
       margin: 0;
+      transition: all ease-in-out 0.2s;
       .fa {
-        padding-left: 0.5rem;
+        padding: 0;
+        margin-left: 0.5rem;
+        display: none;
+        font-size: 0.9rem;
+        vertical-align: bottom;
       }
     }
     .content-object-item {

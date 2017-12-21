@@ -96,5 +96,6 @@ DataCycleCore::Engine.routes.draw do
     post :find
   end
 
+  post 'contents/new_embedded_object', to: 'contents#new_embedded_object'
   post 'contents/render_embedded_object', to: 'contents#render_embedded_object'
 end

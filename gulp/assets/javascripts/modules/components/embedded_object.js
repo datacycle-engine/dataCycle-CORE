@@ -17,10 +17,45 @@ var EmbeddedObject = function (selector) {
 };
 
 EmbeddedObject.prototype.setup = function () {
+  if (this.write && (this.max == 0 || this.element.children('.content-object-item').length < this.max)) $(this.element).children('#add_' + this.id).show();
+
+  this.element.off('import-data').on('import-data', function (event, data) {
+    var ids = this.element.children('.content-object-item').map(function (index, elem) {
+      return $(elem).data('id');
+    }).get();
+
+    if (this.write && (this.max == 0 || this.element.children('.content-object-item').length < this.max) && ids.indexOf(data.ids[0]) === -1) {
+      this.element.children('#add_' + this.id).prop('disabled', true).find('.fa').css('display', 'inline-block');
+      $.ajax({
+        url: this.url + '/render_embedded_object',
+        method: 'POST',
+        data: JSON.stringify({
+          index: this.index,
+          language: this.language,
+          embedded_object_id: '#' + this.id,
+          key: this.key,
+          definition: this.definition,
+          options: this.options,
+          id: data.ids
+        }),
+        contentType: 'application/json'
+      }).done(function (data) {
+        this.index++;
+        this.update();
+        this.add_event_handlers();
+      }.bind(this));
+    } else if (this.write && this.max != 0 && ids.indexOf(data.ids[0]) === -1) {
+      this.show_confirmation(this.element, event, "Maximalanzahl: " + this.max, false);
+    }
+  }.bind(this));
+
+  this.add_event_handlers();
+};
+
+EmbeddedObject.prototype.add_event_handlers = function () {
   var self = this;
-  if (this.write && (this.max == 0 || this.index < this.max) && this.element.find('#add_' + this.id).length == 0) {
-    $('<button id="add_' + this.id + '" type="button" class="button addContentObject">' + this.label + ' hinzufügen</button>').appendTo(this.element).on('click', this.render_embedded_object.bind(this));
-  }
+
+  this.element.children('#add_' + this.id).off('click').on('click', this.render_embedded_object.bind(this));
 
   this.element.children('.content-object-item').each(function () {
     $(this).children('.removeContentObject').off('click').on('click', function (event) {
@@ -32,8 +67,9 @@ EmbeddedObject.prototype.setup = function () {
 };
 
 EmbeddedObject.prototype.render_embedded_object = function () {
+  this.element.children('#add_' + this.id).prop('disabled', true).find('.fa').css('display', 'inline-block');
   $.ajax({
-    url: this.url + '/render_embedded_object',
+    url: this.url + '/new_embedded_object',
     method: 'POST',
     data: JSON.stringify({
       index: this.index,
@@ -41,39 +77,55 @@ EmbeddedObject.prototype.render_embedded_object = function () {
       embedded_object_id: '#' + this.id,
       key: this.key,
       definition: this.definition,
-      can_write: this.write
+      options: this.options
     }),
     contentType: 'application/json'
   }).done(function (data) {
     this.index++;
     this.update();
+    this.add_event_handlers();
   }.bind(this));
-
 };
 
 EmbeddedObject.prototype.update = function () {
   var self = this;
   if (this.max != 0 && this.element.children('.content-object-item').length >= this.max) {
-    this.element.find('#add_' + this.id).off('click').remove();
-  } else if (this.write && this.element.find('#add_' + this.id).length == 0) {
-    $('<button id="add_' + this.id + '" type="button" class="button addContentObject">' + this.label + ' hinzufügen</button>').appendTo(this.element).on('click', this.render_embedded_object.bind(this));
+    this.element.children('#add_' + this.id).hide();
+  } else if (this.write) {
+    this.element.children('#add_' + this.id).show();
   }
 
   if (this.min != 0 && this.element.children('.content-object-item').length <= this.min) {
-    this.element.children('.content-object-item').children('.removeContentObject').off('click').remove();
+    this.element.children('.content-object-item').children('.removeContentObject').hide();
   } else if (this.write) {
-    this.element.children('.content-object-item').each(function () {
-      if ($(this).children('.removeContentObject').length == 0) {
-        $('<button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>').prependTo($(this));
-      }
-      $(this).children('.removeContentObject').off('click').on('click', function (event) {
-        event.preventDefault();
-        $(this).closest('.content-object-item').remove();
-        self.update();
-      });
-    });
+    this.element.children('.content-object-item').children('.removeContentObject').show();
   }
 };
 
+EmbeddedObject.prototype.show_confirmation = function (parent, event, text, abort = true) {
+  parent.find('.confirmation').remove();
+  var html = '<div class="confirmation" style="position: absolute; transition: none;"><span>';
+  html += text
+  html += '</span><div class="buttons">';
+  if (abort) html += '<button class="button abort" type="button">Abbrechen</button>';
+  html += '<button class="button ok" type="button">Ok</button></div></div>';
+  parent.append(html);
+  parent.find('.confirmation').css({
+    top: event.pageY - parent.offset().top - parent.find('.confirmation').outerHeight() - 20,
+    left: event.pageX - parent.offset().left - 50
+  });
+
+  parent.find('.confirmation .button.ok').click(function (event) {
+    event.preventDefault();
+    parent.find('.confirmation').remove();
+  });
+
+  if (abort) {
+    parent.find('.confirmation .button.abort').click(function (event) {
+      event.preventDefault();
+      parent.find('.confirmation').remove();
+    });
+  }
+};
 
 module.exports = EmbeddedObject;
