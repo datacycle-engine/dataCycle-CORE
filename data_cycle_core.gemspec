@@ -74,6 +74,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'hashdiff'
   s.add_dependency 'transproc', '~> 1.0'
   s.add_dependency 'dry-validation', '~> 0.11'
+  s.add_dependency  'rspec'
 
   # development tools
   s.add_development_dependency 'web-console'
