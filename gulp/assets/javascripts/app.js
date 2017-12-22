@@ -27,6 +27,7 @@ var copy_contents_init = require('./modules/initializers/copy_contents_init');
 var map_init = require('./modules/initializers/map_init');
 var watch_lists_init = require('./modules/initializers/watch_lists_init');
 var classifications = require('./modules/initializers/classifications');
+var classification_select_init = require('./modules/initializers/classification_select_init');
 var lazyloading_init = require('./modules/initializers/lazyloading_init');
 var datalist_init = require('./modules/initializers/datalist_init');
 var object_browser_init = require('./modules/initializers/object_browser_init');
@@ -119,6 +120,9 @@ $(function () {
 
   // initialize Embedded Objects
   embedded_objects_init.initialize();
+
+  // initialize Classigication Selector
+  classification_select_init.initialize();
 
   if ($('#classification-administration').length) {
     classifications.initialize();

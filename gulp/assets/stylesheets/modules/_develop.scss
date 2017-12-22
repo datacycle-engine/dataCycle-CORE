@@ -690,3 +690,103 @@ ul.translated-locales {
   right: 0;
   left: auto !important;
 }
+
+.form-element {
+  .v-select {
+    label {
+      display: block;
+      text-align: left;
+      position: absolute;
+      top: 0.2rem;
+      left: 1rem;
+      z-index: 12;
+      color: #9d9d9d;
+      transition: color ease-in-out 0.25s;
+      padding-top: 0.5rem;
+      opacity: 1;
+    }
+    outline: none;
+    height: auto;
+    line-height: 1;
+    margin: 0;
+    border-color: #e6e6e6;
+    box-shadow: 0 0 0 #9d9d9d;
+    position: relative;
+    transition: box-shadow 0.1s,
+    border-color 0.25s ease-in-out;
+    min-width: 280px;
+    padding: 0 0 0 0;
+    .select2-container {
+      border: 1px solid #e6e6e6;
+      background: $light-gray;
+      padding: 3rem 0.5rem 0.5rem 0.5rem;
+      .select2-selection {
+        border: 0;
+        border-radius: 0;
+        background: none;
+      }
+      &:hover {
+        box-shadow: 0 0 7px $primary-color;
+      }
+      &:focus,
+      &.select2-container--focus,
+      &.select2-container--open {
+        border-color: $primary-color;
+        background: white;
+      }
+      .select2-search__field {
+        height: auto;
+        margin: 0 0.1rem;
+        border-radius: 5px;
+        padding: 0.05rem 0.3rem 0.05rem 0.3rem;
+        font-size: 0.8rem;
+        min-width: 100px;
+        background: $light-gray;
+      }
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+      border-radius: 5px;
+      padding: 0 1rem 0 0.3rem;
+      background-color: rgba($primary-color, 0.5);
+      border: 0;
+      margin: 0 0.1rem;
+      position: relative;
+      span {
+        color: white;
+        position: absolute;
+        padding-right: 0.5rem;
+        width: 100%;
+        text-align: right;
+        font-size: 1rem;
+        font-weight: normal;
+        opacity: .7;
+      }
+      &:hover {
+        background-color: rgba(map-get($foundation-palette, alert), 0.5);
+      }
+    }
+    &.white {
+      .select2-container {
+        border: 1px solid $medium-gray;
+        background: transparent;
+        padding: 0.2rem 0.5rem;
+        line-height: initial;
+        &:hover {
+          box-shadow: none;
+        }
+        .select2-selection {
+          .select2-selection__arrow {
+            top: 0;
+            height: 100%;
+          }
+        }
+      }
+    }
+  }
+}
+
+.select2-container {
+  .select2-highlight {
+    text-decoration: underline;
+  }
+}

@@ -303,7 +303,6 @@ button,
   input,
   .ql-editor,
   .daterange,
-  .v-select,
   .embedded_object,
   .readonly-select {
     border: 1px solid $light-gray;
@@ -341,14 +340,6 @@ button,
   .focus .ql-editor {
     border-color: $primary-color;
     background: white;
-  }
-  .focus .v-select {
-    border-color: $primary-color;
-    background: white;
-    z-index: 16;
-    &.readonly {
-      background: $light-gray;
-    }
   }
   .focus {
     label {
@@ -430,16 +421,6 @@ button,
         }
       }
     }
-  }
-}
-
-.v-select {
-  padding: 2rem 1rem 1rem 1rem;
-  .dropdown-toggle {
-    border: 0 !important;
-  }
-  .dropdown-menu {
-    z-index: 1000;
   }
 }
 

@@ -50,7 +50,7 @@ module DataCycleCore
       @selected_values = []
       Array(value).each do |v|
         options.each do |o|
-          if o[:value] == v
+          if o[1] == v
             @selected_values.push(o)
           end
         end
@@ -61,7 +61,7 @@ module DataCycleCore
     end
 
     def get_custom_select_values(classification_alias)
-      res = walk_classification_tree(classification_alias).flatten
+      res = walk_classification_tree(classification_alias)
     end
 
     def ordered_content_pools
@@ -73,15 +73,13 @@ module DataCycleCore
       cached_ordered_content_pools
     end
 
-    def walk_classification_tree(classification_alias,level=0)
+    def walk_classification_tree(classification_alias)
       classification_tree = []
       return if classification_alias.nil?
       classification_alias.each do |value|
-        classification_tree.push({:value => value.classifications.ids.first, :label => value.name, :level => level})
+        classification_tree.push([value.name, value.classifications.ids.first])
         # if value.sub_classification_alias.count > 0
-        level += 1
-        classification_tree.push(walk_classification_tree(value.sub_classification_alias, level))
-        level -= 1
+        classification_tree.push(walk_classification_tree(value.sub_classification_alias).flatten)
         # end
       end
       classification_tree
