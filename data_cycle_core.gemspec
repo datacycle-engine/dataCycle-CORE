@@ -85,6 +85,6 @@ Gem::Specification.new do |s|
   # admin db-interface
 
   #test dependencies
-  s.add_development_dependency 'rspec'
-  s.add_development_dependency 'rspec-rails'
+  s.add_dependency 'rspec'
+  s.add_dependency 'rspec-rails'
 end
