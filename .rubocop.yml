@@ -1,6 +1,6 @@
-inherit_from:
-  - ~/.rubocop.yml
+#inherit_from:
+#  - ~/.rubocop.yml
 
 AllCops:
-  TargetRubyVersion: 2.4.1
+  TargetRubyVersion: 2.4.3
   TargetRailsVersion: 5.0
