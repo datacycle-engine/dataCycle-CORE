@@ -14,7 +14,7 @@ module DataCycleCore::Generic::MediaArchive::Import
   protected
 
   def load_contents(mongo_item, locale)
-    mongo_item.where("dump.#{locale}" => { '$exists' => true })
+    mongo_item.where("dump.#{locale}": { '$exists' => true })
   end
 
   def process_content(raw_data, template, locale)

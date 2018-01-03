@@ -10,7 +10,7 @@ module DataCycleCore::Generic::Eyebase::Import
   protected
 
   def load_contents(mongo_item, locale)
-    mongo_item.where("dump.#{locale.to_s}.mediaassettype" => '501')
+    mongo_item.where("dump.#{locale.to_s}.mediaassettype": '501')
   end
 
   def process_content(raw_data, template, locale = 'de')

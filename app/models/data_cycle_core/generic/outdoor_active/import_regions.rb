@@ -14,7 +14,7 @@ module DataCycleCore::Generic::OutdoorActive::ImportRegions
   protected
 
   def load_root_classifications(mongo_item, locale)
-    mongo_item.where("this.dump.#{locale}.id == this.dump.#{locale}.parentId")
+    mongo_item.where("this.dump.#{locale}.id" == "this.dump.#{locale}.parentId")
   end
 
   def load_child_classifications(mongo_item, parent_category_data, locale)
