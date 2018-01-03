@@ -80,10 +80,10 @@ module DataCycleCore
 
     def removeItem
       watch_list = DataCycleCore::WatchList.find(params[:id])
-      object_type = DataCycleCore.content_tables.find{ |object| ('DataCycleCore::'+object.singularize.classify) ==  params[:hashable_type].classify }
+      object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object ==  params[:hashable_type].classify }
 
       unless object_type.nil?
-        content_object = ('DataCycleCore::'+object_type.singularize.classify).constantize.find(params[:hashable_id])
+        content_object = object_type.constantize.find(params[:hashable_id])
 
         unless content_object.nil? || watch_list.nil?
           content_object.watch_lists.delete(watch_list)
@@ -100,10 +100,10 @@ module DataCycleCore
 
     def addItem
       watch_list = DataCycleCore::WatchList.find(params[:id])
-      object_type = DataCycleCore.content_tables.find{ |object| ('DataCycleCore::'+object.singularize.classify) ==  params[:hashable_type].classify }
+      object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object ==  params[:hashable_type].classify }
 
       unless object_type.nil?
-        content_object = ('DataCycleCore::'+object_type.singularize.classify).constantize.find(params[:hashable_id])
+        content_object = object_type.constantize.find(params[:hashable_id])
 
         unless content_object.nil? || watch_list.nil?
           content_object.watch_lists << watch_list

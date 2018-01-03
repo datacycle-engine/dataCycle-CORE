@@ -41,10 +41,10 @@ module DataCycleCore
       authorize! :show, :object_browser
       if !params[:class].blank? && !params[:ids].blank?
         #todo: FIXME if breaks
-        object_type = DataCycleCore.content_tables.find{ |object| ('DataCycleCore::'+object.singularize.classify) ==  params[:class].classify }
-        object = ('DataCycleCore::'+object_type.singularize.classify).constantize
+        object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object ==  params[:hashable_type].classify }
+        # object = object_type.constantize
         # object = params[:class].constantize
-        result = object.where(id: params[:ids])
+        result = object_type.constantize.where(id: params[:ids])
         render :json => result
       end
     end
