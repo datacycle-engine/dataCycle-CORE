@@ -6,6 +6,7 @@
   <button class="button-prime small success update"><i aria-hidden="true" class="fa fa-check"></i></button>
   <button class="button-prime small discard"><i aria-hidden="true" class="fa fa-times"></i></button>
   <%= f.check_box :internal %>
+  <%= f.check_box :assignable %>
   <% if classification_alias.persisted? %>
     <div class="v-select">
     <%= f.select(:classification_ids,

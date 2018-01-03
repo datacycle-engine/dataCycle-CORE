@@ -807,6 +807,15 @@ ul.translated-locales {
   }
   .select2-dropdown {
     .select2-results__option {
+      &[aria-disabled=true] {
+        color: lighten($dark-gray, 20%);
+        font-style: italic;
+        cursor: not-allowed;
+        .select2-option-title {
+          color: lighten($black, 20%);
+          font-weight: bold;
+        }
+      }
       &.select2-results__option--highlighted {
         color: $light-gray;
         .select2-option-title {
