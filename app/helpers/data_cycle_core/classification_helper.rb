@@ -78,9 +78,7 @@ module DataCycleCore
       return if classification_alias.nil?
       classification_alias.each do |value|
         classification_tree.push([value.name, value.classifications.ids.first])
-        # if value.sub_classification_alias.count > 0
         classification_tree.push(walk_classification_tree(value.sub_classification_alias).flatten)
-        # end
       end
       classification_tree
     end

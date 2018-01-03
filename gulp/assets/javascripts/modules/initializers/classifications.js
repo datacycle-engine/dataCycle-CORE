@@ -35,9 +35,12 @@ module.exports.initialize = function () {
         if (data.loading) {
           return data.path;
         }
+
         var term = query.term || '';
 
         var result = data.path ? select2_helpers.markMatch(data.path, term) : null;
+
+        select2_helpers.decorateResult(result);
 
         return result;
       },
@@ -48,12 +51,14 @@ module.exports.initialize = function () {
         url: '/classifications/search',
         delay: 250,
         data: function (params) {
+          select.data('select2').$container.addClass('select2-loading');
           query = params;
           return {
             q: params.term
           };
         },
         processResults: function (data) {
+          select.data('select2').$container.removeClass('select2-loading');
           return {
             results: data
           };

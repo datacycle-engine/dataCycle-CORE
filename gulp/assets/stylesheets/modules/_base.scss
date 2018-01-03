@@ -368,9 +368,6 @@ button,
       &.validation-container:last-of-type {
         margin-bottom: 0;
       }
-      .custom-select-title {
-        display: none;
-      }
       label {
         padding-top: 0.5rem;
         opacity: 1;
@@ -629,7 +626,7 @@ body .v-select {
     font-size: 0.8rem;
     color: $white;
     padding: 0 0.3rem;
-    margin: 0 0.1rem;
+    margin: 0.1rem;
     line-height: 1.2rem;
     border-radius: $object-border-radius;
     i {

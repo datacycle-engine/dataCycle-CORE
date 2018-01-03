@@ -2,7 +2,7 @@
 module.exports = {
   markMatch: function (text, term) {
     // Find where the match is
-    var match = text.toUpperCase().indexOf(term.toUpperCase());
+    var match = text.toUpperCase().lastIndexOf(term.toUpperCase());
 
     var $result = $('<span></span>');
 
@@ -25,5 +25,14 @@ module.exports = {
     $result.append(text.substring(match + term.length));
 
     return $result;
+  },
+  decorateResult: function (result) {
+    $(result).html(function (index, value) {
+      if (value != undefined) {
+        var text = value.split(' &gt; ');
+        text[text.length - 1] = '<span class="select2-option-title">' + text[text.length - 1] + '</span>';
+        return text.join(' > ');
+      }
+    });
   }
 };

@@ -6,12 +6,6 @@ var foundation = require('foundation-sites');
 var lazysizes = require('lazysizes');
 var lazysizes_unveilhooks = require('lazysizes/plugins/unveilhooks/ls.unveilhooks.min.js');
 
-var Vue = require('vue');
-var AsyncComputed = require('vue-async-computed');
-var CustomSelect = require('./vue/components/custom-select.vue');
-var ObjectBrowser = require('./vue/components/object-browser.vue');
-var EmbeddedObjects = require('./vue/components/embedded-objects.vue');
-
 var masonry_init = require('./modules/initializers/masonry_init');
 var quill_init = require('./modules/initializers/quill_init');
 var filter_init = require('./modules/initializers/filter_init');
@@ -40,38 +34,6 @@ $(function () {
 
   // Initialize Foundation
   $(document).foundation();
-
-  // initialize Vue + Custom Select + Object Browser
-  if ($('.editor').length > 0) {
-    Vue.use(AsyncComputed);
-
-    var edit_form = new Vue({
-      el: '.editor',
-      components: {
-        CustomSelect,
-        ObjectBrowser,
-        EmbeddedObjects
-      }
-    });
-  }
-
-  if ($('#newContent').length > 0) {
-    var new_vue = new Vue({
-      el: '#newContent form',
-      components: {
-        CustomSelect
-      }
-    });
-  }
-
-  if ($('#split-source-selector').length > 0) {
-    var new_vue = new Vue({
-      el: '#split-source-selector',
-      components: {
-        CustomSelect
-      }
-    });
-  }
 
   // Initialize Filter Events
   filter_init.initialize();
@@ -135,26 +97,6 @@ $(function () {
       $('.home-container').addClass('show')
     }, 500);
     $('body').addClass('login-page');
-  }
-
-  // SPLIT CONTENT
-  if ($(".split-content").length) {
-    $(".split-content").on("mouseover", function () {
-      $(".split-content").addClass('nothover');
-      $(this).removeClass('nothover');
-    });
-    $(".has-changes").on("click", function () {
-      $(".split-content .properties .selected").removeClass('selected');
-      current = $(this).data("label");
-      newelem = $(".split-content").last().find("[data-label='" + current + "']");
-      newelem.addClass('selected');
-      $('.split-content').last().animate({
-        scrollTop: newelem.offset().top - $('.split-content').last().offset().top + $('.split-content').last().scrollTop() - 150
-      }, 500);
-      $('.split-content').first().animate({
-        scrollTop: $(this).offset().top - $('.split-content').first().offset().top + $('.split-content').first().scrollTop() - 150
-      }, 500);
-    });
   }
 
 });

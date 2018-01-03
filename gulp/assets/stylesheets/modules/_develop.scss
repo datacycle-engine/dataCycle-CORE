@@ -209,8 +209,7 @@ select {
 #split-source-selector,
 #newContent {
   overflow-y: visible;
-  input[type=text],
-  .custom-select .dropdown {
+  input[type=text] {
     min-width: auto;
     display: block;
     box-sizing: border-box;
@@ -714,9 +713,8 @@ ul.translated-locales {
     position: relative;
     transition: box-shadow 0.1s,
     border-color 0.25s ease-in-out;
-    min-width: 280px;
     padding: 0 0 0 0;
-    .select2-container {
+    .select2 {
       border: 1px solid #e6e6e6;
       background: $light-gray;
       padding: 3rem 0.5rem 0.5rem 0.5rem;
@@ -724,6 +722,11 @@ ul.translated-locales {
         border: 0;
         border-radius: 0;
         background: none;
+      }
+      .select2-selection--single {
+        .select2-selection__rendered {
+          padding-left: 0;
+        }
       }
       &:hover {
         box-shadow: 0 0 7px $primary-color;
@@ -749,7 +752,7 @@ ul.translated-locales {
       padding: 0 1rem 0 0.3rem;
       background-color: rgba($primary-color, 0.5);
       border: 0;
-      margin: 0 0.1rem;
+      margin: 0.1rem;
       position: relative;
       span {
         color: white;
@@ -766,7 +769,8 @@ ul.translated-locales {
       }
     }
     &.white {
-      .select2-container {
+      margin-bottom: 1rem;
+      .select2 {
         border: 1px solid $medium-gray;
         background: transparent;
         padding: 0.2rem 0.5rem;
@@ -786,7 +790,35 @@ ul.translated-locales {
 }
 
 .select2-container {
-  .select2-highlight {
-    text-decoration: underline;
+  color: $dark-gray;
+  text-align: left;
+  &.select2-loading::after {
+    content: '\f1ce';
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    display: inline-block;
+    position: absolute;
+    animation: fa-spin 2s infinite linear;
+    right: 1rem;
+    top: 1rem;
+    font-size: 1.5rem;
+    line-height: 1.5rem;
+  }
+  .select2-dropdown {
+    .select2-results__option {
+      &.select2-results__option--highlighted {
+        color: $light-gray;
+        .select2-option-title {
+          color: white;
+        }
+      }
+      .select2-option-title {
+        color: $black;
+      }
+    }
+    .select2-highlight {
+      text-decoration: underline;
+    }
   }
 }

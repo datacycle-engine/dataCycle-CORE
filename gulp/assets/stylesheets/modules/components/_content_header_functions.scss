@@ -88,7 +88,7 @@
         }
       }
       &.has-dropdown.right {
-        >ul {
+        >ul.dropdown-pane {
           right: -18px !important;
           left: auto !important; // top: 2rem !important;
           &::before {
@@ -125,7 +125,7 @@
           opacity: 1;
         }
       }
-      ul {
+      ul.dropdown-pane {
         box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
         text-align: center;
         &::before {
@@ -141,7 +141,7 @@
           height: 0;
           line-height: 1;
         }
-        li {
+        >li {
           position: relative;
           text-align: left;
           font-size: 0.8rem;
@@ -202,7 +202,7 @@
     cursor: pointer;
     font-weight: bold;
   }
-  ul {
+  >ul {
     text-align: right;
     margin: 0;
     list-style: none;

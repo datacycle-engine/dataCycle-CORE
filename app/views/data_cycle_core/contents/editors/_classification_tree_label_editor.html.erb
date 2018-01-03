@@ -2,7 +2,7 @@
 
   <div class="v-select">
     <%= label_tag(key, definition['label']) %>
-    <%= select_tag(key, options_for_select(value.map { |c| [c.name, c.id] }, value.map(&:id)), {multiple: true, class: 'async-select', data: { 'tree-label': definition['type_name'] }}) %>
+    <%= select_tag(key, options_for_select(value.map { |c| [c.name, c.id] }, value.map(&:id)), {multiple: true, disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)), class: 'async-select', data: { 'tree-label': definition['type_name'], 'max': 50 }}) %>
   </div>
 
 <% end %>

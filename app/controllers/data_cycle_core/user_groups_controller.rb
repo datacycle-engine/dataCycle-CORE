@@ -25,8 +25,7 @@ module DataCycleCore
     end
 
     def update
-
-      if @user_group.update_attributes(user_group_params)
+      if @user_group.update(user_group_params)
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Benutzergruppe', locale: DataCycleCore.ui_language
 
         if Rails.env.development?

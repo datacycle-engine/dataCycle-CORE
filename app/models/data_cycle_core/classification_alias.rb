@@ -32,7 +32,7 @@ module DataCycleCore
     def descendants
       Rails.cache.fetch("#{cache_key}/descendants", expires_in: 10.minutes) do
         if sub_classification_alias
-          classifications.to_a + sub_classification_alias.map(&:descendants).to_a
+          classifications.to_a + sub_classification_alias.includes(:classifications).order(:name).map(&:descendants).to_a
         else
           classifications.to_a
         end
