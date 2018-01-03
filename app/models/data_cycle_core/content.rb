@@ -267,7 +267,7 @@ module DataCycleCore
       join_table = selector ? :content_content_a : :content_content_b unless is_history?
       query = target_class.constantize.joins(join_table)
       where_hash.each do |key,value|
-        query = query.where("#{relation_table}.#{key} = ?", value)
+        query = query.where(ActiveRecord::Base.send(:sanitize_sql_for_conditions,["#{relation_table}.#{key} = ?", value]))
       end
       query
     end

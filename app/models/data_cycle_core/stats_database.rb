@@ -26,7 +26,7 @@ module DataCycleCore
       @stat_update = Time.zone.now
 
       @pg_name = ActiveRecord::Base.connection.current_database
-      sql = "SELECT pg_database_size('#{@pg_name}');"
+      sql = ActiveRecord::Base.send(:sanitize_sql_for_conditions, "SELECT pg_database_size('#{@pg_name}');")
 
       @pg_size = ActiveRecord::Base.connection.execute(sql).first['pg_database_size']
       @pg_classifications = Classification.count

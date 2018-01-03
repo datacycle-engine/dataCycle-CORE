@@ -246,7 +246,7 @@ module DataCycleCore
           validity_period = EXCLUDED.validity_period,
           boost = EXCLUDED.boost;
       eos
-      connection.exec_query(sql_query)
+      connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
     end
 
     private
