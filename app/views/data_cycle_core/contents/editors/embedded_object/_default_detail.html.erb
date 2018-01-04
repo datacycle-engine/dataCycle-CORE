@@ -17,7 +17,7 @@
 
         <% validation_properties.each do |o_key, o_prop| %>
 
-          <% value = o_prop.dig('type') == "object" ? object.try(o_key.to_sym) : objectDataHash[o_key] %>
+  				<% value = o_prop.dig('type') == "object" || o_prop.dig('type') == "classificationTreeLabel" ? object.try(o_key.to_sym) : objectDataHash[o_key] %>
 
           <%= render_attribute_editor key: "#{key}[#{index}][#{o_key}]", definition: o_prop, value: value, parameters: { options: (o_prop.dig('editor', 'options') || {}), new_content: new_content } %>
 

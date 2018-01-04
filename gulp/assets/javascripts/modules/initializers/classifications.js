@@ -1,5 +1,6 @@
 require('select2');
 require('select2/i18n/de');
+$.fn.select2.defaults.set('language', $.fn.select2.amd.require("select2/i18n/de"));
 var select2_helpers = require('./../helpers/select2_helpers');
 
 module.exports.initialize = function () {
@@ -27,7 +28,6 @@ module.exports.initialize = function () {
     select.select2({
       tags: true,
       minimumInputLength: 1,
-      language: 'de',
       escapeMarkup: function (m) {
         return m;
       },
