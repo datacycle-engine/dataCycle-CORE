@@ -44,7 +44,8 @@ CREATE TABLE classification_aliases (
     updated_at timestamp without time zone NOT NULL,
     external_source_id uuid,
     internal boolean DEFAULT false,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    assignable boolean DEFAULT true
 );
 
 
@@ -2139,6 +2140,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20171123083228'),
 ('20171128091456'),
 ('20171204092716'),
-('20171206163333');
+('20171206163333'),
+('20180103144809');
 
 
