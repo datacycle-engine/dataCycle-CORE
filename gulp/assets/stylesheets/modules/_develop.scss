@@ -309,7 +309,7 @@ select {
       top: -2rem;
       opacity: 0.3;
       transition: opacity 0.3s ease;
-      &.metadata {
+      .metadata {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
@@ -688,6 +688,24 @@ ul.translated-locales {
   width: auto;
   right: 0;
   left: auto !important;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.10);
+  &::before {
+    content: '▲';
+    font-size: 28px;
+    top: -18px;
+    color: white;
+    transform: scaleX(3);
+    text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    left: auto;
+    right: 18px;
+    width: 2rem;
+    height: 1.1rem;
+    line-height: 1rem;
+    display: block;
+    text-align: center;
+    overflow: hidden;
+  }
 }
 
 .form-element {
