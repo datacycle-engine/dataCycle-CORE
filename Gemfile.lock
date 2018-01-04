@@ -38,6 +38,7 @@ PATH
       nokogiri
       pg
       rails (~> 5.0.0, >= 5.0.0.1)
+      rake (~> 12.1.0)
       rgeo
       sass-rails (~> 5.0)
       simple_form
@@ -110,7 +111,7 @@ GEM
     bson (4.2.2)
     builder (3.2.3)
     byebug (9.0.6)
-    cancancan (2.1.1)
+    cancancan (2.1.2)
     codemirror-rails (5.16.0)
       railties (>= 3.0, < 6.0)
     coderay (1.1.1)
@@ -378,4 +379,4 @@ RUBY VERSION
    ruby 2.4.1p111
 
 BUNDLED WITH
-   1.15.4
+   1.16.0
