@@ -44,7 +44,7 @@ module DataCycleCore
 
         I18n.with_locale(params[:language] || I18n.locale) do
           #todo: FIXME if breaks
-          object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object ==  params[:hashable_type].classify }
+          object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object ==  params[:class].classify }
           @objects = object_type.constantize.where(id: params[:ids])
         end
 
@@ -54,11 +54,15 @@ module DataCycleCore
 
     def details
       authorize! :show, :object_browser
+
       unless params[:class].blank? || params[:id].blank?
         I18n.with_locale(params[:language] || I18n.locale) do
-          @object = params[:class].constantize.find(params[:id])
+          #todo: FIXME if breaks
+          object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object ==  params[:class].classify }
+          @object = object_type.constantize.find(params[:id])
         end
       end
+
       respond_to(:js)
     end
 
