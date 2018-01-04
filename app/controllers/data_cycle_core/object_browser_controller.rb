@@ -41,15 +41,11 @@ module DataCycleCore
     def find
       authorize! :show, :object_browser
       if !params[:class].blank? && !params[:ids].blank?
-        #todo: FIXME if breaks
-        object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object ==  params[:hashable_type].classify }
-        # object = object_type.constantize
-        # object = params[:class].constantize
-        result = object_type.constantize.where(id: params[:ids])
-        render :json => result
+
         I18n.with_locale(params[:language] || I18n.locale) do
-          object = params[:class].constantize
-          @objects = object.where(id: params[:ids])
+          #todo: FIXME if breaks
+          object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object ==  params[:hashable_type].classify }
+          @objects = object_type.constantize.where(id: params[:ids])
         end
 
         respond_to(:js)
