@@ -309,7 +309,7 @@ select {
       top: -2rem;
       opacity: 0.3;
       transition: opacity 0.3s ease;
-      &.metadata {
+      .metadata {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;

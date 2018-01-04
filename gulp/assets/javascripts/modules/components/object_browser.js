@@ -135,28 +135,39 @@ ObjectBrowser.prototype.setup = function () {
       }.bind(this));
     }
 
-    $(this).find('form').on('submit', function (ev) {
-      ev.preventDefault();
-      var form_data = $(this).serializeJSON();
-      $.extend(form_data, {
-        type: self.type,
-        language: self.language,
-        overlay_id: '#object_browser_' + self.id,
-        key: self.key,
-        definition: self.definition,
-        options: self.options,
-        class: self.class,
-        objects: self.chosen,
-        new_overlay_id: '#new_' + self.id
-      });
+    $(this).find('form').on('submit', function (ev, data) {
+      if (data != undefined && data.valid) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        ev.stopImmediatePropagation();
+        var form_data = $(this).serializeJSON();
+        $.extend(form_data, {
+          type: self.type,
+          language: self.language,
+          overlay_id: '#object_browser_' + self.id,
+          key: self.key,
+          definition: self.definition,
+          options: self.options,
+          class: self.class,
+          objects: self.chosen,
+          new_overlay_id: '#new_' + self.id
+        });
 
-      $.ajax({
-        url: $(this).prop('action'),
-        method: 'POST',
-        data: JSON.stringify(form_data),
-        dataType: 'script',
-        contentType: 'application/json'
-      });
+        $.ajax({
+          url: $(this).prop('action'),
+          method: 'POST',
+          data: JSON.stringify(form_data),
+          dataType: 'script',
+          contentType: 'application/json'
+        });
+      } else if (data == undefined) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        ev.stopImmediatePropagation();
+        $(this).trigger('submit', {
+          object_browser: true
+        });
+      };
     });
   });
 
