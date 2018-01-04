@@ -62,11 +62,11 @@
 
 						<% validation_properties.each do |key, prop| %>
 
-							<% value = prop.dig('type') == "object" ? content.try(key.to_sym) : dataSchema[key] %>
+							<% value = prop.dig('type') == "object" || prop.dig('type') == "classificationTreeLabel" ? content.try(key.to_sym) : dataSchema[key] %>
 
               <%== '<span class="translated"><i class="fa fa-language" aria-hidden="true"></i></span>' if (content.translated_attributes.keys&.include?(key) || content.translated_attributes['content']&.keys&.include?(key)) && DataCycleCore.translatable_types.include?(content.class.name) %>
 
-							<%= render_attribute_editor key: "#{keyPrefix}[#{key}]", definition: prop, value: value, parameters: { options: prop.dig('editor', 'options') || {} } unless dataSchema.nil? %>
+							<%= render_attribute_editor key: "#{keyPrefix}[#{key}]", definition: prop, value: value, parameters: { options: (prop.dig('editor', 'options') || {}) } unless dataSchema.nil? %>
 
 						<% end %>
 
@@ -83,3 +83,5 @@
 	<% end %>
 
 <% end %>
+
+<%= content_for :forms %>

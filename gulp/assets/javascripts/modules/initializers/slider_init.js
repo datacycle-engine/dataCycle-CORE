@@ -8,7 +8,6 @@ module.exports.initialize = function () {
   });
 
   $(document).on('clone-added', '.content-object-item', function () {
-
     $(this).find('.slider').each(function () {
       SliderArray.push(new Foundation.Slider($(this)));
     });

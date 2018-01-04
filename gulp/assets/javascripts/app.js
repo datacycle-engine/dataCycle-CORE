@@ -1,15 +1,10 @@
 // app.js - Data cylce Core
 var $ = require('jquery');
+var jquery_to_json = require('jquery-serializejson');
 var jqueryujs = require('jquery-ujs');
 var foundation = require('foundation-sites');
 var lazysizes = require('lazysizes');
 var lazysizes_unveilhooks = require('lazysizes/plugins/unveilhooks/ls.unveilhooks.min.js');
-
-var Vue = require('vue');
-var AsyncComputed = require('vue-async-computed');
-var CustomSelect = require('./vue/components/custom-select.vue');
-var ObjectBrowser = require('./vue/components/object-browser.vue');
-var EmbeddedObjects = require('./vue/components/embedded-objects.vue');
 
 var masonry_init = require('./modules/initializers/masonry_init');
 var quill_init = require('./modules/initializers/quill_init');
@@ -21,14 +16,17 @@ var flash_init = require('./modules/initializers/flash_init');
 var validation_init = require('./modules/initializers/validation_init');
 var counter_init = require('./modules/initializers/counter_init');
 var datepicker_init = require('./modules/initializers/date_picker_init');
-var content_object_init = require('./modules/initializers/content_object_init');
 var slider_init = require('./modules/initializers/slider_init');
 var copy_contents_init = require('./modules/initializers/copy_contents_init');
 var map_init = require('./modules/initializers/map_init');
 var watch_lists_init = require('./modules/initializers/watch_lists_init');
 var classifications = require('./modules/initializers/classifications');
+var classification_select_init = require('./modules/initializers/classification_select_init');
 var lazyloading_init = require('./modules/initializers/lazyloading_init');
 var datalist_init = require('./modules/initializers/datalist_init');
+var object_browser_init = require('./modules/initializers/object_browser_init');
+var embedded_objects_init = require('./modules/initializers/embedded_objects_init');
+
 
 $(function () {
   // Initialize Masonry Grid
@@ -36,38 +34,6 @@ $(function () {
 
   // Initialize Foundation
   $(document).foundation();
-
-  // initialize Vue + Custom Select + Object Browser
-  if ($('.editor').length > 0) {
-    Vue.use(AsyncComputed);
-
-    var edit_form = new Vue({
-      el: '.editor',
-      components: {
-        CustomSelect,
-        ObjectBrowser,
-        EmbeddedObjects
-      }
-    });
-  }
-
-  if ($('#newContent').length > 0) {
-    var new_vue = new Vue({
-      el: '#newContent form',
-      components: {
-        CustomSelect
-      }
-    });
-  }
-
-  if ($('#split-source-selector').length > 0) {
-    var new_vue = new Vue({
-      el: '#split-source-selector',
-      components: {
-        CustomSelect
-      }
-    });
-  }
 
   // Initialize Filter Events
   filter_init.initialize();
@@ -96,9 +62,6 @@ $(function () {
   // initialize Word Counter
   counter_init.initialize();
 
-  // initialize Content Objects
-  content_object_init.initialize();
-
   // initialize Foundation Sliders
   slider_init.initialize();
 
@@ -114,6 +77,15 @@ $(function () {
   // initialize Datalists
   datalist_init.initialize();
 
+  // initialize ObjectBrowsers
+  object_browser_init.initialize();
+
+  // initialize Embedded Objects
+  embedded_objects_init.initialize();
+
+  // initialize Classigication Selector
+  classification_select_init.initialize();
+
   if ($('#classification-administration').length) {
     classifications.initialize();
   }
@@ -125,22 +97,6 @@ $(function () {
       $('.home-container').addClass('show')
     }, 500);
     $('body').addClass('login-page');
-  }
-
-  // SPLIT CONTENT
-  if ($(".split-content").length) {
-    $(".split-content").on("mouseover", function () {
-      $(".split-content").addClass('nothover');
-      $(this).removeClass('nothover');
-    });
-    $(".has-changes").on("click",function() {
-      $( ".split-content .properties .selected" ).removeClass('selected');
-      current = $(this).data( "label" );
-      newelem = $(".split-content").last().find("[data-label='" + current + "']");
-      newelem.addClass('selected');
-      $('.split-content').last().animate({  scrollTop: newelem.offset().top - $('.split-content').last().offset().top + $('.split-content').last().scrollTop() - 150  }, 500);
-      $('.split-content').first().animate({  scrollTop: $(this).offset().top - $('.split-content').first().offset().top + $('.split-content').first().scrollTop()  - 150 }, 500);
-    });
   }
 
 });

@@ -26,7 +26,7 @@
 
                 <% I18n.with_locale(@historySource.first_available_locale) do %>
 
-                    <div class="detail-header-info no-transparency fixed">
+                    <div class="detail-header-info no-transparency fixed metadata has-history-link">
                         <span class="type <%= @historySource.metadata['validation']['name'].downcase %>">
                           <%= t('history.differences_to_version', locale: DataCycleCore.ui_language) %>:
                         </span>

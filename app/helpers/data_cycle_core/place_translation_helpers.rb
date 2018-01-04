@@ -1,7 +1,7 @@
 module DataCycleCore
   module PlaceTranslationHelpers
     def title
-      name
+      name || address_line || coordinates
     end
 
     def desc

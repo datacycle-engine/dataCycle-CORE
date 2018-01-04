@@ -303,7 +303,6 @@ button,
   input,
   .ql-editor,
   .daterange,
-  .v-select,
   .embedded_object,
   .readonly-select {
     border: 1px solid $light-gray;
@@ -342,14 +341,6 @@ button,
     border-color: $primary-color;
     background: white;
   }
-  .focus .v-select {
-    border-color: $primary-color;
-    background: white;
-    z-index: 16;
-    &.readonly {
-      background: $light-gray;
-    }
-  }
   .focus {
     label {
       z-index: 20
@@ -376,9 +367,6 @@ button,
       margin-bottom: 1rem;
       &.validation-container:last-of-type {
         margin-bottom: 0;
-      }
-      .custom-select-title {
-        display: none;
       }
       label {
         padding-top: 0.5rem;
@@ -433,16 +421,6 @@ button,
   }
 }
 
-.v-select {
-  padding: 2rem 1rem 1rem 1rem;
-  .dropdown-toggle {
-    border: 0 !important;
-  }
-  .dropdown-menu {
-    z-index: 1000;
-  }
-}
-
 .editor-block {
   position: relative;
   .ql-toolbar {
@@ -450,24 +428,27 @@ button,
     z-index: 12;
     right: 0;
     border: 0;
-    transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
-    border-right: 1px solid $light-gray;
-    border-left: 1px solid $light-gray;
-    &.fixed-toolbar {
-      background: $light-gray;
-      position: fixed;
-      top: 55px;
-      right: 1rem;
-      width: calc(100% - 2rem);
-      box-shadow: 0 1px 0 $dark-gray;
-    }
+    &.fixed-toolbar,
     &.fixed-split-toolbar {
       background: $light-gray;
       position: fixed;
+      border-right: 1px solid $light-gray;
+      border-left: 1px solid $light-gray;
+      box-shadow: 0 1px 0 $dark-gray;
+      text-align: right;
+      .ql-formats {
+        text-align: left;
+      }
+    }
+    &.fixed-toolbar {
+      top: 55px;
+      right: 1rem;
+      width: calc(100% - 2rem);
+    }
+    &.fixed-split-toolbar {
       top: 182px;
       right: 2rem;
       width: calc(50% - 3rem);
-      box-shadow: 0 1px 0 $dark-gray;
     }
   }
   .ql-editor {
@@ -645,7 +626,7 @@ body .v-select {
     font-size: 0.8rem;
     color: $white;
     padding: 0 0.3rem;
-    margin: 0 0.1rem;
+    margin: 0.1rem;
     line-height: 1.2rem;
     border-radius: $object-border-radius;
     i {
@@ -801,4 +782,17 @@ body.login-page {
 .tabs-content {
   border: 0;
   border-top: 1px solid $light-gray;
+}
+
+
+/* Animations für lazyloaded iamges */
+
+.lazyload,
+.lazyloading {
+  opacity: 0;
+}
+
+.lazyloaded {
+  opacity: 1;
+  transition: opacity 300ms;
 }

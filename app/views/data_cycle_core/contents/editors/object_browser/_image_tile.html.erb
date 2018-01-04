@@ -1,35 +1,40 @@
+<div class="media thumbnail item <%= 'has-restrictions' if object.try(:restrictions).try(:include?, 'gesperrt') %> <%= 'expired-item' unless object.try(:is_valid) %> <%= 'active' if (objects ||= []).include?(object.id) %>" style="background-image: url(<%= object.try(:thumbnail_url) %>)" data-open="media_reveal_<%= object.id %>" data-id="<%= object.id %>">
 
-<div v-if="props.item != undefined" :data-open="props.dataOpen" :class="[props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != '' && props.item.metadata.restrictions != 'Keine Einschränkung;' ? 'has-restrictions' : '', 'media thumbnail', props.item.is_valid == false ? 'expired-item' : '']" :style="{ backgroundImage: 'url('+props.item.metadata.thumbnail_url+')' }">
-  <span v-if="props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != null && props.item.metadata.restrictions.indexOf('gesperrt') !== -1" data-tooltip aria-haspopup="true" class="has-tip warning" data-disable-hover="false" tabindex="1" :title="'Einschränkungen: '+props.item.metadata.restrictions"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
+  <%= hidden_field_tag key, object.id %>
 
-  <span v-if="!props.readonly" class="delete-thumbnail" @click.stop="props.remove(props.item, $event)"><i aria-hidden="true" class="fa fa-times"></i></span>
-  <div class="description" v-if="props.item.headline">
-    {{ props.item.headline }}
+  <% if object.try(:restrictions).try(:include?, 'gesperrt') %>
+    <span data-tooltip aria-haspopup="true" class="has-tip warning" data-disable-hover="false" tabindex="1" title="Einschränkungen: <%= object.try(:restrictions) %>"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
+  <% end %>
+
+  <% if object.try(:title) %>
+    <div class="description"><%= object.try(:title) %></div>
+  <% end %>
+
+  <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
+    <span class="delete-thumbnail"><i aria-hidden="true" class="fa fa-times"></i></span>
+  <% end %>
+
+  <div class="width-content reveal media-preview" id="media_reveal_<%= object.id %>" data-reveal>
+      <button class="close-button" data-close aria-label="Close modal" type="button">
+          <span aria-hidden="true">&times;</span>
+      </button>
+      <span class="preview-title">
+        <%= object.try(:title) %>
+      </span>
+      <div class="image">
+          <img class="lazyload" data-src="<%= object.try(:thumbnail_url) %>" />
+      </div>
+      <div class="description">
+          <% unless object.formatted_validity_period['date_published'].blank? && object.formatted_validity_period['expires'].blank? %>
+              <strong>Gültigkeit</strong> <%= object.formatted_validity_period['date_published'] %> <strong>bis</strong> <%= object.formatted_validity_period['expires'] %><br /><br />
+          <% end %>
+
+          <% unless object.try(:restrictions).blank? %>
+              <strong>Einschränkungen:</strong> <%== '<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>' if object.try(:restrictions).try(:include?, 'gesperrt') %> <%= object.try(:restrictions) %> <br /><br />
+          <% end %>
+          <%= link_to 'zur Detailansicht', polymorphic_path(object), target: :_blank %> |
+          <%= link_to 'in voller Größe öffnen', object.try(:content_url), target: :_blank %> |
+          <%= link_to 'im Medienarchiv öffnen', object.try(:url), target: :_blank %>
+      </div>
   </div>
-  <span class="caption"></span>
-  <input type="hidden" name="<%= key %>" :value="props.item.id">
-</div>
-<div class="width-content reveal media-preview" :id="'media-reveal-'+props.item.id+'_'+props.uid" data-reveal>
-    <button class="close-button" data-close aria-label="Close modal" type="button">
-        <span aria-hidden="true">&times;</span>
-    </button>
-    <span class="preview-title" v-if="props.item.headline">
-      {{ props.item.headline }}
-    </span>
-    <div class="image">
-        <img class="lazyload" :data-src="props.item.metadata.thumbnail_url" />
-    </div>
-    <div class="description">
-        <!-- todo: check only for empty string -->
-
-        <div v-if="props.item.formatted_validity_period != undefined && props.item.formatted_validity_period != false">
-            <strong>Gültigkeit</strong> {{ props.item.formatted_validity_period.date_published }} <strong>bis</strong> {{ props.item.formatted_validity_period.expires }}<br /><br />
-        </div>
-        <div v-if="props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != '' && props.item.metadata.restrictions != 'Keine Einschränkung;'">
-            <strong>Einschränkungen:</strong> <i v-if="props.item.metadata.restrictions != undefined && props.item.metadata.restrictions != null && props.item.metadata.restrictions.indexOf('gesperrt') !== -1" class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{ props.item.metadata.restrictions }} <br /><br />
-        </div>
-        <a :href="'/creative_works/'+props.item.id" target="_blank">zur Detailansicht</a> |
-        <a :href="props.item.metadata.content_url" target="_blank">in voller Größe öffnen</a> |
-        <a :href="props.item.metadata.url" v-if="props.item.metadata.url != undefined && props.item.metadata.url != ''" target="_blank">im Medienarchiv öffnen</a>
-    </div>
 </div>
