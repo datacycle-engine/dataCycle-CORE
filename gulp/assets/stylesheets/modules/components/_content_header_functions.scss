@@ -9,7 +9,7 @@
   }
   .dropdown-pane {
     z-index: 100;
-    box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.10);
   }
   >ul {
     position: relative;
@@ -88,22 +88,25 @@
         }
       }
       &.has-dropdown.right {
-        >ul {
+        >ul.dropdown-pane {
           right: -18px !important;
           left: auto !important; // top: 2rem !important;
           &::before {
             content: '▲';
             font-size: 28px;
-            top: -25px;
+            top: -18px;
             color: white;
             transform: scaleX(3);
-            text-shadow: 0 -2px 1px rgba(0, 0, 0, 0.1);
+            text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
             position: absolute;
             left: auto;
-            right: 76px;
-            width: 0;
-            height: 0;
-            line-height: 1;
+            right: 18px;
+            width: 2rem;
+            height: 1.1rem;
+            line-height: 1rem;
+            display: block;
+            text-align: center;
+            overflow: hidden;
           }
         }
       }
@@ -125,23 +128,26 @@
           opacity: 1;
         }
       }
-      ul {
-        box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
+      ul.dropdown-pane {
+        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.10);
         text-align: center;
         &::before {
           content: '▲';
           font-size: 28px;
-          top: -25px;
+          top: -18px;
           color: white;
           transform: scaleX(3);
-          text-shadow: 0 -2px 1px rgba(0, 0, 0, 0.1);
+          text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
           position: absolute;
-          left: 10px;
-          width: 0;
-          height: 0;
-          line-height: 1;
+          left: 30px;
+          width: 2rem;
+          height: 1.1rem;
+          line-height: 1rem;
+          display: block;
+          text-align: center;
+          overflow: hidden;
         }
-        li {
+        >li {
           position: relative;
           text-align: left;
           font-size: 0.8rem;
@@ -202,7 +208,7 @@
     cursor: pointer;
     font-weight: bold;
   }
-  ul {
+  >ul {
     text-align: right;
     margin: 0;
     list-style: none;

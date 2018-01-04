@@ -13,10 +13,6 @@ module DataCycleCore
     def settings
     end
 
-    def vue
-
-    end
-
     private
 
     def parse_classifications(class_array)

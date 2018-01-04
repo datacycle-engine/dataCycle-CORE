@@ -175,23 +175,16 @@
 
 .v-select input[type="search"],
 .v-select input[type="search"]:focus {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
   line-height: 1.42857143;
   font-size: 1em;
   height: 34px;
   display: inline-block;
-  border: none;
-  outline: none;
   margin: 0;
-  padding: 0 .5em;
-  width: 10em;
+  padding: 0 0.5em;
   max-width: 100%;
-  background: none;
-  position: relative;
   box-shadow: none;
-  float: left;
+  background: white;
+  position: relative;
   clear: none;
 }
 

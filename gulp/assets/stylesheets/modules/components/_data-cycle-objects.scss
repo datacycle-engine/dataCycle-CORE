@@ -156,12 +156,14 @@
   .has-changed {
     &.removed {
       .thumbnail {
-        box-shadow: 0 0 1px 1px $alert-color; // background: rgba($alert-color, 0.1);
+        box-shadow: 0 0 1px 1px $alert-color;
+        background-color: rgba($alert-color, 0.1);
       }
     }
     &.added {
       .thumbnail {
-        box-shadow: 0 0 1px 1px $success-color; // background: rgba($success-color, 0.3);
+        box-shadow: 0 0 1px 1px $success-color;
+        background-color: rgba($success-color, 0.3);
       }
     }
   }
@@ -269,7 +271,18 @@
   }
 }
 
-#object-browser {
+.loading {
+  float: left;
+  width: 100%;
+  text-align: center;
+  padding: 1rem 0;
+  .fa {
+    font-size: 3rem;
+    color: $dark-gray;
+  }
+}
+
+.object-browser-overlay {
   margin: 7.9rem 0 0 0 !important;
   outline: none;
   padding: 0;
@@ -277,7 +290,7 @@
     h4 {
       display: none;
     }
-    #object-browser-search {
+    .object-browser-search {
       border: 0;
       line-height: 3rem;
       font-weight: 200;
@@ -291,7 +304,7 @@
       left: 0.5rem;
       color: $dark-gray;
     }
-    #item-count {
+    .item-count {
       font-style: italic;
       right: 1rem;
       position: absolute;
@@ -327,10 +340,6 @@
     .chosen-items-container {
       width: max-content;
       line-height: 1;
-      >div {
-        display: inline-block;
-        margin: 0 0.3rem 0 0;
-      }
       .description {
         display: none;
       }
@@ -338,31 +347,34 @@
     .items .media {
       position: relative;
       line-height: 1.5;
-      .delete-thumbnail {
-        display: inline-block;
-        position: relative;
-        float: right;
-      }
-      &.thumbnail {
-        width: 80px;
-        height: 80px;
-        background-size: cover;
-        border: 0;
-        margin: 0;
-        display: block;
+      &.item {
+        margin: 0 0.3rem 0 0;
         .delete-thumbnail {
-          float: none;
-          position: absolute;
-          top: 0.2rem;
-          right: 0.2rem;
-          color: white;
-          text-shadow: 1px 1px 1px rgba($black, 0.3);
+          display: inline-block;
+          position: relative;
+          float: right;
         }
-        .warning {
-          display: none;
-        }
-        &.expired-item {
-          border: 2px solid $alert-color;
+        &.thumbnail {
+          width: 80px;
+          height: 80px;
+          background-size: cover;
+          border: 0;
+          margin: 0 0.3rem 0 0;
+          display: inline-block;
+          .delete-thumbnail {
+            float: none;
+            position: absolute;
+            top: 0.2rem;
+            right: 0.2rem;
+            color: white;
+            text-shadow: 1px 1px 1px rgba($black, 0.3);
+          }
+          .warning {
+            display: none;
+          }
+          &.expired-item {
+            border: 2px solid $alert-color;
+          }
         }
       }
     }
@@ -402,6 +414,13 @@
     }
   }
   .items {
+    &.margin-bottom-10::after {
+      content: '';
+      float: none;
+      clear: both;
+      margin-bottom: 10rem;
+      display: block;
+    }
     padding: 5rem 1rem 7rem 1rem;
     margin-right: 400px;
     height: calc(100% - 7.9rem);
@@ -440,50 +459,39 @@
       &.expired-item {
         border: 2px solid $alert-color;
       }
-    }
-    a.delete-thumbnail {
-      display: none;
-    }
-    .loading {
-      float: left;
-      width: 100%;
-      text-align: center;
-      padding: 1rem 0;
-      .fa {
-        font-size: 3rem;
-        color: $light-gray;
-      }
-    }
-    .no-entries {
-      text-align: center;
-      padding: 10rem 0;
-    }
-    .item {
-      &.active {
-        .media {
+      &.item {
+        &.active {
           border-color: $primary-color;
           background-color: $primary-color;
           box-shadow: 0 0 0 1px rgba($primary-color, 1);
           &.expired-item {
             border: 2px solid $alert-color;
           }
+          .media {}
+          .person {
+            color: white;
+          }
+          .warning {
+            opacity: 1;
+          }
         }
-        .person {
-          color: white;
+        display: block;
+        float: left;
+        margin: 0 1rem 1rem 0;
+        .delete-thumbnail {
+          display: none;
         }
-        .warning {
-          opacity: 1;
+        .description {
+          display: none;
         }
       }
-      display: block;
-      float: left;
-      margin: 0 1rem 1rem 0;
-      .delete-thumbnail {
-        display: none;
-      }
-      .description {
-        display: none;
-      }
+    }
+    a.delete-thumbnail {
+      display: none;
+    }
+    .no-entries {
+      text-align: center;
+      padding: 10rem 0;
     }
   }
   .item-info {
@@ -617,8 +625,13 @@ span.single_error.object-browser-error {
     }
     .addContentObject {
       margin: 0;
+      transition: all ease-in-out 0.2s;
       .fa {
-        padding-left: 0.5rem;
+        padding: 0;
+        margin-left: 0.5rem;
+        display: none;
+        font-size: 0.9rem;
+        vertical-align: bottom;
       }
     }
     .content-object-item {

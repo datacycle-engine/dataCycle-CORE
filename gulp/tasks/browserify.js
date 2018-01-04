@@ -1,55 +1,57 @@
-var _            = require('lodash');
-var browserify   = require('browserify');
-var browserSync  = require('browser-sync');
+var _ = require('lodash');
+var browserify = require('browserify');
+var browserSync = require('browser-sync');
 var bundleLogger = require('../util/bundleLogger');
-var config       = require('../config').browserify;
-var gulp         = require('gulp');
+var config = require('../config').browserify;
+var gulp = require('gulp');
 var handleErrors = require('../util/handleErrors');
-var source       = require('vinyl-source-stream');
-var watchify     = require('watchify');
-var vueify       = require('vueify');
+var source = require('vinyl-source-stream');
+var watchify = require('watchify');
 
-var browserifyTask = function(callback, devMode) {
+var browserifyTask = function (callback, devMode) {
 
   var bundleQueue = config.bundleConfigs.length;
 
-  var browserifyThis = function(bundleConfig) {
+  var browserifyThis = function (bundleConfig) {
 
-    if(devMode) {
-      _.extend(bundleConfig, watchify.args, { debug: true });
+    if (devMode) {
+      _.extend(bundleConfig, watchify.args, {
+        debug: true
+      });
       bundleConfig = _.omit(bundleConfig, ['external', 'require']);
     }
 
     var b = browserify(bundleConfig);
 
-    var bundle = function() {
+    var bundle = function () {
       bundleLogger.start(bundleConfig.outputName);
 
       return b
-        .transform(vueify)
         .bundle()
         .on('error', handleErrors)
         .pipe(source(bundleConfig.outputName))
         .pipe(gulp.dest(bundleConfig.dest))
         .on('end', reportFinished)
-        .pipe(browserSync.reload({stream:true}));
+        .pipe(browserSync.reload({
+          stream: true
+        }));
     };
 
-    if(devMode) {
+    if (devMode) {
       b = watchify(b);
       b.on('update', bundle);
       bundleLogger.watch(bundleConfig.outputName);
     } else {
-      if(bundleConfig.require) b.require(bundleConfig.require);
-      if(bundleConfig.external) b.external(bundleConfig.external);
+      if (bundleConfig.require) b.require(bundleConfig.require);
+      if (bundleConfig.external) b.external(bundleConfig.external);
     }
 
-    var reportFinished = function() {
+    var reportFinished = function () {
       bundleLogger.end(bundleConfig.outputName);
 
-      if(bundleQueue) {
+      if (bundleQueue) {
         bundleQueue--;
-        if(bundleQueue === 0) {
+        if (bundleQueue === 0) {
           callback();
         }
       }
