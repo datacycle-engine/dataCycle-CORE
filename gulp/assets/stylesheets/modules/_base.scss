@@ -430,25 +430,25 @@ button,
     border: 0;
     &.fixed-toolbar,
     &.fixed-split-toolbar {
-      // transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
-      border-right: 1px solid $light-gray;
-      border-left: 1px solid $light-gray;
-    }
-    &.fixed-toolbar {
       background: $light-gray;
       position: fixed;
+      border-right: 1px solid $light-gray;
+      border-left: 1px solid $light-gray;
+      box-shadow: 0 1px 0 $dark-gray;
+      text-align: right;
+      .ql-formats {
+        text-align: left;
+      }
+    }
+    &.fixed-toolbar {
       top: 55px;
       right: 1rem;
       width: calc(100% - 2rem);
-      box-shadow: 0 1px 0 $dark-gray;
     }
     &.fixed-split-toolbar {
-      background: $light-gray;
-      position: fixed;
       top: 182px;
       right: 2rem;
       width: calc(50% - 3rem);
-      box-shadow: 0 1px 0 $dark-gray;
     }
   }
   .ql-editor {
