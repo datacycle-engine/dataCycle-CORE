@@ -56,6 +56,11 @@ require 'acts_as_paranoid'
 require 'transproc/all'
 require 'dry-validation'
 
+# carrierwave
+require 'carrierwave'
+require 'carrierwave_backgrounder'
+
+
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name
