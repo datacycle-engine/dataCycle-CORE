@@ -75,6 +75,11 @@ Gem::Specification.new do |s|
   s.add_dependency 'transproc', '~> 1.0'
   s.add_dependency 'dry-validation', '~> 0.11'
 
+  # File Upload
+  s.add_dependency 'carrierwave', '~> 1.0'
+  s.add_dependency 'mini_magick'
+  s.add_dependency 'carrierwave_backgrounder'
+
   # development tools
   s.add_development_dependency 'web-console'
   s.add_development_dependency 'better_errors'
