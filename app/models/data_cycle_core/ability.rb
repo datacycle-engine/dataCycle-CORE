@@ -7,6 +7,7 @@ module DataCycleCore
       alias_action :create, :import, :read, :update, :create_user, :search, :unlock, :validate_single_data, :history, :history_detail, to: :crud
 
       if user
+
         can :read, :all
         cannot :read, DataCycleCore::WatchList
         cannot :read, :backend
@@ -56,6 +57,8 @@ module DataCycleCore
           can :destroy, [DataCycleCore::CreativeWork, DataCycleCore::Event, DataCycleCore::Person, DataCycleCore::Place] do |data_object|
             data_object&.metadata&.dig('validation','permissions','read_write') != false
           end
+
+          can :manage, DataCycleCore::Asset
         end
 
         if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)

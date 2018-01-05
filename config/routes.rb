@@ -31,6 +31,9 @@ DataCycleCore::Engine.routes.draw do
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :events, only: [:index, :show, :create, :edit, :update, :destroy]
 
+  scope ('files') do
+    resources :assets, only: [:index, :show, :new, :create, :destroy]
+  end
 
   resources :data_links do
     post :send_mail, on: :member

@@ -1,0 +1,13 @@
+<% breadcrumb :assets %>
+
+<h1>New Assets go here</h1>
+
+<%= form_for @asset do |f| %>
+
+    <div class="field">
+        <%= f.file_field :file %>
+    </div>
+
+    <%= f.submit %>
+
+<% end %>

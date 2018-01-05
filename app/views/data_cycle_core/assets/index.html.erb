@@ -1,0 +1,14 @@
+<% breadcrumb :assets %>
+
+<h1>Assets go here</h1>
+<% @assets.each do |asset| %>
+    <div>
+        <h2><%= asset.id %></h2>
+        <h3><%=  asset.content_type %> (<%= asset.file_size %> B)</h3>
+        <%#= image_tag asset.file_url %>
+        <a href="<%= asset.file.url %>" target="_blank">
+            <%= image_tag asset.file.thumb_preview.url %>
+        </a>
+    </div>
+    <hr />
+<% end %>

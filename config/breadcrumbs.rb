@@ -7,6 +7,10 @@ crumb :admin do
   link to_html_string(t('data_cycle_core.administration', locale: DataCycleCore.ui_language)), '#'
 end
 
+crumb :assets do
+  link to_html_string(t('data_cycle_core.assets', locale: DataCycleCore.ui_language)), '#'
+end
+
 crumb :classifications do
   link to_html_string(t('data_cycle_core.classifications', locale: DataCycleCore.ui_language)), '#'
   parent :admin
