@@ -2,14 +2,15 @@
 
 <%= render_content_partial 'edit_header_functions', content: content %>
 
-<%= form_for content, url: polymorphic_path(content, watch_list_id: @watch_list), builder: DataCycleCore::DataHashHelper::DataCycleFormBuilder do |f| %>
+<%= form_for content, url: polymorphic_path(content, watch_list_id: @watch_list), html: {class: 'edit-content-form'}, builder: DataCycleCore::DataHashHelper::DataCycleFormBuilder do |f| %>
 	<%= hidden_field_tag 'uuid', content.id %>
+	<%= hidden_field_tag 'creative_work[datahash][creator]', content.try(:creator).try(:first).try(:id) %>
   <%= hidden_field_tag 'locale', I18n.locale %>
 
 	<% unless @splitSource.nil? %>
 		<% I18n.with_locale(@splitSource.first_available_locale) do %>
 			<div class="flex-box">
-				<div class="split-content detail-content">
+				<div class="row split-content detail-content">
           <%= hidden_field_tag 'splitview', true %>
 					<% if can?(:subscribe, @splitSource) && @splitSource.subscriptions.by_user(current_user).size == 0 %>
 						<div class="subscribe-parent notice"><p>Sie sollten diesen Inhalt (<%=@splitSource.metadata['validation']['name']%>) abonnieren, um Ihren neu erstellten Inhalt (<%=content.metadata['validation']['name']%>) aktuell halten zu können.</p>
@@ -20,15 +21,7 @@
 					<% end %>
 					<div class="show-content">
 						<div class="detail-header-info">
-							<div class="type <%= @splitSource.metadata['validation']['name'].downcase %>">
-								<%= render_content_partial 'icon', content: @splitSource %>
-
-								<span class="title"><%= @splitSource.metadata['validation']['name'] %></span>
-								<% unless @splitSource.translated_locales.size > 1 %>
-									<span class="language">(<%= I18n.locale %>)</span>
-								<% end %>
-							</div>
-							<%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: @splitSource, dataCycleObjectSchema: @splitSchema %>
+							<%= render 'meta_data', content: @splitSource %>
 						</div>
 
 						<%= render_content_partial 'details', content: @splitSource, schema: @splitSchema, options: {force_render: true} %>
@@ -43,13 +36,7 @@
 			<div class="detail-header editor">
 
 				<div class="detail-header-info">
-					<div class="type <%= content.content_type.downcase %>">
-						<%= render_content_partial 'icon', content: content %>
-
-						<span class="title"><%= content.content_type %></span>
-            <span class="language">(<%= I18n.locale %>)</span>
-					</div>
-					<%= render 'data_cycle_core/creative_works/partials/metaData', dataCycleObject: content, dataCycleObjectSchema: dataSchema %>
+          <%= render 'meta_data', content: content %>
 				</div>
 
 				<a class="bookmark" href="#">

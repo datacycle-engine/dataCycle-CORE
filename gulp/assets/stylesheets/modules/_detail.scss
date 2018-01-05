@@ -15,12 +15,14 @@
     top: 0.5rem;
     margin: 0;
     a {
+      padding: 0 0 0 0.3rem;
       display: inline-block;
     }
     .button-prime {
       &.small {
         width: 2rem;
         height: 2rem;
+        padding: 0;
         .fa {
           line-height: 2rem;
           font-size: 1.2rem;
@@ -175,7 +177,7 @@
   }
   .object.detail_object {
     padding-bottom: 1rem;
-    > .detail-type{
+    >.detail-type {
       padding-left: 1rem;
     }
   }

@@ -21,6 +21,7 @@ DataCycleCore::Engine.routes.draw do
       post :import, on: :collection
       get 'history', on: :member
       get 'history_detail', on: :member
+      get 'compare', on: :member
     end
 
     resources :persons, only: [:index, :show, :create, :edit, :update, :destroy]

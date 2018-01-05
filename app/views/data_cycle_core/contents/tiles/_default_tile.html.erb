@@ -18,7 +18,7 @@
 
             <% end %>
 
-            <%= render 'data_cycle_core/contents/tiles/attributes/images', item: item unless item.metadata['image'].blank? %>
+            <%= render 'data_cycle_core/contents/tiles/attributes/images', item: item if item.respond_to?('image') && item.image.size > 0 %>
 
         </div>
 

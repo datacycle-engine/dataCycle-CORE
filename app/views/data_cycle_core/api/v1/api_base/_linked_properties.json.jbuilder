@@ -6,21 +6,14 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 
 
 (content.linked_property_names - options[:hidden_attributes]).each do |property|
-  property_definition = content.property_definitions[property]
-
   data = content.send(property)
 
-  if data.is_a?(Array)
-    if !data.empty?
-      json.set! property.pluralize.camelize(:lower) do
-        json.array!(data) do |data_item|
-          json.content_partial! 'details', content: data_item
-        end
+  if data.size > 0
+    json.set! property.pluralize.camelize(:lower) do
+      json.array!(data) do |item|
+        json.content_partial! 'details', content: item
       end
     end
-  elsif !data.nil?
-    json.set! property.camelize(:lower) do
-      json.content_partial! 'details', content: data
-    end
   end
+
 end

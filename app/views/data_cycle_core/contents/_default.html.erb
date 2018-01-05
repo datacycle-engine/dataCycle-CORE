@@ -1,20 +1,24 @@
 
 <% unless dataCycleObject.metadata.nil? %>
 
-    <br /><br />
-
     <% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['validation'].nil? %>
 
         <% validation_properties = get_ordered_validation_properties(dataCycleObject.metadata['validation']) %>
 
         <% if !validation_properties.nil? %>
 
+            <!-- todo: make this more generic ? -->
+            <% exludedProperties = @splitSource.nil? && @historySource.nil? ? ['headline','validity_period'] : []  %>
+
             <div class="type properties">
 
                 <% validation_properties.each do |key, prop| %>
 
                     <% value = prop.dig('type') == "object" ? dataCycleObject.try(key.to_sym) : dataCycleObjectSchema[key] %>
-                    <%= render_attribute_history_viewer key: key, definition: prop, value: normalize_value(value), parameters: { options: options } %>
+
+                    <% if !exludedProperties.include?(key) %>
+                        <%= render_attribute_viewer key: key, definition: prop, value: normalize_value(value), parameters: { options: options } %>
+                    <% end %>
 
                 <% end %>
 
@@ -23,7 +27,5 @@
         <% end %>
 
     <% end %>
-
-    <hr>
 
 <% end %>

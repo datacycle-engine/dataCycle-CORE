@@ -5,10 +5,12 @@ module DataCycleCore
       def update(data)
         self.extend(DataCycleCore::Generic::MediaArchive::Import)
         load_transformations
+        processed_items = []
         data.each do |key,object|
           template_name = get_object_template_name object
-          process_content(object, load_template(@target_type, template_name), key)
+          processed_items << process_content(object, load_template(@target_type, template_name), key)
         end
+        return processed_items
       end
 
       def create(data)
@@ -35,7 +37,7 @@ module DataCycleCore
         @medium.set_data_hash(data_hash: data)
 
         if @medium.save
-          return true
+          return @medium
         else
           raise 'Error: Unable to update image'
         end

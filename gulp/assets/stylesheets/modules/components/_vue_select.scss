@@ -217,6 +217,8 @@
   color: #333;
   /* Overrides most CSS frameworks */
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .v-select li:hover {
@@ -311,33 +313,33 @@
 }
 
 .v-select li.level-1 a {
-    padding-left: 2rem;
+  padding-left: 2rem;
 }
 
 .v-select li.level-2 a {
-    padding-left: 3rem;
+  padding-left: 3rem;
 }
 
 .v-select li.level-3 a {
-    padding-left: 4rem;
+  padding-left: 4rem;
 }
 
 .v-select li.level-4 a {
-    padding-left: 5rem;
+  padding-left: 5rem;
 }
 
 .v-select li.level-5 a {
-    padding-left: 6rem;
+  padding-left: 6rem;
 }
 
 .v-select li.level-6 a {
-    padding-left: 7rem;
+  padding-left: 7rem;
 }
 
 .v-select li.level-7 a {
-    padding-left: 8rem;
+  padding-left: 8rem;
 }
 
 .v-select li.level-8 a {
-    padding-left: 9rem;
+  padding-left: 9rem;
 }

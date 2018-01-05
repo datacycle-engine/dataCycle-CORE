@@ -1,9 +1,7 @@
 <% if content.subscriptions.by_user(current_user).size > 0 %>
-    <li>Bereits abonniert.<br />
-      <%= link_to "Abonnement löschen", subscription_path(content.subscriptions.by_user(current_user).first), remote: true, method: :delete %>
-    </li>
+    Bereits abonniert.<br />
+    <%= link_to "Abonnement löschen", subscription_path(content.subscriptions.by_user(current_user).first), remote: true, method: :delete, class: 'button' %>
 <% else %>
-    <li>Klicken Sie hier um regelmäßig über Änderungen informiert zu werden.<br />
-      <%= link_to "Abonnieren", subscriptions_path(subscribable_id: content.id, subscribable_type: content.class.name), remote: true, method: :post %>
-    </li>
+    Klicken Sie hier um regelmäßig über Änderungen informiert zu werden.<br />
+    <%= link_to "Abonnieren", subscriptions_path(subscribable_id: content.id, subscribable_type: content.class.name), remote: true, method: :post, class: 'button' %>
 <% end %>

@@ -168,18 +168,39 @@ module DataCycleCore
       }.compact.uniq
     end
 
+    def linked_relations
+      linked_property_names.map { |property_name|
+         {name: property_name, table: property_definitions[property_name]['type_name'], type: property_definitions[property_name]['type']}
+      }.compact.uniq
+    end
+
     private
 
     def get_property_value(property_name, property_definition, timestamp = Time.zone.now, object = true)
       # linked data via embeddedLink/embeddedLinkArray
-      # only uuid(s) stored in content-data_set
+      # handled like embedded_objects with delete=false
       if linked_property_names.include?(property_name)
-        load_linked_data(
+        if object
+          load_embedded_objects(
             property_definition['type_name'],
-            send(property_definition['storage_location'])[property_name.to_s],
-            timestamp,
-            object
+            property_name,
+            true
           )
+        else
+          if property_definition['type'] == 'embeddedLink'
+            load_embedded_objects(
+              property_definition['type_name'],
+              property_name,
+              true
+            ).try(:first).try(:id)
+          else
+            load_embedded_objects(
+              property_definition['type_name'],
+              property_name,
+              true
+            ).try(:ids)
+          end
+        end
 
       # included subobjects
       # properties stored in this content-data_set directly
@@ -219,20 +240,21 @@ module DataCycleCore
       self.class.table_name == storage_location || history
     end
 
-    def load_embedded_objects(target_name, relation_name)
+    def load_embedded_objects(target_name, relation_name, linked = false)
       target_class = is_history? ? "DataCycleCore::#{target_name.classify}::History" : "DataCycleCore::#{target_name.classify}"
+      target_class = "DataCycleCore::#{target_name.classify}" if linked
       selector = target_name < self.class.table_name
       content_one_data = [nil, target_class, '']
       content_two_data = [self.id, self.class.to_s, relation_name]
-      where_hash = ['a', 'b'].map { |selector|
+      where_hash = ['a', 'b'].map { |abselector|
         if is_history?
-          [ "content_#{selector}_history_id".to_sym,
-            "content_#{selector}_history_type".to_sym,
-            "relation_#{selector}".to_sym]
+          [ "content_#{abselector}_history_id".to_sym,
+            "content_#{abselector}_history_type".to_sym,
+            "relation_#{abselector}".to_sym]
         else
-          [ "content_#{selector}_id".to_sym,
-            "content_#{selector}_type".to_sym,
-            "relation_#{selector}".to_sym]
+          [ "content_#{abselector}_id".to_sym,
+            "content_#{abselector}_type".to_sym,
+            "relation_#{abselector}".to_sym]
         end
       }.flatten
         .zip(selector ?
@@ -248,12 +270,6 @@ module DataCycleCore
         query = query.where("#{relation_table}.#{key} = ?", value)
       end
       query
-    end
-
-    def load_linked_data(type_name, ids, timestamp = Time.zone.now, objects = true)
-      return ids unless objects
-      class_name = "DataCycleCore::#{type_name.singularize.camelize}"
-      class_name.safe_constantize.find(ids).map{|item| item.as_of(timestamp)} rescue nil
     end
 
     def load_included_data(property_name, property_definition)

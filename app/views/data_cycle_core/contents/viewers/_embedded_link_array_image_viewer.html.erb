@@ -23,11 +23,12 @@
             <% object.find(value).each do |item| %>
 
                 <li class="<%= [
+                                  'copy-single',
                                    'content',
                                    item.class.name.demodulize.underscore.sub('_', '-'),
                                    item.content_type.underscore.sub('_', '-'),
                                    item.is_valid ? '' : 'expired-item'
-                               ].join(' ') %>">
+                               ].join(' ') %>" data-id="<%= item.id %>">
 
                     <%= render_first_existing_partial [
                                                           "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_#{item.content_type.underscore}_tile",

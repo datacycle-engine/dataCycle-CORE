@@ -1,7 +1,7 @@
 <% if !language.nil? && language == "de" %>
 
     <% german = dataCycleObject.translations.select{|l| l['locale'] == language}.first %>
-    <%= render 'data_cycle_core/creative_works/partials/show/translation/translation_item', translation: german, dataCycleObject: dataCycleObject %>
+    <%= render 'data_cycle_core/contents/translation/translation_item', translation: german, dataCycleObject: dataCycleObject %>
 
 <% else %>
 
@@ -24,7 +24,7 @@
                 <% languages.each_with_index do |translation, index| %>
                   <div class="tabs-panel" id="panel<%= index + 1 %>">
                     <h5><%= translation.title %></h5>
-                    <p><%= render 'data_cycle_core/creative_works/partials/show/translation/translation_item', translation: translation, dataCycleObject: dataCycleObject %>
+                    <p><%= render 'data_cycle_core/contents/translation/translation_item', translation: translation, dataCycleObject: dataCycleObject %>
                     </p>
                   </div>
                 <% end %>

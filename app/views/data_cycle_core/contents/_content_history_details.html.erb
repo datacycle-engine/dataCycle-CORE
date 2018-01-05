@@ -1,4 +1,9 @@
-<%= render 'data_cycle_core/contents/content_details',
-           content: content,
-           schema: schema,
-           options: options ||= {} %>
+<div class="detail-content detail-content-wrapper <%= content.try(:metadata).dig('validation', 'description').try(:downcase) || '' %>">
+
+    <div class="row align-center">
+        <%= render 'default', dataCycleObject: content, dataCycleObjectSchema: schema, options: options ||= {} %>
+
+        <%= render 'translations', language: nil, dataCycleObject: content %>
+    </div>
+
+</div>

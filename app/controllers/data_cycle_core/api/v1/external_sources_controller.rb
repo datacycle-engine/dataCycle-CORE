@@ -8,7 +8,7 @@ module DataCycleCore
 
       updated = api_strategy.update content
 
-      #execute_after_update_webhooks updated
+      execute_after_update_webhooks updated.first if updated.kind_of?(Array)
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
       render plain: {'updated' => updated}.to_json, content_type: 'application/json'
@@ -21,6 +21,9 @@ module DataCycleCore
       content = params[:content].as_json
 
       created = api_strategy.create content
+
+      execute_after_create_webhooks created.first if created.kind_of?(Array)
+
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
       render plain: {'created' => created}.to_json, content_type: 'application/json'
 
@@ -31,6 +34,9 @@ module DataCycleCore
       api_strategy = get_api_strategy
 
       deleted = api_strategy.delete external_sources_params[:external_key]
+
+      execute_after_delete_webhooks deleted
+
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
       render plain: {'deleted' => deleted}.to_json, content_type: 'application/json'
 
@@ -48,9 +54,17 @@ module DataCycleCore
       api_strategy.new(external_source, external_sources_params[:type], external_sources_params[:external_key])
     end
 
-    # def execute_after_update_webhooks data
-    #   Webhook::Update.execute_all(data)
-    # end
+    def execute_after_update_webhooks data
+      Webhook::Update.execute_all(data)
+    end
+
+    def execute_after_delete_webhooks data
+      Webhook::Delete.execute_all(data)
+    end
+
+    def execute_after_create_webhooks data
+      Webhook::Create.execute_all(data)
+    end
 
   end
 end
