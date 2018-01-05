@@ -124,14 +124,14 @@ button,
     }
     ul {
       margin-top: 20px;
-      box-shadow: 0 3px 3px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       &::before {
         content: '▲';
         font-size: 28px;
         top: -32px;
         color: white;
         transform: scaleX(3);
-        text-shadow: 0 -2px 1px rgba(0, 0, 0, 0.1);
+        text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
         position: absolute;
         left: auto;
         right: 10px;

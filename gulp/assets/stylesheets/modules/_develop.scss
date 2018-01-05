@@ -186,7 +186,7 @@
     bottom: -18px;
     color: white;
     transform: scaleX(3) rotate(180deg);
-    text-shadow: 0 -1px 0 map-get($foundation-palette, alert), 0 0 2px rgba(0, 0, 0, 0.1);
+    text-shadow: 0 -1px 0 map-get($foundation-palette, alert), 0 -1px 1px rgba(0, 0, 0, 0.1);
     position: absolute;
     left: 30px;
     width: 2rem;
@@ -636,7 +636,6 @@ video {
 }
 
 #show-history {
-  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
   min-width: 300px;
   width: auto;
   li {
