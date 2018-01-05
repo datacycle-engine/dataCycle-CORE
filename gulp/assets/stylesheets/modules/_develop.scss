@@ -147,14 +147,12 @@
   position: absolute;
   top: -5rem;
   left: 1rem;
-  border: 2px solid map-get($foundation-palette, alert);
-  background-color: white; //map-get($foundation-palette, alert);
+  box-shadow: 0 0 0 1px map-get($foundation-palette, alert), 0 0 3px rgba(0, 0, 0, 0.1);
+  background-color: white;
   padding: 0.5rem 1rem;
   color: $black;
-  border-radius: 5px;
   white-space: nowrap;
   z-index: 100;
-  -webkit-transition: all 0.4s ease;
   line-height: 1.5;
   text-align: left;
   &.watchlist-dialog {
@@ -177,20 +175,26 @@
     margin-bottom: 1rem;
   }
   .buttons {
-    text-align: right;
+    text-align: center;
+    .button {
+      margin: 0 0.2rem;
+    }
   }
-  &:before {
-    content: "";
+  &:after {
+    content: '▲';
+    font-size: 28px;
+    bottom: -18px;
+    color: white;
+    transform: scaleX(3) rotate(180deg);
+    text-shadow: 0 -1px 0 map-get($foundation-palette, alert), 0 0 2px rgba(0, 0, 0, 0.1);
     position: absolute;
-    width: 0;
-    height: 0;
-    border-top: 20px solid map-get($foundation-palette, alert);
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    -webkit-transition: all 0.4s ease;
-    -moz-transition: all 0.4s ease;
     left: 30px;
-    bottom: -20px;
+    width: 2rem;
+    height: 1.1rem;
+    line-height: 1rem;
+    display: block;
+    text-align: center;
+    overflow: hidden;
   }
 }
 
