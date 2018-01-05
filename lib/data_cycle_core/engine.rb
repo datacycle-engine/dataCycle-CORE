@@ -86,6 +86,9 @@ module DataCycleCore
     mattr_accessor :excluded_filter_classifications
     self.excluded_filter_classifications = []
 
+    mattr_accessor :excluded_new_item_objects
+    self.excluded_new_item_objects = []
+
     mattr_accessor :allowed_content_api_classifications
     self.allowed_content_api_classifications = []
 
