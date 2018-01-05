@@ -76,9 +76,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'dry-validation', '~> 0.11'
 
   # File Upload
-  s.add_dependency 'carrierwave', '~> 1.0'
+  s.add_dependency 'carrierwave', '~> 0.5'
   s.add_dependency 'mini_magick'
-  s.add_dependency 'carrierwave_backgrounder'
+  s.add_dependency 'carrierwave_backgrounder', '~> 0.4.2'
 
   # development tools
   s.add_development_dependency 'web-console'
