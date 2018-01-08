@@ -71,6 +71,7 @@ de:
     latest_edits: Letzte Bearbeitungen
     created_at: erstellt am
     updated_at: bearbeitet am
+    valid_since: gültig seit
     differences_to_version: Unterschiede zu Version
     active_version: Aktuelle Version
     look_at_version: Version ansehen

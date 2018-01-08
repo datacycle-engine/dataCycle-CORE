@@ -94,6 +94,20 @@ crumb :'data_cycle_core/person' do |person, watch_list|
   # parent :'data_cycle_core/persons'
 end
 
+# Event
+crumb :'data_cycle_core/events' do
+  link to_html_string("Events"), events_path
+end
+
+crumb :'data_cycle_core/event' do |event, watch_list|
+  link to_html_string("Event", event.headline), events_path(event, watch_list_id: watch_list)
+
+  if watch_list
+    parent watch_list
+  end
+  # parent :'data_cycle_core/persons'
+end
+
 # Merkliste
 crumb :'data_cycle_core/watch_lists' do
   link to_html_string("Merklisten"), watch_lists_path

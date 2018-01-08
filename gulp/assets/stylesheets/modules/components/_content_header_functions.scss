@@ -25,6 +25,10 @@
           margin-top: -10%;
           margin-bottom: -10%;
           z-index: 100;
+          &:disabled {
+            background-color: map-get($foundation-palette, alert);
+            cursor: not-allowed;
+          }
         }
         a {
           padding: 0;
@@ -88,17 +92,18 @@
           right: -18px !important;
           left: auto !important; // top: 2rem !important;
           &::before {
-            content: '';
+            content: '▲';
+            font-size: 28px;
+            top: -25px;
+            color: white;
+            transform: scaleX(3);
+            text-shadow: 0 -2px 1px rgba(0, 0, 0, 0.1);
             position: absolute;
-            position: absolute;
-            top: -12px;
-            right: 10px;
             left: auto;
+            right: 76px;
             width: 0;
             height: 0;
-            border-style: solid;
-            border-width: 0 25px 12px 25px;
-            border-color: transparent transparent #ffffff transparent;
+            line-height: 1;
           }
         }
       }
@@ -110,7 +115,7 @@
         color: $body-font-color;
         opacity: 0.3;
         transition: all ease-in-out 0.25s;
-        padding: 0 0.5rem 0.5rem 0.5rem;
+        padding: 0 0.5rem 1rem 0.5rem;
         cursor: pointer;
         &:hover {
           opacity: 1;
@@ -124,15 +129,17 @@
         box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
         text-align: center;
         &::before {
-          content: '';
+          content: '▲';
+          font-size: 28px;
+          top: -25px;
+          color: white;
+          transform: scaleX(3);
+          text-shadow: 0 -2px 1px rgba(0, 0, 0, 0.1);
           position: absolute;
-          top: -12px;
           left: 10px;
           width: 0;
           height: 0;
-          border-style: solid;
-          border-width: 0 25px 12px 25px;
-          border-color: transparent transparent #ffffff transparent;
+          line-height: 1;
         }
         li {
           position: relative;
@@ -191,6 +198,10 @@
 }
 
 .edit-header-functions {
+  .agb-link {
+    cursor: pointer;
+    font-weight: bold;
+  }
   ul {
     text-align: right;
     margin: 0;

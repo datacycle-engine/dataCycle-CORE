@@ -297,6 +297,9 @@ select {
         }
       }
     }
+    &.detail-header-fixed {
+      position: relative;
+    }
     .detail-header-info {
       text-align: left;
       display: flex;
@@ -310,6 +313,44 @@ select {
       &:focus {
         opacity: 1;
       }
+      &.no-transparency {
+        opacity: 1;
+      }
+      &.fixed {
+        padding: 1rem;
+        top: 0rem;
+        background: linear-gradient(to bottom, white 0%, white 30%, rgba(255, 255, 255, 0) 100%);
+        z-index: 2;
+        width: 49%;
+      }
+      &.right {
+        left: 50%;
+      }
+      .type,
+      .metadata {
+        display: flex;
+        white-space: nowrap;
+      }
+      .metadata {
+        padding-left: 0.5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: pre;
+      }
+      .history-metadata {
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
+        a.has-tip {
+          border-bottom: 0;
+        }
+      }
+      .created-at {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-left: 0.5rem;
+      }
     }
     .split-content {
       display: block;
@@ -317,6 +358,10 @@ select {
       height: 100%;
       overflow-y: scroll;
       float: left;
+      transition: background ease-in-out 0.1s;
+      &.nothover {
+        background: rgba($light-gray, 0.2);
+      }
       .subscribe-parent {
         position: absolute;
         width: 100%;
@@ -325,6 +370,7 @@ select {
         padding: 1rem 2rem;
         text-align: center;
         background: rgba(map-get($foundation-palette, success), 0.95);
+        color: white;
         z-index: 1;
         p {
           margin-bottom: 0.5rem;
@@ -335,17 +381,12 @@ select {
           top: 0;
           font-size: 2em;
           cursor: pointer;
-          color: rgba($black, 0.5);
+          color: white;
           &:hover,
           &:focus {
             color: $black;
           }
         }
-      }
-      .history-metadata {
-        position: absolute;
-        right: 0;
-        top: 0;
       }
     }
     .topleftinfo {

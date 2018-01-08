@@ -6,13 +6,15 @@ module DataCycleCore::Generic::OutdoorActive::ImportTours
     @tour_transformation = DataCycleCore::Generic::Transformations::Transformations.outdoor_active_to_tour
     @tour_image_transformation = DataCycleCore::Generic::Transformations::Transformations.outdoor_active_to_image
 
+    @source_filter = options.dig(:import, :source_filter) || {}
+
     import_contents(@source_type, @target_type, self.method(:load_contents).to_proc, self.method(:process_content).to_proc, **options)
   end
 
   protected
 
   def load_contents(mongo_item, locale)
-    mongo_item.where("dump.#{locale}.frontendtype": 'tour')
+    mongo_item.where(@source_filter.merge("dump.#{locale}.frontendtype" => 'tour'))
   end
 
   def process_content(raw_data, template, locale)
