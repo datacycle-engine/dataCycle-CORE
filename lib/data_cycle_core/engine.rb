@@ -101,6 +101,9 @@ module DataCycleCore
     mattr_accessor :translatable_types
     self.translatable_types = ['DataCycleCore::Person', 'DataCycleCore::Place']
 
+    mattr_accessor :release_codes
+    self.release_codes = {}
+
     #webhooks
     mattr_accessor :webhooks
     self.webhooks = {

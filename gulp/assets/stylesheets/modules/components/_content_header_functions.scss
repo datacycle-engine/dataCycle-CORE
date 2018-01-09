@@ -9,7 +9,7 @@
   }
   .dropdown-pane {
     z-index: 100;
-    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.10);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
   >ul {
     position: relative;
@@ -129,7 +129,7 @@
         }
       }
       ul.dropdown-pane {
-        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.10);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         text-align: center;
         &::before {
           content: '▲';
@@ -207,6 +207,8 @@
   .agb-link {
     cursor: pointer;
     font-weight: bold;
+    font-size: 1.25rem;
+    margin-left: 0.2rem;
   }
   >ul {
     text-align: right;
