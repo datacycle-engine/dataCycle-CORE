@@ -169,10 +169,8 @@
   background-color: lighten(map-get($foundation-palette, alert), 46%);
   padding: 1rem;
   color: $black;
-  border-radius: 5px;
   white-space: nowrap;
   z-index: 100;
-  -webkit-transition: all 0.4s ease;
   line-height: 1.5;
   text-align: left;
   &.right {
@@ -211,7 +209,10 @@
     margin-bottom: 1rem;
   }
   .buttons {
-    text-align: right;
+    text-align: center;
+    .button {
+      margin: 0 0.2rem;
+    }
   }
   &:after {
     content: '▲';
@@ -221,15 +222,13 @@
     transform: scaleX(3) rotate(180deg);
     text-shadow: 0 -3px 0 map-get($foundation-palette, alert), 0 -1px 1px rgba(0, 0, 0, 0.4);
     position: absolute;
-    width: 0;
-    height: 0;
-    border-top: 20px solid map-get($foundation-palette, alert);
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    -webkit-transition: all 0.4s ease;
-    -moz-transition: all 0.4s ease;
-    left: 30%;
-    bottom: -1.3rem;
+    left: 30px;
+    width: 2rem;
+    height: 1.1rem;
+    line-height: 1rem;
+    display: block;
+    text-align: center;
+    overflow: hidden;
   }
 }
 
