@@ -83,7 +83,7 @@ module.exports.initialize = function () {
     if ($(this).find('input[type=text]').val().length === 0) {
       $(this).find('input[type=text]').val(data.value).trigger('input');
     } else {
-      ConfirmationHelper.showConfirmation($(this), event, data.label + ' wird überschrieben. <br>Fortfahren?', true, function () {
+      ConfirmationHelper.showConfirmation($(this), event, data.label + ' wird überschrieben. <br>Fortfahren?', true, '', function () {
         $(this).find('input[type=text]').val(data.value).trigger('input');
       }.bind(this));
     }

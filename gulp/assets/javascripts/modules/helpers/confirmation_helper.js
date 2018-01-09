@@ -1,8 +1,8 @@
 // Confirmation Helpermethods
 module.exports = {
-  showConfirmation: function (parent, event, text, abort = true, callback = function () {}) {
+  showConfirmation: function (parent, event, text, abort = true, css_class = '', callback = function () {}) {
     parent.find('.confirmation').remove();
-    var html = '<div class="confirmation" style="position: absolute; transition: none;"><span>';
+    var html = '<div class="confirmation ' + css_class + '" style="position: absolute; transition: none;"><span>';
     html += text
     html += '</span><div class="buttons">';
     if (abort) html += '<button class="button abort" type="button">Abbrechen</button>';

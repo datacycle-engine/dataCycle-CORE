@@ -82,7 +82,7 @@ module.exports.initialize = function () {
 
     $(editor.container).on('import-data', function (event, data) {
       if (editor.getLength() > 1) {
-        ConfirmationHelper.showConfirmation($(this), event, data.label + ' wird überschrieben. <br>Fortfahren?', true, function () {
+        ConfirmationHelper.showConfirmation($(this), event, data.label + ' wird überschrieben. <br>Fortfahren?', true, '', function () {
           editor.clipboard.dangerouslyPasteHTML(data.value);
         });
       } else {

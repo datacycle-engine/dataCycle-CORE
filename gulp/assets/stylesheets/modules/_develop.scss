@@ -4,6 +4,23 @@
 /* Fixes for Firefox */
 
 .detail-header.editor {
+  .finalize-button-container {
+    input {
+      border: 0;
+      background: inherit;
+      box-shadow: none;
+      min-width: auto;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    label {
+      padding: 0;
+      display: inline-block;
+      vertical-align: middle;
+      top: auto;
+      font-weight: bold;
+    }
+  }
   .form-element {
     &.headline,
     &.headline_external {
@@ -155,6 +172,22 @@
   z-index: 100;
   line-height: 1.5;
   text-align: left;
+  &.right {
+    left: auto !important;
+    right: 0;
+    &:after {
+      left: auto;
+      right: 30px;
+    }
+  }
+  &.bottom {
+    top: 50px !important;
+    &:after {
+      transform: scaleX(3);
+      bottom: auto;
+      top: -18px;
+    }
+  }
   &.watchlist-dialog {
     display: none;
     left: auto;

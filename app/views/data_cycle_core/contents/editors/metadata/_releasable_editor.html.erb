@@ -3,12 +3,12 @@
   <% if can? :update_release_status, @creative_work %>
     <% value = value.blank? ? {} : value %>
     <div class="" id="release_container_<%= sanitize_to_id(key) %>">
-        <label for="<%= sanitize_to_id("#{key}_release_id") %>">Status</label>
+        <label for="<%= sanitize_to_id("#{key}_release_id") %>"><%= t('common.status') %></label>
         <%= collection_select key, :release_id, DataCycleCore::Release.all, :id, :release_text, {selected: value['release_id']}, { class: "release-select", disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) } %>
         <%= hidden_field_tag key + "[release_comment]", value['release_comment'], placeholder: "Kommentar", class: "release-comment" %>
 
         <label for="<%= sanitize_to_id("#{key}_release_comment") %>">
-            Kommentar
+            <%= t('common.comment') %>
         </label>
         <div class="release-comment form-element">
             <%= text_area_tag key + "[release_comment]", value['release_comment'], class: "release-comment", disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
@@ -16,6 +16,22 @@
     </div>
 
     <hr />
+
+  <% elsif current_user.is_rank?(0) && @creative_work.data_links.where(receiver_id: current_user.id, permissions: 'write').size > 0 %>
+    <hr />
+    <div class="finalize-button-container">
+      <%= check_box_tag 'finalize' %>
+      <%= label_tag 'finalize', t('actions.finalize'), data: { tooltip: true, 'disable-hover': false }, title: t('common.content_not_editable') %>
+    </div>
+
+    <%= hidden_field_tag "#{key}[release_id]", value['release_id'] %>
+    <%= hidden_field_tag "#{key}[release_comment]", value['release_comment'] %>
+
+  <% else %>
+
+    <%= hidden_field_tag "#{key}[release_id]", value['release_id'] %>
+    <%= hidden_field_tag "#{key}[release_comment]", value['release_comment'] %>
+
   <% end %>
 
 </div>
