@@ -109,7 +109,7 @@ de:
     read: lesen
     write: schreiben
     save_and_send: "Speichern und Senden"
-    finalize: Finalisieren
+    finalize: Bearbeitung abschließen
 
   validation:
     errors:

@@ -19,8 +19,8 @@ module DataCycleCore
         self.creator.subscriptions.create({subscribable_id: self.item.id, subscribable_type: self.item.class})
       end
 
-      if self.item.metadata.dig('validation', 'releasable')
-        self.item.update_attribute(:release_id, DataCycleCore::Release.where(release_code: 1).try(:first).try(:id))
+      if self.item.metadata.dig('validation', 'releasable') && !DataCycleCore.release_codes.blank?
+        self.item.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:partner]).try(:first).try(:id))
       end
     end
 

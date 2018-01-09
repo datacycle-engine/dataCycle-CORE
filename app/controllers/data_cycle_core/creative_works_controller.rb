@@ -156,7 +156,11 @@ module DataCycleCore
 
         unless data_hash_has_changes
           flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @creativeWork.metadata['validation']['name'], locale: DataCycleCore.ui_language
-          redirect_back(fallback_location: root_path)
+          if (Rails.env.development? || params[:splitview]) && !params[:finalize]
+            redirect_back(fallback_location: root_path)
+          else
+            redirect_to creative_work_path(@creativeWork, watch_list_id: @watch_list)
+          end
           return
         end
 
@@ -176,7 +180,6 @@ module DataCycleCore
 
           #after update webhooks
           execute_after_update_webhooks @creativeWork
-
           if (Rails.env.development? || params[:splitview]) && !params[:finalize]
             redirect_back(fallback_location: root_path)
           else
@@ -246,7 +249,9 @@ module DataCycleCore
       if params[:finalize] && @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').size > 0
         @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').first.update_attribute(:permissions, 'read')
 
-        @creativeWork.update_attribute(:release_id, DataCycleCore::Release.where(release_code: 3).try(:first).try(:id))
+        unless DataCycleCore.release_codes.blank?
+          @creativeWork.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id))
+        end
       end
     end
 
