@@ -66,6 +66,9 @@ de:
     compare: vergleichen
     compare_contents: Inhalte vergleichen
     version: Version
+    comment: Kommentar
+    status: Status
+    content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -106,6 +109,7 @@ de:
     read: lesen
     write: schreiben
     save_and_send: "Speichern und Senden"
+    finalize: Finalisieren
 
   validation:
     errors:

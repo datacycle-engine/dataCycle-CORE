@@ -78,6 +78,16 @@ module.exports.initialize = function () {
     };
 
     var editor = new quill('#' + node.id, options);
+
+    $(editor.container).on('import-data', function (event, data) {
+      if (editor.getLength() > 1) {
+        ConfirmationHelper.showConfirmation($(this), event, data.label + ' wird überschrieben. <br>Fortfahren?', true, '', function () {
+          editor.clipboard.dangerouslyPasteHTML(data.value);
+        });
+      } else {
+        editor.clipboard.dangerouslyPasteHTML(data.value);
+      }
+    });
   }
 
   if ($('.editor-block').length > 0) {
