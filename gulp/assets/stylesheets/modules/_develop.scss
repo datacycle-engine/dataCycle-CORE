@@ -12,6 +12,7 @@
       min-width: auto;
       display: inline-block;
       vertical-align: middle;
+      transform: scale(1.1);
     }
     label {
       padding: 0;
@@ -19,6 +20,7 @@
       vertical-align: middle;
       top: auto;
       font-weight: bold;
+      font-size: 1.5rem;
     }
   }
   .form-element {
@@ -163,9 +165,9 @@
   position: absolute;
   top: -5rem;
   left: 1rem;
-  border: 2px solid map-get($foundation-palette, alert);
-  background-color: white; //map-get($foundation-palette, alert);
-  padding: 0.5rem 1rem;
+  box-shadow: 0 0 0 3px map-get($foundation-palette, alert), 0 0 8px rgba(0, 0, 0, 0.4);
+  background-color: lighten(map-get($foundation-palette, alert), 46%);
+  padding: 1rem;
   color: $black;
   border-radius: 5px;
   white-space: nowrap;
@@ -211,8 +213,13 @@
   .buttons {
     text-align: right;
   }
-  &:before {
-    content: "";
+  &:after {
+    content: '▲';
+    font-size: 28px;
+    bottom: -18px;
+    color: lighten(map-get($foundation-palette, alert), 46%);
+    transform: scaleX(3) rotate(180deg);
+    text-shadow: 0 -3px 0 map-get($foundation-palette, alert), 0 -1px 1px rgba(0, 0, 0, 0.4);
     position: absolute;
     width: 0;
     height: 0;
