@@ -47,7 +47,70 @@ Cypress.Commands.add('login', function (userType, options = {}) {
         followRedirect: false
       })
       cy.visit('/')
-      cy.get('.flash.callout .close-button').click()
+      cy.get('.flash.callout.success .close-button').click()
     })
+  })
+})
+
+Cypress.Commands.add('testLogin', function (user) {
+  cy.get('[name="csrf-token"]').then(($elem) => {
+    cy.request({
+      url: '/users/sign_out',
+      method: 'DELETE',
+      body: {
+        utf8: "✓",
+        authenticity_token: $elem.prop('content')
+      },
+      followRedirect: false
+    })
+  })
+
+  cy.visit('/users/sign_in')
+  cy.get('.flash.callout.success .close-button').click()
+
+  cy.get('[name="csrf-token"]').then(($elem) => {
+    cy.request({
+      url: '/users/sign_in',
+      method: 'POST',
+      body: {
+        utf8: "✓",
+        authenticity_token: $elem.prop('content'),
+        user: {
+          email: user.email,
+          password: user.password,
+          remember_me: 0
+        }
+      },
+      failOnStatusCode: false,
+      followRedirect: false
+    })
+  })
+  cy.visit('/')
+})
+
+Cypress.Commands.add('createCreativeWork', function (name, template) {
+  cy.visit('/')
+  var authenticity_token = ""
+  cy.get('[name=csrf-token]').then(($elem) => {
+    authenticity_token = $elem.attr('content')
+
+    cy.request({
+      url: '/creative_works',
+      method: 'POST',
+      body: {
+        utf8: "✓",
+        authenticity_token: authenticity_token,
+        template: template,
+        creative_work: {
+          datahash: {
+            headline: name
+          }
+        }
+      },
+      failOnStatusCode: false,
+      followRedirect: false
+    })
+    cy.visit('/')
+    cy.get('.flash.callout.success .close-button').click()
   })
 })

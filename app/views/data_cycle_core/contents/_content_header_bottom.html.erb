@@ -16,7 +16,7 @@
         <% end %>
 
         <% if can? :destroy, content %>
-            <%= link_to polymorphic_path(content, watch_list_id: @watch_list), :method => :delete, class:'button-prime small delete', data: {tooltip: "", confirm:"#{content.metadata['validation']['name']} #{t('actions.delete', locale: DataCycleCore.ui_language)}?"}, title: t('actions.delete', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': "true" do %>
+            <%= link_to polymorphic_path(content, watch_list_id: @watch_list), :method => :delete, class:'button-prime small delete-content-link', data: {tooltip: "", confirm:"#{content.metadata['validation']['name']} #{t('actions.delete', locale: DataCycleCore.ui_language)}?"}, title: t('actions.delete', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': "true" do %>
                 <i class="fa fa-trash-o" aria-hidden="true"></i>
             <% end %>
         <% end %>
