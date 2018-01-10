@@ -2,11 +2,6 @@ module DataCycleCore
   module Filter
     class Search < QueryBuilder
 
-      def_delegators :@query, :includes, :to_a, :to_sql, :each, :map, :page #, :per, :total_pages, :current_page, :limit_value, :next_page, :prev_page, :first_page?, :last_page?, :out_of_range?
-      TERMINAL_METHODS = [:count, :pluck,
-        :first, :second, :third, :fourth, :fifth, :forty_two, :last]
-      def_delegators :@query, *TERMINAL_METHODS
-
       def initialize(locale = 'de', query = nil)
         @locale = locale
         @query = query || DataCycleCore::Search.where(search[:locale].eq(quoted(@locale)))
@@ -29,7 +24,7 @@ module DataCycleCore
         )
       end
 
-      def in_validity_period(current_date = Time.now)
+      def in_validity_period(current_date = Time.zone.now)
         reflect (
           @query.where(
             in_range(search[:validity_period], cast_tstz(current_date))
@@ -45,7 +40,7 @@ module DataCycleCore
         )
       end
 
-      def modified_since(date = Time.now)
+      def modified_since(date = Time.zone.now)
         reflect (
           @query.where(
             search[:updated_at].gteq(DateTime.parse(date))
@@ -53,7 +48,7 @@ module DataCycleCore
         )
       end
 
-      def created_since(date = Time.now)
+      def created_since(date = Time.zone.now)
         reflect (
           @query.where(
             search[:created_at].gteq(DateTime.parse(date))
@@ -96,14 +91,6 @@ module DataCycleCore
             on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
       end
 
-      def search
-        DataCycleCore::Search.arel_table
-      end
-
-      def classification_content
-        DataCycleCore::ClassificationContent.arel_table
-      end
-
       def join_watch_list
         Arel::SelectManager.new.
         project(search[:content_data_id]).
@@ -112,13 +99,21 @@ module DataCycleCore
           on(search[:content_data_id].eq(watch_list_data_hash[:hashable_id]).and(search[:content_data_type].eq(watch_list_data_hash[:hashable_type])))
       end
 
+      def get_watch_list_items(id)
+        query = join_watch_list
+        query.where(watch_list_data_hash[:watch_list_id].eq(id))
+      end
+
       def watch_list_data_hash
         DataCycleCore::WatchListDataHash.arel_table
       end
 
-      def get_watch_list_items(id)
-        query = join_watch_list
-        query.where(watch_list_data_hash[:watch_list_id].eq(id))
+      def search
+        DataCycleCore::Search.arel_table
+      end
+
+      def classification_content
+        DataCycleCore::ClassificationContent.arel_table
       end
 
     end
