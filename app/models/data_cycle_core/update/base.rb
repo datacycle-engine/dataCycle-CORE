@@ -41,7 +41,8 @@ module DataCycleCore
         puts "[#{'*'*100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
       end
 
-    private
+      private
+
       def quoted(string)
         Arel::Nodes.build_quoted(string)
       end

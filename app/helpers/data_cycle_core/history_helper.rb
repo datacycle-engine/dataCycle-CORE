@@ -90,10 +90,10 @@ module DataCycleCore
             indicator = val[0]
             value = val[1]
             case indicator
-              when REMOVED_INDICATOR
-                removed_objects.push(value)
-              when ADDED_INDICATOR
-                added_objects.push(value)
+            when REMOVED_INDICATOR
+              removed_objects.push(value)
+            when ADDED_INDICATOR
+              added_objects.push(value)
             end
           end
         end

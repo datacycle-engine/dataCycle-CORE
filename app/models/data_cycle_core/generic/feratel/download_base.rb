@@ -21,9 +21,9 @@ module DataCycleCore::Generic::Feratel::DownloadBase
 
   def range_type(range_code)
     case range_code
-      when 'RG' then 'Region'
-      when 'DI' then 'District'
-      when 'TO' then 'Town'
+    when 'RG' then 'Region'
+    when 'DI' then 'District'
+    when 'TO' then 'Town'
     end
   end
 end

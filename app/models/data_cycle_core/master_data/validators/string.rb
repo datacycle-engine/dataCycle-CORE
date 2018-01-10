@@ -28,8 +28,9 @@ module DataCycleCore
           return @error
         end
 
-      private
-      # given string validations
+        private
+
+        # given string validations
 
         def minLength(data,value)
           if data.length < value.to_i
@@ -59,7 +60,7 @@ module DataCycleCore
           end
         end
 
-      # check string for given format
+        # check string for given format
 
         def uuid(data)
           data.downcase!

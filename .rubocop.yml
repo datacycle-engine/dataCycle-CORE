@@ -1,6 +1,43 @@
-#inherit_from:
-#  - ~/.rubocop.yml
+inherit_from: .rubocop_todo.yml
 
 AllCops:
   TargetRubyVersion: 2.4.3
   TargetRailsVersion: 5.0
+  DisplayCopNames: true
+  Exclude:
+    - 'node_modules/**/*'
+    - 'tmp/**/*'
+
+Rails:
+  Enabled: true
+
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/MixinUsage:
+  Exclude:
+    - 'test/dummy/bin/setup'
+    - 'test/dummy/bin/update'
+
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
+# disable some metrics
+Metrics/LineLength:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false
+
+
+# Offense count: 1
+Layout/AlignParameters:
+  Exclude:
+    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
+
+# Offense count: 49
+Style/GuardClause:
+  Enabled: false

@@ -50,6 +50,7 @@ module DataCycleCore
     end
 
     private
+
     def user_group_params
       params.require(:user_group).permit(:name, user_ids: [], classification_ids: [])
     end

@@ -58,18 +58,18 @@ Rake::Task['db:create'].enhance do
     ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
   else
     ActiveRecord::Base.establish_connection(:development)
-                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
+      .connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
     ActiveRecord::Base.establish_connection(:development)
-                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
+      .connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
     ActiveRecord::Base.establish_connection(:development)
-                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
+      .connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
 
     ActiveRecord::Base.establish_connection(:test)
-                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
+      .connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
     ActiveRecord::Base.establish_connection(:test)
-                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
+      .connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
     ActiveRecord::Base.establish_connection(:test)
-                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
+      .connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
   end
 end
 
@@ -415,8 +415,8 @@ namespace :data_cycle_core do
     task :stage2 => [:environment] do
 
       array_names = ['question_hasPart','website_hasPart','offer_periods_hasPart',
-        'mobile_application_hasPart','quotation_hasPart','accepted_answer_hasPart',
-        'suggested_answer_hasPart','timeline_item_hasPart']
+                     'mobile_application_hasPart','quotation_hasPart','accepted_answer_hasPart',
+                     'suggested_answer_hasPart','timeline_item_hasPart']
 
       where_string = "metadata ?| array['"+array_names.join("','")+"']"
       DataCycleCore::CreativeWork.where(where_string).each do |item|
@@ -493,7 +493,7 @@ namespace :data_cycle_core do
               relation_data = ['a', 'b'].map { |selector|
                 ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
               }.flatten
-              .zip(link_definition[:table] < item.class.table_name ? item_data+self_data : self_data+item_data).to_h
+                .zip(link_definition[:table] < item.class.table_name ? item_data+self_data : self_data+item_data).to_h
 
               DataCycleCore::ContentContent.find_or_create_by!(relation_data)
 
@@ -526,7 +526,7 @@ namespace :data_cycle_core do
               relation_data = ['a', 'b'].map { |selector|
                 ["content_#{selector}_history_id".to_sym, "content_#{selector}_history_type".to_sym, "relation_#{selector}".to_sym]
               }.flatten
-              .zip(link_definition[:table] < item.class.table_name ? item_data+self_data : self_data+item_data).to_h
+                .zip(link_definition[:table] < item.class.table_name ? item_data+self_data : self_data+item_data).to_h
 
               DataCycleCore::ContentContent::History.find_or_create_by!(relation_data)
 

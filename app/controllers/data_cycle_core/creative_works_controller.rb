@@ -213,12 +213,12 @@ module DataCycleCore
       render :json => valid.to_json
     end
 
-
     def after_create(content, user)
       # to be implemented by specific projects
     end
 
     private
+
     def create_params
     end
 

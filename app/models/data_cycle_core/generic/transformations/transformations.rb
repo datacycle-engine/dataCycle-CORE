@@ -91,7 +91,8 @@ module DataCycleCore::Generic::Transformations::Transformations
     >> t(:add_field, 'street_address', -> s {
       unless s['address'].try(:[], 'street').try(:strip).blank?
         [s['address'].try(:[], 'street').try(:strip), s['address'].try(:[], 'housenumber').try(:strip)].join(' ')
-      end}).
+      end
+    }).
     >> t(:add_field, 'postal_code', -> s {s['address'].try(:[], 'zipcode')}).
     >> t(:add_field, 'author', -> s {s['meta'].try(:[], 'author')}).
     >> t(:strip_all)
@@ -120,7 +121,8 @@ module DataCycleCore::Generic::Transformations::Transformations
     >> t(:add_field, 'street_address', -> s {
       unless s['address'].try(:[], 'street').try(:strip).blank?
         [s['address'].try(:[], 'street').try(:strip), s['address'].try(:[], 'housenumber').try(:strip)].join(' ')
-      end}).
+      end
+    }).
     >> t(:add_field, 'postal_code', -> s {s['address'].try(:[], 'zipcode')}).
     >> t(:add_field, 'author', -> s {s['meta'].try(:[], 'author')}).
     >> t(:strip_all)

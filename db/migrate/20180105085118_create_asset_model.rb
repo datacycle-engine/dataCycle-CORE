@@ -10,6 +10,7 @@ class CreateAssetModel < ActiveRecord::Migration[5.0]
       t.datetime :seen_at
     end
   end
+
   def down
     drop_table :assets
   end

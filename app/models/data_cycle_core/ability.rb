@@ -30,22 +30,21 @@ module DataCycleCore
         if user.has_rank?(10)
           can :manage, [DataCycleCore::DataLink, DataCycleCore::Classification]
           can [:crud, :destroy],
-            [
-              DataCycleCore::User,
-              DataCycleCore::UserGroup
-
-            ]
+              [
+                DataCycleCore::User,
+                DataCycleCore::UserGroup
+              ]
 
           can :update_release_status, [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]
 
           can :manage,
-            [
-              DataCycleCore::Classification,
-              DataCycleCore::ClassificationTreeLabel,
-              DataCycleCore::ClassificationTree,
-              DataCycleCore::ClassificationAlias
-            ],
-            external_source_id: nil
+              [
+                DataCycleCore::Classification,
+                DataCycleCore::ClassificationTreeLabel,
+                DataCycleCore::ClassificationTree,
+                DataCycleCore::ClassificationAlias
+              ],
+              external_source_id: nil
 
           can :crud, [DataCycleCore::CreativeWork, DataCycleCore::Event, DataCycleCore::Person, DataCycleCore::Place] do |data_object|
             data_object&.metadata&.dig('validation','permissions','read_write') != false

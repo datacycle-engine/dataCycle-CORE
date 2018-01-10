@@ -10,7 +10,6 @@ module DataCycleCore
       content_hash, release_hash = data_iterator_split(data_hash, full)
     end
 
-
     def data_iterator_merge(data_hash, release_hash)
       return data_hash if release_hash.blank?
       release_hash.each do |key, value|
@@ -28,7 +27,6 @@ module DataCycleCore
       end
       return data_hash.compact, release_hash.compact
     end
-
 
     def merge_data(data_value, release_data)
       return data_value if release_data.blank?
@@ -102,7 +100,7 @@ module DataCycleCore
       false
     end
 
-  # functions to define the release logic
+    # functions to define the release logic
     def max_release_status_id(ids)
       releases = Release.order(release_code: :desc).find_by(id: ids)
       releases.nil? ? release_id_released : releases.id # nil defined as "freigegeben"
@@ -113,7 +111,7 @@ module DataCycleCore
       Release.find_by(release_code: 0).id
     end
 
-  # utility functions
+    # utility functions
     def release_status
       Release.find(self.release_id)
     end

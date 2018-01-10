@@ -2,14 +2,14 @@ module DataCycleCore
   class Event < DataHash
 
     class Translation < Globalize::ActiveRecord::Translation
-        include ContentTranslationHelpers
-        include EventHelpers
+      include ContentTranslationHelpers
+      include EventHelpers
     end
 
     class History < DataHash
       # handle translations with gem Globalize
       translates :headline, :description, :content, :properties, :release,
-        :release_id, :release_comment, :history_valid
+                 :release_id, :release_comment, :history_valid
 
       content_relations table_name: "events", postfix: "history"
 
@@ -27,7 +27,7 @@ module DataCycleCore
 
     # handle translations with gem Globalize
     translates :headline, :description, :content, :properties, :release,
-      :release_id, :release_comment
+               :release_id, :release_comment
 
     # include content specific relations
     content_relations table_name: self.table_name

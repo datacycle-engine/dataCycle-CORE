@@ -10,9 +10,9 @@ module DataCycleCore
         project(DataCycleCore::ExternalSource.arel_table[:id]).
         from(DataCycleCore::ExternalSource.arel_table).
         join(DataCycleCore::UseCase.arel_table).
-          on(DataCycleCore::ExternalSource.arel_table[:id].eq(DataCycleCore::UseCase.arel_table[:external_source_id])).
+        on(DataCycleCore::ExternalSource.arel_table[:id].eq(DataCycleCore::UseCase.arel_table[:external_source_id])).
         join(DataCycleCore::User.arel_table).
-          on(DataCycleCore::UseCase.arel_table[:user_id].eq(DataCycleCore::User.arel_table[:id])).
+        on(DataCycleCore::UseCase.arel_table[:user_id].eq(DataCycleCore::User.arel_table[:id])).
         where(DataCycleCore::User.arel_table[:name].eq(Arel::Nodes.build_quoted('Administrator')))
 
       # lables sub-query
@@ -25,12 +25,13 @@ module DataCycleCore
       # main query
       query = DataCycleCore::ClassificationTree.
         joins(:classification_tree_label, :sub_classification_alias).
-        joins(DataCycleCore::ClassificationTree.arel_table.join(DataCycleCore::ClassificationAlias.arel_table).
+        joins(
+          DataCycleCore::ClassificationTree.arel_table.join(DataCycleCore::ClassificationAlias.arel_table).
           on(DataCycleCore::ClassificationTree.arel_table[:classification_alias_id].eq(DataCycleCore::ClassificationAlias.arel_table[:id])).
           join_sources
         ).
         includes([:sub_classification_alias, :classification_tree_label]). # eager loading to avoid (n+1) loading in iteration
-        where(DataCycleCore::ClassificationTreeLabel.arel_table[:name].in(lables)).
+      where(DataCycleCore::ClassificationTreeLabel.arel_table[:name].in(lables)).
         where(DataCycleCore::ClassificationTreeLabel.arel_table[:external_source_id].eq(nil).
           or(DataCycleCore::ClassificationTreeLabel.arel_table[:external_source_id].in(external_source_id))).
         order([classification_tree_label_id: :asc])

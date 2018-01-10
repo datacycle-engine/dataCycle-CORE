@@ -28,7 +28,7 @@ module DataCycleCore
           return @error
         end
 
-      private
+        private
 
         #number validations
         def min(data, value)

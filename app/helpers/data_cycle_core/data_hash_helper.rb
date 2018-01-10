@@ -137,11 +137,11 @@ module DataCycleCore
         if !prop['name'].nil? && !prop['description'].nil? && !prop['editor']['type'].nil?
 
           case prop['editor']['type']
-            when 'embeddedObject'
-              render_embeddedObject_field(key, prop, value, options, parent_object_keys)
-            when 'objectBrowser'
-              key = get_object_key(key, parent_object_keys)
-              render_objectBrowser_field(key, prop, value, options)
+          when 'embeddedObject'
+            render_embeddedObject_field(key, prop, value, options, parent_object_keys)
+          when 'objectBrowser'
+            key = get_object_key(key, parent_object_keys)
+            render_objectBrowser_field(key, prop, value, options)
           end
 
         end
@@ -154,14 +154,14 @@ module DataCycleCore
 
       if !prop['editor'].nil? && !prop['editor']['type'].nil?
         case prop['editor']['type']
-          when 'input'
-            render_input_text_field(key, prop, value, prop['label'], options, parent_object_keys)
-          when 'date'
-            render_date_input_text_field(key, prop, value, prop['label'], options, parent_object_keys)
-          when 'datetime'
-            render_datetime_input_text_field(key, prop, value, prop['label'], options, parent_object_keys)
-          when 'quillEditor'
-            render_fe_editor(key, prop, value, prop['label'], options, parent_object_keys)
+        when 'input'
+          render_input_text_field(key, prop, value, prop['label'], options, parent_object_keys)
+        when 'date'
+          render_date_input_text_field(key, prop, value, prop['label'], options, parent_object_keys)
+        when 'datetime'
+          render_datetime_input_text_field(key, prop, value, prop['label'], options, parent_object_keys)
+        when 'quillEditor'
+          render_fe_editor(key, prop, value, prop['label'], options, parent_object_keys)
         end
       else
         render_input_text_field(key, prop, value, prop['label'], options, parent_object_keys)
@@ -173,8 +173,8 @@ module DataCycleCore
 
       if !prop['editor'].nil? && !prop['editor']['type'].nil?
         case prop['editor']['type']
-          when 'duration'
-            render_input_duration_field(key, prop, value, prop['label'], options, parent_object_keys)
+        when 'duration'
+          render_input_duration_field(key, prop, value, prop['label'], options, parent_object_keys)
         end
       else
         render_input_text_field(key, prop, value, prop['label'], options, parent_object_keys)

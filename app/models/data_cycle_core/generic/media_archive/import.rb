@@ -32,13 +32,13 @@ module DataCycleCore::Generic::MediaArchive::Import
       raw_data.merge!({'content_location' => [{ 'id' => content_location.try(:id) }]}) unless content_location.blank?
 
       case raw_data['contentType']
-        when "Bild"
-          data = extract_image_data(raw_data).with_indifferent_access
-        when "Video"
-          data = extract_video_data(raw_data).with_indifferent_access
-        else
-          data = nil
-          ap "Unkown contentType #{raw_data}"
+      when "Bild"
+        data = extract_image_data(raw_data).with_indifferent_access
+      when "Video"
+        data = extract_video_data(raw_data).with_indifferent_access
+      else
+        data = nil
+        ap "Unkown contentType #{raw_data}"
       end
 
       content = create_or_update_content(

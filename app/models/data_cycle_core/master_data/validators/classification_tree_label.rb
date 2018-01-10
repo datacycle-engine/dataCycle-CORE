@@ -18,7 +18,7 @@ module DataCycleCore
           return @error
         end
 
-      private
+        private
 
         def check_reference_array(data, template)
           # check given validations

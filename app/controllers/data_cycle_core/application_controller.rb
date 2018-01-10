@@ -26,6 +26,7 @@ module DataCycleCore
     end
 
     private
+
       def better_errors_hack
         request.env['puma.config'].options.user_options.delete(:app) if request.env.has_key?('puma.config')
       end

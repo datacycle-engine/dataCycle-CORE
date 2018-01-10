@@ -35,6 +35,7 @@ module DataCycleCore
     end
 
     private
+
     def set_default_role
       self.role ||= DataCycleCore::Role.find_by(name: 'standard')
     end

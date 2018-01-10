@@ -4,13 +4,13 @@ module DataCycleCore
       class Object < BasicValidator
 
         @@basic_types = {
-            'object' => Validators::Object,
-            'string' => Validators::String,
-            'number' => Validators::Number,
-            'geographic' => Validators::Geographic,
-            'embeddedLink' => Validators::EmbeddedLink,             # only one or zero links allowed
-            'embeddedLinkArray' => Validators::EmbeddedLinkArray,   # arbitray number of links to the same table allowed
-            'classificationTreeLabel' => Validators::ClassificationTreeLabel
+          'object' => Validators::Object,
+          'string' => Validators::String,
+          'number' => Validators::Number,
+          'geographic' => Validators::Geographic,
+          'embeddedLink' => Validators::EmbeddedLink,             # only one or zero links allowed
+          'embeddedLinkArray' => Validators::EmbeddedLinkArray,   # arbitray number of links to the same table allowed
+          'classificationTreeLabel' => Validators::ClassificationTreeLabel
         }
 
         @@object_validations = ['daterange']
@@ -66,7 +66,7 @@ module DataCycleCore
           return @error
         end
 
-      private
+        private
 
         def verify_embedded_object(data, table, name, description)
 
@@ -89,15 +89,14 @@ module DataCycleCore
           end
         end
 
-
         def daterange(data_hash, template_hash)
           data_hash = {} if data_hash.nil?
           # ap data_hash
           # ap template_hash
           if template_hash.blank? || template_hash['from'].blank? || template_hash['to'].blank?
             @error[:error].push I18n.t :no_fields, scope: [:validation, :errors], locale: DataCycleCore.ui_language
-          # elsif !data_hash.has_key?(template_hash['from']) || !data_hash.has_key?(template_hash['to'])  # if we want an error when not all data are given
-          #   @error[:error].push 'Fields specified in the validations are not available in the given data.'
+            # elsif !data_hash.has_key?(template_hash['from']) || !data_hash.has_key?(template_hash['to'])  # if we want an error when not all data are given
+            #   @error[:error].push 'Fields specified in the validations are not available in the given data.'
           else
             if data_hash[template_hash['from']].blank?
               @error[:warning].push I18n.t :start_date, scope: [:validation, :warning], locale: DataCycleCore.ui_language
