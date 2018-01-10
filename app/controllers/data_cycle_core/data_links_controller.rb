@@ -5,7 +5,8 @@ module DataCycleCore
 
     def show
       link = DataCycleCore::DataLink.find_by(id: params[:id])
-      unless link.is_valid?
+
+      unless !link.nil? && link.is_valid?
         raise ActiveRecord::RecordNotFound.new('Link nicht mehr gültig!')
       end
 
