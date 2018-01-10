@@ -52,7 +52,7 @@ Cypress.Commands.add('login', function (userType, options = {}) {
   })
 })
 
-Cypress.Commands.add('testLogin', function (user) {
+Cypress.Commands.add('logout', function () {
   cy.get('[name="csrf-token"]').then(($elem) => {
     cy.request({
       url: '/users/sign_out',
@@ -61,13 +61,18 @@ Cypress.Commands.add('testLogin', function (user) {
         utf8: "✓",
         authenticity_token: $elem.prop('content')
       },
+      failOnStatusCode: false,
       followRedirect: false
     })
+    cy.visit('/users/sign_in')
+    cy.get('.flash.callout.success .close-button').click()
   })
+})
+
+Cypress.Commands.add('testLogin', function (user) {
+  cy.logout()
 
   cy.visit('/users/sign_in')
-  cy.get('.flash.callout.success .close-button').click()
-
   cy.get('[name="csrf-token"]').then(($elem) => {
     cy.request({
       url: '/users/sign_in',
@@ -105,6 +110,52 @@ Cypress.Commands.add('createCreativeWork', function (name, template) {
           datahash: {
             headline: name
           }
+        }
+      },
+      failOnStatusCode: false,
+      followRedirect: false
+    })
+    cy.visit('/')
+    cy.get('.flash.callout.success .close-button').click()
+  })
+})
+
+Cypress.Commands.add('createUser', function (user, template) {
+  cy.visit('/')
+  var authenticity_token = ""
+  cy.get('[name=csrf-token]').then(($elem) => {
+    authenticity_token = $elem.attr('content')
+
+    cy.request({
+      url: '/users/create_user',
+      method: 'POST',
+      body: {
+        utf8: "✓",
+        authenticity_token: authenticity_token,
+        user: user
+      },
+      failOnStatusCode: false,
+      followRedirect: false
+    })
+    cy.visit('/')
+    cy.get('.flash.callout.success .close-button').click()
+  })
+})
+
+Cypress.Commands.add('createUserGroup', function (name, template) {
+  cy.visit('/')
+  var authenticity_token = ""
+  cy.get('[name=csrf-token]').then(($elem) => {
+    authenticity_token = $elem.attr('content')
+
+    cy.request({
+      url: '/user_groups',
+      method: 'POST',
+      body: {
+        utf8: "✓",
+        authenticity_token: authenticity_token,
+        user_group: {
+          name: name
         }
       },
       failOnStatusCode: false,
