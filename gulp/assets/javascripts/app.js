@@ -26,6 +26,7 @@ var lazyloading_init = require('./modules/initializers/lazyloading_init');
 var datalist_init = require('./modules/initializers/datalist_init');
 var object_browser_init = require('./modules/initializers/object_browser_init');
 var embedded_objects_init = require('./modules/initializers/embedded_objects_init');
+var assets_init = require('./modules/initializers/assets_init');
 
 
 $(function () {
@@ -82,6 +83,9 @@ $(function () {
 
   // initialize Embedded Objects
   embedded_objects_init.initialize();
+
+  // initialize Embedded Objects
+  assets_init.initialize();
 
   // initialize Classigication Selector
   classification_select_init.initialize();
