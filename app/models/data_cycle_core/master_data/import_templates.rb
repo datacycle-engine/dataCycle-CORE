@@ -110,7 +110,8 @@ module DataCycleCore
                     embedded_object: 'type must be object, description must be a content_table class_name',
                     included_object: 'storage_location must be a jsonb field, type must be object and must have properties',
                     valid_classification?: 'specified default_value could not be found in classification_aliases',
-                    instantiable?: "must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base."
+                    instantiable?: "must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.",
+                    asset_relation: "type must be 'asset' and type_name must be a name of a AssetType"
                   }
                 }
               )
@@ -128,7 +129,8 @@ module DataCycleCore
                              'object',
                              'embeddedLinkArray',
                              'embeddedLink',
-                             'classificationTreeLabel'
+                             'classificationTreeLabel',
+                             'asset'
                            ])
           }
           required(:storage_location) {
@@ -140,7 +142,8 @@ module DataCycleCore
                   'metadata',
                   'content',
                   'properties',
-                  'classification_relation'
+                  'classification_relation',
+                  'asset_relation'
                 ] + DataCycleCore.content_tables
               )
           }

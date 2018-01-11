@@ -91,6 +91,12 @@ module DataCycleCore
       }.keys
     end
 
+    def asset_property_names
+      property_definitions.select { |property_name, definition|
+        definition['type'] == 'asset'
+      }.keys
+    end
+
     def search_property_names
       property_definitions.select { |property_name, definition|
         definition['search'] == true
@@ -115,6 +121,8 @@ module DataCycleCore
             embedded_array = send(property_name)
             embedded_array = embedded_array.map { |item| item.get_data_hash(timestamp) } unless embedded_array.blank?
             embedded_array.blank? ? [] : embedded_array.compact
+          elsif asset_property_names.include?(property_name)
+            send(property_name)
           else
             raise StandardError.new("cannot determine how to serialize #{property_name}")
           end
@@ -223,6 +231,11 @@ module DataCycleCore
       elsif classification_property_names.include?(property_name)
         load_relation_ids(property_name)
 
+        # for asset relations
+        # asset relations are stored in the asset_contents table
+      elsif asset_property_names.include?(property_name)
+        load_asset_relation_ids(property_name)
+
         # plain properties (e.g. string,text, ... )
         # non-structured properties of this content-data_set
       elsif PLAIN_PROPERTY_TYPES.include?(property_definition['storage_type'])
@@ -304,6 +317,12 @@ module DataCycleCore
         class_id = :content_data_id
       end
       DataCycleCore::Classification.joins(join_relation).where(join_relation => { class_id => id, relation: relation_name })
+    end
+
+    def load_asset_relation_ids(relation_name)
+      join_relation = :asset_contents
+      class_id = :content_data_id
+      DataCycleCore::Asset.joins(join_relation).where(join_relation => { class_id => id, relation: relation_name })
     end
 
     def set_property_value(property_name, property_definition, value)

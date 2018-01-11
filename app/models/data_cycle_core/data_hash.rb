@@ -257,6 +257,12 @@ module DataCycleCore
       classification_object.where(where_hash)
     end
 
+    def get_asset_relation(relation_name)
+      asset_content_object = DataCycleCore::AssetContent
+      where_hash = { "content_data_id" => id, "content_data_type" => self.class.to_s, "relation" => relation_name }
+      asset_content_object.where(where_hash)
+    end
+
     def set_relation_ids(ids, relation_name, tree_label, default_value)
       if is_blank?(ids)
         begin
@@ -307,6 +313,34 @@ module DataCycleCore
       end
     end
 
+    def set_asset_id(id, relation_name, asset_type)
+      unless id.blank?
+        DataCycleCore::AssetContent
+          .find_or_create_by(
+            "content_data_id" => self.id,
+            "content_data_type" => self.class.to_s,
+            asset_id: id,
+            asset_type: asset_type,
+            relation: relation_name
+          )
+      end
+
+      # delete old id
+      found_ids = get_asset_relation(relation_name).pluck(:asset_id)
+      to_delete = found_ids - [id]
+
+      if to_delete.size > 0
+        DataCycleCore::AssetContent
+          .where(
+            "content_data_id" => self.id,
+            "content_data_type" => self.class.to_s,
+            asset_id: to_delete,
+            asset_type: asset_type,
+            relation: relation_name
+          ).destroy_all
+      end
+    end
+
     def set_template_data_hash(data_hash, properties, save_time, current_user)
       properties.each do |key, value|
         storage_cases_set(key, data_hash[key], value, save_time, current_user)
@@ -328,6 +362,8 @@ module DataCycleCore
           save_to_jsonb(key, value, properties, 'properties')
         when 'classification_relation'
           set_relation_ids(value, key, properties['type_name'], properties['default_value'])
+        when 'asset_relation'
+          set_asset_id(value, key, properties['type_name'])
         else
           unless properties['storage_location'] == 'key' # do nothing with key
             if properties.has_key?('name') && properties.has_key?('description')

@@ -9,7 +9,8 @@ module DataCycleCore
           'geographic' => Validators::Geographic,
           'embeddedLink' => Validators::EmbeddedLink,             # only one or zero links allowed
           'embeddedLinkArray' => Validators::EmbeddedLinkArray,   # arbitray number of links to the same table allowed
-          'classificationTreeLabel' => Validators::ClassificationTreeLabel
+          'classificationTreeLabel' => Validators::ClassificationTreeLabel,
+          'asset' => Validators::Asset
         }
 
         @@object_validations = ['daterange']
