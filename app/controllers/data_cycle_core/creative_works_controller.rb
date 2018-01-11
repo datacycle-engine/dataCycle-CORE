@@ -2,9 +2,6 @@ module DataCycleCore
   class CreativeWorksController < ContentsController
     before_action :authenticate_user! # from devise (authenticate)
     load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
-
-    before_action :authenticate_user! # from devise (authenticate)
-    load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
     after_action :check_final, only: :update
 
     def index
@@ -241,7 +238,7 @@ module DataCycleCore
     end
 
     def check_final
-      if params[:finalize] && @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').size > 0
+      if params[:finalize] && @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').positive?
         @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').first.update_attribute(:permissions, 'read')
 
         unless DataCycleCore.release_codes.blank?
