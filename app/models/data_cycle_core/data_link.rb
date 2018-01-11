@@ -14,15 +14,15 @@ module DataCycleCore
     end
 
     private
+
     def set_release_status
       unless self.creator.subscriptions.exists?(subscribable_id: self.item.id, subscribable_type: self.item.class)
-        self.creator.subscriptions.create({subscribable_id: self.item.id, subscribable_type: self.item.class})
+        self.creator.subscriptions.create({ subscribable_id: self.item.id, subscribable_type: self.item.class })
       end
 
       if self.item.metadata.dig('validation', 'releasable') && !DataCycleCore.release_codes.blank?
         self.item.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:partner]).try(:first).try(:id))
       end
     end
-
   end
 end

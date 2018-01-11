@@ -108,7 +108,7 @@ module DataCycleCore
     mattr_accessor :release_codes
     self.release_codes = {}
 
-    #webhooks
+    # webhooks
     mattr_accessor :webhooks
     self.webhooks = {
       :create => [],

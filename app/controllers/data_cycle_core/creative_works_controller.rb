@@ -3,8 +3,8 @@ module DataCycleCore
     before_action :authenticate_user! # from devise (authenticate)
     load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
 
-    before_action :authenticate_user!                                # from devise (authenticate)
-    load_and_authorize_resource except: [:validate_single_data, :compare]      # from cancancan (authorize)
+    before_action :authenticate_user! # from devise (authenticate)
+    load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
     after_action :check_final, only: :update
 
     def index
