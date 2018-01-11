@@ -1,6 +1,5 @@
 require 'rails_helper'
 
-
 RSpec.shared_examples "for properties" do |storage_location, data_provider|
   describe "for properties with storage location '#{storage_location}'" do
     data_definition = {
@@ -87,13 +86,13 @@ RSpec.shared_examples "for properties with no content yet" do |storage_location|
 end
 
 RSpec.describe DataCycleCore::Content, type: :model do
-  include_context "for properties", "metadata",  ->() { SecureRandom.hex }
+  include_context "for properties", "metadata", ->() { SecureRandom.hex }
 
-  include_context "for properties with no content yet", "content",  ->() { SecureRandom.hex }
-  include_context "for properties", "content",  ->() { SecureRandom.hex }
+  include_context "for properties with no content yet", "content", ->() { SecureRandom.hex }
+  include_context "for properties", "content", ->() { SecureRandom.hex }
 
-  include_context "for properties with no content yet", "properties",  ->() { SecureRandom.hex }
-  include_context "for properties", "properties",  ->() { SecureRandom.hex }
+  include_context "for properties with no content yet", "properties", ->() { SecureRandom.hex }
+  include_context "for properties", "properties", ->() { SecureRandom.hex }
 
   describe "with translatable and untranslatable properties" do
     subject {
@@ -364,11 +363,9 @@ RSpec.describe DataCycleCore::Content, type: :model do
                                    }
                                  })
     end
-
   end
 
   describe "with included properties, two ranks deep" do
-
     subject {
       DataCycleCore::CreativeWork.new(metadata: {
         validation: {
@@ -507,8 +504,5 @@ RSpec.describe DataCycleCore::Content, type: :model do
                                    }
                                  })
     end
-
   end
-
-
 end

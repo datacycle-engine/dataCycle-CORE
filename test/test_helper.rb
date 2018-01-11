@@ -11,7 +11,6 @@ require "rails/test_help"
 # to be shown.
 Minitest.backtrace_filter = Minitest::BacktraceFilter.new
 
-
 # # Load fixtures from the engine
 # if ActiveSupport::TestCase.respond_to?(:fixture_path=)
 #   ActiveSupport::TestCase.fixture_path = File.expand_path("../fixtures", __FILE__)
@@ -30,10 +29,8 @@ DataCycleCore::MasterData::ImportTemplates.new.import(person_path, DataCycleCore
 event_path = Rails.root.join('..','data_types','events','*.yml')
 DataCycleCore::MasterData::ImportTemplates.new.import(event_path, DataCycleCore::Event, false)
 
-
 cwc_path = Rails.root.join('..','data_types','creative_works_custom','*.yml')
 DataCycleCore::MasterData::ImportTemplates.new.import(cwc_path, DataCycleCore::CreativeWork, false)
-
 
 classification_yaml = Rails.root.join('..','data_types','classifications.yml')
 DataCycleCore::MasterData::ImportClassifications.new.import(classification_yaml); nil

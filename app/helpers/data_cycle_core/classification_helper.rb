@@ -1,6 +1,5 @@
 module DataCycleCore
   module ClassificationHelper
-
     #todo refactor
     def get_classifications_for_name(name)
       if !name.nil? && !name.blank?
@@ -41,7 +40,6 @@ module DataCycleCore
     end
 
     def get_selected_values_for_classification(options, value)
-
       if value.nil?
         return nil
       end
@@ -57,7 +55,6 @@ module DataCycleCore
       end
 
       return @selected_values
-
     end
 
     def get_custom_select_values(classification_alias)
@@ -82,6 +79,5 @@ module DataCycleCore
       end
       classification_tree
     end
-
   end
 end

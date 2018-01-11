@@ -4,11 +4,9 @@ module DataCycleCore
     @@key_prefix = "creative_work[datahash]"
 
     class DataCycleFormBuilder < ActionView::Helpers::FormBuilder
-
       # def text_field(attribute, options={})
       #   label(attribute) + super
       # end
-
     end
 
     def set_key_prefix(prefix)
@@ -27,14 +25,12 @@ module DataCycleCore
     end
 
     def get_ordered_validation_properties(validation)
-
       ordered_properties = ActiveSupport::OrderedHash.new
       unordered_properties = []
 
       if !validation.nil? && !validation['properties'].blank?
 
         validation['properties'].each do |prop|
-
           if !prop[1]['editor'].nil?
 
             if !prop[1]['editor']['sorting'].nil?
@@ -44,14 +40,12 @@ module DataCycleCore
             end
 
           end
-
         end
 
       end
 
       properties = Hash[ordered_properties.sort.map{ |k,v| v}]
       return properties.merge(Hash[unordered_properties]).nil? ? [] : properties.merge(Hash[unordered_properties])
-
     end
 
     def data_cycle_hidden_field(key, value = nil, parent_object_keys=[])
@@ -86,7 +80,6 @@ module DataCycleCore
       else
         "Unknown data_type: #{prop['type']}"
       end
-
     end
 
     def render_classificationTreeLabel_field(key, prop, value=nil, options={}, parent_object_keys=[])
@@ -124,7 +117,6 @@ module DataCycleCore
     end
 
     def render_object_field(key, prop, value=nil, options={}, parent_object_keys=[])
-
       if !prop['properties'].nil?
         output = []
 
@@ -147,11 +139,9 @@ module DataCycleCore
         end
 
       end
-
     end
 
     def render_string_field(key, prop, value=nil, options={}, parent_object_keys=[])
-
       if !prop['editor'].nil? && !prop['editor']['type'].nil?
         case prop['editor']['type']
         when 'input'
@@ -166,11 +156,9 @@ module DataCycleCore
       else
         render_input_text_field(key, prop, value, prop['label'], options, parent_object_keys)
       end
-
     end
 
     def render_number_field(key, prop, value=nil, options={}, parent_object_keys=[])
-
       if !prop['editor'].nil? && !prop['editor']['type'].nil?
         case prop['editor']['type']
         when 'duration'
@@ -179,7 +167,6 @@ module DataCycleCore
       else
         render_input_text_field(key, prop, value, prop['label'], options, parent_object_keys)
       end
-
     end
 
     def render_fe_editor(key, prop, value=nil, label=nil, options={}, parent_object_keys=[])
@@ -249,6 +236,5 @@ module DataCycleCore
       end
       object_key = "#{@@key_prefix}#{parent_object_keys_string}[#{key}]"
     end
-
   end
 end

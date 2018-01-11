@@ -20,7 +20,6 @@ module DataCycleCore
       callbacks[callback].map { |c| c.call(*args) } if callbacks.has_key?(callback)
     end
 
-
     protected
 
     def callbacks

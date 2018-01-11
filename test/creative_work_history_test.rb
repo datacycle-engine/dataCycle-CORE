@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class CreativeWorkHistoryTest < ActiveSupport::TestCase
-
     test "CreativeWork and History exists" do
       data = DataCycleCore::CreativeWork.new
       assert_equal(data.class, DataCycleCore::CreativeWork)
@@ -11,7 +10,6 @@ module DataCycleCore
     end
 
     test "create CreativeWork and don't store History" do
-
       template_cw_count = DataCycleCore::CreativeWork.count
       template_cwt_count = DataCycleCore::CreativeWork::Translation.count
 
@@ -38,7 +36,6 @@ module DataCycleCore
     end
 
     test "create CreativeWork and store History" do
-
       template_cw_count = DataCycleCore::CreativeWork.count
       template_cwt_count = DataCycleCore::CreativeWork::Translation.count
 
@@ -65,7 +62,6 @@ module DataCycleCore
     end
 
     test "save data to History with included Object data in translated jsonb field" do
-
       template_cw_count = DataCycleCore::CreativeWork.count
       template_cwt_count = DataCycleCore::CreativeWork::Translation.count
 
@@ -92,7 +88,6 @@ module DataCycleCore
     end
 
     test "save data to History with classification" do
-
       template_cw_count = DataCycleCore::CreativeWork.count
       template_cwt_count = DataCycleCore::CreativeWork::Translation.count
 
@@ -127,7 +122,6 @@ module DataCycleCore
     end
 
     test "save data to History with embeddedObject from another content_table" do
-
       template_cw_count = DataCycleCore::CreativeWork.count
       template_cwt_count = DataCycleCore::CreativeWork::Translation.count
       template_place_count = DataCycleCore::Place.count
@@ -152,7 +146,6 @@ module DataCycleCore
       data_set_place.save
       data_set_place.set_data_hash(data_hash: {"name" => "Das it ein testPlace!"}, save_time: save_time + 2.seconds)
       data_set_place.save
-
 
       data_hash = { "headline" => "Dies ist ein Test!", "testPlace" => [{"id" => data_set_place.id}]}
       error = data_set.set_data_hash(data_hash: data_hash, save_time: save_time + 4.seconds)
@@ -184,7 +177,6 @@ module DataCycleCore
     end
 
     test "save data to History with embeddedObject from same content_table" do
-
       template_cw_count = DataCycleCore::CreativeWork.count
       template_cwt_count = DataCycleCore::CreativeWork::Translation.count
       template_place_count = DataCycleCore::Place.count
@@ -242,7 +234,6 @@ module DataCycleCore
     end
 
     test "create CreativeWork and store multiple Histories to test as_of method" do
-
       template_cw_count = DataCycleCore::CreativeWork.count
       template_cwt_count = DataCycleCore::CreativeWork::Translation.count
 
@@ -285,7 +276,6 @@ module DataCycleCore
       assert_equal(4, DataCycleCore::CreativeWork::History.count)
       assert_equal(4, DataCycleCore::CreativeWork::History::Translation.count)
 
-
       # puts "#{data_set.id} | #{data_set.updated_at}..#{Time.zone.now} | #{data_set.headline}"
       # data_set.histories.each do |item|
       #   puts "#{item.id} | #{item.history_valid} | #{item.headline}"
@@ -308,11 +298,9 @@ module DataCycleCore
       assert_nil(data_set.as_of(weeks4ago-2.week))
       assert_nil(data_set.as_of(Time.zone.now-3.months))
       assert_equal(data_hash_1w, data_set.get_data_hash(Time.zone.now+1.month))
-
     end
 
     test "save creative work with embeddedLink to history" do
-
       template_cw = DataCycleCore::CreativeWork.count
       template_cwt = DataCycleCore::CreativeWork::Translation.count
       template_p = DataCycleCore::Place.count
@@ -397,9 +385,6 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::ContentContent::History.count)
 
       assert_equal([data_place_id2, data_place_id1], data_set.histories.map{|item| item.linked.ids}.flatten)
-
     end
-
-
   end
 end

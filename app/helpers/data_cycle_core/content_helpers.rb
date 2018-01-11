@@ -63,6 +63,5 @@ module DataCycleCore
         return {'date_published' => valid_from.blank? ? '' : valid_from.to_s(:german_date_format), 'expires' => valid_to.blank? || valid_to.to_s(:german_date_format).include?('9999') ? '' : valid_to.to_s(:german_date_format)}
       end
     end
-
   end
 end

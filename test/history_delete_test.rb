@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class HistoryDeleteTest < ActiveSupport::TestCase
-
     test "generate a Quiz with questions, then delete history" do
       cw_temp = DataCycleCore::CreativeWork.count
       template = DataCycleCore::CreativeWork.where(template: true, headline: "Quiz", description: "CreativeWork").first
@@ -181,6 +180,5 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::CreativeWork::History::Translation.count)
       assert_equal(0, DataCycleCore::ClassificationContent::History.count)
     end
-
   end
 end

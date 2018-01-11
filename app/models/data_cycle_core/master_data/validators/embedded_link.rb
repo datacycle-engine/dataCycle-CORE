@@ -2,7 +2,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class EmbeddedLink < BasicValidator
-
         # only allow single uuid referencing to a given table
         def validate(data, template)
           if data.blank?
@@ -39,7 +38,6 @@ module DataCycleCore
           end
           check_uuid
         end
-
       end
     end
   end

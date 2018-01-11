@@ -119,6 +119,5 @@ module DataCycleCore
     def release_status_code
       Release.find(self.release_id) ? Release.find(self.release_id).release_code : nil
     end
-
   end
 end

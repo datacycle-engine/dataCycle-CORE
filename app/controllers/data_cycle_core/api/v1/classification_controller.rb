@@ -1,6 +1,5 @@
 module DataCycleCore
   class Api::V1::ClassificationController < Api::V1::ApiBaseController
-
     @@default_per = 300
 
     def index
@@ -50,6 +49,5 @@ module DataCycleCore
 
       @classification_aliases = query.page(@page).per(@per)
     end
-
   end
 end

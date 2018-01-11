@@ -1,7 +1,6 @@
 module DataCycleCore
   module Filter
     class Search < QueryBuilder
-
       def_delegators :@query, :includes, :to_a, :to_sql, :each, :map, :page #, :per, :total_pages, :current_page, :limit_value, :next_page, :prev_page, :first_page?, :last_page?, :out_of_range?
       TERMINAL_METHODS = [:count, :pluck,
                           :first, :second, :third, :fourth, :fifth, :forty_two, :last]
@@ -123,7 +122,6 @@ module DataCycleCore
         query = join_watch_list
         query.where(watch_list_data_hash[:watch_list_id].eq(id))
       end
-
     end
   end
 end

@@ -2,7 +2,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class ClassificationTreeLabel < BasicValidator
-
         @@keywords = ['min', 'max']
 
         def validate(data, template)
@@ -85,7 +84,6 @@ module DataCycleCore
             @error[:error].push I18n.t :max_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language
           end
         end
-
       end
     end
   end

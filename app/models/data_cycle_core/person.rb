@@ -1,6 +1,5 @@
 module DataCycleCore
   class Person < DataHash
-
     class Translation < Globalize::ActiveRecord::Translation
       include ContentTranslationHelpers
     end
@@ -46,6 +45,5 @@ module DataCycleCore
       self.translations.delete_all
       self.content_search_all.delete_all
     end
-
   end
 end

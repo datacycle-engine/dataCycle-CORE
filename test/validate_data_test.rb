@@ -12,8 +12,6 @@ module DataCycleCore
         init_error_hash = { error: [], warning: []}
         assert_equal(init_error_hash, validate_object.error)
       end
-
-
     end
   end
 end

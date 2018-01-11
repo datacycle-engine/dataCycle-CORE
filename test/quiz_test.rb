@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class QuizTest < ActiveSupport::TestCase
-
     test "CreativeWork exists" do
       data = DataCycleCore::CreativeWork.new
       assert_equal(data.class, DataCycleCore::CreativeWork)
@@ -159,6 +158,5 @@ module DataCycleCore
       assert_equal(7, DataCycleCore::CreativeWork.where(template: false).count)
       assert_equal(8, DataCycleCore::ClassificationContent.count)
     end
-
   end
 end

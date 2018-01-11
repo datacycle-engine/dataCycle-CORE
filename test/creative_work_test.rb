@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class CreativeWorkTest < ActiveSupport::TestCase
-
     test "CreativeWork exists" do
       data = DataCycleCore::CreativeWork.new
       assert_equal(data.class, DataCycleCore::CreativeWork)
@@ -720,7 +719,6 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Place.where(template: false).count)
       assert_equal(4, DataCycleCore::Place::Translation.count - place_trans_templates)
 
-
       # delete the german translation of one object
       error = I18n.with_locale(:de){
         data_set.set_data_hash(data_hash: data_hash2)
@@ -1029,6 +1027,5 @@ module DataCycleCore
       assert_equal(expected_hash.except('image'), data_set.get_data_hash.compact.except('id',"data_pool",'video', 'image'))
       assert_equal(expected_hash['image'].sort, data_set.get_data_hash['image'].sort)
     end
-
   end
 end

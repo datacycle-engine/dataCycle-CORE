@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class PlaceTest < ActiveSupport::TestCase
-
     test "Place exists" do
       data = DataCycleCore::Place.new
       assert_equal(data.class, DataCycleCore::Place)

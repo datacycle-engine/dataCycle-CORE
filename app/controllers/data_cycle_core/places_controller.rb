@@ -1,6 +1,6 @@
 module DataCycleCore
   class PlacesController < ContentsController
-    before_action :authenticate_user!   # from devise (authenticate)
+    before_action :authenticate_user! # from devise (authenticate)
     # load_and_authorize_resource       # from cancancan (authorize)
 
     def index
@@ -132,7 +132,6 @@ module DataCycleCore
       def place_params(storage_location, template_name, template_description)
         datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
         params.require(:place).permit(:datahash => datahash)
-
       end
 
       #todo: implement as preprocessor
@@ -142,6 +141,5 @@ module DataCycleCore
         end
         return datahash
       end
-
   end
 end

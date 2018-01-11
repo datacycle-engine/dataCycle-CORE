@@ -1,7 +1,6 @@
 module DataCycleCore
   module Generic
     class BatchDownload < DataCycleCore::Generic::Base
-
       def download(**options, &block)
         options[:download].sort{ |d1,d2|
           d1.second['sorting'] <=> d2.second['sorting']
@@ -9,7 +8,6 @@ module DataCycleCore
           DataCycleCore::Generic::Download.new(external_source.id).download(options.merge({download: single_config.symbolize_keys}))
         end
       end
-
     end
   end
 end

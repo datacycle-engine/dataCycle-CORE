@@ -1,6 +1,5 @@
 module DataCycleCore
   class ClassificationTreeLabel < ApplicationRecord
-
     acts_as_paranoid
 
     belongs_to :external_source

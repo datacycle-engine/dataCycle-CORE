@@ -22,6 +22,5 @@ module DataCycleCore
         hash.delete(k) if blk.call(k, v)
       end
     end
-
   end
 end

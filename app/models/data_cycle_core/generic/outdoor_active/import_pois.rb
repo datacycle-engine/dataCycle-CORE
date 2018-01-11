@@ -1,5 +1,4 @@
 module DataCycleCore::Generic::OutdoorActive::ImportPois
-
   def import_data(**options)
     @image_template = options[:import][:image_template] || 'Bild'
 
@@ -59,5 +58,4 @@ module DataCycleCore::Generic::OutdoorActive::ImportPois
   def extract_poi_data(raw_data)
     raw_data.nil? ? {} : @poi_transformation.call(raw_data)
   end
-
 end

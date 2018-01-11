@@ -7,7 +7,7 @@ module DataCycleCore
     end
 
     def render_embedded_object
-      object_type = DataCycleCore.content_tables.find{ |object| object ==  params[:definition]['storage_location'] }
+      object_type = DataCycleCore.content_tables.find{ |object| object == params[:definition]['storage_location'] }
       @object = ('DataCycleCore::'+object_type.singularize.classify).constantize.find_by(id: params[:id])
       respond_to(:js)
     end

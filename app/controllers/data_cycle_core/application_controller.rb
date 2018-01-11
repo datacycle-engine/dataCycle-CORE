@@ -4,7 +4,6 @@ module DataCycleCore
     before_action :load_watch_lists
     before_action :better_errors_hack, if: -> { Rails.env.development? }
 
-
     def load_watch_lists
       @accessible_watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
     end

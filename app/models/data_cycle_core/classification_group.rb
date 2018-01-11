@@ -1,6 +1,5 @@
 module DataCycleCore
   class ClassificationGroup < ApplicationRecord
-
     after_destroy ->() { DataCycleCore::Classification.left_outer_joins(:classification_groups).where(classification_groups: {id: nil}).destroy_all }
 
     acts_as_paranoid

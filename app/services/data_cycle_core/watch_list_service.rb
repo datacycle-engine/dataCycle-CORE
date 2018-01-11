@@ -1,6 +1,5 @@
 module DataCycleCore
   class WatchListService
-
     def self.get_objects_with_types(watch_list_data_hash)
       objects = []
       watch_list_data_hash.each do |data_hash|
@@ -8,6 +7,5 @@ module DataCycleCore
       end
       return objects
     end
-
   end
 end

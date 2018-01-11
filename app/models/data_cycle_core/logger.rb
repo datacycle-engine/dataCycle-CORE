@@ -1,9 +1,6 @@
 module DataCycleCore
-
   class Logger
-
     def initialize(filename, log_to_disk=true)
-
       @log_to_disk = log_to_disk
       @log = Logging.logger[filename]
 
@@ -34,5 +31,4 @@ module DataCycleCore
       @log
     end
   end
-
 end

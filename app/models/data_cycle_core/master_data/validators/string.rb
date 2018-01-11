@@ -2,10 +2,8 @@ module DataCycleCore
   module MasterData
     module Validators
       class String < BasicValidator
-
         @@string_keywords = ['minLength', 'maxLength', 'format', 'pattern']
         @@string_formats = ['date_time', 'date', 'uuid', 'boolean', 'url']
-
 
         def validate(data, template)
           if data.is_a?(::String)
@@ -113,7 +111,6 @@ module DataCycleCore
             end
           end
         end
-
       end
     end
   end

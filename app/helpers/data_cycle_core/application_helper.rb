@@ -1,6 +1,5 @@
 module DataCycleCore
   module ApplicationHelper
-
     DEFAULT_KEY_MATCHING = {
         alert: :alert,
         notice: :success,
@@ -43,7 +42,6 @@ module DataCycleCore
       else
         content_for(:title) + " | " + base_title
       end
-
     end
 
     def render_content_partial(partial, parameters)
@@ -103,7 +101,6 @@ module DataCycleCore
       rescue
         render_attribute_viewer key: key, definition: definition, value: value, parameters: parameters
       end
-
     end
 
     def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {})
@@ -158,7 +155,5 @@ module DataCycleCore
         content_tag(:span, '&times;'.html_safe, aria: { hidden: true })
       end
     end
-
   end
-
 end

@@ -83,6 +83,5 @@ module DataCycleCore
     def set_user
       @user = DataCycleCore::User.find(params[:id])
     end
-
   end
 end

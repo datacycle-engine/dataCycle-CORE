@@ -1,6 +1,5 @@
 module DataCycleCore
   class ClassificationsController < ApplicationController
-
     def index
       respond_to do |format|
         format.html do
@@ -49,7 +48,6 @@ module DataCycleCore
             disabled: !c.primary_classification_alias.try(:assignable)
           }
         }.uniq.first(params[:max].try(:to_i) || 10).sort_by{|c| c[:path] }
-
     end
 
     def create

@@ -1,6 +1,5 @@
 module DataCycleCore
   class DataHash < Content
-
     self.abstract_class = true
 
     # get data as specified in the data template
@@ -59,7 +58,6 @@ module DataCycleCore
       data_set_history = (self.class.to_s + "::History").safe_constantize.new
 
       ActiveRecord::Base.transaction do
-
         # cc self to history
         data_set_history.send(origin_table.singularize.foreign_key+"=", self.id)
         self.attributes.except("id").each do |key,value|
@@ -334,7 +332,7 @@ module DataCycleCore
         when 'classification_relation'
           set_relation_ids(value, key, properties['type_name'], properties['default_value'])
         else
-          unless properties['storage_location'] == 'key'  # do nothing with key
+          unless properties['storage_location'] == 'key' # do nothing with key
             if properties.has_key?('name') && properties.has_key?('description')
               delete = false
               delete = true if properties.has_key?('delete') && properties['delete'] == true
@@ -416,7 +414,7 @@ module DataCycleCore
             # get validation template
             template = ("DataCycleCore::"+table.classify).constantize
               .with_translations('de')
-              .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name,  description )
+              .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name, description )
 
             insert_item = ("DataCycleCore::"+table.classify).constantize.new
             insert_item.metadata = { 'validation' => template.metadata['validation'] }
@@ -508,6 +506,5 @@ module DataCycleCore
 
       [from, to]
     end
-
   end
 end

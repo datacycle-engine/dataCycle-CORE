@@ -1,6 +1,5 @@
 module DataCycleCore
   class ClassificationAlias < ApplicationRecord
-
     belongs_to :external_source
 
     acts_as_paranoid

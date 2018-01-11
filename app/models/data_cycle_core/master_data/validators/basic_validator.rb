@@ -2,7 +2,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class BasicValidator
-
         attr_reader :error
 
         def initialize(data,template)

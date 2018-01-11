@@ -188,7 +188,6 @@ module DataCycleCore
       def reflect(query)
         self.class.new(@locale, query)
       end
-
     end
   end
 end

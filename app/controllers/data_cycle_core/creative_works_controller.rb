@@ -1,8 +1,7 @@
 module DataCycleCore
   class CreativeWorksController < ContentsController
-
-    before_action :authenticate_user!                                # from devise (authenticate)
-    load_and_authorize_resource except: [:validate_single_data, :compare]      # from cancancan (authorize)
+    before_action :authenticate_user! # from devise (authenticate)
+    load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
 
     def index
     end
@@ -10,7 +9,6 @@ module DataCycleCore
     def show
       @content = DataCycleCore::CreativeWork.find_by(id: params[:id])
       I18n.with_locale(@content.first_available_locale) do
-
         if @content.nil?
           redirect_back(fallback_location: root_path)
           return
@@ -53,7 +51,6 @@ module DataCycleCore
           return
         end
       end
-
     end
 
     def compare
@@ -88,7 +85,6 @@ module DataCycleCore
       end unless @historySource.nil?
 
       I18n.with_locale(@creativeWork.first_available_locale) do
-
         unless @creativeWork.read_write?
           raise "read_only"
           redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
@@ -100,7 +96,6 @@ module DataCycleCore
         @dataSchema = @creativeWork.get_data_hash
         @diffSchema = helpers.get_diff(@historySchema.merge(@historySource.get_releasable_hash), @dataSchema.merge(@creativeWork.get_releasable_hash))
       end
-
     end
 
     def history_detail
@@ -122,7 +117,6 @@ module DataCycleCore
       end
 
       I18n.with_locale(@content.first_available_locale) do
-
         unless @content.read_write?
           raise "read_only"
           redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
@@ -139,7 +133,6 @@ module DataCycleCore
     def update
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       I18n.with_locale(@creativeWork.first_available_locale) do
-
         object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], @creativeWork.metadata['validation']['description'])
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'],false)
 
@@ -202,7 +195,6 @@ module DataCycleCore
       else
         redirect_to creative_work_path(@creativeWork.parent, watch_list_id: @watch_list)
       end
-
     end
 
     def validate_single_data
@@ -250,6 +242,5 @@ module DataCycleCore
     # def execute_after_create_webhooks data
     #   Webhook::Create.execute_all(data)
     # end
-
   end
 end

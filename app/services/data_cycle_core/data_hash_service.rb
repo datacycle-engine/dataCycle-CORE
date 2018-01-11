@@ -5,7 +5,6 @@ module DataCycleCore
     require 'hashdiff'
 
     def self.flatten_datahash_value(datahash, template_hash, debug=false)
-
       datahash = self.flatten_recursive(datahash.to_h, template_hash)
 
       if debug == true
@@ -13,7 +12,6 @@ module DataCycleCore
       end
 
       return datahash
-
     end
 
     def self.data_hash_is_dirty?(data_hash, orig_data_hash)
@@ -21,7 +19,6 @@ module DataCycleCore
     end
 
     def self.get_internal_data(storage_location, value)
-
       internal_objects = []
       if !value.blank? && value.count > 0
         value.each do |object|
@@ -34,19 +31,17 @@ module DataCycleCore
       end
 
       return internal_objects
-
     end
 
     def self.get_internal_template(storage_location, name, description)
       internal_template = ("DataCycleCore::"+storage_location.classify).constantize.
-      find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name,  description )
+      find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name, description )
 
       if internal_template.blank?
         return nil
       end
 
       return internal_template
-
     end
 
     def self.get_object_params(storage_location, template_name, template_description)
@@ -113,11 +108,9 @@ module DataCycleCore
       end
 
       def self.flatten_recursive(datahash, template_hash)
-
         temp_datahash = {}
 
         datahash.each do |key,value|
-
           properties = template_hash['properties'][key]
 
           if value.is_a?(::Hash)
@@ -152,7 +145,5 @@ module DataCycleCore
 
         return temp_datahash
       end
-
   end
-
 end

@@ -50,7 +50,6 @@ delete_content_histories = <<-eos
   DELETE FROM classification_content_histories;
 eos
 
-
 Rake::Task['db:create'].enhance do
   if ENV['RAILS_ENV']
     ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
@@ -148,12 +147,9 @@ namespace :data_cycle_core do
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.import(options)
     end
-
-
   end
 
   namespace :update do
-
     desc "import classifications"
     task :import_classifications => [:environment] do
       path = Rails.root.join('config','data_definitions','classifications.yml')
@@ -235,7 +231,6 @@ namespace :data_cycle_core do
       DataCycleCore::Update::Update.new(type: type, template: template, strategy: strategy, transformation: transformation)
     end
 
-
     desc "DEBUG: hook to wire custom data update for a given content_table_name/template_name"
     task :update_data, [:content_table_name, :template_name] => [:environment] do |t, args|
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
@@ -262,7 +257,6 @@ namespace :data_cycle_core do
 
     desc "delete history of a specific content_table_name/template_name"
     task :delete_history, [:content_table_name, :template_name] => [:environment] do |t, args|
-
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
         puts "ERROR: only the following content_table_names are known to the system:"
         puts "#{DataCycleCore.content_tables}"
@@ -286,7 +280,6 @@ namespace :data_cycle_core do
       index = 0
 
       data_object.find_each do |data_item|
-
         # progress_bar
         if total_items > 49
           if index % 500 == 0
@@ -311,14 +304,12 @@ namespace :data_cycle_core do
         # }
       end
       puts "[#{'*'*100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
-
     end
   end
 
   namespace :data_update do
     desc "copy data to content_content(+history) table"
     task :stage1 => [:environment] do
-
       @connection = ActiveRecord::Base.connection
       data_hash = [
         {a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', relation_a: 'content_location', b: 'place', type_b: 'DataCycleCore::Place'},
@@ -366,7 +357,6 @@ namespace :data_cycle_core do
 
     desc "cleanup relation_names in content_content(+history) table"
     task :stage1_1 => [:environment] do
-
       @connection = ActiveRecord::Base.connection
       parameter_hash = [
         { relation: 'author', template: "= 'Zitat'" },
@@ -413,7 +403,6 @@ namespace :data_cycle_core do
 
     desc "update .._hasPart arrays to content_content relation table"
     task :stage2 => [:environment] do
-
       array_names = ['question_hasPart','website_hasPart','offer_periods_hasPart',
                      'mobile_application_hasPart','quotation_hasPart','accepted_answer_hasPart',
                      'suggested_answer_hasPart','timeline_item_hasPart']
@@ -463,12 +452,10 @@ namespace :data_cycle_core do
           end
         end
       end
-
     end
 
     desc "update ..embeddedLink(Array) to content_content relation table"
     task :stage3 => [:environment] do
-
       # all embeddedLink(Array) are stored in metadata --> translations irrelevant
 
       puts "updating embeddedLink and embeddedLinkArray:"
@@ -496,7 +483,6 @@ namespace :data_cycle_core do
                 .zip(link_definition[:table] < item.class.table_name ? item_data+self_data : self_data+item_data).to_h
 
               DataCycleCore::ContentContent.find_or_create_by!(relation_data)
-
             end
 
             # save without metadata embeddeLink(Array) field
@@ -529,7 +515,6 @@ namespace :data_cycle_core do
                 .zip(link_definition[:table] < item.class.table_name ? item_data+self_data : self_data+item_data).to_h
 
               DataCycleCore::ContentContent::History.find_or_create_by!(relation_data)
-
             end
 
             # save without metadata embeddeLink(Array) field
@@ -538,12 +523,10 @@ namespace :data_cycle_core do
           end
         end
       end
-
     end
 
     desc "update ..classification_content relation table"
     task :stage4 => [:environment] do
-
       temp = Time.zone.now
       puts "S T A G E  4:"
       puts "BEGIN: (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
@@ -589,7 +572,6 @@ namespace :data_cycle_core do
         items_count = content_class.constantize.count
         puts "UPDATING ==> #{content_class} (#{items_count})"
         content_class.constantize.all.each do |item|
-
           # progress bar
           index += 1
           if items_count > 49
@@ -605,7 +587,6 @@ namespace :data_cycle_core do
           end
 
           item.classification_property_names.each do |classification_name|
-
             item.send(classification_name).all.each do |classification_relation|
               if classification_relation.kind_of?(DataCycleCore::ClassificationContent)
                 classification_relation.update!(relation: classification_name)
@@ -613,7 +594,6 @@ namespace :data_cycle_core do
                 classification_relation.update_all(relation: classification_name)
               end
             end
-
           end
         end
         puts "[#{'*'*100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
@@ -643,7 +623,6 @@ namespace :data_cycle_core do
         items_count = content_class.constantize.count
         puts "UPDATING ==> #{content_class} (#{items_count})"
         content_class.constantize.all.find_each do |item|
-
           # progress bar
           if items_count > 49
             if index % (items_count/100.0).round(0) == 0
@@ -659,7 +638,6 @@ namespace :data_cycle_core do
           index += 1
 
           item.classification_property_names.each do |classification_name|
-
             item.send(classification_name).all.find_each do |classification_relation|
               if classification_relation.kind_of?(DataCycleCore::ClassificationContent::History)
                 classification_relation.update!(relation: classification_name)
@@ -667,7 +645,6 @@ namespace :data_cycle_core do
                 classification_relation.update_all(relation: classification_name)
               end
             end
-
           end
         end
         puts "[#{'*'*100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
@@ -676,6 +653,5 @@ namespace :data_cycle_core do
       puts "END"
       puts "--> UPDATE time: #{((Time.zone.now - temp)/60).to_i} min"
     end
-
   end
 end

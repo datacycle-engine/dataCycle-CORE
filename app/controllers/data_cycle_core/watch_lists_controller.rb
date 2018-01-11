@@ -80,7 +80,7 @@ module DataCycleCore
 
     def removeItem
       watch_list = DataCycleCore::WatchList.find(params[:id])
-      object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object ==  params[:hashable_type].classify }
+      object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object == params[:hashable_type].classify }
 
       unless object_type.nil?
         content_object = object_type.constantize.find(params[:hashable_id])
@@ -95,12 +95,11 @@ module DataCycleCore
         format.json { render json: { url: addItem_watch_list_path(watch_list, hashable_params), count: content_object.watch_lists.by_user(current_user).size, headline: watch_list.headline } }
         format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :removedFrom, scope: [:controllers, :success], data: watch_list.headline, locale: DataCycleCore.ui_language)) }
       end
-
     end
 
     def addItem
       watch_list = DataCycleCore::WatchList.find(params[:id])
-      object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object ==  params[:hashable_type].classify }
+      object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object == params[:hashable_type].classify }
 
       unless object_type.nil?
         content_object = object_type.constantize.find(params[:hashable_id])
@@ -126,6 +125,5 @@ module DataCycleCore
       def hashable_params
         params.permit(:hashable_id, :hashable_type)
       end
-
   end
 end

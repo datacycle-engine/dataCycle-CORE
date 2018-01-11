@@ -54,7 +54,6 @@ module DataCycleCore
     end
 
     def get_object_item_has_changed(key, definition, object_value, object_has_changed, parent_definition)
-
       if parent_definition.dig("type") == 'object' && (parent_definition.try(:[], 'editor').try(:[],'type') == 'objectBrowser')
         return false
       end
@@ -70,7 +69,6 @@ module DataCycleCore
       rescue
         return false
       end
-
     end
 
     def has_valid_changes(item)
@@ -105,7 +103,7 @@ module DataCycleCore
     private
 
     def transform_history_item(item)
-      item_transformed = item[1].reverse.inject([item[0], item[2], item[3]]) { |hash, key|  {key => hash} }
+      item_transformed = item[1].reverse.inject([item[0], item[2], item[3]]) { |hash, key| {key => hash} }
     end
 
     #refactor
@@ -135,6 +133,5 @@ module DataCycleCore
         end
       end
     end
-
   end
 end

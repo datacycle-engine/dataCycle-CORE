@@ -1,7 +1,6 @@
 module DataCycleCore
   module MasterData
     class ImportClassifications
-
       def import(filename)
         begin
           data_trees = YAML.load(File.open(filename))
@@ -100,7 +99,6 @@ module DataCycleCore
           classification.save
         end
       end
-
     end
   end
 end

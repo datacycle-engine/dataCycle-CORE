@@ -2,10 +2,8 @@ module DataCycleCore
   module MasterData
     module Validators
       class Number < BasicValidator
-
-        @@number_keywords =  ['min', 'max', 'format']
+        @@number_keywords = ['min', 'max', 'format']
         @@number_formats = ['integer', 'float']
-
 
         def validate(data, template)
           if data.is_a?(Numeric)
@@ -63,7 +61,6 @@ module DataCycleCore
             @error[:error].push I18n.t :float, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
           end
         end
-
       end
     end
   end

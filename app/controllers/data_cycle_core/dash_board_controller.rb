@@ -1,7 +1,7 @@
 module DataCycleCore
   class DashBoardController < ApplicationController
-    before_action :authenticate_user!   # from devise (authenticate)
-    authorize_resource :class => false         # from cancancan (authorize)
+    before_action :authenticate_user! # from devise (authenticate)
+    authorize_resource :class => false # from cancancan (authorize)
 
     def home
       @statOutdoorActive = StatsDatabase.new(current_user.id)
@@ -64,6 +64,5 @@ module DataCycleCore
     def logs
       @dataname = params[:dataname]
     end
-
   end
 end

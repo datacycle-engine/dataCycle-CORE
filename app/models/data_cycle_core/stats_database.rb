@@ -1,6 +1,5 @@
 module DataCycleCore
   class StatsDatabase
-
     attr_accessor :stat_update, :pg_name, :pg_size,
                   :pg_content, :pg_content_content, :pg_classification_content,
                   :pg_classifications, :pg_aliases, :pg_overlays, :pg_content_history,
@@ -36,7 +35,7 @@ module DataCycleCore
       @pg_tree_nodes = ClassificationTree.count
 
       @pg_content = {}
-      @pg_content_history =  0
+      @pg_content_history = 0
       DataCycleCore.content_tables.each do |item|
         @pg_content[item.humanize] = ("DataCycleCore::"+item.classify).safe_constantize.count
         @pg_content_history += "DataCycleCore::#{item.classify}::History".safe_constantize.count
@@ -104,6 +103,5 @@ module DataCycleCore
         end
       end
     end
-
   end
 end

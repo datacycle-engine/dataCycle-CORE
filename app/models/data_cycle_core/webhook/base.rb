@@ -1,7 +1,6 @@
 module DataCycleCore
   module Webhook
     class Base
-
       def self.log(webhook, message)
         # logger = Logger.new('webhook')
         Rails.logger.info("#{webhook}: #{message}")
@@ -14,7 +13,6 @@ module DataCycleCore
       end
 
       def self.validate_webhook(webhook, data)
-
         return webhook if webhook.kind_of?(Class)
 
         if webhook.kind_of?(Hash)
@@ -23,9 +21,7 @@ module DataCycleCore
 
           return webhook_class if filter.call(data)
         end
-
       end
-
     end
   end
 end

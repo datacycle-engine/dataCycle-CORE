@@ -1,6 +1,5 @@
 module DataCycleCore
   class RestClient
-
     def initialize(base_url, credentials, verbose=false)
       @credentials = credentials
 
@@ -19,6 +18,5 @@ module DataCycleCore
       #dummy implementation, if no credentials are required
       true
     end
-
   end
 end

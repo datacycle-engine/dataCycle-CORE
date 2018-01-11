@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class ReleaseTest < ActiveSupport::TestCase
-
     test "save CreativeWork data-type ReleaseTest" do
       template = DataCycleCore::CreativeWork.where(template: true, headline: "ReleaseTest", description: "CreativeWork").first
       validation = template.metadata['validation']
@@ -121,6 +120,5 @@ module DataCycleCore
       expected_release_code = [DataCycleCore::Release.first.release_code, DataCycleCore::Release.second.release_code].max
       assert_equal(expected_release_code, data_set.release_status_code)
     end
-
   end
 end

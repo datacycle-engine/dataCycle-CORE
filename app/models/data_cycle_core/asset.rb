@@ -1,6 +1,5 @@
 module DataCycleCore
   class Asset < ActiveRecord::Base
-
     # acts_as_paranoid
 
     # belongs_to :medium
@@ -14,6 +13,5 @@ module DataCycleCore
       self.file_size = self.file.size
       self
     end
-
   end
 end

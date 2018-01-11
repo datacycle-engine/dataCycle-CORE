@@ -2,7 +2,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class Object < BasicValidator
-
         @@basic_types = {
           'object' => Validators::Object,
           'string' => Validators::String,
@@ -61,7 +60,6 @@ module DataCycleCore
                 @error[:error].push I18n.t :wrong_object_type, scope: [:validation, :errors], data: key_item['label'], locale: DataCycleCore.ui_language
               end
             end
-
           end
           return @error
         end
@@ -69,14 +67,13 @@ module DataCycleCore
         private
 
         def verify_embedded_object(data, table, name, description)
-
           # ap data
           # puts "#{table}|#{name}|#{description}"
 
           return if data.empty?
           template = ("DataCycleCore::"+table.classify).constantize
             .with_translations('de')
-            .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name,  description )
+            .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name, description )
 
           if template.blank?
             @error[:error].push I18n.t :no_template, scope: [:validation, :errors], name: name, desc: description, locale: DataCycleCore.ui_language
@@ -126,7 +123,6 @@ module DataCycleCore
             return nil
           end
         end
-
       end
     end
   end

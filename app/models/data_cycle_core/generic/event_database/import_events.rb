@@ -21,7 +21,6 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
 
   def process_content(raw_data, template, locale)
     I18n.with_locale(locale) do
-
       image = []
 
       image = create_or_update_content(
@@ -57,7 +56,6 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
         template,
         event_data
       )
-
     end
   end
 
@@ -71,7 +69,6 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
 
       item = @sub_event_transformation.call(sub_event)
       item.merge!({'content_location' => [{ 'id' => content_location.try(:id) }]}) unless content_location.blank?
-
     end
   end
 
@@ -93,5 +90,4 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
   def extract_event_data(raw_data)
     raw_data.nil? ? {} : @event_transformation.call(raw_data)
   end
-
 end

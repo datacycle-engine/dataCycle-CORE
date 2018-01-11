@@ -2,7 +2,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class EmbeddedLinkArray < BasicValidator
-
         @@keywords = ['min', 'max']
 
         # only allow single uuid referencing to a given table
@@ -69,7 +68,6 @@ module DataCycleCore
             @error[:error].push I18n.t :max_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language
           end
         end
-
       end
     end
   end

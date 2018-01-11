@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class EmbeddedLinkTest < ActiveSupport::TestCase
-
     test "create article and add embeddedLinks" do
       cw_temp = DataCycleCore::CreativeWork.count
 
@@ -123,7 +122,6 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
-
       data_set.destroy_content
       data_set.destroy
 
@@ -142,6 +140,5 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
     end
-
   end
 end

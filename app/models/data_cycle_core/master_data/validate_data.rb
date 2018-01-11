@@ -1,7 +1,6 @@
 module DataCycleCore
   module MasterData
     class ValidateData
-
       attr_reader :error
 
       def initialize
@@ -35,7 +34,6 @@ module DataCycleCore
           return @error[:error].length == 0
         end
       end
-
     end
   end
 end

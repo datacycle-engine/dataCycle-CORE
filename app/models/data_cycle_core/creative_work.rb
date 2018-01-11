@@ -1,6 +1,5 @@
 module DataCycleCore
   class CreativeWork < DataHash
-
     extend ActsAsTree::TreeView
     extend ActsAsTree::TreeWalker
 
@@ -55,6 +54,5 @@ module DataCycleCore
       self.translations.delete_all
       self.content_search_all.delete_all
     end
-
   end
 end

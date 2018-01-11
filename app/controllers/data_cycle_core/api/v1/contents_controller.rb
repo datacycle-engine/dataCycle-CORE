@@ -1,34 +1,30 @@
 module DataCycleCore
   class Api::V1::ContentsController < Api::V1::ApiBaseController
-
     @@default_per = 50
 
     def show
-      object_type = DataCycleCore.content_tables.find{ |object| object ==  params[:type] }
+      object_type = DataCycleCore.content_tables.find{ |object| object == params[:type] }
 
       unless object_type.nil?
         @content = ('DataCycleCore::'+object_type.singularize.classify).constantize
           .includes({classifications: [], translations: []})
           .find(params[:id])
       end
-
     end
 
     def update
-      object_type = DataCycleCore.content_tables.find{ |object| object ==  params[:type] }
+      object_type = DataCycleCore.content_tables.find{ |object| object == params[:type] }
       content = params[:content]
-
 
       @content = ('DataCycleCore::'+object_type.singularize.classify).constantize
         .includes({classifications: [], translations: []})
         .find(params[:id])
 
       render json: @content.get_data_hash
-
     end
 
     def destroy
-      object_type = DataCycleCore.content_tables.find{ |object| object ==  params[:type] }
+      object_type = DataCycleCore.content_tables.find{ |object| object == params[:type] }
 
       @content = ('DataCycleCore::'+object_type.singularize.classify).constantize
         .includes({classifications: [], translations: []})
@@ -36,11 +32,9 @@ module DataCycleCore
 
       # @content.destroy
       # render json: {"success" => @content.destroyed?}
-
     end
 
     def search
-
       @language = params[:language] unless params[:language].blank?
       @language ||= 'de'
 
@@ -92,7 +86,6 @@ module DataCycleCore
     end
 
     def get_deleted
-
       deleted_contents = DataCycleCore::CreativeWork::History.where(
           DataCycleCore::CreativeWork::History.arel_table[:deleted_at].not_eq(nil)
       )
@@ -126,6 +119,5 @@ module DataCycleCore
     def content_params
       params.permit(:page, :per, :language, :search, :token, :modified_since, :created_since, :deleted_since)
     end
-
   end
 end

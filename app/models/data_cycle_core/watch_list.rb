@@ -8,6 +8,5 @@ module DataCycleCore
     belongs_to :user
 
     has_many :data_links, as: :item
-
   end
 end

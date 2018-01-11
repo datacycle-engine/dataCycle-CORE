@@ -31,5 +31,4 @@ module DataCycleCore::Generic::OutdoorActive::ImportSources
       name: raw_data['name']
     }
   end
-
 end

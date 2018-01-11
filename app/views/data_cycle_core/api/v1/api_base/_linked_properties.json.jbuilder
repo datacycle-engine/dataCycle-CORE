@@ -1,9 +1,8 @@
 default_options = {
-  hidden_attributes: DataCycleCore.special_data_attributes +  ['external_source_id', 'external_key']
+  hidden_attributes: DataCycleCore.special_data_attributes + ['external_source_id', 'external_key']
 }
 
 options = default_options.merge(defined?(options) ? options || {} : {})
-
 
 (content.linked_property_names - options[:hidden_attributes]).each do |property|
   data = content.send(property)
@@ -15,5 +14,4 @@ options = default_options.merge(defined?(options) ? options || {} : {})
       end
     end
   end
-
 end

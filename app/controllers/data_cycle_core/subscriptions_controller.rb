@@ -1,13 +1,13 @@
 module DataCycleCore
   class SubscriptionsController < ApplicationController
-    before_action :authenticate_user!   # from devise (authenticate)
+    before_action :authenticate_user! # from devise (authenticate)
 
     def index
       @paginateObject = current_user.subscriptions.includes(:subscribable).order(updated_at: :desc).page(params[:page])
     end
 
     def create
-      object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object ==  subscription_params['subscribable_type'].classify }
+      object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object == subscription_params['subscribable_type'].classify }
       authorize! :subscribe, object_type.constantize
       @subscription = current_user.subscriptions.build(subscription_params)
 
@@ -23,7 +23,7 @@ module DataCycleCore
 
     def destroy
       @subscription = DataCycleCore::Subscription.find(params[:id])
-      object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object ==  @subscription.subscribable_type.classify }
+      object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object == @subscription.subscribable_type.classify }
 
       authorize! :subscribe, object_type.constantize
       @subscription.destroy
@@ -39,6 +39,5 @@ module DataCycleCore
       def subscription_params
         params.permit(:subscribable_id, :subscribable_type)
       end
-
   end
 end

@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class DataHashServiceTest < ActiveSupport::TestCase
-
     test "compare hashes with simple values (is equal)" do
       orig_hash = {
         "headline" => "my headline",
@@ -232,7 +231,5 @@ module DataCycleCore
       is_dirty = DataCycleCore::DataHashService.data_hash_is_dirty?(new_hash, orig_hash)
       assert_equal(true, is_dirty)
     end
-
-
   end
 end

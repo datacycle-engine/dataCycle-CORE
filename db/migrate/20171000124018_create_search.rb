@@ -69,7 +69,6 @@ class CreateSearch < ActiveRecord::Migration[5.0]
       result = @connection.exec_query(sql_query)
       drop_table "classification_#{item[:name]}_histories".to_sym
     end
-
   end
 
   def down

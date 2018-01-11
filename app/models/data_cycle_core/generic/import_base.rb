@@ -1,6 +1,5 @@
 module DataCycleCore::Generic
   class ImportBase < Base
-
     protected
 
     def import_classifications(type, tree_name, load_root_classifications, load_child_classifications,
@@ -11,11 +10,9 @@ module DataCycleCore::Generic
         item_count = 0
 
         begin
-
           @logging.phase_started("#{phase_name}_#{locale}")
 
           @source_object.with(type) do |mongo_item|
-
             raw_classification_data_stack = load_root_classifications.(mongo_item, locale).to_a
 
             while (raw_classification_data = raw_classification_data_stack.pop.try(:[], 'dump').try(:[], locale))
@@ -161,6 +158,5 @@ module DataCycleCore::Generic
         raise "Missing template #{template_name} for #{target_type}"
       end
     end
-
   end
 end

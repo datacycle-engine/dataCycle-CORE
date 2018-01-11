@@ -553,6 +553,5 @@ describe DataCycleCore::MasterData::ImportTemplates do
         assert !subject.validate_property.(test_hash).success?
       end
     end
-
   end
 end

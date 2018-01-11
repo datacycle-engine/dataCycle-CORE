@@ -33,5 +33,4 @@ module DataCycleCore::Generic::OutdoorActive::ImportCategories
       name: raw_data['name']
     }
   end
-
 end

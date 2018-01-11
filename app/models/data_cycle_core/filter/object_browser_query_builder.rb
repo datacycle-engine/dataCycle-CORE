@@ -1,7 +1,6 @@
 module DataCycleCore
   module Filter
     class ObjectBrowserQueryBuilder < Search
-
       def initialize(locale = 'de', type = 'image', query = nil)
         @locale = locale
         @type = type
@@ -43,7 +42,6 @@ module DataCycleCore
       def reflect(query)
         self.class.new(@locale, @type, query)
       end
-
   end
   end
 end

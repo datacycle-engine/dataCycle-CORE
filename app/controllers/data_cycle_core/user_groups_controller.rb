@@ -58,6 +58,5 @@ module DataCycleCore
     def set_user_group
       @user_group = DataCycleCore::UserGroup.find(params[:id])
     end
-
   end
 end

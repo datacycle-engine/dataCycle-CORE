@@ -54,7 +54,6 @@ class DataCycleCore::Generic::OutdoorActive::Endpoint
     end
   end
 
-
   protected
 
   def load_data(url_path, lang = :de)

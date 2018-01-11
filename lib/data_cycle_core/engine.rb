@@ -60,7 +60,6 @@ require 'dry-validation'
 require 'carrierwave'
 require 'carrierwave_backgrounder'
 
-
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name
@@ -191,10 +190,8 @@ module DataCycleCore
         require_dependency(c)
       end
     end
-
   end
 end
-
 
 JbuilderTemplate.class_eval do
   def content_partial!(partial, parameters)
@@ -265,7 +262,6 @@ Nokogiri::XML::Node.class_eval do
     end
   end
 end
-
 
 # patch for ActiveRecord, to allow fractional seconds to be saved for PostgreSQL tstzrange datatype
 # TODO: remove if updated upstream

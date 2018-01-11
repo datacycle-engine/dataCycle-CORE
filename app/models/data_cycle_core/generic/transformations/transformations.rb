@@ -1,5 +1,4 @@
 module DataCycleCore::Generic::Transformations::Transformations
-
   def self.t(*args)
     DataCycleCore::Generic::Transformations::Functions[*args]
   end
@@ -52,7 +51,7 @@ module DataCycleCore::Generic::Transformations::Transformations
     >> t(:map_value, 'width', -> s {s.to_i}).
     >> t(:map_value, 'height', -> s {s.to_i}).
     >> t(:add_field, 'content_url',
-      -> s {File.join(ActionMailer::Base.default_url_options[:host], 'eyebase', 'media_assets', 'files',  s['quality_1']['filename']) rescue nil}).
+      -> s {File.join(ActionMailer::Base.default_url_options[:host], 'eyebase', 'media_assets', 'files', s['quality_1']['filename']) rescue nil}).
     >> t(:add_field, 'thumbnail_url',
       -> s {File.join(ActionMailer::Base.default_url_options[:host], 'eyebase', 'media_assets', 'files', s['quality_512']['filename']) rescue nil}).
     >> t(:add_field, 'keywords',
@@ -230,7 +229,4 @@ module DataCycleCore::Generic::Transformations::Transformations
     >> t(:compact).
     >> t(:strip_all)
   end
-
-
-
 end

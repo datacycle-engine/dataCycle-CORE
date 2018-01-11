@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class StandardArtikelContentLocationTest < ActiveSupport::TestCase
-
     test "create a contentLocation" do
       # create a contentLocations
       place_template = DataCycleCore::Place.find_by(template: true, headline: "contentLocation", description: "Place")
@@ -23,7 +22,6 @@ module DataCycleCore
     end
 
     test "insert embeddedObject within same table" do
-
       count_person = DataCycleCore::Person.count
       count_place = DataCycleCore::Place.count
       count_cw = DataCycleCore::CreativeWork.count
@@ -151,7 +149,6 @@ module DataCycleCore
       assert_equal(['author', 'content_location', 'quotation'], DataCycleCore::ContentContent.all.pluck(:relation_a).uniq.sort)
       assert_equal([''], DataCycleCore::ContentContent.all.pluck(:relation_b).uniq)
 
-
       returned_data_hash['content_location'] = [{"id" => place_id_2 }]
       error = data_set.set_data_hash(data_hash: returned_data_hash)
       data_set.save
@@ -178,7 +175,6 @@ module DataCycleCore
       assert_equal(3, DataCycleCore::ClassificationContent::History.count)
       assert_equal(1, DataCycleCore::Person::History.count)
       assert_equal(1, DataCycleCore::Place::History.count)
-
 
       # update the whole data_set to see if it is properly moved to history
       new_hash = data_set.get_data_hash
@@ -217,7 +213,5 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::Person::History.count)
       assert_equal(0, DataCycleCore::Place::History.count)
     end
-
-
   end
 end

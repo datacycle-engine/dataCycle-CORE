@@ -1,5 +1,4 @@
 DataCycleCore::Engine.routes.draw do
-
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise
 
   authenticated :user do
@@ -7,8 +6,8 @@ DataCycleCore::Engine.routes.draw do
   end
   root to: redirect('/users/sign_in')
 
-  get  '/info',    to: 'frontend#info'
-  get  '/settings',    to: 'backend#settings'
+  get  '/info', to: 'frontend#info'
+  get  '/settings', to: 'backend#settings'
   resources :users, only: [:index, :edit, :update, :destroy] do
     post :unlock, on: :member
     post :create_user, on: :collection
@@ -42,7 +41,6 @@ DataCycleCore::Engine.routes.draw do
   resources :watch_lists do
     get :removeItem, on: :member
     get :addItem, on: :member
-
   end
 
   resources :classifications, only: [:index, :create] do
@@ -65,7 +63,6 @@ DataCycleCore::Engine.routes.draw do
   match '/validatecreativework(/:id)', to: 'creative_works#validate_single_data', via: [:patch, :post]
   match '/validateperson(/:id)', to: 'persons#validate_single_data', via: [:patch, :post]
   match '/validateplace(/:id)', to: 'places#validate_single_data', via: [:patch, :post]
-
 
   defaults format: :json do
     namespace :api do

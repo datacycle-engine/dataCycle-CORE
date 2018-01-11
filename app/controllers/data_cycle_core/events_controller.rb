@@ -1,6 +1,6 @@
 module DataCycleCore
   class EventsController < ContentsController
-    before_action :authenticate_user!   # from devise (authenticate)
+    before_action :authenticate_user! # from devise (authenticate)
     # load_and_authorize_resource       # from cancancan (authorize)
 
     def index
@@ -127,7 +127,6 @@ module DataCycleCore
     def event_params(storage_location, template_name, template_description)
       datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
       params.require(:event).permit(:datahash => datahash)
-
     end
   end
 end

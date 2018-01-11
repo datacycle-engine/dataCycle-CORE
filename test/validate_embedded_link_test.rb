@@ -4,7 +4,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class EmbeddedLinkTest < ActiveSupport::TestCase
-
         test "successful validation of embeddedLink validator" do
           error_hash = { error: [], warning: []}
           template_hash = {
@@ -157,9 +156,7 @@ module DataCycleCore
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
-
       end
-
     end
   end
 end

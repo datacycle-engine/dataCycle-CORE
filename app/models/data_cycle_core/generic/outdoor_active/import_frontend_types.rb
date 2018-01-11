@@ -31,5 +31,4 @@ module DataCycleCore::Generic::OutdoorActive::ImportFrontendTypes
       name: raw_data['frontendtype']
     }
   end
-
 end

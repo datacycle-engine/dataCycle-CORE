@@ -45,50 +45,6 @@ Layout/DotPosition:
     - 'lib/tasks/data_cycle_core_tasks.rake'
 
 
-# Offense count: 57
-# Cop supports --auto-correct.
-Layout/EmptyLines:
-  Enabled: false
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Layout/EmptyLinesAroundBeginBody:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/download_base.rb'
-    - 'app/models/data_cycle_core/generic/import_base.rb'
-
-# Offense count: 66
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, no_empty_lines
-Layout/EmptyLinesAroundBlockBody:
-  Enabled: false
-
-# Offense count: 178
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines
-Layout/EmptyLinesAroundClassBody:
-  Enabled: false
-
-# Offense count: 84
-# Cop supports --auto-correct.
-Layout/EmptyLinesAroundMethodBody:
-  Enabled: false
-
-# Offense count: 47
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines
-Layout/EmptyLinesAroundModuleBody:
-  Enabled: false
-
-# Offense count: 49
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment, ForceEqualSignAlignment.
-Layout/ExtraSpacing:
-  Enabled: false
-
 # Offense count: 15
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, IndentationWidth.
@@ -116,12 +72,6 @@ Layout/IndentArray:
     - 'test/history_delete_test.rb'
     - 'test/quiz_test.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: IndentationWidth.
-Layout/IndentAssignment:
-  Exclude:
-    - 'app/models/data_cycle_core/content.rb'
 
 # Offense count: 103
 # Cop supports --auto-correct.
@@ -164,10 +114,6 @@ Layout/IndentationWidth:
     - 'app/models/data_cycle_core/user.rb'
     - 'tmp/vulnerabilities/spec/advisory_example.rb'
 
-# Offense count: 59
-# Cop supports --auto-correct.
-Layout/LeadingCommentSpace:
-  Enabled: false
 
 # Offense count: 7
 # Cop supports --auto-correct.

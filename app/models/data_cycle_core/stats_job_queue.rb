@@ -24,6 +24,5 @@ module DataCycleCore
       end
       @job_list
     end
-
   end
 end

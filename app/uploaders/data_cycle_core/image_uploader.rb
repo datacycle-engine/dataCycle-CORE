@@ -49,14 +49,12 @@ module DataCycleCore
     #   "something.jpg" if original_filename
     # end
 
-
     version :thumb_preview do
       # process :convert => 'jpg'
       # process :colorspace => 'rgb'
       process :resize_to_fit => [300, 300]
       #process :optimize
     end
-
 
     def filename
       if original_filename
@@ -72,6 +70,5 @@ module DataCycleCore
       var = :"@#{mounted_as}_secure_token"
       model.instance_variable_get(var) or model.instance_variable_set(var, SecureRandom.uuid)
     end
-
   end
 end

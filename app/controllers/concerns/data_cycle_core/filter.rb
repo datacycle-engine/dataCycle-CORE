@@ -58,6 +58,5 @@ module DataCycleCore
 
       @paginateObject.includes(content_data: [:display_classification_aliases, :translations, :watch_lists]).map(&:content_data)
     end
-
   end
 end

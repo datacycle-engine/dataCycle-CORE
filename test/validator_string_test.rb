@@ -3,9 +3,7 @@ require 'test_helper'
 module DataCycleCore
   module MasterData
     module Validators
-
       class StringTest < ActiveSupport::TestCase
-
         test "init string validator" do
           error_hash = { error: [], warning: []}
           template_hash = {
@@ -357,9 +355,7 @@ module DataCycleCore
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
-
       end
-
     end
   end
 end

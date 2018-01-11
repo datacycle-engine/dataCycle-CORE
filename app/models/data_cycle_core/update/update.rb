@@ -1,7 +1,6 @@
 module DataCycleCore
   module Update
     class Update < DataCycleCore::Update::Base
-
       def initialize(type:, template:, strategy:, transformation: nil)
         @type = type
         @template = template
@@ -10,8 +9,6 @@ module DataCycleCore
         self.extend(strategy)
         update()
       end
-
-
     end
   end
 end

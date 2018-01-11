@@ -1,5 +1,4 @@
 class DeleteImages < ActiveRecord::Migration[5.0]
-
   def up
     drop_table :images
     drop_table :images_places
@@ -9,7 +8,7 @@ class DeleteImages < ActiveRecord::Migration[5.0]
     create_table :images, id: :uuid do |t|
       t.string :title
       t.string :author
-      t.boolean :primary,            default: false, null: false
+      t.boolean :primary, default: false, null: false
       t.string :url
       t.jsonb :meta
       t.uuid :external_source_id

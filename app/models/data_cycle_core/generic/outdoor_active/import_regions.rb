@@ -38,5 +38,4 @@ module DataCycleCore::Generic::OutdoorActive::ImportRegions
       name: raw_data['name']
     }
   end
-
 end

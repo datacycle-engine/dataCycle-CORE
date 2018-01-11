@@ -124,11 +124,8 @@ module DataCycleCore
       end
 
       def person_params(storage_location, template_name, template_description)
-
         datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
         params.require(:person).permit(:datahash => datahash)
-
       end
-
   end
 end

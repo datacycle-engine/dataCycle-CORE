@@ -1,5 +1,4 @@
 class DataCycleCore::Generic::Logger::Console
-
   def initialize(kind)
     @kind = kind
   end

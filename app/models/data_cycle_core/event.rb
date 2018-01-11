@@ -1,6 +1,5 @@
 module DataCycleCore
   class Event < DataHash
-
     class Translation < Globalize::ActiveRecord::Translation
       include ContentTranslationHelpers
       include EventHelpers
@@ -47,6 +46,5 @@ module DataCycleCore
       self.translations.delete_all
       self.content_search_all.delete_all
     end
-
   end
 end

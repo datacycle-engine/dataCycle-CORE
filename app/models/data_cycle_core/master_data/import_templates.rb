@@ -1,7 +1,6 @@
 module DataCycleCore
   module MasterData
     class ImportTemplates
-
       def import(files, object, validation = true)
         begin
           errors = {}
@@ -89,7 +88,6 @@ module DataCycleCore
       def validate_property
         Dry::Validation.Schema do
           configure do
-
             def valid_classification?(value)
               # todo: check if required ? (external categories can not be found before import)
               # ! DataCycleCore::ClassificationAlias.find_by(name: value).nil?
@@ -115,7 +113,6 @@ module DataCycleCore
                 }
               })
             end
-
           end
 
           required(:label) { str? }
@@ -215,11 +212,8 @@ module DataCycleCore
               storage_location.included_in?(['metadata', 'content', 'properties'])
             )
           end
-
         end
-
       end
-
     end
   end
 end

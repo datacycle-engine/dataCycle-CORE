@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class ObjectWithDifferentStorageLocationsTest < ActiveSupport::TestCase
-
     test "events template with daterange" do
       template = DataCycleCore::Event.find_by(template: true, headline: "Event", description: "Event")
       validation = template.metadata['validation']
@@ -107,6 +106,5 @@ module DataCycleCore
       assert_equal(expected_hash, returned_data_hash)
       assert_equal(0, error[:error].count)
     end
-
   end
 end

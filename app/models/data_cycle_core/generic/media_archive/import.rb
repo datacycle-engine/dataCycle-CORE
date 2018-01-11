@@ -1,5 +1,4 @@
 module DataCycleCore::Generic::MediaArchive::Import
-
   def import_data(**options)
     load_transformations
     import_contents(@source_type, @target_type, self.method(:load_contents).to_proc, self.method(:process_content).to_proc, **options)
@@ -60,5 +59,4 @@ module DataCycleCore::Generic::MediaArchive::Import
   def extract_content_location_data(raw_data)
     raw_data.nil? ? {} : @content_location_transformation.call(raw_data)
   end
-
 end

@@ -1,6 +1,6 @@
 module DataCycleCore
   class ObjectBrowserController < ApplicationController
-    before_action :authenticate_user!   # from devise (authenticate)
+    before_action :authenticate_user! # from devise (authenticate)
 
     def show
       authorize! :show, :object_browser
@@ -44,7 +44,7 @@ module DataCycleCore
 
         I18n.with_locale(params[:language] || I18n.locale) do
           #todo: FIXME if breaks
-          object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object ==  params[:class].classify }
+          object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object == params[:class].classify }
           @objects = object_type.constantize.where(id: params[:ids])
         end
 
@@ -58,7 +58,7 @@ module DataCycleCore
       unless params[:class].blank? || params[:id].blank?
         I18n.with_locale(params[:language] || I18n.locale) do
           #todo: FIXME if breaks
-          object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object ==  params[:class].classify }
+          object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object == params[:class].classify }
           @object = object_type.constantize.find(params[:id])
         end
       end
@@ -89,6 +89,5 @@ module DataCycleCore
           name: [labels]
       )
     end
-
   end
 end

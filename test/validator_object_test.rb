@@ -3,9 +3,7 @@ require 'test_helper'
 module DataCycleCore
   module MasterData
     module Validators
-
       class ObjectTest < ActiveSupport::TestCase
-
         # tests for validate (keys in data-hash are keys in template)
         test "init object validator" do
           error_hash = { error: [], warning: []}
@@ -561,7 +559,6 @@ module DataCycleCore
           assert_equal(0, validator.error[:error].size)
           assert_equal(1, validator.error[:warning].size)
         end
-
       end
     end
   end

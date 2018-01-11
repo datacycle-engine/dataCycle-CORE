@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class ReleasableTest < ActiveSupport::TestCase
-
     test "CreativeWork data-type ReleaseTest releasable case" do
       template = DataCycleCore::CreativeWork.where(template: true, headline: "ReleaseTest", description: "CreativeWork").first
       validation = template.metadata['validation']
@@ -263,8 +262,6 @@ module DataCycleCore
       }
 
       assert_equal(expected_hash, data_set.merge_release(data_hash, release_hash))
-
     end
-
   end
 end
