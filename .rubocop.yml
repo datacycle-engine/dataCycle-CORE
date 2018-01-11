@@ -1,3 +1,4 @@
+# author: rainer@pixelpoint.at
 inherit_from: .rubocop_todo.yml
 
 AllCops:
