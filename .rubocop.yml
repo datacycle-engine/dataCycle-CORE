@@ -14,9 +14,6 @@ Rails:
 Style/Documentation:
   Enabled: false
 
-Style/FrozenStringLiteralComment:
-  Enabled: false
-
 Style/MixinUsage:
   Exclude:
     - 'test/dummy/bin/setup'
@@ -35,6 +32,9 @@ Metrics/LineLength:
 Metrics/ModuleLength:
   Enabled: false
 
+# check later
+Style/FrozenStringLiteralComment:
+  Enabled: false
 
 # Offense count: 1
 Layout/AlignParameters:
