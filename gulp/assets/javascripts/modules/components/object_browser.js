@@ -339,7 +339,8 @@ ObjectBrowser.prototype.loadObjects = function (append = true) {
       definition: this.definition,
       options: this.options,
       search: this.search,
-      objects: this.chosen
+      objects: this.chosen,
+      append: append
     }),
     contentType: 'application/json'
   }).done(function (data) {

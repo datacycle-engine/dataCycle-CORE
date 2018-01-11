@@ -1,6 +1,6 @@
 <ul class="dropdown-pane no-bullet bottom" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
-  <div class="history-items">
-    <h5><%= t('history.latest_edits', locale: DataCycleCore.ui_language) %>:</h5>
+  <h5><%= t('history.latest_edits', locale: DataCycleCore.ui_language) %>:</h5>
+  <div class="list-items">
     <% content.histories.each do |item|%>
         <li class="<%= item == @historySource ? 'active' : '' %>">
             <% if item.metadata.try(:[], 'last_updated_by') %>

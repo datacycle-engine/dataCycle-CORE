@@ -680,6 +680,8 @@ video {
     line-height: 1.2rem;
     padding: 0 2rem 0.2rem 0;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     &.active {
       i:not(.fa) {
         color: $light-gray;
