@@ -5,7 +5,7 @@ module DataCycleCore
     module Validators
       class EmbeddedLinkTest < ActiveSupport::TestCase
         test "successful validation of embeddedLink validator" do
-          error_hash = { error: [], warning: []}
+          error_hash = { error: [], warning: [] }
           template_hash = {
             "label" => "Ersteller",
             "type" => "embeddedLink",
@@ -18,7 +18,7 @@ module DataCycleCore
             family_name: "TEST",
             email: "SecureRandom.base64(12)@pixelpoint.at",
             admin: false,
-            password:"password"
+            password: "password"
           )
           uuid = DataCycleCore::User.first.id
           validator = DataCycleCore::MasterData::Validators::EmbeddedLink.new(uuid, template_hash)
@@ -38,14 +38,14 @@ module DataCycleCore
             family_name: "TEST",
             email: "SecureRandom.base64(12)@pixelpoint.at",
             admin: false,
-            password:"password"
+            password: "password"
           )
           DataCycleCore::User.create!(
             given_name: "Test 2",
             family_name: "TEST 2",
             email: "test2@pixelpoint.at",
             admin: false,
-            password:"password"
+            password: "password"
           )
           uuid = DataCycleCore::User.first.id
           uuid2 = DataCycleCore::User.second.id
@@ -77,14 +77,14 @@ module DataCycleCore
             family_name: "TEST",
             email: "SecureRandom.base64(12)@pixelpoint.at",
             admin: false,
-            password:"password"
+            password: "password"
           )
           DataCycleCore::User.create!(
             given_name: "Test 2",
             family_name: "TEST 2",
             email: "test2@pixelpoint.at",
             admin: false,
-            password:"password"
+            password: "password"
           )
           uuid = DataCycleCore::User.first.id
           uuid2 = DataCycleCore::User.second.id
@@ -116,28 +116,28 @@ module DataCycleCore
             family_name: "TEST",
             email: "SecureRandom.base64(12)@pixelpoint.at",
             admin: false,
-            password:"password"
+            password: "password"
           )
           DataCycleCore::User.create!(
             given_name: "Test 2",
             family_name: "TEST 2",
             email: "test2@pixelpoint.at",
             admin: false,
-            password:"password"
+            password: "password"
           )
           DataCycleCore::User.create!(
             given_name: "Test 3",
             family_name: "TEST 3",
             email: "test3@pixelpoint.at",
             admin: false,
-            password:"password"
+            password: "password"
           )
           DataCycleCore::User.create!(
             given_name: "Test 4",
             family_name: "TEST 4",
             email: "test4@pixelpoint.at",
             admin: false,
-            password:"password"
+            password: "password"
           )
           uuid = DataCycleCore::User.first.id
           uuid2 = DataCycleCore::User.second.id

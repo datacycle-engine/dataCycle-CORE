@@ -108,9 +108,9 @@ module DataCycleCore
     # webhooks
     mattr_accessor :webhooks
     self.webhooks = {
-        :create => [],
-        :delete => [],
-        :update => []
+      :create => [],
+      :delete => [],
+      :update => []
     }
   end
 

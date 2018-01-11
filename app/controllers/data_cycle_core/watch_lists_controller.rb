@@ -53,7 +53,7 @@ module DataCycleCore
     def update
       @watch_list = DataCycleCore::WatchList.find(params[:id])
 
-      update_params = {:headline => watch_list_params[:headline]}
+      update_params = { :headline => watch_list_params[:headline] }
       @watch_list.update_attributes(update_params)
 
       if @watch_list.save

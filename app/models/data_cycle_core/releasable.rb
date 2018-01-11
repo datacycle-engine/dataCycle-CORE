@@ -40,16 +40,16 @@ module DataCycleCore
           end
           return return_data
         else
-          return release_data.merge({ 'value' => data_value}) # --> Array of values
+          return release_data.merge({ 'value' => data_value }) # --> Array of values
         end
       else
-        return release_data.merge({ 'value' => data_value}) # --> single value
+        return release_data.merge({ 'value' => data_value }) # --> single value
       end
     end
 
     def split_data(original, full)
       if release_data?(original)
-        return original['value'], {'release_id' => original.try(:[], 'release_id'), 'release_comment' => original.try(:[], 'release_comment')}
+        return original['value'], { 'release_id' => original.try(:[], 'release_id'), 'release_comment' => original.try(:[], 'release_comment') }
       elsif original.kind_of?(::Hash) # --> embedded data
         return data_iterator_split(original, full)
       elsif original.kind_of?(::Array)
@@ -83,12 +83,12 @@ module DataCycleCore
 
       data_hash.map do |hash_key, hash_value|
         hash_key = "#{prefix}.#{hash_key}" if prefix.present?
-        result.merge!([::Hash, ::Array].include?(hash_value.class) ? flatten_hash(hash_value, hash_key) : ({hash_key => hash_value}))
+        result.merge!([::Hash, ::Array].include?(hash_value.class) ? flatten_hash(hash_value, hash_key) : ({ hash_key => hash_value }))
       end if data_hash.kind_of?(::Hash)
 
       data_hash.uniq.each_with_index do |item, index|
         index = "#{prefix}.#{index}" if prefix.present?
-        result.merge!([::Hash, ::Array].include?(item.class) ? flatten_hash(item, index) : ({index => item}))
+        result.merge!([::Hash, ::Array].include?(item.class) ? flatten_hash(item, index) : ({ index => item }))
       end if data_hash.kind_of?(::Array)
 
       result

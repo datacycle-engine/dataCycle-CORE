@@ -13,7 +13,7 @@ module DataCycleCore
         image = DataCycleCore::CreativeWork.new
         image.metadata = { 'validation' => validation_bild }
         image.save
-        image.set_data_hash(data_hash: {"headline" => "Bild#{number}", "description" => "Description Bild#{number}"}, prevent_history: true)
+        image.set_data_hash(data_hash: { "headline" => "Bild#{number}", "description" => "Description Bild#{number}" }, prevent_history: true)
         image.save
         image_objects.push(image.id)
       end
@@ -80,7 +80,7 @@ module DataCycleCore
         image = DataCycleCore::CreativeWork.new
         image.metadata = { 'validation' => validation_bild }
         image.save
-        image.set_data_hash(data_hash: {"headline" => "Bild#{number}", "description" => "Description Bild#{number}"}, prevent_history: true)
+        image.set_data_hash(data_hash: { "headline" => "Bild#{number}", "description" => "Description Bild#{number}" }, prevent_history: true)
         image.save
         image_objects.push(image.id)
       end

@@ -6,9 +6,9 @@ module DataCycleCore
 
       if log_to_disk
         @log.add_appenders(
-                Logging.appenders.stdout,
-                Logging.appenders.file(Rails.root.join("log/#{filename}.log").to_s)
-                )
+          Logging.appenders.stdout,
+          Logging.appenders.file(Rails.root.join("log/#{filename}.log").to_s)
+        )
       else
         @log.add_appenders(Logging.appenders.stdout)
       end

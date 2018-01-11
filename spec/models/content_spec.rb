@@ -25,9 +25,9 @@ RSpec.shared_examples "for properties" do |storage_location, data_provider|
 
     subject {
       if storage_location == 'metadata'
-        DataCycleCore::CreativeWork.new(metadata: data_definition.merge({'existing_property' => property_value}))
+        DataCycleCore::CreativeWork.new(metadata: data_definition.merge({ 'existing_property' => property_value }))
       else
-        DataCycleCore::CreativeWork.new(metadata: data_definition, storage_location => {'existing_property' => property_value})
+        DataCycleCore::CreativeWork.new(metadata: data_definition, storage_location => { 'existing_property' => property_value })
       end
     }
 
@@ -97,47 +97,47 @@ RSpec.describe DataCycleCore::Content, type: :model do
   describe "with translatable and untranslatable properties" do
     subject {
       DataCycleCore::CreativeWork.new(metadata: {
-        validation: {
-          properties: {
-            id: {
-              label: 'id',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'key'
-            },
-            headline: {
-              label: 'headline',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'column'
-            },
-            '1' => {
-              label: '1',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'metadata'
-            },
-            '2' => {
-              label: '2',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'metadata'
-            },
-            '3' => {
-              label: '3',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'content'
-            },
-            '4' => {
-              label: '4',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'properties'
-            }
-          }
-        }
-      })
+                                        validation: {
+                                          properties: {
+                                            id: {
+                                              label: 'id',
+                                              type: 'string',
+                                              storage_type: 'string',
+                                              storage_location: 'key'
+                                            },
+                                            headline: {
+                                              label: 'headline',
+                                              type: 'string',
+                                              storage_type: 'string',
+                                              storage_location: 'column'
+                                            },
+                                            '1' => {
+                                              label: '1',
+                                              type: 'string',
+                                              storage_type: 'string',
+                                              storage_location: 'metadata'
+                                            },
+                                            '2' => {
+                                              label: '2',
+                                              type: 'string',
+                                              storage_type: 'string',
+                                              storage_location: 'metadata'
+                                            },
+                                            '3' => {
+                                              label: '3',
+                                              type: 'string',
+                                              storage_type: 'string',
+                                              storage_location: 'content'
+                                            },
+                                            '4' => {
+                                              label: '4',
+                                              type: 'string',
+                                              storage_type: 'string',
+                                              storage_location: 'properties'
+                                            }
+                                          }
+                                        }
+                                      })
     }
 
     it "provides names of plain properties" do
@@ -186,33 +186,33 @@ RSpec.describe DataCycleCore::Content, type: :model do
   describe "with linked properties" do
     subject {
       DataCycleCore::CreativeWork.new(metadata: {
-        validation: {
-          properties: {
-            id: {
-              label: 'id',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'key'
-            },
-            existing_locations: {
-              label: 'Location',
-              type: 'embeddedLinkArray',
-              type_name: 'places',
-              storage_type: 'array',
-              storage_location: 'metadata',
-            },
-            existing_main_location: {
-              label: 'Main Location',
-              type: 'embeddedLink',
-              type_name: 'places',
-              storage_type: 'number',
-              storage_location: 'metadata',
-            }
-          }
-        },
-        existing_locations: [1, 2, 3],
-        existing_main_location: 1
-      })
+                                        validation: {
+                                          properties: {
+                                            id: {
+                                              label: 'id',
+                                              type: 'string',
+                                              storage_type: 'string',
+                                              storage_location: 'key'
+                                            },
+                                            existing_locations: {
+                                              label: 'Location',
+                                              type: 'embeddedLinkArray',
+                                              type_name: 'places',
+                                              storage_type: 'array',
+                                              storage_location: 'metadata',
+                                            },
+                                            existing_main_location: {
+                                              label: 'Main Location',
+                                              type: 'embeddedLink',
+                                              type_name: 'places',
+                                              storage_type: 'number',
+                                              storage_location: 'metadata',
+                                            }
+                                          }
+                                        },
+                                        existing_locations: [1, 2, 3],
+                                        existing_main_location: 1
+                                      })
     }
 
     it "provides names of linked properties" do
@@ -240,27 +240,27 @@ RSpec.describe DataCycleCore::Content, type: :model do
   describe "with embedded properties" do
     subject {
       DataCycleCore::CreativeWork.new(metadata: {
-        validation: {
-          properties: {
-            id: {
-              label: 'id',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'key'
-            },
-            existing_locations: {
-              label: 'Location',
-              type: 'object',
-              storage_location: 'places'
-            },
-            nested_creative_works: {
-              label: 'Nested Data',
-              type: 'object',
-              storage_location: 'creative_works'
-            }
-          }
-        }
-      })
+                                        validation: {
+                                          properties: {
+                                            id: {
+                                              label: 'id',
+                                              type: 'string',
+                                              storage_type: 'string',
+                                              storage_location: 'key'
+                                            },
+                                            existing_locations: {
+                                              label: 'Location',
+                                              type: 'object',
+                                              storage_location: 'places'
+                                            },
+                                            nested_creative_works: {
+                                              label: 'Nested Data',
+                                              type: 'object',
+                                              storage_location: 'creative_works'
+                                            }
+                                          }
+                                        }
+                                      })
     }
 
     it "provides names of embedded properties" do
@@ -269,13 +269,13 @@ RSpec.describe DataCycleCore::Content, type: :model do
 
     it "provides existing data from different table" do
       expect(subject).to receive(:existing_locations)
-                           .and_return([double('DataCycleCore::Place'), double('DataCycleCore::Place'), double('DataCycleCore::Place')])
+        .and_return([double('DataCycleCore::Place'), double('DataCycleCore::Place'), double('DataCycleCore::Place')])
       expect(subject.existing_locations.size).to eq(3)
     end
 
     it "provides existing data from same table" do
       expect(subject).to receive(:nested_creative_works)
-                           .and_return([double('DataCycleCore::CreativeWork'), double('DataCycleCore::CreativeWork'), double('DataCycleCore::CreativeWork')])
+        .and_return([double('DataCycleCore::CreativeWork'), double('DataCycleCore::CreativeWork'), double('DataCycleCore::CreativeWork')])
 
       expect(subject.nested_creative_works.size).to eq(3)
     end
@@ -284,48 +284,47 @@ RSpec.describe DataCycleCore::Content, type: :model do
   describe "with included properties" do
     subject {
       DataCycleCore::CreativeWork.new(metadata: {
-        validation: {
-          properties: {
-            id: {
-              label: 'id',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'key'
-            },
-            description: {
-              label: 'description',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'column'
-            },
-            included_object: {
-              label: 'Nested Data',
-              type: 'object',
-              storage_location: 'metadata',
-              properties: {
-                property1: {
-                  label: 'property_name a',
-                  type: 'string',
-                  storage_type: 'string',
-                  storage_location: 'metadata'
-                },
-                property2: {
-                  label: 'property_name b',
-                  type: 'string',
-                  storage_type: 'string',
-                  storage_location: 'metadata'
-                }
-              }
-            }
-          }
-        },
-        "included_object" => {
-          "property1" => "data property1",
-          "property2" => "data property2"
-        }
-      },
-                                      description: "dies ist ein Test"
-      )
+                                        validation: {
+                                          properties: {
+                                            id: {
+                                              label: 'id',
+                                              type: 'string',
+                                              storage_type: 'string',
+                                              storage_location: 'key'
+                                            },
+                                            description: {
+                                              label: 'description',
+                                              type: 'string',
+                                              storage_type: 'string',
+                                              storage_location: 'column'
+                                            },
+                                            included_object: {
+                                              label: 'Nested Data',
+                                              type: 'object',
+                                              storage_location: 'metadata',
+                                              properties: {
+                                                property1: {
+                                                  label: 'property_name a',
+                                                  type: 'string',
+                                                  storage_type: 'string',
+                                                  storage_location: 'metadata'
+                                                },
+                                                property2: {
+                                                  label: 'property_name b',
+                                                  type: 'string',
+                                                  storage_type: 'string',
+                                                  storage_location: 'metadata'
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "included_object" => {
+                                          "property1" => "data property1",
+                                          "property2" => "data property2"
+                                        }
+                                      },
+                                      description: "dies ist ein Test")
     }
 
     it "provides names of included property" do
@@ -345,7 +344,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
     end
 
     it "returns an hash for included property" do
-      expect(subject.included_object.to_h.deep_stringify_keys).to eq({"property1" => "data property1", "property2" => "data property2"})
+      expect(subject.included_object.to_h.deep_stringify_keys).to eq({ "property1" => "data property1", "property2" => "data property2" })
     end
 
     it "returns values for included sub_properties" do
@@ -368,87 +367,86 @@ RSpec.describe DataCycleCore::Content, type: :model do
   describe "with included properties, two ranks deep" do
     subject {
       DataCycleCore::CreativeWork.new(metadata: {
-        validation: {
-          properties: {
-            id: {
-              label: 'id',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'key'
-            },
-            description: {
-              label: 'description',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'column'
-            },
-            included_object: {
-              label: 'Nested Data',
-              type: 'object',
-              storage_location: 'metadata',
-              properties: {
-                property1: {
-                  label: 'property_name a',
-                  type: 'string',
-                  storage_type: 'string',
-                  storage_location: 'metadata'
-                },
-                property2: {
-                  label: 'property_name b',
-                  type: 'string',
-                  storage_type: 'string',
-                  storage_location: 'metadata'
-                },
-                deep_included_object: {
-                  label: 'Nested Data',
-                  type: 'object',
-                  storage_location: 'metadata',
-                  properties: {
-                    property_deep1: {
-                      label: 'deep_property_name a',
-                      type: 'string',
-                      storage_type: 'string',
-                      storage_location: 'metadata'
-                    },
-                    property_deep2: {
-                      label: 'deep_property_name b',
-                      type: 'string',
-                      storage_type: 'string',
-                      storage_location: 'metadata'
-                    },
-                    deeper_object: {
-                      label: 'deeper Data',
-                      type: 'object',
-                      storage_location: 'metadata',
-                      properties: {
-                        property_deeper: {
-                          label: 'deeper_property_name ',
-                          type: 'string',
-                          storage_type: 'string',
-                          storage_location: 'metadata'
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "included_object" => {
-          "property1" => "data property1",
-          "property2" => "data property2",
-          "deep_included_object" => {
-            "property_deep1" => "data property_deep1",
-            "property_deep2" => "data property_deep2",
-            "deeper_object" => {
-              "property_deeper" => "deeper_property_name"
-            }
-          }
-        }
-      },
-                                      description: "dies ist ein Test"
-      )
+                                        validation: {
+                                          properties: {
+                                            id: {
+                                              label: 'id',
+                                              type: 'string',
+                                              storage_type: 'string',
+                                              storage_location: 'key'
+                                            },
+                                            description: {
+                                              label: 'description',
+                                              type: 'string',
+                                              storage_type: 'string',
+                                              storage_location: 'column'
+                                            },
+                                            included_object: {
+                                              label: 'Nested Data',
+                                              type: 'object',
+                                              storage_location: 'metadata',
+                                              properties: {
+                                                property1: {
+                                                  label: 'property_name a',
+                                                  type: 'string',
+                                                  storage_type: 'string',
+                                                  storage_location: 'metadata'
+                                                },
+                                                property2: {
+                                                  label: 'property_name b',
+                                                  type: 'string',
+                                                  storage_type: 'string',
+                                                  storage_location: 'metadata'
+                                                },
+                                                deep_included_object: {
+                                                  label: 'Nested Data',
+                                                  type: 'object',
+                                                  storage_location: 'metadata',
+                                                  properties: {
+                                                    property_deep1: {
+                                                      label: 'deep_property_name a',
+                                                      type: 'string',
+                                                      storage_type: 'string',
+                                                      storage_location: 'metadata'
+                                                    },
+                                                    property_deep2: {
+                                                      label: 'deep_property_name b',
+                                                      type: 'string',
+                                                      storage_type: 'string',
+                                                      storage_location: 'metadata'
+                                                    },
+                                                    deeper_object: {
+                                                      label: 'deeper Data',
+                                                      type: 'object',
+                                                      storage_location: 'metadata',
+                                                      properties: {
+                                                        property_deeper: {
+                                                          label: 'deeper_property_name ',
+                                                          type: 'string',
+                                                          storage_type: 'string',
+                                                          storage_location: 'metadata'
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "included_object" => {
+                                          "property1" => "data property1",
+                                          "property2" => "data property2",
+                                          "deep_included_object" => {
+                                            "property_deep1" => "data property_deep1",
+                                            "property_deep2" => "data property_deep2",
+                                            "deeper_object" => {
+                                              "property_deeper" => "deeper_property_name"
+                                            }
+                                          }
+                                        }
+                                      },
+                                      description: "dies ist ein Test")
     }
 
     it "returns an hash for included property" do
@@ -458,7 +456,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
                                                    "deep_included_object" => {
                                                      "property_deep1" => "data property_deep1",
                                                      "property_deep2" => "data property_deep2",
-                                                     "deeper_object" => {"property_deeper" => "deeper_property_name"}
+                                                     "deeper_object" => { "property_deeper" => "deeper_property_name" }
                                                    }
                                                  })
     end
@@ -472,7 +470,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
       expect(subject.included_object.deep_included_object.to_h).to eq({
                                                                         "property_deep1" => "data property_deep1",
                                                                         "property_deep2" => "data property_deep2",
-                                                                        "deeper_object" => {"property_deeper" => "deeper_property_name"}
+                                                                        "deeper_object" => { "property_deeper" => "deeper_property_name" }
                                                                       })
     end
 
@@ -482,7 +480,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
     end
 
     it "returns attribues for deeper_object" do
-      expect(subject.included_object.deep_included_object.deeper_object.to_h).to eq({"property_deeper" => "deeper_property_name"})
+      expect(subject.included_object.deep_included_object.deeper_object.to_h).to eq({ "property_deeper" => "deeper_property_name" })
     end
 
     it "returns values for deepest level" do
@@ -499,7 +497,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
                                      "deep_included_object" => {
                                        "property_deep1" => "data property_deep1",
                                        "property_deep2" => "data property_deep2",
-                                       "deeper_object" => {"property_deeper" => "deeper_property_name"}
+                                       "deeper_object" => { "property_deeper" => "deeper_property_name" }
                                      }
                                    }
                                  })

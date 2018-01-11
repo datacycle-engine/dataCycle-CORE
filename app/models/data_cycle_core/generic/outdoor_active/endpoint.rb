@@ -12,7 +12,7 @@ class DataCycleCore::Generic::OutdoorActive::Endpoint
         yielder << category_data.except('category')
 
         (category_data['category'] || []).each do |child_category_data|
-          process_category.call(child_category_data.merge({'parentId' => category_data['id']}))
+          process_category.call(child_category_data.merge({ 'parentId' => category_data['id'] }))
         end
       }
 
@@ -28,7 +28,7 @@ class DataCycleCore::Generic::OutdoorActive::Endpoint
         yielder << region_data.except('region')
 
         (region_data['region'] || []).each do |child_region_data|
-          process_region.call(child_region_data.merge({'parentId' => region_data['id']}))
+          process_region.call(child_region_data.merge({ 'parentId' => region_data['id'] }))
         end
       }
 

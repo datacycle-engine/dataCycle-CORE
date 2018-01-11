@@ -30,7 +30,7 @@ module DataCycleCore
             self.release_id = set_global_release(global_release_hash)
           end
           self.updated_at = save_time
-          updated_by = {'last_updated_by' => current_user.try(:id)}
+          updated_by = { 'last_updated_by' => current_user.try(:id) }
           self.metadata.nil? ? self.metadata = updated_by : self.metadata.merge!(updated_by)
           self.save if self.id.nil?
           self.set_search
@@ -93,14 +93,13 @@ module DataCycleCore
             content_one_data = [new_content_history.id, new_content_history.class.to_s, '']
             content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name[:name]]
             content_relation_history_data = ['a', 'b'].map { |selector|
-              [ "content_#{selector}_history_id".to_sym,
-                "content_#{selector}_history_type".to_sym,
-                "relation_#{selector}".to_sym]
+              ["content_#{selector}_history_id".to_sym,
+               "content_#{selector}_history_type".to_sym,
+               "relation_#{selector}".to_sym]
             }.flatten
               .zip(content_name[:table] < origin_table ?
                 content_one_data + content_two_data :
-                content_two_data + content_one_data
-              ).to_h
+                content_two_data + content_one_data).to_h
             content_relation_history_data["history_valid"] = (content_item.updated_at...save_time)
             DataCycleCore::ContentContent::History.create!(content_relation_history_data)
           end
@@ -111,14 +110,13 @@ module DataCycleCore
             content_one_data = [content_item.id, content_item.class.to_s, '']
             content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name[:name]]
             content_relation_history_data = ['a', 'b'].map { |selector|
-              [ "content_#{selector}_history_id".to_sym,
-                "content_#{selector}_history_type".to_sym,
-                "relation_#{selector}".to_sym]
+              ["content_#{selector}_history_id".to_sym,
+               "content_#{selector}_history_type".to_sym,
+               "relation_#{selector}".to_sym]
             }.flatten
               .zip(content_name[:table] < origin_table ?
                 content_one_data + content_two_data :
-                content_two_data + content_one_data
-              ).to_h
+                content_two_data + content_one_data).to_h
             content_relation_history_data["history_valid"] = (content_item.updated_at...save_time)
             DataCycleCore::ContentContent::History.create!(content_relation_history_data)
           end
@@ -150,19 +148,18 @@ module DataCycleCore
           content_two_data = [self.id, self.class.to_s, name]
           where_hash = ['a', 'b'].map { |selector|
             if is_history?
-              [ "content_#{selector}_history_id".to_sym,
-                "content_#{selector}_history_type".to_sym,
-                "relation_#{selector}".to_sym]
+              ["content_#{selector}_history_id".to_sym,
+               "content_#{selector}_history_type".to_sym,
+               "relation_#{selector}".to_sym]
             else
-              [ "content_#{selector}_id".to_sym,
-                "content_#{selector}_type".to_sym,
-                "relation_#{selector}".to_sym]
+              ["content_#{selector}_id".to_sym,
+               "content_#{selector}_type".to_sym,
+               "relation_#{selector}".to_sym]
             end
           }.flatten
             .zip(relation_name < self.class.table_name ?
               content_one_data + content_two_data :
-              content_two_data + content_one_data
-            ).to_h
+              content_two_data + content_one_data).to_h
 
           relations = relation_class.where(where_hash)
           relations.destroy_all unless relations.blank?
@@ -252,10 +249,10 @@ module DataCycleCore
     def get_classification_relation(relation_name)
       if is_history?
         classification_object = DataCycleCore::ClassificationContent::History
-        where_hash = {"content_data_history_id" => id, "content_data_history_type" => self.class.to_s, "relation" => relation_name}
+        where_hash = { "content_data_history_id" => id, "content_data_history_type" => self.class.to_s, "relation" => relation_name }
       else
         classification_object = DataCycleCore::ClassificationContent
-        where_hash = {"content_data_id" => id, "content_data_type" => self.class.to_s, "relation" => relation_name}
+        where_hash = { "content_data_id" => id, "content_data_type" => self.class.to_s, "relation" => relation_name }
       end
       classification_object.where(where_hash)
     end
@@ -265,10 +262,10 @@ module DataCycleCore
         begin
           if !default_value.blank? && ids.nil? && get_classification_relation(relation_name).count == 0
             classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-                .where("classification_tree_labels.name = ?", tree_label)
-                .where("classification_aliases.name = ?", default_value).first!.id
-            DataCycleCore::ClassificationContent.
-              find_or_create_by(
+              .where("classification_tree_labels.name = ?", tree_label)
+              .where("classification_aliases.name = ?", default_value).first!.id
+            DataCycleCore::ClassificationContent
+              .find_or_create_by(
                 "content_data_id" => self.id,
                 "content_data_type" => self.class.to_s,
                 classification_id: classification_id,
@@ -285,8 +282,8 @@ module DataCycleCore
       else
         # insert missing ids
         ids.each do |classification_id|
-          DataCycleCore::ClassificationContent.
-            find_or_create_by(
+          DataCycleCore::ClassificationContent
+            .find_or_create_by(
               "content_data_id" => self.id,
               "content_data_type" => self.class.to_s,
               classification_id: classification_id,
@@ -300,8 +297,8 @@ module DataCycleCore
       found_ids = get_classification_relation(relation_name).pluck(:classification_id)
       to_delete = found_ids - ids
       if to_delete.size > 0
-        DataCycleCore::ClassificationContent.
-          where(
+        DataCycleCore::ClassificationContent
+          .where(
             "content_data_id" => self.id,
             "content_data_type" => self.class.to_s,
             classification_id: to_delete,
@@ -386,9 +383,9 @@ module DataCycleCore
 
       # for embeddedLink and embeddedLinkArray transform data
       if data.kind_of?(::Array) && !data.blank? && data.first.kind_of?(::String)
-        data.map! { |item| {"id" => item} }
+        data.map! { |item| { "id" => item } }
       elsif data.kind_of?(::String) && !data.blank?
-        data = [{"id" => data}]
+        data = [{ "id" => data }]
       end
 
       unless is_blank?(data)
@@ -419,7 +416,7 @@ module DataCycleCore
             insert_item = ("DataCycleCore::" + table.classify).constantize.new
             insert_item.metadata = { 'validation' => template.metadata['validation'] }
             insert_item.save
-            insert_item.set_data_hash(data_hash: item.merge({"is_part_of" => self.id}), current_user: current_user, save_time: save_time, prevent_history: true)
+            insert_item.set_data_hash(data_hash: item.merge({ "is_part_of" => self.id }), current_user: current_user, save_time: save_time, prevent_history: true)
             insert_item.save
             updated_item_keys.push(insert_item.id)
 
@@ -439,7 +436,7 @@ module DataCycleCore
         potentially_delete.each do |key|
           item = ("DataCycleCore::" + table.classify).constantize.find_by(id: key)
           translations = item.translated_locales
-          if (translations - [ I18n.locale ]).size < 1
+          if (translations - [I18n.locale]).size < 1
             # destroy relationObject + additional embeddedObjects and their relations
             to_update_item = self.method(table).call.find_by(id: key)
             # check for subtrees
@@ -453,9 +450,9 @@ module DataCycleCore
       else
         # only destroy relations (independend of how many translations in self/embeddedObject exist)
         potentially_delete.each do |key|
-          DataCycleCore::ContentContent.
-            find_by(get_relation_data_hash(field_name, table, key)).
-            destroy
+          DataCycleCore::ContentContent
+            .find_by(get_relation_data_hash(field_name, table, key))
+            .destroy
         end
       end
       self.method(table).call.reload # MO: force reload of the relation, otherwise cached data can obsure the next get_data_hash
@@ -467,7 +464,7 @@ module DataCycleCore
       ['a', 'b'].map { |selector|
         ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
       }.flatten
-      .zip(table < self.class.table_name ? item_data + self_data : self_data + item_data).to_h
+        .zip(table < self.class.table_name ? item_data + self_data : self_data + item_data).to_h
     end
 
     # validate nil,"",[],{},[nil],[""] as blank.

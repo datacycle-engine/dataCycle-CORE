@@ -1,14 +1,14 @@
 module DataCycleCore
   module ApplicationHelper
     DEFAULT_KEY_MATCHING = {
-        alert: :alert,
-        notice: :success,
-        info: :info,
-        secondary: :secondary,
-        success: :success,
-        error: :alert,
-        warning: :warning,
-        primary: :primary
+      alert: :alert,
+      notice: :success,
+      info: :info,
+      secondary: :secondary,
+      success: :success,
+      error: :alert,
+      warning: :warning,
+      primary: :primary
     }
 
     def available_locales_with_names
@@ -62,7 +62,7 @@ module DataCycleCore
         "#{definition['type'].underscore}",
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/#{p}_editor" }
       parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options]))
-      render_first_existing_partial(partials, parameters.merge({key: key, definition: definition, value: value}))
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
     end
 
     def render_attribute_viewer(key:, definition:, value:, parameters: {})
@@ -74,7 +74,7 @@ module DataCycleCore
         "#{definition['type'].underscore}",
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/#{p}_viewer" }
 
-      render_first_existing_partial(partials, parameters.merge({key: key, definition: definition, value: value}))
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
     end
 
     def render_content_tile(item:, parameters: {})
@@ -85,7 +85,7 @@ module DataCycleCore
         "default"
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}_tile" }
 
-      render_first_existing_partial(partials, parameters.merge({item: item}))
+      render_first_existing_partial(partials, parameters.merge({ item: item }))
     end
 
     def render_attribute_history_viewer(key:, definition:, value:, parameters: {})
@@ -97,7 +97,7 @@ module DataCycleCore
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/history_viewers/#{p}_history_viewer" }
 
       begin
-        render_first_existing_partial(partials, parameters.merge({key: key, definition: definition, value: value}))
+        render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
       rescue
         render_attribute_viewer key: key, definition: definition, value: value, parameters: parameters
       end
@@ -109,7 +109,7 @@ module DataCycleCore
         "default"
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_#{partial}" }
 
-      render_first_existing_partial(partials, parameters.merge({key: key, definition: definition}))
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition }))
     end
 
     def render_embedded_object_partial(partial: 'detail', key:, definition:, parameters: {})
@@ -119,7 +119,7 @@ module DataCycleCore
         "default"
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/embedded_object/#{p}_#{partial}" }
 
-      render_first_existing_partial(partials, parameters.merge({key: key, definition: definition}))
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition }))
     end
 
     private

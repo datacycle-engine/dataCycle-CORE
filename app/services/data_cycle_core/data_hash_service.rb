@@ -22,8 +22,8 @@ module DataCycleCore
       internal_objects = []
       if !value.blank? && value.count > 0
         value.each do |object|
-          internal_object = ("DataCycleCore::" + storage_location.classify).constantize.
-              find_by(id: object['id'])
+          internal_object = ("DataCycleCore::" + storage_location.classify).constantize
+            .find_by(id: object['id'])
           internal_objects.push(internal_object) unless internal_object.blank?
         end
       else
@@ -34,8 +34,8 @@ module DataCycleCore
     end
 
     def self.get_internal_template(storage_location, name, description)
-      internal_template = ("DataCycleCore::" + storage_location.classify).constantize.
-      find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name, description)
+      internal_template = ("DataCycleCore::" + storage_location.classify).constantize
+        .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name, description)
 
       if internal_template.blank?
         return nil
@@ -90,16 +90,16 @@ module DataCycleCore
 
         if value['type'] == 'object' && !value.dig('editor', 'type').nil?
           object_properties = self.get_internal_template(value['storage_location'], value['name'], value['description'])
-          key = {key.to_sym => self.get_params_from_hash(object_properties.metadata['validation'])}
+          key = { key.to_sym => self.get_params_from_hash(object_properties.metadata['validation']) }
         elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
-          key = {key.to_sym => self.get_params_from_hash(value)}
+          key = { key.to_sym => self.get_params_from_hash(value) }
         elsif value['type'] == 'classificationTreeLabel' || value['type'] == 'embeddedLinkArray'
-          key = {key.to_sym => []}
+          key = { key.to_sym => [] }
         else
           key = key.to_sym
         end
 
-        key = {orig_key.to_sym => [key, "release_id", "release_comment"]} if value['releasable']
+        key = { orig_key.to_sym => [key, "release_id", "release_comment"] } if value['releasable']
 
         temp_params.push(key)
       end

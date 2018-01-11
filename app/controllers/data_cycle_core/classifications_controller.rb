@@ -54,8 +54,8 @@ module DataCycleCore
       permitted_params = params.permit(
         :classification_tree_label_id,
         :classification_tree_id,
-        {classification_tree_label: [:name, :internal]},
-        {classification_alias: [:name, :internal, :assignable]}
+        { classification_tree_label: [:name, :internal] },
+        { classification_alias: [:name, :internal, :assignable] }
       )
 
       respond_to do |format|
@@ -83,10 +83,10 @@ module DataCycleCore
                 classification_alias: @classification_alias
               )
               @object = DataCycleCore::ClassificationTree.create!({
-                classification_tree_label: @classification_tree_label,
-                parent_classification_alias: @parent_classification_tree.try(:sub_classification_alias),
-                sub_classification_alias: @classification_alias
-              })
+                                                                    classification_tree_label: @classification_tree_label,
+                                                                    parent_classification_alias: @parent_classification_tree.try(:sub_classification_alias),
+                                                                    sub_classification_alias: @classification_alias
+                                                                  })
             end
           end
         end

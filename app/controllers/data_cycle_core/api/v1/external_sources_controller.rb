@@ -9,7 +9,7 @@ module DataCycleCore
       execute_after_update_webhooks updated.first if updated.kind_of?(Array)
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
-      render plain: {'updated' => updated}.to_json, content_type: 'application/json'
+      render plain: { 'updated' => updated }.to_json, content_type: 'application/json'
     end
 
     def create
@@ -21,7 +21,7 @@ module DataCycleCore
       execute_after_create_webhooks created.first if created.kind_of?(Array)
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
-      render plain: {'created' => created}.to_json, content_type: 'application/json'
+      render plain: { 'created' => created }.to_json, content_type: 'application/json'
     end
 
     def destroy
@@ -32,7 +32,7 @@ module DataCycleCore
       execute_after_delete_webhooks deleted
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
-      render plain: {'deleted' => deleted}.to_json, content_type: 'application/json'
+      render plain: { 'deleted' => deleted }.to_json, content_type: 'application/json'
     end
 
     private

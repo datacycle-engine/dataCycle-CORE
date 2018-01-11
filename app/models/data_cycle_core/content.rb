@@ -146,16 +146,17 @@ module DataCycleCore
       history_id = "#{base_content_class}::History".safe_constantize.table_name.singularize.foreign_key.to_sym
 
       return_data =
-        self.histories.
-          joins(
-            history_table.join(history_table_translation).
-              on(history_table[:id].eq(history_table_translation[history_id])).
-              join_sources
-          ).
-          where(
-            Arel::Nodes::InfixOperation.new("@>",
-                                            history_table_translation[:history_valid],
-                                            Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
+        self.histories
+          .joins(
+            history_table.join(history_table_translation)
+              .on(history_table[:id].eq(history_table_translation[history_id]))
+              .join_sources
+          )
+          .where(
+            Arel::Nodes::InfixOperation.new(
+              "@>",
+              history_table_translation[:history_valid],
+              Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
             )
           ).order(history_table[:updated_at])
       return return_data.last
@@ -163,13 +164,13 @@ module DataCycleCore
 
     def embedded_relations
       embedded_property_names.map { |property_name|
-        {name: property_name, table: property_definitions[property_name]['storage_location']}
+        { name: property_name, table: property_definitions[property_name]['storage_location'] }
       }.compact.uniq
     end
 
     def linked_relations
       linked_property_names.map { |property_name|
-        {name: property_name, table: property_definitions[property_name]['type_name'], type: property_definitions[property_name]['type']}
+        { name: property_name, table: property_definitions[property_name]['type_name'], type: property_definitions[property_name]['type'] }
       }.compact.uniq
     end
 
@@ -247,19 +248,18 @@ module DataCycleCore
       content_two_data = [self.id, self.class.to_s, relation_name]
       where_hash = ['a', 'b'].map { |abselector|
         if is_history?
-          [ "content_#{abselector}_history_id".to_sym,
-            "content_#{abselector}_history_type".to_sym,
-            "relation_#{abselector}".to_sym]
+          ["content_#{abselector}_history_id".to_sym,
+           "content_#{abselector}_history_type".to_sym,
+           "relation_#{abselector}".to_sym]
         else
-          [ "content_#{abselector}_id".to_sym,
-            "content_#{abselector}_type".to_sym,
-            "relation_#{abselector}".to_sym]
+          ["content_#{abselector}_id".to_sym,
+           "content_#{abselector}_type".to_sym,
+           "relation_#{abselector}".to_sym]
         end
       }.flatten
         .zip(selector ?
                content_one_data + content_two_data :
-               content_two_data + content_one_data
-        ).to_h.compact
+               content_two_data + content_one_data).to_h.compact
 
       relation_table = is_history? ? :content_content_histories : :content_contents
       join_table = selector ? :content_content_a_history : :content_content_b_history if is_history?
@@ -277,19 +277,18 @@ module DataCycleCore
       OpenStructHash.new(
         load_subproperty_hash(sub_property_definitions,
                               property_definition['storage_location'],
-                              send(property_definition['storage_location']).try(:[], property_name)
-        )
+                              send(property_definition['storage_location']).try(:[], property_name))
       ).freeze
     end
 
     def load_subproperty_hash(sub_properties, storage_location, sub_properties_data)
       sub_properties.map { |key, item|
         if item['type'] == 'object' && item['storage_location'] == storage_location
-          {key => OpenStructHash.new(load_subproperty_hash(item['properties'], storage_location, sub_properties_data.try(:[], key.to_s))).freeze}
+          { key => OpenStructHash.new(load_subproperty_hash(item['properties'], storage_location, sub_properties_data.try(:[], key.to_s))).freeze }
         elsif item['storage_location'] == storage_location
-          {key => sub_properties_data.try(:[], key.to_s)}
+          { key => sub_properties_data.try(:[], key.to_s) }
         elsif item['storage_location'] == 'column'
-          {key => send(key)}
+          { key => send(key) }
         else
           raise StandardError.new("Template includes wrong definitions for included sub_property #{key}, given: #{item}!")
         end
@@ -304,14 +303,13 @@ module DataCycleCore
         join_relation = :classification_contents
         class_id = :content_data_id
       end
-      DataCycleCore::Classification.joins(join_relation).where(join_relation => {class_id => id, relation: relation_name})
+      DataCycleCore::Classification.joins(join_relation).where(join_relation => { class_id => id, relation: relation_name })
     end
 
     def set_property_value(property_name, property_definition, value)
       if PLAIN_PROPERTY_TYPES.include?(property_definition['storage_type'])
         send(property_definition['storage_location'] + '=',
-             (send(property_definition['storage_location']) || {}).merge({property_name => value})
-        )
+             (send(property_definition['storage_location']) || {}).merge({ property_name => value }))
       else
         raise NotImplementedError
       end

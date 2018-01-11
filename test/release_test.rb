@@ -55,20 +55,20 @@ module DataCycleCore
       bild1 = DataCycleCore::CreativeWork.new
       bild1.metadata = { 'validation' => template_bild.metadata['validation'] }
       bild1.save
-      bild1.set_data_hash(data_hash: {"headline" => "Testbild1"})
+      bild1.set_data_hash(data_hash: { "headline" => "Testbild1" })
       bild1.save
 
       bild2 = DataCycleCore::CreativeWork.new
       bild2.metadata = { 'validation' => template_bild.metadata['validation'] }
       bild2.save
-      bild2.set_data_hash(data_hash: {"headline" => "Testbild2"})
+      bild2.set_data_hash(data_hash: { "headline" => "Testbild2" })
       bild2.save
 
       data_hash = {
         "kind" => [],
         "tags" => [],
         "image" => {
-          "value" => [ bild1.id ],
+          "value" => [bild1.id],
           "release_id" => DataCycleCore::Release.first.id,
           "release_comment" => "normales bild kommentar"
         },
@@ -81,7 +81,7 @@ module DataCycleCore
         "quotation" => [{
           "text" => "<p>sdfasf asdf adfasdf</p>",
           "image" => {
-            "value" => [ bild2.id ],
+            "value" => [bild2.id],
             "release_id" => DataCycleCore::Release.second.id,
             "release_comment" => "zitat bild kommentar"
           },

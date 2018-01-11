@@ -6,7 +6,7 @@ module DataCycleCore
       class ObjectTest < ActiveSupport::TestCase
         # tests for validate (keys in data-hash are keys in template)
         test "init object validator" do
-          error_hash = { error: [], warning: []}
+          error_hash = { error: [], warning: [] }
           template_hash = {
             "greeting" => {
               "label" => "test_string",
@@ -22,8 +22,8 @@ module DataCycleCore
             }
           }
           data_hash = {
-              "greeting" => "Hello World!",
-              "anzahl" => 5
+            "greeting" => "Hello World!",
+            "anzahl" => 5
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(error_hash, validator.error)
@@ -39,7 +39,7 @@ module DataCycleCore
             }
           }
           data_hash = {
-              "greeting" => "Hello World!"
+            "greeting" => "Hello World!"
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(1, validator.error[:error].size)
@@ -62,9 +62,9 @@ module DataCycleCore
             }
           }
           data_hash = {
-              "greeting" => "Hello World!",
-              "anzahl" => 5,
-              "xxx" => "xxx"
+            "greeting" => "Hello World!",
+            "anzahl" => 5,
+            "xxx" => "xxx"
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(0, validator.error[:error].size)
@@ -87,7 +87,7 @@ module DataCycleCore
             }
           }
           data_hash = {
-              "greeting" => "Hello World!"
+            "greeting" => "Hello World!"
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(0, validator.error[:error].size)
@@ -109,8 +109,8 @@ module DataCycleCore
             }
           }
           data_hash = {
-              "greeting" => "Hello World!",
-              "anzahl" => 5
+            "greeting" => "Hello World!",
+            "anzahl" => 5
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(1, validator.error[:error].size)
@@ -147,20 +147,20 @@ module DataCycleCore
             }
           }
           data_hash = {
-              "greeting" => 0,
-              "anzahl" => {
-                "test1" => 1,
-                "test2" => 2
-              }
+            "greeting" => 0,
+            "anzahl" => {
+              "test1" => 1,
+              "test2" => 2
+            }
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(3, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
           data_hash = {
-              "greeting" => 0,
-              "anzahl" => {
-                "test1" => 1
-              }
+            "greeting" => 0,
+            "anzahl" => {
+              "test1" => 1
+            }
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(2, validator.error[:error].size)
@@ -555,7 +555,7 @@ module DataCycleCore
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
 
-          validator = DataCycleCore::MasterData::Validators::Object.new({"test" => "wrong"}, template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new({ "test" => "wrong" }, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(1, validator.error[:warning].size)
         end

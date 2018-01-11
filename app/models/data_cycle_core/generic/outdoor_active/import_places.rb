@@ -38,9 +38,9 @@ module DataCycleCore::Generic::OutdoorActive::ImportPlaces
       sources_hash = sources.compact.blank? ? [] : sources.map(&:id).take(1)
 
       frontendtype = DataCycleCore::Classification.find_by(
-          external_source_id: external_source.id,
-          external_key: "FRONTENDTYPE:#{Digest::MD5.new.update(raw_data['frontendtype']).hexdigest}"
-        ).try(:id)
+        external_source_id: external_source.id,
+        external_key: "FRONTENDTYPE:#{Digest::MD5.new.update(raw_data['frontendtype']).hexdigest}"
+      ).try(:id)
       frontendtype = frontendtype.blank? ? [] : [frontendtype]
 
       create_or_update_content(

@@ -1,7 +1,7 @@
 module DataCycleCore
   module Api
     class ExternalSource < DataCycleCore::Generic::ImportBase
-      def initialize (external_source, type, external_key)
+      def initialize(external_source, type, external_key)
         @external_source = external_source
         @target_type = "DataCycleCore::#{type.classify}".safe_constantize
         @external_key = external_key

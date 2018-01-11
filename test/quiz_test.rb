@@ -17,30 +17,30 @@ module DataCycleCore
         "headline" => "Dies ist ein Test Quiz!",
         "alternative_headline" => "ein lustiges Quiz für jeden Tag!",
         "question" => [
-        {
-          "headline" => "beliebtestes Handy-OS?",
-          "suggested_answer" => [
-            { "text" => "Android" },
-            { "text" => "iOS" },
-            { "text" => "Sailfish"},
-            { "text" => "Ubuntu Phone"}
-          ],
-          "accepted_answer" => [
-            { "text" => "Android"}
-          ]
-        },
-        {
-          "headline" => "bestes Desktop OS?",
-          "suggested_answer" => [
-            { "text" => "Linux"},
-            { "text" => "BSD"},
-            { "text" => "Windows"},
-            { "text" => "sonstige"}
-          ],
-          "accepted_answer" => [
-            { "text" => "Linux"}
-          ]
-        }
+          {
+            "headline" => "beliebtestes Handy-OS?",
+            "suggested_answer" => [
+              { "text" => "Android" },
+              { "text" => "iOS" },
+              { "text" => "Sailfish" },
+              { "text" => "Ubuntu Phone" }
+            ],
+            "accepted_answer" => [
+              { "text" => "Android" }
+            ]
+          },
+          {
+            "headline" => "bestes Desktop OS?",
+            "suggested_answer" => [
+              { "text" => "Linux" },
+              { "text" => "BSD" },
+              { "text" => "Windows" },
+              { "text" => "sonstige" }
+            ],
+            "accepted_answer" => [
+              { "text" => "Linux" }
+            ]
+          }
         ]
       }
       expected_hash_quiz = {
@@ -54,7 +54,7 @@ module DataCycleCore
         "output_channels" => [],
         "alternative_headline" => "ein lustiges Quiz für jeden Tag!",
         'permitted_creator' => []
-       }
+      }
 
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
@@ -93,30 +93,30 @@ module DataCycleCore
         "headline" => "Dies ist ein Test Quiz!",
         "alternative_headline" => "ein lustiges Quiz für jeden Tag!",
         "question" => [
-        {
-          "headline" => "beliebtestes Handy-OS?",
-          "suggested_answer" => [
-            { "text" => "Android" },
-            { "text" => "iOS" },
-            { "text" => "Sailfish"},
-            { "text" => "Ubuntu Phone"}
-          ],
-          "accepted_answer" => [
-            { "text" => "Android"}
-          ]
-        },
-        {
-          "headline" => "bestes Desktop OS?",
-          "suggested_answer" => [
-            { "text" => "Linux"},
-            { "text" => "BSD"},
-            { "text" => "Windows"},
-            { "text" => "sonstige"}
-          ],
-          "accepted_answer" => [
-            { "text" => "Linux"}
-          ]
-        }
+          {
+            "headline" => "beliebtestes Handy-OS?",
+            "suggested_answer" => [
+              { "text" => "Android" },
+              { "text" => "iOS" },
+              { "text" => "Sailfish" },
+              { "text" => "Ubuntu Phone" }
+            ],
+            "accepted_answer" => [
+              { "text" => "Android" }
+            ]
+          },
+          {
+            "headline" => "bestes Desktop OS?",
+            "suggested_answer" => [
+              { "text" => "Linux" },
+              { "text" => "BSD" },
+              { "text" => "Windows" },
+              { "text" => "sonstige" }
+            ],
+            "accepted_answer" => [
+              { "text" => "Linux" }
+            ]
+          }
         ]
       }
       expected_hash_quiz = {
@@ -130,7 +130,7 @@ module DataCycleCore
         "output_channels" => [],
         "alternative_headline" => "ein lustiges Quiz für jeden Tag!",
         'permitted_creator' => []
-       }
+      }
 
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
@@ -150,7 +150,7 @@ module DataCycleCore
 
       # leave one question alone, delete the second one incl. all related answers and classification_relations
       new_data_hash = returned_data_hash.except("question")
-      new_data_hash["question"] = [{"id" => returned_data_hash['question'][0]['id']}]
+      new_data_hash["question"] = [{ "id" => returned_data_hash['question'][0]['id'] }]
       error = data_set.set_data_hash(data_hash: new_data_hash)
       data_set.save
 

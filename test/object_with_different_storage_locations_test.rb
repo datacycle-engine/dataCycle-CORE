@@ -45,8 +45,8 @@ module DataCycleCore
         "headline1" => "Dies ist ein Test!",
         "description1" => "wtf is going on???",
         "period" => {
-            "created_at" => "2017-06-01",
-            "updated_at" => "2017-07-01"
+          "created_at" => "2017-06-01",
+          "updated_at" => "2017-07-01"
         }
       }
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -77,13 +77,13 @@ module DataCycleCore
       data_hash = {
         "headline1" => "Dies ist ein Test!",
         "period" => {
-            "created_at" => "2017-06-01",
-            "updated_at" => "2017-07-01",
-            "description" => "wtf is going on???",
-            "validity_period" => {
-              "valid_from" => "2017-06-01",
-              "valid_until" => "2017-07-01"
-            }
+          "created_at" => "2017-06-01",
+          "updated_at" => "2017-07-01",
+          "description" => "wtf is going on???",
+          "validity_period" => {
+            "valid_from" => "2017-06-01",
+            "valid_until" => "2017-07-01"
+          }
         }
       }
       error = data_set.set_data_hash(data_hash: data_hash)

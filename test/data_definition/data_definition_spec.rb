@@ -306,7 +306,8 @@ describe DataCycleCore::MasterData::ImportTemplates do
     end
 
     let(:header_hash) do
-      { data: {
+      {
+        data: {
           name: 'whatever',
           description: 'CreativeWork',
           type: 'object'
@@ -484,7 +485,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
 
     it 'checks properties for valid storage_location' do
       test_hash = simple_property_hash
-      available_storage_locations = [ 'key', 'column', 'metadata', 'content', 'properties']
+      available_storage_locations = ['key', 'column', 'metadata', 'content', 'properties']
       available_storage_locations.each do |storage_location|
         test_hash[:storage_location] = storage_location
         assert subject.validate_property.(test_hash).success?

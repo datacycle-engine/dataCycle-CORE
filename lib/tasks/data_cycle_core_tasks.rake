@@ -105,7 +105,7 @@ namespace :data_cycle_core do
 
     desc "Download and import data from given data source"
     task :perform, [:external_source_id, :max_count] => [:environment] do |t, args|
-      options = Hash[{max_count: FIXNUM_MAX}.merge(args.to_h).map { |k, v|
+      options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map { |k, v|
         if k == :max_count
           [k, v.to_i]
         else
@@ -120,7 +120,7 @@ namespace :data_cycle_core do
 
     desc "DEBUG: Only download data from given data source"
     task :download, [:external_source_id, :max_count] => [:environment] do |t, args|
-      options = Hash[{max_count: nil}.merge(args.to_h).map { |k, v|
+      options = Hash[{ max_count: nil }.merge(args.to_h).map { |k, v|
         if k == :max_count && v
           [k, v.to_i]
         else
@@ -135,7 +135,7 @@ namespace :data_cycle_core do
 
     desc "DEBUG: Only import (without downloading) data from given data source"
     task :import, [:external_source_id, :max_count] => [:environment] do |t, args|
-      options = Hash[{max_count: FIXNUM_MAX}.merge(args.to_h).map { |k, v|
+      options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map { |k, v|
         if k == :max_count
           [k, v.to_i]
         else
@@ -272,8 +272,8 @@ namespace :data_cycle_core do
         exit -1
       end
 
-      data_object = "DataCycleCore::#{args[:content_table_name].classify}::History".safe_constantize.
-        where("metadata #>> '{validation, name}' = '#{args[:template_name]}'")
+      data_object = "DataCycleCore::#{args[:content_table_name].classify}::History".safe_constantize
+        .where("metadata #>> '{validation, name}' = '#{args[:template_name]}'")
 
       total_items = data_object.count
       puts "DELETE history for: #{args[:content_table_name]}/#{args[:template_name]} (#{total_items}) - (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
@@ -312,9 +312,9 @@ namespace :data_cycle_core do
     task :stage1 => [:environment] do
       @connection = ActiveRecord::Base.connection
       data_hash = [
-        {a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', relation_a: 'content_location', b: 'place', type_b: 'DataCycleCore::Place'},
-        {a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', ralation_a: 'event', b: 'event', type_b: 'DataCycleCore::Event'},
-        {a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', relation_a: '', b: 'person', type_b: 'DataCycleCore::Person'}
+        { a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', relation_a: 'content_location', b: 'place', type_b: 'DataCycleCore::Place' },
+        { a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', ralation_a: 'event', b: 'event', type_b: 'DataCycleCore::Event' },
+        { a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', relation_a: '', b: 'person', type_b: 'DataCycleCore::Person' }
       ]
 
       data_hash.each do |item|
@@ -469,7 +469,7 @@ namespace :data_cycle_core do
             index += 1
 
             values = item.metadata[link_definition[:name]]
-            uuid_list = link_definition[:type] == 'embeddedLink' ? [ values ] : values
+            uuid_list = link_definition[:type] == 'embeddedLink' ? [values] : values
 
             puts "#{index.to_s.rjust(3)}: #{item.id}"
             puts "     #{link_definition[:name]}(#{link_definition[:type]}):"
@@ -501,7 +501,7 @@ namespace :data_cycle_core do
             index += 1
 
             values = item.metadata[link_definition[:name]]
-            uuid_list = link_definition[:type] == 'embeddedLink' ? [ values ] : values
+            uuid_list = link_definition[:type] == 'embeddedLink' ? [values] : values
 
             puts "#{index.to_s.rjust(3)}: #{item.id}"
             puts "     #{link_definition[:name]}(#{link_definition[:type]}):"

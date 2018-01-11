@@ -7,7 +7,7 @@ module DataCycleCore
 
       unless object_type.nil?
         @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
-          .includes({classifications: [], translations: []})
+          .includes({ classifications: [], translations: [] })
           .find(params[:id])
       end
     end
@@ -17,7 +17,7 @@ module DataCycleCore
       content = params[:content]
 
       @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
-        .includes({classifications: [], translations: []})
+        .includes({ classifications: [], translations: [] })
         .find(params[:id])
 
       render json: @content.get_data_hash
@@ -27,7 +27,7 @@ module DataCycleCore
       object_type = DataCycleCore.content_tables.find { |object| object == params[:type] }
 
       @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
-        .includes({classifications: [], translations: []})
+        .includes({ classifications: [], translations: [] })
         .find(params[:id])
 
       # @content.destroy
@@ -41,11 +41,11 @@ module DataCycleCore
       order_string = DataCycleCore::Filter::ObjectBrowserQueryBuilder::get_order_by_query_string(params[:search])
 
       classification_aliases = DataCycleCore::ClassificationAlias.joins(
-          :classification_tree_label
+        :classification_tree_label
       ).where(
-          classification_trees: {
-              classification_tree_label: DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltstypen')
-          }
+        classification_trees: {
+          classification_tree_label: DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltstypen')
+        }
       )
 
       unless DataCycleCore.allowed_content_api_classifications.blank?
@@ -87,7 +87,7 @@ module DataCycleCore
 
     def get_deleted
       deleted_contents = DataCycleCore::CreativeWork::History.where(
-          DataCycleCore::CreativeWork::History.arel_table[:deleted_at].not_eq(nil)
+        DataCycleCore::CreativeWork::History.arel_table[:deleted_at].not_eq(nil)
       )
 
       @language = params[:language] unless params[:language].blank?
@@ -95,7 +95,7 @@ module DataCycleCore
 
       if params[:deleted_since]
         deleted_contents = deleted_contents.where(
-            DataCycleCore::CreativeWork::History.arel_table[:deleted_at].gteq(DateTime.parse(params[:deleted_since]))
+          DataCycleCore::CreativeWork::History.arel_table[:deleted_at].gteq(DateTime.parse(params[:deleted_since]))
         )
       end
 

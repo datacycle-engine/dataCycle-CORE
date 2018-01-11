@@ -142,8 +142,8 @@ module DataCycleCore
         # adding embedded objects, save, reopen, save is identified as change (is_part_of changes from nil to parent_id)
         #
         data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
-            datahash.merge({'id' => @creativeWork.id, 'release_id' => object_params[:release_id], 'release_comment' => object_params[:release_comment]}),
-            @creativeWork.get_data_hash.merge({'release_id' => @creativeWork.release_id, 'release_comment' => @creativeWork.release_comment})
+          datahash.merge({ 'id' => @creativeWork.id, 'release_id' => object_params[:release_id], 'release_comment' => object_params[:release_comment] }),
+          @creativeWork.get_data_hash.merge({ 'release_id' => @creativeWork.release_id, 'release_comment' => @creativeWork.release_comment })
         )
 
         unless data_hash_has_changes

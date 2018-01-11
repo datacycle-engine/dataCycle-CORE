@@ -23,9 +23,9 @@ module DataCycleCore
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
         "content_location" => [{
-            "name" => "Testort",
-            "longitude" => 13.10,
-            "latitude" => 25.30
+          "name" => "Testort",
+          "longitude" => 13.10,
+          "latitude" => 25.30
         }]
       }
       error = data_set_without.set_data_hash(data_hash: data_hash)
@@ -97,9 +97,9 @@ module DataCycleCore
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
         "content_location" => [{
-            "name" => "Testort",
-            "longitude" => 13.10,
-            "latitude" => 25.30
+          "name" => "Testort",
+          "longitude" => 13.10,
+          "latitude" => 25.30
         }]
       }
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -150,9 +150,9 @@ module DataCycleCore
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
         "content_location" => [{
-            "name" => "Testort",
-            "longitude" => 13.10,
-            "latitude" => 25.30
+          "name" => "Testort",
+          "longitude" => 13.10,
+          "latitude" => 25.30
         }]
       }
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -181,7 +181,7 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Place.where(template: false).count)
 
-      returned_data_hash["content_location"] = [{'id' => returned_data_hash["content_location"][0]['id']}]
+      returned_data_hash["content_location"] = [{ 'id' => returned_data_hash["content_location"][0]['id'] }]
       error = data_set.set_data_hash(data_hash: returned_data_hash)
       data_set.save
       returned_again = data_set.get_data_hash
@@ -201,9 +201,9 @@ module DataCycleCore
       data_set_place.metadata = { 'validation' => validation }
       data_set_place.save
       place_hash = {
-          "name" => "Testort",
-          "longitude" => 13.10,
-          "latitude" => 25.30
+        "name" => "Testort",
+        "longitude" => 13.10,
+        "latitude" => 25.30
       }
       error = data_set_place.set_data_hash(data_hash: place_hash)
       data_set_place.save
@@ -230,7 +230,7 @@ module DataCycleCore
         "access" => [],
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
-        "content_location" => [ returned_place ]
+        "content_location" => [returned_place]
       }
 
       assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'keywords', 'data_pool'))
@@ -250,9 +250,9 @@ module DataCycleCore
       data_set_place.metadata = { 'validation' => validation }
       data_set_place.save
       place_hash = {
-          "name" => "Testort",
-          "longitude" => 13.10,
-          "latitude" => 25.30
+        "name" => "Testort",
+        "longitude" => 13.10,
+        "latitude" => 25.30
       }
       error = data_set_place.set_data_hash(data_hash: place_hash)
       data_set_place.save
@@ -298,7 +298,7 @@ module DataCycleCore
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
-      expected_hash["content_location"] = [ returned_place ]
+      expected_hash["content_location"] = [returned_place]
 
       assert_equal(expected_hash, returned_data_hash.compact.except('id', 'keywords'))
       assert_equal(0, error[:error].count)
@@ -397,9 +397,9 @@ module DataCycleCore
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
         "content_location" => [{
-            "name" => "Testort",
-            "longitude" => 13.10,
-            "latitude" => 25.30
+          "name" => "Testort",
+          "longitude" => 13.10,
+          "latitude" => 25.30
         }]
       }
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -446,9 +446,9 @@ module DataCycleCore
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
         "content_location" => [{
-            "name" => "Testort",
-            "longitude" => 13.10,
-            "latitude" => 25.30
+          "name" => "Testort",
+          "longitude" => 13.10,
+          "latitude" => 25.30
         }]
       }
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -487,9 +487,9 @@ module DataCycleCore
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
         "content_location" => [{
-            "name" => "Testort",
-            "longitude" => 13.10,
-            "latitude" => 25.30
+          "name" => "Testort",
+          "longitude" => 13.10,
+          "latitude" => 25.30
         }]
       }
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -531,9 +531,9 @@ module DataCycleCore
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
         "content_location" => [{
-            "name" => "Testort",
-            "longitude" => 13.1,
-            "latitude" => 25.3
+          "name" => "Testort",
+          "longitude" => 13.1,
+          "latitude" => 25.3
         }, {
           "name" => "2Testort",
           "latitude" => 25.3,
@@ -584,9 +584,9 @@ module DataCycleCore
         "headline" => "Dies ist ein Test!",
         "description" => "wtf is going on???",
         "content_location" => [{
-            "name" => "Testort",
-            "longitude" => 13.1,
-            "latitude" => 25.3
+          "name" => "Testort",
+          "longitude" => 13.1,
+          "latitude" => 25.3
         }, {
           "name" => "2Testort",
           "latitude" => 25.3,
@@ -645,9 +645,9 @@ module DataCycleCore
         "headline" => "Das ist ein Test!",
         "description" => "wooos laft??",
         "content_location" => [{
-            "name" => "Testort",
-            "longitude" => 13.1,
-            "latitude" => 25.3
+          "name" => "Testort",
+          "longitude" => 13.1,
+          "latitude" => 25.3
         }, {
           "name" => "2Testort",
           "latitude" => 25.3,
@@ -766,9 +766,9 @@ module DataCycleCore
         "headline" => "Das ist ein Test!",
         "description" => "wooos laft??",
         "content_location" => [{
-            "name" => "Testort",
-            "longitude" => 13.1,
-            "latitude" => 25.3
+          "name" => "Testort",
+          "longitude" => 13.1,
+          "latitude" => 25.3
         }, {
           "name" => "2Testort",
           "latitude" => 25.3,
@@ -829,7 +829,7 @@ module DataCycleCore
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
-      data_set.set_data_hash(data_hash: {"headline" => "Dies ist ein Test!", "description" => "wtf is going on???"})
+      data_set.set_data_hash(data_hash: { "headline" => "Dies ist ein Test!", "description" => "wtf is going on???" })
       data_set.save
       expected_hash = {
         "headline" => "Dies ist ein Test!",
@@ -850,7 +850,7 @@ module DataCycleCore
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
-      data_set.set_data_hash(data_hash: {"headline" => "Dies ist ein Test!"})
+      data_set.set_data_hash(data_hash: { "headline" => "Dies ist ein Test!" })
       data_set.save
       expected_hash = {
         "headline" => "Dies ist ein Test!",
@@ -870,7 +870,7 @@ module DataCycleCore
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
-      data_set.set_data_hash(data_hash: {"headline" => "Dies ist ein Test!", "validity_period" => {"valid_from" => "2017-05-01", "valid_until" => "2017-06-01"}})
+      data_set.set_data_hash(data_hash: { "headline" => "Dies ist ein Test!", "validity_period" => { "valid_from" => "2017-05-01", "valid_until" => "2017-06-01" } })
       data_set.save
       expected_hash = {
         "headline" => "Dies ist ein Test!",
@@ -894,7 +894,7 @@ module DataCycleCore
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
-      error = data_set.set_data_hash(data_hash: {"headline" => "Dies ist ein Test!", "validity_period" => {"valid_from" => "2017-05-01", "valid_until" => "2017-06-01", "test" => {"test1" => 1, "test2" => 2}}})
+      error = data_set.set_data_hash(data_hash: { "headline" => "Dies ist ein Test!", "validity_period" => { "valid_from" => "2017-05-01", "valid_until" => "2017-06-01", "test" => { "test1" => 1, "test2" => 2 } } })
       data_set.save
       expected_hash = {
         "headline" => "Dies ist ein Test!",
@@ -911,7 +911,7 @@ module DataCycleCore
       }
 
       assert_equal(expected_hash, data_set.get_data_hash.except('id', "data_pool", 'permitted_creator').compact)
-      data_set.set_data_hash(data_hash: {"headline" => "Dies ist ein Test!", "validity_period" => {"valid_from" => "2017-05-01", "valid_until" => "2017-06-01"}, "test" => {"test1" => 1, "test2" => 2, "test3" => {"hallo" => "World"}} })
+      data_set.set_data_hash(data_hash: { "headline" => "Dies ist ein Test!", "validity_period" => { "valid_from" => "2017-05-01", "valid_until" => "2017-06-01" }, "test" => { "test1" => 1, "test2" => 2, "test3" => { "hallo" => "World" } } })
       data_set.save
       assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', "data_pool", 'permitted_creator'))
     end
@@ -962,7 +962,7 @@ module DataCycleCore
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
-      error = data_set.set_data_hash(data_hash: {"headline" => "Dies ist ein Test!", "validity_period" => {"valid_from" => "2017-05-01", "valid_until" => "2017-16-01"}})
+      error = data_set.set_data_hash(data_hash: { "headline" => "Dies ist ein Test!", "validity_period" => { "valid_from" => "2017-05-01", "valid_until" => "2017-16-01" } })
       data_set.save
       assert_equal(2, error[:error].count)
     end
@@ -973,7 +973,7 @@ module DataCycleCore
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation }
       data_set.save
-      data_hash = {"headline" => "Dies ist ein Test!", "validity_period" => {"date_published" => "2017-05-01", "validTo" => "2017-06-01"}}
+      data_hash = { "headline" => "Dies ist ein Test!", "validity_period" => { "date_published" => "2017-05-01", "validTo" => "2017-06-01" } }
       error = data_set.set_data_hash(data_hash: data_hash)
       assert_equal(0, error[:error].count)
     end
@@ -992,7 +992,7 @@ module DataCycleCore
         password: 'password'
       )
       uuid = DataCycleCore::User.first.id
-      data_set.set_data_hash(data_hash: {"headline" => "Dies ist ein Test!", "creator" => uuid})
+      data_set.set_data_hash(data_hash: { "headline" => "Dies ist ein Test!", "creator" => uuid })
       data_set.save
       expected_hash = {
         "headline" => "Dies ist ein Test!",
@@ -1018,7 +1018,7 @@ module DataCycleCore
       uuid = DataCycleCore::CreativeWork.where(headline: "Test").first.id
       DataCycleCore::CreativeWork.create!(headline: "Test2")
       uuid2 = DataCycleCore::CreativeWork.where(headline: "Test2").first.id
-      data_set.set_data_hash(data_hash: {"text" => "Dies ist ein Test!", "image" => [uuid, uuid2]})
+      data_set.set_data_hash(data_hash: { "text" => "Dies ist ein Test!", "image" => [uuid, uuid2] })
       data_set.save
       expected_hash = {
         "text" => "Dies ist ein Test!",

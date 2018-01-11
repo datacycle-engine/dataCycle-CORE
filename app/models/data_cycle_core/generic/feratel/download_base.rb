@@ -8,7 +8,7 @@ module DataCycleCore::Generic::Feratel::DownloadBase
       DataCycleCore::Generic::Collection.with(collection: collection) do |mongo|
         range_codes.map(&:to_s).uniq.map { |code|
           {
-            code => mongo.where({'dump.de._Type' => range_type(code)}).map { |r| r.dump['de']['Id'] }
+            code => mongo.where({ 'dump.de._Type' => range_type(code) }).map { |r| r.dump['de']['Id'] }
           }
         }.reduce({}, &:merge)
       end

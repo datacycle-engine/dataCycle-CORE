@@ -43,11 +43,11 @@ module DataCycleCore
 
         def check_reference(key, template)
           if uuid?(key)
-            find_classification_alias = DataCycleCore::ClassificationTree.
-              joins(:classification_tree_label).
-              joins(sub_classification_alias: [classification_groups: [:classification]]).
-              where("classifications.id = ? ", key).
-              where("classification_tree_labels.name = ?", template['type_name'])
+            find_classification_alias = DataCycleCore::ClassificationTree
+              .joins(:classification_tree_label)
+              .joins(sub_classification_alias: [classification_groups: [:classification]])
+              .where("classifications.id = ? ", key)
+              .where("classification_tree_labels.name = ?", template['type_name'])
             if find_classification_alias.count < 1
               @error[:error].push I18n.t :classification, scope: [:validation, :errors], key: key, label: template['label'], tree_label: template['type_name'], locale: DataCycleCore.ui_language
             end

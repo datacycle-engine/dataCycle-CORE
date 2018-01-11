@@ -22,13 +22,13 @@ module DataCycleCore::Generic::MediaArchive::Import
         DataCycleCore::Place,
         load_template(DataCycleCore::Place, 'contentLocation'),
         extract_content_location_data(raw_data['contentLocation'])
-          .merge({'external_key' => raw_data['url']}).with_indifferent_access
+          .merge({ 'external_key' => raw_data['url'] }).with_indifferent_access
       )
 
       keywords = raw_data['keywords'] || []
-      keywords.each { |item| import_classification({name: item, external_id: "MedienArchive - keyword - #{item}", tree_name: 'MediaArchive - Tags'}) }
+      keywords.each { |item| import_classification({ name: item, external_id: "MedienArchive - keyword - #{item}", tree_name: 'MediaArchive - Tags' }) }
 
-      raw_data.merge!({'content_location' => [{ 'id' => content_location.try(:id) }]}) unless content_location.blank?
+      raw_data.merge!({ 'content_location' => [{ 'id' => content_location.try(:id) }] }) unless content_location.blank?
 
       case raw_data['contentType']
       when "Bild"

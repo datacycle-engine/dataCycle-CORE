@@ -25,6 +25,9 @@ Style/MixinUsage:
 Style/SymbolArray:
   EnforcedStyle: brackets
 
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
 # disable some metrics
 Metrics/LineLength:
   Enabled: false
@@ -35,6 +38,11 @@ Metrics/ModuleLength:
 
 # Offense count: 1
 Layout/AlignParameters:
+  Exclude:
+    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
+
+# Offense count: 1
+Layout/MultilineHashBraceLayout:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 

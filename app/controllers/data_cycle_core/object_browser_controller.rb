@@ -81,12 +81,12 @@ module DataCycleCore
 
     def get_content_classification_aliases(labels, tree_label)
       DataCycleCore::ClassificationAlias.joins(
-          :classification_tree_label
+        :classification_tree_label
       ).where(
-          classification_trees: {
-              classification_tree_label: DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label)
-          },
-          name: [labels]
+        classification_trees: {
+          classification_tree_label: DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label)
+        },
+        name: [labels]
       )
     end
   end

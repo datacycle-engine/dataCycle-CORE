@@ -14,14 +14,14 @@ module DataCycleCore
         classification_alias_id: self.parent_classification_alias_id,
         external_source_id: self.external_source_id,
         classification_tree_label_id: self.classification_tree_label_id
-        ).first
+      ).first
     end
 
     def children
       ClassificationTree.where(
-      parent_classification_alias_id: self.classification_alias_id,
-      external_source_id: self.external_source_id,
-      classification_tree_label_id: self.classification_tree_label_id
+        parent_classification_alias_id: self.classification_alias_id,
+        external_source_id: self.external_source_id,
+        classification_tree_label_id: self.classification_tree_label_id
       )
     end
 

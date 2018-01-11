@@ -15,7 +15,7 @@ module DataCycleCore::Generic::Eyebase::Import
   def process_content(raw_data, template, locale = 'de')
     I18n.with_locale(locale) do
       keywords = extract_keywords(raw_data)
-      keywords.each { |item| import_classification({name: item, external_id: nil, tree_name: 'Tags'}) }
+      keywords.each { |item| import_classification({ name: item, external_id: nil, tree_name: 'Tags' }) }
 
       create_or_update_content(
         @target_type,

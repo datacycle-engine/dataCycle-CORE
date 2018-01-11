@@ -9,8 +9,8 @@ module DataCycleCore
       data_set.metadata = { 'validation' => validation }
       data_set.save
 
-      data_hash_de = {"headline" => "Dies ist ein Test!", "test_content" => "Deutsch"}
-      data_hash_en = {"headline" => "This is a Test!", "test_content" => "English"}
+      data_hash_de = { "headline" => "Dies ist ein Test!", "test_content" => "Deutsch" }
+      data_hash_en = { "headline" => "This is a Test!", "test_content" => "English" }
 
       data_set.set_data_hash(data_hash: data_hash_de)
       data_set.save

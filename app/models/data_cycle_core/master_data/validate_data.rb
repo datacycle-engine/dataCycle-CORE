@@ -4,7 +4,7 @@ module DataCycleCore
       attr_reader :error
 
       def initialize
-        @error = { error: [], warning: []}
+        @error = { error: [], warning: [] }
       end
 
       # keys of the data-hash defined as keys in the template

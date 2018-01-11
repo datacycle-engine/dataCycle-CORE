@@ -14,8 +14,8 @@ module DataCycleCore
       def fulltext_search(name)
         reflect(
           @query.where(
-            search[:all_text].matches_all(name.split(' ').map { |item| "%#{item.strip}%" }).
-              or(tsmatch(search[:words], to_tsquery(quoted(name.squish))))
+            search[:all_text].matches_all(name.split(' ').map { |item| "%#{item.strip}%" })
+              .or(tsmatch(search[:words], to_tsquery(quoted(name.squish))))
           )
         )
       end
@@ -33,7 +33,7 @@ module DataCycleCore
                   @query.where(
                     in_range(search[:validity_period], cast_tstz(current_date))
                   )
-                )
+        )
       end
 
       def by_watch_list_id(id = nil)
@@ -41,7 +41,7 @@ module DataCycleCore
 
         reflect (
                   @query.where(search[:content_data_id].in(manager))
-                )
+        )
       end
 
       def modified_since(date = Time.now)
@@ -49,7 +49,7 @@ module DataCycleCore
                   @query.where(
                     search[:updated_at].gteq(DateTime.parse(date))
                   )
-                )
+        )
       end
 
       def created_since(date = Time.now)
@@ -57,7 +57,7 @@ module DataCycleCore
                   @query.where(
                     search[:created_at].gteq(DateTime.parse(date))
                   )
-                )
+        )
       end
 
       def with_classification_alias_ids(ids = nil)
@@ -65,7 +65,7 @@ module DataCycleCore
         # get everything including parents (or-clause)
         reflect (
                   @query.where(search[:content_data_id].in(manager))
-                )
+        )
       end
 
       def self.get_order_by_query_string(search)
@@ -78,24 +78,23 @@ module DataCycleCore
             2 * ts_rank_cd(words, plainto_tsquery('simple', '#{(search || '').squish}'),16) +
             1 * similarity(full_text, '%#{search_string}%'))
             DESC NULLS LAST,
-            updated_at DESC"
-        )
+            updated_at DESC")
       end
 
       private
 
       def join_classification_alias2
-        Arel::SelectManager.new.
-          project(search[:content_data_id]).
-          from(search).
-          join(classification_content).
-          on(search[:content_data_id].eq(classification_content[:content_data_id])).
-          join(classification).
-          on(classification_content[:classification_id].eq(classification[:id])).
-          join(classification_group).
-          on(classification[:id].eq(classification_group[:classification_id])).
-          join(classification_alias).
-          on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+        Arel::SelectManager.new
+          .project(search[:content_data_id])
+          .from(search)
+          .join(classification_content)
+          .on(search[:content_data_id].eq(classification_content[:content_data_id]))
+          .join(classification)
+          .on(classification_content[:classification_id].eq(classification[:id]))
+          .join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join(classification_alias)
+          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
       end
 
       def search
@@ -107,11 +106,11 @@ module DataCycleCore
       end
 
       def join_watch_list
-        Arel::SelectManager.new.
-          project(search[:content_data_id]).
-          from(search).
-          join(watch_list_data_hash).
-          on(search[:content_data_id].eq(watch_list_data_hash[:hashable_id]).and(search[:content_data_type].eq(watch_list_data_hash[:hashable_type])))
+        Arel::SelectManager.new
+          .project(search[:content_data_id])
+          .from(search)
+          .join(watch_list_data_hash)
+          .on(search[:content_data_id].eq(watch_list_data_hash[:hashable_id]).and(search[:content_data_type].eq(watch_list_data_hash[:hashable_type])))
       end
 
       def watch_list_data_hash

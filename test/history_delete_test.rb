@@ -21,30 +21,30 @@ module DataCycleCore
         "headline" => "Dies ist ein Test Quiz!",
         "alternative_headline" => "ein lustiges Quiz für jeden Tag!",
         "question" => [
-        {
-          "headline" => "beliebtestes Handy-OS?",
-          "suggested_answer" => [
-            { "text" => "Android" },
-            { "text" => "iOS" },
-            { "text" => "Sailfish"},
-            { "text" => "Ubuntu Phone"}
-          ],
-          "accepted_answer" => [
-            { "text" => "Android"}
-          ]
-        },
-        {
-          "headline" => "bestes Desktop OS?",
-          "suggested_answer" => [
-            { "text" => "Linux"},
-            { "text" => "BSD"},
-            { "text" => "Windows"},
-            { "text" => "sonstige"}
-          ],
-          "accepted_answer" => [
-            { "text" => "Linux"}
-          ]
-        }
+          {
+            "headline" => "beliebtestes Handy-OS?",
+            "suggested_answer" => [
+              { "text" => "Android" },
+              { "text" => "iOS" },
+              { "text" => "Sailfish" },
+              { "text" => "Ubuntu Phone" }
+            ],
+            "accepted_answer" => [
+              { "text" => "Android" }
+            ]
+          },
+          {
+            "headline" => "bestes Desktop OS?",
+            "suggested_answer" => [
+              { "text" => "Linux" },
+              { "text" => "BSD" },
+              { "text" => "Windows" },
+              { "text" => "sonstige" }
+            ],
+            "accepted_answer" => [
+              { "text" => "Linux" }
+            ]
+          }
         ]
       }
       expected_hash_quiz = {
@@ -58,7 +58,7 @@ module DataCycleCore
         "output_channels" => [],
         "alternative_headline" => "ein lustiges Quiz für jeden Tag!",
         'permitted_creator' => []
-       }
+      }
 
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
@@ -79,7 +79,7 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
 
-      error = data_set.set_data_hash(data_hash: data_hash.merge({"headline" => "changed Quiz!"}))
+      error = data_set.set_data_hash(data_hash: data_hash.merge({ "headline" => "changed Quiz!" }))
       data_set.save
 
       assert_equal(13, DataCycleCore::CreativeWork.count - cw_temp)
@@ -122,11 +122,11 @@ module DataCycleCore
         "headline" => "Dies ist ein Test Quiz!",
         "alternative_headline" => "ein lustiges Quiz für jeden Tag!",
         "question" => [
-        {
-          "headline" => "beliebtestes Handy-OS?",
-          "suggested_answer" => [],
-          "accepted_answer" => []
-        }
+          {
+            "headline" => "beliebtestes Handy-OS?",
+            "suggested_answer" => [],
+            "accepted_answer" => []
+          }
         ]
       }
       expected_hash_quiz = {
@@ -140,7 +140,7 @@ module DataCycleCore
         "output_channels" => [],
         "alternative_headline" => "ein lustiges Quiz für jeden Tag!",
         "permitted_creator" => []
-       }
+      }
 
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
@@ -157,7 +157,7 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
 
-      error = data_set.set_data_hash(data_hash: data_hash.merge({"headline" => "changed Quiz!"}))
+      error = data_set.set_data_hash(data_hash: data_hash.merge({ "headline" => "changed Quiz!" }))
       data_set.save
 
       assert_equal(2, DataCycleCore::CreativeWork.count - cw_temp)

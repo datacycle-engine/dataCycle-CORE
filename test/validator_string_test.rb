@@ -5,7 +5,7 @@ module DataCycleCore
     module Validators
       class StringTest < ActiveSupport::TestCase
         test "init string validator" do
-          error_hash = { error: [], warning: []}
+          error_hash = { error: [], warning: [] }
           template_hash = {
             "label" => "Test",
             "type" => "string",

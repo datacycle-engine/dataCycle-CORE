@@ -5,7 +5,7 @@ module DataCycleCore
         attr_reader :error
 
         def initialize(data, template)
-          @error = { error: [], warning: []}
+          @error = { error: [], warning: [] }
           validate(data, template)
         end
 

@@ -23,8 +23,8 @@ module DataCycleCore
       person_id = data_set.id
 
       data_type_zitat_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-          .where("classification_tree_labels.name = ?", "Inhaltstypen")
-          .where("classification_aliases.name = ?", "Zitat").first.id
+        .where("classification_tree_labels.name = ?", "Inhaltstypen")
+        .where("classification_aliases.name = ?", "Zitat").first.id
 
       # create an Article
       template = DataCycleCore::CreativeWork.where(template: true, headline: "Artikel", description: "CreativeWork").first
@@ -108,8 +108,8 @@ module DataCycleCore
       person_id = data_set.id
 
       data_type_zitat_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-          .where("classification_tree_labels.name = ?", "Inhaltstypen")
-          .where("classification_aliases.name = ?", "Zitat").first.id
+        .where("classification_tree_labels.name = ?", "Inhaltstypen")
+        .where("classification_aliases.name = ?", "Zitat").first.id
 
       # create an Article
       template = DataCycleCore::CreativeWork.where(template: true, headline: "Artikel", description: "CreativeWork").first
@@ -229,7 +229,7 @@ module DataCycleCore
             "id" => person_id
           }]
         }]
-    }
+      }
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
@@ -312,8 +312,8 @@ module DataCycleCore
       person_id = data_set.id
 
       data_type_zitat_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-          .where("classification_tree_labels.name = ?", "Inhaltstypen")
-          .where("classification_aliases.name = ?", "Zitat").first.id
+        .where("classification_tree_labels.name = ?", "Inhaltstypen")
+        .where("classification_aliases.name = ?", "Zitat").first.id
 
       # create an Article
       template = DataCycleCore::CreativeWork.where(template: true, headline: "Artikel", description: "CreativeWork").first
@@ -379,11 +379,11 @@ module DataCycleCore
 
       data_hash["quotation"][0]["id"] = quotation_id
       data_hash["quotation"].push({
-        "text" => "Men occasionally stumble over the truth, but most of them pick themselves up and hurry off as if nothing ever happened.",
-        "author" => [{
-          "id" => person_id
-        }]
-      })
+                                    "text" => "Men occasionally stumble over the truth, but most of them pick themselves up and hurry off as if nothing ever happened.",
+                                    "author" => [{
+                                      "id" => person_id
+                                    }]
+                                  })
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash

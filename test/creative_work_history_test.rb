@@ -70,7 +70,7 @@ module DataCycleCore
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation_hash }
       data_set.save
-      data_hash = { "headline" => "Dies ist ein Test!", "includedData" => { "item1" => "Test item 1", "item2" => "Test item 2"} }
+      data_hash = { "headline" => "Dies ist ein Test!", "includedData" => { "item1" => "Test item 1", "item2" => "Test item 2" } }
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       save_time = Time.zone.now
@@ -101,7 +101,7 @@ module DataCycleCore
       data_set.updated_at = save_time
       data_set.save
 
-      data_hash = { "headline" => "Dies ist ein Test!"}
+      data_hash = { "headline" => "Dies ist ein Test!" }
       error = data_set.set_data_hash(data_hash: data_hash, save_time: save_time + 5.second)
       data_set.save
 
@@ -144,10 +144,10 @@ module DataCycleCore
       data_set_place.created_at = save_time
       data_set_place.updated_at = save_time
       data_set_place.save
-      data_set_place.set_data_hash(data_hash: {"name" => "Das it ein testPlace!"}, save_time: save_time + 2.seconds)
+      data_set_place.set_data_hash(data_hash: { "name" => "Das it ein testPlace!" }, save_time: save_time + 2.seconds)
       data_set_place.save
 
-      data_hash = { "headline" => "Dies ist ein Test!", "testPlace" => [{"id" => data_set_place.id}]}
+      data_hash = { "headline" => "Dies ist ein Test!", "testPlace" => [{ "id" => data_set_place.id }] }
       error = data_set.set_data_hash(data_hash: data_hash, save_time: save_time + 4.seconds)
       data_set.save
 
@@ -172,7 +172,7 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::Place::History.count)
       assert_equal(1, DataCycleCore::Place::History::Translation.count)
 
-      expected_hash = {"headline" => nil, "testPlace" => []}
+      expected_hash = { "headline" => nil, "testPlace" => [] }
       assert_equal(expected_hash, returned_data_hash)
     end
 
@@ -200,10 +200,10 @@ module DataCycleCore
       data_set_cw.updated_at = save_time
       data_set_cw.save
 
-      data_set_cw.set_data_hash(data_hash: {"headline" => "eingebettete Kreativdaten"}, current_user: nil, save_time: save_time + 2.seconds)
+      data_set_cw.set_data_hash(data_hash: { "headline" => "eingebettete Kreativdaten" }, current_user: nil, save_time: save_time + 2.seconds)
       data_set_cw.save
 
-      data_hash = { "headline" => "Dies ist ein Test!", "testCW" => [{"id" => data_set_cw.id}]}
+      data_hash = { "headline" => "Dies ist ein Test!", "testCW" => [{ "id" => data_set_cw.id }] }
       error = data_set.set_data_hash(data_hash: data_hash, current_user: nil, save_time: save_time + 4.seconds)
       data_set.save
 
@@ -213,7 +213,7 @@ module DataCycleCore
       assert_equal(data_hash, returned_data_hash)
       assert_equal(0, error[:error].count)
 
-      new_data_hash = {"headline" => "Neuer aktueller Datensatz!", "testCW" => [{"id" => data_set_cw.id}]}
+      new_data_hash = { "headline" => "Neuer aktueller Datensatz!", "testCW" => [{ "id" => data_set_cw.id }] }
       data_set.set_data_hash(data_hash: new_data_hash, current_user: nil, save_time: save_time + 8.seconds)
       data_set.save
 
@@ -253,19 +253,19 @@ module DataCycleCore
       data_set.save
 
       weeks3ago = Time.zone.now - 3.weeks
-      data_hash_3w = {"headline" => "Test 3.weeks.ago!"}
+      data_hash_3w = { "headline" => "Test 3.weeks.ago!" }
       data_set.set_data_hash(data_hash: data_hash_3w, current_user: nil, save_time: weeks3ago)
       data_set.updated_at = weeks3ago
       data_set.save
 
       weeks2ago = Time.zone.now - 2.weeks
-      data_hash_2w = {"headline" => "Test 2.weeks.ago!"}
+      data_hash_2w = { "headline" => "Test 2.weeks.ago!" }
       data_set.set_data_hash(data_hash: data_hash_2w, current_user: nil, save_time: weeks2ago)
       data_set.updated_at = weeks2ago
       data_set.save
 
       weeks1ago = Time.zone.now - 1.week
-      data_hash_1w = {"headline" => "Test 1.weeks.ago!"}
+      data_hash_1w = { "headline" => "Test 1.weeks.ago!" }
       data_set.set_data_hash(data_hash: data_hash_1w, current_user: nil, save_time: weeks1ago)
       data_set.updated_at = weeks1ago
       data_set.save
@@ -314,17 +314,17 @@ module DataCycleCore
 
       template_place = DataCycleCore::Place.find_by(template: true, headline: "testPlace", description: "Place")
       data_place = DataCycleCore::Place.new
-      data_place.metadata = { 'validation' => template_place.metadata['validation']}
+      data_place.metadata = { 'validation' => template_place.metadata['validation'] }
       data_place.save
-      data_place.set_data_hash(data_hash: { "name" => "Test place 1"})
+      data_place.set_data_hash(data_hash: { "name" => "Test place 1" })
       data_place.save
       data_place_id1 = data_place.id
 
       template_place = DataCycleCore::Place.find_by(template: true, headline: "testPlace", description: "Place")
       data_place = DataCycleCore::Place.new
-      data_place.metadata = { 'validation' => template_place.metadata['validation']}
+      data_place.metadata = { 'validation' => template_place.metadata['validation'] }
       data_place.save
-      data_place.set_data_hash(data_hash: { "name" => "Test place 2"})
+      data_place.set_data_hash(data_hash: { "name" => "Test place 2" })
       data_place.save
       data_place_id2 = data_place.id
 
@@ -339,7 +339,7 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Place::History::Translation.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
-      error = data_set.set_data_hash(data_hash: { "headline" => "Test Link", "linked" => data_place_id1})
+      error = data_set.set_data_hash(data_hash: { "headline" => "Test Link", "linked" => data_place_id1 })
       data_set.save
 
       assert_equal(0, error[:error].size)
@@ -354,7 +354,7 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Place::History::Translation.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
-      error = data_set.set_data_hash(data_hash: { "headline" => "Test Link2", "linked" => data_place_id2})
+      error = data_set.set_data_hash(data_hash: { "headline" => "Test Link2", "linked" => data_place_id2 })
       data_set.save
 
       assert_equal(0, error[:error].size)
@@ -369,7 +369,7 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Place::History::Translation.count)
       assert_equal(1, DataCycleCore::ContentContent::History.count)
 
-      error = data_set.set_data_hash(data_hash: { "headline" => "Test Link1", "linked" => data_place_id1})
+      error = data_set.set_data_hash(data_hash: { "headline" => "Test Link1", "linked" => data_place_id1 })
       data_set.save
 
       assert_equal(0, error[:error].size)

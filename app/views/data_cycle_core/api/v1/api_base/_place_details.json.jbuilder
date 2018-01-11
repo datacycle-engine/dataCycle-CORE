@@ -7,8 +7,8 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 json.content_partial! 'header', content: content, options: options
 
 options[:hidden_attributes] += [
-    'latitude', 'longitude', 'elevation', 'location',
-    'address_locality', 'street_address', 'postal_code', 'address_country'
+  'latitude', 'longitude', 'elevation', 'location',
+  'address_locality', 'street_address', 'postal_code', 'address_country'
 ]
 
 json.partial! 'untranslated_properties', content: content, locale: content.translations.first.locale, options: options

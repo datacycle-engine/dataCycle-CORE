@@ -103,7 +103,7 @@ module DataCycleCore
     private
 
     def transform_history_item(item)
-      item_transformed = item[1].reverse.inject([item[0], item[2], item[3]]) { |hash, key| {key => hash} }
+      item_transformed = item[1].reverse.inject([item[0], item[2], item[3]]) { |hash, key| { key => hash } }
     end
 
     # refactor
