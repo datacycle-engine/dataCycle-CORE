@@ -1,3 +1,5 @@
+var ConfirmationHelper = require('./../helpers/confirmation_helper');
+
 // Add Validation to Form Elements
 module.exports.initialize = function () {
 
@@ -50,7 +52,14 @@ module.exports.initialize = function () {
     var form = document.querySelector('.edit-content-form');
     $('button.submit-edit-form').on('click', function (ev) {
       ev.preventDefault();
-      $(form).trigger('submit');
+
+      if ($(form).find('input#finalize:checked').length > 0) {
+        ConfirmationHelper.showConfirmation($(this).parent(), ev, 'Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.', true, 'right bottom', function () {
+          $(form).trigger('submit');
+        }.bind(this));
+      } else {
+        $(form).trigger('submit');
+      }
     });
     var promises = [];
 

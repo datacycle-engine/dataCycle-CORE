@@ -4,6 +4,25 @@
 /* Fixes for Firefox */
 
 .detail-header.editor {
+  .finalize-button-container {
+    input {
+      border: 0;
+      background: inherit;
+      box-shadow: none;
+      min-width: auto;
+      display: inline-block;
+      vertical-align: middle;
+      transform: scale(1.1);
+    }
+    label {
+      padding: 0;
+      display: inline-block;
+      vertical-align: middle;
+      top: auto;
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+  }
   .form-element {
     &.headline,
     &.headline_external {
@@ -147,16 +166,30 @@
   position: absolute;
   top: -5rem;
   left: 1rem;
-  border: 2px solid map-get($foundation-palette, alert);
-  background-color: white; //map-get($foundation-palette, alert);
-  padding: 0.5rem 1rem;
+  box-shadow: 0 0 0 3px map-get($foundation-palette, alert), 0 0 8px rgba(0, 0, 0, 0.4);
+  background-color: lighten(map-get($foundation-palette, alert), 46%);
+  padding: 1rem;
   color: $black;
-  border-radius: 5px;
   white-space: nowrap;
   z-index: 100;
-  -webkit-transition: all 0.4s ease;
   line-height: 1.5;
   text-align: left;
+  &.right {
+    left: auto !important;
+    right: 0;
+    &:after {
+      left: auto;
+      right: 30px;
+    }
+  }
+  &.bottom {
+    top: 50px !important;
+    &:after {
+      transform: scaleX(3);
+      bottom: auto;
+      top: -18px;
+    }
+  }
   &.watchlist-dialog {
     display: none;
     left: auto;
@@ -177,20 +210,26 @@
     margin-bottom: 1rem;
   }
   .buttons {
-    text-align: right;
+    text-align: center;
+    .button {
+      margin: 0 0.2rem;
+    }
   }
-  &:before {
-    content: "";
+  &:after {
+    content: '▲';
+    font-size: 28px;
+    bottom: -18px;
+    color: lighten(map-get($foundation-palette, alert), 46%);
+    transform: scaleX(3) rotate(180deg);
+    text-shadow: 0 -3px 0 map-get($foundation-palette, alert), 0 -1px 1px rgba(0, 0, 0, 0.4);
     position: absolute;
-    width: 0;
-    height: 0;
-    border-top: 20px solid map-get($foundation-palette, alert);
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    -webkit-transition: all 0.4s ease;
-    -moz-transition: all 0.4s ease;
     left: 30px;
-    bottom: -20px;
+    width: 2rem;
+    height: 1.1rem;
+    line-height: 1rem;
+    display: block;
+    text-align: center;
+    overflow: hidden;
   }
 }
 
@@ -494,6 +533,10 @@ button {
 }
 
 .grid-item {
+  .content-link {
+    position: relative;
+    display: block;
+  }
   .image {
     img {
       width: 100%;
@@ -632,7 +675,6 @@ video {
 }
 
 #show-history {
-  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);
   min-width: 300px;
   width: auto;
   li {

@@ -3,6 +3,10 @@ module DataCycleCore
     before_action :authenticate_user! # from devise (authenticate)
     load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
 
+    before_action :authenticate_user!                                # from devise (authenticate)
+    load_and_authorize_resource except: [:validate_single_data, :compare]      # from cancancan (authorize)
+    after_action :check_final, only: :update
+
     def index
     end
 
@@ -148,7 +152,11 @@ module DataCycleCore
 
         unless data_hash_has_changes
           flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @creativeWork.metadata['validation']['name'], locale: DataCycleCore.ui_language
-          redirect_back(fallback_location: root_path)
+          if (Rails.env.development? || params[:splitview]) && !params[:finalize]
+            redirect_back(fallback_location: root_path)
+          else
+            redirect_to creative_work_path(@creativeWork, watch_list_id: @watch_list)
+          end
           return
         end
 
@@ -168,10 +176,7 @@ module DataCycleCore
 
           # after update webhooks
           execute_after_update_webhooks @creativeWork
-
-          if Rails.env.development?
-            redirect_back(fallback_location: root_path)
-          elsif params[:splitview]
+          if (Rails.env.development? || params[:splitview]) && !params[:finalize]
             redirect_back(fallback_location: root_path)
           else
             redirect_to creative_work_path(@creativeWork, watch_list_id: @watch_list)
@@ -233,6 +238,16 @@ module DataCycleCore
 
     def execute_after_update_webhooks data
       Webhook::Update.execute_all(data)
+    end
+
+    def check_final
+      if params[:finalize] && @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').size > 0
+        @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').first.update_attribute(:permissions, 'read')
+
+        unless DataCycleCore.release_codes.blank?
+          @creativeWork.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id))
+        end
+      end
     end
 
     # def execute_after_delete_webhooks data
