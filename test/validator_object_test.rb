@@ -25,8 +25,8 @@ module DataCycleCore
               "greeting" => "Hello World!",
               "anzahl" => 5
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
-          assert_equal( error_hash, validator.error)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
+          assert_equal(error_hash, validator.error)
         end
 
         test "error wrong type in object validator" do
@@ -41,7 +41,7 @@ module DataCycleCore
           data_hash = {
               "greeting" => "Hello World!"
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -66,7 +66,7 @@ module DataCycleCore
               "anzahl" => 5,
               "xxx" => "xxx"
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -89,7 +89,7 @@ module DataCycleCore
           data_hash = {
               "greeting" => "Hello World!"
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(1, validator.error[:warning].size)
         end
@@ -112,7 +112,7 @@ module DataCycleCore
               "greeting" => "Hello World!",
               "anzahl" => 5
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -153,7 +153,7 @@ module DataCycleCore
                 "test2" => 2
               }
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(3, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
           data_hash = {
@@ -162,7 +162,7 @@ module DataCycleCore
                 "test1" => 1
               }
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(2, validator.error[:error].size)
           assert_equal(1, validator.error[:warning].size)
         end
@@ -208,7 +208,7 @@ module DataCycleCore
               "valid_until" => "2017-01-01"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
 
@@ -218,7 +218,7 @@ module DataCycleCore
               "valid_until" => "2016-01-01"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
 
@@ -228,7 +228,7 @@ module DataCycleCore
               "valid_until" => "b"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(3, validator.error[:error].size)
           assert_equal(2, validator.error[:warning].size)
 
@@ -238,7 +238,7 @@ module DataCycleCore
               "valid_until" => "2017-01-01"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(2, validator.error[:error].size)
           assert_equal(1, validator.error[:warning].size)
 
@@ -248,7 +248,7 @@ module DataCycleCore
               "valid_until" => "2017-01-01"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(1, validator.error[:warning].size)
 
@@ -258,7 +258,7 @@ module DataCycleCore
               "valid_until" => ""
             }
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(2, validator.error[:warning].size)
         end
@@ -304,7 +304,7 @@ module DataCycleCore
               "valid_until" => "2017-01-01"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(1, validator.error[:warning].size)
 
@@ -341,7 +341,7 @@ module DataCycleCore
               }
             }
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(1, validator.error[:warning].size)
 
@@ -377,7 +377,7 @@ module DataCycleCore
               }
             }
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
 
@@ -413,7 +413,7 @@ module DataCycleCore
               }
             }
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
 
@@ -447,7 +447,7 @@ module DataCycleCore
               }
             }
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -498,13 +498,13 @@ module DataCycleCore
               "valid_until" => "2017-01-01"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(2, validator.error[:warning].size)
         end
 
         test "object validator daterange test data edge-cases" do
-          template_hash= {
+          template_hash = {
             "validity_period" => {
               "label" => "Gültigkeitszeitraum",
               "type" => "object",
@@ -543,19 +543,19 @@ module DataCycleCore
               "valid_until" => "2017-01-01"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
 
-          validator = DataCycleCore::MasterData::Validators::Object.new({},template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new({}, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
 
-          validator = DataCycleCore::MasterData::Validators::Object.new(nil,template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new(nil, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
 
-          validator = DataCycleCore::MasterData::Validators::Object.new({"test" => "wrong"},template_hash)
+          validator = DataCycleCore::MasterData::Validators::Object.new({"test" => "wrong"}, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(1, validator.error[:warning].size)
         end

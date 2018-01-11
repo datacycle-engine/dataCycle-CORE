@@ -11,7 +11,7 @@ module DataCycleCore::Generic::OutdoorActive::ImportPois
   protected
 
   def load_contents(mongo_item, locale)
-    mongo_item.where("dump.#{locale}.frontendtype": 'poi') #frontendtype: ["poi", "hut", "lodging", "skiresort", "offerer"]
+    mongo_item.where("dump.#{locale}.frontendtype": 'poi') # frontendtype: ["poi", "hut", "lodging", "skiresort", "offerer"]
   end
 
   def process_content(raw_data, template, locale)

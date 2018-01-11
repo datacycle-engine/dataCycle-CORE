@@ -33,6 +33,23 @@ CREATE TABLE ar_internal_metadata (
 
 
 --
+-- Name: assets; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE assets (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    file character varying,
+    type character varying,
+    content_type character varying,
+    file_size integer,
+    creator_id uuid,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    seen_at timestamp without time zone
+);
+
+
+--
 -- Name: classification_aliases; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1044,6 +1061,14 @@ ALTER TABLE ONLY place_translations ALTER COLUMN id SET DEFAULT nextval('place_t
 
 ALTER TABLE ONLY ar_internal_metadata
     ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
+
+
+--
+-- Name: assets assets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY assets
+    ADD CONSTRAINT assets_pkey PRIMARY KEY (id);
 
 
 --
@@ -2141,6 +2166,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20171128091456'),
 ('20171204092716'),
 ('20171206163333'),
-('20180103144809');
+('20180103144809'),
+('20180105085118');
 
 

@@ -47,7 +47,7 @@ module DataCycleCore
             path: c.ancestors.reverse.map(&:name).join(' > '),
             disabled: !c.primary_classification_alias.try(:assignable)
           }
-        }.uniq.first(params[:max].try(:to_i) || 10).sort_by{|c| c[:path] }
+        }.uniq.first(params[:max].try(:to_i) || 10).sort_by { |c| c[:path] }
     end
 
     def create

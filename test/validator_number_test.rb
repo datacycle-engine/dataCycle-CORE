@@ -12,7 +12,7 @@ module DataCycleCore
             "storage_type" => "number",
             "storage_location" => "content"
           }
-          validator = Number.new(10,template_hash)
+          validator = Number.new(10, template_hash)
           assert_equal(error_hash, validator.error)
         end
 
@@ -23,7 +23,7 @@ module DataCycleCore
             "storage_type" => "number",
             "storage_location" => "content"
           }
-          validator = Number.new("10",template_hash)
+          validator = Number.new("10", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -35,7 +35,7 @@ module DataCycleCore
             "storage_type" => "number",
             "storage_location" => "content"
           }
-          validator = Number.new(nil,template_hash)
+          validator = Number.new(nil, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(1, validator.error[:warning].size)
         end
@@ -52,7 +52,7 @@ module DataCycleCore
               "format" => "float"
             }
           }
-          validator = Number.new(50.55,template_hash)
+          validator = Number.new(50.55, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -67,7 +67,7 @@ module DataCycleCore
               "min" => 3
             }
           }
-          validator = Number.new(1,template_hash)
+          validator = Number.new(1, template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -82,7 +82,7 @@ module DataCycleCore
               "max" => 3
             }
           }
-          validator = Number.new(5,template_hash)
+          validator = Number.new(5, template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -97,7 +97,7 @@ module DataCycleCore
               "format" => "xxx"
             }
           }
-          validator = Number.new(5.333 ,template_hash)
+          validator = Number.new(5.333, template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -112,7 +112,7 @@ module DataCycleCore
               "format" => "integer"
             }
           }
-          validator = Number.new(5.333 ,template_hash)
+          validator = Number.new(5.333, template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -127,7 +127,7 @@ module DataCycleCore
               "format" => "float"
             }
           }
-          validator = Number.new("5.333E-4" ,template_hash)
+          validator = Number.new("5.333E-4", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end

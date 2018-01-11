@@ -28,18 +28,18 @@ Gem::Specification.new do |s|
   s.add_dependency 'acts_as_tree'
   s.add_dependency 'pg'
   s.add_dependency 'rgeo'
-  #mongoDB driver
+  # mongoDB driver
   s.add_dependency 'mongoid'
-  #s.add_dependency 'arel-helpers'
+  # s.add_dependency 'arel-helpers'
   # REST Client
   s.add_dependency 'faraday'
   # JSON Parser
   s.add_dependency 'multi_json'
   # SOAP Client
-  #s.add_dependency 'savon', '~> 2.0'
+  # s.add_dependency 'savon', '~> 2.0'
   # XML Parser
   s.add_dependency 'nokogiri', '~> 1.8.1'
-  #s.add_dependency 'activemodel-serializers-xml'
+  # s.add_dependency 'activemodel-serializers-xml'
   # authentication
   s.add_dependency 'devise'
   # authorization
@@ -90,7 +90,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'web-console'
   # admin db-interface
 
-  #test dependencies
+  # test dependencies
   s.add_dependency 'rspec'
   s.add_dependency 'rspec-rails'
 end

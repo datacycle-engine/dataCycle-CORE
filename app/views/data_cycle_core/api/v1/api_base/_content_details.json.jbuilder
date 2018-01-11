@@ -8,7 +8,7 @@ json.content_partial! 'header', content: content, options: options
 
 json.partial! 'untranslated_properties', content: content, locale: content.translations.first.locale, options: options
 
-if content.translations.size == 1 
+if content.translations.size == 1
   json.set! 'inLanguage', content.translations.first.locale
   json.partial! 'translated_properties', content: content, locale: content.translations.first.locale, options: options
 else

@@ -57,9 +57,9 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/import_classifications', to: 'dash_board#import_classifications'
   get  '/admin/import_persons', to: 'dash_board#import_persons'
   get  '/admin/classifications', to: 'dash_board#classifications'
-  #mount RailsDb::Engine => '/db', :as => 'db'
+  # mount RailsDb::Engine => '/db', :as => 'db'
 
-  #backend validation endpoints
+  # backend validation endpoints
   match '/validatecreativework(/:id)', to: 'creative_works#validate_single_data', via: [:patch, :post]
   match '/validateperson(/:id)', to: 'persons#validate_single_data', via: [:patch, :post]
   match '/validateplace(/:id)', to: 'places#validate_single_data', via: [:patch, :post]

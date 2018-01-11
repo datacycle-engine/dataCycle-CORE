@@ -21,7 +21,7 @@ module DataCycleCore
             password:"password"
           )
           uuid = DataCycleCore::User.first.id
-          validator = DataCycleCore::MasterData::Validators::EmbeddedLink.new(uuid,template_hash)
+          validator = DataCycleCore::MasterData::Validators::EmbeddedLink.new(uuid, template_hash)
           assert_equal(error_hash, validator.error)
         end
 
@@ -49,13 +49,13 @@ module DataCycleCore
           )
           uuid = DataCycleCore::User.first.id
           uuid2 = DataCycleCore::User.second.id
-          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new(uuid,template_hash)
+          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new(uuid, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new([uuid],template_hash)
+          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new([uuid], template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new([uuid,uuid2],template_hash)
+          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new([uuid, uuid2], template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -88,13 +88,13 @@ module DataCycleCore
           )
           uuid = DataCycleCore::User.first.id
           uuid2 = DataCycleCore::User.second.id
-          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new(uuid,template_hash)
+          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new(uuid, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new([uuid],template_hash)
+          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new([uuid], template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new([uuid,uuid2],template_hash)
+          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new([uuid, uuid2], template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -143,16 +143,16 @@ module DataCycleCore
           uuid2 = DataCycleCore::User.second.id
           uuid3 = DataCycleCore::User.third.id
           uuid4 = DataCycleCore::User.last.id
-          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new(uuid,template_hash)
+          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new(uuid, template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new([uuid],template_hash)
+          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new([uuid], template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new([uuid,uuid2],template_hash)
+          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new([uuid, uuid2], template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new([uuid,uuid2,uuid3,uuid4],template_hash)
+          validator = DataCycleCore::MasterData::Validators::EmbeddedLinkArray.new([uuid, uuid2, uuid3, uuid4], template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end

@@ -3,20 +3,20 @@ module DataCycleCore
     @@default_per = 50
 
     def show
-      object_type = DataCycleCore.content_tables.find{ |object| object == params[:type] }
+      object_type = DataCycleCore.content_tables.find { |object| object == params[:type] }
 
       unless object_type.nil?
-        @content = ('DataCycleCore::'+object_type.singularize.classify).constantize
+        @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
           .includes({classifications: [], translations: []})
           .find(params[:id])
       end
     end
 
     def update
-      object_type = DataCycleCore.content_tables.find{ |object| object == params[:type] }
+      object_type = DataCycleCore.content_tables.find { |object| object == params[:type] }
       content = params[:content]
 
-      @content = ('DataCycleCore::'+object_type.singularize.classify).constantize
+      @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
         .includes({classifications: [], translations: []})
         .find(params[:id])
 
@@ -24,9 +24,9 @@ module DataCycleCore
     end
 
     def destroy
-      object_type = DataCycleCore.content_tables.find{ |object| object == params[:type] }
+      object_type = DataCycleCore.content_tables.find { |object| object == params[:type] }
 
-      @content = ('DataCycleCore::'+object_type.singularize.classify).constantize
+      @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
         .includes({classifications: [], translations: []})
         .find(params[:id])
 

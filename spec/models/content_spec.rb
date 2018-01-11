@@ -169,8 +169,8 @@ RSpec.describe DataCycleCore::Content, type: :model do
 
     it "raises NameError when not specified methods are called" do
       ['abcd', 'jklm'].each do |item|
-        expect{ subject.method(item).call() }.to raise_error(NameError)
-        expect{ subject.method("#{item}=").call("test") }.to raise_error(NameError)
+        expect { subject.method(item).call() }.to raise_error(NameError)
+        expect { subject.method("#{item}=").call("test") }.to raise_error(NameError)
       end
     end
 
@@ -491,9 +491,9 @@ RSpec.describe DataCycleCore::Content, type: :model do
 
     it "returns all data :to_h " do
       expect(subject.to_h).to eq({
-                                   "id"=>nil,
-                                   "description"=>"dies ist ein Test",
-                                   "included_object"=>{
+                                   "id" => nil,
+                                   "description" => "dies ist ein Test",
+                                   "included_object" => {
                                      "property1" => "data property1",
                                      "property2" => "data property2",
                                      "deep_included_object" => {

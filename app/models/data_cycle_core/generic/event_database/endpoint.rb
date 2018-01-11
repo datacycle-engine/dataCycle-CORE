@@ -9,7 +9,7 @@ class DataCycleCore::Generic::EventDatabase::Endpoint
   def categories(lang: :de)
     Enumerator.new do |yielder|
       load_data(action: '/categories/tree')['categories'].each do |category|
-        children = category['children'].collect {|c| c.merge({'parentId' => category['id']}) }
+        children = category['children'].collect { |c| c.merge({'parentId' => category['id']}) }
         primary_category = category.without('children').merge({'parentId' => nil})
 
         (children << primary_category).each do |category_item|

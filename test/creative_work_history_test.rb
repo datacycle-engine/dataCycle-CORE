@@ -172,7 +172,7 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::Place::History.count)
       assert_equal(1, DataCycleCore::Place::History::Translation.count)
 
-      expected_hash = {"headline"=>nil, "testPlace"=>[]}
+      expected_hash = {"headline" => nil, "testPlace" => []}
       assert_equal(expected_hash, returned_data_hash)
     end
 
@@ -242,29 +242,29 @@ module DataCycleCore
       data_set = DataCycleCore::CreativeWork.new
       data_set.metadata = { 'validation' => validation_hash }
       data_set.headline = 'initial'
-      data_set.updated_at = Time.zone.now-5.weeks
+      data_set.updated_at = Time.zone.now - 5.weeks
       data_set.created_at = data_set.updated_at
       data_set.save
 
-      weeks4ago = Time.zone.now-4.weeks
+      weeks4ago = Time.zone.now - 4.weeks
       data_hash_4w = { "headline" => "Test 4.weeks.ago!" }
       error = data_set.set_data_hash(data_hash: data_hash_4w, current_user: nil, save_time: weeks4ago)
       data_set.updated_at = weeks4ago
       data_set.save
 
-      weeks3ago = Time.zone.now-3.weeks
+      weeks3ago = Time.zone.now - 3.weeks
       data_hash_3w = {"headline" => "Test 3.weeks.ago!"}
       data_set.set_data_hash(data_hash: data_hash_3w, current_user: nil, save_time: weeks3ago)
       data_set.updated_at = weeks3ago
       data_set.save
 
-      weeks2ago = Time.zone.now-2.weeks
+      weeks2ago = Time.zone.now - 2.weeks
       data_hash_2w = {"headline" => "Test 2.weeks.ago!"}
       data_set.set_data_hash(data_hash: data_hash_2w, current_user: nil, save_time: weeks2ago)
       data_set.updated_at = weeks2ago
       data_set.save
 
-      weeks1ago = Time.zone.now-1.week
+      weeks1ago = Time.zone.now - 1.week
       data_hash_1w = {"headline" => "Test 1.weeks.ago!"}
       data_set.set_data_hash(data_hash: data_hash_1w, current_user: nil, save_time: weeks1ago)
       data_set.updated_at = weeks1ago
@@ -291,13 +291,13 @@ module DataCycleCore
 
       assert_equal(data_hash_1w, data_set.get_data_hash)
       assert_equal(data_hash_1w, data_set.get_data_hash(Time.zone.now))
-      assert_equal(data_hash_2w, data_set.get_data_hash(weeks1ago-1.day))
-      assert_equal(data_hash_3w, data_set.get_data_hash(weeks2ago-1.day))
-      assert_equal(data_hash_4w, data_set.get_data_hash(weeks3ago-1.day))
-      assert_equal(data_hash_4w, data_set.get_data_hash(weeks4ago+1.day))
-      assert_nil(data_set.as_of(weeks4ago-2.week))
-      assert_nil(data_set.as_of(Time.zone.now-3.months))
-      assert_equal(data_hash_1w, data_set.get_data_hash(Time.zone.now+1.month))
+      assert_equal(data_hash_2w, data_set.get_data_hash(weeks1ago - 1.day))
+      assert_equal(data_hash_3w, data_set.get_data_hash(weeks2ago - 1.day))
+      assert_equal(data_hash_4w, data_set.get_data_hash(weeks3ago - 1.day))
+      assert_equal(data_hash_4w, data_set.get_data_hash(weeks4ago + 1.day))
+      assert_nil(data_set.as_of(weeks4ago - 2.week))
+      assert_nil(data_set.as_of(Time.zone.now - 3.months))
+      assert_equal(data_hash_1w, data_set.get_data_hash(Time.zone.now + 1.month))
     end
 
     test "save creative work with embeddedLink to history" do
@@ -384,7 +384,7 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Place::History::Translation.count)
       assert_equal(2, DataCycleCore::ContentContent::History.count)
 
-      assert_equal([data_place_id2, data_place_id1], data_set.histories.map{|item| item.linked.ids}.flatten)
+      assert_equal([data_place_id2, data_place_id1], data_set.histories.map { |item| item.linked.ids }.flatten)
     end
   end
 end

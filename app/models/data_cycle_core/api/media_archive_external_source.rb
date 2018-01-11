@@ -5,7 +5,7 @@ module DataCycleCore
         self.extend(DataCycleCore::Generic::MediaArchive::Import)
         load_transformations
         processed_items = []
-        data.each do |key,object|
+        data.each do |key, object|
           template_name = get_object_template_name object
           processed_items << process_content(object, load_template(@target_type, template_name), key)
         end

@@ -7,13 +7,13 @@ module DataCycleCore
           if data.blank?
             @error[:warning].push I18n.t :no_data, scope: [:validation, :warning], data: template['label'], locale: DataCycleCore.ui_language
           elsif data.is_a?(::String)
-            check_reference(data,template)
+            check_reference(data, template)
           elsif data.is_a?(::Hash)
             if data.has_key?('id')
-              check_reference(data['id'],template)
+              check_reference(data['id'], template)
             else
               @error[:error].push I18n.t :data_type, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language
-            end   
+            end
           else
             @error[:error].push I18n.t :data_type, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language
           end
@@ -32,7 +32,7 @@ module DataCycleCore
         def uuid?(data)
           data.downcase!
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
-          check_uuid = data.length == 36 && !(data=~uuid).nil?
+          check_uuid = data.length == 36 && !(data =~ uuid).nil?
           unless check_uuid
             @error[:error].push I18n.t :uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
           end

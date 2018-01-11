@@ -44,16 +44,16 @@ module DataCycleCore
 
       end
 
-      properties = Hash[ordered_properties.sort.map{ |k,v| v}]
+      properties = Hash[ordered_properties.sort.map { |k, v| v }]
       return properties.merge(Hash[unordered_properties]).nil? ? [] : properties.merge(Hash[unordered_properties])
     end
 
-    def data_cycle_hidden_field(key, value = nil, parent_object_keys=[])
+    def data_cycle_hidden_field(key, value = nil, parent_object_keys = [])
       object_key = get_object_key(key, parent_object_keys)
       hidden_field_tag(object_key, value)
     end
 
-    def data_cycle_field(key, prop, value = nil, options = {}, parent_object_keys=[])
+    def data_cycle_field(key, prop, value = nil, options = {}, parent_object_keys = [])
       unless prop['editor'] || prop['type'] == 'object'
         # return "No properties for editor set"
         return
@@ -71,18 +71,18 @@ module DataCycleCore
         options.merge!(prop['editor']['options'])
       end
 
-      if respond_to?('render_'+ data_type +'_field')
-        if(prop['releasable'])
+      if respond_to?('render_' + data_type + '_field')
+        if prop['releasable']
           render partial: "#{@@partials_path}releasable", locals: {key: object_key, prop: prop, value: normalize_value(value), options: options, parent_object_keys: parent_object_keys}
         else
-          send('render_'+ data_type +'_field', object_key, prop, normalize_value(value), options, parent_object_keys)
+          send('render_' + data_type + '_field', object_key, prop, normalize_value(value), options, parent_object_keys)
         end
       else
         "Unknown data_type: #{prop['type']}"
       end
     end
 
-    def render_classificationTreeLabel_field(key, prop, value=nil, options={}, parent_object_keys=[])
+    def render_classificationTreeLabel_field(key, prop, value = nil, options = {}, parent_object_keys = [])
       if !prop['editor'].nil? && !prop['editor']['type'].nil?
         render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys}
       else
@@ -90,25 +90,25 @@ module DataCycleCore
       end
     end
 
-    def render_embeddedLinkArray_field(key, prop, value=nil, options={}, parent_object_keys=[])
+    def render_embeddedLinkArray_field(key, prop, value = nil, options = {}, parent_object_keys = [])
       if !prop.blank? && !prop['type_name'].blank?
         render partial: "#{@@partials_path}#{prop['type']}", locals: {key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys}
       end
     end
 
-    def render_geographic_field(key, prop, value=nil, options={}, parent_object_keys=[])
+    def render_geographic_field(key, prop, value = nil, options = {}, parent_object_keys = [])
       if !prop.blank? && !prop['type'].blank?
         render partial: "#{@@partials_path}#{prop['type']}", locals: {key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys}
       end
     end
 
-    def render_objectBrowser_field(key, prop, value=nil, options={}, parent_object_keys=[])
+    def render_objectBrowser_field(key, prop, value = nil, options = {}, parent_object_keys = [])
       if !prop.blank? && !prop['editor']['type'].nil?
         render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: {key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys}
       end
     end
 
-    def render_embeddedObject_field(key, prop, value=nil, options={}, parent_object_keys=[])
+    def render_embeddedObject_field(key, prop, value = nil, options = {}, parent_object_keys = [])
       if !prop.blank? && !prop['editor']['type'].nil?
         internal_template = DataCycleCore::DataHashService.get_internal_template(prop['storage_location'], prop['name'], prop['description'])
         internal_objects = DataCycleCore::DataHashService.get_internal_data(prop['storage_location'], value)
@@ -116,7 +116,7 @@ module DataCycleCore
       end
     end
 
-    def render_object_field(key, prop, value=nil, options={}, parent_object_keys=[])
+    def render_object_field(key, prop, value = nil, options = {}, parent_object_keys = [])
       if !prop['properties'].nil?
         output = []
 
@@ -141,7 +141,7 @@ module DataCycleCore
       end
     end
 
-    def render_string_field(key, prop, value=nil, options={}, parent_object_keys=[])
+    def render_string_field(key, prop, value = nil, options = {}, parent_object_keys = [])
       if !prop['editor'].nil? && !prop['editor']['type'].nil?
         case prop['editor']['type']
         when 'input'
@@ -158,7 +158,7 @@ module DataCycleCore
       end
     end
 
-    def render_number_field(key, prop, value=nil, options={}, parent_object_keys=[])
+    def render_number_field(key, prop, value = nil, options = {}, parent_object_keys = [])
       if !prop['editor'].nil? && !prop['editor']['type'].nil?
         case prop['editor']['type']
         when 'duration'
@@ -169,23 +169,23 @@ module DataCycleCore
       end
     end
 
-    def render_fe_editor(key, prop, value=nil, label=nil, options={}, parent_object_keys=[])
+    def render_fe_editor(key, prop, value = nil, label = nil, options = {}, parent_object_keys = [])
       render partial: "#{@@partials_path}feEditor", locals: {key: key, value: value, label: label, prop: prop, options: options, parent_object_keys: parent_object_keys}
     end
 
-    def render_input_text_field(key, prop, value=nil, label=nil, options={}, parent_object_keys=[])
+    def render_input_text_field(key, prop, value = nil, label = nil, options = {}, parent_object_keys = [])
       render partial: "#{@@partials_path}input", locals: {key: key, value: value, label: label, prop: prop, options: options, parent_object_keys: parent_object_keys}
     end
 
-    def render_date_input_text_field(key, prop, value=nil, label=nil, options={}, parent_object_keys=[])
+    def render_date_input_text_field(key, prop, value = nil, label = nil, options = {}, parent_object_keys = [])
       render partial: "#{@@partials_path}dateInput", locals: {key: key, value: value, label: label, prop: prop, options: options, parent_object_keys: parent_object_keys}
     end
 
-    def render_datetime_input_text_field(key, prop, value=nil, label=nil, options={}, parent_object_keys=[])
+    def render_datetime_input_text_field(key, prop, value = nil, label = nil, options = {}, parent_object_keys = [])
       render partial: "#{@@partials_path}dateTimeInput", locals: {key: key, value: value, label: label, prop: prop, options: options, parent_object_keys: parent_object_keys}
     end
 
-    def render_input_duration_field(key, prop, value=nil, label=nil, options={}, parent_object_keys=[])
+    def render_input_duration_field(key, prop, value = nil, label = nil, options = {}, parent_object_keys = [])
       render partial: "#{@@partials_path}duration", locals: {key: key, value: value, label: label, prop: prop, options: options, parent_object_keys: parent_object_keys}
     end
 
@@ -220,7 +220,7 @@ module DataCycleCore
     end
 
     # todo: move to mixins
-    def normalize_value(value=nil)
+    def normalize_value(value = nil)
       if value.kind_of?(Array)
         value = value.reject { |v| v.blank? }
       end
@@ -232,7 +232,7 @@ module DataCycleCore
     def get_object_key(key, parent_object_keys = [])
       parent_object_keys_string = ''
       if !parent_object_keys.empty?
-        parent_object_keys_string = parent_object_keys.map{ |parent| "[#{parent}]" }.join('')
+        parent_object_keys_string = parent_object_keys.map { |parent| "[#{parent}]" }.join('')
       end
       object_key = "#{@@key_prefix}#{parent_object_keys_string}[#{key}]"
     end

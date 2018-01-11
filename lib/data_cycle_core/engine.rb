@@ -105,7 +105,7 @@ module DataCycleCore
     mattr_accessor :translatable_types
     self.translatable_types = ['DataCycleCore::Person', 'DataCycleCore::Place']
 
-    #webhooks
+    # webhooks
     mattr_accessor :webhooks
     self.webhooks = {
         :create => [],
@@ -182,7 +182,7 @@ module DataCycleCore
 
     # include rake_tasks
     rake_tasks do
-      Dir[File.join(File.dirname(__FILE__),'tasks/*.rake')].each { |f| load f }
+      Dir[File.join(File.dirname(__FILE__), 'tasks/*.rake')].each { |f| load f }
     end
 
     config.to_prepare do

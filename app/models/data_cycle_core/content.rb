@@ -36,7 +36,7 @@ module DataCycleCore
     end
 
     def respond_to?(method_name, include_private = false)
-      (property_names.map{|item| [item.to_sym, (item.to_s+"=").to_sym]}.flatten + linked_property_names.map{|item| item+'_ids'}).include?(method_name.to_sym) || super
+      (property_names.map { |item| [item.to_sym, (item.to_s + "=").to_sym] }.flatten + linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
     end
 
     def property_names
@@ -113,7 +113,7 @@ module DataCycleCore
             embedded_hash.blank? ? nil : embedded_hash
           elsif embedded_property_names.include?(property_name)
             embedded_array = send(property_name)
-            embedded_array = embedded_array.map{|item| item.get_data_hash(timestamp)} unless embedded_array.blank?
+            embedded_array = embedded_array.map { |item| item.get_data_hash(timestamp) } unless embedded_array.blank?
             embedded_array.blank? ? [] : embedded_array.compact
           else
             raise StandardError.new("cannot determine how to serialize #{property_name}")
@@ -153,9 +153,9 @@ module DataCycleCore
               join_sources
           ).
           where(
-            Arel::Nodes::InfixOperation.new( "@>",
-                                             history_table_translation[:history_valid],
-                                             Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
+            Arel::Nodes::InfixOperation.new("@>",
+                                            history_table_translation[:history_valid],
+                                            Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
             )
           ).order(history_table[:updated_at])
       return return_data.last
@@ -257,16 +257,16 @@ module DataCycleCore
         end
       }.flatten
         .zip(selector ?
-               content_one_data+content_two_data :
-               content_two_data+content_one_data
+               content_one_data + content_two_data :
+               content_two_data + content_one_data
         ).to_h.compact
 
       relation_table = is_history? ? :content_content_histories : :content_contents
       join_table = selector ? :content_content_a_history : :content_content_b_history if is_history?
       join_table = selector ? :content_content_a : :content_content_b unless is_history?
       query = target_class.constantize.joins(join_table)
-      where_hash.each do |key,value|
-        query = query.where(ActiveRecord::Base.send(:sanitize_sql_for_conditions,["#{relation_table}.#{key} = ?", value]))
+      where_hash.each do |key, value|
+        query = query.where(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["#{relation_table}.#{key} = ?", value]))
       end
       query
     end
@@ -283,11 +283,11 @@ module DataCycleCore
     end
 
     def load_subproperty_hash(sub_properties, storage_location, sub_properties_data)
-      sub_properties.map{ |key, item|
+      sub_properties.map { |key, item|
         if item['type'] == 'object' && item['storage_location'] == storage_location
-          {key => OpenStructHash.new(load_subproperty_hash(item['properties'], storage_location, sub_properties_data.try(:[],key.to_s))).freeze}
+          {key => OpenStructHash.new(load_subproperty_hash(item['properties'], storage_location, sub_properties_data.try(:[], key.to_s))).freeze}
         elsif item['storage_location'] == storage_location
-          {key => sub_properties_data.try(:[],key.to_s)}
+          {key => sub_properties_data.try(:[], key.to_s)}
         elsif item['storage_location'] == 'column'
           {key => send(key)}
         else

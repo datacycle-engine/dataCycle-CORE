@@ -548,7 +548,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
 
     it 'checks included_object_hash for wrong storage_locations' do
       test_hash = included_object_hash
-      (['key', 'column', 'classification_relation']+ DataCycleCore.content_tables).each do |location|
+      (['key', 'column', 'classification_relation'] + DataCycleCore.content_tables).each do |location|
         test_hash[:storage_location] = location
         assert !subject.validate_property.(test_hash).success?
       end

@@ -1,7 +1,7 @@
 module DataCycleCore
   module Filter
     class Search < QueryBuilder
-      def_delegators :@query, :includes, :to_a, :to_sql, :each, :map, :page #, :per, :total_pages, :current_page, :limit_value, :next_page, :prev_page, :first_page?, :last_page?, :out_of_range?
+      def_delegators :@query, :includes, :to_a, :to_sql, :each, :map, :page # , :per, :total_pages, :current_page, :limit_value, :next_page, :prev_page, :first_page?, :last_page?, :out_of_range?
       TERMINAL_METHODS = [:count, :pluck,
                           :first, :second, :third, :fourth, :fifth, :forty_two, :last]
       def_delegators :@query, *TERMINAL_METHODS
@@ -14,8 +14,8 @@ module DataCycleCore
       def fulltext_search(name)
         reflect(
           @query.where(
-            search[:all_text].matches_all(name.split(' ').map{|item| "%#{item.strip}%"}).
-              or(tsmatch(search[:words],to_tsquery(quoted(name.squish))))
+            search[:all_text].matches_all(name.split(' ').map { |item| "%#{item.strip}%" }).
+              or(tsmatch(search[:words], to_tsquery(quoted(name.squish))))
           )
         )
       end

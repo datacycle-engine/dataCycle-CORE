@@ -28,7 +28,7 @@ module DataCycleCore
 
         private
 
-        #number validations
+        # number validations
         def min(data, value)
           if data < value
             @error[:error].push I18n.t :min_number, scope: [:validation, :errors], data: data, value: value, locale: DataCycleCore.ui_language
@@ -49,7 +49,7 @@ module DataCycleCore
           end
         end
 
-        #check number for given format
+        # check number for given format
         def integer(data)
           unless data.is_a?(Integer)
             @error[:error].push I18n.t :integer, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language

@@ -53,7 +53,7 @@ module DataCycleCore
       # process :convert => 'jpg'
       # process :colorspace => 'rgb'
       process :resize_to_fit => [300, 300]
-      #process :optimize
+      # process :optimize
     end
 
     def filename

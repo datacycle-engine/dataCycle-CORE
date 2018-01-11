@@ -26,7 +26,7 @@ module DataCycleCore::Generic::MediaArchive::Import
       )
 
       keywords = raw_data['keywords'] || []
-      keywords.each{ |item| import_classification({name: item, external_id: "MedienArchive - keyword - #{item}", tree_name: 'MediaArchive - Tags'}) }
+      keywords.each { |item| import_classification({name: item, external_id: "MedienArchive - keyword - #{item}", tree_name: 'MediaArchive - Tags'}) }
 
       raw_data.merge!({'content_location' => [{ 'id' => content_location.try(:id) }]}) unless content_location.blank?
 

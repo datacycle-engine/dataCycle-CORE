@@ -26,16 +26,16 @@ module DataCycleCore
 
     def import_templates
       errors = {}
-      path = Rails.root.join('config','data_definitions','creative_works','*.yml')
+      path = Rails.root.join('config', 'data_definitions', 'creative_works', '*.yml')
       error = MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::CreativeWork)
       errors.merge!({ creative_works: error}) unless error.blank?
-      path = Rails.root.join('config','data_definitions','places','*.yml')
+      path = Rails.root.join('config', 'data_definitions', 'places', '*.yml')
       error = MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Place)
       errors.merge!({ places: error}) unless error.blank?
-      path = Rails.root.join('config','data_definitions','persons','*.yml')
+      path = Rails.root.join('config', 'data_definitions', 'persons', '*.yml')
       error = MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Person)
       errors.merge!({ persons: error}) unless error.blank?
-      path = Rails.root.join('config','data_definitions','events','*.yml')
+      path = Rails.root.join('config', 'data_definitions', 'events', '*.yml')
       error = MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Event)
       errors.merge!({events: error}) unless error.blank?
       if errors.blank?
@@ -52,7 +52,7 @@ module DataCycleCore
     end
 
     def import_classifications
-      path = Rails.root.join('config','data_definitions','classifications.yml')
+      path = Rails.root.join('config', 'data_definitions', 'classifications.yml')
       MasterData::ImportClassifications.new.import(path.to_s)
       flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: "basic classification trees", locale: DataCycleCore.ui_language
       redirect_to admin_path

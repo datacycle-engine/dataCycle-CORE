@@ -49,7 +49,7 @@ module DataCycleCore
 
     def split_data(original, full)
       if release_data?(original)
-        return original['value'], {'release_id' => original.try(:[], 'release_id'), 'release_comment' => original.try(:[],'release_comment')}
+        return original['value'], {'release_id' => original.try(:[], 'release_id'), 'release_comment' => original.try(:[], 'release_comment')}
       elsif original.kind_of?(::Hash) # --> embedded data
         return data_iterator_split(original, full)
       elsif original.kind_of?(::Array)
@@ -73,17 +73,17 @@ module DataCycleCore
     def set_global_release(global_release_hash)
       ids = []
       flat_hash = flatten_hash(global_release_hash)
-      flat_hash.map{|key,value| ids.push(value) if key[/release_id\z/]}
+      flat_hash.map { |key, value| ids.push(value) if key[/release_id\z/] }
       max_release_status_id(ids.uniq)
     end
 
-    def flatten_hash(data_hash, prefix=nil)
+    def flatten_hash(data_hash, prefix = nil)
       result = {}
       data_hash = data_hash.as_json
 
       data_hash.map do |hash_key, hash_value|
         hash_key = "#{prefix}.#{hash_key}" if prefix.present?
-        result.merge!([::Hash, ::Array].include?(hash_value.class) ? flatten_hash(hash_value,hash_key) : ({hash_key => hash_value}))
+        result.merge!([::Hash, ::Array].include?(hash_value.class) ? flatten_hash(hash_value, hash_key) : ({hash_key => hash_value}))
       end if data_hash.kind_of?(::Hash)
 
       data_hash.uniq.each_with_index do |item, index|

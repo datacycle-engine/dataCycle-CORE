@@ -1,7 +1,7 @@
 module DataCycleCore::Update::UpdateData
   def query()
-   @type.where(template: false).
-      where(json_path(@type.arel_table[:metadata], quoted('{  validation, name }')).eq(quoted(@template.headline)))
+    @type.where(template: false).
+       where(json_path(@type.arel_table[:metadata], quoted('{  validation, name }')).eq(quoted(@template.headline)))
   end
 
   def read(content_item)

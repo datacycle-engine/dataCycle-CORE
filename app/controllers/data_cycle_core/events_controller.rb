@@ -24,7 +24,7 @@ module DataCycleCore
         @dataSchema = @content.get_data_hash
         # do something if no german version exists
         if @dataSchema.nil?
-          @dataSchema = I18n.with_locale(@content.translated_locales.first){@content.get_data_hash}
+          @dataSchema = I18n.with_locale(@content.translated_locales.first) { @content.get_data_hash }
         end
 
         respond_to do |format|
@@ -45,7 +45,7 @@ module DataCycleCore
         end
 
         respond_to do |format|
-          #validate ?
+          # validate ?
           if !@event.nil? && @event.save
             flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Event', locale: DataCycleCore.ui_language
             format.html { redirect_to @event }
@@ -74,7 +74,7 @@ module DataCycleCore
       @event = DataCycleCore::Event.find(params[:id])
       I18n.with_locale(@event.first_available_locale(params[:locale])) do
         object_params = event_params('events', @event.metadata['validation']['name'], @event.metadata['validation']['description'])
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@event.metadata['validation'], false)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @event.metadata['validation'], false)
 
         valid = @event.set_data_hash(data_hash: datahash, current_user: current_user)
 
@@ -113,7 +113,7 @@ module DataCycleCore
       @event = DataCycleCore::Event.find(params[:id])
       object_params = event_params('events', @event.metadata['validation']['name'], @event.metadata['validation']['description'])
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@event.metadata['validation'])
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @event.metadata['validation'])
       valid = @event.validate(datahash)
 
       render :json => valid.to_json

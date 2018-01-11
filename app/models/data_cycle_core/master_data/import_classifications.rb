@@ -25,14 +25,14 @@ module DataCycleCore
           internal = false
           if data.kind_of?(String)
             if data.starts_with?('$$')            # '$$' präfix for interal classifications
-              data = data[2..(data.length-1)]
+              data = data[2..(data.length - 1)]
               internal = true
             end
             save_data(data, parent, internal)
           elsif data.kind_of?(Hash)
             parent_name = data.keys.first
             if data.keys.first.starts_with?('$$') # '$$' präfix for interal classifications
-              parent_name = data.keys.first[2..(data.keys.first.length-1)]
+              parent_name = data.keys.first[2..(data.keys.first.length - 1)]
               internal = true
             end
             parent_id = save_data(parent_name, parent, internal)
@@ -67,7 +67,7 @@ module DataCycleCore
             classification_alias_id: updated_data.id,
             parent_classification_alias_id: parent,
             classification_tree_label_id: @label_id) do |tree_entry|
-              tree_entry.seen_at = Time.zone.now
+            tree_entry.seen_at = Time.zone.now
           end
         end
         upsert_classification(data, updated_data.id)

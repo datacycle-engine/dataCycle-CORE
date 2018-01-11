@@ -80,7 +80,7 @@ module DataCycleCore
 
     def removeItem
       watch_list = DataCycleCore::WatchList.find(params[:id])
-      object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object == params[:hashable_type].classify }
+      object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == params[:hashable_type].classify }
 
       unless object_type.nil?
         content_object = object_type.constantize.find(params[:hashable_id])
@@ -99,7 +99,7 @@ module DataCycleCore
 
     def addItem
       watch_list = DataCycleCore::WatchList.find(params[:id])
-      object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object == params[:hashable_type].classify }
+      object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == params[:hashable_type].classify }
 
       unless object_type.nil?
         content_object = object_type.constantize.find(params[:hashable_id])
@@ -118,12 +118,12 @@ module DataCycleCore
 
     private
 
-      def watch_list_params
-        params.require(:watch_list).permit(:headline)
-      end
+    def watch_list_params
+      params.require(:watch_list).permit(:headline)
+    end
 
-      def hashable_params
-        params.permit(:hashable_id, :hashable_type)
-      end
+    def hashable_params
+      params.permit(:hashable_id, :hashable_type)
+    end
   end
 end

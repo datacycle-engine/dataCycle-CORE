@@ -26,21 +26,21 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
       image = create_or_update_content(
           DataCycleCore::CreativeWork,
           load_template(DataCycleCore::CreativeWork, @image_template),
-          extract_event_image_data(raw_data.dig('image'),raw_data['name']).with_indifferent_access
+          extract_event_image_data(raw_data.dig('image'), raw_data['name']).with_indifferent_access
       ) unless raw_data.dig('image').nil?
 
       content_location = create_or_update_content(
           DataCycleCore::Place,
           load_template(DataCycleCore::Place, 'Veranstaltungsort'),
           extract_content_location_data(raw_data['location'])
-      )unless raw_data.dig('location').nil?
+      ) unless raw_data.dig('location').nil?
 
       categories = raw_data.dig('categories').map { |category|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "CATEGORY:#{category.try(:[], 'id')}")
       }.reject(&:nil?)
 
       tags = raw_data['tags'] || []
-      tags.each{ |item| import_classification({name: item, external_id: "Veranstaltungsdatenbank - tags - #{item}", tree_name: 'Veranstaltungsdatenbank - Tag'}) }
+      tags.each { |item| import_classification({name: item, external_id: "Veranstaltungsdatenbank - tags - #{item}", tree_name: 'Veranstaltungsdatenbank - Tag'}) }
 
       sub_events = raw_data.dig('subEvents').nil? ? {} : extract_sub_event_data(raw_data['subEvents'])
 
@@ -65,7 +65,7 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
         DataCycleCore::Place,
         load_template(DataCycleCore::Place, 'Veranstaltungsort'),
         extract_content_location_data(sub_event['location'])
-      )unless sub_event.dig('location').nil?
+      ) unless sub_event.dig('location').nil?
 
       item = @sub_event_transformation.call(sub_event)
       item.merge!({'content_location' => [{ 'id' => content_location.try(:id) }]}) unless content_location.blank?

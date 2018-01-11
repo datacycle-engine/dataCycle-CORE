@@ -62,7 +62,7 @@ module DataCycleCore
           if property_definition.has_key?(:properties)
             error.merge!(validate_properties(property_definition))
           end
-          #ap property_definition if !result_property.success?
+          # ap property_definition if !result_property.success?
           errors[property_name] = error unless error.blank?
         end
         errors
@@ -71,8 +71,8 @@ module DataCycleCore
       def validate_header
         Dry::Validation.Schema do
           required(:data).schema do
-            required(:name) {str?}
-            required(:description) { str? & included_in?(DataCycleCore.content_tables.map(&:classify)+['ImageObject', 'VideoObject']) }
+            required(:name) { str? }
+            required(:description) { str? & included_in?(DataCycleCore.content_tables.map(&:classify) + ['ImageObject', 'VideoObject']) }
             required(:type) { str? & eql?('object') }
             optional(:content_type) { str? & included_in?(['variant', 'embedded', 'entity']) }
             optional(:releasable) { bool? }
@@ -95,7 +95,7 @@ module DataCycleCore
             end
 
             def instantiable?(value)
-              clazz = ("DataCycleCore::"+value.classify).safe_constantize
+              clazz = ("DataCycleCore::" + value.classify).safe_constantize
               (clazz != nil) && clazz.new.kind_of?(ActiveRecord::Base)
             end
 
@@ -140,7 +140,7 @@ module DataCycleCore
               'classification_relation'
             ] + DataCycleCore.content_tables)
           }
-          #todo: add type_name validation after polymorphic relation tables
+          # todo: add type_name validation after polymorphic relation tables
           # optional(:type_name) {
           #   str? &
           #   included_in?(
@@ -165,7 +165,7 @@ module DataCycleCore
           optional(:editor) { hash? }
           optional(:validations) { hash? }
           optional(:properties) { hash? }
-          optional(:default_value) {str? & valid_classification?}
+          optional(:default_value) { str? & valid_classification? }
 
           rule(key_attribute: [:storage_location, :type, :storage_type]) do |storage_location, type, storage_type|
             storage_location.eql?('key') > (storage_type.eql?('string') & type.eql?('string'))
@@ -189,10 +189,10 @@ module DataCycleCore
           rule(classification_relation: [:storage_location, :type, :type_name, :default_value]) do |storage_location, type, type_name, default_value|
             (storage_location.eql?('classification_relation') > (
               type.eql?('classificationTreeLabel') &
-              type_name.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name)+['Rechte'])
+              type_name.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte'])
             )) & (type.eql?('classificationTreeLabel') > (
               storage_location.eql?('classification_relation') &
-              type_name.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name)+['Rechte'])
+              type_name.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte'])
             ))
           end
 

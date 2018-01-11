@@ -31,7 +31,7 @@ module DataCycleCore
             end
 
             unless key_item['type'] == 'object'
-              #puts "call #{@@basic_types[key_item['type']]}.constantize.new(#{data[key]}, #{key_item})"
+              # puts "call #{@@basic_types[key_item['type']]}.constantize.new(#{data[key]}, #{key_item})"
               validator_object = "#{@@basic_types[key_item['type']]}".constantize.new(data[key], key_item)
               merge_errors(validator_object.error) unless validator_object.nil?
               next
@@ -48,7 +48,7 @@ module DataCycleCore
             end
 
             if key_item.has_key?('properties')
-              #puts "call #{@@basic_types[key_item['type']]}.constantize.new(#{data[key]}, #{key_item['properties']},#{@schema})"
+              # puts "call #{@@basic_types[key_item['type']]}.constantize.new(#{data[key]}, #{key_item['properties']},#{@schema})"
               validator_object = "#{@@basic_types[key_item['type']]}".constantize.new(data[key], key_item['properties'])
               merge_errors(validator_object.error) unless validator_object.nil?
               next
@@ -71,9 +71,9 @@ module DataCycleCore
           # puts "#{table}|#{name}|#{description}"
 
           return if data.empty?
-          template = ("DataCycleCore::"+table.classify).constantize
+          template = ("DataCycleCore::" + table.classify).constantize
             .with_translations('de')
-            .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name, description )
+            .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name, description)
 
           if template.blank?
             @error[:error].push I18n.t :no_template, scope: [:validation, :errors], name: name, desc: description, locale: DataCycleCore.ui_language

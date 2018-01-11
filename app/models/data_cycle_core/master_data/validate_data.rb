@@ -21,7 +21,7 @@ module DataCycleCore
         ap data if verbose
         ap validation_hash if verbose
 
-        validation_object = Validators::Object.new(data,validation_hash['properties'])
+        validation_object = Validators::Object.new(data, validation_hash['properties'])
         @error = validation_object.error
       end
 
@@ -29,7 +29,7 @@ module DataCycleCore
       def valid?(data, validation_hash, strict = false, verbose = false)
         validate(data, validation_hash, strict, verbose)
         if strict
-          return (@error[:error].length+@error[:warning].length)==0
+          return (@error[:error].length + @error[:warning].length) == 0
         else
           return @error[:error].length == 0
         end

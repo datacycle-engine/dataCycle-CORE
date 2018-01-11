@@ -10,7 +10,7 @@ module DataCycleCore
           elsif data.is_a?(::Array)
             check_reference_array(data, template)
           elsif data.is_a?(::String)
-            check_reference_array([data],template)
+            check_reference_array([data], template)
           else
             @error[:error].push I18n.t :data_type, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language
           end
@@ -34,7 +34,7 @@ module DataCycleCore
           # validate references themself
           data.each do |key|
             if key.is_a?(::String)
-              check_reference(key,template)
+              check_reference(key, template)
             else
               @error[:error].push I18n.t :data_array_format, scope: [:validation, :errors], key: key, template: template['label'], locale: DataCycleCore.ui_language
             end
@@ -57,7 +57,7 @@ module DataCycleCore
         def uuid?(data)
           data.downcase!
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
-          check_uuid = data.length == 36 && !(data=~uuid).nil?
+          check_uuid = data.length == 36 && !(data =~ uuid).nil?
           unless check_uuid
             @error[:error].push I18n.t :uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
           end

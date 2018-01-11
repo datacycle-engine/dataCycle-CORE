@@ -9,7 +9,7 @@ module DataCycleCore::Generic::Transformations::Functions
   end
 
   def self.strip_all(data_hash)
-    Hash[data_hash.to_a.map { |k, v| [k, v.kind_of?(Hash) ? strip_all(v) : (v.kind_of?(String) ? v.strip : v)]}]
+    Hash[data_hash.to_a.map { |k, v| [k, v.kind_of?(Hash) ? strip_all(v) : (v.kind_of?(String) ? v.strip : v)] }]
   end
 
   def self.location(data_hash)
@@ -30,7 +30,7 @@ module DataCycleCore::Generic::Transformations::Functions
     if data_hash[attribute].blank?
       data_hash[attribute] = []
     else
-      data_hash[attribute] = data_hash[attribute].map{ |keyword|
+      data_hash[attribute] = data_hash[attribute].map { |keyword|
         DataCycleCore::Classification.
           joins(classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]]).
           where("classification_tree_labels.name = ? and classifications.name = ? ", tree_label, keyword).try(:first).try(:id)

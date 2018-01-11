@@ -15,9 +15,9 @@ class StartOver < ActiveRecord::Migration[5.0]
       t.string   :external_key
       t.string   :description
       t.datetime :seen_at
-      t.geometry :location,           limit: {:srid=>4326, :type=>"point"}
-      t.geometry :bbox,               limit: {:srid=>4326, :type=>"polygon"}
-      t.geometry :shape,              limit: {:srid=>4326, :type=>"multi_polygon"}
+      t.geometry :location,           limit: {:srid => 4326, :type => "point"}
+      t.geometry :bbox,               limit: {:srid => 4326, :type => "polygon"}
+      t.geometry :shape,              limit: {:srid => 4326, :type => "multi_polygon"}
       t.string   :external_type
       t.timestamps
     end
@@ -97,7 +97,7 @@ class StartOver < ActiveRecord::Migration[5.0]
       t.float :longitude
       t.float :latitude
       t.float :elevation
-      t.geometry :location, limit: {:srid=>4326, :type=>"point"}
+      t.geometry :location, limit: {:srid => 4326, :type => "point"}
       t.string :addressLocality
       t.string :streetAddress
       t.string :postalCode

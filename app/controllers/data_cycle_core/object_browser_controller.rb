@@ -43,8 +43,8 @@ module DataCycleCore
       if !params[:class].blank? && !params[:ids].blank?
 
         I18n.with_locale(params[:language] || I18n.locale) do
-          #todo: FIXME if breaks
-          object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object == params[:class].classify }
+          # todo: FIXME if breaks
+          object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == params[:class].classify }
           @objects = object_type.constantize.where(id: params[:ids])
         end
 
@@ -57,8 +57,8 @@ module DataCycleCore
 
       unless params[:class].blank? || params[:id].blank?
         I18n.with_locale(params[:language] || I18n.locale) do
-          #todo: FIXME if breaks
-          object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object == params[:class].classify }
+          # todo: FIXME if breaks
+          object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == params[:class].classify }
           @object = object_type.constantize.find(params[:id])
         end
       end
@@ -71,9 +71,9 @@ module DataCycleCore
     def get_classification_aliases_for_type(type)
       case
       when type == 'image'
-        get_content_classification_aliases('Bild','Inhaltstypen')
+        get_content_classification_aliases('Bild', 'Inhaltstypen')
       when type == 'video'
-        get_content_classification_aliases('Video','Inhaltstypen')
+        get_content_classification_aliases('Video', 'Inhaltstypen')
       else
         {}
       end

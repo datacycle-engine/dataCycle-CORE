@@ -33,7 +33,7 @@ module DataCycleCore
     def create
       locale = I18n.available_locales.include?(params[:locale].try(:to_sym)) ? params[:locale].try(:to_sym) : I18n.locale
       I18n.with_locale(locale) do
-        source = Hash[params[:source].split(",").collect{|x| x.strip.split("=>")}] unless params[:source].blank?
+        source = Hash[params[:source].split(",").collect { |x| x.strip.split("=>") }] unless params[:source].blank?
         object_params = creative_work_params('creative_works', params[:template], 'CreativeWork')
         @creativeWork = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:template], 'CreativeWork', object_params, current_user)
         if @creativeWork.nil?
@@ -134,12 +134,12 @@ module DataCycleCore
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       I18n.with_locale(@creativeWork.first_available_locale) do
         object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], @creativeWork.metadata['validation']['description'])
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'],false)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'], false)
 
         #
-        #known bugs:
-        #saving without changed properites after initial create is identified as change. (nil => "")
-        #adding embedded objects, save, reopen, save is identified as change (is_part_of changes from nil to parent_id)
+        # known bugs:
+        # saving without changed properites after initial create is identified as change. (nil => "")
+        # adding embedded objects, save, reopen, save is identified as change (is_part_of changes from nil to parent_id)
         #
         data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
             datahash.merge({'id' => @creativeWork.id, 'release_id' => object_params[:release_id], 'release_comment' => object_params[:release_comment]}),
@@ -166,7 +166,7 @@ module DataCycleCore
         if @creativeWork.save
           flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name'], locale: DataCycleCore.ui_language
 
-          #after update webhooks
+          # after update webhooks
           execute_after_update_webhooks @creativeWork
 
           if Rails.env.development?
@@ -221,7 +221,7 @@ module DataCycleCore
 
     def source_params
       if params[:source]
-        ActionController::Parameters.new(Hash[params[:source].split(",").collect{|x| x.strip.split("=>")}]).permit(:source_id, :source_type)
+        ActionController::Parameters.new(Hash[params[:source].split(",").collect { |x| x.strip.split("=>") }]).permit(:source_id, :source_type)
       elsif params[:source_id] && params[:source_type]
         params.permit(:source_id, :source_type)
       end

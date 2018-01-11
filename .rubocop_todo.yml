@@ -25,25 +25,6 @@ Layout/ClosingParenthesisIndentation:
     - 'spec/models/content_spec.rb'
 
 
-# Offense count: 162
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: leading, trailing
-Layout/DotPosition:
-  Exclude:
-    - 'app/controllers/data_cycle_core/api/v1/classification_controller.rb'
-    - 'app/models/data_cycle_core/content.rb'
-    - 'app/models/data_cycle_core/data_hash.rb'
-    - 'app/models/data_cycle_core/filter/search.rb'
-    - 'app/models/data_cycle_core/generic/transformations/functions.rb'
-    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
-    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
-    - 'app/models/data_cycle_core/master_data/validators/classification_tree_label.rb'
-    - 'app/models/data_cycle_core/update/update_data.rb'
-    - 'app/models/data_cycle_core/update/update_template.rb'
-    - 'app/services/data_cycle_core/data_hash_service.rb'
-    - 'lib/tasks/data_cycle_core_tasks.rake'
-
 
 # Offense count: 15
 # Cop supports --auto-correct.
@@ -79,40 +60,6 @@ Layout/IndentArray:
 # SupportedStyles: special_inside_parentheses, consistent, align_braces
 Layout/IndentHash:
   Enabled: false
-
-# Offense count: 29
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: normal, rails
-Layout/IndentationConsistency:
-  Exclude:
-    - 'app/controllers/data_cycle_core/application_controller.rb'
-    - 'app/controllers/data_cycle_core/persons_controller.rb'
-    - 'app/controllers/data_cycle_core/places_controller.rb'
-    - 'app/controllers/data_cycle_core/subscriptions_controller.rb'
-    - 'app/controllers/data_cycle_core/watch_lists_controller.rb'
-    - 'app/models/data_cycle_core/filter/query_builder.rb'
-    - 'app/models/data_cycle_core/user.rb'
-    - 'app/services/data_cycle_core/data_hash_service.rb'
-    - 'tmp/vulnerabilities/spec/advisory_example.rb'
-
-# Offense count: 14
-# Cop supports --auto-correct.
-# Configuration parameters: Width, IgnoredPatterns.
-Layout/IndentationWidth:
-  Exclude:
-    - 'app/controllers/data_cycle_core/persons_controller.rb'
-    - 'app/models/data_cycle_core/content.rb'
-    - 'app/models/data_cycle_core/event.rb'
-    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
-    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
-    - 'app/models/data_cycle_core/person.rb'
-    - 'app/models/data_cycle_core/place.rb'
-    - 'app/models/data_cycle_core/stats_database.rb'
-    - 'app/models/data_cycle_core/update/update_data.rb'
-    - 'app/models/data_cycle_core/update/update_template.rb'
-    - 'app/models/data_cycle_core/user.rb'
-    - 'tmp/vulnerabilities/spec/advisory_example.rb'
 
 
 # Offense count: 7
@@ -165,10 +112,6 @@ Layout/SpaceAfterColon:
   Exclude:
     - 'test/validate_embedded_link_test.rb'
 
-# Offense count: 324
-# Cop supports --auto-correct.
-Layout/SpaceAfterComma:
-  Enabled: false
 
 # Offense count: 2
 # Cop supports --auto-correct.
@@ -177,72 +120,6 @@ Layout/SpaceAfterMethodName:
     - 'app/models/data_cycle_core/api/external_source.rb'
     - 'app/models/data_cycle_core/stats_database.rb'
 
-# Offense count: 53
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: space, no_space
-Layout/SpaceAroundEqualsInParameterDefault:
-  Exclude:
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
-    - 'app/models/data_cycle_core/content_relations.rb'
-    - 'app/models/data_cycle_core/filter/query_builder.rb'
-    - 'app/models/data_cycle_core/logger.rb'
-    - 'app/models/data_cycle_core/releasable.rb'
-    - 'app/models/data_cycle_core/rest_client.rb'
-    - 'app/services/data_cycle_core/data_hash_service.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Layout/SpaceAroundKeyword:
-  Exclude:
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
-    - 'app/models/data_cycle_core/generic/event_database/import_events.rb'
-
-# Offense count: 278
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment.
-Layout/SpaceAroundOperators:
-  Enabled: false
-
-# Offense count: 85
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces.
-# SupportedStyles: space, no_space
-# SupportedStylesForEmptyBraces: space, no_space
-Layout/SpaceBeforeBlockBraces:
-  Enabled: false
-
-# Offense count: 37
-# Cop supports --auto-correct.
-Layout/SpaceBeforeComma:
-  Exclude:
-    - 'test/embedded_tree_test.rb'
-    - 'test/place_test.rb'
-    - 'test/standard_artikel_contentLocation_test.rb'
-    - 'test/validator_number_test.rb'
-    - 'test/validator_string_test.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Layout/SpaceBeforeComment:
-  Exclude:
-    - 'test/quiz_test.rb'
-
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment.
-Layout/SpaceBeforeFirstArg:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
-    - 'db/migrate/20170213144933_create_delayed_jobs.rb'
-    - 'lib/tasks/data_cycle_core_tasks.rake'
-
-# Offense count: 60
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: require_no_space, require_space
-Layout/SpaceInLambdaLiteral:
-  Enabled: false
 
 # Offense count: 30
 # Cop supports --auto-correct.
@@ -263,13 +140,6 @@ Layout/SpaceInsideArrayLiteralBrackets:
     - 'test/dummy/config/environments/production.rb'
     - 'test/release_test.rb'
 
-# Offense count: 155
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces, SpaceBeforeBlockParameters.
-# SupportedStyles: space, no_space
-# SupportedStylesForEmptyBraces: space, no_space
-Layout/SpaceInsideBlockBraces:
-  Enabled: false
 
 # Offense count: 369
 # Cop supports --auto-correct.
@@ -279,57 +149,6 @@ Layout/SpaceInsideBlockBraces:
 Layout/SpaceInsideHashLiteralBraces:
   Enabled: false
 
-# Offense count: 16
-# Cop supports --auto-correct.
-Layout/SpaceInsideParens:
-  Exclude:
-    - 'app/models/data_cycle_core/content.rb'
-    - 'app/models/data_cycle_core/data_hash.rb'
-    - 'app/models/data_cycle_core/master_data/validators/object.rb'
-    - 'app/models/data_cycle_core/stats_database.rb'
-    - 'app/services/data_cycle_core/data_hash_service.rb'
-    - 'test/creative_work_test.rb'
-    - 'test/validator_object_test.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Layout/SpaceInsideRangeLiteral:
-  Exclude:
-    - 'app/models/data_cycle_core/data_hash.rb'
-
-# Offense count: 14
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: final_newline, final_blank_line
-Layout/TrailingBlankLines:
-  Exclude:
-    - 'app/models/data_cycle_core/webhook/create.rb'
-    - 'app/models/data_cycle_core/webhook/delete.rb'
-    - 'app/models/data_cycle_core/webhook/update.rb'
-    - 'app/services/data_cycle_core/watch_list_service.rb'
-    - 'app/uploaders/data_cycle_core/image_uploader.rb'
-    - 'app/views/data_cycle_core/api/v1/api_base/_content_context.json.jbuilder'
-    - 'app/views/data_cycle_core/api/v1/api_base/_content_deleted.json.jbuilder'
-    - 'app/views/data_cycle_core/api/v1/watch_lists/_item.json.jbuilder'
-    - 'config/initializers/carrierwave.rb'
-    - 'config/initializers/guest_user.rb'
-    - 'test/dummy/config/application.rb'
-    - 'test/integration/navigation_test.rb'
-    - 'tmp/vulnerabilities/spec/advisories_spec.rb'
-    - 'tmp/vulnerabilities/spec/ruby_example.rb'
-
-# Offense count: 8
-# Cop supports --auto-correct.
-Layout/TrailingWhitespace:
-  Exclude:
-    - 'app/models/data_cycle_core/master_data/validators/embedded_link.rb'
-    - 'app/services/data_cycle_core/normalize_service.rb'
-    - 'app/views/data_cycle_core/api/v1/api_base/_content_details.json.jbuilder'
-    - 'db/migrate/20170523115242_change_classification_crative_work.rb'
-    - 'db/migrate/20170807131053_create_edit_links.rb'
-    - 'db/migrate/20171204092716_add_relation_to_classification_content.rb'
-    - 'tmp/vulnerabilities/spec/gem_example.rb'
-    - 'tmp/vulnerabilities/spec/ruby_example.rb'
 
 # Offense count: 1
 Lint/AmbiguousBlockAssociation:

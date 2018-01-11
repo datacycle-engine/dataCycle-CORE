@@ -62,7 +62,7 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash_quiz, returned_data_hash.except("question","id","data_type",'validity_period', 'data_pool').compact)
+      assert_equal(expected_hash_quiz, returned_data_hash.except("question", "id", "data_type", 'validity_period', 'data_pool').compact)
       assert_equal(2, returned_data_hash["question"].count)
       assert_equal(4, returned_data_hash["question"][0]["suggested_answer"].count)
       assert_equal(4, returned_data_hash["question"][1]["suggested_answer"].count)
@@ -73,7 +73,7 @@ module DataCycleCore
       assert_equal(13, DataCycleCore::CreativeWork.where(template: false).count)
       assert_equal(14, DataCycleCore::ClassificationContent.count)
 
-      new_data_hash = returned_data_hash#.except("output_channels")
+      new_data_hash = returned_data_hash # .except("output_channels")
       new_data_hash["question"] = []
       error = data_set.set_data_hash(data_hash: new_data_hash)
       data_set.save
@@ -137,7 +137,7 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash_quiz, returned_data_hash.except("question","id","data_type",'validity_period', 'data_pool').compact)
+      assert_equal(expected_hash_quiz, returned_data_hash.except("question", "id", "data_type", 'validity_period', 'data_pool').compact)
       assert_equal(2, returned_data_hash["question"].count)
       assert_equal(4, returned_data_hash["question"][0]["suggested_answer"].count)
       assert_equal(4, returned_data_hash["question"][1]["suggested_answer"].count)

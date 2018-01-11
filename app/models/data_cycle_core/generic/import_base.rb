@@ -90,7 +90,7 @@ module DataCycleCore::Generic
         phase_name = source_type.collection_name
 
         item_count = 0
-        fixnum_max = (2**(0.size * 4 -2) -1)
+        fixnum_max = (2**(0.size * 4 - 2) - 1)
         begin
           @logging.phase_started("#{phase_name}_#{locale}")
 

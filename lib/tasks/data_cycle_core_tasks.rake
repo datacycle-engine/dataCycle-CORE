@@ -127,7 +127,7 @@ namespace :data_cycle_core do
           [k, v]
         end
       }]
-      #options[:locales] = [:de] #, :en, :fr, :it, :nl]
+      # options[:locales] = [:de] #, :en, :fr, :it, :nl]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.download(options)
@@ -142,7 +142,7 @@ namespace :data_cycle_core do
           [k, v]
         end
       }]
-      #options[:locales] = [:de] #, :fr, :en, :it, :nl]
+      # options[:locales] = [:de] #, :fr, :en, :it, :nl]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.import(options)
@@ -152,19 +152,19 @@ namespace :data_cycle_core do
   namespace :update do
     desc "import classifications"
     task :import_classifications => [:environment] do
-      path = Rails.root.join('config','data_definitions','classifications.yml')
+      path = Rails.root.join('config', 'data_definitions', 'classifications.yml')
       DataCycleCore::MasterData::ImportClassifications.new.import(path.to_s)
     end
 
     desc "import template definitions"
     task :import_templates => [:environment] do
-      path = Rails.root.join('config','data_definitions','creative_works','*.yml')
+      path = Rails.root.join('config', 'data_definitions', 'creative_works', '*.yml')
       DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::CreativeWork)
-      path = Rails.root.join('config','data_definitions','places','*.yml')
+      path = Rails.root.join('config', 'data_definitions', 'places', '*.yml')
       DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Place)
-      path = Rails.root.join('config','data_definitions','persons','*.yml')
+      path = Rails.root.join('config', 'data_definitions', 'persons', '*.yml')
       DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Person)
-      path = Rails.root.join('config','data_definitions','events','*.yml')
+      path = Rails.root.join('config', 'data_definitions', 'events', '*.yml')
       DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Event)
     end
 
@@ -187,7 +187,7 @@ namespace :data_cycle_core do
     desc "update weigths (boost) in search table"
     task :update_search => [:environment] do
       puts "#{'content_class'.ljust(30)} | #{'data_definition_name'.ljust(25)} | #{'#entries'.ljust(10)} | #{'new weight'}"
-      puts '-'*84
+      puts '-' * 84
       DataCycleCore.content_tables.each do |content_table|
         data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
         data_object.where(template: true).each do |template_object|
@@ -202,7 +202,7 @@ namespace :data_cycle_core do
             connection.exec_query(sql_update)
           end
 
-          puts "#{data_object.to_s.ljust(30)} | #{template_name.ljust(25)} | #{search_entries.to_s.rjust(10)} | #{(boost||'no search').to_s.rjust(10)}"
+          puts "#{data_object.to_s.ljust(30)} | #{template_name.ljust(25)} | #{search_entries.to_s.rjust(10)} | #{(boost || 'no search').to_s.rjust(10)}"
         end
       end
     end
@@ -283,14 +283,14 @@ namespace :data_cycle_core do
         # progress_bar
         if total_items > 49
           if index % 500 == 0
-            fraction = (index / (total_items/100.0)).round(0)
+            fraction = (index / (total_items / 100.0)).round(0)
             fraction = 100 if fraction > 100
-            print "[#{'*'*fraction}#{' '*(100-fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
           end
         else
-          fraction = (((index*1.0)/total_items) * 100.0).round(0)
+          fraction = (((index * 1.0) / total_items) * 100.0).round(0)
           fraction = 100 if fraction > 100
-          print"[#{'*'*fraction}#{' '*(100-fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+          print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
         end
         index += 1
 
@@ -303,7 +303,7 @@ namespace :data_cycle_core do
         #   item.destroy
         # }
       end
-      puts "[#{'*'*100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+      puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
     end
   end
 
@@ -403,16 +403,16 @@ namespace :data_cycle_core do
 
     desc "update .._hasPart arrays to content_content relation table"
     task :stage2 => [:environment] do
-      array_names = ['question_hasPart','website_hasPart','offer_periods_hasPart',
-                     'mobile_application_hasPart','quotation_hasPart','accepted_answer_hasPart',
-                     'suggested_answer_hasPart','timeline_item_hasPart']
+      array_names = ['question_hasPart', 'website_hasPart', 'offer_periods_hasPart',
+                     'mobile_application_hasPart', 'quotation_hasPart', 'accepted_answer_hasPart',
+                     'suggested_answer_hasPart', 'timeline_item_hasPart']
 
-      where_string = "metadata ?| array['"+array_names.join("','")+"']"
+      where_string = "metadata ?| array['" + array_names.join("','") + "']"
       DataCycleCore::CreativeWork.where(where_string).each do |item|
-        #puts "#{item.id} || #{item.metadata['validation']['name']}"
+        # puts "#{item.id} || #{item.metadata['validation']['name']}"
         array_names.each do |name|
           if item.metadata.has_key?(name)
-            #puts "#{name.split('_hasPart')[0]} -> "
+            # puts "#{name.split('_hasPart')[0]} -> "
             item.metadata[name].each do |content_id|
               DataCycleCore::ContentContent.create!(
                 content_a_id: item.id,
@@ -425,16 +425,16 @@ namespace :data_cycle_core do
               puts "relation: #{name.split('_hasPart')[0]} | CreativeWork"
             end
             item.metadata = item.metadata.except(name)
-            I18n.with_locale(item.available_locales.first){ item.save }
+            I18n.with_locale(item.available_locales.first) { item.save }
           end
         end
       end
 
       DataCycleCore::CreativeWork::History.where(where_string).each do |item|
-        #puts "#{item.id} || #{item.creative_work_id} || #{item.metadata['validation']['name']}"
+        # puts "#{item.id} || #{item.creative_work_id} || #{item.metadata['validation']['name']}"
         array_names.each do |name|
           if item.metadata.has_key?(name)
-            #puts "#{name.split('_hasPart')[0]} -> "
+            # puts "#{name.split('_hasPart')[0]} -> "
             item.metadata[name].each do |content_id|
               DataCycleCore::ContentContent::History.create!(
                 content_a_history_id: item.id,
@@ -448,7 +448,7 @@ namespace :data_cycle_core do
               puts "relation: #{name.split('_hasPart')[0]} | CreativeWork::History"
             end
             item.metadata = item.metadata.except(name)
-            I18n.with_locale(item.available_locales.first){ item.save }
+            I18n.with_locale(item.available_locales.first) { item.save }
           end
         end
       end
@@ -480,14 +480,14 @@ namespace :data_cycle_core do
               relation_data = ['a', 'b'].map { |selector|
                 ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
               }.flatten
-                .zip(link_definition[:table] < item.class.table_name ? item_data+self_data : self_data+item_data).to_h
+                .zip(link_definition[:table] < item.class.table_name ? item_data + self_data : self_data + item_data).to_h
 
               DataCycleCore::ContentContent.find_or_create_by!(relation_data)
             end
 
             # save without metadata embeddeLink(Array) field
             item.metadata = item.metadata.except(link_definition[:name])
-            I18n.with_locale(item.available_locales.first){ item.save }
+            I18n.with_locale(item.available_locales.first) { item.save }
           end
         end
       end
@@ -512,14 +512,14 @@ namespace :data_cycle_core do
               relation_data = ['a', 'b'].map { |selector|
                 ["content_#{selector}_history_id".to_sym, "content_#{selector}_history_type".to_sym, "relation_#{selector}".to_sym]
               }.flatten
-                .zip(link_definition[:table] < item.class.table_name ? item_data+self_data : self_data+item_data).to_h
+                .zip(link_definition[:table] < item.class.table_name ? item_data + self_data : self_data + item_data).to_h
 
               DataCycleCore::ContentContent::History.find_or_create_by!(relation_data)
             end
 
             # save without metadata embeddeLink(Array) field
             item.metadata = item.metadata.except(link_definition[:name])
-            I18n.with_locale(item.available_locales.first){ item.save }
+            I18n.with_locale(item.available_locales.first) { item.save }
           end
         end
       end
@@ -548,14 +548,14 @@ namespace :data_cycle_core do
       eos
       puts "DELETE inconsistent data"
       ActiveRecord::Base.connection.execute(delete_sql)
-      puts "[#{'*'*100}] 100%"
+      puts "[#{'*' * 100}] 100%"
 
       puts "IMPORT templates"
       Rake::Task['data_cycle_core:update:import_templates'].invoke
-      puts "[#{'*'*100}] 100%"
+      puts "[#{'*' * 100}] 100%"
 
       # update Bild templates
-      Rake::Task['data_cycle_core:update:update_template'].invoke('creative_works','Bild')
+      Rake::Task['data_cycle_core:update:update_template'].invoke('creative_works', 'Bild')
 
       # rename Treelabel for keywords (new importer/type_definitions):
       old_tree_label_ids = DataCycleCore::ClassificationTreeLabel.where(name: 'Tags', external_source_id: DataCycleCore::ExternalSource.pluck(:id))
@@ -575,15 +575,15 @@ namespace :data_cycle_core do
           # progress bar
           index += 1
           if items_count > 49
-            if index % (items_count/100.0).round(0) == 0
-              fraction = (index / (items_count/100.0)).round(0)
+            if index % (items_count / 100.0).round(0) == 0
+              fraction = (index / (items_count / 100.0)).round(0)
               fraction = 100 if fraction > 100
-              print "[#{'*'*fraction}#{' '*(100-fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
             end
           else
-            fraction = (((index*1.0)/items_count) * 100.0).round(0)
+            fraction = (((index * 1.0) / items_count) * 100.0).round(0)
             fraction = 100 if fraction > 100
-            print"[#{'*'*fraction}#{' '*(100-fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
           end
 
           item.classification_property_names.each do |classification_name|
@@ -596,11 +596,11 @@ namespace :data_cycle_core do
             end
           end
         end
-        puts "[#{'*'*100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
+        puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
       end
 
       # delete Bild history
-      Rake::Task['data_cycle_core:update:delete_history'].invoke('creative_works','Bild')
+      Rake::Task['data_cycle_core:update:delete_history'].invoke('creative_works', 'Bild')
 
       # delete classification_content_histories due to wrong template in history
       delete_sql = <<-eos
@@ -614,7 +614,7 @@ namespace :data_cycle_core do
       eos
       puts "DELETE keywords for history"
       ActiveRecord::Base.connection.execute(delete_sql)
-      puts "[#{'*'*100}] 100%"
+      puts "[#{'*' * 100}] 100%"
 
       # update classification_content_histories
       index = 0
@@ -625,15 +625,15 @@ namespace :data_cycle_core do
         content_class.constantize.all.find_each do |item|
           # progress bar
           if items_count > 49
-            if index % (items_count/100.0).round(0) == 0
-              fraction = (index / (items_count/100.0)).round(0)
+            if index % (items_count / 100.0).round(0) == 0
+              fraction = (index / (items_count / 100.0)).round(0)
               fraction = 100 if fraction > 100
-              print "[#{'*'*fraction}#{' '*(100-fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
             end
           else
-            fraction = (((index*1.0)/items_count) * 100.0).round(0)
+            fraction = (((index * 1.0) / items_count) * 100.0).round(0)
             fraction = 100 if fraction > 100
-            print"[#{'*'*fraction}#{' '*(100-fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
           end
           index += 1
 
@@ -647,11 +647,11 @@ namespace :data_cycle_core do
             end
           end
         end
-        puts "[#{'*'*100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
+        puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
       end
 
       puts "END"
-      puts "--> UPDATE time: #{((Time.zone.now - temp)/60).to_i} min"
+      puts "--> UPDATE time: #{((Time.zone.now - temp) / 60).to_i} min"
     end
   end
 end

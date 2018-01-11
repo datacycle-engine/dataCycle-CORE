@@ -10,7 +10,7 @@ module DataCycleCore
                           :first, :second, :third, :fourth, :fifth, :forty_two, :last]
       def_delegators :@query, *TERMINAL_METHODS
 
-      def initialize(locale ="de", query = nil)
+      def initialize(locale = "de", query = nil)
         @locale = locale
         @query = query
       end
@@ -88,7 +88,7 @@ module DataCycleCore
       end
 
       # custom function helper
-      def get_point(longitude,latitude)
+      def get_point(longitude, latitude)
         Arel::Nodes::NamedFunction.new("ST_GeomFromEWKT", ["SRID=4326;POINT (#{longitude} #{latitude})"])
       end
 
@@ -101,7 +101,7 @@ module DataCycleCore
       end
 
       def current_date
-        Arel::Nodes::NamedFunction.new("CURRENT_DATE",[])
+        Arel::Nodes::NamedFunction.new("CURRENT_DATE", [])
       end
 
       def contains(geo1, geo2)
@@ -109,7 +109,7 @@ module DataCycleCore
       end
 
       def to_tsvector(field)
-        Arel::Nodes::NamedFunction.new('to_tsvector', [field]) #[quoted('german'), field])
+        Arel::Nodes::NamedFunction.new('to_tsvector', [field]) # [quoted('german'), field])
       end
 
       def coalesce(field1, field2)
@@ -117,7 +117,7 @@ module DataCycleCore
       end
 
       def to_tsquery(string)
-        Arel::Nodes::NamedFunction.new('plainto_tsquery', [quoted('simple'), string]) #[quoted('german'), string])
+        Arel::Nodes::NamedFunction.new('plainto_tsquery', [quoted('simple'), string]) # [quoted('german'), string])
       end
 
       def tsmatch(tsvector, tsquery)

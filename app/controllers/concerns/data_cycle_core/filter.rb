@@ -21,7 +21,7 @@ module DataCycleCore
         end
       end
       @language = params[:language]
-      @language ||= "de" #default-language
+      @language ||= "de" # default-language
 
       if params[:search].blank?
         @order_by = !params[:order].nil? && params[:order].split('_').first == 'udpated' ? 'updated_at' : 'updated_at'
