@@ -5,7 +5,7 @@ module DataCycleCore
 
     self.abstract_class = true
 
-    attr_accessor :datahash
+    attr_accessor :datahash, :webhook_source
 
     include ContentRelations
     include Subscribable
