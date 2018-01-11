@@ -1,0 +1,19 @@
+<%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
+
+    <%= label_tag(key, definition['label']) %>
+
+    <div class="asset-object" id="<%= sanitize_to_id(key) %>"
+         data-language="<%= I18n.locale.to_s %>"
+         data-key="<%= key %>"
+         data-label="<%= definition['label'] %>"
+         data-definition="<%= definition.to_json %>"
+         data-options="<%= options.to_json %>"
+         data-write="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>">
+
+        <%= render_asset_partial(key: key, value: value, definition: definition, parameters: {options: options}) %>
+
+        <button id="add_<%= sanitize_to_id(key) %>" type="button" class="button addAsset" style="display: none;"><%= definition['label'] %> hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
+
+    </div>
+
+<% end %>

@@ -122,6 +122,16 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition }))
     end
 
+
+    def render_asset_partial(partial: 'detail', key:, value:, definition:, parameters: {})
+      partials = [
+        "#{definition.try(:[], 'editor').try(:[], 'type')}".try(:underscore),
+        "default"
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/asset/#{p}_#{partial}" }
+
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
+    end
+
     private
 
     def render_first_existing_partial(partials, parameters)

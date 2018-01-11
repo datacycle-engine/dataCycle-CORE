@@ -1,0 +1,27 @@
+<div class="asset-item" id="<%= sanitize_to_id(key) %>_item">
+
+    <% if value.blank? %>
+        <%= hidden_field_tag("#{key}", '') %>
+
+        <button id="add_<%= sanitize_to_id(key) %>" type="button" class="button addAsset"><%= definition['label'] %> hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
+
+        <%= file_field_tag "file" %>
+
+    <% else %>
+
+        <% image = value.first %>
+        <%= hidden_field_tag("#{key}", image.id) %>
+
+        <h2><%= image.id %></h2>
+        <h3><%=  image.content_type %> (<%= image.file_size %> B)</h3>
+        <a href="<%= image.file.url %>" target="_blank">
+            <%= image_tag image.file.thumb_preview.url %>
+        </a>
+
+        <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
+            <button type="button" class="button removeAsset"><i class="fa fa-times"></i></button>
+        <% end %>
+
+    <% end %>
+
+</div>

@@ -1,0 +1,11 @@
+<%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: value, options: options do %>
+
+    <% image = value.first %>
+
+    <h2><%= image.id %></h2>
+    <h3><%=  image.content_type %> (<%= image.file_size %> B)</h3>
+    <a href="<%= image.file.url %>" target="_blank">
+        <%= image_tag image.file.thumb_preview.url %>
+    </a>
+
+<% end %>

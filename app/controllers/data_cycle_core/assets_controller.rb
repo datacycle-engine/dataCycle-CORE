@@ -18,9 +18,6 @@ module DataCycleCore
       @asset = DataCycleCore::Image.new(asset_params).set_content_type.set_file_size
       @asset.creator_id = current_user.try(:id)
 
-      @asset.save
-      raise @asset.inspect
-
       if @asset.save
         flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Asset', locale: DataCycleCore.ui_language
         redirect_to assets_path
