@@ -22,6 +22,7 @@ var ObjectBrowser = function (selector) {
   this.url = "/object_browser";
   this.total = 0;
   this.chosen = selector.data('objects');
+  this.selected = '';
   this.setup();
 };
 
@@ -51,13 +52,17 @@ ObjectBrowser.prototype.setup = function () {
   this.overlay.find('.chosen-items-container').on('click', '.item', function (event) {
     event.preventDefault();
     event.stopImmediatePropagation();
-    self.loadDetails($(this).data('id'));
+    if (self.selected != $(this).data('id')) {
+      self.loadDetails($(this).data('id'));
+    }
   });
 
   this.overlay.children(".items").on('click', '.item', function (event) {
     event.preventDefault();
     event.stopImmediatePropagation();
-    self.loadDetails($(this).data('id'));
+    if (self.selected != $(this).data('id')) {
+      self.loadDetails($(this).data('id'));
+    }
     if (self.chosen.indexOf($(this).data('id')) == -1) {
       self.addObject($(this).data('id'), $(this).clone(true), event);
     } else {
@@ -130,13 +135,6 @@ ObjectBrowser.prototype.setup = function () {
   }.bind(this));
 
   $('#new_' + this.id).on('open.zf.reveal', function (event) {
-    if ($(this).find('iframe').length > 0) {
-      $(this).append('<div class="loading-iframe"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
-      $(this).find('iframe').on('lazyloaded', function () {
-        $(this).find('.loading-iframe').remove();
-      }.bind(this));
-    }
-
     $(this).find('form').on('submit', function (ev, data) {
       if (data != undefined && data.valid) {
         ev.preventDefault();
@@ -175,8 +173,6 @@ ObjectBrowser.prototype.setup = function () {
 
   $('#new_' + this.id).on('closed.zf.reveal', function (event) {
     $("body").addClass("is-reveal-open");
-    if ($(this).children('iframe').hasClass('lazyloaded')) $(this).children('iframe').removeClass('lazyloaded').addClass('lazyload');
-    if ($(this).children('iframe').hasClass('lazyloading')) $(this).children('iframe').removeClass('lazyloading').addClass('lazyload');
   });
 };
 
@@ -218,6 +214,7 @@ ObjectBrowser.prototype.updateChosenCounter = function () {
 };
 
 ObjectBrowser.prototype.loadDetails = function (id) {
+  this.selected = id;
   $.ajax({
     url: this.url + '/details',
     method: 'POST',
@@ -289,12 +286,12 @@ ObjectBrowser.prototype.closeOverlay = function (ev) {
   var text = $(".breadcrumb ul li:last-child a.close-object-browser").html();
   $(".breadcrumb ul li:last-child").html(text);
   $(".breadcrumb ul li").off("click");
-  $(window).off('message onmessage');
+  $(window).off('message onmessage', this.import.bind(this));
 };
 
 ObjectBrowser.prototype.import = function (event) {
   $('#new_' + this.id).foundation('close');
-  if (event.originalEvent.data.action == 'import') {
+  if (event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'import') {
     var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
     $.ajax({
       type: 'POST',
@@ -310,7 +307,7 @@ ObjectBrowser.prototype.import = function (event) {
         options: this.options,
         objects: this.chosen
       }),
-      contentType: "application/json"
+      contentType: 'application/json'
     }).done(function (data) {
       this.overlay.find('.items .item .reveal.media-preview').each(function () {
         if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
