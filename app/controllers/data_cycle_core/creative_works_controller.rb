@@ -238,7 +238,7 @@ module DataCycleCore
     end
 
     def check_final
-      if params[:finalize] && @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').positive?
+      if params[:finalize] && @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').size.positive?
         @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').first.update_attribute(:permissions, 'read')
 
         unless DataCycleCore.release_codes.blank?
