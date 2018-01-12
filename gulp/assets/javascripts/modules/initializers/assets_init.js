@@ -5,7 +5,7 @@ module.exports.initialize = function () {
 
   var assets = [];
 
-  $('.edit-content-form .asset').each(function () {
+  $('.edit-content-form .asset .asset-object').each(function () {
     assets.push(new Asset($(this)));
   });
 

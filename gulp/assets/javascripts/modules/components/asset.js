@@ -10,10 +10,10 @@ var Asset = function (selector) {
   this.label = this.element.data('label');
   this.definition = this.element.data('definition');
   this.options = this.element.data('options');
-  // this.max = this.element.data('max') || 0;
-  // this.min = this.element.data('min') || 0;
+  this.max = this.element.data('max') || 0;
+  this.min = this.element.data('min') || 0;
   this.write = this.element.data('write') || true;
-  this.url = '/contents';
+  this.url = '/files/assets';
 
   this.setup();
 };
@@ -57,8 +57,8 @@ Asset.prototype.setup = function () {
 Asset.prototype.addEventHandlers = function () {
   var self = this;
 
-  this.element.children('#add_' + this.id).off('click').on('click', this.renderAsset.bind(this));
-  //
+  this.element.children('#add_' + this.id).off('click').on('click', this.createAsset.bind(this));
+
   // this.element.children('.content-object-item').each(function () {
   //   $(this).children('.removeContentObject').off('click').on('click', function (event) {
   //     event.preventDefault();
@@ -68,22 +68,46 @@ Asset.prototype.addEventHandlers = function () {
   // });
 };
 
-Asset.prototype.renderasset = function () {
+Asset.prototype.createAsset = function () {
+  console.log('juhu');
+  this.element.children('#add_' + this.id).prop('disabled', true).find('.fa').css('display', 'inline-block');
+  // find file
+  file = this.element.children('#' + this.id + '_file').get(0).files[0];
+  console.log(file.files);
+  var formData = new FormData();
+  formData.append("asset[file]", file);
+  formData.append("asset[asset_object_id]", this.id);
+  formData.append("asset[key]", this.key);
+  formData.append("asset[definition]", JSON.stringify(this.definition));
+  formData.append("asset[options]", JSON.stringify(this.options));
+  console.log(formData);
+  console.log(file);
+  $.ajax({
+    url: this.url + '/new_asset_object',
+    method: 'POST',
+    data: formData,
+    processData: false,  // tell jQuery not to process the data
+    contentType: false   // tell jQuery not to set contentType
+  }).done(function (data) {
+    this.update();
+    this.addEventHandlers();
+  }.bind(this));
+};
+
+Asset.prototype.renderAsset = function () {
+  console.log('juhu');
   this.element.children('#add_' + this.id).prop('disabled', true).find('.fa').css('display', 'inline-block');
   $.ajax({
-    url: this.url + '/new_embedded_object',
+    url: this.url + '/new_asset_object',
     method: 'POST',
     data: JSON.stringify({
-      index: this.index,
-      language: this.language,
-      embedded_object_id: '#' + this.id,
+      asset_object_id: '#' + this.id,
       key: this.key,
       definition: this.definition,
       options: this.options
     }),
     contentType: 'application/json'
   }).done(function (data) {
-    this.index++;
     this.update();
     this.addEventHandlers();
   }.bind(this));
@@ -91,17 +115,18 @@ Asset.prototype.renderasset = function () {
 
 Asset.prototype.update = function () {
   var self = this;
-  if (this.max != 0 && this.element.children('.content-object-item').length >= this.max) {
-    this.element.children('#add_' + this.id).hide();
-  } else if (this.write) {
-    this.element.children('#add_' + this.id).show();
-  }
-
-  if (this.min != 0 && this.element.children('.content-object-item').length <= this.min) {
-    this.element.children('.content-object-item').children('.removeContentObject').hide();
-  } else if (this.write) {
-    this.element.children('.content-object-item').children('.removeContentObject').show();
-  }
+  console.log('update :)');
+  // if (this.max != 0 && this.element.children('.content-object-item').length >= this.max) {
+  //   this.element.children('#add_' + this.id).hide();
+  // } else if (this.write) {
+  //   this.element.children('#add_' + this.id).show();
+  // }
+  //
+  // if (this.min != 0 && this.element.children('.content-object-item').length <= this.min) {
+  //   this.element.children('.content-object-item').children('.removeContentObject').hide();
+  // } else if (this.write) {
+  //   this.element.children('.content-object-item').children('.removeContentObject').show();
+  // }
 };
 
 module.exports = Asset;

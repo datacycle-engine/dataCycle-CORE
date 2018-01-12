@@ -30,6 +30,26 @@ module DataCycleCore
     def destroy
     end
 
+    def new_asset_object
+
+      additional_params = {
+        asset_object_id: params['asset_object_id'],
+        key: params['key'],
+        definition: params['definition'],
+        options: params['options']
+      }
+
+      ap additional_params
+
+      @asset = DataCycleCore::Image.new(asset_params).set_content_type.set_file_size
+      @asset.creator_id = current_user.try(:id)
+
+      @asset.save
+      ap @asset
+
+      ap asset_params
+    end
+
     private
 
     def asset_params

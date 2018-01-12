@@ -12,8 +12,6 @@
 
         <%= render_asset_partial(key: key, value: value, definition: definition, parameters: {options: options}) %>
 
-        <button id="add_<%= sanitize_to_id(key) %>" type="button" class="button addAsset" style="display: none;"><%= definition['label'] %> hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
-
     </div>
 
 <% end %>

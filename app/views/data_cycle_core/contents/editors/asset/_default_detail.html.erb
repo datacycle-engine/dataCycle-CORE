@@ -1,11 +1,11 @@
-<div class="asset-item" id="<%= sanitize_to_id(key) %>_item">
+
 
     <% if value.blank? %>
         <%= hidden_field_tag("#{key}", '') %>
 
         <button id="add_<%= sanitize_to_id(key) %>" type="button" class="button addAsset"><%= definition['label'] %> hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
 
-        <%= file_field_tag "file" %>
+        <%= file_field_tag "asset[file]", id:"#{sanitize_to_id(key)}_file" %>
 
     <% else %>
 
@@ -23,5 +23,3 @@
         <% end %>
 
     <% end %>
-
-</div>
