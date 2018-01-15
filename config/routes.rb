@@ -33,6 +33,7 @@ DataCycleCore::Engine.routes.draw do
   scope ('files') do
     resources :assets, only: [:index, :show, :new, :create, :destroy] do
       post 'new_asset_object', on: :collection
+      delete 'remove_asset_object', on: :member
     end
   end
 
