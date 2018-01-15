@@ -34,19 +34,22 @@ module DataCycleCore
     end
 
     def search
-      permitted_params = params.permit(:q, :max)
+      permitted_params = params.permit(:q, :max, :tree_label)
 
-      render json: Classification
-        .includes(classification_groups: {classification_alias: :classification_tree})
-        .where('name ILIKE ?', "%#{params[:q]}%")
-        .limit(params[:max] || 10)
-        .map { |c|
+      render json: DataCycleCore::Classification
+        .includes(:classification_groups, :classification_aliases)
+        .joins(classification_aliases: [classification_tree: [:classification_tree_label]])
+        .where("classification_tree_labels.name ILIKE ?", params[:tree_label].blank? ? '%' : params[:tree_label])
+        .where('classifications.name ILIKE ?', "%#{params[:q]}%")
+        .limit(params[:max].try(:to_i) || 10).map(&:descendants).flatten.map { |c|
           {
             id: c.id,
             name: c.name,
-            path: c.ancestors.reverse.map(&:name).join(' > ')
+            path: c.ancestors.reverse.map(&:name).join(' > '),
+            disabled: !c.primary_classification_alias.try(:assignable)
           }
-        }
+        }.uniq.first(params[:max].try(:to_i) || 10).sort_by{|c| c[:path] }
+
     end
 
     def create
@@ -54,7 +57,7 @@ module DataCycleCore
         :classification_tree_label_id,
         :classification_tree_id,
         {classification_tree_label: [:name, :internal]},
-        {classification_alias: [:name, :internal]}
+        {classification_alias: [:name, :internal, :assignable]}
       )
 
       respond_to do |format|
@@ -95,7 +98,7 @@ module DataCycleCore
     def update
       permitted_params = params.permit(
         classification_tree_label: [:id, :name, :internal],
-        classification_alias: [:id, :name, :internal, classification_ids: []]
+        classification_alias: [:id, :name, :internal, :assignable, classification_ids: []]
       )
 
       respond_to do |format|

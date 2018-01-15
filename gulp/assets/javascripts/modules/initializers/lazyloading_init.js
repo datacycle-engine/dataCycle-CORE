@@ -9,4 +9,17 @@ module.exports.initialize = function () {
     }, 100);
   });
 
+  $(document).on('open.zf.reveal', '.new-item[data-reset-on-close="true"]', function (event) {
+    if ($(this).find('iframe').length > 0) {
+      $(this).append('<div class="loading-iframe"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
+      $(this).find('iframe').on('lazyloaded', function () {
+        $(this).find('.loading-iframe').remove();
+      }.bind(this));
+    }
+  });
+
+  $(document).on('closed.zf.reveal', '.new-item[data-reset-on-close="true"]', function (event) {
+    $(this).children('iframe').removeClass('lazyloaded lazyloading').addClass('lazyload');
+  });
+
 };

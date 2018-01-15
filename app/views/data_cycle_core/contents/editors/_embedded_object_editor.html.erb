@@ -1,58 +1,27 @@
 <%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
+  <% new_content ||= false %>
 
-  <% internal_template = DataCycleCore::DataHashService.get_internal_template(definition['storage_location'], definition['name'], definition['description']) %>
-  <% internal_objects = DataCycleCore::DataHashService.get_internal_data(definition['storage_location'], value) %>
+  <div class="embedded-object" id="<%= sanitize_to_id(key) %>"
+    data-language="<%= I18n.locale.to_s %>"
+    data-key="<%= key %>"
+    data-label="<%= definition['label'] %>"
+    data-definition="<%= definition.to_json %>"
+    data-options="<%= options.to_json %>"
+    data-max="<%= definition.dig('validations', 'maxLength') || 0 %>"
+    data-min="<%= definition.dig('validations', 'minLength') || 0 %>"
+    data-write="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>">
 
-  <% unless internal_template.try(:metadata).dig('validation', 'name').nil? %>
-    <% unless internal_objects.blank? %>
-      <% internal_objects.each_with_index do |object, index| %>
+    <% internal_template = DataCycleCore::DataHashService.get_internal_template(definition['storage_location'], definition['name'], definition['description']) %>
+    <% internal_objects = DataCycleCore::DataHashService.get_internal_data(definition['storage_location'], value) %>
 
-        <% objectDataHash = object.get_data_hash %>
-        <% unless object.try(:metadata).dig('validation').nil? %>
-
-          <% validation_properties = get_ordered_validation_properties(object.metadata['validation']) %>
-          <% if !validation_properties.nil? %>
-
-            <div class="content-object-item" id="<%= sanitize_to_id(key) %>_item_<%= index %>">
-              <span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.metadata['validation']['name'].downcase %> <%= definition['label'] %></span>
-
-              <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
-                <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
-              <% end %>
-
-              <%= hidden_field_tag("#{key}[#{index}][id]", objectDataHash['id']) %>
-
-              <% validation_properties.each do |o_key, o_prop| %>
-
-                <% value = o_prop.dig('type') == "object" ? object.try(o_key.to_sym) : objectDataHash[o_key] %>
-
-                <%= render_attribute_editor key: "#{key}[#{index}][#{o_key}]", definition: o_prop, value: value, parameters: { options: o_prop.dig('editor', 'options') || {} } %>
-
-              <% end %>
-            </div>
-          <% end %>
+    <% unless internal_template.try(:metadata).dig('validation', 'name').nil? %>
+      <% unless internal_objects.blank? %>
+        <% internal_objects.each_with_index do |object, index| %>
+          <%= render_embedded_object_partial(key: key, definition: definition, parameters: {internal_template: internal_template, object: object, index: index, options: options, new_content: new_content}) %>
         <% end %>
       <% end %>
     <% end %>
 
-    <% validation_properties = get_ordered_validation_properties(internal_template.metadata['validation']) %>
-
-    <% if !validation_properties.nil? %>
-      <embedded-objects
-        embedded-object-key="<%= key %>"
-        :min="<%= definition.dig('validations', 'minLength') || 0 %>"
-        :max="<%= definition.dig('validations', 'maxLength') || 0 %>"
-        label="<%= definition['label'] %>"
-        :readonly="<%= !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>">
-        <template scope="props" slot="embedded-item" >
-          <span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.metadata['validation']['name'].downcase %> <%= definition['label'] %></span>
-          <% validation_properties.each do |o_key, o_prop| %>
-
-            <%= render_attribute_editor key: "#{key}[0][#{o_key}]", definition: o_prop, value: "", parameters: { options: o_prop.dig('editor', 'options') || {} } %>
-
-          <% end %>
-        </template>
-      </embedded-objects>
-    <% end %>
-  <% end %>
+    <button id="add_<%= sanitize_to_id(key) %>" type="button" class="button addContentObject" style="display: none;"><%= definition['label'] %> hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
+  </div>
 <% end %>

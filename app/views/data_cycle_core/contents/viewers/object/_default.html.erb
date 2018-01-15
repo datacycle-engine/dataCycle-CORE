@@ -14,7 +14,7 @@
                        definition: definition,
                        value: value,
                        options: options.merge({hide_label: true}),
-                       data_attributes: {id: object.id.split(','), editor: definition['editor']['type']} do %>
+                       data_attributes: {id: object.id.split(','), editor: definition.dig('editor', 'type').try(:underscore)} do %>
 
                 <span class="detail-label">
                     <%= render 'data_cycle_core/shared/icon', icon_type: objects[0].metadata['validation']['name'].downcase %><strong><%= definition['label'].capitalize %> <%= content_tag(:span, index+1) if objects_length > 1 %></strong>

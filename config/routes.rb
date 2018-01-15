@@ -90,7 +90,12 @@ DataCycleCore::Engine.routes.draw do
     end
   end
 
-  get '/objectbrowser', to: 'object_browser#show'
-  get '/objectbrowser/find', to: 'object_browser#find'
+  namespace :object_browser do
+    post :show
+    post :details
+    post :find
+  end
 
+  post 'contents/new_embedded_object', to: 'contents#new_embedded_object'
+  post 'contents/render_embedded_object', to: 'contents#render_embedded_object'
 end

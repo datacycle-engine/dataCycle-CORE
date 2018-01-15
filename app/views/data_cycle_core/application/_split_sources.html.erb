@@ -3,19 +3,24 @@
   <h5><%= title_text %></h5>
   <li id="split-source-selector">
     <%= form_tag(url, method: :get) do %>
+
       <% sources = [] %>
       <% contents.each do |content| %>
         <% I18n.with_locale(content.first_available_locale) do %>
-          <% sources.push({ value: "source_id=>#{content.id},source_type=>#{content.class.name}", label: "#{content.title} (#{content.content_type}, #{I18n.locale})", level: 0 }) %>
+          <% sources.push(["#{content.title} (#{content.content_type}, #{I18n.locale})", "source_id=>#{content.id},source_type=>#{content.class.name}"]) %>
         <% end %>
       <% end %>
 
       <% selected_value = '' %>
       <% I18n.with_locale(selected.first_available_locale) do %>
-        <% selected_value = { value: "source_id=>#{selected.id},source_type=>#{selected.class.name}", label: "#{selected.title} (#{selected.content_type}, #{selected.translated_locales.first})", level: 0 } %>
+        <% selected_value = ["#{selected.title} (#{selected.content_type}, #{selected.translated_locales.first})", "source_id=>#{selected.id},source_type=>#{selected.class.name}"] %>
       <% end unless selected.blank? %>
 
-      <custom-select :multiple="false" hidden-field-id="source" label="label" :custom-options="<%= sources.to_json %>" :selected-values="<%= selected_value.to_json %>"></custom-select>
+      <div class="form-element">
+        <div class="v-select white">
+          <%= select_tag('source', options_for_select(sources, selected_value), {class: 'single-select select', data: {placeholder: 'Vorlage wählen'}, include_blank: true}) %>
+        </div>
+      </div>
 
       <button class="button"><%= t('common.load_splitsource', locale: DataCycleCore.ui_language) %></button>
     <% end %>

@@ -68,11 +68,13 @@
 
         <% if can? :set_user_groups, @user %>
           <div class="form-element validation-container" tabindex="-1">
-              <% select_options = DataCycleCore::UserGroup.all.map{|u| {value: u.id, label: u.name}} %>
-              <% selected_values = content.user_groups.map{|u| {value: u.id, label: u.name}} %>
 
+            <div class="v-select">
               <%= f.label :user_group_ids %>
-              <custom-select hidden-field-id="user[user_group_ids][]" :custom-options="<%= select_options.to_json %>" :selected-values="<%= selected_values.to_json %>"></custom-select>
+              <%= hidden_field_tag 'user[user_group_ids][]' %>
+              <%= select_tag('user[user_group_ids][]', options_for_select(DataCycleCore::UserGroup.all.map { |c| [c.name, c.id] }, content.user_groups.map(&:id)), {multiple: true, class: 'multi-select'}) %>
+            </div>
+
           </div>
         <% end %>
 
