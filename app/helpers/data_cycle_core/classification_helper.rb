@@ -1,6 +1,6 @@
 module DataCycleCore
   module ClassificationHelper
-    # todo refactor
+    # TODO: refactor
     def get_classifications_for_name(name)
       if !name.nil? && !name.blank?
         DataCycleCore::ClassificationTreeLabel
@@ -9,7 +9,7 @@ module DataCycleCore
       end
     end
 
-    # todo refactor
+    # TODO: refactor
     def get_classifications_for_id(uids, treeLabel = nil)
       begin
         unless uids.nil?
@@ -29,7 +29,7 @@ module DataCycleCore
       end
     end
 
-    # todo refactor
+    # TODO: refactor
     def get_classificationAliases_for_classificationIDs(uids)
       result = []
       unless uids.nil?
@@ -44,7 +44,7 @@ module DataCycleCore
         return nil
       end
 
-      # todo: make this more fancy
+      # TODO: make this more fancy
       @selected_values = []
       Array(value).each do |v|
         options.each do |o|

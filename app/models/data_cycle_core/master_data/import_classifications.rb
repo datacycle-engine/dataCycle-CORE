@@ -24,14 +24,14 @@ module DataCycleCore
         data_tree.each do |data|
           internal = false
           if data.kind_of?(String)
-            if data.starts_with?('$$')            # '$$' präfix for interal classifications
+            if data.starts_with?('$$')            # '$$' prefix for interal classifications
               data = data[2..(data.length - 1)]
               internal = true
             end
             save_data(data, parent, internal)
           elsif data.kind_of?(Hash)
             parent_name = data.keys.first
-            if data.keys.first.starts_with?('$$') # '$$' präfix for interal classifications
+            if data.keys.first.starts_with?('$$') # '$$' prefix for interal classifications
               parent_name = data.keys.first[2..(data.keys.first.length - 1)]
               internal = true
             end

@@ -78,7 +78,7 @@ module DataCycleCore
         object_params = place_params('places', @place.metadata['validation']['name'], @place.metadata['validation']['description'])
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @place.metadata['validation'], false)
 
-        # todo: implement preprocessor
+        # TODO: implement preprocessor
         datahash = set_location(datahash)
 
         valid = @place.set_data_hash(data_hash: datahash, current_user: current_user)
@@ -134,7 +134,7 @@ module DataCycleCore
       params.require(:place).permit(:datahash => datahash)
     end
 
-    # todo: implement as preprocessor
+    # TODO: implement as preprocessor
     def set_location(datahash)
       if !datahash['longitude'].nil? && !datahash['longitude'].blank? && !datahash['latitude'].nil? && !datahash['latitude'].blank?
         datahash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(datahash['longitude'].to_f, datahash['latitude'].to_f)

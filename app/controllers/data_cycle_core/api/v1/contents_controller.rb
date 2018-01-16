@@ -38,8 +38,7 @@ module DataCycleCore
       @language = params[:language] unless params[:language].blank?
       @language ||= 'de'
 
-      order_string = DataCycleCore::Filter::ObjectBrowserQueryBuilder::get_order_by_query_string(params[:search])
-
+      order_string = DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(params[:search])
       classification_aliases = DataCycleCore::ClassificationAlias.joins(
         :classification_tree_label
       ).where(

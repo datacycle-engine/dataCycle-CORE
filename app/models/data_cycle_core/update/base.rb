@@ -1,7 +1,7 @@
 module DataCycleCore
   module Update
     class Base
-      def update()
+      def update
         total_updates = query().count
         puts "UPDATE '#{@template.metadata['validation']['name']}' templates - #{total_updates} items (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
 

@@ -78,7 +78,7 @@ module DataCycleCore
       item
     end
 
-    # todo: refactor
+    # TODO: refactor
     def getRelationObjectChanges diff
       added_objects, removed_objects = [], []
 

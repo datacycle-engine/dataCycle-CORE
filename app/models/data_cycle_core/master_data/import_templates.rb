@@ -89,7 +89,7 @@ module DataCycleCore
         Dry::Validation.Schema do
           configure do
             def valid_classification?(value)
-              # todo: check if required ? (external categories can not be found before import)
+              # TODO: check if required ? (external categories can not be found before import)
               # ! DataCycleCore::ClassificationAlias.find_by(name: value).nil?
               true
             end
@@ -147,7 +147,7 @@ module DataCycleCore
                 ] + DataCycleCore.content_tables
               )
           }
-          # todo: add type_name validation after polymorphic relation tables
+          # TODO: add type_name validation after polymorphic relation tables
           # optional(:type_name) {
           #   str? &
           #   included_in?(

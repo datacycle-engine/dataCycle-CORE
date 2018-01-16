@@ -406,8 +406,6 @@ module DataCycleCore
           data_hash[key] = data[key]
         elsif data_definitions[key]['storage_location'] == 'column'
           self.method("#{key}=").call(data[key])
-        else
-          # ignore wrong data
         end
       end
       data_hash

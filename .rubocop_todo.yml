@@ -7,28 +7,6 @@
 # versions of RuboCop, may require this file to be generated again.
 
 
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: always, conditionals
-Style/AndOr:
-  Exclude:
-    - 'app/controllers/data_cycle_core/creative_works_controller.rb'
-    - 'app/controllers/data_cycle_core/data_links_controller.rb'
-    - 'app/uploaders/data_cycle_core/image_uploader.rb'
-
-# Offense count: 2
-# Configuration parameters: AllowedChars.
-Style/AsciiComments:
-  Exclude:
-    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/BlockComments:
-  Exclude:
-    - 'spec/spec_helper.rb'
-
 # Offense count: 87
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, ProceduralMethods, FunctionalMethods, IgnoredMethods.
@@ -84,60 +62,10 @@ Style/ClassVars:
     - 'app/models/data_cycle_core/master_data/validators/object.rb'
     - 'app/models/data_cycle_core/master_data/validators/string.rb'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/ColonMethodCall:
-  Exclude:
-    - 'app/controllers/concerns/data_cycle_core/filter.rb'
-    - 'app/controllers/data_cycle_core/api/v1/contents_controller.rb'
-    - 'app/controllers/data_cycle_core/object_browser_controller.rb'
-
-# Offense count: 14
-# Cop supports --auto-correct.
-# Configuration parameters: Keywords.
-# Keywords: TODO, FIXME, OPTIMIZE, HACK, REVIEW
-Style/CommentAnnotation:
-  Exclude:
-    - 'app/controllers/data_cycle_core/object_browser_controller.rb'
-    - 'app/controllers/data_cycle_core/places_controller.rb'
-    - 'app/helpers/data_cycle_core/classification_helper.rb'
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
-    - 'app/helpers/data_cycle_core/history_helper.rb'
-    - 'app/models/data_cycle_core/master_data/import_templates.rb'
-    - 'app/services/data_cycle_core/data_hash_service.rb'
-
-# Offense count: 15
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SingleLineConditionsOnly, IncludeTernaryExpressions.
-# SupportedStyles: assign_to_condition, assign_inside_condition
-Style/ConditionalAssignment:
-  Exclude:
-    - 'app/controllers/data_cycle_core/api/v1/watch_lists_controller.rb'
-    - 'app/controllers/data_cycle_core/classifications_controller.rb'
-    - 'app/controllers/data_cycle_core/creative_works_controller.rb'
-    - 'app/controllers/data_cycle_core/events_controller.rb'
-    - 'app/controllers/data_cycle_core/persons_controller.rb'
-    - 'app/controllers/data_cycle_core/places_controller.rb'
-    - 'app/controllers/data_cycle_core/users_controller.rb'
-    - 'app/models/data_cycle_core/generic/download.rb'
-    - 'app/models/data_cycle_core/generic/feratel/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/import.rb'
-    - 'app/models/data_cycle_core/generic/import_base.rb'
-    - 'app/models/data_cycle_core/generic/transformations/functions.rb'
-    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
-    - 'app/models/data_cycle_core/stats_database.rb'
 
 # Offense count: 33
 Style/DateTime:
   Enabled: false
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/DefWithParentheses:
-  Exclude:
-    - 'app/models/data_cycle_core/update/base.rb'
-    - 'app/models/data_cycle_core/update/update_data.rb'
-    - 'app/models/data_cycle_core/update/update_template.rb'
 
 # Offense count: 3
 # Cop supports --auto-correct.
@@ -146,51 +74,6 @@ Style/EmptyCaseCondition:
     - 'app/controllers/data_cycle_core/object_browser_controller.rb'
     - 'app/helpers/data_cycle_core/content_helpers.rb'
     - 'app/models/data_cycle_core/filter/object_browser_query_builder.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty, nil, both
-Style/EmptyElse:
-  Exclude:
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
-    - 'app/models/data_cycle_core/data_hash.rb'
-    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
-
-# Offense count: 6
-# Cop supports --auto-correct.
-Style/EmptyLambdaParameter:
-  Exclude:
-    - 'app/models/data_cycle_core/classification_group.rb'
-    - 'spec/models/content_spec.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/EmptyLiteral:
-  Exclude:
-    - 'app/helpers/data_cycle_core/history_helper.rb'
-
-# Offense count: 18
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: compact, expanded
-Style/EmptyMethod:
-  Exclude:
-    - 'app/controllers/data_cycle_core/assets_controller.rb'
-    - 'app/controllers/data_cycle_core/backend_controller.rb'
-    - 'app/controllers/data_cycle_core/creative_works_controller.rb'
-    - 'app/controllers/data_cycle_core/dash_board_controller.rb'
-    - 'app/controllers/data_cycle_core/events_controller.rb'
-    - 'app/controllers/data_cycle_core/frontend_controller.rb'
-    - 'app/controllers/data_cycle_core/persons_controller.rb'
-    - 'app/controllers/data_cycle_core/places_controller.rb'
-    - 'app/controllers/data_cycle_core/user_groups_controller.rb'
-    - 'app/controllers/data_cycle_core/users_controller.rb'
-    - 'app/helpers/data_cycle_core/person_helpers.rb'
-    - 'app/helpers/data_cycle_core/place_helpers.rb'
-    - 'app/helpers/data_cycle_core/place_translation_helpers.rb'
-    - 'app/models/data_cycle_core/master_data/validators/basic_validator.rb'
-    - 'lib/data_cycle_core.rb'
 
 # Offense count: 304
 # Cop supports --auto-correct.
@@ -223,15 +106,6 @@ Style/IfInsideElse:
 # Cop supports --auto-correct.
 Style/IfUnlessModifier:
   Enabled: false
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: line_count_dependent, lambda, literal
-Style/Lambda:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/outdoor_active/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 
 # Offense count: 35
 # Cop supports --auto-correct.

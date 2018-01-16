@@ -29,7 +29,7 @@ module DataCycleCore
       end
 
       if DataCycleCore::DataLink.joins(:receiver).where(item_type: create_link_params[:item_type], item_id: create_link_params[:item_id], users: { email: receiver_params[:email] }).size > 0
-        redirect_back(fallback_location: root_path, alert: (I18n.t :email_exists, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) and return
+        redirect_back(fallback_location: root_path, alert: (I18n.t :email_exists, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return
       end
 
       @data_link = DataCycleCore::DataLink.new(create_link_params)

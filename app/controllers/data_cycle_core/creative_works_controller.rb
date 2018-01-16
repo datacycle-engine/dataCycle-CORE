@@ -59,7 +59,7 @@ module DataCycleCore
       authorize! :show, @creativeWork
 
       if source_params.blank?
-        redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) and return
+        redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return
       end
 
       @source = source_params[:source_type].constantize.find(source_params[:source_id]) unless source_params.blank?

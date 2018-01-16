@@ -85,8 +85,6 @@ module DataCycleCore
     def render_classificationTreeLabel_field(key, prop, value = nil, options = {}, parent_object_keys = [])
       if !prop['editor'].nil? && !prop['editor']['type'].nil?
         render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys }
-      else
-        # 'editor not set'
       end
     end
 
@@ -219,7 +217,7 @@ module DataCycleCore
       return DataCycleCore::DataHashService.get_internal_data(storage_location, value)
     end
 
-    # todo: move to mixins
+    # TODO: move to mixins
     def normalize_value(value = nil)
       if value.kind_of?(Array)
         value = value.reject { |v| v.blank? }

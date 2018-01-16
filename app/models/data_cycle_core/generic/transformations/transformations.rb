@@ -134,8 +134,6 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:add_field, 'start_location', ->s {
           if s['longitude'] && s['latitude']
             RGeo::Geographic.spherical_factory(srid: 4326).point(s['latitude'], s['longitude'])
-          else
-            nil
           end
         })
     .>> t(:add_field, 'tour', ->s {

@@ -86,13 +86,13 @@ RSpec.shared_examples "for properties with no content yet" do |storage_location|
 end
 
 RSpec.describe DataCycleCore::Content, type: :model do
-  include_context "for properties", "metadata", ->() { SecureRandom.hex }
+  include_context "for properties", "metadata", -> { SecureRandom.hex }
 
-  include_context "for properties with no content yet", "content", ->() { SecureRandom.hex }
-  include_context "for properties", "content", ->() { SecureRandom.hex }
+  include_context "for properties with no content yet", "content", -> { SecureRandom.hex }
+  include_context "for properties", "content", -> { SecureRandom.hex }
 
-  include_context "for properties with no content yet", "properties", ->() { SecureRandom.hex }
-  include_context "for properties", "properties", ->() { SecureRandom.hex }
+  include_context "for properties with no content yet", "properties", -> { SecureRandom.hex }
+  include_context "for properties", "properties", -> { SecureRandom.hex }
 
   describe "with translatable and untranslatable properties" do
     subject {

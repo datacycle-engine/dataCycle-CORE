@@ -29,7 +29,7 @@ module DataCycleCore
         order_string = 'boost DESC, ' + @order_by + ' ' + @order
       else
         # order by ranking
-        order_string = DataCycleCore::Filter::ObjectBrowserQueryBuilder::get_order_by_query_string(params[:search])
+        order_string = DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(params[:search])
       end
 
       query = DataCycleCore::Filter::Search.new(@language).in_validity_period

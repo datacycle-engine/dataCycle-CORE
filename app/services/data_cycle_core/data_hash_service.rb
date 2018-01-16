@@ -1,6 +1,6 @@
 module DataCycleCore
   class DataHashService
-    # todo refactor: class => module
+    # TODO: refactor: class => module
     extend NormalizeService
     require 'hashdiff'
 
@@ -131,7 +131,7 @@ module DataCycleCore
         elsif value.is_a?(::Array)
           value = value.reject { |v| v.empty? }
         else
-          # todo: add more casts ?
+          # TODO: add more casts ?
           if properties['type'] == 'number' && !properties['validations'].nil? && !properties['validations']['format'].nil? && properties['validations']['format'] == 'float'
             value = value.to_f
           elsif properties['type'] == 'number'
