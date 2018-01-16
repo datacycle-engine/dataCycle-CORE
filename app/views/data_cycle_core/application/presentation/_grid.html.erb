@@ -10,7 +10,7 @@
 		<% contents.each do |content| %>
       <div class="grid-item data-cycle-object">
         <div class="buttons">
-          <%= render 'data_cycle_core/contents/tiles/attributes/external', item: content if content.external_source %>
+          <%= render 'data_cycle_core/contents/tiles/attributes/external', item: content if content.try(:external_source) %>
 
           <% if can?(:manage, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && content.class != DataCycleCore::WatchList %>
             <%= render 'watch_lists', content: content %>
