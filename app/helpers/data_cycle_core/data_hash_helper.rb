@@ -187,7 +187,7 @@ module DataCycleCore
       render partial: "#{@@partials_path}duration", locals: { key: key, value: value, label: label, prop: prop, options: options, parent_object_keys: parent_object_keys }
     end
 
-    def to_html_string title, text = ''
+    def to_html_string(title, text = '')
       html_title = ''
       unless title.blank?
         html_title += '<i>'

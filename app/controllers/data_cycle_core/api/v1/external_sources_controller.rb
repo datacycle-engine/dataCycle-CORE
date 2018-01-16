@@ -50,15 +50,15 @@ module DataCycleCore
       end
     end
 
-    def execute_after_update_webhooks data
+    def execute_after_update_webhooks(data)
       Webhook::Update.execute_all(data)
     end
 
-    def execute_after_delete_webhooks data
+    def execute_after_delete_webhooks(data)
       Webhook::Delete.execute_all(data)
     end
 
-    def execute_after_create_webhooks data
+    def execute_after_create_webhooks(data)
       Webhook::Create.execute_all(data)
     end
   end

@@ -4,7 +4,7 @@ module DataCycleCore
     # load_and_authorize_resource       # from cancancan (authorize)
 
     def index
-      @paginateObject = DataCycleCore::Event.all().where(:template => false).order(updated_at: :desc).page(params[:page])
+      @paginateObject = DataCycleCore::Event.all.where(:template => false).order(updated_at: :desc).page(params[:page])
       @event = DataCycleCore::Event.new
     end
 

@@ -160,16 +160,16 @@ RSpec.describe DataCycleCore::Content, type: :model do
 
     it "fails to provide methods for properties that are not specified in the subject" do
       ['abcd', 'jklm'].each do |item|
-        expect(subject.respond_to? item).to be false
-        expect(subject.respond_to? item.to_sym).to be false
-        expect(subject.respond_to? "#{item}=").to be false
-        expect(subject.respond_to? "#{item}=".to_sym).to be false
+        expect(subject.respond_to?(item)).to be false
+        expect(subject.respond_to?(item.to_sym)).to be false
+        expect(subject.respond_to?("#{item}=")).to be false
+        expect(subject.respond_to?("#{item}=".to_sym)).to be false
       end
     end
 
     it "raises NameError when not specified methods are called" do
       ['abcd', 'jklm'].each do |item|
-        expect { subject.method(item).call() }.to raise_error(NameError)
+        expect { subject.method(item).call }.to raise_error(NameError)
         expect { subject.method("#{item}=").call("test") }.to raise_error(NameError)
       end
     end

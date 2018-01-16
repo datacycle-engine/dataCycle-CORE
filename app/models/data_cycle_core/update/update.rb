@@ -7,7 +7,7 @@ module DataCycleCore
         @transformation = transformation
 
         self.extend(strategy)
-        update()
+        update
       end
     end
   end

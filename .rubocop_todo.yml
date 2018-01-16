@@ -117,28 +117,6 @@ Style/LambdaCall:
     - 'app/models/data_cycle_core/generic/import_base.rb'
     - 'test/data_definition/data_definition_spec.rb'
 
-# Offense count: 7
-# Cop supports --auto-correct.
-Style/MethodCallWithoutArgsParentheses:
-  Exclude:
-    - 'app/controllers/data_cycle_core/events_controller.rb'
-    - 'app/controllers/data_cycle_core/persons_controller.rb'
-    - 'app/controllers/data_cycle_core/places_controller.rb'
-    - 'app/models/data_cycle_core/update/base.rb'
-    - 'app/models/data_cycle_core/update/update.rb'
-    - 'spec/models/content_spec.rb'
-
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: require_parentheses, require_no_parentheses, require_no_parentheses_except_multiline
-Style/MethodDefParentheses:
-  Exclude:
-    - 'app/controllers/data_cycle_core/api/v1/external_sources_controller.rb'
-    - 'app/controllers/data_cycle_core/creative_works_controller.rb'
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
-    - 'app/helpers/data_cycle_core/history_helper.rb'
-
 # Offense count: 2
 Style/MethodMissing:
   Exclude:
@@ -197,14 +175,6 @@ Style/NegatedIf:
     - 'app/views/data_cycle_core/api/v1/api_base/_translated_properties.json.jbuilder'
     - 'app/views/data_cycle_core/api/v1/api_base/_untranslated_properties.json.jbuilder'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: Whitelist.
-# Whitelist: be, be_a, be_an, be_between, be_falsey, be_kind_of, be_instance_of, be_truthy, be_within, eq, eql, end_with, include, match, raise_error, respond_to, start_with
-Style/NestedParenthesizedCalls:
-  Exclude:
-    - 'spec/models/content_spec.rb'
-
 # Offense count: 1
 Style/NestedTernaryOperator:
   Exclude:
@@ -219,13 +189,6 @@ Style/Next:
     - 'app/views/data_cycle_core/api/v1/api_base/_embedded_properties.json.jbuilder'
     - 'app/views/data_cycle_core/api/v1/api_base/_linked_properties.json.jbuilder'
     - 'lib/tasks/data_cycle_core_tasks.rake'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: IncludeSemanticChanges.
-Style/NonNilCheck:
-  Exclude:
-    - 'app/models/data_cycle_core/master_data/import_templates.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.

@@ -229,11 +229,11 @@ module DataCycleCore
       end
     end
 
-    def is_number? string
+    def is_number?(string)
       true if Float(string) rescue false
     end
 
-    def execute_after_update_webhooks data
+    def execute_after_update_webhooks(data)
       Webhook::Update.execute_all(data)
     end
 

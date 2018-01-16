@@ -2,11 +2,11 @@ module DataCycleCore
   module Update
     class Base
       def update
-        total_updates = query().count
+        total_updates = query.count
         puts "UPDATE '#{@template.metadata['validation']['name']}' templates - #{total_updates} items (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
 
         item_count = 0
-        query().find_each do |content_item|
+        query.find_each do |content_item|
           data_hash_all = {}
           content_item.available_locales.each do |locale|
             I18n.with_locale(locale) do
