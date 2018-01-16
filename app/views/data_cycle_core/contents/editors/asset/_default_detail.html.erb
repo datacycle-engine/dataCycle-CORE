@@ -1,34 +1,36 @@
-<br /><br />
-
 <% if value.blank? %>
 
     <%= hidden_field_tag "#{key}", '', id: "#{sanitize_to_id(key)}_hidden" %>
-
     <%= file_field_tag "asset[file]", id:"#{sanitize_to_id(key)}_file" %>
-
-    <button id="add_<%= sanitize_to_id(key) %>" type="button" class="button addAsset"><%= definition['label'] %> hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
-
-    <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
-        <button type="button" style="display:none;" class="button removeAsset"><i class="fa fa-times"></i></button>
-    <% end %>
 
 <% else %>
 
     <% image = value.first %>
     <%= hidden_field_tag "#{key}", image.id, id: "#{sanitize_to_id(key)}_hidden" %>
-    <%#= raise image.inspect %>
-    <h2><%= image.id %></h2>
-    <h2><%= image.file.file.filename %></h2>
-    <h3><%=  image.content_type %> (<%= image.file_size %> B)</h3>
-    <%#= image_tag image.file.file.url %>
-    <a href="<%= image.file.url %>" target="_blank">
-        <img src="<%= image.file.thumb_preview.url %>" />
-    </a>
 
-    <button id="add_<%= sanitize_to_id(key) %>" type="button" style="display:none;" class="button addAsset"><%= definition['label'] %> hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
+    <div class="inner">
+        <span class="asset-title"><%= image.file.file.filename %></span>
+        <span class="asset-type"><%=  image.content_type %> (<%= image.file_size %> B)</span>
+        <div class="thumb">
+            <% if !image.file.thumb_preview.file.nil? && image.file.thumb_preview.file.exists? %>
+                <a href="<%= image.file.url %>" target="_blank">
+                    <img src="<%= image.file.thumb_preview.url %>" />
+                </a>
+            <% else %>
+                <div class="placeholder">
+                    <i class="fa fa-picture-o" aria-hidden="true"></i>
+                    <span>
+                        Asset wird verarbeitet.
+                    </span>
+                </div>
+            <% end %>
+        </div>
+    </div>
 
-    <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
-        <button type="button" class="button removeAsset"><i class="fa fa-times"></i></button>
-    <% end %>
+<% end %>
 
+<button id="add_<%= sanitize_to_id(key) %>" style="<%= 'display:none;' unless value.blank? %>" type="button" class="button addAsset">hochladen <i class="fa fa-upload"></i></button>
+
+<% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
+    <button type="button" style="<%= 'display:none;' if value.blank? %>" class="button removeAsset"><i class="fa fa-times"></i></button>
 <% end %>
