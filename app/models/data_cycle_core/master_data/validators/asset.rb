@@ -2,9 +2,8 @@ module DataCycleCore
   module MasterData
     module Validators
       class Asset < BasicValidator
-
         def validate(data, template)
-          if is_blank?(data)
+          if blank?(data)
             @error[:warning].push I18n.t :no_data, scope: [:validation, :errors], data: template['label'], locale: DataCycleCore.ui_language
           elsif data.is_a?(::Array)
             check_reference_array(data, template)
@@ -20,8 +19,8 @@ module DataCycleCore
 
         def check_reference_array(data, template)
           # check given validations
-          if template.has_key?('validations')
-            template['validations'].keys.each do |key|
+          if template.key?('validations')
+            template['validations'].each_key do |key|
               if @@keywords.include?(key)
                 self.method(key).call(data, template['validations'][key])
               else
@@ -60,7 +59,7 @@ module DataCycleCore
         end
 
         # validate nil,"",[],[nil],[""] as blank.
-        def is_blank?(data)
+        def blank?(data)
           return true if data.blank?
           if data.is_a?(::Array)
             return true if data.length == 1 && data[0].blank?

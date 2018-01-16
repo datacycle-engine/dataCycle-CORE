@@ -1,6 +1,5 @@
 module DataCycleCore
   module AssetHelpers
-
     def thumbnail_url
       file.thumb_preview.url
     end
@@ -8,6 +7,5 @@ module DataCycleCore
     def headline
       ''
     end
-
   end
 end
