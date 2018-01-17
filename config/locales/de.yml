@@ -43,6 +43,12 @@ de:
     user: Benutzer
     guest: Gast
 
+  notification:
+    frequency:
+      always: sofort bei Änderung
+      day: täglich
+      week: wöchentlich
+
   common:
     loading: 'Laden ...'
     are_you_sure: 'Sind Sie sicher?'
@@ -174,6 +180,7 @@ de:
       locked: "%{data} wurde gesperrt."
       unlocked: "%{data} wurde freigegeben."
       invalidated: "Externer Link wurde deaktiviert."
+      updated_multiple: "%{data} wurden aktualisiert."
     info:
       not_modified: "%{data} wurde nicht geändert."
     job:
@@ -241,6 +248,7 @@ de:
         role_id: Rolle
         user_group_ids: Benutzergruppen
         external: SSO
+        notification_frequency: Frequenz der Benachrichtigungen
       data_cycle_core/person:
         given_name: Vorname
         family_name: Familienname
@@ -266,6 +274,7 @@ de:
     administration: 'Administration'
 
     classifications: 'Klassifizierungen'
+    settings: Einstellungen
 
   helpers:
     label:

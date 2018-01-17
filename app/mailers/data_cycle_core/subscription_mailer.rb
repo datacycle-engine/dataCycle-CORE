@@ -1,9 +1,9 @@
 module DataCycleCore
   class SubscriptionMailer < ApplicationMailer
-    def notify(user, content)
+    def notify(user, contents)
       @user = user
-      @content = content
-      mail(to: @user.email, subject: 'Abonnierter Inhalt wurde geändert')
+      @contents = contents
+      mail(to: @user.email, subject: 'Abonnierte Inhalte wurden geändert')
     end
   end
 end

@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
   s.add_dependency 'turbolinks', '~> 5'
   # database
-  s.add_dependency 'pg'
+  s.add_dependency 'pg', '~> 0.21'
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'rgeo'
   s.add_dependency 'acts_as_tree'
@@ -74,6 +74,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'hashdiff'
   s.add_dependency 'transproc', '~> 1.0'
   s.add_dependency 'dry-validation', '~> 0.11'
+
+  # cron jobs gem
+  s.add_dependency 'whenever'
 
   # development tools
   s.add_development_dependency 'web-console'
