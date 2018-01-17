@@ -8,7 +8,7 @@ module DataCycleCore
     end
 
     def new_asset_object
-      object_type = DataCycleCore.asset_objects.find { |object| object == additional_params[:definition][:type_name] }
+      object_type = DataCycleCore.asset_objects.find { |object| object == additional_params[:definition]['type_name'] }
 
       @asset = object_type.constantize.new(asset_params).set_content_type.set_file_size
       @asset.creator_id = current_user.try(:id)
@@ -36,8 +36,8 @@ module DataCycleCore
       @additional_params = {
         asset_object_id: params['asset']['asset_object_id'],
         key: params['asset']['key'],
-        definition: JSON.parse(params['asset']['definition']).symbolize_keys,
-        options: JSON.parse(params['asset']['options']).symbolize_keys
+        definition: JSON.parse(params['asset']['definition']),
+        options: JSON.parse(params['asset']['options'])
       }
     end
   end

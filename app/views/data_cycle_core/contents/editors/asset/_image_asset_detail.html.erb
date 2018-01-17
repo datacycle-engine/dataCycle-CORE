@@ -12,9 +12,18 @@
         <span class="asset-title"><%= image.file.file.filename %></span>
         <span class="asset-type"><%=  image.content_type %> (<%= image.file_size %> B)</span>
         <div class="thumb">
-            <a href="<%= image.file.url %>" target="_blank">
-                öffnen <i class="fa fa-external-link" aria-hidden="true"></i>
-            </a>
+            <% if !image.file.thumb_preview.file.nil? && image.file.thumb_preview.file.exists? %>
+                <a href="<%= image.file.url %>" target="_blank">
+                    <img src="<%= image.file.thumb_preview.url %>" />
+                </a>
+            <% else %>
+                <div class="placeholder">
+                    <i class="fa fa-picture-o" aria-hidden="true"></i>
+                    <span>
+                        Asset wird verarbeitet.
+                    </span>
+                </div>
+            <% end %>
         </div>
     </div>
 
