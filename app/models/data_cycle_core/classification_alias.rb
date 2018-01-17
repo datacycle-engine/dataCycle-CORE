@@ -19,6 +19,15 @@ module DataCycleCore
     has_many :classification_groups, dependent: :destroy
     has_many :classifications, -> { order(:name) }, through: :classification_groups
 
+    def self.for_tree(tree_name)
+      joins(classification_tree: :classification_tree_label)
+        .where('classification_trees' => {'classification_tree_labels' => {'name' => tree_name}})
+    end
+
+    def self.with_name(*names)
+      where(name: names.flatten)
+    end
+
     def ancestors
       Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 10.minutes) do
         if parent_classification_alias_with_deleted
