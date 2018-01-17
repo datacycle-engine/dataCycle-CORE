@@ -62,7 +62,17 @@ module DataCycleCore
         )
       end
 
-      private
+      def with_classification_aliases(tree_name, *aliases)
+        reflect (
+          @query.where(search[:content_data_id].in(
+            create_classification_alias_recursion(
+              DataCycleCore::ClassificationAlias.for_tree(tree_name).with_name(aliases).pluck(:id)
+            )
+          ))
+        )
+      end
+
+    private
 
       def create_classification_alias_recursion(ids)
         children = Arel::Table.new(:children)
