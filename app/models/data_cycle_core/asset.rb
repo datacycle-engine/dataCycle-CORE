@@ -3,6 +3,8 @@ module DataCycleCore
     # acts_as_paranoid
 
     # belongs_to :medium
+    mount_uploader :file, FileUploader
+    process_in_background :file
 
     include AssetHelpers
 

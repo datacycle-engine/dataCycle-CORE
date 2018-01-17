@@ -1,19 +1,16 @@
 <%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: value, options: options do %>
 
-    <% image = value.first %>
-    <div class="thumb">
-        <% if !image.file.thumb_preview.file.nil? && image.file.thumb_preview.file.exists? %>
-            <a href="<%= image.file.url %>" target="_blank">
-                <img src="<%= image.file.thumb_preview.url %>" />
-            </a>
-        <% else %>
-            <div class="placeholder">
-                <i class="fa fa-picture-o" aria-hidden="true"></i>
-                <span>
-                    Asset wird verarbeitet.
-                </span>
-            </div>
-        <% end %>
-    </div>
+    <% unless value.blank? %>
+        <% asset = value.first %>
 
+        <div class="inner">
+            <span class="asset-title"><%= asset.file.file.filename %></span>
+            <span class="asset-type"><%=  asset.content_type %> (<%= asset.file_size %> B)</span>
+            <div class="thumb">
+                <a href="<%= asset.file.url %>" target="_blank">
+                    öffnen <i class="fa fa-external-link" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+    <% end %>
 <% end %>

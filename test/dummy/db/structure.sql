@@ -33,6 +33,23 @@ CREATE TABLE ar_internal_metadata (
 
 
 --
+-- Name: asset_contents; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE asset_contents (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    content_data_id uuid,
+    content_data_type character varying,
+    asset_id uuid,
+    asset_type character varying,
+    relation character varying,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: assets; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1064,6 +1081,14 @@ ALTER TABLE ONLY ar_internal_metadata
 
 
 --
+-- Name: asset_contents asset_contents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY asset_contents
+    ADD CONSTRAINT asset_contents_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: assets assets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1609,6 +1634,20 @@ CREATE INDEX event_locale_idx ON event_translations USING btree (locale);
 --
 
 CREATE INDEX headline_idx ON searches USING gin (headline gin_trgm_ops);
+
+
+--
+-- Name: index_asset_contents_on_asset_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_asset_contents_on_asset_id ON asset_contents USING btree (asset_id);
+
+
+--
+-- Name: index_asset_contents_on_content_data_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_asset_contents_on_content_data_id ON asset_contents USING btree (content_data_id);
 
 
 --
@@ -2167,6 +2206,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20171204092716'),
 ('20171206163333'),
 ('20180103144809'),
-('20180105085118');
+('20180105085118'),
+('20180111111106');
 
 
