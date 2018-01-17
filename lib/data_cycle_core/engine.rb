@@ -101,6 +101,9 @@ module DataCycleCore
     mattr_accessor :release_codes
     self.release_codes = {}
 
+    mattr_accessor :notification_frequencies
+    self.notification_frequencies = ['always', 'day', 'week']
+
     #webhooks
     mattr_accessor :webhooks
     self.webhooks = {

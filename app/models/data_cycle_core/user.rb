@@ -34,6 +34,12 @@ module DataCycleCore
       self.role && self.role.try(:rank) == rank
     end
 
+    def send_notification contents
+      return unless contents.size.positive?
+
+      SubscriptionMailer.notify(self, contents).deliver_later
+    end
+
     private
     def set_default_role
       self.role ||= DataCycleCore::Role.find_by(name: 'standard')

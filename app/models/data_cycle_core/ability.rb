@@ -20,7 +20,7 @@ module DataCycleCore
         end
 
         if user.has_rank?(1)
-          can :read, :backend
+          can [:read, :settings], :backend
           can :modify, DataCycleCore::User, id: user.id
           can :manage, DataCycleCore::WatchList, user_id: user.id
           can [:subscribe, :history, :history_detail], [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]

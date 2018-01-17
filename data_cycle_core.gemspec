@@ -75,6 +75,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'transproc', '~> 1.0'
   s.add_dependency 'dry-validation', '~> 0.11'
 
+  # cron jobs gem
+  s.add_dependency 'whenever'
+
   # development tools
   s.add_development_dependency 'web-console'
   s.add_development_dependency 'better_errors'
