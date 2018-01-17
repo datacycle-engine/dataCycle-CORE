@@ -3,7 +3,7 @@ module DataCycleCore
     extend ActiveSupport::Concern
 
     module ClassMethods
-      def content_relations(options={}, &block)
+      def content_relations(options = {}, &block)
         table_given = options[:table_name]
         postfix = options[:postfix]
 
@@ -35,7 +35,7 @@ module DataCycleCore
         has_many :content_content_a_history, class_name: "DataCycleCore::ContentContent::History", as: :content_a_history, dependent: :destroy
         has_many :content_content_b_history, class_name: "DataCycleCore::ContentContent::History", as: :content_b_history, dependent: :destroy
 
-        (DataCycleCore.content_tables+DataCycleCore.linked_tables).map(&:singularize).each do |content_name|
+        (DataCycleCore.content_tables + DataCycleCore.linked_tables).map(&:singularize).each do |content_name|
           if postfix.nil?
             if table_given.to_s.singularize <= content_name
               has_many content_name.pluralize.to_sym, through: :content_content_a, source: :content_b, source_type: "DataCycleCore::#{content_name.classify}"

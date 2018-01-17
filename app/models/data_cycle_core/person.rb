@@ -1,14 +1,13 @@
 module DataCycleCore
   class Person < DataHash
-
     class Translation < Globalize::ActiveRecord::Translation
-        include ContentTranslationHelpers
+      include ContentTranslationHelpers
     end
 
     class History < DataHash
       # handle translations with gem Globalize
       translates :headline, :description, :content, :properties, :release,
-        :release_id, :release_comment, :history_valid
+                 :release_id, :release_comment, :history_valid
 
       content_relations table_name: "persons", postfix: "history"
 
@@ -26,7 +25,7 @@ module DataCycleCore
 
     # handle translations with gem Globalize
     translates :headline, :description, :content, :properties, :release,
-      :release_id, :release_comment
+               :release_id, :release_comment
 
     # include content specific relations
     content_relations table_name: self.table_name
@@ -46,6 +45,5 @@ module DataCycleCore
       self.translations.delete_all
       self.content_search_all.delete_all
     end
-
   end
 end

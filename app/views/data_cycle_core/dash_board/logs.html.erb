@@ -23,10 +23,10 @@
     <div class="row small-uncollapse">
         <div class="small-6 columns logs">
             <%#= Logreader.read("./log/#{@dataname.downcase}_import.log").html_safe %>
-            <%= Logreader.tail("./log/#{@dataname.downcase}_download.log",2000).html_safe %>
+            <%= Logreader.tail("./log/#{@dataname.downcase}_download.log",2000) %>
         </div>
         <div class="small-6 columns logs">
-            <%= Logreader.tail("./log/#{@dataname.downcase}_import.log",2000).html_safe %>
+            <%= Logreader.tail("./log/#{@dataname.downcase}_import.log",2000) %>
         </div>
     </div>
     <div class="row small-uncollapse">

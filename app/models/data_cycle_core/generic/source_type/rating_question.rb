@@ -8,5 +8,5 @@ class DataCycleCore::Generic::SourceType::RatingQuestion
   field :seen_at,      type: DateTime
   include Mongoid::Timestamps
 
-  before_save -> (document) { document.seen_at = DateTime.now }
+  before_save ->(document) { document.seen_at = DateTime.now }
 end

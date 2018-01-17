@@ -533,6 +533,10 @@ button {
 }
 
 .grid-item {
+  .content-link {
+    position: relative;
+    display: block;
+  }
   .image {
     img {
       width: 100%;

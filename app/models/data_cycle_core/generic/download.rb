@@ -1,7 +1,6 @@
 module DataCycleCore
   module Generic
     class Download < DataCycleCore::Generic::DownloadBase
-
       def download(**options, &block)
         if options.try(:[], :download).try(:[], :logging_strategy).blank?
           @logging = DataCycleCore::Generic::Logger::Console.new('download')
@@ -20,7 +19,6 @@ module DataCycleCore
 
         download_content(**options)
       end
-
     end
   end
 end

@@ -1,6 +1,5 @@
 module DataCycleCore
   class ClassificationsController < ApplicationController
-
     def index
       respond_to do |format|
         format.html do
@@ -48,16 +47,15 @@ module DataCycleCore
             path: c.ancestors.reverse.map(&:name).join(' > '),
             disabled: !c.primary_classification_alias.try(:assignable)
           }
-        }.uniq.first(params[:max].try(:to_i) || 10).sort_by{|c| c[:path] }
-
+        }.uniq.first(params[:max].try(:to_i) || 10).sort_by { |c| c[:path] }
     end
 
     def create
       permitted_params = params.permit(
         :classification_tree_label_id,
         :classification_tree_id,
-        {classification_tree_label: [:name, :internal]},
-        {classification_alias: [:name, :internal, :assignable]}
+        { classification_tree_label: [:name, :internal] },
+        { classification_alias: [:name, :internal, :assignable] }
       )
 
       respond_to do |format|
@@ -85,10 +83,10 @@ module DataCycleCore
                 classification_alias: @classification_alias
               )
               @object = DataCycleCore::ClassificationTree.create!({
-                classification_tree_label: @classification_tree_label,
-                parent_classification_alias: @parent_classification_tree.try(:sub_classification_alias),
-                sub_classification_alias: @classification_alias
-              })
+                                                                    classification_tree_label: @classification_tree_label,
+                                                                    parent_classification_alias: @parent_classification_tree.try(:sub_classification_alias),
+                                                                    sub_classification_alias: @classification_alias
+                                                                  })
             end
           end
         end

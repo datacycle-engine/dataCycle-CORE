@@ -1,7 +1,5 @@
 class CreateCreativeWorks < ActiveRecord::Migration[5.0]
-
   def up
-
     create_table :place_translations do |t|
       t.uuid :place_id, null: false
       t.string :locale, null: false
@@ -32,7 +30,7 @@ class CreateCreativeWorks < ActiveRecord::Migration[5.0]
       t.string :headline
       t.text :description
       t.integer :position, default: 0, null: 0
-      t.uuid :isPartOf  # parent_id
+      t.uuid :isPartOf # parent_id
       t.jsonb :metadata
       t.datetime :seen_at
       t.timestamps
@@ -54,7 +52,6 @@ class CreateCreativeWorks < ActiveRecord::Migration[5.0]
       t.datetime :seen_at
       t.timestamps
     end
-
   end
 
   def down
@@ -72,7 +69,5 @@ class CreateCreativeWorks < ActiveRecord::Migration[5.0]
     add_column :places, :email, :string
     add_column :places, :url, :string
     add_column :places, :hoursAvailable, :string
-
   end
-
 end

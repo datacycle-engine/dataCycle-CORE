@@ -1,6 +1,5 @@
 module DataCycleCore
   class Api::V1::WatchListsController < Api::V1::ApiBaseController
-
     def index
       if current_user
         @watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)

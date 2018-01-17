@@ -1,6 +1,5 @@
 module DataCycleCore::Generic
   class DownloadBase < Base
-
     protected
 
     def download_data(type, extract_id, extract_name, **options)
@@ -8,7 +7,7 @@ module DataCycleCore::Generic
 
       if options[:locales].size != 1
         options[:locales].each do |language|
-          download_data(type, extract_id, extract_name, options.except(:locales).merge({locales: [language]}))
+          download_data(type, extract_id, extract_name, options.except(:locales).merge({ locales: [language] }))
         end
       else
 
@@ -21,9 +20,7 @@ module DataCycleCore::Generic
         item_count = 0
 
         begin
-
           @source_object.with(@source_type) do |mongo_item|
-
             items = endpoint.send("#{type.collection_name}", lang: locale)
 
             max_string = ""

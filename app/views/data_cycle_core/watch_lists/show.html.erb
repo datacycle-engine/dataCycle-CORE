@@ -32,7 +32,7 @@
 
             <div class="edit">
                 <% if can? :edit, @watch_list %>
-                    <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small' do %>
+                    <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small edit-content-link' do %>
                         <i class="fa fa-pencil" aria-hidden="true"></i>
                     <% end %>
               <% end %>

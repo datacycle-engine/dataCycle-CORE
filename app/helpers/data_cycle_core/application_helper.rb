@@ -1,19 +1,18 @@
 module DataCycleCore
   module ApplicationHelper
-
     DEFAULT_KEY_MATCHING = {
-        alert: :alert,
-        notice: :success,
-        info: :info,
-        secondary: :secondary,
-        success: :success,
-        error: :alert,
-        warning: :warning,
-        primary: :primary
+      alert: :alert,
+      notice: :success,
+      info: :info,
+      secondary: :secondary,
+      success: :success,
+      error: :alert,
+      warning: :warning,
+      primary: :primary
     }
 
     def available_locales_with_names
-      Hash[I18n.available_locales.collect{ |l| [l, I18n.t('locales.'+l.to_s, locale: DataCycleCore.ui_language).try(:capitalize)] }]
+      Hash[I18n.available_locales.collect { |l| [l, I18n.t('locales.' + l.to_s, locale: DataCycleCore.ui_language).try(:capitalize)] }]
     end
 
     def display_flash_messages_new(closable: true)
@@ -43,7 +42,6 @@ module DataCycleCore
       else
         content_for(:title) + " | " + base_title
       end
-
     end
 
     def render_content_partial(partial, parameters)
@@ -64,7 +62,7 @@ module DataCycleCore
         "#{definition['type'].underscore}",
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/#{p}_editor" }
       parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options]))
-      render_first_existing_partial(partials, parameters.merge({key: key, definition: definition, value: value}))
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
     end
 
     def render_attribute_viewer(key:, definition:, value:, parameters: {})
@@ -76,7 +74,7 @@ module DataCycleCore
         "#{definition['type'].underscore}",
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/#{p}_viewer" }
 
-      render_first_existing_partial(partials, parameters.merge({key: key, definition: definition, value: value}))
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
     end
 
     def render_content_tile(item:, parameters: {})
@@ -87,7 +85,7 @@ module DataCycleCore
         "default"
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}_tile" }
 
-      render_first_existing_partial(partials, parameters.merge({item: item}))
+      render_first_existing_partial(partials, parameters.merge({ item: item }))
     end
 
     def render_attribute_history_viewer(key:, definition:, value:, parameters: {})
@@ -99,11 +97,10 @@ module DataCycleCore
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/history_viewers/#{p}_history_viewer" }
 
       begin
-        render_first_existing_partial(partials, parameters.merge({key: key, definition: definition, value: value}))
+        render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
       rescue
         render_attribute_viewer key: key, definition: definition, value: value, parameters: parameters
       end
-
     end
 
     def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {})
@@ -112,7 +109,7 @@ module DataCycleCore
         "default"
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_#{partial}" }
 
-      render_first_existing_partial(partials, parameters.merge({key: key, definition: definition}))
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition }))
     end
 
     def render_embedded_object_partial(partial: 'detail', key:, definition:, parameters: {})
@@ -122,7 +119,15 @@ module DataCycleCore
         "default"
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/embedded_object/#{p}_#{partial}" }
 
-      render_first_existing_partial(partials, parameters.merge({key: key, definition: definition}))
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition }))
+    end
+
+    def render_asset_partial(partial: 'detail', key:, value:, definition:, parameters: {})
+      partials = [
+        "#{definition.try(:[], 'editor').try(:[], 'type')}".try(:underscore),
+        "default"
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/asset/#{p}_#{partial}" }
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
     end
 
     private
@@ -158,7 +163,5 @@ module DataCycleCore
         content_tag(:span, '&times;'.html_safe, aria: { hidden: true })
       end
     end
-
   end
-
 end

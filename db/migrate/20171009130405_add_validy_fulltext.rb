@@ -8,6 +8,7 @@ class AddValidyFulltext < ActiveRecord::Migration[5.0]
     sql_query = "CREATE INDEX all_text_idx ON searches USING GIN (all_text gin_trgm_ops);"
     connection.exec_query(sql_query)
   end
+
   def down
     remove_index :searches, :all_text_idx
     remove_column :searches, :all_text

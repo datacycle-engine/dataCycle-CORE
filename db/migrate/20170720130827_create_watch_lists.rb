@@ -17,12 +17,10 @@ class CreateWatchLists < ActiveRecord::Migration[5.0]
       t.index :hashable_id
       t.index :hashable_type
     end
-
   end
 
   def down
     drop_table :watch_lists
     drop_table :watch_list_data_hashes
   end
-
 end

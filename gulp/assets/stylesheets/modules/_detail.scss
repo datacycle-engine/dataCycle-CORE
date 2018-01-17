@@ -106,6 +106,20 @@
               }
             }
           }
+          &.asset{
+            .inner{
+              padding: 0.5rem;
+              span{
+                display: block;
+                &.asset-type{
+                  opacity: 0.8;
+                }
+              }
+              .thumb{
+                margin-top: 1rem;
+              }
+            }
+          }
           &.media {
             .media-thumbs {
               display: flex;

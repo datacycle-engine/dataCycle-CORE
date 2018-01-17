@@ -3,32 +3,35 @@ module DataCycleCore
     @@default_per = 50
 
     def show
-      @content = Object.const_get("DataCycleCore::#{params[:type].classify}")
-        .includes({classifications: [], translations: []})
-        .find(params[:id])
+      object_type = DataCycleCore.content_tables.find { |object| object == params[:type] }
+
+      unless object_type.nil?
+        @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
+          .includes({ classifications: [], translations: [] })
+          .find(params[:id])
+      end
     end
 
     def update
-
+      object_type = DataCycleCore.content_tables.find { |object| object == params[:type] }
       content = params[:content]
 
-      @content = Object.const_get("DataCycleCore::#{params[:type].classify}")
-        .includes({classifications: [], translations: []})
+      @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
+        .includes({ classifications: [], translations: [] })
         .find(params[:id])
 
       render json: @content.get_data_hash
-
     end
 
     def destroy
+      object_type = DataCycleCore.content_tables.find { |object| object == params[:type] }
 
-      @content = Object.const_get("DataCycleCore::#{params[:type].classify}")
-        .includes({classifications: [], translations: []})
+      @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
+        .includes({ classifications: [], translations: [] })
         .find(params[:id])
 
       # @content.destroy
       # render json: {"success" => @content.destroyed?}
-
     end
 
     def search
@@ -46,9 +49,8 @@ module DataCycleCore
     end
 
     def get_deleted
-
       deleted_contents = DataCycleCore::CreativeWork::History.where(
-          DataCycleCore::CreativeWork::History.arel_table[:deleted_at].not_eq(nil)
+        DataCycleCore::CreativeWork::History.arel_table[:deleted_at].not_eq(nil)
       )
 
       @language = params[:language] unless params[:language].blank?
@@ -56,7 +58,7 @@ module DataCycleCore
 
       if params[:deleted_since]
         deleted_contents = deleted_contents.where(
-            DataCycleCore::CreativeWork::History.arel_table[:deleted_at].gteq(DateTime.parse(params[:deleted_since]))
+          DataCycleCore::CreativeWork::History.arel_table[:deleted_at].gteq(DateTime.parse(params[:deleted_since]))
         )
       end
 
@@ -96,13 +98,13 @@ module DataCycleCore
       if content_params[:search].blank?
         query
       else
-        query.order(DataCycleCore::Filter::ObjectBrowserQueryBuilder::get_order_by_query_string())
+        query.order(DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(content_params[:search]))
       end
     end
 
     def apply_paging(query)
       query
-        .page([content_params.fetch(:page, 1).to_i,(query.count / content_params.fetch(:per, @@default_per).to_i).ceil].min)
+        .page([content_params.fetch(:page, 1).to_i, (query.count / content_params.fetch(:per, @@default_per).to_i).ceil].min)
         .per(content_params.fetch(:per, @@default_per).to_i)
     end
   end

@@ -1,6 +1,5 @@
 class AddReleaseToEventsPlaces < ActiveRecord::Migration[5.0]
   def change
-
     reversible do |dir|
       dir.up do
         add_column :event_translations, :release, :jsonb
@@ -12,6 +11,5 @@ class AddReleaseToEventsPlaces < ActiveRecord::Migration[5.0]
         remove_column :event_translations, :release
       end
     end
-
   end
 end

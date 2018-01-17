@@ -1,6 +1,5 @@
 module DataCycleCore
   class ContentContent < ApplicationRecord
-
     belongs_to :content_a, polymorphic: true
     belongs_to :content_b, polymorphic: true
 

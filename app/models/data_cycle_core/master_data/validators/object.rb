@@ -2,15 +2,15 @@ module DataCycleCore
   module MasterData
     module Validators
       class Object < BasicValidator
-
         @@basic_types = {
-            'object' => Validators::Object,
-            'string' => Validators::String,
-            'number' => Validators::Number,
-            'geographic' => Validators::Geographic,
-            'embeddedLink' => Validators::EmbeddedLink,             # only one or zero links allowed
-            'embeddedLinkArray' => Validators::EmbeddedLinkArray,   # arbitray number of links to the same table allowed
-            'classificationTreeLabel' => Validators::ClassificationTreeLabel
+          'object' => Validators::Object,
+          'string' => Validators::String,
+          'number' => Validators::Number,
+          'geographic' => Validators::Geographic,
+          'embeddedLink' => Validators::EmbeddedLink,             # only one or zero links allowed
+          'embeddedLinkArray' => Validators::EmbeddedLinkArray,   # arbitray number of links to the same table allowed
+          'classificationTreeLabel' => Validators::ClassificationTreeLabel,
+          'asset' => Validators::Asset
         }
 
         @@object_validations = ['daterange']
@@ -32,7 +32,7 @@ module DataCycleCore
             end
 
             unless key_item['type'] == 'object'
-              #puts "call #{@@basic_types[key_item['type']]}.constantize.new(#{data[key]}, #{key_item})"
+              # puts "call #{@@basic_types[key_item['type']]}.constantize.new(#{data[key]}, #{key_item})"
               validator_object = "#{@@basic_types[key_item['type']]}".constantize.new(data[key], key_item)
               merge_errors(validator_object.error) unless validator_object.nil?
               next
@@ -49,7 +49,7 @@ module DataCycleCore
             end
 
             if key_item.has_key?('properties')
-              #puts "call #{@@basic_types[key_item['type']]}.constantize.new(#{data[key]}, #{key_item['properties']},#{@schema})"
+              # puts "call #{@@basic_types[key_item['type']]}.constantize.new(#{data[key]}, #{key_item['properties']},#{@schema})"
               validator_object = "#{@@basic_types[key_item['type']]}".constantize.new(data[key], key_item['properties'])
               merge_errors(validator_object.error) unless validator_object.nil?
               next
@@ -61,22 +61,20 @@ module DataCycleCore
                 @error[:error].push I18n.t :wrong_object_type, scope: [:validation, :errors], data: key_item['label'], locale: DataCycleCore.ui_language
               end
             end
-
           end
           return @error
         end
 
-      private
+        private
 
         def verify_embedded_object(data, table, name, description)
-
           # ap data
           # puts "#{table}|#{name}|#{description}"
 
           return if data.empty?
-          template = ("DataCycleCore::"+table.classify).constantize
+          template = ("DataCycleCore::" + table.classify).constantize
             .with_translations('de')
-            .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name,  description )
+            .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name, description)
 
           if template.blank?
             @error[:error].push I18n.t :no_template, scope: [:validation, :errors], name: name, desc: description, locale: DataCycleCore.ui_language
@@ -89,15 +87,14 @@ module DataCycleCore
           end
         end
 
-
         def daterange(data_hash, template_hash)
           data_hash = {} if data_hash.nil?
           # ap data_hash
           # ap template_hash
           if template_hash.blank? || template_hash['from'].blank? || template_hash['to'].blank?
             @error[:error].push I18n.t :no_fields, scope: [:validation, :errors], locale: DataCycleCore.ui_language
-          # elsif !data_hash.has_key?(template_hash['from']) || !data_hash.has_key?(template_hash['to'])  # if we want an error when not all data are given
-          #   @error[:error].push 'Fields specified in the validations are not available in the given data.'
+            # elsif !data_hash.has_key?(template_hash['from']) || !data_hash.has_key?(template_hash['to'])  # if we want an error when not all data are given
+            #   @error[:error].push 'Fields specified in the validations are not available in the given data.'
           else
             if data_hash[template_hash['from']].blank?
               @error[:warning].push I18n.t :start_date, scope: [:validation, :warning], locale: DataCycleCore.ui_language
@@ -127,7 +124,6 @@ module DataCycleCore
             return nil
           end
         end
-
       end
     end
   end

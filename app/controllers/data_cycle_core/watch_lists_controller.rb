@@ -53,7 +53,7 @@ module DataCycleCore
     def update
       @watch_list = DataCycleCore::WatchList.find(params[:id])
 
-      update_params = {:headline => watch_list_params[:headline]}
+      update_params = { :headline => watch_list_params[:headline] }
       @watch_list.update_attributes(update_params)
 
       if @watch_list.save
@@ -80,25 +80,34 @@ module DataCycleCore
 
     def removeItem
       watch_list = DataCycleCore::WatchList.find(params[:id])
-      content_object = params[:hashable_type].constantize.find(params[:hashable_id])
+      object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == params[:hashable_type].classify }
 
-      unless content_object.nil? || watch_list.nil?
-        content_object.watch_lists.delete(watch_list)
+      unless object_type.nil?
+        content_object = object_type.constantize.find(params[:hashable_id])
+
+        unless content_object.nil? || watch_list.nil?
+          content_object.watch_lists.delete(watch_list)
+        end
+
       end
 
       respond_to do |format|
         format.json { render json: { url: addItem_watch_list_path(watch_list, hashable_params), count: content_object.watch_lists.by_user(current_user).size, headline: watch_list.headline } }
         format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :removedFrom, scope: [:controllers, :success], data: watch_list.headline, locale: DataCycleCore.ui_language)) }
       end
-
     end
 
     def addItem
       watch_list = DataCycleCore::WatchList.find(params[:id])
-      content_object = params[:hashable_type].constantize.find(params[:hashable_id])
+      object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == params[:hashable_type].classify }
 
-      unless content_object.nil? || watch_list.nil?
-        content_object.watch_lists << watch_list
+      unless object_type.nil?
+        content_object = object_type.constantize.find(params[:hashable_id])
+
+        unless content_object.nil? || watch_list.nil?
+          content_object.watch_lists << watch_list
+        end
+
       end
 
       respond_to do |format|
@@ -109,13 +118,12 @@ module DataCycleCore
 
     private
 
-      def watch_list_params
-        params.require(:watch_list).permit(:headline)
-      end
+    def watch_list_params
+      params.require(:watch_list).permit(:headline)
+    end
 
-      def hashable_params
-        params.permit(:hashable_id, :hashable_type)
-      end
-
+    def hashable_params
+      params.permit(:hashable_id, :hashable_type)
+    end
   end
 end

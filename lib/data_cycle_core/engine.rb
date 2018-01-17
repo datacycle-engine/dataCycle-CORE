@@ -56,6 +56,10 @@ require 'acts_as_paranoid'
 require 'transproc/all'
 require 'dry-validation'
 
+# carrierwave
+require 'carrierwave'
+require 'carrierwave_backgrounder'
+
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name
@@ -80,6 +84,12 @@ module DataCycleCore
     mattr_accessor :content_tables
     self.content_tables = ['creative_works', 'events', 'persons', 'places']
 
+    mattr_accessor :asset_objects
+    self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image']
+
+    mattr_accessor :allowed_api_strategies
+    self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource']
+
     mattr_accessor :linked_tables
     self.linked_tables = ['users']
 
@@ -101,12 +111,12 @@ module DataCycleCore
     mattr_accessor :release_codes
     self.release_codes = {}
 
-    #webhooks
+    # webhooks
     mattr_accessor :webhooks
     self.webhooks = {
-        :create => [],
-        :delete => [],
-        :update => []
+      :create => [],
+      :delete => [],
+      :update => []
     }
   end
 
@@ -178,7 +188,7 @@ module DataCycleCore
 
     # include rake_tasks
     rake_tasks do
-      Dir[File.join(File.dirname(__FILE__),'tasks/*.rake')].each { |f| load f }
+      Dir[File.join(File.dirname(__FILE__), 'tasks/*.rake')].each { |f| load f }
     end
 
     config.to_prepare do
@@ -186,10 +196,8 @@ module DataCycleCore
         require_dependency(c)
       end
     end
-
   end
 end
-
 
 JbuilderTemplate.class_eval do
   def content_partial!(partial, parameters)
@@ -260,7 +268,6 @@ Nokogiri::XML::Node.class_eval do
     end
   end
 end
-
 
 # patch for ActiveRecord, to allow fractional seconds to be saved for PostgreSQL tstzrange datatype
 # TODO: remove if updated upstream

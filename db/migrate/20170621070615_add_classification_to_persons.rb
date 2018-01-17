@@ -10,7 +10,6 @@ class AddClassificationToPersons < ActiveRecord::Migration[5.0]
       t.index :person_id
       t.index :classification_id
     end
-
   end
 
   def down

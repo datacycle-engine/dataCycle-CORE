@@ -10,7 +10,6 @@ module DataCycleCore
       content_hash, release_hash = data_iterator_split(data_hash, full)
     end
 
-
     def data_iterator_merge(data_hash, release_hash)
       return data_hash if release_hash.blank?
       release_hash.each do |key, value|
@@ -29,7 +28,6 @@ module DataCycleCore
       return data_hash.compact, release_hash.compact
     end
 
-
     def merge_data(data_value, release_data)
       return data_value if release_data.blank?
       if data_value.kind_of?(::Hash) # --> embedded data
@@ -42,16 +40,16 @@ module DataCycleCore
           end
           return return_data
         else
-          return release_data.merge({ 'value' => data_value}) # --> Array of values
+          return release_data.merge({ 'value' => data_value }) # --> Array of values
         end
       else
-        return release_data.merge({ 'value' => data_value}) # --> single value
+        return release_data.merge({ 'value' => data_value }) # --> single value
       end
     end
 
     def split_data(original, full)
       if release_data?(original)
-        return original['value'], {'release_id' => original.try(:[], 'release_id'), 'release_comment' => original.try(:[],'release_comment')}
+        return original['value'], { 'release_id' => original.try(:[], 'release_id'), 'release_comment' => original.try(:[], 'release_comment') }
       elsif original.kind_of?(::Hash) # --> embedded data
         return data_iterator_split(original, full)
       elsif original.kind_of?(::Array)
@@ -75,22 +73,22 @@ module DataCycleCore
     def set_global_release(global_release_hash)
       ids = []
       flat_hash = flatten_hash(global_release_hash)
-      flat_hash.map{|key,value| ids.push(value) if key[/release_id\z/]}
+      flat_hash.map { |key, value| ids.push(value) if key[/release_id\z/] }
       max_release_status_id(ids.uniq)
     end
 
-    def flatten_hash(data_hash, prefix=nil)
+    def flatten_hash(data_hash, prefix = nil)
       result = {}
       data_hash = data_hash.as_json
 
       data_hash.map do |hash_key, hash_value|
         hash_key = "#{prefix}.#{hash_key}" if prefix.present?
-        result.merge!([::Hash, ::Array].include?(hash_value.class) ? flatten_hash(hash_value,hash_key) : ({hash_key => hash_value}))
+        result.merge!([::Hash, ::Array].include?(hash_value.class) ? flatten_hash(hash_value, hash_key) : ({ hash_key => hash_value }))
       end if data_hash.kind_of?(::Hash)
 
       data_hash.uniq.each_with_index do |item, index|
         index = "#{prefix}.#{index}" if prefix.present?
-        result.merge!([::Hash, ::Array].include?(item.class) ? flatten_hash(item, index) : ({index => item}))
+        result.merge!([::Hash, ::Array].include?(item.class) ? flatten_hash(item, index) : ({ index => item }))
       end if data_hash.kind_of?(::Array)
 
       result
@@ -102,7 +100,7 @@ module DataCycleCore
       false
     end
 
-  # functions to define the release logic
+    # functions to define the release logic
     def max_release_status_id(ids)
       releases = Release.order(release_code: :desc).find_by(id: ids)
       releases.nil? ? release_id_released : releases.id # nil defined as "freigegeben"
@@ -113,7 +111,7 @@ module DataCycleCore
       Release.find_by(release_code: 0).id
     end
 
-  # utility functions
+    # utility functions
     def release_status
       Release.find(self.release_id)
     end
@@ -121,6 +119,5 @@ module DataCycleCore
     def release_status_code
       Release.find(self.release_id) ? Release.find(self.release_id).release_code : nil
     end
-
   end
 end

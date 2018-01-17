@@ -1,10 +1,10 @@
 module DataCycleCore
   class PlacesController < ContentsController
-    before_action :authenticate_user!   # from devise (authenticate)
+    before_action :authenticate_user! # from devise (authenticate)
     # load_and_authorize_resource       # from cancancan (authorize)
 
     def index
-      @paginateObject = DataCycleCore::Place.all().where(:template => false).order(updated_at: :desc).page(params[:page])
+      @paginateObject = DataCycleCore::Place.all.where(:template => false).order(updated_at: :desc).page(params[:page])
       @place = DataCycleCore::Place.new
     end
 
@@ -24,7 +24,7 @@ module DataCycleCore
         @dataSchema = @content.get_data_hash
         # do something if no german version exists
         if @dataSchema.nil?
-          @dataSchema = I18n.with_locale(@content.translated_locales.first){@content.get_data_hash}
+          @dataSchema = I18n.with_locale(@content.translated_locales.first) { @content.get_data_hash }
         end
 
         respond_to do |format|
@@ -45,7 +45,7 @@ module DataCycleCore
         end
 
         respond_to do |format|
-          #validate ?
+          # validate ?
           if !@place.nil? && @place.save
             format.html {
               flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Place', locale: DataCycleCore.ui_language
@@ -76,9 +76,9 @@ module DataCycleCore
       @place = DataCycleCore::Place.find(params[:id])
       I18n.with_locale(@place.first_available_locale(params[:locale])) do
         object_params = place_params('places', @place.metadata['validation']['name'], @place.metadata['validation']['description'])
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@place.metadata['validation'], false)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @place.metadata['validation'], false)
 
-        # todo: implement preprocessor
+        # TODO: implement preprocessor
         datahash = set_location(datahash)
 
         valid = @place.set_data_hash(data_hash: datahash, current_user: current_user)
@@ -118,7 +118,7 @@ module DataCycleCore
       @place = DataCycleCore::Place.find(params[:id])
       object_params = place_params('places', @place.metadata['validation']['name'], @place.metadata['validation']['description'])
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash],@place.metadata['validation'])
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @place.metadata['validation'])
       valid = @place.validate(datahash)
 
       render :json => valid.to_json
@@ -126,22 +126,20 @@ module DataCycleCore
 
     private
 
-      def create_params
+    def create_params
+    end
+
+    def place_params(storage_location, template_name, template_description)
+      datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
+      params.require(:place).permit(:datahash => datahash)
+    end
+
+    # TODO: implement as preprocessor
+    def set_location(datahash)
+      if !datahash['longitude'].nil? && !datahash['longitude'].blank? && !datahash['latitude'].nil? && !datahash['latitude'].blank?
+        datahash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(datahash['longitude'].to_f, datahash['latitude'].to_f)
       end
-
-      def place_params(storage_location, template_name, template_description)
-        datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
-        params.require(:place).permit(:datahash => datahash)
-
-      end
-
-      #todo: implement as preprocessor
-      def set_location(datahash)
-        if !datahash['longitude'].nil? && !datahash['longitude'].blank? && !datahash['latitude'].nil? && !datahash['latitude'].blank?
-          datahash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(datahash['longitude'].to_f, datahash['latitude'].to_f)
-        end
-        return datahash
-      end
-
+      return datahash
+    end
   end
 end

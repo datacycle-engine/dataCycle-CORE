@@ -2,7 +2,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class Geographic < BasicValidator
-
         # TODO: dummy evaluator for now
         def validate(data, template)
           if data.blank?
@@ -14,7 +13,6 @@ module DataCycleCore
           end
           return @error
         end
-
       end
     end
   end

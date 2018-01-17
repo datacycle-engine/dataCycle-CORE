@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class EmbeddedLinkTest < ActiveSupport::TestCase
-
     test "create article and add embeddedLinks" do
       cw_temp = DataCycleCore::CreativeWork.count
 
@@ -14,7 +13,7 @@ module DataCycleCore
         image = DataCycleCore::CreativeWork.new
         image.metadata = { 'validation' => validation_bild }
         image.save
-        image.set_data_hash(data_hash: {"headline" => "Bild#{number}", "description" => "Description Bild#{number}"}, prevent_history: true)
+        image.set_data_hash(data_hash: { "headline" => "Bild#{number}", "description" => "Description Bild#{number}" }, prevent_history: true)
         image.save
         image_objects.push(image.id)
       end
@@ -38,7 +37,7 @@ module DataCycleCore
         prevent_history: true
       )
       data_set.save
-      assert_equal(1+image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(1 + image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
@@ -51,7 +50,7 @@ module DataCycleCore
         }
       )
       data_set.save
-      assert_equal(1+image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(1 + image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(5, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
@@ -64,7 +63,7 @@ module DataCycleCore
         }
       )
       data_set.save
-      assert_equal(1+image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(1 + image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(1, DataCycleCore::ContentContent.count)
       assert_equal(2, DataCycleCore::CreativeWork::History.count)
       assert_equal(5, DataCycleCore::ContentContent::History.count)
@@ -81,7 +80,7 @@ module DataCycleCore
         image = DataCycleCore::CreativeWork.new
         image.metadata = { 'validation' => validation_bild }
         image.save
-        image.set_data_hash(data_hash: {"headline" => "Bild#{number}", "description" => "Description Bild#{number}"}, prevent_history: true)
+        image.set_data_hash(data_hash: { "headline" => "Bild#{number}", "description" => "Description Bild#{number}" }, prevent_history: true)
         image.save
         image_objects.push(image.id)
       end
@@ -105,7 +104,7 @@ module DataCycleCore
         prevent_history: true
       )
       data_set.save
-      assert_equal(1+image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(1 + image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
@@ -118,11 +117,10 @@ module DataCycleCore
         }
       )
       data_set.save
-      assert_equal(1+image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(1 + image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(5, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
-
 
       data_set.destroy_content
       data_set.destroy
@@ -142,6 +140,5 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
     end
-
   end
 end

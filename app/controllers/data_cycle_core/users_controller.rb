@@ -73,6 +73,7 @@ module DataCycleCore
     end
 
     private
+
     def user_params
       allowed_params = [:email, :family_name, :given_name, :role_id, user_group_ids: []]
       allowed_params.push(:password, :password_confirmation, :current_password) unless params[:user][:password].blank? || params[:user][:password_confirmation].blank?
@@ -82,6 +83,5 @@ module DataCycleCore
     def set_user
       @user = DataCycleCore::User.find(params[:id])
     end
-
   end
 end
