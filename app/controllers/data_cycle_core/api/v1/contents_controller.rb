@@ -98,13 +98,13 @@ module DataCycleCore
       if content_params[:search].blank?
         query
       else
-        query.order(DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(content_params[:search]))
+        query.order(DataCycleCore::Filter::ObjectBrowserQueryBuilder::get_order_by_query_string(content_params[:search]))
       end
     end
 
     def apply_paging(query)
       query
-        .page([content_params.fetch(:page, 1).to_i, (query.count / content_params.fetch(:per, @@default_per).to_i).ceil].min)
+        .page([content_params.fetch(:page, 1).to_i,(query.count / content_params.fetch(:per, @@default_per).to_i).ceil].min)
         .per(content_params.fetch(:per, @@default_per).to_i)
     end
   end
