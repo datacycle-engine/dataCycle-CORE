@@ -29,7 +29,7 @@ EmbeddedObject.prototype.setup = function () {
     if (this.write && (this.max == 0 || this.element.children('.content-object-item').length < this.max) && ids.indexOf(data.ids[0]) === -1) {
       this.element.children('#add_' + this.id).prop('disabled', true).find('.fa').css('display', 'inline-block');
       $.ajax({
-        url: this.url + '/renderEmbeddedObject',
+        url: this.url + '/render_embedded_object',
         method: 'POST',
         data: JSON.stringify({
           index: this.index,

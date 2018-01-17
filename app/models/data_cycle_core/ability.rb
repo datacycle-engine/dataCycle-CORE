@@ -4,7 +4,7 @@ module DataCycleCore
 
     def initialize(user, session = {})
       alias_action :update, :destroy, to: :modify
-      alias_action :create, :import, :read, :update, :create_user, :search, :unlock, :validate_single_data, :history, :history_detail, to: :crud
+      alias_action :create, :import, :read, :update, :create_user, :search, :unlock, :validate_single_data, to: :crud
 
       if user
 
@@ -24,7 +24,7 @@ module DataCycleCore
           can :read, :backend
           can :modify, DataCycleCore::User, id: user.id
           can :manage, DataCycleCore::WatchList, user_id: user.id
-          can :subscribe, [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]
+          can [:subscribe, :history, :history_detail], [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]
         end
 
         if user.has_rank?(10)
@@ -54,7 +54,7 @@ module DataCycleCore
             !the_user.has_rank?(user.role.rank) || user == the_user
           end
           can :destroy, [DataCycleCore::CreativeWork, DataCycleCore::Event, DataCycleCore::Person, DataCycleCore::Place] do |data_object|
-            data_object&.metadata&.dig('validation', 'permissions', 'read_write') != false
+            data_object&.metadata&.dig('validation','permissions','read_write') != false && data_object.try(:external_key).nil?
           end
 
           can :manage, DataCycleCore::Asset

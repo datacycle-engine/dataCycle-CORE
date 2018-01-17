@@ -1,10 +1,5 @@
 <% if content.external_source %>
-    <div>
-        <span>Externe Datenquelle: <%= content.external_source.name %></span>
-        <% if !content.external_key.blank? %>
-            <span> (ID: <%= content.external_key %>)</span>
-        <% end %>
-    </div>
+  <%= render 'external_source', local_assigns %>
 <% end %>
 
 <% content_data = content.get_data_hash %>

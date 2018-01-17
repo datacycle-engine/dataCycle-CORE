@@ -5,6 +5,12 @@
   </head>
   <body>
     <h1>Sehr geehrter Partner,</h1>
+    <% unless @data_link.comment.blank? %>
+      <span>Kommentar:</span>
+      <p>
+        <%= simple_format(@data_link.comment) %>
+      </p>
+    <% end %>
     <p>
       <%= @user.name %> hat einen Inhalt mit Ihnen geteilt und bittet um Ihre Ergänzungen und ihr Feedback. Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor: <br>
       <%= link_to @headline, @url %>.<br>
@@ -21,11 +27,5 @@
         <%= "bis: #{@data_link.valid_until.to_datetime.to_s(:german_datetime_format)} " unless @data_link.valid_until.nil? %>
       <% end %>
     </p>
-    <% unless @data_link.comment.blank? %>
-      <span>Kommentar:</span>
-      <p>
-        <%= simple_format(@data_link.comment) %>
-      </p>
-    <% end %>
   </body>
 </html>

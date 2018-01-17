@@ -6,6 +6,10 @@ module DataCycleCore
 
       updated = api_strategy.update content
 
+      updated.each do |item|
+        item.update(webhook_source: external_sources_params[:webhook_source]) unless external_sources_params[:webhook_source].blank?
+      end
+
       execute_after_update_webhooks updated.first if updated.kind_of?(Array)
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
@@ -38,7 +42,7 @@ module DataCycleCore
     private
 
     def external_sources_params
-      params.permit(:external_source_id, :type, :external_key, :token)
+      params.permit(:external_source_id, :type, :external_key, :token, :webhook_source)
     end
 
     def get_api_strategy
