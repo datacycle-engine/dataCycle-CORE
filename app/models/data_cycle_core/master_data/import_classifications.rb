@@ -55,7 +55,7 @@ module DataCycleCore
             .where("classification_aliases.name = ?", data)
             .where("classification_trees.parent_classification_alias_id = ?", parent)
         end
-        if find_alias.positive?
+        if find_alias.count.positive?
           updated_data = find_alias.first
           updated_data.seen_at = Time.zone.now
           updated_data.internal = internal

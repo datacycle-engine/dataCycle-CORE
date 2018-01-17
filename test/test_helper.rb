@@ -36,7 +36,7 @@ classification_yaml = Rails.root.join('..', 'data_types', 'classifications.yml')
 DataCycleCore::MasterData::ImportClassifications.new.import(classification_yaml)
 
 # seed release table
-if DataCycleCore::Release.zero?
+if DataCycleCore::Release.count.zero?
   DataCycleCore::Release.create!(
     release_code: 0,
     release_text: "freigegeben"
@@ -63,7 +63,7 @@ if DataCycleCore::Release.zero?
   )
 end
 
-if DataCycleCore::Role.zero?
+if DataCycleCore::Role.count.zero?
   DataCycleCore::Role.create!(
     rank: 0,
     name: 'guest'
