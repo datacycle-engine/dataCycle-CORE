@@ -20,7 +20,7 @@ module DataCycleCore
 
     def self.for_tree(tree_name)
       joins(classification_tree: :classification_tree_label)
-        .where('classification_trees' => {'classification_tree_labels' => {'name' => tree_name}})
+        .where('classification_trees' => { 'classification_tree_labels' => { 'name' => tree_name } })
     end
 
     def self.with_name(*names)
