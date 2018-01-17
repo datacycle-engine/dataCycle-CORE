@@ -13,9 +13,9 @@ module DataCycleCore
       end
 
       def self.validate_webhook(webhook, data)
-        return webhook if webhook.kind_of?(Class)
+        return webhook if webhook.is_a?(Class)
 
-        if webhook.kind_of?(Hash)
+        if webhook.is_a?(Hash)
           webhook_class = webhook.keys.first
           filter = webhook[webhook_class].fetch(:filter) { raise KeyError, "Filter must be supplied for webhook" }
 

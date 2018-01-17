@@ -72,7 +72,7 @@ module DataCycleCore
     end
 
     def has_valid_changes(item)
-      if item.kind_of?(Array)
+      if item.is_a?(Array)
         return false if item[0][0] == CHANGED_INDICATOR && item[0][1].blank? && item[0][2].blank?
       end
       item
@@ -108,7 +108,7 @@ module DataCycleCore
 
     # refactor
     def transform_object_array_to_hash(array, options: {})
-      if array.kind_of?(Array)
+      if array.is_a?(Array)
         hash = array.each_with_object Hash.new do |(k, _), h|
           hash_key = 'id'
           hash_value = k[hash_key]
@@ -125,7 +125,7 @@ module DataCycleCore
       array.each_with_object Hash.new do |(k, _), h|
         hash_key = k.try(:keys).try(:first)
         hash_value = k[hash_key] unless hash_key.nil?
-        if hash_value.kind_of?(Hash)
+        if hash_value.is_a?(Hash)
           h[hash_key] ||= Hash.new
           (h[hash_key][hash_value.keys.first] ||= []) << hash_value[hash_value.keys.first]
         else

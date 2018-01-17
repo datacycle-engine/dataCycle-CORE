@@ -96,7 +96,7 @@ module DataCycleCore
 
             def instantiable?(value)
               clazz = ("DataCycleCore::" + value.classify).safe_constantize
-              (!clazz.nil?) && clazz.new.kind_of?(ActiveRecord::Base)
+              (!clazz.nil?) && clazz.new.is_a?(ActiveRecord::Base)
             end
 
             def self.messages

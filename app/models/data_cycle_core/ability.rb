@@ -68,7 +68,7 @@ module DataCycleCore
           !attribute.options['readonly']
         end
 
-        if !(user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)
+        unless user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/
           cannot :modify, DataCycleCore::User do |the_user|
             the_user.has_rank?(user.role.try(:rank)) && the_user != user
           end

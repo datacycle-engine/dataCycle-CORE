@@ -31,24 +31,6 @@ Style/BracesAroundHashParameters:
 Style/ClassAndModuleChildren:
   Enabled: false
 
-# Offense count: 35
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: is_a?, kind_of?
-Style/ClassCheck:
-  Exclude:
-    - 'app/controllers/data_cycle_core/api/v1/external_sources_controller.rb'
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
-    - 'app/helpers/data_cycle_core/history_helper.rb'
-    - 'app/models/data_cycle_core/data_hash.rb'
-    - 'app/models/data_cycle_core/generic/transformations/functions.rb'
-    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
-    - 'app/models/data_cycle_core/master_data/import_templates.rb'
-    - 'app/models/data_cycle_core/master_data/validators/string.rb'
-    - 'app/models/data_cycle_core/releasable.rb'
-    - 'app/models/data_cycle_core/webhook/base.rb'
-    - 'lib/tasks/data_cycle_core_tasks.rake'
-
 # Offense count: 14
 Style/ClassVars:
   Exclude:
@@ -62,18 +44,9 @@ Style/ClassVars:
     - 'app/models/data_cycle_core/master_data/validators/object.rb'
     - 'app/models/data_cycle_core/master_data/validators/string.rb'
 
-
 # Offense count: 33
 Style/DateTime:
   Enabled: false
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/EmptyCaseCondition:
-  Exclude:
-    - 'app/controllers/data_cycle_core/object_browser_controller.rb'
-    - 'app/helpers/data_cycle_core/content_helpers.rb'
-    - 'app/models/data_cycle_core/filter/object_browser_query_builder.rb'
 
 # Offense count: 304
 # Cop supports --auto-correct.
@@ -162,19 +135,6 @@ Style/MutableConstant:
     - 'app/models/data_cycle_core/filter/search.rb'
     - 'lib/data_cycle_core/version.rb'
 
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: both, prefix, postfix
-Style/NegatedIf:
-  Exclude:
-    - 'app/controllers/data_cycle_core/creative_works_controller.rb'
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
-    - 'app/models/data_cycle_core/ability.rb'
-    - 'app/views/data_cycle_core/api/v1/api_base/_place_details.json.jbuilder'
-    - 'app/views/data_cycle_core/api/v1/api_base/_translated_properties.json.jbuilder'
-    - 'app/views/data_cycle_core/api/v1/api_base/_untranslated_properties.json.jbuilder'
-
 # Offense count: 1
 Style/NestedTernaryOperator:
   Exclude:
@@ -187,26 +147,6 @@ Style/NestedTernaryOperator:
 Style/NumericLiteralPrefix:
   Exclude:
     - 'config/initializers/carrierwave.rb'
-
-# Offense count: 19
-# Cop supports --auto-correct.
-# Configuration parameters: AutoCorrect, EnforcedStyle.
-# SupportedStyles: predicate, comparison
-Style/NumericPredicate:
-  Exclude:
-    - 'spec/**/*'
-    - 'app/controllers/data_cycle_core/data_links_controller.rb'
-    - 'app/models/data_cycle_core/api/media_archive_external_source.rb'
-    - 'app/models/data_cycle_core/content.rb'
-    - 'app/models/data_cycle_core/data_hash.rb'
-    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
-    - 'app/models/data_cycle_core/master_data/validate_data.rb'
-    - 'app/models/data_cycle_core/update/base.rb'
-    - 'app/services/data_cycle_core/data_hash_service.rb'
-    - 'app/views/data_cycle_core/api/v1/api_base/_embedded_properties.json.jbuilder'
-    - 'app/views/data_cycle_core/api/v1/api_base/_linked_properties.json.jbuilder'
-    - 'lib/tasks/data_cycle_core_tasks.rake'
-    - 'test/test_helper.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.

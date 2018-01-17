@@ -20,7 +20,7 @@ module DataCycleCore
 
     def self.get_internal_data(storage_location, value)
       internal_objects = []
-      if !value.blank? && value.count > 0
+      if !value.blank? && value.count.positive?
         value.each do |object|
           internal_object = ("DataCycleCore::" + storage_location.classify).constantize
             .find_by(id: object['id'])

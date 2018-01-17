@@ -31,7 +31,7 @@ module DataCycleCore
       if !validation.nil? && !validation['properties'].blank?
 
         validation['properties'].each do |prop|
-          if !prop[1]['editor'].nil?
+          unless prop[1]['editor'].nil?
 
             if !prop[1]['editor']['sorting'].nil?
               ordered_properties[prop[1]['editor']['sorting'].to_i] = prop
@@ -219,7 +219,7 @@ module DataCycleCore
 
     # TODO: move to mixins
     def normalize_value(value = nil)
-      if value.kind_of?(Array)
+      if value.is_a?(Array)
         value = value.reject(&:blank?)
       end
       return value
@@ -229,7 +229,7 @@ module DataCycleCore
 
     def get_object_key(key, parent_object_keys = [])
       parent_object_keys_string = ''
-      if !parent_object_keys.empty?
+      unless parent_object_keys.empty?
         parent_object_keys_string = parent_object_keys.map { |parent| "[#{parent}]" }.join('')
       end
       object_key = "#{@@key_prefix}#{parent_object_keys_string}[#{key}]"

@@ -5,9 +5,9 @@ module DataCycleCore
     # get data as specified in the data template
     # data hash with keys named as in schema.org
     def get_data_hash(timestamp = Time.zone.now)
-      if translated_locales.include?(I18n.locale) || changes.count > 0 # for new data-sets with pending data in it
+      if translated_locales.include?(I18n.locale) || changes.count.positive? # for new data-sets with pending data in it
         data_hash = self.as_of(timestamp).to_h(timestamp)
-        data_hash = merge_release(data_hash, release) if kind_of?(DataCycleCore::Releasable)
+        data_hash = merge_release(data_hash, release) if is_a?(DataCycleCore::Releasable)
         return data_hash
       else
         return nil
@@ -18,14 +18,14 @@ module DataCycleCore
     # data hash with keys named as in schema.org
     def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false)
       stripped_data_hash = data_hash
-      stripped_data_hash, global_release_hash = extract_release(data_hash, true) if kind_of?(DataCycleCore::Releasable) # strip also release data from embeddedObjects
+      stripped_data_hash, global_release_hash = extract_release(data_hash, true) if is_a?(DataCycleCore::Releasable) # strip also release data from embeddedObjects
 
       if validate?(stripped_data_hash)
         ActiveRecord::Base.transaction do
           self.to_history(save_time: save_time) if self.id.nil? == false && prevent_history == false
-          data_hash, release_hash = extract_release(data_hash, false) if kind_of?(DataCycleCore::Releasable) # strip release data only from this object
+          data_hash, release_hash = extract_release(data_hash, false) if is_a?(DataCycleCore::Releasable) # strip release data only from this object
           set_template_data_hash(data_hash, property_definitions, save_time, current_user)
-          if kind_of?(DataCycleCore::Releasable)
+          if is_a?(DataCycleCore::Releasable)
             self.release = release_hash
             self.release_id = set_global_release(global_release_hash)
           end
@@ -266,7 +266,7 @@ module DataCycleCore
     def set_relation_ids(ids, relation_name, tree_label, default_value)
       if is_blank?(ids)
         begin
-          if !default_value.blank? && ids.nil? && get_classification_relation(relation_name).count == 0
+          if !default_value.blank? && ids.nil? && get_classification_relation(relation_name).count.zero?
             classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
               .where("classification_tree_labels.name = ?", tree_label)
               .where("classification_aliases.name = ?", default_value).first!.id
@@ -416,9 +416,9 @@ module DataCycleCore
       updated_item_keys = []
 
       # for embeddedLink and embeddedLinkArray transform data
-      if data.kind_of?(::Array) && !data.blank? && data.first.kind_of?(::String)
+      if data.is_a?(::Array) && !data.blank? && data.first.is_a?(::String)
         data.map! { |item| { "id" => item } }
-      elsif data.kind_of?(::String) && !data.blank?
+      elsif data.is_a?(::String) && !data.blank?
         data = [{ "id" => data }]
       end
 
@@ -514,9 +514,9 @@ module DataCycleCore
       from, to = get_validity_values validity_hash
       [
         '[',
-        from.kind_of?(DateTime) ? from.to_s(:long_usec) : '',
+        from.is_a?(DateTime) ? from.to_s(:long_usec) : '',
         ',',
-        to.kind_of?(DateTime) ? to.to_s(:long_usec) : '',
+        to.is_a?(DateTime) ? to.to_s(:long_usec) : '',
         ']'
       ].join('')
     end

@@ -69,10 +69,9 @@ module DataCycleCore
     private
 
     def get_classification_aliases_for_type(type)
-      case
-      when type == 'image'
+      if type == 'image'
         get_content_classification_aliases('Bild', 'Inhaltstypen')
-      when type == 'video'
+      elsif type == 'video'
         get_content_classification_aliases('Video', 'Inhaltstypen')
       else
         {}

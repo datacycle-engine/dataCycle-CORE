@@ -29,7 +29,7 @@ module DataCycleCore
           end
 
           # progress bar
-          if (item_count % 1000) == 0
+          if (item_count % 1000).zero?
             total_count = [total_updates, 1].max
             fraction = [100, (item_count * 100.0 / total_count).round(0)].min
             print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"

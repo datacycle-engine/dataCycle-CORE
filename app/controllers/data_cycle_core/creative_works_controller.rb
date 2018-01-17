@@ -79,7 +79,7 @@ module DataCycleCore
       @creativeWork = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
 
       # get show data for split view
-      @historySource = @creativeWork.histories.find(params[:history_id]) if !params[:history_id].nil?
+      @historySource = @creativeWork.histories.find(params[:history_id]) unless params[:history_id].nil?
 
       I18n.with_locale(@historySource.first_available_locale) do
         @historySchema = @historySource.get_data_hash

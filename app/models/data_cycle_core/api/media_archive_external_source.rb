@@ -20,7 +20,7 @@ module DataCycleCore
         object = @target_type
         query = object.where(external_source: @external_source.id).where(external_key: external_key)
 
-        if query.count(:id) == 0
+        if query.count(:id).zero?
           raise ActiveRecord::RecordNotFound.new("image not found")
         else
           @medium = query.first

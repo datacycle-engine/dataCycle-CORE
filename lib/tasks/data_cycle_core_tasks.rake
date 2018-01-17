@@ -282,7 +282,7 @@ namespace :data_cycle_core do
       data_object.find_each do |data_item|
         # progress_bar
         if total_items > 49
-          if index % 500 == 0
+          if (index % 500).zero?
             fraction = (index / (total_items / 100.0)).round(0)
             fraction = 100 if fraction > 100
             print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
@@ -573,7 +573,7 @@ namespace :data_cycle_core do
           # progress bar
           index += 1
           if items_count > 49
-            if index % (items_count / 100.0).round(0) == 0
+            if (index % (items_count / 100.0).round(0)).zero?
               fraction = (index / (items_count / 100.0)).round(0)
               fraction = 100 if fraction > 100
               print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
@@ -586,7 +586,7 @@ namespace :data_cycle_core do
 
           item.classification_property_names.each do |classification_name|
             item.send(classification_name).all.each do |classification_relation|
-              if classification_relation.kind_of?(DataCycleCore::ClassificationContent)
+              if classification_relation.is_a?(DataCycleCore::ClassificationContent)
                 classification_relation.update!(relation: classification_name)
               else
                 classification_relation.update_all(relation: classification_name)
@@ -623,7 +623,7 @@ namespace :data_cycle_core do
         content_class.constantize.all.find_each do |item|
           # progress bar
           if items_count > 49
-            if index % (items_count / 100.0).round(0) == 0
+            if (index % (items_count / 100.0).round(0)).zero?
               fraction = (index / (items_count / 100.0)).round(0)
               fraction = 100 if fraction > 100
               print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
@@ -637,7 +637,7 @@ namespace :data_cycle_core do
 
           item.classification_property_names.each do |classification_name|
             item.send(classification_name).all.find_each do |classification_relation|
-              if classification_relation.kind_of?(DataCycleCore::ClassificationContent::History)
+              if classification_relation.is_a?(DataCycleCore::ClassificationContent::History)
                 classification_relation.update!(relation: classification_name)
               else
                 classification_relation.update_all(relation: classification_name)

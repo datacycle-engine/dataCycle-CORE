@@ -30,9 +30,8 @@ module DataCycleCore
     # end
 
     def first_available_locale(locale = nil)
-      case
-      when translated_locales.include?(locale.try(:to_sym)) then locale.try(:to_sym)
-      when translated_locales.include?(I18n.locale) then I18n.locale
+      if translated_locales.include?(locale.try(:to_sym)) then locale.try(:to_sym)
+      elsif translated_locales.include?(I18n.locale) then I18n.locale
       else translated_locales.first
       end
     end

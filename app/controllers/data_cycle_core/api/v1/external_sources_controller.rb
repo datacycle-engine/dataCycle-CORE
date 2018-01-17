@@ -10,7 +10,7 @@ module DataCycleCore
         item.update(webhook_source: external_sources_params[:webhook_source]) unless external_sources_params[:webhook_source].blank?
       end
 
-      execute_after_update_webhooks updated.first if updated.kind_of?(Array)
+      execute_after_update_webhooks updated.first if updated.is_a?(Array)
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
       render plain: { 'updated' => updated }.to_json, content_type: 'application/json'
@@ -22,7 +22,7 @@ module DataCycleCore
 
       created = api_strategy.create content
 
-      execute_after_create_webhooks created.first if created.kind_of?(Array)
+      execute_after_create_webhooks created.first if created.is_a?(Array)
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
       render plain: { 'created' => created }.to_json, content_type: 'application/json'

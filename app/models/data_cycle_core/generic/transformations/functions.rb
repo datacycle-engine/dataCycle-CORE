@@ -5,11 +5,11 @@ module DataCycleCore::Generic::Transformations::Functions
   import Transproc::Recursion
 
   def self.underscore_keys(data_hash)
-    Hash[data_hash.to_a.map { |k, v| [k.to_s.underscore, v.kind_of?(Hash) ? underscore_keys(v) : v] }]
+    Hash[data_hash.to_a.map { |k, v| [k.to_s.underscore, v.is_a?(Hash) ? underscore_keys(v) : v] }]
   end
 
   def self.strip_all(data_hash)
-    Hash[data_hash.to_a.map { |k, v| [k, v.kind_of?(Hash) ? strip_all(v) : (v.kind_of?(String) ? v.strip : v)] }]
+    Hash[data_hash.to_a.map { |k, v| [k, v.is_a?(Hash) ? strip_all(v) : (v.is_a?(String) ? v.strip : v)] }]
   end
 
   def self.location(data_hash)

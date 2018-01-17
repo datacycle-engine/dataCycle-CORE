@@ -23,13 +23,13 @@ module DataCycleCore
         return nil if data_tree.blank?
         data_tree.each do |data|
           internal = false
-          if data.kind_of?(String)
+          if data.is_a?(String)
             if data.starts_with?('$$')            # '$$' prefix for interal classifications
               data = data[2..(data.length - 1)]
               internal = true
             end
             save_data(data, parent, internal)
-          elsif data.kind_of?(Hash)
+          elsif data.is_a?(Hash)
             parent_name = data.keys.first
             if data.keys.first.starts_with?('$$') # '$$' prefix for interal classifications
               parent_name = data.keys.first[2..(data.keys.first.length - 1)]
@@ -55,7 +55,7 @@ module DataCycleCore
             .where("classification_aliases.name = ?", data)
             .where("classification_trees.parent_classification_alias_id = ?", parent)
         end
-        if find_alias.count > 0
+        if find_alias.positive?
           updated_data = find_alias.first
           updated_data.seen_at = Time.zone.now
           updated_data.internal = internal
