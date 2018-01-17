@@ -4,9 +4,9 @@
         <% image = value.first %>
 
         <div class="thumb">
-            <% if !image.file.thumb_preview.file.nil? && image.file.thumb_preview.file.exists? %>
+            <% if image.thumbnail_url? %>
                 <a href="<%= image.file.url %>" target="_blank">
-                    <img src="<%= image.file.thumb_preview.url %>" />
+                    <img src="<%= image.thumbnail_url %>" />
                 </a>
             <% else %>
                 <div class="placeholder">

@@ -9,4 +9,12 @@ module.exports.initialize = function () {
     assets.push(new Asset($(this)));
   });
 
+  $(document).on('clone-added', '.content-object-item', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      $(this).find('.asset .asset-object').each(function () {
+          assets.push(new Asset($(this)));
+      });
+  });
+
 };
