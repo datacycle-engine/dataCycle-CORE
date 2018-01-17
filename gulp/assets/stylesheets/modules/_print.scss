@@ -1,0 +1,98 @@
+@media print {
+  * {
+    overflow: visible !important;
+  }
+  /* fix for firefox bug */
+  body, h1, h2, h3, ol, ul, div {
+    float: none !important;
+  }
+  /* fix end */
+  body{
+    background: #fff;
+    line-height: 2;
+  }
+  a{
+    &[href]:after { content: none !important }
+    &:visited, &:link {text-decoration: none;}
+  }
+  img{
+    &[src]:after { content: none !important; }
+  }
+  .top-bar-right,
+  .detail-header-functions,
+  .detail-header .edit,
+  .detail-content .buttons,
+  .edit-header,
+  .detail-header .embedded_object .addContentObject,
+  i.fa.fa-times,
+  i.fa.fa-plus{
+    display: none !important;
+  }
+  .off-canvas-wrapper, .off-canvas-content{
+    display: block;
+    position: relative;
+    padding-top: 0;
+  }
+  .off-canvas-content {
+    &:after {
+      box-shadow: none;
+    }
+  }
+  .no-edit-bar{
+    padding-top: 0;
+  }
+  .breadcrumb{
+    padding-top: 0;
+    padding-bottom: 0;
+    height: auto;
+  }
+  .tags {
+    .tag{
+      font-size: 1rem;
+      line-height: inherit;
+    }
+  }
+  .detail-header {
+    padding-top: 0;
+    min-height: 0;
+    .detail-header-info{
+      position: relative;
+      top: 0;
+      left: 1rem;
+      text-align: left;
+    }
+    .gueltigkeit{
+      margin-top: 0;
+    }
+    .status-container {
+      text-align: left;
+      margin: 1rem 0 0 1rem;
+      display: block;
+      i{
+        display: none;
+      }
+    }
+  }
+  .detail-content, .detail-content:not(.imageobject) {
+    .type.properties{
+      .detail-type {
+        border: 1px solid #c1c1c1;
+        page-break-inside: avoid;
+        .detail-label {
+          vertical-align: top;
+          opacity: 0.7;
+        }
+        .detail-type {
+          padding: 0.2rem;
+          &.geographic {
+            padding: 1rem;
+          }
+        }
+      }
+    }
+  }
+  .edit-content-form .asset-object .inner{
+    border: 1px solid #c1c1c1;
+  }
+  @page { margin: 2cm 1cm; }
+}
