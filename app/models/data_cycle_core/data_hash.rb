@@ -59,8 +59,8 @@ module DataCycleCore
 
       ActiveRecord::Base.transaction do
         # cc self to history
-        data_set_history.send(origin_table.singularize.foreign_key+"=", self.id)
-        self.attributes.except("id", "created_at").each do |key,value|
+        data_set_history.send(origin_table.singularize.foreign_key + "=", self.id)
+        self.attributes.except("id", "created_at").each do |key, value|
           data_set_history.send("#{key}=", value)
         end
         data_set_history.is_part_of = parent_id if data_set_history.respond_to?('is_part_of')

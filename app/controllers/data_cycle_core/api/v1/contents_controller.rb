@@ -104,7 +104,7 @@ module DataCycleCore
 
     def apply_paging(query)
       query
-        .page([content_params.fetch(:page, 1).to_i,(query.count / content_params.fetch(:per, @@default_per).to_i).ceil].min)
+        .page([content_params.fetch(:page, 1).to_i, (query.count / content_params.fetch(:per, @@default_per).to_i).ceil].min)
         .per(content_params.fetch(:per, @@default_per).to_i)
     end
   end

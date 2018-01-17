@@ -118,7 +118,6 @@ module DataCycleCore
       end
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
-
         unless @content.read_write?
           raise "read_only"
           redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
@@ -135,7 +134,6 @@ module DataCycleCore
     def update
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       I18n.with_locale(@creativeWork.first_available_locale(params[:locale])) do
-
         object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], @creativeWork.metadata['validation']['description'])
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'], false)
 
