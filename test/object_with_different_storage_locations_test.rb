@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class ObjectWithDifferentStorageLocationsTest < ActiveSupport::TestCase
-
     test "events template with daterange" do
       template = DataCycleCore::Event.find_by(template: true, headline: "Event", description: "Event")
       validation = template.metadata['validation']
@@ -13,8 +12,8 @@ module DataCycleCore
       data_hash = {
         "url" => "estasdfkasdfasfd",
         "event_period" => {
-          "start_date"=>"2017-07-18 12:00",
-          "end_date"=>"2017-10-29 12:00"
+          "start_date" => "2017-07-18 12:00",
+          "end_date" => "2017-10-29 12:00"
         }
       }
 
@@ -25,11 +24,11 @@ module DataCycleCore
         "id" => data_set.id,
         "url" => "estasdfkasdfasfd",
         "event_period" => {
-          "start_date"=>"2017-07-18 12:00".to_datetime.to_s(:db),
-          "end_date"=>"2017-10-29 12:00".to_datetime.to_s(:db)
+          "start_date" => "2017-07-18 12:00".to_datetime.to_s(:db),
+          "end_date" => "2017-10-29 12:00".to_datetime.to_s(:db)
         }
       }
-      returned_data_hash['event_period'].each do |key,value|
+      returned_data_hash['event_period'].each do |key, value|
         returned_data_hash['event_period'][key] = value.to_datetime.to_s(:db)
       end
       assert_equal(expected_hash, returned_data_hash)
@@ -46,8 +45,8 @@ module DataCycleCore
         "headline1" => "Dies ist ein Test!",
         "description1" => "wtf is going on???",
         "period" => {
-            "created_at" => "2017-06-01",
-            "updated_at" => "2017-07-01"
+          "created_at" => "2017-06-01",
+          "updated_at" => "2017-07-01"
         }
       }
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -61,7 +60,7 @@ module DataCycleCore
           "updated_at" => "2017-07-01".to_datetime.to_s(:db)
         }
       }
-      returned_data_hash['period'].each do |key,value|
+      returned_data_hash['period'].each do |key, value|
         returned_data_hash['period'][key] = value.to_datetime.to_s(:db)
       end
       returned_data_hash['period']['updated_at'] = "2017-07-01".to_datetime.to_s(:db)
@@ -78,13 +77,13 @@ module DataCycleCore
       data_hash = {
         "headline1" => "Dies ist ein Test!",
         "period" => {
-            "created_at" => "2017-06-01",
-            "updated_at" => "2017-07-01",
-            "description" => "wtf is going on???",
-            "validity_period" => {
-              "valid_from" => "2017-06-01",
-              "valid_until" => "2017-07-01"
-            }
+          "created_at" => "2017-06-01",
+          "updated_at" => "2017-07-01",
+          "description" => "wtf is going on???",
+          "validity_period" => {
+            "valid_from" => "2017-06-01",
+            "valid_until" => "2017-07-01"
+          }
         }
       }
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -107,6 +106,5 @@ module DataCycleCore
       assert_equal(expected_hash, returned_data_hash)
       assert_equal(0, error[:error].count)
     end
-
   end
 end

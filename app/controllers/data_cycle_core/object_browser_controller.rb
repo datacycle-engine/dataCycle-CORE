@@ -1,6 +1,6 @@
 module DataCycleCore
   class ObjectBrowserController < ApplicationController
-    before_action :authenticate_user!   # from devise (authenticate)
+    before_action :authenticate_user! # from devise (authenticate)
 
     def show
       authorize! :show, :object_browser
@@ -13,7 +13,7 @@ module DataCycleCore
         @type = params[:type] unless params[:type].blank?
         @type ||= "image"
 
-        order_string = DataCycleCore::Filter::ObjectBrowserQueryBuilder::get_order_by_query_string(params[:search])
+        order_string = DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(params[:search])
 
         query = DataCycleCore::Filter::ObjectBrowserQueryBuilder.new(@language, @type)
         query = query.fulltext_search(params[:search]) unless params[:search].blank?
@@ -43,8 +43,8 @@ module DataCycleCore
       if !params[:class].blank? && !params[:ids].blank?
 
         I18n.with_locale(params[:language] || I18n.locale) do
-          #todo: FIXME if breaks
-          object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object ==  params[:class].classify }
+          # TODO: FIXME if breaks
+          object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == params[:class].classify }
           @objects = object_type.constantize.where(id: params[:ids])
         end
 
@@ -57,8 +57,8 @@ module DataCycleCore
 
       unless params[:class].blank? || params[:id].blank?
         I18n.with_locale(params[:language] || I18n.locale) do
-          #todo: FIXME if breaks
-          object_type = DataCycleCore.content_tables.map{ |object| ('DataCycleCore::'+object.singularize.classify) }.find{ |object| object ==  params[:class].classify }
+          # TODO: FIXME if breaks
+          object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == params[:class].classify }
           @object = object_type.constantize.find(params[:id])
         end
       end
@@ -70,25 +70,24 @@ module DataCycleCore
 
     def get_classification_aliases_for_type(type)
       case
-        when type == 'image'
-          get_content_classification_aliases('Bild','Inhaltstypen')
-        when type == 'video'
-          get_content_classification_aliases('Video','Inhaltstypen')
-        else
-          {}
+      when type == 'image'
+        get_content_classification_aliases('Bild', 'Inhaltstypen')
+      when type == 'video'
+        get_content_classification_aliases('Video', 'Inhaltstypen')
+      else
+        {}
       end
     end
 
     def get_content_classification_aliases(labels, tree_label)
       DataCycleCore::ClassificationAlias.joins(
-          :classification_tree_label
+        :classification_tree_label
       ).where(
-          classification_trees: {
-              classification_tree_label: DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label)
-          },
-          name: [labels]
+        classification_trees: {
+          classification_tree_label: DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label)
+        },
+        name: [labels]
       )
     end
-
   end
 end

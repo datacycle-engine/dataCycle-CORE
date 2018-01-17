@@ -24,6 +24,5 @@ module DataCycleCore
       end
       grouping_class
     end
-
   end
 end

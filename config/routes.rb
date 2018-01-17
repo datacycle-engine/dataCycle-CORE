@@ -1,5 +1,4 @@
 DataCycleCore::Engine.routes.draw do
-
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise
 
   authenticated :user do
@@ -7,8 +6,8 @@ DataCycleCore::Engine.routes.draw do
   end
   root to: redirect('/users/sign_in')
 
-  get  '/info',    to: 'frontend#info'
-  get  '/settings',    to: 'backend#settings'
+  get  '/info', to: 'frontend#info'
+  get  '/settings', to: 'backend#settings'
   resources :users, only: [:index, :edit, :update, :destroy] do
     post :unlock, on: :member
     post :create_user, on: :collection
@@ -31,6 +30,12 @@ DataCycleCore::Engine.routes.draw do
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :events, only: [:index, :show, :create, :edit, :update, :destroy]
 
+  scope ('files') do
+    resources :assets, only: [:index, :show, :new, :create, :destroy] do
+      post 'new_asset_object', on: :collection
+      delete 'remove_asset_object', on: :member
+    end
+  end
 
   resources :data_links do
     post :send_mail, on: :member
@@ -39,7 +44,6 @@ DataCycleCore::Engine.routes.draw do
   resources :watch_lists do
     get :removeItem, on: :member
     get :addItem, on: :member
-
   end
 
   resources :classifications, only: [:index, :create] do
@@ -56,13 +60,12 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/import_classifications', to: 'dash_board#import_classifications'
   get  '/admin/import_persons', to: 'dash_board#import_persons'
   get  '/admin/classifications', to: 'dash_board#classifications'
-  #mount RailsDb::Engine => '/db', :as => 'db'
+  # mount RailsDb::Engine => '/db', :as => 'db'
 
-  #backend validation endpoints
+  # backend validation endpoints
   match '/validatecreativework(/:id)', to: 'creative_works#validate_single_data', via: [:patch, :post]
   match '/validateperson(/:id)', to: 'persons#validate_single_data', via: [:patch, :post]
   match '/validateplace(/:id)', to: 'places#validate_single_data', via: [:patch, :post]
-
 
   defaults format: :json do
     namespace :api do
@@ -77,6 +80,7 @@ DataCycleCore::Engine.routes.draw do
 
         type_regexp = Regexp.new([:creative_works, :persons, :places].join("|"))
         resources :contents, path: ':type', constraints: { type: type_regexp }, only: [:show] do
+          get :search, on: :collection
           patch :update, on: :member
         end
         get 'contents/search', to: 'contents#search'

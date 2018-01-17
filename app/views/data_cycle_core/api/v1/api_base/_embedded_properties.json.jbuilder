@@ -1,5 +1,5 @@
 default_options = {
-  hidden_attributes: DataCycleCore.special_data_attributes +  ['external_source_id', 'external_key']
+  hidden_attributes: DataCycleCore.special_data_attributes + ['external_source_id', 'external_key']
 }
 
 options = default_options.merge(defined?(options) ? options || {} : {})
@@ -14,5 +14,4 @@ options = default_options.merge(defined?(options) ? options || {} : {})
       end
     end
   end
-
 end

@@ -10,6 +10,10 @@
   .dropdown-pane {
     z-index: 100;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    .list-items {
+      max-height: 24rem;
+      overflow-y: auto;
+    }
   }
   >ul {
     position: relative;

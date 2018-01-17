@@ -6,7 +6,8 @@
   <body>
     <h1>Sehr geehrter User,</h1>
     <p>Ein abonnierter Inhalt hat sich geändert.</p>
-    <p><%= link_to @content do %>
+    <%# FIXME: change to '@content.histories.first' when histories are fixed %>
+    <p><%= link_to polymorphic_url([:history, @content], history_id: @content.histories.sort_by{|h| h.history_valid.last }.last.id) do %>
         <%= @content.metadata['validation']['name'] %>: <%= @content.title.blank? ? @content.id : @content.title %>
       <% end %>
     </p>

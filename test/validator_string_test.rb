@@ -3,18 +3,16 @@ require 'test_helper'
 module DataCycleCore
   module MasterData
     module Validators
-
       class StringTest < ActiveSupport::TestCase
-
         test "init string validator" do
-          error_hash = { error: [], warning: []}
+          error_hash = { error: [], warning: [] }
           template_hash = {
             "label" => "Test",
             "type" => "string",
             "storage_type" => "string",
             "storage_location" => "content"
           }
-          validator = DataCycleCore::MasterData::Validators::String.new("test-string",template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("test-string", template_hash)
           assert_equal(error_hash, validator.error)
         end
 
@@ -25,7 +23,7 @@ module DataCycleCore
             "storage_type" => "string",
             "storage_location" => "content"
           }
-          validator = DataCycleCore::MasterData::Validators::String.new(10,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new(10, template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -37,7 +35,7 @@ module DataCycleCore
             "storage_type" => "string",
             "storage_location" => "content"
           }
-          validator = DataCycleCore::MasterData::Validators::String.new(nil,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new(nil, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(1, validator.error[:warning].size)
         end
@@ -55,7 +53,7 @@ module DataCycleCore
               "format" => "uuid"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::String.new("0001824b-3e51-499c-a088-02db5b5e5cf7",template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("0001824b-3e51-499c-a088-02db5b5e5cf7", template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -70,7 +68,7 @@ module DataCycleCore
               "minLength" => 3
             }
           }
-          validator = DataCycleCore::MasterData::Validators::String.new("x",template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("x", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -85,7 +83,7 @@ module DataCycleCore
               "maxLength" => 3
             }
           }
-          validator = DataCycleCore::MasterData::Validators::String.new("xxxxx",template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("xxxxx", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -100,10 +98,10 @@ module DataCycleCore
               "pattern" => "/[0-9a-f]{4}-[0-9a-f]{4}/"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::String.new("g111-1111",template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("g111-1111", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new("f111-111",template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("f111-111", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -118,7 +116,7 @@ module DataCycleCore
               "pattern" => "/[0-9a-f]{4}-[0-9a-f]{4}/"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::String.new("abcd-ef01",template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("abcd-ef01", template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -133,7 +131,7 @@ module DataCycleCore
               "format" => "xxx"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::String.new("Hello World!" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("Hello World!", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -148,7 +146,7 @@ module DataCycleCore
               "format" => "date_time"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::String.new("2017-20-20" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("2017-20-20", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -163,11 +161,11 @@ module DataCycleCore
               "format" => "date_time"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::String.new(Time.now.to_s ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new(Time.now.to_s, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
 
-          validator = DataCycleCore::MasterData::Validators::String.new(Time.zone.now.to_s ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new(Time.zone.now.to_s, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -182,7 +180,7 @@ module DataCycleCore
               "format" => "date_time"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::String.new("2017-04-04 15:16:38 +0200" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("2017-04-04 15:16:38 +0200", template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -197,7 +195,7 @@ module DataCycleCore
               "format" => "date"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::String.new("2017-13-13" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("2017-13-13", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -212,7 +210,7 @@ module DataCycleCore
               "format" => "uuid"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::String.new("2017-13-13" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("2017-13-13", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -227,7 +225,7 @@ module DataCycleCore
               "format" => "uuid"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::String.new("0001824b-3e51-499c-a088-02db5b5e5cf7" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("0001824b-3e51-499c-a088-02db5b5e5cf7", template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -242,25 +240,25 @@ module DataCycleCore
               "format" => "url"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::String.new("!test" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("!test", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new("test/franz" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("test/franz", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new("html://test/franz" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("html://test/franz", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new("httpx://test/franz" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("httpx://test/franz", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new("http://test.com/franz:aöslkfj" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("http://test.com/franz:aöslkfj", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new(8 ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new(8, template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new(:test ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new(:test, template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -275,19 +273,19 @@ module DataCycleCore
               "format" => "url"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::String.new("http://www.example.com" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("http://www.example.com", template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new("https://www.example.com" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("https://www.example.com", template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new("http://www.example.com/xxx/yyy" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("http://www.example.com/xxx/yyy", template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new("http://www.example.com/xxx?test=hallo" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("http://www.example.com/xxx?test=hallo", template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new("http://test.com/franz:3000" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("http://test.com/franz:3000", template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -302,10 +300,10 @@ module DataCycleCore
               "format" => "url"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::String.new("https://www.....example.com" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("https://www.....example.com", template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new("http://test.com/franz:99999999999999999" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("http://test.com/franz:99999999999999999", template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -320,19 +318,19 @@ module DataCycleCore
               "format" => "boolean"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::String.new("!test" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("!test", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new("test/franz" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("test/franz", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new("true     s" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("true     s", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new("true_" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("true_", template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new(5 ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new(5, template_hash)
           assert_equal(1, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
@@ -347,19 +345,17 @@ module DataCycleCore
               "format" => "boolean"
             }
           }
-          validator = DataCycleCore::MasterData::Validators::String.new("true" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("true", template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new("false" ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new("false", template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
-          validator = DataCycleCore::MasterData::Validators::String.new(" false  " ,template_hash)
+          validator = DataCycleCore::MasterData::Validators::String.new(" false  ", template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(0, validator.error[:warning].size)
         end
-
       end
-
     end
   end
 end

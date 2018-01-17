@@ -1,5 +1,4 @@
 module DataCycleCore::Generic::OutdoorActive::ImportPlaces
-
   def import_data(**options)
     @image_template = options[:import][:image_template] || 'Bild'
 
@@ -12,7 +11,7 @@ module DataCycleCore::Generic::OutdoorActive::ImportPlaces
   protected
 
   def load_contents(mongo_item, locale)
-    mongo_item.all #frontendtype: ["poi", "hut", "lodging", "skiresort", "offerer"]
+    mongo_item.all # frontendtype: ["poi", "hut", "lodging", "skiresort", "offerer"]
   end
 
   def process_content(raw_data, template, locale)
@@ -39,9 +38,9 @@ module DataCycleCore::Generic::OutdoorActive::ImportPlaces
       sources_hash = sources.compact.blank? ? [] : sources.map(&:id).take(1)
 
       frontendtype = DataCycleCore::Classification.find_by(
-          external_source_id: external_source.id,
-          external_key: "FRONTENDTYPE:#{Digest::MD5.new.update(raw_data['frontendtype']).hexdigest}"
-        ).try(:id)
+        external_source_id: external_source.id,
+        external_key: "FRONTENDTYPE:#{Digest::MD5.new.update(raw_data['frontendtype']).hexdigest}"
+      ).try(:id)
       frontendtype = frontendtype.blank? ? [] : [frontendtype]
 
       create_or_update_content(
@@ -66,5 +65,4 @@ module DataCycleCore::Generic::OutdoorActive::ImportPlaces
   def extract_poi_data(raw_data)
     raw_data.nil? ? {} : @poi_transformation.call(raw_data)
   end
-
 end

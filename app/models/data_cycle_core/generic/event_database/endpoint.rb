@@ -7,19 +7,16 @@ class DataCycleCore::Generic::EventDatabase::Endpoint
   end
 
   def categories(lang: :de)
-
     Enumerator.new do |yielder|
       load_data(action: '/categories/tree')['categories'].each do |category|
-        children = category['children'].collect {|c| c.merge({'parentId' => category['id']}) }
-        primary_category = category.without('children').merge({'parentId' => nil})
+        children = category['children'].collect { |c| c.merge({ 'parentId' => category['id'] }) }
+        primary_category = category.without('children').merge({ 'parentId' => nil })
 
         (children << primary_category).each do |category_item|
           yielder << category_item
         end
-
       end
     end
-
   end
 
   def events(lang: :de)
@@ -34,7 +31,6 @@ class DataCycleCore::Generic::EventDatabase::Endpoint
         end
       end
     end
-
   end
 
   protected
@@ -51,7 +47,6 @@ class DataCycleCore::Generic::EventDatabase::Endpoint
         'from' => Date.today.at_beginning_of_month.to_s(:german_date_format),
         'to' => Date.today.at_end_of_month.next_year.to_s(:german_date_format)
       }
-
     end
 
     if response.success?

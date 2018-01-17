@@ -20,7 +20,7 @@ module DataCycleCore::Generic::OutdoorActive::ImportRegions
   def load_child_classifications(mongo_item, parent_category_data, locale)
     mongo_item.where(
       "dump.#{locale}.parentId": parent_category_data['id'],
-      "dump.#{locale}.id": {'$ne': parent_category_data['id']}
+      "dump.#{locale}.id": { '$ne': parent_category_data['id'] }
     )
   end
 
@@ -38,5 +38,4 @@ module DataCycleCore::Generic::OutdoorActive::ImportRegions
       name: raw_data['name']
     }
   end
-
 end

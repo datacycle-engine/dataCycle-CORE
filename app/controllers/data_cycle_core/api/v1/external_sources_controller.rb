@@ -1,22 +1,22 @@
 module DataCycleCore
   class Api::V1::ExternalSourcesController < Api::V1::ApiBaseController
-
     def update
-
       api_strategy = get_api_strategy
       content = params[:content].as_json
 
       updated = api_strategy.update content
 
+      updated.each do |item|
+        item.update(webhook_source: external_sources_params[:webhook_source]) unless external_sources_params[:webhook_source].blank?
+      end
+
       execute_after_update_webhooks updated.first if updated.kind_of?(Array)
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
-      render plain: {'updated' => updated}.to_json, content_type: 'application/json'
-
+      render plain: { 'updated' => updated }.to_json, content_type: 'application/json'
     end
 
     def create
-
       api_strategy = get_api_strategy
       content = params[:content].as_json
 
@@ -25,12 +25,10 @@ module DataCycleCore
       execute_after_create_webhooks created.first if created.kind_of?(Array)
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
-      render plain: {'created' => created}.to_json, content_type: 'application/json'
-
+      render plain: { 'created' => created }.to_json, content_type: 'application/json'
     end
 
     def destroy
-
       api_strategy = get_api_strategy
 
       deleted = api_strategy.delete external_sources_params[:external_key]
@@ -38,37 +36,34 @@ module DataCycleCore
       execute_after_delete_webhooks deleted
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
-      render plain: {'deleted' => deleted}.to_json, content_type: 'application/json'
-
+      render plain: { 'deleted' => deleted }.to_json, content_type: 'application/json'
     end
 
     private
 
     def external_sources_params
-      params.permit(:external_source_id, :type, :external_key, :token)
+      params.permit(:external_source_id, :type, :external_key, :token, :webhook_source)
     end
 
     def get_api_strategy
       external_source = DataCycleCore::ExternalSource.find(external_sources_params[:external_source_id])
-      api_strategy = DataCycleCore.allowed_api_strategies.find{ |object| object ==  external_source.config['api_strategy'] }
+      api_strategy = DataCycleCore.allowed_api_strategies.find { |object| object == external_source.config['api_strategy'] }
 
       unless api_strategy.nil?
         api_strategy.constantize.new(external_source, external_sources_params[:type], external_sources_params[:external_key])
       end
-
     end
 
-    def execute_after_update_webhooks data
+    def execute_after_update_webhooks(data)
       Webhook::Update.execute_all(data)
     end
 
-    def execute_after_delete_webhooks data
+    def execute_after_delete_webhooks(data)
       Webhook::Delete.execute_all(data)
     end
 
-    def execute_after_create_webhooks data
+    def execute_after_create_webhooks(data)
       Webhook::Create.execute_all(data)
     end
-
   end
 end

@@ -1,7 +1,5 @@
 class CreatePersons < ActiveRecord::Migration[5.0]
-
   def up
-
     create_table :persons, id: :uuid do |t|
       t.string :headline
       t.text :description
@@ -36,5 +34,4 @@ class CreatePersons < ActiveRecord::Migration[5.0]
     drop_table :creative_work_persons
     drop_table :person_translations
   end
-
 end

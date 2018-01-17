@@ -53,7 +53,6 @@ class AddHistoryToRelations < ActiveRecord::Migration[5.0]
       t.datetime :seen_at
       t.timestamps
     end
-
   end
 
   def down
@@ -64,5 +63,4 @@ class AddHistoryToRelations < ActiveRecord::Migration[5.0]
     drop_table :creative_work_person_histories
     drop_table :creative_work_event_histories
   end
-
 end

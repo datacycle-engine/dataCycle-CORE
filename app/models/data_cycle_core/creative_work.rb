@@ -1,6 +1,5 @@
 module DataCycleCore
   class CreativeWork < DataHash
-
     extend ActsAsTree::TreeView
     extend ActsAsTree::TreeWalker
 
@@ -11,7 +10,7 @@ module DataCycleCore
     class History < DataHash
       # handle translations with gem Globalize
       translates :headline, :description, :content, :properties, :release,
-        :release_id, :release_comment, :history_valid
+                 :release_id, :release_comment, :history_valid
 
       content_relations table_name: "creative_works", postfix: "history"
 
@@ -25,11 +24,11 @@ module DataCycleCore
         self.translations.delete_all
       end
     end
-    has_many :histories, -> { order(updated_at: :desc) }, class_name: 'DataCycleCore::CreativeWork::History', foreign_key: :creative_work_id
+    has_many :histories, -> { order(created_at: :desc) }, class_name: 'DataCycleCore::CreativeWork::History', foreign_key: :creative_work_id
 
     # handle translations with gem Globalize
     translates :headline, :description, :content, :properties, :release,
-      :release_id, :release_comment
+               :release_id, :release_comment
 
     # include content specific relations
     content_relations table_name: self.table_name
@@ -55,6 +54,5 @@ module DataCycleCore
       self.translations.delete_all
       self.content_search_all.delete_all
     end
-
   end
 end

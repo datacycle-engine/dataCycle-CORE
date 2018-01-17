@@ -200,27 +200,27 @@ describe DataCycleCore::Generic::Feratel::TransformationFunctions do
 
     it 'extracts texts from simple hashes' do
       subject.unwrap_description(simple_hash, 'ServiceProviderDescription')['ServiceProviderDescription']
-             .must_equal ' ...Beschreibungstext ...'
+        .must_equal ' ...Beschreibungstext ...'
     end
 
     it 'can handle missing descriptions' do
       subject.unwrap_description(missing_description, 'ServiceProviderDescription')['ServiceProviderDescription']
-             .must_be_nil
+        .must_be_nil
     end
 
     it 'can handle multiple descriptions' do
       subject.unwrap_description(multiple_descriptions, 'ServiceProviderDescription')['ServiceProviderDescription']
-             .must_equal '...Beschreibungstext 1 ...'
+        .must_equal '...Beschreibungstext 1 ...'
     end
 
     it 'can handle different description types' do
       subject.unwrap_description(multiple_description_types, 'ServiceProviderDescription')['ServiceProviderDescription']
-             .must_equal '...Beschreibungstext 2 ...'
+        .must_equal '...Beschreibungstext 2 ...'
     end
 
     it 'extracts texts from nested hashes' do
       subject.unwrap_description(multiple_description_types, 'ServiceProviderDescription')['ServiceProviderDescription']
-             .must_equal '...Beschreibungstext 2 ...'
+        .must_equal '...Beschreibungstext 2 ...'
     end
   end
 
@@ -265,7 +265,7 @@ describe DataCycleCore::Generic::Feratel::TransformationFunctions do
 
     it 'can handle missing nested hashes' do
       subject.unwrap_address(nested_hash, 'Object').dig('Details', 'Address', 'Company')
-             .must_equal 'Company Name - Object'
+        .must_equal 'Company Name - Object'
     end
   end
 end

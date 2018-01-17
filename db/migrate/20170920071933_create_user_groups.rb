@@ -15,7 +15,6 @@ class CreateUserGroups < ActiveRecord::Migration[5.0]
       t.index :user_group_id
       t.index :user_id
     end
-
   end
 
   def down

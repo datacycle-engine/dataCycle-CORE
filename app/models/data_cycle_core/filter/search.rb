@@ -1,10 +1,9 @@
 module DataCycleCore
   module Filter
     class Search < QueryBuilder
-
-      def_delegators :@query, :includes, :to_a, :to_sql, :each, :map, :page #, :per, :total_pages, :current_page, :limit_value, :next_page, :prev_page, :first_page?, :last_page?, :out_of_range?
+      def_delegators :@query, :includes, :to_a, :to_sql, :each, :map, :page # , :per, :total_pages, :current_page, :limit_value, :next_page, :prev_page, :first_page?, :last_page?, :out_of_range?
       TERMINAL_METHODS = [:count, :pluck,
-        :first, :second, :third, :fourth, :fifth, :forty_two, :last]
+                          :first, :second, :third, :fourth, :fifth, :forty_two, :last]
       def_delegators :@query, *TERMINAL_METHODS
 
       def initialize(locale = 'de', query = nil)
@@ -15,8 +14,8 @@ module DataCycleCore
       def fulltext_search(name)
         reflect(
           @query.where(
-            search[:all_text].matches_all(name.split(' ').map{|item| "%#{item.strip}%"}).
-            or(tsmatch(search[:words],to_tsquery(quoted(name.squish))))
+            search[:all_text].matches_all(name.split(' ').map { |item| "%#{item.strip}%" })
+              .or(tsmatch(search[:words], to_tsquery(quoted(name.squish))))
           )
         )
       end
@@ -31,9 +30,9 @@ module DataCycleCore
 
       def in_validity_period(current_date = Time.now)
         reflect (
-          @query.where(
-            in_range(search[:validity_period], cast_tstz(current_date))
-          )
+                  @query.where(
+                    in_range(search[:validity_period], cast_tstz(current_date))
+                  )
         )
       end
 
@@ -41,23 +40,23 @@ module DataCycleCore
         manager = get_watch_list_items(id)
 
         reflect (
-          @query.where(search[:content_data_id].in(manager))
+                  @query.where(search[:content_data_id].in(manager))
         )
       end
 
       def modified_since(date = Time.now)
         reflect (
-          @query.where(
-            search[:updated_at].gteq(DateTime.parse(date))
-          )
+                  @query.where(
+                    search[:updated_at].gteq(DateTime.parse(date))
+                  )
         )
       end
 
       def created_since(date = Time.now)
         reflect (
-          @query.where(
-            search[:created_at].gteq(DateTime.parse(date))
-          )
+                  @query.where(
+                    search[:created_at].gteq(DateTime.parse(date))
+                  )
         )
       end
 
@@ -65,7 +64,7 @@ module DataCycleCore
         manager = create_classification_alias_recursion(ids)
         # get everything including parents (or-clause)
         reflect (
-          @query.where(search[:content_data_id].in(manager))
+                  @query.where(search[:content_data_id].in(manager))
         )
       end
 
@@ -73,30 +72,29 @@ module DataCycleCore
         search_string = (search || '').split(' ').join('%')
 
         ActiveRecord::Base.send(:sanitize_sql_for_order,
-          "boost * (
+                                "boost * (
             8 * similarity(classification_string,'%#{search_string}%') +
             4 * similarity(headline, '%#{search_string}%') +
             2 * ts_rank_cd(words, plainto_tsquery('simple', '#{(search || '').squish}'),16) +
             1 * similarity(full_text, '%#{search_string}%'))
             DESC NULLS LAST,
-            updated_at DESC"
-          )
+            updated_at DESC")
       end
 
-    private
+      private
 
       def join_classification_alias2
-        Arel::SelectManager.new.
-          project(search[:content_data_id]).
-          from(search).
-          join(classification_content).
-            on(search[:content_data_id].eq(classification_content[:content_data_id])).
-          join(classification).
-            on(classification_content[:classification_id].eq(classification[:id])).
-          join(classification_group).
-            on(classification[:id].eq(classification_group[:classification_id])).
-          join(classification_alias).
-            on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+        Arel::SelectManager.new
+          .project(search[:content_data_id])
+          .from(search)
+          .join(classification_content)
+          .on(search[:content_data_id].eq(classification_content[:content_data_id]))
+          .join(classification)
+          .on(classification_content[:classification_id].eq(classification[:id]))
+          .join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join(classification_alias)
+          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
       end
 
       def search
@@ -108,11 +106,11 @@ module DataCycleCore
       end
 
       def join_watch_list
-        Arel::SelectManager.new.
-        project(search[:content_data_id]).
-        from(search).
-        join(watch_list_data_hash).
-          on(search[:content_data_id].eq(watch_list_data_hash[:hashable_id]).and(search[:content_data_type].eq(watch_list_data_hash[:hashable_type])))
+        Arel::SelectManager.new
+          .project(search[:content_data_id])
+          .from(search)
+          .join(watch_list_data_hash)
+          .on(search[:content_data_id].eq(watch_list_data_hash[:hashable_id]).and(search[:content_data_type].eq(watch_list_data_hash[:hashable_type])))
       end
 
       def watch_list_data_hash
@@ -123,7 +121,6 @@ module DataCycleCore
         query = join_watch_list
         query.where(watch_list_data_hash[:watch_list_id].eq(id))
       end
-
     end
   end
 end

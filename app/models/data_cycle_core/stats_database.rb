@@ -1,6 +1,5 @@
 module DataCycleCore
   class StatsDatabase
-
     attr_accessor :stat_update, :pg_name, :pg_size,
                   :pg_content, :pg_content_content, :pg_classification_content,
                   :pg_classifications, :pg_aliases, :pg_overlays, :pg_content_history,
@@ -8,15 +7,15 @@ module DataCycleCore
                   :mongo_categories, :mongo_pois, :mongo_regions,
                   :import_modules
 
-    def initialize( user_id )
-        @import_modules = []
-        load_postgres_data
-        load_mongo_data( user_id )
+    def initialize(user_id)
+      @import_modules = []
+      load_postgres_data
+      load_mongo_data(user_id)
     end
 
-    def update( user_id )
+    def update(user_id)
       load_postgres_data
-      load_mongo_data( user_id )
+      load_mongo_data(user_id)
       return self
     end
 
@@ -36,9 +35,9 @@ module DataCycleCore
       @pg_tree_nodes = ClassificationTree.count
 
       @pg_content = {}
-      @pg_content_history =  0
+      @pg_content_history = 0
       DataCycleCore.content_tables.each do |item|
-        @pg_content[item.humanize] = ("DataCycleCore::"+item.classify).safe_constantize.count
+        @pg_content[item.humanize] = ("DataCycleCore::" + item.classify).safe_constantize.count
         @pg_content_history += "DataCycleCore::#{item.classify}::History".safe_constantize.count
       end
 
@@ -46,7 +45,7 @@ module DataCycleCore
       @pg_overlays = Overlay.count
     end
 
-    def load_mongo_data ( user_id )
+    def load_mongo_data(user_id)
       mongo_dbs = Generic::Collection.mongo_client.list_databases
 
       UseCase.where(user_id: user_id).each do |use_case|
@@ -57,28 +56,28 @@ module DataCycleCore
         Mongoid.override_database(nil)
         mongo_database = "#{Generic::Collection.database_name}_#{external_source_id}"
         Mongoid.override_database(mongo_database)
-        mongo_dbs_index = mongo_dbs.find_index { |db| db["name"]==mongo_database }
+        mongo_dbs_index = mongo_dbs.find_index { |db| db["name"] == mongo_database }
 
         if mongo_dbs_index.nil?
           @import_modules.push({
-              uuid: external_source_id,
-              name: import_name,
-              database: mongo_database,
-              db_size: 0,
-              tables: {
-                "no collections found": 0
-              },
-              last_import: "never",
-              last_download: "never"
-          })
+                                 uuid: external_source_id,
+                                 name: import_name,
+                                 database: mongo_database,
+                                 db_size: 0,
+                                 tables: {
+                                   "no collections found": 0
+                                 },
+                                 last_import: "never",
+                                 last_download: "never"
+                               })
         else
           mongo_dbsize = mongo_dbs[mongo_dbs_index]['sizeOnDisk']
           Mongoid.clients[external_source_id] = {
             "database" => mongo_database,
-            "hosts" => Mongoid.default_client.cluster.servers.map(&:address).map{|adr| "#{adr.host}:#{adr.port}"},
+            "hosts" => Mongoid.default_client.cluster.servers.map(&:address).map { |adr| "#{adr.host}:#{adr.port}" },
             "options" => nil
           }
-          mongo_data = Hash[Mongoid.client(external_source_id).collections.map{ |item| [ item.name.humanize, item.count ]}]
+          mongo_data = Hash[Mongoid.client(external_source_id).collections.map { |item| [item.name.humanize, item.count] }]
 
           if external_source.last_import.nil?
             last_import = "never"
@@ -93,17 +92,16 @@ module DataCycleCore
           end
 
           @import_modules.push({
-              uuid: external_source_id,
-              name: import_name,
-              database: mongo_database,
-              db_size: mongo_dbsize,
-              tables: mongo_data,
-              last_import: last_import,
-              last_download: last_download
-          })
+                                 uuid: external_source_id,
+                                 name: import_name,
+                                 database: mongo_database,
+                                 db_size: mongo_dbsize,
+                                 tables: mongo_data,
+                                 last_import: last_import,
+                                 last_download: last_download
+                               })
         end
       end
     end
-
   end
 end

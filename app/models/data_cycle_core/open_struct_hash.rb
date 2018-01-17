@@ -1,6 +1,5 @@
 module DataCycleCore
   class OpenStructHash < OpenStruct
-
     def to_h
       if self.table.blank?
         as_hash = {}
@@ -11,6 +10,5 @@ module DataCycleCore
       end
       as_hash.compact
     end
-
   end
 end

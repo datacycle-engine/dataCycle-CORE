@@ -8,4 +8,4 @@ $('<%= params[:overlay_id] %>').find('.items .loading').hide();
   <% end %>
 <% end %>
 
-$('<%= params[:overlay_id] %>').find('.items .loading').before('<%= j yield :rendered_items %>');
+$('<%= params[:overlay_id] %>').find('.items .loading').before('<%= (@total.nil? || @total.zero?) ? t('common.no_results') : j(yield :rendered_items) %>');

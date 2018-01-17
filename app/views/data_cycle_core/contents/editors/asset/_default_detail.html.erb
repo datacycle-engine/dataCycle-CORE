@@ -1,0 +1,27 @@
+<% if value.blank? %>
+
+    <%= hidden_field_tag "#{key}", '', id: "#{sanitize_to_id(key)}_hidden" %>
+    <%= file_field_tag "asset[file]", id:"#{sanitize_to_id(key)}_file" %>
+
+<% else %>
+
+    <% asset = value.first %>
+    <%= hidden_field_tag "#{key}", asset.id, id: "#{sanitize_to_id(key)}_hidden" %>
+
+    <div class="inner">
+        <span class="asset-title"><%= asset.file.file.filename %></span>
+        <span class="asset-type"><%=  asset.content_type %> (<%= asset.file_size %> B)</span>
+        <div class="thumb">
+            <a href="<%= asset.file.url %>" target="_blank">
+                öffnen <i class="fa fa-external-link" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+
+<% end %>
+
+<button id="add_<%= sanitize_to_id(key) %>" style="<%= 'display:none;' unless value.blank? %>" type="button" class="button addAsset">hochladen <i class="fa fa-upload"></i></button>
+
+<% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
+    <button type="button" style="<%= 'display:none;' if value.blank? %>" class="button removeAsset"><i class="fa fa-times"></i></button>
+<% end %>

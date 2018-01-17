@@ -4,7 +4,6 @@ module DataCycleCore
     include CanCan::ControllerAdditions
     ActiveSupport::Rescuable
 
-
     # rescue_from CanCan::AccessDenied, with: :access_denied
     # rescue_from ActiveRecord::RecordNotFound, with: :not_found
     before_filter :authenticate
@@ -14,7 +13,6 @@ module DataCycleCore
     def tokens
       DataCycleCore.access_tokens
     end
-
 
     private
 

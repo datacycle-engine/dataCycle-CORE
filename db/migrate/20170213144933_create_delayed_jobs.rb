@@ -11,7 +11,7 @@ class CreateDelayedJobs < ActiveRecord::Migration
       table.string :locked_by                          # Who is working on this object (if locked)
       table.string :queue                              # The name of the queue this job is in
       table.string :delayed_reference_id
-      table.string  :delayed_reference_type
+      table.string :delayed_reference_type
       table.timestamps null: true
     end
 
