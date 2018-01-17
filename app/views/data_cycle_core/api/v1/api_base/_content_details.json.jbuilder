@@ -24,3 +24,5 @@ end
 json.partial! 'linked_properties', content: content, options: options
 
 json.partial! 'embedded_properties', content: content, options: options
+
+json.partial! 'asset_properties', content: content, options: options
