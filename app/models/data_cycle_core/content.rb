@@ -131,7 +131,7 @@ module DataCycleCore
     end
 
     def verify
-      if (translatable_property_names & untranslatable_property_names).size > 0
+      unless (translatable_property_names & untranslatable_property_names).empty?
         inconsistent_properties = (translatable_property_names & untranslatable_property_names)
 
         raise StandardError.new("cannot determine whether some properties (#{inconsistent_properties.join(',')}) are translatable or not")

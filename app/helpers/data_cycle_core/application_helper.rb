@@ -48,7 +48,7 @@ module DataCycleCore
       partials = [
         "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].content_type.underscore}_#{partial}",
         "#{parameters[:content].class.class_name.underscore}_#{partial}",
-        "content_#{partial}",
+        "content_#{partial}"
       ]
 
       render_first_existing_partial(partials, parameters)
@@ -59,7 +59,7 @@ module DataCycleCore
         "#{definition.try(:[], 'releasable') ? 'releasable' : ''}",
         "#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'type').try(:underscore)}",
         "#{definition.try(:[], 'editor').try(:[], 'type').try(:underscore)}",
-        "#{definition['type'].underscore}",
+        "#{definition['type'].underscore}"
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/#{p}_editor" }
       parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options]))
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
@@ -71,7 +71,7 @@ module DataCycleCore
         "#{definition['type'].underscore}_#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'data-type').try(:underscore)}",
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
         "#{definition.try(:[], 'editor').try(:[], 'type').try(:underscore)}",
-        "#{definition['type'].underscore}",
+        "#{definition['type'].underscore}"
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/#{p}_viewer" }
 
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
@@ -93,7 +93,7 @@ module DataCycleCore
         "#{definition['type'].underscore}_#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'data-type').try(:underscore)}",
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
         "#{definition.try(:[], 'editor').try(:[], 'type').try(:underscore)}",
-        "#{definition['type'].underscore}",
+        "#{definition['type'].underscore}"
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/history_viewers/#{p}_history_viewer" }
 
       begin

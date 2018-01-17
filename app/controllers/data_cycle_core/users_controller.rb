@@ -32,12 +32,12 @@ module DataCycleCore
     def update
       authorize! :set_role, @user if user_params[:role_id]
 
-      method = (current_user == @user && !user_params[:password].nil?) ? 'update_with_password' : 'update'
+      method = current_user == @user && !user_params[:password].nil? ? 'update_with_password' : 'update'
 
       if @user.send(method, user_params)
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
 
-        bypass_sign_in(@user) if (current_user == @user && !user_params[:password].nil?)
+        bypass_sign_in(@user) if current_user == @user && !user_params[:password].nil?
 
         if Rails.env.development?
           redirect_to edit_user_path(@user)

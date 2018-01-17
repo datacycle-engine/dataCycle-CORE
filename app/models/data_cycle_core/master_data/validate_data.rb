@@ -31,7 +31,7 @@ module DataCycleCore
         if strict
           return (@error[:error].length + @error[:warning].length) == 0
         else
-          return @error[:error].length == 0
+          return @error[:error].empty?
         end
       end
     end

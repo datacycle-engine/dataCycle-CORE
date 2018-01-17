@@ -199,14 +199,14 @@ RSpec.describe DataCycleCore::Content, type: :model do
                                               type: 'embeddedLinkArray',
                                               type_name: 'places',
                                               storage_type: 'array',
-                                              storage_location: 'metadata',
+                                              storage_location: 'metadata'
                                             },
                                             existing_main_location: {
                                               label: 'Main Location',
                                               type: 'embeddedLink',
                                               type_name: 'places',
                                               storage_type: 'number',
-                                              storage_location: 'metadata',
+                                              storage_location: 'metadata'
                                             }
                                           }
                                         },

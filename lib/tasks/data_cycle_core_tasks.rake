@@ -276,7 +276,7 @@ namespace :data_cycle_core do
         .where("metadata #>> '{validation, name}' = '#{args[:template_name]}'")
 
       total_items = data_object.count
-      puts "DELETE history for: #{args[:content_table_name]}/#{args[:template_name]} (#{total_items}) - (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
+      puts "DELETE history for: #{args[:content_table_name]}/#{args[:template_name]} (#{total_items}) - (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
       index = 0
 
       data_object.find_each do |data_item|
@@ -285,12 +285,12 @@ namespace :data_cycle_core do
           if index % 500 == 0
             fraction = (index / (total_items / 100.0)).round(0)
             fraction = 100 if fraction > 100
-            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
           end
         else
           fraction = (((index * 1.0) / total_items) * 100.0).round(0)
           fraction = 100 if fraction > 100
-          print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+          print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
         end
         index += 1
 
@@ -303,7 +303,7 @@ namespace :data_cycle_core do
         #   item.destroy
         # }
       end
-      puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+      puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
     end
   end
 
@@ -411,45 +411,43 @@ namespace :data_cycle_core do
       DataCycleCore::CreativeWork.where(where_string).each do |item|
         # puts "#{item.id} || #{item.metadata['validation']['name']}"
         array_names.each do |name|
-          if item.metadata.has_key?(name)
-            # puts "#{name.split('_hasPart')[0]} -> "
-            item.metadata[name].each do |content_id|
-              DataCycleCore::ContentContent.create!(
-                content_a_id: item.id,
-                content_a_type: 'DataCycleCore::CreativeWork',
-                relation_a: name.split('_hasPart')[0],
-                content_b_id: content_id,
-                content_b_type: 'DataCycleCore::CreativeWork',
-                relation_b: ''
-              )
-              puts "relation: #{name.split('_hasPart')[0]} | CreativeWork"
-            end
-            item.metadata = item.metadata.except(name)
-            I18n.with_locale(item.available_locales.first) { item.save }
+          next unless item.metadata.has_key?(name)
+          # puts "#{name.split('_hasPart')[0]} -> "
+          item.metadata[name].each do |content_id|
+            DataCycleCore::ContentContent.create!(
+              content_a_id: item.id,
+              content_a_type: 'DataCycleCore::CreativeWork',
+              relation_a: name.split('_hasPart')[0],
+              content_b_id: content_id,
+              content_b_type: 'DataCycleCore::CreativeWork',
+              relation_b: ''
+            )
+            puts "relation: #{name.split('_hasPart')[0]} | CreativeWork"
           end
+          item.metadata = item.metadata.except(name)
+          I18n.with_locale(item.available_locales.first) { item.save }
         end
       end
 
       DataCycleCore::CreativeWork::History.where(where_string).each do |item|
         # puts "#{item.id} || #{item.creative_work_id} || #{item.metadata['validation']['name']}"
         array_names.each do |name|
-          if item.metadata.has_key?(name)
-            # puts "#{name.split('_hasPart')[0]} -> "
-            item.metadata[name].each do |content_id|
-              DataCycleCore::ContentContent::History.create!(
-                content_a_history_id: item.id,
-                content_a_history_type: 'DataCycleCore::CreativeWork::History',
-                relation_a: name.split('_hasPart')[0],
-                content_b_history_id: content_id,
-                content_b_history_type: 'DataCycleCore::CreativeWork::History',
-                relation_b: '',
-                history_valid: item.history_valid
-              )
-              puts "relation: #{name.split('_hasPart')[0]} | CreativeWork::History"
-            end
-            item.metadata = item.metadata.except(name)
-            I18n.with_locale(item.available_locales.first) { item.save }
+          next unless item.metadata.has_key?(name)
+          # puts "#{name.split('_hasPart')[0]} -> "
+          item.metadata[name].each do |content_id|
+            DataCycleCore::ContentContent::History.create!(
+              content_a_history_id: item.id,
+              content_a_history_type: 'DataCycleCore::CreativeWork::History',
+              relation_a: name.split('_hasPart')[0],
+              content_b_history_id: content_id,
+              content_b_history_type: 'DataCycleCore::CreativeWork::History',
+              relation_b: '',
+              history_valid: item.history_valid
+            )
+            puts "relation: #{name.split('_hasPart')[0]} | CreativeWork::History"
           end
+          item.metadata = item.metadata.except(name)
+          I18n.with_locale(item.available_locales.first) { item.save }
         end
       end
     end
@@ -529,7 +527,7 @@ namespace :data_cycle_core do
     task :stage4 => [:environment] do
       temp = Time.zone.now
       puts "S T A G E  4:"
-      puts "BEGIN: (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
+      puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
 
       # delete inconsistent data:
       delete_sql = <<-eos
@@ -559,7 +557,7 @@ namespace :data_cycle_core do
 
       # rename Treelabel for keywords (new importer/type_definitions):
       old_tree_label_ids = DataCycleCore::ClassificationTreeLabel.where(name: 'Tags', external_source_id: DataCycleCore::ExternalSource.pluck(:id))
-      if old_tree_label_ids.size > 0
+      unless old_tree_label_ids.empty?
         keyword_label = old_tree_label_ids.first
         keyword_label.name = 'MediaArchive - Tags'
         keyword_label.save
@@ -578,12 +576,12 @@ namespace :data_cycle_core do
             if index % (items_count / 100.0).round(0) == 0
               fraction = (index / (items_count / 100.0)).round(0)
               fraction = 100 if fraction > 100
-              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
             end
           else
             fraction = (((index * 1.0) / items_count) * 100.0).round(0)
             fraction = 100 if fraction > 100
-            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
           end
 
           item.classification_property_names.each do |classification_name|
@@ -596,7 +594,7 @@ namespace :data_cycle_core do
             end
           end
         end
-        puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
+        puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
       end
 
       # delete Bild history
@@ -628,12 +626,12 @@ namespace :data_cycle_core do
             if index % (items_count / 100.0).round(0) == 0
               fraction = (index / (items_count / 100.0)).round(0)
               fraction = 100 if fraction > 100
-              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
             end
           else
             fraction = (((index * 1.0) / items_count) * 100.0).round(0)
             fraction = 100 if fraction > 100
-            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
           end
           index += 1
 
@@ -647,7 +645,7 @@ namespace :data_cycle_core do
             end
           end
         end
-        puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
+        puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
       end
 
       puts "END"

@@ -302,7 +302,7 @@ module DataCycleCore
       # delete missing ids
       found_ids = get_classification_relation(relation_name).pluck(:classification_id)
       to_delete = found_ids - ids
-      if to_delete.size > 0
+      unless to_delete.empty?
         DataCycleCore::ClassificationContent
           .where(
             "content_data_id" => self.id,
@@ -329,7 +329,7 @@ module DataCycleCore
       found_ids = get_asset_relation(relation_name).pluck(:asset_id)
       to_delete = found_ids - [id]
 
-      if to_delete.size > 0
+      unless to_delete.empty?
         DataCycleCore::AssetContent
           .where(
             "content_data_id" => self.id,
@@ -470,7 +470,7 @@ module DataCycleCore
         potentially_delete.each do |key|
           item = ("DataCycleCore::" + table.classify).constantize.find_by(id: key)
           translations = item.translated_locales
-          if (translations - [I18n.locale]).size < 1
+          if (translations - [I18n.locale]).empty?
             # destroy relationObject + additional embeddedObjects and their relations
             to_update_item = self.method(table).call.find_by(id: key)
             # check for subtrees

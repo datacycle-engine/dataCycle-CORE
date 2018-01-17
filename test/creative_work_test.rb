@@ -537,7 +537,7 @@ module DataCycleCore
         }, {
           "name" => "2Testort",
           "latitude" => 25.3,
-          "longitude" => 23.1,
+          "longitude" => 23.1
         }]
       }
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -590,7 +590,7 @@ module DataCycleCore
         }, {
           "name" => "2Testort",
           "latitude" => 25.3,
-          "longitude" => 23.1,
+          "longitude" => 23.1
         }]
       }
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -651,7 +651,7 @@ module DataCycleCore
         }, {
           "name" => "2Testort",
           "latitude" => 25.3,
-          "longitude" => 23.1,
+          "longitude" => 23.1
         }]
       }
       error = I18n.with_locale(:de) {
@@ -695,7 +695,7 @@ module DataCycleCore
           "id" => ids[1],
           "name" => "2nd Testplace",
           "latitude" => 25.3,
-          "longitude" => 23.1,
+          "longitude" => 23.1
         }]
       }
 
@@ -772,7 +772,7 @@ module DataCycleCore
         }, {
           "name" => "2Testort",
           "latitude" => 25.3,
-          "longitude" => 23.1,
+          "longitude" => 23.1
         }]
       }
       error = I18n.with_locale(:de) {
@@ -796,7 +796,7 @@ module DataCycleCore
         }, {
           "name" => "2nd Testplace",
           "latitude" => 25.3,
-          "longitude" => 23.1,
+          "longitude" => 23.1
         }]
       }
 

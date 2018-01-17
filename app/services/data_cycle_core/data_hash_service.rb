@@ -126,10 +126,10 @@ module DataCycleCore
             value = temp_value
 
           elsif value['value'].is_a?(::Array)
-            value['value'] = value['value'].reject { |v| v.empty? }
+            value['value'] = value['value'].reject(&:empty?)
           end
         elsif value.is_a?(::Array)
-          value = value.reject { |v| v.empty? }
+          value = value.reject(&:empty?)
         else
           # TODO: add more casts ?
           if properties['type'] == 'number' && !properties['validations'].nil? && !properties['validations']['format'].nil? && properties['validations']['format'] == 'float'

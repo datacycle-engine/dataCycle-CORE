@@ -180,16 +180,6 @@ Style/NestedTernaryOperator:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/functions.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, MinBodyLength.
-# SupportedStyles: skip_modifier_ifs, always
-Style/Next:
-  Exclude:
-    - 'app/views/data_cycle_core/api/v1/api_base/_embedded_properties.json.jbuilder'
-    - 'app/views/data_cycle_core/api/v1/api_base/_linked_properties.json.jbuilder'
-    - 'lib/tasks/data_cycle_core_tasks.rake'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedOctalStyle.
@@ -224,15 +214,6 @@ Style/ParallelAssignment:
   Exclude:
     - 'app/helpers/data_cycle_core/history_helper.rb'
     - 'app/models/data_cycle_core/data_hash.rb'
-
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: AllowSafeAssignment.
-Style/ParenthesesAroundCondition:
-  Exclude:
-    - 'app/controllers/data_cycle_core/users_controller.rb'
-    - 'app/helpers/data_cycle_core/content_helpers.rb'
-    - 'app/views/data_cycle_core/api/v1/api_base/_place_details.json.jbuilder'
 
 # Offense count: 1
 # Cop supports --auto-correct.
@@ -345,13 +326,6 @@ Style/SafeNavigation:
 
 # Offense count: 1
 # Cop supports --auto-correct.
-# Configuration parameters: AllowAsExpressionSeparator.
-Style/Semicolon:
-  Exclude:
-    - 'test/test_helper.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: use_perl_names, use_english_names
 Style/SpecialGlobalVars:
@@ -372,43 +346,6 @@ Style/StabbyLambdaParentheses:
 # SupportedStyles: single_quotes, double_quotes
 Style/StringLiterals:
   Enabled: false
-
-# Offense count: 14
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiteralsInInterpolation:
-  Exclude:
-    - 'app/models/data_cycle_core/update/base.rb'
-    - 'lib/tasks/data_cycle_core_tasks.rake'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoredMethods.
-# IgnoredMethods: respond_to, define_method
-Style/SymbolProc:
-  Exclude:
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
-    - 'app/services/data_cycle_core/data_hash_service.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, AllowSafeAssignment.
-# SupportedStyles: require_parentheses, require_no_parentheses, require_parentheses_when_complex
-Style/TernaryParentheses:
-  Exclude:
-    - 'app/controllers/data_cycle_core/users_controller.rb'
-
-# Offense count: 21
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleForMultiline.
-# SupportedStylesForMultiline: comma, consistent_comma, no_comma
-Style/TrailingCommaInLiteral:
-  Exclude:
-    - 'app/helpers/data_cycle_core/application_helper.rb'
-    - 'spec/models/content_spec.rb'
-    - 'test/creative_work_test.rb'
-    - 'test/data_hash_service_test.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
@@ -432,18 +369,6 @@ Style/UnneededInterpolation:
 # SupportedStyles: percent, brackets
 Style/WordArray:
   Enabled: false
-
-# Offense count: 8
-# Cop supports --auto-correct.
-Style/ZeroLengthPredicate:
-  Exclude:
-    - 'app/controllers/data_cycle_core/data_links_controller.rb'
-    - 'app/models/data_cycle_core/content.rb'
-    - 'app/models/data_cycle_core/data_hash.rb'
-    - 'app/models/data_cycle_core/master_data/validate_data.rb'
-    - 'app/views/data_cycle_core/api/v1/api_base/_embedded_properties.json.jbuilder'
-    - 'app/views/data_cycle_core/api/v1/api_base/_linked_properties.json.jbuilder'
-    - 'lib/tasks/data_cycle_core_tasks.rake'
 
 # Offense count: 1
 Lint/AmbiguousBlockAssociation:

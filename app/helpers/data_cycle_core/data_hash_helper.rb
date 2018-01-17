@@ -220,7 +220,7 @@ module DataCycleCore
     # TODO: move to mixins
     def normalize_value(value = nil)
       if value.kind_of?(Array)
-        value = value.reject { |v| v.blank? }
+        value = value.reject(&:blank?)
       end
       return value
     end

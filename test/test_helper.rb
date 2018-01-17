@@ -33,7 +33,7 @@ cwc_path = Rails.root.join('..', 'data_types', 'creative_works_custom', '*.yml')
 DataCycleCore::MasterData::ImportTemplates.new.import(cwc_path, DataCycleCore::CreativeWork, false)
 
 classification_yaml = Rails.root.join('..', 'data_types', 'classifications.yml')
-DataCycleCore::MasterData::ImportClassifications.new.import(classification_yaml); nil
+DataCycleCore::MasterData::ImportClassifications.new.import(classification_yaml)
 
 # seed release table
 if DataCycleCore::Release.count == 0

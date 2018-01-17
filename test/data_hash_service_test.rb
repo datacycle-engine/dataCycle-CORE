@@ -34,7 +34,7 @@ module DataCycleCore
         "alternative_headline" => "my subheader test",
         "empty_array" => [],
         "empty_string" => "",
-        "empty_hash" => {},
+        "empty_hash" => {}
       }
       new_hash = {
         "headline" => "my headline",
@@ -112,7 +112,7 @@ module DataCycleCore
                          "date_modified" => nil,
                          "accepted_answer" => [],
                          "suggested_answer" => []
-                       }],
+                       }]
       }
       new_hash = {
         "headline" => "my headline",
@@ -126,12 +126,12 @@ module DataCycleCore
           "accepted_answer" => [{
             "id" => "05845d09-0e00-44c5-a93d-cbe98095cb27",
             "text" => "<p>fadsfddd</p>",
-            "image" => ["0045d4d9-4cd7-4511-9935-01d386b36933"],
+            "image" => ["0045d4d9-4cd7-4511-9935-01d386b36933"]
           }],
           "suggested_answer" => [{
             "id" => "b1adcca1-5b2d-49be-8328-7805ae383dff",
             "text" => "<p>asdfasdf</p>",
-            "image" => nil,
+            "image" => nil
           }]
         },
                        {
@@ -141,7 +141,7 @@ module DataCycleCore
                          "headline" => "awefwefwef",
                          "accepted_answer" => [],
                          "suggested_answer" => []
-                       }],
+                       }]
       }
       is_dirty = DataCycleCore::DataHashService.data_hash_is_dirty?(new_hash, orig_hash)
       assert_equal(false, is_dirty)
@@ -197,7 +197,7 @@ module DataCycleCore
                          "date_modified" => nil,
                          "accepted_answer" => [],
                          "suggested_answer" => []
-                       }],
+                       }]
       }
       new_hash = {
         "headline" => "my headline",
@@ -211,12 +211,12 @@ module DataCycleCore
           "accepted_answer" => [{
             "id" => "05845d09-0e00-44c5-a93d-cbe98095cb27",
             "text" => "<p>fadsfddd 2</p>",
-            "image" => ["0045d4d9-4cd7-4511-9935-01d386b36933"],
+            "image" => ["0045d4d9-4cd7-4511-9935-01d386b36933"]
           }],
           "suggested_answer" => [{
             "id" => "b1adcca1-5b2d-49be-8328-7805ae383dff",
             "text" => "<p>asdfasdf</p>",
-            "image" => nil,
+            "image" => nil
           }]
         },
                        {
@@ -226,7 +226,7 @@ module DataCycleCore
                          "headline" => "awefwefwef",
                          "accepted_answer" => [],
                          "suggested_answer" => []
-                       }],
+                       }]
       }
       is_dirty = DataCycleCore::DataHashService.data_hash_is_dirty?(new_hash, orig_hash)
       assert_equal(true, is_dirty)

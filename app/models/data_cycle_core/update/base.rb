@@ -3,7 +3,7 @@ module DataCycleCore
     class Base
       def update
         total_updates = query.count
-        puts "UPDATE '#{@template.metadata['validation']['name']}' templates - #{total_updates} items (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
+        puts "UPDATE '#{@template.metadata['validation']['name']}' templates - #{total_updates} items (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
 
         item_count = 0
         query.find_each do |content_item|
@@ -32,12 +32,12 @@ module DataCycleCore
           if (item_count % 1000) == 0
             total_count = [total_updates, 1].max
             fraction = [100, (item_count * 100.0 / total_count).round(0)].min
-            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
           end
           item_count += 1
         end
 
-        puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+        puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
       end
 
       private
