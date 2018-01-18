@@ -236,6 +236,9 @@
 select {
   padding: 0 1.5rem 0 0.5rem;
   line-height: initial;
+  &.with-label {
+    margin-top: 3rem;
+  }
 }
 
 #split-source-selector {
