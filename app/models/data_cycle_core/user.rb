@@ -25,11 +25,11 @@ module DataCycleCore
     end
 
     def has_rank?(rank)
-      self.role && self.role.rank >= rank
+      self&.role&.rank&.>= rank
     end
 
     def is_rank?(rank)
-      self.role && self.role.try(:rank) == rank
+      self&.role&.rank == rank
     end
 
     def send_notification(contents)

@@ -249,7 +249,7 @@ de:
         role_id: Rolle
         user_group_ids: Benutzergruppen
         external: SSO
-        notification_frequency: Frequenz der Benachrichtigungen
+        notification_frequency: Benachrichtigung von Abos
       data_cycle_core/person:
         given_name: Vorname
         family_name: Familienname
