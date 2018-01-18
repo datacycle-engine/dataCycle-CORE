@@ -28,6 +28,23 @@ module DataCycleCore
       where(name: names.flatten)
     end
 
+    def self.with_descendants
+      query = self.is_a?(ActiveRecord::Relation) ? self : all
+
+      sql = <<-SQL
+        WITH RECURSIVE aliases AS (
+          #{query.to_sql}
+          UNION
+          SELECT classification_aliases.*
+          FROM classification_aliases
+          JOIN classification_trees ON classification_trees.classification_alias_id = classification_aliases.id
+          JOIN aliases AS parent_aliases ON parent_aliases.id = classification_trees.parent_classification_alias_id
+        ) SELECT id FROM aliases
+        SQL
+
+      DataCycleCore::ClassificationAlias.where('id IN (' + sql + ')')
+    end
+
     def ancestors
       Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 10.minutes) do
         if parent_classification_alias_with_deleted
