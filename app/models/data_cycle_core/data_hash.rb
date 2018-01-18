@@ -380,10 +380,10 @@ module DataCycleCore
       return if key == 'creator' && data.nil?
 
       # set to json field (could be empty)
-      if method("#{location}").call.blank?
+      if method(location.to_s).call.blank?
         method("#{location}=").call({ key => data })
       else
-        method("#{location}").call.method('[]=').call(key, data)
+        method(location.to_s).call.method('[]=').call(key, data)
       end
     end
 

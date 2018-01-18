@@ -56,10 +56,10 @@ module DataCycleCore
 
     def render_attribute_editor(key:, definition:, value:, parameters: {})
       partials = [
-        "#{definition.try(:[], 'releasable') ? 'releasable' : ''}",
-        "#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'type').try(:underscore)}",
-        "#{definition.try(:[], 'editor').try(:[], 'type').try(:underscore)}",
-        "#{definition['type'].underscore}"
+        (definition.try(:[], 'releasable') ? 'releasable' : '').to_s,
+        definition.try(:[], 'editor').try(:[], 'options').try(:[], 'type').try(:underscore).to_s,
+        definition.try(:[], 'editor').try(:[], 'type').try(:underscore).to_s,
+        definition['type'].underscore.to_s
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/#{p}_editor" }
       parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options]))
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
@@ -67,11 +67,11 @@ module DataCycleCore
 
     def render_attribute_viewer(key:, definition:, value:, parameters: {})
       partials = [
-        "#{parameters.dig(:options).dig(:force_partial).try(:underscore)}",
+        parameters.dig(:options).dig(:force_partial).try(:underscore).to_s,
         "#{definition['type'].underscore}_#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'data-type').try(:underscore)}",
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
-        "#{definition.try(:[], 'editor').try(:[], 'type').try(:underscore)}",
-        "#{definition['type'].underscore}"
+        definition.try(:[], 'editor').try(:[], 'type').try(:underscore).to_s,
+        definition['type'].underscore.to_s
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/#{p}_viewer" }
 
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
@@ -80,8 +80,8 @@ module DataCycleCore
     def render_content_tile(item:, parameters: {})
       partials = [
         "#{item.try(:metadata).try(:dig, 'validation', 'name')}_#{item.try(:metadata).try(:dig, 'validation', 'description')}".underscore.parameterize(separator: '_'),
-        "#{item.try(:metadata).try(:dig, 'validation', 'description')}".underscore.parameterize(separator: '_'),
-        "#{item.try(:class).try(:name).try(:demodulize)}".underscore.parameterize(separator: '_'),
+        item.try(:metadata).try(:dig, 'validation', 'description').to_s.underscore.parameterize(separator: '_'),
+        item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_'),
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}_tile" }
 
@@ -92,8 +92,8 @@ module DataCycleCore
       partials = [
         "#{definition['type'].underscore}_#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'data-type').try(:underscore)}",
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
-        "#{definition.try(:[], 'editor').try(:[], 'type').try(:underscore)}",
-        "#{definition['type'].underscore}"
+        definition.try(:[], 'editor').try(:[], 'type').try(:underscore).to_s,
+        definition['type'].underscore.to_s
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/history_viewers/#{p}_history_viewer" }
 
       begin
@@ -105,7 +105,7 @@ module DataCycleCore
 
     def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {})
       partials = [
-        "#{definition.dig('editor', 'options', 'data-type').try(:underscore)}",
+        definition.dig('editor', 'options', 'data-type').try(:underscore).to_s,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_#{partial}" }
 
@@ -115,7 +115,7 @@ module DataCycleCore
     def render_embedded_object_partial(partial: 'detail', key:, definition:, parameters: {})
       partials = [
         "#{definition.try(:[], 'name')}_#{definition.try(:[], 'description')}".underscore.parameterize(separator: '_'),
-        "#{definition.try(:[], 'description')}".underscore.parameterize(separator: '_'),
+        definition.try(:[], 'description').to_s.underscore.parameterize(separator: '_'),
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/embedded_object/#{p}_#{partial}" }
 
@@ -124,7 +124,7 @@ module DataCycleCore
 
     def render_asset_partial(partial: 'detail', key:, value:, definition:, parameters: {})
       partials = [
-        "#{definition.try(:[], 'editor').try(:[], 'type')}".try(:underscore),
+        definition.try(:[], 'editor').try(:[], 'type').to_s.try(:underscore),
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/asset/#{p}_#{partial}" }
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
@@ -148,7 +148,7 @@ module DataCycleCore
       options = { class: "flash callout #{alert_class}" }
       options[:data] = { closable: '' } if closable
       content_tag(:div, options) do
-        concat "#{value}"
+        concat value.to_s
         concat close_link if closable
       end
     end

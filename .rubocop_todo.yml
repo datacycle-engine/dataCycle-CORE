@@ -71,22 +71,16 @@ Style/NestedTernaryOperator:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/functions.rb'
 
-# Offense count: 23
-# Cop supports --auto-correct.
-Style/UnneededInterpolation:
-  Exclude:
-    - 'app/helpers/data_cycle_core/application_helper.rb'
-    - 'app/models/data_cycle_core/data_hash.rb'
-    - 'app/models/data_cycle_core/generic/download_base.rb'
-    - 'app/models/data_cycle_core/master_data/validators/object.rb'
-    - 'lib/tasks/data_cycle_core_tasks.rake'
-
 # Offense count: 77
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, MinSize, WordRegex.
 # SupportedStyles: percent, brackets
 Style/WordArray:
   Enabled: false
+
+
+
+
 
 # Offense count: 1
 Lint/AmbiguousBlockAssociation:

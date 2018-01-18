@@ -211,7 +211,7 @@ namespace :data_cycle_core do
     task :update_template, [:content_table_name, :template_name] => [:environment] do |t, args|
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
         puts 'ERROR: only the following content_table_names are known to the system:'
-        puts "#{DataCycleCore.content_tables}"
+        puts DataCycleCore.content_tables.to_s
         exit -1
       end
 
@@ -235,7 +235,7 @@ namespace :data_cycle_core do
     task :update_data, [:content_table_name, :template_name] => [:environment] do |t, args|
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
         puts 'ERROR: only the following content_table_names are known to the system:'
-        puts "#{DataCycleCore.content_tables}"
+        puts DataCycleCore.content_tables.to_s
         exit -1
       end
 
@@ -259,7 +259,7 @@ namespace :data_cycle_core do
     task :delete_history, [:content_table_name, :template_name] => [:environment] do |t, args|
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
         puts 'ERROR: only the following content_table_names are known to the system:'
-        puts "#{DataCycleCore.content_tables}"
+        puts DataCycleCore.content_tables.to_s
         exit -1
       end
 
