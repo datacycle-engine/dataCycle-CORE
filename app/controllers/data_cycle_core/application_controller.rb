@@ -2,11 +2,16 @@ module DataCycleCore
   class ApplicationController < ActionController::Base
     protect_from_forgery with: :exception
     before_action :load_watch_lists
+    before_action :load_stored_filters
     before_action :better_errors_hack, if: -> { Rails.env.development? }
 
 
     def load_watch_lists
       @accessible_watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
+    end
+
+    def load_stored_filters
+      @accessible_stored_filters = DataCycleCore::StoredFilter.accessible_by(current_ability)
     end
 
     def current_ability

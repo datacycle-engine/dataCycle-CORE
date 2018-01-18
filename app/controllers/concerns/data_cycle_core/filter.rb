@@ -26,11 +26,11 @@ module DataCycleCore
       if params[:search].blank?
         @order_by = !params[:order].nil? && params[:order].split('_').first == 'udpated' ? 'updated_at' : 'updated_at'
         @order = !params[:order].nil? && params[:order].split('_').last == 'asc' ? 'ASC' : 'DESC'
-        order_string = 'boost DESC, ' + @order_by + ' ' + @order
+        @order_string = 'boost DESC, ' + @order_by + ' ' + @order
       else
         # order by ranking
         search_string = params[:search].split(" ").join("%")
-        order_string = "boost * (
+        @order_string = "boost * (
           8 * similarity(classification_string,'%#{search_string}%') +
           4 * similarity(headline, '%#{search_string}%') +
           2 * ts_rank_cd(words, plainto_tsquery('simple', '#{params[:search].squish}'),16) +
@@ -44,11 +44,12 @@ module DataCycleCore
       # optional querymethods
       query = query.send(method_name, parameters) unless method_name.blank?
 
-      query = query.order(order_string)
+      query = query.order(@order_string)
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       unless @classification_array.blank?
-        parse_classifications(@classification_array).each do |tree_label, class_array|
+        @with_classification_alias_ids = parse_classifications(@classification_array)
+        @with_classification_alias_ids.each do |tree_label, class_array|
           query = query.with_classification_alias_ids(class_array)
         end
       end
@@ -64,6 +65,19 @@ module DataCycleCore
       # end
 
       @paginateObject.includes(content_data: [:display_classification_aliases, :translations, :watch_lists]).map(&:content_data)
+    end
+
+    def save_filter(method_name: nil, parameters: nil)
+      new_filter = DataCycleCore::StoredFilter.new
+      new_filter.user_id = current_user.id
+      new_filter.language = @language
+      new_filter.parameters = {}
+      new_filter.parameters[:in_validity_period] = Time.zone.now
+      new_filter.parameters[:order] = @order_string unless @order_string.blank?
+      new_filter.parameters[:fulltext_search] = params[:search] unless params[:search].blank?
+      new_filter.parameters[:with_classification_alias_ids] = @with_classification_alias_ids unless @with_classification_alias_ids.blank?
+      new_filter.parameters[method_name.to_sym] = parameters unless parameters.blank?
+      new_filter.save
     end
 
   end

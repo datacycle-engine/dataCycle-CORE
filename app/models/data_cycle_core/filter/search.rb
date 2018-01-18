@@ -57,11 +57,10 @@ module DataCycleCore
       end
 
       def with_classification_alias_ids(ids = nil)
+        return self if ids.blank?
+
         manager = create_classification_alias_recursion(ids)
-        # get everything including parents (or-clause)
-        reflect (
-          @query.where(search[:content_data_id].in(manager))
-        )
+        reflect(@query.where(search[:content_data_id].in(manager)))
       end
 
       def self.get_order_by_query_string(search)

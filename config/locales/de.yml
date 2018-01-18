@@ -223,6 +223,9 @@ de:
       data_cycle_core/person:
         one: Person
         other: Personen
+      data_cycle_core/stored_filter:
+        one: Gespeicherter Filter
+        other: Gespeicherten Filter
     attributes:
       data_cycle_core/classification_alias:
         assignable: Zuweisbar

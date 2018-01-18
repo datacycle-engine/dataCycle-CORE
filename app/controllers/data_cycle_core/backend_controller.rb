@@ -6,6 +6,7 @@ module DataCycleCore
 
     def index
       @contents = get_filtered_results
+      @stored_filter = save_filter
 
       @creativeWork = CreativeWork.new
     end

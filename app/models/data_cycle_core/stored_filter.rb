@@ -1,6 +1,10 @@
 module DataCycleCore
   class StoredFilter < ApplicationRecord
 
+    scope :by_user, -> (user){ where user: user }
+    belongs_to :user
+
+
     # example_data = {
     #   "order" => "boost * (
     #                 8 * similarity(classification_string,'%test%') +
