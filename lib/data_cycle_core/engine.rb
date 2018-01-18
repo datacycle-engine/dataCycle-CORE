@@ -222,21 +222,21 @@ Time::DATE_FORMATS[:long_usec] = '%Y-%m-%d %H:%M:%S.%N %z'
 
 Nokogiri::XML::Node.class_eval do
   def to_hash
-    attributes_hash = attributes.map do |_, attribute|
+    attributes_hash = attributes.map { |_, attribute|
       { attribute.name => attribute.value }
-    end.reduce({}, &:merge).reject do |_, v|
+    }.reduce({}, &:merge).reject do |_, v|
       v.blank?
     end
 
-    children_hash = children.map do |child|
+    children_hash = children.map { |child|
       { child.name => child.to_hash }
-    end.reject do |h|
+    }.reject { |h|
       h.values.first.blank?
-    end.group_by do |h|
+    }.group_by { |h|
       h.keys.first
-    end.map do |k, v|
+    }.map { |k, v|
       Hash[k, v.size == 1 ? v.map(&:values).flatten.first : v.map(&:values).flatten]
-    end.reduce({}, &:merge)
+    }.reduce({}, &:merge)
 
     if !attributes.empty? && children.empty?
       attributes_hash

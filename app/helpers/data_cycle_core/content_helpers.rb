@@ -37,11 +37,11 @@ module DataCycleCore
     end
 
     def classification_tree_definitions
-      metadata['validation']['properties'].select do |key, definition|
+      metadata['validation']['properties'].select { |key, definition|
         definition['type'] == 'classificationTreeLabel' && definition['editor']
-      end.map do |key, definition|
+      }.map { |key, definition|
         { key: key }.merge(definition)
-      end.sort do |d1, d2|
+      }.sort do |d1, d2|
         d1['editor']['sorting'] <=> d2['editor']['sorting']
       end
     end

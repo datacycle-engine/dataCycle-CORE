@@ -20,6 +20,12 @@ Style/MixinUsage:
     - 'test/dummy/bin/setup'
     - 'test/dummy/bin/update'
 
+Style/BlockDelimiters:
+  EnforcedStyle: braces_for_chaining
+
+Style/MultilineBlockChain:
+  Enabled: false
+
 Style/SymbolArray:
   EnforcedStyle: brackets
 

@@ -40,14 +40,14 @@ module DataCycleCore
         .joins(classification_aliases: [classification_tree: [:classification_tree_label]])
         .where('classification_tree_labels.name ILIKE ?', params[:tree_label].blank? ? '%' : params[:tree_label])
         .where('classifications.name ILIKE ?', "%#{params[:q]}%")
-        .limit(params[:max].try(:to_i) || 10).map(&:descendants).flatten.map do |c|
+        .limit(params[:max].try(:to_i) || 10).map(&:descendants).flatten.map { |c|
           {
             id: c.id,
             name: c.name,
             path: c.ancestors.reverse.map(&:name).join(' > '),
             disabled: !c.primary_classification_alias.try(:assignable)
           }
-        end.uniq.first(params[:max].try(:to_i) || 10).sort_by { |c| c[:path] }
+        }.uniq.first(params[:max].try(:to_i) || 10).sort_by { |c| c[:path] }
     end
 
     def create
