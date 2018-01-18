@@ -71,10 +71,6 @@ Style/NestedTernaryOperator:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/functions.rb'
 
-# Offense count: 138
-# Cop supports --auto-correct.
-Style/RedundantSelf:
-  Enabled: false
 
 # Offense count: 4
 # Cop supports --auto-correct.

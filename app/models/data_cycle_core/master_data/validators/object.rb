@@ -41,7 +41,7 @@ module DataCycleCore
             if key_item.key?('validations') # validations for a particular object
               key_item['validations'].each do |val_key, val_item|
                 if @@object_validations.include?(val_key)
-                  self.method(val_key).call(data[key], val_item)
+                  method(val_key).call(data[key], val_item)
                 else
                   @error[:warning].push I18n.t :keyword, scope: [:validation, :warning], key: val_key, type: "Object", locale: DataCycleCore.ui_language
                 end

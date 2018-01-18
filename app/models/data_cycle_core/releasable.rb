@@ -117,11 +117,11 @@ module DataCycleCore
 
     # utility functions
     def release_status
-      Release.find(self.release_id)
+      Release.find(release_id)
     end
 
     def release_status_code
-      Release.find(self.release_id) ? Release.find(self.release_id).release_code : nil
+      Release.find(release_id) ? Release.find(release_id).release_code : nil
     end
   end
 end

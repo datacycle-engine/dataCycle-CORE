@@ -21,15 +21,15 @@ module DataCycleCore
     include UserHelpers
 
     def admin?
-      self.admin
+      admin
     end
 
     def has_rank?(rank)
-      self.role && self.role.rank >= rank
+      role && role.rank >= rank
     end
 
     def is_rank?(rank)
-      self.role && self.role.try(:rank) == rank
+      role && role.try(:rank) == rank
     end
 
     private

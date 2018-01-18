@@ -5,7 +5,7 @@ module DataCycleCore::Generic::OutdoorActive::ImportPois
     @poi_transformation = DataCycleCore::Generic::Transformations::Transformations.outdoor_active_to_poi
     @poi_image_transformation = DataCycleCore::Generic::Transformations::Transformations.outdoor_active_to_image
 
-    import_contents(@source_type, @target_type, self.method(:load_contents).to_proc, self.method(:process_content).to_proc, **options)
+    import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)
   end
 
   protected

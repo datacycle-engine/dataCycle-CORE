@@ -27,7 +27,7 @@ module DataCycleCore
           if template.key?('validations')
             template['validations'].keys.each do |key|
               if @@keywords.include?(key)
-                self.method(key).call(data, template['validations'][key])
+                method(key).call(data, template['validations'][key])
               else
                 @error[:warning].push I18n.t :keyword, scope: [:validation, :warnings], key: key, type: "EmbeddedLinkArray", locale: DataCycleCore.ui_language
               end

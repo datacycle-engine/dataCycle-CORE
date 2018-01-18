@@ -154,7 +154,7 @@ module DataCycleCore
       history_id = "#{base_content_class}::History".safe_constantize.table_name.singularize.foreign_key.to_sym
 
       return_data =
-        self.histories
+        histories
           .joins(
             history_table.join(history_table_translation)
               .on(history_table[:id].eq(history_table_translation[history_id]))
@@ -256,7 +256,7 @@ module DataCycleCore
       target_class = "DataCycleCore::#{target_name.classify}" if linked
       selector = target_name < self.class.table_name
       content_one_data = [nil, target_class, '']
-      content_two_data = [self.id, self.class.to_s, relation_name]
+      content_two_data = [id, self.class.to_s, relation_name]
       where_hash = ['a', 'b'].map do |abselector|
         if is_history?
           ["content_#{abselector}_history_id".to_sym,

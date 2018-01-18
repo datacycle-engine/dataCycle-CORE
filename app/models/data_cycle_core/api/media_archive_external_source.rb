@@ -2,7 +2,7 @@ module DataCycleCore
   module Api
     class MediaArchiveExternalSource < DataCycleCore::Api::ExternalSource
       def update(data)
-        self.extend(DataCycleCore::Generic::MediaArchive::Import)
+        extend(DataCycleCore::Generic::MediaArchive::Import)
         load_transformations
         processed_items = []
         data.each do |key, object|
@@ -13,7 +13,7 @@ module DataCycleCore
       end
 
       def create(data)
-        self.update(data)
+        update(data)
       end
 
       def delete(external_key)

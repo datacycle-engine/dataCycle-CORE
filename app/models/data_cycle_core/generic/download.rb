@@ -12,7 +12,7 @@ module DataCycleCore
         raise "Missing endpoint for #{self.class.to_s}, options given: #{options}"          if options[:download][:endpoint].nil?
         raise "Missing download_strategy for #{self.class.to_s}, options given: #{options}" if options[:download][:download_strategy].nil?
 
-        self.extend(options[:download][:download_strategy].constantize)
+        extend(options[:download][:download_strategy].constantize)
         @source_object = DataCycleCore::Generic::Collection
         @source_type = Mongoid::PersistenceContext.new(@source_object, collection: options[:download][:source_type])
         @end_point_object = options[:download][:endpoint].constantize

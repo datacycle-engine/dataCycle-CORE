@@ -10,7 +10,7 @@ module DataCycleCore
             if template.key?("validations")
               template["validations"].keys.each do |key|
                 if @@number_keywords.include?(key)
-                  self.method(key).call(data, template["validations"][key])
+                  method(key).call(data, template["validations"][key])
                 else
                   @error[:warning].push I18n.t :keyword, scope: [:validation, :warning], key: key, type: "Number", locale: DataCycleCore.ui_language unless key == "type"
                 end
@@ -39,7 +39,7 @@ module DataCycleCore
 
         def format(data, format_string)
           if @@number_formats.include?(format_string)
-            self.method(format_string).call(data)
+            method(format_string).call(data)
           else
             @error[:error].push I18n.t :format, scope: [:validation, :errors], data: data, format_string: format_string, locale: DataCycleCore.ui_language
           end

@@ -14,12 +14,12 @@ module DataCycleCore
     end
 
     def set_content_type
-      self.content_type = self.file.sanitized_file.content_type
+      self.content_type = file.sanitized_file.content_type
       self
     end
 
     def set_file_size
-      self.file_size = self.file.size
+      self.file_size = file.size
       self
     end
   end
