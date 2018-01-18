@@ -108,7 +108,7 @@ module DataCycleCore
     # refactor
     def transform_object_array_to_hash(array, options: {})
       if array.is_a?(Array)
-        hash = array.each_with_object Hash.new do |(k, _), h|
+        hash = array.each_with_object({}) do |(k, _), h|
           hash_key = 'id'
           hash_value = k[hash_key]
           (h[hash_value] ||= []) << k unless hash_value.nil?
@@ -119,11 +119,11 @@ module DataCycleCore
     end
 
     def transform_history_array_to_hash(array)
-      array.each_with_object Hash.new do |(k, _), h|
+      array.each_with_object({}) do |(k, _), h|
         hash_key = k.try(:keys).try(:first)
         hash_value = k[hash_key] unless hash_key.nil?
         if hash_value.is_a?(Hash)
-          h[hash_key] ||= Hash.new
+          h[hash_key] ||= {}
           (h[hash_key][hash_value.keys.first] ||= []) << hash_value[hash_value.keys.first]
         else
           (h[hash_key] ||= []) << hash_value

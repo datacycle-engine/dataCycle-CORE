@@ -12,6 +12,11 @@ AllCops:
 Rails:
   Enabled: true
 
+########## Layout
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+########## Style
 Style/Documentation:
   Enabled: false
 
@@ -32,20 +37,18 @@ Style/SymbolArray:
 Style/WordArray:
   EnforcedStyle: brackets
 
-Layout/MultilineMethodCallIndentation:
-  EnforcedStyle: indented
+Style/RedundantReturn:
+  AllowMultipleReturnValues: true
 
-# disable some metrics
+########## Metrics
 Metrics/LineLength:
   Enabled: false
 
 Metrics/ModuleLength:
   Enabled: false
 
-# check later
-Style/FrozenStringLiteralComment:
-  Enabled: false
 
+########## Transproc
 # Offense count: 1
 Layout/AlignParameters:
   Exclude:
@@ -56,21 +59,8 @@ Layout/MultilineHashBraceLayout:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 
-Style/RedundantReturn:
-  AllowMultipleReturnValues: true
-
-# Offense count: 49
-Style/GuardClause:
-  Enabled: false
-
-# Offense count: 15
 Style/ConditionalAssignment:
   Enabled: false
-
-# Offense count: 3
-Style/EmptyLiteral:
-  Exclude:
-    - 'app/helpers/data_cycle_core/history_helper.rb'
 
 # Offense count: 18
 Style/EmptyMethod:
@@ -156,3 +146,11 @@ Style/MethodMissing:
 Style/NestedTernaryOperator:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/functions.rb'
+
+########## check later
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+# Offense count: 49
+Style/GuardClause:
+  Enabled: false
