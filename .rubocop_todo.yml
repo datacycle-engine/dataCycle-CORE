@@ -11,26 +11,6 @@
 Style/DateTime:
   Enabled: false
 
-# Offense count: 2
-Style/MethodMissing:
-  Exclude:
-    - 'app/models/data_cycle_core/callbacks.rb'
-    - 'app/models/data_cycle_core/content.rb'
-
-# Offense count: 4
-Style/MultilineTernaryOperator:
-  Exclude:
-    - 'app/models/data_cycle_core/content.rb'
-    - 'app/models/data_cycle_core/data_hash.rb'
-
-# Offense count: 1
-Style/NestedTernaryOperator:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/transformations/functions.rb'
-
-
-
-
 
 # Offense count: 1
 Lint/AmbiguousBlockAssociation:

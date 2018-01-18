@@ -93,9 +93,7 @@ module DataCycleCore
                "content_#{selector}_history_type".to_sym,
                "relation_#{selector}".to_sym]
             }.flatten
-              .zip(content_name[:table] < origin_table ?
-                content_one_data + content_two_data :
-                content_two_data + content_one_data).to_h
+              .zip(content_name[:table] < origin_table ? content_one_data + content_two_data : content_two_data + content_one_data).to_h
             content_relation_history_data['history_valid'] = (content_item.updated_at...save_time)
             DataCycleCore::ContentContent::History.create!(content_relation_history_data)
           end
@@ -110,9 +108,7 @@ module DataCycleCore
                "content_#{selector}_history_type".to_sym,
                "relation_#{selector}".to_sym]
             }.flatten
-              .zip(content_name[:table] < origin_table ?
-                content_one_data + content_two_data :
-                content_two_data + content_one_data).to_h
+              .zip(content_name[:table] < origin_table ? content_one_data + content_two_data : content_two_data + content_one_data).to_h
             content_relation_history_data['history_valid'] = (content_item.updated_at...save_time)
             DataCycleCore::ContentContent::History.create!(content_relation_history_data)
           end
@@ -153,10 +149,7 @@ module DataCycleCore
                "relation_#{selector}".to_sym]
             end
           }.flatten
-            .zip(relation_name < self.class.table_name ?
-              content_one_data + content_two_data :
-              content_two_data + content_one_data).to_h
-
+            .zip(relation_name < self.class.table_name ? content_one_data + content_two_data : content_two_data + content_one_data).to_h
           relations = relation_class.where(where_hash)
           relations.destroy_all unless relations.blank?
         end

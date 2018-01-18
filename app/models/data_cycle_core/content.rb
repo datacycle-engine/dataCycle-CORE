@@ -268,10 +268,7 @@ module DataCycleCore
            "relation_#{abselector}".to_sym]
         end
       }.flatten
-        .zip(selector ?
-               content_one_data + content_two_data :
-               content_two_data + content_one_data).to_h.compact
-
+        .zip(selector ? content_one_data + content_two_data : content_two_data + content_one_data).to_h.compact
       relation_table = is_history? ? :content_content_histories : :content_contents
       join_table = selector ? :content_content_a_history : :content_content_b_history if is_history?
       join_table = selector ? :content_content_a : :content_content_b unless is_history?
