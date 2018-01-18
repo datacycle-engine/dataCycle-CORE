@@ -44,16 +44,6 @@ Style/IfInsideElse:
     - 'app/models/data_cycle_core/master_data/validators/string.rb'
     - 'app/services/data_cycle_core/data_hash_service.rb'
 
-# Offense count: 35
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: call, braces
-Style/LambdaCall:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/download_base.rb'
-    - 'app/models/data_cycle_core/generic/import_base.rb'
-    - 'test/data_definition/data_definition_spec.rb'
-
 # Offense count: 2
 Style/MethodMissing:
   Exclude:

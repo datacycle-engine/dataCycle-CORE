@@ -32,8 +32,8 @@ module DataCycleCore::Generic
 
               unless item_data.nil?
                 begin
-                  item_id = extract_id.(item_data)
-                  item_name = extract_name.(item_data)
+                  item_id = extract_id.call(item_data)
+                  item_name = extract_name.call(item_data)
 
                   item = mongo_item.find_or_initialize_by('external_id': item_id)
 

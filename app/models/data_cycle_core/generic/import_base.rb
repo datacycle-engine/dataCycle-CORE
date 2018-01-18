@@ -13,15 +13,15 @@ module DataCycleCore::Generic
           @logging.phase_started("#{phase_name}_#{locale}")
 
           @source_object.with(type) do |mongo_item|
-            raw_classification_data_stack = load_root_classifications.(mongo_item, locale).to_a
+            raw_classification_data_stack = load_root_classifications.call(mongo_item, locale).to_a
 
             while (raw_classification_data = raw_classification_data_stack.pop.try(:[], 'dump').try(:[], locale))
               item_count += 1
 
-              extracted_classification_data = extract_data.(raw_classification_data)
+              extracted_classification_data = extract_data.call(raw_classification_data)
 
               import_classification(extracted_classification_data.merge({ tree_name: tree_name }),
-                                    load_parent_classification_alias.(raw_classification_data))
+                                    load_parent_classification_alias.call(raw_classification_data))
 
               raw_classification_data_stack += load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
 
