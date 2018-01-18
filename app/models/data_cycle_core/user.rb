@@ -32,7 +32,7 @@ module DataCycleCore
       self.role && self.role.try(:rank) == rank
     end
 
-    def send_notification contents
+    def send_notification(contents)
       return unless contents.size.positive?
 
       SubscriptionMailer.notify(self, contents).deliver_later
