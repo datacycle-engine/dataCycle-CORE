@@ -87,6 +87,12 @@ Metrics/ParameterLists:
 Metrics/PerceivedComplexity:
   Enabled: false
 
+########## Security
+Security/YAMLLoad:
+  Exclude:
+    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
+    - 'app/models/data_cycle_core/master_data/import_templates.rb'
+
 ########## Transproc
 # Offense count: 1
 Layout/AlignParameters:
