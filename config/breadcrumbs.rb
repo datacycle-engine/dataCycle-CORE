@@ -57,7 +57,7 @@ crumb :'data_cycle_core/creative_work' do |creative_work, watch_list|
   end
 
   if watch_list
-    if creative_work.parent && creative_work.parent.watch_lists.include?(watch_list)
+    if creative_work&.parent && creative_work.parent.watch_lists.include?(watch_list)
       parent creative_work.parent, watch_list
     else
       parent watch_list

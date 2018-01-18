@@ -1,7 +1,7 @@
 module DataCycleCore
   class Callbacks
     def initialize(block = nil)
-      tap { |proxy| block.call(proxy) if block }
+      tap { |proxy| block&.call(proxy) }
     end
 
     def method_missing(callback, *args, &block)

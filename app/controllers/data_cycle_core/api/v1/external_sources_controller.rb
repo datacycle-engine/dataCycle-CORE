@@ -49,7 +49,7 @@ module DataCycleCore
       external_source = DataCycleCore::ExternalSource.find(external_sources_params[:external_source_id])
       api_strategy = DataCycleCore.allowed_api_strategies.find { |object| object == external_source.config['api_strategy'] }
 
-      api_strategy.constantize.new(external_source, external_sources_params[:type], external_sources_params[:external_key]) unless api_strategy.nil?
+      api_strategy&.constantize&.new(external_source, external_sources_params[:type], external_sources_params[:external_key])
     end
 
     def execute_after_update_webhooks(data)

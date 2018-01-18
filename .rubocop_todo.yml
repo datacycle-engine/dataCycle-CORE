@@ -71,17 +71,6 @@ Style/NestedTernaryOperator:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/functions.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: ConvertCodeThatCanStartToReturnNil.
-Style/SafeNavigation:
-  Exclude:
-    - 'app/controllers/data_cycle_core/api/v1/external_sources_controller.rb'
-    - 'app/models/data_cycle_core/callbacks.rb'
-    - 'app/uploaders/data_cycle_core/image_uploader.rb'
-    - 'app/uploaders/data_cycle_core/file_uploader.rb'
-    - 'config/breadcrumbs.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
