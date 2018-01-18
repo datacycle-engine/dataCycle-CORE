@@ -47,6 +47,9 @@ Layout/MultilineHashBraceLayout:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 
+Style/RedundantReturn:
+  AllowMultipleReturnValues: true
+
 # Offense count: 49
 Style/GuardClause:
   Enabled: false
@@ -94,3 +97,13 @@ Style/MutableConstant:
 Style/NumericLiteralPrefix:
   Exclude:
     - 'config/initializers/carrierwave.rb'
+
+# Offense count: 10
+# Cop supports --auto-correct.
+Style/RedundantParentheses:
+  Exclude:
+    - 'app/models/data_cycle_core/filter/search.rb'
+    - 'app/models/data_cycle_core/master_data/import_templates.rb'
+    - 'app/models/data_cycle_core/releasable.rb'
+    - 'app/services/data_cycle_core/watch_list_service.rb'
+    - 'app/views/data_cycle_core/api/v1/api_base/_place_details.json.jbuilder'

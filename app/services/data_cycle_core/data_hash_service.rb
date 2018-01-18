@@ -9,11 +9,11 @@ module DataCycleCore
 
       raise datahash.inspect if debug == true
 
-      return datahash
+      datahash
     end
 
     def self.data_hash_is_dirty?(data_hash, orig_data_hash)
-      return !HashDiff.diff(normalize_data_hash(data_hash), normalize_data_hash(orig_data_hash), array_path: true).blank?
+      !HashDiff.diff(normalize_data_hash(data_hash), normalize_data_hash(orig_data_hash), array_path: true).blank?
     end
 
     def self.get_internal_data(storage_location, value)
@@ -28,7 +28,7 @@ module DataCycleCore
         return nil
       end
 
-      return internal_objects
+      internal_objects
     end
 
     def self.get_internal_template(storage_location, name, description)
@@ -37,13 +37,13 @@ module DataCycleCore
 
       return nil if internal_template.blank?
 
-      return internal_template
+      internal_template
     end
 
     def self.get_object_params(storage_location, template_name, template_description)
       template = self.get_internal_template(storage_location, template_name, template_description)
       datahash = self.get_params_from_hash(template.metadata['validation'])
-      return datahash
+      datahash
     end
 
     def self.create_internal_object(storage_location, template_name, template_description, object_params, current_user)
@@ -100,7 +100,7 @@ module DataCycleCore
         temp_params.push(key)
       end
 
-      return temp_params
+      temp_params
     end
 
     def self.flatten_recursive(datahash, template_hash)
@@ -139,7 +139,7 @@ module DataCycleCore
         temp_datahash[key] = value
       end
 
-      return temp_datahash
+      temp_datahash
     end
   end
 end

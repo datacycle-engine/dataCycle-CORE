@@ -9,7 +9,7 @@ module DataCycleCore
       def self.get_webhooks_for(action, data)
         webhooks = DataCycleCore.webhooks.try(:[], action.try(:to_sym))
 
-        return webhooks.blank? ? [] : webhooks.collect { |webhook| validate_webhook(webhook, data) }.reject(&:blank?)
+        webhooks.blank? ? [] : webhooks.collect { |webhook| validate_webhook(webhook, data) }.reject(&:blank?)
       end
 
       def self.validate_webhook(webhook, data)

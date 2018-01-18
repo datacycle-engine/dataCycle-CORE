@@ -12,7 +12,7 @@ module DataCycleCore
           else
             @error[:error].push I18n.t :data_type, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language
           end
-          return @error
+          @error
         end
 
         private
@@ -60,7 +60,7 @@ module DataCycleCore
           if data.is_a?(::Array)
             return true if data.length == 1 && data[0].blank?
           end
-          return false
+          false
         end
       end
     end

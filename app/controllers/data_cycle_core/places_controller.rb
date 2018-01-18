@@ -135,7 +135,7 @@ module DataCycleCore
     # TODO: implement as preprocessor
     def set_location(datahash)
       datahash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(datahash['longitude'].to_f, datahash['latitude'].to_f) if !datahash['longitude'].nil? && !datahash['longitude'].blank? && !datahash['latitude'].nil? && !datahash['latitude'].blank?
-      return datahash
+      datahash
     end
   end
 end

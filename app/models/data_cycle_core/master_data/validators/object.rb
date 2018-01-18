@@ -62,7 +62,7 @@ module DataCycleCore
               end
             end
           end
-          return @error
+          @error
         end
 
         private

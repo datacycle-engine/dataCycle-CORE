@@ -8,9 +8,7 @@ module DataCycleCore
       if translated_locales.include?(I18n.locale) || changes.count.positive? # for new data-sets with pending data in it
         data_hash = self.as_of(timestamp).to_h(timestamp)
         data_hash = merge_release(data_hash, release) if is_a?(DataCycleCore::Releasable)
-        return data_hash
-      else
-        return nil
+        data_hash
       end
     end
 
@@ -501,7 +499,7 @@ module DataCycleCore
       if data.is_a?(::Array)
         return true if data.length == 1 && data[0].blank?
       end
-      return false
+      false
     end
 
     def get_validity(validity_hash)

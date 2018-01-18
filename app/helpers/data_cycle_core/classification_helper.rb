@@ -48,7 +48,7 @@ module DataCycleCore
         end
       end
 
-      return @selected_values
+      @selected_values
     end
 
     def get_custom_select_values(classification_alias)

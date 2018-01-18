@@ -15,7 +15,7 @@ module DataCycleCore
 
     def is_writable(permissions)
       return true if !permissions['read_write'].nil? && permissions['read_write'] == true
-      return false
+      false
     end
 
     def get_allowed_content_types
@@ -43,7 +43,7 @@ module DataCycleCore
       end
 
       properties = Hash[ordered_properties.sort.map { |k, v| v }]
-      return properties.merge(Hash[unordered_properties]).nil? ? [] : properties.merge(Hash[unordered_properties])
+      properties.merge(Hash[unordered_properties]).nil? ? [] : properties.merge(Hash[unordered_properties])
     end
 
     def data_cycle_hidden_field(key, value = nil, parent_object_keys = [])
@@ -198,13 +198,13 @@ module DataCycleCore
 
     # Show action
     def get_object_data_for_show_action(storage_location, value)
-      return DataCycleCore::DataHashService.get_internal_data(storage_location, value)
+      DataCycleCore::DataHashService.get_internal_data(storage_location, value)
     end
 
     # TODO: move to mixins
     def normalize_value(value = nil)
       value = value.reject(&:blank?) if value.is_a?(Array)
-      return value
+      value
     end
 
     private

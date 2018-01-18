@@ -17,7 +17,7 @@ module DataCycleCore
             @error[:error].push I18n.t :data_type, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language
             # @error[:error].push "Wrong data type given for #{template['label']} (#{data}). Expected an UUID or an array of UUID's."
           end
-          return @error
+          @error
         end
 
         private
@@ -54,7 +54,7 @@ module DataCycleCore
           if data.is_a?(::Array)
             return true if data.length == 1 && data[0].blank?
           end
-          return false
+          false
         end
 
         def min(data, value)

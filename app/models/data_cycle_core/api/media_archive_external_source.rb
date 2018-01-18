@@ -9,7 +9,7 @@ module DataCycleCore
           template_name = get_object_template_name object
           processed_items << process_content(object, load_template(@target_type, template_name), key)
         end
-        return processed_items
+        processed_items
       end
 
       def create(data)

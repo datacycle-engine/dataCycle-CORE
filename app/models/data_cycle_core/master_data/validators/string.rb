@@ -23,7 +23,7 @@ module DataCycleCore
               @error[:error].push I18n.t :string, scope: [:validation, :errors], template: data.class, label: template["label"], locale: DataCycleCore.ui_language
             end
           end
-          return @error
+          @error
         end
 
         private

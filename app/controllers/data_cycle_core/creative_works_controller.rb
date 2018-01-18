@@ -100,7 +100,7 @@ module DataCycleCore
     end
 
     def history_detail
-      return history
+      history
     end
 
     def edit

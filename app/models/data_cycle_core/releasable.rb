@@ -15,7 +15,7 @@ module DataCycleCore
       release_hash.each do |key, value|
         data_hash[key] = merge_data(data_hash[key], release_hash[key])
       end
-      return data_hash
+      data_hash
     end
 
     def data_iterator_split(original_hash, full)
@@ -51,7 +51,7 @@ module DataCycleCore
       if release_data?(original)
         return original['value'], { 'release_id' => original.try(:[], 'release_id'), 'release_comment' => original.try(:[], 'release_comment') }
       elsif original.is_a?(::Hash) # --> embedded data
-        return data_iterator_split(original, full)
+        data_iterator_split(original, full)
       elsif original.is_a?(::Array)
         if original.first.is_a?(::Hash) && full # --> embeddedObjects
           return_data = []

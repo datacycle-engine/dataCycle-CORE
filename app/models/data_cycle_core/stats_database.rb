@@ -16,7 +16,7 @@ module DataCycleCore
     def update(user_id)
       load_postgres_data
       load_mongo_data(user_id)
-      return self
+      self
     end
 
     private

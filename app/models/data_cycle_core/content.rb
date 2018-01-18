@@ -167,7 +167,7 @@ module DataCycleCore
               Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
             )
           ).order(history_table[:updated_at])
-      return return_data.last
+      return_data.last
     end
 
     def embedded_relations
