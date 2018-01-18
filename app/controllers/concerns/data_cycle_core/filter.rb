@@ -24,7 +24,8 @@ module DataCycleCore
       @language ||= 'de' # default-language
 
       if params[:search].blank?
-        @order_by = !params[:order].nil? && params[:order].split('_').first == 'udpated' ? 'updated_at' : 'updated_at'
+        # @order_by = !params[:order].nil? && params[:order].split('_').first == 'udpated' ? 'updated_at' : 'updated_at'
+        @order_by = 'updated_at'
         @order = !params[:order].nil? && params[:order].split('_').last == 'asc' ? 'ASC' : 'DESC'
         order_string = 'boost DESC, ' + @order_by + ' ' + @order
       else

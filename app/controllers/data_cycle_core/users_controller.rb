@@ -19,11 +19,10 @@ module DataCycleCore
 
       if @user.save
         flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
-        redirect_back(fallback_location: root_path)
       else
         flash[:error] = @user.try(:errors).try(:first).try(:[], 1)
-        redirect_back(fallback_location: root_path)
       end
+      redirect_back(fallback_location: root_path)
     end
 
     def edit

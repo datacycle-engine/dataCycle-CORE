@@ -48,10 +48,11 @@ module DataCycleCore::Generic
           .find_or_initialize_by(external_source_id: external_source.id,
                                  external_key: classification_data[:external_id])
       end
-      if classification.new_record?
-        classification.name = classification_data[:name]
-        classification.save!
 
+      classification.name = classification_data[:name]
+      classification.save!
+
+      if classification.new_record?
         classification_alias = DataCycleCore::ClassificationAlias.create!(external_source_id: external_source.id,
                                                                           name: classification_data[:name])
 
@@ -70,9 +71,6 @@ module DataCycleCore::Generic
 
         classification_alias
       else
-        classification.name = classification_data[:name]
-        classification.save!
-
         primary_classification_alias = classification.primary_classification_alias
         primary_classification_alias.name = classification_data[:name]
         primary_classification_alias.save!
