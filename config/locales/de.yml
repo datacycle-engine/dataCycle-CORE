@@ -138,6 +138,7 @@ de:
       data_type: "Falschen Daten-Typ angegeben für %{template} %{data}. Erwartet wurde UUID oder UUID Array."
       data_array_format: "Elemente des Daten-Arrays für %{template} haben falsches Format %{key}."
       classification: "Keine Classification gefunden für %{key} in classification_tree mit dem Label: '%{label}' und tree_label '%{tree_label}'"
+      asset_upload: "Datei konnte nicht hochgeladen werden"
       min_ref: "Zu wenig Referezen angegeben, %{data} sollte mindestens %{value} sein."
       max_ref: "Zu viele Referezen angegeben, %{data} sollte maximal %{value} sein."
       data_format: "Elemente des Link-Arrays für %{template} haben das falsche Format %{key}."

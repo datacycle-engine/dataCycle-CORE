@@ -1,11 +1,12 @@
 module DataCycleCore
   class DataLinksController < ApplicationController
-    before_action :authenticate_user!, only: [:new]   # from devise (authenticate)
-    load_and_authorize_resource :except => [:show]         # from cancancan (authorize)
+    before_action :authenticate_user!, only: [:new] # from devise (authenticate)
+    load_and_authorize_resource :except => [:show] # from cancancan (authorize)
 
     def show
       link = DataCycleCore::DataLink.find_by(id: params[:id])
-      unless link.is_valid?
+
+      unless !link.nil? && link.is_valid?
         raise ActiveRecord::RecordNotFound.new('Link nicht mehr gültig!')
       end
 
@@ -20,7 +21,6 @@ module DataCycleCore
       else
         redirect_to edit_polymorphic_path(link.item, split_params)
       end
-
     end
 
     def create
@@ -28,8 +28,8 @@ module DataCycleCore
         redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :success], locale: DataCycleCore.ui_language))
       end
 
-      if DataCycleCore::DataLink.joins(:receiver).where(item_type: create_link_params[:item_type], item_id: create_link_params[:item_id], users: { email: receiver_params[:email]}).size > 0
-        redirect_back(fallback_location: root_path, alert: (I18n.t :email_exists, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) and return
+      if DataCycleCore::DataLink.joins(:receiver).where(item_type: create_link_params[:item_type], item_id: create_link_params[:item_id], users: { email: receiver_params[:email] }).size > 0
+        redirect_back(fallback_location: root_path, alert: (I18n.t :email_exists, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return
       end
 
       @data_link = DataCycleCore::DataLink.new(create_link_params)
@@ -79,6 +79,5 @@ module DataCycleCore
     def url_split_params
       params.require(:data_link).permit(:source_type, :source_id)
     end
-
   end
 end

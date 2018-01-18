@@ -7,15 +7,15 @@ module DataCycleCore
       attr_reader :query
       def_delegators :@query, :to_a, :to_sql, :each, :page, :includes, :all, :select
       TERMINAL_METHODS = [:count, :pluck,
-        :first, :second, :third, :fourth, :fifth, :forty_two, :last]
+                          :first, :second, :third, :fourth, :fifth, :forty_two, :last]
       def_delegators :@query, *TERMINAL_METHODS
 
-      def initialize(locale ="de", query = nil)
+      def initialize(locale = "de", query = nil)
         @locale = locale
         @query = query
       end
 
-    # helper for paging
+      # helper for paging
       def limit(number)
         reflect(@query.limit(number))
       end
@@ -32,7 +32,7 @@ module DataCycleCore
         reflect(@query.offset(number))
       end
 
-    # continue queries
+      # continue queries
       def where(*params)
         reflect(@query.where(*params))
       end
@@ -49,7 +49,7 @@ module DataCycleCore
         reflect(@query.having(*params))
       end
 
-    # different filters
+      # different filters
       def with_classification_alias(name)
         unless @classification_alias # see if joins are necessary
           @query = join_classification_alias
@@ -62,33 +62,42 @@ module DataCycleCore
         )
       end
 
-    private
+      def with_classification_aliases(tree_name, *aliases)
+        reflect
+        @query.where(search[:content_data_id].in(
+                       create_classification_alias_recursion(
+                         DataCycleCore::ClassificationAlias.for_tree(tree_name).with_name(aliases).pluck(:id)
+                       )
+        ))
+      end
 
-    def create_classification_alias_recursion(ids)
-      children = Arel::Table.new(:children)
-      recursive_term = Arel::SelectManager.new
-        .from(classification_tree)
-        .project(Arel.star)
-        .where(classification_tree[:parent_classification_alias_id].in(ids))
-      non_recursive_term = Arel::SelectManager.new
-        .project(classification_tree[Arel.star])
-        .from(classification_tree).join(children)
-        .on(classification_tree[:parent_classification_alias_id].eq(children[:classification_alias_id]))
-      union = recursive_term.union(:all, non_recursive_term)
-      cte_as_statement = Arel::Nodes::As.new(children, union)
-      select_manager = Arel::SelectManager.new(ActiveRecord::Base).freeze
-      manager = select_manager
-        .with(:recursive, cte_as_statement)
-        .from(children)
-        .project(children[:classification_alias_id])
+      private
 
-      query2 = join_classification_alias2
-      manager2 = query2.where(classification_alias[:id].in(manager)
-      .or(classification_alias[:id].in(ids)))
-    end
+      def create_classification_alias_recursion(ids)
+        children = Arel::Table.new(:children)
+        recursive_term = Arel::SelectManager.new
+          .from(classification_tree)
+          .project(Arel.star)
+          .where(classification_tree[:parent_classification_alias_id].in(ids))
+        non_recursive_term = Arel::SelectManager.new
+          .project(classification_tree[Arel.star])
+          .from(classification_tree).join(children)
+          .on(classification_tree[:parent_classification_alias_id].eq(children[:classification_alias_id]))
+        union = recursive_term.union(:all, non_recursive_term)
+        cte_as_statement = Arel::Nodes::As.new(children, union)
+        select_manager = Arel::SelectManager.new(ActiveRecord::Base).freeze
+        manager = select_manager
+          .with(:recursive, cte_as_statement)
+          .from(children)
+          .project(children[:classification_alias_id])
 
-    # custom function helper
-      def get_point(longitude,latitude)
+        query2 = join_classification_alias2
+        manager2 = query2.where(classification_alias[:id].in(manager)
+                                  .or(classification_alias[:id].in(ids)))
+      end
+
+      # custom function helper
+      def get_point(longitude, latitude)
         Arel::Nodes::NamedFunction.new("ST_GeomFromEWKT", ["SRID=4326;POINT (#{longitude} #{latitude})"])
       end
 
@@ -101,7 +110,7 @@ module DataCycleCore
       end
 
       def current_date
-        Arel::Nodes::NamedFunction.new("CURRENT_DATE",[])
+        Arel::Nodes::NamedFunction.new("CURRENT_DATE", [])
       end
 
       def contains(geo1, geo2)
@@ -109,7 +118,7 @@ module DataCycleCore
       end
 
       def to_tsvector(field)
-        Arel::Nodes::NamedFunction.new('to_tsvector', [field]) #[quoted('german'), field])
+        Arel::Nodes::NamedFunction.new('to_tsvector', [field]) # [quoted('german'), field])
       end
 
       def coalesce(field1, field2)
@@ -117,7 +126,7 @@ module DataCycleCore
       end
 
       def to_tsquery(string)
-        Arel::Nodes::NamedFunction.new('plainto_tsquery', [quoted('simple'), string]) #[quoted('german'), string])
+        Arel::Nodes::NamedFunction.new('plainto_tsquery', [quoted('simple'), string]) # [quoted('german'), string])
       end
 
       def tsmatch(tsvector, tsquery)
@@ -167,7 +176,7 @@ module DataCycleCore
         )
       end
 
-    # define Arel-tables
+      # define Arel-tables
       def classification
         Classification.arel_table
       end
@@ -184,11 +193,10 @@ module DataCycleCore
         ClassificationTree.arel_table
       end
 
-    # chain method for Builder pattern
+      # chain method for Builder pattern
       def reflect(query)
         self.class.new(@locale, query)
       end
-
     end
   end
 end

@@ -21,8 +21,7 @@ module DataCycleCore::Generic::OutdoorActive::ImportFrontendTypes
       ).group(
         _id: "$dump.#{locale}.id",
         :dump.first => "$dump"
-      ).pipeline
-    )
+      ).pipeline)
   end
 
   def extract_data(raw_data)
@@ -31,5 +30,4 @@ module DataCycleCore::Generic::OutdoorActive::ImportFrontendTypes
       name: raw_data['frontendtype']
     }
   end
-
 end

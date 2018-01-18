@@ -15,9 +15,9 @@ class StartOver < ActiveRecord::Migration[5.0]
       t.string   :external_key
       t.string   :description
       t.datetime :seen_at
-      t.geometry :location,           limit: {:srid=>4326, :type=>"point"}
-      t.geometry :bbox,               limit: {:srid=>4326, :type=>"polygon"}
-      t.geometry :shape,              limit: {:srid=>4326, :type=>"multi_polygon"}
+      t.geometry :location,           limit: { :srid => 4326, :type => "point" }
+      t.geometry :bbox,               limit: { :srid => 4326, :type => "polygon" }
+      t.geometry :shape,              limit: { :srid => 4326, :type => "multi_polygon" }
       t.string   :external_type
       t.timestamps
     end
@@ -97,7 +97,7 @@ class StartOver < ActiveRecord::Migration[5.0]
       t.float :longitude
       t.float :latitude
       t.float :elevation
-      t.geometry :location,           limit: {:srid=>4326, :type=>"point"}
+      t.geometry :location, limit: { :srid => 4326, :type => "point" }
       t.string :addressLocality
       t.string :streetAddress
       t.string :postalCode
@@ -116,7 +116,7 @@ class StartOver < ActiveRecord::Migration[5.0]
     create_table :images, id: :uuid do |t|
       t.string :title
       t.string :author
-      t.boolean :primary,            default: false, null: false
+      t.boolean :primary, default: false, null: false
       t.string :url
       t.jsonb :meta
       t.uuid :external_source_id
@@ -140,6 +140,5 @@ class StartOver < ActiveRecord::Migration[5.0]
       t.index ["image_id"], name: "index_images_places_on_image_id", using: :btree
       t.index ["place_id"], name: "index_images_places_on_place_id", using: :btree
     end
-
   end
 end

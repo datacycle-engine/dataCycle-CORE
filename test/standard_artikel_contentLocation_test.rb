@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class StandardArtikelContentLocationTest < ActiveSupport::TestCase
-
     test "create a contentLocation" do
       # create a contentLocations
       place_template = DataCycleCore::Place.find_by(template: true, headline: "contentLocation", description: "Place")
@@ -19,11 +18,10 @@ module DataCycleCore
       data_set_place_1.save
       place_id_1 = data_set_place_1.id
       expected_hash = data_set_place_1.get_data_hash
-      assert_equal(place_hash1.merge({"id" => place_id_1}), expected_hash.compact)
+      assert_equal(place_hash1.merge({ "id" => place_id_1 }), expected_hash.compact)
     end
 
     test "insert embeddedObject within same table" do
-
       count_person = DataCycleCore::Person.count
       count_place = DataCycleCore::Place.count
       count_cw = DataCycleCore::CreativeWork.count
@@ -43,8 +41,8 @@ module DataCycleCore
       person_id = data_set_person.id
 
       data_type_zitat_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-          .where("classification_tree_labels.name = ?", "Inhaltstypen")
-          .where("classification_aliases.name = ?", "Zitat").first.id
+        .where("classification_tree_labels.name = ?", "Inhaltstypen")
+        .where("classification_aliases.name = ?", "Zitat").first.id
 
       # create a contentLocations
       place_template = DataCycleCore::Place.find_by(template: true, headline: "contentLocation", description: "Place")
@@ -91,7 +89,7 @@ module DataCycleCore
         }],
         "content_location" => [{
           "id" => place_id_1
-          }]
+        }]
       }
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
@@ -123,22 +121,22 @@ module DataCycleCore
           "creator" => nil,
           "is_part_of" => parent_id,
           "data_type" => [data_type_zitat_id],
-          "date_created"=>nil,
-          "date_modified"=>nil
+          "date_created" => nil,
+          "date_modified" => nil
         }],
-        "output_channels"=>[],
-        "content_location"=>[{
+        "output_channels" => [],
+        "content_location" => [{
           "id" => place_id_1,
           "name" => "Wien",
           "latitude" => 1.0,
           "longitude" => 2.0,
           "external_source_id" => nil,
           "location" => nil
-          }]
+        }]
       }
-      expected_hash["quotation"][0]["id"]=returned_data_hash["quotation"][0]["id"]
+      expected_hash["quotation"][0]["id"] = returned_data_hash["quotation"][0]["id"]
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except('id',"data_type",'validity_period', 'data_pool'))
+      assert_equal(expected_hash, returned_data_hash.compact.except('id', "data_type", 'validity_period', 'data_pool'))
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
@@ -147,12 +145,11 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Place.count - count_place)
 
       assert_equal(['DataCycleCore::CreativeWork'], DataCycleCore::ContentContent.all.pluck(:content_a_type).uniq)
-      assert_equal(['DataCycleCore::CreativeWork', 'DataCycleCore::Place', 'DataCycleCore::Person'].sort , DataCycleCore::ContentContent.all.pluck(:content_b_type).uniq.sort)
+      assert_equal(['DataCycleCore::CreativeWork', 'DataCycleCore::Place', 'DataCycleCore::Person'].sort, DataCycleCore::ContentContent.all.pluck(:content_b_type).uniq.sort)
       assert_equal(['author', 'content_location', 'quotation'], DataCycleCore::ContentContent.all.pluck(:relation_a).uniq.sort)
       assert_equal([''], DataCycleCore::ContentContent.all.pluck(:relation_b).uniq)
 
-
-      returned_data_hash['content_location'] = [{"id" => place_id_2 }]
+      returned_data_hash['content_location'] = [{ "id" => place_id_2 }]
       error = data_set.set_data_hash(data_hash: returned_data_hash)
       data_set.save
       updated_data_hash = data_set.get_data_hash
@@ -163,9 +160,9 @@ module DataCycleCore
         "longitude" => 20,
         "external_source_id" => nil,
         "location" => nil
-        }]
+      }]
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, updated_data_hash.compact.except('id',"data_type",'validity_period', 'data_pool'))
+      assert_equal(expected_hash, updated_data_hash.compact.except('id', "data_type", 'validity_period', 'data_pool'))
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
@@ -178,7 +175,6 @@ module DataCycleCore
       assert_equal(3, DataCycleCore::ClassificationContent::History.count)
       assert_equal(1, DataCycleCore::Person::History.count)
       assert_equal(1, DataCycleCore::Place::History.count)
-
 
       # update the whole data_set to see if it is properly moved to history
       new_hash = data_set.get_data_hash
@@ -217,7 +213,5 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::Person::History.count)
       assert_equal(0, DataCycleCore::Place::History.count)
     end
-
-
   end
 end

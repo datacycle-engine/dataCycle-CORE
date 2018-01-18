@@ -21,7 +21,7 @@ module DataCycleCore
         end
       end
       @language = params[:language]
-      @language ||= "de" #default-language
+      @language ||= "de" # default-language
 
       if params[:search].blank?
         @order_by = !params[:order].nil? && params[:order].split('_').first == 'udpated' ? 'updated_at' : 'updated_at'
@@ -29,14 +29,7 @@ module DataCycleCore
         order_string = 'boost DESC, ' + @order_by + ' ' + @order
       else
         # order by ranking
-        search_string = params[:search].split(" ").join("%")
-        order_string = "boost * (
-          8 * similarity(classification_string,'%#{search_string}%') +
-          4 * similarity(headline, '%#{search_string}%') +
-          2 * ts_rank_cd(words, plainto_tsquery('simple', '#{params[:search].squish}'),16) +
-          1 * similarity(full_text, '%#{search_string}%'))
-          DESC NULLS LAST,
-          updated_at DESC"
+        order_string = DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(params[:search])
       end
 
       query = DataCycleCore::Filter::Search.new(@language).in_validity_period
@@ -65,6 +58,5 @@ module DataCycleCore
 
       @paginateObject.includes(content_data: [:display_classification_aliases, :translations, :watch_lists]).map(&:content_data)
     end
-
   end
 end

@@ -32,7 +32,6 @@ class DataCycleCore::Generic::Eyebase::Endpoint
           end
 
           yielder << raw_asset_data
-
         end
       end
     end

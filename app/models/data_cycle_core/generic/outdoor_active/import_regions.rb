@@ -14,13 +14,13 @@ module DataCycleCore::Generic::OutdoorActive::ImportRegions
   protected
 
   def load_root_classifications(mongo_item, locale)
-    mongo_item.where("this.dump.#{locale}.id == this.dump.#{locale}.parentId")
+    mongo_item.where("this.dump.#{locale}.id" == "this.dump.#{locale}.parentId")
   end
 
   def load_child_classifications(mongo_item, parent_category_data, locale)
     mongo_item.where(
       "dump.#{locale}.parentId": parent_category_data['id'],
-      "dump.#{locale}.id": {'$ne': parent_category_data['id']}
+      "dump.#{locale}.id": { '$ne': parent_category_data['id'] }
     )
   end
 
@@ -38,5 +38,4 @@ module DataCycleCore::Generic::OutdoorActive::ImportRegions
       name: raw_data['name']
     }
   end
-
 end

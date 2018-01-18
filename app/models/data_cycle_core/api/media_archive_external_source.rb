@@ -1,12 +1,11 @@
 module DataCycleCore
   module Api
     class MediaArchiveExternalSource < DataCycleCore::Api::ExternalSource
-
       def update(data)
         self.extend(DataCycleCore::Generic::MediaArchive::Import)
         load_transformations
         processed_items = []
-        data.each do |key,object|
+        data.each do |key, object|
           template_name = get_object_template_name object
           processed_items << process_content(object, load_template(@target_type, template_name), key)
         end
@@ -18,7 +17,6 @@ module DataCycleCore
       end
 
       def delete(external_key)
-
         object = @target_type
         query = object.where(external_source: @external_source.id).where(external_key: external_key)
 
@@ -41,9 +39,7 @@ module DataCycleCore
         else
           raise 'Error: Unable to update image'
         end
-
       end
-
     end
   end
 end

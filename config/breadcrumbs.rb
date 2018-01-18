@@ -11,6 +11,10 @@ crumb :admin do
   link to_html_string(t('data_cycle_core.administration', locale: DataCycleCore.ui_language)), '#'
 end
 
+crumb :assets do
+  link to_html_string(t('data_cycle_core.assets', locale: DataCycleCore.ui_language)), '#'
+end
+
 crumb :classifications do
   link to_html_string(t('data_cycle_core.classifications', locale: DataCycleCore.ui_language)), '#'
   parent :admin
@@ -52,7 +56,6 @@ end
 
 # Creative Work
 crumb :'data_cycle_core/creative_work' do |creative_work, watch_list|
-
   I18n.with_locale(creative_work.first_available_locale) do
     link to_html_string(creative_work.content_type, creative_work.title), polymorphic_path(creative_work, watch_list_id: watch_list)
   end

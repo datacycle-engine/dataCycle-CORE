@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class EmbeddedTreeTest < ActiveSupport::TestCase
-
     test "CreativeWork exists" do
       data = DataCycleCore::CreativeWork.new
       assert_equal(data.class, DataCycleCore::CreativeWork)
@@ -24,8 +23,8 @@ module DataCycleCore
       person_id = data_set.id
 
       data_type_zitat_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-          .where("classification_tree_labels.name = ?", "Inhaltstypen")
-          .where("classification_aliases.name = ?", "Zitat").first.id
+        .where("classification_tree_labels.name = ?", "Inhaltstypen")
+        .where("classification_aliases.name = ?", "Zitat").first.id
 
       # create an Article
       template = DataCycleCore::CreativeWork.where(template: true, headline: "Artikel", description: "CreativeWork").first
@@ -73,14 +72,14 @@ module DataCycleCore
           "creator" => nil,
           "is_part_of" => parent_id,
           "data_type" => [data_type_zitat_id],
-          "date_created"=>nil,
-          "date_modified"=>nil
+          "date_created" => nil,
+          "date_modified" => nil
         }],
-        "output_channels"=>[],
-        "content_location"=>[],
-        "permitted_creator"=>[]
+        "output_channels" => [],
+        "content_location" => [],
+        "permitted_creator" => []
       }
-      expected_hash["quotation"][0]["id"]=returned_data_hash["quotation"][0]["id"]
+      expected_hash["quotation"][0]["id"] = returned_data_hash["quotation"][0]["id"]
       assert_equal(0, error[:error].count)
       assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'data_pool'))
 
@@ -109,8 +108,8 @@ module DataCycleCore
       person_id = data_set.id
 
       data_type_zitat_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-          .where("classification_tree_labels.name = ?", "Inhaltstypen")
-          .where("classification_aliases.name = ?", "Zitat").first.id
+        .where("classification_tree_labels.name = ?", "Inhaltstypen")
+        .where("classification_aliases.name = ?", "Zitat").first.id
 
       # create an Article
       template = DataCycleCore::CreativeWork.where(template: true, headline: "Artikel", description: "CreativeWork").first
@@ -157,17 +156,17 @@ module DataCycleCore
           }],
           "creator" => nil,
           "is_part_of" => parent_id,
-          "data_type"=>[data_type_zitat_id],
-          "date_created"=>nil,
-          "date_modified"=>nil
+          "data_type" => [data_type_zitat_id],
+          "date_created" => nil,
+          "date_modified" => nil
         }],
-        "output_channels"=>[],
-        "content_location"=>[],
-        "permitted_creator"=>[]
+        "output_channels" => [],
+        "content_location" => [],
+        "permitted_creator" => []
       }
-      expected_hash["quotation"][0]["id"]=returned_data_hash["quotation"][0]["id"]
+      expected_hash["quotation"][0]["id"] = returned_data_hash["quotation"][0]["id"]
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except("id","data_type", 'data_pool'))
+      assert_equal(expected_hash, returned_data_hash.compact.except("id", "data_type", 'data_pool'))
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
@@ -183,7 +182,7 @@ module DataCycleCore
       expected_hash['quotation'] = []
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except("id","data_type", 'data_pool'))
+      assert_equal(expected_hash, returned_data_hash.compact.except("id", "data_type", 'data_pool'))
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
@@ -224,13 +223,13 @@ module DataCycleCore
           "author" => [{
             "id" => person_id
           }]
-        },{
+        }, {
           "text" => "Men occasionally stumble over the truth, but most of them pick themselves up and hurry off as if nothing ever happened.",
           "author" => [{
             "id" => person_id
           }]
         }]
-    }
+      }
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
@@ -247,9 +246,9 @@ module DataCycleCore
         "topics" => [],
         "markets" => [],
         "headline" => "Dies ist ein Test!",
-        "output_channels"=>[],
-        "content_location"=>[],
-        "permitted_creator"=>[],
+        "output_channels" => [],
+        "content_location" => [],
+        "permitted_creator" => [],
         "quotation" => [{
           "text" => "However beautiful the strategy, you should occasionally look at the results.",
           "image" => [],
@@ -260,7 +259,7 @@ module DataCycleCore
             "family_name" => "Churchill"
           }],
           "is_part_of" => parent_id
-        },{
+        }, {
           "text" => "Men occasionally stumble over the truth, but most of them pick themselves up and hurry off as if nothing ever happened.",
           "image" => nil,
           "author" => [{
@@ -274,7 +273,7 @@ module DataCycleCore
       }
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except("quotation","data_type"), returned_data_hash.compact.except("quotation", "id", "data_type", 'data_pool'))
+      assert_equal(expected_hash.except("quotation", "data_type"), returned_data_hash.compact.except("quotation", "id", "data_type", 'data_pool'))
       assert_equal(expected_hash["quotation"].count, returned_data_hash["quotation"].count)
 
       # check consistency of data in DB
@@ -289,7 +288,7 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
       expected_hash['quotation'] = []
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except("id","data_type", 'data_pool'))
+      assert_equal(expected_hash, returned_data_hash.compact.except("id", "data_type", 'data_pool'))
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
@@ -312,10 +311,9 @@ module DataCycleCore
       data_set.save
       person_id = data_set.id
 
-
       data_type_zitat_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-          .where("classification_tree_labels.name = ?", "Inhaltstypen")
-          .where("classification_aliases.name = ?", "Zitat").first.id
+        .where("classification_tree_labels.name = ?", "Inhaltstypen")
+        .where("classification_aliases.name = ?", "Zitat").first.id
 
       # create an Article
       template = DataCycleCore::CreativeWork.where(template: true, headline: "Artikel", description: "CreativeWork").first
@@ -354,7 +352,7 @@ module DataCycleCore
           "id" => "",
           "text" => "However beautiful the strategy, you should occasionally look at the results.",
           "image" => [],
-          "creator"=>nil,
+          "creator" => nil,
           "author" => [{
             "id" => person_id,
             "job_title" => nil,
@@ -362,17 +360,17 @@ module DataCycleCore
             "family_name" => "Churchill"
           }],
           "is_part_of" => parent_id,
-          "data_type"=>[data_type_zitat_id],
-          "date_created"=>nil,
-          "date_modified"=>nil
+          "data_type" => [data_type_zitat_id],
+          "date_created" => nil,
+          "date_modified" => nil
         }],
-        "output_channels"=>[],
-        "content_location"=>[],
-        'permitted_creator'=>[]
+        "output_channels" => [],
+        "content_location" => [],
+        'permitted_creator' => []
       }
       expected_hash["quotation"][0]["id"] = returned_data_hash["quotation"][0]["id"]
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except("id","data_type", 'data_pool'))
+      assert_equal(expected_hash, returned_data_hash.compact.except("id", "data_type", 'data_pool'))
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
@@ -381,25 +379,24 @@ module DataCycleCore
 
       data_hash["quotation"][0]["id"] = quotation_id
       data_hash["quotation"].push({
-        "text" => "Men occasionally stumble over the truth, but most of them pick themselves up and hurry off as if nothing ever happened.",
-        "author" => [{
-          "id" => person_id
-        }]
-      })
+                                    "text" => "Men occasionally stumble over the truth, but most of them pick themselves up and hurry off as if nothing ever happened.",
+                                    "author" => [{
+                                      "id" => person_id
+                                    }]
+                                  })
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
       parent_id = data_set.id
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except("quotation"), returned_data_hash.compact.except("quotation","id","data_type", 'data_pool'))
-      assert_equal(2 , returned_data_hash["quotation"].count)
+      assert_equal(expected_hash.except("quotation"), returned_data_hash.compact.except("quotation", "id", "data_type", 'data_pool'))
+      assert_equal(2, returned_data_hash["quotation"].count)
 
       # check consistency of data in DB
       assert_equal(3, DataCycleCore::CreativeWork.where(template: false).count)
       assert_equal(4, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::Person.where(template: false).count)
     end
-
   end
 end

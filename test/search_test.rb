@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class SearchTest < ActiveSupport::TestCase
-
     test 'test search utility functions' do
       template_cw_count = DataCycleCore::CreativeWork.count
       template_cwt_count = DataCycleCore::CreativeWork::Translation.count
@@ -26,8 +25,6 @@ module DataCycleCore
 
       # ap data_set.search_property_names
       # ap data_set.content_search
-
     end
-
   end
 end

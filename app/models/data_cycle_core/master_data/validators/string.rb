@@ -2,10 +2,8 @@ module DataCycleCore
   module MasterData
     module Validators
       class String < BasicValidator
-
         @@string_keywords = ['minLength', 'maxLength', 'format', 'pattern']
         @@string_formats = ['date_time', 'date', 'uuid', 'boolean', 'url']
-
 
         def validate(data, template)
           if data.is_a?(::String)
@@ -28,25 +26,26 @@ module DataCycleCore
           return @error
         end
 
-      private
-      # given string validations
+        private
 
-        def minLength(data,value)
+        # given string validations
+
+        def minLength(data, value)
           if data.length < value.to_i
             @error[:error].push I18n.t :min, scope: [:validation, :errors], data: data, min: value.to_i, length: data.length, locale: DataCycleCore.ui_language
           end
         end
 
-        def maxLength(data,value)
+        def maxLength(data, value)
           if data.length > value.to_i
             @error[:error].push I18n.t :max, scope: [:validation, :errors], data: data, max: value.to_i, length: data.length, locale: DataCycleCore.ui_language
           end
         end
 
         def pattern(data, expression)
-          regex = /#{expression[1..expression.length-2]}/
+          regex = /#{expression[1..expression.length - 2]}/
           matched = data.match(regex)
-          if matched.nil? || matched.offset(0) != [0,data.size]
+          if matched.nil? || matched.offset(0) != [0, data.size]
             @error[:error].push I18n.t :match, scope: [:validation, :errors], data: data, expression: expression, locale: DataCycleCore.ui_language
           end
         end
@@ -59,12 +58,12 @@ module DataCycleCore
           end
         end
 
-      # check string for given format
+        # check string for given format
 
         def uuid(data)
           data.downcase!
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
-          check_uuid = data.length == 36 && !(data=~uuid).nil?
+          check_uuid = data.length == 36 && !(data =~ uuid).nil?
           unless check_uuid
             @error[:error].push I18n.t :uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
           end
@@ -112,7 +111,6 @@ module DataCycleCore
             end
           end
         end
-
       end
     end
   end

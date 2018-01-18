@@ -1,5 +1,4 @@
 module DataCycleCore::Generic::OutdoorActive::ImportPois
-
   def import_data(**options)
     @image_template = options[:import][:image_template] || 'Bild'
 
@@ -12,7 +11,7 @@ module DataCycleCore::Generic::OutdoorActive::ImportPois
   protected
 
   def load_contents(mongo_item, locale)
-    mongo_item.where("dump.#{locale}.frontendtype": 'poi') #frontendtype: ["poi", "hut", "lodging", "skiresort", "offerer"]
+    mongo_item.where("dump.#{locale}.frontendtype": 'poi') # frontendtype: ["poi", "hut", "lodging", "skiresort", "offerer"]
   end
 
   def process_content(raw_data, template, locale)
@@ -59,5 +58,4 @@ module DataCycleCore::Generic::OutdoorActive::ImportPois
   def extract_poi_data(raw_data)
     raw_data.nil? ? {} : @poi_transformation.call(raw_data)
   end
-
 end

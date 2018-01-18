@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class ReleaseTest < ActiveSupport::TestCase
-
     test "save CreativeWork data-type ReleaseTest" do
       template = DataCycleCore::CreativeWork.where(template: true, headline: "ReleaseTest", description: "CreativeWork").first
       validation = template.metadata['validation']
@@ -56,20 +55,20 @@ module DataCycleCore
       bild1 = DataCycleCore::CreativeWork.new
       bild1.metadata = { 'validation' => template_bild.metadata['validation'] }
       bild1.save
-      bild1.set_data_hash(data_hash: {"headline" => "Testbild1"})
+      bild1.set_data_hash(data_hash: { "headline" => "Testbild1" })
       bild1.save
 
       bild2 = DataCycleCore::CreativeWork.new
       bild2.metadata = { 'validation' => template_bild.metadata['validation'] }
       bild2.save
-      bild2.set_data_hash(data_hash: {"headline" => "Testbild2"})
+      bild2.set_data_hash(data_hash: { "headline" => "Testbild2" })
       bild2.save
 
       data_hash = {
         "kind" => [],
         "tags" => [],
         "image" => {
-          "value" => [ bild1.id ],
+          "value" => [bild1.id],
           "release_id" => DataCycleCore::Release.first.id,
           "release_comment" => "normales bild kommentar"
         },
@@ -82,7 +81,7 @@ module DataCycleCore
         "quotation" => [{
           "text" => "<p>sdfasf asdf adfasdf</p>",
           "image" => {
-            "value" => [ bild2.id ],
+            "value" => [bild2.id],
             "release_id" => DataCycleCore::Release.second.id,
             "release_comment" => "zitat bild kommentar"
           },
@@ -99,7 +98,7 @@ module DataCycleCore
       data_set.save
 
       returned_data_hash = data_set.get_data_hash
-      assert_equal(data_hash.except('quotation'), returned_data_hash.compact.except('id','data_type','quotation', 'data_pool'))
+      assert_equal(data_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'quotation', 'data_pool'))
       assert_equal(data_hash['quotation'][0], returned_data_hash['quotation'][0].compact.except('id', 'data_type', 'is_part_of'))
 
       expected_release_main_object = {
@@ -121,6 +120,5 @@ module DataCycleCore
       expected_release_code = [DataCycleCore::Release.first.release_code, DataCycleCore::Release.second.release_code].max
       assert_equal(expected_release_code, data_set.release_status_code)
     end
-
   end
 end

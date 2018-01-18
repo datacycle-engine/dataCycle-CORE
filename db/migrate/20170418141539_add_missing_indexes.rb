@@ -43,6 +43,5 @@ class AddMissingIndexes < ActiveRecord::Migration[5.0]
 
     add_index :classification_creative_works, :creative_work_id
     add_index :classification_creative_works, :classification_alias_id
-
   end
 end

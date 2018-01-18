@@ -11,9 +11,9 @@ module DataCycleCore
       job_record.delayed_reference_id = @arguments.first
       store_job_id_to_externalSource = ExternalSource.where(id: job_record.delayed_reference_id).first
       if store_job_id_to_externalSource.config.nil?
-        store_job_id_to_externalSource.config = {"last_import_job_id" => @provider_job_id}
+        store_job_id_to_externalSource.config = { "last_import_job_id" => @provider_job_id }
       else
-        store_job_id_to_externalSource.config.merge!({"last_import_job_id" => @provider_job_id})
+        store_job_id_to_externalSource.config.merge!({ "last_import_job_id" => @provider_job_id })
       end
       store_job_id_to_externalSource.save
       job_record.delayed_reference_type = store_job_id_to_externalSource.config['import']

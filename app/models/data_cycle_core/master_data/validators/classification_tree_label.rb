@@ -2,7 +2,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class ClassificationTreeLabel < BasicValidator
-
         @@keywords = ['min', 'max']
 
         def validate(data, template)
@@ -11,14 +10,14 @@ module DataCycleCore
           elsif data.is_a?(::Array)
             check_reference_array(data, template)
           elsif data.is_a?(::String)
-            check_reference_array([data],template)
+            check_reference_array([data], template)
           else
             @error[:error].push I18n.t :data_type, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language
           end
           return @error
         end
 
-      private
+        private
 
         def check_reference_array(data, template)
           # check given validations
@@ -35,7 +34,7 @@ module DataCycleCore
           # validate references themself
           data.each do |key|
             if key.is_a?(::String)
-              check_reference(key,template)
+              check_reference(key, template)
             else
               @error[:error].push I18n.t :data_array_format, scope: [:validation, :errors], key: key, template: template['label'], locale: DataCycleCore.ui_language
             end
@@ -44,11 +43,11 @@ module DataCycleCore
 
         def check_reference(key, template)
           if uuid?(key)
-            find_classification_alias = DataCycleCore::ClassificationTree.
-              joins(:classification_tree_label).
-              joins(sub_classification_alias: [classification_groups: [:classification]]).
-              where("classifications.id = ? ", key).
-              where("classification_tree_labels.name = ?", template['type_name'])
+            find_classification_alias = DataCycleCore::ClassificationTree
+              .joins(:classification_tree_label)
+              .joins(sub_classification_alias: [classification_groups: [:classification]])
+              .where("classifications.id = ? ", key)
+              .where("classification_tree_labels.name = ?", template['type_name'])
             if find_classification_alias.count < 1
               @error[:error].push I18n.t :classification, scope: [:validation, :errors], key: key, label: template['label'], tree_label: template['type_name'], locale: DataCycleCore.ui_language
             end
@@ -58,7 +57,7 @@ module DataCycleCore
         def uuid?(data)
           data.downcase!
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
-          check_uuid = data.length == 36 && !(data=~uuid).nil?
+          check_uuid = data.length == 36 && !(data =~ uuid).nil?
           unless check_uuid
             @error[:error].push I18n.t :uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
           end
@@ -85,7 +84,6 @@ module DataCycleCore
             @error[:error].push I18n.t :max_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language
           end
         end
-
       end
     end
   end

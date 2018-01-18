@@ -1,6 +1,5 @@
 module DataCycleCore
   class Classification < ApplicationRecord
-
     belongs_to :external_sources
 
     acts_as_paranoid
@@ -37,6 +36,5 @@ module DataCycleCore
         primary_classification_alias.try(:descendants).try(:flatten)
       end
     end
-
   end
 end

@@ -168,7 +168,6 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
       t.timestamps
       t.uuid :external_source_id
     end
-
   end
 
   def down

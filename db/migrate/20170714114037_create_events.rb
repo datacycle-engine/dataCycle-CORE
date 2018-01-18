@@ -1,7 +1,5 @@
 class CreateEvents < ActiveRecord::Migration[5.0]
-
   def up
-
     create_table :events, id: :uuid do |t|
       t.string :headline
       t.text :description
@@ -48,5 +46,4 @@ class CreateEvents < ActiveRecord::Migration[5.0]
     drop_table :classification_events
     drop_table :event_translations
   end
-
 end
