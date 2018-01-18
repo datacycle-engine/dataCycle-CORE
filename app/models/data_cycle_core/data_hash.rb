@@ -195,7 +195,7 @@ module DataCycleCore
       boost = metadata['validation']['boost'] || 1.0
 
       connection = ActiveRecord::Base.connection
-      sql_query = <<-eos
+      sql_query = <<-EOS
         INSERT INTO searches (id, content_data_id, content_data_type, locale, words, full_text,
           created_at, updated_at, headline, classification_string, data_type, all_text, validity_period,boost)
         VALUES
@@ -227,7 +227,7 @@ module DataCycleCore
           all_text = EXCLUDED.all_text,
           validity_period = EXCLUDED.validity_period,
           boost = EXCLUDED.boost;
-      eos
+      EOS
       connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
     end
 

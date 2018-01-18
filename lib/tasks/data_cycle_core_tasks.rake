@@ -1,21 +1,21 @@
 FIXNUM_MAX = (2**(0.size * 8 - 2) - 1)
 
-delete_classifications = <<-eos
+delete_classifications = <<-EOS
   DELETE FROM classifications;
   DELETE FROM classification_groups;
   DELETE FROM classification_aliases;
   DELETE FROM classification_trees;
   DELETE FROM classification_tree_labels;
-eos
+EOS
 
-delete_secondary_data = <<-eos
+delete_secondary_data = <<-EOS
   DELETE FROM watch_list_data_hashes;
   DELETE FROM watch_lists;
   DELETE FROM subscriptions;
   DELETE FROM data_links;
-eos
+EOS
 
-delete_contents = <<-eos
+delete_contents = <<-EOS
   DELETE FROM creative_works;
   DELETE FROM creative_work_translations;
   DELETE FROM events;
@@ -33,9 +33,9 @@ delete_contents = <<-eos
   DELETE FROM overlays;
   DELETE FROM tags;
   DELETE FROM overlay_place_tags;
-eos
+EOS
 
-delete_content_histories = <<-eos
+delete_content_histories = <<-EOS
   DELETE FROM creative_work_histories;
   DELETE FROM creative_work_history_translations;
   DELETE FROM event_histories;
@@ -48,7 +48,7 @@ delete_content_histories = <<-eos
   DELETE FROM content_content_histories;
 
   DELETE FROM classification_content_histories;
-eos
+EOS
 
 Rake::Task['db:create'].enhance do
   if ENV['RAILS_ENV']
@@ -318,7 +318,7 @@ namespace :data_cycle_core do
       ]
 
       data_hash.each do |item|
-        sql_query = <<-eos
+        sql_query = <<-EOS
           INSERT INTO content_contents
           SELECT
             id,
@@ -332,10 +332,10 @@ namespace :data_cycle_core do
             created_at,
             updated_at
           FROM #{item[:a]}_#{item[:b].pluralize};
-        eos
+        EOS
         @connection.exec_query(sql_query)
 
-        sql_query = <<-eos
+        sql_query = <<-EOS
           INSERT INTO content_content_histories
           SELECT
             id,
@@ -350,7 +350,7 @@ namespace :data_cycle_core do
             created_at,
             updated_at
           FROM #{item[:a]}_#{item[:b]}_histories;
-        eos
+        EOS
         @connection.exec_query(sql_query)
       end
     end
@@ -365,7 +365,7 @@ namespace :data_cycle_core do
       ]
 
       parameter_hash.each do |params|
-        update = <<-eos
+        update = <<-EOS
           UPDATE content_contents
           SET relation_a = '#{params[:relation]}'
           FROM creative_works
@@ -375,9 +375,9 @@ namespace :data_cycle_core do
             AND content_contents.content_b_type = 'DataCycleCore::Person'
             AND content_contents.relation_b = ''
             AND creative_works.metadata #>> '{validation,name}' #{params[:template]};
-        eos
+        EOS
         @connection.exec_query(update)
-        update = <<-eos
+        update = <<-EOS
           UPDATE content_content_histories
           SET relation_a = '#{params[:relation]}'
           FROM creative_work_histories
@@ -387,7 +387,7 @@ namespace :data_cycle_core do
             AND content_content_histories.content_b_history_type = 'DataCycleCore::Person:History'
             AND content_content_histories.relation_b = ''
             AND creative_work_histories.metadata #>> '{validation,name}' #{params[:template]};
-        eos
+        EOS
         @connection.exec_query(update)
       end
     end
@@ -530,7 +530,7 @@ namespace :data_cycle_core do
       puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
 
       # delete inconsistent data:
-      delete_sql = <<-eos
+      delete_sql = <<-EOS
       DELETE FROM classification_contents
       WHERE id IN (
         SELECT classification_contents.id
@@ -543,7 +543,7 @@ namespace :data_cycle_core do
           JOIN classifications ON classifications.id = classification_contents.classification_id
           WHERE classification_contents.relation IS NULL
       );
-      eos
+      EOS
       puts 'DELETE inconsistent data'
       ActiveRecord::Base.connection.execute(delete_sql)
       puts "[#{'*' * 100}] 100%"
@@ -601,7 +601,7 @@ namespace :data_cycle_core do
       Rake::Task['data_cycle_core:update:delete_history'].invoke('creative_works', 'Bild')
 
       # delete classification_content_histories due to wrong template in history
-      delete_sql = <<-eos
+      delete_sql = <<-EOS
       DELETE FROM classification_content_histories
       WHERE id IN (
         SELECT classification_content_histories.id
@@ -609,7 +609,7 @@ namespace :data_cycle_core do
         WHERE relation IS NULL
         AND classification_content_histories.content_data_history_type = 'DataCycleCore::CreativeWork::History'
       );
-      eos
+      EOS
       puts 'DELETE keywords for history'
       ActiveRecord::Base.connection.execute(delete_sql)
       puts "[#{'*' * 100}] 100%"

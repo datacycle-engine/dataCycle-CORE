@@ -91,6 +91,9 @@ Metrics/PerceivedComplexity:
 Naming/AccessorMethodName:
   Enabled: false
 
+Naming/HeredocDelimiterNaming:
+  Enabled: false
+
 ########## Performance
 Performance/RedundantBlockCall:
   Exclude:

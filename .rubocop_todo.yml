@@ -149,29 +149,6 @@ Lint/Void:
     - 'app/controllers/data_cycle_core/api/v1/api_base_controller.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 1
-# Configuration parameters: ExpectMatchingDefinition, Regex, IgnoreExecutableScripts, AllowedAcronyms.
-# AllowedAcronyms: CLI, DSL, ACL, API, ASCII, CPU, CSS, DNS, EOF, GUID, HTML, HTTP, HTTPS, ID, IP, JSON, LHS, QPS, RAM, RHS, RPC, SLA, SMTP, SQL, SSH, TCP, TLS, TTL, UDP, UI, UID, UUID, URI, URL, UTF8, VM, XML, XMPP, XSRF, XSS
-Naming/FileName:
-  Exclude:
-    - 'test/standard_artikel_contentLocation_test.rb'
-
-# Offense count: 16
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: lowercase, uppercase
-Naming/HeredocDelimiterCase:
-  Exclude:
-    - 'app/models/data_cycle_core/data_hash.rb'
-    - 'db/migrate/20171000124018_create_search.rb'
-    - 'db/migrate/20171123083228_delete_old_relation_tables.rb'
-    - 'lib/tasks/data_cycle_core_tasks.rake'
-
-# Offense count: 1
-# Configuration parameters: Blacklist.
-# Blacklist: END, (?-mix:EO[A-Z]{1})
-Naming/HeredocDelimiterNaming:
-  Exclude:
-    - 'test/import/feratel_places_spec.rb'
 
 # Offense count: 10
 # Configuration parameters: EnforcedStyle.
@@ -223,13 +200,6 @@ Naming/VariableName:
     - 'app/helpers/data_cycle_core/classification_helper.rb'
     - 'app/jobs/data_cycle_core/download_job.rb'
     - 'app/jobs/data_cycle_core/import_job.rb'
-
-# Offense count: 6
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: snake_case, normalcase, non_integer
-Naming/VariableNumber:
-  Exclude:
-    - 'test/standard_artikel_contentLocation_test.rb'
 
 # Offense count: 13
 # Cop supports --auto-correct.
