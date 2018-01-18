@@ -7,11 +7,6 @@
 # versions of RuboCop, may require this file to be generated again.
 
 
-# Offense count: 33
-Style/DateTime:
-  Enabled: false
-
-
 # Offense count: 1
 Lint/AmbiguousBlockAssociation:
   Exclude:
@@ -153,49 +148,6 @@ Lint/Void:
   Exclude:
     - 'app/controllers/data_cycle_core/api/v1/api_base_controller.rb'
     - 'test/test_helper.rb'
-
-# Offense count: 178
-Metrics/AbcSize:
-  Max: 138
-
-# Offense count: 107
-# Configuration parameters: CountComments, ExcludedMethods.
-Metrics/BlockLength:
-  Max: 515
-
-# Offense count: 3
-# Configuration parameters: CountBlocks.
-Metrics/BlockNesting:
-  Max: 5
-
-# Offense count: 30
-# Configuration parameters: CountComments.
-Metrics/ClassLength:
-  Max: 888
-
-# Offense count: 34
-Metrics/CyclomaticComplexity:
-  Max: 15
-
-# Offense count: 167
-# Configuration parameters: CountComments.
-Metrics/MethodLength:
-  Max: 150
-
-# Offense count: 8
-# Configuration parameters: CountKeywordArgs.
-Metrics/ParameterLists:
-  Max: 8
-
-# Offense count: 34
-Metrics/PerceivedComplexity:
-  Max: 18
-
-# Offense count: 1686
-# Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
-# URISchemes: http, https
-Metrics/LineLength:
-  Max: 380
 
 # Offense count: 7
 Naming/AccessorMethodName:
@@ -506,10 +458,3 @@ Rails/SkipsModelValidations:
 # SupportedStyles: strict, flexible
 Rails/TimeZone:
   Enabled: false
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Security/YAMLLoad:
-  Exclude:
-    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
-    - 'app/models/data_cycle_core/master_data/import_templates.rb'

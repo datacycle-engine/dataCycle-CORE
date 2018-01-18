@@ -17,19 +17,38 @@ Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 
 ########## Style
+Style/BlockDelimiters:
+  EnforcedStyle: braces_for_chaining
+
+Style/BracesAroundHashParameters:
+  Enabled: false
+
+Style/ConditionalAssignment:
+  Enabled: false
+
 Style/Documentation:
   Enabled: false
+
+Style/EmptyMethod:
+  EnforcedStyle: expanded
 
 Style/MixinUsage:
   Exclude:
     - 'test/dummy/bin/setup'
     - 'test/dummy/bin/update'
 
-Style/BlockDelimiters:
-  EnforcedStyle: braces_for_chaining
-
 Style/MultilineBlockChain:
   Enabled: false
+
+Style/NestedTernaryOperator:
+  Enabled: false
+
+Style/NumericLiteralPrefix:
+  Exclude:
+    - 'config/initializers/carrierwave.rb'
+
+Style/RedundantReturn:
+  AllowMultipleReturnValues: true
 
 Style/SymbolArray:
   EnforcedStyle: brackets
@@ -37,29 +56,36 @@ Style/SymbolArray:
 Style/WordArray:
   EnforcedStyle: brackets
 
-Style/RedundantReturn:
-  AllowMultipleReturnValues: true
-
-Style/ConditionalAssignment:
-  Enabled: false
-
-Style/EmptyMethod:
-  EnforcedStyle: expanded
-
-Style/BracesAroundHashParameters:
-  Enabled: false
-
-Style/NumericLiteralPrefix:
-  Exclude:
-    - 'config/initializers/carrierwave.rb'
-
 ########## Metrics
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/BlockNesting:
+  Max: 5
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
 Metrics/LineLength:
+  Enabled: false
+
+Metrics/MethodLength:
   Enabled: false
 
 Metrics/ModuleLength:
   Enabled: false
 
+Metrics/ParameterLists:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
 
 ########## Transproc
 # Offense count: 1
@@ -67,13 +93,13 @@ Layout/AlignParameters:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 
-# Offense count: 1
-Layout/MultilineHashBraceLayout:
+# Offense count: 4
+Style/Lambda:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 
-# Offense count: 4
-Style/Lambda:
+# Offense count: 1
+Layout/MultilineHashBraceLayout:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 
@@ -84,24 +110,14 @@ Style/RescueModifier:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 
 # Offense count: 39
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: require_parentheses, require_no_parentheses
 Style/StabbyLambdaParentheses:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 
-
-
-# Offense count: 10
-# Cop supports --auto-correct.
-Style/RedundantParentheses:
-  Exclude:
-    - 'app/models/data_cycle_core/filter/search.rb'
-    - 'app/models/data_cycle_core/master_data/import_templates.rb'
-    - 'app/models/data_cycle_core/releasable.rb'
-    - 'app/services/data_cycle_core/watch_list_service.rb'
-    - 'app/views/data_cycle_core/api/v1/api_base/_place_details.json.jbuilder'
+########## check later
+# Offense count: 69
+Style/ClassAndModuleChildren:
+  Enabled: false
 
 # Offense count: 14
 Style/ClassVars:
@@ -116,18 +132,10 @@ Style/ClassVars:
     - 'app/models/data_cycle_core/master_data/validators/object.rb'
     - 'app/models/data_cycle_core/master_data/validators/string.rb'
 
-# Offense count: 2
-Style/MethodMissing:
-  Exclude:
-    - 'app/models/data_cycle_core/callbacks.rb'
-    - 'app/models/data_cycle_core/content.rb'
+# Offense count: 33
+Style/DateTime:
+  Enabled: false
 
-# Offense count: 1
-Style/NestedTernaryOperator:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/transformations/functions.rb'
-
-########## check later
 Style/FrozenStringLiteralComment:
   Enabled: false
 
@@ -135,9 +143,11 @@ Style/FrozenStringLiteralComment:
 Style/GuardClause:
   Enabled: false
 
-# Offense count: 69
-Style/ClassAndModuleChildren:
-  Enabled: false
+# Offense count: 2
+Style/MethodMissing:
+  Exclude:
+    - 'app/models/data_cycle_core/callbacks.rb'
+    - 'app/models/data_cycle_core/content.rb'
 
 # Offense count: 9
 # Cop supports --auto-correct.
