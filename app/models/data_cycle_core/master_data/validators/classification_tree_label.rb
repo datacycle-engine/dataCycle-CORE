@@ -21,7 +21,7 @@ module DataCycleCore
 
         def check_reference_array(data, template)
           # check given validations
-          if template.has_key?('validations')
+          if template.key?('validations')
             template['validations'].keys.each do |key|
               if @@keywords.include?(key)
                 self.method(key).call(data, template['validations'][key])

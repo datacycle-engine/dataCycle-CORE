@@ -362,9 +362,9 @@ module DataCycleCore
           set_asset_id(value, key, properties['type_name'])
         else
           unless properties['storage_location'] == 'key' # do nothing with key
-            if properties.has_key?('name') && properties.has_key?('description')
+            if properties.key?('name') && properties.key?('description')
               delete = false
-              delete = true if properties.has_key?('delete') && properties['delete'] == true
+              delete = true if properties.key?('delete') && properties['delete'] == true
               set_linked_data_type(key, value, properties['storage_location'], properties['name'], properties['description'], delete, save_time, current_user)
             else
               puts "wrong data_type #{key} | #{value}"
@@ -419,7 +419,7 @@ module DataCycleCore
       unless is_blank?(data)
         # update/insert linked_data
         data.each do |item|
-          if item.has_key?('id') && !item['id'].blank? && item.keys.count == 1
+          if item.key?('id') && !item['id'].blank? && item.keys.count == 1
             # puts "id is the only item --> no update"
             updated_item_keys.push(item['id'])
             # relation update/insert
@@ -427,7 +427,7 @@ module DataCycleCore
               get_relation_data_hash(field_name, table, item['id'])
             )
             upsert_relation.save
-          elsif item.has_key?('id') && !item['id'].blank?
+          elsif item.key?('id') && !item['id'].blank?
             # puts "update"
             update_item = ("DataCycleCore::" + table.classify).constantize.find_by(id: item['id'])
             update_item.set_data_hash(data_hash: item, current_user: current_user, save_time: save_time, prevent_history: true)

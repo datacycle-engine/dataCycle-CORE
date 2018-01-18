@@ -24,7 +24,7 @@ module DataCycleCore
 
         def check_reference_array(data, template)
           # validate given validations
-          if template.has_key?('validations')
+          if template.key?('validations')
             template['validations'].keys.each do |key|
               if @@keywords.include?(key)
                 self.method(key).call(data, template['validations'][key])
@@ -39,7 +39,7 @@ module DataCycleCore
             if key.is_a?(::String)
               validate_link = EmbeddedLink.new(key, template)
               merge_errors(validate_link.error) unless validate_link.nil?
-            elsif key.is_a?(::Hash) && key.has_key?('id')
+            elsif key.is_a?(::Hash) && key.key?('id')
               validate_link = EmbeddedLink.new(key['id'], template)
               merge_errors(validate_link.error) unless validate_link.nil?
             else

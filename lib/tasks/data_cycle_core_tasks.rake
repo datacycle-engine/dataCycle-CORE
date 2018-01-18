@@ -411,7 +411,7 @@ namespace :data_cycle_core do
       DataCycleCore::CreativeWork.where(where_string).each do |item|
         # puts "#{item.id} || #{item.metadata['validation']['name']}"
         array_names.each do |name|
-          next unless item.metadata.has_key?(name)
+          next unless item.metadata.key?(name)
           # puts "#{name.split('_hasPart')[0]} -> "
           item.metadata[name].each do |content_id|
             DataCycleCore::ContentContent.create!(
@@ -432,7 +432,7 @@ namespace :data_cycle_core do
       DataCycleCore::CreativeWork::History.where(where_string).each do |item|
         # puts "#{item.id} || #{item.creative_work_id} || #{item.metadata['validation']['name']}"
         array_names.each do |name|
-          next unless item.metadata.has_key?(name)
+          next unless item.metadata.key?(name)
           # puts "#{name.split('_hasPart')[0]} -> "
           item.metadata[name].each do |content_id|
             DataCycleCore::ContentContent::History.create!(

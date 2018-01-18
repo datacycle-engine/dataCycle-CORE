@@ -17,7 +17,7 @@ module DataCycleCore
     end
 
     def execute_callback(callback, *args)
-      callbacks[callback].map { |c| c.call(*args) } if callbacks.has_key?(callback)
+      callbacks[callback].map { |c| c.call(*args) } if callbacks.key?(callback)
     end
 
     protected

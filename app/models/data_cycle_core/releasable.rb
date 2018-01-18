@@ -100,7 +100,7 @@ module DataCycleCore
 
     def release_data?(value)
       return false unless value.is_a?(::Hash)
-      return true if value.has_key?('value') || value.has_key?('release_id') || value.has_key?('release_comment')
+      return true if value.key?('value') || value.key?('release_id') || value.key?('release_comment')
       false
     end
 

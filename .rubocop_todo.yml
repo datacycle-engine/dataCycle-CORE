@@ -71,26 +71,6 @@ Style/NestedTernaryOperator:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/functions.rb'
 
-# Offense count: 25
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: short, verbose
-Style/PreferredHashMethods:
-  Exclude:
-    - 'app/controllers/data_cycle_core/application_controller.rb'
-    - 'app/models/data_cycle_core/callbacks.rb'
-    - 'app/models/data_cycle_core/data_hash.rb'
-    - 'app/models/data_cycle_core/master_data/import_templates.rb'
-    - 'app/models/data_cycle_core/master_data/validators/basic_validator.rb'
-    - 'app/models/data_cycle_core/master_data/validators/classification_tree_label.rb'
-    - 'app/models/data_cycle_core/master_data/validators/embedded_link.rb'
-    - 'app/models/data_cycle_core/master_data/validators/embedded_link_array.rb'
-    - 'app/models/data_cycle_core/master_data/validators/number.rb'
-    - 'app/models/data_cycle_core/master_data/validators/object.rb'
-    - 'app/models/data_cycle_core/master_data/validators/string.rb'
-    - 'app/models/data_cycle_core/releasable.rb'
-    - 'lib/tasks/data_cycle_core_tasks.rake'
-
 # Offense count: 13
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

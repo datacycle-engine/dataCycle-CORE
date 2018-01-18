@@ -38,7 +38,7 @@ module DataCycleCore
               next
             end
 
-            if key_item.has_key?('validations') # validations for a particular object
+            if key_item.key?('validations') # validations for a particular object
               key_item['validations'].each do |val_key, val_item|
                 if @@object_validations.include?(val_key)
                   self.method(val_key).call(data[key], val_item)
@@ -48,14 +48,14 @@ module DataCycleCore
               end
             end
 
-            if key_item.has_key?('properties')
+            if key_item.key?('properties')
               # puts "call #{@@basic_types[key_item['type']]}.constantize.new(#{data[key]}, #{key_item['properties']},#{@schema})"
               validator_object = "#{@@basic_types[key_item['type']]}".constantize.new(data[key], key_item['properties'])
               merge_errors(validator_object.error) unless validator_object.nil?
               next
             else
               # check if it is a linked data_type
-              if key_item.has_key?('name') && key_item.has_key?('description') && key_item.has_key?('storage_location')
+              if key_item.key?('name') && key_item.key?('description') && key_item.key?('storage_location')
                 verify_embedded_object(data[key], key_item['storage_location'], key_item['name'], key_item['description'])
               else
                 @error[:error].push I18n.t :wrong_object_type, scope: [:validation, :errors], data: key_item['label'], locale: DataCycleCore.ui_language
