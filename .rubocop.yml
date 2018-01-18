@@ -34,6 +34,8 @@ Style/EmptyMethod:
 
 Style/MixinUsage:
   Exclude:
+    - 'bin/setup'
+    - 'bin/update'
     - 'test/dummy/bin/setup'
     - 'test/dummy/bin/update'
 
