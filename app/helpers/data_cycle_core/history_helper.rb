@@ -78,7 +78,8 @@ module DataCycleCore
 
     # TODO: refactor
     def getRelationObjectChanges(diff)
-      added_objects, removed_objects = [], []
+      added_objects = []
+      removed_objects = []
 
       unless diff.blank?
         diff.each do |k, v|

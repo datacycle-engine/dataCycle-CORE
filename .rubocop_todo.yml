@@ -66,36 +66,10 @@ Style/MultilineTernaryOperator:
     - 'app/models/data_cycle_core/content.rb'
     - 'app/models/data_cycle_core/data_hash.rb'
 
-# Offense count: 9
-# Cop supports --auto-correct.
-Style/MutableConstant:
-  Exclude:
-    - 'app/helpers/data_cycle_core/application_helper.rb'
-    - 'app/helpers/data_cycle_core/history_helper.rb'
-    - 'app/models/data_cycle_core/content.rb'
-    - 'app/models/data_cycle_core/filter/query_builder.rb'
-    - 'app/models/data_cycle_core/filter/search.rb'
-    - 'lib/data_cycle_core/version.rb'
-
 # Offense count: 1
 Style/NestedTernaryOperator:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/functions.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedOctalStyle.
-# SupportedOctalStyles: zero_with_o, zero_only
-Style/NumericLiteralPrefix:
-  Exclude:
-    - 'config/initializers/carrierwave.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/ParallelAssignment:
-  Exclude:
-    - 'app/helpers/data_cycle_core/history_helper.rb'
-    - 'app/models/data_cycle_core/data_hash.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.

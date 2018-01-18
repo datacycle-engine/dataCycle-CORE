@@ -516,7 +516,8 @@ module DataCycleCore
     end
 
     def get_validity_values(validity_hash)
-      from, to = nil, nil
+      from = nil
+      to = nil
       from = validity_hash['date_published'] || validity_hash['valid_from'] if validity_hash && (validity_hash['date_published'] || validity_hash['valid_from'])
       to = validity_hash['expires'] || validity_hash['valid_until'] if validity_hash && (validity_hash['expires'] || validity_hash['valid_until'])
 
