@@ -71,15 +71,6 @@ Style/NestedTernaryOperator:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/functions.rb'
 
-
-# Offense count: 4
-# Cop supports --auto-correct.
-Style/RescueModifier:
-  Exclude:
-    - 'app/controllers/data_cycle_core/creative_works_controller.rb'
-    - 'app/models/data_cycle_core/content.rb'
-    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
-
 # Offense count: 9
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

@@ -107,3 +107,9 @@ Style/RedundantParentheses:
     - 'app/models/data_cycle_core/releasable.rb'
     - 'app/services/data_cycle_core/watch_list_service.rb'
     - 'app/views/data_cycle_core/api/v1/api_base/_place_details.json.jbuilder'
+
+# Offense count: 2
+# Cop supports --auto-correct.
+Style/RescueModifier:
+  Exclude:
+    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'

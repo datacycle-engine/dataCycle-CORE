@@ -232,7 +232,9 @@ module DataCycleCore
     end
 
     def is_number?(string)
-      true if Float(string) rescue false
+      true if Float(string)
+    rescue StandardError
+      false
     end
 
     def execute_after_update_webhooks(data)

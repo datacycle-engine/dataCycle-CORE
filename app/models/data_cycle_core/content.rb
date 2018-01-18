@@ -12,7 +12,9 @@ module DataCycleCore
     include Releasable
 
     def property_definitions
-      metadata['validation']['properties'] rescue {}
+      metadata['validation']['properties']
+    rescue StandardError
+      {}
     end
 
     def method_missing(name, *args, &block)
