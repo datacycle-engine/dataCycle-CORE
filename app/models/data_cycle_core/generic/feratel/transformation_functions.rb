@@ -46,9 +46,9 @@ module DataCycleCore::Generic::Feratel::TransformationFunctions
       if k == 'Descriptions'
         [
           description_type,
-          [v['Description']].flatten.select do |h|
+          [v['Description']].flatten.select { |h|
             h['Type'] == description_type
-          end.first.try(:[], 'text')
+          }.first.try(:[], 'text')
         ]
       else
         [k, v]
@@ -65,9 +65,9 @@ module DataCycleCore::Generic::Feratel::TransformationFunctions
       if k == 'Addresses'
         [
           'Address',
-          [v['Address']].flatten.select do |h|
+          [v['Address']].flatten.select { |h|
             h['Type'] == address_type
-          end.first
+          }.first
         ]
       elsif v.is_a?(Hash) || v.is_a?(Array)
         [k, unwrap_address(v, address_type)]

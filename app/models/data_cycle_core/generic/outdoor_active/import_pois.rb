@@ -24,13 +24,13 @@ module DataCycleCore::Generic::OutdoorActive::ImportPois
         )
       end
 
-      categories = [raw_data.dig('category', 'id')].reject(&:blank?).map do |id|
+      categories = [raw_data.dig('category', 'id')].reject(&:blank?).map { |id|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "CATEGORY:#{id}")
-      end.reject(&:nil?)
+      }.reject(&:nil?)
 
-      regions = (raw_data.dig('regions', 'region') || []).map { |r| r['id'] }.reject(&:blank?).map do |id|
+      regions = (raw_data.dig('regions', 'region') || []).map { |r| r['id'] }.reject(&:blank?).map { |id|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "REGION:#{id}")
-      end.reject(&:nil?)
+      }.reject(&:nil?)
 
       sources = [raw_data.dig('meta', 'source', 'id')].reject(&:blank?).map do |id|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "SOURCE:#{id}")

@@ -20,6 +20,9 @@ Style/MixinUsage:
     - 'test/dummy/bin/setup'
     - 'test/dummy/bin/update'
 
+Style/BlockDelimiters:
+  EnforcedStyle: braces_for_chaining
+
 Style/SymbolArray:
   EnforcedStyle: brackets
 
@@ -125,8 +128,6 @@ Style/StabbyLambdaParentheses:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 
-
-
 # Offense count: 14
 Style/ClassVars:
   Exclude:
@@ -139,3 +140,9 @@ Style/ClassVars:
     - 'app/models/data_cycle_core/master_data/validators/number.rb'
     - 'app/models/data_cycle_core/master_data/validators/object.rb'
     - 'app/models/data_cycle_core/master_data/validators/string.rb'
+
+# Offense count: 2
+Style/MethodMissing:
+  Exclude:
+    - 'app/models/data_cycle_core/callbacks.rb'
+    - 'app/models/data_cycle_core/content.rb'

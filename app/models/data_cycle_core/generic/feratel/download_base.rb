@@ -6,11 +6,11 @@ module DataCycleCore::Generic::Feratel::DownloadBase
     begin
       Mongoid.override_database("#{@source_type.database_name}_#{external_source.id}")
       DataCycleCore::Generic::Collection.with(collection: collection) do |mongo|
-        range_codes.map(&:to_s).uniq.map do |code|
+        range_codes.map(&:to_s).uniq.map { |code|
           {
             code => mongo.where({ 'dump.de._Type' => range_type(code) }).map { |r| r.dump['de']['Id'] }
           }
-        end.reduce({}, &:merge)
+        }.reduce({}, &:merge)
       end
     ensure
       Mongoid.override_database(nil)
