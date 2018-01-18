@@ -109,17 +109,14 @@ module DataCycleCore
         end
 
         output.join('').html_safe
-      else
-        if !prop['name'].nil? && !prop['description'].nil? && !prop['editor']['type'].nil?
+      elsif !prop['name'].nil? && !prop['description'].nil? && !prop['editor']['type'].nil?
 
-          case prop['editor']['type']
-          when 'embeddedObject'
-            render_embeddedObject_field(key, prop, value, options, parent_object_keys)
-          when 'objectBrowser'
-            key = get_object_key(key, parent_object_keys)
-            render_objectBrowser_field(key, prop, value, options)
-          end
-
+        case prop['editor']['type']
+        when 'embeddedObject'
+          render_embeddedObject_field(key, prop, value, options, parent_object_keys)
+        when 'objectBrowser'
+          key = get_object_key(key, parent_object_keys)
+          render_objectBrowser_field(key, prop, value, options)
         end
 
       end

@@ -16,12 +16,10 @@ module DataCycleCore
                 end
               end
             end
+          elsif data.blank?
+            @error[:warning].push I18n.t :no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language
           else
-            if data.blank?
-              @error[:warning].push I18n.t :no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language
-            else
-              @error[:error].push I18n.t :string, scope: [:validation, :errors], template: data.class, label: template['label'], locale: DataCycleCore.ui_language
-            end
+            @error[:error].push I18n.t :string, scope: [:validation, :errors], template: data.class, label: template['label'], locale: DataCycleCore.ui_language
           end
           @error
         end

@@ -196,20 +196,18 @@ module DataCycleCore
             property_name,
             true
           )
+        elsif property_definition['type'] == 'embeddedLink'
+          load_embedded_objects(
+            property_definition['type_name'],
+            property_name,
+            true
+          ).try(:first).try(:id)
         else
-          if property_definition['type'] == 'embeddedLink'
-            load_embedded_objects(
-              property_definition['type_name'],
-              property_name,
-              true
-            ).try(:first).try(:id)
-          else
-            load_embedded_objects(
-              property_definition['type_name'],
-              property_name,
-              true
-            ).try(:ids)
-          end
+          load_embedded_objects(
+            property_definition['type_name'],
+            property_name,
+            true
+          ).try(:ids)
         end
 
         # included subobjects

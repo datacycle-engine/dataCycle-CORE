@@ -53,13 +53,11 @@ module DataCycleCore
               validator_object = (@@basic_types[key_item['type']]).to_s.constantize.new(data[key], key_item['properties'])
               merge_errors(validator_object.error) unless validator_object.nil?
               next
-            else
+            elsif key_item.key?('name') && key_item.key?('description') && key_item.key?('storage_location')
               # check if it is a linked data_type
-              if key_item.key?('name') && key_item.key?('description') && key_item.key?('storage_location')
-                verify_embedded_object(data[key], key_item['storage_location'], key_item['name'], key_item['description'])
-              else
-                @error[:error].push I18n.t :wrong_object_type, scope: [:validation, :errors], data: key_item['label'], locale: DataCycleCore.ui_language
-              end
+              verify_embedded_object(data[key], key_item['storage_location'], key_item['name'], key_item['description'])
+            else
+              @error[:error].push I18n.t :wrong_object_type, scope: [:validation, :errors], data: key_item['label'], locale: DataCycleCore.ui_language
             end
           end
           @error

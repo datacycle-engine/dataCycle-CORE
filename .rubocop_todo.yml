@@ -11,16 +11,6 @@
 Style/DateTime:
   Enabled: false
 
-# Offense count: 6
-Style/IfInsideElse:
-  Exclude:
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
-    - 'app/models/data_cycle_core/content.rb'
-    - 'app/models/data_cycle_core/master_data/validators/number.rb'
-    - 'app/models/data_cycle_core/master_data/validators/object.rb'
-    - 'app/models/data_cycle_core/master_data/validators/string.rb'
-    - 'app/services/data_cycle_core/data_hash_service.rb'
-
 # Offense count: 2
 Style/MethodMissing:
   Exclude:
