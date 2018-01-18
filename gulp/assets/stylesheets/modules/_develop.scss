@@ -403,9 +403,6 @@ select {
         position: absolute;
         right: 1rem;
         top: 1rem;
-        a.has-tip {
-          border-bottom: 0;
-        }
       }
       .created-at {
         white-space: nowrap;
@@ -532,6 +529,15 @@ button {
     &:focus {
       cursor: pointer;
     }
+  }
+}
+
+a.has-tip {
+  border: none;
+  cursor: pointer;
+  &:hover,
+  &:focus {
+    cursor: pointer;
   }
 }
 

@@ -75,6 +75,7 @@ de:
     comment: Kommentar
     status: Status
     content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden
+    download_gpx: Als GPX-Datei herunterladen
 
   history:
     latest_edits: Letzte Bearbeitungen

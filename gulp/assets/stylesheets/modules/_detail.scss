@@ -5,16 +5,13 @@
 
 // Details for Show
 .detail-content {
-  .edit-link {
-    right: 0.4rem;
-    top: 0.2rem;
-  }
   .buttons {
     position: absolute;
     right: 0.5rem;
     top: 0.5rem;
     margin: 0;
     a {
+      position: relative;
       padding: 0 0 1rem 0.3rem;
       display: inline-block;
     }
@@ -106,16 +103,16 @@
               }
             }
           }
-          &.asset{
-            .inner{
+          &.asset {
+            .inner {
               padding: 0.5rem;
-              span{
+              span {
                 display: block;
-                &.asset-type{
+                &.asset-type {
                   opacity: 0.8;
                 }
               }
-              .thumb{
+              .thumb {
                 margin-top: 1rem;
               }
             }

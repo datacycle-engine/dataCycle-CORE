@@ -24,7 +24,9 @@ DataCycleCore::Engine.routes.draw do
     end
 
     resources :persons, only: [:index, :show, :create, :edit, :update, :destroy]
-    resources :places, only: [:index, :show, :create, :edit, :update, :destroy]
+    resources :places, only: [:index, :show, :create, :edit, :update, :destroy] do
+      get 'gpx', on: :member
+    end
   end
 
   resources :subscriptions, only: [:index, :create, :destroy]
