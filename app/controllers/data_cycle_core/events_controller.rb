@@ -56,9 +56,11 @@ module DataCycleCore
 
     def edit
       @content = DataCycleCore::Event.find(params[:id])
-      I18n.with_locale(params[:locale]) do
-        @content.save
-      end if params[:locale] && !@content.translated_locales.include?(params[:locale])
+      if params[:locale] && !@content.translated_locales.include?(params[:locale])
+        I18n.with_locale(params[:locale]) do
+          @content.save
+        end
+      end
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
         @dataSchema = @content.get_data_hash

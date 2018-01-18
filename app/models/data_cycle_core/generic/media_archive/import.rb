@@ -40,11 +40,13 @@ module DataCycleCore::Generic::MediaArchive::Import
         ap "Unkown contentType #{raw_data}"
       end
 
-      content = create_or_update_content(
-        @target_type,
-        template,
-        data
-      ) unless data.nil?
+      unless data.nil?
+        content = create_or_update_content(
+          @target_type,
+          template,
+          data
+        )
+      end
     end
   end
 

@@ -60,18 +60,6 @@ Style/MultilineBlockChain:
     - 'app/models/data_cycle_core/generic/feratel/import_places.rb'
     - 'lib/data_cycle_core/engine.rb'
 
-# Offense count: 11
-# Cop supports --auto-correct.
-Style/MultilineIfModifier:
-  Exclude:
-    - 'app/controllers/data_cycle_core/creative_works_controller.rb'
-    - 'app/controllers/data_cycle_core/events_controller.rb'
-    - 'app/controllers/data_cycle_core/persons_controller.rb'
-    - 'app/controllers/data_cycle_core/places_controller.rb'
-    - 'app/models/data_cycle_core/generic/event_database/import_events.rb'
-    - 'app/models/data_cycle_core/generic/media_archive/import.rb'
-    - 'app/models/data_cycle_core/releasable.rb'
-
 # Offense count: 4
 Style/MultilineTernaryOperator:
   Exclude:

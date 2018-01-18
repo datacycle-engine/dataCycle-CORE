@@ -79,9 +79,11 @@ module DataCycleCore
       # get show data for split view
       @historySource = @creativeWork.histories.find(params[:history_id]) unless params[:history_id].nil?
 
-      I18n.with_locale(@historySource.first_available_locale) do
-        @historySchema = @historySource.get_data_hash
-      end unless @historySource.nil?
+      unless @historySource.nil?
+        I18n.with_locale(@historySource.first_available_locale) do
+          @historySchema = @historySource.get_data_hash
+        end
+      end
 
       I18n.with_locale(@creativeWork.first_available_locale) do
         unless @creativeWork.read_write?
@@ -110,9 +112,11 @@ module DataCycleCore
         @splitSource = @splitType.find(source_params[:source_id])
         @splitSchema = []
 
-        I18n.with_locale(@splitSource.first_available_locale) do
-          @splitSchema = @splitSource.get_data_hash
-        end unless @splitSource.nil?
+        unless @splitSource.nil?
+          I18n.with_locale(@splitSource.first_available_locale) do
+            @splitSchema = @splitSource.get_data_hash
+          end
+        end
       end
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
