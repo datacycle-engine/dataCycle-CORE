@@ -71,21 +71,6 @@ Style/NestedTernaryOperator:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/functions.rb'
 
-# Offense count: 39
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: require_parentheses, require_no_parentheses
-Style/StabbyLambdaParentheses:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
-
-# Offense count: 3807
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, ConsistentQuotesInMultiline.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiterals:
-  Enabled: false
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Style/UnlessElse:

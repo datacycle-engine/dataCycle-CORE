@@ -54,13 +54,13 @@ module DataCycleCore
     end
 
     def get_object_item_has_changed(key, definition, object_value, object_has_changed, parent_definition)
-      return false if parent_definition.dig("type") == 'object' && (parent_definition.try(:[], 'editor').try(:[], 'type') == 'objectBrowser')
+      return false if parent_definition.dig('type') == 'object' && (parent_definition.try(:[], 'editor').try(:[], 'type') == 'objectBrowser')
 
       get_item_has_changed(object_has_changed, key, object_value, definition)
     end
 
     def get_item_has_changed(diff, key, value, definition)
-      item_path_array = key.split('[').collect { |v| v.delete("]") }
+      item_path_array = key.split('[').collect { |v| v.delete(']') }
 
       begin
         has_valid_changes diff.dig(*item_path_array)

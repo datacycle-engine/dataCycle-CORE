@@ -20,7 +20,7 @@ module DataCycleCore::Generic::OutdoorActive::ImportSources
         "dump.#{locale}.name": "$dump.#{locale}.meta.source.name"
       ).group(
         _id: "$dump.#{locale}.id",
-        :dump.first => "$dump"
+        :dump.first => '$dump'
       ).pipeline)
   end
 

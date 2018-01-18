@@ -22,7 +22,7 @@ module DataCycleCore
     end
 
     def get_releasable_hash
-      { "release_id" => release_id, "release_comment" => release_comment }
+      { 'release_id' => release_id, 'release_comment' => release_comment }
     end
 
     # def creator

@@ -6,12 +6,12 @@ module DataCycleCore
       authorize! :show, :object_browser
       I18n.with_locale(params[:language] || I18n.locale) do
         @language = params[:language] unless params[:language].blank?
-        @language ||= "de"
+        @language ||= 'de'
 
         @@default_per = 50
 
         @type = params[:type] unless params[:type].blank?
-        @type ||= "image"
+        @type ||= 'image'
 
         order_string = DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(params[:search])
 

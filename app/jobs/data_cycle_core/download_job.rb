@@ -11,9 +11,9 @@ module DataCycleCore
       job_record.delayed_reference_id = @arguments.first
       store_job_id_to_externalSource = ExternalSource.where(id: job_record.delayed_reference_id).first
       if store_job_id_to_externalSource.config.nil?
-        store_job_id_to_externalSource.config = { "last_download_job_id" => @provider_job_id }
+        store_job_id_to_externalSource.config = { 'last_download_job_id' => @provider_job_id }
       else
-        store_job_id_to_externalSource.config.merge!({ "last_download_job_id" => @provider_job_id })
+        store_job_id_to_externalSource.config.merge!({ 'last_download_job_id' => @provider_job_id })
       end
       store_job_id_to_externalSource.save
       job_record.delayed_reference_type = store_job_id_to_externalSource.config['download']
@@ -26,7 +26,7 @@ module DataCycleCore
       # Do something after perform
       uuid = @arguments.first
       external_source = ExternalSource.where(id: uuid).first
-      job_record_id = external_source.config["last_download_job_id"]
+      job_record_id = external_source.config['last_download_job_id']
       job_record = Delayed::Job.where(id: job_record_id).first
       if !job_record.nil? && job_record.failed_at.nil?
         external_source.last_download = Time.zone.now

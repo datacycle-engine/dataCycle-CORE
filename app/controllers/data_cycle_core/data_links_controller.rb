@@ -14,7 +14,7 @@ module DataCycleCore
       sign_in(link.receiver)
       link.update_attribute(:seen_at, DateTime.now)
 
-      if link.permissions != "write"
+      if link.permissions != 'write'
         redirect_to polymorphic_path(link.item)
       else
         redirect_to edit_polymorphic_path(link.item, split_params)

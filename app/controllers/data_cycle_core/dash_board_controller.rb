@@ -39,7 +39,7 @@ module DataCycleCore
       error = MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Event)
       errors.merge!({ events: error }) unless error.blank?
       if errors.blank?
-        flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: "data types", locale: DataCycleCore.ui_language
+        flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'data types', locale: DataCycleCore.ui_language
         redirect_to admin_path
         return
       else
@@ -54,7 +54,7 @@ module DataCycleCore
     def import_classifications
       path = Rails.root.join('config', 'data_definitions', 'classifications.yml')
       MasterData::ImportClassifications.new.import(path.to_s)
-      flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: "basic classification trees", locale: DataCycleCore.ui_language
+      flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'basic classification trees', locale: DataCycleCore.ui_language
       redirect_to admin_path
     end
 

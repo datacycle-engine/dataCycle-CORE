@@ -7,18 +7,18 @@ module DataCycleCore
 
         def validate(data, template)
           if data.is_a?(Numeric)
-            if template.key?("validations")
-              template["validations"].keys.each do |key|
+            if template.key?('validations')
+              template['validations'].keys.each do |key|
                 if @@number_keywords.include?(key)
-                  method(key).call(data, template["validations"][key])
+                  method(key).call(data, template['validations'][key])
                 else
-                  @error[:warning].push I18n.t :keyword, scope: [:validation, :warning], key: key, type: "Number", locale: DataCycleCore.ui_language unless key == "type"
+                  @error[:warning].push I18n.t :keyword, scope: [:validation, :warning], key: key, type: 'Number', locale: DataCycleCore.ui_language unless key == 'type'
                 end
               end
             end
           else
             if data.blank?
-              @error[:warning].push I18n.t :no_data, scope: [:validation, :warning], data: template["label"], locale: DataCycleCore.ui_language
+              @error[:warning].push I18n.t :no_data, scope: [:validation, :warning], data: template['label'], locale: DataCycleCore.ui_language
             else
               @error[:error].push I18n.t :number, scope: [:validation, :errors], data: data, class: data.class, template: template['label'], locale: DataCycleCore.ui_language
             end

@@ -91,7 +91,7 @@ module DataCycleCore
             end
 
             def instantiable?(value)
-              clazz = ("DataCycleCore::" + value.classify).safe_constantize
+              clazz = ('DataCycleCore::' + value.classify).safe_constantize
               (!clazz.nil?) && clazz.new.is_a?(ActiveRecord::Base)
             end
 
@@ -106,7 +106,7 @@ module DataCycleCore
                     embedded_object: 'type must be object, description must be a content_table class_name',
                     included_object: 'storage_location must be a jsonb field, type must be object and must have properties',
                     valid_classification?: 'specified default_value could not be found in classification_aliases',
-                    instantiable?: "must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.",
+                    instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.',
                     asset_relation: "type must be 'asset' and type_name must be a name of a AssetType"
                   }
                 }

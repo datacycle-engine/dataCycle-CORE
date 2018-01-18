@@ -13,7 +13,7 @@ class DataCycleCore::Generic::Eyebase::Endpoint
         doc.xpath('//mediaasset').map(&:to_hash).each do |raw_asset_data|
           next if raw_asset_data['mediaassettype'] != '501'
 
-          raise "Missing image file" if raw_asset_data['quality_1'].nil?
+          raise 'Missing image file' if raw_asset_data['quality_1'].nil?
           full_image_path = File.join(Rails.public_path, 'eyebase', 'media_assets', 'files', raw_asset_data['quality_1']['filename'])
           FileUtils.mkdir_p(File.dirname(full_image_path))
           File.open(full_image_path, 'wb') do |local_file|
@@ -22,7 +22,7 @@ class DataCycleCore::Generic::Eyebase::Endpoint
             end
           end
 
-          raise "Missing thumbnail file" if raw_asset_data['quality_512'].nil?
+          raise 'Missing thumbnail file' if raw_asset_data['quality_512'].nil?
           thumbnail_path = File.join(Rails.public_path, 'eyebase', 'media_assets', 'files', raw_asset_data['quality_512']['filename'])
           FileUtils.mkdir_p(File.dirname(thumbnail_path))
           File.open(thumbnail_path, 'wb') do |local_file|

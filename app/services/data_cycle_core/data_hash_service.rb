@@ -20,7 +20,7 @@ module DataCycleCore
       internal_objects = []
       if !value.blank? && value.count.positive?
         value.each do |object|
-          internal_object = ("DataCycleCore::" + storage_location.classify).constantize
+          internal_object = ('DataCycleCore::' + storage_location.classify).constantize
             .find_by(id: object['id'])
           internal_objects.push(internal_object) unless internal_object.blank?
         end
@@ -32,7 +32,7 @@ module DataCycleCore
     end
 
     def self.get_internal_template(storage_location, name, description)
-      internal_template = ("DataCycleCore::" + storage_location.classify).constantize
+      internal_template = ('DataCycleCore::' + storage_location.classify).constantize
         .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name, description)
 
       return nil if internal_template.blank?
@@ -47,7 +47,7 @@ module DataCycleCore
     end
 
     def self.create_internal_object(storage_location, template_name, template_description, object_params, current_user)
-      object = ("DataCycleCore::" + storage_location.classify).constantize.new(object_params)
+      object = ('DataCycleCore::' + storage_location.classify).constantize.new(object_params)
 
       template = get_internal_template(storage_location, template_name, template_description)
       validation = template.metadata['validation']
@@ -82,7 +82,7 @@ module DataCycleCore
 
       template_hash['properties'].each do |key, value|
         orig_key = key
-        key = "value" if value['releasable']
+        key = 'value' if value['releasable']
 
         if value['type'] == 'object' && !value.dig('editor', 'type').nil?
           object_properties = get_internal_template(value['storage_location'], value['name'], value['description'])
@@ -95,7 +95,7 @@ module DataCycleCore
           key = key.to_sym
         end
 
-        key = { orig_key.to_sym => [key, "release_id", "release_comment"] } if value['releasable']
+        key = { orig_key.to_sym => [key, 'release_id', 'release_comment'] } if value['releasable']
 
         temp_params.push(key)
       end

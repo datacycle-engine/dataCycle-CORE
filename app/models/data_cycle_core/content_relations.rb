@@ -12,7 +12,7 @@ module DataCycleCore
 
         classification_content_table = 'classification_content'
         classification_content_table += "_#{postfix}" unless postfix.nil?
-        class_name = "DataCycleCore::ClassificationContent"
+        class_name = 'DataCycleCore::ClassificationContent'
         class_name += "::#{postfix.capitalize}" unless postfix.nil?
         content_name = 'content_data'
         content_name += "_#{postfix}" unless postfix.nil?
@@ -22,16 +22,16 @@ module DataCycleCore
         has_many :classifications, through: classification_content_table.to_sym
         has_many :classification_groups, through: :classifications
         has_many :classification_aliases, through: :classification_groups
-        has_many :display_classification_aliases, -> { where("classification_aliases.internal = ?", false) }, through: :classification_groups, source: :classification_alias
+        has_many :display_classification_aliases, -> { where('classification_aliases.internal = ?', false) }, through: :classification_groups, source: :classification_alias
 
         # relation content to search
         has_many :content_search_all, class_name: 'DataCycleCore::Search', foreign_key: content_name.foreign_key, dependent: :destroy if postfix.nil?
 
         # relation content to all other contents
-        has_many :content_content_a, class_name: "DataCycleCore::ContentContent", as: :content_a, dependent: :destroy
-        has_many :content_content_b, class_name: "DataCycleCore::ContentContent", as: :content_b, dependent: :destroy
-        has_many :content_content_a_history, class_name: "DataCycleCore::ContentContent::History", as: :content_a_history, dependent: :destroy
-        has_many :content_content_b_history, class_name: "DataCycleCore::ContentContent::History", as: :content_b_history, dependent: :destroy
+        has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', as: :content_a, dependent: :destroy
+        has_many :content_content_b, class_name: 'DataCycleCore::ContentContent', as: :content_b, dependent: :destroy
+        has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_a_history, dependent: :destroy
+        has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
 
         (DataCycleCore.content_tables + DataCycleCore.linked_tables).map(&:singularize).each do |content_name|
           if postfix.nil?

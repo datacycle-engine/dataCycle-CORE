@@ -12,7 +12,7 @@ module DataCycleCore
       translates :headline, :description, :content, :properties, :release,
                  :release_id, :release_comment, :history_valid
 
-      content_relations table_name: "creative_works", postfix: "history"
+      content_relations table_name: 'creative_works', postfix: 'history'
 
       include ContentHelpers
       belongs_to :creative_work

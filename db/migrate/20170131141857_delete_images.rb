@@ -15,8 +15,8 @@ class DeleteImages < ActiveRecord::Migration[5.0]
       t.string :external_key
       t.datetime :seen_at
       t.timestamps
-      t.index ["external_source_id", "id"], name: "index_images_on_external_source_id_and_id", unique: true, using: :btree
-      t.index ["external_source_id"], name: "index_images_on_external_source_id", using: :btree
+      t.index ['external_source_id', 'id'], name: 'index_images_on_external_source_id_and_id', unique: true, using: :btree
+      t.index ['external_source_id'], name: 'index_images_on_external_source_id', using: :btree
     end
 
     create_table :images_places, id: :uuid do |t|
@@ -27,10 +27,10 @@ class DeleteImages < ActiveRecord::Migration[5.0]
       t.string :external_image_key
       t.datetime :seen_at
       t.timestamps
-      t.index ["external_source_id", "place_id", "image_id"], name: "place_image_index", unique: true, using: :btree
-      t.index ["external_source_id"], name: "index_images_places_on_external_source_id", using: :btree
-      t.index ["image_id"], name: "index_images_places_on_image_id", using: :btree
-      t.index ["place_id"], name: "index_images_places_on_place_id", using: :btree
+      t.index ['external_source_id', 'place_id', 'image_id'], name: 'place_image_index', unique: true, using: :btree
+      t.index ['external_source_id'], name: 'index_images_places_on_external_source_id', using: :btree
+      t.index ['image_id'], name: 'index_images_places_on_image_id', using: :btree
+      t.index ['place_id'], name: 'index_images_places_on_place_id', using: :btree
     end
   end
 end

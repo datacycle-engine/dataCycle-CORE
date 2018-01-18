@@ -7,20 +7,20 @@ module DataCycleCore
 
         def validate(data, template)
           if data.is_a?(::String)
-            if template.key?("validations")
-              template["validations"].keys.each do |key|
+            if template.key?('validations')
+              template['validations'].keys.each do |key|
                 if @@string_keywords.include?(key)
-                  method(key).call(data, template["validations"][key])
+                  method(key).call(data, template['validations'][key])
                 else
-                  @error[:warning].push I18n.t :string, scope: [:validation, :warnings], data: data, key: key, template: template, locale: DataCycleCore.ui_language unless key == "type"
+                  @error[:warning].push I18n.t :string, scope: [:validation, :warnings], data: data, key: key, template: template, locale: DataCycleCore.ui_language unless key == 'type'
                 end
               end
             end
           else
             if data.blank?
-              @error[:warning].push I18n.t :no_data, scope: [:validation, :warnings], data: template["label"], locale: DataCycleCore.ui_language
+              @error[:warning].push I18n.t :no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language
             else
-              @error[:error].push I18n.t :string, scope: [:validation, :errors], template: data.class, label: template["label"], locale: DataCycleCore.ui_language
+              @error[:error].push I18n.t :string, scope: [:validation, :errors], template: data.class, label: template['label'], locale: DataCycleCore.ui_language
             end
           end
           @error
@@ -74,7 +74,7 @@ module DataCycleCore
         end
 
         def boolean(data)
-          @error[:error].push I18n.t :boolean, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language unless data.squish == "true" || data.squish == "false"
+          @error[:error].push I18n.t :boolean, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language unless data.squish == 'true' || data.squish == 'false'
         end
 
         def url(data)

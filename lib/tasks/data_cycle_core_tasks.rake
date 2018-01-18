@@ -74,7 +74,7 @@ end
 
 namespace :data_cycle_core do
   namespace :clear do
-    desc "Remove all data except for configuration data like users"
+    desc 'Remove all data except for configuration data like users'
     task all: :environment do
       ActiveRecord::Base.connection.execute(delete_classifications)
       ActiveRecord::Base.connection.execute(delete_secondary_data)
@@ -82,28 +82,28 @@ namespace :data_cycle_core do
       ActiveRecord::Base.connection.execute(delete_content_histories)
     end
 
-    desc "Remove all contents related data like creative works and places (does not remove classifications)"
+    desc 'Remove all contents related data like creative works and places (does not remove classifications)'
     task contents: :environment do
       ActiveRecord::Base.connection.execute(delete_secondary_data)
       ActiveRecord::Base.connection.execute(delete_contents)
       ActiveRecord::Base.connection.execute(delete_content_histories)
     end
 
-    desc "Remove the history of all content data"
+    desc 'Remove the history of all content data'
     task history: :environment do
       ActiveRecord::Base.connection.execute(delete_content_histories)
     end
   end
 
   namespace :import do
-    desc "List available endpoints for import"
+    desc 'List available endpoints for import'
     task list: :environment do
       DataCycleCore::ExternalSource.all.each do |external_source|
         puts "#{external_source.id} - #{external_source.name}"
       end
     end
 
-    desc "Download and import data from given data source"
+    desc 'Download and import data from given data source'
     task :perform, [:external_source_id, :max_count] => [:environment] do |t, args|
       options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
         if k == :max_count
@@ -118,7 +118,7 @@ namespace :data_cycle_core do
       external_source.import(options)
     end
 
-    desc "DEBUG: Only download data from given data source"
+    desc 'DEBUG: Only download data from given data source'
     task :download, [:external_source_id, :max_count] => [:environment] do |t, args|
       options = Hash[{ max_count: nil }.merge(args.to_h).map do |k, v|
         if k == :max_count && v
@@ -133,7 +133,7 @@ namespace :data_cycle_core do
       external_source.download(options)
     end
 
-    desc "DEBUG: Only import (without downloading) data from given data source"
+    desc 'DEBUG: Only import (without downloading) data from given data source'
     task :import, [:external_source_id, :max_count] => [:environment] do |t, args|
       options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
         if k == :max_count
@@ -150,13 +150,13 @@ namespace :data_cycle_core do
   end
 
   namespace :update do
-    desc "import classifications"
+    desc 'import classifications'
     task import_classifications: [:environment] do
       path = Rails.root.join('config', 'data_definitions', 'classifications.yml')
       DataCycleCore::MasterData::ImportClassifications.new.import(path.to_s)
     end
 
-    desc "import template definitions"
+    desc 'import template definitions'
     task import_templates: [:environment] do
       path = Rails.root.join('config', 'data_definitions', 'creative_works', '*.yml')
       DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::CreativeWork)
@@ -168,9 +168,9 @@ namespace :data_cycle_core do
       DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Event)
     end
 
-    desc "replace the data-definitions of all data-types in the Database with the templates in the Database"
+    desc 'replace the data-definitions of all data-types in the Database with the templates in the Database'
     task update_all_templates: [:environment] do
-      puts "updating templates:"
+      puts 'updating templates:'
       DataCycleCore.content_tables.each do |content_table|
         data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
         data_object.where(template: true).each do |template_object|
@@ -184,7 +184,7 @@ namespace :data_cycle_core do
       end
     end
 
-    desc "update weigths (boost) in search table"
+    desc 'update weigths (boost) in search table'
     task update_search: [:environment] do
       puts "#{'content_class'.ljust(30)} | #{'data_definition_name'.ljust(25)} | #{'#entries'.ljust(10)} | #{'new weight'}"
       puts '-' * 84
@@ -207,10 +207,10 @@ namespace :data_cycle_core do
       end
     end
 
-    desc "replace a given data-definition with its recent template for a content_table"
+    desc 'replace a given data-definition with its recent template for a content_table'
     task :update_template, [:content_table_name, :template_name] => [:environment] do |t, args|
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
-        puts "ERROR: only the following content_table_names are known to the system:"
+        puts 'ERROR: only the following content_table_names are known to the system:'
         puts "#{DataCycleCore.content_tables}"
         exit -1
       end
@@ -231,10 +231,10 @@ namespace :data_cycle_core do
       DataCycleCore::Update::Update.new(type: type, template: template, strategy: strategy, transformation: transformation)
     end
 
-    desc "DEBUG: hook to wire custom data update for a given content_table_name/template_name"
+    desc 'DEBUG: hook to wire custom data update for a given content_table_name/template_name'
     task :update_data, [:content_table_name, :template_name] => [:environment] do |t, args|
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
-        puts "ERROR: only the following content_table_names are known to the system:"
+        puts 'ERROR: only the following content_table_names are known to the system:'
         puts "#{DataCycleCore.content_tables}"
         exit -1
       end
@@ -255,10 +255,10 @@ namespace :data_cycle_core do
       DataCycleCore::Update::Update.new(type: type, template: template, strategy: strategy, transformation: transformation)
     end
 
-    desc "delete history of a specific content_table_name/template_name"
+    desc 'delete history of a specific content_table_name/template_name'
     task :delete_history, [:content_table_name, :template_name] => [:environment] do |t, args|
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
-        puts "ERROR: only the following content_table_names are known to the system:"
+        puts 'ERROR: only the following content_table_names are known to the system:'
         puts "#{DataCycleCore.content_tables}"
         exit -1
       end
@@ -308,7 +308,7 @@ namespace :data_cycle_core do
   end
 
   namespace :data_update do
-    desc "copy data to content_content(+history) table"
+    desc 'copy data to content_content(+history) table'
     task stage1: [:environment] do
       @connection = ActiveRecord::Base.connection
       data_hash = [
@@ -355,7 +355,7 @@ namespace :data_cycle_core do
       end
     end
 
-    desc "cleanup relation_names in content_content(+history) table"
+    desc 'cleanup relation_names in content_content(+history) table'
     task stage1_1: [:environment] do
       @connection = ActiveRecord::Base.connection
       parameter_hash = [
@@ -392,16 +392,16 @@ namespace :data_cycle_core do
       end
     end
 
-    desc "delete data in content_content(+history) table"
+    desc 'delete data in content_content(+history) table'
     task undo_stage1: [:environment] do
       @connection = ActiveRecord::Base.connection
-      delete = "DELETE FROM content_contents;"
+      delete = 'DELETE FROM content_contents;'
       @connection.exec_query(delete)
-      delete = "DELETE FROM content_content_histories;"
+      delete = 'DELETE FROM content_content_histories;'
       @connection.exec_query(delete)
     end
 
-    desc "update .._hasPart arrays to content_content relation table"
+    desc 'update .._hasPart arrays to content_content relation table'
     task stage2: [:environment] do
       array_names = ['question_hasPart', 'website_hasPart', 'offer_periods_hasPart',
                      'mobile_application_hasPart', 'quotation_hasPart', 'accepted_answer_hasPart',
@@ -452,11 +452,11 @@ namespace :data_cycle_core do
       end
     end
 
-    desc "update ..embeddedLink(Array) to content_content relation table"
+    desc 'update ..embeddedLink(Array) to content_content relation table'
     task stage3: [:environment] do
       # all embeddedLink(Array) are stored in metadata --> translations irrelevant
 
-      puts "updating embeddedLink and embeddedLinkArray:"
+      puts 'updating embeddedLink and embeddedLinkArray:'
       index = 0
       DataCycleCore.content_tables.each do |content_table|
         content_class = "DataCycleCore::#{content_table.classify}"
@@ -473,7 +473,7 @@ namespace :data_cycle_core do
             puts "     #{link_definition[:name]}(#{link_definition[:type]}):"
             uuid_list.each do |uuid|
               puts "     --> #{uuid}"
-              item_data = [uuid, "DataCycleCore::#{link_definition[:table].classify}", ""]
+              item_data = [uuid, "DataCycleCore::#{link_definition[:table].classify}", '']
               self_data = [item.id, item.class.to_s, link_definition[:name]]
               relation_data = ['a', 'b'].map do |selector|
                 ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
@@ -505,7 +505,7 @@ namespace :data_cycle_core do
             puts "     #{link_definition[:name]}(#{link_definition[:type]}):"
             uuid_list.each do |uuid|
               puts "     --> #{uuid}"
-              item_data = [uuid, "DataCycleCore::#{link_definition[:table].classify}", ""]
+              item_data = [uuid, "DataCycleCore::#{link_definition[:table].classify}", '']
               self_data = [item.id, item.class.to_s, link_definition[:name]]
               relation_data = ['a', 'b'].map do |selector|
                 ["content_#{selector}_history_id".to_sym, "content_#{selector}_history_type".to_sym, "relation_#{selector}".to_sym]
@@ -523,10 +523,10 @@ namespace :data_cycle_core do
       end
     end
 
-    desc "update ..classification_content relation table"
+    desc 'update ..classification_content relation table'
     task stage4: [:environment] do
       temp = Time.zone.now
-      puts "S T A G E  4:"
+      puts 'S T A G E  4:'
       puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
 
       # delete inconsistent data:
@@ -544,11 +544,11 @@ namespace :data_cycle_core do
           WHERE classification_contents.relation IS NULL
       );
       eos
-      puts "DELETE inconsistent data"
+      puts 'DELETE inconsistent data'
       ActiveRecord::Base.connection.execute(delete_sql)
       puts "[#{'*' * 100}] 100%"
 
-      puts "IMPORT templates"
+      puts 'IMPORT templates'
       Rake::Task['data_cycle_core:update:import_templates'].invoke
       puts "[#{'*' * 100}] 100%"
 
@@ -610,7 +610,7 @@ namespace :data_cycle_core do
         AND classification_content_histories.content_data_history_type = 'DataCycleCore::CreativeWork::History'
       );
       eos
-      puts "DELETE keywords for history"
+      puts 'DELETE keywords for history'
       ActiveRecord::Base.connection.execute(delete_sql)
       puts "[#{'*' * 100}] 100%"
 
@@ -648,7 +648,7 @@ namespace :data_cycle_core do
         puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
       end
 
-      puts "END"
+      puts 'END'
       puts "--> UPDATE time: #{((Time.zone.now - temp) / 60).to_i} min"
     end
   end

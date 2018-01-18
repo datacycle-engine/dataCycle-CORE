@@ -20,7 +20,7 @@ module DataCycleCore::Generic::OutdoorActive::ImportFrontendTypes
         "dump.#{locale}.frontendtype": "$dump.#{locale}.frontendtype"
       ).group(
         _id: "$dump.#{locale}.id",
-        :dump.first => "$dump"
+        :dump.first => '$dump'
       ).pipeline)
   end
 

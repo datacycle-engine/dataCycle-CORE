@@ -14,7 +14,7 @@ module DataCycleCore
       redirect_back(fallback_location: root_path) if @content.nil?
 
       if params[:mode].nil?
-        @mode = "flex"
+        @mode = 'flex'
       else
         @mode = params[:mode].to_s
       end

@@ -43,7 +43,7 @@ module DataCycleCore
                 if @@object_validations.include?(val_key)
                   method(val_key).call(data[key], val_item)
                 else
-                  @error[:warning].push I18n.t :keyword, scope: [:validation, :warning], key: val_key, type: "Object", locale: DataCycleCore.ui_language
+                  @error[:warning].push I18n.t :keyword, scope: [:validation, :warning], key: val_key, type: 'Object', locale: DataCycleCore.ui_language
                 end
               end
             end
@@ -72,7 +72,7 @@ module DataCycleCore
           # puts "#{table}|#{name}|#{description}"
 
           return if data.empty?
-          template = ("DataCycleCore::" + table.classify).constantize
+          template = ('DataCycleCore::' + table.classify).constantize
             .with_translations('de')
             .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name, description)
 

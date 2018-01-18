@@ -24,7 +24,7 @@ module DataCycleCore
               if @@keywords.include?(key)
                 method(key).call(data, template['validations'][key])
               else
-                @error[:warning].push I18n.t :keyword, scope: [:validation, :errors], key: key, type: "Asset reference List", locale: DataCycleCore.ui_language
+                @error[:warning].push I18n.t :keyword, scope: [:validation, :errors], key: key, type: 'Asset reference List', locale: DataCycleCore.ui_language
               end
             end
           end

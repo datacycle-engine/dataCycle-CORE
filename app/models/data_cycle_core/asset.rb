@@ -10,7 +10,7 @@ module DataCycleCore
 
     DataCycleCore.content_tables.each do |content_table|
       has_many :asset_contents, dependent: :destroy
-      has_many content_table.to_sym, through: :asset_contents, source: "content_data", source_type: "DataCycleCore::#{content_table.singularize.classify}"
+      has_many content_table.to_sym, through: :asset_contents, source: 'content_data', source_type: "DataCycleCore::#{content_table.singularize.classify}"
     end
 
     def set_content_type

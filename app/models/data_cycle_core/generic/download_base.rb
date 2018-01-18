@@ -23,7 +23,7 @@ module DataCycleCore::Generic
           @source_object.with(@source_type) do |mongo_item|
             items = endpoint.send("#{type.collection_name}", lang: locale)
 
-            max_string = ""
+            max_string = ''
             max_string += "#{options[:max_count]}" if options[:max_count]
             @logging.phase_started("#{type.collection_name}_#{locale}", max_string)
 

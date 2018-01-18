@@ -7,7 +7,7 @@ module DataCycleCore
         # only allow single uuid referencing to a given table
         def validate(data, template)
           if is_blank?(data)
-            @error[:warning].push I18n.t :no_data, scope: [:validation, :warnings], data: template["label"], locale: DataCycleCore.ui_language
+            @error[:warning].push I18n.t :no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language
             # @error[:warning].push "No data given for #{template['label']}."
           elsif data.is_a?(::Array)
             check_reference_array(data, template)
@@ -29,7 +29,7 @@ module DataCycleCore
               if @@keywords.include?(key)
                 method(key).call(data, template['validations'][key])
               else
-                @error[:warning].push I18n.t :keyword, scope: [:validation, :warnings], key: key, type: "EmbeddedLinkArray", locale: DataCycleCore.ui_language
+                @error[:warning].push I18n.t :keyword, scope: [:validation, :warnings], key: key, type: 'EmbeddedLinkArray', locale: DataCycleCore.ui_language
               end
             end
           end

@@ -38,7 +38,7 @@ module DataCycleCore
     end
 
     def respond_to?(method_name, include_private = false)
-      (property_names.map { |item| [item.to_sym, (item.to_s + "=").to_sym] }.flatten + linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
+      (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym] }.flatten + linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
     end
 
     def property_names
@@ -46,7 +46,7 @@ module DataCycleCore
     end
 
     def translatable_property_names
-      translated_columns = (self.class.to_s + "::Translation").constantize.column_names
+      translated_columns = (self.class.to_s + '::Translation').constantize.column_names
 
       property_definitions.select do |property_name, definition|
         ['content', 'properties'].include?(definition['storage_location']) ||
@@ -108,8 +108,8 @@ module DataCycleCore
     def to_h(timestamp = Time.zone.now)
       property_names.map do |property_name|
         property_value =
-          if property_name == "id" && is_history?
-            send(self.class.to_s.split("::")[1].foreign_key) # for history records original_key is saved in "content"_id
+          if property_name == 'id' && is_history?
+            send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
           elsif plain_property_names.include?(property_name)
             send(property_name)
           elsif classification_property_names.include?(property_name)
@@ -143,7 +143,7 @@ module DataCycleCore
     end
 
     def is_history?
-      respond_to? "history_valid"
+      respond_to? 'history_valid'
     end
 
     def as_of(timestamp)
@@ -164,7 +164,7 @@ module DataCycleCore
           )
           .where(
             Arel::Nodes::InfixOperation.new(
-              "@>",
+              '@>',
               history_table_translation[:history_valid],
               Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
             )

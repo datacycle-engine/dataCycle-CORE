@@ -13,7 +13,7 @@ module DataCycleCore
 
       redirect_to root if @watch_list.nil?
 
-      @contents = get_filtered_results(method_name: "by_watch_list_id", parameters: @watch_list.id)
+      @contents = get_filtered_results(method_name: 'by_watch_list_id', parameters: @watch_list.id)
 
       respond_to do |format|
         format.html
@@ -33,7 +33,7 @@ module DataCycleCore
           format.json { render json: { headline: @watch_list.headline, url: watch_list_path(@watch_list) } }
           format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Merkliste', locale: DataCycleCore.ui_language)) }
         else
-          format.json { render json: { error: "Konnte nicht gespeichert werden." } }
+          format.json { render json: { error: 'Konnte nicht gespeichert werden.' } }
           format.html { redirect_back(fallback_location: root_path) }
         end
       end

@@ -35,12 +35,12 @@ module DataCycleCore
 
     # Returns the full title on a per-page basis.
     def full_title
-      base_title = "DataCycle"
+      base_title = 'DataCycle'
 
       if content_for(:title).nil? || content_for(:title).empty?
         base_title
       else
-        content_for(:title) + " | " + base_title
+        content_for(:title) + ' | ' + base_title
       end
     end
 
@@ -82,7 +82,7 @@ module DataCycleCore
         "#{item.try(:metadata).try(:dig, 'validation', 'name')}_#{item.try(:metadata).try(:dig, 'validation', 'description')}".underscore.parameterize(separator: '_'),
         "#{item.try(:metadata).try(:dig, 'validation', 'description')}".underscore.parameterize(separator: '_'),
         "#{item.try(:class).try(:name).try(:demodulize)}".underscore.parameterize(separator: '_'),
-        "default"
+        'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}_tile" }
 
       render_first_existing_partial(partials, parameters.merge({ item: item }))
@@ -106,7 +106,7 @@ module DataCycleCore
     def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {})
       partials = [
         "#{definition.dig('editor', 'options', 'data-type').try(:underscore)}",
-        "default"
+        'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_#{partial}" }
 
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition }))
@@ -116,7 +116,7 @@ module DataCycleCore
       partials = [
         "#{definition.try(:[], 'name')}_#{definition.try(:[], 'description')}".underscore.parameterize(separator: '_'),
         "#{definition.try(:[], 'description')}".underscore.parameterize(separator: '_'),
-        "default"
+        'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/embedded_object/#{p}_#{partial}" }
 
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition }))
@@ -125,7 +125,7 @@ module DataCycleCore
     def render_asset_partial(partial: 'detail', key:, value:, definition:, parameters: {})
       partials = [
         "#{definition.try(:[], 'editor').try(:[], 'type')}".try(:underscore),
-        "default"
+        'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/asset/#{p}_#{partial}" }
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
     end

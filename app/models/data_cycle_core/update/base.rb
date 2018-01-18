@@ -47,7 +47,7 @@ module DataCycleCore
       end
 
       def json_path(field, path)
-        Arel::Nodes::InfixOperation.new("#>>", field, path)
+        Arel::Nodes::InfixOperation.new('#>>', field, path)
       end
     end
   end

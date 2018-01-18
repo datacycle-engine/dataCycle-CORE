@@ -16,7 +16,7 @@ module DataCycleCore
         end
 
         if params[:mode].nil?
-          @mode = "flex"
+          @mode = 'flex'
         else
           @mode = params[:mode].to_s
         end
@@ -34,7 +34,7 @@ module DataCycleCore
     def create
       locale = I18n.available_locales.include?(params[:locale].try(:to_sym)) ? params[:locale].try(:to_sym) : I18n.locale
       I18n.with_locale(locale) do
-        source = Hash[params[:source].split(",").collect { |x| x.strip.split("=>") }] unless params[:source].blank?
+        source = Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }] unless params[:source].blank?
         object_params = creative_work_params('creative_works', params[:template], 'CreativeWork')
         @creativeWork = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:template], 'CreativeWork', object_params, current_user)
         if @creativeWork.nil?
@@ -87,7 +87,7 @@ module DataCycleCore
 
       I18n.with_locale(@creativeWork.first_available_locale) do
         unless @creativeWork.read_write?
-          raise "read_only"
+          raise 'read_only'
           redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end
@@ -121,7 +121,7 @@ module DataCycleCore
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
         unless @content.read_write?
-          raise "read_only"
+          raise 'read_only'
           redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end
@@ -225,7 +225,7 @@ module DataCycleCore
 
     def source_params
       if params[:source]
-        ActionController::Parameters.new(Hash[params[:source].split(",").collect { |x| x.strip.split("=>") }]).permit(:source_id, :source_type)
+        ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_type)
       elsif params[:source_id] && params[:source_type]
         params.permit(:source_id, :source_type)
       end

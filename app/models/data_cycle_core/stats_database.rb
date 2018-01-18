@@ -37,7 +37,7 @@ module DataCycleCore
       @pg_content = {}
       @pg_content_history = 0
       DataCycleCore.content_tables.each do |item|
-        @pg_content[item.humanize] = ("DataCycleCore::" + item.classify).safe_constantize.count
+        @pg_content[item.humanize] = ('DataCycleCore::' + item.classify).safe_constantize.count
         @pg_content_history += "DataCycleCore::#{item.classify}::History".safe_constantize.count
       end
 
@@ -56,7 +56,7 @@ module DataCycleCore
         Mongoid.override_database(nil)
         mongo_database = "#{Generic::Collection.database_name}_#{external_source_id}"
         Mongoid.override_database(mongo_database)
-        mongo_dbs_index = mongo_dbs.find_index { |db| db["name"] == mongo_database }
+        mongo_dbs_index = mongo_dbs.find_index { |db| db['name'] == mongo_database }
 
         if mongo_dbs_index.nil?
           @import_modules.push({
@@ -67,26 +67,26 @@ module DataCycleCore
                                  tables: {
                                    "no collections found": 0
                                  },
-                                 last_import: "never",
-                                 last_download: "never"
+                                 last_import: 'never',
+                                 last_download: 'never'
                                })
         else
           mongo_dbsize = mongo_dbs[mongo_dbs_index]['sizeOnDisk']
           Mongoid.clients[external_source_id] = {
-            "database" => mongo_database,
-            "hosts" => Mongoid.default_client.cluster.servers.map(&:address).map { |adr| "#{adr.host}:#{adr.port}" },
-            "options" => nil
+            'database' => mongo_database,
+            'hosts' => Mongoid.default_client.cluster.servers.map(&:address).map { |adr| "#{adr.host}:#{adr.port}" },
+            'options' => nil
           }
           mongo_data = Hash[Mongoid.client(external_source_id).collections.map { |item| [item.name.humanize, item.count] }]
 
           if external_source.last_import.nil?
-            last_import = "never"
+            last_import = 'never'
           else
             last_import = external_source.last_import.to_s + "<i class='material-icons green'>done</i>"
           end
 
           if external_source.last_download.nil?
-            last_download = "never"
+            last_download = 'never'
           else
             last_download = external_source.last_download.to_s + "<i class='material-icons green'>done</i>"
           end

@@ -26,7 +26,7 @@ module DataCycleCore
               if @@keywords.include?(key)
                 method(key).call(data, template['validations'][key])
               else
-                @error[:warning].push I18n.t :keyword, scope: [:validation, :errors], key: key, type: "ClassificationTreeLabel reference List", locale: DataCycleCore.ui_language
+                @error[:warning].push I18n.t :keyword, scope: [:validation, :errors], key: key, type: 'ClassificationTreeLabel reference List', locale: DataCycleCore.ui_language
               end
             end
           end
@@ -46,8 +46,8 @@ module DataCycleCore
             find_classification_alias = DataCycleCore::ClassificationTree
               .joins(:classification_tree_label)
               .joins(sub_classification_alias: [classification_groups: [:classification]])
-              .where("classifications.id = ? ", key)
-              .where("classification_tree_labels.name = ?", template['type_name'])
+              .where('classifications.id = ? ', key)
+              .where('classification_tree_labels.name = ?', template['type_name'])
             @error[:error].push I18n.t :classification, scope: [:validation, :errors], key: key, label: template['label'], tree_label: template['type_name'], locale: DataCycleCore.ui_language if find_classification_alias.count < 1
           end
         end
