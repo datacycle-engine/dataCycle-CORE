@@ -42,14 +42,14 @@ module DataCycleCore::Generic
                   item.save!
 
                   @logging.item_processed(item_name, item_id, item_count, max_string)
-                rescue => e
+                rescue StandardError => e
                   @logging.error(item_name, item_id, item_data, e)
                 end
               end
               return if options[:max_count] && item_count >= options[:max_count]
             end
           end
-        rescue => e
+        rescue StandardError => e
           @logging.error(nil, nil, nil, e)
         ensure
           Mongoid.override_database(nil)

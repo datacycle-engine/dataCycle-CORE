@@ -62,23 +62,14 @@ module DataCycleCore
         end
 
         def date_time(data)
-          # byebug
-          # test = data.to_datetime
-          # test2 = data.to_datetime.to_s
-          # if data == test2
-          #   isvalid = true
-          # else
-          #   isvalid = false
-          # end
-
           data.to_datetime
-        rescue
+        rescue StandardError
           @error[:error].push I18n.t :date_time, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
         end
 
         def date(data)
           data.to_date
-        rescue
+        rescue StandardError
           @error[:error].push I18n.t :date, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
         end
 

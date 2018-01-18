@@ -64,7 +64,7 @@ module DataCycleCore
 
       begin
         has_valid_changes diff.dig(*item_path_array)
-      rescue
+      rescue StandardError
         return false
       end
     end

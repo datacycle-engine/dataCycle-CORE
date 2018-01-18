@@ -98,7 +98,7 @@ module DataCycleCore
 
       begin
         render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
-      rescue
+      rescue StandardError
         render_attribute_viewer key: key, definition: definition, value: value, parameters: parameters
       end
     end

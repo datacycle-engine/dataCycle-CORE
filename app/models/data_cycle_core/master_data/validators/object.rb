@@ -118,7 +118,7 @@ module DataCycleCore
 
         def date_time(data)
           data.to_datetime
-        rescue
+        rescue StandardError
           @error[:warning].push I18n.t :convert, scope: [:validation, :warning], data: data, locale: DataCycleCore.ui_language
           return nil
         end

@@ -22,7 +22,7 @@ module DataCycleCore
           @selected_classifications = DataCycleCore::ClassificationAlias.find(uids)
         end
       end
-    rescue
+    rescue StandardError
       logger.warn("cannot find classifications for the following ids: #{(uids || []).join(', ')}")
       nil
     end

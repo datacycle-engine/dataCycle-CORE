@@ -260,7 +260,7 @@ Nokogiri::XML::Node.class_eval do
 
       raise 'NotImplemented'
     end
-  rescue => e
+  rescue StandardError => e
     binding.pry
 
     raise e
