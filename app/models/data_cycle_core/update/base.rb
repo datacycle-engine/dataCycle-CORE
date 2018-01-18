@@ -19,11 +19,11 @@ module DataCycleCore
           data_hash_all.each do |locale, data_hash|
             I18n.with_locale(locale) do
               error = write(content_item, data_hash, timestamp)
-              unless error[:error].blank?
+              if error[:error].blank?
+                content_item.save
+              else
                 ap "ERROR: for #{table_name}(#{content_item.id}).with_locale(#{locale})"
                 ap error
-              else
-                content_item.save
               end
             end
           end
