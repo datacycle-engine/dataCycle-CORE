@@ -4,7 +4,7 @@ module DataCycleCore
     # load_and_authorize_resource       # from cancancan (authorize)
 
     def index
-      @paginateObject = DataCycleCore::Event.all.where(:template => false).order(updated_at: :desc).page(params[:page])
+      @paginateObject = DataCycleCore::Event.all.where(template: false).order(updated_at: :desc).page(params[:page])
       @event = DataCycleCore::Event.new
     end
 
@@ -49,7 +49,7 @@ module DataCycleCore
           if !@event.nil? && @event.save
             flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Event', locale: DataCycleCore.ui_language
             format.html { redirect_to @event }
-            format.json { render :json => @event }
+            format.json { render json: @event }
           else
             redirect_back(fallback_location: root_path)
             return
@@ -116,7 +116,7 @@ module DataCycleCore
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @event.metadata['validation'])
       valid = @event.validate(datahash)
 
-      render :json => valid.to_json
+      render json: valid.to_json
     end
 
     private
@@ -126,7 +126,7 @@ module DataCycleCore
 
     def event_params(storage_location, template_name, template_description)
       datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
-      params.require(:event).permit(:datahash => datahash)
+      params.require(:event).permit(datahash: datahash)
     end
   end
 end

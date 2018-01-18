@@ -75,7 +75,7 @@ end
 namespace :data_cycle_core do
   namespace :clear do
     desc "Remove all data except for configuration data like users"
-    task :all => :environment do
+    task all: :environment do
       ActiveRecord::Base.connection.execute(delete_classifications)
       ActiveRecord::Base.connection.execute(delete_secondary_data)
       ActiveRecord::Base.connection.execute(delete_contents)
@@ -83,21 +83,21 @@ namespace :data_cycle_core do
     end
 
     desc "Remove all contents related data like creative works and places (does not remove classifications)"
-    task :contents => :environment do
+    task contents: :environment do
       ActiveRecord::Base.connection.execute(delete_secondary_data)
       ActiveRecord::Base.connection.execute(delete_contents)
       ActiveRecord::Base.connection.execute(delete_content_histories)
     end
 
     desc "Remove the history of all content data"
-    task :history => :environment do
+    task history: :environment do
       ActiveRecord::Base.connection.execute(delete_content_histories)
     end
   end
 
   namespace :import do
     desc "List available endpoints for import"
-    task :list => :environment do
+    task list: :environment do
       DataCycleCore::ExternalSource.all.each do |external_source|
         puts "#{external_source.id} - #{external_source.name}"
       end
@@ -151,13 +151,13 @@ namespace :data_cycle_core do
 
   namespace :update do
     desc "import classifications"
-    task :import_classifications => [:environment] do
+    task import_classifications: [:environment] do
       path = Rails.root.join('config', 'data_definitions', 'classifications.yml')
       DataCycleCore::MasterData::ImportClassifications.new.import(path.to_s)
     end
 
     desc "import template definitions"
-    task :import_templates => [:environment] do
+    task import_templates: [:environment] do
       path = Rails.root.join('config', 'data_definitions', 'creative_works', '*.yml')
       DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::CreativeWork)
       path = Rails.root.join('config', 'data_definitions', 'places', '*.yml')
@@ -169,7 +169,7 @@ namespace :data_cycle_core do
     end
 
     desc "replace the data-definitions of all data-types in the Database with the templates in the Database"
-    task :update_all_templates => [:environment] do
+    task update_all_templates: [:environment] do
       puts "updating templates:"
       DataCycleCore.content_tables.each do |content_table|
         data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
@@ -185,7 +185,7 @@ namespace :data_cycle_core do
     end
 
     desc "update weigths (boost) in search table"
-    task :update_search => [:environment] do
+    task update_search: [:environment] do
       puts "#{'content_class'.ljust(30)} | #{'data_definition_name'.ljust(25)} | #{'#entries'.ljust(10)} | #{'new weight'}"
       puts '-' * 84
       DataCycleCore.content_tables.each do |content_table|
@@ -309,7 +309,7 @@ namespace :data_cycle_core do
 
   namespace :data_update do
     desc "copy data to content_content(+history) table"
-    task :stage1 => [:environment] do
+    task stage1: [:environment] do
       @connection = ActiveRecord::Base.connection
       data_hash = [
         { a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', relation_a: 'content_location', b: 'place', type_b: 'DataCycleCore::Place' },
@@ -356,7 +356,7 @@ namespace :data_cycle_core do
     end
 
     desc "cleanup relation_names in content_content(+history) table"
-    task :stage1_1 => [:environment] do
+    task stage1_1: [:environment] do
       @connection = ActiveRecord::Base.connection
       parameter_hash = [
         { relation: 'author', template: "= 'Zitat'" },
@@ -393,7 +393,7 @@ namespace :data_cycle_core do
     end
 
     desc "delete data in content_content(+history) table"
-    task :undo_stage1 => [:environment] do
+    task undo_stage1: [:environment] do
       @connection = ActiveRecord::Base.connection
       delete = "DELETE FROM content_contents;"
       @connection.exec_query(delete)
@@ -402,7 +402,7 @@ namespace :data_cycle_core do
     end
 
     desc "update .._hasPart arrays to content_content relation table"
-    task :stage2 => [:environment] do
+    task stage2: [:environment] do
       array_names = ['question_hasPart', 'website_hasPart', 'offer_periods_hasPart',
                      'mobile_application_hasPart', 'quotation_hasPart', 'accepted_answer_hasPart',
                      'suggested_answer_hasPart', 'timeline_item_hasPart']
@@ -453,7 +453,7 @@ namespace :data_cycle_core do
     end
 
     desc "update ..embeddedLink(Array) to content_content relation table"
-    task :stage3 => [:environment] do
+    task stage3: [:environment] do
       # all embeddedLink(Array) are stored in metadata --> translations irrelevant
 
       puts "updating embeddedLink and embeddedLinkArray:"
@@ -524,7 +524,7 @@ namespace :data_cycle_core do
     end
 
     desc "update ..classification_content relation table"
-    task :stage4 => [:environment] do
+    task stage4: [:environment] do
       temp = Time.zone.now
       puts "S T A G E  4:"
       puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"

@@ -4,7 +4,7 @@ module DataCycleCore
     load_and_authorize_resource         # from cancancan (authorize)
 
     def index
-      @paginateObject = DataCycleCore::Person.all.where(:template => false).order(updated_at: :desc).page(params[:page])
+      @paginateObject = DataCycleCore::Person.all.where(template: false).order(updated_at: :desc).page(params[:page])
       @person = DataCycleCore::Person.new
     end
 
@@ -115,7 +115,7 @@ module DataCycleCore
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @person.metadata['validation'])
       valid = @person.validate(datahash)
 
-      render :json => valid.to_json
+      render json: valid.to_json
     end
 
     private
@@ -125,7 +125,7 @@ module DataCycleCore
 
     def person_params(storage_location, template_name, template_description)
       datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
-      params.require(:person).permit(:datahash => datahash)
+      params.require(:person).permit(datahash: datahash)
     end
   end
 end

@@ -4,7 +4,7 @@ module DataCycleCore
     # load_and_authorize_resource       # from cancancan (authorize)
 
     def index
-      @paginateObject = DataCycleCore::Place.all.where(:template => false).order(updated_at: :desc).page(params[:page])
+      @paginateObject = DataCycleCore::Place.all.where(template: false).order(updated_at: :desc).page(params[:page])
       @place = DataCycleCore::Place.new
     end
 
@@ -121,7 +121,7 @@ module DataCycleCore
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @place.metadata['validation'])
       valid = @place.validate(datahash)
 
-      render :json => valid.to_json
+      render json: valid.to_json
     end
 
     private
@@ -131,7 +131,7 @@ module DataCycleCore
 
     def place_params(storage_location, template_name, template_description)
       datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
-      params.require(:place).permit(:datahash => datahash)
+      params.require(:place).permit(datahash: datahash)
     end
 
     # TODO: implement as preprocessor

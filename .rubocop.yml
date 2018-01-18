@@ -61,9 +61,6 @@ Style/EmptyLiteral:
     - 'app/helpers/data_cycle_core/history_helper.rb'
 
 # Offense count: 18
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: compact, expanded
 Style/EmptyMethod:
   EnforcedStyle: expanded
 
@@ -72,3 +69,11 @@ Style/Lambda:
   Exclude:
     - 'app/models/data_cycle_core/generic/outdoor_active/endpoint.rb'
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
+
+# Offense count: 70
+Style/BracesAroundHashParameters:
+  Enabled: false
+
+# Offense count: 69
+Style/ClassAndModuleChildren:
+  Enabled: false

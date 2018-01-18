@@ -8,7 +8,7 @@ module DataCycleCore
 
     # OK
     def get_diff(version, orig)
-      diff_array = HashDiff.diff(version, orig, :array_path => true, :use_lcs => true).collect { |item| transform_history_item item }
+      diff_array = HashDiff.diff(version, orig, array_path: true, use_lcs: true).collect { |item| transform_history_item item }
       transform_history_array_to_hash diff_array
     end
 

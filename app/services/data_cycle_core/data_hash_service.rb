@@ -15,7 +15,7 @@ module DataCycleCore
     end
 
     def self.data_hash_is_dirty?(data_hash, orig_data_hash)
-      return !HashDiff.diff(normalize_data_hash(data_hash), normalize_data_hash(orig_data_hash), :array_path => true).blank?
+      return !HashDiff.diff(normalize_data_hash(data_hash), normalize_data_hash(orig_data_hash), array_path: true).blank?
     end
 
     def self.get_internal_data(storage_location, value)

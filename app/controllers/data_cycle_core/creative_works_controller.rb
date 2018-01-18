@@ -204,7 +204,7 @@ module DataCycleCore
       object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], @creativeWork.metadata['validation']['description'])
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'])
       valid = @creativeWork.validate(datahash)
-      render :json => valid.to_json
+      render json: valid.to_json
     end
 
     def after_create(content, user)
@@ -218,7 +218,7 @@ module DataCycleCore
 
     def creative_work_params(storage_location, template_name, template_description)
       datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
-      params.require(:creative_work).permit(:release_id, :release_comment, :datahash => datahash)
+      params.require(:creative_work).permit(:release_id, :release_comment, datahash: datahash)
     end
 
     def source_params

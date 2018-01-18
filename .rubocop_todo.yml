@@ -7,20 +7,6 @@
 # versions of RuboCop, may require this file to be generated again.
 
 
-# Offense count: 70
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: braces, no_braces, context_dependent
-Style/BracesAroundHashParameters:
-  Enabled: false
-
-# Offense count: 69
-# Cop supports --auto-correct.
-# Configuration parameters: AutoCorrect, EnforcedStyle.
-# SupportedStyles: nested, compact
-Style/ClassAndModuleChildren:
-  Enabled: false
-
 # Offense count: 14
 Style/ClassVars:
   Exclude:
@@ -36,13 +22,6 @@ Style/ClassVars:
 
 # Offense count: 33
 Style/DateTime:
-  Enabled: false
-
-# Offense count: 304
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, UseHashRocketsWithSymbolValues, PreferHashRocketsForNonAlnumEndingSymbols.
-# SupportedStyles: ruby19, hash_rockets, no_mixed_keys, ruby19_no_mixed_keys
-Style/HashSyntax:
   Enabled: false
 
 # Offense count: 14

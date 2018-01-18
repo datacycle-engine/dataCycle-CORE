@@ -1,6 +1,5 @@
 module DataCycleCore
   class Api::V1::ContentsController < Api::V1::ApiBaseController
-
     @@default_per = 50
 
     def show
@@ -36,18 +35,17 @@ module DataCycleCore
     end
 
     def search
-
       @language = params[:language] unless params[:language].blank?
       @language ||= 'de'
 
-      order_string = DataCycleCore::Filter::ObjectBrowserQueryBuilder::get_order_by_query_string(params[:search])
+      order_string = DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(params[:search])
 
       classification_aliases = DataCycleCore::ClassificationAlias.joins(
-          :classification_tree_label
+        :classification_tree_label
       ).where(
-          classification_trees: {
-              classification_tree_label: DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltstypen')
-          }
+        classification_trees: {
+          classification_tree_label: DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltstypen')
+        }
       )
 
       unless DataCycleCore.allowed_content_api_classifications.blank?

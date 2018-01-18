@@ -50,9 +50,9 @@ module DataCycleCore
     # end
 
     version :thumb_preview do
-      process :convert => 'jpg'
+      process convert: 'jpg'
       # process :colorspace => 'rgb'
-      process :resize_to_fit => [300, 300]
+      process resize_to_fit: [300, 300]
 
       def full_filename(for_file)
         basename = File.basename(for_file, File.extname(for_file))

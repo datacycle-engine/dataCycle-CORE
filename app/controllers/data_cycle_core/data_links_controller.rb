@@ -1,7 +1,7 @@
 module DataCycleCore
   class DataLinksController < ApplicationController
     before_action :authenticate_user!, only: [:new] # from devise (authenticate)
-    load_and_authorize_resource :except => [:show] # from cancancan (authorize)
+    load_and_authorize_resource except: [:show] # from cancancan (authorize)
 
     def show
       link = DataCycleCore::DataLink.find_by(id: params[:id])
