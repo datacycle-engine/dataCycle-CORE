@@ -39,9 +39,9 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
         )
       end
 
-      categories = raw_data.dig('categories').map { |category|
+      categories = raw_data.dig('categories').map do |category|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "CATEGORY:#{category.try(:[], 'id')}")
-      }.reject(&:nil?)
+      end.reject(&:nil?)
 
       tags = raw_data['tags'] || []
       tags.each { |item| import_classification({ name: item, external_id: "Veranstaltungsdatenbank - tags - #{item}", tree_name: 'Veranstaltungsdatenbank - Tag' }) }

@@ -475,9 +475,9 @@ namespace :data_cycle_core do
               puts "     --> #{uuid}"
               item_data = [uuid, "DataCycleCore::#{link_definition[:table].classify}", '']
               self_data = [item.id, item.class.to_s, link_definition[:name]]
-              relation_data = ['a', 'b'].map { |selector|
+              relation_data = ['a', 'b'].map do |selector|
                 ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
-              }.flatten
+              end.flatten
                 .zip(link_definition[:table] < item.class.table_name ? item_data + self_data : self_data + item_data).to_h
 
               DataCycleCore::ContentContent.find_or_create_by!(relation_data)
@@ -507,9 +507,9 @@ namespace :data_cycle_core do
               puts "     --> #{uuid}"
               item_data = [uuid, "DataCycleCore::#{link_definition[:table].classify}", '']
               self_data = [item.id, item.class.to_s, link_definition[:name]]
-              relation_data = ['a', 'b'].map { |selector|
+              relation_data = ['a', 'b'].map do |selector|
                 ["content_#{selector}_history_id".to_sym, "content_#{selector}_history_type".to_sym, "relation_#{selector}".to_sym]
-              }.flatten
+              end.flatten
                 .zip(link_definition[:table] < item.class.table_name ? item_data + self_data : self_data + item_data).to_h
 
               DataCycleCore::ContentContent::History.find_or_create_by!(relation_data)

@@ -15,9 +15,9 @@ module DataCycleCore::Generic::Feratel::ImportPlaces
 
   def process_content(raw_data, template, locale)
     I18n.with_locale(locale) do
-      images = [raw_data.dig('Documents', 'Document')].flatten.reject(&:nil?).select { |d|
+      images = [raw_data.dig('Documents', 'Document')].flatten.reject(&:nil?).select do |d|
         d['Class'] == 'Image'
-      }.map do |raw_image_data|
+      end.map do |raw_image_data|
         create_or_update_content(
           DataCycleCore::CreativeWork,
           load_template(DataCycleCore::CreativeWork, @image_template),
@@ -25,34 +25,34 @@ module DataCycleCore::Generic::Feratel::ImportPlaces
         )
       end
 
-      topics = [raw_data.dig('Details', 'Topics', 'Topic')].flatten.reject(&:nil?).map { |t|
+      topics = [raw_data.dig('Details', 'Topics', 'Topic')].flatten.reject(&:nil?).map do |t|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: t['Id'].downcase)
-      }.reject(&:nil?)
+      end.reject(&:nil?)
 
-      holiday_themes = [raw_data.dig('Details', 'HolidayThemes', 'Item')].flatten.reject(&:nil?).map { |t|
+      holiday_themes = [raw_data.dig('Details', 'HolidayThemes', 'Item')].flatten.reject(&:nil?).map do |t|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: t['Id'].downcase)
-      }.reject(&:nil?)
+      end.reject(&:nil?)
 
-      facilities = [raw_data.dig('Facilities', 'Facility')].flatten.reject(&:nil?).map { |f|
+      facilities = [raw_data.dig('Facilities', 'Facility')].flatten.reject(&:nil?).map do |f|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: f['Id'].downcase)
-      }.reject(&:nil?)
+      end.reject(&:nil?)
 
-      accommodation_categories = [raw_data.dig('Details', 'Categories', 'Item')].flatten.reject(&:nil?).map { |c|
+      accommodation_categories = [raw_data.dig('Details', 'Categories', 'Item')].flatten.reject(&:nil?).map do |c|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: c['Id'].downcase)
-      }.reject(&:nil?)
+      end.reject(&:nil?)
 
-      feratel_classifications = [raw_data.dig('Details', 'Classifications', 'Item')].flatten.reject(&:nil?).map { |c|
+      feratel_classifications = [raw_data.dig('Details', 'Classifications', 'Item')].flatten.reject(&:nil?).map do |c|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: c['Id'].downcase)
-      }.reject(&:nil?)
+      end.reject(&:nil?)
 
-      stars = [raw_data.dig('Details', 'Stars')].flatten.reject(&:nil?).map { |s|
+      stars = [raw_data.dig('Details', 'Stars')].flatten.reject(&:nil?).map do |s|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: s['Id'].downcase)
-      }.reject(&:nil?)
+      end.reject(&:nil?)
 
-      owners = [raw_data.dig('Details', 'DataOwner')].flatten.reject(&:nil?).map { |s|
+      owners = [raw_data.dig('Details', 'DataOwner')].flatten.reject(&:nil?).map do |s|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id,
                                               external_key: "OWNER:#{Digest::MD5.hexdigest(s['text'])}")
-      }.reject(&:nil?)
+      end.reject(&:nil?)
 
       create_or_update_content(
         @target_type,

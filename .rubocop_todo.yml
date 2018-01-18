@@ -11,6 +11,22 @@
 Style/DateTime:
   Enabled: false
 
+# Offense count: 2
+Style/MethodMissing:
+  Exclude:
+    - 'app/models/data_cycle_core/callbacks.rb'
+    - 'app/models/data_cycle_core/content.rb'
+
+# Offense count: 10
+Style/MultilineBlockChain:
+  Exclude:
+    - 'app/controllers/data_cycle_core/classifications_controller.rb'
+    - 'app/helpers/data_cycle_core/content_helpers.rb'
+    - 'app/models/data_cycle_core/generic/batch_download.rb'
+    - 'app/models/data_cycle_core/generic/batch_import.rb'
+    - 'app/models/data_cycle_core/generic/feratel/import_places.rb'
+    - 'lib/data_cycle_core/engine.rb'
+
 # Offense count: 4
 Style/MultilineTernaryOperator:
   Exclude:

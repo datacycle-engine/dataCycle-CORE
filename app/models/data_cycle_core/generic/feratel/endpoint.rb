@@ -398,7 +398,7 @@ class DataCycleCore::Generic::Feratel::Endpoint
   end
 
   def create_request_xml(range_code: 'RG', range_ids: @primary_range_id)
-    Nokogiri::XML::Builder.new { |xml|
+    Nokogiri::XML::Builder.new do |xml|
       xml.FeratelDsiRQ('xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
                        'xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema',
                        'xmlns' => 'http://interface.deskline.net/DSI/XSD') do
@@ -412,6 +412,6 @@ class DataCycleCore::Generic::Feratel::Endpoint
           yield(xml)
         end
       end
-    }.to_xml
+    end.to_xml
   end
 end
