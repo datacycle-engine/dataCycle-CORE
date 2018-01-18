@@ -11,14 +11,14 @@ module DataCycleCore
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
       render plain: {
-        collections: @watch_lists.map { |l|
+        collections: @watch_lists.map do |l|
           {
             id: l.id,
             name: l.headline,
             url: api_v1_collection_url(l),
             item_count: l.watch_list_data_hashes.count
           }
-        }
+        end
       }.to_json, content_type: 'application/json'
     end
 

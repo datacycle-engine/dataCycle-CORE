@@ -47,10 +47,10 @@ module DataCycleCore
         respond_to do |format|
           # validate ?
           if !@place.nil? && @place.save
-            format.html {
+            format.html do
               flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Place', locale: DataCycleCore.ui_language
               redirect_to @place
-            }
+            end
             format.js
           else
             redirect_back(fallback_location: root_path)

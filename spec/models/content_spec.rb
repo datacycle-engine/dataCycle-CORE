@@ -23,13 +23,13 @@ RSpec.shared_examples "for properties" do |storage_location, data_provider|
 
     property_value = data_provider.call
 
-    subject {
+    subject do
       if storage_location == 'metadata'
         DataCycleCore::CreativeWork.new(metadata: data_definition.merge({ 'existing_property' => property_value }))
       else
         DataCycleCore::CreativeWork.new(metadata: data_definition, storage_location => { 'existing_property' => property_value })
       end
-    }
+    end
 
     it "provides names of plain properties" do
       expect(subject.plain_property_names).to eq(['property', 'existing_property'])
@@ -69,9 +69,9 @@ RSpec.shared_examples "for properties with no content yet" do |storage_location|
       }
     }
 
-    subject {
+    subject do
       DataCycleCore::CreativeWork.new(metadata: data_definition)
-    }
+    end
 
     it "provides names of plain properties" do
       expect(subject.plain_property_names).to eq(['property'])
@@ -95,7 +95,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
   include_context "for properties", "properties", -> { SecureRandom.hex }
 
   describe "with translatable and untranslatable properties" do
-    subject {
+    subject do
       DataCycleCore::CreativeWork.new(metadata: {
                                         validation: {
                                           properties: {
@@ -138,7 +138,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
                                           }
                                         }
                                       })
-    }
+    end
 
     it "provides names of plain properties" do
       expect(subject.plain_property_names).to eq(['id', 'headline', '1', '2', '3', '4'])
@@ -184,7 +184,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
   end
 
   describe "with linked properties" do
-    subject {
+    subject do
       DataCycleCore::CreativeWork.new(metadata: {
                                         validation: {
                                           properties: {
@@ -213,7 +213,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
                                         existing_locations: [1, 2, 3],
                                         existing_main_location: 1
                                       })
-    }
+    end
 
     it "provides names of linked properties" do
       expect(subject.linked_property_names).to eq(['existing_locations', 'existing_main_location'])
@@ -238,7 +238,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
   end
 
   describe "with embedded properties" do
-    subject {
+    subject do
       DataCycleCore::CreativeWork.new(metadata: {
                                         validation: {
                                           properties: {
@@ -261,7 +261,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
                                           }
                                         }
                                       })
-    }
+    end
 
     it "provides names of embedded properties" do
       expect(subject.embedded_property_names).to eq(['existing_locations', 'nested_creative_works'])
@@ -282,7 +282,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
   end
 
   describe "with included properties" do
-    subject {
+    subject do
       DataCycleCore::CreativeWork.new(metadata: {
                                         validation: {
                                           properties: {
@@ -325,7 +325,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
                                         }
                                       },
                                       description: "dies ist ein Test")
-    }
+    end
 
     it "provides names of included property" do
       expect(subject.included_property_names).to eq(['included_object'])
@@ -365,7 +365,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
   end
 
   describe "with included properties, two ranks deep" do
-    subject {
+    subject do
       DataCycleCore::CreativeWork.new(metadata: {
                                         validation: {
                                           properties: {
@@ -447,7 +447,7 @@ RSpec.describe DataCycleCore::Content, type: :model do
                                         }
                                       },
                                       description: "dies ist ein Test")
-    }
+    end
 
     it "returns an hash for included property" do
       expect(subject.included_object.to_h).to eq({

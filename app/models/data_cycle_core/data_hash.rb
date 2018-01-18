@@ -92,11 +92,11 @@ module DataCycleCore
             new_content_history = content_item.to_history(save_time: save_time)
             content_one_data = [new_content_history.id, new_content_history.class.to_s, '']
             content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name[:name]]
-            content_relation_history_data = ['a', 'b'].map { |selector|
+            content_relation_history_data = ['a', 'b'].map do |selector|
               ["content_#{selector}_history_id".to_sym,
                "content_#{selector}_history_type".to_sym,
                "relation_#{selector}".to_sym]
-            }.flatten
+            end.flatten
               .zip(content_name[:table] < origin_table ?
                 content_one_data + content_two_data :
                 content_two_data + content_one_data).to_h
@@ -109,11 +109,11 @@ module DataCycleCore
           self.send(content_name[:name]).each do |content_item|
             content_one_data = [content_item.id, content_item.class.to_s, '']
             content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name[:name]]
-            content_relation_history_data = ['a', 'b'].map { |selector|
+            content_relation_history_data = ['a', 'b'].map do |selector|
               ["content_#{selector}_history_id".to_sym,
                "content_#{selector}_history_type".to_sym,
                "relation_#{selector}".to_sym]
-            }.flatten
+            end.flatten
               .zip(content_name[:table] < origin_table ?
                 content_one_data + content_two_data :
                 content_two_data + content_one_data).to_h
@@ -146,7 +146,7 @@ module DataCycleCore
           target_class = is_history? ? "DataCycleCore::#{relation_name.classify}::History" : "DataCycleCore::#{relation_name.classify}"
           content_one_data = [self.method(relation_name).call.ids, target_class, '']
           content_two_data = [self.id, self.class.to_s, name]
-          where_hash = ['a', 'b'].map { |selector|
+          where_hash = ['a', 'b'].map do |selector|
             if is_history?
               ["content_#{selector}_history_id".to_sym,
                "content_#{selector}_history_type".to_sym,
@@ -156,7 +156,7 @@ module DataCycleCore
                "content_#{selector}_type".to_sym,
                "relation_#{selector}".to_sym]
             end
-          }.flatten
+          end.flatten
             .zip(relation_name < self.class.table_name ?
               content_one_data + content_two_data :
               content_two_data + content_one_data).to_h
@@ -495,9 +495,9 @@ module DataCycleCore
     def get_relation_data_hash(field_name, table, item_id)
       item_data = [item_id, "DataCycleCore::#{table.classify}", ""]
       self_data = [self.id, self.class.to_s, field_name]
-      ['a', 'b'].map { |selector|
+      ['a', 'b'].map do |selector|
         ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
-      }.flatten
+      end.flatten
         .zip(table < self.class.table_name ? item_data + self_data : self_data + item_data).to_h
     end
 

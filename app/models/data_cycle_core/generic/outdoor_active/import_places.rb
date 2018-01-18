@@ -16,25 +16,25 @@ module DataCycleCore::Generic::OutdoorActive::ImportPlaces
 
   def process_content(raw_data, template, locale)
     I18n.with_locale(locale) do
-      images = (raw_data.try(:[], 'images').try(:[], 'image') || []).map { |raw_image_data|
+      images = (raw_data.try(:[], 'images').try(:[], 'image') || []).map do |raw_image_data|
         create_or_update_content(
           DataCycleCore::CreativeWork,
           load_template(DataCycleCore::CreativeWork, @image_template),
           extract_image_data(raw_image_data).with_indifferent_access
         )
-      }
+      end
 
-      categories = [raw_data.dig('category', 'id')].reject(&:blank?).map { |id|
+      categories = [raw_data.dig('category', 'id')].reject(&:blank?).map do |id|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "CATEGORY:#{id}")
-      }.reject(&:nil?)
+      end.reject(&:nil?)
 
-      regions = (raw_data.dig('regions', 'region') || []).map { |r| r['id'] }.reject(&:blank?).map { |id|
+      regions = (raw_data.dig('regions', 'region') || []).map { |r| r['id'] }.reject(&:blank?).map do |id|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "REGION:#{id}")
-      }.reject(&:nil?)
+      end.reject(&:nil?)
 
-      sources = [raw_data.dig('meta', 'source', 'id')].reject(&:blank?).map { |id|
+      sources = [raw_data.dig('meta', 'source', 'id')].reject(&:blank?).map do |id|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "SOURCE:#{id}")
-      }
+      end
       sources_hash = sources.compact.blank? ? [] : sources.map(&:id).take(1)
 
       frontendtype = DataCycleCore::Classification.find_by(

@@ -46,65 +46,65 @@ module DataCycleCore
     def translatable_property_names
       translated_columns = (self.class.to_s + "::Translation").constantize.column_names
 
-      property_definitions.select { |property_name, definition|
+      property_definitions.select do |property_name, definition|
         ['content', 'properties'].include?(definition['storage_location']) ||
           (definition['storage_location'] == 'column' && translated_columns.include?(property_name))
-      }.keys
+      end.keys
     end
 
     def untranslatable_property_names
       untranslated_columns = self.class.column_names
 
-      property_definitions.select { |property_name, definition|
+      property_definitions.select do |property_name, definition|
         ['key', 'metadata'].include?(definition['storage_location']) ||
           (definition['storage_location'] == 'column' && untranslated_columns.include?(property_name))
-      }.keys
+      end.keys
     end
 
     def plain_property_names
-      property_definitions.select { |property_name, definition|
+      property_definitions.select do |property_name, definition|
         PLAIN_PROPERTY_TYPES.include?(definition['type'])
-      }.keys
+      end.keys
     end
 
     def linked_property_names
-      property_definitions.select { |property_name, definition|
+      property_definitions.select do |property_name, definition|
         definition['type'] == 'embeddedLink' || definition['type'] == 'embeddedLinkArray'
-      }.keys
+      end.keys
     end
 
     def embedded_property_names
-      property_definitions.select { |property_name, definition|
+      property_definitions.select do |property_name, definition|
         definition['type'] == 'object' && !NESTED_STORAGE_LOCATIONS.include?(definition['storage_location'])
-      }.keys
+      end.keys
     end
 
     def included_property_names
-      property_definitions.select { |property_name, definition|
+      property_definitions.select do |property_name, definition|
         definition['type'] == 'object' &&  NESTED_STORAGE_LOCATIONS.include?(definition['storage_location'])
-      }.keys
+      end.keys
     end
 
     def classification_property_names
-      property_definitions.select { |property_name, definition|
+      property_definitions.select do |property_name, definition|
         definition['type'] == 'classificationTreeLabel'
-      }.keys
+      end.keys
     end
 
     def asset_property_names
-      property_definitions.select { |property_name, definition|
+      property_definitions.select do |property_name, definition|
         definition['type'] == 'asset'
-      }.keys
+      end.keys
     end
 
     def search_property_names
-      property_definitions.select { |property_name, definition|
+      property_definitions.select do |property_name, definition|
         definition['search'] == true
-      }.keys
+      end.keys
     end
 
     def to_h(timestamp = Time.zone.now)
-      property_names.map { |property_name|
+      property_names.map do |property_name|
         property_value =
           if property_name == "id" && is_history?
             send(self.class.to_s.split("::")[1].foreign_key) # for history records original_key is saved in "content"_id
@@ -127,7 +127,7 @@ module DataCycleCore
             raise StandardError.new("cannot determine how to serialize #{property_name}")
           end
         { property_name.to_s => property_value }
-      }.inject(&:merge).deep_stringify_keys
+      end.inject(&:merge).deep_stringify_keys
     end
 
     def verify
@@ -171,15 +171,15 @@ module DataCycleCore
     end
 
     def embedded_relations
-      embedded_property_names.map { |property_name|
+      embedded_property_names.map do |property_name|
         { name: property_name, table: property_definitions[property_name]['storage_location'] }
-      }.compact.uniq
+      end.compact.uniq
     end
 
     def linked_relations
-      linked_property_names.map { |property_name|
+      linked_property_names.map do |property_name|
         { name: property_name, table: property_definitions[property_name]['type_name'], type: property_definitions[property_name]['type'] }
-      }.compact.uniq
+      end.compact.uniq
     end
 
     private
@@ -259,7 +259,7 @@ module DataCycleCore
       selector = target_name < self.class.table_name
       content_one_data = [nil, target_class, '']
       content_two_data = [self.id, self.class.to_s, relation_name]
-      where_hash = ['a', 'b'].map { |abselector|
+      where_hash = ['a', 'b'].map do |abselector|
         if is_history?
           ["content_#{abselector}_history_id".to_sym,
            "content_#{abselector}_history_type".to_sym,
@@ -269,7 +269,7 @@ module DataCycleCore
            "content_#{abselector}_type".to_sym,
            "relation_#{abselector}".to_sym]
         end
-      }.flatten
+      end.flatten
         .zip(selector ?
                content_one_data + content_two_data :
                content_two_data + content_one_data).to_h.compact
@@ -295,7 +295,7 @@ module DataCycleCore
     end
 
     def load_subproperty_hash(sub_properties, storage_location, sub_properties_data)
-      sub_properties.map { |key, item|
+      sub_properties.map do |key, item|
         if item['type'] == 'object' && item['storage_location'] == storage_location
           { key => OpenStructHash.new(load_subproperty_hash(item['properties'], storage_location, sub_properties_data.try(:[], key.to_s))).freeze }
         elsif item['storage_location'] == storage_location
@@ -305,7 +305,7 @@ module DataCycleCore
         else
           raise StandardError.new("Template includes wrong definitions for included sub_property #{key}, given: #{item}!")
         end
-      }.inject(&:merge)
+      end.inject(&:merge)
     end
 
     def load_relation_ids(relation_name)

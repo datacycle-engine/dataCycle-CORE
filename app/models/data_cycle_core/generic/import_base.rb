@@ -151,9 +151,9 @@ module DataCycleCore::Generic
 
     def load_template(target_type, template_name)
       begin
-        I18n.with_locale(:de) {
+        I18n.with_locale(:de) do
           target_type.find_by!(template: true, headline: template_name)
-        }
+        end
       rescue ActiveRecord::RecordNotFound
         raise "Missing template #{template_name} for #{target_type}"
       end

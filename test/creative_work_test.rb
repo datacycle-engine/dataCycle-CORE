@@ -654,9 +654,9 @@ module DataCycleCore
           "longitude" => 23.1
         }]
       }
-      error = I18n.with_locale(:de) {
+      error = I18n.with_locale(:de) do
         data_set.set_data_hash(data_hash: data_hash)
-      }
+      end
       data_set.save
 
       returned_data = I18n.with_locale(:de) { data_set.get_data_hash }
@@ -674,9 +674,9 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Place::Translation.count - place_trans_templates)
 
       # prepare a german hash with only one embedded object
-      returned_data_hash = I18n.with_locale(:de) {
+      returned_data_hash = I18n.with_locale(:de) do
         data_set.get_data_hash
-      }
+      end
       data_hash2 = returned_data_hash.compact
       data_hash2["content_location"] = []
       data_hash2["content_location"].push(returned_data_hash["content_location"][1])
@@ -699,9 +699,9 @@ module DataCycleCore
         }]
       }
 
-      error_eng = I18n.with_locale(:en) {
+      error_eng = I18n.with_locale(:en) do
         data_set.set_data_hash(data_hash: data_hash_en.compact)
-      }
+      end
       data_set.save
 
       # check for two german and englisch data_sets (+ check that they are only translations of the same data-sets)
@@ -720,9 +720,9 @@ module DataCycleCore
       assert_equal(4, DataCycleCore::Place::Translation.count - place_trans_templates)
 
       # delete the german translation of one object
-      error = I18n.with_locale(:de) {
+      error = I18n.with_locale(:de) do
         data_set.set_data_hash(data_hash: data_hash2)
-      }
+      end
       data_set.save
 
       de_returned = I18n.with_locale(:de) { data_set.get_data_hash }
@@ -775,9 +775,9 @@ module DataCycleCore
           "longitude" => 23.1
         }]
       }
-      error = I18n.with_locale(:de) {
+      error = I18n.with_locale(:de) do
         data_set.set_data_hash(data_hash: data_hash)
-      }
+      end
       data_set.save
 
       # check for german data-set, two embedded contentLocation // no english data-set
@@ -800,9 +800,9 @@ module DataCycleCore
         }]
       }
 
-      error_eng = I18n.with_locale(:en) {
+      error_eng = I18n.with_locale(:en) do
         data_set.set_data_hash(data_hash: data_hash_en.compact)
-      }
+      end
       data_set.save
 
       # check for two german and englisch data_sets (+ check that they are different data-sets)

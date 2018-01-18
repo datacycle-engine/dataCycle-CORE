@@ -105,13 +105,13 @@ namespace :data_cycle_core do
 
     desc "Download and import data from given data source"
     task :perform, [:external_source_id, :max_count] => [:environment] do |t, args|
-      options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map { |k, v|
+      options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
         if k == :max_count
           [k, v.to_i]
         else
           [k, v]
         end
-      }]
+      end]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.download(options)
@@ -120,13 +120,13 @@ namespace :data_cycle_core do
 
     desc "DEBUG: Only download data from given data source"
     task :download, [:external_source_id, :max_count] => [:environment] do |t, args|
-      options = Hash[{ max_count: nil }.merge(args.to_h).map { |k, v|
+      options = Hash[{ max_count: nil }.merge(args.to_h).map do |k, v|
         if k == :max_count && v
           [k, v.to_i]
         else
           [k, v]
         end
-      }]
+      end]
       # options[:locales] = [:de] #, :en, :fr, :it, :nl]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
@@ -135,13 +135,13 @@ namespace :data_cycle_core do
 
     desc "DEBUG: Only import (without downloading) data from given data source"
     task :import, [:external_source_id, :max_count] => [:environment] do |t, args|
-      options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map { |k, v|
+      options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
         if k == :max_count
           [k, v.to_i]
         else
           [k, v]
         end
-      }]
+      end]
       # options[:locales] = [:de] #, :fr, :en, :it, :nl]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
@@ -475,9 +475,9 @@ namespace :data_cycle_core do
               puts "     --> #{uuid}"
               item_data = [uuid, "DataCycleCore::#{link_definition[:table].classify}", ""]
               self_data = [item.id, item.class.to_s, link_definition[:name]]
-              relation_data = ['a', 'b'].map { |selector|
+              relation_data = ['a', 'b'].map do |selector|
                 ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
-              }.flatten
+              end.flatten
                 .zip(link_definition[:table] < item.class.table_name ? item_data + self_data : self_data + item_data).to_h
 
               DataCycleCore::ContentContent.find_or_create_by!(relation_data)
@@ -507,9 +507,9 @@ namespace :data_cycle_core do
               puts "     --> #{uuid}"
               item_data = [uuid, "DataCycleCore::#{link_definition[:table].classify}", ""]
               self_data = [item.id, item.class.to_s, link_definition[:name]]
-              relation_data = ['a', 'b'].map { |selector|
+              relation_data = ['a', 'b'].map do |selector|
                 ["content_#{selector}_history_id".to_sym, "content_#{selector}_history_type".to_sym, "relation_#{selector}".to_sym]
-              }.flatten
+              end.flatten
                 .zip(link_definition[:table] < item.class.table_name ? item_data + self_data : self_data + item_data).to_h
 
               DataCycleCore::ContentContent::History.find_or_create_by!(relation_data)

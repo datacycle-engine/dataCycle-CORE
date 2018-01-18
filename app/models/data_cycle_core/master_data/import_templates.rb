@@ -119,7 +119,7 @@ module DataCycleCore
           end
 
           required(:label) { str? }
-          required(:type) {
+          required(:type) do
             str? &
               included_in?([
                              'string',
@@ -132,8 +132,8 @@ module DataCycleCore
                              'classificationTreeLabel',
                              'asset'
                            ])
-          }
-          required(:storage_location) {
+          end
+          required(:storage_location) do
             str? &
               included_in?(
                 [
@@ -146,7 +146,7 @@ module DataCycleCore
                   'asset_relation'
                 ] + DataCycleCore.content_tables
               )
-          }
+          end
           # TODO: add type_name validation after polymorphic relation tables
           # optional(:type_name) {
           #   str? &
@@ -155,7 +155,7 @@ module DataCycleCore
           #     DataCycleCore::ClassificationTreeLabel.pluck(:name)
           #   )
           # }
-          optional(:storage_type) {
+          optional(:storage_type) do
             str? &
               included_in?([
                              'string',
@@ -164,7 +164,7 @@ module DataCycleCore
                              'geographic',
                              'array'
                            ])
-          }
+          end
           optional(:name) { str? }
           optional(:description) { str? }
           optional(:delete) { bool? }

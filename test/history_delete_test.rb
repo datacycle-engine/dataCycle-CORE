@@ -90,10 +90,10 @@ module DataCycleCore
       assert_equal(14, DataCycleCore::CreativeWork::History::Translation.count)
       assert_equal(14, DataCycleCore::ClassificationContent::History.count)
 
-      data_set.histories.each { |item|
+      data_set.histories.each do |item|
         item.destroy_content
         item.destroy
-      }
+      end
 
       assert_equal(13, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(13, DataCycleCore::CreativeWork::Translation.count - cw_temp)
@@ -168,10 +168,10 @@ module DataCycleCore
       assert_equal(3, DataCycleCore::CreativeWork::History::Translation.count)
       assert_equal(3, DataCycleCore::ClassificationContent::History.count)
 
-      data_set.histories.each { |item|
+      data_set.histories.each do |item|
         item.destroy_content
         item.destroy
-      }
+      end
 
       assert_equal(2, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(2, DataCycleCore::CreativeWork::Translation.count - cw_temp)
