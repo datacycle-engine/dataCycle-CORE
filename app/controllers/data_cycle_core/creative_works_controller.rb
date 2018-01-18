@@ -15,12 +15,6 @@ module DataCycleCore
           return
         end
 
-        if params[:mode].nil?
-          @mode = 'flex'
-        else
-          @mode = params[:mode].to_s
-        end
-
         @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if @content.metadata['validation']['releasable'] && !@content.release_id.nil?
         @dataSchema = @content.get_data_hash
 

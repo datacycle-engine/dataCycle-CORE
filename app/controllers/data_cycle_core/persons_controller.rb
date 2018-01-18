@@ -13,11 +13,6 @@ module DataCycleCore
 
       redirect_back(fallback_location: root_path) if @content.nil?
 
-      if params[:mode].nil?
-        @mode = 'flex'
-      else
-        @mode = params[:mode].to_s
-      end
       I18n.with_locale(@content.first_available_locale) do
         @dataSchema = @content.get_data_hash
 
