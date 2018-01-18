@@ -2,20 +2,18 @@ module DataCycleCore
   module MasterData
     class ImportTemplates
       def import(files, object, validation = true)
-        begin
-          errors = {}
-          file_names = Dir[files]
-          file_names.each do |filename|
-            data_templates = YAML.load(File.open(filename.to_s))
-            error = iterate_templates(data_templates, object, validation)
-            errors[filename] = error unless error.blank?
-          end
-          errors
-        rescue Exception => e
-          puts "could not access a YML File in directory #{files}"
-          puts e.message
-          puts e.backtrace
+        errors = {}
+        file_names = Dir[files]
+        file_names.each do |filename|
+          data_templates = YAML.load(File.open(filename.to_s))
+          error = iterate_templates(data_templates, object, validation)
+          errors[filename] = error unless error.blank?
         end
+        errors
+      rescue Exception => e
+        puts "could not access a YML File in directory #{files}"
+        puts e.message
+        puts e.backtrace
       end
 
       def iterate_templates(data_templates, object, validation)

@@ -71,19 +71,6 @@ Style/NestedTernaryOperator:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/functions.rb'
 
-# Offense count: 9
-# Cop supports --auto-correct.
-Style/RedundantBegin:
-  Exclude:
-    - 'app/helpers/data_cycle_core/classification_helper.rb'
-    - 'app/models/data_cycle_core/callbacks.rb'
-    - 'app/models/data_cycle_core/generic/import_base.rb'
-    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
-    - 'app/models/data_cycle_core/master_data/import_templates.rb'
-    - 'app/models/data_cycle_core/master_data/validators/object.rb'
-    - 'app/models/data_cycle_core/master_data/validators/string.rb'
-    - 'lib/data_cycle_core/engine.rb'
-
 # Offense count: 10
 # Cop supports --auto-correct.
 Style/RedundantParentheses:

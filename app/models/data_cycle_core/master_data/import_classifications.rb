@@ -2,14 +2,12 @@ module DataCycleCore
   module MasterData
     class ImportClassifications
       def import(filename)
-        begin
-          data_trees = YAML.load(File.open(filename))
-          iterate_tree_array(data_trees)
-        rescue Exception => e
-          puts "could not access the file: #{filename}"
-          puts e.message
-          puts e.backtrace
-        end
+        data_trees = YAML.load(File.open(filename))
+        iterate_tree_array(data_trees)
+      rescue Exception => e
+        puts "could not access the file: #{filename}"
+        puts e.message
+        puts e.backtrace
       end
 
       def iterate_tree_array(trees_array)

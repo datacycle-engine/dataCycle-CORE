@@ -222,50 +222,48 @@ Time::DATE_FORMATS[:long_usec] = '%Y-%m-%d %H:%M:%S.%N %z'
 
 Nokogiri::XML::Node.class_eval do
   def to_hash
-    begin
-      attributes_hash = attributes.map do |_, attribute|
-        { attribute.name => attribute.value }
-      end.reduce({}, &:merge).reject do |_, v|
-        v.blank?
-      end
+    attributes_hash = attributes.map do |_, attribute|
+      { attribute.name => attribute.value }
+    end.reduce({}, &:merge).reject do |_, v|
+      v.blank?
+    end
 
-      children_hash = children.map do |child|
-        { child.name => child.to_hash }
-      end.reject do |h|
-        h.values.first.blank?
-      end.group_by do |h|
-        h.keys.first
-      end.map do |k, v|
-        Hash[k, v.size == 1 ? v.map(&:values).flatten.first : v.map(&:values).flatten]
-      end.reduce({}, &:merge)
+    children_hash = children.map do |child|
+      { child.name => child.to_hash }
+    end.reject do |h|
+      h.values.first.blank?
+    end.group_by do |h|
+      h.keys.first
+    end.map do |k, v|
+      Hash[k, v.size == 1 ? v.map(&:values).flatten.first : v.map(&:values).flatten]
+    end.reduce({}, &:merge)
 
-      if !attributes.empty? && children.empty?
-        attributes_hash
-      elsif attributes.empty? && !children.empty?
-        children_hash
-      elsif !attributes.empty? && !children.empty?
-        if (attributes_hash.keys & children_hash.keys).empty?
-          attributes_hash.merge(children_hash)
-        else
-          {
-            'attributes' => attributes_hash,
-            'children' => children_hash
-          }
-        end
-      elsif is_a? Nokogiri::XML::Text
-        text.strip
-      elsif is_a? Nokogiri::XML::Element
-        nil
+    if !attributes.empty? && children.empty?
+      attributes_hash
+    elsif attributes.empty? && !children.empty?
+      children_hash
+    elsif !attributes.empty? && !children.empty?
+      if (attributes_hash.keys & children_hash.keys).empty?
+        attributes_hash.merge(children_hash)
       else
-        binding.pry
-
-        raise 'NotImplemented'
+        {
+          'attributes' => attributes_hash,
+          'children' => children_hash
+        }
       end
-    rescue => e
+    elsif is_a? Nokogiri::XML::Text
+      text.strip
+    elsif is_a? Nokogiri::XML::Element
+      nil
+    else
       binding.pry
 
-      raise e
+      raise 'NotImplemented'
     end
+  rescue => e
+    binding.pry
+
+    raise e
   end
 end
 

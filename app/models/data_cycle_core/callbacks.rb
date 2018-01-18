@@ -5,15 +5,13 @@ module DataCycleCore
     end
 
     def method_missing(callback, *args, &block)
-      begin
-        super
-      rescue NoMethodError
-        raise "wrong number of arguments (#{args.size} for 0)" unless args.blank?
+      super
+    rescue NoMethodError
+      raise "wrong number of arguments (#{args.size} for 0)" unless args.blank?
 
-        callbacks[callback] = (callbacks[callback] || []) + [block] if block
+      callbacks[callback] = (callbacks[callback] || []) + [block] if block
 
-        return self
-      end
+      return self
     end
 
     def execute_callback(callback, *args)

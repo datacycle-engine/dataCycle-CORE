@@ -117,12 +117,10 @@ module DataCycleCore
         end
 
         def date_time(data)
-          begin
-            data.to_datetime
-          rescue
-            @error[:warning].push I18n.t :convert, scope: [:validation, :warning], data: data, locale: DataCycleCore.ui_language
-            return nil
-          end
+          data.to_datetime
+        rescue
+          @error[:warning].push I18n.t :convert, scope: [:validation, :warning], data: data, locale: DataCycleCore.ui_language
+          return nil
         end
       end
     end

@@ -70,19 +70,16 @@ module DataCycleCore
           # else
           #   isvalid = false
           # end
-          begin
-            data.to_datetime
-          rescue
-            @error[:error].push I18n.t :date_time, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
-          end
+
+          data.to_datetime
+        rescue
+          @error[:error].push I18n.t :date_time, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
         end
 
         def date(data)
-          begin
-            data.to_date
-          rescue
-            @error[:error].push I18n.t :date, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
-          end
+          data.to_date
+        rescue
+          @error[:error].push I18n.t :date, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
         end
 
         def boolean(data)
