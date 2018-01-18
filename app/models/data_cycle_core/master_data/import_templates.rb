@@ -92,7 +92,7 @@ module DataCycleCore
 
             def instantiable?(value)
               clazz = ('DataCycleCore::' + value.classify).safe_constantize
-              (!clazz.nil?) && clazz.new.is_a?(ActiveRecord::Base)
+              !clazz.nil? && clazz.new.is_a?(ActiveRecord::Base)
             end
 
             def self.messages
@@ -204,9 +204,10 @@ module DataCycleCore
             type.eql?('object') &
               description.included_in?(DataCycleCore.content_tables.map(&:classify)) &
               name.filled?
-            )) & ((type.eql?('object') & name.filled? & description.filled?) > (
-            storage_location.included_in?(DataCycleCore.content_tables)
-            ))
+            )) & (
+              (type.eql?('object') & name.filled? & description.filled?) >
+              storage_location.included_in?(DataCycleCore.content_tables)
+            )
           end
 
           rule(included_object: [:storage_location, :type, :properties]) do |storage_location, type, properties|

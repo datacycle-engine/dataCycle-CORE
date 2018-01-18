@@ -84,14 +84,14 @@ module DataCycleCore
       if data_hash.is_a?(::Hash)
         data_hash.map do |hash_key, hash_value|
           hash_key = "#{prefix}.#{hash_key}" if prefix.present?
-          result.merge!([::Hash, ::Array].include?(hash_value.class) ? flatten_hash(hash_value, hash_key) : ({ hash_key => hash_value }))
+          result.merge!([::Hash, ::Array].include?(hash_value.class) ? flatten_hash(hash_value, hash_key) : { hash_key => hash_value })
         end
       end
 
       if data_hash.is_a?(::Array)
         data_hash.uniq.each_with_index do |item, index|
           index = "#{prefix}.#{index}" if prefix.present?
-          result.merge!([::Hash, ::Array].include?(item.class) ? flatten_hash(item, index) : ({ index => item }))
+          result.merge!([::Hash, ::Array].include?(item.class) ? flatten_hash(item, index) : { index => item })
         end
       end
 

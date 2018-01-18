@@ -46,6 +46,13 @@ Style/ConditionalAssignment:
 Style/EmptyMethod:
   EnforcedStyle: expanded
 
+Style/BracesAroundHashParameters:
+  Enabled: false
+
+Style/NumericLiteralPrefix:
+  Exclude:
+    - 'config/initializers/carrierwave.rb'
+
 ########## Metrics
 Metrics/LineLength:
   Enabled: false
@@ -70,41 +77,6 @@ Style/Lambda:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 
-# Offense count: 70
-Style/BracesAroundHashParameters:
-  Enabled: false
-
-# Offense count: 69
-Style/ClassAndModuleChildren:
-  Enabled: false
-
-# Offense count: 9
-# Cop supports --auto-correct.
-Style/MutableConstant:
-  Exclude:
-    - 'app/helpers/data_cycle_core/application_helper.rb'
-    - 'app/helpers/data_cycle_core/history_helper.rb'
-    - 'app/models/data_cycle_core/content.rb'
-    - 'app/models/data_cycle_core/filter/query_builder.rb'
-    - 'app/models/data_cycle_core/filter/search.rb'
-    - 'lib/data_cycle_core/version.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/NumericLiteralPrefix:
-  Exclude:
-    - 'config/initializers/carrierwave.rb'
-
-# Offense count: 10
-# Cop supports --auto-correct.
-Style/RedundantParentheses:
-  Exclude:
-    - 'app/models/data_cycle_core/filter/search.rb'
-    - 'app/models/data_cycle_core/master_data/import_templates.rb'
-    - 'app/models/data_cycle_core/releasable.rb'
-    - 'app/services/data_cycle_core/watch_list_service.rb'
-    - 'app/views/data_cycle_core/api/v1/api_base/_place_details.json.jbuilder'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Style/RescueModifier:
@@ -120,6 +92,16 @@ Style/StabbyLambdaParentheses:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 
 
+
+# Offense count: 10
+# Cop supports --auto-correct.
+Style/RedundantParentheses:
+  Exclude:
+    - 'app/models/data_cycle_core/filter/search.rb'
+    - 'app/models/data_cycle_core/master_data/import_templates.rb'
+    - 'app/models/data_cycle_core/releasable.rb'
+    - 'app/services/data_cycle_core/watch_list_service.rb'
+    - 'app/views/data_cycle_core/api/v1/api_base/_place_details.json.jbuilder'
 
 # Offense count: 14
 Style/ClassVars:
@@ -152,3 +134,18 @@ Style/FrozenStringLiteralComment:
 # Offense count: 49
 Style/GuardClause:
   Enabled: false
+
+# Offense count: 69
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+# Offense count: 9
+# Cop supports --auto-correct.
+Style/MutableConstant:
+  Exclude:
+    - 'app/helpers/data_cycle_core/application_helper.rb'
+    - 'app/helpers/data_cycle_core/history_helper.rb'
+    - 'app/models/data_cycle_core/content.rb'
+    - 'app/models/data_cycle_core/filter/query_builder.rb'
+    - 'app/models/data_cycle_core/filter/search.rb'
+    - 'lib/data_cycle_core/version.rb'
