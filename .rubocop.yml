@@ -23,6 +23,9 @@ Style/MixinUsage:
 Style/SymbolArray:
   EnforcedStyle: brackets
 
+Style/WordArray:
+  EnforcedStyle: brackets
+
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 

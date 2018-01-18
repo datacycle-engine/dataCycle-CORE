@@ -71,13 +71,6 @@ Style/NestedTernaryOperator:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/functions.rb'
 
-# Offense count: 77
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, MinSize, WordRegex.
-# SupportedStyles: percent, brackets
-Style/WordArray:
-  Enabled: false
-
 
 
 
