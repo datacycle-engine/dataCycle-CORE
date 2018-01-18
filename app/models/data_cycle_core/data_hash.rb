@@ -66,9 +66,7 @@ module DataCycleCore
         data_set_history.is_part_of = parent_id if data_set_history.respond_to?('is_part_of')
 
         lower_bound = self.updated_at
-        if lower_bound > save_time
-          lower_bound = save_time
-        end
+        lower_bound = save_time if lower_bound > save_time
         data_set_history.history_valid = (lower_bound...save_time)
         data_set_history.deleted_at = Time.zone.now.to_s(:long_usec) if delete
 
@@ -189,9 +187,7 @@ module DataCycleCore
 
     def set_search
       # upsert with one SQL Statement
-      if search_property_names.blank?
-        return
-      end
+      return if search_property_names.blank?
 
       full_text = search_property_names.map { |item| self.send(item) }.join(' ').gsub(/[']/, "''")
       full_text = "" if full_text.nil?
@@ -380,9 +376,7 @@ module DataCycleCore
 
     def save_to_jsonb(key, data, properties, location)
       # parse tree in json, to only set data specified in the data definitions
-      if properties['type'] == 'object' && data.is_a?(::Hash) # object with potentially relevant data
-        data = set_data_tree_hash(data, properties['properties'], location)
-      end
+      data = set_data_tree_hash(data, properties['properties'], location) if properties['type'] == 'object' && data.is_a?(::Hash) # object with potentially relevant data
 
       # dont overwrite creator with empty values
       return if key == "creator" && data.nil?
@@ -523,12 +517,8 @@ module DataCycleCore
 
     def get_validity_values(validity_hash)
       from, to = nil, nil
-      if validity_hash && (validity_hash['date_published'] || validity_hash['valid_from'])
-        from = validity_hash['date_published'] || validity_hash['valid_from']
-      end
-      if validity_hash && (validity_hash['expires'] || validity_hash['valid_until'])
-        to = validity_hash['expires'] || validity_hash['valid_until']
-      end
+      from = validity_hash['date_published'] || validity_hash['valid_from'] if validity_hash && (validity_hash['date_published'] || validity_hash['valid_from'])
+      to = validity_hash['expires'] || validity_hash['valid_until'] if validity_hash && (validity_hash['expires'] || validity_hash['valid_until'])
 
       from = from.blank? ? nil : from.to_datetime
       from = nil if !from.blank? && from < DateTime.new(1980, 1, 1, 0, 0)

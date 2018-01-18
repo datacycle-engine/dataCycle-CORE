@@ -48,25 +48,17 @@ module DataCycleCore
         }
       )
 
-      unless DataCycleCore.allowed_content_api_classifications.blank?
-        classification_aliases = classification_aliases.where(name: DataCycleCore.allowed_content_api_classifications)
-      end
+      classification_aliases = classification_aliases.where(name: DataCycleCore.allowed_content_api_classifications) unless DataCycleCore.allowed_content_api_classifications.blank?
 
       query = DataCycleCore::Filter::Search.new(@language).where(content_data_type: DataCycleCore::CreativeWork)
       query = query.with_classification_alias_ids(classification_aliases.map(&:id))
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
-      if params[:modified_since]
-        query = query.modified_since(params[:modified_since])
-      end
+      query = query.modified_since(params[:modified_since]) if params[:modified_since]
 
-      if params[:created_since]
-        query = query.created_since(params[:created_since])
-      end
+      query = query.created_since(params[:created_since]) if params[:created_since]
 
-      if params[:modified_since].blank? && params[:created_since].blank?
-        query = query.in_validity_period
-      end
+      query = query.in_validity_period if params[:modified_since].blank? && params[:created_since].blank?
 
       query = query.order(order_string)
 
@@ -126,9 +118,7 @@ module DataCycleCore
     end
 
     def content_data_type
-      if content_params[:type]
-        Object.const_get("DataCycleCore::#{content_params[:type].classify}")
-      end
+      Object.const_get("DataCycleCore::#{content_params[:type].classify}") if content_params[:type]
     end
 
     def apply_ordering(query)

@@ -11,9 +11,7 @@ module DataCycleCore
     def show
       @watch_list = DataCycleCore::WatchList.find_by(id: params[:id])
 
-      if @watch_list.nil?
-        redirect_to root
-      end
+      redirect_to root if @watch_list.nil?
 
       @contents = get_filtered_results(method_name: "by_watch_list_id", parameters: @watch_list.id)
 
@@ -85,9 +83,7 @@ module DataCycleCore
       unless object_type.nil?
         content_object = object_type.constantize.find(params[:hashable_id])
 
-        unless content_object.nil? || watch_list.nil?
-          content_object.watch_lists.delete(watch_list)
-        end
+        content_object.watch_lists.delete(watch_list) unless content_object.nil? || watch_list.nil?
 
       end
 
@@ -104,9 +100,7 @@ module DataCycleCore
       unless object_type.nil?
         content_object = object_type.constantize.find(params[:hashable_id])
 
-        unless content_object.nil? || watch_list.nil?
-          content_object.watch_lists << watch_list
-        end
+        content_object.watch_lists << watch_list unless content_object.nil? || watch_list.nil?
 
       end
 

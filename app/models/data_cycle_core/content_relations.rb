@@ -25,9 +25,7 @@ module DataCycleCore
         has_many :display_classification_aliases, -> { where("classification_aliases.internal = ?", false) }, through: :classification_groups, source: :classification_alias
 
         # relation content to search
-        if postfix.nil?
-          has_many :content_search_all, class_name: 'DataCycleCore::Search', foreign_key: content_name.foreign_key, dependent: :destroy
-        end
+        has_many :content_search_all, class_name: 'DataCycleCore::Search', foreign_key: content_name.foreign_key, dependent: :destroy if postfix.nil?
 
         # relation content to all other contents
         has_many :content_content_a, class_name: "DataCycleCore::ContentContent", as: :content_a, dependent: :destroy

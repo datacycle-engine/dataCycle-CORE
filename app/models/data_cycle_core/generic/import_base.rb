@@ -126,9 +126,7 @@ module DataCycleCore::Generic
 
       error = content.set_data_hash(data_hash: old_data.merge(data))
 
-      unless error[:error].blank?
-        @logging.error('Validating import data', data['external_key'], data, error[:error].join('\n'))
-      end
+      @logging.error('Validating import data', data['external_key'], data, error[:error].join('\n')) unless error[:error].blank?
 
       content.tap(&:save!)
     end

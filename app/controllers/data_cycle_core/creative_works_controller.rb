@@ -58,9 +58,7 @@ module DataCycleCore
       @creativeWork = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
       authorize! :show, @creativeWork
 
-      if source_params.blank?
-        redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return
-      end
+      redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if source_params.blank?
 
       @source = source_params[:source_type].constantize.find(source_params[:source_id]) unless source_params.blank?
 
@@ -241,9 +239,7 @@ module DataCycleCore
       if params[:finalize] && @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').size.positive?
         @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').first.update_attribute(:permissions, 'read')
 
-        unless DataCycleCore.release_codes.blank?
-          @creativeWork.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id))
-        end
+        @creativeWork.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id)) unless DataCycleCore.release_codes.blank?
       end
     end
 

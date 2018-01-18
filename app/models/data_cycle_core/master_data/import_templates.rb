@@ -59,9 +59,7 @@ module DataCycleCore
         template[:properties].each do |property_name, property_definition|
           result_property = validate_property.call(property_definition)
           error = result_property.errors(full: true)
-          if property_definition.has_key?(:properties)
-            error.merge!(validate_properties(property_definition))
-          end
+          error.merge!(validate_properties(property_definition)) if property_definition.has_key?(:properties)
           # ap property_definition if !result_property.success?
           errors[property_name] = error unless error.blank?
         end

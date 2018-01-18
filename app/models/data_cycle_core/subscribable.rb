@@ -10,9 +10,7 @@ module DataCycleCore
 
     def notify_subscribers
       self.subscriptions.each do |subscription|
-        unless !self.metadata['last_updated_by'].blank? && subscription.user.id == self.metadata['last_updated_by']
-          SubscriptionMailer.notify(subscription.user, self).deliver_later
-        end
+        SubscriptionMailer.notify(subscription.user, self).deliver_later unless !self.metadata['last_updated_by'].blank? && subscription.user.id == self.metadata['last_updated_by']
       end
     end
   end

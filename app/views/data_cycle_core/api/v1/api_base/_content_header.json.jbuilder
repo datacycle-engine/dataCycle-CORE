@@ -14,12 +14,8 @@ when :full
   json.set! 'dateCreated', content.created_at
   json.set! 'dateModified', content.updated_at
 
-  if content.metadata['validity_period'] && (content.metadata['validity_period']['date_published'] || content.metadata['validity_period']['valid_from'])
-    json.set! 'datePublished', content.metadata['validity_period']['date_published'] || content.metadata['validity_period']['valid_from']
-  end
-  if content.metadata['validity_period'] && (content.metadata['validity_period']['expires'] || content.metadata['validity_period']['valid_until'])
-    json.set! 'expires', content.metadata['validity_period']['expires'] || content.metadata['validity_period']['valid_until']
-  end
+  json.set! 'datePublished', content.metadata['validity_period']['date_published'] || content.metadata['validity_period']['valid_from'] if content.metadata['validity_period'] && (content.metadata['validity_period']['date_published'] || content.metadata['validity_period']['valid_from'])
+  json.set! 'expires', content.metadata['validity_period']['expires'] || content.metadata['validity_period']['valid_until'] if content.metadata['validity_period'] && (content.metadata['validity_period']['expires'] || content.metadata['validity_period']['valid_until'])
 
   json.set! 'url', send("#{content.class.class_name.tableize.singularize}_url", content)
 

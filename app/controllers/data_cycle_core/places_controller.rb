@@ -11,9 +11,7 @@ module DataCycleCore
     def show
       @content = DataCycleCore::Place.find_by(id: params[:id])
 
-      if @content.nil?
-        redirect_back(fallback_location: root_path)
-      end
+      redirect_back(fallback_location: root_path) if @content.nil?
 
       if params[:mode].nil?
         @mode = "flex"
@@ -23,9 +21,7 @@ module DataCycleCore
       I18n.with_locale(@content.first_available_locale) do
         @dataSchema = @content.get_data_hash
         # do something if no german version exists
-        if @dataSchema.nil?
-          @dataSchema = I18n.with_locale(@content.translated_locales.first) { @content.get_data_hash }
-        end
+        @dataSchema = I18n.with_locale(@content.translated_locales.first) { @content.get_data_hash } if @dataSchema.nil?
 
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: 'places', id: params[:id]) }
@@ -136,9 +132,7 @@ module DataCycleCore
 
     # TODO: implement as preprocessor
     def set_location(datahash)
-      if !datahash['longitude'].nil? && !datahash['longitude'].blank? && !datahash['latitude'].nil? && !datahash['latitude'].blank?
-        datahash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(datahash['longitude'].to_f, datahash['latitude'].to_f)
-      end
+      datahash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(datahash['longitude'].to_f, datahash['latitude'].to_f) if !datahash['longitude'].nil? && !datahash['longitude'].blank? && !datahash['latitude'].nil? && !datahash['latitude'].blank?
       return datahash
     end
   end

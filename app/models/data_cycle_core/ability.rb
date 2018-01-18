@@ -60,9 +60,7 @@ module DataCycleCore
           can :manage, DataCycleCore::Asset
         end
 
-        if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)
-          can :manage, :dash_board
-        end
+        can :manage, :dash_board if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)
 
         can :edit, DataCycleCore::DataAttribute do |attribute|
           !attribute.options['readonly']

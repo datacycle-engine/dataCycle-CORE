@@ -11,9 +11,7 @@ module DataCycleCore
     def show
       @content = DataCycleCore::Person.find_by(id: params[:id])
 
-      if @content.nil?
-        redirect_back(fallback_location: root_path)
-      end
+      redirect_back(fallback_location: root_path) if @content.nil?
 
       if params[:mode].nil?
         @mode = "flex"

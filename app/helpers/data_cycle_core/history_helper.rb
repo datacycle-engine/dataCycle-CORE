@@ -54,9 +54,7 @@ module DataCycleCore
     end
 
     def get_object_item_has_changed(key, definition, object_value, object_has_changed, parent_definition)
-      if parent_definition.dig("type") == 'object' && (parent_definition.try(:[], 'editor').try(:[], 'type') == 'objectBrowser')
-        return false
-      end
+      return false if parent_definition.dig("type") == 'object' && (parent_definition.try(:[], 'editor').try(:[], 'type') == 'objectBrowser')
 
       get_item_has_changed(object_has_changed, key, object_value, definition)
     end
@@ -112,9 +110,7 @@ module DataCycleCore
         hash = array.each_with_object Hash.new do |(k, _), h|
           hash_key = 'id'
           hash_value = k[hash_key]
-          unless hash_value.nil?
-            (h[hash_value] ||= []) << k
-          end
+          (h[hash_value] ||= []) << k unless hash_value.nil?
         end
         return hash unless hash.blank?
       end

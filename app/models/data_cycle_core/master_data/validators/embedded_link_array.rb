@@ -58,15 +58,11 @@ module DataCycleCore
         end
 
         def min(data, value)
-          if data.size < value
-            @error[:error].push I18n.t :min_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language
-          end
+          @error[:error].push I18n.t :min_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language if data.size < value
         end
 
         def max(data, value)
-          if data.size > value
-            @error[:error].push I18n.t :max_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language
-          end
+          @error[:error].push I18n.t :max_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language if data.size > value
         end
       end
     end

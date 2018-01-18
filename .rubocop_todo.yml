@@ -44,11 +44,6 @@ Style/IfInsideElse:
     - 'app/models/data_cycle_core/master_data/validators/string.rb'
     - 'app/services/data_cycle_core/data_hash_service.rb'
 
-# Offense count: 75
-# Cop supports --auto-correct.
-Style/IfUnlessModifier:
-  Enabled: false
-
 # Offense count: 35
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

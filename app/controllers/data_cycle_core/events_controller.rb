@@ -11,9 +11,7 @@ module DataCycleCore
     def show
       @content = DataCycleCore::Event.find_by(id: params[:id])
 
-      if @content.nil?
-        redirect_back(fallback_location: root_path)
-      end
+      redirect_back(fallback_location: root_path) if @content.nil?
 
       if params[:mode].nil?
         @mode = "flex"
@@ -23,9 +21,7 @@ module DataCycleCore
       I18n.with_locale(@content.first_available_locale) do
         @dataSchema = @content.get_data_hash
         # do something if no german version exists
-        if @dataSchema.nil?
-          @dataSchema = I18n.with_locale(@content.translated_locales.first) { @content.get_data_hash }
-        end
+        @dataSchema = I18n.with_locale(@content.translated_locales.first) { @content.get_data_hash } if @dataSchema.nil?
 
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: 'events', id: params[:id]) }

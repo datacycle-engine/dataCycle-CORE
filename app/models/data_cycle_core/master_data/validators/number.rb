@@ -30,15 +30,11 @@ module DataCycleCore
 
         # number validations
         def min(data, value)
-          if data < value
-            @error[:error].push I18n.t :min_number, scope: [:validation, :errors], data: data, value: value, locale: DataCycleCore.ui_language
-          end
+          @error[:error].push I18n.t :min_number, scope: [:validation, :errors], data: data, value: value, locale: DataCycleCore.ui_language if data < value
         end
 
         def max(data, value)
-          if data > value
-            @error[:error].push I18n.t :max_number, scope: [:validation, :errors], data: data, value: value, locale: DataCycleCore.ui_language
-          end
+          @error[:error].push I18n.t :max_number, scope: [:validation, :errors], data: data, value: value, locale: DataCycleCore.ui_language if data > value
         end
 
         def format(data, format_string)
@@ -51,15 +47,11 @@ module DataCycleCore
 
         # check number for given format
         def integer(data)
-          unless data.is_a?(Integer)
-            @error[:error].push I18n.t :integer, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
-          end
+          @error[:error].push I18n.t :integer, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language unless data.is_a?(Integer)
         end
 
         def float(data)
-          unless data.to_f
-            @error[:error].push I18n.t :float, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
-          end
+          @error[:error].push I18n.t :float, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language unless data.to_f
         end
       end
     end

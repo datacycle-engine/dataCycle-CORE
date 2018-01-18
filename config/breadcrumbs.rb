@@ -77,9 +77,7 @@ end
 crumb :'data_cycle_core/place' do |place, watch_list|
   link to_html_string(place.metadata['validation']['name'], place.name), place_path(place, watch_list_id: watch_list)
 
-  if watch_list
-    parent watch_list
-  end
+  parent watch_list if watch_list
   # parent :'data_cycle_core/places'
 end
 
@@ -91,9 +89,7 @@ end
 crumb :'data_cycle_core/person' do |person, watch_list|
   link to_html_string("Person", person.given_name + " " + person.family_name), person_path(person, watch_list_id: watch_list)
 
-  if watch_list
-    parent watch_list
-  end
+  parent watch_list if watch_list
   # parent :'data_cycle_core/persons'
 end
 
@@ -105,9 +101,7 @@ end
 crumb :'data_cycle_core/event' do |event, watch_list|
   link to_html_string("Event", event.headline), events_path(event, watch_list_id: watch_list)
 
-  if watch_list
-    parent watch_list
-  end
+  parent watch_list if watch_list
   # parent :'data_cycle_core/persons'
 end
 

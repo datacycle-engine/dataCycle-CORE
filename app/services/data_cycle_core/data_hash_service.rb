@@ -7,9 +7,7 @@ module DataCycleCore
     def self.flatten_datahash_value(datahash, template_hash, debug = false)
       datahash = self.flatten_recursive(datahash.to_h, template_hash)
 
-      if debug == true
-        raise datahash.inspect
-      end
+      raise datahash.inspect if debug == true
 
       return datahash
     end
@@ -37,9 +35,7 @@ module DataCycleCore
       internal_template = ("DataCycleCore::" + storage_location.classify).constantize
         .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name, description)
 
-      if internal_template.blank?
-        return nil
-      end
+      return nil if internal_template.blank?
 
       return internal_template
     end

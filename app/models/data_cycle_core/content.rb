@@ -247,9 +247,7 @@ module DataCycleCore
 
     def same_table?(storage_location)
       history = false
-      if self.class.table_name.split('_').last == 'histories'
-        history = self.class.table_name.split('_')[0..-2].join('_').pluralize == storage_location
-      end
+      history = self.class.table_name.split('_')[0..-2].join('_').pluralize == storage_location if self.class.table_name.split('_').last == 'histories'
       self.class.table_name == storage_location || history
     end
 

@@ -14,9 +14,7 @@ module DataCycleCore
     end
 
     def is_writable(permissions)
-      if !permissions['read_write'].nil? && permissions['read_write'] == true
-        return true
-      end
+      return true if !permissions['read_write'].nil? && permissions['read_write'] == true
       return false
     end
 
@@ -61,15 +59,11 @@ module DataCycleCore
 
       object_key = get_object_key(key, parent_object_keys)
 
-      if prop['type'] == 'object'
-        object_key = key
-      end
+      object_key = key if prop['type'] == 'object'
 
       data_type = prop['type']
 
-      unless prop['editor']['options'].nil?
-        options.merge!(prop['editor']['options'])
-      end
+      options.merge!(prop['editor']['options']) unless prop['editor']['options'].nil?
 
       if respond_to?('render_' + data_type + '_field')
         if prop['releasable']
@@ -83,27 +77,19 @@ module DataCycleCore
     end
 
     def render_classificationTreeLabel_field(key, prop, value = nil, options = {}, parent_object_keys = [])
-      if !prop['editor'].nil? && !prop['editor']['type'].nil?
-        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys }
-      end
+      render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys } if !prop['editor'].nil? && !prop['editor']['type'].nil?
     end
 
     def render_embeddedLinkArray_field(key, prop, value = nil, options = {}, parent_object_keys = [])
-      if !prop.blank? && !prop['type_name'].blank?
-        render partial: "#{@@partials_path}#{prop['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys }
-      end
+      render partial: "#{@@partials_path}#{prop['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys } if !prop.blank? && !prop['type_name'].blank?
     end
 
     def render_geographic_field(key, prop, value = nil, options = {}, parent_object_keys = [])
-      if !prop.blank? && !prop['type'].blank?
-        render partial: "#{@@partials_path}#{prop['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys }
-      end
+      render partial: "#{@@partials_path}#{prop['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys } if !prop.blank? && !prop['type'].blank?
     end
 
     def render_objectBrowser_field(key, prop, value = nil, options = {}, parent_object_keys = [])
-      if !prop.blank? && !prop['editor']['type'].nil?
-        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys }
-      end
+      render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys } if !prop.blank? && !prop['editor']['type'].nil?
     end
 
     def render_embeddedObject_field(key, prop, value = nil, options = {}, parent_object_keys = [])
@@ -193,9 +179,7 @@ module DataCycleCore
         html_title += '<i>'
         html_title += title
 
-        unless text.blank?
-          html_title += ':'
-        end
+        html_title += ':' unless text.blank?
 
         html_title += '</i>'
       end
@@ -219,9 +203,7 @@ module DataCycleCore
 
     # TODO: move to mixins
     def normalize_value(value = nil)
-      if value.is_a?(Array)
-        value = value.reject(&:blank?)
-      end
+      value = value.reject(&:blank?) if value.is_a?(Array)
       return value
     end
 
@@ -229,9 +211,7 @@ module DataCycleCore
 
     def get_object_key(key, parent_object_keys = [])
       parent_object_keys_string = ''
-      unless parent_object_keys.empty?
-        parent_object_keys_string = parent_object_keys.map { |parent| "[#{parent}]" }.join('')
-      end
+      parent_object_keys_string = parent_object_keys.map { |parent| "[#{parent}]" }.join('') unless parent_object_keys.empty?
       object_key = "#{@@key_prefix}#{parent_object_keys_string}[#{key}]"
     end
   end

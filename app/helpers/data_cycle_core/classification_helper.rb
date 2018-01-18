@@ -40,17 +40,13 @@ module DataCycleCore
     end
 
     def get_selected_values_for_classification(options, value)
-      if value.nil?
-        return nil
-      end
+      return nil if value.nil?
 
       # TODO: make this more fancy
       @selected_values = []
       Array(value).each do |v|
         options.each do |o|
-          if o[1] == v
-            @selected_values.push(o)
-          end
+          @selected_values.push(o) if o[1] == v
         end
       end
 
@@ -64,9 +60,7 @@ module DataCycleCore
     def ordered_content_pools
       content_pool_order = ['Vorschläge', 'Recherche', 'Aktuelle Inhalte', 'Archiv']
       pools = Hash[DataCycleCore::ClassificationAlias.where(name: content_pool_order).collect { |c| [c.try(:name), c] }]
-      unless pools.blank?
-        cached_ordered_content_pools = content_pool_order.collect { |c| { id: pools[c].classifications.ids.first, alias: pools[c] } }
-      end
+      cached_ordered_content_pools = content_pool_order.collect { |c| { id: pools[c].classifications.ids.first, alias: pools[c] } } unless pools.blank?
       cached_ordered_content_pools
     end
 
