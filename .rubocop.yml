@@ -40,6 +40,12 @@ Style/WordArray:
 Style/RedundantReturn:
   AllowMultipleReturnValues: true
 
+Style/ConditionalAssignment:
+  Enabled: false
+
+Style/EmptyMethod:
+  EnforcedStyle: expanded
+
 ########## Metrics
 Metrics/LineLength:
   Enabled: false
@@ -59,17 +65,9 @@ Layout/MultilineHashBraceLayout:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 
-Style/ConditionalAssignment:
-  Enabled: false
-
-# Offense count: 18
-Style/EmptyMethod:
-  EnforcedStyle: expanded
-
-# Offense count: 6
+# Offense count: 4
 Style/Lambda:
   Exclude:
-    - 'app/models/data_cycle_core/generic/outdoor_active/endpoint.rb'
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 
 # Offense count: 70
