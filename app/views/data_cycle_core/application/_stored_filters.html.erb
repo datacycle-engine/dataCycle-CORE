@@ -1,10 +1,10 @@
 <a id="add-to-watchlist-link" class="hascontent watch-lists-link" data-toggle="stored-filters-for-user"><%= t("pronoun.my", count: 2, locale: DataCycleCore.ui_language).capitalize %> <%= DataCycleCore::StoredFilter.model_name.human(count: 2, locale: DataCycleCore.ui_language) %></a>
 <ul class="dropdown-pane no-bullet bottom watch-lists" id="stored-filters-for-user" data-dropdown data-hover="true" data-hover-pane="true">
-    <% @accessible_stored_filters.each do |stored_filter| %>
+    <% @accessible_stored_filters.order(created_at: :desc).first(5).each do |stored_filter| %>
         <li>
             <span class="watch-list-item">
                 <span class="watchlist-headline">
-                  <%= link_to stored_filter.name || "autosave: #{stored_filter.created_at.to_s}", root_path(stored_filter), class: 'watchlist-link' %>
+                  <%= link_to stored_filter.name || "autosave: #{stored_filter.created_at.to_s}", root_path(stored_filter: stored_filter.id), class: 'watchlist-link' %>
                 </span>
             </span>
         </li>

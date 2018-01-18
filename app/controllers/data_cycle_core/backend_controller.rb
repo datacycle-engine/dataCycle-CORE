@@ -5,8 +5,12 @@ module DataCycleCore
     authorize_resource :class => false  # from cancancan (authorize)
 
     def index
-      @contents = get_filtered_results
-      @stored_filter = save_filter
+      if params[:stored_filter].blank?
+        @contents = get_filtered_results
+        @stored_filter = save_filter
+      else
+        @contents = apply_filter(filter_id: params[:stored_filter])
+      end
 
       @creativeWork = CreativeWork.new
     end

@@ -67,6 +67,26 @@ module DataCycleCore
       @paginateObject.includes(content_data: [:display_classification_aliases, :translations, :watch_lists]).map(&:content_data)
     end
 
+    def apply_filter(filter_id:)
+      filter = DataCycleCore::StoredFilter.find(filter_id)
+
+      params[:language] = filter.language
+      @language = filter.language
+
+      unless filter.parameters['fulltext_search'].blank?
+        params[:search] = filter.parameters['fulltext_search']
+      end
+
+      unless filter.parameters['with_classification_alias_ids'].blank?
+        @classification_array = filter.parameters['with_classification_alias_ids'].map{|_,value| value}.flatten
+      end
+
+      query = filter.apply
+      @total = query.count(:id)
+      @paginateObject = query.page(1)
+      @paginateObject.includes(content_data: [:display_classification_aliases, :translations, :watch_lists]).map(&:content_data)
+    end
+
     def save_filter(method_name: nil, parameters: nil)
       new_filter = DataCycleCore::StoredFilter.new
       new_filter.user_id = current_user.id
