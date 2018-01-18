@@ -52,9 +52,7 @@ class DataCycleCore::Generic::EventDatabase::Endpoint
     if response.success?
       JSON.parse(response.body)
     else
-      raise DataCycleCore::Generic::RecoverableError.new(
-        "error loading data from #{@host + @end_point + action} / page:#{page} / per:#{per} / lang:#{lang}" << response.body
-      )
+      raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point + action} / page:#{page} / per:#{per} / lang:#{lang}" << response.body
     end
   end
 end

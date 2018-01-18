@@ -18,12 +18,12 @@ module DataCycleCore
     def method_missing(name, *args, &block)
       property_definition = property_definitions.try(:[], name.to_s.gsub(/=$/, ''))
       if property_definition && name.to_s.ends_with?('=')
-        raise ArgumentError.new("wrong number of arguments (given #{args.size}, expected 1)") unless args.size == 1
+        raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" unless args.size == 1
 
         set_property_value(name.to_s.gsub(/=$/, ''), property_definition, args.first)
       elsif property_definition
         timestamp = args.try(:first)
-        raise ArgumentError.new("wrong number of arguments (given #{args.size}, expected 0)") if (args.size == 1 && timestamp.nil) || args.size > 1
+        raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if (args.size == 1 && timestamp.nil) || args.size > 1
 
         if timestamp.nil?
           get_property_value(name.to_s.gsub(/=$/, ''), property_definition)
@@ -124,7 +124,7 @@ module DataCycleCore
           elsif asset_property_names.include?(property_name)
             send(property_name)
           else
-            raise StandardError.new("cannot determine how to serialize #{property_name}")
+            raise StandardError, "cannot determine how to serialize #{property_name}"
           end
         { property_name.to_s => property_value }
       end.inject(&:merge).deep_stringify_keys
@@ -134,7 +134,7 @@ module DataCycleCore
       unless (translatable_property_names & untranslatable_property_names).empty?
         inconsistent_properties = (translatable_property_names & untranslatable_property_names)
 
-        raise StandardError.new("cannot determine whether some properties (#{inconsistent_properties.join(',')}) are translatable or not")
+        raise StandardError, "cannot determine whether some properties (#{inconsistent_properties.join(',')}) are translatable or not"
       end
 
       self
@@ -284,7 +284,7 @@ module DataCycleCore
 
     def load_included_data(property_name, property_definition)
       sub_property_definitions = property_definition.try(:[], 'properties')
-      raise StandardError.new("Template for included data #{property_name} has no Subproperties defined.") if sub_property_definitions.blank?
+      raise StandardError, "Template for included data #{property_name} has no Subproperties defined." if sub_property_definitions.blank?
       OpenStructHash.new(
         load_subproperty_hash(sub_property_definitions,
                               property_definition['storage_location'],
@@ -301,7 +301,7 @@ module DataCycleCore
         elsif item['storage_location'] == 'column'
           { key => send(key) }
         else
-          raise StandardError.new("Template includes wrong definitions for included sub_property #{key}, given: #{item}!")
+          raise StandardError, "Template includes wrong definitions for included sub_property #{key}, given: #{item}!"
         end
       end.inject(&:merge)
     end

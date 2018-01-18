@@ -71,21 +71,6 @@ Style/NestedTernaryOperator:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/functions.rb'
 
-# Offense count: 13
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: compact, exploded
-Style/RaiseArgs:
-  Exclude:
-    - 'app/controllers/data_cycle_core/api/v1/api_base_controller.rb'
-    - 'app/controllers/data_cycle_core/data_links_controller.rb'
-    - 'app/models/data_cycle_core/api/media_archive_external_source.rb'
-    - 'app/models/data_cycle_core/content.rb'
-    - 'app/models/data_cycle_core/generic/event_database/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/feratel/download_base.rb'
-    - 'app/models/data_cycle_core/generic/media_archive/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/outdoor_active/endpoint.rb'
-
 # Offense count: 9
 # Cop supports --auto-correct.
 Style/RedundantBegin:
