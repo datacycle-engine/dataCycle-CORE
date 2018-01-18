@@ -1,6 +1,6 @@
 module DataCycleCore
   class Api::V1::ContentsController < Api::V1::ApiBaseController
-    @default_per = 50
+    @@default_per = 50
 
     def show
       object_type = DataCycleCore.content_tables.find { |object| object == params[:type] }
@@ -63,7 +63,7 @@ module DataCycleCore
       query = query.order(order_string)
 
       @per = params[:per] unless params[:per].blank?
-      @per ||= @default_per
+      @per ||= @@default_per
 
       @total = query.count
       pages = @total.fdiv(@per.to_i).ceil
@@ -92,7 +92,7 @@ module DataCycleCore
       end
 
       @per = params[:per] unless params[:per].blank?
-      @per ||= @default_per
+      @per ||= @@default_per
 
       @total = deleted_contents.count
       pages = @total.fdiv(@per.to_i).ceil
@@ -131,8 +131,8 @@ module DataCycleCore
 
     def apply_paging(query)
       query
-        .page([content_params.fetch(:page, 1).to_i, (query.count / content_params.fetch(:per, @default_per).to_i).ceil].min)
-        .per(content_params.fetch(:per, @default_per).to_i)
+        .page([content_params.fetch(:page, 1).to_i, (query.count / content_params.fetch(:per, @@default_per).to_i).ceil].min)
+        .per(content_params.fetch(:per, @@default_per).to_i)
     end
   end
 end

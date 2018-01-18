@@ -26,13 +26,6 @@ Style/SymbolArray:
 Style/WordArray:
   EnforcedStyle: brackets
 
-
-# excluded validators: move class variables to constants ?
-Style/ClassVars:
-  Exclude:
-    - 'app/models/data_cycle_core/master_data/validators/**/*'
-
-
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 
