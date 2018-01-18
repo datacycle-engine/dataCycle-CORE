@@ -149,16 +149,6 @@ Lint/Void:
     - 'app/controllers/data_cycle_core/api/v1/api_base_controller.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 7
-Naming/AccessorMethodName:
-  Exclude:
-    - 'app/controllers/data_cycle_core/api/v1/contents_controller.rb'
-    - 'app/controllers/data_cycle_core/api/v1/external_sources_controller.rb'
-    - 'app/controllers/data_cycle_core/places_controller.rb'
-    - 'app/helpers/data_cycle_core/content_helpers.rb'
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
-    - 'app/models/data_cycle_core/releasable.rb'
-
 # Offense count: 1
 # Configuration parameters: ExpectMatchingDefinition, Regex, IgnoreExecutableScripts, AllowedAcronyms.
 # AllowedAcronyms: CLI, DSL, ACL, API, ASCII, CPU, CSS, DNS, EOF, GUID, HTML, HTTP, HTTPS, ID, IP, JSON, LHS, QPS, RAM, RHS, RPC, SLA, SMTP, SQL, SSH, TCP, TLS, TTL, UDP, UI, UID, UUID, URI, URL, UTF8, VM, XML, XMPP, XSRF, XSS
@@ -258,12 +248,6 @@ Performance/HashEachMethods:
     - 'app/models/data_cycle_core/master_data/validators/string.rb'
     - 'app/models/data_cycle_core/releasable.rb'
     - 'app/services/data_cycle_core/data_hash_service.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Performance/RedundantBlockCall:
-  Exclude:
-    - 'app/services/data_cycle_core/normalize_service.rb'
 
 # Offense count: 12
 # Cop supports --auto-correct.

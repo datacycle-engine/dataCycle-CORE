@@ -87,6 +87,15 @@ Metrics/ParameterLists:
 Metrics/PerceivedComplexity:
   Enabled: false
 
+########## Naming
+Naming/AccessorMethodName:
+  Enabled: false
+
+########## Performance
+Performance/RedundantBlockCall:
+  Exclude:
+    - 'app/services/data_cycle_core/normalize_service.rb'
+
 ########## Security
 Security/YAMLLoad:
   Exclude:

@@ -6,19 +6,19 @@ module DataCycleCore
       # create a contentLocations
       place_template = DataCycleCore::Place.find_by(template: true, headline: 'contentLocation', description: 'Place')
       place_validation = place_template.metadata['validation']
-      data_set_place_1 = DataCycleCore::Place.new
-      data_set_place_1.metadata = { 'validation' => place_validation }
-      data_set_place_1.save
+      data_set_place1 = DataCycleCore::Place.new
+      data_set_place1.metadata = { 'validation' => place_validation }
+      data_set_place1.save
       place_hash1 = {
         'name' => 'Wien',
         'latitude' => 1,
         'longitude' => 2
       }
-      data_set_place_1.set_data_hash(data_hash: place_hash1)
-      data_set_place_1.save
-      place_id_1 = data_set_place_1.id
-      expected_hash = data_set_place_1.get_data_hash
-      assert_equal(place_hash1.merge({ 'id' => place_id_1 }), expected_hash.compact)
+      data_set_place1.set_data_hash(data_hash: place_hash1)
+      data_set_place1.save
+      place_id1 = data_set_place1.id
+      expected_hash = data_set_place1.get_data_hash
+      assert_equal(place_hash1.merge({ 'id' => place_id1 }), expected_hash.compact)
     end
 
     test 'insert embeddedObject within same table' do
@@ -47,29 +47,29 @@ module DataCycleCore
       # create a contentLocations
       place_template = DataCycleCore::Place.find_by(template: true, headline: 'contentLocation', description: 'Place')
       place_validation = place_template.metadata['validation']
-      data_set_place_1 = DataCycleCore::Place.new
-      data_set_place_1.metadata = { 'validation' => place_validation }
-      data_set_place_1.save
+      data_set_place1 = DataCycleCore::Place.new
+      data_set_place1.metadata = { 'validation' => place_validation }
+      data_set_place1.save
       place_hash1 = {
         'name' => 'Wien',
         'latitude' => 1,
         'longitude' => 2
       }
-      data_set_place_1.set_data_hash(data_hash: place_hash1, prevent_history: true)
-      data_set_place_1.save
-      place_id_1 = data_set_place_1.id
+      data_set_place1.set_data_hash(data_hash: place_hash1, prevent_history: true)
+      data_set_place1.save
+      place_id1 = data_set_place1.id
 
-      data_set_place_2 = DataCycleCore::Place.new
-      data_set_place_2.metadata = { 'validation' => place_validation }
-      data_set_place_2.save
+      data_set_place2 = DataCycleCore::Place.new
+      data_set_place2.metadata = { 'validation' => place_validation }
+      data_set_place2.save
       place_hash2 = {
         'name' => 'Villach',
         'latitude' => 10,
         'longitude' => 20
       }
-      data_set_place_2.set_data_hash(data_hash: place_hash2, prevent_history: true)
-      data_set_place_2.save
-      place_id_2 = data_set_place_2.id
+      data_set_place2.set_data_hash(data_hash: place_hash2, prevent_history: true)
+      data_set_place2.save
+      place_id2 = data_set_place2.id
 
       # create an Article
       template = DataCycleCore::CreativeWork.where(template: true, headline: 'Artikel', description: 'CreativeWork').first
@@ -88,7 +88,7 @@ module DataCycleCore
           'data_type' => [data_type_zitat_id]
         }],
         'content_location' => [{
-          'id' => place_id_1
+          'id' => place_id1
         }]
       }
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -126,7 +126,7 @@ module DataCycleCore
         }],
         'output_channels' => [],
         'content_location' => [{
-          'id' => place_id_1,
+          'id' => place_id1,
           'name' => 'Wien',
           'latitude' => 1.0,
           'longitude' => 2.0,
@@ -149,12 +149,12 @@ module DataCycleCore
       assert_equal(['author', 'content_location', 'quotation'], DataCycleCore::ContentContent.all.pluck(:relation_a).uniq.sort)
       assert_equal([''], DataCycleCore::ContentContent.all.pluck(:relation_b).uniq)
 
-      returned_data_hash['content_location'] = [{ 'id' => place_id_2 }]
+      returned_data_hash['content_location'] = [{ 'id' => place_id2 }]
       error = data_set.set_data_hash(data_hash: returned_data_hash)
       data_set.save
       updated_data_hash = data_set.get_data_hash
       expected_hash['content_location'] = [{
-        'id' => place_id_2,
+        'id' => place_id2,
         'name' => 'Villach',
         'latitude' => 10,
         'longitude' => 20,
