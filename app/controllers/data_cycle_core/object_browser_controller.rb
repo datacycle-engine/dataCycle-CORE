@@ -8,7 +8,7 @@ module DataCycleCore
         @language = params[:language] unless params[:language].blank?
         @language ||= 'de'
 
-        @@default_per = 50
+        @default_per = 50
 
         @type = params[:type] unless params[:type].blank?
         @type ||= 'image'
@@ -21,7 +21,7 @@ module DataCycleCore
         query = query.order(order_string)
 
         @per = params[:per] unless params[:per].blank?
-        @per ||= @@default_per
+        @per ||= @default_per
 
         @total = query.count
         @pages = @total.fdiv(@per.to_i).ceil

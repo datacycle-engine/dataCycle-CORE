@@ -1,6 +1,6 @@
 module DataCycleCore
   class Api::V1::ClassificationController < Api::V1::ApiBaseController
-    @@default_per = 300
+    @default_per = 300
 
     def index
       # still not final!! external_source_id identified via 'Administrator-account'
@@ -36,7 +36,7 @@ module DataCycleCore
         .order([classification_tree_label_id: :asc])
 
       @per = params[:per] unless params[:per].blank?
-      @per ||= @@default_per
+      @per ||= @default_per
 
       @total = query.count
       pages = @total.fdiv(@per.to_i).ceil
