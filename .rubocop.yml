@@ -13,10 +13,12 @@ AllCops:
 Rails:
   Enabled: true
 
+#######################################################
 ########## Layout
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 
+#######################################################
 ########## Style
 Style/BlockDelimiters:
   EnforcedStyle: braces_for_chaining
@@ -59,6 +61,7 @@ Style/SymbolArray:
 Style/WordArray:
   EnforcedStyle: brackets
 
+#######################################################
 ########## Metrics
 Metrics/AbcSize:
   Enabled: false
@@ -90,24 +93,34 @@ Metrics/ParameterLists:
 Metrics/PerceivedComplexity:
   Enabled: false
 
+#######################################################
 ########## Naming
-Naming/AccessorMethodName:
-  Enabled: false
 
 Naming/HeredocDelimiterNaming:
   Enabled: false
 
-########## Performance
-Performance/RedundantBlockCall:
-  Exclude:
-    - 'app/services/data_cycle_core/normalize_service.rb'
-
+#######################################################
 ########## Security
+
 Security/YAMLLoad:
   Exclude:
     - 'app/models/data_cycle_core/master_data/import_classifications.rb'
     - 'app/models/data_cycle_core/master_data/import_templates.rb'
 
+
+
+#######################################################
+#######################################################
+########## FIXME
+
+#######################################################
+########## Performance
+Performance/RedundantBlockCall:
+  Exclude:
+    - 'app/services/data_cycle_core/normalize_service.rb'
+
+
+#######################################################
 ########## Transproc
 # Offense count: 1
 Layout/AlignParameters:
@@ -134,6 +147,7 @@ Style/RescueModifier:
 Style/StabbyLambdaParentheses:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
+
 
 ########## check later
 # Offense count: 69

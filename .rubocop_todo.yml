@@ -6,11 +6,9 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-
-# Offense count: 1
-Lint/AmbiguousBlockAssociation:
-  Exclude:
-    - 'app/views/data_cycle_core/api/v1/watch_lists/_items.json.jbuilder'
+#######################################################
+#######################################################
+########## CHECK
 
 # Offense count: 6
 Lint/AmbiguousOperator:
@@ -148,58 +146,6 @@ Lint/Void:
   Exclude:
     - 'app/controllers/data_cycle_core/api/v1/api_base_controller.rb'
     - 'test/test_helper.rb'
-
-
-# Offense count: 10
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: snake_case, camelCase
-Naming/MethodName:
-  Exclude:
-    - 'app/controllers/data_cycle_core/watch_lists_controller.rb'
-    - 'app/helpers/data_cycle_core/classification_helper.rb'
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
-    - 'app/helpers/data_cycle_core/history_helper.rb'
-    - 'app/models/data_cycle_core/master_data/validators/string.rb'
-
-# Offense count: 11
-# Configuration parameters: NamePrefix, NamePrefixBlacklist, NameWhitelist, MethodDefinitionMacros.
-# NamePrefix: is_, has_, have_
-# NamePrefixBlacklist: is_, has_, have_
-# NameWhitelist: is_a?
-# MethodDefinitionMacros: define_method, define_singleton_method
-Naming/PredicateName:
-  Exclude:
-    - 'spec/**/*'
-    - 'app/controllers/data_cycle_core/creative_works_controller.rb'
-    - 'app/helpers/data_cycle_core/content_helpers.rb'
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
-    - 'app/helpers/data_cycle_core/history_helper.rb'
-    - 'app/models/data_cycle_core/content.rb'
-    - 'app/models/data_cycle_core/data_hash.rb'
-    - 'app/models/data_cycle_core/data_link.rb'
-    - 'app/models/data_cycle_core/master_data/validators/classification_tree_label.rb'
-    - 'app/models/data_cycle_core/master_data/validators/embedded_link_array.rb'
-    - 'app/models/data_cycle_core/user.rb'
-
-# Offense count: 44
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: snake_case, camelCase
-Naming/VariableName:
-  Exclude:
-    - 'app/controllers/concerns/data_cycle_core/filter.rb'
-    - 'app/controllers/data_cycle_core/backend_controller.rb'
-    - 'app/controllers/data_cycle_core/creative_works_controller.rb'
-    - 'app/controllers/data_cycle_core/dash_board_controller.rb'
-    - 'app/controllers/data_cycle_core/events_controller.rb'
-    - 'app/controllers/data_cycle_core/persons_controller.rb'
-    - 'app/controllers/data_cycle_core/places_controller.rb'
-    - 'app/controllers/data_cycle_core/subscriptions_controller.rb'
-    - 'app/controllers/data_cycle_core/user_groups_controller.rb'
-    - 'app/controllers/data_cycle_core/users_controller.rb'
-    - 'app/controllers/data_cycle_core/watch_lists_controller.rb'
-    - 'app/helpers/data_cycle_core/classification_helper.rb'
-    - 'app/jobs/data_cycle_core/download_job.rb'
-    - 'app/jobs/data_cycle_core/import_job.rb'
 
 # Offense count: 13
 # Cop supports --auto-correct.
@@ -412,3 +358,66 @@ Rails/SkipsModelValidations:
 # SupportedStyles: strict, flexible
 Rails/TimeZone:
   Enabled: false
+
+
+
+#######################################################
+#######################################################
+########## FIXME
+
+#######################################################
+########## Naming
+
+Naming/AccessorMethodName:
+  Enabled: false
+
+# Offense count: 10
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: snake_case, camelCase
+Naming/MethodName:
+  Exclude:
+    - 'app/controllers/data_cycle_core/watch_lists_controller.rb'
+    - 'app/helpers/data_cycle_core/classification_helper.rb'
+    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
+    - 'app/helpers/data_cycle_core/history_helper.rb'
+    - 'app/models/data_cycle_core/master_data/validators/string.rb'
+
+# Offense count: 11
+# Configuration parameters: NamePrefix, NamePrefixBlacklist, NameWhitelist, MethodDefinitionMacros.
+# NamePrefix: is_, has_, have_
+# NamePrefixBlacklist: is_, has_, have_
+# NameWhitelist: is_a?
+# MethodDefinitionMacros: define_method, define_singleton_method
+Naming/PredicateName:
+  Exclude:
+    - 'spec/**/*'
+    - 'app/controllers/data_cycle_core/creative_works_controller.rb'
+    - 'app/helpers/data_cycle_core/content_helpers.rb'
+    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
+    - 'app/helpers/data_cycle_core/history_helper.rb'
+    - 'app/models/data_cycle_core/content.rb'
+    - 'app/models/data_cycle_core/data_hash.rb'
+    - 'app/models/data_cycle_core/data_link.rb'
+    - 'app/models/data_cycle_core/master_data/validators/classification_tree_label.rb'
+    - 'app/models/data_cycle_core/master_data/validators/embedded_link_array.rb'
+    - 'app/models/data_cycle_core/user.rb'
+
+# Offense count: 44
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: snake_case, camelCase
+Naming/VariableName:
+  Exclude:
+    - 'app/controllers/concerns/data_cycle_core/filter.rb'
+    - 'app/controllers/data_cycle_core/backend_controller.rb'
+    - 'app/controllers/data_cycle_core/creative_works_controller.rb'
+    - 'app/controllers/data_cycle_core/dash_board_controller.rb'
+    - 'app/controllers/data_cycle_core/events_controller.rb'
+    - 'app/controllers/data_cycle_core/persons_controller.rb'
+    - 'app/controllers/data_cycle_core/places_controller.rb'
+    - 'app/controllers/data_cycle_core/subscriptions_controller.rb'
+    - 'app/controllers/data_cycle_core/user_groups_controller.rb'
+    - 'app/controllers/data_cycle_core/users_controller.rb'
+    - 'app/controllers/data_cycle_core/watch_lists_controller.rb'
+    - 'app/helpers/data_cycle_core/classification_helper.rb'
+    - 'app/jobs/data_cycle_core/download_job.rb'
+    - 'app/jobs/data_cycle_core/import_job.rb'
