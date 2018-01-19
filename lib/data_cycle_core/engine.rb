@@ -207,9 +207,9 @@ JbuilderTemplate.class_eval do
       "content_#{partial}"
     ]
 
-    partials.each_with_index do |partial, idx|
+    partials.each_with_index do |partial_file, idx|
       begin
-        return partial!(partial, parameters)
+        return partial!(partial_file, parameters)
       rescue ActionView::MissingTemplate => e
         raise e if idx == partials.size - 1
       end

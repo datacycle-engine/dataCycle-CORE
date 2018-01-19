@@ -274,12 +274,12 @@ module DataCycleCore
         end
       else
         # insert missing ids
-        ids.each do |classification_id|
+        ids.each do |classification_id_value|
           DataCycleCore::ClassificationContent
             .find_or_create_by(
               'content_data_id' => id,
               'content_data_type' => self.class.to_s,
-              classification_id: classification_id,
+              classification_id: classification_id_value,
               relation: relation_name
             )
         end

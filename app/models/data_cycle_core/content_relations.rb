@@ -33,17 +33,17 @@ module DataCycleCore
         has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_a_history, dependent: :destroy
         has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
 
-        (DataCycleCore.content_tables + DataCycleCore.linked_tables).map(&:singularize).each do |content_name|
+        (DataCycleCore.content_tables + DataCycleCore.linked_tables).map(&:singularize).each do |content_table_name|
           if postfix.nil?
-            if table_given.to_s.singularize <= content_name
-              has_many content_name.pluralize.to_sym, through: :content_content_a, source: :content_b, source_type: "DataCycleCore::#{content_name.classify}"
+            if table_given.to_s.singularize <= content_table_name
+              has_many content_table_name.pluralize.to_sym, through: :content_content_a, source: :content_b, source_type: "DataCycleCore::#{content_table_name.classify}"
             else
-              has_many content_name.pluralize.to_sym, through: :content_content_b, source: :content_a, source_type: "DataCycleCore::#{content_name.classify}"
+              has_many content_table_name.pluralize.to_sym, through: :content_content_b, source: :content_a, source_type: "DataCycleCore::#{content_table_name.classify}"
             end
-          elsif table_given.to_s.singularize <= content_name
-            has_many "#{content_name}_#{postfix}".pluralize.to_sym, through: :content_content_a_history, source: :content_b_history, source_type: "DataCycleCore::#{content_name.classify}::#{postfix.capitalize}"
+          elsif table_given.to_s.singularize <= content_table_name
+            has_many "#{content_table_name}_#{postfix}".pluralize.to_sym, through: :content_content_a_history, source: :content_b_history, source_type: "DataCycleCore::#{content_table_name.classify}::#{postfix.capitalize}"
           else
-            has_many "#{content_name}_#{postfix}".pluralize.to_sym, through: :content_content_b_history, source: :content_a_history, source_type: "DataCycleCore::#{content_name.classify}::#{postfix.capitalize}"
+            has_many "#{content_table_name}_#{postfix}".pluralize.to_sym, through: :content_content_b_history, source: :content_a_history, source_type: "DataCycleCore::#{content_table_name.classify}::#{postfix.capitalize}"
           end
         end
 
