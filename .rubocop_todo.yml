@@ -10,15 +10,6 @@
 #######################################################
 ########## CHECK
 
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleAlignWith.
-# SupportedStylesAlignWith: either, start_of_block, start_of_line
-Lint/BlockAlignment:
-  Exclude:
-    - 'app/controllers/data_cycle_core/persons_controller.rb'
-    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
-
 # Offense count: 1
 Lint/ConditionPosition:
   Exclude:

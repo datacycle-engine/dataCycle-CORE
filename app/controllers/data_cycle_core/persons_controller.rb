@@ -37,9 +37,9 @@ module DataCycleCore
           # validate ?
           if !@person.nil? && @person.save
             format.html do
-               flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Person', locale: DataCycleCore.ui_language
-               redirect_to @person
-             end
+              flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Person', locale: DataCycleCore.ui_language
+              redirect_to @person
+            end
             format.js
           else
             redirect_back(fallback_location: root_path)
