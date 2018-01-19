@@ -10,25 +10,6 @@
 #######################################################
 ########## CHECK
 
-# Offense count: 30
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoreEmptyBlocks, AllowUnusedKeywordArguments.
-Lint/UnusedBlockArgument:
-  Exclude:
-    - 'app/controllers/concerns/data_cycle_core/filter.rb'
-    - 'app/decorators/data_cycle_core/content_decorator.rb'
-    - 'app/helpers/data_cycle_core/content_helpers.rb'
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
-    - 'app/helpers/data_cycle_core/history_helper.rb'
-    - 'app/jobs/data_cycle_core/download_job.rb'
-    - 'app/jobs/data_cycle_core/import_job.rb'
-    - 'app/models/data_cycle_core/content.rb'
-    - 'app/models/data_cycle_core/data_hash.rb'
-    - 'app/models/data_cycle_core/master_data/import_templates.rb'
-    - 'app/models/data_cycle_core/master_data/validators/basic_validator.rb'
-    - 'app/models/data_cycle_core/releasable.rb'
-    - 'lib/tasks/data_cycle_core_tasks.rake'
-
 # Offense count: 49
 # Cop supports --auto-correct.
 # Configuration parameters: AllowUnusedKeywordArguments, IgnoreEmptyMethods.

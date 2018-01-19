@@ -384,7 +384,7 @@ module DataCycleCore
       # ap data_definitions
       data_hash = {}
       return if data.blank?
-      data_definitions.each do |key, value|
+      data_definitions.each do |key, _|
         if data_definitions[key]['type'] == 'object'
           data_hash[key] = set_data_tree_hash(data[key], data_definitions[key]['properties'], location)
         elsif data_definitions[key]['storage_location'] == location

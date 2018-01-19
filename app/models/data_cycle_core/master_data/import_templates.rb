@@ -182,14 +182,14 @@ module DataCycleCore
             )
           end
 
-          rule(embeddedLink: [:type, :type_name, :storage_type, :storage_location]) do |type, type_name, storage_type, storage_location|
+          rule(embeddedLink: [:type, :type_name, :storage_type, :storage_location]) do |type, type_name, _storage_type, storage_location|
             type.eql?('embeddedLink') > (
             type_name.instantiable? &
               storage_location.included_in?(['metadata', 'content', 'properties'])
             )
           end
 
-          rule(classification_relation: [:storage_location, :type, :type_name, :default_value]) do |storage_location, type, type_name, default_value|
+          rule(classification_relation: [:storage_location, :type, :type_name, :default_value]) do |storage_location, type, type_name, _default_value|
             (storage_location.eql?('classification_relation') > (
             type.eql?('classificationTreeLabel') &
               type_name.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte'])

@@ -37,7 +37,7 @@ module DataCycleCore
     end
 
     def classification_tree_definitions
-      metadata['validation']['properties'].select { |key, definition|
+      metadata['validation']['properties'].select { |_, definition|
         definition['type'] == 'classificationTreeLabel' && definition['editor']
       }.map { |key, definition|
         { key: key }.merge(definition)

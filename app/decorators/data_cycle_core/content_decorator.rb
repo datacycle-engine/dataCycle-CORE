@@ -8,7 +8,7 @@ class DataCycleCore::ContentDecorator < SimpleDelegator
   end
 
   def property_names
-    property_definitions.reject { |k, v| v['type'].starts_with?('classification') || v['storage_location'] == 'key' }.keys
+    property_definitions.reject { |_, v| v['type'].starts_with?('classification') || v['storage_location'] == 'key' }.keys
   end
 
   def linked_property_names
@@ -40,13 +40,13 @@ class DataCycleCore::ContentDecorator < SimpleDelegator
   end
 
   def embedded_object_names
-    property_definitions.select { |k, v| v['type'] == 'object' }.keys
+    property_definitions.select { |_, v| v['type'] == 'object' }.keys
   end
 
   def linked_object_definitions
     metadata['validation']['properties']
-      .select { |k, v| v['type'].starts_with?('embedded') }
-      .reject { |k, v| v['type_name'] == 'external_sources' }
+      .select { |_, v| v['type'].starts_with?('embedded') }
+      .reject { |_, v| v['type_name'] == 'external_sources' }
   end
 
   def linked_object_data(key)

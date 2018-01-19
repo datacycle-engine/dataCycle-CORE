@@ -42,7 +42,7 @@ module DataCycleCore
 
       end
 
-      properties = Hash[ordered_properties.sort.map { |k, v| v }]
+      properties = Hash[ordered_properties.sort.map { |_, v| v }]
       properties.merge(Hash[unordered_properties]).nil? ? [] : properties.merge(Hash[unordered_properties])
     end
 

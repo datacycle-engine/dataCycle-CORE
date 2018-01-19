@@ -64,43 +64,43 @@ module DataCycleCore
     end
 
     def plain_property_names
-      property_definitions.select { |property_name, definition|
+      property_definitions.select { |_, definition|
         PLAIN_PROPERTY_TYPES.include?(definition['type'])
       }.keys
     end
 
     def linked_property_names
-      property_definitions.select { |property_name, definition|
+      property_definitions.select { |_, definition|
         definition['type'] == 'embeddedLink' || definition['type'] == 'embeddedLinkArray'
       }.keys
     end
 
     def embedded_property_names
-      property_definitions.select { |property_name, definition|
+      property_definitions.select { |_, definition|
         definition['type'] == 'object' && !NESTED_STORAGE_LOCATIONS.include?(definition['storage_location'])
       }.keys
     end
 
     def included_property_names
-      property_definitions.select { |property_name, definition|
+      property_definitions.select { |_, definition|
         definition['type'] == 'object' &&  NESTED_STORAGE_LOCATIONS.include?(definition['storage_location'])
       }.keys
     end
 
     def classification_property_names
-      property_definitions.select { |property_name, definition|
+      property_definitions.select { |_, definition|
         definition['type'] == 'classificationTreeLabel'
       }.keys
     end
 
     def asset_property_names
-      property_definitions.select { |property_name, definition|
+      property_definitions.select { |_, definition|
         definition['type'] == 'asset'
       }.keys
     end
 
     def search_property_names
-      property_definitions.select { |property_name, definition|
+      property_definitions.select { |_, definition|
         definition['search'] == true
       }.keys
     end

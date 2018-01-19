@@ -104,7 +104,7 @@ namespace :data_cycle_core do
     end
 
     desc 'Download and import data from given data source'
-    task :perform, [:external_source_id, :max_count] => [:environment] do |t, args|
+    task :perform, [:external_source_id, :max_count] => [:environment] do |_, args|
       options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
         if k == :max_count
           [k, v.to_i]
@@ -119,7 +119,7 @@ namespace :data_cycle_core do
     end
 
     desc 'DEBUG: Only download data from given data source'
-    task :download, [:external_source_id, :max_count] => [:environment] do |t, args|
+    task :download, [:external_source_id, :max_count] => [:environment] do |_, args|
       options = Hash[{ max_count: nil }.merge(args.to_h).map do |k, v|
         if k == :max_count && v
           [k, v.to_i]
@@ -134,7 +134,7 @@ namespace :data_cycle_core do
     end
 
     desc 'DEBUG: Only import (without downloading) data from given data source'
-    task :import, [:external_source_id, :max_count] => [:environment] do |t, args|
+    task :import, [:external_source_id, :max_count] => [:environment] do |_, args|
       options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
         if k == :max_count
           [k, v.to_i]
@@ -208,7 +208,7 @@ namespace :data_cycle_core do
     end
 
     desc 'replace a given data-definition with its recent template for a content_table'
-    task :update_template, [:content_table_name, :template_name] => [:environment] do |t, args|
+    task :update_template, [:content_table_name, :template_name] => [:environment] do |_, args|
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
         puts 'ERROR: only the following content_table_names are known to the system:'
         puts DataCycleCore.content_tables.to_s
@@ -232,7 +232,7 @@ namespace :data_cycle_core do
     end
 
     desc 'DEBUG: hook to wire custom data update for a given content_table_name/template_name'
-    task :update_data, [:content_table_name, :template_name] => [:environment] do |t, args|
+    task :update_data, [:content_table_name, :template_name] => [:environment] do |_, args|
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
         puts 'ERROR: only the following content_table_names are known to the system:'
         puts DataCycleCore.content_tables.to_s
@@ -256,7 +256,7 @@ namespace :data_cycle_core do
     end
 
     desc 'delete history of a specific content_table_name/template_name'
-    task :delete_history, [:content_table_name, :template_name] => [:environment] do |t, args|
+    task :delete_history, [:content_table_name, :template_name] => [:environment] do |_, args|
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
         puts 'ERROR: only the following content_table_names are known to the system:'
         puts DataCycleCore.content_tables.to_s

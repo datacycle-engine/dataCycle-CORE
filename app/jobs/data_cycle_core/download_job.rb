@@ -6,7 +6,7 @@ module DataCycleCore
 
     queue_as :default
 
-    after_enqueue do |job|
+    after_enqueue do |_|
       job_record = Delayed::Job.where(id: @provider_job_id).first
       job_record.delayed_reference_id = @arguments.first
       store_job_id_to_externalSource = ExternalSource.where(id: job_record.delayed_reference_id).first
@@ -20,7 +20,7 @@ module DataCycleCore
       job_record.save!
     end
 
-    around_perform do |job, block|
+    around_perform do |_, block|
       # Do something before perform
       block.call
       # Do something after perform

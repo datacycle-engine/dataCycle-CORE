@@ -42,7 +42,7 @@ module DataCycleCore
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       unless @classification_array.blank?
-        parse_classifications(@classification_array).each do |tree_label, class_array|
+        parse_classifications(@classification_array).each do |_, class_array|
           query = query.with_classification_alias_ids(class_array)
         end
       end
