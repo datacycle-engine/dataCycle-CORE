@@ -198,7 +198,7 @@ namespace :data_cycle_core do
             search_entries = DataCycleCore::Search.where(content_data_type: data_object.to_s, data_type: template_name).count
 
             connection = ActiveRecord::Base.connection
-            sql_update = "UPDATE searches SET boost = #{boost} WHERE content_data_type = '#{data_object.to_s}' AND data_type = '#{template_name}'"
+            sql_update = "UPDATE searches SET boost = #{boost} WHERE content_data_type = '#{data_object}' AND data_type = '#{template_name}'"
             connection.exec_query(sql_update)
           end
 

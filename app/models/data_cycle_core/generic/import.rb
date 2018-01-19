@@ -8,9 +8,9 @@ module DataCycleCore
           @logging = instance_eval(options[:import][:logging_strategy])
         end
 
-        raise "Missing import_strategy for #{self.class.to_s}, options given: #{options}"  if options[:import][:import_strategy].blank?
-        raise "Missing source_type for #{self.class.to_s}, options given: #{options}"      if options[:import][:source_type].nil?
-        raise "Missing target_type for #{self.class.to_s}, options given: #{options}"      if options[:import][:target_type].nil?
+        raise "Missing import_strategy for #{self.class}, options given: #{options}"  if options[:import][:import_strategy].blank?
+        raise "Missing source_type for #{self.class}, options given: #{options}"      if options[:import][:source_type].nil?
+        raise "Missing target_type for #{self.class}, options given: #{options}"      if options[:import][:target_type].nil?
 
         extend(options[:import][:import_strategy].constantize)
         @options = options

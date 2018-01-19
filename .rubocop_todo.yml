@@ -10,24 +10,6 @@
 #######################################################
 ########## CHECK
 
-# Offense count: 8
-Lint/ParenthesesAsGroupedExpression:
-  Exclude:
-    - 'app/models/data_cycle_core/filter/search.rb'
-    - 'app/models/data_cycle_core/generic/event_database/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/media_archive/endpoint.rb'
-    - 'config/routes.rb'
-
-# Offense count: 10
-# Cop supports --auto-correct.
-Lint/StringConversionInInterpolation:
-  Exclude:
-    - 'app/helpers/data_cycle_core/application_helper.rb'
-    - 'app/models/data_cycle_core/data_hash.rb'
-    - 'app/models/data_cycle_core/generic/download.rb'
-    - 'app/models/data_cycle_core/generic/import.rb'
-    - 'lib/tasks/data_cycle_core_tasks.rake'
-
 # Offense count: 30
 # Cop supports --auto-correct.
 # Configuration parameters: IgnoreEmptyBlocks, AllowUnusedKeywordArguments.

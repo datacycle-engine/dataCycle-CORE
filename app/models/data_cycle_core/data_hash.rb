@@ -201,7 +201,7 @@ module DataCycleCore
         VALUES
         ( DEFAULT,
           '#{id}',
-          '#{self.class.to_s}',
+          '#{self.class}',
           '#{I18n.locale}',
           to_tsvector('simple', '#{full_text}'),
           '#{full_text_most}',
@@ -215,7 +215,7 @@ module DataCycleCore
           #{boost}
         )
         ON CONFLICT (content_data_id, content_data_type, locale)
-        WHERE content_data_id = '#{id}' AND content_data_type = '#{self.class.to_s}' AND locale = '#{I18n.locale}'
+        WHERE content_data_id = '#{id}' AND content_data_type = '#{self.class}' AND locale = '#{I18n.locale}'
         DO UPDATE SET
           words = EXCLUDED.words,
           full_text = EXCLUDED.full_text,

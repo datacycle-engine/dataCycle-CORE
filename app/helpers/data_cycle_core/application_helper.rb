@@ -27,7 +27,7 @@ module DataCycleCore
     def display_flash_messages_resource(closable: true)
       capture do
         resource.errors.messages.each do |value|
-          text_string = "#{value[0].to_s} #{value[1][0]}"
+          text_string = "#{value[0]} #{value[1][0]}"
           concat alert_box(text_string, :alert, closable)
         end
       end

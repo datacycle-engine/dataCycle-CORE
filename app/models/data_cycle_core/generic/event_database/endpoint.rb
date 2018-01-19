@@ -37,7 +37,7 @@ class DataCycleCore::Generic::EventDatabase::Endpoint
 
   def load_data(page: 1, per: 1, lang: :de, action: @action)
     response = Faraday.new.get do |req|
-      req.url (@host + @end_point + action)
+      req.url(@host + @end_point + action)
 
       req.headers['Accept'] = 'application/json'
 

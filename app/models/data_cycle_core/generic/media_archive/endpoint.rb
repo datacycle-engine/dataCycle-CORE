@@ -36,7 +36,7 @@ class DataCycleCore::Generic::MediaArchive::Endpoint
 
   def load_data(page: 1, per: 1, lang: :de, type: 'image')
     response = Faraday.new.get do |req|
-      req.url (@host + @end_point)
+      req.url(@host + @end_point)
 
       req.headers['Accept'] = 'application/json'
 
