@@ -10,18 +10,6 @@
 #######################################################
 ########## CHECK
 
-# Offense count: 12
-# Cop supports --auto-correct.
-# Configuration parameters: MaxKeyValuePairs.
-Performance/RedundantMerge:
-  Exclude:
-    - 'app/controllers/data_cycle_core/dash_board_controller.rb'
-    - 'app/jobs/data_cycle_core/download_job.rb'
-    - 'app/jobs/data_cycle_core/import_job.rb'
-    - 'app/models/data_cycle_core/generic/event_database/import_events.rb'
-    - 'app/models/data_cycle_core/generic/media_archive/import.rb'
-    - 'app/views/data_cycle_core/api/v1/watch_lists/_items.json.jbuilder'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Performance/RegexpMatch:

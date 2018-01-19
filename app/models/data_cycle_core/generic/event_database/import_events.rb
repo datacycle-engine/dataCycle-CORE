@@ -50,10 +50,10 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
 
       event_data = extract_event_data(raw_data)
 
-      event_data.merge!({ 'content_location' => [{ 'id' => content_location.try(:id) }] }) unless content_location.blank?
-      event_data.merge!({ 'category' => categories.map(&:id) }) unless categories.blank?
-      event_data.merge!({ 'image' => [image.try(:id)] }) unless image.blank?
-      event_data.merge!({ 'sub_event' => sub_events }) unless sub_events.blank?
+      event_data['content_location'] = [{ 'id' => content_location.try(:id) }] unless content_location.blank?
+      event_data['category'] = categories.map(&:id) unless categories.blank?
+      event_data['image'] = [image.try(:id)] unless image.blank?
+      event_data['sub_event'] = sub_events unless sub_events.blank?
 
       create_or_update_content(
         @target_type,
