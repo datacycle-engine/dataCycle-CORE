@@ -21,6 +21,8 @@
       top: auto;
       font-weight: bold;
       font-size: 1.5rem;
+      line-height: 1.5rem;
+      left: initial;
     }
   }
   .form-element {
@@ -71,10 +73,9 @@
   }
 }
 
-#edit-form .releasable {
+.edit-content-form .releasable {
   text-align: left;
   label {
-    position: relative;
     left: 0;
     span {
       &.button {
@@ -86,7 +87,7 @@
     }
   }
   .release-comment {
-    white-space: pre-line;
+    margin-top: 3rem;
     min-height: 8rem;
   }
 }
@@ -233,16 +234,16 @@
   }
 }
 
+label+select {
+  margin-top: 3rem;
+}
+
 select {
   padding: 0 1.5rem 0 0.5rem;
   line-height: initial;
-  &.with-label {
-    margin-top: 3rem;
-  }
 }
 
 #split-source-selector {
-  text-align: center;
   .button {
     margin: 0;
   }
@@ -901,4 +902,10 @@ ul.translated-locales {
       text-decoration: underline;
     }
   }
+}
+
+// firefox select hack to remove dotted outline
+select:-moz-focusring {
+  color: transparent;
+  text-shadow: 0 0 0 $black;
 }

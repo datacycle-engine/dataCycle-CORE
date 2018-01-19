@@ -43,7 +43,7 @@
                   </div>
                 </div>
 
-                <div class="form-element validation-container" tabindex="-1">
+                <div class="form-element validation-container">
                   <%= f.select :notification_frequency, DataCycleCore.notification_frequencies.map{ |f| [t("notification.frequency.#{f}", locale: DataCycleCore.ui_language), f] }, {}, class: 'with-label' %>
                 </div>
 

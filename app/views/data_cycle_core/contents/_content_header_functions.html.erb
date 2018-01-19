@@ -12,10 +12,10 @@
         <% if can? :subscribe, content %>
             <li class="has-dropdown right">
                 <a id="subscribe-link" data-toggle="subscribe"><i class="fa <%= content.subscriptions.by_user(current_user).size > 0 ? 'fa-bell' : 'fa-bell-o' %>" aria-hidden="true"></i></a>
-                <ul class="dropdown-pane no-bullet bottom" id="subscribe" data-dropdown data-hover="true" data-hover-pane="true">
+                <div class="dropdown-pane no-bullet bottom" id="subscribe" data-dropdown data-hover="true" data-hover-pane="true">
                   <h5><%= t('common.contents', count: 1, locale: DataCycleCore.ui_language) %> <%= content.subscriptions.by_user(current_user).size > 0 ? t('actions.subscribed', locale: DataCycleCore.ui_language) : t('actions.subscribe', locale: DataCycleCore.ui_language) %></h5>
-                  <li><%= render 'subscriptions', content: content %></li>
-                </ul>
+                  <%= render 'subscriptions', content: content %>
+                </div>
             </li>
         <% end %>
         <% if can? :manage, DataCycleCore::WatchList %>

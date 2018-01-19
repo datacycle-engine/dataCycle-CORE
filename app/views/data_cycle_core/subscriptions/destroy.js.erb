@@ -1,4 +1,3 @@
-$('#subscribe h5').text("<%= t('common.contents', count: 1, locale: DataCycleCore.ui_language) %> <%= t('actions.subscribe', locale: DataCycleCore.ui_language) %>");
 $('#subscribe-link i.fa').removeClass('fa-bell').addClass('fa-bell-o');
 $('#subscribe-link .subscriber-count').html(parseInt($('#subscribe-link .subscriber-count').text()) - 1);
-$('#subscribe li').html('<%= escape_javascript(render 'subscriptions', content: @subscription.subscribable) %>');
+$('#subscribe').html('<h5><%= t('common.contents', count: 1, locale: DataCycleCore.ui_language) %> <%= t('actions.subscribe', locale: DataCycleCore.ui_language) %></h5><%= escape_javascript(render 'subscriptions', content: @subscription.subscribable) %>');
