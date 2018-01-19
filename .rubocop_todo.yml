@@ -10,12 +10,6 @@
 #######################################################
 ########## CHECK
 
-
-# Offense count: 1
-Lint/NonLocalExitFromIterator:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/download_base.rb'
-
 # Offense count: 8
 Lint/ParenthesesAsGroupedExpression:
   Exclude:
@@ -293,6 +287,14 @@ Rails/TimeZone:
 #######################################################
 #######################################################
 ########## FIXME
+
+#######################################################
+########## Lint
+
+# Offense count: 3
+Lint/NestedMethodDefinition:
+  Exclude:
+    - 'app/models/data_cycle_core/master_data/import_templates.rb'
 
 #######################################################
 ########## Naming

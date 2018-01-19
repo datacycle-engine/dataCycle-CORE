@@ -29,24 +29,22 @@ module DataCycleCore::Generic
 
             items.each do |item_data|
               item_count += 1
+              next if item_data.nil?
+              begin
+                item_id = extract_id.call(item_data)
+                item_name = extract_name.call(item_data)
 
-              unless item_data.nil?
-                begin
-                  item_id = extract_id.call(item_data)
-                  item_name = extract_name.call(item_data)
+                item = mongo_item.find_or_initialize_by('external_id': item_id)
 
-                  item = mongo_item.find_or_initialize_by('external_id': item_id)
+                item.dump ||= {}
+                item.dump[locale] = item_data
+                item.save!
 
-                  item.dump ||= {}
-                  item.dump[locale] = item_data
-                  item.save!
-
-                  @logging.item_processed(item_name, item_id, item_count, max_string)
-                rescue StandardError => e
-                  @logging.error(item_name, item_id, item_data, e)
-                end
+                @logging.item_processed(item_name, item_id, item_count, max_string)
+              rescue StandardError => e
+                @logging.error(item_name, item_id, item_data, e)
               end
-              return if options[:max_count] && item_count >= options[:max_count]
+              break if options[:max_count] && item_count >= options[:max_count]
             end
           end
         rescue StandardError => e
