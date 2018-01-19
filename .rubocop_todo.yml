@@ -10,11 +10,6 @@
 #######################################################
 ########## CHECK
 
-# Offense count: 2
-Lint/IneffectiveAccessModifier:
-  Exclude:
-    - 'app/services/data_cycle_core/data_hash_service.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Lint/LiteralInInterpolation:

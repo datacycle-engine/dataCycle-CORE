@@ -75,67 +75,69 @@ module DataCycleCore
       end
     end
 
-    private
+    class << self
+      private
 
-    def self.get_params_from_hash(template_hash)
-      temp_params = []
+      def get_params_from_hash(template_hash)
+        temp_params = []
 
-      template_hash['properties'].each do |key, value|
-        orig_key = key
-        key = 'value' if value['releasable']
+        template_hash['properties'].each do |key, value|
+          orig_key = key
+          key = 'value' if value['releasable']
 
-        if value['type'] == 'object' && !value.dig('editor', 'type').nil?
-          object_properties = get_internal_template(value['storage_location'], value['name'], value['description'])
-          key = { key.to_sym => get_params_from_hash(object_properties.metadata['validation']) }
-        elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
-          key = { key.to_sym => get_params_from_hash(value) }
-        elsif value['type'] == 'classificationTreeLabel' || value['type'] == 'embeddedLinkArray'
-          key = { key.to_sym => [] }
-        else
-          key = key.to_sym
-        end
-
-        key = { orig_key.to_sym => [key, 'release_id', 'release_comment'] } if value['releasable']
-
-        temp_params.push(key)
-      end
-
-      temp_params
-    end
-
-    def self.flatten_recursive(datahash, template_hash)
-      temp_datahash = {}
-
-      datahash.each do |key, value|
-        properties = template_hash['properties'][key]
-
-        if value.is_a?(::Hash)
-
-          if properties['type'] == 'object' && !properties.dig('editor', 'type').nil? && properties.dig('editor', 'type') == 'embeddedObject'
-            object_properties = get_internal_template(properties['storage_location'], properties['name'], properties['description'])
-            temp_value = []
-
-            value.values.each do |object_value|
-              temp_value.push(flatten_recursive(object_value, object_properties.metadata['validation']))
-            end
-
-            value = temp_value
-
-          elsif value['value'].is_a?(::Array)
-            value['value'] = value['value'].reject(&:empty?)
+          if value['type'] == 'object' && !value.dig('editor', 'type').nil?
+            object_properties = get_internal_template(value['storage_location'], value['name'], value['description'])
+            key = { key.to_sym => get_params_from_hash(object_properties.metadata['validation']) }
+          elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
+            key = { key.to_sym => get_params_from_hash(value) }
+          elsif value['type'] == 'classificationTreeLabel' || value['type'] == 'embeddedLinkArray'
+            key = { key.to_sym => [] }
+          else
+            key = key.to_sym
           end
-        elsif value.is_a?(::Array)
-          value = value.reject(&:empty?)
-        elsif properties['type'] == 'number' && !properties['validations'].nil? && !properties['validations']['format'].nil? && properties['validations']['format'] == 'float'
-          value = value.to_f
-        elsif properties['type'] == 'number'
-          value = value.to_i
+
+          key = { orig_key.to_sym => [key, 'release_id', 'release_comment'] } if value['releasable']
+
+          temp_params.push(key)
         end
 
-        temp_datahash[key] = value
+        temp_params
       end
 
-      temp_datahash
+      def flatten_recursive(datahash, template_hash)
+        temp_datahash = {}
+
+        datahash.each do |key, value|
+          properties = template_hash['properties'][key]
+
+          if value.is_a?(::Hash)
+
+            if properties['type'] == 'object' && !properties.dig('editor', 'type').nil? && properties.dig('editor', 'type') == 'embeddedObject'
+              object_properties = get_internal_template(properties['storage_location'], properties['name'], properties['description'])
+              temp_value = []
+
+              value.values.each do |object_value|
+                temp_value.push(flatten_recursive(object_value, object_properties.metadata['validation']))
+              end
+
+              value = temp_value
+
+            elsif value['value'].is_a?(::Array)
+              value['value'] = value['value'].reject(&:empty?)
+            end
+          elsif value.is_a?(::Array)
+            value = value.reject(&:empty?)
+          elsif properties['type'] == 'number' && !properties['validations'].nil? && !properties['validations']['format'].nil? && properties['validations']['format'] == 'float'
+            value = value.to_f
+          elsif properties['type'] == 'number'
+            value = value.to_i
+          end
+
+          temp_datahash[key] = value
+        end
+
+        temp_datahash
+      end
     end
   end
 end
