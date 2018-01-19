@@ -10,12 +10,6 @@
 #######################################################
 ########## CHECK
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Performance/RegexpMatch:
-  Exclude:
-    - 'app/controllers/data_cycle_core/data_links_controller.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 Performance/StringReplacement:
