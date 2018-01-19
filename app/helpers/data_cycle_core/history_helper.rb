@@ -82,7 +82,7 @@ module DataCycleCore
       removed_objects = []
 
       unless diff.blank?
-        diff.each do |_, v|
+        diff.each_value do |v|
           v.each do |val|
             indicator = val[0]
             value = val[1]

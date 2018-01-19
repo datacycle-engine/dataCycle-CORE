@@ -22,7 +22,7 @@ module DataCycleCore
         def check_reference_array(data, template)
           # check given validations
           if template.key?('validations')
-            template['validations'].keys.each do |key|
+            template['validations'].each_key do |key|
               if @@keywords.include?(key)
                 method(key).call(data, template['validations'][key])
               else

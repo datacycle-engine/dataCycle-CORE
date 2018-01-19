@@ -12,7 +12,7 @@ module DataCycleCore
 
     def data_iterator_merge(data_hash, release_hash)
       return data_hash if release_hash.blank?
-      release_hash.each do |key, _|
+      release_hash.each_key do |key|
         data_hash[key] = merge_data(data_hash[key], release_hash[key])
       end
       data_hash
@@ -21,7 +21,7 @@ module DataCycleCore
     def data_iterator_split(original_hash, full)
       data_hash = {}
       release_hash = {}
-      original_hash.each do |key, _|
+      original_hash.each_key do |key|
         data_hash[key], release_hash[key] = split_data(original_hash[key], full)
         release_hash[key] = nil if release_hash[key].blank?
       end

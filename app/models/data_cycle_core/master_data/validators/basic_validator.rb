@@ -13,7 +13,7 @@ module DataCycleCore
         end
 
         def merge_errors(error_hash)
-          @error.each do |key, _|
+          @error.each_key do |key|
             @error[key] += error_hash[key] if error_hash.key?(key)
           end
         end

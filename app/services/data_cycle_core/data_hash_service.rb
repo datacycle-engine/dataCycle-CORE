@@ -116,7 +116,7 @@ module DataCycleCore
               object_properties = get_internal_template(properties['storage_location'], properties['name'], properties['description'])
               temp_value = []
 
-              value.values.each do |object_value|
+              value.each_value do |object_value|
                 temp_value.push(flatten_recursive(object_value, object_properties.metadata['validation']))
               end
 

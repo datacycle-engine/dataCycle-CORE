@@ -8,7 +8,7 @@ module DataCycleCore
         def validate(data, template)
           if data.is_a?(::String)
             if template.key?('validations')
-              template['validations'].keys.each do |key|
+              template['validations'].each_key do |key|
                 if @@string_keywords.include?(key)
                   method(key).call(data, template['validations'][key])
                 else
