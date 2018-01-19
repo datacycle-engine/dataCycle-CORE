@@ -10,11 +10,6 @@
 #######################################################
 ########## CHECK
 
-# Offense count: 6
-Lint/AmbiguousOperator:
-  Exclude:
-    - 'lib/tasks/data_cycle_core_tasks.rake'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyleAlignWith.

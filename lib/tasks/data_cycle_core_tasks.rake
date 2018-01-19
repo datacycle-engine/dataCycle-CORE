@@ -212,7 +212,7 @@ namespace :data_cycle_core do
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
         puts 'ERROR: only the following content_table_names are known to the system:'
         puts DataCycleCore.content_tables.to_s
-        exit -1
+        exit(-1)
       end
 
       data_object = "DataCycleCore::#{args[:content_table_name].classify}".safe_constantize
@@ -221,7 +221,7 @@ namespace :data_cycle_core do
       if template.nil?
         puts "ERROR: template not found. For the given #{args[:content_table_name]} table only the following templates are available:"
         puts data_object.where(template: true).map(&:headline)
-        exit -1
+        exit(-1)
       end
 
       type = data_object
@@ -236,7 +236,7 @@ namespace :data_cycle_core do
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
         puts 'ERROR: only the following content_table_names are known to the system:'
         puts DataCycleCore.content_tables.to_s
-        exit -1
+        exit(-1)
       end
 
       data_object = "DataCycleCore::#{args[:content_table_name].classify}".safe_constantize
@@ -245,7 +245,7 @@ namespace :data_cycle_core do
       if template.nil?
         puts "ERROR: template not found. For the given #{args[:content_table_name]} table only the following templates are available:"
         puts data_object.where(template: true).map(&:headline)
-        exit -1
+        exit(-1)
       end
 
       type = data_object
@@ -260,7 +260,7 @@ namespace :data_cycle_core do
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
         puts 'ERROR: only the following content_table_names are known to the system:'
         puts DataCycleCore.content_tables.to_s
-        exit -1
+        exit(-1)
       end
 
       template_object = "DataCycleCore::#{args[:content_table_name].classify}".safe_constantize
@@ -269,7 +269,7 @@ namespace :data_cycle_core do
       if template.nil?
         puts "ERROR: template not found. For the given #{args[:content_table_name]} table only the following templates are available:"
         puts template_object.where(template: true).map(&:headline)
-        exit -1
+        exit(-1)
       end
 
       data_object = "DataCycleCore::#{args[:content_table_name].classify}::History".safe_constantize
