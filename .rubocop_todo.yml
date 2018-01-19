@@ -10,12 +10,6 @@
 #######################################################
 ########## CHECK
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Performance/StringReplacement:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/logger/console.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, Include.
