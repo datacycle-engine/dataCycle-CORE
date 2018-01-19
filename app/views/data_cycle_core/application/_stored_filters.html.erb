@@ -4,7 +4,7 @@
         <li>
             <span class="watch-list-item">
                 <span class="watchlist-headline">
-                  <%= link_to stored_filter.name || "autosave: #{stored_filter.created_at.to_s}", root_path(stored_filter: stored_filter.id), class: 'watchlist-link' %>
+                  <%= link_to stored_filter.name || "vor #{time_ago_in_words stored_filter.created_at}", root_path(stored_filter: stored_filter.id), class: 'watchlist-link' %>
                 </span>
             </span>
         </li>
