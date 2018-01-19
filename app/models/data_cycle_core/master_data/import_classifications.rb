@@ -4,7 +4,7 @@ module DataCycleCore
       def import(filename)
         data_trees = YAML.load(File.open(filename))
         iterate_tree_array(data_trees)
-      rescue Exception => e
+      rescue StandardError => e
         puts "could not access the file: #{filename}"
         puts e.message
         puts e.backtrace

@@ -10,7 +10,7 @@ module DataCycleCore
           errors[filename] = error unless error.blank?
         end
         errors
-      rescue Exception => e
+      rescue StandardError => e
         puts "could not access a YML File in directory #{files}"
         puts e.message
         puts e.backtrace

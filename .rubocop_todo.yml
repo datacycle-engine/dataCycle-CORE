@@ -18,19 +18,6 @@ Lint/ParenthesesAsGroupedExpression:
     - 'app/models/data_cycle_core/generic/media_archive/endpoint.rb'
     - 'config/routes.rb'
 
-# Offense count: 2
-Lint/RescueException:
-  Exclude:
-    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
-    - 'app/models/data_cycle_core/master_data/import_templates.rb'
-
-# Offense count: 3
-Lint/ShadowingOuterLocalVariable:
-  Exclude:
-    - 'app/models/data_cycle_core/content_relations.rb'
-    - 'app/models/data_cycle_core/data_hash.rb'
-    - 'lib/data_cycle_core/engine.rb'
-
 # Offense count: 10
 # Cop supports --auto-correct.
 Lint/StringConversionInInterpolation:
