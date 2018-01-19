@@ -72,9 +72,9 @@ module DataCycleCore
 
       def with_classification_aliases(tree_name, *aliases)
         reflect (
-          @query.joins(:classification_aliases).merge(
+          @query.where(id: DataCycleCore::Search.joins(:classification_aliases).merge(
             DataCycleCore::ClassificationAlias.for_tree(tree_name).with_name(aliases).with_descendants
-          )
+          ))
         )
       end
 
