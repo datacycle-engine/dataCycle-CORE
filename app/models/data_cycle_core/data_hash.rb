@@ -71,7 +71,7 @@ module DataCycleCore
         data_set_history.save
 
         # cc classification_content to history
-        classification_content.all.each do |item|
+        classification_content.all.find_each do |item|
           classification_history = DataCycleCore::ClassificationContent::History.new
           classification_history.content_data_history_id = data_set_history.id
           classification_history.content_data_history_type = data_set_history.class.to_s

@@ -44,8 +44,8 @@ class DataCycleCore::Generic::EventDatabase::Endpoint
       req.params['page'] = page
       req.params['pagesize'] = per
       req.params['filter'] = {
-        'from' => Date.today.at_beginning_of_month.to_s(:german_date_format),
-        'to' => Date.today.at_end_of_month.next_year.to_s(:german_date_format)
+        'from' => Time.zone.today.at_beginning_of_month.to_s(:german_date_format),
+        'to' => Time.zone.today.at_end_of_month.next_year.to_s(:german_date_format)
       }
     end
 

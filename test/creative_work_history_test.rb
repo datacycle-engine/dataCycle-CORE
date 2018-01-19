@@ -102,7 +102,7 @@ module DataCycleCore
       data_set.save
 
       data_hash = { 'headline' => 'Dies ist ein Test!' }
-      error = data_set.set_data_hash(data_hash: data_hash, save_time: save_time + 5.second)
+      error = data_set.set_data_hash(data_hash: data_hash, save_time: save_time + 5.seconds)
       data_set.save
 
       returned_data_hash = data_set.get_data_hash
@@ -110,7 +110,7 @@ module DataCycleCore
 
       assert_equal(1, returned_data_hash['data_pool'].count)
       assert_equal(0, error[:error].count)
-      assert_not_equal(data_set.get_data_hash(Time.zone.now), data_set.get_data_hash(save_time + 2.second))
+      assert_not_equal(data_set.get_data_hash(Time.zone.now), data_set.get_data_hash(save_time + 2.seconds))
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw_count)
@@ -295,7 +295,7 @@ module DataCycleCore
       assert_equal(data_hash_3w, data_set.get_data_hash(weeks2ago - 1.day))
       assert_equal(data_hash_4w, data_set.get_data_hash(weeks3ago - 1.day))
       assert_equal(data_hash_4w, data_set.get_data_hash(weeks4ago + 1.day))
-      assert_nil(data_set.as_of(weeks4ago - 2.week))
+      assert_nil(data_set.as_of(weeks4ago - 2.weeks))
       assert_nil(data_set.as_of(Time.zone.now - 3.months))
       assert_equal(data_hash_1w, data_set.get_data_hash(Time.zone.now + 1.month))
     end

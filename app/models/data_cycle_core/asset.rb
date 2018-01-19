@@ -1,5 +1,5 @@
 module DataCycleCore
-  class Asset < ActiveRecord::Base
+  class Asset < ApplicationRecord
     # acts_as_paranoid
 
     # belongs_to :medium

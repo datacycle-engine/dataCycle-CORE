@@ -49,9 +49,9 @@ module DataCycleCore
     def is_valid
       if try(:validity_period)
         valid_from, valid_to = get_validity_values(validity_period.to_h)
-        return Date.today.between?(valid_from.to_date, valid_to.to_date) if valid_from.blank? == false && valid_to.blank? == false
-        return Date.today <= valid_to.to_date if valid_to.blank? == false
-        return Date.today >= valid_from.to_date if valid_from.blank? == false
+        return Time.zone.today.between?(valid_from.to_date, valid_to.to_date) if valid_from.blank? == false && valid_to.blank? == false
+        return Time.zone.today <= valid_to.to_date if valid_to.blank? == false
+        return Time.zone.today >= valid_from.to_date if valid_from.blank? == false
       end
       true
     end

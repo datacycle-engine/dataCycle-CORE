@@ -6,181 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-#######################################################
-#######################################################
-########## CHECK
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, Include.
-# SupportedStyles: action, filter
-# Include: app/controllers/**/*.rb
-Rails/ActionFilter:
-  Exclude:
-    - 'app/controllers/data_cycle_core/api/v1/api_base_controller.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Rails/ApplicationJob:
-  Exclude:
-    - 'app/jobs/data_cycle_core/import_job.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Rails/ApplicationRecord:
-  Exclude:
-    - 'app/models/data_cycle_core/asset.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: NilOrEmpty, NotPresent, UnlessPresent.
-Rails/Blank:
-  Exclude:
-    - 'app/helpers/data_cycle_core/application_helper.rb'
-
-# Offense count: 2
-# Configuration parameters: Include.
-# Include: db/migrate/*.rb
-Rails/CreateTableWithTimestamps:
-  Exclude:
-    - 'db/migrate/20170116165448_start_over.rb'
-    - 'db/migrate/20170817090756_add_status_table.rb'
-
-# Offense count: 9
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: strict, flexible
-Rails/Date:
-  Exclude:
-    - 'app/helpers/data_cycle_core/content_helpers.rb'
-    - 'app/models/data_cycle_core/api/media_archive_external_source.rb'
-    - 'app/models/data_cycle_core/generic/event_database/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/feratel/endpoint.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforceForPrefixed.
-Rails/Delegate:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/base.rb'
-
-# Offense count: 1
-Rails/FilePath:
-  Exclude:
-    - 'test/dummy/config/environments/development.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: app/models/**/*.rb
-Rails/FindBy:
-  Exclude:
-    - 'app/models/data_cycle_core/classification_tree.rb'
-    - 'app/models/data_cycle_core/stats_database.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: app/models/**/*.rb
-Rails/FindEach:
-  Exclude:
-    - 'app/models/data_cycle_core/data_hash.rb'
-    - 'app/models/data_cycle_core/stats_database.rb'
-
-# Offense count: 8
-# Configuration parameters: Include.
-# Include: app/models/**/*.rb
-Rails/HasManyOrHasOneDependent:
-  Exclude:
-    - 'app/models/data_cycle_core/classification.rb'
-    - 'app/models/data_cycle_core/content_relations.rb'
-    - 'app/models/data_cycle_core/external_source.rb'
-    - 'app/models/data_cycle_core/place.rb'
-    - 'app/models/data_cycle_core/role.rb'
-    - 'app/models/data_cycle_core/user.rb'
-    - 'app/models/data_cycle_core/watch_list.rb'
-
-# Offense count: 29
-# Configuration parameters: Include.
-# Include: app/models/**/*.rb
-Rails/InverseOf:
-  Exclude:
-    - 'app/models/data_cycle_core/classification.rb'
-    - 'app/models/data_cycle_core/classification_alias.rb'
-    - 'app/models/data_cycle_core/classification_tree.rb'
-    - 'app/models/data_cycle_core/content_relations.rb'
-    - 'app/models/data_cycle_core/creative_work.rb'
-    - 'app/models/data_cycle_core/data_link.rb'
-    - 'app/models/data_cycle_core/event.rb'
-    - 'app/models/data_cycle_core/person.rb'
-    - 'app/models/data_cycle_core/place.rb'
-    - 'app/models/data_cycle_core/subscribable.rb'
-    - 'app/models/data_cycle_core/user.rb'
-    - 'app/models/data_cycle_core/watch_list.rb'
-
-# Offense count: 1
-# Configuration parameters: Include.
-# Include: app/controllers/**/*.rb
-Rails/LexicallyScopedActionFilter:
-  Exclude:
-    - 'app/controllers/data_cycle_core/data_links_controller.rb'
-
-# Offense count: 26
-# Configuration parameters: Include.
-# Include: app/**/*.rb, config/**/*.rb, db/**/*.rb, lib/**/*.rb
-Rails/Output:
-  Exclude:
-    - 'app/controllers/data_cycle_core/dash_board_controller.rb'
-    - 'app/models/data_cycle_core/data_hash.rb'
-    - 'app/models/data_cycle_core/generic/logger/console.rb'
-    - 'app/models/data_cycle_core/generic/media_archive/import.rb'
-    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
-    - 'app/models/data_cycle_core/master_data/import_templates.rb'
-    - 'app/models/data_cycle_core/master_data/validate_data.rb'
-    - 'app/models/data_cycle_core/update/base.rb'
-
-# Offense count: 3
-Rails/OutputSafety:
-  Exclude:
-    - 'app/helpers/data_cycle_core/application_helper.rb'
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-Rails/PluralizationGrammar:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/feratel/endpoint.rb'
-    - 'test/creative_work_history_test.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Rails/Presence:
-  Exclude:
-    - 'app/controllers/data_cycle_core/classifications_controller.rb'
-    - 'app/models/data_cycle_core/content.rb'
-
-# Offense count: 90
-# Cop supports --auto-correct.
-# Configuration parameters: NotNilAndNotEmpty, NotBlank, UnlessBlank.
-Rails/Present:
-  Enabled: false
-
-# Offense count: 4
-# Configuration parameters: Blacklist.
-# Blacklist: decrement!, decrement_counter, increment!, increment_counter, toggle!, touch, update_all, update_attribute, update_column, update_columns, update_counters
-Rails/SkipsModelValidations:
-  Exclude:
-    - 'app/controllers/data_cycle_core/data_links_controller.rb'
-    - 'lib/tasks/data_cycle_core_tasks.rake'
-    - 'app/models/data_cycle_core/data_link.rb'
-    - 'app/controllers/data_cycle_core/creative_works_controller.rb'
-
-# Offense count: 37
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: strict, flexible
-Rails/TimeZone:
-  Enabled: false
-
-
 
 #######################################################
 #######################################################
@@ -209,8 +34,6 @@ Naming/AccessorMethodName:
   Enabled: false
 
 # Offense count: 10
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: snake_case, camelCase
 Naming/MethodName:
   Exclude:
     - 'app/controllers/data_cycle_core/watch_lists_controller.rb'
@@ -220,11 +43,6 @@ Naming/MethodName:
     - 'app/models/data_cycle_core/master_data/validators/string.rb'
 
 # Offense count: 11
-# Configuration parameters: NamePrefix, NamePrefixBlacklist, NameWhitelist, MethodDefinitionMacros.
-# NamePrefix: is_, has_, have_
-# NamePrefixBlacklist: is_, has_, have_
-# NameWhitelist: is_a?
-# MethodDefinitionMacros: define_method, define_singleton_method
 Naming/PredicateName:
   Exclude:
     - 'spec/**/*'
@@ -240,8 +58,6 @@ Naming/PredicateName:
     - 'app/models/data_cycle_core/user.rb'
 
 # Offense count: 44
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: snake_case, camelCase
 Naming/VariableName:
   Exclude:
     - 'app/controllers/concerns/data_cycle_core/filter.rb'
@@ -258,3 +74,150 @@ Naming/VariableName:
     - 'app/helpers/data_cycle_core/classification_helper.rb'
     - 'app/jobs/data_cycle_core/download_job.rb'
     - 'app/jobs/data_cycle_core/import_job.rb'
+
+#######################################################
+########## Performance
+
+Performance/RedundantBlockCall:
+  Exclude:
+    - 'app/services/data_cycle_core/normalize_service.rb'
+
+#######################################################
+########## Rails
+
+# Offense count: 3
+Rails/OutputSafety:
+  Exclude:
+    - 'app/helpers/data_cycle_core/application_helper.rb'
+    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
+
+# Offense count: 8
+Rails/HasManyOrHasOneDependent:
+  Exclude:
+    - 'app/models/data_cycle_core/classification.rb'
+    - 'app/models/data_cycle_core/content_relations.rb'
+    - 'app/models/data_cycle_core/external_source.rb'
+    - 'app/models/data_cycle_core/place.rb'
+    - 'app/models/data_cycle_core/role.rb'
+    - 'app/models/data_cycle_core/user.rb'
+    - 'app/models/data_cycle_core/watch_list.rb'
+
+# Offense count: 29
+Rails/InverseOf:
+  Exclude:
+    - 'app/models/data_cycle_core/classification.rb'
+    - 'app/models/data_cycle_core/classification_alias.rb'
+    - 'app/models/data_cycle_core/classification_tree.rb'
+    - 'app/models/data_cycle_core/content_relations.rb'
+    - 'app/models/data_cycle_core/creative_work.rb'
+    - 'app/models/data_cycle_core/data_link.rb'
+    - 'app/models/data_cycle_core/event.rb'
+    - 'app/models/data_cycle_core/person.rb'
+    - 'app/models/data_cycle_core/place.rb'
+    - 'app/models/data_cycle_core/subscribable.rb'
+    - 'app/models/data_cycle_core/user.rb'
+    - 'app/models/data_cycle_core/watch_list.rb'
+
+# Offense count: 26
+Rails/Output:
+  Exclude:
+    - 'app/controllers/data_cycle_core/dash_board_controller.rb'
+    - 'app/models/data_cycle_core/data_hash.rb'
+    - 'app/models/data_cycle_core/generic/logger/console.rb'
+    - 'app/models/data_cycle_core/generic/media_archive/import.rb'
+    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
+    - 'app/models/data_cycle_core/master_data/import_templates.rb'
+    - 'app/models/data_cycle_core/master_data/validate_data.rb'
+    - 'app/models/data_cycle_core/update/base.rb'
+
+# Offense count: 4
+Rails/SkipsModelValidations:
+  Exclude:
+    - 'app/controllers/data_cycle_core/data_links_controller.rb'
+    - 'lib/tasks/data_cycle_core_tasks.rake'
+    - 'app/models/data_cycle_core/data_link.rb'
+    - 'app/controllers/data_cycle_core/creative_works_controller.rb'
+
+# Offense count: 90
+Rails/Present:
+  Enabled: false
+
+# Offense count: 37
+Rails/TimeZone:
+  Enabled: false
+
+#######################################################
+########## Style
+
+# Offense count: 69
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+# Offense count: 14
+Style/ClassVars:
+  Exclude:
+    - 'app/controllers/data_cycle_core/api/v1/classification_controller.rb'
+    - 'app/controllers/data_cycle_core/api/v1/contents_controller.rb'
+    - 'app/controllers/data_cycle_core/object_browser_controller.rb'
+    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
+    - 'app/models/data_cycle_core/master_data/validators/classification_tree_label.rb'
+    - 'app/models/data_cycle_core/master_data/validators/embedded_link_array.rb'
+    - 'app/models/data_cycle_core/master_data/validators/number.rb'
+    - 'app/models/data_cycle_core/master_data/validators/object.rb'
+    - 'app/models/data_cycle_core/master_data/validators/string.rb'
+
+# Offense count: 33
+Style/DateTime:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+# Offense count: 49
+Style/GuardClause:
+  Enabled: false
+
+# Offense count: 2
+Style/MethodMissing:
+  Exclude:
+    - 'app/models/data_cycle_core/callbacks.rb'
+    - 'app/models/data_cycle_core/content.rb'
+
+# Offense count: 9
+Style/MutableConstant:
+  Exclude:
+    - 'app/helpers/data_cycle_core/application_helper.rb'
+    - 'app/helpers/data_cycle_core/history_helper.rb'
+    - 'app/models/data_cycle_core/content.rb'
+    - 'app/models/data_cycle_core/filter/query_builder.rb'
+    - 'app/models/data_cycle_core/filter/search.rb'
+    - 'lib/data_cycle_core/version.rb'
+
+#######################################################
+########## Transproc
+
+# Offense count: 1
+Layout/AlignParameters:
+  Exclude:
+    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
+
+# Offense count: 4
+Style/Lambda:
+  Exclude:
+    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
+
+# Offense count: 1
+Layout/MultilineHashBraceLayout:
+  Exclude:
+    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
+
+# Offense count: 2
+# Cop supports --auto-correct.
+Style/RescueModifier:
+  Exclude:
+    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
+
+# Offense count: 39
+Style/StabbyLambdaParentheses:
+  Exclude:
+    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'

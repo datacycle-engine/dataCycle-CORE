@@ -1,5 +1,5 @@
 module DataCycleCore
-  class ImportJob < ActiveJob::Base
+  class ImportJob < ApplicationJob
     # there is a bug in ActiveJob in combination with DelayedJob that prevents
     # @provider_job_id to be available in the perform actions and callbacks!!
     # it is available in the enque-callbacks

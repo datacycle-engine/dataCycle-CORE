@@ -37,7 +37,7 @@ module DataCycleCore
     def full_title
       base_title = 'DataCycle'
 
-      if content_for(:title).nil? || content_for(:title).empty?
+      if content_for(:title).blank?
         base_title
       else
         content_for(:title) + ' | ' + base_title

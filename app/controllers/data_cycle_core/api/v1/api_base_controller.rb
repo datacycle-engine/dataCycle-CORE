@@ -6,9 +6,8 @@ module DataCycleCore
 
     # rescue_from CanCan::AccessDenied, with: :access_denied
     # rescue_from ActiveRecord::RecordNotFound, with: :not_found
-    before_filter :authenticate
 
-    before_action :set_default_response_format
+    before_action :authenticate, :set_default_response_format
 
     def tokens
       DataCycleCore.access_tokens

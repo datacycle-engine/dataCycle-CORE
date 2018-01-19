@@ -38,7 +38,7 @@ module DataCycleCore
       render json: DataCycleCore::Classification
         .includes(:classification_groups, :classification_aliases)
         .joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-        .where('classification_tree_labels.name ILIKE ?', params[:tree_label].blank? ? '%' : params[:tree_label])
+        .where('classification_tree_labels.name ILIKE ?', params[:tree_label].presence || '%')
         .where('classifications.name ILIKE ?', "%#{params[:q]}%")
         .limit(params[:max].try(:to_i) || 10).map(&:descendants).flatten.map { |c|
           {

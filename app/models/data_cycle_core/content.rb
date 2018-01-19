@@ -118,7 +118,7 @@ module DataCycleCore
             get_property_value(property_name, property_definitions[property_name], timestamp, false)
           elsif included_property_names.include?(property_name)
             embedded_hash = send(property_name).to_h
-            embedded_hash.blank? ? nil : embedded_hash
+            embedded_hash.presence
           elsif embedded_property_names.include?(property_name)
             embedded_array = send(property_name)
             embedded_array = embedded_array.map { |item| item.get_data_hash(timestamp) } unless embedded_array.blank?
