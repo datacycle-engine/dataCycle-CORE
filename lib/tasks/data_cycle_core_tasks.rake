@@ -186,7 +186,7 @@ namespace :data_cycle_core do
 
     desc 'update weigths (boost) in search table'
     task update_search: [:environment] do
-      puts "#{'content_class'.ljust(30)} | #{'data_definition_name'.ljust(25)} | #{'#entries'.ljust(10)} | #{'new weight'}"
+      puts "#{'content_class'.ljust(30)} | #{'data_definition_name'.ljust(25)} | #{'#entries'.ljust(10)} | new weight"
       puts '-' * 84
       DataCycleCore.content_tables.each do |content_table|
         data_object = "DataCycleCore::#{content_table.classify}".safe_constantize

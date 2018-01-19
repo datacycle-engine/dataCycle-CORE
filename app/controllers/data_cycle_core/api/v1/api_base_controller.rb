@@ -2,7 +2,7 @@ module DataCycleCore
   class Api::V1::ApiBaseController < ActionController::API
     include ActionView::Rendering
     include CanCan::ControllerAdditions
-    ActiveSupport::Rescuable
+    # include ActiveSupport::Rescuable
 
     # rescue_from CanCan::AccessDenied, with: :access_denied
     # rescue_from ActiveRecord::RecordNotFound, with: :not_found

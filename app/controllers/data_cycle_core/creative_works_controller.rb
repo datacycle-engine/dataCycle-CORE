@@ -81,7 +81,6 @@ module DataCycleCore
 
       I18n.with_locale(@creativeWork.first_available_locale) do
         unless @creativeWork.read_write?
-          raise 'read_only'
           redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end
@@ -115,7 +114,6 @@ module DataCycleCore
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
         unless @content.read_write?
-          raise 'read_only'
           redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end

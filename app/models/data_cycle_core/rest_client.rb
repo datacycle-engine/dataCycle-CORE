@@ -8,7 +8,6 @@ module DataCycleCore
           faraday.response :logger if verbose       # write requests to STDOUT
           faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
         end
-        return self
       else
         raise TypeError, "from DataCycleCore::RestClient --> no valid credentials given: received credentails: #{credentials.inspect}"
       end
