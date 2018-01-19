@@ -31,7 +31,7 @@ module DataCycleCore
     def self.with_descendants
       query = self.is_a?(ActiveRecord::Relation) ? self : all
 
-      sql = <<-SQL.gsub(/\s+/, ' ')
+      sql = <<-SQL.gsub(/\s+/, ' ').gsub(/(?<=\A)\s+/, '').gsub(/\s+(?=\z)/, '')
         WITH RECURSIVE aliases AS (
           #{query.to_sql}
           UNION
@@ -42,7 +42,7 @@ module DataCycleCore
         ) SELECT id FROM aliases
         SQL
 
-      DataCycleCore::ClassificationAlias.where('classification_aliases.id IN (' + sql + ')')
+      query.unscope(where: query.bound_attributes.map(&:name)).where('classification_aliases.id IN (' + sql + ')')
     end
 
     def ancestors
