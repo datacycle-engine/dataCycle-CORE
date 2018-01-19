@@ -8,6 +8,6 @@ module DataCycleCore
           webhook.new.execute(data)
         end
       end
-      end
     end
   end
+end

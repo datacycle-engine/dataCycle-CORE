@@ -10,25 +10,6 @@
 #######################################################
 ########## CHECK
 
-# Offense count: 1
-Lint/ConditionPosition:
-  Exclude:
-    - 'app/models/data_cycle_core/content_relations.rb'
-
-# Offense count: 2
-Lint/Debugger:
-  Exclude:
-    - 'lib/data_cycle_core/engine.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleAlignWith, AutoCorrect.
-# SupportedStylesAlignWith: keyword, variable, start_of_line
-Lint/EndAlignment:
-  Exclude:
-    - 'app/models/data_cycle_core/filter/object_browser_query_builder.rb'
-    - 'app/models/data_cycle_core/webhook/update.rb'
-
 # Offense count: 2
 Lint/IneffectiveAccessModifier:
   Exclude:

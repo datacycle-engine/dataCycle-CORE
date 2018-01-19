@@ -256,13 +256,9 @@ Nokogiri::XML::Node.class_eval do
     elsif is_a? Nokogiri::XML::Element
       nil
     else
-      binding.pry
-
       raise 'NotImplemented'
     end
   rescue StandardError => e
-    binding.pry
-
     raise e
   end
 end

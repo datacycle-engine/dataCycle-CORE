@@ -40,12 +40,10 @@ module DataCycleCore
             else
               has_many content_name.pluralize.to_sym, through: :content_content_b, source: :content_a, source_type: "DataCycleCore::#{content_name.classify}"
             end
-          elsif
-            if table_given.to_s.singularize <= content_name
-              has_many "#{content_name}_#{postfix}".pluralize.to_sym, through: :content_content_a_history, source: :content_b_history, source_type: "DataCycleCore::#{content_name.classify}::#{postfix.capitalize}"
-            else
-              has_many "#{content_name}_#{postfix}".pluralize.to_sym, through: :content_content_b_history, source: :content_a_history, source_type: "DataCycleCore::#{content_name.classify}::#{postfix.capitalize}"
-            end
+          elsif table_given.to_s.singularize <= content_name
+            has_many "#{content_name}_#{postfix}".pluralize.to_sym, through: :content_content_a_history, source: :content_b_history, source_type: "DataCycleCore::#{content_name.classify}::#{postfix.capitalize}"
+          else
+            has_many "#{content_name}_#{postfix}".pluralize.to_sym, through: :content_content_b_history, source: :content_a_history, source_type: "DataCycleCore::#{content_name.classify}::#{postfix.capitalize}"
           end
         end
 
