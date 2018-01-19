@@ -4,7 +4,7 @@ module DataCycleCore
       def download(**options, &block)
         options[:download].sort { |d1, d2|
           d1.second['sorting'] <=> d2.second['sorting']
-        }.each_value do |single_config|
+        }.each do |_, single_config|
           DataCycleCore::Generic::Download.new(external_source.id).download(options.merge({ download: single_config.symbolize_keys }))
         end
       end
