@@ -117,6 +117,12 @@ module DataCycleCore
       render json: valid.to_json
     end
 
+    def gpx
+      @place = DataCycleCore::Place.find(params[:id])
+
+      send_data @place.create_gpx, filename: "#{@place.title.blank? ? 'unnamed_place' : @place.title.underscore.parameterize(separator: '_')}.gpx", type: 'gpx/xml'
+    end
+
     private
 
     def create_params

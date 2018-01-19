@@ -1,5 +1,5 @@
 <% if can? :create, DataCycleCore::WatchList %>
-    <li class="<%= content.nil? ? 'add-watchlist-to-menu' : 'add-watchlist' %>">
+    <div class="<%= content.nil? ? 'add-watchlist-to-menu' : 'add-watchlist' %>">
         <% @new_watch_list ||= DataCycleCore::WatchList.new %>
 
         <%= form_for @new_watch_list, namespace: content.nil? ? "header-menu" : content.id, html: { class: "add-watchlist-form" } do |f| %>
@@ -13,5 +13,5 @@
             </div>
 
         <% end %>
-    </li>
+    </div>
 <% end %>

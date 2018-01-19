@@ -2,25 +2,32 @@
   <%= render 'external_source', local_assigns %>
 <% end %>
 
-<% content_data = content.get_data_hash %>
+<div class="edit">
+  <%= yield :buttons %>
 
-<% if can? :edit, content %>
-    <div class="edit">
-        <%= link_to edit_polymorphic_path(content, watch_list_id: @watch_list), class:'button-prime small edit-content-link' do %>
-            <i class="fa fa-pencil" aria-hidden="true"></i>
-        <% end %>
+  <% if content.metadata&.dig('validation', 'content_type') == 'variant' && can?(:create, content.class) && !content.try(:parent).nil? %>
+      <%= link_to "#", class:'button-prime small', data: { tooltip: '', open: 'newContent' }, title: 'Inhalt anhand dieser Vorlage erstellen', 'aria-haspopup': true do %>
+          <i class="fa fa-plus" aria-hidden="true"></i>
+      <% end %>
+      <%= render 'newContentFromTemplate', content: content %>
+  <% end %>
 
-        <% if can? :destroy, content %>
-            <%= link_to polymorphic_path(content, watch_list_id: @watch_list), :method => :delete, class:'button-prime small delete-content-link', data: {tooltip: "", confirm:"#{content.metadata['validation']['name']} #{t('actions.delete', locale: DataCycleCore.ui_language)}?"}, title: t('actions.delete', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': "true" do %>
-                <i class="fa fa-trash-o" aria-hidden="true"></i>
-            <% end %>
-        <% end %>
-    </div>
-<% end %>
+  <%= link_to gpx_place_path(content), class: 'button-prime small gpx-content-link', data: { tooltip: '' }, title: t('common.download_gpx', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
+    <i class="fa fa-location-arrow" aria-hidden="true"></i>
+  <% end if content.respond_to?(:create_gpx) %>
+
+  <%= link_to edit_polymorphic_path(content, watch_list_id: @watch_list), class:'button-prime small edit-content-link', data: {tooltip: ""}, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
+    <i class="fa fa-pencil" aria-hidden="true"></i>
+  <% end if can? :edit, content %>
+
+  <%= link_to polymorphic_path(content, watch_list_id: @watch_list), :method => :delete, class:'button-prime small delete-content-link', data: { tooltip: "", confirm: "#{content.metadata['validation']['name']} #{t('actions.delete', locale: DataCycleCore.ui_language)}?" }, title: t('actions.delete', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
+    <i class="fa fa-trash-o" aria-hidden="true"></i>
+  <% end if can? :destroy, content %>
+</div>
 
 <div class="tags">
     <% content.classification_tree_definitions.each do |definition| %>
-        <% if !content_data[definition[:key]].blank? %>
+        <% if content.send(definition[:key]).size.positive? %>
             <div class="tag-group-wrapper">
                 <span class="icon <%= definition['label'] %>"><i class="fa" aria-hidden="true"></i></span>
                 <span class="tag-group-header"><%= definition['label'] %>: </span>

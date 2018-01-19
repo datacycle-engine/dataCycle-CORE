@@ -652,4 +652,25 @@ namespace :data_cycle_core do
       puts "--> UPDATE time: #{((Time.zone.now - temp) / 60).to_i} min"
     end
   end
+
+  namespace :notifications do
+    desc "send subscriber notification emails"
+    task :send, [:frequency] => [:environment] do |t, args|
+      if args.frequency
+        puts "sending mails for daily subscribers..."
+        puts "frequency: #{args.frequency}"
+        puts "Users for interval (#{args.frequency}): #{DataCycleCore::User.where(notification_frequency: args.frequency).size}"
+
+        DataCycleCore::User.where(notification_frequency: args.frequency).each do |user|
+          subcribed_with_changes = user.subscriptions.map(&:subscribable).reject { |c| c.as_of(1.send(args.frequency).ago).try(:is_history?) == false }
+
+          puts "Subscriptions with changes: #{subcribed_with_changes.size}"
+
+          if subcribed_with_changes.size.positive?
+            user.send_notification subcribed_with_changes
+          end
+        end
+      end
+    end
+  end
 end

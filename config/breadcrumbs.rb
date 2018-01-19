@@ -3,6 +3,10 @@ crumb :root do
   link to_html_string("<i class='fa fa-folder-open-o' aria-hidden='true'></i>#{DataCycleCore.breadcrumb_root_name}"), root_path
 end
 
+crumb :settings do
+  link to_html_string(t('data_cycle_core.settings', locale: DataCycleCore.ui_language)), settings_path
+end
+
 crumb :admin do
   link to_html_string(t('data_cycle_core.administration', locale: DataCycleCore.ui_language)), '#'
 end

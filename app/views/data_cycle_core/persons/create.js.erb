@@ -1,4 +1,5 @@
 $('<%= params[:new_overlay_id] %>').foundation('close');
+$('<%= params[:overlay_id] %> .items .no-results').remove();
 
 $('<%= params[:overlay_id] %>').find('.items .loading').before('<%= j render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: {object: @person, options: params[:options], objects: params[:objects]}) if !@person.nil? %>');
 

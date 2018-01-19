@@ -26,48 +26,48 @@
 				<div class="detail-header-info">
 					<div class="type thema">
 						<span class="icon">
-								<i class="fa fa-folder-open" aria-hidden="true"></i>
+								<i class="fa fa-user" aria-hidden="true"></i>
 						</span>
 						<span class="title"><%= content.model_name.human(locale: DataCycleCore.ui_language) %></span>
 					</div>
 				</div>
 
         <% unless @user.external %>
-          <div class="form-element validation-container input" tabindex="-1">
+          <div class="form-element validation-container input">
               <%= f.text_field :given_name %>
           </div>
 
-          <div class="form-element validation-container input" tabindex="-1">
+          <div class="form-element validation-container input">
               <%= f.text_field :family_name %>
           </div>
 
-          <div class="form-element validation-container input" tabindex="-1">
+          <div class="form-element validation-container input">
               <%= f.email_field :email, required: true %>
           </div>
 
-          <div class="form-element validation-container input" tabindex="-1">
+          <div class="form-element validation-container input">
               <%= f.password_field :password, autocomplete: 'off' %>
           </div>
 
-          <div class="form-element validation-container input" tabindex="-1">
+          <div class="form-element validation-container input">
               <%= f.password_field :password_confirmation, autocomplete: 'off' %>
           </div>
 
           <% if current_user == @user %>
-            <div class="form-element validation-container input" tabindex="-1">
+            <div class="form-element validation-container input">
                 <%= f.password_field :current_password %>
             </div>
           <% end %>
         <% end %>
 
         <% if can? :set_role, @user %>
-          <div class="form-element validation-container" tabindex="-1">
-              <%= f.select :role_id, DataCycleCore::Role.where('rank > 0 AND rank <= ?', current_user.role.try(:rank)).collect{|r| [t('roles.'+r.name, locale: DataCycleCore.ui_language), r.id]}, label: false %>
+          <div class="form-element validation-container">
+              <%= f.select :role_id, DataCycleCore::Role.where('rank > 0 AND rank <= ?', current_user.role.try(:rank)).collect{|r| [t('roles.'+r.name, locale: DataCycleCore.ui_language), r.id]}, {}, class: "with-label" %>
           </div>
         <% end %>
 
         <% if can? :set_user_groups, @user %>
-          <div class="form-element validation-container" tabindex="-1">
+          <div class="form-element validation-container">
 
             <div class="v-select">
               <%= f.label :user_group_ids %>

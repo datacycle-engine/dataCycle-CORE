@@ -80,6 +80,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'carrierwave_backgrounder', '~> 0.4.2'
   s.add_dependency 'mini_magick'
 
+  # cron jobs gem
+  s.add_dependency 'whenever'
+
   # development tools
   s.add_development_dependency 'better_errors'
   s.add_development_dependency 'binding_of_caller'

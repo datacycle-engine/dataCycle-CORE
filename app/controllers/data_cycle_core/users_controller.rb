@@ -38,7 +38,9 @@ module DataCycleCore
 
         bypass_sign_in(@user) if current_user == @user && !user_params[:password].nil?
 
-        if Rails.env.development?
+        if params[:user_settings]
+          redirect_to(settings_path, notice: I18n.t(:updated_multiple, scope: [:controllers, :success], data: 'Benutzereinstellungen', locale: DataCycleCore.ui_language))
+        elsif Rails.env.development?
           redirect_to edit_user_path(@user)
         elsif can? :crud, DataCycleCore::User
           redirect_to users_path
@@ -74,7 +76,7 @@ module DataCycleCore
     private
 
     def user_params
-      allowed_params = [:email, :family_name, :given_name, :role_id, user_group_ids: []]
+      allowed_params = [:email, :family_name, :given_name, :role_id, :notification_frequency, user_group_ids: []]
       allowed_params.push(:password, :password_confirmation, :current_password) unless params[:user][:password].blank? || params[:user][:password_confirmation].blank?
       params.require(:user).permit(allowed_params)
     end

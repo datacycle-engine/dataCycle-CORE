@@ -25,11 +25,17 @@ module DataCycleCore
     end
 
     def has_rank?(rank)
-      role && role.rank >= rank
+      self&.role&.rank&.>= rank
     end
 
     def is_rank?(rank)
-      role && role.try(:rank) == rank
+      self&.role&.rank == rank
+    end
+
+    def send_notification(contents)
+      return unless contents.size.positive?
+
+      SubscriptionMailer.notify(self, contents).deliver_later
     end
 
     private

@@ -26,17 +26,17 @@
 				<div class="detail-header-info">
 					<div class="type thema">
 						<span class="icon">
-								<i class="fa fa-folder-open" aria-hidden="true"></i>
+								<i class="fa fa-users" aria-hidden="true"></i>
 						</span>
 						<span class="title"><%= content.model_name.human(locale: DataCycleCore.ui_language) %></span>
 					</div>
 				</div>
 
-				<div class="form-element validation-container input" tabindex="-1">
+				<div class="form-element validation-container input">
 						<%= f.text_field :name, required: true %>
 				</div>
 
-				<div class="form-element validation-container" tabindex="-1">
+				<div class="form-element validation-container">
 
           <div class="v-select">
             <%= f.label :user_ids %>
