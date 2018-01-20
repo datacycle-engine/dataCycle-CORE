@@ -53,6 +53,7 @@ DataCycleCore::Engine.routes.draw do
     patch :update, on: :collection
     delete :destroy, on: :collection
     get :search, on: :collection
+    get :download, on: :collection
   end
 
   get  '/admin', to: 'dash_board#home'
