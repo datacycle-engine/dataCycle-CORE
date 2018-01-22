@@ -29,9 +29,12 @@ module DataCycleCore
           end
           self.updated_at = save_time
           updated_by = { 'last_updated_by' => current_user.try(:id) }
-          metadata.nil? ? self.metadata = updated_by : metadata.merge!(updated_by)
-          save if id.nil?
-          set_search
+          self.metadata.nil? ? self.metadata = updated_by : self.metadata.merge!(updated_by)
+          if self.id.nil?
+            self.created_at = save_time
+            self.save
+          end
+          self.set_search
         end
       end
       validate(stripped_data_hash) # return error/warnings from validation
@@ -57,8 +60,8 @@ module DataCycleCore
 
       ActiveRecord::Base.transaction do
         # cc self to history
-        data_set_history.send(origin_table.singularize.foreign_key + '=', id)
-        attributes.except('id', 'created_at').each do |key, value|
+        data_set_history.send(origin_table.singularize.foreign_key + "=", id)
+        attributes.except('id', 'created_at', 'updated_at').each do |key, value|
           data_set_history.send("#{key}=", value)
         end
         data_set_history.is_part_of = parent_id if data_set_history.respond_to?('is_part_of')
@@ -67,8 +70,9 @@ module DataCycleCore
         lower_bound = save_time if lower_bound > save_time
         data_set_history.history_valid = (lower_bound...save_time)
         data_set_history.deleted_at = Time.zone.now.to_s(:long_usec) if delete
-
-        data_set_history.save
+        data_set_history.created_at = save_time
+        data_set_history.updated_at = save_time
+        data_set_history.save(touch: false)
 
         # cc classification_content to history
         classification_content.all.find_each do |item|
