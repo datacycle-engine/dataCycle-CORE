@@ -654,10 +654,10 @@ namespace :data_cycle_core do
   end
 
   namespace :notifications do
-    desc "send subscriber notification emails"
-    task :send, [:frequency] => [:environment] do |t, args|
+    desc 'send subscriber notification emails'
+    task :send, [:frequency] => [:environment] do |_t, args|
       if args.frequency
-        puts "sending mails for daily subscribers..."
+        puts 'sending mails for daily subscribers...'
         puts "frequency: #{args.frequency}"
         puts "Users for interval (#{args.frequency}): #{DataCycleCore::User.where(notification_frequency: args.frequency).size}"
 

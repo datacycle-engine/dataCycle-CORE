@@ -101,6 +101,7 @@ Rails/HasManyOrHasOneDependent:
     - 'app/models/data_cycle_core/role.rb'
     - 'app/models/data_cycle_core/user.rb'
     - 'app/models/data_cycle_core/watch_list.rb'
+    - 'app/models/data_cycle_core/search.rb'
 
 # Offense count: 29
 Rails/InverseOf:
