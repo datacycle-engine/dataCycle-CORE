@@ -8,11 +8,13 @@ ul.backend-treeview-list {
       display: inline-block;
     }
     a.edit,
-    a.destroy {
+    a.destroy,
+    a.download {
       margin: 0 0 0 0.2rem;
       color: $dark-gray;
     }
-    a.edit:hover {
+    a.edit:hover,
+    a.download:hover {
       color: $primary-color;
     }
     a.destroy:hover {

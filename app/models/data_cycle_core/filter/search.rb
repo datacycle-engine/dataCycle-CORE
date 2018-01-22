@@ -68,6 +68,16 @@ module DataCycleCore
         )
       end
 
+
+      def with_classification_aliases(tree_name, *aliases)
+        reflect (
+          @query.where(id: DataCycleCore::Search.joins(:classification_aliases).merge(
+            DataCycleCore::ClassificationAlias.for_tree(tree_name).with_name(aliases).with_descendants
+          ))
+        )
+      end
+
+
       def self.get_order_by_query_string(search)
         search_string = (search || '').split(' ').join('%')
 

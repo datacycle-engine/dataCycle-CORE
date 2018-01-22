@@ -139,5 +139,17 @@ module DataCycleCore
         end
       end
     end
+
+    def download
+      object = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
+
+      respond_to do |format|
+        format.csv do
+          send_data object.to_csv,
+                    type: 'text/csv; charset=UTF-8',
+                    disposition: "attachment; filename=#{object.name}.csv"
+        end
+      end
+    end
   end
 end

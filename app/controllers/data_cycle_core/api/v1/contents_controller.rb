@@ -35,46 +35,17 @@ module DataCycleCore
     end
 
     def search
-      @language = params[:language] unless params[:language].blank?
-      @language ||= 'de'
-
-      order_string = DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(params[:search])
-
-      classification_aliases = DataCycleCore::ClassificationAlias.joins(
-        :classification_tree_label
-      ).where(
-        classification_trees: {
-          classification_tree_label: DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltstypen')
-        }
-      )
-
-      classification_aliases = classification_aliases.where(name: DataCycleCore.allowed_content_api_classifications) unless DataCycleCore.allowed_content_api_classifications.blank?
-
-      query = DataCycleCore::Filter::Search.new(@language).where(content_data_type: DataCycleCore::CreativeWork)
-      query = query.with_classification_alias_ids(classification_aliases.map(&:id))
-      query = query.fulltext_search(params[:search]) unless params[:search].blank?
-
-      query = query.modified_since(params[:modified_since]) if params[:modified_since]
-
-      query = query.created_since(params[:created_since]) if params[:created_since]
-
+      query = build_search_query
+      query = query.where(content_data_type: content_data_type) if content_data_type
+      query = query.modified_since(params[:modified_since]) unless params[:modified_since].blank?
+      query = query.created_since(params[:created_since]) unless params[:created_since].blank?
       query = query.in_validity_period if params[:modified_since].blank? && params[:created_since].blank?
-
-      query = query.order(order_string)
-
-      @per = params[:per] unless params[:per].blank?
-      @per ||= @@default_per
+      query = query.fulltext_search(params[:search]) if params[:search]
+      query = apply_ordering(query)
 
       @total = query.count
-      pages = @total.fdiv(@per.to_i).ceil
 
-      unless params[:page].blank?
-        @page = params[:page]
-        @page = pages if params[:page].to_i > pages
-      end
-      @page ||= 1
-
-      @contents = query.page(@page).per(@per).map(&:content_data)
+      @contents = apply_paging(query).map(&:content_data)
     end
 
     def get_deleted
@@ -109,7 +80,7 @@ module DataCycleCore
     private
 
     def content_params
-      params.permit(:page, :per, :language, :search, :token, :modified_since, :created_since, :deleted_since)
+      params.permit(:format, :type, :page, :per, :language, :search, :token, :modified_since, :created_since, :deleted_since)
     end
 
     def build_search_query
