@@ -57,7 +57,6 @@ module DataCycleCore
       true
     end
 
-    #todo: move method to vuejs object browser
     def formatted_validity_period
       if self.try(:validity_period)
         valid_from, valid_to = get_validity_values(validity_period.to_h)

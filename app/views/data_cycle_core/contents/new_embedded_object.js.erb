@@ -1,0 +1,6 @@
+$('<%= params[:embedded_object_id] %>').children('.addContentObject').find('.fa').css('display', 'none');
+$('<%= params[:embedded_object_id] %>').children('.addContentObject').prop('disabled', false).before('<%= j render_embedded_object_partial(partial: 'new', key: params[:key], definition: params[:definition], parameters: {index: params[:index], options: params[:options]}) %>');
+
+$('#<%= sanitize_to_id(params[:key]) %>_item_<%= params[:index] %>').foundation();
+$('<%= j content_for :forms %>').appendTo('body').foundation();
+$('#<%= sanitize_to_id(params[:key]) %>_item_<%= params[:index] %>').trigger('clone-added');

@@ -16,18 +16,9 @@
         <% end %>
 
         <% if DataCycleCore.translatable_types.include?(content.class.name) %>
-          <li class="has-dropdown right">
-            <a data-toggle="language-menu"><i class="fa fa-language" aria-hidden="true"></i></a>
-            <ul class="dropdown-pane no-bullet bottom" id="language-menu" data-dropdown data-hover="true" data-hover-pane="true">
-              <h5><%= t('common.choose_language', locale: DataCycleCore.ui_language) %></h5>
-              <% available_locales_with_names.each do |locale| %>
-                <li class="<%= "active" if locale.first == I18n.locale %>">
-                  <%= link_to_unless locale.first == I18n.locale, locale.last, edit_polymorphic_path(content, watch_list_id: @watch_list, locale: locale.first) %>
-                  <%== '<span class="buttons"><i class="fa fa-language" aria-hidden="true"></i></span>' if content.translated_locales.include?(locale.first) %>
-                </li>
-              <% end %>
-            </ul>
-          </li>
+          <%= render 'edit_locale_links', local_assigns.merge({ locales: available_locales_with_names }) %>
+        <% elsif content.translated_locales.size > 1 %>
+          <%= render 'edit_locale_links', local_assigns.merge({ locales: available_locales_with_names.select{ |k, v| content.translated_locales.include?(k) } }) %>
         <% end %>
 
         <% if can? :manage, DataCycleCore::DataLink %>

@@ -224,6 +224,8 @@ de:
         one: Person
         other: Personen
     attributes:
+      data_cycle_core/classification_alias:
+        assignable: Zuweisbar
       data_cycle_core/user_group:
         name: Name
         user_ids: Benutzer

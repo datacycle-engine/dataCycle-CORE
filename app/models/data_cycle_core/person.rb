@@ -22,7 +22,7 @@ module DataCycleCore
         self.translations.delete_all
       end
     end
-    has_many :histories, -> { order(updated_at: :desc) }, class_name: 'DataCycleCore::Person::History', foreign_key: :person_id
+    has_many :histories, -> { order(created_at: :desc) }, class_name: 'DataCycleCore::Person::History', foreign_key: :person_id
 
     # handle translations with gem Globalize
     translates :headline, :description, :content, :properties, :release,

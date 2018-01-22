@@ -77,21 +77,22 @@ module.exports.initialize = function () {
       event.preventDefault();
       submit_creative_work_form(form);
     });
-
-    // form.onsubmit = function () {
-    //   submit_creative_work_form(form);
-    //   return false;
-    // };
   }
 
   if ($('.new-item form').html() != undefined) {
     var forms = $('.new-item form');
 
-    $(document).on('open.zf.reveal', '.new-item', function (e) {
-      $(this).find('form').on('submit', function (e) {
-        e.preventDefault();
-        if (check_fields(this)) this.submit();
-      }.bind(this));
+    $(document).on('open.zf.reveal', '.new-item', function (ev) {
+      $(this).find('form').on('submit', function (event, data) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        if (data != undefined && data.object_browser) {
+          if (check_fields(this)) $(this).trigger('submit', {
+            valid: true
+          });
+        } else if (data == undefined && check_fields(this)) this.submit();
+      });
 
       $(this).find('form input[type=text]').each(function (e) {
         $(this).on('change', function () {
@@ -100,27 +101,12 @@ module.exports.initialize = function () {
           check_field(this);
         });
       });
-    }.bind(this));
+    });
 
     $(document).on('closed.zf.reveal', '.new-item', function (e) {
       $(this).find('form').off('submit');
-      $(this).find('form input[type=text]').each(function (e) {
+      $(this).find('form input[type=text]').each(function (ev) {
         $(this).off('change');
-      });
-    }.bind(this));
-
-    $(forms).each(function () {
-      $(this).on('submit', function (e) {
-        e.preventDefault();
-        if (check_fields(this)) this.submit();
-      }.bind(this));
-
-      $(this).find('input[type=text]').each(function (e) {
-        $(this).on('change', function () {
-          $(this).closest('form').find('input[type=submit]').removeAttr('disabled');
-          $(this).closest('.validation-container').find('.single_error').remove();
-          check_field(this);
-        });
       });
     });
   }

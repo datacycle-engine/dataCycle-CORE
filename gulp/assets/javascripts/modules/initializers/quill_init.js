@@ -1,5 +1,6 @@
 var quill = require('quill');
 var Counter = require('./../components/quill_counter');
+var ConfirmationHelper = require('./../helpers/confirmation_helper');
 
 // Quill Config
 module.exports.initialize = function () {

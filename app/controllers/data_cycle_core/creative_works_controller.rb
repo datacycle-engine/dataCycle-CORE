@@ -122,7 +122,7 @@ module DataCycleCore
         end unless @splitSource.nil?
       end
 
-      I18n.with_locale(@content.first_available_locale) do
+      I18n.with_locale(@content.first_available_locale(params[:locale])) do
 
         unless @content.read_write?
           raise "read_only"
@@ -139,7 +139,7 @@ module DataCycleCore
 
     def update
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
-      I18n.with_locale(@creativeWork.first_available_locale) do
+      I18n.with_locale(@creativeWork.first_available_locale(params[:locale])) do
 
         object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], @creativeWork.metadata['validation']['description'])
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'],false)
@@ -218,16 +218,6 @@ module DataCycleCore
 
     def after_create(content, user)
       # to be implemented by specific projects
-    end
-
-    def import
-      @content = DataCycleCore::DataHashService.import_data(data_set: params[:data])
-      if !@content.blank? && @content.metadata.dig('validation', 'description') == params[:type].camelize
-        render json: @content.to_json
-      else
-        render json: { errors: "no data" }
-      end
-
     end
 
     private

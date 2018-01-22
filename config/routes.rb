@@ -77,6 +77,7 @@ DataCycleCore::Engine.routes.draw do
 
         type_regexp = Regexp.new([:creative_works, :persons, :places].join("|"))
         resources :contents, path: ':type', constraints: { type: type_regexp }, only: [:show] do
+          get :search, on: :collection
           patch :update, on: :member
         end
         get 'contents/search', to: 'contents#search'
@@ -90,7 +91,12 @@ DataCycleCore::Engine.routes.draw do
     end
   end
 
-  get '/objectbrowser', to: 'object_browser#show'
-  get '/objectbrowser/find', to: 'object_browser#find'
+  namespace :object_browser do
+    post :show
+    post :details
+    post :find
+  end
 
+  post 'contents/new_embedded_object', to: 'contents#new_embedded_object'
+  post 'contents/render_embedded_object', to: 'contents#render_embedded_object'
 end

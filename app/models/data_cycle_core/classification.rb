@@ -32,5 +32,11 @@ module DataCycleCore
       end
     end
 
+    def descendants
+      Rails.cache.fetch("#{cache_key}/descendants", expires_in: 10.minutes) do
+        primary_classification_alias.try(:descendants).try(:flatten)
+      end
+    end
+
   end
 end
