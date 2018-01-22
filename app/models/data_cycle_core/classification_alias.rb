@@ -41,6 +41,8 @@ module DataCycleCore
         ) SELECT id FROM aliases
         SQL
 
+      sql = ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql)
+
       query.unscope(where: query.bound_attributes.map(&:name)).where('classification_aliases.id IN (' + sql + ')')
     end
 
