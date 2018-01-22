@@ -352,21 +352,24 @@ de:
       over_x_years:
         one: mehr als einem Jahr
         other: mehr als %{count} Jahre
-      x_days:
-        one: einem Tag
-        other: "%{count} Tage"
-      x_minutes:
-        one: einer Minute
-        other: "%{count} Minuten"
-      x_months:
-        one: einem Monat
-        other: "%{count} Monate"
-      x_years:
-        one: einem Jahr
-        other: "%{count} Jahr"
       x_seconds:
         one: einer Sekunde
         other: "%{count} Sekunden"
+      x_minutes:
+        one: einer Minute
+        other: "%{count} Minuten"
+      x_hours:
+        one: einer Stunde
+        other: "%{count} Stunden"
+      x_days:
+        one: einem Tag
+        other: "%{count} Tagen"
+      x_months:
+        one: einem Monat
+        other: "%{count} Monaten"
+      x_years:
+        one: einem Jahr
+        other: "%{count} Jahren"
     prompts:
       day: Tag
       hour: Stunden
