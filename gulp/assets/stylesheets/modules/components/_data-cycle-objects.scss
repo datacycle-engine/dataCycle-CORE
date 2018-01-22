@@ -610,7 +610,8 @@ span.single_error.object-browser-error {
 /* embedded Objects */
 
 .detail-header {
-  .embedded_object {
+  .embedded_object,
+  .detail_object {
     margin-bottom: 1rem;
     padding: 0.5rem;
     &:not(:last-child) {
