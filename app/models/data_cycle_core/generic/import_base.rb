@@ -13,15 +13,15 @@ module DataCycleCore::Generic
           @logging.phase_started("#{phase_name}_#{locale}")
 
           @source_object.with(type) do |mongo_item|
-            raw_classification_data_stack = load_root_classifications.(mongo_item, locale).to_a
+            raw_classification_data_stack = load_root_classifications.call(mongo_item, locale).to_a
 
             while (raw_classification_data = raw_classification_data_stack.pop.try(:[], 'dump').try(:[], locale))
               item_count += 1
 
-              extracted_classification_data = extract_data.(raw_classification_data)
+              extracted_classification_data = extract_data.call(raw_classification_data)
 
               import_classification(extracted_classification_data.merge({ tree_name: tree_name }),
-                                    load_parent_classification_alias.(raw_classification_data))
+                                    load_parent_classification_alias.call(raw_classification_data))
 
               raw_classification_data_stack += load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
 
@@ -48,10 +48,11 @@ module DataCycleCore::Generic
           .find_or_initialize_by(external_source_id: external_source.id,
                                  external_key: classification_data[:external_id])
       end
-      if classification.new_record?
-        classification.name = classification_data[:name]
-        classification.save!
 
+      classification.name = classification_data[:name]
+      classification.save!
+
+      if classification.new_record?
         classification_alias = DataCycleCore::ClassificationAlias.create!(external_source_id: external_source.id,
                                                                           name: classification_data[:name])
 
@@ -70,9 +71,6 @@ module DataCycleCore::Generic
 
         classification_alias
       else
-        classification.name = classification_data[:name]
-        classification.save!
-
         primary_classification_alias = classification.primary_classification_alias
         primary_classification_alias.name = classification_data[:name]
         primary_classification_alias.save!
@@ -126,9 +124,7 @@ module DataCycleCore::Generic
 
       error = content.set_data_hash(data_hash: old_data.merge(data))
 
-      unless error[:error].blank?
-        @logging.error('Validating import data', data['external_key'], data, error[:error].join('\n'))
-      end
+      @logging.error('Validating import data', data['external_key'], data, error[:error].join('\n')) unless error[:error].blank?
 
       content.tap(&:save!)
     end
@@ -150,13 +146,11 @@ module DataCycleCore::Generic
     end
 
     def load_template(target_type, template_name)
-      begin
-        I18n.with_locale(:de) {
-          target_type.find_by!(template: true, headline: template_name)
-        }
-      rescue ActiveRecord::RecordNotFound
-        raise "Missing template #{template_name} for #{target_type}"
+      I18n.with_locale(:de) do
+        target_type.find_by!(template: true, headline: template_name)
       end
+    rescue ActiveRecord::RecordNotFound
+      raise "Missing template #{template_name} for #{target_type}"
     end
   end
 end

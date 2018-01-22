@@ -9,7 +9,7 @@ module DataCycleCore
           elsif data.is_a?(::String)
             check_reference(data, template)
           elsif data.is_a?(::Hash)
-            if data.has_key?('id')
+            if data.key?('id')
               check_reference(data['id'], template)
             else
               @error[:error].push I18n.t :data_type, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language
@@ -17,15 +17,13 @@ module DataCycleCore
           else
             @error[:error].push I18n.t :data_type, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language
           end
-          return @error
+          @error
         end
 
         def check_reference(key, template)
           if uuid?(key)
             data_set = "DataCycleCore::#{template['type_name'].classify}".constantize.where(id: key)
-            if data_set.count < 1
-              @error[:error].push I18n.t :not_found, scope: [:validation, :errors], key: key, template: template['label'], table: template['type_name'], locale: DataCycleCore.ui_language
-            end
+            @error[:error].push I18n.t :not_found, scope: [:validation, :errors], key: key, template: template['label'], table: template['type_name'], locale: DataCycleCore.ui_language if data_set.count < 1
           end
         end
 
@@ -33,9 +31,7 @@ module DataCycleCore
           data.downcase!
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
           check_uuid = data.length == 36 && !(data =~ uuid).nil?
-          unless check_uuid
-            @error[:error].push I18n.t :uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
-          end
+          @error[:error].push I18n.t :uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language unless check_uuid
           check_uuid
         end
       end

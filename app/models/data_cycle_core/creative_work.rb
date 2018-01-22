@@ -12,7 +12,7 @@ module DataCycleCore
       translates :headline, :description, :content, :properties, :release,
                  :release_id, :release_comment, :history_valid
 
-      content_relations table_name: "creative_works", postfix: "history"
+      content_relations table_name: 'creative_works', postfix: 'history'
 
       include ContentHelpers
       belongs_to :creative_work
@@ -21,7 +21,7 @@ module DataCycleCore
       before_destroy :destroy_relations, prepend: true
 
       def destroy_relations
-        self.translations.delete_all
+        translations.delete_all
       end
     end
     has_many :histories, -> { order(created_at: :desc) }, class_name: 'DataCycleCore::CreativeWork::History', foreign_key: :creative_work_id
@@ -31,7 +31,7 @@ module DataCycleCore
                :release_id, :release_comment
 
     # include content specific relations
-    content_relations table_name: self.table_name
+    content_relations table_name: table_name
 
     # callbacks
     before_destroy :destroy_relations, prepend: true
@@ -51,8 +51,8 @@ module DataCycleCore
     private
 
     def destroy_relations
-      self.translations.delete_all
-      self.content_search_all.delete_all
+      translations.delete_all
+      content_search_all.delete_all
     end
   end
 end

@@ -11,7 +11,7 @@ module DataCycleCore
           else
             @error[:error].push I18n.t :geo, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language
           end
-          return @error
+          @error
         end
       end
     end

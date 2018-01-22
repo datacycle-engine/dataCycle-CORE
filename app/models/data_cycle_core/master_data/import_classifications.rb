@@ -2,14 +2,12 @@ module DataCycleCore
   module MasterData
     class ImportClassifications
       def import(filename)
-        begin
-          data_trees = YAML.load(File.open(filename))
-          iterate_tree_array(data_trees)
-        rescue Exception => e
-          puts "could not access the file: #{filename}"
-          puts e.message
-          puts e.backtrace
-        end
+        data_trees = YAML.load(File.open(filename))
+        iterate_tree_array(data_trees)
+      rescue StandardError => e
+        puts "could not access the file: #{filename}"
+        puts e.message
+        puts e.backtrace
       end
 
       def iterate_tree_array(trees_array)
@@ -23,13 +21,13 @@ module DataCycleCore
         return nil if data_tree.blank?
         data_tree.each do |data|
           internal = false
-          if data.kind_of?(String)
+          if data.is_a?(String)
             if data.starts_with?('$$')            # '$$' prefix for interal classifications
               data = data[2..(data.length - 1)]
               internal = true
             end
             save_data(data, parent, internal)
-          elsif data.kind_of?(Hash)
+          elsif data.is_a?(Hash)
             parent_name = data.keys.first
             if data.keys.first.starts_with?('$$') # '$$' prefix for interal classifications
               parent_name = data.keys.first[2..(data.keys.first.length - 1)]
@@ -45,17 +43,17 @@ module DataCycleCore
         if parent.nil?
           find_alias = DataCycleCore::ClassificationAlias
             .joins(:classification_tree)
-            .where("classification_trees.classification_tree_label_id = ?", @label_id)
-            .where("classification_aliases.name = ?", data)
-            .where("classification_trees.parent_classification_alias_id is NULL")
+            .where('classification_trees.classification_tree_label_id = ?', @label_id)
+            .where('classification_aliases.name = ?', data)
+            .where('classification_trees.parent_classification_alias_id is NULL')
         else
           find_alias = DataCycleCore::ClassificationAlias
             .joins(:classification_tree)
-            .where("classification_trees.classification_tree_label_id = ?", @label_id)
-            .where("classification_aliases.name = ?", data)
-            .where("classification_trees.parent_classification_alias_id = ?", parent)
+            .where('classification_trees.classification_tree_label_id = ?', @label_id)
+            .where('classification_aliases.name = ?', data)
+            .where('classification_trees.parent_classification_alias_id = ?', parent)
         end
-        if find_alias.count > 0
+        if find_alias.count.positive?
           updated_data = find_alias.first
           updated_data.seen_at = Time.zone.now
           updated_data.internal = internal
@@ -84,8 +82,8 @@ module DataCycleCore
       def upsert_classification(data, classification_alias_id)
         find_classification = DataCycleCore::Classification
           .joins(classification_groups: [:classification_alias])
-          .where("classification_aliases.id = ? ", classification_alias_id)
-          .where("classification_aliases.name = ? ", data)
+          .where('classification_aliases.id = ? ', classification_alias_id)
+          .where('classification_aliases.name = ? ', data)
         if find_classification.count < 1
           classification = DataCycleCore::Classification.create(name: data, external_source_id: nil) do |item|
             item.seen_at = Time.zone.now

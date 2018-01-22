@@ -29,54 +29,52 @@ module DataCycleCore
       end
 
       def in_validity_period(current_date = Time.now)
-        reflect (
-                  @query.where(
-                    in_range(search[:validity_period], cast_tstz(current_date))
-                  )
+        reflect(
+          @query.where(
+            in_range(search[:validity_period], cast_tstz(current_date))
+          )
         )
       end
 
       def by_watch_list_id(id = nil)
         manager = get_watch_list_items(id)
 
-        reflect (
-                  @query.where(search[:content_data_id].in(manager))
+        reflect(
+          @query.where(search[:content_data_id].in(manager))
         )
       end
 
       def modified_since(date = Time.now)
-        reflect (
-                  @query.where(
-                    search[:updated_at].gteq(DateTime.parse(date))
-                  )
+        reflect(
+          @query.where(
+            search[:updated_at].gteq(DateTime.parse(date))
+          )
         )
       end
 
       def created_since(date = Time.now)
-        reflect (
-                  @query.where(
-                    search[:created_at].gteq(DateTime.parse(date))
-                  )
+        reflect(
+          @query.where(
+            search[:created_at].gteq(DateTime.parse(date))
+          )
         )
       end
 
       def with_classification_alias_ids(ids = nil)
         manager = create_classification_alias_recursion(ids)
         # get everything including parents (or-clause)
-        reflect (
-                  @query.where(search[:content_data_id].in(manager))
+        reflect(
+          @query.where(search[:content_data_id].in(manager))
         )
       end
 
-
       def with_classification_aliases(tree_name, *aliases)
-        reflect (
+        reflect(
           @query.where(id: DataCycleCore::Search.joins(:classification_aliases).merge(
             DataCycleCore::ClassificationAlias.for_tree(tree_name).with_name(aliases).with_descendants
           ))
         )
       end
-
 
       def self.get_order_by_query_string(search)
         search_string = (search || '').split(' ').join('%')

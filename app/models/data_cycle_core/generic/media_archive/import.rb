@@ -1,7 +1,7 @@
 module DataCycleCore::Generic::MediaArchive::Import
   def import_data(**options)
     load_transformations
-    import_contents(@source_type, @target_type, self.method(:load_contents).to_proc, self.method(:process_content).to_proc, **options)
+    import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)
   end
 
   def load_transformations
@@ -28,23 +28,25 @@ module DataCycleCore::Generic::MediaArchive::Import
       keywords = raw_data['keywords'] || []
       keywords.each { |item| import_classification({ name: item, external_id: "MedienArchive - keyword - #{item}", tree_name: 'MediaArchive - Tags' }) }
 
-      raw_data.merge!({ 'content_location' => [{ 'id' => content_location.try(:id) }] }) unless content_location.blank?
+      raw_data['content_location'] = [{ 'id' => content_location.try(:id) }] unless content_location.blank?
 
       case raw_data['contentType']
-      when "Bild"
+      when 'Bild'
         data = extract_image_data(raw_data).with_indifferent_access
-      when "Video"
+      when 'Video'
         data = extract_video_data(raw_data).with_indifferent_access
       else
         data = nil
         ap "Unkown contentType #{raw_data}"
       end
 
-      content = create_or_update_content(
-        @target_type,
-        template,
-        data
-      ) unless data.nil?
+      unless data.nil?
+        content = create_or_update_content(
+          @target_type,
+          template,
+          data
+        )
+      end
     end
   end
 

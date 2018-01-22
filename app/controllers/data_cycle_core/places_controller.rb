@@ -4,28 +4,19 @@ module DataCycleCore
     # load_and_authorize_resource       # from cancancan (authorize)
 
     def index
-      @paginateObject = DataCycleCore::Place.all.where(:template => false).order(updated_at: :desc).page(params[:page])
+      @paginateObject = DataCycleCore::Place.all.where(template: false).order(updated_at: :desc).page(params[:page])
       @place = DataCycleCore::Place.new
     end
 
     def show
       @content = DataCycleCore::Place.find_by(id: params[:id])
 
-      if @content.nil?
-        redirect_back(fallback_location: root_path)
-      end
+      redirect_back(fallback_location: root_path) if @content.nil?
 
-      if params[:mode].nil?
-        @mode = "flex"
-      else
-        @mode = params[:mode].to_s
-      end
       I18n.with_locale(@content.first_available_locale) do
         @dataSchema = @content.get_data_hash
         # do something if no german version exists
-        if @dataSchema.nil?
-          @dataSchema = I18n.with_locale(@content.translated_locales.first) { @content.get_data_hash }
-        end
+        @dataSchema = I18n.with_locale(@content.translated_locales.first) { @content.get_data_hash } if @dataSchema.nil?
 
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: 'places', id: params[:id]) }
@@ -47,10 +38,10 @@ module DataCycleCore
         respond_to do |format|
           # validate ?
           if !@place.nil? && @place.save
-            format.html {
+            format.html do
               flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Place', locale: DataCycleCore.ui_language
               redirect_to @place
-            }
+            end
             format.js
           else
             redirect_back(fallback_location: root_path)
@@ -62,9 +53,11 @@ module DataCycleCore
 
     def edit
       @content = DataCycleCore::Place.find(params[:id])
-      I18n.with_locale(params[:locale]) do
-        @content.save
-      end if params[:locale] && !@content.translated_locales.include?(params[:locale])
+      if params[:locale] && !@content.translated_locales.include?(params[:locale])
+        I18n.with_locale(params[:locale]) do
+          @content.save
+        end
+      end
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
         @dataSchema = @content.get_data_hash
@@ -121,7 +114,7 @@ module DataCycleCore
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @place.metadata['validation'])
       valid = @place.validate(datahash)
 
-      render :json => valid.to_json
+      render json: valid.to_json
     end
 
     def gpx
@@ -137,15 +130,13 @@ module DataCycleCore
 
     def place_params(storage_location, template_name, template_description)
       datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
-      params.require(:place).permit(:datahash => datahash)
+      params.require(:place).permit(datahash: datahash)
     end
 
     # TODO: implement as preprocessor
     def set_location(datahash)
-      if !datahash['longitude'].nil? && !datahash['longitude'].blank? && !datahash['latitude'].nil? && !datahash['latitude'].blank?
-        datahash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(datahash['longitude'].to_f, datahash['latitude'].to_f)
-      end
-      return datahash
+      datahash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(datahash['longitude'].to_f, datahash['latitude'].to_f) if !datahash['longitude'].nil? && !datahash['longitude'].blank? && !datahash['latitude'].nil? && !datahash['latitude'].blank?
+      datahash
     end
   end
 end

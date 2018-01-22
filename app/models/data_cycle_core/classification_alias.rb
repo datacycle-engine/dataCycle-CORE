@@ -28,7 +28,7 @@ module DataCycleCore
     end
 
     def self.with_descendants
-      query = self.is_a?(ActiveRecord::Relation) ? self : all
+      query = is_a?(ActiveRecord::Relation) ? self : all
 
       sql = <<-SQL.gsub(/\s+/, ' ').gsub(/(?<=\A)\s+/, '').gsub(/\s+(?=\z)/, '')
         WITH RECURSIVE aliases AS (

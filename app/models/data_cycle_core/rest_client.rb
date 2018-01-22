@@ -4,11 +4,10 @@ module DataCycleCore
       @credentials = credentials
 
       if setup_credentials(credentials)
-        @conn = Faraday.new(:url => base_url) do |faraday|
+        @conn = Faraday.new(url: base_url) do |faraday|
           faraday.response :logger if verbose       # write requests to STDOUT
           faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
         end
-        return self
       else
         raise TypeError, "from DataCycleCore::RestClient --> no valid credentials given: received credentails: #{credentials.inspect}"
       end

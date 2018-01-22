@@ -10,7 +10,7 @@ module DataCycleCore
       translates :name, :headline, :description, :url, :hours_available, :content,
                  :properties, :release, :release_id, :release_comment, :history_valid
 
-      content_relations table_name: "places", postfix: "history"
+      content_relations table_name: 'places', postfix: 'history'
 
       include ContentHelpers
       belongs_to :place
@@ -19,7 +19,7 @@ module DataCycleCore
       before_destroy :destroy_relations, prepend: true
 
       def destroy_relations
-        self.translations.delete_all
+        translations.delete_all
       end
     end
     has_many :histories, -> { order(created_at: :desc) }, class_name: 'DataCycleCore::Place::History', foreign_key: :place_id
@@ -29,7 +29,7 @@ module DataCycleCore
                :properties, :release, :release_id, :release_comment
 
     # include content specific relations
-    content_relations table_name: self.table_name
+    content_relations table_name: table_name
 
     # callbacks
     before_destroy :destroy_relations, prepend: true
@@ -47,32 +47,34 @@ module DataCycleCore
 
     def create_gpx
       builder = Nokogiri::XML::Builder.new do |xml|
-        xml.gpx(version: '1.1', creator: 'dataCycle', xmlns: "http://www.topografix.com/GPX/1/1") {
-          xml.metadata {
+        xml.gpx(version: '1.1', creator: 'dataCycle', xmlns: 'http://www.topografix.com/GPX/1/1') do
+          xml.metadata do
             xml.name title
             xml.time updated_at
-            xml.author {
-              xml.name creator&.first&.title
-            } unless creator&.first&.title.blank?
-          }
+            unless creator&.first&.title.blank?
+              xml.author do
+                xml.name creator&.first&.title
+              end
+            end
+          end
           if location.try(:geometry_type) == RGeo::Feature::Point
-            xml.wpt(lat: location.y, lon: location.x) {
+            xml.wpt(lat: location.y, lon: location.x) do
               xml.name title
               xml.ele location.z if location.z
-            }
+            end
           elsif location.try(:geometry_type) == RGeo::Feature::LineString
-            xml.trk {
+            xml.trk do
               xml.name title
-              xml.trkseg {
+              xml.trkseg do
                 location.points.each do |l|
-                  xml.trkpt(lat: l.y, lon: l.x){
+                  xml.trkpt(lat: l.y, lon: l.x) do
                     xml.ele l.z if location.z
-                  }
+                  end
                 end
-              }
-            }
+              end
+            end
           end
-        }
+        end
       end
 
       builder.to_xml
@@ -81,8 +83,8 @@ module DataCycleCore
     private
 
     def destroy_relations
-      self.translations.delete_all
-      self.content_search_all.delete_all
+      translations.delete_all
+      content_search_all.delete_all
     end
   end
 end

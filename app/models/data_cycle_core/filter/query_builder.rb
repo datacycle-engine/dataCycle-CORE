@@ -10,7 +10,7 @@ module DataCycleCore
                           :first, :second, :third, :fourth, :fifth, :forty_two, :last]
       def_delegators :@query, *TERMINAL_METHODS
 
-      def initialize(locale = "de", query = nil)
+      def initialize(locale = 'de', query = nil)
         @locale = locale
         @query = query
       end
@@ -98,23 +98,23 @@ module DataCycleCore
 
       # custom function helper
       def get_point(longitude, latitude)
-        Arel::Nodes::NamedFunction.new("ST_GeomFromEWKT", ["SRID=4326;POINT (#{longitude} #{latitude})"])
+        Arel::Nodes::NamedFunction.new('ST_GeomFromEWKT', ["SRID=4326;POINT (#{longitude} #{latitude})"])
       end
 
       def get_box(point1, point2)
-        Arel::Nodes::NamedFunction.new("ST_MakeBox2D", [point1, point2])
+        Arel::Nodes::NamedFunction.new('ST_MakeBox2D', [point1, point2])
       end
 
       def st_distance(point1, point2)
-        Arel::Nodes::NamedFunction.new("ST_Distance", [point1, point2])
+        Arel::Nodes::NamedFunction.new('ST_Distance', [point1, point2])
       end
 
       def current_date
-        Arel::Nodes::NamedFunction.new("CURRENT_DATE", [])
+        Arel::Nodes::NamedFunction.new('CURRENT_DATE', [])
       end
 
       def contains(geo1, geo2)
-        Arel::Nodes::InfixOperation.new("@", geo1, geo2)
+        Arel::Nodes::InfixOperation.new('@', geo1, geo2)
       end
 
       def to_tsvector(field)
@@ -154,15 +154,15 @@ module DataCycleCore
       end
 
       def json_element(field, element)
-        Arel::Nodes::InfixOperation.new("->>", field, element)
+        Arel::Nodes::InfixOperation.new('->>', field, element)
       end
 
       def json_path(field, path)
-        Arel::Nodes::InfixOperation.new("#>>", field, path)
+        Arel::Nodes::InfixOperation.new('#>>', field, path)
       end
 
       def sql_date(field)
-        Arel::Nodes::NamedFunction.new("date", [field])
+        Arel::Nodes::NamedFunction.new('date', [field])
       end
 
       def cast_tstz(date)

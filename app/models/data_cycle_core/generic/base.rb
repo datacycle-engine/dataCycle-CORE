@@ -10,7 +10,7 @@ module DataCycleCore::Generic
     end
 
     def credentials
-      external_source.credentials
+      external_source&.credentials
     end
   end
 end

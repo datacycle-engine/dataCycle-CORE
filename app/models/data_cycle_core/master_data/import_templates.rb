@@ -2,20 +2,18 @@ module DataCycleCore
   module MasterData
     class ImportTemplates
       def import(files, object, validation = true)
-        begin
-          errors = {}
-          file_names = Dir[files]
-          file_names.each do |filename|
-            data_templates = YAML.load(File.open(filename.to_s))
-            error = iterate_templates(data_templates, object, validation)
-            errors[filename] = error unless error.blank?
-          end
-          errors
-        rescue Exception => e
-          puts "could not access a YML File in directory #{files}"
-          puts e.message
-          puts e.backtrace
+        errors = {}
+        file_names = Dir[files]
+        file_names.each do |filename|
+          data_templates = YAML.load(File.open(filename.to_s))
+          error = iterate_templates(data_templates, object, validation)
+          errors[filename] = error unless error.blank?
         end
+        errors
+      rescue StandardError => e
+        puts "could not access a YML File in directory #{files}"
+        puts e.message
+        puts e.backtrace
       end
 
       def iterate_templates(data_templates, object, validation)
@@ -59,9 +57,7 @@ module DataCycleCore
         template[:properties].each do |property_name, property_definition|
           result_property = validate_property.call(property_definition)
           error = result_property.errors(full: true)
-          if property_definition.has_key?(:properties)
-            error.merge!(validate_properties(property_definition))
-          end
+          error.merge!(validate_properties(property_definition)) if property_definition.key?(:properties)
           # ap property_definition if !result_property.success?
           errors[property_name] = error unless error.blank?
         end
@@ -95,8 +91,8 @@ module DataCycleCore
             end
 
             def instantiable?(value)
-              clazz = ("DataCycleCore::" + value.classify).safe_constantize
-              (!clazz.nil?) && clazz.new.kind_of?(ActiveRecord::Base)
+              clazz = ('DataCycleCore::' + value.classify).safe_constantize
+              !clazz.nil? && clazz.new.is_a?(ActiveRecord::Base)
             end
 
             def self.messages
@@ -110,7 +106,7 @@ module DataCycleCore
                     embedded_object: 'type must be object, description must be a content_table class_name',
                     included_object: 'storage_location must be a jsonb field, type must be object and must have properties',
                     valid_classification?: 'specified default_value could not be found in classification_aliases',
-                    instantiable?: "must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.",
+                    instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.',
                     asset_relation: "type must be 'asset' and type_name must be a name of a AssetType"
                   }
                 }
@@ -119,7 +115,7 @@ module DataCycleCore
           end
 
           required(:label) { str? }
-          required(:type) {
+          required(:type) do
             str? &
               included_in?([
                              'string',
@@ -132,8 +128,8 @@ module DataCycleCore
                              'classificationTreeLabel',
                              'asset'
                            ])
-          }
-          required(:storage_location) {
+          end
+          required(:storage_location) do
             str? &
               included_in?(
                 [
@@ -146,7 +142,7 @@ module DataCycleCore
                   'asset_relation'
                 ] + DataCycleCore.content_tables
               )
-          }
+          end
           # TODO: add type_name validation after polymorphic relation tables
           # optional(:type_name) {
           #   str? &
@@ -155,7 +151,7 @@ module DataCycleCore
           #     DataCycleCore::ClassificationTreeLabel.pluck(:name)
           #   )
           # }
-          optional(:storage_type) {
+          optional(:storage_type) do
             str? &
               included_in?([
                              'string',
@@ -164,7 +160,7 @@ module DataCycleCore
                              'geographic',
                              'array'
                            ])
-          }
+          end
           optional(:name) { str? }
           optional(:description) { str? }
           optional(:delete) { bool? }
@@ -186,14 +182,14 @@ module DataCycleCore
             )
           end
 
-          rule(embeddedLink: [:type, :type_name, :storage_type, :storage_location]) do |type, type_name, storage_type, storage_location|
+          rule(embeddedLink: [:type, :type_name, :storage_type, :storage_location]) do |type, type_name, _storage_type, storage_location|
             type.eql?('embeddedLink') > (
             type_name.instantiable? &
               storage_location.included_in?(['metadata', 'content', 'properties'])
             )
           end
 
-          rule(classification_relation: [:storage_location, :type, :type_name, :default_value]) do |storage_location, type, type_name, default_value|
+          rule(classification_relation: [:storage_location, :type, :type_name, :default_value]) do |storage_location, type, type_name, _default_value|
             (storage_location.eql?('classification_relation') > (
             type.eql?('classificationTreeLabel') &
               type_name.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte'])
@@ -208,9 +204,10 @@ module DataCycleCore
             type.eql?('object') &
               description.included_in?(DataCycleCore.content_tables.map(&:classify)) &
               name.filled?
-            )) & ((type.eql?('object') & name.filled? & description.filled?) > (
-            storage_location.included_in?(DataCycleCore.content_tables)
-            ))
+            )) & (
+              (type.eql?('object') & name.filled? & description.filled?) >
+              storage_location.included_in?(DataCycleCore.content_tables)
+            )
           end
 
           rule(included_object: [:storage_location, :type, :properties]) do |storage_location, type, properties|

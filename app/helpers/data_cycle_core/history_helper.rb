@@ -8,7 +8,7 @@ module DataCycleCore
 
     # OK
     def get_diff(version, orig)
-      diff_array = HashDiff.diff(version, orig, :array_path => true, :use_lcs => true).collect { |item| transform_history_item item }
+      diff_array = HashDiff.diff(version, orig, array_path: true, use_lcs: true).collect { |item| transform_history_item item }
       transform_history_array_to_hash diff_array
     end
 
@@ -54,25 +54,23 @@ module DataCycleCore
     end
 
     def get_object_item_has_changed(key, definition, object_value, object_has_changed, parent_definition)
-      if parent_definition.dig("type") == 'object' && (parent_definition.try(:[], 'editor').try(:[], 'type') == 'objectBrowser')
-        return false
-      end
+      return false if parent_definition.dig('type') == 'object' && (parent_definition.try(:[], 'editor').try(:[], 'type') == 'objectBrowser')
 
       get_item_has_changed(object_has_changed, key, object_value, definition)
     end
 
     def get_item_has_changed(diff, key, value, definition)
-      item_path_array = key.split('[').collect { |v| v.delete("]") }
+      item_path_array = key.split('[').collect { |v| v.delete(']') }
 
       begin
         has_valid_changes diff.dig(*item_path_array)
-      rescue
+      rescue StandardError
         return false
       end
     end
 
     def has_valid_changes(item)
-      if item.kind_of?(Array)
+      if item.is_a?(Array)
         return false if item[0][0] == CHANGED_INDICATOR && item[0][1].blank? && item[0][2].blank?
       end
       item
@@ -80,10 +78,11 @@ module DataCycleCore
 
     # TODO: refactor
     def getRelationObjectChanges(diff)
-      added_objects, removed_objects = [], []
+      added_objects = []
+      removed_objects = []
 
       unless diff.blank?
-        diff.each do |k, v|
+        diff.each_value do |v|
           v.each do |val|
             indicator = val[0]
             value = val[1]
@@ -108,13 +107,11 @@ module DataCycleCore
 
     # refactor
     def transform_object_array_to_hash(array, options: {})
-      if array.kind_of?(Array)
-        hash = array.each_with_object Hash.new do |(k, _), h|
+      if array.is_a?(Array)
+        hash = array.each_with_object({}) do |(k, _), h|
           hash_key = 'id'
           hash_value = k[hash_key]
-          unless hash_value.nil?
-            (h[hash_value] ||= []) << k
-          end
+          (h[hash_value] ||= []) << k unless hash_value.nil?
         end
         return hash unless hash.blank?
       end
@@ -122,11 +119,11 @@ module DataCycleCore
     end
 
     def transform_history_array_to_hash(array)
-      array.each_with_object Hash.new do |(k, _), h|
+      array.each_with_object({}) do |(k, _), h|
         hash_key = k.try(:keys).try(:first)
         hash_value = k[hash_key] unless hash_key.nil?
-        if hash_value.kind_of?(Hash)
-          h[hash_key] ||= Hash.new
+        if hash_value.is_a?(Hash)
+          h[hash_key] ||= {}
           (h[hash_key][hash_value.keys.first] ||= []) << hash_value[hash_value.keys.first]
         else
           (h[hash_key] ||= []) << hash_value

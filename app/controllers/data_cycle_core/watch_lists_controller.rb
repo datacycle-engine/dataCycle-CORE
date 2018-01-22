@@ -11,11 +11,9 @@ module DataCycleCore
     def show
       @watch_list = DataCycleCore::WatchList.find_by(id: params[:id])
 
-      if @watch_list.nil?
-        redirect_to root
-      end
+      redirect_to root if @watch_list.nil?
 
-      @contents = get_filtered_results(method_name: "by_watch_list_id", parameters: @watch_list.id)
+      @contents = get_filtered_results(method_name: 'by_watch_list_id', parameters: @watch_list.id)
 
       respond_to do |format|
         format.html
@@ -35,7 +33,7 @@ module DataCycleCore
           format.json { render json: { headline: @watch_list.headline, url: watch_list_path(@watch_list) } }
           format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Merkliste', locale: DataCycleCore.ui_language)) }
         else
-          format.json { render json: { error: "Konnte nicht gespeichert werden." } }
+          format.json { render json: { error: 'Konnte nicht gespeichert werden.' } }
           format.html { redirect_back(fallback_location: root_path) }
         end
       end
@@ -53,7 +51,7 @@ module DataCycleCore
     def update
       @watch_list = DataCycleCore::WatchList.find(params[:id])
 
-      update_params = { :headline => watch_list_params[:headline] }
+      update_params = { headline: watch_list_params[:headline] }
       @watch_list.update_attributes(update_params)
 
       if @watch_list.save
@@ -85,9 +83,7 @@ module DataCycleCore
       unless object_type.nil?
         content_object = object_type.constantize.find(params[:hashable_id])
 
-        unless content_object.nil? || watch_list.nil?
-          content_object.watch_lists.delete(watch_list)
-        end
+        content_object.watch_lists.delete(watch_list) unless content_object.nil? || watch_list.nil?
 
       end
 
@@ -104,9 +100,7 @@ module DataCycleCore
       unless object_type.nil?
         content_object = object_type.constantize.find(params[:hashable_id])
 
-        unless content_object.nil? || watch_list.nil?
-          content_object.watch_lists << watch_list
-        end
+        content_object.watch_lists << watch_list unless content_object.nil? || watch_list.nil?
 
       end
 

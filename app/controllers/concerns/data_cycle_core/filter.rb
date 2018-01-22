@@ -21,10 +21,11 @@ module DataCycleCore
         end
       end
       @language = params[:language]
-      @language ||= "de" # default-language
+      @language ||= 'de' # default-language
 
       if params[:search].blank?
-        @order_by = !params[:order].nil? && params[:order].split('_').first == 'udpated' ? 'updated_at' : 'updated_at'
+        # @order_by = !params[:order].nil? && params[:order].split('_').first == 'udpated' ? 'updated_at' : 'updated_at'
+        @order_by = 'updated_at'
         @order = !params[:order].nil? && params[:order].split('_').last == 'asc' ? 'ASC' : 'DESC'
         order_string = 'boost DESC, ' + @order_by + ' ' + @order
       else
@@ -41,7 +42,7 @@ module DataCycleCore
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
       unless @classification_array.blank?
-        parse_classifications(@classification_array).each do |tree_label, class_array|
+        parse_classifications(@classification_array).each_value do |class_array|
           query = query.with_classification_alias_ids(class_array)
         end
       end

@@ -8,67 +8,108 @@ AllCops:
   Exclude:
     - 'node_modules/**/*'
     - 'tmp/**/*'
+    - 'cache/**/*'
 
 Rails:
   Enabled: true
 
+#######################################################
+########## Layout
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+#######################################################
+########## Style
+Style/BlockDelimiters:
+  EnforcedStyle: braces_for_chaining
+
+Style/BracesAroundHashParameters:
+  Enabled: false
+
+Style/ConditionalAssignment:
+  Enabled: false
+
 Style/Documentation:
   Enabled: false
 
+Style/EmptyMethod:
+  EnforcedStyle: expanded
+
 Style/MixinUsage:
   Exclude:
+    - 'bin/setup'
+    - 'bin/update'
     - 'test/dummy/bin/setup'
     - 'test/dummy/bin/update'
+
+Style/MultilineBlockChain:
+  Enabled: false
+
+Style/NestedTernaryOperator:
+  Enabled: false
+
+Style/NumericLiteralPrefix:
+  Exclude:
+    - 'config/initializers/carrierwave.rb'
+
+Style/RedundantReturn:
+  AllowMultipleReturnValues: true
 
 Style/SymbolArray:
   EnforcedStyle: brackets
 
-Layout/MultilineMethodCallIndentation:
-  EnforcedStyle: indented
+Style/WordArray:
+  EnforcedStyle: brackets
 
-# disable some metrics
+#######################################################
+########## Metrics
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/BlockNesting:
+  Max: 5
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
 Metrics/LineLength:
+  Enabled: false
+
+Metrics/MethodLength:
   Enabled: false
 
 Metrics/ModuleLength:
   Enabled: false
 
-# check later
-Style/FrozenStringLiteralComment:
+Metrics/ParameterLists:
   Enabled: false
 
-# Offense count: 1
-Layout/AlignParameters:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
-
-# Offense count: 1
-Layout/MultilineHashBraceLayout:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
-
-# Offense count: 49
-Style/GuardClause:
+Metrics/PerceivedComplexity:
   Enabled: false
 
-# Offense count: 15
-Style/ConditionalAssignment:
+#######################################################
+########## Naming
+
+Naming/HeredocDelimiterNaming:
   Enabled: false
 
-# Offense count: 3
-Style/EmptyLiteral:
-  Exclude:
-    - 'app/helpers/data_cycle_core/history_helper.rb'
+#######################################################
+########## Security
 
-# Offense count: 18
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: compact, expanded
-Style/EmptyMethod:
-  EnforcedStyle: expanded
-
-# Offense count: 6
-Style/Lambda:
+Security/YAMLLoad:
   Exclude:
-    - 'app/models/data_cycle_core/generic/outdoor_active/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
+    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
+    - 'app/models/data_cycle_core/master_data/import_templates.rb'
+
+#######################################################
+########## Rails
+
+Rails/CreateTableWithTimestamps:
+  Enabled: false
+

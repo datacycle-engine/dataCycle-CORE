@@ -88,9 +88,7 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:location)
     .>> t(:add_field, 'address_locality', ->s { s['address'].try(:[], 'town') })
     .>> t(:add_field, 'street_address', ->s {
-      unless s['address'].try(:[], 'street').try(:strip).blank?
-        [s['address'].try(:[], 'street').try(:strip), s['address'].try(:[], 'housenumber').try(:strip)].join(' ')
-      end
+      [s['address'].try(:[], 'street').try(:strip), s['address'].try(:[], 'housenumber').try(:strip)].join(' ') unless s['address'].try(:[], 'street').try(:strip).blank?
     })
     .>> t(:add_field, 'postal_code', ->s { s['address'].try(:[], 'zipcode') })
     .>> t(:add_field, 'author', ->s { s['meta'].try(:[], 'author') })
@@ -118,9 +116,7 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:location)
     .>> t(:add_field, 'address_locality', ->s { s['address'].try(:[], 'town') })
     .>> t(:add_field, 'street_address', ->s {
-      unless s['address'].try(:[], 'street').try(:strip).blank?
-        [s['address'].try(:[], 'street').try(:strip), s['address'].try(:[], 'housenumber').try(:strip)].join(' ')
-      end
+      [s['address'].try(:[], 'street').try(:strip), s['address'].try(:[], 'housenumber').try(:strip)].join(' ') unless s['address'].try(:[], 'street').try(:strip).blank?
     })
     .>> t(:add_field, 'postal_code', ->s { s['address'].try(:[], 'zipcode') })
     .>> t(:add_field, 'author', ->s { s['meta'].try(:[], 'author') })
@@ -132,18 +128,16 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:add_field, 'latitude', ->s { s['startingPoint'].try(:[], 'lon').try(:to_f) })
     .>> t(:add_field, 'longitude', ->s { s['startingPoint'].try(:[], 'lat').try(:to_f) })
     .>> t(:add_field, 'start_location', ->s {
-          if s['longitude'] && s['latitude']
-            RGeo::Geographic.spherical_factory(srid: 4326).point(s['latitude'], s['longitude'])
-          end
-        })
+      RGeo::Geographic.spherical_factory(srid: 4326).point(s['latitude'], s['longitude']) if s['longitude'] && s['latitude']
+    })
     .>> t(:add_field, 'tour', ->s {
-          factory = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
-          factory.line_string(
-            s['geometry'].try(:split, ' ')
-            .try(:map) { |p| p.split(',').map(&:to_f) }
-            .try(:map) { |p| factory.point(*p) }
-          )
-        })
+      factory = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
+      factory.line_string(
+        s['geometry'].try(:split, ' ')
+          .try(:map) { |p| p.split(',').map(&:to_f) }
+          .try(:map) { |p| factory.point(*p) }
+      )
+    })
     .>> t(:unwrap, 'elevation', ['ascent', 'descent', 'minAltitude', 'maxAltitude'])
     .>> t(:unwrap, 'time', ['min'])
     .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'experience', 'landscape'])

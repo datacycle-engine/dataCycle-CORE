@@ -6,7 +6,7 @@ module DataCycleCore
         @template = template
         @transformation = transformation
 
-        self.extend(strategy)
+        extend(strategy)
         update
       end
     end

@@ -13,8 +13,8 @@ module DataCycleCore
         end
 
         def merge_errors(error_hash)
-          @error.each do |key, items|
-            @error[key] += error_hash[key] if error_hash.has_key?(key)
+          @error.each_key do |key|
+            @error[key] += error_hash[key] if error_hash.key?(key)
           end
         end
       end

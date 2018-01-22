@@ -11,7 +11,7 @@ module DataCycleCore
 
     def to_csv
       CSV.generate do |csv|
-        csv << [self.name]
+        csv << [name]
         classification_aliases.each do |classification_alias|
           csv << Array.new(classification_alias.ancestors.count) + [classification_alias.name]
         end

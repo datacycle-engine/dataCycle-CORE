@@ -1,6 +1,6 @@
 class ChangeDataLinks < ActiveRecord::Migration[5.0]
   def up
-    execute "DELETE FROM data_links"
+    execute 'DELETE FROM data_links'
     add_column :data_links, :receiver_id, :uuid
     add_column :data_links, :comment, :text
     add_column :data_links, :valid_from, :datetime

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.shared_examples "for properties" do |storage_location, data_provider|
+RSpec.shared_examples 'for properties' do |storage_location, data_provider|
   describe "for properties with storage location '#{storage_location}'" do
     data_definition = {
       validation: {
@@ -23,38 +23,38 @@ RSpec.shared_examples "for properties" do |storage_location, data_provider|
 
     property_value = data_provider.call
 
-    subject {
+    subject do
       if storage_location == 'metadata'
         DataCycleCore::CreativeWork.new(metadata: data_definition.merge({ 'existing_property' => property_value }))
       else
         DataCycleCore::CreativeWork.new(metadata: data_definition, storage_location => { 'existing_property' => property_value })
       end
-    }
+    end
 
-    it "provides names of plain properties" do
+    it 'provides names of plain properties' do
       expect(subject.plain_property_names).to eq(['property', 'existing_property'])
     end
 
-    it "provides existing data" do
+    it 'provides existing data' do
       expect(subject.existing_property).to eq(property_value)
     end
 
-    it "updates existing data" do
+    it 'updates existing data' do
       different_property_value = data_provider.call
       subject.existing_property = different_property_value
 
       expect(subject.existing_property).to eq(different_property_value)
     end
 
-    it "creates data for new property" do
-      subject.property = "some data"
+    it 'creates data for new property' do
+      subject.property = 'some data'
 
       expect(subject.property).to eq('some data')
     end
   end
 end
 
-RSpec.shared_examples "for properties with no content yet" do |storage_location|
+RSpec.shared_examples 'for properties with no content yet' do |storage_location|
   describe "for properties with storage location '#{storage_location}' and no data yet" do
     data_definition = {
       validation: {
@@ -69,16 +69,16 @@ RSpec.shared_examples "for properties with no content yet" do |storage_location|
       }
     }
 
-    subject {
+    subject do
       DataCycleCore::CreativeWork.new(metadata: data_definition)
-    }
+    end
 
-    it "provides names of plain properties" do
+    it 'provides names of plain properties' do
       expect(subject.plain_property_names).to eq(['property'])
     end
 
-    it "creates data for new property" do
-      subject.property = "some data"
+    it 'creates data for new property' do
+      subject.property = 'some data'
 
       expect(subject.property).to eq('some data')
     end
@@ -86,16 +86,16 @@ RSpec.shared_examples "for properties with no content yet" do |storage_location|
 end
 
 RSpec.describe DataCycleCore::Content, type: :model do
-  include_context "for properties", "metadata", -> { SecureRandom.hex }
+  include_context 'for properties', 'metadata', -> { SecureRandom.hex }
 
-  include_context "for properties with no content yet", "content", -> { SecureRandom.hex }
-  include_context "for properties", "content", -> { SecureRandom.hex }
+  include_context 'for properties with no content yet', 'content', -> { SecureRandom.hex }
+  include_context 'for properties', 'content', -> { SecureRandom.hex }
 
-  include_context "for properties with no content yet", "properties", -> { SecureRandom.hex }
-  include_context "for properties", "properties", -> { SecureRandom.hex }
+  include_context 'for properties with no content yet', 'properties', -> { SecureRandom.hex }
+  include_context 'for properties', 'properties', -> { SecureRandom.hex }
 
-  describe "with translatable and untranslatable properties" do
-    subject {
+  describe 'with translatable and untranslatable properties' do
+    subject do
       DataCycleCore::CreativeWork.new(metadata: {
                                         validation: {
                                           properties: {
@@ -138,27 +138,27 @@ RSpec.describe DataCycleCore::Content, type: :model do
                                           }
                                         }
                                       })
-    }
+    end
 
-    it "provides names of plain properties" do
+    it 'provides names of plain properties' do
       expect(subject.plain_property_names).to eq(['id', 'headline', '1', '2', '3', '4'])
     end
 
-    it "provides methods for all property names as string" do
+    it 'provides methods for all property names as string' do
       ['id', 'headline', '1', '2', '3', '4'].each do |item|
         expect(subject).to respond_to item
         expect(subject).to respond_to "#{item}="
       end
     end
 
-    it "provides methods for all property names as symbol" do
+    it 'provides methods for all property names as symbol' do
       ['id', 'headline', '1', '2', '3', '4'].each do |item|
         expect(subject).to respond_to item.to_sym
         expect(subject).to respond_to "#{item}=".to_sym
       end
     end
 
-    it "fails to provide methods for properties that are not specified in the subject" do
+    it 'fails to provide methods for properties that are not specified in the subject' do
       ['abcd', 'jklm'].each do |item|
         expect(subject.respond_to?(item)).to be false
         expect(subject.respond_to?(item.to_sym)).to be false
@@ -167,24 +167,24 @@ RSpec.describe DataCycleCore::Content, type: :model do
       end
     end
 
-    it "raises NameError when not specified methods are called" do
+    it 'raises NameError when not specified methods are called' do
       ['abcd', 'jklm'].each do |item|
         expect { subject.method(item).call }.to raise_error(NameError)
-        expect { subject.method("#{item}=").call("test") }.to raise_error(NameError)
+        expect { subject.method("#{item}=").call('test') }.to raise_error(NameError)
       end
     end
 
-    it "provides list of untranslatable properties" do
+    it 'provides list of untranslatable properties' do
       expect(subject.untranslatable_property_names).to eq(['id', '1', '2'])
     end
 
-    it "provides list of translatable properties" do
+    it 'provides list of translatable properties' do
       expect(subject.translatable_property_names).to eq(['headline', '3', '4'])
     end
   end
 
-  describe "with linked properties" do
-    subject {
+  describe 'with linked properties' do
+    subject do
       DataCycleCore::CreativeWork.new(metadata: {
                                         validation: {
                                           properties: {
@@ -199,23 +199,23 @@ RSpec.describe DataCycleCore::Content, type: :model do
                                               type: 'embeddedLinkArray',
                                               type_name: 'places',
                                               storage_type: 'array',
-                                              storage_location: 'metadata',
+                                              storage_location: 'metadata'
                                             },
                                             existing_main_location: {
                                               label: 'Main Location',
                                               type: 'embeddedLink',
                                               type_name: 'places',
                                               storage_type: 'number',
-                                              storage_location: 'metadata',
+                                              storage_location: 'metadata'
                                             }
                                           }
                                         },
                                         existing_locations: [1, 2, 3],
                                         existing_main_location: 1
                                       })
-    }
+    end
 
-    it "provides names of linked properties" do
+    it 'provides names of linked properties' do
       expect(subject.linked_property_names).to eq(['existing_locations', 'existing_main_location'])
     end
 
@@ -237,8 +237,8 @@ RSpec.describe DataCycleCore::Content, type: :model do
     # end
   end
 
-  describe "with embedded properties" do
-    subject {
+  describe 'with embedded properties' do
+    subject do
       DataCycleCore::CreativeWork.new(metadata: {
                                         validation: {
                                           properties: {
@@ -261,19 +261,19 @@ RSpec.describe DataCycleCore::Content, type: :model do
                                           }
                                         }
                                       })
-    }
+    end
 
-    it "provides names of embedded properties" do
+    it 'provides names of embedded properties' do
       expect(subject.embedded_property_names).to eq(['existing_locations', 'nested_creative_works'])
     end
 
-    it "provides existing data from different table" do
+    it 'provides existing data from different table' do
       expect(subject).to receive(:existing_locations)
         .and_return([double('DataCycleCore::Place'), double('DataCycleCore::Place'), double('DataCycleCore::Place')])
       expect(subject.existing_locations.size).to eq(3)
     end
 
-    it "provides existing data from same table" do
+    it 'provides existing data from same table' do
       expect(subject).to receive(:nested_creative_works)
         .and_return([double('DataCycleCore::CreativeWork'), double('DataCycleCore::CreativeWork'), double('DataCycleCore::CreativeWork')])
 
@@ -281,8 +281,8 @@ RSpec.describe DataCycleCore::Content, type: :model do
     end
   end
 
-  describe "with included properties" do
-    subject {
+  describe 'with included properties' do
+    subject do
       DataCycleCore::CreativeWork.new(metadata: {
                                         validation: {
                                           properties: {
@@ -319,53 +319,53 @@ RSpec.describe DataCycleCore::Content, type: :model do
                                             }
                                           }
                                         },
-                                        "included_object" => {
-                                          "property1" => "data property1",
-                                          "property2" => "data property2"
+                                        'included_object' => {
+                                          'property1' => 'data property1',
+                                          'property2' => 'data property2'
                                         }
                                       },
-                                      description: "dies ist ein Test")
-    }
+                                      description: 'dies ist ein Test')
+    end
 
-    it "provides names of included property" do
+    it 'provides names of included property' do
       expect(subject.included_property_names).to eq(['included_object'])
     end
 
-    it "provides plain_property_names" do
+    it 'provides plain_property_names' do
       expect(subject.plain_property_names).to eq(['id', 'description'])
     end
 
-    it "provides translatable_property_names" do
+    it 'provides translatable_property_names' do
       expect(subject.translatable_property_names).to eq(['description'])
     end
 
-    it "returns value for translatable_property" do
-      expect(subject.description).to eq("dies ist ein Test")
+    it 'returns value for translatable_property' do
+      expect(subject.description).to eq('dies ist ein Test')
     end
 
-    it "returns an hash for included property" do
-      expect(subject.included_object.to_h.deep_stringify_keys).to eq({ "property1" => "data property1", "property2" => "data property2" })
+    it 'returns an hash for included property' do
+      expect(subject.included_object.to_h.deep_stringify_keys).to eq({ 'property1' => 'data property1', 'property2' => 'data property2' })
     end
 
-    it "returns values for included sub_properties" do
-      expect(subject.included_object.property1).to eq("data property1")
-      expect(subject.included_object.property2).to eq("data property2")
+    it 'returns values for included sub_properties' do
+      expect(subject.included_object.property1).to eq('data property1')
+      expect(subject.included_object.property2).to eq('data property2')
     end
 
-    it "return a proper hash with :to_h" do
+    it 'return a proper hash with :to_h' do
       expect(subject.to_h).to eq({
-                                   "id" => nil,
-                                   "description" => "dies ist ein Test",
-                                   "included_object" => {
-                                     "property1" => "data property1",
-                                     "property2" => "data property2"
+                                   'id' => nil,
+                                   'description' => 'dies ist ein Test',
+                                   'included_object' => {
+                                     'property1' => 'data property1',
+                                     'property2' => 'data property2'
                                    }
                                  })
     end
   end
 
-  describe "with included properties, two ranks deep" do
-    subject {
+  describe 'with included properties, two ranks deep' do
+    subject do
       DataCycleCore::CreativeWork.new(metadata: {
                                         validation: {
                                           properties: {
@@ -434,70 +434,70 @@ RSpec.describe DataCycleCore::Content, type: :model do
                                             }
                                           }
                                         },
-                                        "included_object" => {
-                                          "property1" => "data property1",
-                                          "property2" => "data property2",
-                                          "deep_included_object" => {
-                                            "property_deep1" => "data property_deep1",
-                                            "property_deep2" => "data property_deep2",
-                                            "deeper_object" => {
-                                              "property_deeper" => "deeper_property_name"
+                                        'included_object' => {
+                                          'property1' => 'data property1',
+                                          'property2' => 'data property2',
+                                          'deep_included_object' => {
+                                            'property_deep1' => 'data property_deep1',
+                                            'property_deep2' => 'data property_deep2',
+                                            'deeper_object' => {
+                                              'property_deeper' => 'deeper_property_name'
                                             }
                                           }
                                         }
                                       },
-                                      description: "dies ist ein Test")
-    }
+                                      description: 'dies ist ein Test')
+    end
 
-    it "returns an hash for included property" do
+    it 'returns an hash for included property' do
       expect(subject.included_object.to_h).to eq({
-                                                   "property1" => "data property1",
-                                                   "property2" => "data property2",
-                                                   "deep_included_object" => {
-                                                     "property_deep1" => "data property_deep1",
-                                                     "property_deep2" => "data property_deep2",
-                                                     "deeper_object" => { "property_deeper" => "deeper_property_name" }
+                                                   'property1' => 'data property1',
+                                                   'property2' => 'data property2',
+                                                   'deep_included_object' => {
+                                                     'property_deep1' => 'data property_deep1',
+                                                     'property_deep2' => 'data property_deep2',
+                                                     'deeper_object' => { 'property_deeper' => 'deeper_property_name' }
                                                    }
                                                  })
     end
 
-    it "returns values for included sub_properties" do
-      expect(subject.included_object.property1).to eq("data property1")
-      expect(subject.included_object.property2).to eq("data property2")
+    it 'returns values for included sub_properties' do
+      expect(subject.included_object.property1).to eq('data property1')
+      expect(subject.included_object.property2).to eq('data property2')
     end
 
-    it "returns deep_included_object" do
+    it 'returns deep_included_object' do
       expect(subject.included_object.deep_included_object.to_h).to eq({
-                                                                        "property_deep1" => "data property_deep1",
-                                                                        "property_deep2" => "data property_deep2",
-                                                                        "deeper_object" => { "property_deeper" => "deeper_property_name" }
+                                                                        'property_deep1' => 'data property_deep1',
+                                                                        'property_deep2' => 'data property_deep2',
+                                                                        'deeper_object' => { 'property_deeper' => 'deeper_property_name' }
                                                                       })
     end
 
-    it "returns attributes for deep_included_object" do
-      expect(subject.included_object.deep_included_object.property_deep1).to eq("data property_deep1")
-      expect(subject.included_object.deep_included_object.property_deep2).to eq("data property_deep2")
+    it 'returns attributes for deep_included_object' do
+      expect(subject.included_object.deep_included_object.property_deep1).to eq('data property_deep1')
+      expect(subject.included_object.deep_included_object.property_deep2).to eq('data property_deep2')
     end
 
-    it "returns attribues for deeper_object" do
-      expect(subject.included_object.deep_included_object.deeper_object.to_h).to eq({ "property_deeper" => "deeper_property_name" })
+    it 'returns attribues for deeper_object' do
+      expect(subject.included_object.deep_included_object.deeper_object.to_h).to eq({ 'property_deeper' => 'deeper_property_name' })
     end
 
-    it "returns values for deepest level" do
-      expect(subject.included_object.deep_included_object.deeper_object.property_deeper).to eq("deeper_property_name")
+    it 'returns values for deepest level' do
+      expect(subject.included_object.deep_included_object.deeper_object.property_deeper).to eq('deeper_property_name')
     end
 
-    it "returns all data :to_h " do
+    it 'returns all data :to_h ' do
       expect(subject.to_h).to eq({
-                                   "id" => nil,
-                                   "description" => "dies ist ein Test",
-                                   "included_object" => {
-                                     "property1" => "data property1",
-                                     "property2" => "data property2",
-                                     "deep_included_object" => {
-                                       "property_deep1" => "data property_deep1",
-                                       "property_deep2" => "data property_deep2",
-                                       "deeper_object" => { "property_deeper" => "deeper_property_name" }
+                                   'id' => nil,
+                                   'description' => 'dies ist ein Test',
+                                   'included_object' => {
+                                     'property1' => 'data property1',
+                                     'property2' => 'data property2',
+                                     'deep_included_object' => {
+                                       'property_deep1' => 'data property_deep1',
+                                       'property_deep2' => 'data property_deep2',
+                                       'deeper_object' => { 'property_deeper' => 'deeper_property_name' }
                                      }
                                    }
                                  })

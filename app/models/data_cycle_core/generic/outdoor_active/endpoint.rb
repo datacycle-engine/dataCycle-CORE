@@ -8,13 +8,13 @@ class DataCycleCore::Generic::OutdoorActive::Endpoint
 
   def categories(lang: :de)
     Enumerator.new do |yielder|
-      process_category = ->(category_data) {
+      process_category = lambda do |category_data|
         yielder << category_data.except('category')
 
         (category_data['category'] || []).each do |child_category_data|
           process_category.call(child_category_data.merge({ 'parentId' => category_data['id'] }))
         end
-      }
+      end
 
       load_data(['category', 'tree'], lang)['category'].each do |category_data|
         process_category.call(category_data)
@@ -24,13 +24,13 @@ class DataCycleCore::Generic::OutdoorActive::Endpoint
 
   def regions(lang: :de)
     Enumerator.new do |yielder|
-      process_region = ->(region_data) {
+      process_region = lambda do |region_data|
         yielder << region_data.except('region')
 
         (region_data['region'] || []).each do |child_region_data|
           process_region.call(child_region_data.merge({ 'parentId' => region_data['id'] }))
         end
-      }
+      end
 
       load_data(['region', 'tree'], lang)['region'].each do |region_data|
         process_region.call(region_data)
@@ -70,9 +70,7 @@ class DataCycleCore::Generic::OutdoorActive::Endpoint
     if response.success?
       JSON.parse(response.body)
     else
-      raise DataCycleCore::Generic::RecoverableError.new(
-        "error loading data from #{File.join([@host, @end_point, @project] + url_path)}"
-      )
+      raise DataCycleCore::Generic::RecoverableError, "error loading data from #{File.join([@host, @end_point, @project] + url_path)}"
     end
   end
 end

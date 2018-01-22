@@ -1,8 +1,8 @@
 module DataCycleCore
   class BackendController < ApplicationController
     include DataCycleCore::Filter
-    before_action :authenticate_user!   # from devise (authenticate)
-    authorize_resource :class => false  # from cancancan (authorize)
+    before_action :authenticate_user! # from devise (authenticate)
+    authorize_resource class: false # from cancancan (authorize)
 
     def index
       @contents = get_filtered_results

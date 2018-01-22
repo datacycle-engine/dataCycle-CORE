@@ -29,9 +29,9 @@ module DataCycleCore
       def valid?(data, validation_hash, strict = false, verbose = false)
         validate(data, validation_hash, strict, verbose)
         if strict
-          return (@error[:error].length + @error[:warning].length) == 0
+          return (@error[:error].length + @error[:warning].length).zero?
         else
-          return @error[:error].length == 0
+          return @error[:error].empty?
         end
       end
     end

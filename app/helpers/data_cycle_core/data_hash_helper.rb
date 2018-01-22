@@ -1,7 +1,7 @@
 module DataCycleCore
   module DataHashHelper
-    @@partials_path = "data_cycle_core/creative_works/partials/edit/datatype/"
-    @@key_prefix = "creative_work[datahash]"
+    @@partials_path = 'data_cycle_core/creative_works/partials/edit/datatype/'
+    @@key_prefix = 'creative_work[datahash]'
 
     class DataCycleFormBuilder < ActionView::Helpers::FormBuilder
       # def text_field(attribute, options={})
@@ -14,10 +14,8 @@ module DataCycleCore
     end
 
     def is_writable(permissions)
-      if !permissions['read_write'].nil? && permissions['read_write'] == true
-        return true
-      end
-      return false
+      return true if !permissions['read_write'].nil? && permissions['read_write'] == true
+      false
     end
 
     def get_allowed_content_types
@@ -31,7 +29,7 @@ module DataCycleCore
       if !validation.nil? && !validation['properties'].blank?
 
         validation['properties'].each do |prop|
-          if !prop[1]['editor'].nil?
+          unless prop[1]['editor'].nil?
 
             if !prop[1]['editor']['sorting'].nil?
               ordered_properties[prop[1]['editor']['sorting'].to_i] = prop
@@ -44,8 +42,8 @@ module DataCycleCore
 
       end
 
-      properties = Hash[ordered_properties.sort.map { |k, v| v }]
-      return properties.merge(Hash[unordered_properties]).nil? ? [] : properties.merge(Hash[unordered_properties])
+      properties = Hash[ordered_properties.sort.map { |_, v| v }]
+      properties.merge(Hash[unordered_properties]).nil? ? [] : properties.merge(Hash[unordered_properties])
     end
 
     def data_cycle_hidden_field(key, value = nil, parent_object_keys = [])
@@ -61,15 +59,11 @@ module DataCycleCore
 
       object_key = get_object_key(key, parent_object_keys)
 
-      if prop['type'] == 'object'
-        object_key = key
-      end
+      object_key = key if prop['type'] == 'object'
 
       data_type = prop['type']
 
-      unless prop['editor']['options'].nil?
-        options.merge!(prop['editor']['options'])
-      end
+      options.merge!(prop['editor']['options']) unless prop['editor']['options'].nil?
 
       if respond_to?('render_' + data_type + '_field')
         if prop['releasable']
@@ -83,27 +77,19 @@ module DataCycleCore
     end
 
     def render_classificationTreeLabel_field(key, prop, value = nil, options = {}, parent_object_keys = [])
-      if !prop['editor'].nil? && !prop['editor']['type'].nil?
-        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys }
-      end
+      render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys } if !prop['editor'].nil? && !prop['editor']['type'].nil?
     end
 
     def render_embeddedLinkArray_field(key, prop, value = nil, options = {}, parent_object_keys = [])
-      if !prop.blank? && !prop['type_name'].blank?
-        render partial: "#{@@partials_path}#{prop['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys }
-      end
+      render partial: "#{@@partials_path}#{prop['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys } if !prop.blank? && !prop['type_name'].blank?
     end
 
     def render_geographic_field(key, prop, value = nil, options = {}, parent_object_keys = [])
-      if !prop.blank? && !prop['type'].blank?
-        render partial: "#{@@partials_path}#{prop['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys }
-      end
+      render partial: "#{@@partials_path}#{prop['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys } if !prop.blank? && !prop['type'].blank?
     end
 
     def render_objectBrowser_field(key, prop, value = nil, options = {}, parent_object_keys = [])
-      if !prop.blank? && !prop['editor']['type'].nil?
-        render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys }
-      end
+      render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys } if !prop.blank? && !prop['editor']['type'].nil?
     end
 
     def render_embeddedObject_field(key, prop, value = nil, options = {}, parent_object_keys = [])
@@ -123,17 +109,14 @@ module DataCycleCore
         end
 
         output.join('').html_safe
-      else
-        if !prop['name'].nil? && !prop['description'].nil? && !prop['editor']['type'].nil?
+      elsif !prop['name'].nil? && !prop['description'].nil? && !prop['editor']['type'].nil?
 
-          case prop['editor']['type']
-          when 'embeddedObject'
-            render_embeddedObject_field(key, prop, value, options, parent_object_keys)
-          when 'objectBrowser'
-            key = get_object_key(key, parent_object_keys)
-            render_objectBrowser_field(key, prop, value, options)
-          end
-
+        case prop['editor']['type']
+        when 'embeddedObject'
+          render_embeddedObject_field(key, prop, value, options, parent_object_keys)
+        when 'objectBrowser'
+          key = get_object_key(key, parent_object_keys)
+          render_objectBrowser_field(key, prop, value, options)
         end
 
       end
@@ -193,9 +176,7 @@ module DataCycleCore
         html_title += '<i>'
         html_title += title
 
-        unless text.blank?
-          html_title += ':'
-        end
+        html_title += ':' unless text.blank?
 
         html_title += '</i>'
       end
@@ -214,24 +195,20 @@ module DataCycleCore
 
     # Show action
     def get_object_data_for_show_action(storage_location, value)
-      return DataCycleCore::DataHashService.get_internal_data(storage_location, value)
+      DataCycleCore::DataHashService.get_internal_data(storage_location, value)
     end
 
     # TODO: move to mixins
     def normalize_value(value = nil)
-      if value.kind_of?(Array)
-        value = value.reject { |v| v.blank? }
-      end
-      return value
+      value = value.reject(&:blank?) if value.is_a?(Array)
+      value
     end
 
     private
 
     def get_object_key(key, parent_object_keys = [])
       parent_object_keys_string = ''
-      if !parent_object_keys.empty?
-        parent_object_keys_string = parent_object_keys.map { |parent| "[#{parent}]" }.join('')
-      end
+      parent_object_keys_string = parent_object_keys.map { |parent| "[#{parent}]" }.join('') unless parent_object_keys.empty?
       object_key = "#{@@key_prefix}#{parent_object_keys_string}[#{key}]"
     end
   end

@@ -1,6 +1,6 @@
 module DataCycleCore::Generic::Feratel::DownloadBase
   def load_location_range_ids(collection, range_codes)
-    raise ArgumentError.new('missing collection for loading location ranges') if collection.nil?
+    raise ArgumentError, 'missing collection for loading location ranges' if collection.nil?
     range_codes ||= []
 
     begin

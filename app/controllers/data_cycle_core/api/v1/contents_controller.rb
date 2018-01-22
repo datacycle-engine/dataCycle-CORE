@@ -89,9 +89,7 @@ module DataCycleCore
     end
 
     def content_data_type
-      if content_params[:type]
-        Object.const_get("DataCycleCore::#{content_params[:type].classify}")
-      end
+      Object.const_get("DataCycleCore::#{content_params[:type].classify}") if content_params[:type]
     end
 
     def apply_ordering(query)

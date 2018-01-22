@@ -9,15 +9,15 @@ module DataCycleCore
       def self.get_webhooks_for(action, data)
         webhooks = DataCycleCore.webhooks.try(:[], action.try(:to_sym))
 
-        return webhooks.blank? ? [] : webhooks.collect { |webhook| validate_webhook(webhook, data) }.reject(&:blank?)
+        webhooks.blank? ? [] : webhooks.collect { |webhook| validate_webhook(webhook, data) }.reject(&:blank?)
       end
 
       def self.validate_webhook(webhook, data)
-        return webhook if webhook.kind_of?(Class)
+        return webhook if webhook.is_a?(Class)
 
-        if webhook.kind_of?(Hash)
+        if webhook.is_a?(Hash)
           webhook_class = webhook.keys.first
-          filter = webhook[webhook_class].fetch(:filter) { raise KeyError, "Filter must be supplied for webhook" }
+          filter = webhook[webhook_class].fetch(:filter) { raise KeyError, 'Filter must be supplied for webhook' }
 
           return webhook_class if filter.call(data)
         end

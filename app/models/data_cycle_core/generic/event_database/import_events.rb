@@ -23,17 +23,21 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
     I18n.with_locale(locale) do
       image = []
 
-      image = create_or_update_content(
-        DataCycleCore::CreativeWork,
-        load_template(DataCycleCore::CreativeWork, @image_template),
-        extract_event_image_data(raw_data.dig('image'), raw_data['name']).with_indifferent_access
-      ) unless raw_data.dig('image').nil?
+      unless raw_data.dig('image').nil?
+        image = create_or_update_content(
+          DataCycleCore::CreativeWork,
+          load_template(DataCycleCore::CreativeWork, @image_template),
+          extract_event_image_data(raw_data.dig('image'), raw_data['name']).with_indifferent_access
+        )
+      end
 
-      content_location = create_or_update_content(
-        DataCycleCore::Place,
-        load_template(DataCycleCore::Place, 'Veranstaltungsort'),
-        extract_content_location_data(raw_data['location'])
-      ) unless raw_data.dig('location').nil?
+      unless raw_data.dig('location').nil?
+        content_location = create_or_update_content(
+          DataCycleCore::Place,
+          load_template(DataCycleCore::Place, 'Veranstaltungsort'),
+          extract_content_location_data(raw_data['location'])
+        )
+      end
 
       categories = raw_data.dig('categories').map { |category|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "CATEGORY:#{category.try(:[], 'id')}")
@@ -46,10 +50,10 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
 
       event_data = extract_event_data(raw_data)
 
-      event_data.merge!({ 'content_location' => [{ 'id' => content_location.try(:id) }] }) unless content_location.blank?
-      event_data.merge!({ 'category' => categories.map(&:id) }) unless categories.blank?
-      event_data.merge!({ 'image' => [image.try(:id)] }) unless image.blank?
-      event_data.merge!({ 'sub_event' => sub_events }) unless sub_events.blank?
+      event_data['content_location'] = [{ 'id' => content_location.try(:id) }] unless content_location.blank?
+      event_data['category'] = categories.map(&:id) unless categories.blank?
+      event_data['image'] = [image.try(:id)] unless image.blank?
+      event_data['sub_event'] = sub_events unless sub_events.blank?
 
       create_or_update_content(
         @target_type,
@@ -61,11 +65,13 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
 
   def extract_sub_event_data(raw_data)
     sub_events = raw_data.collect do |sub_event|
-      content_location = create_or_update_content(
-        DataCycleCore::Place,
-        load_template(DataCycleCore::Place, 'Veranstaltungsort'),
-        extract_content_location_data(sub_event['location'])
-      ) unless sub_event.dig('location').nil?
+      unless sub_event.dig('location').nil?
+        content_location = create_or_update_content(
+          DataCycleCore::Place,
+          load_template(DataCycleCore::Place, 'Veranstaltungsort'),
+          extract_content_location_data(sub_event['location'])
+        )
+      end
 
       item = @sub_event_transformation.call(sub_event)
       item.merge!({ 'content_location' => [{ 'id' => content_location.try(:id) }] }) unless content_location.blank?

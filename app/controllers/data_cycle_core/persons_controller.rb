@@ -4,22 +4,15 @@ module DataCycleCore
     load_and_authorize_resource         # from cancancan (authorize)
 
     def index
-      @paginateObject = DataCycleCore::Person.all.where(:template => false).order(updated_at: :desc).page(params[:page])
+      @paginateObject = DataCycleCore::Person.all.where(template: false).order(updated_at: :desc).page(params[:page])
       @person = DataCycleCore::Person.new
     end
 
     def show
       @content = DataCycleCore::Person.find_by(id: params[:id])
 
-      if @content.nil?
-        redirect_back(fallback_location: root_path)
-      end
+      redirect_back(fallback_location: root_path) if @content.nil?
 
-      if params[:mode].nil?
-        @mode = "flex"
-      else
-        @mode = params[:mode].to_s
-      end
       I18n.with_locale(@content.first_available_locale) do
         @dataSchema = @content.get_data_hash
 
@@ -43,10 +36,10 @@ module DataCycleCore
         respond_to do |format|
           # validate ?
           if !@person.nil? && @person.save
-            format.html {
-               flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Person', locale: DataCycleCore.ui_language
-               redirect_to @person
-             }
+            format.html do
+              flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Person', locale: DataCycleCore.ui_language
+              redirect_to @person
+            end
             format.js
           else
             redirect_back(fallback_location: root_path)
@@ -58,9 +51,11 @@ module DataCycleCore
 
     def edit
       @content = DataCycleCore::Person.find(params[:id])
-      I18n.with_locale(params[:locale]) do
-        @content.save
-      end if params[:locale] && !@content.translated_locales.include?(params[:locale])
+      if params[:locale] && !@content.translated_locales.include?(params[:locale])
+        I18n.with_locale(params[:locale]) do
+          @content.save
+        end
+      end
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
         @dataSchema = @content.get_data_hash
@@ -115,7 +110,7 @@ module DataCycleCore
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @person.metadata['validation'])
       valid = @person.validate(datahash)
 
-      render :json => valid.to_json
+      render json: valid.to_json
     end
 
     private
@@ -125,7 +120,7 @@ module DataCycleCore
 
     def person_params(storage_location, template_name, template_description)
       datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
-      params.require(:person).permit(:datahash => datahash)
+      params.require(:person).permit(datahash: datahash)
     end
   end
 end

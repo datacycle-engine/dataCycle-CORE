@@ -117,9 +117,9 @@ module DataCycleCore
     # webhooks
     mattr_accessor :webhooks
     self.webhooks = {
-      :create => [],
-      :delete => [],
-      :update => []
+      create: [],
+      delete: [],
+      update: []
     }
   end
 
@@ -195,7 +195,7 @@ module DataCycleCore
     end
 
     config.to_prepare do
-      Dir.glob(Rails.root + "app/decorators/**/*_decorator*.rb").each do |c|
+      Dir.glob(Rails.root + 'app/decorators/**/*_decorator*.rb').each do |c|
         require_dependency(c)
       end
     end
@@ -210,9 +210,9 @@ JbuilderTemplate.class_eval do
       "content_#{partial}"
     ]
 
-    partials.each_with_index do |partial, idx|
+    partials.each_with_index do |partial_file, idx|
       begin
-        return partial!(partial, parameters)
+        return partial!(partial_file, parameters)
       rescue ActionView::MissingTemplate => e
         raise e if idx == partials.size - 1
       end
@@ -225,50 +225,44 @@ Time::DATE_FORMATS[:long_usec] = '%Y-%m-%d %H:%M:%S.%N %z'
 
 Nokogiri::XML::Node.class_eval do
   def to_hash
-    begin
-      attributes_hash = attributes.map { |_, attribute|
-        { attribute.name => attribute.value }
-      }.reduce({}, &:merge).reject { |_, v|
-        v.blank?
-      }
-
-      children_hash = children.map { |child|
-        { child.name => child.to_hash }
-      }.reject { |h|
-        h.values.first.blank?
-      }.group_by { |h|
-        h.keys.first
-      }.map { |k, v|
-        Hash[k, v.size == 1 ? v.map(&:values).flatten.first : v.map(&:values).flatten]
-      }.reduce({}, &:merge)
-
-      if !attributes.empty? && children.empty?
-        attributes_hash
-      elsif attributes.empty? && !children.empty?
-        children_hash
-      elsif !attributes.empty? && !children.empty?
-        if (attributes_hash.keys & children_hash.keys).empty?
-          attributes_hash.merge(children_hash)
-        else
-          {
-            'attributes' => attributes_hash,
-            'children' => children_hash
-          }
-        end
-      elsif is_a? Nokogiri::XML::Text
-        text.strip
-      elsif is_a? Nokogiri::XML::Element
-        nil
-      else
-        binding.pry
-
-        raise 'NotImplemented'
-      end
-    rescue => e
-      binding.pry
-
-      raise e
+    attributes_hash = attributes.map { |_, attribute|
+      { attribute.name => attribute.value }
+    }.reduce({}, &:merge).reject do |_, v|
+      v.blank?
     end
+
+    children_hash = children.map { |child|
+      { child.name => child.to_hash }
+    }.reject { |h|
+      h.values.first.blank?
+    }.group_by { |h|
+      h.keys.first
+    }.map { |k, v|
+      Hash[k, v.size == 1 ? v.map(&:values).flatten.first : v.map(&:values).flatten]
+    }.reduce({}, &:merge)
+
+    if !attributes.empty? && children.empty?
+      attributes_hash
+    elsif attributes.empty? && !children.empty?
+      children_hash
+    elsif !attributes.empty? && !children.empty?
+      if (attributes_hash.keys & children_hash.keys).empty?
+        attributes_hash.merge(children_hash)
+      else
+        {
+          'attributes' => attributes_hash,
+          'children' => children_hash
+        }
+      end
+    elsif is_a? Nokogiri::XML::Text
+      text.strip
+    elsif is_a? Nokogiri::XML::Element
+      nil
+    else
+      raise 'NotImplemented'
+    end
+  rescue StandardError => e
+    raise e
   end
 end
 

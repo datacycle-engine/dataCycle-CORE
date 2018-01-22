@@ -50,9 +50,9 @@ module DataCycleCore
     # end
 
     version :thumb_preview do
-      process :convert => 'jpg'
+      process convert: 'jpg'
       # process :colorspace => 'rgb'
-      process :resize_to_fit => [300, 300]
+      process resize_to_fit: [300, 300]
 
       def full_filename(for_file)
         basename = File.basename(for_file, File.extname(for_file))
@@ -64,7 +64,7 @@ module DataCycleCore
 
     def filename
       if original_filename
-        if model && model.read_attribute(mounted_as).present?
+        if model && model&.read_attribute(mounted_as).present?
           model.read_attribute(mounted_as)
         else
           "#{secure_token}.#{file.extension}"

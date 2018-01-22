@@ -32,7 +32,7 @@ DataCycleCore::Engine.routes.draw do
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :events, only: [:index, :show, :create, :edit, :update, :destroy]
 
-  scope ('files') do
+  scope('files') do
     resources :assets, only: [:index, :show, :new, :create, :destroy] do
       post 'new_asset_object', on: :collection
       delete 'remove_asset_object', on: :member
@@ -81,7 +81,7 @@ DataCycleCore::Engine.routes.draw do
 
         resources :collections, only: [:index, :show], controller: :watch_lists
 
-        type_regexp = Regexp.new([:creative_works, :persons, :places].join("|"))
+        type_regexp = Regexp.new([:creative_works, :persons, :places].join('|'))
         resources :contents, path: ':type', constraints: { type: type_regexp }, only: [:show] do
           get :search, on: :collection
           patch :update, on: :member

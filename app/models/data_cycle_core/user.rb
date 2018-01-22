@@ -8,10 +8,10 @@ module DataCycleCore
     has_many :subscriptions, dependent: :destroy
     belongs_to :role
 
-    has_many :content_content_a, class_name: "DataCycleCore::ContentContent", as: :content_a, dependent: :destroy
-    has_many :content_content_b, class_name: "DataCycleCore::ContentContent", as: :content_b, dependent: :destroy
-    has_many :content_content_a_history, class_name: "DataCycleCore::ContentContent::History", as: :content_a_history, dependent: :destroy
-    has_many :content_content_b_history, class_name: "DataCycleCore::ContentContent::History", as: :content_b_history, dependent: :destroy
+    has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', as: :content_a, dependent: :destroy
+    has_many :content_content_b, class_name: 'DataCycleCore::ContentContent', as: :content_b, dependent: :destroy
+    has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_a_history, dependent: :destroy
+    has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
 
     has_many :user_group_users, dependent: :destroy
     has_many :user_groups, through: :user_group_users
@@ -21,7 +21,7 @@ module DataCycleCore
     include UserHelpers
 
     def admin?
-      self.admin
+      admin
     end
 
     def has_rank?(rank)
