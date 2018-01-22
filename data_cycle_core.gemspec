@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   # database
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'
-  s.add_dependency 'pg'
+  s.add_dependency 'pg', '~> 0.21'
   s.add_dependency 'rgeo'
   # mongoDB driver
   s.add_dependency 'mongoid'
