@@ -14,3 +14,4 @@ public/assets
 cypress/screenshots
 cypress/videos
 gemsurance_report.html
+/.idea
