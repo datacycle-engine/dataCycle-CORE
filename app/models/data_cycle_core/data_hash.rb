@@ -33,7 +33,7 @@ module DataCycleCore
           if id.nil?
             self.created_at = save_time
             self.updated_at = save_time
-            self.save
+            save
           end
           set_search
         end

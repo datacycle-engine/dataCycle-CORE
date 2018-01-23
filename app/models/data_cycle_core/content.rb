@@ -147,7 +147,7 @@ module DataCycleCore
     end
 
     def as_of(timestamp)
-      return self if updated_at.blank? || timestamp.blank? || timestamp>=updated_at
+      return self if updated_at.blank? || timestamp.blank? || timestamp >= updated_at
       return self if is_history?
 
       base_content_class = self.class.to_s

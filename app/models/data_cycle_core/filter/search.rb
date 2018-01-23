@@ -1,7 +1,6 @@
 module DataCycleCore
   module Filter
     class Search < QueryBuilder
-
       def initialize(locale = 'de', query = nil)
         @locale = locale
         @query = query || DataCycleCore::Search.where(search[:locale].eq(quoted(@locale)))
@@ -25,7 +24,7 @@ module DataCycleCore
       end
 
       def in_validity_period(current_date = Time.zone.now)
-        reflect (
+        reflect(
           @query.where(
             in_range(search[:validity_period], cast_tstz(current_date))
           )
@@ -41,18 +40,16 @@ module DataCycleCore
       end
 
       def modified_since(date = Time.zone.now)
-        reflect (
-          @query.where(
-            search[:updated_at].gteq(DateTime.parse(date))
-          )
+        reflect
+        @query.where(
+          search[:updated_at].gteq(DateTime.parse(date))
         )
       end
 
       def created_since(date = Time.zone.now)
-        reflect (
-          @query.where(
-            search[:created_at].gteq(DateTime.parse(date))
-          )
+        reflect
+        @query.where(
+          search[:created_at].gteq(DateTime.parse(date))
         )
       end
 

@@ -384,7 +384,7 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Place::History::Translation.count)
       assert_equal(2, DataCycleCore::ContentContent::History.count)
 
-      assert_equal([data_place_id2, data_place_id1].sort, data_set.histories.map{|item| item.linked.ids}.flatten.sort)
+      assert_equal([data_place_id2, data_place_id1].sort, data_set.histories.map { |item| item.linked.ids }.flatten.sort)
     end
   end
 end

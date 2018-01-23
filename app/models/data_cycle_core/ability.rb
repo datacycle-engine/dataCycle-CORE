@@ -6,7 +6,6 @@ module DataCycleCore
       alias_action :update, :destroy, to: :modify
       alias_action :create, :import, :read, :update, :create_user, :search, :unlock, :validate_single_data, to: :crud
 
-
       can :manage, DataCycleCore::StoredFilter, user_id: user.id
 
       if user

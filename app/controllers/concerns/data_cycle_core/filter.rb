@@ -30,7 +30,7 @@ module DataCycleCore
         @order_string = 'boost DESC, ' + @order_by + ' ' + @order
       else
         # order by ranking
-        search_string = params[:search].split(" ").join("%")
+        search_string = params[:search].split(' ').join('%')
         @order_string = "boost * (
           8 * similarity(classification_string,'%#{search_string}%') +
           4 * similarity(headline, '%#{search_string}%') +
@@ -50,7 +50,7 @@ module DataCycleCore
 
       unless @classification_array.blank?
         @with_classification_alias_ids = parse_classifications(@classification_array)
-        @with_classification_alias_ids.each do |tree_label, class_array|
+        @with_classification_alias_ids.each_value do |class_array|
           query = query.with_classification_alias_ids(class_array)
         end
       end
@@ -79,7 +79,7 @@ module DataCycleCore
       end
 
       unless filter.parameters['with_classification_alias_ids'].blank?
-        @classification_array = filter.parameters['with_classification_alias_ids'].map{|_,value| value}.flatten
+        @classification_array = filter.parameters['with_classification_alias_ids'].map { |_, value| value }.flatten
       end
 
       query = filter.apply
@@ -100,6 +100,5 @@ module DataCycleCore
       new_filter.parameters[method_name.to_sym] = parameters unless parameters.blank?
       new_filter.save
     end
-
   end
 end
