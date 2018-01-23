@@ -6,8 +6,6 @@ module DataCycleCore
       alias_action :update, :destroy, to: :modify
       alias_action :create, :import, :read, :update, :create_user, :search, :unlock, :validate_single_data, to: :crud
 
-      can :manage, DataCycleCore::StoredFilter, user_id: user.id
-
       if user
 
         can :read, :all
@@ -20,6 +18,7 @@ module DataCycleCore
           DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
             can [:update, :validate_single_data, :import], link.item_type.constantize, { id: link.item_id } if link.is_valid?
           end
+          can :manage, DataCycleCore::StoredFilter, user_id: user.id
         end
 
         if user.has_rank?(1)
