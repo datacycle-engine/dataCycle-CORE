@@ -104,4 +104,8 @@ Gem::Specification.new do |s|
   # test dependencies
   s.add_dependency 'rspec'
   s.add_dependency 'rspec-rails'
+
+  s.add_development_dependency 'brakeman'
+  s.add_development_dependency 'bundler-audit'
+  s.add_development_dependency 'gemsurance'
 end
