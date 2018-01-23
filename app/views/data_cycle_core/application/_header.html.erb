@@ -20,10 +20,15 @@
                     <%= render 'watch_lists' %>
                   <% end %>
                 </li>
+                <li>StoredFilter
+                  <% if can?(:manage, DataCycleCore::StoredFilter) %>
+                    <%= render 'stored_filters' %>
+                  <%= end %>
+                </li>
                 <li>
-                    <%= link_to '#' do %>
-                        <i class="fa fa-question" aria-hidden="true"></i><span>Info</span>
-                    <% end %>
+                  <%= link_to '#' do %>
+                    <i class="fa fa-question" aria-hidden="true"></i><span>Info</span>
+                  <% end %>
                 </li>
                 <% if user_signed_in? %>
                     <li>

@@ -6,7 +6,7 @@ module DataCycleCore
     # data hash with keys named as in schema.org
     def get_data_hash(timestamp = Time.zone.now)
       if translated_locales.include?(I18n.locale) || changes.count.positive? # for new data-sets with pending data in it
-        data_hash = as_of(timestamp).to_h(timestamp)
+        data_hash = as_of(timestamp).try(:to_h, timestamp)
         data_hash = merge_release(data_hash, release) if is_a?(DataCycleCore::Releasable)
         data_hash
       end
@@ -32,7 +32,8 @@ module DataCycleCore
           metadata.nil? ? self.metadata = updated_by : metadata.merge!(updated_by)
           if id.nil?
             self.created_at = save_time
-            save
+            self.updated_at = save_time
+            self.save
           end
           set_search
         end

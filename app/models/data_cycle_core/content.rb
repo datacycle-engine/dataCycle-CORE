@@ -147,8 +147,8 @@ module DataCycleCore
     end
 
     def as_of(timestamp)
-      return self if updated_at.nil? || timestamp > updated_at
-      return nil if is_history?
+      return self if updated_at.blank? || timestamp.blank? || timestamp>=updated_at
+      return self if is_history?
 
       base_content_class = self.class.to_s
       history_table = "#{base_content_class}::History".safe_constantize.arel_table
@@ -168,7 +168,7 @@ module DataCycleCore
               history_table_translation[:history_valid],
               Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
             )
-          ).order(history_table[:updated_at])
+          ).order(history_table_translation[:history_valid])
       return_data.last
     end
 
