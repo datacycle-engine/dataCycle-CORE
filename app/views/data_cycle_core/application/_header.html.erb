@@ -4,16 +4,14 @@
             <!-- <span data-responsive-toggle="main-menu" data-hide-for="medium">
               <button class="menu-icon dark" type="button" data-toggle></button>
             </span> -->
-            <span class="logo">
-                <%= link_to image_tag('data_cycle_core/datacycle_logo_white.svg', alt: 'dataCycle Logo', style: 'height: 3rem;'), '/' %>
-            </span>
+            <%= render 'logo' %>
         </div>
         <div class="top-bar-right" id="main-menu">
             <ul class="menu">
                 <li>
-                    <%= link_to subscriptions_path, class: 'user-subscriptions-link' do %>
-                        <%= t("pronoun.my", count: 2, locale: DataCycleCore.ui_language).capitalize %> <%= DataCycleCore::Subscription.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>
-                    <% end if user_signed_in? && current_user.role.rank > 0 %>
+                  <%= link_to subscriptions_path, class: 'user-subscriptions-link' do %>
+                    <%= t("pronoun.my", count: 2, locale: DataCycleCore.ui_language).capitalize %> <%= DataCycleCore::Subscription.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>
+                  <% end if user_signed_in? && current_user.role&.rank&.positive? %>
                 </li>
                 <li>
                     <% if can?(:manage, DataCycleCore::WatchList) %>
@@ -26,22 +24,22 @@
                     <% end %>
                 </li>
                 <li>
-                    <%= link_to '#' do %>
+                    <%= link_to '/info' do %>
                         <i class="fa fa-question" aria-hidden="true"></i><span>Info</span>
                     <% end %>
                 </li>
                 <% if user_signed_in? %>
                     <li>
                         <button type="button" class="button show-sidebar" data-toggle="settings-off-canvas">
-                            <span><%= current_user.name %></span><i class="fa fa-smile-o icon-right" aria-hidden="true"></i>
+                            <span><%= current_user.email %></span><i class="fa fa-smile-o icon-right" aria-hidden="true"></i>
                         </button>
                     </li>
                 <% else %>
-                    <li>
+                    <!--<li>
                         <%= link_to '#' do %>
                             <span>Registrieren</span><i class="fa fa-cogs icon-right" aria-hidden="true"></i>
                         <% end %>
-                    </li>
+                    </li>-->
                     <li>
                         <%= link_to data_cycle_core.new_user_session_path do %>
                             <span>Login</span><i class="fa fa-smile-o icon-right" aria-hidden="true"></i>
