@@ -7,7 +7,6 @@ $LOAD_PATH.push File.expand_path('../lib', __FILE__)
 
 # Maintain your gem's version:
 require 'data_cycle_core/version'
-# require_relative 'core/lib/spree/core/version.rb'
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
@@ -101,7 +100,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'dotenv-rails'
   s.add_development_dependency 'puma', '~> 3.10.0'
 
-  # test dependencies
+  # test dependencies remove ?
   s.add_dependency 'rspec'
   s.add_dependency 'rspec-rails'
 
