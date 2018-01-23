@@ -29,12 +29,12 @@ module DataCycleCore
           end
           self.updated_at = save_time
           updated_by = { 'last_updated_by' => current_user.try(:id) }
-          self.metadata.nil? ? self.metadata = updated_by : self.metadata.merge!(updated_by)
-          if self.id.nil?
+          metadata.nil? ? self.metadata = updated_by : metadata.merge!(updated_by)
+          if id.nil?
             self.created_at = save_time
-            self.save
+            save
           end
-          self.set_search
+          set_search
         end
       end
       validate(stripped_data_hash) # return error/warnings from validation
@@ -60,7 +60,7 @@ module DataCycleCore
 
       ActiveRecord::Base.transaction do
         # cc self to history
-        data_set_history.send(origin_table.singularize.foreign_key + "=", id)
+        data_set_history.send(origin_table.singularize.foreign_key + '=', id)
         attributes.except('id', 'created_at', 'updated_at').each do |key, value|
           data_set_history.send("#{key}=", value)
         end

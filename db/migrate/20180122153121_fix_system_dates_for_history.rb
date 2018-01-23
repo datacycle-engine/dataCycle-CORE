@@ -3,7 +3,7 @@ class FixSystemDatesForHistory < ActiveRecord::Migration[5.0]
     @connection = ActiveRecord::Base.connection
     DataCycleCore.content_tables.each do |table_name|
       content = table_name.singularize
-      query = <<-eos
+      query = <<-EOS
         WITH t AS (
           SELECT
             #{content}_histories.id AS id,
@@ -17,7 +17,7 @@ class FixSystemDatesForHistory < ActiveRecord::Migration[5.0]
         SET updated_at = t.new_created_at, created_at = t.new_created_at
         FROM t
         WHERE #{content}_histories.id = t.id;
-      eos
+      EOS
 
       @connection.exec_query(query)
     end
