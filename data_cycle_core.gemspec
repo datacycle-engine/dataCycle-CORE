@@ -1,7 +1,14 @@
+# -*- encoding: utf-8 -*-
 $LOAD_PATH.push File.expand_path('../lib', __FILE__)
+
+
+# allows bundler to use the gemspec for dependencies
+# lib = File.expand_path('../lib', __FILE__)
+# $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 # Maintain your gem's version:
 require 'data_cycle_core/version'
+# require_relative 'core/lib/spree/core/version.rb'
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
@@ -91,7 +98,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'spring'
   s.add_development_dependency 'spring-watcher-listen', '~> 2.0.0'
   s.add_development_dependency 'web-console'
-  # admin db-interface
+
+  s.add_development_dependency 'puma', '~> 3.10.0'
+  s.add_development_dependency 'dotenv-rails'
 
   # test dependencies
   s.add_dependency 'rspec'
