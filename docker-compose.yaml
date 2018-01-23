@@ -19,7 +19,7 @@ services:
     - MONGODB_HOST=mongodb
     - ALLOW_IP_RANGE=172.18.0.0/12
     - TZ=Europe/Vienna
-    command: bin/rails server -b 0.0.0.0 -p 3000
+#    command: bin/rails server -b 0.0.0.0 -p 3000
     volumes:
     - 'gems:/gems'
     - '.:/var/www/app'

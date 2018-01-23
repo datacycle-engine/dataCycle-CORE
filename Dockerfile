@@ -17,7 +17,7 @@ ADD data_cycle_core.gemspec /var/www/app/data_cycle_core.gemspec
 #ADD vendor/gems/data-cycle-core /var/www/app/vendor/gems/data-cycle-core
 #ADD vendor/gems/globalize /var/www/app/vendor/gems/globalize
 
-RUN cd /var/www/app ; bundle install
+#RUN cd /var/www/app ; bundle install
 #RUN cd /var/www/app/vendor/gems/data-cycle-core ; bundle install
 
 ADD . /var/www/app
