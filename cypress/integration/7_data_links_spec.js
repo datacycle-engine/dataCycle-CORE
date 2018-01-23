@@ -66,9 +66,9 @@ describe('DataLink', function () {
   // })
 
   it('lock link', function () {
-    cy.get('#search').type(cname + '{enter}', {
+    cy.get('#search').type(updated_name + '{enter}', {
       force: true
-    }).get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
+    }).get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 1).click()
     cy.get('.detail-header-functions [data-toggle="send-link"]').click()
     cy.get('#send-link').should('be.visible').find('li:contains("' + email + '")').should('have.length', 1).then(function ($elem) {
       const url = '/data_links/' + $elem.prop('id').replace('data-link-', '')
@@ -87,9 +87,9 @@ describe('DataLink', function () {
   })
 
   it('unlock link', function () {
-    cy.get('#search').type(cname + '{enter}', {
+    cy.get('#search').type(updated_name + '{enter}', {
       force: true
-    }).get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
+    }).get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 1).click()
     cy.get('.detail-header-functions [data-toggle="send-link"]').click()
     cy.get('#send-link').should('be.visible').find('li:contains("' + email + '")').should('have.length', 1).then(function ($elem) {
       const url = '/data_links/' + $elem.prop('id').replace('data-link-', '')
@@ -103,7 +103,7 @@ describe('DataLink', function () {
 
       cy.logout()
       cy.visit(url)
-      cy.get('.headline input[type=text]').should('be.visible').should('have.value', cname)
+      cy.get('.headline input[type=text]').should('be.visible').should('have.value', updated_name)
     })
   })
 })

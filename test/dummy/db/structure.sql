@@ -885,6 +885,23 @@ CREATE TABLE searches (
 
 
 --
+-- Name: stored_filters; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE stored_filters (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    name character varying,
+    user_id uuid,
+    language character varying,
+    parameters jsonb,
+    system boolean DEFAULT false,
+    api boolean DEFAULT false,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: subscriptions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1368,6 +1385,14 @@ ALTER TABLE ONLY searches
 
 
 --
+-- Name: stored_filters stored_filters_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY stored_filters
+    ADD CONSTRAINT stored_filters_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1478,6 +1503,13 @@ CREATE UNIQUE INDEX child_parent_index ON classification_trees USING btree (clas
 --
 
 CREATE INDEX classification_string_idx ON searches USING gin (classification_string gin_trgm_ops);
+
+
+--
+-- Name: classified_name_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX classified_name_idx ON stored_filters USING btree (api, system, name);
 
 
 --
@@ -1884,6 +1916,13 @@ CREATE INDEX index_roles_on_rank ON roles USING btree (rank);
 --
 
 CREATE INDEX index_searches_on_words ON searches USING gin (words);
+
+
+--
+-- Name: index_stored_filters_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_stored_filters_on_user_id ON stored_filters USING btree (user_id);
 
 
 --
