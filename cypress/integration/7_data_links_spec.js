@@ -44,25 +44,26 @@ describe('DataLink', function () {
     })
   })
 
-  it('test link finalization', function () {
-    cy.get('#search').type(cname + '{enter}', {
-      force: true
-    }).get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
-    cy.get('.detail-header-functions [data-toggle="send-link"]').click()
-    cy.get('#send-link').should('be.visible').find('li:contains("' + email + '")').should('have.length', 1).then(function ($elem) {
-      const url = '/data_links/' + $elem.prop('id').replace('data-link-', '')
-
-      cy.logout()
-      cy.visit(url)
-      cy.get('.headline input[type=text]').should('be.visible').should('have.value', updated_name).clear().type(cname)
-      cy.get('input#finalize').should('be.visible').check()
-      cy.get('.submit-edit-form').click()
-      cy.get('.confirmation').should('be.visible').find('.ok').click()
-      cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
-
-      cy.get('.edit-content-link').should('have.length', 0)
-    })
-  })
+  //  TODO: active only for core tests
+  // it('test link finalization', function () {
+  //   cy.get('#search').type(cname + '{enter}', {
+  //     force: true
+  //   }).get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
+  //   cy.get('.detail-header-functions [data-toggle="send-link"]').click()
+  //   cy.get('#send-link').should('be.visible').find('li:contains("' + email + '")').should('have.length', 1).then(function ($elem) {
+  //     const url = '/data_links/' + $elem.prop('id').replace('data-link-', '')
+  //
+  //     cy.logout()
+  //     cy.visit(url)
+  //     cy.get('.headline input[type=text]').should('be.visible').should('have.value', updated_name).clear().type(cname)
+  //     cy.get('input#finalize').should('be.visible').check()
+  //     cy.get('.submit-edit-form').click()
+  //     cy.get('.confirmation').should('be.visible').find('.ok').click()
+  //     cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
+  //
+  //     cy.get('.edit-content-link').should('have.length', 0)
+  //   })
+  // })
 
   it('lock link', function () {
     cy.get('#search').type(cname + '{enter}', {
