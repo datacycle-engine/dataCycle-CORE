@@ -92,8 +92,4 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'spring-watcher-listen', '~> 2.0.0'
   s.add_development_dependency 'web-console'
   # admin db-interface
-
-  # test dependencies
-  s.add_dependency 'rspec'
-  s.add_dependency 'rspec-rails'
 end
