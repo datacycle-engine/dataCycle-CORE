@@ -4,7 +4,7 @@ DataCycleCore.setup do |config|
 
   config.special_data_attributes = ['id', 'validity_period', 'creator']
 
-  config.internal_data_attributes = ['creator', 'data_type', 'is_part_of']
+  config.internal_data_attributes = ['creator', 'data_type', 'data_pool', 'is_part_of']
 
   config.ui_language = :de
 
