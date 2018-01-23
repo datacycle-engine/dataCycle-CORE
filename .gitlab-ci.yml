@@ -1,0 +1,123 @@
+image: patrickrainer/data_cycle_base
+
+variables:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: ""
+  POSTGRES_HOST: postgres
+  POSTGRES_DB: data-cycle-base_test
+  POSTGRES_PORT: "5432"
+  MONGODB_HOST: mongodb
+  RAILS_ENV: test
+  TZ: Europe/Vienna
+
+stages:
+  - build
+  - test
+  - check
+  - deploy
+
+before_script:
+# uncomment for local testing
+#  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+#  - eval $(ssh-agent -s)
+#  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+# uncomment for local testing END
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+
+  - bundle install --path=cache/bundler
+
+  - bundle exec rake db:drop
+  - bundle exec rake db:create
+  - bundle exec rake db:migrate
+  - bundle exec rake db:seed
+
+  - dpkg-reconfigure -f noninteractive tzdata
+  - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+cache:
+  key: application-cache
+  untracked: true
+  paths:
+    - cache/bundler
+    - node_modules
+
+services:
+  - name: mdillon/postgis:9.6
+    alias: postgres
+  - name: mvertes/alpine-mongo
+    alias: mongodb
+
+# Running tests
+rails_test:
+  script:
+    - bundle exec rake app:db:drop app:db:create app:db:structure:load app:db:migrate app:db:seed
+    - rails test
+    - rspec
+
+cypress:
+  script:
+    - npm install
+    - bundle exec rake app:data_cycle_core:update:import_classifications
+    - bundle exec rake app:data_cycle_core:update:import_templates
+    - npx gulp production
+    - cd test/dummy && rails server -b 0.0.0.0 -p 3000 -d
+    - cd $CI_PROJECT_DIR && npx cypress run
+  artifacts:
+    name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_cypress"
+    paths:
+    - cypress/screenshots/
+    expire_in: 1 week
+    when: always
+
+# checks application
+bundle_audit:
+  stage: check
+  script:
+    - bundle-audit update
+    - bundle audit check
+
+gemsurance:
+  stage: check
+  script:
+    - gemsurance
+  artifacts:
+    name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_gemsurance"
+    paths:
+    - gemsurance_report.html
+    expire_in: 1 week
+    when: always
+
+brakeman:
+  stage: check
+  script:
+    - brakeman
+
+# activate after fixing issues + combine with Pronto
+rubocop:
+  stage: check
+  script:
+    - rubocop --format fuubar
+
+# deployment
+#deploy_staging:
+#  stage: deploy
+#  script:
+#    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+#    - cap staging deploy
+#  only:
+#    - staging
+#  environment:
+#    name: staging
+#    url: http://base.datacycle.at/
+#  when: manual
+#  allow_failure: false
+
+#test_script:
+## enable for debug
+##  variables:
+##    CI_DEBUG_TRACE: "true"
+#  script:
+#    - cat /etc/timezone
