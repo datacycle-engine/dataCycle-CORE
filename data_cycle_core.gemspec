@@ -100,10 +100,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'dotenv-rails'
   s.add_development_dependency 'puma', '~> 3.10.0'
 
-  # test dependencies remove ?
-  s.add_dependency 'rspec'
-  s.add_dependency 'rspec-rails'
-
   s.add_development_dependency 'brakeman'
   s.add_development_dependency 'bundler-audit'
   s.add_development_dependency 'gemsurance'

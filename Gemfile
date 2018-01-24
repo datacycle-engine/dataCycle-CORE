@@ -32,6 +32,4 @@ group :development, :test do
   gem 'capistrano3-delayed-job'
   gem 'capistrano3-puma'
 
-  gem 'rspec'
-  gem 'rspec-rails'
 end
