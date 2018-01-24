@@ -15,6 +15,9 @@ describe('UserGroup', function () {
 
 
   it('create', function () {
+    cy.visit('/').get('.flash.callout .close-button').click({
+      force: true
+    })
     cy.get('.show-sidebar').click()
     cy.get('#settings-off-canvas .user-groups-link').click()
 
@@ -30,7 +33,9 @@ describe('UserGroup', function () {
   })
 
   it('update', function () {
-    cy.visit('/user_groups')
+    cy.visit('/user_groups').get('.flash.callout .close-button').click({
+      force: true
+    })
     cy.get('.search-results .grid-item:contains(' + name + ')').should('have.length', 1).find('.edit-link').click()
     cy.get('input#user_group_name').clear().type(updated_name)
     cy.get('.submit-edit-form').click()
@@ -41,7 +46,9 @@ describe('UserGroup', function () {
   })
 
   it('delete', function () {
-    cy.visit('/user_groups')
+    cy.visit('/user_groups').get('.flash.callout .close-button').click({
+      force: true
+    })
     cy.get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 1).find('.delete-link').click()
     cy.get('.confirmation').should('be.visible').find('.accept-confirmation').click()
     cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
@@ -52,7 +59,9 @@ describe('UserGroup', function () {
   it('add user', function () {
     cy.createUser(user)
     cy.createUserGroup(name)
-    cy.visit('/user_groups')
+    cy.visit('/user_groups').get('.flash.callout .close-button').click({
+      force: true
+    })
     cy.get('.search-results .grid-item:contains(' + name + ')').should('have.length', 1).find('.edit-link').click()
     cy.get('#user_group_user_ids_').should('have.length', 1).siblings('.select2').find('input.select2-search__field').type(user.given_name + ' ' + user.family_name + '{enter}')
     cy.get('.submit-edit-form').click()

@@ -14,6 +14,10 @@ describe('User', function () {
   }
 
   it('create', function () {
+    cy.visit('/').get('.flash.callout .close-button').click({
+      force: true
+    })
+
     cy.get('.show-sidebar').click()
     cy.get('#settings-off-canvas .users-link').click()
 
@@ -31,12 +35,15 @@ describe('User', function () {
     cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
     cy.get('.search-results .grid-item:contains(' + user.email + ')').should('have.length', 1)
 
-    cy.testLogin(user)
-    cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
+    cy.testLogin(user).then((resp) => {
+      expect(resp.status).to.eq(302)
+    })
   })
 
   it('update', function () {
-    cy.visit('/users')
+    cy.visit('/users').get('.flash.callout .close-button').click({
+      force: true
+    })
     cy.get('.search-results .grid-item:contains(' + user.email + ')').should('have.length', 1).find('.edit-link').click()
     cy.get('input#user_email').clear().type(updated_user.email)
     cy.get('input#user_password').clear().type(updated_user.password)
@@ -47,26 +54,34 @@ describe('User', function () {
     cy.visit('/users')
     cy.get('.search-results .grid-item:contains(' + updated_user.email + ')').should('have.length', 1)
 
-    cy.testLogin(updated_user)
-    cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
+    cy.testLogin(updated_user).then((resp) => {
+      expect(resp.status).to.eq(302)
+    })
   })
 
   it('lock', function () {
-    cy.visit('/users')
+    cy.visit('/users').get('.flash.callout .close-button').click({
+      force: true
+    })
     cy.get('.search-results .grid-item:contains(' + updated_user.email + ')').should('have.length', 1).find('.lock-link').click()
     cy.get('.confirmation').should('be.visible').find('.accept-confirmation').click()
     cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
 
-    cy.testLogin(updated_user)
-    cy.get('.flash.callout').should('have.class', 'alert').find('.close-button').click()
+    cy.testLogin(updated_user).then((resp) => {
+      expect(resp.status).to.eq(302)
+      expect(resp.redirectedToUrl).to.have.string('/users/sign_in')
+    })
   })
 
   it('unlock', function () {
-    cy.visit('/users')
+    cy.visit('/users').get('.flash.callout .close-button').click({
+      force: true
+    })
     cy.get('.search-results .grid-item:contains(' + updated_user.email + ')').should('have.length', 1).find('.unlock-link').click()
     cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
 
-    cy.testLogin(updated_user)
-    cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
+    cy.testLogin(updated_user).then((resp) => {
+      expect(resp.status).to.eq(302)
+    })
   })
 })

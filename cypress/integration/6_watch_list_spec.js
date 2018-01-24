@@ -9,6 +9,9 @@ describe('WatchList', function () {
   const cname = 'Test_' + option + '_' + Date.now()
 
   it('create', function () {
+    cy.visit('/').get('.flash.callout .close-button').click({
+      force: true
+    })
     cy.get('#add-to-watchlist-link').click()
     cy.get('#header-menu_new_watch_list #header-menu_watch_list_headline').type(name + '{enter}', {
       force: true
@@ -22,6 +25,9 @@ describe('WatchList', function () {
   })
 
   it('update', function () {
+    cy.visit('/').get('.flash.callout .close-button').click({
+      force: true
+    })
     cy.get('#add-to-watchlist-link').click()
     cy.get('#watch-lists-for-user').find('.watch-list-item .watchlist-link:contains("' + name + '")').click({
       force: true
@@ -41,6 +47,9 @@ describe('WatchList', function () {
 
   it('add artikel', function () {
     cy.createCreativeWork(cname, option)
+    cy.visit('/').get('.flash.callout .close-button').click({
+      force: true
+    })
 
     cy.get('#search').type(cname + '{enter}', {
       force: true
@@ -56,6 +65,9 @@ describe('WatchList', function () {
   })
 
   it('remove artikel', function () {
+    cy.visit('/').get('.flash.callout .close-button').click({
+      force: true
+    })
     cy.get('#search').type(cname + '{enter}', {
       force: true
     }).get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).find('.watch-lists-link').click()
@@ -70,6 +82,9 @@ describe('WatchList', function () {
   })
 
   it('delete', function () {
+    cy.visit('/').get('.flash.callout .close-button').click({
+      force: true
+    })
     cy.get('#watch-lists-for-user').find('.watch-list-item .watchlist-link:contains("' + updated_name + '")').click({
       force: true
     })

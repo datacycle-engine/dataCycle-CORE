@@ -9,6 +9,9 @@ describe('CreativeWork', function () {
     const updated_name = 'Updated_' + name
 
     it('create', function () {
+      cy.visit('/').get('.flash.callout .close-button').click({
+        force: true
+      })
       cy.get('#search').type(name + '{enter}', {
         force: true
       })
@@ -32,6 +35,9 @@ describe('CreativeWork', function () {
     })
 
     it('update', function () {
+      cy.visit('/').get('.flash.callout .close-button').click({
+        force: true
+      })
       cy.get('#search').type(name + '{enter}', {
         force: true
       }).get('.search-results .grid-item:contains(' + name + ') .content-link').should('be.visible').click()
@@ -44,6 +50,9 @@ describe('CreativeWork', function () {
     })
 
     it('delete', function () {
+      cy.visit('/').get('.flash.callout .close-button').click({
+        force: true
+      })
       cy.get('#search').type(updated_name + '{enter}', {
         force: true
       }).get('.search-results .grid-item:contains(' + updated_name + ') .content-link').should('be.visible').click()
@@ -61,6 +70,9 @@ describe('CreativeWork', function () {
     const updated_name = name + '_updated'
 
     it('create', function () {
+      cy.visit('/').get('.flash.callout .close-button').click({
+        force: true
+      })
       cy.get('#search').type(name + '{enter}', {
         force: true
       })
@@ -84,6 +96,9 @@ describe('CreativeWork', function () {
     })
 
     it('update', function () {
+      cy.visit('/').get('.flash.callout .close-button').click({
+        force: true
+      })
       cy.get('#search').type(name + '{enter}', {
         force: true
       }).get('.search-results .grid-item:contains(' + name + ') .content-link').should('be.visible').click()
@@ -96,6 +111,9 @@ describe('CreativeWork', function () {
     })
 
     it('delete', function () {
+      cy.visit('/').get('.flash.callout .close-button').click({
+        force: true
+      })
       cy.get('#search').type(updated_name + '{enter}', {
         force: true
       }).get('.search-results .grid-item:contains(' + updated_name + ') .content-link').should('be.visible').click()
@@ -112,6 +130,9 @@ describe('CreativeWork', function () {
     const updated_name = name + '_updated'
 
     it('create', function () {
+      cy.visit('/').get('.flash.callout .close-button').click({
+        force: true
+      })
       cy.get('#search').type(name + '{enter}', {
         force: true
       })
@@ -135,6 +156,9 @@ describe('CreativeWork', function () {
     })
 
     it('update', function () {
+      cy.visit('/').get('.flash.callout .close-button').click({
+        force: true
+      })
       cy.get('#search').type(name + '{enter}', {
         force: true
       }).get('.search-results .grid-item:contains(' + name + ') .content-link').should('be.visible').click()
@@ -147,6 +171,9 @@ describe('CreativeWork', function () {
     })
 
     it('delete', function () {
+      cy.visit('/').get('.flash.callout .close-button').click({
+        force: true
+      })
       cy.get('#search').type(updated_name + '{enter}', {
         force: true
       }).get('.search-results .grid-item:contains(' + updated_name + ') .content-link').should('be.visible').click()

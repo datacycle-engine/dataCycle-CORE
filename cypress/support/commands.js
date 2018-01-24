@@ -25,61 +25,13 @@
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 Cypress.Commands.add('login', function (userType, options = {}) {
   cy.fixture('login_users').as('usersJSON').then(() => {
-    cy.visit('/users/sign_in')
-    var authenticity_token = ""
-    cy.get('input[name=authenticity_token]').then(($elem) => {
-      authenticity_token = $elem.val()
-      const user = this.usersJSON[userType]
+    const user = this.usersJSON[userType]
 
-      cy.request({
-        url: '/users/sign_in',
-        method: 'POST',
-        body: {
-          utf8: "✓",
-          authenticity_token: authenticity_token,
-          user: {
-            email: user.email,
-            password: user.password,
-            remember_me: 0
-          }
-        },
-        failOnStatusCode: false,
-        followRedirect: false
-      })
-      cy.visit('/')
-      cy.get('.flash.callout.success .close-button').click()
-    })
-  })
-})
-
-Cypress.Commands.add('logout', function () {
-  cy.get('[name="csrf-token"]').then(($elem) => {
-    cy.request({
-      url: '/users/sign_out',
-      method: 'DELETE',
-      body: {
-        utf8: "✓",
-        authenticity_token: $elem.prop('content')
-      },
-      failOnStatusCode: false,
-      followRedirect: false
-    })
-    cy.visit('/users/sign_in')
-    cy.get('.flash.callout.success .close-button').click()
-  })
-})
-
-Cypress.Commands.add('testLogin', function (user) {
-  cy.logout()
-
-  cy.visit('/users/sign_in')
-  cy.get('[name="csrf-token"]').then(($elem) => {
     cy.request({
       url: '/users/sign_in',
       method: 'POST',
       body: {
         utf8: "✓",
-        authenticity_token: $elem.prop('content'),
         user: {
           email: user.email,
           password: user.password,
@@ -90,78 +42,81 @@ Cypress.Commands.add('testLogin', function (user) {
       followRedirect: false
     })
   })
-  cy.visit('/')
+})
+
+Cypress.Commands.add('logout', function () {
+  cy.request({
+    url: '/users/sign_out',
+    method: 'DELETE',
+    body: {
+      utf8: "✓"
+    },
+    failOnStatusCode: false,
+    followRedirect: false
+  })
+})
+
+Cypress.Commands.add('testLogin', function (user) {
+  cy.logout()
+
+  cy.request({
+    url: '/users/sign_in',
+    method: 'POST',
+    body: {
+      utf8: "✓",
+      user: {
+        email: user.email,
+        password: user.password,
+        remember_me: 0
+      }
+    },
+    failOnStatusCode: false,
+    followRedirect: false
+  })
 })
 
 Cypress.Commands.add('createCreativeWork', function (name, template) {
-  cy.visit('/')
-  var authenticity_token = ""
-  cy.get('[name=csrf-token]').then(($elem) => {
-    authenticity_token = $elem.attr('content')
-
-    cy.request({
-      url: '/creative_works',
-      method: 'POST',
-      body: {
-        utf8: "✓",
-        authenticity_token: authenticity_token,
-        template: template,
-        creative_work: {
-          datahash: {
-            headline: name
-          }
+  cy.request({
+    url: '/creative_works',
+    method: 'POST',
+    body: {
+      utf8: "✓",
+      template: template,
+      creative_work: {
+        datahash: {
+          headline: name
         }
-      },
-      failOnStatusCode: false,
-      followRedirect: false
-    })
-    cy.visit('/')
-    cy.get('.flash.callout.success .close-button').click()
+      }
+    },
+    failOnStatusCode: false,
+    followRedirect: false
   })
 })
 
 Cypress.Commands.add('createUser', function (user, template) {
-  cy.visit('/')
-  var authenticity_token = ""
-  cy.get('[name=csrf-token]').then(($elem) => {
-    authenticity_token = $elem.attr('content')
-
-    cy.request({
-      url: '/users/create_user',
-      method: 'POST',
-      body: {
-        utf8: "✓",
-        authenticity_token: authenticity_token,
-        user: user
-      },
-      failOnStatusCode: false,
-      followRedirect: false
-    })
-    cy.visit('/')
-    cy.get('.flash.callout.success .close-button').click()
+  cy.request({
+    url: '/users/create_user',
+    method: 'POST',
+    body: {
+      utf8: "✓",
+      user: user
+    },
+    failOnStatusCode: false,
+    followRedirect: false
   })
 })
 
 Cypress.Commands.add('createUserGroup', function (name, template) {
-  cy.visit('/')
-  var authenticity_token = ""
-  cy.get('[name=csrf-token]').then(($elem) => {
-    authenticity_token = $elem.attr('content')
-
-    cy.request({
-      url: '/user_groups',
-      method: 'POST',
-      body: {
-        utf8: "✓",
-        authenticity_token: authenticity_token,
-        user_group: {
-          name: name
-        }
-      },
-      failOnStatusCode: false,
-      followRedirect: false
-    })
-    cy.visit('/')
-    cy.get('.flash.callout.success .close-button').click()
+  cy.request({
+    url: '/user_groups',
+    method: 'POST',
+    body: {
+      utf8: "✓",
+      user_group: {
+        name: name
+      }
+    },
+    failOnStatusCode: false,
+    followRedirect: false
   })
 })

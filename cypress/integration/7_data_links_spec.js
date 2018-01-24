@@ -10,7 +10,9 @@ describe('DataLink', function () {
 
   it('create', function () {
     cy.createCreativeWork(cname, option)
-
+    cy.visit('/').get('.flash.callout .close-button').click({
+      force: true
+    })
     cy.get('#search').type(cname + '{enter}', {
       force: true
     }).get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
@@ -29,6 +31,9 @@ describe('DataLink', function () {
   })
 
   it('test link', function () {
+    cy.visit('/').get('.flash.callout .close-button').click({
+      force: true
+    })
     cy.get('#search').type(cname + '{enter}', {
       force: true
     }).get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
@@ -37,7 +42,9 @@ describe('DataLink', function () {
       const url = '/data_links/' + $elem.prop('id').replace('data-link-', '')
 
       cy.logout()
-      cy.visit(url)
+      cy.visit(url).get('.flash.callout .close-button').click({
+        force: true
+      })
       cy.get('.headline input[type=text]').should('be.visible').should('have.value', cname).clear().type(updated_name)
       cy.get('.submit-edit-form').click()
       cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
@@ -66,6 +73,9 @@ describe('DataLink', function () {
   // })
 
   it('lock link', function () {
+    cy.visit('/').get('.flash.callout .close-button').click({
+      force: true
+    })
     cy.get('#search').type(updated_name + '{enter}', {
       force: true
     }).get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 1).click()
@@ -87,6 +97,9 @@ describe('DataLink', function () {
   })
 
   it('unlock link', function () {
+    cy.visit('/').get('.flash.callout .close-button').click({
+      force: true
+    })
     cy.get('#search').type(updated_name + '{enter}', {
       force: true
     }).get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 1).click()

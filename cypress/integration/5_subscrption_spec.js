@@ -8,7 +8,9 @@ describe('Subscription', function () {
 
   it('create', function () {
     cy.createCreativeWork(cname, option)
-
+    cy.visit('/').get('.flash.callout .close-button').click({
+      force: true
+    })
     cy.get('#search').type(cname + '{enter}', {
       force: true
     }).get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
@@ -21,6 +23,9 @@ describe('Subscription', function () {
   })
 
   it('remove', function () {
+    cy.visit('/').get('.flash.callout .close-button').click({
+      force: true
+    })
     cy.get('#search').type(cname + '{enter}', {
       force: true
     }).get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
