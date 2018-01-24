@@ -25,6 +25,7 @@ append :linked_files, '.env'
 append :linked_dirs, 'node_modules', 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system'
 
 Rake::Task['deploy:assets:precompile'].clear_actions
+Rake::Task['deploy:assets:backup_manifest'].clear_actions
 Rake::Task['git:create_release'].clear_actions
 namespace :git do
   task :update do
