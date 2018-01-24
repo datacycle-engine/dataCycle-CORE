@@ -20,7 +20,18 @@ if DataCycleCore::User.where(given_name: 'Ad', family_name: 'Ministrator', email
     email:        'admin@datacycle.at',
     admin:        true,
     password:     '3amMQf74vp7Zpfdi',
-    role_id:      DataCycleCore::Role.order('rank DESC').first.id
+    role_id:      DataCycleCore::Role.find_by(rank: 10)&.id
+  )
+end
+
+if DataCycleCore::User.where(given_name: 'Test', family_name: 'User', email: 'tester@datacycle.at').count.zero?
+  DataCycleCore::User.create!(
+    given_name:   'Test',
+    family_name:  'User',
+    email:        'tester@datacycle.at',
+    admin:        true,
+    password:     'w9NGXs2ZLUydJF8r',
+    role_id:      DataCycleCore::Role.find_by(rank: 10)&.id
   )
 end
 

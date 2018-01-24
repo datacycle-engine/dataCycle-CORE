@@ -43,8 +43,6 @@ PATH
       rails (~> 5.0.0, >= 5.0.0.1)
       rake (~> 12.1.0)
       rgeo
-      rspec
-      rspec-rails
       sass-rails (~> 5.0)
       simple_form
       transproc (~> 1.0)
@@ -358,27 +356,6 @@ GEM
     rgeo-activerecord (6.0.0)
       activerecord (~> 5.0)
       rgeo (~> 1.0)
-    rspec (3.7.0)
-      rspec-core (~> 3.7.0)
-      rspec-expectations (~> 3.7.0)
-      rspec-mocks (~> 3.7.0)
-    rspec-core (3.7.1)
-      rspec-support (~> 3.7.0)
-    rspec-expectations (3.7.0)
-      diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.7.0)
-    rspec-mocks (3.7.0)
-      diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.7.0)
-    rspec-rails (3.7.2)
-      actionpack (>= 3.0)
-      activesupport (>= 3.0)
-      railties (>= 3.0)
-      rspec-core (~> 3.7.0)
-      rspec-expectations (~> 3.7.0)
-      rspec-mocks (~> 3.7.0)
-      rspec-support (~> 3.7.0)
-    rspec-support (3.7.0)
     rubocop (0.52.1)
       parallel (~> 1.10)
       parser (>= 2.4.0.2, < 3.0)
@@ -461,8 +438,6 @@ DEPENDENCIES
   listen (~> 3.0.5)
   puma (~> 3.10.0)
   rails_db
-  rspec
-  rspec-rails
   rubocop (~> 0.52.1)
   spring
   spring-watcher-listen (~> 2.0.0)
