@@ -53,9 +53,8 @@ services:
 # Running tests
 rails_test:
   script:
-    - bundle exec rake app:db:drop app:db:create app:db:structure:load app:db:migrate app:db:seed
+#    - bundle exec rake app:db:drop app:db:create app:db:structure:load app:db:migrate app:db:seed
     - rails test
-    - rspec
 
 cypress:
   script:
@@ -72,52 +71,36 @@ cypress:
     expire_in: 1 week
     when: always
 
-# checks application
-bundle_audit:
+# code validation
+# bundle-audit
+# brakeman
+# gemsurance
+# rubocop
+code_validation:
   stage: check
   script:
     - bundle-audit update
     - bundle audit check
-
-gemsurance:
-  stage: check
-  script:
+    - brakeman
     - gemsurance
+    - rubocop --format fuubar
   artifacts:
     name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_gemsurance"
     paths:
     - gemsurance_report.html
     expire_in: 1 week
-    when: always
-
-brakeman:
-  stage: check
-  script:
-    - brakeman
-
-# activate after fixing issues + combine with Pronto
-rubocop:
-  stage: check
-  script:
-    - rubocop --format fuubar
+    when: on_failure
 
 # deployment
-#deploy_staging:
-#  stage: deploy
-#  script:
-#    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-#    - cap staging deploy
-#  only:
-#    - staging
-#  environment:
-#    name: staging
-#    url: http://base.datacycle.at/
-#  when: manual
-#  allow_failure: false
-
-#test_script:
-## enable for debug
-##  variables:
-##    CI_DEBUG_TRACE: "true"
-#  script:
-#    - cat /etc/timezone
+deploy_staging:
+  stage: deploy
+  script:
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - cap staging deploy
+  only:
+    - feature/dummy_app
+  environment:
+    name: staging
+    url: http://core.datacycle.at/
+  when: manual
+  allow_failure: false
