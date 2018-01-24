@@ -47,7 +47,7 @@ describe('DataLink', function () {
       })
       cy.get('.headline input[type=text]').should('be.visible').should('have.value', cname).clear().type(updated_name)
       cy.get('.submit-edit-form').click()
-      cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
+      cy.get('.flash.callout').should('have.class', 'success')
     })
   })
 
