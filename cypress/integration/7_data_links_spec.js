@@ -112,7 +112,7 @@ describe('DataLink', function () {
       $elem.find('.send-link-button').click()
 
       cy.get('#' + overlay_id + ' input[value="write"]').should('be.visible').check()
-      cy.get('#' + overlay_id + ' [name="data_link[valid_until]"]').should('have.length', 1).siblings('.flatpickr-input').clear().type(new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString())
+      cy.get('#' + overlay_id + ' [name="data_link[valid_until]"]').should('have.length', 1).siblings('.flatpickr-input').clear().type(new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('de-DE'))
       cy.get('#' + overlay_id + ' [type="submit"]').should('be.visible').click()
       cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
       cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
