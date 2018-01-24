@@ -97,8 +97,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'spring-watcher-listen', '~> 2.0.0'
   s.add_development_dependency 'web-console'
 
-  s.add_development_dependency 'dotenv-rails'
-  s.add_development_dependency 'puma', '~> 3.10.0'
+  s.add_dependency 'dotenv-rails'
+  s.add_dependency 'puma', '~> 3.10.0'
 
   s.add_development_dependency 'brakeman'
   s.add_development_dependency 'bundler-audit'

@@ -23,6 +23,7 @@ PATH
       delayed_job_active_record
       devise
       devise-foundation-views
+      dotenv-rails
       dry-validation (~> 0.11)
       faraday
       foundation-rails (~> 6.2.4)
@@ -40,6 +41,7 @@ PATH
       multi_json
       nokogiri (~> 1.8.1)
       pg (~> 0.21)
+      puma (~> 3.10.0)
       rails (~> 5.0.0, >= 5.0.0.1)
       rake (~> 12.1.0)
       rgeo
@@ -431,11 +433,9 @@ DEPENDENCIES
   capistrano3-delayed-job
   capistrano3-puma
   data_cycle_core!
-  dotenv-rails
   gemsurance
   globalize!
   listen (~> 3.0.5)
-  puma (~> 3.10.0)
   rails_db
   rubocop (~> 0.52.1)
   spring
