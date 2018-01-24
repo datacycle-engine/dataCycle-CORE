@@ -22,6 +22,10 @@ test:
   <<: *default
   database: data_cycle_test
 
+staging:
+  <<: *default
+  database: data-cycle-core_staging
+
 production:
   <<: *default
   database: data_cycle_production
