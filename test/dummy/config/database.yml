@@ -24,6 +24,9 @@ test:
 
 staging:
   <<: *default
+  username: "data_cycle_core"
+  password: "1H2fpD6kaif92kyfC79acT"
+  port: 5433
   database: data-cycle-core_staging
 
 production:
