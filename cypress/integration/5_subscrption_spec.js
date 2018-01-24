@@ -8,12 +8,11 @@ describe('Subscription', function () {
 
   it('create', function () {
     cy.createCreativeWork(cname, option)
-    cy.visit('/').get('.flash.callout .close-button').click({
+    cy.visit('/?search=' + cname).get('.flash.callout .close-button').click({
       force: true
-    })
-    cy.get('#search').type(cname + '{enter}', {
-      force: true
-    }).get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
+    }).should('be.hidden')
+    cy.get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
+    cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
 
     cy.get('.detail-header-functions [data-toggle="subscribe"]').click()
     cy.get('#subscribe').should('be.visible').find('a').click()
@@ -23,17 +22,18 @@ describe('Subscription', function () {
   })
 
   it('remove', function () {
-    cy.visit('/').get('.flash.callout .close-button').click({
+    cy.visit('/?search=' + cname).get('.flash.callout .close-button').click({
       force: true
-    })
-    cy.get('#search').type(cname + '{enter}', {
-      force: true
-    }).get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
+    }).should('be.hidden')
+    cy.get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
+    cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
 
     cy.get('.detail-header-functions [data-toggle="subscribe"]').click()
     cy.get('#subscribe').should('be.visible').find('a[data-method="delete"]').click()
 
     cy.get('.user-subscriptions-link').click()
+    cy.location('pathname').should('match', /\/subscriptions/)
+
     cy.get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 0)
   })
 })
