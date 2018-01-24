@@ -6,6 +6,8 @@ set :repo_url, 'git@git.pixelpoint.biz:data-cycle/data-cycle-core.git'
 
 set :rvm_ruby_version, '2.4.3'
 
+# set :puma_rackup, -> { File.join(current_path, 'test', 'dummy', 'config', 'puma.rb') }
+
 # Default value for :format is :airbrussh.
 # set :format, :airbrussh
 
