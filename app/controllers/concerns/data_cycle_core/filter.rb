@@ -77,7 +77,7 @@ module DataCycleCore
 
       query = filter.apply
       @total = query.count(:id)
-      @paginateObject = query.page(1)
+      @paginateObject = query.page(params[:page])
       @paginateObject.includes(content_data: [:display_classification_aliases, :translations, :watch_lists]).map(&:content_data)
     end
 
