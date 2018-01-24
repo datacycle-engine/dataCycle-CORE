@@ -24,6 +24,7 @@ append :linked_files, '.env'
 # Default value for linked_dirs is []
 append :linked_dirs, 'node_modules', 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system'
 
+Rake::Task['deploy:assets:precompile'].clear_actions
 Rake::Task['git:create_release'].clear_actions
 namespace :git do
   task :update do
@@ -65,6 +66,31 @@ namespace :deploy do
     end
   end
 
+  task :iconfonts do
+    on roles(:all) do
+      execute "cd #{release_path} && cp -Rf ./lib/assets/fonts/. ./public/assets"
+    end
+  end
+
+  namespace :assets do
+    task :precompile do
+      on release_roles(fetch(:assets_roles)) do
+        within release_path do
+          with rails_env: fetch(:rails_env), rails_groups: fetch(:rails_assets_groups) do
+            execute :rake, "app:assets:precompile"
+          end
+        end
+      end
+    end
+  end
+
+
+
+  #before 'assets:precompile', 'deploy:npm'
+  # after 'deploy:npm', 'deploy:gulp'
+  # after 'deploy:gulp', 'deploy:asset_precompile'
+  # after 'deploy:asset_precompile', 'deploy:iconfonts'
+  #
   before 'assets:precompile', 'deploy:npm'
   after 'deploy:npm', 'deploy:gulp'
   after 'assets:precompile', 'deploy:iconfonts'
