@@ -37,9 +37,9 @@ module DataCycleCore
     def search
       query = build_search_query
       query = query.where(content_data_type: content_data_type) if content_data_type
-      query = query.modified_since(params[:modified_since]) unless params[:modified_since].blank?
-      query = query.created_since(params[:created_since]) unless params[:created_since].blank?
-      query = query.in_validity_period if params[:modified_since].blank? && params[:created_since].blank?
+      query = query.modified_since(params[:modified_since]) if params[:modified_since]
+      query = query.created_since(params[:created_since]) if params[:created_since]
+      query = query.in_validity_period if params[:modified_since] && params[:created_since]
       query = query.fulltext_search(params[:search]) if params[:search]
       query = apply_ordering(query)
 
@@ -79,31 +79,32 @@ module DataCycleCore
 
     private
 
-    def content_params
-      params.permit(:format, :type, :page, :per, :language, :search, :token, :modified_since, :created_since, :deleted_since)
+    def params
+      super.permit(:format, :type, :page, :per, :language, :search, :token, :modified_since, :created_since, :deleted_since)
+        .reject { |_, v| v.blank? }
     end
 
     def build_search_query
-      query = DataCycleCore::Filter::Search.new(content_params.fetch(:language, 'de'))
+      query = DataCycleCore::Filter::Search.new(params.fetch(:language, 'de'))
       query
     end
 
     def content_data_type
-      Object.const_get("DataCycleCore::#{content_params[:type].classify}") if content_params[:type]
+      Object.const_get("DataCycleCore::#{params[:type].classify}") if params[:type]
     end
 
     def apply_ordering(query)
-      if content_params[:search].blank?
+      if params[:search].blank?
         query
       else
-        query.order(DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(content_params[:search]))
+        query.order(DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(params[:search]))
       end
     end
 
     def apply_paging(query)
       query
-        .page([content_params.fetch(:page, 1).to_i, (query.count / content_params.fetch(:per, @@default_per).to_i).ceil].min)
-        .per(content_params.fetch(:per, @@default_per).to_i)
+        .page([params.fetch(:page, 1).to_i, (query.count / params.fetch(:per, @@default_per).to_i).ceil].min)
+        .per(params.fetch(:per, @@default_per).to_i)
     end
   end
 end
