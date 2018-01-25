@@ -53,7 +53,6 @@ services:
 # Running tests
 rails_test:
   script:
-#    - bundle exec rake app:db:drop app:db:create app:db:structure:load app:db:migrate app:db:seed
     - rails test
 
 cypress:
