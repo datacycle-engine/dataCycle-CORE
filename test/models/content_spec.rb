@@ -354,13 +354,13 @@ describe DataCycleCore::Content do
 
     it 'return a proper hash with :to_h' do
       subject.to_h.must_equal({
-                                   'id' => nil,
-                                   'description' => 'dies ist ein Test',
-                                   'included_object' => {
-                                     'property1' => 'data property1',
-                                     'property2' => 'data property2'
-                                   }
-                                 })
+                                'id' => nil,
+                                'description' => 'dies ist ein Test',
+                                'included_object' => {
+                                  'property1' => 'data property1',
+                                  'property2' => 'data property2'
+                                }
+                              })
     end
   end
 
@@ -453,14 +453,14 @@ describe DataCycleCore::Content do
 
     it 'returns an hash for included property' do
       subject.included_object.to_h.must_equal({
-                                                   'property1' => 'data property1',
-                                                   'property2' => 'data property2',
-                                                   'deep_included_object' => {
-                                                     'property_deep1' => 'data property_deep1',
-                                                     'property_deep2' => 'data property_deep2',
-                                                     'deeper_object' => { 'property_deeper' => 'deeper_property_name' }
-                                                   }
-                                                 })
+                                                'property1' => 'data property1',
+                                                'property2' => 'data property2',
+                                                'deep_included_object' => {
+                                                  'property_deep1' => 'data property_deep1',
+                                                  'property_deep2' => 'data property_deep2',
+                                                  'deeper_object' => { 'property_deeper' => 'deeper_property_name' }
+                                                }
+                                              })
     end
 
     it 'returns values for included sub_properties' do
@@ -470,10 +470,10 @@ describe DataCycleCore::Content do
 
     it 'returns deep_included_object' do
       subject.included_object.deep_included_object.to_h.must_equal({
-                                                                        'property_deep1' => 'data property_deep1',
-                                                                        'property_deep2' => 'data property_deep2',
-                                                                        'deeper_object' => { 'property_deeper' => 'deeper_property_name' }
-                                                                      })
+                                                                     'property_deep1' => 'data property_deep1',
+                                                                     'property_deep2' => 'data property_deep2',
+                                                                     'deeper_object' => { 'property_deeper' => 'deeper_property_name' }
+                                                                   })
     end
 
     it 'returns attributes for deep_included_object' do
@@ -491,18 +491,18 @@ describe DataCycleCore::Content do
 
     it 'returns all data :to_h ' do
       subject.to_h.must_equal({
-                                   'id' => nil,
-                                   'description' => 'dies ist ein Test',
-                                   'included_object' => {
-                                     'property1' => 'data property1',
-                                     'property2' => 'data property2',
-                                     'deep_included_object' => {
-                                       'property_deep1' => 'data property_deep1',
-                                       'property_deep2' => 'data property_deep2',
-                                       'deeper_object' => { 'property_deeper' => 'deeper_property_name' }
-                                     }
-                                   }
-                                 })
+                                'id' => nil,
+                                'description' => 'dies ist ein Test',
+                                'included_object' => {
+                                  'property1' => 'data property1',
+                                  'property2' => 'data property2',
+                                  'deep_included_object' => {
+                                    'property_deep1' => 'data property_deep1',
+                                    'property_deep2' => 'data property_deep2',
+                                    'deeper_object' => { 'property_deeper' => 'deeper_property_name' }
+                                  }
+                                }
+                              })
     end
   end
 end
