@@ -1,6 +1,5 @@
 module DataCycleCore
   class ClassificationContent < ApplicationRecord
-
     belongs_to :content_data, polymorphic: true
     belongs_to :classification
 
@@ -8,6 +7,5 @@ module DataCycleCore
       belongs_to :content_data_history, polymorphic: true
       belongs_to :classification
     end
-
   end
 end

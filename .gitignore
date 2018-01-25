@@ -11,3 +11,6 @@ tmp/
 node_modules/
 public/assets
 *.log
+cypress/screenshots
+cypress/videos
+gemsurance_report.html

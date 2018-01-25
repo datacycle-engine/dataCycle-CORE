@@ -4,11 +4,11 @@ class DataCycleCore::ContentDecorator < SimpleDelegator
   end
 
   def property_definitions
-    self.metadata['validation']['properties']
+    metadata['validation']['properties']
   end
 
   def property_names
-    self.property_definitions.reject { |k, v| v['type'].starts_with?('classification') || v['storage_location'] == 'key' }.keys
+    property_definitions.reject { |_, v| v['type'].starts_with?('classification') || v['storage_location'] == 'key' }.keys
   end
 
   def linked_property_names
@@ -23,9 +23,9 @@ class DataCycleCore::ContentDecorator < SimpleDelegator
     definition = property_definitions[property_key]
 
     if definition['storage_location'] == 'column' || definition['storage_location'] == 'key'
-      self.__getobj__.send(property_key)
+      __getobj__.send(property_key)
     else
-      self.__getobj__.send(definition['storage_location'])[property_key]
+      __getobj__.send(definition['storage_location'])[property_key]
     end
   end
 
@@ -33,29 +33,29 @@ class DataCycleCore::ContentDecorator < SimpleDelegator
     definition = property_definitions[property_key]
 
     if definition['storage_location'] == 'column' || definition['storage_location'] == 'key'
-      self.translations.find { |t| t.locale == locale }.send(property_key)
+      translations.find { |t| t.locale == locale }.send(property_key)
     else
-      self.translations.find { |t| t.locale == locale }.send(definition['storage_location'])[property_key]
+      translations.find { |t| t.locale == locale }.send(definition['storage_location'])[property_key]
     end
   end
 
   def embedded_object_names
-    self.property_definitions.select { |k, v| v['type'] == 'object' }.keys
+    property_definitions.select { |_, v| v['type'] == 'object' }.keys
   end
 
   def linked_object_definitions
-    self.metadata['validation']['properties']
-      .select { |k, v| v['type'].starts_with?('embedded') }
-      .reject { |k, v| v['type_name'] == 'external_sources' }
+    metadata['validation']['properties']
+      .select { |_, v| v['type'].starts_with?('embedded') }
+      .reject { |_, v| v['type_name'] == 'external_sources' }
   end
 
   def linked_object_data(key)
     definition = property_definitions[key]
 
     if definition['storage_location'] == 'column'
-      self.send(key)
+      send(key)
     else
-      self.send(definition['storage_location'])[key]
+      send(definition['storage_location'])[key]
     end
   end
 end

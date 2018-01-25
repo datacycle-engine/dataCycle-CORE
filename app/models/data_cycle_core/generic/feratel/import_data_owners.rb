@@ -21,8 +21,7 @@ module DataCycleCore::Generic::Feratel::ImportDataOwners
       ).group(
         _id: "$dump.#{locale}.Id",
         :dump.first => '$dump'
-      ).pipeline
-    )
+      ).pipeline)
   end
 
   def extract_data(raw_data)

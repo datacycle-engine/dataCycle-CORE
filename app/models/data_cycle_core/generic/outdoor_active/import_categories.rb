@@ -3,10 +3,10 @@ module DataCycleCore::Generic::OutdoorActive::ImportCategories
     import_classifications(
       @source_type,
       "#{options.try(:[], :import).try(:[], :tree_label) || 'OutdoorActive'} - Kategorien",
-      self.method(:load_root_classifications).to_proc,
-      self.method(:load_child_classifications).to_proc,
-      self.method(:load_parent_classification_alias).to_proc,
-      self.method(:extract_data).to_proc,
+      method(:load_root_classifications).to_proc,
+      method(:load_child_classifications).to_proc,
+      method(:load_parent_classification_alias).to_proc,
+      method(:extract_data).to_proc,
       **options
     )
   end
@@ -33,5 +33,4 @@ module DataCycleCore::Generic::OutdoorActive::ImportCategories
       name: raw_data['name']
     }
   end
-
 end

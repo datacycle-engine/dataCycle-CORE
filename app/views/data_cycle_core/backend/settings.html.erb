@@ -1,3 +1,60 @@
-<% content_for(:title, "Einstellungen") %>
+<% content_for(:title, t('data_cycle_core.settings', locale: DataCycleCore.ui_language)) %>
 
-<h2>Einstellungen</h2>
+<% breadcrumb :settings %>
+
+<% content_for :top_content do %>
+
+  <div class="reveal-blur">
+
+      <div id="edit-form">
+
+        <%= form_for current_user, html: {class: 'edit-content-form'} do |f| %>
+          <%= hidden_field_tag 'uuid', current_user.id %>
+          <%= hidden_field_tag 'user_settings', true %>
+
+          <section class="edit-header">
+            <div class="row expanded">
+              <div class="column edit-header-functions">
+                <div class="edit-headline">
+                  <i class="fa fa-pencil" aria-hidden="true"></i> <%= "#{current_user.model_name.human(locale: DataCycleCore.ui_language)}-#{t('data_cycle_core.settings', locale: DataCycleCore.ui_language)} #{t('actions.edit', locale: DataCycleCore.ui_language)}" %>
+                </div>
+                <ul>
+                  <li class="buttons">
+                    <%= link_to breadcrumbs[-2].url do %>
+                      <button type="button" class="button discard top" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
+                    <% end %>
+                    <button class="button-prime submit submit-edit-form" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <div class="row">
+            <div class="column">
+              <div class="detail-header editor">
+
+                <div class="detail-header-info">
+                  <div class="type thema">
+                    <span class="icon">
+                        <i class="fa fa-cogs" aria-hidden="true"></i>
+                    </span>
+                    <span class="title"><%= "#{current_user.model_name.human(locale: DataCycleCore.ui_language)}-#{t('data_cycle_core.settings', locale: DataCycleCore.ui_language)}" %></span>
+                  </div>
+                </div>
+
+                <div class="form-element validation-container">
+                  <%= f.select :notification_frequency, DataCycleCore.notification_frequencies.map{ |f| [t("notification.frequency.#{f}", locale: DataCycleCore.ui_language), f] }, {}, class: 'with-label' %>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        <% end %>
+
+      </div>
+
+  </div>
+
+<% end %>

@@ -10,7 +10,7 @@
           definition.dig('editor', 'options', 'type').try(:underscore),
           definition.dig('editor', 'options', 'class').try(:underscore),
           definition.dig('editor', 'options', 'readonly') ? 'readonly' : ''
-        ].reject(&:blank?).join(' ') %>" <%= definition.dig('editor', 'options', 'tabindex').nil? ? '' : 'tabindex=-1' %>>
+        ].reject(&:blank?).join(' ') %>">
 
     <%= yield %>
 

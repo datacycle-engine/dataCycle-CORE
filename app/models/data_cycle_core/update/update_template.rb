@@ -1,8 +1,7 @@
 module DataCycleCore::Update::UpdateTemplate
-
-  def query()
-   @type.where(template: false).
-      where(json_path(@type.arel_table[:metadata], quoted('{  validation, name }')).eq(quoted(@template.headline)))
+  def query
+    @type.where(template: false)
+      .where(json_path(@type.arel_table[:metadata], quoted('{  validation, name }')).eq(quoted(@template.headline)))
   end
 
   def read(_)
@@ -19,5 +18,4 @@ module DataCycleCore::Update::UpdateTemplate
   def write(_, _, _)
     {}
   end
-
 end

@@ -42,14 +42,14 @@ module.exports.initialize = function () {
         html += '</a></span><span class="change-link">';
         html += '<a class="add-to-watchlist-link" href="' + data.url + '/addItem?hashable_id=' + id + '&hashable_type=' + type + '">';
         html += '<i class="fa fa-plus-circle" aria-hidden="true"></i></a></span></span></li>';
-        $(this).before(html);
+        $(this).siblings('.list-items').append(html);
       });
 
       var menu_html = '<li><span class="watch-list-item"><span class="watchlist-headline">';
       menu_html += '<a class="watchlist-link" href="' + data.url + '">' + data.headline + '</a>';
       menu_html += '</span></span></li>';
 
-      $('.add-watchlist-to-menu').before(menu_html);
+      $('.add-watchlist-to-menu').siblings('.list-items').append(menu_html);
 
       this.reset();
     }.bind(this));

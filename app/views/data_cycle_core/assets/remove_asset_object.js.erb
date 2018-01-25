@@ -1,0 +1,1 @@
+$('#<%= @additional_params[:asset_object_id] %>').html('<%= escape_javascript(render_asset_partial(partial: 'detail', value: @object,key: @additional_params[:key], definition: @additional_params[:definition], parameters: {object: @object, options: @additional_params[:options]})) %>');

@@ -44,17 +44,21 @@
           text-overflow: ellipsis;
         }
       }
-      &.add-watchlist-to-menu {
-        margin: 0;
-        input {
-          max-width: 100%;
-        }
+    }
+    .add-watchlist-to-menu {
+      margin: 0;
+      input {
+        max-width: 100%;
       }
     }
   }
 }
 
 .watch-lists {
+  ul {
+    margin: 0;
+    list-style: none;
+  }
   li {
     .watch-list-item {
       .check {
@@ -81,43 +85,43 @@
       padding: 0;
       width: 1.1rem;
     }
-    &.add-watchlist,
-    &.add-watchlist-to-menu {
+  }
+  .add-watchlist,
+  .add-watchlist-to-menu {
+    position: relative;
+    margin-top: 1rem;
+    label {
+      display: none;
+    }
+    input {
+      border: 1px solid $light-gray;
+      background: $light-gray;
+      outline: none;
+      padding: 0 2rem 0 0.5rem;
+      height: 2.2rem;
+      line-height: 1;
+      margin: 0;
+      border-color: $light-gray;
+      box-shadow: 0 0 0 $dark-gray;
       position: relative;
-      margin-top: 1rem;
-      label {
-        display: none;
+      transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
+      &::placeholder {
+        color: $dark-gray;
       }
-      input {
-        border: 1px solid $light-gray;
-        background: $light-gray;
-        outline: none;
-        padding: 0 2rem 0 0.5rem;
-        height: 2.2rem;
-        line-height: 1;
+    }
+    form {
+      [type=submit] {
+        position: absolute;
+        right: 0;
+        top: 0;
+        padding: 0.4rem 0.6rem;
         margin: 0;
-        border-color: $light-gray;
-        box-shadow: 0 0 0 $dark-gray;
-        position: relative;
-        transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
-        &::placeholder {
-          color: $dark-gray;
-        }
+        line-height: 1.4rem;
+        border: none;
       }
-      form {
-        [type=submit] {
-          position: absolute;
-          right: 0;
-          top: 0;
-          padding: 0.4rem 0.6rem;
-          margin: 0;
-          line-height: 1.4rem;
-          border: none;
-        }
-        button[type="submit"].button i {
-          font-size: 1rem;
-          line-height: 1.2rem;
-        }
+      button[type="submit"].button i {
+        font-size: 1rem;
+        line-height: 1.2rem;
       }
     }
   }

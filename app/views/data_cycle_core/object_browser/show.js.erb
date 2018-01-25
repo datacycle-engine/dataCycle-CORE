@@ -4,8 +4,10 @@ $('<%= params[:overlay_id] %>').find('.items .loading').hide();
 
 <% content_for :rendered_items do %>
   <% @results.each do |content| %>
-    <%= render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: {object: content, options: params[:options], objects: params[:objects]}) %>
+    <% I18n.with_locale(params[:language] || I18n.locale) do %>
+      <%= render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: {object: content, options: params[:options], objects: params[:objects]}) %>
+    <% end %>
   <% end %>
 <% end %>
 
-$('<%= params[:overlay_id] %>').find('.items .loading').before('<%= (@total.nil? || @total.zero?) ? t('common.no_results') : j(yield :rendered_items) %>');
+$('<%= params[:overlay_id] %>').find('.items .loading').before('<%= (@total.nil? || @total.zero?) ? ('<span class="no-results">' + t('common.no_results') + '</span>').html_safe : j(yield :rendered_items) %>');

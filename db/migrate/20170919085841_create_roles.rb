@@ -10,9 +10,10 @@ class CreateRoles < ActiveRecord::Migration[5.0]
     remove_column :users, :role
     add_column :users, :role_id, :uuid
   end
+
   def down
     drop_table :roles
-    add_column :users, :role, :string, :default => "user"
+    add_column :users, :role, :string, default: 'user'
     remove_column :users, :role_id
   end
 end

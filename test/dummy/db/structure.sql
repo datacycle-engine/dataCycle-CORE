@@ -33,6 +33,40 @@ CREATE TABLE ar_internal_metadata (
 
 
 --
+-- Name: asset_contents; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE asset_contents (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    content_data_id uuid,
+    content_data_type character varying,
+    asset_id uuid,
+    asset_type character varying,
+    relation character varying,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: assets; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE assets (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    file character varying,
+    type character varying,
+    content_type character varying,
+    file_size integer,
+    creator_id uuid,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    seen_at timestamp without time zone
+);
+
+
+--
 -- Name: classification_aliases; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -44,7 +78,8 @@ CREATE TABLE classification_aliases (
     updated_at timestamp without time zone NOT NULL,
     external_source_id uuid,
     internal boolean DEFAULT false,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    assignable boolean DEFAULT true
 );
 
 
@@ -850,6 +885,23 @@ CREATE TABLE searches (
 
 
 --
+-- Name: stored_filters; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE stored_filters (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    name character varying,
+    user_id uuid,
+    language character varying,
+    parameters jsonb,
+    system boolean DEFAULT false,
+    api boolean DEFAULT false,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: subscriptions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -941,7 +993,8 @@ CREATE TABLE users (
     family_name character varying DEFAULT ''::character varying NOT NULL,
     locked_at timestamp without time zone,
     external boolean DEFAULT true NOT NULL,
-    role_id uuid
+    role_id uuid,
+    notification_frequency character varying DEFAULT 'always'::character varying
 );
 
 
@@ -1043,6 +1096,22 @@ ALTER TABLE ONLY place_translations ALTER COLUMN id SET DEFAULT nextval('place_t
 
 ALTER TABLE ONLY ar_internal_metadata
     ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
+
+
+--
+-- Name: asset_contents asset_contents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY asset_contents
+    ADD CONSTRAINT asset_contents_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: assets assets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY assets
+    ADD CONSTRAINT assets_pkey PRIMARY KEY (id);
 
 
 --
@@ -1326,6 +1395,14 @@ ALTER TABLE ONLY searches
 
 
 --
+-- Name: stored_filters stored_filters_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY stored_filters
+    ADD CONSTRAINT stored_filters_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1436,6 +1513,13 @@ CREATE UNIQUE INDEX child_parent_index ON classification_trees USING btree (clas
 --
 
 CREATE INDEX classification_string_idx ON searches USING gin (classification_string gin_trgm_ops);
+
+
+--
+-- Name: classified_name_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX classified_name_idx ON stored_filters USING btree (api, system, name);
 
 
 --
@@ -1583,6 +1667,20 @@ CREATE INDEX event_locale_idx ON event_translations USING btree (locale);
 --
 
 CREATE INDEX headline_idx ON searches USING gin (headline gin_trgm_ops);
+
+
+--
+-- Name: index_asset_contents_on_asset_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_asset_contents_on_asset_id ON asset_contents USING btree (asset_id);
+
+
+--
+-- Name: index_asset_contents_on_content_data_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_asset_contents_on_content_data_id ON asset_contents USING btree (content_data_id);
 
 
 --
@@ -1842,6 +1940,13 @@ CREATE INDEX index_roles_on_rank ON roles USING btree (rank);
 --
 
 CREATE INDEX index_searches_on_words ON searches USING gin (words);
+
+
+--
+-- Name: index_stored_filters_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_stored_filters_on_user_id ON stored_filters USING btree (user_id);
 
 
 --
@@ -2139,6 +2244,12 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20171123083228'),
 ('20171128091456'),
 ('20171204092716'),
-('20171206163333');
+('20171206163333'),
+('20180103144809'),
+('20180105085118'),
+('20180109095257'),
+('20180111111106'),
+('20180117073708'),
+('20180122153121');
 
 

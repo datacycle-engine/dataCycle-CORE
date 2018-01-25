@@ -10,20 +10,20 @@ module DataCycleCore::Generic::Feratel::ImportPlaces
   end
 
   def load_contents(mongo_item, locale)
-    mongo_item.where("dump.#{locale}" => { '$exists' => true })
+    mongo_item.where("dump.#{locale}": { '$exists' => true })
   end
 
   def process_content(raw_data, template, locale)
     I18n.with_locale(locale) do
       images = [raw_data.dig('Documents', 'Document')].flatten.reject(&:nil?).select { |d|
         d['Class'] == 'Image'
-      }.map { |raw_image_data|
+      }.map do |raw_image_data|
         create_or_update_content(
           DataCycleCore::CreativeWork,
           load_template(DataCycleCore::CreativeWork, @image_template),
           extract_image_data(raw_image_data).with_indifferent_access
         )
-      }
+      end
 
       topics = [raw_data.dig('Details', 'Topics', 'Topic')].flatten.reject(&:nil?).map { |t|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: t['Id'].downcase)

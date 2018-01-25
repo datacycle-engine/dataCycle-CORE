@@ -1,0 +1,14 @@
+<a id="add-to-watchlist-link" class="hascontent watch-lists-link" data-toggle="stored-filters-for-user"><%= DataCycleCore::StoredFilter.model_name.human(count: 2, locale: DataCycleCore.ui_language) %></a>
+<div class="dropdown-pane no-bullet bottom watch-lists" id="stored-filters-for-user" data-dropdown data-hover="true" data-hover-pane="true">
+  <ul class="list-items">
+    <% @accessible_stored_filters.order(created_at: :desc).first(5).each do |stored_filter| %>
+        <li>
+            <span class="watch-list-item">
+                <span class="watchlist-headline">
+                  <%= link_to stored_filter.name || "vor #{time_ago_in_words stored_filter.created_at}", root_path(stored_filter: stored_filter.id), class: 'watchlist-link' %>
+                </span>
+            </span>
+        </li>
+    <% end %>
+  </ul>
+</div>

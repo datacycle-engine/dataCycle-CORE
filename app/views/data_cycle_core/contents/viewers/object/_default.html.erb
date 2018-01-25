@@ -21,6 +21,10 @@
                 </span>
 
                 <div class="buttons">
+                  <%= link_to gpx_place_path(object), class: '', data: { tooltip: '' }, title: t('common.download_gpx', locale: DataCycleCore.ui_language) do %>
+                    <i class="fa fa-location-arrow" aria-hidden="true"></i>
+                  <% end if object.respond_to?(:create_gpx) %>
+
                   <% if DataCycleCore.translatable_types.include?(object.class.name) %>
                     <a data-toggle="translated-locales-<%= object.id %>"><i class="fa fa-language" aria-hidden="true"></i></a>
                     <ul class="dropdown-pane no-bullet bottom translated-locales" id="translated-locales-<%= object.id %>" data-dropdown data-hover="true" data-hover-pane="true">
@@ -30,7 +34,9 @@
                     </ul>
 
                   <% end %>
-                  <%= link_to '<i class="fa fa-pencil" aria-hidden="true"></i>'.html_safe, edit_polymorphic_path(object, locale: I18n.locale), target: :_blank, class: "edit-link" if definition['editor']['type'] == "objectBrowser" && @historySource.nil? && can?(:crud, object) %>
+                  <%= link_to edit_polymorphic_path(object, locale: I18n.locale), data: { tooltip: '' }, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "edit-link" do %>
+                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                  <% end if definition['editor']['type'] == "objectBrowser" && @historySource.nil? && can?(:crud, object) %>
                 </div>
 
                 <% if !object.metadata.nil? && !object.metadata['validation'].nil? %>
