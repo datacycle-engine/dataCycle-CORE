@@ -32,7 +32,6 @@
     "browserify": "14.4.0",
     "browserify-shim": "3.8.14",
     "coffeeify": "2.1.0",
-    "cypress": "^1.4.1",
     "del": "2.2.2",
     "flatpickr": "3.0.6",
     "font-awesome": "4.7.0",
@@ -74,5 +73,8 @@
     "turbolinks": "5.0.3",
     "vinyl-source-stream": "1.1.0",
     "watchify": "3.9.0"
+  },
+  "optionalDependencies": {
+    "cypress": "^1.4.1"
   }
 }
