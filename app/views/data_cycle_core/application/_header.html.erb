@@ -10,7 +10,7 @@
             <ul class="menu">
                 <li>
                   <%= link_to subscriptions_path, class: 'user-subscriptions-link' do %>
-                    <%= t("pronoun.my", count: 2, locale: DataCycleCore.ui_language).capitalize %> <%= DataCycleCore::Subscription.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>
+                    <%= DataCycleCore::Subscription.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>
                   <% end if user_signed_in? && current_user.role&.rank&.positive? %>
                 </li>
                 <li>
