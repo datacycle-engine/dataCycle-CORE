@@ -3,7 +3,7 @@ module DataCycleCore
     class Base
       def update
         total_updates = query.count
-        puts "UPDATE '#{@template.metadata['validation']['name']}' templates - #{total_updates} items (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
+        puts "UPDATE '#{@template.template_name}' templates - #{total_updates} items (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
 
         item_count = 0
         query.find_each do |content_item|

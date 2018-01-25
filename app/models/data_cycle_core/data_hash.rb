@@ -33,7 +33,7 @@ module DataCycleCore
           if id.nil?
             self.created_at = save_time
             self.updated_at = save_time
-            self.save
+            save
           end
           set_search
         end
@@ -47,7 +47,7 @@ module DataCycleCore
     end
 
     def set_data_hash_attribute(key, value, current_user, save_time = Time.zone.now)
-      key_hash = metadata.dig('validation', 'properties', key)
+      key_hash = schema.dig('properties', key)
       unless key_hash.nil?
         ActiveRecord::Base.transaction do
           storage_cases_set(key, value, key_hash, save_time, current_user)
@@ -170,15 +170,13 @@ module DataCycleCore
     end
 
     def validate(data)
-      template_hash = metadata['validation']
       validator = DataCycleCore::MasterData::ValidateData.new
-      validator.validate(data, template_hash)
+      validator.validate(data, schema)
     end
 
     def validate?(data, strict = false)
-      template_hash = metadata['validation']
       validator = DataCycleCore::MasterData::ValidateData.new
-      validator.valid?(data, template_hash, strict)
+      validator.valid?(data, schema, strict)
     end
 
     def set_search
@@ -197,7 +195,7 @@ module DataCycleCore
       all_text = [headline, classification_string, full_text].join(' ')
       validity_hash = metadata.nil? ? nil : metadata['validity_period']
       validity_string = get_validity(validity_hash)
-      boost = metadata['validation']['boost'] || 1.0
+      boost = schema['boost'] || 1.0
 
       connection = ActiveRecord::Base.connection
       sql_query = <<-EOS
@@ -214,7 +212,7 @@ module DataCycleCore
           '#{Time.zone.now.to_s(:long_usec)}',
           '#{headline}',
           '#{classification_string}',
-          '#{metadata.try(:[], 'validation').try(:[], 'name')}',
+          '#{template_name}',
           '#{all_text}',
           '#{validity_string}',
           #{boost}
@@ -435,10 +433,11 @@ module DataCycleCore
             # get validation template
             template = ('DataCycleCore::' + table.classify).constantize
               .with_translations('de')
-              .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name, description)
+              .find_by(template: true, template_name: name)
 
             insert_item = ('DataCycleCore::' + table.classify).constantize.new
-            insert_item.metadata = { 'validation' => template.metadata['validation'] }
+            insert_item.schema = template.schema
+            insert_item.template_name = template.template_name
             insert_item.save
             insert_item.set_data_hash(data_hash: item.merge({ 'is_part_of' => id }), current_user: current_user, save_time: save_time, prevent_history: true)
             insert_item.save

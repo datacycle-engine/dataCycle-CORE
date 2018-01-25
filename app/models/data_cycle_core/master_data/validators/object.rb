@@ -72,7 +72,7 @@ module DataCycleCore
           return if data.empty?
           template = ('DataCycleCore::' + table.classify).constantize
             .with_translations('de')
-            .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name, description)
+            .find_by(template: true, template_name: name)
 
           if template.blank?
             @error[:error].push I18n.t :no_template, scope: [:validation, :errors], name: name, desc: description, locale: DataCycleCore.ui_language
@@ -81,7 +81,7 @@ module DataCycleCore
 
           data.each do |item|
             validator_object = DataCycleCore::MasterData::ValidateData.new
-            merge_errors(validator_object.validate(item, template.metadata['validation']))
+            merge_errors(validator_object.validate(item, template.schema))
           end
         end
 

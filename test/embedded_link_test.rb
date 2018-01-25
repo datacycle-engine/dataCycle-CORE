@@ -4,14 +4,13 @@ module DataCycleCore
   class EmbeddedLinkTest < ActiveSupport::TestCase
     test 'create article and add embeddedLinks' do
       cw_temp = DataCycleCore::CreativeWork.count
-
-      template_bild = DataCycleCore::CreativeWork.where(template: true, headline: 'Bild', description: 'ImageObject').first
-      validation_bild = template_bild.metadata['validation']
+      template_bild = DataCycleCore::CreativeWork.where(template: true, template_name: 'Bild').first
 
       image_objects = []
       (1..5).each do |number|
         image = DataCycleCore::CreativeWork.new
-        image.metadata = { 'validation' => validation_bild }
+        image.schema = template_bild.schema
+        image.template_name = template_bild.template_name
         image.save
         image.set_data_hash(data_hash: { 'headline' => "Bild#{number}", 'description' => "Description Bild#{number}" }, prevent_history: true)
         image.save
@@ -24,10 +23,10 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Artikel', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Artikel').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_set.set_data_hash(
         data_hash: {
@@ -72,13 +71,13 @@ module DataCycleCore
     test 'create article and add embeddedLinks, delete_all' do
       cw_temp = DataCycleCore::CreativeWork.count
 
-      template_bild = DataCycleCore::CreativeWork.where(template: true, headline: 'Bild', description: 'ImageObject').first
-      validation_bild = template_bild.metadata['validation']
+      template_bild = DataCycleCore::CreativeWork.where(template: true, template_name: 'Bild').first
 
       image_objects = []
       (1..5).each do |number|
         image = DataCycleCore::CreativeWork.new
-        image.metadata = { 'validation' => validation_bild }
+        image.schema = template_bild.schema
+        image.template_name = template_bild.template_name
         image.save
         image.set_data_hash(data_hash: { 'headline' => "Bild#{number}", 'description' => "Description Bild#{number}" }, prevent_history: true)
         image.save
@@ -91,10 +90,10 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Artikel', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Artikel').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_set.set_data_hash(
         data_hash: {

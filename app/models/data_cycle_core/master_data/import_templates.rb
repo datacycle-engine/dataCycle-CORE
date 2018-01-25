@@ -24,16 +24,11 @@ module DataCycleCore
           if error.blank?
             data_set = object
               .find_or_initialize_by(
-                headline: template[:data][:name],
-                description: template[:data][:description],
+                template_name: template[:data][:name],
                 template: true
               )
             data_set.seen_at = Time.zone.now
-            if data_set.metadata.blank?
-              data_set.metadata = { validation: template[:data] }
-            else
-              data_set.metadata[:validation] = template[:data]
-            end
+            data_set.schema = template[:data]
             data_set.save
           else
             errors[template[:data][:name]] = error unless error.blank?
@@ -68,7 +63,6 @@ module DataCycleCore
         Dry::Validation.Schema do
           required(:data).schema do
             required(:name) { str? }
-            required(:description) { str? & included_in?(DataCycleCore.content_tables.map(&:classify) + ['ImageObject', 'VideoObject']) }
             required(:type) { str? & eql?('object') }
             optional(:content_type) { str? & included_in?(['variant', 'embedded', 'entity']) }
             optional(:releasable) { bool? }

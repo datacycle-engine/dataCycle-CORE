@@ -6,13 +6,11 @@ module DataCycleCore
       alias_action :update, :destroy, to: :modify
       alias_action :create, :import, :read, :update, :create_user, :search, :unlock, :validate_single_data, to: :crud
 
-
-      can :manage, DataCycleCore::StoredFilter, user_id: user.id
-
       if user
 
         can :read, :all
         cannot :read, DataCycleCore::WatchList
+        cannot :read, DataCycleCore::StoredFilter
         cannot :read, :backend
         can :search, DataCycleCore::User
         can [:show, :find], :object_browser
@@ -27,6 +25,7 @@ module DataCycleCore
           can [:read, :settings], :backend
           can :modify, DataCycleCore::User, id: user.id
           can :manage, DataCycleCore::WatchList, user_id: user.id
+          can :manage, DataCycleCore::StoredFilter, user_id: user.id
           can [:subscribe, :history, :history_detail], [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]
         end
 

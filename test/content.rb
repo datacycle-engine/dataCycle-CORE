@@ -3,10 +3,10 @@ require 'test_helper'
 module DataCycleCore
   class CreativeWorkTest < ActiveSupport::TestCase
     test 'make sure config.i18n.fallback is set to false' do
-      template = DataCycleCore::CreativeWork.find_by(template: true, headline: 'BildMinimal', description: 'ImageObject')
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'BildMinimal')
+      validation = template.schema
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = validation
       data_set.save
 
       data_hash_de = { 'headline' => 'Dies ist ein Test!', 'test_content' => 'Deutsch' }

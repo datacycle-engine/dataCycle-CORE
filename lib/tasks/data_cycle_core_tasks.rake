@@ -651,6 +651,45 @@ namespace :data_cycle_core do
       puts 'END'
       puts "--> UPDATE time: #{((Time.zone.now - temp) / 60).to_i} min"
     end
+
+    desc 'update...move schema, template_name to separate field'
+    task schema_update: [:environment] do
+      temp = Time.zone.now
+      puts 'UPDATE'
+      puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
+
+      # update content / content_history
+      index = 0
+      DataCycleCore.content_tables.each do |content_table|
+        [content_table, content_table.singularize + '_histories'].each do |table_name|
+          content_class = "DataCycleCore::#{content_table.classify}"
+          content_class += '::History' if table_name.end_with?('_histories')
+          items_count = content_class.constantize.count
+          puts "UPDATING ==> #{content_class} (#{items_count})"
+          content = table_name
+          sql = <<-EOS
+            WITH t AS (
+              SELECT
+                id,
+                metadata #> '{validation}' AS schema_data,
+                metadata #>> '{validation, name}' AS template_name_data
+              FROM #{content}
+            )
+            UPDATE #{content}
+            SET
+              template_name = t.template_name_data,
+              schema = t.schema_data
+            FROM t
+            WHERE #{content}.id = t.id;
+          EOS
+          # pp sql
+          ActiveRecord::Base.connection.execute(sql)
+        end
+      end
+
+      puts 'END'
+      puts "--> UPDATE time: #{((Time.zone.now - temp) / 60).to_i} min"
+    end
   end
 
   namespace :notifications do

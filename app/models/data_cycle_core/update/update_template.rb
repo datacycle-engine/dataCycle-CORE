@@ -1,7 +1,7 @@
 module DataCycleCore::Update::UpdateTemplate
   def query
     @type.where(template: false)
-      .where(json_path(@type.arel_table[:metadata], quoted('{  validation, name }')).eq(quoted(@template.headline)))
+      .where(@type.arel_table[:template_name].eq(@template.template_name))
   end
 
   def read(_)
@@ -9,7 +9,7 @@ module DataCycleCore::Update::UpdateTemplate
   end
 
   def modify_content(content_item)
-    content_item.metadata['validation'] = @template.metadata['validation']
+    content_item.template_name = @template.template_name
     I18n.with_locale(content_item.available_locales.first) do
       content_item.save(touch: false)
     end
