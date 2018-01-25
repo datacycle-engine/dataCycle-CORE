@@ -80,7 +80,7 @@ module DataCycleCore
     private
 
     def params
-      super.permit(:format, :type, :page, :per, :language, :search, :token, :modified_since, :created_since, :deleted_since)
+      super.permit(:id, :format, :type, :page, :per, :language, :search, :token, :modified_since, :created_since, :deleted_since)
         .reject { |_, v| v.blank? }
     end
 
