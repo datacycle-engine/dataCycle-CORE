@@ -167,7 +167,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
               storage_location: 'creative_works',
               delete: true,
               name: 'MobileApplication',
-              description: 'CreativeWork',
               editor: {
                 type: 'embeddedObject',
                 sorting: 12
@@ -337,8 +336,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
         label: 'whatever',
         type: 'object',
         storage_location: 'creative_works',
-        name: 'MobileApplication',
-        description: 'CreativeWork'
+        name: 'MobileApplication'
       }
     end
 
@@ -381,19 +379,19 @@ describe DataCycleCore::MasterData::ImportTemplates do
       assert !subject.validate_header.call(test_hash).success?
     end
 
-    it 'checks for valid value of description in header' do
+    it 'checks for valid value of type in header' do
       test_hash = header_hash
       test_hash[:data][:type] = nil
       assert !subject.validate_header.call(test_hash).success?
     end
 
-    it 'checks for wrong string value of description in header' do
+    it 'checks for wrong string value of type in header' do
       test_hash = header_hash
       test_hash[:data][:type] = 'string'
       assert !subject.validate_header.call(test_hash).success?
     end
 
-    it 'checks for presence of description attribute in header' do
+    it 'checks for presence of type attribute in header' do
       test_hash = {}
       test_hash[:data] = header_hash[:data].except(:type)
       assert !subject.validate_header.call(test_hash).success?
@@ -519,11 +517,11 @@ describe DataCycleCore::MasterData::ImportTemplates do
       assert !subject.validate_property.call(test_hash).success?
     end
 
-    it 'checks embedded_object for correct description' do
-      test_hash = embedded_object_hash
-      test_hash[:description] = 'creative_works'
-      assert !subject.validate_property.call(test_hash).success?
-    end
+    # it 'checks embedded_object for correct description' do
+    #   test_hash = embedded_object_hash
+    #   test_hash[:description] = 'creative_works'
+    #   assert !subject.validate_property.call(test_hash).success?
+    # end
 
     it 'checks included_object_hash correctly' do
       test_hash = included_object_hash

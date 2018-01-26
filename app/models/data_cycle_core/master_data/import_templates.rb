@@ -97,7 +97,7 @@ module DataCycleCore
                     embeddedLinkArray: 'type_name must be a table_name (plural), storage_type = array, storage_location = jsonb field(metadata, content)',
                     embeddedLink: 'type_name must be a table_name (plural), storage_location = jsonb field(metadata, content)',
                     classification_relation: "type must be 'classificationTreeLabel' and type_name must be a name of a ClassificationTreeLabel record: #{DataCycleCore::ClassificationTreeLabel.pluck(:name)}",
-                    embedded_object: 'type must be object, description must be a content_table class_name',
+                    embedded_object: 'type must be object, storage_location must be a content_table_name',
                     included_object: 'storage_location must be a jsonb field, type must be object and must have properties',
                     valid_classification?: 'specified default_value could not be found in classification_aliases',
                     instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.',
@@ -160,7 +160,6 @@ module DataCycleCore
               )
           end
           optional(:name) { str? }
-          optional(:description) { str? }
           optional(:delete) { bool? }
           optional(:search) { bool? }
           optional(:editor) { hash? }
@@ -197,13 +196,11 @@ module DataCycleCore
             ))
           end
 
-          rule(embedded_object: [:storage_location, :type, :name, :description]) do |storage_location, type, name, description|
+          rule(embedded_object: [:storage_location, :type, :name]) do |storage_location, type, name|
             (storage_location.included_in?(DataCycleCore.content_tables) > (
-            type.eql?('object') &
-              description.included_in?(DataCycleCore.content_tables.map(&:classify)) &
-              name.filled?
-            )) & (
-              (type.eql?('object') & name.filled? & description.filled?) >
+            type.eql?('object') & name.filled?)
+            ) & (
+              (type.eql?('object') & name.filled?) >
               storage_location.included_in?(DataCycleCore.content_tables)
             )
           end
