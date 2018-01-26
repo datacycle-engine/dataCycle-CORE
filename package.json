@@ -73,8 +73,5 @@
     "turbolinks": "5.0.3",
     "vinyl-source-stream": "1.1.0",
     "watchify": "3.9.0"
-  },
-  "optionalDependencies": {
-    "cypress": "^1.4.1"
   }
 }
