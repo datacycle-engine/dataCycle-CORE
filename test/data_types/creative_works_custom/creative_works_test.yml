@@ -2,7 +2,6 @@
 
 - :data:
     :name: TestSimple
-    :description: CreativeWork
     :type: object
     :properties:
       :headline:
@@ -13,7 +12,6 @@
 
 - :data:
     :name: TestIncludedData
-    :description: CreativeWork
     :type: object
     :properties:
       :headline:
@@ -39,7 +37,6 @@
 
 - :data:
     :name: TestClassificationData
-    :description: CreativeWork
     :type: object
     :properties:
       :headline:
@@ -56,7 +53,6 @@
 
 - :data:
     :name: TestEmbeddedPlaceData
-    :description: CreativeWork
     :type: object
     :properties:
       :headline:
@@ -70,11 +66,9 @@
         :delete: true
         :storage_location: places
         :name: testPlace
-        :description: Place
 
 - :data:
     :name: TestEmbeddedCreativeWork
-    :description: CreativeWork
     :type: object
     :properties:
       :headline:
@@ -88,11 +82,9 @@
         :delete: true
         :storage_location: creative_works
         :name: EmbeddedCreativeWork
-        :description: CreativeWork
 
 - :data:
     :name: EmbeddedCreativeWork
-    :description: CreativeWork
     :type: object
     :properties:
       :id:
@@ -116,7 +108,6 @@
 
 - :data:
     :name: CreativeWorkEmbeddedLink
-    :description: CreativeWork
     :type: object
     :properties:
       :id:
@@ -140,7 +131,6 @@
 
 - :data:
     :name: CreativeWorkEmbeddedLinkUser
-    :description: CreativeWork
     :type: object
     :properties:
       :id:
@@ -164,7 +154,6 @@
 
 - :data:
     :name: TestObject
-    :description: CreativeWork
     :type: object
     :properties:
       :headline1:
@@ -205,7 +194,6 @@
 
 - :data:
     :name: TestObject2
-    :description: CreativeWork
     :type: object
     :properties:
       :headline1:
@@ -269,7 +257,6 @@
 
 - :data:
     :name: ThemaTest
-    :description: CreativeWork
     :type: object
     :permissions:
       :read_write: true
@@ -398,7 +385,6 @@
 
 - :data:
     :name: RechercheTest
-    :description: CreativeWork
     :type: object
     :permissions:
       :read_write: true
@@ -476,7 +462,6 @@
 
 - :data:
     :name: BildTest
-    :description: ImageObject
     :type: object
     :permissions:
       :read_write: false
@@ -519,7 +504,6 @@
         :delete: true
         :storage_location: places
         :name: contentLocation
-        :description: Place
       :width:
         :label: Breite
         :type: number
@@ -640,7 +624,6 @@
 
 - :data:
     :name: ArtikelTest
-    :description: CreativeWork
     :type: object
     :permissions:
       :read_write: true

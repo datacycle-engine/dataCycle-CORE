@@ -1,8 +1,7 @@
 ---
-  
+
 - :data:
     :name: testPlace
-    :description: Place
     :type: object
     :properties:
       :id:

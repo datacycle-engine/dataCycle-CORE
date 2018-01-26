@@ -1,7 +1,6 @@
 ---
 - :data:
     :name: Rezept
-    :description: CreativeWork
     :type: object
     :content_type: variant
     :releasable: true
@@ -131,7 +130,6 @@
         :type: object
         :storage_location: places
         :name: contentLocation
-        :description: Place
         :delete: false
         :editor:
           :sorting: 8

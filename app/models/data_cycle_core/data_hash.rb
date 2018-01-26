@@ -356,7 +356,7 @@ module DataCycleCore
           set_asset_id(value, key, properties['type_name'])
         else
           unless properties['storage_location'] == 'key' # do nothing with key
-            if properties.key?('name') && properties.key?('description')
+            if properties.key?('name')
               delete = false
               delete = true if properties.key?('delete') && properties['delete'] == true
               set_linked_data_type(key, value, properties['storage_location'], properties['name'], delete, save_time, current_user)
@@ -400,7 +400,6 @@ module DataCycleCore
     end
 
     def set_linked_data_type(field_name, data, table, name, delete, save_time, current_user)
-      relation = 'content_contents'
       updated_item_keys = []
 
       # for embeddedLink and embeddedLinkArray transform data

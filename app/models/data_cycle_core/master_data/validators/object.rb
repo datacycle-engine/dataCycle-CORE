@@ -53,9 +53,9 @@ module DataCycleCore
               validator_object = (@@basic_types[key_item['type']]).to_s.constantize.new(data[key], key_item['properties'])
               merge_errors(validator_object.error) unless validator_object.nil?
               next
-            elsif key_item.key?('name') && key_item.key?('description') && key_item.key?('storage_location')
+            elsif key_item.key?('name') && key_item.key?('storage_location')
               # check if it is a linked data_type
-              verify_embedded_object(data[key], key_item['storage_location'], key_item['name'], key_item['description'])
+              verify_embedded_object(data[key], key_item['storage_location'], key_item['name'])
             else
               @error[:error].push I18n.t :wrong_object_type, scope: [:validation, :errors], data: key_item['label'], locale: DataCycleCore.ui_language
             end
@@ -65,17 +65,14 @@ module DataCycleCore
 
         private
 
-        def verify_embedded_object(data, table, name, description)
-          # ap data
-          # puts "#{table}|#{name}|#{description}"
-
+        def verify_embedded_object(data, table, name)
           return if data.empty?
           template = ('DataCycleCore::' + table.classify).constantize
             .with_translations('de')
             .find_by(template: true, template_name: name)
 
           if template.blank?
-            @error[:error].push I18n.t :no_template, scope: [:validation, :errors], name: name, desc: description, locale: DataCycleCore.ui_language
+            @error[:error].push I18n.t :no_template, scope: [:validation, :errors], name: name, locale: DataCycleCore.ui_language
             return
           end
 

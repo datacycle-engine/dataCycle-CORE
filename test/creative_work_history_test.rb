@@ -179,8 +179,6 @@ module DataCycleCore
     test 'save data to History with embeddedObject from same content_table' do
       template_cw_count = DataCycleCore::CreativeWork.count
       template_cwt_count = DataCycleCore::CreativeWork::Translation.count
-      template_place_count = DataCycleCore::Place.count
-      template_place_t_count = DataCycleCore::Place::Translation.count
 
       save_time = Time.zone.now - 64.seconds
 
@@ -248,7 +246,7 @@ module DataCycleCore
 
       weeks4ago = Time.zone.now - 4.weeks
       data_hash_4w = { 'headline' => 'Test 4.weeks.ago!' }
-      error = data_set.set_data_hash(data_hash: data_hash_4w, current_user: nil, save_time: weeks4ago)
+      data_set.set_data_hash(data_hash: data_hash_4w, current_user: nil, save_time: weeks4ago)
       data_set.updated_at = weeks4ago
       data_set.save
 

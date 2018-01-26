@@ -1,7 +1,6 @@
 ---
 - :data:
     :name: Quiz
-    :description: CreativeWork
     :type: object
     :content_type: variant
     :releasable: true
@@ -109,7 +108,6 @@
         :storage_location: creative_works
         :delete: true
         :name: Frage
-        :description: CreativeWork
         :editor:
           :type: embeddedObject
           :sorting: 6
@@ -230,7 +228,6 @@
 
 - :data:
     :name: Frage
-    :description: CreativeWork
     :type: object
     :content_type: embedded
     :permissions:
@@ -286,7 +283,6 @@
         :storage_location: creative_works
         :delete: true
         :name: Antwort
-        :description: CreativeWork
         :validations:
           :maxLength: 1
         :editor:
@@ -298,7 +294,6 @@
         :storage_location: creative_works
         :delete: true
         :name: Antwort
-        :description: CreativeWork
         :editor:
           :type: embeddedObject
           :sorting: 15
@@ -338,7 +333,6 @@
 
 - :data:
     :name: Antwort
-    :description: CreativeWork
     :type: object
     :content_type: embedded
     :permissions:

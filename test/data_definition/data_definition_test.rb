@@ -383,18 +383,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
 
     it 'checks for valid value of description in header' do
       test_hash = header_hash
-      test_hash[:data][:description] = nil
-      assert !subject.validate_header.call(test_hash).success?
-    end
-
-    it 'checks for presence of description attribute in header' do
-      test_hash = {}
-      test_hash[:data] = header_hash[:data].except(:description)
-      assert !subject.validate_header.call(test_hash).success?
-    end
-
-    it 'checks for valid value of description in header' do
-      test_hash = header_hash
       test_hash[:data][:type] = nil
       assert !subject.validate_header.call(test_hash).success?
     end
@@ -495,21 +483,24 @@ describe DataCycleCore::MasterData::ImportTemplates do
       assert subject.validate_property.call(test_hash).success?
     end
 
-    it 'checks classification_relation for presence of type_name' do
-      test_hash = classification_relation_hash.except(:type_name)
-      assert !subject.validate_property.call(test_hash).success?
-    end
+    # TODO: add type_name validation after polymorphic relation tables
+    # (see models/data_cycle_core/master_data/import_templates.rb)
+    # it 'checks classification_relation for presence of type_name' do
+    #   test_hash = classification_relation_hash.except(:type_name)
+    #   assert !subject.validate_property.call(test_hash).success?
+    # end
 
     it 'checks classification_relation works without default_value' do
       test_hash = classification_relation_hash.except(:default_value)
       assert subject.validate_property.call(test_hash).success?
     end
 
-    it 'checks classification_relation error for wrong default_value' do
-      test_hash = classification_relation_hash
-      test_hash[:default_value] = 'wrong name'
-      assert !subject.validate_property.call(test_hash).success?
-    end
+    # default_value not checked at the moment
+    # it 'checks classification_relation error for wrong default_value' do
+    #   test_hash = classification_relation_hash
+    #   test_hash[:default_value] = 'wrong name'
+    #   assert !subject.validate_property.call(test_hash).success?
+    # end
 
     it 'checks correct embedded_object_hash' do
       test_hash = embedded_object_hash

@@ -1,6 +1,5 @@
 - :data:
     :name: Bild2
-    :description: ImageObject
     :type: object
     :content_type: variant
     :permissions:
@@ -60,7 +59,6 @@
         :type: object
         :storage_location: places
         :name: contentLocation
-        :description: Place
         :delete: true
       :width:
         :label: Breite
@@ -177,7 +175,6 @@
 
 - :data:
     :name: BildMinimal
-    :description: ImageObject
     :type: object
     :content_type: variant
     :permissions:

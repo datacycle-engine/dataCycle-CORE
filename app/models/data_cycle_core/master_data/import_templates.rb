@@ -111,17 +111,19 @@ module DataCycleCore
           required(:label) { str? }
           required(:type) do
             str? &
-              included_in?([
-                             'string',
-                             'text',
-                             'number',
-                             'geographic',
-                             'object',
-                             'embeddedLinkArray',
-                             'embeddedLink',
-                             'classificationTreeLabel',
-                             'asset'
-                           ])
+              included_in?(
+                [
+                  'string',
+                  'text',
+                  'number',
+                  'geographic',
+                  'object',
+                  'embeddedLinkArray',
+                  'embeddedLink',
+                  'classificationTreeLabel',
+                  'asset'
+                ]
+              )
           end
           required(:storage_location) do
             str? &
@@ -147,13 +149,15 @@ module DataCycleCore
           # }
           optional(:storage_type) do
             str? &
-              included_in?([
-                             'string',
-                             'text',
-                             'number',
-                             'geographic',
-                             'array'
-                           ])
+              included_in?(
+                [
+                  'string',
+                  'text',
+                  'number',
+                  'geographic',
+                  'array'
+                ]
+              )
           end
           optional(:name) { str? }
           optional(:description) { str? }
