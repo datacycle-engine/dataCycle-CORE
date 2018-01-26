@@ -17,3 +17,4 @@ cypress/videos
 gemsurance_report.html
 /.idea
 test/dummy/public/uploads
+test/dummy/public/assets
