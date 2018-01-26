@@ -22,7 +22,7 @@ set :puma_rackup, -> { File.join(current_path, 'test', 'dummy', 'config.ru') }
 append :linked_files, '.env'
 
 # Default value for linked_dirs is []
-append :linked_dirs, 'node_modules', 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system'
+append :linked_dirs, 'node_modules', 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'test/dummy/public/assets'
 
 Rake::Task['deploy:assets:precompile'].clear_actions
 Rake::Task['deploy:assets:backup_manifest'].clear_actions
@@ -52,7 +52,7 @@ end
 namespace :deploy do
   task :npm do
     on roles(:all) do
-      execute "cd #{release_path} && npm install"
+      execute "cd #{release_path} && npm install --no-optional"
     end
   end
 
@@ -64,7 +64,7 @@ namespace :deploy do
 
   task :iconfonts do
     on roles(:all) do
-      execute "cd #{release_path} && cp -Rf ./lib/assets/fonts/. ./public/assets"
+      execute "cd #{release_path} && cp -Rf ./lib/assets/fonts/. ./test/dummy/public/assets"
     end
   end
 
@@ -80,13 +80,6 @@ namespace :deploy do
     end
   end
 
-
-
-  #before 'assets:precompile', 'deploy:npm'
-  # after 'deploy:npm', 'deploy:gulp'
-  # after 'deploy:gulp', 'deploy:asset_precompile'
-  # after 'deploy:asset_precompile', 'deploy:iconfonts'
-  #
   before 'assets:precompile', 'deploy:npm'
   after 'deploy:npm', 'deploy:gulp'
   after 'assets:precompile', 'deploy:iconfonts'
