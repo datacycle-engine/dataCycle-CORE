@@ -86,6 +86,7 @@ DataCycleCore::Engine.routes.draw do
           get :search, on: :collection
           patch :update, on: :member
         end
+        resources :events, only: [:index, :show]
         get 'contents/search', to: 'contents#search'
         get 'contents/get_deleted', to: 'contents#get_deleted'
         resources :external_sources, only: [] do
