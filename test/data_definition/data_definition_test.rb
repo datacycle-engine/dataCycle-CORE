@@ -517,12 +517,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
       assert !subject.validate_property.call(test_hash).success?
     end
 
-    # it 'checks embedded_object for correct description' do
-    #   test_hash = embedded_object_hash
-    #   test_hash[:description] = 'creative_works'
-    #   assert !subject.validate_property.call(test_hash).success?
-    # end
-
     it 'checks included_object_hash correctly' do
       test_hash = included_object_hash
       assert subject.validate_property.call(test_hash).success?
