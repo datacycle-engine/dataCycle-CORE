@@ -6,6 +6,7 @@ set :repo_url, 'git@git.pixelpoint.biz:data-cycle/data-cycle-core.git'
 
 set :rvm_ruby_version, '2.4.3'
 
+set :puma_rackup, -> { File.join(current_path, 'config', 'puma.rb') }
 # set :puma_rackup, -> { File.join(current_path, 'test', 'dummy', 'config', 'puma.rb') }
 
 # Default value for :format is :airbrussh.
@@ -26,6 +27,7 @@ append :linked_dirs, 'node_modules', 'log', 'tmp/pids', 'tmp/cache', 'tmp/socket
 
 Rake::Task['deploy:assets:precompile'].clear_actions
 Rake::Task['deploy:assets:backup_manifest'].clear_actions
+
 Rake::Task['git:create_release'].clear_actions
 namespace :git do
   task :update do
