@@ -1,7 +1,7 @@
 require 'test_helper'
 
 module DataCycleCore
-  class CreativeWorkTest < ActiveSupport::TestCase
+  class I18nFallback < ActiveSupport::TestCase
     test 'make sure config.i18n.fallback is set to false' do
       template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'BildMinimal')
       validation = template.schema

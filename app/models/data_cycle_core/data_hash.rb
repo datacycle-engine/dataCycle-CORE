@@ -339,7 +339,7 @@ module DataCycleCore
 
     def storage_cases_set(key, value, properties, save_time, current_user)
       if properties['type'] == 'embeddedLinkArray' || properties['type'] == 'embeddedLink'
-        set_linked_data_type(key, value, properties['type_name'], key, properties['type_name'].classify, false, save_time, current_user)
+        set_linked_data_type(key, value, properties['type_name'], key, false, save_time, current_user)
       else
         case properties['storage_location']
         when 'column'
@@ -359,7 +359,7 @@ module DataCycleCore
             if properties.key?('name') && properties.key?('description')
               delete = false
               delete = true if properties.key?('delete') && properties['delete'] == true
-              set_linked_data_type(key, value, properties['storage_location'], properties['name'], properties['description'], delete, save_time, current_user)
+              set_linked_data_type(key, value, properties['storage_location'], properties['name'], delete, save_time, current_user)
             else
               puts "wrong data_type #{key} | #{value}"
             end
@@ -399,7 +399,7 @@ module DataCycleCore
       data_hash
     end
 
-    def set_linked_data_type(field_name, data, table, name, description, delete, save_time, current_user)
+    def set_linked_data_type(field_name, data, table, name, delete, save_time, current_user)
       relation = 'content_contents'
       updated_item_keys = []
 

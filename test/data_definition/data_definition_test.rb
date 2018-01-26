@@ -12,7 +12,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
       {
         data: {
           name: 'App',
-          description: 'CreativeWork',
           type: 'object',
           content_type: 'variant',
           releasable: true,
@@ -309,7 +308,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
       {
         data: {
           name: 'whatever',
-          description: 'CreativeWork',
           type: 'object'
         }
       }
