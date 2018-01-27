@@ -13,7 +13,7 @@
 				<div class="row split-content detail-content">
           <%= hidden_field_tag 'splitview', true %>
 					<% if can?(:subscribe, @splitSource) && @splitSource.subscriptions.by_user(current_user).size == 0 %>
-						<div class="subscribe-parent notice"><p>Sie sollten diesen Inhalt (<%=@splitSource.metadata['validation']['name']%>) abonnieren, um Ihren neu erstellten Inhalt (<%=content.metadata['validation']['name']%>) aktuell halten zu können.</p>
+						<div class="subscribe-parent notice"><p>Sie sollten diesen Inhalt (<%=@splitSource.template_name%>) abonnieren, um Ihren neu erstellten Inhalt (<%=content.template_name%>) aktuell halten zu können.</p>
 							<%= link_to "Abonnieren", subscriptions_path(subscribable_id: @splitSource.id, subscribable_type: @splitSource.class.name), method: :post %>
 
 							<button name="button" type="button" class="close-subscribe-notice" data-close="" aria-label="Dismiss Notice"><span aria-hidden="true">×</span></button>
@@ -48,15 +48,15 @@
 
 				</div>
 
-				<% if !content.metadata.nil? && !content.metadata['validation'].nil? %>
+				<% if !content.metadata.nil? && !content.schema.nil? %>
 
-					<% validation_properties = get_ordered_validation_properties(content.metadata['validation']) %>
+					<% validation_properties = get_ordered_validation_properties(content.schema) %>
 
 					<%= render 'data_cycle_core/contents/editors/metadata/releasable_editor',
 							   value: {'release_id' => content.release_id, 'release_comment' => content.release_comment},
 							   key: 'creative_work',
 							   definition: {'type' => 'releasable'},
-							   options:{} if content.metadata['validation'].dig('releasable') == true %>
+							   options:{} if content.schema.dig('releasable') == true %>
 
 					<% if !validation_properties.nil? %>
 

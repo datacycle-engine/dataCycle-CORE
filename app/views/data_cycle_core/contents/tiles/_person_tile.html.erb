@@ -4,15 +4,15 @@
 
         <div class="inner">
 
-            <% if !item.metadata.nil? && !item.metadata['validation'].nil? && !item.metadata['validation']['name'].nil? %>
+            <% if !item.metadata.nil? && !item.schema.nil? && !item.template_name.nil? %>
 
-                <div class="type <%= item.metadata['validation']['name'].downcase %>">
+                <div class="type <%= item.template_name.downcase %>">
                     <div class="infoRow">
-                        <%= render 'data_cycle_core/shared/icon', icon_type: item.metadata['validation']['name'].downcase %>
-                        <% if item.metadata['validation']['name'].downcase == 'contentlocation' %>
+                        <%= render 'data_cycle_core/shared/icon', icon_type: item.template_name.downcase %>
+                        <% if item.template_name.downcase == 'contentlocation' %>
                             <span class="title">Ort</span>
                         <% else %>
-                            <span class="title"><%= item.metadata['validation']['name'] %></span>
+                            <span class="title"><%= item.template_name %></span>
                         <% end %>
                         <span class="locale">(<%= I18n.locale.to_s %>)</span>
                     </div>

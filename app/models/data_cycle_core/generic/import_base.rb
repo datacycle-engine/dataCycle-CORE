@@ -115,12 +115,13 @@ module DataCycleCore
                                               external_key: data['external_key'])
 
         content.metadata ||= {}
-        content.metadata['validation'] = template.metadata['validation']
+        content.schema = template.schema
+        content.template_name = template.template_name
         content.save!
 
         old_data = (content.get_data_hash || {}).merge({
-          metadata: content.metadata.except('validation'),
-          validation: template.metadata['validation']
+          metadata: content.metadata.except('validation'), # TODO: .except('validation') can be removed when schema/template_name are updated
+          validation: template.schema
         }.stringify_keys)
 
         error = content.set_data_hash(data_hash: old_data.merge(data))

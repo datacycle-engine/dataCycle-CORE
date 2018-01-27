@@ -1,4 +1,4 @@
-<% internal_template = DataCycleCore::DataHashService.get_internal_template(params[:definition]['storage_location'], params[:definition]['name'], params[:definition]['description']) %>
+<% internal_template = DataCycleCore::DataHashService.get_internal_template(params[:definition]['storage_location'], params[:definition]['name']) %>
 
 $('<%= params[:embedded_object_id] %>').children('.addContentObject').find('.fa').css('display', 'none');
 $('<%= params[:embedded_object_id] %>').children('.addContentObject').prop('disabled', false).before('<%= j render_embedded_object_partial(key: params[:key], definition: params[:definition], parameters: {index: params[:index], options: params[:options], internal_template: internal_template, object: @object, new_content: true, language: params[:language]}) %>');

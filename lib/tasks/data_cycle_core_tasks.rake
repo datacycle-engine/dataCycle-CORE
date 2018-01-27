@@ -192,7 +192,7 @@ namespace :data_cycle_core do
         data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
         data_object.where(template: true).each do |template_object|
           template_name = template_object.headline
-          boost = template_object.metadata['validation']['boost']
+          boost = template_object.schema['boost']
 
           unless boost.blank?
             search_entries = DataCycleCore::Search.where(content_data_type: data_object.to_s, data_type: template_name).count
@@ -409,7 +409,7 @@ namespace :data_cycle_core do
 
       where_string = "metadata ?| array['" + array_names.join("','") + "']"
       DataCycleCore::CreativeWork.where(where_string).each do |item|
-        # puts "#{item.id} || #{item.metadata['validation']['name']}"
+        # puts "#{item.id} || #{item.template_name}"
         array_names.each do |name|
           next unless item.metadata.key?(name)
           # puts "#{name.split('_hasPart')[0]} -> "
@@ -430,7 +430,7 @@ namespace :data_cycle_core do
       end
 
       DataCycleCore::CreativeWork::History.where(where_string).each do |item|
-        # puts "#{item.id} || #{item.creative_work_id} || #{item.metadata['validation']['name']}"
+        # puts "#{item.id} || #{item.creative_work_id} || #{item.template_name}"
         array_names.each do |name|
           next unless item.metadata.key?(name)
           # puts "#{name.split('_hasPart')[0]} -> "

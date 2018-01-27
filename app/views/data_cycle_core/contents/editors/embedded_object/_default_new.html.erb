@@ -1,10 +1,10 @@
-<% internal_template = DataCycleCore::DataHashService.get_internal_template(definition['storage_location'], definition['name'], definition['description']) %>
+<% internal_template = DataCycleCore::DataHashService.get_internal_template(definition['storage_location'], definition['name']) %>
 
-<% validation_properties = get_ordered_validation_properties(internal_template.metadata['validation']) %>
+<% validation_properties = get_ordered_validation_properties(internal_template.schema) %>
 
 <% unless validation_properties.nil? %>
   <div class="content-object-item" id="<%= sanitize_to_id(key) %>_item_<%= index %>">
-    <span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.metadata['validation']['name'].downcase %> <%= definition['label'] %></span>
+    <span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.template_name.downcase %> <%= definition['label'] %></span>
 
     <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
       <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
