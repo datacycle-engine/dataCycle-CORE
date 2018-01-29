@@ -26,10 +26,8 @@ gem 'byebug', group: [:development, :test]
 # gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 group :development, :test do
-
   gem 'capistrano-rails'
   gem 'capistrano-rvm'
   gem 'capistrano3-delayed-job'
   gem 'capistrano3-puma'
-
 end
