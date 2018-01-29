@@ -24,11 +24,12 @@ test:
 
 staging:
   <<: *default
-  username: "data_cycle_core"
-  password: "1H2fpD6kaif92kyfC79acT"
-  port: 5433
+  username: <%= ENV["POSTGRES_USER"] || "data_cycle_core" %>
+  password: <%= ENV["POSTGRES_PASSWORD"] || "1H2fpD6kaif92kyfC79acT" %>
+  host:     <%= ENV["POSTGRES_HOST"] || "localhost" %>
+  port:     <%= ENV["POSTGRES_PORT"] || 5433 %>
   database: data-cycle-core_staging
 
-production:
-  <<: *default
-  database: data_cycle_production
+#production:
+#  <<: *default
+#  database: data_cycle_production
