@@ -37,6 +37,12 @@ module DataCycleCore
     include ContentHelpers
     include EventHelpers
 
+    def self.sort_by_proximity(date = Time.zone.now)
+      order(absolute_date_diff(arel_table[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
+            absolute_date_diff(arel_table[:start_date], Arel::Nodes.build_quoted(date.iso8601)),
+            :start_date)
+    end
+
     # to cash also translated values (comming from gem Globalize)
     def cache_key
       super + '-' + Globalize.locale.to_s

@@ -1,4 +1,9 @@
+
 $LOAD_PATH.push File.expand_path('../lib', __FILE__)
+
+# allows bundler to use the gemspec for dependencies
+# lib = File.expand_path('../lib', __FILE__)
+# $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 # Maintain your gem's version:
 require 'data_cycle_core/version'
@@ -91,5 +96,11 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'spring'
   s.add_development_dependency 'spring-watcher-listen', '~> 2.0.0'
   s.add_development_dependency 'web-console'
-  # admin db-interface
+
+  s.add_dependency 'dotenv-rails'
+  s.add_dependency 'puma', '~> 3.10.0'
+
+  s.add_development_dependency 'brakeman'
+  s.add_development_dependency 'bundler-audit'
+  s.add_development_dependency 'gemsurance'
 end

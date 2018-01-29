@@ -22,7 +22,7 @@ module DataCycleCore
     end
 
     def primary_classification_alias
-      primary_classification_group.classification_alias
+      primary_classification_group&.classification_alias
     end
 
     def ancestors

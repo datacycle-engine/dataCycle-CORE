@@ -90,7 +90,9 @@ module DataCycleCore
     end
 
     def content_data_type
-      Object.const_get("DataCycleCore::#{params[:type].classify}") if params[:type]
+      return unless params[:type]
+      object_type = DataCycleCore.content_tables.find { |object| object == params[:type] }
+      ('DataCycleCore::' + object_type.singularize.classify).constantize
     end
 
     def apply_ordering(query)

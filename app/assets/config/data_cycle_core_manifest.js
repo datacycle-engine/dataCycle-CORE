@@ -1,2 +1,3 @@
-//= link_directory ../javascripts/data_cycle_core .js
-//= link_directory ../stylesheets/data_cycle_core .css
+//= link_tree ../images
+//= link_directory ../javascripts .js
+//= link_directory ../stylesheets .css

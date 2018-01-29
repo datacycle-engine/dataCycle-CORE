@@ -14,7 +14,7 @@ module DataCycleCore
     end
 
     def current_ability
-      @current_ability ||= ::Ability.new(current_user, session)
+      @current_ability ||= DataCycleCore::Ability.new(current_user, session)
     end
 
     rescue_from CanCan::AccessDenied do |exception|

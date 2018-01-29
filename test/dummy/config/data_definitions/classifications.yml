@@ -1,0 +1,20 @@
+- Inhaltstypen:
+  - $$Text:
+    - $$Artikel
+    - $$Angebot
+    - $$Social Media Posting
+    - $$Zitat
+  - $$Bild
+  - $$DataCycle - Image
+  - $$DataCycle - File
+  - $$Person
+  - $$Ort:
+# embedded
+  - $$Angebotszeitraum
+  - $$Website
+
+- Geschlecht:
+  - Männlich
+  - Weiblich
+
+- Thema:
