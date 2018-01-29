@@ -74,7 +74,6 @@ cypress:
 # code validation
 # bundle-audit
 # brakeman
-# gemsurance
 # rubocop
 code_validation:
   stage: check
@@ -82,7 +81,6 @@ code_validation:
     - bundle-audit update
     - bundle audit check
     - brakeman
-    - gemsurance
     - rubocop --format fuubar
   artifacts:
     name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_gemsurance"
@@ -101,6 +99,6 @@ deploy_staging:
     - feature/dummy_app
   environment:
     name: staging
-    url: http://core.datacycle.at/
+    url: http://core-staging.datacycle.at/
   when: manual
   allow_failure: false
