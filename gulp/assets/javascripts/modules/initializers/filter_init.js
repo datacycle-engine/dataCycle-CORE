@@ -65,7 +65,7 @@ module.exports.initialize = function () {
     $('#save-filter-name-form').on('submit', function (e) {
       e.preventDefault();
       var form = $('#search-form');
-      $(form).append('<input type="hidden" name="filter_name" value="' + $(this).find('#filter_name').val() + '" />');
+      $(form).append('<input type="hidden" name="stored_filter_name" value="' + $(this).find('#stored_filter_name').val() + '" /> <input type="hidden" name="stored_filter_system" value="' + $(this).find('#stored_filter_system').val() + '" />');
       form.submit();
     });
 

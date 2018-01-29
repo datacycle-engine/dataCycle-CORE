@@ -59,7 +59,7 @@
             </div>
         <% end %>
 
-        <% if can?(:manage, DataCycleCore::StoredFilter) %>
+        <% if can?(:read, DataCycleCore::StoredFilter) %>
           <div class="settings-row">
             <div class="row columns">
               <h5><%= t('data_cycle_core.stored_filter', locale: DataCycleCore.ui_language) %></h5>

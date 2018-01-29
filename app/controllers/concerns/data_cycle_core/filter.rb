@@ -85,7 +85,8 @@ module DataCycleCore
       new_filter = DataCycleCore::StoredFilter.new
       new_filter.user_id = current_user.id
       new_filter.language = @language
-      new_filter.name = params[:filter_name] unless params[:filter_name].blank?
+      new_filter.name = filter_params[:stored_filter_name] unless filter_params[:stored_filter_name].blank?
+      new_filter.system = filter_params[:stored_filter_system]
       new_filter.parameters = {}
       new_filter.parameters[:in_validity_period] = Time.zone.now
       new_filter.parameters[:order] = @order_string unless @order_string.blank?
@@ -93,6 +94,12 @@ module DataCycleCore
       new_filter.parameters[:with_classification_alias_ids] = @with_classification_alias_ids unless @with_classification_alias_ids.blank?
       new_filter.parameters[method_name.to_sym] = parameters unless parameters.blank?
       new_filter.save
+    end
+
+    private
+
+    def filter_params
+      params.permit(:stored_filter_name, :stored_filter_system)
     end
   end
 end

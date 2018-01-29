@@ -19,7 +19,7 @@
                     <% end %>
                 </li>
                 <li>
-                    <% if can?(:manage, DataCycleCore::StoredFilter) %>
+                    <% if can?(:read, DataCycleCore::StoredFilter) %>
                         <%= render 'stored_filters' %>
                     <% end %>
                 </li>
