@@ -96,7 +96,7 @@ deploy_staging:
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - cap staging deploy
   only:
-    - feature/dummy_app
+    - staging
   environment:
     name: staging
     url: http://core-staging.datacycle.at/
