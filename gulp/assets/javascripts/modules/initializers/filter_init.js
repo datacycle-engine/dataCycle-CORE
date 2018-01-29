@@ -53,11 +53,19 @@ module.exports.initialize = function () {
     // hide activated filters
     if ($('.activefilter').find('.your-choice.tags:visible').length == 0) $('.activefilter').hide();
     // Reset selected Tags
-    $(document).on('click', '#reset-filter', function (e) {
+    $('#search-form #reset-filter').on('click', function (e) {
       e.preventDefault();
       var form = $(this).closest('#search-form');
       clearForm(form);
       $(form).append('<input type="hidden" name="reset" value="true" />');
+      form.submit();
+    });
+
+    // Save active Filter with specific name
+    $('#save-filter-name-form').on('submit', function (e) {
+      e.preventDefault();
+      var form = $('#search-form');
+      $(form).append('<input type="hidden" name="filter_name" value="' + $(this).find('#filter_name').val() + '" />');
       form.submit();
     });
 

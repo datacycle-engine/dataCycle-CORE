@@ -85,6 +85,7 @@ module DataCycleCore
       new_filter = DataCycleCore::StoredFilter.new
       new_filter.user_id = current_user.id
       new_filter.language = @language
+      new_filter.name = params[:filter_name] unless params[:filter_name].blank?
       new_filter.parameters = {}
       new_filter.parameters[:in_validity_period] = Time.zone.now
       new_filter.parameters[:order] = @order_string unless @order_string.blank?
