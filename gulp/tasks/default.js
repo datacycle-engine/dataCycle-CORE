@@ -1,3 +1,3 @@
 var gulp = require('gulp');
 
-gulp.task('default', ['sass', 'icons', 'watch']);
+gulp.task('default', ['images', 'sass', 'icons', 'watch']);
