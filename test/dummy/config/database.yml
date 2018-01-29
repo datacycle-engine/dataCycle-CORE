@@ -13,14 +13,14 @@ default: &default
 
 development:
   <<: *default
-  database: data_cycle_development
+  database: data_cycle_core_development
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: data_cycle_test
+  database: data_cycle_core_test
 
 staging:
   <<: *default
