@@ -57,8 +57,8 @@ rails_test:
 
 cypress:
   script:
-    - npm install
-    - npm install cypress
+    - yarn
+    - yarn add cypress --optional
     - bundle exec rake app:data_cycle_core:update:import_classifications
     - bundle exec rake app:data_cycle_core:update:import_templates
     - npx gulp production
