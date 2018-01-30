@@ -22,7 +22,7 @@ set :puma_rackup, -> { File.join(current_path, 'test', 'dummy', 'config.ru') }
 append :linked_files, '.env'
 
 # Default value for linked_dirs is []
-append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'test/dummy/public/assets'
+append :linked_dirs, 'log', 'node_modules', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'test/dummy/public/assets'
 
 Rake::Task['deploy:assets:precompile'].clear_actions
 Rake::Task['deploy:assets:backup_manifest'].clear_actions
@@ -52,7 +52,7 @@ end
 namespace :deploy do
   task :npm do
     on roles(:all) do
-      execute "cd #{release_path} && npm install"
+      execute "cd #{release_path} && yarn"
     end
   end
 
