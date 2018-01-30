@@ -1,5 +1,6 @@
 module DataCycleCore
   class Api::V1::ApiBaseController < ActionController::API
+    include ActionController::Caching
     include ActionView::Rendering
     include CanCan::ControllerAdditions
     # include ActiveSupport::Rescuable
