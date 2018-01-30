@@ -52,7 +52,7 @@ end
 namespace :deploy do
   task :npm do
     on roles(:all) do
-      execute "cd #{release_path} && yarn"
+      execute "cd #{release_path} && yarn --production"
     end
   end
 
