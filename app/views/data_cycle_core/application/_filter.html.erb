@@ -82,7 +82,12 @@
 <div class="reveal" id="save-filter-with-name" data-reveal>
   <h3><%= t('actions.save_filter', locale: DataCycleCore.ui_language) %></h3>
   <%= form_tag('', :method => "get", id: "save-filter-name-form") do %>
-    <%= text_field_tag 'filter_name', nil, required: true %>
+    <%= label_tag 'stored_filter_name', 'Name' %>
+    <%= text_field_tag 'stored_filter_name', nil, required: true %>
+    <% if can?(:create_global, DataCycleCore::StoredFilter) %>
+      <%= check_box_tag 'stored_filter_system' %>
+      <%= label_tag 'stored_filter_system', 'Globaler Filter' %><br>
+    <% end %>
     <input name="commit" value="Speichern" class="button primary" data-disable-with="Speichern..." type="submit">
   <% end %>
   <button class="close-button" data-close aria-label="Close modal" type="button">

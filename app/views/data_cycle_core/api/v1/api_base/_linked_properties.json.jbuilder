@@ -10,7 +10,7 @@ options = default_options.merge(defined?(options) ? options || {} : {})
   next if data.empty?
   json.set! property.pluralize.camelize(:lower) do
     json.array!(data) do |item|
-      cache(item) do
+      json.cache!(item) do
         json.content_partial! 'details', content: item
       end
     end
