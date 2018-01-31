@@ -24,18 +24,16 @@ module DataCycleCore
           attributes
         end
       }.each do |attributes|
-        classification_alias = if parent_classification_alias
-                                 parent_classification_alias
-                                   .sub_classification_alias
-                                   .where(name: attributes[:name],
-                                          external_source: attributes[:external_source])
-                                   .first_or_initialize
-                               else
-                                 classification_aliases.roots
-                                   .where(name: attributes[:name],
-                                          external_source: attributes[:external_source])
-                                   .first_or_initialize
-                               end
+        if parent_classification_alias
+          classification_alias = parent_classification_alias
+            .sub_classification_alias
+            .where(name: attributes[:name], external_source: attributes[:external_source])
+            .first_or_initialize
+        else
+          classification_alias = classification_aliases.roots
+            .where(name: attributes[:name], external_source: attributes[:external_source])
+            .first_or_initialize
+        end
 
         if classification_alias.new_record?
           classification_alias.save!
