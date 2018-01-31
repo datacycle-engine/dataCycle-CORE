@@ -117,6 +117,7 @@ de:
     write: schreiben
     save_and_send: "Speichern und Senden"
     finalize: Bearbeitung abschließen
+    save_filter: Filter speichern
 
   validation:
     errors:
@@ -277,9 +278,9 @@ de:
       all: "Keine Zugriffsberechtigung!"
   data_cycle_core:
     administration: 'Administration'
-
     classifications: 'Klassifizierungen'
     settings: Einstellungen
+    stored_filter: Meine gespeicherten Filter
 
   helpers:
     label:

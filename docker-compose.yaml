@@ -16,6 +16,7 @@ services:
     - POSTGRES_USER=postgres
     - POSTGRES_PASSWORD=
     - POSTGRES_HOST=postgres
+    - POSTGRES_PORT=5432
     - MONGODB_HOST=mongodb
     - ALLOW_IP_RANGE=172.18.0.0/12
     - TZ=Europe/Vienna

@@ -1,8 +1,8 @@
 <%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
 
-  <div class="content-object-item">
+  <div class="<%= 'content-object-item' unless definition.dig('editor', 'options', 'class')&.match?(/daterange/) %>">
 
-    <% unless definition.dig('editor', 'options', 'class').match?(/daterange/) %>
+    <% unless definition.dig('editor', 'options', 'class')&.match?(/daterange/) %>
       <span class="embedded-header"><span class="icon"><i class="fa fa-folder-open" aria-hidden="true"></i></span> <%= definition['label'] %></span>
     <% end %>
 

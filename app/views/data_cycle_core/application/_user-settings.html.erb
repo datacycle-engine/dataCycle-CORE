@@ -59,6 +59,30 @@
             </div>
         <% end %>
 
+        <% if can?(:read, DataCycleCore::StoredFilter) %>
+          <div class="settings-row">
+            <div class="row columns">
+              <h5><%= t('data_cycle_core.stored_filter', locale: DataCycleCore.ui_language) %></h5>
+            </div>
+
+            <div class="row columns">
+              <ul class="list-items no-bullet">
+                <% @accessible_stored_filters.where.not(name: nil).order(:name).each do |stored_filter| %>
+                    <li>
+                        <span class="watch-list-item">
+                            <span class="watchlist-headline">
+                              <%= link_to root_path(stored_filter: stored_filter.id), class: 'watchlist-link' do %>
+                                <i class="fa fa-filter" aria-hidden="true"></i>
+                                <%= stored_filter.name || "vor #{time_ago_in_words stored_filter.created_at}" %>
+                              <% end %>
+                            </span>
+                        </span>
+                    </li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        <% end %>
     <!--<div class="settings-row">-->
     <!--<div class="row column">-->
     <!--<div class="heading">Meine letzten Suchen</div>-->
