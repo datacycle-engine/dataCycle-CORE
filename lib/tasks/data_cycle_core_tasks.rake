@@ -152,12 +152,14 @@ namespace :data_cycle_core do
   namespace :update do
     desc 'import classifications'
     task import_classifications: [:environment] do
+      puts 'importing new classification definitions'
       path = Rails.root.join('config', 'data_definitions', 'classifications.yml')
       DataCycleCore::MasterData::ImportClassifications.new.import(path.to_s)
     end
 
     desc 'import template definitions'
     task import_templates: [:environment] do
+      puts 'importing new template definitions'
       path = Rails.root.join('config', 'data_definitions', 'creative_works', '*.yml')
       DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::CreativeWork)
       path = Rails.root.join('config', 'data_definitions', 'places', '*.yml')
@@ -174,9 +176,9 @@ namespace :data_cycle_core do
       DataCycleCore.content_tables.each do |content_table|
         data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
         data_object.where(template: true).each do |template_object|
-          template_name = template_object.headline
-          data_count = data_object.where(template: false).where("metadata #>> '{validation, name}' = ?", template_name).count
-          puts "#{content_table.ljust(25)} | #{template_name.ljust(25)} | #{data_count.to_s.rjust(10)}"
+          template_name = template_object.template_name
+          data_count = data_object.where(template: false).where("metadata #>> '{validation, name}' = ? OR template_name = ?", template_name, template_name).count
+          puts "#{content_table.ljust(25)} | #{template_name.ljust(25)} | #{(data_count || 0).to_s.rjust(10)}"
 
           strategy = DataCycleCore::Update::UpdateTemplate
           DataCycleCore::Update::Update.new(type: data_object, template: template_object, strategy: strategy, transformation: nil)
@@ -191,7 +193,7 @@ namespace :data_cycle_core do
       DataCycleCore.content_tables.each do |content_table|
         data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
         data_object.where(template: true).each do |template_object|
-          template_name = template_object.headline
+          template_name = template_object.template_name
           boost = template_object.schema['boost']
 
           unless boost.blank?
@@ -672,13 +674,16 @@ namespace :data_cycle_core do
               SELECT
                 id,
                 metadata #> '{validation}' AS schema_data,
-                metadata #>> '{validation, name}' AS template_name_data
+                metadata #>> '{validation, name}' AS template_name_data,
+                metadata - 'validation' AS only_metadata
               FROM #{content}
+              WHERE metadata #> '{validation}' IS NOT NULL
             )
             UPDATE #{content}
             SET
               template_name = t.template_name_data,
-              schema = t.schema_data
+              schema = t.schema_data,
+              metadata = t.only_metadata
             FROM t
             WHERE #{content}.id = t.id;
           EOS
@@ -686,6 +691,9 @@ namespace :data_cycle_core do
           ActiveRecord::Base.connection.execute(sql)
         end
       end
+
+      Rake::Task['data_cycle_core:update:import_templates'].invoke
+      Rake::Task['data_cycle_core:update:update_all_templates'].invoke
 
       puts 'END'
       puts "--> UPDATE time: #{((Time.zone.now - temp) / 60).to_i} min"
