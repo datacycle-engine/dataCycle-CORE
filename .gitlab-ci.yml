@@ -32,6 +32,8 @@ before_script:
   - dpkg-reconfigure -f noninteractive tzdata
   - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+  - cd $CI_PROJECT_DIR
+
 cache:
   key: application-cache
   untracked: true
@@ -97,4 +99,16 @@ deploy_staging:
     name: staging
     url: http://core-staging.datacycle.at/
   when: manual
+  allow_failure: false
+
+deploy_development:
+  stage: deploy
+  script:
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - cap development deploy
+  only:
+    - develop
+  environment:
+    name: development
+    url: http://core-development.datacycle.at/
   allow_failure: false
