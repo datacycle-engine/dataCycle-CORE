@@ -13,6 +13,10 @@ default: &default
 
 development:
   <<: *default
+  username: <%= ENV["POSTGRES_USER"] || "data_cycle_core" %>
+  password: <%= ENV["POSTGRES_PASSWORD"] || "1H2fpD6kaif92kyfC79acT" %>
+  host:     <%= ENV["POSTGRES_HOST"] || "localhost" %>
+  port:     <%= ENV["POSTGRES_PORT"] || 5433 %>
   database: data_cycle_core_development
 
 # Warning: The database defined as "test" will be erased and
