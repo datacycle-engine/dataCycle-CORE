@@ -74,7 +74,7 @@ describe('WatchList', function () {
     }).should('be.hidden')
     cy.get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).find('.watch-lists-link').click()
     cy.get('.search-results .grid-item:contains(' + cname + ') .watch-lists .watch-list-item:contains("' + updated_name + '")').find('.remove-from-watchlist-link').click()
-    cy.get('.confirmation').should('be.visible').find('.accept-confirmation').click()
+    cy.get('.confirmation-modal').should('be.visible').find('.confirmation-confirm').click()
 
     cy.get('[data-toggle="watch-lists-for-user"]').click()
     cy.get('#watch-lists-for-user').find('.watch-list-item .watchlist-link:contains("' + updated_name + '")').click({
@@ -95,7 +95,7 @@ describe('WatchList', function () {
     cy.location('pathname').should('match', /\/watch_lists/)
 
     cy.get('.detail-header-wrapper .edit [data-method=delete]').should('be.visible').click()
-    cy.get('.confirmation').should('be.visible').find('.accept-confirmation').click()
+    cy.get('.confirmation-modal').should('be.visible').find('.confirmation-confirm').click()
     cy.location('pathname').should('match', /\/watch_lists/)
     cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
 

@@ -55,7 +55,7 @@ describe('UserGroup', function () {
       force: true
     }).should('be.hidden')
     cy.get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 1).find('.delete-link').click()
-    cy.get('.confirmation').should('be.visible').find('.accept-confirmation').click()
+    cy.get('.confirmation-modal').should('be.visible').find('.confirmation-confirm').click()
     cy.location('pathname').should('match', /\/user_groups/)
     cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
 
