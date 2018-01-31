@@ -1,4 +1,4 @@
-var ConfirmationHelper = require('./../helpers/confirmation_helper');
+var ConfirmationModal = require('./../components/confirmation_modal');
 
 // Add Validation to Form Elements
 module.exports.initialize = function () {
@@ -54,7 +54,7 @@ module.exports.initialize = function () {
       ev.preventDefault();
 
       if ($(form).find('input#finalize:checked').length > 0) {
-        ConfirmationHelper.showConfirmation($(this).parent(), ev, 'Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.', true, 'right bottom', function () {
+        var confirmationModal = new ConfirmationModal('Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.', 'success', true, function () {
           $(form).trigger('submit');
         }.bind(this));
       } else {

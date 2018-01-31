@@ -57,7 +57,7 @@ module.exports.initialize = function () {
       e.preventDefault();
       var form = $(this).closest('#search-form');
       clearForm(form);
-      $(form).append('<input type="hidden" name="reset" value="true" />');
+      // $(form).append('<input type="hidden" name="reset" value="true" />');
       form.submit();
     });
 
@@ -65,7 +65,12 @@ module.exports.initialize = function () {
     $('#save-filter-name-form').on('submit', function (e) {
       e.preventDefault();
       var form = $('#search-form');
-      $(form).append('<input type="hidden" name="stored_filter_name" value="' + $(this).find('#stored_filter_name').val() + '" /> <input type="hidden" name="stored_filter_system" value="' + $(this).find('#stored_filter_system').val() + '" />');
+      $(form).prop('action', $(this).prop('action'));
+      $(form).prop('method', $(this).prop('method'));
+      $(form).append($(this).find('input[type=hidden]').clone());
+      $(form).append('<input type="hidden" name="stored_filter_name" value="' + $(this).find('#stored_filter_name').val() + '">');
+      $(form).append('<input type="hidden" name="stored_filter_system" value="' + $(this).find('#stored_filter_system').is(':checked') + '">');
+
       form.submit();
     });
 

@@ -19,7 +19,6 @@ var datepicker_init = require('./modules/initializers/date_picker_init');
 var slider_init = require('./modules/initializers/slider_init');
 var copy_contents_init = require('./modules/initializers/copy_contents_init');
 var map_init = require('./modules/initializers/map_init');
-var watch_lists_init = require('./modules/initializers/watch_lists_init');
 var classifications = require('./modules/initializers/classifications');
 var classification_select_init = require('./modules/initializers/classification_select_init');
 var lazyloading_init = require('./modules/initializers/lazyloading_init');
@@ -70,10 +69,7 @@ $(function () {
   // initialize Copy_Contents
   copy_contents_init.initialize();
 
-  // initialize Watchlists
-  watch_lists_init.initialize();
-
-  // initialize Watchlists
+  // initialize Lazyloading
   lazyloading_init.initialize();
 
   // initialize Datalists

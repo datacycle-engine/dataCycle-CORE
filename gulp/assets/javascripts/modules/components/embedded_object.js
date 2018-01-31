@@ -1,4 +1,4 @@
-var ConfirmationHelper = require('./../helpers/confirmation_helper');
+var ConfirmationModal = require('./../components/confirmation_modal');
 
 // Embedded Object Module
 var EmbeddedObject = function (selector) {
@@ -47,7 +47,7 @@ EmbeddedObject.prototype.setup = function () {
         this.addEventHandlers();
       }.bind(this));
     } else if (this.write && this.max != 0 && ids.indexOf(data.ids[0]) === -1) {
-      ConfirmationHelper.showConfirmation(this.element, event, "Maximalanzahl: " + this.max, false);
+      var confirmationModal = new ConfirmationModal("Maximalanzahl: " + this.max);
     }
   }.bind(this));
 

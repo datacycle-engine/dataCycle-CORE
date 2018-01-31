@@ -1,6 +1,6 @@
 var quill = require('quill');
 var Counter = require('./../components/quill_counter');
-var ConfirmationHelper = require('./../helpers/confirmation_helper');
+var ConfirmationModal = require('./../components/confirmation_modal');
 
 // Quill Config
 module.exports.initialize = function () {
@@ -82,7 +82,7 @@ module.exports.initialize = function () {
 
     $(editor.container).on('import-data', function (event, data) {
       if (editor.getLength() > 1) {
-        ConfirmationHelper.showConfirmation($(this), event, data.label + ' wird überschrieben. <br>Fortfahren?', true, '', function () {
+        var confirmationModal = new ConfirmationModal(data.label + ' wird überschrieben. <br>Fortfahren?', 'success', true, function () {
           editor.clipboard.dangerouslyPasteHTML(data.value);
         });
       } else {

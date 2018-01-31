@@ -5,36 +5,14 @@
       <% @accessible_watch_lists.each do |watchlist| %>
           <li>
               <% if content.watch_lists.include?(watchlist) %>
-                  <span class="watch-list-item">
-                      <span class="check checked"><i class="fa fa-check" aria-hidden="true"></i></span>
-                      <span class="watchlist-headline">
-                          <%= watchlist.headline %>
-                      </span>
-                      <span class="change-link">
-                      <%= link_to removeItem_watch_list_path(watchlist, hashable_type: content.class.name, hashable_id: content.id), class: 'remove-from-watchlist-link confirm', data: {'confirmation-text': 'Von Merkliste entfernen?'} do %>
-                          <i aria-hidden="true" class="fa fa-times-circle"></i>
-                      <% end %>
-                      </span>
-                  </span>
+                <%= render 'data_cycle_core/application/watch_lists/remove_link', local_assigns.merge({ watchlist: watchlist }) %>
               <% else %>
-                  <span class="watch-list-item">
-                      <span class="check"><i class="fa fa-check" aria-hidden="true"></i></span>
-                      <span class="watchlist-headline">
-                          <%= link_to addItem_watch_list_path(watchlist, hashable_type: content.class.name, hashable_id: content), class: 'add-to-watchlist-link', data: {'confirmation-text': 'Von Merkliste entfernen?'} do %>
-                              <%= watchlist.headline %>
-                          <% end %>
-                      </span>
-                      <span class="change-link">
-                          <%= link_to addItem_watch_list_path(watchlist, hashable_type: content.class.name, hashable_id: content), class: 'add-to-watchlist-link', data: {'confirmation-text': 'Von Merkliste entfernen?'} do %>
-                              <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                          <% end %>
-                      </span>
-                  </span>
+                <%= render 'data_cycle_core/application/watch_lists/add_link', local_assigns.merge({ watchlist: watchlist }) %>
               <% end %>
           </li>
       <% end %>
     </ul>
 
-    <%= render 'data_cycle_core/application/watch_lists/new', content: content %>
+    <%= render 'data_cycle_core/application/watch_lists/new', local_assigns %>
 
 </div>
