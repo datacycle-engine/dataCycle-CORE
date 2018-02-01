@@ -1,12 +1,11 @@
 ---
 - :data:
     :name: Zitat
-    :description: CreativeWork
     :type: object
     :content_type: embedded
     :permissions:
       :read_write: true
-    :boost: 1.0      
+    :boost: 1.0
     :properties:
       :id:
         :label: id
@@ -20,6 +19,7 @@
         :type: string
         :storage_type: text
         :storage_location: content
+        :search: true
         :validations:
           :minLength: 1
         :editor:
@@ -48,7 +48,6 @@
         :type: object
         :storage_location: persons
         :name: Person
-        :description: Person
         :delete: false
         :editor:
           :sorting: 3
