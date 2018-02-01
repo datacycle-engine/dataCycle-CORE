@@ -3,7 +3,15 @@ module DataCycleCore
     def index
       query = Event.with_classification_alias_names(DataCycleCore.allowed_content_api_classifications)
 
-      query = query.where(Event.arel_table[:end_date].gteq(Time.zone.now))
+      if params&.dig(:filter, :from)
+        query = query.where(Event.arel_table[:end_date].gteq(DateTime.parse(params&.dig(:filter, :from))))
+      else
+        query = query.where(Event.arel_table[:end_date].gteq(Time.zone.now))
+      end
+
+      if params&.dig(:filter, :to)
+        query = query.where(Event.arel_table[:start_date].lteq(DateTime.parse(params&.dig(:filter, :to))))
+      end
 
       if params&.dig(:filter, :classifications)
         params.dig(:filter, :classifications).map { |classifications|
@@ -29,7 +37,7 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      super + [{ filter: { classifications: [] } }]
+      super + [{ filter: [:from, :to, { classifications: [] }] }]
     end
   end
 end
