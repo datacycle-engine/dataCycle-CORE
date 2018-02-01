@@ -40,7 +40,7 @@
 <%
 =end
 %>
-                <% if !object.metadata.nil? && !object.schema.nil? %>
+                <% unless object.schema.nil? %>
 
                     <% validation_properties = get_ordered_validation_properties(object.schema) %>
 

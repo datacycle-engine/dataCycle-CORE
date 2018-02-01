@@ -5,7 +5,7 @@
 <div class="edit">
   <%= yield :buttons %>
 
-  <% if content.metadata&.dig('validation', 'content_type') == 'variant' && can?(:create, content.class) && !content.try(:parent).nil? %>
+  <% if content.schema&.dig('content_type') == 'variant' && can?(:create, content.class) && !content.try(:parent).nil? %>
       <%= link_to "#", class:'button-prime small', data: { tooltip: '', open: 'newContent' }, title: 'Inhalt anhand dieser Vorlage erstellen', 'aria-haspopup': true do %>
           <i class="fa fa-plus" aria-hidden="true"></i>
       <% end %>

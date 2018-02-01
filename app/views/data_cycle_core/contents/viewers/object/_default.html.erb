@@ -34,7 +34,7 @@
                   <% end if definition['editor']['type'] == "objectBrowser" && @historySource.nil? && can?(:crud, object) %>
                 </div>
 
-                <% if !object.metadata.nil? && !object.schema.nil? %>
+                <% unless object.schema.nil? %>
 
                     <% validation_properties = get_ordered_validation_properties(object.schema) %>
 
