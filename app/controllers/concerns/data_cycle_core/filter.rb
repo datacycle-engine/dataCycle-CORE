@@ -63,6 +63,7 @@ module DataCycleCore
 
     def apply_filter(filter_id:)
       filter = DataCycleCore::StoredFilter.find(filter_id)
+      filter.touch
 
       params[:language] = filter.language
       @language = filter.language
