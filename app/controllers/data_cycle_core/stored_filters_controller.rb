@@ -8,7 +8,7 @@ module DataCycleCore
       @contents = get_filtered_results
       @stored_filter = save_filter
 
-      redirect_to(root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Filter', locale: DataCycleCore.ui_language))
+      redirect_to(root_path(stored_filter: @stored_filter), notice: (I18n.t :created, scope: [:controllers, :success], data: 'Filter', locale: DataCycleCore.ui_language))
     end
 
     def destroy

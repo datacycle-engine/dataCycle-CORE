@@ -95,6 +95,7 @@ module DataCycleCore
       new_filter.parameters[:with_classification_alias_ids] = @with_classification_alias_ids unless @with_classification_alias_ids.blank?
       new_filter.parameters[method_name.to_sym] = parameters unless parameters.blank?
       new_filter.save
+      new_filter
     end
 
     private
