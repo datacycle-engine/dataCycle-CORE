@@ -18,6 +18,8 @@ set :puma_rackup, -> { File.join(current_path, 'test', 'dummy', 'config.ru') }
 # Default value for :pty is false
 # set :pty, true
 
+set :bundle_without, (['development', 'test'] - [fetch(:stage).to_s]).join(' ')
+
 # Default value for :linked_files is []
 append :linked_files, '.env'
 
@@ -52,7 +54,7 @@ end
 namespace :deploy do
   task :npm do
     on roles(:all) do
-      execute "cd #{release_path} && yarn"
+      execute "cd #{release_path} && yarn --production"
     end
   end
 
@@ -75,6 +77,37 @@ namespace :deploy do
           with rails_env: fetch(:rails_env), rails_groups: fetch(:rails_assets_groups) do
             execute :rake, 'app:assets:precompile'
           end
+        end
+      end
+    end
+  end
+
+  desc 'performs initial deploy'
+  task :initial do
+    before 'deploy:migrate', 'deploy:create_db'
+    after 'deploy:migrate', 'deploy:seed'
+    invoke 'deploy'
+  end
+
+  desc 'runs rails db:create'
+  task :create_db do
+    on roles(:db) do
+      within release_path do
+        with rails_env: fetch(:rails_env) do
+          execute :rake, 'db:create'
+        end
+      end
+    end
+  end
+
+  desc 'runs rails db:seed and import classifications and templates'
+  task :seed do
+    on roles(:db) do
+      within release_path do
+        with rails_env: fetch(:rails_env) do
+          execute :rake, 'db:seed'
+          execute :rake, 'app:data_cycle_core:update:import_classifications'
+          execute :rake, 'app:data_cycle_core:update:import_templates'
         end
       end
     end

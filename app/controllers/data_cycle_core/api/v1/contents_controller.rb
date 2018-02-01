@@ -77,12 +77,15 @@ module DataCycleCore
       @contents = deleted_contents.page(@page).per(@per)
     end
 
-    private
-
     def params
-      super.permit(:id, :format, :type, :page, :per, :language, :search, :token, :modified_since, :created_since, :deleted_since)
-        .reject { |_, v| v.blank? }
+      super.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
     end
+
+    def permitted_parameter_keys
+      [:id, :format, :type, :page, :per, :language, :search, :token, :modified_since, :created_since, :deleted_since]
+    end
+
+    private
 
     def build_search_query
       query = DataCycleCore::Filter::Search.new(params.fetch(:language, 'de'))

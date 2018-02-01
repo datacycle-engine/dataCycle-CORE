@@ -273,6 +273,8 @@ de:
         validity_period: Gültigkeitszeitraum (von - bis)
         valid_from: Gültig von
         valid_until: bis
+      data_cycle_core/stored_filter:
+        system: Globaler Filter
   unauthorized:
     manage:
       all: "Keine Zugriffsberechtigung!"

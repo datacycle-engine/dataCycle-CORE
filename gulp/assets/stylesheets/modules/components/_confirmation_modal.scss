@@ -1,0 +1,51 @@
+.confirmation-modal-overlay {
+  position: fixed;
+  display: block;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 99999;
+  background: rgba($black, 0.5);
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.1s 0s, visibility 0s 0.1s;
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.1s 0s, visibility 0s 0s;
+  }
+  .confirmation-modal {
+    backface-visibility: hidden;
+    position: relative;
+    display: inline-block;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 1px solid $dark-gray;
+    background-color: white;
+    padding: 3rem 3rem 6rem 3rem;
+    max-width: 90%;
+    min-width: 20rem;
+    box-shadow: 0 0 3px $dark-gray;
+    .confirmation-buttons {
+      position: absolute;
+      display: table;
+      table-layout: fixed;
+      bottom: 0;
+      width: 100%;
+      left: 0;
+      button,
+      .button {
+        display: table-cell;
+        line-height: 2rem;
+        position: relative;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+body.no-overflow {
+  overflow: hidden;
+}

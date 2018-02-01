@@ -3,11 +3,7 @@
     <ul class="list-items">
       <% @accessible_watch_lists.each do |watchlist| %>
           <li>
-              <span class="watch-list-item">
-                  <span class="watchlist-headline">
-                    <%= link_to watchlist.headline, watch_list_path(watchlist), class: 'watchlist-link' %>
-                  </span>
-              </span>
+            <%= render 'data_cycle_core/application/watch_lists/read_link', watchlist: watchlist %>
           </li>
       <% end %>
     </ul>

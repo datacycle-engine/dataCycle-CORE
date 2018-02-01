@@ -1,63 +1,75 @@
 // offcanvas
-
-#settings-off-canvas{
+#settings-off-canvas {
   top: 72px;
-  .settings-row{
+  .settings-row {
     padding: 2rem;
     margin: 0 0.1rem;
-    color:$black;
+    color: $black;
     border-bottom: 1px solid $medium-gray;
-    a{
+    a {
       color: $black;
       display: inline-block;
       margin-bottom: 1.5rem;
       outline-width: 0;
-      span{
+      span {
         display: inline-block;
-        &.icon{
+        &.icon {
           width: 2rem;
-          i{
+          i {
             margin-right: 0.3rem;
           }
         }
-        &.title{
+        &.title {
           position: relative;
         }
       }
     }
-    .heading{
+    .heading {
       font-weight: bold;
     }
-    .inner-content{
+    .inner-content {
       font-size: 1.1rem;
-      .item{
-
-      }
-      .more{
+      .item {}
+      .more {
         text-align: center;
-        i{
+        i {
           font-size: 1.5rem;
           display: inline-block;
         }
       }
     }
   }
+  .named-stored-filters {
+    li {
+      position: relative;
+      padding-right: 1rem;
+      &.system-filter {
+        font-weight: bold;
+      }
+      .buttons {
+        position: absolute;
+        right: 0;
+        .alert {
+          color: map-get($foundation-palette, alert);
+        }
+      }
+    }
+  }
 }
-
 
 .off-canvas-content {
   //background: #fcfcfc;
   &:after {
     position: absolute;
-      top: 0;
-      right: -1px;
-      height: 100%;
-      width: 1px;
-      box-shadow: 0 0 10px rgba(51, 51, 51, 0.7);
-      content: " ";
+    top: 0;
+    right: -1px;
+    height: 100%;
+    width: 1px;
+    box-shadow: 0 0 10px rgba(51, 51, 51, 0.7);
+    content: " ";
   }
 }
 
 .position-right.is-transition-push::after {
-   display: none;
+  display: none;
 }

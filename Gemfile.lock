@@ -298,6 +298,9 @@ GEM
       ast (~> 2.3)
     pg (0.21.0)
     powerpack (0.1.1)
+    pry (0.11.3)
+      coderay (~> 1.1.0)
+      method_source (~> 0.9.0)
     public_suffix (3.0.1)
     puma (3.10.0)
     rack (2.0.3)
@@ -417,6 +420,7 @@ DEPENDENCIES
   gemsurance
   globalize!
   listen (~> 3.0.5)
+  pry
   rubocop (~> 0.52.1)
   spring
   spring-watcher-listen (~> 2.0.0)
