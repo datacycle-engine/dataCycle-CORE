@@ -2,7 +2,7 @@
   <div class="row expanded">
     <div class="column edit-header-functions">
       <div class="edit-headline">
-        <i class="fa fa-pencil" aria-hidden="true"></i> <%== "#{content.content_type} #{t('actions.edit', locale: DataCycleCore.ui_language)}" %>
+        <i class="fa fa-pencil" aria-hidden="true"></i> <%== "#{content.template_name} #{t('actions.edit', locale: DataCycleCore.ui_language)}" %>
       </div>
       <ul>
         <% if current_user.try(:role).try(:rank).nil? || current_user.try(:role).try(:rank).zero? %>

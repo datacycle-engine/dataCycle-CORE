@@ -7,13 +7,13 @@
       <% sources = [] %>
       <% contents.each do |content| %>
         <% I18n.with_locale(content.first_available_locale) do %>
-          <% sources.push(["#{content.title} (#{content.content_type}, #{I18n.locale})", "source_id=>#{content.id},source_type=>#{content.class.name}"]) %>
+          <% sources.push(["#{content.title} (#{content.template_name}, #{I18n.locale})", "source_id=>#{content.id},source_type=>#{content.class.name}"]) %>
         <% end %>
       <% end %>
 
       <% selected_value = '' %>
       <% I18n.with_locale(selected.first_available_locale) do %>
-        <% selected_value = ["#{selected.title} (#{selected.content_type}, #{selected.translated_locales.first})", "source_id=>#{selected.id},source_type=>#{selected.class.name}"] %>
+        <% selected_value = ["#{selected.title} (#{selected.template_name}, #{selected.translated_locales.first})", "source_id=>#{selected.id},source_type=>#{selected.class.name}"] %>
       <% end unless selected.blank? %>
 
       <div class="form-element">
