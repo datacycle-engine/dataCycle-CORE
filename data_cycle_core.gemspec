@@ -101,8 +101,8 @@ Gem::Specification.new do |s|
 
   # validation gems
   s.add_development_dependency 'brakeman'
+  s.add_development_dependency 'bullet'
   s.add_development_dependency 'bundler-audit'
   s.add_development_dependency 'gemsurance'
   s.add_development_dependency 'rubocop', '~> 0.52.1'
-  s.add_development_dependency 'bullet'
 end
