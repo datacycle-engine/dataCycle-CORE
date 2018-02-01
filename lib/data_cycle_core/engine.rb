@@ -205,7 +205,7 @@ end
 JbuilderTemplate.class_eval do
   def content_partial!(partial, parameters)
     partials = [
-      "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].content_type.underscore}_#{partial}",
+      "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].template_name.underscore}_#{partial}",
       "#{parameters[:content].class.class_name.underscore}_#{partial}",
       "content_#{partial}"
     ]
