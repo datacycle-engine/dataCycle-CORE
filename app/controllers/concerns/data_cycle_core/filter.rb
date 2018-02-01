@@ -63,7 +63,7 @@ module DataCycleCore
 
     def apply_filter(filter_id:)
       filter = DataCycleCore::StoredFilter.find(filter_id)
-      filter.touch
+      filter.update(updated_at: Time.zone.now)
 
       params[:language] = filter.language
       @language = filter.language
