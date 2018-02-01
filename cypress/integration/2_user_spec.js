@@ -71,7 +71,7 @@ describe('User', function () {
     cy.get('.search-results .grid-item:contains(' + updated_user.email + ')').should('have.length', 1).find('.lock-link').click()
     cy.location('pathname').should('match', /\/users/)
 
-    cy.get('.confirmation').should('be.visible').find('.accept-confirmation').click()
+    cy.get('.confirmation-modal').should('be.visible').find('.confirmation-confirm').click()
     cy.location('pathname').should('match', /\/users/)
     cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
 
