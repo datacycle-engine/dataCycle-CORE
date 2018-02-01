@@ -1,9 +1,9 @@
 
 <% unless dataCycleObject.metadata.nil? %>
 
-    <% if !dataCycleObject.metadata.nil? && !dataCycleObject.metadata['validation'].nil? %>
+    <% if !dataCycleObject.metadata.nil? && !dataCycleObject.schema.nil? %>
 
-        <% validation_properties = get_ordered_validation_properties(dataCycleObject.metadata['validation']) %>
+        <% validation_properties = get_ordered_validation_properties(dataCycleObject.schema) %>
 
         <% if !validation_properties.nil? %>
 

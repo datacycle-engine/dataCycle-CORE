@@ -1,12 +1,12 @@
-<div class="detail-content detail-content-wrapper <%= content.try(:metadata).dig('validation', 'description').try(:downcase) || '' %>">
+<div class="detail-content detail-content-wrapper">
 
     <div class="row align-center">
 
       <% unless content.metadata.nil? %>
 
-          <% if !content.metadata.nil? && !content.metadata['validation'].nil? %>
+          <% if !content.metadata.nil? && !content.schema.nil? %>
 
-              <% validation_properties = get_ordered_validation_properties(content.metadata['validation']) %>
+              <% validation_properties = get_ordered_validation_properties(content.schema) %>
 
               <% if !validation_properties.nil? %>
 

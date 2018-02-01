@@ -26,6 +26,7 @@ module DataCycleCore
           can [:read, :settings, :store_filter], :backend
           can :modify, DataCycleCore::User, id: user.id
           can :manage, DataCycleCore::WatchList, user_id: user.id
+          can :manage, DataCycleCore::StoredFilter, user_id: user.id
           can [:subscribe, :history, :history_detail], [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]
         end
 

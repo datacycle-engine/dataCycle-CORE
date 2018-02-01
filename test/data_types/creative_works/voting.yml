@@ -1,7 +1,6 @@
 ---
 - :data:
     :name: Voting
-    :description: CreativeWork
     :type: object
     :content_type: variant
     :releasable: true
@@ -88,7 +87,6 @@
         :storage_location: creative_works
         :delete: true
         :name: Antwort
-        :description: CreativeWork
         :editor:
           :type: embeddedObject
           :sorting: 15

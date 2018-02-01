@@ -1,7 +1,6 @@
 ---
 - :data:
     :name: Artikel
-    :description: CreativeWork
     :type: object
     :content_type: variant
     :releasable: true
@@ -194,7 +193,6 @@
         :type: object
         :storage_location: places
         :name: contentLocation
-        :description: Place
         :delete: false
         :editor:
           :sorting: 14
@@ -208,7 +206,6 @@
         :storage_location: creative_works
         :delete: true
         :name: Zitat
-        :description: CreativeWork
         :editor:
           :type: embeddedObject
           :sorting: 15

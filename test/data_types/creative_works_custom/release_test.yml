@@ -2,7 +2,6 @@
 
 - :data:
     :name: ReleaseTest
-    :description: CreativeWork
     :type: object
     :releasable: true
     :permissions:

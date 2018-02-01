@@ -12,7 +12,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
       {
         data: {
           name: 'App',
-          description: 'CreativeWork',
           type: 'object',
           content_type: 'variant',
           releasable: true,
@@ -168,7 +167,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
               storage_location: 'creative_works',
               delete: true,
               name: 'MobileApplication',
-              description: 'CreativeWork',
               editor: {
                 type: 'embeddedObject',
                 sorting: 12
@@ -309,7 +307,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
       {
         data: {
           name: 'whatever',
-          description: 'CreativeWork',
           type: 'object'
         }
       }
@@ -339,8 +336,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
         label: 'whatever',
         type: 'object',
         storage_location: 'creative_works',
-        name: 'MobileApplication',
-        description: 'CreativeWork'
+        name: 'MobileApplication'
       }
     end
 
@@ -383,31 +379,19 @@ describe DataCycleCore::MasterData::ImportTemplates do
       assert !subject.validate_header.call(test_hash).success?
     end
 
-    it 'checks for valid value of description in header' do
-      test_hash = header_hash
-      test_hash[:data][:description] = nil
-      assert !subject.validate_header.call(test_hash).success?
-    end
-
-    it 'checks for presence of description attribute in header' do
-      test_hash = {}
-      test_hash[:data] = header_hash[:data].except(:description)
-      assert !subject.validate_header.call(test_hash).success?
-    end
-
-    it 'checks for valid value of description in header' do
+    it 'checks for valid value of type in header' do
       test_hash = header_hash
       test_hash[:data][:type] = nil
       assert !subject.validate_header.call(test_hash).success?
     end
 
-    it 'checks for wrong string value of description in header' do
+    it 'checks for wrong string value of type in header' do
       test_hash = header_hash
       test_hash[:data][:type] = 'string'
       assert !subject.validate_header.call(test_hash).success?
     end
 
-    it 'checks for presence of description attribute in header' do
+    it 'checks for presence of type attribute in header' do
       test_hash = {}
       test_hash[:data] = header_hash[:data].except(:type)
       assert !subject.validate_header.call(test_hash).success?
@@ -497,21 +481,24 @@ describe DataCycleCore::MasterData::ImportTemplates do
       assert subject.validate_property.call(test_hash).success?
     end
 
-    it 'checks classification_relation for presence of type_name' do
-      test_hash = classification_relation_hash.except(:type_name)
-      assert !subject.validate_property.call(test_hash).success?
-    end
+    # TODO: add type_name validation after polymorphic relation tables
+    # (see models/data_cycle_core/master_data/import_templates.rb)
+    # it 'checks classification_relation for presence of type_name' do
+    #   test_hash = classification_relation_hash.except(:type_name)
+    #   assert !subject.validate_property.call(test_hash).success?
+    # end
 
     it 'checks classification_relation works without default_value' do
       test_hash = classification_relation_hash.except(:default_value)
       assert subject.validate_property.call(test_hash).success?
     end
 
-    it 'checks classification_relation error for wrong default_value' do
-      test_hash = classification_relation_hash
-      test_hash[:default_value] = 'wrong name'
-      assert !subject.validate_property.call(test_hash).success?
-    end
+    # default_value not checked at the moment
+    # it 'checks classification_relation error for wrong default_value' do
+    #   test_hash = classification_relation_hash
+    #   test_hash[:default_value] = 'wrong name'
+    #   assert !subject.validate_property.call(test_hash).success?
+    # end
 
     it 'checks correct embedded_object_hash' do
       test_hash = embedded_object_hash
@@ -527,12 +514,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
     it 'checks embedded_object for correct storage_location' do
       test_hash = embedded_object_hash
       test_hash[:storage_location] = 'content'
-      assert !subject.validate_property.call(test_hash).success?
-    end
-
-    it 'checks embedded_object for correct description' do
-      test_hash = embedded_object_hash
-      test_hash[:description] = 'creative_works'
       assert !subject.validate_property.call(test_hash).success?
     end
 

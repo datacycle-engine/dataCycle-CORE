@@ -1,7 +1,6 @@
 ---
 - :data:
     :name: Veranstaltung
-    :description: CreativeWork
     :type: object
     :content_type: variant
     :releasable: true
@@ -107,7 +106,6 @@
         :type: object
         :storage_location: places
         :name: contentLocation
-        :description: Place
         :delete: false
         :validations:
           :max: 1
@@ -123,7 +121,6 @@
         :storage_location: events
         :delete: true
         :name: Event
-        :description: Event
         :editor:
           :type: embeddedObject
           :sorting: 7

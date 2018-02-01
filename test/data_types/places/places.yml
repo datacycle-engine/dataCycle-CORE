@@ -1,7 +1,6 @@
 ---
 - :data:
     :name: contentLocation
-    :description: Place
     :type: object
     :properties:
       :id:

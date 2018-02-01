@@ -1,6 +1,7 @@
 $('<%= params[:overlay_id] %> .items .no-results').remove();
 
-$('<%= params[:overlay_id] %>').find('.items .loading').before('<%= j render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: {object: @content, options: params[:options], objects: params[:objects]}) if !@content.nil? && @content.metadata.dig('validation', 'description') == params[:type].camelize %>');
+//$('<%= params[:overlay_id] %>').find('.items .loading').before('<%= j render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: {object: @content, options: params[:options], objects: params[:objects]}) if !@content.nil? && @content.metadata.dig('validation', 'description') == params[:type].camelize %>');
+$('<%= params[:overlay_id] %>').find('.items .loading').before('<%= j render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: {object: @content, options: params[:options], objects: params[:objects]}) if !@content.nil? %>');
 
 $('<%= params[:overlay_id] %>').find('.item-info').html('<%= escape_javascript(render_object_browser_partial(partial: 'detail', key: params[:key], definition: params[:definition], parameters: {object: @content, options: params[:options]})) %>');
 

@@ -27,8 +27,8 @@ module DataCycleCore
 
     def create
       I18n.with_locale(params[:locale] || I18n.locale) do
-        object_params = event_params('events', params[:template], 'Event')
-        @event = DataCycleCore::DataHashService.create_internal_object('events', params[:template], 'Event', object_params, current_user)
+        object_params = event_params('events', params[:template])
+        @event = DataCycleCore::DataHashService.create_internal_object('events', params[:template], object_params, current_user)
 
         if @event.nil?
           redirect_back(fallback_location: root_path)
@@ -38,7 +38,7 @@ module DataCycleCore
         respond_to do |format|
           # validate ?
           if !@event.nil? && @event.save
-            flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Event', locale: DataCycleCore.ui_language
+            flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @event.template_name, locale: DataCycleCore.ui_language
             format.html { redirect_to @event }
             format.json { render json: @event }
           else
@@ -66,8 +66,8 @@ module DataCycleCore
     def update
       @event = DataCycleCore::Event.find(params[:id])
       I18n.with_locale(@event.first_available_locale(params[:locale])) do
-        object_params = event_params('events', @event.metadata['validation']['name'], @event.metadata['validation']['description'])
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @event.metadata['validation'], false)
+        object_params = event_params('events', @event.template_name)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @event.schema, false)
 
         valid = @event.set_data_hash(data_hash: datahash, current_user: current_user)
 
@@ -78,7 +78,7 @@ module DataCycleCore
         end
 
         if @event.save
-          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Event', locale: DataCycleCore.ui_language
+          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @event.template_name, locale: DataCycleCore.ui_language
 
           if Rails.env.development?
             redirect_back(fallback_location: root_path)
@@ -104,9 +104,9 @@ module DataCycleCore
 
     def validate_single_data
       @event = DataCycleCore::Event.find(params[:id])
-      object_params = event_params('events', @event.metadata['validation']['name'], @event.metadata['validation']['description'])
+      object_params = event_params('events', @event.template_name)
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @event.metadata['validation'])
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @event.schema)
       valid = @event.validate(datahash)
 
       render json: valid.to_json
@@ -118,7 +118,7 @@ module DataCycleCore
     end
 
     def event_params(storage_location, template_name, template_description)
-      datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
+      datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name)
       params.require(:event).permit(datahash: datahash)
     end
   end

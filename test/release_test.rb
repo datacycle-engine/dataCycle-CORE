@@ -3,10 +3,10 @@ require 'test_helper'
 module DataCycleCore
   class ReleaseTest < ActiveSupport::TestCase
     test 'save CreativeWork data-type ReleaseTest' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'ReleaseTest', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'ReleaseTest')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test!',
@@ -19,10 +19,10 @@ module DataCycleCore
     end
 
     test 'save CreativeWork data-type ReleaseTest with status' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'ReleaseTest', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'ReleaseTest')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
 
       release_id = DataCycleCore::Release.find_by(release_code: 10).id
@@ -44,22 +44,24 @@ module DataCycleCore
     end
 
     test 'save releasable embeddedObjects (Artikel/Zitat)' do
-      template = DataCycleCore::CreativeWork.find_by(template: true, headline: 'Artikel', description: 'CreativeWork')
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Artikel')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
 
-      template_bild = DataCycleCore::CreativeWork.find_by(template: true, headline: 'Bild', description: 'ImageObject')
+      template_bild = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Bild')
 
       bild1 = DataCycleCore::CreativeWork.new
-      bild1.metadata = { 'validation' => template_bild.metadata['validation'] }
+      bild1.schema = template_bild.schema
+      bild1.template_name = template_bild.template_name
       bild1.save
       bild1.set_data_hash(data_hash: { 'headline' => 'Testbild1' })
       bild1.save
 
       bild2 = DataCycleCore::CreativeWork.new
-      bild2.metadata = { 'validation' => template_bild.metadata['validation'] }
+      bild2.schema = template_bild.schema
+      bild2.template_name = template_bild.template_name
       bild2.save
       bild2.set_data_hash(data_hash: { 'headline' => 'Testbild2' })
       bild2.save

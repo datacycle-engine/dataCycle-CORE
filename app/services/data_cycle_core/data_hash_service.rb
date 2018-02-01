@@ -31,32 +31,31 @@ module DataCycleCore
       internal_objects
     end
 
-    def self.get_internal_template(storage_location, name, description)
+    def self.get_internal_template(storage_location, name)
       internal_template = ('DataCycleCore::' + storage_location.classify).constantize
-        .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name, description)
+        .find_by(template: true, template_name: name)
 
       return nil if internal_template.blank?
 
       internal_template
     end
 
-    def self.get_object_params(storage_location, template_name, template_description)
-      template = get_internal_template(storage_location, template_name, template_description)
-      datahash = get_params_from_hash(template.metadata['validation'])
+    def self.get_object_params(storage_location, template_name)
+      template = get_internal_template(storage_location, template_name)
+      datahash = get_params_from_hash(template.schema)
       datahash
     end
 
-    def self.create_internal_object(storage_location, template_name, template_description, object_params, current_user)
+    def self.create_internal_object(storage_location, template_name, object_params, current_user)
       object = ('DataCycleCore::' + storage_location.classify).constantize.new(object_params)
 
-      template = get_internal_template(storage_location, template_name, template_description)
-      validation = template.metadata['validation']
-
-      object.metadata = { 'validation' => validation }
+      template = get_internal_template(storage_location, template_name)
+      object.schema = template.schema
+      object.template_name = template.template_name
       object.save
 
       if !object_params[:datahash].nil?
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], object.metadata['validation'])
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], object.schema)
         datahash['creator'] = current_user[:id]
         datahash['headline_external'] = datahash['headline']
       else
@@ -86,8 +85,8 @@ module DataCycleCore
           key = 'value' if value['releasable']
 
           if value['type'] == 'object' && !value.dig('editor', 'type').nil?
-            object_properties = get_internal_template(value['storage_location'], value['name'], value['description'])
-            key = { key.to_sym => get_params_from_hash(object_properties.metadata['validation']) }
+            object_properties = get_internal_template(value['storage_location'], value['name'])
+            key = { key.to_sym => get_params_from_hash(object_properties.schema) }
           elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
             key = { key.to_sym => get_params_from_hash(value) }
           elsif value['type'] == 'classificationTreeLabel' || value['type'] == 'embeddedLinkArray'
@@ -113,11 +112,11 @@ module DataCycleCore
           if value.is_a?(::Hash)
 
             if properties['type'] == 'object' && !properties.dig('editor', 'type').nil? && properties.dig('editor', 'type') == 'embeddedObject'
-              object_properties = get_internal_template(properties['storage_location'], properties['name'], properties['description'])
+              object_properties = get_internal_template(properties['storage_location'], properties['name'])
               temp_value = []
 
               value.each_value do |object_value|
-                temp_value.push(flatten_recursive(object_value, object_properties.metadata['validation']))
+                temp_value.push(flatten_recursive(object_value, object_properties.schema))
               end
 
               value = temp_value

@@ -19,7 +19,22 @@ module DataCycleCore
     end
 
     def get_allowed_content_types
-      allowed_content_types = { 'Angebot' => 'Angebot', 'App' => 'App', 'Artikel' => 'Artikel', 'Biografie' => 'Biografie', 'Interview' => 'Interview', 'Linktipps' => 'Linktipps', 'Portrait' => 'Portrait', 'Quiz' => 'Quiz', 'Rezept' => 'Rezept', 'Social Media Posting' => 'SocialMediaPosting', 'Veranstaltung' => 'Veranstaltung', 'Voting' => 'Voting', 'Zeitleiste' => 'Zeitleiste' }
+      allowed_content_types =
+        {
+          'Angebot' => 'Angebot',
+          'App' => 'App',
+          'Artikel' => 'Artikel',
+          'Biografie' => 'Biografie',
+          'Interview' => 'Interview',
+          'Linktipps' => 'Linktipps',
+          'Portrait' => 'Portrait',
+          'Quiz' => 'Quiz',
+          'Rezept' => 'Rezept',
+          'Social Media Posting' => 'SocialMediaPosting',
+          'Veranstaltung' => 'Veranstaltung',
+          'Voting' => 'Voting',
+          'Zeitleiste' => 'Zeitleiste'
+        }
     end
 
     def get_ordered_validation_properties(validation)
@@ -94,7 +109,7 @@ module DataCycleCore
 
     def render_embeddedObject_field(key, prop, value = nil, options = {}, parent_object_keys = [])
       if !prop.blank? && !prop['editor']['type'].nil?
-        internal_template = DataCycleCore::DataHashService.get_internal_template(prop['storage_location'], prop['name'], prop['description'])
+        internal_template = DataCycleCore::DataHashService.get_internal_template(prop['storage_location'], prop['name'])
         internal_objects = DataCycleCore::DataHashService.get_internal_data(prop['storage_location'], value)
         render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: { key: key, prop: prop, value: value, options: options, internal_objects: internal_objects, internal_template: internal_template, parent_object_keys: parent_object_keys }
       end

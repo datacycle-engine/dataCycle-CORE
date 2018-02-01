@@ -1,11 +1,11 @@
 module DataCycleCore
   module ContentHelpers
     def content_type
-      metadata['validation']['name']
+      template_name
     end
 
     def read_write?
-      metadata['validation']['permissions']['read_write']
+      schema['permissions']['read_write']
     end
 
     def title
@@ -37,7 +37,7 @@ module DataCycleCore
     end
 
     def classification_tree_definitions
-      metadata['validation']['properties'].select { |_, definition|
+      schema['properties'].select { |_, definition|
         definition['type'] == 'classificationTreeLabel' && definition['editor']
       }.map { |key, definition|
         { key: key }.merge(definition)
