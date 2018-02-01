@@ -51,7 +51,6 @@ module DataCycleCore
         end
 
         classification.name = classification_data[:name]
-        classification.save!
 
         if classification.new_record?
           classification_alias = DataCycleCore::ClassificationAlias.create!(external_source_id: external_source.id,
@@ -69,8 +68,6 @@ module DataCycleCore
                                                                             parent_classification_alias: parent_classification_alias,
                                                                             sub_classification_alias: classification_alias
                                                                           })
-
-          classification_alias
         else
           primary_classification_alias = classification.primary_classification_alias
           primary_classification_alias.name = classification_data[:name]
@@ -80,8 +77,10 @@ module DataCycleCore
           classification_tree.parent_classification_alias = parent_classification_alias
           classification_tree.save!
 
-          primary_classification_alias
+          classification_alias = primary_classification_alias
         end
+        classification.save!
+        classification_alias
       end
 
       def import_contents(source_type, target_type, load_contents, process_content, **options)
