@@ -41,6 +41,7 @@ Naming/MethodName:
     - 'app/helpers/data_cycle_core/data_hash_helper.rb'
     - 'app/helpers/data_cycle_core/history_helper.rb'
     - 'app/models/data_cycle_core/master_data/validators/string.rb'
+    - 'app/helpers/data_cycle_core/conversions.rb'
 
 # Offense count: 11
 Naming/PredicateName:
