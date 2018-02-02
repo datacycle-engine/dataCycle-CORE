@@ -14,7 +14,7 @@
             <%= render 'split_sources', contents: content.siblings, selected: @splitSource, url: '', title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
           </li>
         <% end %>
-        <% if DataCycleCore.translatable_types.include?(content.class.name) || DataCycleCore.translatable_types.include?(content.content_type) %>
+        <% if DataCycleCore.translatable_types.include?(content.class.name) || DataCycleCore.translatable_types.include?(content.template_name) %>
           <%= render 'edit_locale_links', local_assigns.merge({ locales: available_locales_with_names }) %>
         <% end %>
 
