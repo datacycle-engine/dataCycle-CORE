@@ -3,6 +3,10 @@ module DataCycleCore
     def index
       query = Event.with_classification_alias_names(DataCycleCore.allowed_content_api_classifications)
 
+      if params&.dig(:q)
+        query = query.search(params&.dig(:q), params.fetch(:language, DataCycleCore.ui_language))
+      end
+
       if params&.dig(:filter, :from)
         query = query.from_time(DateTime(params&.dig(:filter, :from)))
       else
@@ -21,7 +25,7 @@ module DataCycleCore
         end
       end
 
-      query = query.with_translations(params.fetch(:language, 'de'))
+      query = query.with_translations(params.fetch(:language, DataCycleCore.ui_language))
 
       @total = query.count
 
@@ -37,7 +41,7 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      super + [{ filter: [:from, :to, { classifications: [] }] }]
+      super + [:q, { filter: [:from, :to, { classifications: [] }] }]
     end
   end
 end

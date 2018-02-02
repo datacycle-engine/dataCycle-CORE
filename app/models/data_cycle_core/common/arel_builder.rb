@@ -5,10 +5,22 @@ module DataCycleCore::Common::ArelBuilder
       [Arel::Nodes::NamedFunction.new(
         'DATE_PART',
         [
-          Arel::Nodes.build_quoted(precision),
+          quoted(precision),
           Arel::Nodes::Subtraction.new(field1, field2)
         ]
       )]
     )
+  end
+
+  def quoted(string)
+    Arel::Nodes.build_quoted(string)
+  end
+
+  def tsmatch(tsvector, tsquery)
+    Arel::Nodes::InfixOperation.new('@@', tsvector, tsquery)
+  end
+
+  def tsquery(string)
+    Arel::Nodes::NamedFunction.new('plainto_tsquery', [quoted('simple'), string])
   end
 end
