@@ -1,0 +1,18 @@
+$('.add-watchlist').each(function () {
+  var content = {
+    hashable_type: $(this).parent('.watch-lists').data('content-type'),
+    hashable_id: $(this).parent('.watch-lists').data('content-id')
+  }
+  $(this).siblings('.list-items').append('<li><%= escape_javascript(render 'data_cycle_core/application/watch_lists/add_link', content: nil, watchlist: @watch_list) %></li>');
+
+  var item = $(this).siblings('.list-items').find('> li > .watch-list-item').last();
+  item.prop('id', 'content-' + content.hashable_id + '-watch-list-' + '<%= @watch_list.id %>');
+
+  item.find('a.add-to-watchlist-link').prop('href', function(i, val){
+    return val + '?' + $.param(content);
+  });
+  $(this).find('input[type="text"]').val('');
+});
+
+$('.add-watchlist-to-menu input[type="text"]').val('');
+$('.add-watchlist-to-menu').siblings('.list-items').append('<li><%= escape_javascript(render 'data_cycle_core/application/watch_lists/read_link', watchlist: @watch_list) %></li>');

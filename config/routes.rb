@@ -31,6 +31,7 @@ DataCycleCore::Engine.routes.draw do
 
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :events, only: [:index, :show, :create, :edit, :update, :destroy]
+  resources :stored_filters, only: [:create, :destroy]
 
   scope('files') do
     resources :assets, only: [:index, :show, :new, :create, :destroy] do
@@ -44,8 +45,8 @@ DataCycleCore::Engine.routes.draw do
   end
 
   resources :watch_lists do
-    get :removeItem, on: :member
-    get :addItem, on: :member
+    delete :remove_item, on: :member
+    get :add_item, on: :member
   end
 
   resources :classifications, only: [:index, :create] do

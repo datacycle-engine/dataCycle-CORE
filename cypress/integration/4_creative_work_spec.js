@@ -59,6 +59,7 @@ describe('CreativeWork', function () {
       cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
 
       cy.get('.delete-content-link').click()
+      cy.get('.confirmation-modal').should('be.visible').find('.confirmation-confirm').click()
       cy.location('pathname').should('eq', '/')
 
       cy.visit('/?search=' + updated_name).get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 0)
@@ -123,6 +124,7 @@ describe('CreativeWork', function () {
       cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
 
       cy.get('.delete-content-link').click()
+      cy.get('.confirmation-modal').should('be.visible').find('.confirmation-confirm').click()
       cy.location('pathname').should('eq', '/')
 
       cy.visit('/?search=' + updated_name).get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 0)
@@ -185,6 +187,7 @@ describe('CreativeWork', function () {
       cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
 
       cy.get('.delete-content-link').click()
+      cy.get('.confirmation-modal').should('be.visible').find('.confirmation-confirm').click()
       cy.location('pathname').should('eq', '/')
 
       cy.visit('/?search=' + updated_name).get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 0)

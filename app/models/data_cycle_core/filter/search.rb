@@ -10,7 +10,7 @@ module DataCycleCore
         reflect(
           @query.where(
             search[:all_text].matches_all(name.split(' ').map { |item| "%#{item.strip}%" })
-              .or(tsmatch(search[:words], to_tsquery(quoted(name.squish))))
+              .or(tsmatch(search[:words], tsquery(quoted(name.squish))))
           )
         )
       end

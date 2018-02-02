@@ -4,6 +4,7 @@ module DataCycleCore
     include ActionView::Rendering
     include CanCan::ControllerAdditions
     # include ActiveSupport::Rescuable
+    include DataCycleCore::Conversions
 
     # rescue_from CanCan::AccessDenied, with: :access_denied
     # rescue_from ActiveRecord::RecordNotFound, with: :not_found

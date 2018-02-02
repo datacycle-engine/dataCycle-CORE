@@ -66,7 +66,7 @@ describe('DataLink', function () {
   //     cy.get('.headline input[type=text]').should('be.visible').should('have.value', updated_name).clear().type(cname)
   //     cy.get('input#finalize').should('be.visible').check()
   //     cy.get('.submit-edit-form').click()
-  //     cy.get('.confirmation').should('be.visible').find('.ok').click()
+  //     cy.get('.confirmation-modal').should('be.visible').find('.confirmation-confirm').click()
   //     cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
   //
   //     cy.get('.edit-content-link').should('have.length', 0)

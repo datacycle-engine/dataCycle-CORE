@@ -1,5 +1,3 @@
-var ConfirmationHelper = require('./../helpers/confirmation_helper');
-
 // Asset Module
 var Asset = function (selector) {
   this.element = selector;
@@ -27,7 +25,7 @@ Asset.prototype.addEventHandlers = function () {
 
 Asset.prototype.createAsset = function () {
   file = this.element.children('#' + this.id + '_file').get(0).files[0];
-  if (file != undefined){
+  if (file != undefined) {
     this.element.children('#add_' + this.id).prop('disabled', true).find('.fa').css('display', 'inline-block');
     var formData = new FormData();
     formData.append("asset[file]", file);
@@ -39,8 +37,8 @@ Asset.prototype.createAsset = function () {
       url: this.url + '/new_asset_object',
       method: 'POST',
       data: formData,
-      processData: false,  // tell jQuery not to process the data
-      contentType: false   // tell jQuery not to set contentType
+      processData: false, // tell jQuery not to process the data
+      contentType: false // tell jQuery not to set contentType
     }).done(function (data) {
       this.update(true);
       this.addEventHandlers();
@@ -59,8 +57,8 @@ Asset.prototype.removeAsset = function () {
     url: this.url + '/' + item_id + '/remove_asset_object',
     method: 'DELETE',
     data: formData,
-    processData: false,  // tell jQuery not to process the data
-    contentType: false   // tell jQuery not to set contentType
+    processData: false, // tell jQuery not to process the data
+    contentType: false // tell jQuery not to set contentType
   }).done(function (data) {
     this.update(false);
     this.addEventHandlers();
@@ -69,12 +67,12 @@ Asset.prototype.removeAsset = function () {
 
 Asset.prototype.update = function (asset_exists = false) {
 
-  if (asset_exists && this.write){
-      this.element.children('#add_' + this.id).hide();
-      this.element.children('.asset-object').children('.removeAsset').show();
+  if (asset_exists && this.write) {
+    this.element.children('#add_' + this.id).hide();
+    this.element.children('.asset-object').children('.removeAsset').show();
   } else if (this.write) {
-      this.element.children('#add_' + this.id).show();
-      this.element.children('.asset-object').children('.removeAsset').hide();
+    this.element.children('#add_' + this.id).show();
+    this.element.children('.asset-object').children('.removeAsset').hide();
   }
 
 };

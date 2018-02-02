@@ -1,4 +1,4 @@
-var ConfirmationHelper = require('./../helpers/confirmation_helper');
+var ConfirmationModal = require('./../components/confirmation_modal');
 
 // Split View Inhalte kopieren
 module.exports.initialize = function () {
@@ -67,7 +67,7 @@ module.exports.initialize = function () {
       value: values
     });
 
-    target_container.find('.quill-editor').trigger('import-data', {
+    target_container.find('> .editor-block > .quill-editor').trigger('import-data', {
       label: label,
       value: values
     });
@@ -83,7 +83,7 @@ module.exports.initialize = function () {
     if ($(this).find('input[type=text]').val().length === 0) {
       $(this).find('input[type=text]').val(data.value).trigger('input');
     } else {
-      ConfirmationHelper.showConfirmation($(this), event, data.label + ' wird überschrieben. <br>Fortfahren?', true, '', function () {
+      var confirmationModal = new ConfirmationModal(data.label + ' wird überschrieben. <br>Fortfahren?', 'success', true, function () {
         $(this).find('input[type=text]').val(data.value).trigger('input');
       }.bind(this));
     }

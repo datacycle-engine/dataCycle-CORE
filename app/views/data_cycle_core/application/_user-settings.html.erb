@@ -66,17 +66,20 @@
             </div>
 
             <div class="row columns">
-              <ul class="list-items no-bullet">
-                <% @accessible_stored_filters.where.not(name: nil).order(:name).each do |stored_filter| %>
-                    <li>
-                        <span class="watch-list-item">
-                            <span class="watchlist-headline">
-                              <%= link_to root_path(stored_filter: stored_filter.id), class: 'watchlist-link' do %>
-                                <i class="fa fa-filter" aria-hidden="true"></i>
-                                <%= stored_filter.name || "vor #{time_ago_in_words stored_filter.created_at}" %>
-                              <% end %>
-                            </span>
+              <ul class="list-items no-bullet named-stored-filters">
+                <% @accessible_stored_filters.where.not(name: nil).order(:system, updated_at: :desc).each do |stored_filter| %>
+                    <li class="<%= 'system-filter' if stored_filter.system %>">
+                      <%= link_to root_path(stored_filter: stored_filter.id), class: 'stored-filter-link' do %>
+                        <i class="fa fa-filter" aria-hidden="true"></i>
+                        <%= stored_filter.name || "vor #{time_ago_in_words stored_filter.created_at}" %>
+                      <% end %>
+                      <% if can?(:destroy, stored_filter) %>
+                        <span class="buttons">
+                          <%= link_to stored_filter_path(stored_filter), method: :delete, data: { confirm: "Filter #{t('actions.delete', locale: DataCycleCore.ui_language)}?" } do %>
+                            <i class="fa fa-trash-o alert" aria-hidden="true"></i>
+                          <% end %>
                         </span>
+                      <% end %>
                     </li>
                 <% end %>
               </ul>
