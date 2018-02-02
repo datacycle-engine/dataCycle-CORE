@@ -19,7 +19,5 @@ if options[:header_type] == :full
 
   json.set! 'url', send("#{content.class.class_name.tableize.singularize}_url", content)
 
-  json.set! 'classifications' do
-    json.array! content.classifications, partial: 'classification', as: :classification
-  end
+  json.partial! 'classifications', classification_aliases: content.classifications.includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
 end
