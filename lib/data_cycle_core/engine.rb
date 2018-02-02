@@ -114,6 +114,9 @@ module DataCycleCore
     mattr_accessor :notification_frequencies
     self.notification_frequencies = ['always', 'day', 'week']
 
+    mattr_accessor :autoload_last_filter
+    self.autoload_last_filter = false
+
     # webhooks
     mattr_accessor :webhooks
     self.webhooks = {

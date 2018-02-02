@@ -5,7 +5,7 @@ module DataCycleCore
     authorize_resource class: false # from cancancan (authorize)
 
     def index
-      if params[:stored_filter].blank? && !params[:utf8] && current_user.stored_filters.size.positive?
+      if DataCycleCore.autoload_last_filter && params[:stored_filter].blank? && !params[:utf8] && current_user.stored_filters.size.positive?
         filter_id = current_user.stored_filters.order(created_at: :desc)&.first&.id
         @contents = apply_filter(filter_id: filter_id)
       elsif params[:stored_filter].blank?

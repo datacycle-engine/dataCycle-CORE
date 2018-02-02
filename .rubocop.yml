@@ -99,6 +99,11 @@ Metrics/PerceivedComplexity:
 Naming/HeredocDelimiterNaming:
   Enabled: false
 
+Naming/MethodName:
+  Exclude:
+    - 'app/helpers/data_cycle_core/conversions.rb'
+
+
 #######################################################
 ########## Security
 
@@ -112,4 +117,3 @@ Security/YAMLLoad:
 
 Rails/CreateTableWithTimestamps:
   Enabled: false
-

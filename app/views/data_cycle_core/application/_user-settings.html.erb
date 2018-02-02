@@ -67,7 +67,7 @@
 
             <div class="row columns">
               <ul class="list-items no-bullet named-stored-filters">
-                <% @accessible_stored_filters.where.not(name: nil).order(:system, :name).each do |stored_filter| %>
+                <% @accessible_stored_filters.where.not(name: nil).order(:system, updated_at: :desc).each do |stored_filter| %>
                     <li class="<%= 'system-filter' if stored_filter.system %>">
                       <%= link_to root_path(stored_filter: stored_filter.id), class: 'stored-filter-link' do %>
                         <i class="fa fa-filter" aria-hidden="true"></i>
