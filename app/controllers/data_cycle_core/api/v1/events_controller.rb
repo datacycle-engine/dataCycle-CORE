@@ -4,13 +4,13 @@ module DataCycleCore
       query = Event.with_classification_alias_names(DataCycleCore.allowed_content_api_classifications)
 
       if params&.dig(:filter, :from)
-        query = query.where(Event.arel_table[:end_date].gteq(DateTime.parse(params&.dig(:filter, :from))))
+        query = query.from_time(DateTime(params&.dig(:filter, :from)))
       else
-        query = query.where(Event.arel_table[:end_date].gteq(Time.zone.now))
+        query = query.from_time(Time.zone.now)
       end
 
       if params&.dig(:filter, :to)
-        query = query.where(Event.arel_table[:start_date].lteq(DateTime.parse(params&.dig(:filter, :to))))
+        query = query.to_time(DateTime(params&.dig(:filter, :to)))
       end
 
       if params&.dig(:filter, :classifications)
