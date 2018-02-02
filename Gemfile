@@ -1,7 +1,5 @@
 source 'https://rubygems.org'
 
-ruby '~> 2.4.1'
-
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?('/')
   "https://github.com/#{repo_name}.git"
@@ -26,7 +24,7 @@ gem 'byebug', group: [:development, :test]
 # gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 group :development, :test do
-  gem 'pry'
+  gem 'dotenv-rails'
 
   gem 'capistrano-rails'
   gem 'capistrano-rvm'
