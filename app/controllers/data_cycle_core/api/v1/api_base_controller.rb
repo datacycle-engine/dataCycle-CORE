@@ -3,11 +3,13 @@ module DataCycleCore
     include ActionController::Caching
     include ActionView::Rendering
     include CanCan::ControllerAdditions
-    # include ActiveSupport::Rescuable
     include DataCycleCore::Conversions
 
-    # rescue_from CanCan::AccessDenied, with: :access_denied
-    # rescue_from ActiveRecord::RecordNotFound, with: :not_found
+    unless Rails.env.development?
+      include ActiveSupport::Rescuable
+      rescue_from CanCan::AccessDenied, with: :access_denied
+      rescue_from ActiveRecord::RecordNotFound, with: :not_found
+    end
 
     DEFAULT_PAGE_SIZE = 25
 
