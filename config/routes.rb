@@ -74,8 +74,6 @@ DataCycleCore::Engine.routes.draw do
   defaults format: :json do
     namespace :api do
       namespace :v1 do
-        resources :classification, only: [:index]
-
         resources :classification_trees, only: [:index, :show] do
           get :classifications, on: :member
         end
@@ -90,6 +88,7 @@ DataCycleCore::Engine.routes.draw do
         resources :events, only: [:index, :show]
         get 'contents/search', to: 'contents#search'
         get 'contents/get_deleted', to: 'contents#get_deleted'
+
         resources :external_sources, only: [] do
           post ':external_source_id/:type/:external_key', to: 'external_sources#create', on: :collection
           patch ':external_source_id/:type/:external_key', to: 'external_sources#update', on: :collection

@@ -1,7 +1,5 @@
 module DataCycleCore
   class Api::V1::ContentsController < Api::V1::ApiBaseController
-    @@default_per = 50
-
     def show
       object_type = DataCycleCore.content_tables.find { |object| object == params[:type] }
 
@@ -62,27 +60,11 @@ module DataCycleCore
         )
       end
 
-      @per = params[:per] unless params[:per].blank?
-      @per ||= @@default_per
-
-      @total = deleted_contents.count
-      pages = @total.fdiv(@per.to_i).ceil
-
-      unless params[:page].blank?
-        @page = params[:page]
-        @page = pages if params[:page].to_i > pages
-      end
-      @page ||= 1
-
-      @contents = deleted_contents.page(@page).per(@per)
-    end
-
-    def params
-      super.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
+      @contents = apply_paging(deleted_contents)
     end
 
     def permitted_parameter_keys
-      [:id, :format, :type, :page, :per, :language, :search, :token, :modified_since, :created_since, :deleted_since]
+      super + [:id, :format, :type, :language, :search, :modified_since, :created_since, :deleted_since]
     end
 
     private
@@ -104,12 +86,6 @@ module DataCycleCore
       else
         query.order(DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(params[:search]))
       end
-    end
-
-    def apply_paging(query)
-      query
-        .page([params.fetch(:page, 1).to_i, (query.count / params.fetch(:per, @@default_per).to_i).ceil].min)
-        .per(params.fetch(:per, @@default_per).to_i)
     end
   end
 end

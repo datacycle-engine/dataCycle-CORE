@@ -1,7 +1,8 @@
 module DataCycleCore
   class Api::V1::EventsController < DataCycleCore::Api::V1::ContentsController
     def index
-      query = Event.with_classification_alias_names(DataCycleCore.allowed_content_api_classifications)
+      query = Event.includes(:translations, :classifications)
+        .with_classification_alias_names(DataCycleCore.allowed_content_api_classifications)
 
       if params&.dig(:q)
         query = query.search(params&.dig(:q), params.fetch(:language, DataCycleCore.ui_language))
@@ -27,13 +28,7 @@ module DataCycleCore
 
       query = query.with_translations(params.fetch(:language, DataCycleCore.ui_language))
 
-      @total = query.count
-
-      query = query.includes(:translations, :classifications).sort_by_proximity
-
-      @contents = apply_paging(query)
-
-      render 'search'
+      @contents = apply_paging(query).sort_by_proximity
     end
 
     def show
