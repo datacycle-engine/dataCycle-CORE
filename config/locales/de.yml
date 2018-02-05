@@ -275,6 +275,7 @@ de:
         valid_until: bis
       data_cycle_core/stored_filter:
         system: Globaler Filter
+        api: Über API abrufbar
   unauthorized:
     manage:
       all: "Keine Zugriffsberechtigung!"

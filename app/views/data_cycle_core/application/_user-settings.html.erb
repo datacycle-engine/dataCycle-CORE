@@ -73,13 +73,13 @@
                         <i class="fa fa-filter" aria-hidden="true"></i>
                         <%= stored_filter.name || "vor #{time_ago_in_words stored_filter.created_at}" %>
                       <% end %>
-                      <% if can?(:destroy, stored_filter) %>
-                        <span class="buttons">
+                      <span class="buttons">
+                        <% if can?(:destroy, stored_filter) %>
                           <%= link_to stored_filter_path(stored_filter), method: :delete, data: { confirm: "Filter #{t('actions.delete', locale: DataCycleCore.ui_language)}?" } do %>
                             <i class="fa fa-trash-o alert" aria-hidden="true"></i>
                           <% end %>
-                        </span>
-                      <% end %>
+                        <% end %>
+                      </span>
                     </li>
                 <% end %>
               </ul>

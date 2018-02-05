@@ -74,6 +74,8 @@ DataCycleCore::Engine.routes.draw do
   defaults format: :json do
     namespace :api do
       namespace :v1 do
+        resources :stored_filters, only: [:show], path: :endpoints
+
         resources :classification_trees, only: [:index, :show] do
           get :classifications, on: :member
         end
