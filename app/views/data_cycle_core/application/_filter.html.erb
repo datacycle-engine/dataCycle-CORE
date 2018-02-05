@@ -69,6 +69,7 @@
         <div class=" filterbuttons">
 
             <button type="reset" id="reset-filter" class="button"><%= t('actions.reset', count: 2, locale: DataCycleCore.ui_language) %></button>
+            <%= button_tag(t('actions.save_filter', locale: DataCycleCore.ui_language), class: 'button', type: 'button', id: 'save-filter', data: { open: 'save-filter-with-name' }) if can?(:create, DataCycleCore::StoredFilter) %>
             <%= button_tag(t('actions.filter', locale: DataCycleCore.ui_language), class: "button success") %>
 
         </div>
@@ -76,6 +77,8 @@
     </div>
   </div>
 </section>
+<% end %>
 
-
+<% if can?(:create, DataCycleCore::StoredFilter) %>
+  <%= render 'data_cycle_core/application/filters/new_stored_filter', local_assigns %>
 <% end %>

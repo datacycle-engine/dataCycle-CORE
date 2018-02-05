@@ -260,7 +260,7 @@ button,
       display: block;
       text-indent: -9999px;
     }
-    .delete {
+    .delete-content-link {
       background-color: map-get($foundation-palette, alert);
     }
   }
@@ -299,6 +299,7 @@ button,
   .ql-editor,
   .daterange,
   .embedded_object,
+  .detail_object,
   .readonly-select {
     border: 1px solid $light-gray;
     background: $light-gray;

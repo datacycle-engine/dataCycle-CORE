@@ -1,6 +1,115 @@
-inherit_from:
-  - ~/.rubocop.yml
+# author: rainer@pixelpoint.at
+inherit_from: .rubocop_todo.yml
 
 AllCops:
-  TargetRubyVersion: 2.4.1
+  TargetRubyVersion: 2.4.3
   TargetRailsVersion: 5.0
+  DisplayCopNames: true
+  Exclude:
+    - 'node_modules/**/*'
+    - 'tmp/**/*'
+    - 'cache/**/*'
+
+Rails:
+  Enabled: true
+
+#######################################################
+########## Layout
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+#######################################################
+########## Style
+Style/BlockDelimiters:
+  EnforcedStyle: braces_for_chaining
+
+Style/BracesAroundHashParameters:
+  Enabled: false
+
+Style/ConditionalAssignment:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/EmptyMethod:
+  EnforcedStyle: expanded
+
+Style/MixinUsage:
+  Exclude:
+    - 'bin/setup'
+    - 'bin/update'
+    - 'test/dummy/bin/setup'
+    - 'test/dummy/bin/update'
+
+Style/MultilineBlockChain:
+  Enabled: false
+
+Style/NestedTernaryOperator:
+  Enabled: false
+
+Style/NumericLiteralPrefix:
+  Exclude:
+    - 'config/initializers/carrierwave.rb'
+
+Style/RedundantReturn:
+  AllowMultipleReturnValues: true
+
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
+Style/WordArray:
+  EnforcedStyle: brackets
+
+#######################################################
+########## Metrics
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/BlockNesting:
+  Max: 5
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/LineLength:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+#######################################################
+########## Naming
+
+Naming/HeredocDelimiterNaming:
+  Enabled: false
+
+
+#######################################################
+########## Security
+
+Security/YAMLLoad:
+  Exclude:
+    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
+    - 'app/models/data_cycle_core/master_data/import_templates.rb'
+
+#######################################################
+########## Rails
+
+Rails/CreateTableWithTimestamps:
+  Enabled: false

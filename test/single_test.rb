@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataCycleCore
   class SingleTest < ActiveSupport::TestCase
-
     # test "faulty test" do
     #
     #   cw_temp = DataCycleCore::CreativeWork.count
@@ -31,6 +30,5 @@ module DataCycleCore
     #   assert_equal(1, DataCycleCore::ContentContent.count)
     #   assert_equal(data_hash, data_set.get_data_hash.except('id'))
     # end
-
   end
 end

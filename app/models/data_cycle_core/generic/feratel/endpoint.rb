@@ -345,8 +345,8 @@ class DataCycleCore::Generic::Feratel::Endpoint
     create_request_xml do |xml|
       xml.BasicData do
         xml.Filters do
-          xml.Events('Start' => (Date.today - 1.years).strftime('%Y-%m-%d'),
-                     'End' => (Date.today + 10.years).strftime('%Y-%m-%d'))
+          xml.Events('Start' => (Time.zone.today - 1.year).strftime('%Y-%m-%d'),
+                     'End' => (Time.zone.today + 10.years).strftime('%Y-%m-%d'))
           xml.Languages do
             Array(lang).each do |l|
               xml.Language('Value' => l.to_s)

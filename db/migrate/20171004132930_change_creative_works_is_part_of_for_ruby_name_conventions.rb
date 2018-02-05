@@ -1,5 +1,4 @@
 class ChangeCreativeWorksIsPartOfForRubyNameConventions < ActiveRecord::Migration[5.0]
-
   def change
     rename_column :creative_works, :isPartOf, :is_part_of
 
@@ -15,5 +14,4 @@ class ChangeCreativeWorksIsPartOfForRubyNameConventions < ActiveRecord::Migratio
     remove_index :creative_works, :is_part_of
     add_index :creative_works, :isPartOf
   end
-
 end

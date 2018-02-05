@@ -1,5 +1,4 @@
 DataCycleCore::Engine.routes.draw do
-
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise
 
   authenticated :user do
@@ -7,8 +6,8 @@ DataCycleCore::Engine.routes.draw do
   end
   root to: redirect('/users/sign_in')
 
-  get  '/info',    to: 'frontend#info'
-  get  '/settings',    to: 'backend#settings'
+  get  '/info', to: 'frontend#info'
+  get  '/settings', to: 'backend#settings'
   resources :users, only: [:index, :edit, :update, :destroy] do
     post :unlock, on: :member
     post :create_user, on: :collection
@@ -25,21 +24,29 @@ DataCycleCore::Engine.routes.draw do
     end
 
     resources :persons, only: [:index, :show, :create, :edit, :update, :destroy]
-    resources :places, only: [:index, :show, :create, :edit, :update, :destroy]
+    resources :places, only: [:index, :show, :create, :edit, :update, :destroy] do
+      get 'gpx', on: :member
+    end
   end
 
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :events, only: [:index, :show, :create, :edit, :update, :destroy]
+  resources :stored_filters, only: [:create, :destroy]
 
+  scope('files') do
+    resources :assets, only: [:index, :show, :new, :create, :destroy] do
+      post 'new_asset_object', on: :collection
+      delete 'remove_asset_object', on: :member
+    end
+  end
 
   resources :data_links do
     post :send_mail, on: :member
   end
 
   resources :watch_lists do
-    get :removeItem, on: :member
-    get :addItem, on: :member
-
+    delete :remove_item, on: :member
+    get :add_item, on: :member
   end
 
   resources :classifications, only: [:index, :create] do
@@ -47,6 +54,7 @@ DataCycleCore::Engine.routes.draw do
     patch :update, on: :collection
     delete :destroy, on: :collection
     get :search, on: :collection
+    get :download, on: :collection
   end
 
   get  '/admin', to: 'dash_board#home'
@@ -56,18 +64,17 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/import_classifications', to: 'dash_board#import_classifications'
   get  '/admin/import_persons', to: 'dash_board#import_persons'
   get  '/admin/classifications', to: 'dash_board#classifications'
-  #mount RailsDb::Engine => '/db', :as => 'db'
+  # mount RailsDb::Engine => '/db', :as => 'db'
 
-  #backend validation endpoints
+  # backend validation endpoints
   match '/validatecreativework(/:id)', to: 'creative_works#validate_single_data', via: [:patch, :post]
   match '/validateperson(/:id)', to: 'persons#validate_single_data', via: [:patch, :post]
   match '/validateplace(/:id)', to: 'places#validate_single_data', via: [:patch, :post]
 
-
   defaults format: :json do
     namespace :api do
       namespace :v1 do
-        resources :classification, only: [:index]
+        resources :stored_filters, only: [:show], path: :endpoints
 
         resources :classification_trees, only: [:index, :show] do
           get :classifications, on: :member
@@ -75,13 +82,15 @@ DataCycleCore::Engine.routes.draw do
 
         resources :collections, only: [:index, :show], controller: :watch_lists
 
-        type_regexp = Regexp.new([:creative_works, :persons, :places].join("|"))
+        type_regexp = Regexp.new([:creative_works, :persons, :places].join('|'))
         resources :contents, path: ':type', constraints: { type: type_regexp }, only: [:show] do
           get :search, on: :collection
           patch :update, on: :member
         end
+        resources :events, only: [:index, :show]
         get 'contents/search', to: 'contents#search'
         get 'contents/get_deleted', to: 'contents#get_deleted'
+
         resources :external_sources, only: [] do
           post ':external_source_id/:type/:external_key', to: 'external_sources#create', on: :collection
           patch ':external_source_id/:type/:external_key', to: 'external_sources#update', on: :collection

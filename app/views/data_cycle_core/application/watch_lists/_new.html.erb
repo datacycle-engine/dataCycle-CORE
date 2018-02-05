@@ -1,10 +1,8 @@
 <% if can? :create, DataCycleCore::WatchList %>
-    <li class="<%= content.nil? ? 'add-watchlist-to-menu' : 'add-watchlist' %>">
+    <div class="<%= content.nil? ? 'add-watchlist-to-menu' : 'add-watchlist' %>">
         <% @new_watch_list ||= DataCycleCore::WatchList.new %>
 
-        <%= form_for @new_watch_list, namespace: content.nil? ? "header-menu" : content.id, html: { class: "add-watchlist-form" } do |f| %>
-            <%= hidden_field_tag 'hashable_id', content.id unless content.nil? %>
-            <%= hidden_field_tag 'hashable_type', content.class.name unless content.nil? %>
+        <%= form_for(@new_watch_list, namespace: content.nil? ? "header-menu" : content.id, html: { class: "add-watchlist-form" }, remote: true) do |f| %>
             <div class="validation-container form-element">
                 <%= f.text_field :headline, class: 'form-control', value:'', placeholder: 'Neue Merkliste', required: true %>
                 <%= button_tag(type: 'submit', class: "button primary") do %>
@@ -13,5 +11,5 @@
             </div>
 
         <% end %>
-    </li>
+    </div>
 <% end %>

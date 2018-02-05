@@ -32,12 +32,12 @@
 
             <div class="edit">
                 <% if can? :edit, @watch_list %>
-                    <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small' do %>
+                    <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small edit-content-link', data: { tooltip: "" }, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize do %>
                         <i class="fa fa-pencil" aria-hidden="true"></i>
                     <% end %>
               <% end %>
                <% if can? :destroy, @watch_list %>
-                    <%= link_to @watch_list, method: :delete, class:'button-prime small alert confirm', data: { 'confirmation-text': "Merkliste löchen?"} do %>
+                    <%= link_to @watch_list, method: :delete, class:'button-prime small alert', data: { tooltip: "", confirm: "#{@watch_list.model_name.human(locale: DataCycleCore.ui_language)} #{t('actions.delete', locale: DataCycleCore.ui_language)}?" }, title: t('actions.delete', locale: DataCycleCore.ui_language).capitalize do %>
                         <i class="fa fa-trash-o" aria-hidden="true"></i>
                     <% end %>
                 <% end %>

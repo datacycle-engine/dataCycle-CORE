@@ -8,15 +8,11 @@ module DataCycleCore
     end
 
     def address_line
-      unless address.to_h.blank?
-        "#{address.postal_code} #{address.address_locality}, #{address.street_address}"
-      end
+      "#{address.postal_code} #{address.address_locality}, #{address.street_address}" unless address.to_h.blank?
     end
 
     def coordinates
-      unless latitude.blank? || longitude.blank?
-        "#{latitude}, #{longitude}"
-      end
+      "#{latitude}, #{longitude}" unless latitude.blank? || longitude.blank?
     end
   end
 end

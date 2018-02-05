@@ -1,5 +1,5 @@
 module DataCycleCore
   class ApplicationMailer < ActionMailer::Base
-    layout 'mailer'
+    layout 'data_cycle_core/mailer'
   end
 end

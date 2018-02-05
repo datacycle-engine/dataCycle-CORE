@@ -13,7 +13,7 @@ class ChangePlacesForDataHash < ActiveRecord::Migration[5.0]
       end
     end
 
-    #remove_column :place_translations, :description, :text
+    # remove_column :place_translations, :description, :text
     add_column :place_translations, :content, :jsonb
     add_column :place_translations, :properties, :jsonb
   end

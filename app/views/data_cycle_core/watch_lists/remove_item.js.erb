@@ -1,0 +1,5 @@
+<% unless @content_object.watch_lists.exists? %>
+  $('a[data-toggle="watch-lists-<%= @content_object.id %>"] > .fa').removeClass('fa-bookmark').addClass('fa-bookmark-o');
+<% end %>
+
+$('#content-<%= @content_object.id %>-watch-list-<%= @watch_list.id %>').replaceWith('<%= escape_javascript(render 'data_cycle_core/application/watch_lists/add_link', content: @content_object, watchlist: @watch_list) %>');

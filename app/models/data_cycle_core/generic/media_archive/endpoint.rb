@@ -20,7 +20,7 @@ class DataCycleCore::Generic::MediaArchive::Endpoint
   end
 
   def videos(lang: :de)
-    first_page = load_data(page: 1,type: 'video')
+    first_page = load_data(page: 1, type: 'video')
     total_items = first_page['count'].to_i
     max_pages = total_items.fdiv(@per).ceil
     Enumerator.new do |yielder|
@@ -36,7 +36,7 @@ class DataCycleCore::Generic::MediaArchive::Endpoint
 
   def load_data(page: 1, per: 1, lang: :de, type: 'image')
     response = Faraday.new.get do |req|
-      req.url (@host + @end_point)
+      req.url(@host + @end_point)
 
       req.headers['Accept'] = 'application/json'
 
@@ -49,9 +49,7 @@ class DataCycleCore::Generic::MediaArchive::Endpoint
     if response.success?
       JSON.parse(response.body)
     else
-      raise DataCycleCore::Generic::RecoverableError.new(
-        "error loading data from #{@host + @end_point} / page:#{page} / per:#{per} / lang:#{lang} / type:#{type}" << response.body
-      )
+      raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point} / page:#{page} / per:#{per} / lang:#{lang} / type:#{type}" << response.body
     end
   end
 end

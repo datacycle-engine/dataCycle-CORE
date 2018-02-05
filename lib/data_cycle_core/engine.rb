@@ -56,6 +56,10 @@ require 'acts_as_paranoid'
 require 'transproc/all'
 require 'dry-validation'
 
+# carrierwave
+require 'carrierwave'
+require 'carrierwave_backgrounder'
+
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name
@@ -80,6 +84,12 @@ module DataCycleCore
     mattr_accessor :content_tables
     self.content_tables = ['creative_works', 'events', 'persons', 'places']
 
+    mattr_accessor :asset_objects
+    self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image']
+
+    mattr_accessor :allowed_api_strategies
+    self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource']
+
     mattr_accessor :linked_tables
     self.linked_tables = ['users']
 
@@ -101,12 +111,18 @@ module DataCycleCore
     mattr_accessor :release_codes
     self.release_codes = {}
 
-    #webhooks
+    mattr_accessor :notification_frequencies
+    self.notification_frequencies = ['always', 'day', 'week']
+
+    mattr_accessor :autoload_last_filter
+    self.autoload_last_filter = false
+
+    # webhooks
     mattr_accessor :webhooks
     self.webhooks = {
-        :create => [],
-        :delete => [],
-        :update => []
+      create: [],
+      delete: [],
+      update: []
     }
   end
 
@@ -178,18 +194,16 @@ module DataCycleCore
 
     # include rake_tasks
     rake_tasks do
-      Dir[File.join(File.dirname(__FILE__),'tasks/*.rake')].each { |f| load f }
+      Dir[File.join(File.dirname(__FILE__), 'tasks/*.rake')].each { |f| load f }
     end
 
     config.to_prepare do
-      Dir.glob(Rails.root + "app/decorators/**/*_decorator*.rb").each do |c|
+      Dir.glob(Rails.root + 'app/decorators/**/*_decorator*.rb').each do |c|
         require_dependency(c)
       end
     end
-
   end
 end
-
 
 JbuilderTemplate.class_eval do
   def content_partial!(partial, parameters)
@@ -199,9 +213,9 @@ JbuilderTemplate.class_eval do
       "content_#{partial}"
     ]
 
-    partials.each_with_index do |partial, idx|
+    partials.each_with_index do |partial_file, idx|
       begin
-        return partial!(partial, parameters)
+        return partial!(partial_file, parameters)
       rescue ActionView::MissingTemplate => e
         raise e if idx == partials.size - 1
       end
@@ -214,53 +228,46 @@ Time::DATE_FORMATS[:long_usec] = '%Y-%m-%d %H:%M:%S.%N %z'
 
 Nokogiri::XML::Node.class_eval do
   def to_hash
-    begin
-      attributes_hash = attributes.map { |_, attribute|
-        { attribute.name => attribute.value }
-      }.reduce({}, &:merge).reject { |_, v|
-        v.blank?
-      }
-
-      children_hash = children.map { |child|
-        { child.name => child.to_hash }
-      }.reject { |h|
-        h.values.first.blank?
-      }.group_by { |h|
-        h.keys.first
-      }.map { |k, v|
-        Hash[k, v.size == 1 ? v.map(&:values).flatten.first : v.map(&:values).flatten]
-      }.reduce({}, &:merge)
-
-      if !attributes.empty? && children.empty?
-        attributes_hash
-      elsif attributes.empty? && !children.empty?
-        children_hash
-      elsif !attributes.empty? && !children.empty?
-        if (attributes_hash.keys & children_hash.keys).empty?
-          attributes_hash.merge(children_hash)
-        else
-          {
-            'attributes' => attributes_hash,
-            'children' => children_hash
-          }
-        end
-      elsif is_a? Nokogiri::XML::Text
-        text.strip
-      elsif is_a? Nokogiri::XML::Element
-        nil
-      else
-        binding.pry
-
-        raise 'NotImplemented'
-      end
-    rescue => e
-      binding.pry
-
-      raise e
+    attributes_hash = attributes.map { |_, attribute|
+      { attribute.name => attribute.value }
+    }.reduce({}, &:merge).reject do |_, v|
+      v.blank?
     end
+
+    children_hash = children.map { |child|
+      { child.name => child.to_hash }
+    }.reject { |h|
+      h.values.first.blank?
+    }.group_by { |h|
+      h.keys.first
+    }.map { |k, v|
+      Hash[k, v.size == 1 ? v.map(&:values).flatten.first : v.map(&:values).flatten]
+    }.reduce({}, &:merge)
+
+    if !attributes.empty? && children.empty?
+      attributes_hash
+    elsif attributes.empty? && !children.empty?
+      children_hash
+    elsif !attributes.empty? && !children.empty?
+      if (attributes_hash.keys & children_hash.keys).empty?
+        attributes_hash.merge(children_hash)
+      else
+        {
+          'attributes' => attributes_hash,
+          'children' => children_hash
+        }
+      end
+    elsif is_a? Nokogiri::XML::Text
+      text.strip
+    elsif is_a? Nokogiri::XML::Element
+      nil
+    else
+      raise 'NotImplemented'
+    end
+  rescue StandardError => e
+    raise e
   end
 end
-
 
 # patch for ActiveRecord, to allow fractional seconds to be saved for PostgreSQL tstzrange datatype
 # TODO: remove if updated upstream

@@ -23,6 +23,5 @@ class AddRelationTables < ActiveRecord::Migration[5.0]
       t.datetime :seen_at
       t.timestamps
     end
-
   end
 end

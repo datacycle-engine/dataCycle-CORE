@@ -7,14 +7,6 @@
   .fa {
     min-width: 1.2rem;
   }
-  .dropdown-pane {
-    z-index: 100;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    .list-items {
-      max-height: 24rem;
-      overflow-y: auto;
-    }
-  }
   >ul {
     position: relative;
     >li {
@@ -71,28 +63,8 @@
           }
         }
       }
-      .buttons {
-        float: right;
-        vertical-align: middle;
-        span,
-        a {
-          color: $primary-color;
-          cursor: pointer;
-          &:hover,
-          &:focus {
-            color: darken($primary-color, 30%);
-          }
-          &.invalidate-data-link {
-            color: map-get($foundation-palette, alert);
-            &:hover,
-            &:focus {
-              color: darken(map-get($foundation-palette, alert), 30%);
-            }
-          }
-        }
-      }
       &.has-dropdown.right {
-        >ul.dropdown-pane {
+        .dropdown-pane {
           right: -18px !important;
           left: auto !important; // top: 2rem !important;
           &::before {
@@ -132,9 +104,12 @@
           opacity: 1;
         }
       }
-      ul.dropdown-pane {
+      .dropdown-pane {
+        line-height: 1rem;
+        font-size: 0.8rem;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         text-align: center;
+        z-index: 100;
         &::before {
           content: '▲';
           font-size: 28px;
@@ -151,20 +126,47 @@
           text-align: center;
           overflow: hidden;
         }
-        >li {
-          position: relative;
-          text-align: left;
-          font-size: 0.8rem;
-          line-height: 1.2rem;
-          padding: 0 0 0.2rem 0;
-          i:not(.fa) {
-            color: $dark-gray;
+        input {
+          max-width: 100%;
+          min-width: initial;
+          &[readonly] {
+            cursor: pointer !important;
           }
-          input {
-            max-width: 100%;
-            min-width: initial;
-            &[readonly] {
-              cursor: pointer !important;
+        }
+        >ul {
+          margin: 0;
+          &.list-items {
+            max-height: 24rem;
+            overflow-y: auto;
+            .buttons {
+              float: right;
+              vertical-align: middle;
+              span,
+              a {
+                color: $primary-color;
+                cursor: pointer;
+                &:hover,
+                &:focus {
+                  color: darken($primary-color, 30%);
+                }
+                &.invalidate-data-link {
+                  color: map-get($foundation-palette, alert);
+                  &:hover,
+                  &:focus {
+                    color: darken(map-get($foundation-palette, alert), 30%);
+                  }
+                }
+              }
+            }
+          }
+          >li {
+            position: relative;
+            text-align: left;
+            font-size: 0.8rem;
+            line-height: 1.2rem;
+            padding: 0 0 0.2rem 0;
+            i:not(.fa) {
+              color: $dark-gray;
             }
           }
         }
@@ -227,12 +229,6 @@
       button.has-tip {
         border-bottom: none;
         cursor: pointer;
-      }
-      #split-source-selector {
-        text-align: center;
-        .button {
-          margin: 0;
-        }
       }
       &.buttons {
         a {

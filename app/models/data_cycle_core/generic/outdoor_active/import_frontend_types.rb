@@ -3,10 +3,10 @@ module DataCycleCore::Generic::OutdoorActive::ImportFrontendTypes
     import_classifications(
       @source_type,
       "#{options.try(:[], :import).try(:[], :tree_label) || 'OutdoorActive'} - FrontendTypes",
-      self.method(:load_root_classifications).to_proc,
+      method(:load_root_classifications).to_proc,
       ->(_, _, _) { [] },
       ->(_) { nil },
-      self.method(:extract_data).to_proc,
+      method(:extract_data).to_proc,
       **options
     )
   end
@@ -20,9 +20,8 @@ module DataCycleCore::Generic::OutdoorActive::ImportFrontendTypes
         "dump.#{locale}.frontendtype": "$dump.#{locale}.frontendtype"
       ).group(
         _id: "$dump.#{locale}.id",
-        :dump.first => "$dump"
-      ).pipeline
-    )
+        :dump.first => '$dump'
+      ).pipeline)
   end
 
   def extract_data(raw_data)
@@ -31,5 +30,4 @@ module DataCycleCore::Generic::OutdoorActive::ImportFrontendTypes
       name: raw_data['frontendtype']
     }
   end
-
 end

@@ -1,6 +1,5 @@
 module DataCycleCore
   class ClassificationAlias < ApplicationRecord
-
     belongs_to :external_source
 
     acts_as_paranoid
@@ -21,7 +20,7 @@ module DataCycleCore
 
     def self.for_tree(tree_name)
       joins(classification_tree: :classification_tree_label)
-        .where('classification_trees' => {'classification_tree_labels' => {'name' => tree_name}})
+        .where('classification_trees' => { 'classification_tree_labels' => { 'name' => tree_name } })
     end
 
     def self.with_name(*names)
@@ -29,7 +28,7 @@ module DataCycleCore
     end
 
     def self.with_descendants
-      query = self.is_a?(ActiveRecord::Relation) ? self : all
+      query = is_a?(ActiveRecord::Relation) ? self : all
 
       sql = <<-SQL.gsub(/\s+/, ' ').gsub(/(?<=\A)\s+/, '').gsub(/\s+(?=\z)/, '')
         WITH RECURSIVE aliases AS (
@@ -41,6 +40,8 @@ module DataCycleCore
           JOIN aliases AS parent_aliases ON parent_aliases.id = classification_trees.parent_classification_alias_id
         ) SELECT id FROM aliases
         SQL
+
+      sql = ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql)
 
       query.unscope(where: query.bound_attributes.map(&:name)).where('classification_aliases.id IN (' + sql + ')')
     end

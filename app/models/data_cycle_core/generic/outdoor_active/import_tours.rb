@@ -1,5 +1,4 @@
 module DataCycleCore::Generic::OutdoorActive::ImportTours
-
   def import_data(**options)
     @image_template = options[:import][:image_template] || 'Bild'
 
@@ -8,7 +7,7 @@ module DataCycleCore::Generic::OutdoorActive::ImportTours
 
     @source_filter = options.dig(:import, :source_filter) || {}
 
-    import_contents(@source_type, @target_type, self.method(:load_contents).to_proc, self.method(:process_content).to_proc, **options)
+    import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)
   end
 
   protected
@@ -19,13 +18,13 @@ module DataCycleCore::Generic::OutdoorActive::ImportTours
 
   def process_content(raw_data, template, locale)
     I18n.with_locale(locale) do
-      images = (raw_data.try(:[], 'images').try(:[], 'image') || []).map { |raw_image_data|
+      images = (raw_data.try(:[], 'images').try(:[], 'image') || []).map do |raw_image_data|
         create_or_update_content(
           DataCycleCore::CreativeWork,
           load_template(DataCycleCore::CreativeWork, @image_template),
           extract_image_data(raw_image_data).with_indifferent_access
         )
-      }
+      end
 
       categories = [raw_data.dig('category', 'id')].reject(&:blank?).map { |id|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "CATEGORY:#{id}")
@@ -35,9 +34,9 @@ module DataCycleCore::Generic::OutdoorActive::ImportTours
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "REGION:#{id}")
       }.reject(&:nil?)
 
-      sources = [raw_data.dig('meta', 'source', 'id')].reject(&:blank?).map { |id|
+      sources = [raw_data.dig('meta', 'source', 'id')].reject(&:blank?).map do |id|
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "SOURCE:#{id}")
-      }
+      end
       sources_hash = sources.compact.blank? ? [] : sources.map(&:id).take(1)
 
       create_or_update_content(
@@ -61,5 +60,4 @@ module DataCycleCore::Generic::OutdoorActive::ImportTours
   def extract_poi_data(raw_data)
     raw_data.nil? ? {} : @tour_transformation.call(raw_data)
   end
-
 end

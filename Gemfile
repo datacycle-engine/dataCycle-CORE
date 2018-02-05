@@ -1,9 +1,7 @@
 source 'https://rubygems.org'
 
-ruby "2.4.1"
-
 git_source(:github) do |repo_name|
-  repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
+  repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?('/')
   "https://github.com/#{repo_name}.git"
 end
 
@@ -13,7 +11,7 @@ end
 gemspec
 gem 'globalize', github: 'globalize/globalize'
 
-gem 'rails_db'
+# gem 'rails_db'
 # Declare any dependencies that are still in development here instead of in
 # your gemspec. These might include edge Rails or gems from your path or
 # Git. Remember to move these dependencies to your gemspec before releasing
@@ -25,7 +23,11 @@ gem 'byebug', group: [:development, :test]
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 # gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
-group :development do
-  gem 'rspec'
-  gem 'rspec-rails'
+group :development, :test do
+  gem 'dotenv-rails'
+
+  gem 'capistrano-rails'
+  gem 'capistrano-rvm'
+  gem 'capistrano3-delayed-job'
+  gem 'capistrano3-puma'
 end

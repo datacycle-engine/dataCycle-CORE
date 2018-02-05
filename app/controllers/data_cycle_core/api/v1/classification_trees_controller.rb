@@ -21,12 +21,11 @@ module DataCycleCore
         ).order(:deleted_at)
       end
 
-      @classification_tree_labels = @classification_tree_labels.page(params[:page])
+      @classification_tree_labels = apply_paging(@classification_tree_labels)
     end
 
     def show
       @classification_tree_label = ClassificationTreeLabel.find(params[:id])
-      @classification_aliases = @classification_tree_label.classification_aliases.where(internal: false).page(params[:page])
     end
 
     def classifications
@@ -51,7 +50,11 @@ module DataCycleCore
         ).order(:deleted_at)
       end
 
-      @classification_aliases = @classification_aliases.page(params[:page])
+      @classification_aliases = apply_paging(@classification_aliases)
+    end
+
+    def permitted_parameter_keys
+      super + [:id, :modified_since, :created_since, :deleted_since]
     end
   end
 end

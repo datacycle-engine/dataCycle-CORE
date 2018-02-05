@@ -1,20 +1,19 @@
 class DataCycleCore::Generic::Logger::Console
-
   def initialize(kind)
     @kind = kind
   end
 
   def preparing_phase(label)
-    puts "Preparing  #{label.to_s.gsub(/_/, ' ')} ..."
+    puts "Preparing  #{label.to_s.tr('/_/', ' ')} ..."
   end
 
   def phase_started(label, total = nil)
-    puts "#{@kind.capitalize}   #{label.to_s.gsub(/_/, ' ')} ..." if total.nil?
-    puts "#{@kind.capitalize}   #{label.to_s.gsub(/_/, ' ')} (#{total} items) ..." if total
+    puts "#{@kind.capitalize}   #{label.to_s.tr('/_/', ' ')} ..." if total.nil?
+    puts "#{@kind.capitalize}   #{label.to_s.tr('/_/', ' ')} (#{total} items) ..." if total
   end
 
   def item_processed(title, id, num, total)
-    #puts " -> \"#{title} (\##{id})\" #{@kind}ed (#{num} of #{total || '?'})"
+    # puts " -> \"#{title} (\##{id})\" #{@kind}ed (#{num} of #{total || '?'})"
   end
 
   def error(title, id, data, error)
@@ -35,6 +34,6 @@ class DataCycleCore::Generic::Logger::Console
   end
 
   def phase_finished(label, total)
-    puts "#{@kind.capitalize}ed #{label.to_s.gsub(/_/, ' ')} (#{total} items) ... [DONE]"
+    puts "#{@kind.capitalize}ed #{label.to_s.tr('/_/', ' ')} (#{total} items) ... [DONE]"
   end
 end

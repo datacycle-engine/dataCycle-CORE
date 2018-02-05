@@ -1,7 +1,5 @@
 <% if data_link.receiver.nil? %>
-  <li class="center-text">
-    <button class="button new-data-link" data-open="data-link-overlay-<%= data_link.id || "new" %>">Neuen Link erstellen</button>
-  </li>
+  <button class="button new-data-link" data-open="data-link-overlay-<%= data_link.id || "new" %>">Neuen Link erstellen</button>
 <% else %>
   <li class="<%= "invalid" unless data_link.is_valid? %>" id="data-link-<%= data_link.id %>">
     <span class="email"><%= data_link.receiver.email %></span>

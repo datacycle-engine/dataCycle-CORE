@@ -1,21 +1,21 @@
 FIXNUM_MAX = (2**(0.size * 8 - 2) - 1)
 
-delete_classifications = <<-eos
+delete_classifications = <<-EOS
   DELETE FROM classifications;
   DELETE FROM classification_groups;
   DELETE FROM classification_aliases;
   DELETE FROM classification_trees;
   DELETE FROM classification_tree_labels;
-eos
+EOS
 
-delete_secondary_data = <<-eos
+delete_secondary_data = <<-EOS
   DELETE FROM watch_list_data_hashes;
   DELETE FROM watch_lists;
   DELETE FROM subscriptions;
   DELETE FROM data_links;
-eos
+EOS
 
-delete_contents = <<-eos
+delete_contents = <<-EOS
   DELETE FROM creative_works;
   DELETE FROM creative_work_translations;
   DELETE FROM events;
@@ -33,9 +33,9 @@ delete_contents = <<-eos
   DELETE FROM overlays;
   DELETE FROM tags;
   DELETE FROM overlay_place_tags;
-eos
+EOS
 
-delete_content_histories = <<-eos
+delete_content_histories = <<-EOS
   DELETE FROM creative_work_histories;
   DELETE FROM creative_work_history_translations;
   DELETE FROM event_histories;
@@ -48,8 +48,7 @@ delete_content_histories = <<-eos
   DELETE FROM content_content_histories;
 
   DELETE FROM classification_content_histories;
-eos
-
+EOS
 
 Rake::Task['db:create'].enhance do
   if ENV['RAILS_ENV']
@@ -58,123 +57,120 @@ Rake::Task['db:create'].enhance do
     ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
   else
     ActiveRecord::Base.establish_connection(:development)
-                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
+      .connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
     ActiveRecord::Base.establish_connection(:development)
-                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
+      .connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
     ActiveRecord::Base.establish_connection(:development)
-                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
+      .connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
 
     ActiveRecord::Base.establish_connection(:test)
-                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
+      .connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
     ActiveRecord::Base.establish_connection(:test)
-                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
+      .connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
     ActiveRecord::Base.establish_connection(:test)
-                      .connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
+      .connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
   end
 end
 
 namespace :data_cycle_core do
   namespace :clear do
-    desc "Remove all data except for configuration data like users"
-    task :all => :environment do
+    desc 'Remove all data except for configuration data like users'
+    task all: :environment do
       ActiveRecord::Base.connection.execute(delete_classifications)
       ActiveRecord::Base.connection.execute(delete_secondary_data)
       ActiveRecord::Base.connection.execute(delete_contents)
       ActiveRecord::Base.connection.execute(delete_content_histories)
     end
 
-    desc "Remove all contents related data like creative works and places (does not remove classifications)"
-    task :contents => :environment do
+    desc 'Remove all contents related data like creative works and places (does not remove classifications)'
+    task contents: :environment do
       ActiveRecord::Base.connection.execute(delete_secondary_data)
       ActiveRecord::Base.connection.execute(delete_contents)
       ActiveRecord::Base.connection.execute(delete_content_histories)
     end
 
-    desc "Remove the history of all content data"
-    task :history => :environment do
+    desc 'Remove the history of all content data'
+    task history: :environment do
       ActiveRecord::Base.connection.execute(delete_content_histories)
     end
   end
 
   namespace :import do
-    desc "List available endpoints for import"
-    task :list => :environment do
+    desc 'List available endpoints for import'
+    task list: :environment do
       DataCycleCore::ExternalSource.all.each do |external_source|
         puts "#{external_source.id} - #{external_source.name}"
       end
     end
 
-    desc "Download and import data from given data source"
-    task :perform, [:external_source_id, :max_count] => [:environment] do |t, args|
-      options = Hash[{max_count: FIXNUM_MAX}.merge(args.to_h).map { |k, v|
+    desc 'Download and import data from given data source'
+    task :perform, [:external_source_id, :max_count] => [:environment] do |_, args|
+      options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
         if k == :max_count
           [k, v.to_i]
         else
           [k, v]
         end
-      }]
+      end]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.download(options)
       external_source.import(options)
     end
 
-    desc "DEBUG: Only download data from given data source"
-    task :download, [:external_source_id, :max_count] => [:environment] do |t, args|
-      options = Hash[{max_count: nil}.merge(args.to_h).map { |k, v|
+    desc 'DEBUG: Only download data from given data source'
+    task :download, [:external_source_id, :max_count] => [:environment] do |_, args|
+      options = Hash[{ max_count: nil }.merge(args.to_h).map do |k, v|
         if k == :max_count && v
           [k, v.to_i]
         else
           [k, v]
         end
-      }]
-      #options[:locales] = [:de] #, :en, :fr, :it, :nl]
+      end]
+      # options[:locales] = [:de] #, :en, :fr, :it, :nl]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.download(options)
     end
 
-    desc "DEBUG: Only import (without downloading) data from given data source"
-    task :import, [:external_source_id, :max_count] => [:environment] do |t, args|
-      options = Hash[{max_count: FIXNUM_MAX}.merge(args.to_h).map { |k, v|
+    desc 'DEBUG: Only import (without downloading) data from given data source'
+    task :import, [:external_source_id, :max_count] => [:environment] do |_, args|
+      options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
         if k == :max_count
           [k, v.to_i]
         else
           [k, v]
         end
-      }]
-      #options[:locales] = [:de] #, :fr, :en, :it, :nl]
+      end]
+      # options[:locales] = [:de] #, :fr, :en, :it, :nl]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.import(options)
     end
-
-
   end
 
   namespace :update do
-
-    desc "import classifications"
-    task :import_classifications => [:environment] do
-      path = Rails.root.join('config','data_definitions','classifications.yml')
+    desc 'import classifications'
+    task import_classifications: [:environment] do
+      path = Rails.root.join('config', 'data_definitions', 'classifications.yml')
       DataCycleCore::MasterData::ImportClassifications.new.import(path.to_s)
     end
 
-    desc "import template definitions"
-    task :import_templates => [:environment] do
-      path = Rails.root.join('config','data_definitions','creative_works','*.yml')
+    desc 'import template definitions'
+    task import_templates: [:environment] do
+      path = Rails.root.join('config', 'data_definitions', 'creative_works', '*.yml')
       DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::CreativeWork)
-      path = Rails.root.join('config','data_definitions','places','*.yml')
+      path = Rails.root.join('config', 'data_definitions', 'places', '*.yml')
       DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Place)
-      path = Rails.root.join('config','data_definitions','persons','*.yml')
+      path = Rails.root.join('config', 'data_definitions', 'persons', '*.yml')
       DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Person)
-      path = Rails.root.join('config','data_definitions','events','*.yml')
+      path = Rails.root.join('config', 'data_definitions', 'events', '*.yml')
       DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Event)
     end
 
-    desc "replace the data-definitions of all data-types in the Database with the templates in the Database"
-    task :update_all_templates => [:environment] do
-      puts "updating templates:"
+    desc 'replace the data-definitions of all data-types in the Database with the templates in the Database'
+    task update_all_templates: [:environment] do
+      puts 'updating templates:'
       DataCycleCore.content_tables.each do |content_table|
         data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
         data_object.where(template: true).each do |template_object|
@@ -188,10 +184,10 @@ namespace :data_cycle_core do
       end
     end
 
-    desc "update weigths (boost) in search table"
-    task :update_search => [:environment] do
-      puts "#{'content_class'.ljust(30)} | #{'data_definition_name'.ljust(25)} | #{'#entries'.ljust(10)} | #{'new weight'}"
-      puts '-'*84
+    desc 'update weigths (boost) in search table'
+    task update_search: [:environment] do
+      puts "#{'content_class'.ljust(30)} | #{'data_definition_name'.ljust(25)} | #{'#entries'.ljust(10)} | new weight"
+      puts '-' * 84
       DataCycleCore.content_tables.each do |content_table|
         data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
         data_object.where(template: true).each do |template_object|
@@ -202,21 +198,21 @@ namespace :data_cycle_core do
             search_entries = DataCycleCore::Search.where(content_data_type: data_object.to_s, data_type: template_name).count
 
             connection = ActiveRecord::Base.connection
-            sql_update = "UPDATE searches SET boost = #{boost} WHERE content_data_type = '#{data_object.to_s}' AND data_type = '#{template_name}'"
+            sql_update = "UPDATE searches SET boost = #{boost} WHERE content_data_type = '#{data_object}' AND data_type = '#{template_name}'"
             connection.exec_query(sql_update)
           end
 
-          puts "#{data_object.to_s.ljust(30)} | #{template_name.ljust(25)} | #{search_entries.to_s.rjust(10)} | #{(boost||'no search').to_s.rjust(10)}"
+          puts "#{data_object.to_s.ljust(30)} | #{template_name.ljust(25)} | #{search_entries.to_s.rjust(10)} | #{(boost || 'no search').to_s.rjust(10)}"
         end
       end
     end
 
-    desc "replace a given data-definition with its recent template for a content_table"
-    task :update_template, [:content_table_name, :template_name] => [:environment] do |t, args|
+    desc 'replace a given data-definition with its recent template for a content_table'
+    task :update_template, [:content_table_name, :template_name] => [:environment] do |_, args|
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
-        puts "ERROR: only the following content_table_names are known to the system:"
-        puts "#{DataCycleCore.content_tables}"
-        exit -1
+        puts 'ERROR: only the following content_table_names are known to the system:'
+        puts DataCycleCore.content_tables.to_s
+        exit(-1)
       end
 
       data_object = "DataCycleCore::#{args[:content_table_name].classify}".safe_constantize
@@ -225,7 +221,7 @@ namespace :data_cycle_core do
       if template.nil?
         puts "ERROR: template not found. For the given #{args[:content_table_name]} table only the following templates are available:"
         puts data_object.where(template: true).map(&:headline)
-        exit -1
+        exit(-1)
       end
 
       type = data_object
@@ -235,13 +231,12 @@ namespace :data_cycle_core do
       DataCycleCore::Update::Update.new(type: type, template: template, strategy: strategy, transformation: transformation)
     end
 
-
-    desc "DEBUG: hook to wire custom data update for a given content_table_name/template_name"
-    task :update_data, [:content_table_name, :template_name] => [:environment] do |t, args|
+    desc 'DEBUG: hook to wire custom data update for a given content_table_name/template_name'
+    task :update_data, [:content_table_name, :template_name] => [:environment] do |_, args|
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
-        puts "ERROR: only the following content_table_names are known to the system:"
-        puts "#{DataCycleCore.content_tables}"
-        exit -1
+        puts 'ERROR: only the following content_table_names are known to the system:'
+        puts DataCycleCore.content_tables.to_s
+        exit(-1)
       end
 
       data_object = "DataCycleCore::#{args[:content_table_name].classify}".safe_constantize
@@ -250,7 +245,7 @@ namespace :data_cycle_core do
       if template.nil?
         puts "ERROR: template not found. For the given #{args[:content_table_name]} table only the following templates are available:"
         puts data_object.where(template: true).map(&:headline)
-        exit -1
+        exit(-1)
       end
 
       type = data_object
@@ -260,13 +255,12 @@ namespace :data_cycle_core do
       DataCycleCore::Update::Update.new(type: type, template: template, strategy: strategy, transformation: transformation)
     end
 
-    desc "delete history of a specific content_table_name/template_name"
-    task :delete_history, [:content_table_name, :template_name] => [:environment] do |t, args|
-
+    desc 'delete history of a specific content_table_name/template_name'
+    task :delete_history, [:content_table_name, :template_name] => [:environment] do |_, args|
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
-        puts "ERROR: only the following content_table_names are known to the system:"
-        puts "#{DataCycleCore.content_tables}"
-        exit -1
+        puts 'ERROR: only the following content_table_names are known to the system:'
+        puts DataCycleCore.content_tables.to_s
+        exit(-1)
       end
 
       template_object = "DataCycleCore::#{args[:content_table_name].classify}".safe_constantize
@@ -275,29 +269,28 @@ namespace :data_cycle_core do
       if template.nil?
         puts "ERROR: template not found. For the given #{args[:content_table_name]} table only the following templates are available:"
         puts template_object.where(template: true).map(&:headline)
-        exit -1
+        exit(-1)
       end
 
-      data_object = "DataCycleCore::#{args[:content_table_name].classify}::History".safe_constantize.
-        where("metadata #>> '{validation, name}' = '#{args[:template_name]}'")
+      data_object = "DataCycleCore::#{args[:content_table_name].classify}::History".safe_constantize
+        .where("metadata #>> '{validation, name}' = '#{args[:template_name]}'")
 
       total_items = data_object.count
-      puts "DELETE history for: #{args[:content_table_name]}/#{args[:template_name]} (#{total_items}) - (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
+      puts "DELETE history for: #{args[:content_table_name]}/#{args[:template_name]} (#{total_items}) - (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
       index = 0
 
       data_object.find_each do |data_item|
-
         # progress_bar
         if total_items > 49
-          if index % 500 == 0
-            fraction = (index / (total_items/100.0)).round(0)
+          if (index % 500).zero?
+            fraction = (index / (total_items / 100.0)).round(0)
             fraction = 100 if fraction > 100
-            print "[#{'*'*fraction}#{' '*(100-fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
           end
         else
-          fraction = (((index*1.0)/total_items) * 100.0).round(0)
+          fraction = (((index * 1.0) / total_items) * 100.0).round(0)
           fraction = 100 if fraction > 100
-          print"[#{'*'*fraction}#{' '*(100-fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+          print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
         end
         index += 1
 
@@ -310,24 +303,22 @@ namespace :data_cycle_core do
         #   item.destroy
         # }
       end
-      puts "[#{'*'*100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
-
+      puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
     end
   end
 
   namespace :data_update do
-    desc "copy data to content_content(+history) table"
-    task :stage1 => [:environment] do
-
+    desc 'copy data to content_content(+history) table'
+    task stage1: [:environment] do
       @connection = ActiveRecord::Base.connection
       data_hash = [
-        {a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', relation_a: 'content_location', b: 'place', type_b: 'DataCycleCore::Place'},
-        {a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', ralation_a: 'event', b: 'event', type_b: 'DataCycleCore::Event'},
-        {a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', relation_a: '', b: 'person', type_b: 'DataCycleCore::Person'}
+        { a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', relation_a: 'content_location', b: 'place', type_b: 'DataCycleCore::Place' },
+        { a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', ralation_a: 'event', b: 'event', type_b: 'DataCycleCore::Event' },
+        { a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', relation_a: '', b: 'person', type_b: 'DataCycleCore::Person' }
       ]
 
       data_hash.each do |item|
-        sql_query = <<-eos
+        sql_query = <<-EOS
           INSERT INTO content_contents
           SELECT
             id,
@@ -341,10 +332,10 @@ namespace :data_cycle_core do
             created_at,
             updated_at
           FROM #{item[:a]}_#{item[:b].pluralize};
-        eos
+        EOS
         @connection.exec_query(sql_query)
 
-        sql_query = <<-eos
+        sql_query = <<-EOS
           INSERT INTO content_content_histories
           SELECT
             id,
@@ -359,14 +350,13 @@ namespace :data_cycle_core do
             created_at,
             updated_at
           FROM #{item[:a]}_#{item[:b]}_histories;
-        eos
+        EOS
         @connection.exec_query(sql_query)
       end
     end
 
-    desc "cleanup relation_names in content_content(+history) table"
-    task :stage1_1 => [:environment] do
-
+    desc 'cleanup relation_names in content_content(+history) table'
+    task stage1_1: [:environment] do
       @connection = ActiveRecord::Base.connection
       parameter_hash = [
         { relation: 'author', template: "= 'Zitat'" },
@@ -375,7 +365,7 @@ namespace :data_cycle_core do
       ]
 
       parameter_hash.each do |params|
-        update = <<-eos
+        update = <<-EOS
           UPDATE content_contents
           SET relation_a = '#{params[:relation]}'
           FROM creative_works
@@ -385,9 +375,9 @@ namespace :data_cycle_core do
             AND content_contents.content_b_type = 'DataCycleCore::Person'
             AND content_contents.relation_b = ''
             AND creative_works.metadata #>> '{validation,name}' #{params[:template]};
-        eos
+        EOS
         @connection.exec_query(update)
-        update = <<-eos
+        update = <<-EOS
           UPDATE content_content_histories
           SET relation_a = '#{params[:relation]}'
           FROM creative_work_histories
@@ -397,81 +387,76 @@ namespace :data_cycle_core do
             AND content_content_histories.content_b_history_type = 'DataCycleCore::Person:History'
             AND content_content_histories.relation_b = ''
             AND creative_work_histories.metadata #>> '{validation,name}' #{params[:template]};
-        eos
+        EOS
         @connection.exec_query(update)
       end
     end
 
-    desc "delete data in content_content(+history) table"
-    task :undo_stage1 => [:environment] do
+    desc 'delete data in content_content(+history) table'
+    task undo_stage1: [:environment] do
       @connection = ActiveRecord::Base.connection
-      delete = "DELETE FROM content_contents;"
+      delete = 'DELETE FROM content_contents;'
       @connection.exec_query(delete)
-      delete = "DELETE FROM content_content_histories;"
+      delete = 'DELETE FROM content_content_histories;'
       @connection.exec_query(delete)
     end
 
-    desc "update .._hasPart arrays to content_content relation table"
-    task :stage2 => [:environment] do
+    desc 'update .._hasPart arrays to content_content relation table'
+    task stage2: [:environment] do
+      array_names = ['question_hasPart', 'website_hasPart', 'offer_periods_hasPart',
+                     'mobile_application_hasPart', 'quotation_hasPart', 'accepted_answer_hasPart',
+                     'suggested_answer_hasPart', 'timeline_item_hasPart']
 
-      array_names = ['question_hasPart','website_hasPart','offer_periods_hasPart',
-        'mobile_application_hasPart','quotation_hasPart','accepted_answer_hasPart',
-        'suggested_answer_hasPart','timeline_item_hasPart']
-
-      where_string = "metadata ?| array['"+array_names.join("','")+"']"
+      where_string = "metadata ?| array['" + array_names.join("','") + "']"
       DataCycleCore::CreativeWork.where(where_string).each do |item|
-        #puts "#{item.id} || #{item.metadata['validation']['name']}"
+        # puts "#{item.id} || #{item.metadata['validation']['name']}"
         array_names.each do |name|
-          if item.metadata.has_key?(name)
-            #puts "#{name.split('_hasPart')[0]} -> "
-            item.metadata[name].each do |content_id|
-              DataCycleCore::ContentContent.create!(
-                content_a_id: item.id,
-                content_a_type: 'DataCycleCore::CreativeWork',
-                relation_a: name.split('_hasPart')[0],
-                content_b_id: content_id,
-                content_b_type: 'DataCycleCore::CreativeWork',
-                relation_b: ''
-              )
-              puts "relation: #{name.split('_hasPart')[0]} | CreativeWork"
-            end
-            item.metadata = item.metadata.except(name)
-            I18n.with_locale(item.available_locales.first){ item.save }
+          next unless item.metadata.key?(name)
+          # puts "#{name.split('_hasPart')[0]} -> "
+          item.metadata[name].each do |content_id|
+            DataCycleCore::ContentContent.create!(
+              content_a_id: item.id,
+              content_a_type: 'DataCycleCore::CreativeWork',
+              relation_a: name.split('_hasPart')[0],
+              content_b_id: content_id,
+              content_b_type: 'DataCycleCore::CreativeWork',
+              relation_b: ''
+            )
+            puts "relation: #{name.split('_hasPart')[0]} | CreativeWork"
           end
+          item.metadata = item.metadata.except(name)
+          I18n.with_locale(item.available_locales.first) { item.save }
         end
       end
 
       DataCycleCore::CreativeWork::History.where(where_string).each do |item|
-        #puts "#{item.id} || #{item.creative_work_id} || #{item.metadata['validation']['name']}"
+        # puts "#{item.id} || #{item.creative_work_id} || #{item.metadata['validation']['name']}"
         array_names.each do |name|
-          if item.metadata.has_key?(name)
-            #puts "#{name.split('_hasPart')[0]} -> "
-            item.metadata[name].each do |content_id|
-              DataCycleCore::ContentContent::History.create!(
-                content_a_history_id: item.id,
-                content_a_history_type: 'DataCycleCore::CreativeWork::History',
-                relation_a: name.split('_hasPart')[0],
-                content_b_history_id: content_id,
-                content_b_history_type: 'DataCycleCore::CreativeWork::History',
-                relation_b: '',
-                history_valid: item.history_valid
-              )
-              puts "relation: #{name.split('_hasPart')[0]} | CreativeWork::History"
-            end
-            item.metadata = item.metadata.except(name)
-            I18n.with_locale(item.available_locales.first){ item.save }
+          next unless item.metadata.key?(name)
+          # puts "#{name.split('_hasPart')[0]} -> "
+          item.metadata[name].each do |content_id|
+            DataCycleCore::ContentContent::History.create!(
+              content_a_history_id: item.id,
+              content_a_history_type: 'DataCycleCore::CreativeWork::History',
+              relation_a: name.split('_hasPart')[0],
+              content_b_history_id: content_id,
+              content_b_history_type: 'DataCycleCore::CreativeWork::History',
+              relation_b: '',
+              history_valid: item.history_valid
+            )
+            puts "relation: #{name.split('_hasPart')[0]} | CreativeWork::History"
           end
+          item.metadata = item.metadata.except(name)
+          I18n.with_locale(item.available_locales.first) { item.save }
         end
       end
-
     end
 
-    desc "update ..embeddedLink(Array) to content_content relation table"
-    task :stage3 => [:environment] do
-
+    desc 'update ..embeddedLink(Array) to content_content relation table'
+    task stage3: [:environment] do
       # all embeddedLink(Array) are stored in metadata --> translations irrelevant
 
-      puts "updating embeddedLink and embeddedLinkArray:"
+      puts 'updating embeddedLink and embeddedLinkArray:'
       index = 0
       DataCycleCore.content_tables.each do |content_table|
         content_class = "DataCycleCore::#{content_table.classify}"
@@ -482,26 +467,25 @@ namespace :data_cycle_core do
             index += 1
 
             values = item.metadata[link_definition[:name]]
-            uuid_list = link_definition[:type] == 'embeddedLink' ? [ values ] : values
+            uuid_list = link_definition[:type] == 'embeddedLink' ? [values] : values
 
             puts "#{index.to_s.rjust(3)}: #{item.id}"
             puts "     #{link_definition[:name]}(#{link_definition[:type]}):"
             uuid_list.each do |uuid|
               puts "     --> #{uuid}"
-              item_data = [uuid, "DataCycleCore::#{link_definition[:table].classify}", ""]
+              item_data = [uuid, "DataCycleCore::#{link_definition[:table].classify}", '']
               self_data = [item.id, item.class.to_s, link_definition[:name]]
               relation_data = ['a', 'b'].map { |selector|
                 ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
               }.flatten
-              .zip(link_definition[:table] < item.class.table_name ? item_data+self_data : self_data+item_data).to_h
+                .zip(link_definition[:table] < item.class.table_name ? item_data + self_data : self_data + item_data).to_h
 
               DataCycleCore::ContentContent.find_or_create_by!(relation_data)
-
             end
 
             # save without metadata embeddeLink(Array) field
             item.metadata = item.metadata.except(link_definition[:name])
-            I18n.with_locale(item.available_locales.first){ item.save }
+            I18n.with_locale(item.available_locales.first) { item.save }
           end
         end
       end
@@ -515,41 +499,38 @@ namespace :data_cycle_core do
             index += 1
 
             values = item.metadata[link_definition[:name]]
-            uuid_list = link_definition[:type] == 'embeddedLink' ? [ values ] : values
+            uuid_list = link_definition[:type] == 'embeddedLink' ? [values] : values
 
             puts "#{index.to_s.rjust(3)}: #{item.id}"
             puts "     #{link_definition[:name]}(#{link_definition[:type]}):"
             uuid_list.each do |uuid|
               puts "     --> #{uuid}"
-              item_data = [uuid, "DataCycleCore::#{link_definition[:table].classify}", ""]
+              item_data = [uuid, "DataCycleCore::#{link_definition[:table].classify}", '']
               self_data = [item.id, item.class.to_s, link_definition[:name]]
               relation_data = ['a', 'b'].map { |selector|
                 ["content_#{selector}_history_id".to_sym, "content_#{selector}_history_type".to_sym, "relation_#{selector}".to_sym]
               }.flatten
-              .zip(link_definition[:table] < item.class.table_name ? item_data+self_data : self_data+item_data).to_h
+                .zip(link_definition[:table] < item.class.table_name ? item_data + self_data : self_data + item_data).to_h
 
               DataCycleCore::ContentContent::History.find_or_create_by!(relation_data)
-
             end
 
             # save without metadata embeddeLink(Array) field
             item.metadata = item.metadata.except(link_definition[:name])
-            I18n.with_locale(item.available_locales.first){ item.save }
+            I18n.with_locale(item.available_locales.first) { item.save }
           end
         end
       end
-
     end
 
-    desc "update ..classification_content relation table"
-    task :stage4 => [:environment] do
-
+    desc 'update ..classification_content relation table'
+    task stage4: [:environment] do
       temp = Time.zone.now
-      puts "S T A G E  4:"
-      puts "BEGIN: (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
+      puts 'S T A G E  4:'
+      puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
 
       # delete inconsistent data:
-      delete_sql = <<-eos
+      delete_sql = <<-EOS
       DELETE FROM classification_contents
       WHERE id IN (
         SELECT classification_contents.id
@@ -562,21 +543,21 @@ namespace :data_cycle_core do
           JOIN classifications ON classifications.id = classification_contents.classification_id
           WHERE classification_contents.relation IS NULL
       );
-      eos
-      puts "DELETE inconsistent data"
+      EOS
+      puts 'DELETE inconsistent data'
       ActiveRecord::Base.connection.execute(delete_sql)
-      puts "[#{'*'*100}] 100%"
+      puts "[#{'*' * 100}] 100%"
 
-      puts "IMPORT templates"
+      puts 'IMPORT templates'
       Rake::Task['data_cycle_core:update:import_templates'].invoke
-      puts "[#{'*'*100}] 100%"
+      puts "[#{'*' * 100}] 100%"
 
       # update Bild templates
-      Rake::Task['data_cycle_core:update:update_template'].invoke('creative_works','Bild')
+      Rake::Task['data_cycle_core:update:update_template'].invoke('creative_works', 'Bild')
 
       # rename Treelabel for keywords (new importer/type_definitions):
       old_tree_label_ids = DataCycleCore::ClassificationTreeLabel.where(name: 'Tags', external_source_id: DataCycleCore::ExternalSource.pluck(:id))
-      if old_tree_label_ids.size > 0
+      unless old_tree_label_ids.empty?
         keyword_label = old_tree_label_ids.first
         keyword_label.name = 'MediaArchive - Tags'
         keyword_label.save
@@ -589,41 +570,38 @@ namespace :data_cycle_core do
         items_count = content_class.constantize.count
         puts "UPDATING ==> #{content_class} (#{items_count})"
         content_class.constantize.all.each do |item|
-
           # progress bar
           index += 1
           if items_count > 49
-            if index % (items_count/100.0).round(0) == 0
-              fraction = (index / (items_count/100.0)).round(0)
+            if (index % (items_count / 100.0).round(0)).zero?
+              fraction = (index / (items_count / 100.0)).round(0)
               fraction = 100 if fraction > 100
-              print "[#{'*'*fraction}#{' '*(100-fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
             end
           else
-            fraction = (((index*1.0)/items_count) * 100.0).round(0)
+            fraction = (((index * 1.0) / items_count) * 100.0).round(0)
             fraction = 100 if fraction > 100
-            print"[#{'*'*fraction}#{' '*(100-fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
           end
 
           item.classification_property_names.each do |classification_name|
-
             item.send(classification_name).all.each do |classification_relation|
-              if classification_relation.kind_of?(DataCycleCore::ClassificationContent)
+              if classification_relation.is_a?(DataCycleCore::ClassificationContent)
                 classification_relation.update!(relation: classification_name)
               else
                 classification_relation.update_all(relation: classification_name)
               end
             end
-
           end
         end
-        puts "[#{'*'*100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
+        puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
       end
 
       # delete Bild history
-      Rake::Task['data_cycle_core:update:delete_history'].invoke('creative_works','Bild')
+      Rake::Task['data_cycle_core:update:delete_history'].invoke('creative_works', 'Bild')
 
       # delete classification_content_histories due to wrong template in history
-      delete_sql = <<-eos
+      delete_sql = <<-EOS
       DELETE FROM classification_content_histories
       WHERE id IN (
         SELECT classification_content_histories.id
@@ -631,10 +609,10 @@ namespace :data_cycle_core do
         WHERE relation IS NULL
         AND classification_content_histories.content_data_history_type = 'DataCycleCore::CreativeWork::History'
       );
-      eos
-      puts "DELETE keywords for history"
+      EOS
+      puts 'DELETE keywords for history'
       ActiveRecord::Base.connection.execute(delete_sql)
-      puts "[#{'*'*100}] 100%"
+      puts "[#{'*' * 100}] 100%"
 
       # update classification_content_histories
       index = 0
@@ -643,39 +621,56 @@ namespace :data_cycle_core do
         items_count = content_class.constantize.count
         puts "UPDATING ==> #{content_class} (#{items_count})"
         content_class.constantize.all.find_each do |item|
-
           # progress bar
           if items_count > 49
-            if index % (items_count/100.0).round(0) == 0
-              fraction = (index / (items_count/100.0)).round(0)
+            if (index % (items_count / 100.0).round(0)).zero?
+              fraction = (index / (items_count / 100.0)).round(0)
               fraction = 100 if fraction > 100
-              print "[#{'*'*fraction}#{' '*(100-fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
             end
           else
-            fraction = (((index*1.0)/items_count) * 100.0).round(0)
+            fraction = (((index * 1.0) / items_count) * 100.0).round(0)
             fraction = 100 if fraction > 100
-            print"[#{'*'*fraction}#{' '*(100-fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})\r"
+            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
           end
           index += 1
 
           item.classification_property_names.each do |classification_name|
-
             item.send(classification_name).all.find_each do |classification_relation|
-              if classification_relation.kind_of?(DataCycleCore::ClassificationContent::History)
+              if classification_relation.is_a?(DataCycleCore::ClassificationContent::History)
                 classification_relation.update!(relation: classification_name)
               else
                 classification_relation.update_all(relation: classification_name)
               end
             end
-
           end
         end
-        puts "[#{'*'*100}] 100% (#{Time.zone.now.strftime("%H:%M:%S.%3N")})"
+        puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
       end
 
-      puts "END"
-      puts "--> UPDATE time: #{((Time.zone.now - temp)/60).to_i} min"
+      puts 'END'
+      puts "--> UPDATE time: #{((Time.zone.now - temp) / 60).to_i} min"
     end
+  end
 
+  namespace :notifications do
+    desc 'send subscriber notification emails'
+    task :send, [:frequency] => [:environment] do |_t, args|
+      if args.frequency
+        puts 'sending mails for daily subscribers...'
+        puts "frequency: #{args.frequency}"
+        puts "Users for interval (#{args.frequency}): #{DataCycleCore::User.where(notification_frequency: args.frequency).size}"
+
+        DataCycleCore::User.where(notification_frequency: args.frequency).each do |user|
+          subcribed_with_changes = user.subscriptions.map(&:subscribable).reject { |c| c.as_of(1.send(args.frequency).ago).try(:is_history?) == false }
+
+          puts "Subscriptions with changes: #{subcribed_with_changes.size}"
+
+          if subcribed_with_changes.size.positive?
+            user.send_notification subcribed_with_changes
+          end
+        end
+      end
+    end
   end
 end

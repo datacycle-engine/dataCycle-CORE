@@ -14,11 +14,10 @@ module DataCycleCore
 
       if @user_group.save
         flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Benutzergruppe', locale: DataCycleCore.ui_language
-        redirect_back(fallback_location: root_path)
       else
         flash[:error] = @user_group.try(:errors).try(:first).try(:[], 1)
-        redirect_back(fallback_location: root_path)
       end
+      redirect_back(fallback_location: root_path)
     end
 
     def edit
@@ -42,14 +41,14 @@ module DataCycleCore
     def destroy
       if @user_group.destroy
         flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Benutzergruppe', locale: DataCycleCore.ui_language
-        redirect_back(fallback_location: root_path)
       else
         flash[:error] = @user_group.try(:errors).try(:first).try(:[], 1)
-        redirect_back(fallback_location: root_path)
       end
+      redirect_back(fallback_location: root_path)
     end
 
     private
+
     def user_group_params
       params.require(:user_group).permit(:name, user_ids: [], classification_ids: [])
     end
@@ -57,6 +56,5 @@ module DataCycleCore
     def set_user_group
       @user_group = DataCycleCore::UserGroup.find(params[:id])
     end
-
   end
 end

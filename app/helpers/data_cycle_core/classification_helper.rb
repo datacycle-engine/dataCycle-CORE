@@ -1,7 +1,6 @@
 module DataCycleCore
   module ClassificationHelper
-
-    #todo refactor
+    # TODO: refactor
     def get_classifications_for_name(name)
       if !name.nil? && !name.blank?
         DataCycleCore::ClassificationTreeLabel
@@ -10,27 +9,25 @@ module DataCycleCore
       end
     end
 
-    #todo refactor
+    # TODO: refactor
     def get_classifications_for_id(uids, treeLabel = nil)
-      begin
-        unless uids.nil?
-          if !treeLabel.nil?
-            allowed_classifications = get_classifications_for_name(treeLabel)
-              .classification_trees
-              .map { |classification| classification.sub_classification_alias.id }
-            allowed_uids = uids.select {|uid| allowed_classifications.include?(uid)}
-            @selected_classifications = DataCycleCore::ClassificationAlias.find(allowed_uids)
-          else
-            @selected_classifications = DataCycleCore::ClassificationAlias.find(uids)
-          end
+      unless uids.nil?
+        if !treeLabel.nil?
+          allowed_classifications = get_classifications_for_name(treeLabel)
+            .classification_trees
+            .map { |classification| classification.sub_classification_alias.id }
+          allowed_uids = uids.select { |uid| allowed_classifications.include?(uid) }
+          @selected_classifications = DataCycleCore::ClassificationAlias.find(allowed_uids)
+        else
+          @selected_classifications = DataCycleCore::ClassificationAlias.find(uids)
         end
-      rescue
-        logger.warn("cannot find classifications for the following ids: #{(uids || []).join(', ')}")
-        nil
       end
+    rescue StandardError
+      logger.warn("cannot find classifications for the following ids: #{(uids || []).join(', ')}")
+      nil
     end
 
-    #todo refactor
+    # TODO: refactor
     def get_classificationAliases_for_classificationIDs(uids)
       result = []
       unless uids.nil?
@@ -41,23 +38,17 @@ module DataCycleCore
     end
 
     def get_selected_values_for_classification(options, value)
+      return nil if value.nil?
 
-      if value.nil?
-        return nil
-      end
-
-      #todo: make this more fancy
+      # TODO: make this more fancy
       @selected_values = []
       Array(value).each do |v|
         options.each do |o|
-          if o[1] == v
-            @selected_values.push(o)
-          end
+          @selected_values.push(o) if o[1] == v
         end
       end
 
-      return @selected_values
-
+      @selected_values
     end
 
     def get_custom_select_values(classification_alias)
@@ -65,12 +56,12 @@ module DataCycleCore
     end
 
     def ordered_content_pools
-      content_pool_order = ['Vorschläge', 'Recherche', 'Aktuelle Inhalte', 'Archiv']
-      pools = Hash[DataCycleCore::ClassificationAlias.where(name: content_pool_order).collect{ |c| [ c.try(:name), c ] }]
-      unless pools.blank?
-        cached_ordered_content_pools = content_pool_order.collect{ |c| {id: pools[c].classifications.ids.first, alias: pools[c]} }
+      Rails.cache.fetch('ordered_content_pools', expires_in: 10.minutes) do
+        content_pool_order = ['Vorschläge', 'Recherche', 'Aktuelle Inhalte', 'Archiv']
+        pools = Hash[DataCycleCore::ClassificationAlias.where(name: content_pool_order).collect { |c| [c.try(:name), c] }]
+        cached_ordered_content_pools = content_pool_order.collect { |c| { id: pools[c].classifications.ids.first, alias: pools[c] } } unless pools.blank?
+        cached_ordered_content_pools
       end
-      cached_ordered_content_pools
     end
 
     def walk_classification_tree(classification_alias)
@@ -82,6 +73,5 @@ module DataCycleCore
       end
       classification_tree
     end
-
   end
 end

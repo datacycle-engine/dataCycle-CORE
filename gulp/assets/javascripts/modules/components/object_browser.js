@@ -1,4 +1,4 @@
-var ConfirmationHelper = require('./../helpers/confirmation_helper');
+var ConfirmationModal = require('./../components/confirmation_modal');
 
 // Object Browser Module
 var ObjectBrowser = function (selector) {
@@ -74,7 +74,7 @@ ObjectBrowser.prototype.setup = function () {
     event.preventDefault();
     event.stopPropagation();
     if (self.min != 0 && self.chosen.length <= self.min) {
-      ConfirmationHelper.showConfirmation(self.element, event, "Mindestanzahl: " + self.min, false);
+      var confirmationModal = new ConfirmationModal("Mindestanzahl: " + self.min);
     } else {
       self.chosen.splice(self.chosen.indexOf($(this).parent().data('id')), 1);
       $('.reveal-overlay > #media_reveal_' + $(this).parent().data('id')).parent('.reveal-overlay').remove();
@@ -123,7 +123,7 @@ ObjectBrowser.prototype.setup = function () {
 
       }.bind(this));
     } else if (this.max != 0 && (this.chosen.length + new_items.length) > this.max) {
-      ConfirmationHelper.showConfirmation(this.element, event, "Maximalanzahl: " + self.max, false);
+      var confirmationModal = new ConfirmationModal("Maximalanzahl: " + self.max);
     }
   }.bind(this));
 
@@ -185,7 +185,7 @@ ObjectBrowser.prototype.setChosen = function () {
 
 ObjectBrowser.prototype.addObject = function (id, element, event) {
   if (this.max != 0 && this.chosen.length >= this.max) {
-    ConfirmationHelper.showConfirmation(this.overlay, event, "Maximalanzahl: " + this.max, false);
+    var confirmationModal = new ConfirmationModal("Maximalanzahl: " + this.max);
   } else {
     this.chosen.push(id);
     this.overlay.find('.chosen-items-container').append(element);
@@ -196,7 +196,7 @@ ObjectBrowser.prototype.addObject = function (id, element, event) {
 
 ObjectBrowser.prototype.removeObject = function (id, event) {
   if (this.min != 0 && this.chosen.length <= this.min) {
-    ConfirmationHelper.showConfirmation(this.overlay, event, "Mindestanzahl: " + this.min, false);
+    var confirmationModal = new ConfirmationModal("Mindestanzahl: " + this.min);
   } else {
     this.chosen.splice(this.chosen.indexOf(id), 1);
     this.overlay.find('.chosen-items-container [data-id=' + id + ']').remove();
