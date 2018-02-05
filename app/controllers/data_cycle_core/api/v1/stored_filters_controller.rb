@@ -7,6 +7,12 @@ module DataCycleCore
         def show
           @contents = apply_filter(filter_id: params[:id], api_only: true)
         end
+
+        private
+
+        def permitted_parameter_keys
+          super + [:id]
+        end
       end
     end
   end
