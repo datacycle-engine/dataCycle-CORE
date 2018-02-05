@@ -1,0 +1,17 @@
+<div class="reveal" id="save-filter-with-name" data-reveal>
+  <h3><%= t('actions.save_filter', locale: DataCycleCore.ui_language) %></h3>
+  <%= form_tag(DataCycleCore::StoredFilter.new, id: 'save-filter-name-form') do %>
+    <%= label_tag 'stored_filter_name', 'Name' %>
+    <%= text_field_tag 'stored_filter_name', nil, required: true %>
+    <%= check_box_tag 'stored_filter_api', 1, true %>
+    <%= label_tag 'stored_filter_api', DataCycleCore::StoredFilter.human_attribute_name("api", locale: DataCycleCore.ui_language) %><br>
+    <% if can?(:create_global, DataCycleCore::StoredFilter) %>
+      <%= check_box_tag 'stored_filter_system' %>
+      <%= label_tag 'stored_filter_system', DataCycleCore::StoredFilter.human_attribute_name("system", locale: DataCycleCore.ui_language) %><br>
+    <% end %>
+    <input name="commit" value="Speichern" class="button primary" data-disable-with="Speichern..." type="submit">
+  <% end %>
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>

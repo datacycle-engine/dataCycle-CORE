@@ -70,6 +70,7 @@ module.exports.initialize = function () {
       $(form).append($(this).find('input[type=hidden]').clone());
       $(form).append('<input type="hidden" name="stored_filter_name" value="' + $(this).find('#stored_filter_name').val() + '">');
       $(form).append('<input type="hidden" name="stored_filter_system" value="' + $(this).find('#stored_filter_system').is(':checked') + '">');
+      $(form).append('<input type="hidden" name="stored_filter_api" value="' + $(this).find('#stored_filter_api').is(':checked') + '">');
 
       form.submit();
     });
