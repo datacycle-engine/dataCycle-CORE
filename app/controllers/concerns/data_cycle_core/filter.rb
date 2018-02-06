@@ -30,7 +30,7 @@ module DataCycleCore
         @order_string = 'boost DESC, ' + @order_by + ' ' + @order
       else
         # order by ranking
-        @order_string = DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(params[:search])
+        @order_string = DataCycleCore::Filter::Search.get_order_by_query_string(params[:search])
       end
 
       query = DataCycleCore::Filter::Search.new(@language).in_validity_period
@@ -50,19 +50,15 @@ module DataCycleCore
 
       @total = query.count(:id)
 
-      @paginateObject = query.page(params[:page])
+      @paginateObject = query.includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
 
-      # if params[:mode].nil?
-      #   @mode = "flex"
-      # else
-      #   @mode = params[:mode].to_s
-      # end
-
-      @paginateObject.includes(content_data: [:display_classification_aliases, :translations, :watch_lists]).map(&:content_data)
+      @paginateObject.map(&:content_data)
     end
 
-    def apply_filter(filter_id:)
+    def apply_filter(filter_id:, api_only: false)
       filter = DataCycleCore::StoredFilter.find(filter_id)
+      raise ActiveRecord::RecordNotFound if api_only && !filter.api
+
       filter.update(updated_at: Time.zone.now)
 
       params[:language] = filter.language
@@ -78,8 +74,7 @@ module DataCycleCore
 
       query = filter.apply
       @total = query.count(:id)
-      @paginateObject = query.page(params[:page])
-      @paginateObject.includes(content_data: [:display_classification_aliases, :translations, :watch_lists]).map(&:content_data)
+      query
     end
 
     def save_filter(method_name: nil, parameters: nil)
@@ -88,6 +83,7 @@ module DataCycleCore
       new_filter.language = @language
       new_filter.name = filter_params[:stored_filter_name] unless filter_params[:stored_filter_name].blank?
       new_filter.system = filter_params[:stored_filter_system]
+      new_filter.api = filter_params[:stored_filter_api]
       new_filter.parameters = {}
       new_filter.parameters[:in_validity_period] = Time.zone.now
       new_filter.parameters[:order] = @order_string unless @order_string.blank?
@@ -101,7 +97,7 @@ module DataCycleCore
     private
 
     def filter_params
-      params.permit(:stored_filter_name, :stored_filter_system)
+      params.permit(:stored_filter_name, :stored_filter_system, :stored_filter_api)
     end
   end
 end
