@@ -7,11 +7,10 @@ describe('CreativeWork', function () {
     const option = 'Artikel'
     const name = 'Test_' + option + '_' + Date.now()
     const updated_name = 'Updated_' + name
+    var id = undefined
 
     it('create', function () {
-      cy.visit('/?search=' + name).get('.flash.callout .close-button').click({
-        force: true
-      }).should('be.hidden')
+      cy.visit('/?search=' + name).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
       cy.get('#new-object-circle').click()
       cy.get('#new-object .option[data-open="' + option + '"]').then(function ($elem) {
         cy.expect($elem).to.be.visible
@@ -20,7 +19,12 @@ describe('CreativeWork', function () {
         cy.get('#' + $elem.data('open') + ' input[type=text]').clear().type(name)
         cy.get('#' + $elem.data('open')).find('form').submit()
         cy.location('pathname').should('match', /\/creative_works\/.*\/edit/)
-        cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
+        cy.get('.flash.callout').should('be.visible').should('have.class', 'success').find('.close-button').click()
+
+        cy.get('.edit-content-form').then(($elem) => {
+          id = $elem.prop('action').substring($elem.prop('action').lastIndexOf('/') + 1)
+          expect(id).to.have.length(36)
+        })
 
         cy.get('.headline input[type=text]').should('have.value', name)
         cy.get('.edit-header-functions .discard').click()
@@ -34,28 +38,34 @@ describe('CreativeWork', function () {
     })
 
     it('update', function () {
-      cy.visit('/?search=' + name).get('.flash.callout .close-button').click({
-        force: true
-      }).should('be.hidden')
-      cy.get('.search-results .grid-item:contains(' + name + ') .content-link').should('be.visible').click()
-      cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
-
-      cy.get('.edit-content-link').click()
+      cy.visit('/creative_works/' + id + '/edit').get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
       cy.location('pathname').should('match', /\/creative_works\/.*\/edit/)
 
       cy.get('.headline input[type=text]').should('be.visible').should('have.value', name).clear().type(updated_name)
       cy.get('.submit-edit-form').click()
       cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
-      cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
+      cy.get('.flash.callout').should('be.visible').should('have.class', 'success').find('.close-button').click().should('be.hidden')
+      cy.get('.detail-header-wrapper').contains(updated_name).should('have.length', 1)
+    })
 
-      cy.visit('/?search=' + updated_name).get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 1)
+    it('test json API', function () {
+      cy.request('/api/v1/creative_works/' + id).then((response) => {
+        expect(response.body).to.have.property('contentType', option)
+        expect(response.body).to.have.property('headline', updated_name)
+      })
+    })
+
+    it('test contents search API', function () {
+      cy.request('/api/v1/contents/search?search=' + updated_name).then((response) => {
+        expect(response.body).to.have.property('contents')
+        expect(response.body.contents).to.have.length(1)
+        expect(response.body.contents[0]).to.have.property('contentType', option)
+        expect(response.body.contents[0]).to.have.property('headline', updated_name)
+      })
     })
 
     it('delete', function () {
-      cy.visit('/?search=' + updated_name).get('.flash.callout .close-button').click({
-        force: true
-      }).should('be.hidden')
-      cy.get('.search-results .grid-item:contains(' + updated_name + ') .content-link').should('be.visible').click()
+      cy.visit('/creative_works/' + id).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
       cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
 
       cy.get('.delete-content-link').click()
@@ -71,11 +81,10 @@ describe('CreativeWork', function () {
     const option = 'Angebot'
     const name = option + '_Test_' + Date.now()
     const updated_name = name + '_updated'
+    var id = undefined
 
     it('create', function () {
-      cy.visit('/?search=' + name).get('.flash.callout .close-button').click({
-        force: true
-      }).should('be.hidden')
+      cy.visit('/?search=' + name).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
       cy.get('#new-object-circle').click()
       cy.get('#new-object .option[data-open="' + option + '"]').then(function ($elem) {
         expect($elem).to.be.visible
@@ -84,7 +93,12 @@ describe('CreativeWork', function () {
         cy.get('#' + $elem.data('open') + ' input[type=text]').clear().type(name)
         cy.get('#' + $elem.data('open')).find('form').submit()
         cy.location('pathname').should('match', /\/creative_works\/.*\/edit/)
-        cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
+        cy.get('.flash.callout').should('be.visible').should('have.class', 'success').find('.close-button').click().should('be.hidden')
+
+        cy.get('.edit-content-form').then(($elem) => {
+          id = $elem.prop('action').substring($elem.prop('action').lastIndexOf('/') + 1)
+          expect(id).to.have.length(36)
+        })
 
         cy.get('.headline input[type=text]').should('have.value', name)
         cy.get('.edit-header-functions .discard').click()
@@ -98,29 +112,36 @@ describe('CreativeWork', function () {
     })
 
     it('update', function () {
-      cy.visit('/?search=' + name).get('.flash.callout .close-button').click({
-        force: true
-      }).should('be.hidden')
-      cy.get('.search-results .grid-item:contains(' + name + ') .content-link').should('be.visible').click()
-      cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
-
-      cy.get('.edit-content-link').click()
+      cy.visit('/creative_works/' + id + '/edit').get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
       cy.location('pathname').should('match', /\/creative_works\/.*\/edit/)
 
       cy.get('.headline input[type=text]').should('be.visible').should('have.value', name).clear().type(updated_name)
 
       cy.get('.submit-edit-form').click()
       cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
-      cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
+      cy.get('.flash.callout').should('be.visible').should('have.class', 'success').find('.close-button').click().should('be.hidden')
 
-      cy.visit('/?search=' + updated_name).get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 1)
+      cy.get('.detail-header-wrapper').contains(updated_name).should('have.length', 1)
+    })
+
+    it('test json API', function () {
+      cy.request('/api/v1/creative_works/' + id).then((response) => {
+        expect(response.body).to.have.property('contentType', option)
+        expect(response.body).to.have.property('headline', updated_name)
+      })
+    })
+
+    it('test contents search API', function () {
+      cy.request('/api/v1/contents/search?search=' + updated_name).then((response) => {
+        expect(response.body).to.have.property('contents')
+        expect(response.body.contents).to.have.length(1)
+        expect(response.body.contents[0]).to.have.property('contentType', option)
+        expect(response.body.contents[0]).to.have.property('headline', updated_name)
+      })
     })
 
     it('delete', function () {
-      cy.visit('/?search=' + updated_name).get('.flash.callout .close-button').click({
-        force: true
-      }).should('be.hidden')
-      cy.get('.search-results .grid-item:contains(' + updated_name + ') .content-link').should('be.visible').click()
+      cy.visit('/creative_works/' + id).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
       cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
 
       cy.get('.delete-content-link').click()
@@ -135,11 +156,10 @@ describe('CreativeWork', function () {
     const option = 'SocialMediaPosting'
     const name = option + '_Test_' + Date.now()
     const updated_name = name + '_updated'
+    var id = undefined
 
     it('create', function () {
-      cy.visit('/?search=' + name).get('.flash.callout .close-button').click({
-        force: true
-      }).should('be.hidden')
+      cy.visit('/?search=' + name).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
       cy.get('#new-object-circle').click()
       cy.get('#new-object .option[data-open="' + option + '"]').then(function ($elem) {
         expect($elem).to.be.visible
@@ -148,7 +168,12 @@ describe('CreativeWork', function () {
         cy.get('#' + $elem.data('open') + ' input[type=text]').clear().type(name)
         cy.get('#' + $elem.data('open')).find('form').submit()
         cy.location('pathname').should('match', /\/creative_works\/.*\/edit/)
-        cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
+        cy.get('.flash.callout').should('be.visible').should('have.class', 'success').find('.close-button').click().should('be.hidden')
+
+        cy.get('.edit-content-form').then(($elem) => {
+          id = $elem.prop('action').substring($elem.prop('action').lastIndexOf('/') + 1)
+          expect(id).to.have.length(36)
+        })
 
         cy.get('.headline input[type=text]').should('have.value', name)
         cy.get('.edit-header-functions .discard').click()
@@ -162,28 +187,35 @@ describe('CreativeWork', function () {
     })
 
     it('update', function () {
-      cy.visit('/?search=' + name).get('.flash.callout .close-button').click({
-        force: true
-      }).should('be.hidden')
-      cy.get('.search-results .grid-item:contains(' + name + ') .content-link').should('be.visible').click()
-      cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
-
-      cy.get('.edit-content-link').click()
+      cy.visit('/creative_works/' + id + '/edit').get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
       cy.location('pathname').should('match', /\/creative_works\/.*\/edit/)
 
       cy.get('.headline input[type=text]').should('be.visible').should('have.value', name).clear().type(updated_name)
       cy.get('.submit-edit-form').click()
       cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
-      cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
+      cy.get('.flash.callout').should('be.visible').should('have.class', 'success').find('.close-button').click().should('be.hidden')
 
-      cy.visit('/?search=' + updated_name).get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 1)
+      cy.get('.detail-header-wrapper').contains(updated_name).should('have.length', 1)
+    })
+
+    it('test json API', function () {
+      cy.request('/api/v1/creative_works/' + id).then((response) => {
+        expect(response.body).to.have.property('contentType', option)
+        expect(response.body).to.have.property('headline', updated_name)
+      })
+    })
+
+    it('test contents search API', function () {
+      cy.request('/api/v1/contents/search?search=' + updated_name).then((response) => {
+        expect(response.body).to.have.property('contents')
+        expect(response.body.contents).to.have.length(1)
+        expect(response.body.contents[0]).to.have.property('contentType', option)
+        expect(response.body.contents[0]).to.have.property('headline', updated_name)
+      })
     })
 
     it('delete', function () {
-      cy.visit('/?search=' + updated_name).get('.flash.callout .close-button').click({
-        force: true
-      }).should('be.hidden')
-      cy.get('.search-results .grid-item:contains(' + updated_name + ') .content-link').should('be.visible').click()
+      cy.visit('/creative_works/' + id).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
       cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
 
       cy.get('.delete-content-link').click()
