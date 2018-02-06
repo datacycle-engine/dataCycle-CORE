@@ -15,8 +15,8 @@ gem 'globalize', github: 'globalize/globalize'
 # gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 group :development, :test do
-  gem 'dotenv-rails'
   gem 'byebug'
+  gem 'dotenv-rails'
   gem 'pry'
 
   gem 'capistrano-rails'
