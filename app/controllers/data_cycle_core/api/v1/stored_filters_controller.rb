@@ -5,7 +5,7 @@ module DataCycleCore
         include DataCycleCore::Filter
 
         def show
-          @contents = apply_filter(filter_id: params[:id], api_only: true)
+          @contents = apply_filter(filter_id: permitted_params[:id], api_only: true).page(permitted_params[:page]).includes(content_data: [:classifications, :translations, :watch_lists]).map(&:content_data)
         end
 
         private

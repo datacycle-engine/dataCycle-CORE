@@ -74,6 +74,11 @@
                         <%= stored_filter.name || "vor #{time_ago_in_words stored_filter.created_at}" %>
                       <% end %>
                       <span class="buttons">
+                        <% if stored_filter.api %>
+                          <%= link_to api_v1_stored_filter_path(stored_filter), class: 'copy-to-clipboard', data: { tooltip: '' }, title: t('actions.copy_api_url_to_clipboard') do %>
+                            <i class="fa fa-clipboard" aria-hidden="true"></i>
+                          <% end %>
+                        <% end %>
                         <% if can?(:destroy, stored_filter) %>
                           <%= link_to stored_filter_path(stored_filter), method: :delete, data: { confirm: "Filter #{t('actions.delete', locale: DataCycleCore.ui_language)}?" } do %>
                             <i class="fa fa-trash-o alert" aria-hidden="true"></i>
