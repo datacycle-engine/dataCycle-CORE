@@ -16,7 +16,7 @@ module.exports.initialize = function () {
       $(this).siblings('.clipboard-notice').fadeOut('fast', function () {
         $(this).remove();
       });
-    }.bind(this), 3000);
+    }.bind(this), 1000);
   });
 
 };
