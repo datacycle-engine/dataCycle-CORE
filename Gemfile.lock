@@ -422,6 +422,7 @@ DEPENDENCIES
   capistrano3-delayed-job
   capistrano3-puma
   data_cycle_core!
+  dotenv-rails
   gemsurance
   globalize!
   listen (~> 3.0.5)
@@ -430,9 +431,6 @@ DEPENDENCIES
   spring
   spring-watcher-listen (~> 2.0.0)
   web-console
-
-RUBY VERSION
-   ruby 2.4.3p205
 
 BUNDLED WITH
    1.16.1

@@ -3,6 +3,7 @@ module DataCycleCore
     class QueryBuilder
       extend Forwardable
       include Enumerable
+      include DataCycleCore::Common::ArelBuilder
 
       attr_reader :query
       def_delegators :@query, :to_a, :to_sql, :each, :page, :includes, :all, :select, :map
@@ -57,7 +58,7 @@ module DataCycleCore
         end
         reflect(
           @query.where(
-            tsmatch(to_tsvector(classification_alias[:name]), to_tsquery(quoted(name)))
+            tsmatch(to_tsvector(classification_alias[:name]), tsquery(quoted(name)))
           )
         )
       end
@@ -125,14 +126,6 @@ module DataCycleCore
         Arel::Nodes::NamedFunction.new('coalesce', [field1, field2])
       end
 
-      def to_tsquery(string)
-        Arel::Nodes::NamedFunction.new('plainto_tsquery', [quoted('simple'), string]) # [quoted('german'), string])
-      end
-
-      def tsmatch(tsvector, tsquery)
-        Arel::Nodes::InfixOperation.new('@@', tsvector, tsquery)
-      end
-
       def in_range(range, date)
         Arel::Nodes::InfixOperation.new('@>', range, date)
       end
@@ -147,10 +140,6 @@ module DataCycleCore
 
       def similar_to(field, string)
         Arel::Nodes::InfixOperation.new('SIMILAR TO', field, quoted(string))
-      end
-
-      def quoted(string)
-        Arel::Nodes.build_quoted(string)
       end
 
       def json_element(field, element)

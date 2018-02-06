@@ -5,7 +5,7 @@ module DataCycleCore
     def show
       link = DataCycleCore::DataLink.find_by(id: params[:id])
 
-      raise ActiveRecord::RecordNotFound, 'Link nicht mehr gültig!' unless !link.nil? && link.is_valid?
+      raise ActiveRecord::RecordNotFound unless !link.nil? && link.is_valid?
 
       session[:can_edit_ids] ||= []
       session[:can_edit_ids] << link.id unless session[:can_edit_ids].include?(link.id)
@@ -21,7 +21,7 @@ module DataCycleCore
     end
 
     def create
-      redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :success], locale: DataCycleCore.ui_language)) unless receiver_params[:email].match?(Devise.email_regexp)
+      redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :success], locale: DataCycleCore.ui_language)) && return unless receiver_params[:email].match?(Devise.email_regexp)
 
       redirect_back(fallback_location: root_path, alert: (I18n.t :email_exists, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless DataCycleCore::DataLink.joins(:receiver).where(item_type: create_link_params[:item_type], item_id: create_link_params[:item_id], users: { email: receiver_params[:email] }).empty?
 

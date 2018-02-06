@@ -9,25 +9,26 @@ describe('DataLink', function () {
   const updated_name = 'Updated_' + cname
 
   it('create', function () {
-    cy.createCreativeWork(cname, option)
-    cy.visit('/?search=' + cname).get('.flash.callout .close-button').click({
-      force: true
-    }).should('be.hidden')
-    cy.get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
-    cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
+    cy.createCreativeWork(cname, option).then(resp => {
+      var url = resp.headers.location.replace('/edit', '')
+      cy.visit(url).get('.flash.callout .close-button').click({
+        force: true
+      }).should('be.hidden')
+      cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
 
-    cy.get('.detail-header-functions [data-toggle="send-link"]').click()
-    cy.get('#send-link').should('be.visible').find('.new-data-link').click()
-    cy.get('#data-link-overlay-new #data_link_receiver_email').should('be.visible').type(email)
-    cy.get('#data-link-overlay-new #data_link_receiver_given_name').should('be.visible').type('Test')
-    cy.get('#data-link-overlay-new #data_link_receiver_family_name').should('be.visible').type('Test')
-    cy.get('#data-link-overlay-new #data_link_permissions_write').should('be.visible').check()
-    cy.get('#data-link-overlay-new [type="submit"]').should('be.visible').click()
-    cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
-    cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
+      cy.get('.detail-header-functions [data-toggle="send-link"]').click()
+      cy.get('#send-link').should('be.visible').find('.new-data-link').click()
+      cy.get('#data-link-overlay-new #data_link_receiver_email').should('be.visible').type(email)
+      cy.get('#data-link-overlay-new #data_link_receiver_given_name').should('be.visible').type('Test')
+      cy.get('#data-link-overlay-new #data_link_receiver_family_name').should('be.visible').type('Test')
+      cy.get('#data-link-overlay-new #data_link_permissions_write').should('be.visible').check()
+      cy.get('#data-link-overlay-new [type="submit"]').should('be.visible').click()
+      cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
+      cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
 
-    cy.get('.detail-header-functions [data-toggle="send-link"]').click()
-    cy.get('#send-link').should('be.visible').find('.email:contains("' + email + '")').should('have.length', 1)
+      cy.get('.detail-header-functions [data-toggle="send-link"]').click()
+      cy.get('#send-link').should('be.visible').find('.email:contains("' + email + '")').should('have.length', 1)
+    })
   })
 
   it('test link', function () {

@@ -1,6 +1,5 @@
 /* todo: merge styles */
 
-
 /* Fixes for Firefox */
 
 .detail-header.editor {
@@ -911,4 +910,18 @@ ul.translated-locales {
 select:-moz-focusring {
   color: transparent;
   text-shadow: 0 0 0 $black;
+}
+
+.clipboard-notice {
+  position: absolute;
+  right: 43px;
+  display: block;
+  background: white;
+  color: $black;
+  padding: 3px 7px;
+  white-space: nowrap;
+  z-index: 1;
+  border-radius: 5px;
+  top: -3px;
+  box-shadow: 0 0 3px #ccc;
 }
