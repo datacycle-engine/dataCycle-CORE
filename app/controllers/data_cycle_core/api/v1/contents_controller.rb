@@ -1,32 +1,32 @@
 module DataCycleCore
   class Api::V1::ContentsController < Api::V1::ApiBaseController
     def show
-      object_type = DataCycleCore.content_tables.find { |object| object == params[:type] }
+      object_type = DataCycleCore.content_tables.find { |object| object == permitted_params[:type] }
 
       unless object_type.nil?
         @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
           .includes({ classifications: [], translations: [] })
-          .find(params[:id])
+          .find(permitted_params[:id])
       end
     end
 
     def update
-      object_type = DataCycleCore.content_tables.find { |object| object == params[:type] }
-      content = params[:content]
+      object_type = DataCycleCore.content_tables.find { |object| object == permitted_params[:type] }
+      content = permitted_params[:content]
 
       @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
         .includes({ classifications: [], translations: [] })
-        .find(params[:id])
+        .find(permitted_params[:id])
 
       render json: @content.get_data_hash
     end
 
     def destroy
-      object_type = DataCycleCore.content_tables.find { |object| object == params[:type] }
+      object_type = DataCycleCore.content_tables.find { |object| object == permitted_params[:type] }
 
       @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
         .includes({ classifications: [], translations: [] })
-        .find(params[:id])
+        .find(permitted_params[:id])
 
       # @content.destroy
       # render json: {"success" => @content.destroyed?}
@@ -35,10 +35,10 @@ module DataCycleCore
     def search
       query = build_search_query
       query = query.where(content_data_type: content_data_type) if content_data_type
-      query = query.modified_since(params[:modified_since]) if params[:modified_since]
-      query = query.created_since(params[:created_since]) if params[:created_since]
-      query = query.in_validity_period if params[:modified_since] && params[:created_since]
-      query = query.fulltext_search(params[:search]) if params[:search]
+      query = query.modified_since(permitted_params[:modified_since]) if permitted_params[:modified_since]
+      query = query.created_since(permitted_params[:created_since]) if permitted_params[:created_since]
+      query = query.in_validity_period if permitted_params[:modified_since] && permitted_params[:created_since]
+      query = query.fulltext_search(permitted_params[:search]) if permitted_params[:search]
       query = apply_ordering(query)
 
       @total = query.count
@@ -51,12 +51,12 @@ module DataCycleCore
         DataCycleCore::CreativeWork::History.arel_table[:deleted_at].not_eq(nil)
       )
 
-      @language = params[:language] unless params[:language].blank?
+      @language = permitted_params[:language] unless permitted_params[:language].blank?
       @language ||= 'de'
 
-      if params[:deleted_since]
+      if permitted_params[:deleted_since]
         deleted_contents = deleted_contents.where(
-          DataCycleCore::CreativeWork::History.arel_table[:deleted_at].gteq(DateTime.parse(params[:deleted_since]))
+          DataCycleCore::CreativeWork::History.arel_table[:deleted_at].gteq(DateTime.parse(permitted_params[:deleted_since]))
         )
       end
 
@@ -70,21 +70,21 @@ module DataCycleCore
     private
 
     def build_search_query
-      query = DataCycleCore::Filter::Search.new(params.fetch(:language, 'de'))
+      query = DataCycleCore::Filter::Search.new(permitted_params.fetch(:language, 'de'))
       query
     end
 
     def content_data_type
-      return unless params[:type]
-      object_type = DataCycleCore.content_tables.find { |object| object == params[:type] }
+      return unless permitted_params[:type]
+      object_type = DataCycleCore.content_tables.find { |object| object == permitted_params[:type] }
       ('DataCycleCore::' + object_type.singularize.classify).constantize
     end
 
     def apply_ordering(query)
-      if params[:search].blank?
+      if permitted_params[:search].blank?
         query
       else
-        query.order(DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(params[:search]))
+        query.order(DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(permitted_params[:search]))
       end
     end
   end

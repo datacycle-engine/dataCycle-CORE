@@ -50,15 +50,9 @@ module DataCycleCore
 
       @total = query.count(:id)
 
-      @paginateObject = query.page(params[:page])
+      @paginateObject = query.includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
 
-      # if params[:mode].nil?
-      #   @mode = "flex"
-      # else
-      #   @mode = params[:mode].to_s
-      # end
-
-      @paginateObject.includes(content_data: [:display_classification_aliases, :translations, :watch_lists]).map(&:content_data)
+      @paginateObject.map(&:content_data)
     end
 
     def apply_filter(filter_id:, api_only: false)
@@ -80,8 +74,7 @@ module DataCycleCore
 
       query = filter.apply
       @total = query.count(:id)
-      @paginateObject = query.page(params[:page])
-      @paginateObject.includes(content_data: [:display_classification_aliases, :translations, :watch_lists]).map(&:content_data)
+      query
     end
 
     def save_filter(method_name: nil, parameters: nil)

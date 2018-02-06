@@ -3,10 +3,10 @@ module DataCycleCore
     def index
       if current_user
         @watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
-          .where(user: User.find_by(email: params[:user_email]) || current_user)
+          .where(user: User.find_by(email: permitted_params[:user_email]) || current_user)
           .all
       else
-        @watch_lists = DataCycleCore::WatchList.where(user: User.find_by!(email: params[:user_email])).all
+        @watch_lists = DataCycleCore::WatchList.where(user: User.find_by!(email: permitted_params[:user_email])).all
       end
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
@@ -24,7 +24,14 @@ module DataCycleCore
 
     # method to show a particular WatchList
     def show
-      @watch_list = DataCycleCore::WatchList.find(params[:id])
+      @watch_list = DataCycleCore::WatchList.find(permitted_params[:id])
+    end
+
+
+    private
+
+    def permitted_parameter_keys
+      super + [:user_email, :id]
     end
   end
 end

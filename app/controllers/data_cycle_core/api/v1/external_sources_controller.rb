@@ -2,12 +2,13 @@ module DataCycleCore
   class Api::V1::ExternalSourcesController < Api::V1::ApiBaseController
     def update
       api_strategy = get_api_strategy
-      content = params[:content].as_json
+      content = content_params.as_json
+
 
       updated = api_strategy.update content
 
       updated.each do |item|
-        item.update(webhook_source: external_sources_params[:webhook_source]) unless external_sources_params[:webhook_source].blank?
+        item.update(webhook_source: permitted_params[:webhook_source]) unless permitted_params[:webhook_source].blank?
       end
 
       execute_after_update_webhooks updated.first if updated.is_a?(Array)
@@ -18,7 +19,7 @@ module DataCycleCore
 
     def create
       api_strategy = get_api_strategy
-      content = params[:content].as_json
+      content = content_params.as_json
 
       created = api_strategy.create content
 
@@ -31,7 +32,7 @@ module DataCycleCore
     def destroy
       api_strategy = get_api_strategy
 
-      deleted = api_strategy.delete external_sources_params[:external_key]
+      deleted = api_strategy.delete permitted_params[:external_key]
 
       execute_after_delete_webhooks deleted
 
@@ -39,17 +40,23 @@ module DataCycleCore
       render plain: { 'deleted' => deleted }.to_json, content_type: 'application/json'
     end
 
+
     private
 
-    def external_sources_params
-      params.permit(:external_source_id, :type, :external_key, :token, :webhook_source)
+    def content_params
+      params.require(:content)
     end
 
+    def permitted_parameter_keys
+      super + [:external_source_id, :type, :external_key, :token, :webhook_source]
+    end
+
+
     def get_api_strategy
-      external_source = DataCycleCore::ExternalSource.find(external_sources_params[:external_source_id])
+      external_source = DataCycleCore::ExternalSource.find(permitted_params[:external_source_id])
       api_strategy = DataCycleCore.allowed_api_strategies.find { |object| object == external_source.config['api_strategy'] }
 
-      api_strategy&.constantize&.new(external_source, external_sources_params[:type], external_sources_params[:external_key])
+      api_strategy&.constantize&.new(external_source, permitted_params[:type], permitted_params[:external_key])
     end
 
     def execute_after_update_webhooks(data)
