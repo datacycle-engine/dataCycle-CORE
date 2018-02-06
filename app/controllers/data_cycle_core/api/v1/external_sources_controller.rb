@@ -4,7 +4,6 @@ module DataCycleCore
       api_strategy = get_api_strategy
       content = content_params.as_json
 
-
       updated = api_strategy.update content
 
       updated.each do |item|
@@ -40,7 +39,6 @@ module DataCycleCore
       render plain: { 'deleted' => deleted }.to_json, content_type: 'application/json'
     end
 
-
     private
 
     def content_params
@@ -50,7 +48,6 @@ module DataCycleCore
     def permitted_parameter_keys
       super + [:external_source_id, :type, :external_key, :token, :webhook_source]
     end
-
 
     def get_api_strategy
       external_source = DataCycleCore::ExternalSource.find(permitted_params[:external_source_id])

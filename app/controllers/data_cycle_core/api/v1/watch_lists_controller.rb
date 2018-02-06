@@ -27,7 +27,6 @@ module DataCycleCore
       @watch_list = DataCycleCore::WatchList.find(permitted_params[:id])
     end
 
-
     private
 
     def permitted_parameter_keys
