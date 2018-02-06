@@ -3,4 +3,4 @@
 type = content.class.table_name.singularize
 
 json.set! '@context', "http://schema.org/#{type}"
-json.set! 'contentType', content.content_type
+json.set! 'contentType', content.template_name

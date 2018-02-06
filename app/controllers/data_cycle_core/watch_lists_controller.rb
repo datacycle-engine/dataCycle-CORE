@@ -30,10 +30,9 @@ module DataCycleCore
 
       respond_to do |format|
         if !@watch_list.nil? && @watch_list.save
-          format.json { render json: { headline: @watch_list.headline, url: watch_list_path(@watch_list) } }
+          format.js
           format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Merkliste', locale: DataCycleCore.ui_language)) }
         else
-          format.json { render json: { error: 'Konnte nicht gespeichert werden.' } }
           format.html { redirect_back(fallback_location: root_path) }
         end
       end
@@ -76,37 +75,35 @@ module DataCycleCore
       redirect_to watch_lists_path
     end
 
-    def removeItem
-      watch_list = DataCycleCore::WatchList.find(params[:id])
+    def remove_item
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
       object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == params[:hashable_type].classify }
 
       unless object_type.nil?
-        content_object = object_type.constantize.find(params[:hashable_id])
+        @content_object = object_type.constantize.find(params[:hashable_id])
 
-        content_object.watch_lists.delete(watch_list) unless content_object.nil? || watch_list.nil?
-
+        @content_object.watch_lists.delete(@watch_list) unless @content_object.nil? || @watch_list.nil?
       end
 
       respond_to do |format|
-        format.json { render json: { url: addItem_watch_list_path(watch_list, hashable_params), count: content_object.watch_lists.by_user(current_user).size, headline: watch_list.headline } }
-        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :removedFrom, scope: [:controllers, :success], data: watch_list.headline, locale: DataCycleCore.ui_language)) }
+        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :removedFrom, scope: [:controllers, :success], data: @watch_list.headline, locale: DataCycleCore.ui_language)) }
+        format.js
       end
     end
 
-    def addItem
-      watch_list = DataCycleCore::WatchList.find(params[:id])
+    def add_item
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
       object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == params[:hashable_type].classify }
 
       unless object_type.nil?
-        content_object = object_type.constantize.find(params[:hashable_id])
+        @content_object = object_type.constantize.find(params[:hashable_id])
 
-        content_object.watch_lists << watch_list unless content_object.nil? || watch_list.nil?
-
+        @content_object.watch_lists << @watch_list unless @content_object.nil? || @watch_list.nil?
       end
 
       respond_to do |format|
-        format.json { render json: { url: removeItem_watch_list_path(watch_list, hashable_params), count: content_object.watch_lists.by_user(current_user).size, headline: watch_list.headline } }
-        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :addedTo, scope: [:controllers, :success], data: watch_list.headline, locale: DataCycleCore.ui_language)) }
+        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :addedTo, scope: [:controllers, :success], data: @watch_list.headline, locale: DataCycleCore.ui_language)) }
+        format.js
       end
     end
 

@@ -69,6 +69,7 @@
         <div class=" filterbuttons">
 
             <button type="reset" id="reset-filter" class="button"><%= t('actions.reset', count: 2, locale: DataCycleCore.ui_language) %></button>
+            <%= button_tag(t('actions.save_filter', locale: DataCycleCore.ui_language), class: 'button', type: 'button', id: 'save-filter', data: { open: 'save-filter-with-name' }) if can?(:create, DataCycleCore::StoredFilter) %>
             <%= button_tag(t('actions.filter', locale: DataCycleCore.ui_language), class: "button success") %>
 
         </div>
@@ -76,6 +77,22 @@
     </div>
   </div>
 </section>
+<% end %>
 
-
+<% if can?(:create, DataCycleCore::StoredFilter) %>
+  <div class="reveal" id="save-filter-with-name" data-reveal>
+    <h3><%= t('actions.save_filter', locale: DataCycleCore.ui_language) %></h3>
+    <%= form_tag('', :method => "get", id: "save-filter-name-form") do %>
+      <%= label_tag 'stored_filter_name', 'Name' %>
+      <%= text_field_tag 'stored_filter_name', nil, required: true %>
+      <% if can?(:create_global, DataCycleCore::StoredFilter) %>
+        <%= check_box_tag 'stored_filter_system' %>
+        <%= label_tag 'stored_filter_system', 'Globaler Filter' %><br>
+      <% end %>
+      <input name="commit" value="Speichern" class="button primary" data-disable-with="Speichern..." type="submit">
+    <% end %>
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
 <% end %>

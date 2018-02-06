@@ -10,10 +10,11 @@ describe('DataLink', function () {
 
   it('create', function () {
     cy.createCreativeWork(cname, option)
-
-    cy.get('#search').type(cname + '{enter}', {
+    cy.visit('/?search=' + cname).get('.flash.callout .close-button').click({
       force: true
-    }).get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
+    }).should('be.hidden')
+    cy.get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
+    cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
 
     cy.get('.detail-header-functions [data-toggle="send-link"]').click()
     cy.get('#send-link').should('be.visible').find('.new-data-link').click()
@@ -22,25 +23,32 @@ describe('DataLink', function () {
     cy.get('#data-link-overlay-new #data_link_receiver_family_name').should('be.visible').type('Test')
     cy.get('#data-link-overlay-new #data_link_permissions_write').should('be.visible').check()
     cy.get('#data-link-overlay-new [type="submit"]').should('be.visible').click()
-    cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
+    cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
+    cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
 
     cy.get('.detail-header-functions [data-toggle="send-link"]').click()
     cy.get('#send-link').should('be.visible').find('.email:contains("' + email + '")').should('have.length', 1)
   })
 
   it('test link', function () {
-    cy.get('#search').type(cname + '{enter}', {
+    cy.visit('/?search=' + cname).get('.flash.callout .close-button').click({
       force: true
-    }).get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
+    }).should('be.hidden')
+    cy.get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
+    cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
+
     cy.get('.detail-header-functions [data-toggle="send-link"]').click()
     cy.get('#send-link').should('be.visible').find('li:contains("' + email + '")').should('have.length', 1).then(function ($elem) {
       const url = '/data_links/' + $elem.prop('id').replace('data-link-', '')
 
       cy.logout()
-      cy.visit(url)
+      cy.visit(url).get('.flash.callout .close-button').click({
+        force: true
+      }).should('be.hidden')
       cy.get('.headline input[type=text]').should('be.visible').should('have.value', cname).clear().type(updated_name)
       cy.get('.submit-edit-form').click()
-      cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
+      cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
+      cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
     })
   })
 
@@ -58,7 +66,7 @@ describe('DataLink', function () {
   //     cy.get('.headline input[type=text]').should('be.visible').should('have.value', updated_name).clear().type(cname)
   //     cy.get('input#finalize').should('be.visible').check()
   //     cy.get('.submit-edit-form').click()
-  //     cy.get('.confirmation').should('be.visible').find('.ok').click()
+  //     cy.get('.confirmation-modal').should('be.visible').find('.confirmation-confirm').click()
   //     cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
   //
   //     cy.get('.edit-content-link').should('have.length', 0)
@@ -66,14 +74,18 @@ describe('DataLink', function () {
   // })
 
   it('lock link', function () {
-    cy.get('#search').type(updated_name + '{enter}', {
+    cy.visit('/?search=' + updated_name).get('.flash.callout .close-button').click({
       force: true
-    }).get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 1).click()
+    }).should('be.hidden')
+    cy.get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 1).click()
+    cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
+
     cy.get('.detail-header-functions [data-toggle="send-link"]').click()
     cy.get('#send-link').should('be.visible').find('li:contains("' + email + '")').should('have.length', 1).then(function ($elem) {
       const url = '/data_links/' + $elem.prop('id').replace('data-link-', '')
       $elem.find('.invalidate-data-link').click()
-      cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
+      cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
+      cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
 
       cy.logout()
       cy.request({
@@ -87,9 +99,12 @@ describe('DataLink', function () {
   })
 
   it('unlock link', function () {
-    cy.get('#search').type(updated_name + '{enter}', {
+    cy.visit('/?search=' + updated_name).get('.flash.callout .close-button').click({
       force: true
-    }).get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 1).click()
+    }).should('be.hidden')
+    cy.get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 1).click()
+    cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
+
     cy.get('.detail-header-functions [data-toggle="send-link"]').click()
     cy.get('#send-link').should('be.visible').find('li:contains("' + email + '")').should('have.length', 1).then(function ($elem) {
       const url = '/data_links/' + $elem.prop('id').replace('data-link-', '')
@@ -97,12 +112,15 @@ describe('DataLink', function () {
       $elem.find('.send-link-button').click()
 
       cy.get('#' + overlay_id + ' input[value="write"]').should('be.visible').check()
-      cy.get('#' + overlay_id + ' [name="data_link[valid_until]"]').should('have.length', 1).siblings('.flatpickr-input').clear().type(new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString())
+      cy.get('#' + overlay_id + ' [name="data_link[valid_until]"]').should('have.length', 1).siblings('.flatpickr-input').clear().type(new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('de-DE'))
       cy.get('#' + overlay_id + ' [type="submit"]').should('be.visible').click()
-      cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click()
+      cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
+      cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
 
       cy.logout()
-      cy.visit(url)
+      cy.visit(url).get('.flash.callout .close-button').click({
+        force: true
+      }).should('be.hidden')
       cy.get('.headline input[type=text]').should('be.visible').should('have.value', updated_name)
     })
   })

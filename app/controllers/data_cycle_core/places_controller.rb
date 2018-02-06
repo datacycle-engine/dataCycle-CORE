@@ -28,7 +28,7 @@ module DataCycleCore
     def create
       I18n.with_locale(params[:locale] || I18n.locale) do
         object_params = place_params('places', params[:template])
-        @place = DataCycleCore::DataHashService.create_internal_object('places', params[:template], 'Place', object_params, current_user)
+        @place = DataCycleCore::DataHashService.create_internal_object('places', params[:template], object_params, current_user)
 
         if @place.nil?
           redirect_back(fallback_location: root_path)

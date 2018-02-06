@@ -46,7 +46,7 @@ module DataCycleCore
 
     def render_content_partial(partial, parameters)
       partials = [
-        "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].content_type.underscore}_#{partial}",
+        "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].template_name.underscore}_#{partial}",
         "#{parameters[:content].class.class_name.underscore}_#{partial}",
         "content_#{partial}"
       ]
@@ -68,12 +68,12 @@ module DataCycleCore
     def render_attribute_viewer(key:, definition:, value:, parameters: {})
       partials = [
         parameters.dig(:options).dig(:force_partial).try(:underscore).to_s,
-        "#{definition['type'].underscore}_#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'data-type').try(:underscore)}",
-        "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
-        definition.try(:[], 'editor').try(:[], 'type').try(:underscore).to_s,
+        definition&.dig('validations', 'format')&.underscore&.to_s,
+        "#{definition['type']&.underscore}_#{definition&.dig('editor', 'options', 'data-type')&.underscore || 'default'}",
+        "#{definition['type']&.underscore}_#{definition&.dig('validations', 'format')&.underscore || 'default'}",
+        definition&.dig('editor', 'type')&.underscore&.to_s,
         definition['type'].underscore.to_s
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/#{p}_viewer" }
-
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
     end
 
@@ -82,8 +82,8 @@ module DataCycleCore
       partials = [
         # "#{item.try(:metadata).try(:dig, 'validation', 'name')}_#{item.try(:metadata).try(:dig, 'validation', 'description')}".underscore.parameterize(separator: '_'),
         # item.try(:metadata).try(:dig, 'validation', 'description').to_s.underscore.parameterize(separator: '_'),
-        item.template_name.underscore.parameterize(separator: '_'),
-        "#{item.template_name.underscore.parameterize(separator: '_')}_#{item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_')}",
+        item.try(:template_name)&.underscore&.parameterize(separator: '_'),
+        "#{item.try(:template_name)&.underscore&.parameterize(separator: '_')}_#{item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_')}",
         item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_'),
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}_tile" }

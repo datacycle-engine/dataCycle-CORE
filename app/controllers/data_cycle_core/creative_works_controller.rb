@@ -112,6 +112,12 @@ module DataCycleCore
         end
       end
 
+      if params[:locale] && !@content.translated_locales.include?(params[:locale]) && (DataCycleCore.translatable_types.include?(@content.class.name) || DataCycleCore.translatable_types.include?(@content.content_type))
+        I18n.with_locale(params[:locale]) do
+          @content.save
+        end
+      end
+
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
         unless @content.read_write?
           redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)

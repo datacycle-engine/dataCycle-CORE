@@ -56,10 +56,12 @@ module DataCycleCore
     end
 
     def ordered_content_pools
-      content_pool_order = ['Vorschläge', 'Recherche', 'Aktuelle Inhalte', 'Archiv']
-      pools = Hash[DataCycleCore::ClassificationAlias.where(name: content_pool_order).collect { |c| [c.try(:name), c] }]
-      cached_ordered_content_pools = content_pool_order.collect { |c| { id: pools[c].classifications.ids.first, alias: pools[c] } } unless pools.blank?
-      cached_ordered_content_pools
+      Rails.cache.fetch('ordered_content_pools', expires_in: 10.minutes) do
+        content_pool_order = ['Vorschläge', 'Recherche', 'Aktuelle Inhalte', 'Archiv']
+        pools = Hash[DataCycleCore::ClassificationAlias.where(name: content_pool_order).collect { |c| [c.try(:name), c] }]
+        cached_ordered_content_pools = content_pool_order.collect { |c| { id: pools[c].classifications.ids.first, alias: pools[c] } } unless pools.blank?
+        cached_ordered_content_pools
+      end
     end
 
     def walk_classification_tree(classification_alias)

@@ -117,6 +117,7 @@ de:
     write: schreiben
     save_and_send: "Speichern und Senden"
     finalize: Bearbeitung abschließen
+    save_filter: Filter speichern
 
   validation:
     errors:
@@ -234,7 +235,7 @@ de:
         other: Personen
       data_cycle_core/stored_filter:
         one: Gespeicherter Filter
-        other: Gespeicherten Filter
+        other: Gespeicherte Filter
     attributes:
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
@@ -272,14 +273,16 @@ de:
         validity_period: Gültigkeitszeitraum (von - bis)
         valid_from: Gültig von
         valid_until: bis
+      data_cycle_core/stored_filter:
+        system: Globaler Filter
   unauthorized:
     manage:
       all: "Keine Zugriffsberechtigung!"
   data_cycle_core:
     administration: 'Administration'
-
     classifications: 'Klassifizierungen'
     settings: Einstellungen
+    stored_filter: Meine gespeicherten Filter
 
   helpers:
     label:

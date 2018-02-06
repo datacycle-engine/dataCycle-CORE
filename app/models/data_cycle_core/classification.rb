@@ -1,6 +1,6 @@
 module DataCycleCore
   class Classification < ApplicationRecord
-    belongs_to :external_sources
+    belongs_to :external_source
 
     acts_as_paranoid
 
@@ -22,7 +22,7 @@ module DataCycleCore
     end
 
     def primary_classification_alias
-      primary_classification_group.classification_alias
+      primary_classification_group&.classification_alias
     end
 
     def ancestors

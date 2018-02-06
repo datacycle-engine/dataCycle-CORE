@@ -1,9 +1,5 @@
 module DataCycleCore
   module ContentHelpers
-    def content_type
-      template_name
-    end
-
     def read_write?
       schema['permissions']['read_write']
     end

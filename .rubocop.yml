@@ -99,6 +99,7 @@ Metrics/PerceivedComplexity:
 Naming/HeredocDelimiterNaming:
   Enabled: false
 
+
 #######################################################
 ########## Security
 
@@ -112,4 +113,3 @@ Security/YAMLLoad:
 
 Rails/CreateTableWithTimestamps:
   Enabled: false
-

@@ -1,0 +1,114 @@
+image: patrickrainer/data_cycle_base
+
+variables:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: ""
+  POSTGRES_HOST: postgres
+  POSTGRES_DB: data-cycle-base_test
+  POSTGRES_PORT: "5432"
+  MONGODB_HOST: mongodb
+  RAILS_ENV: test
+  TZ: Europe/Vienna
+
+stages:
+  - build
+  - test
+  - check
+  - deploy
+
+before_script:
+# uncomment for local testing
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+# uncomment for local testing END
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+
+  - bundle install --path=cache/bundler
+
+  - dpkg-reconfigure -f noninteractive tzdata
+  - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+  - cd $CI_PROJECT_DIR
+
+cache:
+  key: application-cache
+  untracked: true
+  paths:
+    - cache/bundler
+    - node_modules
+
+services:
+  - name: mdillon/postgis:9.6
+    alias: postgres
+  - name: mvertes/alpine-mongo
+    alias: mongodb
+
+# Running tests
+rails_test:
+  script:
+    - bundle exec rake db:drop
+    - bundle exec rake db:create
+    - bundle exec rake db:migrate
+    - bundle exec rake db:seed
+    - rails test
+
+cypress:
+  script:
+    - bundle exec rake db:drop
+    - bundle exec rake db:create
+    - bundle exec rake db:migrate
+    - bundle exec rake db:seed
+    - bundle exec rake app:data_cycle_core:update:import_classifications
+    - bundle exec rake app:data_cycle_core:update:import_templates
+    - yarn
+    - npx gulp production
+    - cd test/dummy && rails server -b 0.0.0.0 -p 3000 -d
+    - cd $CI_PROJECT_DIR && npx cypress run
+  artifacts:
+    name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_cypress"
+    paths:
+    - cypress/screenshots/
+    expire_in: 1 week
+    when: on_failure
+
+# code validation
+# bundle-audit
+# brakeman
+# rubocop
+code_validation:
+  stage: check
+  script:
+    - bundle-audit update
+    - bundle audit check
+    - brakeman
+    - rubocop --format fuubar
+
+# deployment
+deploy_staging:
+  stage: deploy
+  script:
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - cap staging deploy
+  only:
+    - staging
+  environment:
+    name: staging
+    url: http://core-staging.datacycle.at/
+  when: manual
+  allow_failure: false
+
+deploy_development:
+  stage: deploy
+  script:
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - cap development deploy
+  only:
+    - develop
+  environment:
+    name: development
+    url: http://core-development.datacycle.at/
+  allow_failure: false

@@ -7,6 +7,9 @@ module DataCycleCore
 
     attr_accessor :datahash, :webhook_source
 
+    extend Common::ArelBuilder
+    extend ContentFilters
+
     include ContentRelations
     include Subscribable
     include Releasable

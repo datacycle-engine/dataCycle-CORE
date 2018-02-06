@@ -698,6 +698,25 @@ namespace :data_cycle_core do
       puts 'END'
       puts "--> UPDATE time: #{((Time.zone.now - temp) / 60).to_i} min"
     end
+
+    desc 'update...rename Standard-Artikel to Artikel'
+    task standard_artikel: [:environment] do
+      # delete the template first
+      obsolete_template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Standard-Artikel')
+      obsolete_template&.destroy
+      # rename the data_templates
+      sql = <<-EOS
+        UPDATE creative_works
+        SET
+          template_name = 'Artikel',
+          schema = jsonb_set(creative_works.schema, '{name}', to_jsonb('Artikel'::character varying), false)
+        WHERE
+          template_name = 'Standard-Artikel';
+      EOS
+      ActiveRecord::Base.connection.execute(sql)
+      file = Rails.root.join('config', 'data_definitions', 'creative_works', 'standardartikel.yml')
+      File.delete(file)
+    end
   end
 
   namespace :notifications do

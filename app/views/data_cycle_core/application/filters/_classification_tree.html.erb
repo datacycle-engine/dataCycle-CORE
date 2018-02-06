@@ -5,7 +5,7 @@
     <span class="title"><%= display_label %></span>
     <div>
         <ul class="clearfix <%= ul_class ||= '' %>">
-            <% if classification_trees %>
+            <% if !classification_trees.blank? && !classification_trees[tree_label].blank? %>
               <%= render partial: 'data_cycle_core/application/filters/classification_items', collection: classification_trees[tree_label].sort{|a,b| a.name <=> b.name}, as: :item, locals: {excluded_types: excluded_types} %>
             <% end %>
         </ul>

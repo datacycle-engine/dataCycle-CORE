@@ -1,7 +1,7 @@
 <div class="metadata">
-  <span class="type <%= content.content_type.downcase %>">
+  <span class="type <%= content.template_name.downcase %>">
     <%= render_content_partial 'icon', content: content %>
-    <%= content.content_type %> (<%= I18n.locale %>)
+    <%= content.template_name %> (<%= I18n.locale %>)
   </span>
 
   <span class="created-at">

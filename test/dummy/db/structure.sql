@@ -172,20 +172,6 @@ CREATE TABLE classification_trees (
 
 
 --
--- Name: classification_user_groups; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE classification_user_groups (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    classification_id uuid,
-    user_group_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
 -- Name: classifications; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -259,7 +245,9 @@ CREATE TABLE creative_work_histories (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     external_key character varying,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    template_name character varying,
+    schema jsonb
 );
 
 
@@ -278,7 +266,9 @@ CREATE TABLE creative_work_history_translations (
     release jsonb,
     release_id uuid,
     release_comment text,
-    history_valid tstzrange
+    history_valid tstzrange,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -311,6 +301,8 @@ CREATE TABLE creative_work_translations (
     locale character varying NOT NULL,
     content jsonb,
     properties jsonb,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     headline text,
     description text,
     release jsonb,
@@ -352,7 +344,9 @@ CREATE TABLE creative_works (
     updated_at timestamp without time zone NOT NULL,
     external_source_id uuid,
     template boolean DEFAULT false NOT NULL,
-    external_key character varying
+    external_key character varying,
+    template_name character varying,
+    schema jsonb
 );
 
 
@@ -433,7 +427,9 @@ CREATE TABLE event_histories (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     external_key character varying,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    template_name character varying,
+    schema jsonb
 );
 
 
@@ -452,7 +448,9 @@ CREATE TABLE event_history_translations (
     release jsonb,
     release_id uuid,
     release_comment text,
-    history_valid tstzrange
+    history_valid tstzrange,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -485,6 +483,8 @@ CREATE TABLE event_translations (
     locale character varying NOT NULL,
     content jsonb,
     properties jsonb,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     headline text,
     description text,
     release jsonb,
@@ -526,7 +526,9 @@ CREATE TABLE events (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     external_source_id uuid,
-    external_key character varying
+    external_key character varying,
+    template_name character varying,
+    schema jsonb
 );
 
 
@@ -588,7 +590,9 @@ CREATE TABLE person_histories (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     external_key character varying,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    template_name character varying,
+    schema jsonb
 );
 
 
@@ -607,7 +611,9 @@ CREATE TABLE person_history_translations (
     release jsonb,
     release_id uuid,
     release_comment text,
-    history_valid tstzrange
+    history_valid tstzrange,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -636,10 +642,12 @@ ALTER SEQUENCE person_history_translations_id_seq OWNED BY person_history_transl
 
 CREATE TABLE person_translations (
     id integer NOT NULL,
-    person_id uuid,
-    locale character varying,
+    person_id uuid NOT NULL,
+    locale character varying NOT NULL,
     content jsonb,
     properties jsonb,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     headline text,
     description text,
     release jsonb,
@@ -681,7 +689,9 @@ CREATE TABLE persons (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     external_source_id uuid,
-    external_key character varying
+    external_key character varying,
+    template_name character varying,
+    schema jsonb
 );
 
 
@@ -712,7 +722,9 @@ CREATE TABLE place_histories (
     fax_number character varying,
     telephone character varying,
     email character varying,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    template_name character varying,
+    schema jsonb
 );
 
 
@@ -735,7 +747,9 @@ CREATE TABLE place_history_translations (
     release jsonb,
     release_id uuid,
     release_comment text,
-    history_valid tstzrange
+    history_valid tstzrange,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -825,7 +839,9 @@ CREATE TABLE places (
     address_country character varying,
     fax_number character varying,
     telephone character varying,
-    email character varying
+    email character varying,
+    template_name character varying,
+    schema jsonb
 );
 
 
@@ -881,6 +897,23 @@ CREATE TABLE searches (
     validity_period tstzrange,
     all_text text,
     boost double precision DEFAULT 1.0 NOT NULL
+);
+
+
+--
+-- Name: stored_filters; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE stored_filters (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    name character varying,
+    user_id uuid,
+    language character varying,
+    parameters jsonb,
+    system boolean DEFAULT false,
+    api boolean DEFAULT false,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -971,12 +1004,11 @@ CREATE TABLE users (
     last_sign_in_ip character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    provider character varying,
-    uid character varying,
     family_name character varying DEFAULT ''::character varying NOT NULL,
     locked_at timestamp without time zone,
     external boolean DEFAULT true NOT NULL,
-    role_id uuid
+    role_id uuid,
+    notification_frequency character varying DEFAULT 'always'::character varying
 );
 
 
@@ -1110,14 +1142,6 @@ ALTER TABLE ONLY classification_content_histories
 
 ALTER TABLE ONLY classification_contents
     ADD CONSTRAINT classification_contents_pkey PRIMARY KEY (id);
-
-
---
--- Name: classification_user_groups classification_user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY classification_user_groups
-    ADD CONSTRAINT classification_user_groups_pkey PRIMARY KEY (id);
 
 
 --
@@ -1377,6 +1401,14 @@ ALTER TABLE ONLY searches
 
 
 --
+-- Name: stored_filters stored_filters_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY stored_filters
+    ADD CONSTRAINT stored_filters_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1487,6 +1519,13 @@ CREATE UNIQUE INDEX child_parent_index ON classification_trees USING btree (clas
 --
 
 CREATE INDEX classification_string_idx ON searches USING gin (classification_string gin_trgm_ops);
+
+
+--
+-- Name: classified_name_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX classified_name_idx ON stored_filters USING btree (api, system, name);
 
 
 --
@@ -1742,20 +1781,6 @@ CREATE INDEX index_classification_trees_on_parent_classification_alias_id ON cla
 
 
 --
--- Name: index_classification_user_groups_on_classification_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_classification_user_groups_on_classification_id ON classification_user_groups USING btree (classification_id);
-
-
---
--- Name: index_classification_user_groups_on_user_group_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_classification_user_groups_on_user_group_id ON classification_user_groups USING btree (user_group_id);
-
-
---
 -- Name: index_classifications_on_deleted_at; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1907,6 +1932,13 @@ CREATE INDEX index_roles_on_rank ON roles USING btree (rank);
 --
 
 CREATE INDEX index_searches_on_words ON searches USING gin (words);
+
+
+--
+-- Name: index_stored_filters_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_stored_filters_on_user_id ON stored_filters USING btree (user_id);
 
 
 --
@@ -2156,7 +2188,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20170524132123'),
 ('20170524144644'),
 ('20170612114242'),
-('20170619191047'),
 ('20170620143810'),
 ('20170621070615'),
 ('20170624083501'),
@@ -2182,7 +2213,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20170918093456'),
 ('20170919085841'),
 ('20170920071933'),
-('20170920141027'),
 ('20170921160600'),
 ('20170921161200'),
 ('20170929140328'),
@@ -2207,6 +2237,10 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20171206163333'),
 ('20180103144809'),
 ('20180105085118'),
-('20180111111106');
+('20180109095257'),
+('20180111111106'),
+('20180117073708'),
+('20180122153121'),
+('20180124091123');
 
 

@@ -59,6 +59,33 @@
             </div>
         <% end %>
 
+        <% if can?(:read, DataCycleCore::StoredFilter) %>
+          <div class="settings-row">
+            <div class="row columns">
+              <h5><%= t('data_cycle_core.stored_filter', locale: DataCycleCore.ui_language) %></h5>
+            </div>
+
+            <div class="row columns">
+              <ul class="list-items no-bullet named-stored-filters">
+                <% @accessible_stored_filters.where.not(name: nil).order(:system, updated_at: :desc).each do |stored_filter| %>
+                    <li class="<%= 'system-filter' if stored_filter.system %>">
+                      <%= link_to root_path(stored_filter: stored_filter.id), class: 'stored-filter-link' do %>
+                        <i class="fa fa-filter" aria-hidden="true"></i>
+                        <%= stored_filter.name || "vor #{time_ago_in_words stored_filter.created_at}" %>
+                      <% end %>
+                      <% if can?(:destroy, stored_filter) %>
+                        <span class="buttons">
+                          <%= link_to stored_filter_path(stored_filter), method: :delete, data: { confirm: "Filter #{t('actions.delete', locale: DataCycleCore.ui_language)}?" } do %>
+                            <i class="fa fa-trash-o alert" aria-hidden="true"></i>
+                          <% end %>
+                        </span>
+                      <% end %>
+                    </li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        <% end %>
     <!--<div class="settings-row">-->
     <!--<div class="row column">-->
     <!--<div class="heading">Meine letzten Suchen</div>-->

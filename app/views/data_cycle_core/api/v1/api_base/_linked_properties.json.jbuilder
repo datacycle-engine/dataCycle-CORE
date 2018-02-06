@@ -5,12 +5,14 @@ default_options = {
 options = default_options.merge(defined?(options) ? options || {} : {})
 
 (content.linked_property_names - options[:hidden_attributes]).each do |property|
-  data = content.send(property)
+  data = content.send(property).includes(:translations, :classifications)
 
   next if data.empty?
   json.set! property.pluralize.camelize(:lower) do
     json.array!(data) do |item|
-      json.content_partial! 'details', content: item
+      json.cache!(item) do
+        json.content_partial! 'details', content: item
+      end
     end
   end
 end

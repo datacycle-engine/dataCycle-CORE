@@ -44,19 +44,33 @@ module.exports.initialize = function () {
     });
   }
 
-  function clearForm() {
-    $(':input').not(':button, :submit, :reset, :hidden, :checkbox, :radio').val('');
-    $(':checkbox, :radio').prop('checked', false);
+  function clearForm(form) {
+    $(form).find(':input').not(':button, :submit, :reset, :hidden, :checkbox, :radio').val('');
+    $(form).find(':checkbox, :radio').prop('checked', false);
   }
 
   function setup() {
     // hide activated filters
     if ($('.activefilter').find('.your-choice.tags:visible').length == 0) $('.activefilter').hide();
     // Reset selected Tags
-    $(document).on('click', '#reset-filter', function (e) {
+    $('#search-form #reset-filter').on('click', function (e) {
       e.preventDefault();
       var form = $(this).closest('#search-form');
-      clearForm();
+      clearForm(form);
+      // $(form).append('<input type="hidden" name="reset" value="true" />');
+      form.submit();
+    });
+
+    // Save active Filter with specific name
+    $('#save-filter-name-form').on('submit', function (e) {
+      e.preventDefault();
+      var form = $('#search-form');
+      $(form).prop('action', $(this).prop('action'));
+      $(form).prop('method', $(this).prop('method'));
+      $(form).append($(this).find('input[type=hidden]').clone());
+      $(form).append('<input type="hidden" name="stored_filter_name" value="' + $(this).find('#stored_filter_name').val() + '">');
+      $(form).append('<input type="hidden" name="stored_filter_system" value="' + $(this).find('#stored_filter_system').is(':checked') + '">');
+
       form.submit();
     });
 
@@ -90,16 +104,16 @@ module.exports.initialize = function () {
     });
 
     var category_filter_heights = [];
-    $('#primary_nav_wrap ul li').hover(function() {
+    $('#primary_nav_wrap ul li').hover(function () {
       category_filter_heights.push($(this).find('ul').height() || 0);
       var height = Math.max.apply(null, category_filter_heights);
-      $(this).parentsUntil('#primary_nav_wrap').find('ul:visible').each(function() {
+      $(this).parentsUntil('#primary_nav_wrap').find('ul:visible').each(function () {
         $(this).css('min-height', height);
       });
-    }, function() {
+    }, function () {
       category_filter_heights.pop();
       var height = Math.max.apply(null, category_filter_heights);
-      $(this).parentsUntil('#primary_nav_wrap').find('ul:visible').each(function() {
+      $(this).parentsUntil('#primary_nav_wrap').find('ul:visible').each(function () {
         $(this).css('min-height', height);
       });
     });

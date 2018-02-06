@@ -1,13 +1,13 @@
 
-<% if !item.metadata.nil? && !item.schema.nil? && !item.template_name.nil? %>
+<% if !item.schema.nil? && !item.template_name.nil? %>
 
-    <div class="type <%= item.content_type.downcase %>">
+    <div class="type <%= item.template_name.downcase %>">
         <div class="infoRow <%= "has-parent" if item.parent %>">
-            <%= render 'data_cycle_core/shared/icon', icon_type: item.content_type.downcase %>
-            <% if item.content_type.downcase == 'contentlocation' %>
+            <%= render 'data_cycle_core/shared/icon', icon_type: item.template_name.downcase %>
+            <% if item.template_name.downcase == 'contentlocation' %>
                 <span class="title">Ort</span>
             <% else %>
-                <span class="title"><%= item.content_type %></span>
+                <span class="title"><%= item.template_name %></span>
             <% end %>
             <span class="locale">(<%= I18n.locale.to_s %>)</span>
         </div>

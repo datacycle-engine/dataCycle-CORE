@@ -1,3 +1,11 @@
+
+if defined?(BetterErrors)
+  BetterErrors::Middleware.allow_ip! '10.0.0.0/8'
+  BetterErrors::Middleware.allow_ip! '172.16.0.0/12'
+  BetterErrors::Middleware.allow_ip! '172.18.0.0/12'
+  BetterErrors::Middleware.allow_ip! '192.168.0.0/16'
+end
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -50,5 +58,18 @@ Rails.application.configure do
 
   # Use an evented file watcher to asynchronously detect changes in source code,
   # routes, locales, etc. This feature depends on the listen gem.
-  # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
+  config.file_watcher = ActiveSupport::EventedFileUpdateChecker
+
+  config.web_console.whiny_requests = false
+
+  config.action_mailer.default_url_options = { host: 'localhost:3003', protocol: 'http' }
+
+  # Bullet configuration
+  config.after_initialize do
+    Bullet.enable = false
+    Bullet.bullet_logger = true
+    Bullet.console = true
+    Bullet.rails_logger = true
+    Bullet.add_footer = true
+  end
 end

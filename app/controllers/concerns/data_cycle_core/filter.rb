@@ -30,14 +30,7 @@ module DataCycleCore
         @order_string = 'boost DESC, ' + @order_by + ' ' + @order
       else
         # order by ranking
-        search_string = params[:search].split(' ').join('%')
-        @order_string = "boost * (
-          8 * similarity(classification_string,'%#{search_string}%') +
-          4 * similarity(headline, '%#{search_string}%') +
-          2 * ts_rank_cd(words, plainto_tsquery('simple', '#{params[:search].squish}'),16) +
-          1 * similarity(full_text, '%#{search_string}%'))
-          DESC NULLS LAST,
-          updated_at DESC"
+        @order_string = DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(params[:search])
       end
 
       query = DataCycleCore::Filter::Search.new(@language).in_validity_period
@@ -70,6 +63,7 @@ module DataCycleCore
 
     def apply_filter(filter_id:)
       filter = DataCycleCore::StoredFilter.find(filter_id)
+      filter.update(updated_at: Time.zone.now)
 
       params[:language] = filter.language
       @language = filter.language
@@ -84,7 +78,7 @@ module DataCycleCore
 
       query = filter.apply
       @total = query.count(:id)
-      @paginateObject = query.page(params[:page] || 1)
+      @paginateObject = query.page(params[:page])
       @paginateObject.includes(content_data: [:display_classification_aliases, :translations, :watch_lists]).map(&:content_data)
     end
 
@@ -92,6 +86,8 @@ module DataCycleCore
       new_filter = DataCycleCore::StoredFilter.new
       new_filter.user_id = current_user.id
       new_filter.language = @language
+      new_filter.name = filter_params[:stored_filter_name] unless filter_params[:stored_filter_name].blank?
+      new_filter.system = filter_params[:stored_filter_system]
       new_filter.parameters = {}
       new_filter.parameters[:in_validity_period] = Time.zone.now
       new_filter.parameters[:order] = @order_string unless @order_string.blank?
@@ -99,6 +95,13 @@ module DataCycleCore
       new_filter.parameters[:with_classification_alias_ids] = @with_classification_alias_ids unless @with_classification_alias_ids.blank?
       new_filter.parameters[method_name.to_sym] = parameters unless parameters.blank?
       new_filter.save
+      new_filter
+    end
+
+    private
+
+    def filter_params
+      params.permit(:stored_filter_name, :stored_filter_system)
     end
   end
 end
