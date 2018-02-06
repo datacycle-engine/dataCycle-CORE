@@ -15,8 +15,8 @@ module DataCycleCore
 
     before_action :authenticate, :set_default_response_format
 
-    def params
-      super.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
+    def permitted_params
+      params.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
     end
 
     def permitted_parameter_keys
@@ -24,7 +24,7 @@ module DataCycleCore
     end
 
     def apply_paging(query)
-      query.page(params.fetch(:page, 1).to_i).per(params.fetch(:per, DEFAULT_PAGE_SIZE).to_i)
+      query.page(permitted_params.fetch(:page, 1).to_i).per(permitted_params.fetch(:per, DEFAULT_PAGE_SIZE).to_i)
     end
 
     def tokens
@@ -34,7 +34,7 @@ module DataCycleCore
     private
 
     def authenticate
-      raise CanCan::AccessDenied, 'invalid or missing authentication token' if !tokens.include?(params[:token]) && current_user.nil?
+      raise CanCan::AccessDenied, 'invalid or missing authentication token' if !tokens.include?(permitted_params[:token]) && current_user.nil?
     end
 
     def access_denied(exception)
@@ -46,7 +46,7 @@ module DataCycleCore
     end
 
     def set_default_response_format
-      request.format = :json unless params[:format]
+      request.format = :json unless permitted_params[:format]
     end
   end
 end
