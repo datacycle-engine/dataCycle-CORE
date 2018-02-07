@@ -46,7 +46,7 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      super + [:external_source_id, :type, :external_key, :token, :webhook_source]
+      super + [:external_source_id, :type, :external_key, :webhook_source]
     end
 
     def get_api_strategy
