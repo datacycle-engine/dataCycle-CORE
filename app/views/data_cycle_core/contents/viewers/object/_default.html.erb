@@ -17,7 +17,7 @@
                        data_attributes: {id: object.id.split(','), editor: definition.dig('editor', 'type').try(:underscore)} do %>
 
                 <span class="detail-label">
-                    <%= render 'data_cycle_core/shared/icon', icon_type: objects[0].metadata['validation']['name'].downcase %><strong><%= definition['label'].titleize %> <%= content_tag(:span, index+1) if objects_length > 1 %></strong>
+                    <%= render 'data_cycle_core/shared/icon', icon_type: objects[0].template_name.downcase %><strong><%= definition['label'].titleize %> <%= content_tag(:span, index+1) if objects_length > 1 %></strong>
                 </span>
 
                 <div class="buttons">
@@ -34,9 +34,9 @@
                   <% end if definition['editor']['type'] == "objectBrowser" && @historySource.nil? && can?(:crud, object) %>
                 </div>
 
-                <% if !object.metadata.nil? && !object.metadata['validation'].nil? %>
+                <% unless object.schema.nil? %>
 
-                    <% validation_properties = get_ordered_validation_properties(object.metadata['validation']) %>
+                    <% validation_properties = get_ordered_validation_properties(object.schema) %>
 
                     <% if !validation_properties.nil? %>
 

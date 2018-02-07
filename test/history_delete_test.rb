@@ -4,10 +4,10 @@ module DataCycleCore
   class HistoryDeleteTest < ActiveSupport::TestCase
     test 'generate a Quiz with questions, then delete history' do
       cw_temp = DataCycleCore::CreativeWork.count
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Quiz', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Quiz')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
 
       # check consistency of data in DB
@@ -105,10 +105,10 @@ module DataCycleCore
 
     test 'generate simple Quiz with one question, then delete history' do
       cw_temp = DataCycleCore::CreativeWork.count
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Quiz', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Quiz')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
 
       # check consistency of data in DB

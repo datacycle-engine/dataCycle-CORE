@@ -1,7 +1,6 @@
 ---
 - :data:
     :name: DataCycle-File
-    :description: CreativeWork
     :type: object
     :content_type: embedded
     :permissions:
@@ -19,7 +18,6 @@
         :type: string
         :storage_type: string
         :storage_location: column
-        :search: true
         :editor:
           :type: input
           :sorting: 1
@@ -30,7 +28,6 @@
         :type: string
         :storage_type: text
         :storage_location: column
-        :search: true
         :editor:
           :type: quillEditor
           :sorting: 4

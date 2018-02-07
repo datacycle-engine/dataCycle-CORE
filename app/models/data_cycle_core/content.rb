@@ -15,7 +15,7 @@ module DataCycleCore
     include Releasable
 
     def property_definitions
-      metadata['validation']['properties']
+      schema['properties']
     rescue StandardError
       {}
     end
@@ -221,7 +221,7 @@ module DataCycleCore
           property_definition
         )
 
-        # embeddedObject stored via contnet_content(s)(_histories)
+        # embeddedObject stored via content_content(s)(_histories)
         # all properties from the embeddedObject are handled within this content-data_set
       elsif embedded_property_names.include?(property_name)
         load_embedded_objects(
@@ -250,7 +250,7 @@ module DataCycleCore
 
     def same_table?(storage_location)
       history = false
-      history = self.class.table_name.split('_')[0..-2].join('_').pluralize == storage_location if self.class.table_name.split('_').last == 'histories'
+      history = self.class.table_name.split('_')[0..-2].join('_').pluralize == storage_location if self.class.table_name.ends_with?('_histories')
       self.class.table_name == storage_location || history
     end
 
@@ -286,9 +286,11 @@ module DataCycleCore
       sub_property_definitions = property_definition.try(:[], 'properties')
       raise StandardError, "Template for included data #{property_name} has no Subproperties defined." if sub_property_definitions.blank?
       OpenStructHash.new(
-        load_subproperty_hash(sub_property_definitions,
-                              property_definition['storage_location'],
-                              send(property_definition['storage_location']).try(:[], property_name))
+        load_subproperty_hash(
+          sub_property_definitions,
+          property_definition['storage_location'],
+          send(property_definition['storage_location']).try(:[], property_name)
+        )
       ).freeze
     end
 

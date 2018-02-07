@@ -1,7 +1,6 @@
 ---
 - :data:
     :name: Recherche
-    :description: CreativeWork
     :type: object
     :content_type: entity
     :releasable: true

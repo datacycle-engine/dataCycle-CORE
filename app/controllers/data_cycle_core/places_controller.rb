@@ -27,8 +27,8 @@ module DataCycleCore
 
     def create
       I18n.with_locale(params[:locale] || I18n.locale) do
-        object_params = place_params('places', params[:template], 'Place')
-        @place = DataCycleCore::DataHashService.create_internal_object('places', params[:template], 'Place', object_params, current_user)
+        object_params = place_params('places', params[:template])
+        @place = DataCycleCore::DataHashService.create_internal_object('places', params[:template], object_params, current_user)
 
         if @place.nil?
           redirect_back(fallback_location: root_path)
@@ -39,7 +39,7 @@ module DataCycleCore
           # validate ?
           if !@place.nil? && @place.save
             format.html do
-              flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Place', locale: DataCycleCore.ui_language
+              flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @place.template_name, locale: DataCycleCore.ui_language
               redirect_to @place
             end
             format.js
@@ -68,8 +68,8 @@ module DataCycleCore
     def update
       @place = DataCycleCore::Place.find(params[:id])
       I18n.with_locale(@place.first_available_locale(params[:locale])) do
-        object_params = place_params('places', @place.metadata['validation']['name'], @place.metadata['validation']['description'])
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @place.metadata['validation'], false)
+        object_params = place_params('places', @place.template_name)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @place.schema, false)
 
         # TODO: implement preprocessor
         datahash = set_location(datahash)
@@ -83,7 +83,7 @@ module DataCycleCore
         end
 
         if @place.save
-          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Place', locale: DataCycleCore.ui_language
+          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @place.template_name, locale: DataCycleCore.ui_language
 
           if Rails.env.development?
             redirect_back(fallback_location: root_path)
@@ -109,9 +109,9 @@ module DataCycleCore
 
     def validate_single_data
       @place = DataCycleCore::Place.find(params[:id])
-      object_params = place_params('places', @place.metadata['validation']['name'], @place.metadata['validation']['description'])
+      object_params = place_params('places', @place.template_name)
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @place.metadata['validation'])
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @place.schema)
       valid = @place.validate(datahash)
 
       render json: valid.to_json
@@ -128,8 +128,8 @@ module DataCycleCore
     def create_params
     end
 
-    def place_params(storage_location, template_name, template_description)
-      datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
+    def place_params(storage_location, template_name)
+      datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name)
       params.require(:place).permit(datahash: datahash)
     end
 

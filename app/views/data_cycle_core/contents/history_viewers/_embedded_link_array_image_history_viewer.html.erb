@@ -32,12 +32,12 @@
                 <li class="<%= [
                                    'content',
                                    item.class.name.demodulize.underscore.sub('_', '-'),
-                                   item.content_type.underscore.sub('_', '-'),
+                                   item.template_name.underscore.sub('_', '-'),
                                    removed_objects.include?(item.id) ? 'has-changed removed' : ''
                                ].join(' ') %>">
 
                     <%= render_first_existing_partial [
-                                                          "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_#{item.content_type.underscore}_tile",
+                                                          "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_#{item.template_name.underscore}_tile",
                                                           "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_tile",
                                                           'data_cycle_core/contents/viewers/linked/content_tile'
                                                       ], {
@@ -52,12 +52,12 @@
                 <li class="<%= [
                                    'content',
                                    item.class.name.demodulize.underscore.sub('_', '-'),
-                                   item.content_type.underscore.sub('_', '-'),
+                                   item.template_name.underscore.sub('_', '-'),
                                    'has-changed added'
                                ].join(' ') %>">
 
                     <%= render_first_existing_partial [
-                                                          "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_#{item.content_type.underscore}_tile",
+                                                          "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_#{item.template_name.underscore}_tile",
                                                           "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_tile",
                                                           'data_cycle_core/contents/viewers/linked/content_tile'
                                                       ], {

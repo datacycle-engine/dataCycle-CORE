@@ -15,7 +15,7 @@ module DataCycleCore
           return
         end
 
-        @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if @content.metadata['validation']['releasable'] && !@content.release_id.nil?
+        @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if @content.schema['releasable'] && !@content.release_id.nil?
         @dataSchema = @content.get_data_hash
 
         respond_to do |format|
@@ -29,8 +29,8 @@ module DataCycleCore
       locale = I18n.available_locales.include?(params[:locale].try(:to_sym)) ? params[:locale].try(:to_sym) : I18n.locale
       I18n.with_locale(locale) do
         source = Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }] unless params[:source].blank?
-        object_params = creative_work_params('creative_works', params[:template], 'CreativeWork')
-        @creativeWork = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:template], 'CreativeWork', object_params, current_user)
+        object_params = creative_work_params('creative_works', params[:template])
+        @creativeWork = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:template], object_params, current_user)
         if @creativeWork.nil?
           redirect_back(fallback_location: root_path)
           return
@@ -39,7 +39,7 @@ module DataCycleCore
         after_create(@creativeWork, current_user)
 
         if !@creativeWork.nil? && @creativeWork.save
-          flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name'], locale: DataCycleCore.ui_language
+          flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @creativeWork.template_name, locale: DataCycleCore.ui_language
           redirect_to edit_creative_work_path(@creativeWork, (source || {}).merge(watch_list_id: @watch_list))
         else
           redirect_back(fallback_location: root_path)
@@ -134,8 +134,8 @@ module DataCycleCore
     def update
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       I18n.with_locale(@creativeWork.first_available_locale(params[:locale])) do
-        object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], @creativeWork.metadata['validation']['description'])
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'], false)
+        object_params = creative_work_params('creative_works', @creativeWork.template_name)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.schema, false)
 
         #
         # known bugs:
@@ -148,7 +148,7 @@ module DataCycleCore
         )
 
         unless data_hash_has_changes
-          flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @creativeWork.metadata['validation']['name'], locale: DataCycleCore.ui_language
+          flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @creativeWork.template_name, locale: DataCycleCore.ui_language
           if (Rails.env.development? || params[:splitview]) && !params[:finalize]
             redirect_back(fallback_location: root_path)
           else
@@ -169,7 +169,7 @@ module DataCycleCore
         end
 
         if @creativeWork.save
-          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name'], locale: DataCycleCore.ui_language
+          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.template_name, locale: DataCycleCore.ui_language
 
           # after update webhooks
           execute_after_update_webhooks @creativeWork
@@ -201,8 +201,8 @@ module DataCycleCore
 
     def validate_single_data
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
-      object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], @creativeWork.metadata['validation']['description'])
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'])
+      object_params = creative_work_params('creative_works', @creativeWork.template_name)
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.schema)
       valid = @creativeWork.validate(datahash)
       render json: valid.to_json
     end
@@ -216,8 +216,8 @@ module DataCycleCore
     def create_params
     end
 
-    def creative_work_params(storage_location, template_name, template_description)
-      datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
+    def creative_work_params(storage_location, template_name)
+      datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name)
       params.require(:creative_work).permit(:release_id, :release_comment, datahash: datahash)
     end
 
@@ -246,13 +246,5 @@ module DataCycleCore
         @creativeWork.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id)) unless DataCycleCore.release_codes.blank?
       end
     end
-
-    # def execute_after_delete_webhooks data
-    #   Webhook::Delete.execute_all(data)
-    # end
-
-    # def execute_after_create_webhooks data
-    #   Webhook::Create.execute_all(data)
-    # end
   end
 end

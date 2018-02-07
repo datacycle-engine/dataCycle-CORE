@@ -1,7 +1,6 @@
 ---
 - :data:
     :name: Person
-    :description: Person
     :type: object
     :content_type: entity
     :permissions:

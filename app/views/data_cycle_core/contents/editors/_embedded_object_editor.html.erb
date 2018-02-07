@@ -11,10 +11,10 @@
     data-min="<%= definition.dig('validations', 'minLength') || 0 %>"
     data-write="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>">
 
-    <% internal_template = DataCycleCore::DataHashService.get_internal_template(definition['storage_location'], definition['name'], definition['description']) %>
+    <% internal_template = DataCycleCore::DataHashService.get_internal_template(definition['storage_location'], definition['name']) %>
     <% internal_objects = DataCycleCore::DataHashService.get_internal_data(definition['storage_location'], value) %>
 
-    <% unless internal_template.try(:metadata).dig('validation', 'name').nil? %>
+    <% unless internal_template.template_name.nil? %>
       <% unless internal_objects.blank? %>
         <% internal_objects.each_with_index do |object, index| %>
           <%= render_embedded_object_partial(key: key, definition: definition, parameters: {internal_template: internal_template, object: object, index: index, options: options, new_content: new_content}) %>
