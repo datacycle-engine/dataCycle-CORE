@@ -20,4 +20,5 @@ describe('General', function () {
     cy.get('.logout-link').click()
     cy.location('pathname').should('match', /\/users\/sign_in/)
   })
+
 })

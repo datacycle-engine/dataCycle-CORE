@@ -78,7 +78,7 @@ describe('DataLink', function () {
         url: url,
         failOnStatusCode: false
       }).then(function (resp) {
-        expect(resp.status).to.eq(500)
+        expect(resp.status).to.eq(403)
       })
     })
   })
