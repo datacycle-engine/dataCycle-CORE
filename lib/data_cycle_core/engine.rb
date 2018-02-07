@@ -127,6 +127,12 @@ module DataCycleCore
       delete: [],
       update: []
     }
+
+    # template directories
+    mattr_accessor :template_path
+    # self.template_path = Rails.root.join('config', 'data_definitions')
+    mattr_accessor :default_template_paths
+    self.default_template_paths = []
   end
 
   def self.setup
