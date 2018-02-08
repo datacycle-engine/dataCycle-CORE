@@ -18,7 +18,7 @@ module DataCycleCore
             can [:update, :validate_single_data, :import], link.item_type.constantize, { id: link.item_id } if link.is_valid?
           end
 
-          can [:read, :create, :destroy], DataCycleCore::StoredFilter, user_id: user.id
+          can [:read, :create, :destroy, :show_history], DataCycleCore::StoredFilter, user_id: user.id
           can :read, DataCycleCore::StoredFilter, system: true
         end
 
