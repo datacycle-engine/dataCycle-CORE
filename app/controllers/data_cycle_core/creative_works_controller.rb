@@ -309,12 +309,5 @@ module DataCycleCore
         @creativeWork.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id)) unless DataCycleCore.release_codes.blank?
       end
     end
-
-    def set_content_pool_for(content, content_pool_id)
-      content.set_data_hash_attribute('data_pool', [content_pool_id], current_user)
-      content.children.each do |child|
-        child.set_data_hash_attribute('data_pool', [content_pool_id], current_user)
-      end
-    end
   end
 end
