@@ -18,7 +18,7 @@ module DataCycleCore
             can [:update, :validate_single_data, :import], link.item_type.constantize, { id: link.item_id } if link.is_valid?
           end
 
-          can [:read, :create, :destroy, :show_history], DataCycleCore::StoredFilter, user_id: user.id
+          can [:read, :create, :destroy], DataCycleCore::StoredFilter, user_id: user.id
           can :read, DataCycleCore::StoredFilter, system: true
         end
 
@@ -59,7 +59,7 @@ module DataCycleCore
           end
 
           can :manage, DataCycleCore::Asset
-          can :manage, DataCycleCore::StoredFilter, user_id: user.id
+          can :create_global, DataCycleCore::StoredFilter
         end
 
         can :manage, :dash_board if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)
