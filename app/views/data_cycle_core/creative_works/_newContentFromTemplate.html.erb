@@ -1,0 +1,23 @@
+<% if content&.parent.present? %>
+    <div class="reveal new-item" id="newContent" data-reveal>
+        <h3>Neuen Inhalt auf Basis dieser Vorlage erstellen</h3>
+
+        <%= form_for :creative_work, :url => {:action => "create"} do |f| %>
+            <%= hidden_field_tag 'template', content.template_name %>
+            <%= hidden_field_tag 'source', "source_id=>"+content.id+", source_type=>"+content.class.name %>
+            <%= hidden_field_tag 'parent', content.parent.id %>
+
+            <%= select_tag 'locale', options_for_select(available_locales_with_names.invert) %>
+
+            <div class="validation-container form-element">
+                <%= label_tag 'creative_work[datahash][name]', 'Titel' %>
+                <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value:'' %>
+            </div>
+            <%= submit_tag "Erstellen", class: "button primary" %>
+        <% end %>
+
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+<% end %>

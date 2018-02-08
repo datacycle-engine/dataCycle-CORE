@@ -1,5 +1,7 @@
 module DataCycleCore
   class CreativeWorksController < ContentsController
+    include DataCycleCore::Filter
+
     before_action :authenticate_user! # from devise (authenticate)
     load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
     after_action :check_final, only: :update
@@ -10,9 +12,14 @@ module DataCycleCore
     def show
       @content = DataCycleCore::CreativeWork.find_by(id: params[:id])
       I18n.with_locale(@content.first_available_locale) do
-        if @content.nil?
-          redirect_back(fallback_location: root_path)
-          return
+        redirect_back(fallback_location: root_path) && return if @content.nil?
+
+        if @content.is_container?
+          @contents = get_filtered_results(method_name: 'is_part_of', parameters: @content.id) if @content.children.exists?
+
+          @entities = DataCycleCore::CreativeWork.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
+          @entities = @entities.where(template_name: DataCycleCore.features&.dig(:container, :allowed)) if DataCycleCore.features&.dig(:container, :allowed)
+          @entities = @entities.where.not(template_name: DataCycleCore.features&.dig(:container, :excluded)) if DataCycleCore.features&.dig(:container, :excluded)
         end
 
         @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if @content.schema['releasable'] && !@content.release_id.nil?
@@ -207,8 +214,64 @@ module DataCycleCore
       render json: valid.to_json
     end
 
-    def after_create(content, user)
-      # to be implemented by specific projects
+    def set_content_pool
+      @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
+      if !helpers.ordered_content_pools.nil? && helpers.ordered_content_pools.detect { |c| c[:alias].name == 'Recherche' }.dig(:id) == params[:content_pool_id] && @creativeWork.children.where(template_name: 'Recherche').empty?
+        recherche_params = ActionController::Parameters.new({ datahash: { headline: @creativeWork.headline } }).permit!
+        recherche = DataCycleCore::DataHashService.create_internal_object('creative_works', 'Recherche', recherche_params, current_user)
+        recherche.is_part_of = @creativeWork.id unless @creativeWork.nil?
+        recherche.save
+      end
+
+      set_content_pool_for(@creativeWork, params[:content_pool_id])
+
+      redirect_back(fallback_location: root_path)
+    end
+
+    def after_create(content, current_user)
+      object_params = creative_work_params('creative_works', params[:template])
+      if params[:template] != 'Thema' && params[:template] != 'Video-Serie'
+        if params['parent'].nil? || params['parent'].blank?
+          # create new thema
+          if params[:template] == 'Recherche'
+            thema = DataCycleCore::DataHashService.create_internal_object('creative_works', 'Thema', object_params, current_user)
+            unless helpers.ordered_content_pools.nil?
+              pool_id = helpers.ordered_content_pools.detect { |c| c[:alias].name == 'Recherche' }.dig(:id)
+              thema.set_data_hash_attribute('data_pool', [pool_id], current_user)
+            end
+            content.is_part_of = thema.id unless thema.nil?
+          else
+            flash[:error] = I18n.t :invalid_parent, scope: [:controllers, :error], locale: DataCycleCore.ui_language
+            redirect_back(fallback_location: root_path)
+            return
+          end
+        else
+          # set as parent
+          content.is_part_of = params['parent']
+          # set_content_pool to recherche for both
+          if params[:template] == 'Recherche' && !helpers.ordered_content_pools.nil?
+            pool_id = helpers.ordered_content_pools.detect { |c| c[:alias].name == 'Recherche' }.dig(:id)
+            parent = DataCycleCore::CreativeWork.find_by(id: content.is_part_of)
+            set_content_pool_for(parent, pool_id)
+          end
+          # get inherit attributes
+          source = Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }] if params[:source].present?
+          split_type = source['source_type'].constantize unless source.nil? || source['source_type'].blank?
+          split_source = split_type.find(source['source_id']) if !source.nil? && source['source_id'].present? && !split_type.nil?
+          if !split_source.nil?
+            inherit_datahash = get_inherit_datahash(content, split_source)
+          else
+            inherit_datahash = get_inherit_datahash(content, content.parent)
+          end
+          if inherit_datahash.nil?
+            flash[:error] = I18n.t :invalid_parent_attr, scope: [:controllers, :error], locale: DataCycleCore.ui_language
+            redirect_back(fallback_location: root_path)
+            return
+          end
+
+          content.set_data_hash(data_hash: inherit_datahash, current_user: current_user, prevent_history: true)
+        end
+      end
     end
 
     private
@@ -244,6 +307,13 @@ module DataCycleCore
         @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').first.update_attribute(:permissions, 'read')
 
         @creativeWork.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id)) unless DataCycleCore.release_codes.blank?
+      end
+    end
+
+    def set_content_pool_for(content, content_pool_id)
+      content.set_data_hash_attribute('data_pool', [content_pool_id], current_user)
+      content.children.each do |child|
+        child.set_data_hash_attribute('data_pool', [content_pool_id], current_user)
       end
     end
   end

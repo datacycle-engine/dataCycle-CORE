@@ -2,7 +2,7 @@
 - :data:
     :name: Rezept
     :type: object
-    :content_type: variant
+    :content_type: entity
     :releasable: true
     :permissions:
       :read_write: true

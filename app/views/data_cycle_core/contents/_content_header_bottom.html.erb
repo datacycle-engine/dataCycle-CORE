@@ -4,8 +4,7 @@
 
 <div class="edit">
   <%= yield :buttons %>
-
-  <% if content.schema&.dig('content_type') == 'variant' && can?(:create, content.class) && !content.try(:parent).nil? %>
+  <% if I18n.available_locales&.size > 1 && can?(:create, content.class) && !content.try(:parent).nil? %>
       <%= link_to "#", class:'button-prime small', data: { tooltip: '', open: 'newContent' }, title: 'Inhalt anhand dieser Vorlage erstellen', 'aria-haspopup': true do %>
           <i class="fa fa-plus" aria-hidden="true"></i>
       <% end %>
@@ -43,3 +42,5 @@
 <%= render 'validity_period', dataCycleObject: content %>
 
 <%= render 'release_status', dataCycleObject: content, status: @release_status %>
+
+<%= render 'content_pool_buttons', local_assigns if @content.is_container? && DataCycleCore.features&.dig(:container) %>

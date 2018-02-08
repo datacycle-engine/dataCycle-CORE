@@ -1,0 +1,36 @@
+<% if @content&.id.present? %>
+    <div class="reveal new-item" id="newContent" data-reveal>
+        <h3>Neuen Inhalt erstellen</h3>
+        <%= form_for :creative_work, :url => {:action => "create"} do |f| %>
+
+            <%= select_tag 'template', options_for_select(@entities.map{ |c| [c&.template_name&.underscore&.titleize, c&.template_name] }.to_h) %>
+
+            <%= select_tag 'locale', options_for_select(available_locales_with_names.invert) %>
+
+            <% sources = [] %>
+            <% @content.children.each do |child| %>
+              <% I18n.with_locale(child.first_available_locale) do %>
+                <% sources.push(["#{child.title} (#{child.template_name}, #{I18n.locale})", "source_id=>#{child.id}, source_type=>#{child.class.name}"]) %>
+              <% end %>
+            <% end %>
+
+            <div class="form-element">
+              <div class="v-select white">
+                <%= select_tag('source', options_for_select(sources), {class: 'single-select select', data: {placeholder: 'Vorlage wählen'}, include_blank: true}) %>
+              </div>
+            </div>
+
+            <%= hidden_field_tag 'parent', @content.id %>
+            <div class="validation-container form-element">
+                <%= label_tag 'creative_work[datahash][name]', 'Titel' %>
+                <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value:'' %>
+            </div>
+            <%= submit_tag "Erstellen", class: "button primary" %>
+        <% end %>
+
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+<% end %>

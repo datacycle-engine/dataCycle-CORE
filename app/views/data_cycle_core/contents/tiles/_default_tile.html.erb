@@ -3,7 +3,7 @@
     <%= link_to polymorphic_path(item, watch_list_id: @watch_list), class: 'content-link' do %>
 
         <div class="inner">
-            <%= render 'data_cycle_core/contents/tiles/attributes/parent', item: item.parent if item.parent %>
+            <%= render 'data_cycle_core/contents/tiles/attributes/parent', item: item.parent if item.parent.present? %>
             <%= render 'data_cycle_core/contents/tiles/attributes/type', item: item %>
             <%= render 'data_cycle_core/contents/tiles/attributes/title', item: item %>
             <%= render 'data_cycle_core/contents/tiles/attributes/description', item: item %>

@@ -5,7 +5,7 @@ module DataCycleCore
     authorize_resource class: false # from cancancan (authorize)
 
     def index
-      if DataCycleCore.autoload_last_filter && params[:stored_filter].blank? && !params[:utf8] && current_user.stored_filters.size.positive?
+      if DataCycleCore.features&.dig(:autoload_last_filter) && params[:stored_filter].blank? && !params[:utf8] && current_user.stored_filters.size.positive?
         filter_id = current_user.stored_filters.order(created_at: :desc)&.first&.id
         @paginateObject = apply_filter(filter_id: filter_id).includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
         @contents = @paginateObject.map(&:content_data)

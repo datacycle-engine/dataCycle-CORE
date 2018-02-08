@@ -149,6 +149,10 @@ module DataCycleCore
       respond_to? 'history_valid'
     end
 
+    def is_container?
+      schema&.dig('content_type') == 'container'
+    end
+
     def as_of(timestamp)
       return self if updated_at.blank? || timestamp.blank? || timestamp >= updated_at
       return self if is_history?

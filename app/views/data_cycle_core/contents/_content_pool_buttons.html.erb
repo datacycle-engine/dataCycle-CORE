@@ -1,0 +1,20 @@
+<div class="content-pool-buttons">
+  <% ordered_content_pools.each_with_index do |content_pool, index| %>
+    <% active_index = ordered_content_pools.index{ |i| i[:id] == content&.data_pool&.first&.id } || -1 %>
+    <% if active_index == index %>
+      <span class="active content-pool"><%= t('contentpool.' + content_pool[:alias].name.downcase, locale: DataCycleCore.ui_language) %></span>
+    <% elsif !can?(:set_content_pool, content) %>
+      <%== '<i class="fa fa-arrow-right" aria-hidden="true"></i>' if active_index < index %>
+      <span class="hollow button content-pool disabled">
+        <%= t('actions.move_to', data: t('contentpool.' + content_pool[:alias].name.downcase, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %>
+      </span>
+      <%== '<i class="fa fa-arrow-left" aria-hidden="true"></i>' if active_index > index %>
+    <% else %>
+      <%== '<i class="fa fa-arrow-right" aria-hidden="true"></i>' if active_index < index %>
+      <%= link_to "/set_content_pool/#{content.id}?content_pool_id=#{content_pool[:id]}", method: :patch, class: "hollow button content-pool" do %>
+        <%= t('actions.move_to', data: t('contentpool.' + content_pool[:alias].name.downcase, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %>
+      <% end %>
+      <%== '<i class="fa fa-arrow-left" aria-hidden="true"></i>' if active_index > index %>
+    <% end %>
+  <% end %>
+</div>
