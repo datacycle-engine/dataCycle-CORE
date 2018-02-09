@@ -274,6 +274,8 @@ de:
         validity_period: Gültigkeitszeitraum (von - bis)
         valid_from: Gültig von
         valid_until: bis
+        permissions_read: "Lesen"
+        permissions_write: "Bearbeiten"
       data_cycle_core/stored_filter:
         system: Globaler Filter
         api: Über API abrufbar
@@ -285,13 +287,6 @@ de:
     classifications: 'Klassifizierungen'
     settings: Einstellungen
     stored_filter: Meine gespeicherten Filter
-
-  helpers:
-    label:
-      data_link:
-        permissions:
-          read: "Lesen"
-          write: "Bearbeiten"
 
   date:
     abbr_day_names:
