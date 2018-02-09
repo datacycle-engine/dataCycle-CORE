@@ -243,9 +243,9 @@ module DataCycleCore
             xml.name title
             xml.desc ActionView::Base.full_sanitizer.sanitize(self.send('description')) if self.respond_to?('description')
             xml.time updated_at
-            unless creator&.first&.title.blank?
+            unless creator&.first&.name.blank?
               xml.author do
-                xml.name creator&.first&.title
+                xml.name creator&.first&.name
               end
             end
           end
