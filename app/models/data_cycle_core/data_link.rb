@@ -18,7 +18,9 @@ module DataCycleCore
     def set_release_status
       creator.subscriptions.create({ subscribable_id: item.id, subscribable_type: item.class }) unless creator.subscriptions.exists?(subscribable_id: item.id, subscribable_type: item.class)
 
-      item.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:partner]).try(:first).try(:id)) if item.metadata.dig('validation', 'releasable') && !DataCycleCore.release_codes.blank?
+      I18n.with_locale(item.first_available_locale) do
+        item.update(release_id: DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:partner]).try(:first).try(:id)) if item.metadata.dig('validation', 'releasable') && !DataCycleCore.release_codes.blank?
+      end
     end
   end
 end
