@@ -40,7 +40,7 @@ module DataCycleCore
     def update
       @data_link = DataCycleCore::DataLink.find(params[:id])
 
-      @data_link.update_attributes(create_link_params.merge(creator_id: current_user.id))
+      @data_link.update(create_link_params.merge(creator_id: current_user.id))
 
       DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later
 

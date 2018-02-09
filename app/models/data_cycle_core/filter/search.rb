@@ -40,16 +40,18 @@ module DataCycleCore
       end
 
       def modified_since(date = Time.zone.now)
-        reflect
-        @query.where(
-          search[:updated_at].gteq(DateTime.parse(date))
+        reflect(
+          @query.where(
+            search[:updated_at].gteq(DateTime.parse(date))
+          )
         )
       end
 
       def created_since(date = Time.zone.now)
-        reflect
-        @query.where(
-          search[:created_at].gteq(DateTime.parse(date))
+        reflect(
+          @query.where(
+            search[:created_at].gteq(DateTime.parse(date))
+          )
         )
       end
 

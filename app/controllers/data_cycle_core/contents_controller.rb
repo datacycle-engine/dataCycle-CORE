@@ -12,6 +12,13 @@ module DataCycleCore
       respond_to(:js)
     end
 
+    def gpx
+      object_type = DataCycleCore.content_tables.find { |object| object == params[:type] }
+      @object = ('DataCycleCore::' + object_type.singularize.classify).constantize.find_by(id: params[:id])
+
+      send_data @object.create_gpx, filename: "#{@object.title.blank? ? 'unnamed_place' : @object.title.underscore.parameterize(separator: '_')}.gpx", type: 'gpx/xml'
+    end
+
     private
 
     def set_watch_list

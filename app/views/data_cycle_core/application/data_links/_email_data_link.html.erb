@@ -38,9 +38,11 @@
     <%= f.date_field :valid_from, {placeholder: "tt.mm.jjjj", label: false} %> -
     <%= f.date_field :valid_until, {placeholder: "tt.mm.jjjj", label: false} %>
     <%= f.label :permissions, DataCycleCore::DataLink.human_attribute_name("permissions", locale: DataCycleCore.ui_language) %>
-    <%= f.radio_button(:permissions, 'read', checked: true) %>
+    <%= f.radio_button(:permissions, 'read', checked: true, label: false) %>
+    <%= f.label :permissions_read, DataCycleCore::DataLink.human_attribute_name(:permissions_read, locale: DataCycleCore.ui_language) %>
     <% if can?(:edit, content) %>
-      <%= f.radio_button(:permissions, 'write') %>
+      <%= f.radio_button(:permissions, 'write', label: false) %>
+      <%= f.label :permissions_write, DataCycleCore::DataLink.human_attribute_name(:permissions_write, locale: DataCycleCore.ui_language) %>
     <% end %>
     <%= f.label :comment, DataCycleCore::DataLink.human_attribute_name("comment", locale: DataCycleCore.ui_language) %>
     <%= f.text_area :comment, class: "large-textfield", label: false %>
