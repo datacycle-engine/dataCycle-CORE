@@ -3,8 +3,8 @@
   <%= form_tag(DataCycleCore::StoredFilter.new, id: 'save-filter-name-form') do %>
     <%= label_tag 'stored_filter_name', 'Name' %>
     <%= text_field_tag 'stored_filter_name', nil, required: true %>
-    <%= check_box_tag 'stored_filter_api', 1, true %>
-    <%= label_tag 'stored_filter_api', DataCycleCore::StoredFilter.human_attribute_name("api", locale: DataCycleCore.ui_language) %><br>
+    <%#= check_box_tag 'stored_filter_api' %>
+    <%#= label_tag 'stored_filter_api', DataCycleCore::StoredFilter.human_attribute_name("api", locale: DataCycleCore.ui_language) %>
     <% if can?(:create_global, DataCycleCore::StoredFilter) %>
       <%= check_box_tag 'stored_filter_system' %>
       <%= label_tag 'stored_filter_system', DataCycleCore::StoredFilter.human_attribute_name("system", locale: DataCycleCore.ui_language) %><br>

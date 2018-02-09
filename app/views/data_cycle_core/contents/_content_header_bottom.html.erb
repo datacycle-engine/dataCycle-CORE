@@ -11,9 +11,9 @@
       <%= render 'newContentFromTemplate', content: content %>
   <% end %>
 
-  <%= link_to gpx_place_path(content), class: 'button-prime small gpx-content-link', data: { tooltip: '' }, title: t('common.download_gpx', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
+  <%= link_to contents_gpx_path(id: content.id, type: content.class.table_name), class: 'button-prime small gpx-content-link', data: { tooltip: '' }, title: t('common.download_gpx', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
     <i class="fa fa-location-arrow" aria-hidden="true"></i>
-  <% end if content.respond_to?(:create_gpx) %>
+  <% end if content.respond_to?(:create_gpx) && content.geo_properties.present? %>
 
   <%= link_to edit_polymorphic_path(content, watch_list_id: @watch_list), class:'button-prime small edit-content-link', data: {tooltip: ""}, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
     <i class="fa fa-pencil" aria-hidden="true"></i>
