@@ -24,9 +24,7 @@ DataCycleCore::Engine.routes.draw do
     end
 
     resources :persons, only: [:index, :show, :create, :edit, :update, :destroy]
-    resources :places, only: [:index, :show, :create, :edit, :update, :destroy] do
-      get 'gpx', on: :member
-    end
+    resources :places, only: [:index, :show, :create, :edit, :update, :destroy]
   end
 
   resources :subscriptions, only: [:index, :create, :destroy]
@@ -108,4 +106,5 @@ DataCycleCore::Engine.routes.draw do
 
   post 'contents/new_embedded_object', to: 'contents#new_embedded_object'
   post 'contents/render_embedded_object', to: 'contents#render_embedded_object'
+  get 'contents/gpx', to: 'contents#gpx'
 end
