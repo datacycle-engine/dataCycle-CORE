@@ -1,5 +1,8 @@
 <a data-open="media-reveal-<%= content.id %>">
     <div class="thumbnail" style="background-image: url(<%= content.metadata['thumbnail_url'] %>)">
+        <div class="show-for-print">
+            <img src="<%= content.metadata['thumbnail_url'] %>" />
+        </div>
         <% unless content.title.blank? %>
             <div class="description">
                 <%= content.title %>
