@@ -25,9 +25,9 @@
                     <span data-tooltip data-allow-html="true" title="<%= object.translated_locales.map{ |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }.join("<br>") %>"><i class="fa fa-language" aria-hidden="true"></i></span>
                   <% end %>
 
-                  <%= link_to gpx_place_path(object), class: '', data: { tooltip: '' }, title: t('common.download_gpx', locale: DataCycleCore.ui_language) do %>
+                  <%= link_to contents_gpx_path(id: object.id, type: object.class.table_name), class: '', data: { tooltip: '' }, title: t('common.download_gpx', locale: DataCycleCore.ui_language) do %>
                     <i class="fa fa-location-arrow" aria-hidden="true"></i>
-                  <% end if object.respond_to?(:create_gpx) %>
+                  <% end if object.respond_to?(:create_gpx) && object.geo_properties.present? %>
 
                   <%= link_to edit_polymorphic_path(object, locale: I18n.locale), data: { tooltip: '' }, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "edit-link" do %>
                     <i class="fa fa-pencil" aria-hidden="true"></i>
