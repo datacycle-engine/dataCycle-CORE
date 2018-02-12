@@ -2,34 +2,21 @@
   * {
     overflow: visible !important;
   }
+
   /* fix for firefox bug */
   body, h1, h2, h3, ol, ul, div {
     float: none !important;
   }
   /* fix end */
+
   @page {
-    margin:0;
-    //margin: 1.6cm 0 1.6cm 0;
-    //@top-center {
-    //  content: " ";
-    //  margin-top: 100px;
-    //}
-    //@bottom-center {
-    //
-    //}
-    //body{
-    //  margin-bottom: 0;
-    //}
+    margin: 3mm;
   }
-  //@page :first {
-  //  margin-top: 0;
-  //  margin-bottom: 0;
-  //}
   body{
     background: #fff;
     line-height: 2;
     border-top: none;
-    margin: 1.6cm;
+    margin: 0;
     font-size: 16px;
   }
   a{
@@ -66,6 +53,8 @@
     }
   }
   header{
+    position: relative;
+    display: block;
     border-bottom: 0.3rem solid #c30000;
     padding-bottom: 1rem;
     margin-bottom: 1rem;
@@ -161,10 +150,9 @@
   }
   footer{
     .print-footer{
-      //display: table-footer-group;
       display: block;
       position: fixed;
-      bottom: 1rem;
+      bottom: 0rem;
       width: 100%;
       background: #fff !important;
       .left{
@@ -172,7 +160,6 @@
       }
       .right{
         float: right !important;
-        margin-right: 3cm;
       }
       .logo{
         display: block;
@@ -189,10 +176,4 @@
       }
     }
   }
-  //header{
-  //  display: table-header-group;
-  //}
-  //article, aside, footer, nav, section {
-  //  display: table-footer-group;
-  //}
 }
