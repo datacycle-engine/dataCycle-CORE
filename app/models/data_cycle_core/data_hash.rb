@@ -241,7 +241,7 @@ module DataCycleCore
         xml.gpx(version: '1.1', creator: 'dataCycle', xmlns: 'http://www.topografix.com/GPX/1/1') do
           xml.metadata do
             xml.name title
-            xml.desc ActionView::Base.full_sanitizer.sanitize(self.send('description')) if self.respond_to?('description')
+            xml.desc ActionView::Base.full_sanitizer.sanitize(send('description')) if respond_to?('description')
             xml.time updated_at
             unless creator&.first&.name.blank?
               xml.author do
@@ -250,7 +250,7 @@ module DataCycleCore
             end
           end
           geo_properties.each do |key, value|
-            geo = self.send(key)
+            geo = send(key)
             geo = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true).parse_wkt(geo) if geo.is_a?(String)
 
             if geo.try(:geometry_type) == RGeo::Feature::Point

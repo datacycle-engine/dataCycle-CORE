@@ -188,7 +188,7 @@ module DataCycleCore
     end
 
     def geo_properties
-      property_definitions.select{ |_, v| v['type'] == 'geographic' }
+      property_definitions.select { |_, v| v['type'] == 'geographic' }
     end
 
     private
