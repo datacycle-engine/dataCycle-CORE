@@ -3,10 +3,10 @@
 <% content_for :top_content do %>
     <%= render_content_partial 'header', content: @content %>
 
-    <%= render 'filter_minimal' if @content.is_container? && DataCycleCore.features&.dig(:container) %>
+    <%= render 'filter_minimal' if @content.is_content_type?('container') %>
 <% end %>
 
-<% if @content.is_container? && DataCycleCore.features&.dig(:container) %>
+<% if @content.is_content_type?('container') %>
   <%= render 'results', contents: @contents %>
 
   <% content_for :new_button do %>

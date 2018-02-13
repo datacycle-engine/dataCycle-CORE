@@ -32,12 +32,6 @@ de:
     uk: "ukrainisch"
     'de-CH': "schweizer-deutsch"
 
-  contentpool:
-    'vorschläge': "Vorschläge"
-    'recherche': "Recherche"
-    'aktuelle inhalte': "Aktuelle Inhalte"
-    'archiv': "Archiv"
-
   roles:
     admin: Administrator
     user: Benutzer
@@ -76,6 +70,7 @@ de:
     status: Status
     content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden
     download_gpx: Als GPX-Datei herunterladen
+    no_search: Sie müssen eine Suche durchführen, bevor Sie einen neuen Inhalt erstellen können.
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -185,6 +180,7 @@ de:
       unlocked: "%{data} wurde freigegeben."
       invalidated: "Externer Link wurde deaktiviert."
       updated_multiple: "%{data} wurden aktualisiert."
+      moved_to: "Inhalt in %{data} verschoben"
     info:
       not_modified: "%{data} wurde nicht geändert."
     job:
@@ -237,6 +233,9 @@ de:
       data_cycle_core/stored_filter:
         one: Gespeicherter Filter
         other: Gespeicherte Filter
+      data_cycle_core/content:
+        one: Inhalt
+        other: Inhalte
     attributes:
       data_cycle_core/classification_alias:
         assignable: Zuweisbar

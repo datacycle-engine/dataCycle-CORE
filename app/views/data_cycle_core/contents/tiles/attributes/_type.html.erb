@@ -1,5 +1,4 @@
-
-<% if !item.schema.nil? && !item.template_name.nil? %>
+<% if item.schema.present? && item.template_name.present? %>
 
     <div class="type <%= item.template_name.downcase %>">
         <div class="infoRow <%= "has-parent" if item.parent %>">

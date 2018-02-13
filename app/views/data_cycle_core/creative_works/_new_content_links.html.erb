@@ -1,8 +1,11 @@
 <div id="new-object-circle">
     <a data-toggle="new-object" class="button-prime"><i class="fa fa-plus" aria-hidden="true"></i></a>
     <div class="reveal" id="new-object" data-reveal data-append-to="#new-object-circle" data-v-offset="auto">
-      <a class="option" href="#" data-open="newContent"><i class="fa fa-folder-open-o" aria-hidden="true"></i>Neuen Inhalt erstellen</a>
+      <% if DataCycleCore.features.dig(:life_cycle, :idea_collection) && (life_cycle_items.keys.index(@content.try(DataCycleCore.features.dig(:life_cycle, :attribute_key))&.first&.name)&.<= life_cycle_items.keys.index(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage))) %>
+        <a class="option" href="#" data-open="new-idea-collection"><i class="fa fa-lightbulb-o" aria-hidden="true"></i><%= t('actions.new', data: DataCycleCore.features.dig(:life_cycle, :idea_collection, :template), locale: DataCycleCore.ui_language) %></a>
+      <% end %>
+      <a class="option" href="#" data-open="newContent"><i class="fa fa-folder-open-o" aria-hidden="true"></i><%= t('actions.new', data: DataCycleCore::Content.model_name.human(locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></a>
     </div>
 </div>
 
-<%= render 'newContent' %>
+<%= render 'new_content_reveal' %>

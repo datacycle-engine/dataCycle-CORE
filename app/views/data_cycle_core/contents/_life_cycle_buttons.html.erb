@@ -1,0 +1,20 @@
+<div class="content-pool-buttons">
+  <% active_index = life_cycle_items.keys.index(content&.data_pool&.first&.name) || -1 %>
+  <% life_cycle_items.values.each_with_index do |item, index| %>
+    <% if active_index == index %>
+      <span class="active content-pool"><%= item[:alias]&.name %></span>
+    <% elsif !can?(:set_life_cycle, content) %>
+      <%== '<i class="fa fa-arrow-right" aria-hidden="true"></i>' if active_index < index %>
+      <span class="hollow button content-pool disabled">
+        <%= t('actions.move_to', data: item[:alias]&.name, locale: DataCycleCore.ui_language) %>
+      </span>
+      <%== '<i class="fa fa-arrow-left" aria-hidden="true"></i>' if active_index > index %>
+    <% else %>
+      <%== '<i class="fa fa-arrow-right" aria-hidden="true"></i>' if active_index < index %>
+      <%= link_to set_life_cycle_path(content.class.table_name, content.id, life_cycle: { id: item[:id], name: item[:alias]&.name}), method: :patch, class: "hollow button content-pool" do %>
+        <%= t('actions.move_to', data: item[:alias]&.name, locale: DataCycleCore.ui_language) %>
+      <% end %>
+      <%== '<i class="fa fa-arrow-left" aria-hidden="true"></i>' if active_index > index %>
+    <% end %>
+  <% end %>
+</div>

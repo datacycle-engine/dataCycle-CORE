@@ -14,12 +14,12 @@ module DataCycleCore
       I18n.with_locale(@content.first_available_locale) do
         redirect_back(fallback_location: root_path) && return if @content.nil?
 
-        if @content.is_container?
+        if @content.is_content_type?('container')
           @contents = get_filtered_results(method_name: 'is_part_of', parameters: @content.id) if @content.children.exists?
 
           @entities = DataCycleCore::CreativeWork.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
-          @entities = @entities.where(template_name: DataCycleCore.features&.dig(:container, :allowed)) if DataCycleCore.features&.dig(:container, :allowed)
-          @entities = @entities.where.not(template_name: DataCycleCore.features&.dig(:container, :excluded)) if DataCycleCore.features&.dig(:container, :excluded)
+          @entities = @entities.where(template_name: @content.schema&.dig('features', 'container', 'allowed')) if @content.schema&.dig('features', 'container', 'allowed')
+          @entities = @entities.where.not(template_name: @content.schema&.dig('features', 'container', 'excluded')) if @content.schema&.dig('features', 'container', 'excluded')
         end
 
         @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if @content.schema['releasable'] && !@content.release_id.nil?
@@ -119,7 +119,7 @@ module DataCycleCore
         end
       end
 
-      if params[:locale] && !@content.translated_locales.include?(params[:locale]) && (DataCycleCore.translatable_types.include?(@content.class.name) || DataCycleCore.translatable_types.include?(@content.content_type))
+      if params[:locale] && !@content.translated_locales.include?(params[:locale]) && (DataCycleCore.translatable_types.include?(@content.class.name) || DataCycleCore.translatable_types.include?(@content.template_name))
         I18n.with_locale(params[:locale]) do
           @content.save
         end
@@ -214,60 +214,33 @@ module DataCycleCore
       render json: valid.to_json
     end
 
-    def set_content_pool
-      @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
-      if !helpers.ordered_content_pools.nil? && helpers.ordered_content_pools.detect { |c| c[:alias].name == 'Recherche' }.dig(:id) == params[:content_pool_id] && @creativeWork.children.where(template_name: 'Recherche').empty?
-        recherche_params = ActionController::Parameters.new({ datahash: { headline: @creativeWork.headline } }).permit!
-        recherche = DataCycleCore::DataHashService.create_internal_object('creative_works', 'Recherche', recherche_params, current_user)
-        recherche.is_part_of = @creativeWork.id unless @creativeWork.nil?
-        recherche.save
-      end
-
-      set_content_pool_for(@creativeWork, params[:content_pool_id])
-
-      redirect_back(fallback_location: root_path)
-    end
-
     def after_create(content, current_user)
       object_params = creative_work_params('creative_works', params[:template])
-      if params[:template] != 'Thema' && params[:template] != 'Video-Serie'
-        if params['parent'].nil? || params['parent'].blank?
-          # create new thema
-          if params[:template] == 'Recherche'
-            thema = DataCycleCore::DataHashService.create_internal_object('creative_works', 'Thema', object_params, current_user)
-            unless helpers.ordered_content_pools.nil?
-              pool_id = helpers.ordered_content_pools.detect { |c| c[:alias].name == 'Recherche' }.dig(:id)
-              thema.set_data_hash_attribute('data_pool', [pool_id], current_user)
-            end
-            content.is_part_of = thema.id unless thema.nil?
-          else
-            flash[:error] = I18n.t :invalid_parent, scope: [:controllers, :error], locale: DataCycleCore.ui_language
-            redirect_back(fallback_location: root_path)
-            return
-          end
-        else
-          # set as parent
-          content.is_part_of = params['parent']
-          # set_content_pool to recherche for both
-          if params[:template] == 'Recherche' && !helpers.ordered_content_pools.nil?
-            pool_id = helpers.ordered_content_pools.detect { |c| c[:alias].name == 'Recherche' }.dig(:id)
+      if content.schema['content_type'] != 'container' && params[:template] != 'Video-Serie'
+        if params[:parent].blank? && params[:template] == DataCycleCore.features.dig(:life_cycle, :idea_collection, :template)
+          parent = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:parent_template], object_params, current_user)
+          life_cycle_id = helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id)
+          parent.set_data_hash_attribute(DataCycleCore.features.dig(:life_cycle, :attribute_key), [life_cycle_id], current_user)
+          content.is_part_of = parent.id
+        elsif params[:parent].present?
+          content.is_part_of = params[:parent]
+          # set_life_cycle to recherche for both
+          if params[:template] == DataCycleCore.features.dig(:life_cycle, :idea_collection, :template)
+            life_cycle_id = helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id)
             parent = DataCycleCore::CreativeWork.find_by(id: content.is_part_of)
-            set_content_pool_for(parent, pool_id)
+            parent.set_classification_with_children(DataCycleCore.features.dig(:life_cycle, :attribute_key), life_cycle_id, current_user)
           end
           # get inherit attributes
           source = Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }] if params[:source].present?
           split_type = source['source_type'].constantize unless source.nil? || source['source_type'].blank?
           split_source = split_type.find(source['source_id']) if !source.nil? && source['source_id'].present? && !split_type.nil?
-          if !split_source.nil?
-            inherit_datahash = get_inherit_datahash(content, split_source)
+          if split_source.present?
+            inherit_datahash = content.get_inherit_datahash(split_source)
           else
-            inherit_datahash = get_inherit_datahash(content, content.parent)
+            inherit_datahash = content.get_inherit_datahash(content.parent)
           end
-          if inherit_datahash.nil?
-            flash[:error] = I18n.t :invalid_parent_attr, scope: [:controllers, :error], locale: DataCycleCore.ui_language
-            redirect_back(fallback_location: root_path)
-            return
-          end
+
+          redirect_back(fallback_location: root_path, alert: I18n.t(:invalid_parent_attr, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if inherit_datahash.nil?
 
           content.set_data_hash(data_hash: inherit_datahash, current_user: current_user, prevent_history: true)
         end
@@ -306,7 +279,9 @@ module DataCycleCore
       if params[:finalize] && @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').size.positive?
         @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').first.update_attribute(:permissions, 'read')
 
-        @creativeWork.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id)) unless DataCycleCore.release_codes.blank?
+        I18n.with_locale(@creativeWork.first_available_locale) do
+          @creativeWork.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id)) unless DataCycleCore.release_codes.blank?
+        end
       end
     end
   end

@@ -275,6 +275,29 @@ module DataCycleCore
       builder.to_xml
     end
 
+    def set_classification_with_children(classification_tree_label, classification_id, user)
+      set_data_hash_attribute(classification_tree_label, [classification_id], user)
+      children.each do |child|
+        child.set_data_hash_attribute(classification_tree_label, [classification_id], user)
+      end
+    end
+
+    def get_inherit_datahash(parent)
+      data_hash = get_data_hash
+
+      I18n.with_locale(parent.first_available_locale) do
+        parent_data_hash = parent.get_data_hash
+
+        DataCycleCore.inheritable_attributes.each do |attribute_key|
+          data_hash[attribute_key] = parent_data_hash[attribute_key] if parent_data_hash[attribute_key].present?
+        end
+
+        data_hash[DataCycleCore.features.dig(:life_cycle, :attribute_key)] = parent_data_hash[DataCycleCore.features.dig(:life_cycle, :attribute_key)] if DataCycleCore.features.dig(:life_cycle)
+      end
+
+      data_hash.compact!
+    end
+
     private
 
     def get_classification_relation(relation_name)

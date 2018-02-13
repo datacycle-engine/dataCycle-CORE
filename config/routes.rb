@@ -2,8 +2,9 @@ DataCycleCore::Engine.routes.draw do
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise
 
   authenticated :user do
-    root to: 'backend#index', as: :authenticated_root
+    root 'backend#index', as: :authenticated_root
   end
+
   root to: redirect('/users/sign_in')
 
   get  '/info', to: 'frontend#info'
@@ -107,4 +108,5 @@ DataCycleCore::Engine.routes.draw do
   post 'contents/new_embedded_object', to: 'contents#new_embedded_object'
   post 'contents/render_embedded_object', to: 'contents#render_embedded_object'
   get 'contents/gpx', to: 'contents#gpx'
+  patch ':type/:id/set_life_cycle', to: 'contents#set_life_cycle', as: 'set_life_cycle'
 end

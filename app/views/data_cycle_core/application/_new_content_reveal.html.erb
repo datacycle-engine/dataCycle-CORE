@@ -1,14 +1,15 @@
-<% unless @creativeWork.nil? %>
-
+<% if @creativeWork.present? %>
     <div class="reveal new-item" id="<%= reveal_id %>" data-reveal>
         <h3><%= reveal_title %></h3>
 
-        <% if !params[:search].present? %>
-            <span class="notice">Sie müssen eine Suche durchführen, bevor Sie einen neuen Inhalt erstellen können.</span>
+        <% if params[:search].blank? %>
+            <span class="notice"><%= t('common.no_search', locale: DataCycleCore.ui_language) %></span>
         <% end %>
 
         <%= form_for(@creativeWork) do |f| %>
             <%= hidden_field_tag 'template', reveal_template %>
+            <%= hidden_field_tag "creative_work[datahash][#{DataCycleCore.features.dig(:life_cycle, :attribute_key)}][]", life_cycle_items.dig(life_cycle_name, :id) if DataCycleCore.features.dig(:life_cycle) && local_assigns.has_key?(:life_cycle_name) %>
+            <%= hidden_field_tag 'parent_template', parent_template if local_assigns.has_key?(:parent_template) %>
             <div class="validation-container form-element">
                 <%= label_tag 'creative_work[datahash][name]', 'Titel' %>
                 <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value: params[:search], disabled: !params[:search].present? %>
@@ -22,5 +23,4 @@
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-
 <% end %>
