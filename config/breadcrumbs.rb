@@ -79,7 +79,7 @@ crumb :'data_cycle_core/places' do
 end
 
 crumb :'data_cycle_core/place' do |place, watch_list|
-  link to_html_string(place.template_name, place.name), place_path(place, watch_list_id: watch_list)
+  link to_html_string(t("content_type.#{place.template_name.downcase}", default: place.template_name, locale: DataCycleCore.ui_language), place.title), place_path(place, watch_list_id: watch_list)
 
   parent watch_list if watch_list
   # parent :'data_cycle_core/places'

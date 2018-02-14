@@ -81,6 +81,9 @@ de:
     active_version: Aktuelle Version
     look_at_version: Version ansehen
 
+  content_type:
+    contentlocation: Ort
+
   terms:
     from: von
 

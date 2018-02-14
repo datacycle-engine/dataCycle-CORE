@@ -60,6 +60,8 @@ module DataCycleCore
         Rails.cache.fetch('life_cycle', expires_in: 10.minutes) do
           life_cycle_items = DataCycleCore::Classification.where(name: DataCycleCore.features.dig(:life_cycle, :ordered)).sort_by { |c| DataCycleCore.features.dig(:life_cycle, :ordered)&.index c.name }.map { |c| [c.name, { id: c.id, alias: c.primary_classification_alias }] }.to_h
         end
+      else
+        {}
       end
     end
 
