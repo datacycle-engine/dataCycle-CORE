@@ -1,7 +1,7 @@
 - :data:
     :name: Bild2
     :type: object
-    :content_type: variant
+    :content_type: entity
     :permissions:
       :read_write: false
     :properties:
@@ -176,7 +176,7 @@
 - :data:
     :name: BildMinimal
     :type: object
-    :content_type: variant
+    :content_type: entity
     :permissions:
       :read_write: false
     :properties:

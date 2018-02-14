@@ -2,7 +2,7 @@
 - :data:
     :name: Bild
     :type: object
-    :content_type: variant
+    :content_type: entity
     :permissions:
       :read_write: false
     :boost: 1.0

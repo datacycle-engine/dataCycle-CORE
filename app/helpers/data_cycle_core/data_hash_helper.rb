@@ -18,25 +18,6 @@ module DataCycleCore
       false
     end
 
-    def get_allowed_content_types
-      allowed_content_types =
-        {
-          'Angebot' => 'Angebot',
-          'App' => 'App',
-          'Artikel' => 'Artikel',
-          'Biografie' => 'Biografie',
-          'Interview' => 'Interview',
-          'Linktipps' => 'Linktipps',
-          'Portrait' => 'Portrait',
-          'Quiz' => 'Quiz',
-          'Rezept' => 'Rezept',
-          'Social Media Posting' => 'SocialMediaPosting',
-          'Veranstaltung' => 'Veranstaltung',
-          'Voting' => 'Voting',
-          'Zeitleiste' => 'Zeitleiste'
-        }
-    end
-
     def get_ordered_validation_properties(validation)
       ordered_properties = ActiveSupport::OrderedHash.new
       unordered_properties = []

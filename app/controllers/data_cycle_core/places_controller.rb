@@ -11,7 +11,7 @@ module DataCycleCore
     def show
       @content = DataCycleCore::Place.find_by(id: params[:id])
 
-      redirect_back(fallback_location: root_path) if @content.nil?
+      redirect_back(fallback_location: root_path) && return if @content.nil?
 
       I18n.with_locale(@content.first_available_locale) do
         @dataSchema = @content.get_data_hash
@@ -20,7 +20,7 @@ module DataCycleCore
 
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: 'places', id: params[:id]) }
-          format.html
+          format.html { render 'show' }
         end
       end
     end

@@ -1,6 +1,5 @@
 /* CreativeWorks */
 
-
 /* gridItems */
 
 .flex {
@@ -24,10 +23,10 @@
     box-shadow: 0px 1px 25px rgba(0, 0, 0, 0.3); //background: $primary-color;
     transform: perspective(1px) scale(1.029);
     z-index: 2; //a, .type, .inner > .title, .row, .description { color: white; }
-    .tags .tag {
-      //background: rgba($white, 0.3);
-      // color: rgba($white, 0.8);
-    }
+    // .tags .tag {
+    //   //background: rgba($white, 0.3);
+    //   // color: rgba($white, 0.8);
+    // }
   }
   .inner {
     position: relative;
@@ -39,11 +38,16 @@
   .type {
     font-size: 1rem;
     font-weight: normal;
+    &.has-parent {
+      padding-bottom: 0;
+    }
     .parent {
       font-style: italic;
       opacity: 0.5;
-    }
-    .has-parent {
+      font-size: 0.9rem;
+      .icon .fa {
+        font-size: 1rem;
+      }
       &:before {
         content: "\f148";
         transform: rotate(90deg);
@@ -55,7 +59,9 @@
         display: inline-block;
         width: 1rem;
         color: $dark-gray;
-        margin-right: 0.25rem;
+        margin-left: 0.25rem;
+        font-size: 1rem;
+        padding-left: 0.2rem;
       }
     }
   }
@@ -82,7 +88,6 @@
     color: $dark-gray;
   }
 }
-
 
 /* listItems */
 
@@ -123,7 +128,7 @@
     }
   }
   .content {
-    display: inline-block;
+    display: block;
     float: left;
     overflow: hidden;
     width: auto;
@@ -168,7 +173,6 @@
     }
   }
 }
-
 
 /* Objectbrowser */
 
@@ -350,7 +354,7 @@
       &.item {
         margin: 0 0.3rem 0 0;
         .delete-thumbnail {
-          display: inline-block;
+          display: block;
           position: relative;
           float: right;
         }
@@ -467,7 +471,6 @@
           &.expired-item {
             border: 2px solid $alert-color;
           }
-          .media {}
           .person {
             color: white;
           }
@@ -586,7 +589,6 @@ span.single_error.object-browser-error {
   }
 }
 
-
 /* Object Browser New Items */
 
 .reveal {
@@ -605,7 +607,6 @@ span.single_error.object-browser-error {
     }
   }
 }
-
 
 /* embedded Objects */
 
@@ -658,7 +659,6 @@ span.single_error.object-browser-error {
     }
   }
 }
-
 
 /* Duration Slider */
 

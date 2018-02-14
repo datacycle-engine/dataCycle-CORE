@@ -3,9 +3,10 @@ module DataCycleCore
     include DataCycleCore::Filter
     before_action :authenticate_user! # from devise (authenticate)
     authorize_resource class: false # from cancancan (authorize)
+    before_action :set_default_filter, only: :index, if: -> { DataCycleCore.features&.dig(:life_cycle, :default_filter).present? }
 
     def index
-      if DataCycleCore.autoload_last_filter && params[:stored_filter].blank? && !params[:utf8] && current_user.stored_filters.size.positive?
+      if DataCycleCore.features&.dig(:autoload_last_filter) && params[:stored_filter].blank? && !params[:utf8] && current_user.stored_filters.size.positive?
         filter_id = current_user.stored_filters.order(created_at: :desc)&.first&.id
         @paginateObject = apply_filter(filter_id: filter_id).includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
         @contents = @paginateObject.map(&:content_data)
@@ -24,6 +25,10 @@ module DataCycleCore
     end
 
     private
+
+    def set_default_filter
+      @classification_array = [helpers.life_cycle_items&.dig(DataCycleCore.features&.dig(:life_cycle, :default_filter), :alias)&.id] if helpers.life_cycle_items.present? && (params[:classification].blank? || helpers.life_cycle_items.size { |o| params[:classification].map { |c| c[:selected] }.include?(o[:id]) }.zero?)
+    end
 
     def parse_classifications(class_array)
       grouping_class = {}

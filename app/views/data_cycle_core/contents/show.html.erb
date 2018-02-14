@@ -1,9 +1,18 @@
 <% breadcrumb @content, @watch_list %>
 
 <% content_for :top_content do %>
-
     <%= render_content_partial 'header', content: @content %>
 
+    <%= render 'filter_minimal' if @content.is_content_type?('container') %>
 <% end %>
 
-<%= render_content_partial 'details', content: @content, schema: @dataSchema %>
+<% if @content.is_content_type?('container') %>
+  <%= render 'results', contents: @contents %>
+
+  <% content_for :new_button do %>
+    <%= render 'new_content_links' if can?(:create, DataCycleCore::CreativeWork) %>
+  <% end %>
+<% else %>
+  <%= render_content_partial 'details', content: @content, schema: @dataSchema %>
+<% end %>
+

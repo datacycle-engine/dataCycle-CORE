@@ -15,11 +15,10 @@ module DataCycleCore
     def get_filtered_results(method_name: nil, parameters: nil)
       @classification_array ||= []
 
-      unless params[:classification].blank?
-        params[:classification].each do |item|
-          @classification_array.push(item['selected'])
-        end
+      params[:classification].presence&.each do |item|
+        @classification_array.push(item['selected'])
       end
+
       @language = params[:language]
       @language ||= 'de' # default-language
 
@@ -41,7 +40,7 @@ module DataCycleCore
       query = query.order(@order_string)
       query = query.fulltext_search(params[:search]) unless params[:search].blank?
 
-      unless @classification_array.blank?
+      if @classification_array.present?
         @with_classification_alias_ids = parse_classifications(@classification_array)
         @with_classification_alias_ids.each_value do |class_array|
           query = query.with_classification_alias_ids(class_array)
@@ -81,15 +80,15 @@ module DataCycleCore
       new_filter = DataCycleCore::StoredFilter.new
       new_filter.user_id = current_user.id
       new_filter.language = @language
-      new_filter.name = filter_params[:stored_filter_name] unless filter_params[:stored_filter_name].blank?
+      new_filter.name = filter_params[:stored_filter_name] if filter_params[:stored_filter_name].present?
       new_filter.system = filter_params[:stored_filter_system]
       new_filter.api = filter_params[:stored_filter_api]
       new_filter.parameters = {}
       new_filter.parameters[:in_validity_period] = Time.zone.now
-      new_filter.parameters[:order] = @order_string unless @order_string.blank?
-      new_filter.parameters[:fulltext_search] = params[:search] unless params[:search].blank?
-      new_filter.parameters[:with_classification_alias_ids] = @with_classification_alias_ids unless @with_classification_alias_ids.blank?
-      new_filter.parameters[method_name.to_sym] = parameters unless parameters.blank?
+      new_filter.parameters[:order] = @order_string if @order_string.present?
+      new_filter.parameters[:fulltext_search] = params[:search] if params[:search].present?
+      new_filter.parameters[:with_classification_alias_ids] = @with_classification_alias_ids if @with_classification_alias_ids.present?
+      new_filter.parameters[method_name.to_sym] = parameters if parameters.present?
       new_filter.save
       new_filter
     end

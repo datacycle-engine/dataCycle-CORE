@@ -5,6 +5,7 @@ module DataCycleCore
     end
 
     def desc
+      content['job_title']
     end
   end
 end

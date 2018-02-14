@@ -55,12 +55,13 @@ module DataCycleCore
       res = walk_classification_tree(classification_alias)
     end
 
-    def ordered_content_pools
-      Rails.cache.fetch('ordered_content_pools', expires_in: 10.minutes) do
-        content_pool_order = ['Vorschläge', 'Recherche', 'Aktuelle Inhalte', 'Archiv']
-        pools = Hash[DataCycleCore::ClassificationAlias.where(name: content_pool_order).collect { |c| [c.try(:name), c] }]
-        cached_ordered_content_pools = content_pool_order.collect { |c| { id: pools[c].classifications.ids.first, alias: pools[c] } } unless pools.blank?
-        cached_ordered_content_pools
+    def life_cycle_items
+      if DataCycleCore.features.dig(:life_cycle)
+        Rails.cache.fetch('life_cycle', expires_in: 10.minutes) do
+          life_cycle_items = DataCycleCore::Classification.where(name: DataCycleCore.features.dig(:life_cycle, :ordered)).sort_by { |c| DataCycleCore.features.dig(:life_cycle, :ordered)&.index c.name }.map { |c| [c.name, { id: c.id, alias: c.primary_classification_alias }] }.to_h
+        end
+      else
+        {}
       end
     end
 

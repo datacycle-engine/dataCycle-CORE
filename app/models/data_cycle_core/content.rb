@@ -149,6 +149,14 @@ module DataCycleCore
       respond_to? 'history_valid'
     end
 
+    def is_content_type?(types)
+      if types.is_a?(Array)
+        types.include?(schema&.dig('content_type'))
+      else
+        types == schema&.dig('content_type')
+      end
+    end
+
     def as_of(timestamp)
       return self if updated_at.blank? || timestamp.blank? || timestamp >= updated_at
       return self if is_history?

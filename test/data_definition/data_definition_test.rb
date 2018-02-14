@@ -13,7 +13,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
         data: {
           name: 'App',
           type: 'object',
-          content_type: 'variant',
+          content_type: 'entity',
           releasable: true,
           permissions: { read_write: true },
           boost: 100.0,

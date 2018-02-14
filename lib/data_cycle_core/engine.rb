@@ -117,8 +117,14 @@ module DataCycleCore
     mattr_accessor :notification_frequencies
     self.notification_frequencies = ['always', 'day', 'week']
 
-    mattr_accessor :autoload_last_filter
-    self.autoload_last_filter = false
+    # features
+    # autoload_last_filter, life_cycle
+    mattr_accessor :features
+    self.features = {}
+
+    # inheritable_attributes
+    mattr_accessor :inheritable_attributes
+    self.inheritable_attributes = ['validity_period']
 
     # webhooks
     mattr_accessor :webhooks

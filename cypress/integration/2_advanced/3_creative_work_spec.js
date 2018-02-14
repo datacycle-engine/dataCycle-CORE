@@ -6,13 +6,14 @@ describe('CreativeWork', function () {
       })
 
       const name = 'Test_' + option + '_' + Date.now()
+      const option_name = 'new-' + option.toLowerCase()
       const updated_name = 'Updated_' + name
       var id = undefined
 
       it('create', function () {
         cy.visit('/?search=' + name).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
         cy.get('#new-object-circle').click()
-        cy.get('#new-object .option[data-open="' + option + '"]').then(function ($elem) {
+        cy.get('#new-object .option[data-open="' + option_name + '"]').then(function ($elem) {
           cy.expect($elem).to.be.visible
           $elem.click()
           cy.get('#' + $elem.data('open')).should('be.visible')
