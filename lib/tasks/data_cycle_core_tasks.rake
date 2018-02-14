@@ -127,7 +127,6 @@ namespace :data_cycle_core do
           [k, v]
         end
       end]
-      # options[:locales] = [:de] #, :en, :fr, :it, :nl]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.download(options)
@@ -142,7 +141,6 @@ namespace :data_cycle_core do
           [k, v]
         end
       end]
-      # options[:locales] = [:de] #, :fr, :en, :it, :nl]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.import(options)
@@ -154,20 +152,24 @@ namespace :data_cycle_core do
     task import_classifications: [:environment] do
       puts 'importing new classification definitions'
       path = Rails.root.join('config', 'data_definitions', 'classifications.yml')
-      DataCycleCore::MasterData::ImportClassifications.new.import(path.to_s)
+      DataCycleCore::MasterData::ImportClassifications.import(path.to_s)
     end
 
-    desc 'import template definitions'
+    desc 'import all template definitions'
     task import_templates: [:environment] do
       puts 'importing new template definitions'
-      path = Rails.root.join('config', 'data_definitions', 'creative_works', '*.yml')
-      DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::CreativeWork)
-      path = Rails.root.join('config', 'data_definitions', 'places', '*.yml')
-      DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Place)
-      path = Rails.root.join('config', 'data_definitions', 'persons', '*.yml')
-      DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Person)
-      path = Rails.root.join('config', 'data_definitions', 'events', '*.yml')
-      DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Event)
+
+      errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
+
+      unless duplicates.blank?
+        puts 'the following templates had multiple definitions:'
+        ap duplicates
+      end
+
+      unless errors.blank?
+        puts 'the following errors were encountered during import:'
+        ap errors
+      end
     end
 
     desc 'replace the data-definitions of all data-types in the Database with the templates in the Database'

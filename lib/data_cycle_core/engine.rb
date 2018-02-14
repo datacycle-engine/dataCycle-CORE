@@ -133,6 +133,11 @@ module DataCycleCore
       delete: [],
       update: []
     }
+
+    # template directories
+    mattr_accessor :template_path
+    mattr_accessor :default_template_paths
+    self.default_template_paths = []
   end
 
   def self.setup

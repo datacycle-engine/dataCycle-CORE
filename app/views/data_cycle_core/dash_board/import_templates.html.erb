@@ -33,7 +33,10 @@
             <%= render 'pg_total_stats' %>
         </div>
         <div class="small-9 columns">
-            <%= ap(@errors).html_safe %>
+            <%= 'Duplicates:' unless @duplicates.blank? %>
+            <%= ap(@duplicates).html_safe unless @duplicates.blank? %>
+            <%= 'Errors:' unless @errors.blank? %>
+            <%= ap(@errors).html_safe unless @errors.blank? %>
         </div>
     </div>
 

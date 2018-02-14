@@ -4,7 +4,7 @@ require 'minitest/autorun'
 
 describe DataCycleCore::MasterData::ImportTemplates do
   subject do
-    DataCycleCore::MasterData::ImportTemplates.new
+    DataCycleCore::MasterData::ImportTemplates
   end
 
   describe 'loaded template_data' do
