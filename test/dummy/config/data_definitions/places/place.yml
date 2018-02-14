@@ -1,7 +1,6 @@
 ---
 - :data:
     :name: Ort
-    :description: Place
     :type: object
     :content_type: entity
     :permissions:

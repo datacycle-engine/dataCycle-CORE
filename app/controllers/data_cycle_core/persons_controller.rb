@@ -25,8 +25,8 @@ module DataCycleCore
 
     def create
       I18n.with_locale(params[:locale] || I18n.locale) do
-        object_params = person_params('persons', params[:template], 'Person')
-        @person = DataCycleCore::DataHashService.create_internal_object('persons', params[:template], 'Person', object_params, current_user)
+        object_params = person_params('persons', params[:template])
+        @person = DataCycleCore::DataHashService.create_internal_object('persons', params[:template], object_params, current_user)
 
         if @person.nil?
           redirect_back(fallback_location: root_path)
@@ -37,7 +37,7 @@ module DataCycleCore
           # validate ?
           if !@person.nil? && @person.save
             format.html do
-              flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Person', locale: DataCycleCore.ui_language
+              flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @person.template_name, locale: DataCycleCore.ui_language
               redirect_to @person
             end
             format.js
@@ -66,8 +66,8 @@ module DataCycleCore
     def update
       @person = DataCycleCore::Person.find(params[:id])
       I18n.with_locale(@person.first_available_locale(params[:locale])) do
-        object_params = person_params('persons', @person.metadata['validation']['name'], @person.metadata['validation']['description'])
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @person.metadata['validation'], false)
+        object_params = person_params('persons', @person.template_name)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @person.schema, false)
 
         valid = @person.set_data_hash(data_hash: datahash, current_user: current_user)
 
@@ -105,9 +105,9 @@ module DataCycleCore
     def validate_single_data
       @person = DataCycleCore::Person.find(params[:id])
 
-      object_params = person_params('persons', @person.metadata['validation']['name'], @person.metadata['validation']['description'])
+      object_params = person_params('persons', @person.template_name)
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @person.metadata['validation'])
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @person.schema)
       valid = @person.validate(datahash)
 
       render json: valid.to_json
@@ -118,8 +118,8 @@ module DataCycleCore
     def create_params
     end
 
-    def person_params(storage_location, template_name, template_description)
-      datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
+    def person_params(storage_location, template_name)
+      datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name)
       params.require(:person).permit(datahash: datahash)
     end
   end

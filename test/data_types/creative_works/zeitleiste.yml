@@ -1,7 +1,6 @@
 ---
 - :data:
     :name: Zeitleiste
-    :description: CreativeWork
     :type: object
     :content_type: variant
     :releasable: true
@@ -100,7 +99,6 @@
         :storage_location: creative_works
         :delete: true
         :name: Zeitleiste-Eintrag
-        :description: CreativeWork
         :editor:
           :type: embeddedObject
           :sorting: 12
@@ -222,7 +220,6 @@
 
 - :data:
     :name: Zeitleiste-Eintrag
-    :description: CreativeWork
     :type: object
     :content_type: embedded
     :permissions:
@@ -329,7 +326,6 @@
         :type: object
         :storage_location: places
         :name: contentLocation
-        :description: Place
         :delete: false
         :validations:
           :max: 1

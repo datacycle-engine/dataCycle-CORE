@@ -8,10 +8,10 @@ module DataCycleCore
     end
 
     test 'generate a Quiz with questions, then delete all questions and answers' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Quiz', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Quiz')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test Quiz!',
@@ -84,10 +84,10 @@ module DataCycleCore
     end
 
     test 'generate a Quiz with questions and answers, then delete one question' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Quiz', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Quiz')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test Quiz!',

@@ -1,12 +1,12 @@
+
 <div class="glass home-container">
     <div class="home-container-content">
         <!--[if lt IE 9]>
         <div class="legacy-ie-fix"></div>
         <![endif]-->
         <div class="columns">
-            <img src="/assets/images/logo.png" class="home-logo" style="max-height: 5rem; max-width: 10rem;">
+            <%= image_tag("logo.svg", alt: "dataCycle Logo", style: 'height: 3rem;') %>
             <h1>Willkommen</h1>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam..</p>
         </div>
 
 
@@ -54,12 +54,6 @@
                                             <i class="fa fa-angle-right" aria-hidden="true"></i>
                                         <% end %>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="small-7 small-offset-4 columns end">
-                                    <%= render "devise/shared/links" %>
                                 </div>
                             </div>
 
@@ -119,7 +113,6 @@
                     </div>
                 </li>
             </ul>
-
 
         </div>
     </div>

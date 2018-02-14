@@ -1,12 +1,11 @@
 ---
 - :data:
     :name: Video
-    :description: VideoObject
     :type: object
     :content_type: variant
     :permissions:
       :read_write: false
-    :boost: 1.0      
+    :boost: 1.0
     :properties:
       :id:
         :label: id
@@ -90,7 +89,6 @@
         :type: object
         :storage_location: places
         :name: contentLocation
-        :description: Place
         :editor:
           :type: objectBrowser
       :width:

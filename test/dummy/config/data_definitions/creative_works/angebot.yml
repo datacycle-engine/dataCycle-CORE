@@ -1,7 +1,6 @@
 ---
 - :data:
     :name: Angebot
-    :description: CreativeWork
     :type: object
     :content_type: entity
     :permissions:
@@ -93,7 +92,6 @@
         :storage_location: creative_works
         :delete: true
         :name: Angebotszeitraum
-        :description: CreativeWork
         :editor:
           :type: embeddedObject
           :sorting: 8
@@ -115,7 +113,6 @@
         :storage_location: creative_works
         :delete: true
         :name: Website
-        :description: CreativeWork
         :editor:
           :type: embeddedObject
           :sorting: 10
@@ -125,7 +122,6 @@
         :storage_location: creative_works
         :delete: true
         :name: DataCycle-Image
-        :description: CreativeWork
         :editor:
           :type: embeddedObject
       :datacycleasset:
@@ -134,7 +130,6 @@
         :storage_location: creative_works
         :delete: true
         :name: DataCycle-File
-        :description: CreativeWork
         :editor:
           :type: embeddedObject
       :thema:
@@ -217,7 +212,6 @@
 
 - :data:
     :name: Angebotszeitraum
-    :description: CreativeWork
     :type: object
     :content_type: embedded
     :permissions:

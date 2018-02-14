@@ -24,16 +24,11 @@ module DataCycleCore
           if error.blank?
             data_set = object
               .find_or_initialize_by(
-                headline: template[:data][:name],
-                description: template[:data][:description],
+                template_name: template[:data][:name],
                 template: true
               )
             data_set.seen_at = Time.zone.now
-            if data_set.metadata.blank?
-              data_set.metadata = { validation: template[:data] }
-            else
-              data_set.metadata[:validation] = template[:data]
-            end
+            data_set.schema = template[:data]
             data_set.save
           else
             errors[template[:data][:name]] = error unless error.blank?
@@ -68,9 +63,8 @@ module DataCycleCore
         Dry::Validation.Schema do
           required(:data).schema do
             required(:name) { str? }
-            required(:description) { str? & included_in?(DataCycleCore.content_tables.map(&:classify) + ['ImageObject', 'VideoObject']) }
             required(:type) { str? & eql?('object') }
-            optional(:content_type) { str? & included_in?(['variant', 'embedded', 'entity']) }
+            optional(:content_type) { str? & included_in?(['variant', 'embedded', 'entity', 'container']) }
             optional(:releasable) { bool? }
             optional(:permissions).schema do
               required(:read_write) { bool? }
@@ -103,7 +97,7 @@ module DataCycleCore
                     embeddedLinkArray: 'type_name must be a table_name (plural), storage_type = array, storage_location = jsonb field(metadata, content)',
                     embeddedLink: 'type_name must be a table_name (plural), storage_location = jsonb field(metadata, content)',
                     classification_relation: "type must be 'classificationTreeLabel' and type_name must be a name of a ClassificationTreeLabel record: #{DataCycleCore::ClassificationTreeLabel.pluck(:name)}",
-                    embedded_object: 'type must be object, description must be a content_table class_name',
+                    embedded_object: 'type must be object, storage_location must be a content_table_name',
                     included_object: 'storage_location must be a jsonb field, type must be object and must have properties',
                     valid_classification?: 'specified default_value could not be found in classification_aliases',
                     instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.',
@@ -117,17 +111,19 @@ module DataCycleCore
           required(:label) { str? }
           required(:type) do
             str? &
-              included_in?([
-                             'string',
-                             'text',
-                             'number',
-                             'geographic',
-                             'object',
-                             'embeddedLinkArray',
-                             'embeddedLink',
-                             'classificationTreeLabel',
-                             'asset'
-                           ])
+              included_in?(
+                [
+                  'string',
+                  'text',
+                  'number',
+                  'geographic',
+                  'object',
+                  'embeddedLinkArray',
+                  'embeddedLink',
+                  'classificationTreeLabel',
+                  'asset'
+                ]
+              )
           end
           required(:storage_location) do
             str? &
@@ -153,16 +149,17 @@ module DataCycleCore
           # }
           optional(:storage_type) do
             str? &
-              included_in?([
-                             'string',
-                             'text',
-                             'number',
-                             'geographic',
-                             'array'
-                           ])
+              included_in?(
+                [
+                  'string',
+                  'text',
+                  'number',
+                  'geographic',
+                  'array'
+                ]
+              )
           end
           optional(:name) { str? }
-          optional(:description) { str? }
           optional(:delete) { bool? }
           optional(:search) { bool? }
           optional(:editor) { hash? }
@@ -199,13 +196,11 @@ module DataCycleCore
             ))
           end
 
-          rule(embedded_object: [:storage_location, :type, :name, :description]) do |storage_location, type, name, description|
+          rule(embedded_object: [:storage_location, :type, :name]) do |storage_location, type, name|
             (storage_location.included_in?(DataCycleCore.content_tables) > (
-            type.eql?('object') &
-              description.included_in?(DataCycleCore.content_tables.map(&:classify)) &
-              name.filled?
-            )) & (
-              (type.eql?('object') & name.filled? & description.filled?) >
+            type.eql?('object') & name.filled?)
+            ) & (
+              (type.eql?('object') & name.filled?) >
               storage_location.included_in?(DataCycleCore.content_tables)
             )
           end

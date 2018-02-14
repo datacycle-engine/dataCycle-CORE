@@ -1,7 +1,6 @@
 ---
 - :data:
     :name: SocialMediaPosting
-    :description: CreativeWork
     :type: object
     :content_type: entity
     :permissions:
@@ -77,7 +76,6 @@
         :type: object
         :storage_location: places
         :name: Ort
-        :description: Place
         :delete: false
         :editor:
           :sorting: 7

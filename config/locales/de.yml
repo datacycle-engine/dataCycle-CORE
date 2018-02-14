@@ -150,7 +150,7 @@ de:
       float: "%{data} ist kein Float."
       object_type: "Falscher Datentyp für %{data}. Typ %{type} ist nicht definiert."
       wrong_object_type: "Objekt Type %{data} ist kein embedded Datentyp und hat keine 'properties'."
-      no_template: "Kein passendes Datentyp Template gefunden für %{name}|%{desc}."
+      no_template: "Kein passendes Datentyp Template gefunden für %{name}."
       no_fields: "Keine Felder für 'from-date' und/oder 'to-date' angegeben."
       convert_date: "Datum konnte nicht konvertiert werden, um die Zeitspanne zu validieren."
       daterange: "Ungültige Zeitspanne, 'von' (%{from}) ist nach 'bis' (%{to})."

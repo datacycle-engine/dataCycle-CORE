@@ -6,10 +6,10 @@ module DataCycleCore
       template_cw_count = DataCycleCore::CreativeWork.count
       template_cwt_count = DataCycleCore::CreativeWork::Translation.count
 
-      template_data = DataCycleCore::CreativeWork.find_by(template: true, headline: 'Bild2', description: 'ImageObject')
-      validation_hash = template_data.metadata['validation']
+      template_data = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Bild2')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation_hash }
+      data_set.schema = template_data.schema
+      data_set.template_name = template_data.template_name
       data_set.save
 
       data_hash = {

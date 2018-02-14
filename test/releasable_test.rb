@@ -3,10 +3,10 @@ require 'test_helper'
 module DataCycleCore
   class ReleasableTest < ActiveSupport::TestCase
     test 'CreativeWork data-type ReleaseTest releasable case' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'ReleaseTest', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'ReleaseTest')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
 
       release_id = DataCycleCore::Release.find_by(release_code: 10).id
@@ -40,10 +40,10 @@ module DataCycleCore
     end
 
     test 'extract release from embeddedObjects' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'ReleaseTest', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'ReleaseTest')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
 
       data_hash = {
@@ -109,10 +109,10 @@ module DataCycleCore
     end
 
     test 'extract release from embeddedData' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'ReleaseTest', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'ReleaseTest')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
 
       data_hash = {
@@ -177,10 +177,10 @@ module DataCycleCore
     end
 
     test 'merge release data to data_hash' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'ReleaseTest', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'ReleaseTest')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
 
       data_hash = {

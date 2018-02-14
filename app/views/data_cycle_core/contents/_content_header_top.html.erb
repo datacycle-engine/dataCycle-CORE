@@ -1,8 +1,8 @@
 <div class="detail-header-info">
-    <div class="type <%= content.content_type.downcase %>">
+    <div class="type <%= content.template_name.downcase %>">
         <%= render_content_partial 'icon', content: content %>
 
-        <span class="title"><%= content.content_type %></span>
+        <span class="title"><%= content.template_name %></span>
         <% unless content.translated_locales.size > 1 %>
           <span class="language">(<%= I18n.locale %>)</span>
         <% end %>

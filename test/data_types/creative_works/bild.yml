@@ -1,7 +1,6 @@
 ---
 - :data:
     :name: Bild
-    :description: ImageObject
     :type: object
     :content_type: variant
     :permissions:
@@ -74,7 +73,6 @@
         :type: object
         :storage_location: places
         :name: contentLocation
-        :description: Place
         :editor:
           :type: objectBrowser
       :width:

@@ -9,10 +9,10 @@ module DataCycleCore
 
     test 'insert embeddedObject within same table' do
       # create an author
-      template = DataCycleCore::Person.where(template: true, headline: 'Autor', description: 'Person').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::Person.find_by(template: true, template_name: 'Autor')
       data_set = DataCycleCore::Person.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       person_hash = {
         'given_name' => 'Winston',
@@ -27,10 +27,10 @@ module DataCycleCore
         .where('classification_aliases.name = ?', 'Zitat').first.id
 
       # create an Article
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Artikel', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Artikel')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test!',
@@ -94,10 +94,10 @@ module DataCycleCore
       # author within quotation is without delete  --> only link should be deleted
 
       # create an author
-      template = DataCycleCore::Person.where(template: true, headline: 'Autor', description: 'Person').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::Person.find_by(template: true, template_name: 'Autor')
       data_set = DataCycleCore::Person.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       person_hash = {
         'given_name' => 'Winston',
@@ -112,10 +112,10 @@ module DataCycleCore
         .where('classification_aliases.name = ?', 'Zitat').first.id
 
       # create an Article
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Artikel', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Artikel')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test!',
@@ -196,10 +196,10 @@ module DataCycleCore
       # author within quotation is without delete  --> only link should be deleted
 
       # create an author
-      template = DataCycleCore::Person.where(template: true, headline: 'Autor', description: 'Person').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::Person.find_by(template: true, template_name: 'Autor')
       data_set = DataCycleCore::Person.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       person_hash = {
         'given_name' => 'Winston',
@@ -210,10 +210,10 @@ module DataCycleCore
       person_id = data_set.id
 
       # create an Article
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Artikel', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Artikel')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test!',
@@ -298,10 +298,10 @@ module DataCycleCore
 
     test 'insert embeddedObject within same table then add another quotation' do
       # create an author
-      template = DataCycleCore::Person.where(template: true, headline: 'Autor', description: 'Person').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::Person.find_by(template: true, template_name: 'Autor')
       data_set = DataCycleCore::Person.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       person_hash = {
         'given_name' => 'Winston',
@@ -316,10 +316,10 @@ module DataCycleCore
         .where('classification_aliases.name = ?', 'Zitat').first.id
 
       # create an Article
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Artikel', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Artikel')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test!',
@@ -378,12 +378,12 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::Person.where(template: false).count)
 
       data_hash['quotation'][0]['id'] = quotation_id
-      data_hash['quotation'].push({
-                                    'text' => 'Men occasionally stumble over the truth, but most of them pick themselves up and hurry off as if nothing ever happened.',
-                                    'author' => [{
-                                      'id' => person_id
-                                    }]
-                                  })
+      data_hash['quotation'].push(
+        {
+          'text' => 'Men occasionally stumble over the truth, but most of them pick themselves up and hurry off as if nothing ever happened.',
+          'author' => [{ 'id' => person_id }]
+        }
+      )
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash

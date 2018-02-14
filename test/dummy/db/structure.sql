@@ -245,7 +245,9 @@ CREATE TABLE creative_work_histories (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     external_key character varying,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    template_name character varying,
+    schema jsonb
 );
 
 
@@ -342,7 +344,9 @@ CREATE TABLE creative_works (
     updated_at timestamp without time zone NOT NULL,
     external_source_id uuid,
     template boolean DEFAULT false NOT NULL,
-    external_key character varying
+    external_key character varying,
+    template_name character varying,
+    schema jsonb
 );
 
 
@@ -423,7 +427,9 @@ CREATE TABLE event_histories (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     external_key character varying,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    template_name character varying,
+    schema jsonb
 );
 
 
@@ -520,7 +526,9 @@ CREATE TABLE events (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     external_source_id uuid,
-    external_key character varying
+    external_key character varying,
+    template_name character varying,
+    schema jsonb
 );
 
 
@@ -582,7 +590,9 @@ CREATE TABLE person_histories (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     external_key character varying,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    template_name character varying,
+    schema jsonb
 );
 
 
@@ -679,7 +689,9 @@ CREATE TABLE persons (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     external_source_id uuid,
-    external_key character varying
+    external_key character varying,
+    template_name character varying,
+    schema jsonb
 );
 
 
@@ -710,7 +722,9 @@ CREATE TABLE place_histories (
     fax_number character varying,
     telephone character varying,
     email character varying,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    template_name character varying,
+    schema jsonb
 );
 
 
@@ -825,7 +839,9 @@ CREATE TABLE places (
     address_country character varying,
     fax_number character varying,
     telephone character varying,
-    email character varying
+    email character varying,
+    template_name character varying,
+    schema jsonb
 );
 
 
@@ -2224,6 +2240,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180109095257'),
 ('20180111111106'),
 ('20180117073708'),
-('20180122153121');
+('20180122153121'),
+('20180124091123');
 
 
