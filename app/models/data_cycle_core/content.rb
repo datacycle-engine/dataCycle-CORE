@@ -187,6 +187,10 @@ module DataCycleCore
       }.compact.uniq
     end
 
+    def geo_properties
+      property_definitions.select { |_, v| v['type'] == 'geographic' }
+    end
+
     private
 
     def get_property_value(property_name, property_definition, timestamp = Time.zone.now, object = true)

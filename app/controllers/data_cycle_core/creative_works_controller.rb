@@ -243,7 +243,9 @@ module DataCycleCore
       if params[:finalize] && @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').size.positive?
         @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').first.update_attribute(:permissions, 'read')
 
-        @creativeWork.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id)) unless DataCycleCore.release_codes.blank?
+        I18n.with_locale(@creativeWork.first_available_locale) do
+          @creativeWork.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id)) unless DataCycleCore.release_codes.blank?
+        end
       end
     end
   end

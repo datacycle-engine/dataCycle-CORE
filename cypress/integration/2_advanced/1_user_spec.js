@@ -14,9 +14,7 @@ describe('User', function () {
   }
 
   it('create', function () {
-    cy.visit('/').get('.flash.callout .close-button').click({
-      force: true
-    }).should('be.hidden')
+    cy.visit('/').get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
 
     cy.get('.show-sidebar').click()
     cy.get('#settings-off-canvas .users-link').click()
@@ -34,7 +32,7 @@ describe('User', function () {
     cy.get('#new_user input[type="submit"]').click()
     cy.location('pathname').should('match', /\/users/)
 
-    cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
+    cy.get('.flash.callout').should('be.visible').should('have.class', 'success').find('.close-button').click().should('be.hidden')
     cy.get('.search-results .grid-item:contains(' + user.email + ')').should('have.length', 1)
 
     cy.testLogin(user).then((resp) => {
@@ -43,9 +41,7 @@ describe('User', function () {
   })
 
   it('update', function () {
-    cy.visit('/users').get('.flash.callout .close-button').click({
-      force: true
-    }).should('be.hidden')
+    cy.visit('/users').get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
     cy.get('.search-results .grid-item:contains(' + user.email + ')').should('have.length', 1).find('.edit-link').click()
     cy.location('pathname').should('match', /\/users\/.*\/edit/)
 
@@ -55,7 +51,7 @@ describe('User', function () {
     cy.get('.submit-edit-form').click()
     cy.location('pathname').should('match', /\/users/)
 
-    cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
+    cy.get('.flash.callout').should('be.visible').should('have.class', 'success').find('.close-button').click().should('be.hidden')
     cy.visit('/users')
     cy.get('.search-results .grid-item:contains(' + updated_user.email + ')').should('have.length', 1)
 
@@ -65,15 +61,13 @@ describe('User', function () {
   })
 
   it('lock', function () {
-    cy.visit('/users').get('.flash.callout .close-button').click({
-      force: true
-    }).should('be.hidden')
+    cy.visit('/users').get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
     cy.get('.search-results .grid-item:contains(' + updated_user.email + ')').should('have.length', 1).find('.lock-link').click()
     cy.location('pathname').should('match', /\/users/)
 
     cy.get('.confirmation-modal').should('be.visible').find('.confirmation-confirm').click()
     cy.location('pathname').should('match', /\/users/)
-    cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
+    cy.get('.flash.callout').should('be.visible').should('have.class', 'success').find('.close-button').click().should('be.hidden')
 
     cy.testLogin(updated_user).then((resp) => {
       expect(resp.status).to.eq(302)
@@ -82,12 +76,10 @@ describe('User', function () {
   })
 
   it('unlock', function () {
-    cy.visit('/users').get('.flash.callout .close-button').click({
-      force: true
-    }).should('be.hidden')
+    cy.visit('/users').get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
     cy.get('.search-results .grid-item:contains(' + updated_user.email + ')').should('have.length', 1).find('.unlock-link').click()
     cy.location('pathname').should('match', /\/users/)
-    cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
+    cy.get('.flash.callout').should('be.visible').should('have.class', 'success').find('.close-button').click().should('be.hidden')
 
     cy.testLogin(updated_user).then((resp) => {
       expect(resp.status).to.eq(302)

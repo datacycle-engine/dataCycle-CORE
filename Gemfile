@@ -18,6 +18,7 @@ gem 'globalize', github: 'globalize/globalize'
 
 group :development, :test do
   gem 'byebug'
+  gem 'dotenv-rails'
   gem 'pry'
 
   gem 'capistrano-rails'

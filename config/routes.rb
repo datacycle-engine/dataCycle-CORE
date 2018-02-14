@@ -24,9 +24,7 @@ DataCycleCore::Engine.routes.draw do
     end
 
     resources :persons, only: [:index, :show, :create, :edit, :update, :destroy]
-    resources :places, only: [:index, :show, :create, :edit, :update, :destroy] do
-      get 'gpx', on: :member
-    end
+    resources :places, only: [:index, :show, :create, :edit, :update, :destroy]
   end
 
   resources :subscriptions, only: [:index, :create, :destroy]
@@ -74,7 +72,7 @@ DataCycleCore::Engine.routes.draw do
   defaults format: :json do
     namespace :api do
       namespace :v1 do
-        resources :classification, only: [:index]
+        resources :stored_filters, only: [:show], path: :endpoints
 
         resources :classification_trees, only: [:index, :show] do
           get :classifications, on: :member
@@ -90,6 +88,7 @@ DataCycleCore::Engine.routes.draw do
         resources :events, only: [:index, :show]
         get 'contents/search', to: 'contents#search'
         get 'contents/get_deleted', to: 'contents#get_deleted'
+
         resources :external_sources, only: [] do
           post ':external_source_id/:type/:external_key', to: 'external_sources#create', on: :collection
           patch ':external_source_id/:type/:external_key', to: 'external_sources#update', on: :collection
@@ -107,4 +106,5 @@ DataCycleCore::Engine.routes.draw do
 
   post 'contents/new_embedded_object', to: 'contents#new_embedded_object'
   post 'contents/render_embedded_object', to: 'contents#render_embedded_object'
+  get 'contents/gpx', to: 'contents#gpx'
 end

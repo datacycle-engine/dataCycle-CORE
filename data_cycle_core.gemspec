@@ -1,4 +1,6 @@
 
+require 'date'
+
 $LOAD_PATH.push File.expand_path('../lib', __FILE__)
 
 # allows bundler to use the gemspec for dependencies
@@ -12,14 +14,15 @@ require 'data_cycle_core/version'
 Gem::Specification.new do |s|
   s.name        = 'data_cycle_core'
   s.version     = DataCycleCore::VERSION
-  s.authors     = ['Martin Oehzelt']
-  s.email       = ['oehzelt@pixelpoint.at']
+  s.authors     = ['Michael Dermastia', 'Manuel Mitterer', 'Martin Oehzelt', 'Patrick Rainer', 'Johannes Zlattinger']
+  s.email       = ['office@datacycle.at']
   s.homepage    = 'http://git.pixelpoint.biz/data-cycle/data-cycle-core'
-  s.summary     = 'DataCycleCore. Rails Engine for the DataCycle project'
-  s.description = 'DataCycleCore. '
-  s.license     = 'Copyright 2017 pixelpoint.at. All rights reserved.'
+  s.summary     = 'dataCycle-Core. Rails engine for dataCycle'
+  s.license     = "Copyright 2016-#{DateTime.now.year} datacycle.at. All rights reserved."
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.md']
+
+  s.required_ruby_version = '~> 2.4.3'
 
   # rails
   s.add_dependency 'jquery-rails'
@@ -43,7 +46,7 @@ Gem::Specification.new do |s|
   # SOAP Client
   # s.add_dependency 'savon', '~> 2.0'
   # XML Parser
-  s.add_dependency 'nokogiri', '~> 1.8.1'
+  s.add_dependency 'nokogiri', '~> 1.8.2'
   # s.add_dependency 'activemodel-serializers-xml'
   # authentication
   s.add_dependency 'devise'

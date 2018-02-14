@@ -27,10 +27,13 @@ module DataCycleCore
         end
 
         data = @medium.get_data_hash
+        # TODO: fix naming vor validity_period
         if data['validity_period'].blank?
           data['validity_period'] = { 'expires' => Time.zone.today.yesterday.to_s }
+          data['validity_period'] = { 'valid_until' => Time.zone.today.yesterday.to_s }
         else
           data['validity_period']['expires'] = Time.zone.today.yesterday.to_s
+          data['validity_period']['valid_until'] = Time.zone.today.yesterday.to_s
         end
         @medium.set_data_hash(data_hash: data)
 

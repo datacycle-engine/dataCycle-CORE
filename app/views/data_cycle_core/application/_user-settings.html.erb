@@ -9,14 +9,14 @@
           <% if current_user.role && current_user.role.rank > 0 %>
             <% if can? :update, current_user %>
               <div class="row columns">
-                  <%= link_to edit_user_path(current_user) do %>
+                  <%= link_to edit_user_path(current_user), class: 'edit-user-link' do %>
                       <span class="icon"><i class="fa fa-pencil" aria-hidden="true"></i></span>
                       <span class="title"><%= DataCycleCore::User.model_name.human(locale: DataCycleCore.ui_language) %> <%= t('actions.edit', locale: DataCycleCore.ui_language) %></span>
                   <% end %>
               </div>
             <% end %>
             <div class="row columns">
-                <%= link_to settings_path do %>
+                <%= link_to settings_path, class: 'user-settings-link' do %>
                     <span class="icon"><i class="fa fa-cogs" aria-hidden="true"></i></span>
                     <span class="title">Einstellungen</span>
                 <% end %>
@@ -73,13 +73,18 @@
                         <i class="fa fa-filter" aria-hidden="true"></i>
                         <%= stored_filter.name || "vor #{time_ago_in_words stored_filter.created_at}" %>
                       <% end %>
-                      <% if can?(:destroy, stored_filter) %>
-                        <span class="buttons">
+                      <span class="buttons">
+                        <% if stored_filter.api %>
+                          <%= link_to api_v1_stored_filter_path(stored_filter), class: 'copy-to-clipboard', data: { tooltip: '' }, title: t('actions.copy_api_url_to_clipboard') do %>
+                            <i class="fa fa-clipboard" aria-hidden="true"></i>
+                          <% end %>
+                        <% end %>
+                        <% if can?(:destroy, stored_filter) %>
                           <%= link_to stored_filter_path(stored_filter), method: :delete, data: { confirm: "Filter #{t('actions.delete', locale: DataCycleCore.ui_language)}?" } do %>
                             <i class="fa fa-trash-o alert" aria-hidden="true"></i>
                           <% end %>
-                        </span>
-                      <% end %>
+                        <% end %>
+                      </span>
                     </li>
                 <% end %>
               </ul>
