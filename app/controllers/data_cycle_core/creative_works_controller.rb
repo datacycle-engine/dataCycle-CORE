@@ -233,8 +233,8 @@ module DataCycleCore
           end
           # get inherit attributes
           source = Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }] if params[:source].present?
-          split_type = source['source_type'].constantize unless source.nil? || source['source_type'].blank?
-          split_source = split_type.find(source['source_id']) if !source.nil? && source['source_id'].present? && !split_type.nil?
+          split_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == source['source_type'].classify } if source&.dig('source_type').present?
+          split_source = split_type.constantize.find(source['source_id']) if source&.dig('source_id').present? && split_type.present?
           if split_source.present?
             inherit_datahash = content.get_inherit_datahash(split_source)
           else
