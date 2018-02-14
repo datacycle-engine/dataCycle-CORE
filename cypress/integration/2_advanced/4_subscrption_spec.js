@@ -5,13 +5,13 @@ describe('Subscription', function () {
 
   const option = 'Artikel'
   const cname = 'Test_' + option + '_' + Date.now()
+  var id = undefined
 
   it('create', function () {
     cy.createCreativeWork(cname, option).then(resp => {
       var url = resp.headers.location.replace('/edit', '')
-      cy.visit(url).get('.flash.callout .close-button').click({
-        force: true
-      }).should('be.hidden')
+      id = url.substring(url.lastIndexOf('/') + 1)
+      cy.visit(url).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
       cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
 
       cy.get('.detail-header-functions [data-toggle="subscribe"]').click()
@@ -23,10 +23,7 @@ describe('Subscription', function () {
   })
 
   it('remove', function () {
-    cy.visit('/?search=' + cname).get('.flash.callout .close-button').click({
-      force: true
-    }).should('be.hidden')
-    cy.get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
+    cy.visit('/creative_works/' + id).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
     cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')
 
     cy.get('.detail-header-functions [data-toggle="subscribe"]').click()

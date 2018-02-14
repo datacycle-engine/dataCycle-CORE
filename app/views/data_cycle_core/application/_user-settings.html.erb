@@ -9,14 +9,14 @@
           <% if current_user.role && current_user.role.rank > 0 %>
             <% if can? :update, current_user %>
               <div class="row columns">
-                  <%= link_to edit_user_path(current_user) do %>
+                  <%= link_to edit_user_path(current_user), class: 'edit-user-link' do %>
                       <span class="icon"><i class="fa fa-pencil" aria-hidden="true"></i></span>
                       <span class="title"><%= DataCycleCore::User.model_name.human(locale: DataCycleCore.ui_language) %> <%= t('actions.edit', locale: DataCycleCore.ui_language) %></span>
                   <% end %>
               </div>
             <% end %>
             <div class="row columns">
-                <%= link_to settings_path do %>
+                <%= link_to settings_path, class: 'user-settings-link' do %>
                     <span class="icon"><i class="fa fa-cogs" aria-hidden="true"></i></span>
                     <span class="title">Einstellungen</span>
                 <% end %>
