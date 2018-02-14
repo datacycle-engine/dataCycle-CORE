@@ -24,7 +24,7 @@
 // -- This is will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
-Cypress.Commands.overwrite("type", (originalFn, jquery_object, text, options) => {
+Cypress.Commands.overwrite('type', (originalFn, jquery_object, text, options) => {
   options = Object.assign({
     force: true,
     delay: 0
@@ -33,8 +33,6 @@ Cypress.Commands.overwrite("type", (originalFn, jquery_object, text, options) =>
 })
 
 Cypress.Commands.add('login', function (userType, options = {}) {
-  cy.logout()
-
   cy.fixture('login_users').as('usersJSON').then(() => {
     const user = this.usersJSON[userType]
 

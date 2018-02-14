@@ -21,7 +21,7 @@ module DataCycleCore
       respond_to do |format|
         format.json { head :forbidden, content_type: 'text/html' }
         format.js   { head :forbidden, content_type: 'text/html' }
-        if current_user.is_rank?(0)
+        if current_user&.is_rank?(0)
           format.html { redirect_back fallback_location: info_path, alert: exception.message }
         else
           format.html { redirect_back fallback_location: root_path, alert: exception.message }

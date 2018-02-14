@@ -9,7 +9,7 @@ describe('General', function () {
       cy.get('input#user_password:visible').type(user.password + '{enter}')
 
       cy.location('pathname').should('eq', '/')
-      cy.get('.flash.callout').should('have.class', 'success').find('.close-button').click().should('be.hidden')
+      cy.get('.flash.callout').should('be.visible').should('have.class', 'success').find('.close-button').click().should('be.hidden')
     })
   })
 
@@ -20,4 +20,5 @@ describe('General', function () {
     cy.get('.logout-link').click()
     cy.location('pathname').should('match', /\/users\/sign_in/)
   })
+
 })
