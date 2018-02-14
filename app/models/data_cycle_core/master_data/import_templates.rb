@@ -1,28 +1,70 @@
 module DataCycleCore
   module MasterData
-    class ImportTemplates
-      def import(files, object, validation = true)
-        errors = {}
-        file_names = Dir[files]
-        file_names.each do |filename|
-          data_templates = YAML.load(File.open(filename.to_s))
-          error = iterate_templates(data_templates, object, validation)
-          errors[filename] = error unless error.blank?
+    module ImportTemplates
+      def self.import_all(validation: true)
+        template_paths = DataCycleCore.default_template_paths
+        template_paths = template_paths.push(DataCycleCore.template_path) unless DataCycleCore.template_path.blank?
+        import_hash, duplicates = check_for_duplicates(template_paths)
+        errors = import_all_templates(template_hash: import_hash, validation: validation)
+        return errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.dup } }.inject(&:merge) || {}, duplicates || {}
+      end
+
+      def self.check_for_duplicates(template_paths)
+        import_list = {}
+        collisions = {}
+        DataCycleCore.content_tables.each do |content_table_name|
+          import_list[content_table_name.to_sym] = []
+          collisions[content_table_name.to_sym] = {}
         end
-        errors
+
+        template_paths.each do |core_template_path|
+          DataCycleCore.content_tables.each do |content_table_name|
+            files = core_template_path + content_table_name + '*.yml'
+            file_names = Dir[files]
+            file_names.each do |file_name|
+              data_templates = YAML.load(File.open(file_name.to_s))
+              new_template_definitions = data_templates.map { |item| item[:data][:name] }
+              data_templates.each_index do |index|
+                already_exist_index = import_list[content_table_name.to_sym].index { |item| item[:name] == data_templates[index][:data][:name] }
+                new_template_data = { name: data_templates[index][:data][:name], file: file_name, position: index }
+                if already_exist_index.nil?
+                  import_list[content_table_name.to_sym] += [new_template_data]
+                else
+                  if collisions[content_table_name.to_sym][new_template_data[:name]].blank?
+                    collisions[content_table_name.to_sym] = collisions[content_table_name.to_sym].merge({ new_template_data[:name] => [import_list[content_table_name.to_sym][already_exist_index].except(:name)] })
+                  end
+                  collisions[content_table_name.to_sym][new_template_data[:name]] += [{ file: file_name, position: index }]
+                  import_list[content_table_name.to_sym][already_exist_index] = new_template_data
+                end
+              end
+            end
+          end
+        end
+        return import_list, collisions.reject { |_, value| value.blank? }.map { |key, value| { key => value.dup } }.inject(&:merge)
       rescue StandardError => e
-        puts "could not access a YML File in directory #{files}"
+        puts "could not access a YML File in directory #{core_template_path}, file #{file_name}"
         puts e.message
         puts e.backtrace
       end
 
-      def iterate_templates(data_templates, object, validation)
+      def self.import_all_templates(template_hash:, validation: true)
         errors = {}
-        data_templates.each do |template|
+        template_hash.each do |content_table, template_list|
+          content_object = "DataCycleCore::#{content_table.to_s.classify}".constantize
+          errors = errors.merge({ content_table => import_content_templates(template_list: template_list, content_object: content_object, validation: validation) })
+        end
+        errors
+      end
+
+      def self.import_content_templates(template_list:, content_object:, validation: true)
+        errors = {}
+        template_list.each do |template_location|
+          template = YAML.load(File.open(template_location[:file]))[template_location[:position]]
           error = {}
           error = validate(template) if validation
           if error.blank?
-            data_set = object
+            # puts "write data_set (#{content_object.class_name}): #{template[:data][:name]}"
+            data_set = content_object
               .find_or_initialize_by(
                 template_name: template[:data][:name],
                 template: true
@@ -35,9 +77,13 @@ module DataCycleCore
           end
         end
         errors
+      rescue StandardError => e
+        puts "could not access a YML File #{template_location[:file]}"
+        puts e.message
+        puts e.backtrace
       end
 
-      def validate(template)
+      def self.validate(template)
         result_header = validate_header.call(template)
         errors = {}
         error = result_header.errors
@@ -47,7 +93,7 @@ module DataCycleCore
         errors
       end
 
-      def validate_properties(template)
+      def self.validate_properties(template)
         errors = {}
         template[:properties].each do |property_name, property_definition|
           result_property = validate_property.call(property_definition)
@@ -59,7 +105,7 @@ module DataCycleCore
         errors
       end
 
-      def validate_header
+      def self.validate_header
         Dry::Validation.Schema do
           required(:data).schema do
             required(:name) { str? }
@@ -75,7 +121,7 @@ module DataCycleCore
         end
       end
 
-      def validate_property
+      def self.validate_property
         Dry::Validation.Schema do
           configure do
             def valid_classification?(value)

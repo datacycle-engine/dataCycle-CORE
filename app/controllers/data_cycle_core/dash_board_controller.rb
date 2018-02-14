@@ -25,35 +25,28 @@ module DataCycleCore
     end
 
     def import_templates
-      errors = {}
-      path = Rails.root.join('config', 'data_definitions', 'creative_works', '*.yml')
-      error = MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::CreativeWork)
-      errors[:creative_works] = error unless error.blank?
-      path = Rails.root.join('config', 'data_definitions', 'places', '*.yml')
-      error = MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Place)
-      errors[:places] = error unless error.blank?
-      path = Rails.root.join('config', 'data_definitions', 'persons', '*.yml')
-      error = MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Person)
-      errors[:persons] = error unless error.blank?
-      path = Rails.root.join('config', 'data_definitions', 'events', '*.yml')
-      error = MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Event)
-      errors[:events] = error unless error.blank?
-      if errors.blank?
+      errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
+      if errors.blank? && duplicates.blank?
         flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'data types', locale: DataCycleCore.ui_language
         redirect_to admin_path
         return
       else
+        error_level = errors.blank? ? :notice : :error
         @statOutdoorActive = StatsDatabase.new(current_user.id)
         @statJobQueue = StatsJobQueue.new.update
         @errors = errors
+        @duplicates = duplicates
+        puts 'duplicates:'
+        ap duplicates
+        puts 'errors:'
         ap errors
-        flash[:error] = "errors were encountered: ##{errors.count}"
+        flash[error_level] = "errors/warnings were encountered: ##{errors.count} / ##{duplicates.count}"
       end
     end
 
     def import_classifications
       path = Rails.root.join('config', 'data_definitions', 'classifications.yml')
-      MasterData::ImportClassifications.new.import(path.to_s)
+      MasterData::ImportClassifications.import(path.to_s)
       flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'basic classification trees', locale: DataCycleCore.ui_language
       redirect_to admin_path
     end

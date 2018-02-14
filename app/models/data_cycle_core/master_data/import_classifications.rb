@@ -1,7 +1,7 @@
 module DataCycleCore
   module MasterData
-    class ImportClassifications
-      def import(filename)
+    module ImportClassifications
+      def self.import(filename)
         data_trees = YAML.load(File.open(filename))
         iterate_tree_array(data_trees)
       rescue StandardError => e
@@ -10,14 +10,14 @@ module DataCycleCore
         puts e.backtrace
       end
 
-      def iterate_tree_array(trees_array)
+      def self.iterate_tree_array(trees_array)
         trees_array.each do |item|
           @label_id = get_label(item.keys.first).id
           walk_tree(item[item.keys.first], nil)
         end
       end
 
-      def walk_tree(data_tree, parent)
+      def self.walk_tree(data_tree, parent)
         return nil if data_tree.blank?
         data_tree.each do |data|
           internal = false
@@ -39,7 +39,7 @@ module DataCycleCore
         end
       end
 
-      def save_data(data, parent, internal)
+      def self.save_data(data, parent, internal)
         if parent.nil?
           find_alias = DataCycleCore::ClassificationAlias
             .joins(:classification_tree)
@@ -73,13 +73,13 @@ module DataCycleCore
         updated_data.id
       end
 
-      def get_label(label)
+      def self.get_label(label)
         DataCycleCore::ClassificationTreeLabel.find_or_create_by(name: label, external_source_id: nil) do |label_data|
           label_data.seen_at = Time.zone.now
         end
       end
 
-      def upsert_classification(data, classification_alias_id)
+      def self.upsert_classification(data, classification_alias_id)
         find_classification = DataCycleCore::Classification
           .joins(classification_groups: [:classification_alias])
           .where('classification_aliases.id = ? ', classification_alias_id)

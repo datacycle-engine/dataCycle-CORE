@@ -10,6 +10,7 @@ module DataCycleCore::Update::UpdateTemplate
 
   def modify_content(content_item)
     content_item.template_name = @template.template_name
+    content_item.schema = @template.schema
     I18n.with_locale(content_item.available_locales.first) do
       content_item.save(touch: false)
     end
