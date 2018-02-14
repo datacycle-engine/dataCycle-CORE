@@ -3,9 +3,7 @@
         <%= render_content_partial 'icon', content: content %>
 
         <span class="title"><%= t("content_type.#{content.template_name.downcase}", default: content.template_name, locale: DataCycleCore.ui_language) %></span>
-        <% unless content.translated_locales.size > 1 %>
-          <span class="language">(<%= I18n.locale %>)</span>
-        <% end %>
+        <span class="language">(<%= I18n.locale %>)</span>
     </div>
 </div>
 
