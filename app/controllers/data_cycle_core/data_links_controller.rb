@@ -5,7 +5,7 @@ module DataCycleCore
     def show
       link = DataCycleCore::DataLink.find_by(id: params[:id])
 
-      raise CanCan::AccessDenied unless !link.nil? && link.is_valid?
+      raise CanCan::AccessDenied unless link.try(:is_valid?)
 
       session[:can_edit_ids] ||= []
       session[:can_edit_ids] << link.id unless session[:can_edit_ids].include?(link.id)
