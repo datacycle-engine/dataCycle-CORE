@@ -17,16 +17,14 @@ module DataCycleCore
           DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
             can [:update, :validate_single_data, :import], link.item_type.constantize, { id: link.item_id } if link.is_valid?
           end
-
-          can [:read, :create, :destroy], DataCycleCore::StoredFilter, user_id: user.id
-          can :read, DataCycleCore::StoredFilter, system: true
         end
 
         if user.has_rank?(1)
           can [:read, :settings, :store_filter], :backend
           can :modify, DataCycleCore::User, id: user.id
           can :manage, DataCycleCore::WatchList, user_id: user.id
-          can :manage, DataCycleCore::StoredFilter, user_id: user.id
+          can [:read, :create, :destroy], DataCycleCore::StoredFilter, user_id: user.id
+          can :read, DataCycleCore::StoredFilter, system: true
           can [:subscribe, :history, :history_detail], [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]
         end
 
