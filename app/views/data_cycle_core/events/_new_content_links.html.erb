@@ -2,16 +2,16 @@
 <div id="new-object-circle">
     <a data-toggle="new-object" class="button-prime"><i class="fa fa-plus" aria-hidden="true"></i></a>
     <div class="reveal" id="new-object" data-reveal data-append-to="#new-object-circle" data-v-offset="auto">
-        <% DataCycleCore::Event.where("template = true AND metadata -> 'validation' ->> 'content_type' = ?", 'entity').each do |default_type| %>
-            <% if !excluded_types.include?(default_type.metadata.dig('validation', 'name')) %>
-                <a class="option" href="#" data-open="<%= default_type.metadata.dig('validation', 'name') %>"><i class="fa fa-folder-open-o" aria-hidden="true"></i><%= default_type.metadata.dig('validation', 'name') %> erstellen</a>
+        <% DataCycleCore::Event.where("template = true AND schema ->> 'content_type' = ?", 'entity').each do |default_type| %>
+            <% if !excluded_types.include?(default_type.template_name) %>
+                <a class="option" href="#" data-open="<%= default_type.template_name %>"><i class="fa fa-folder-open-o" aria-hidden="true"></i><%= default_type.template_name %> erstellen</a>
             <% end %>
         <% end %>
     </div>
 </div>
 
-<% DataCycleCore::Event.where("template = true AND metadata -> 'validation' ->> 'content_type' = ?", 'entity').each do |default_type| %>
-    <% if !excluded_types.include?(default_type.metadata.dig('validation', 'name')) %>
-        <%= render 'new_content_reveal', reveal_id: default_type.metadata.dig('validation', 'name'), reveal_title: default_type.metadata.dig('validation', 'name') + ' erstellen', reveal_template: default_type.metadata.dig('validation', 'name') %>
+<% DataCycleCore::Event.where("template = true AND schema ->> 'content_type' = ?", 'entity').each do |default_type| %>
+    <% if !excluded_types.include?(default_type.template_name) %>
+        <%= render 'new_content_reveal', reveal_id: default_type.template_name, reveal_title: default_type.template_name + ' erstellen', reveal_template: default_type.template_name %>
     <% end %>
 <% end %>

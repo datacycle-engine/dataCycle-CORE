@@ -1,12 +1,11 @@
 ---
 - :data:
     :name: Thema
-    :description: CreativeWork
     :type: object
-    :content_type: entity
+    :content_type: container
     :permissions:
       :read_write: true
-    :boost: 10000.0      
+    :boost: 10000.0
     :properties:
       :id:
         :label: id

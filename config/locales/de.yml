@@ -32,12 +32,6 @@ de:
     uk: "ukrainisch"
     'de-CH': "schweizer-deutsch"
 
-  contentpool:
-    'vorschläge': "Vorschläge"
-    'recherche': "Recherche"
-    'aktuelle inhalte': "Aktuelle Inhalte"
-    'archiv': "Archiv"
-
   roles:
     admin: Administrator
     user: Benutzer
@@ -76,6 +70,7 @@ de:
     status: Status
     content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden
     download_gpx: Als GPX-Datei herunterladen
+    no_search: Sie müssen eine Suche durchführen, bevor Sie einen neuen Inhalt erstellen können.
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -85,6 +80,9 @@ de:
     differences_to_version: Unterschiede zu Version
     active_version: Aktuelle Version
     look_at_version: Version ansehen
+
+  content_type:
+    contentlocation: Ort
 
   terms:
     from: von
@@ -150,7 +148,7 @@ de:
       float: "%{data} ist kein Float."
       object_type: "Falscher Datentyp für %{data}. Typ %{type} ist nicht definiert."
       wrong_object_type: "Objekt Type %{data} ist kein embedded Datentyp und hat keine 'properties'."
-      no_template: "Kein passendes Datentyp Template gefunden für %{name}|%{desc}."
+      no_template: "Kein passendes Datentyp Template gefunden für %{name}."
       no_fields: "Keine Felder für 'from-date' und/oder 'to-date' angegeben."
       convert_date: "Datum konnte nicht konvertiert werden, um die Zeitspanne zu validieren."
       daterange: "Ungültige Zeitspanne, 'von' (%{from}) ist nach 'bis' (%{to})."
@@ -185,6 +183,7 @@ de:
       unlocked: "%{data} wurde freigegeben."
       invalidated: "Externer Link wurde deaktiviert."
       updated_multiple: "%{data} wurden aktualisiert."
+      moved_to: "Inhalt in %{data} verschoben"
     info:
       not_modified: "%{data} wurde nicht geändert."
     job:
@@ -237,6 +236,9 @@ de:
       data_cycle_core/stored_filter:
         one: Gespeicherter Filter
         other: Gespeicherte Filter
+      data_cycle_core/content:
+        one: Inhalt
+        other: Inhalte
     attributes:
       data_cycle_core/classification_alias:
         assignable: Zuweisbar

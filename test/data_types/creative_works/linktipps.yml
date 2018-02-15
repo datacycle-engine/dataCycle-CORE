@@ -1,9 +1,8 @@
 ---
 - :data:
     :name: Linktipps
-    :description: CreativeWork
     :type: object
-    :content_type: variant
+    :content_type: entity
     :releasable: true
     :permissions:
       :read_write: true
@@ -132,7 +131,6 @@
         :type: object
         :storage_location: places
         :name: contentLocation
-        :description: Place
         :delete: false
         :editor:
           :sorting: 8
@@ -146,7 +144,6 @@
         :storage_location: creative_works
         :delete: true
         :name: Website
-        :description: CreativeWork
         :editor:
           :type: embeddedObject
           :sorting: 9

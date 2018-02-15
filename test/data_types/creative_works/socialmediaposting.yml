@@ -1,9 +1,8 @@
 ---
 - :data:
     :name: SocialMediaPosting
-    :description: CreativeWork
     :type: object
-    :content_type: variant
+    :content_type: entity
     :releasable: true
     :permissions:
       :read_write: true
@@ -131,7 +130,6 @@
         :type: object
         :storage_location: places
         :name: contentLocation
-        :description: Place
         :delete: false
         :validations:
           :max: 1

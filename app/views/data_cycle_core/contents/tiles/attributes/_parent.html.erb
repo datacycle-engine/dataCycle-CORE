@@ -1,6 +1,10 @@
-<div class="type <%= item.metadata['validation']['name'].downcase %>">
+<div class="type <%= item.template_name.downcase %>">
     <div class="infoRow parent">
-        <%= render 'data_cycle_core/shared/icon', icon_type: item.metadata['validation']['name'].downcase %>
+        <% if DataCycleCore.features&.dig(:life_cycle, :attribute_key).present? && item.is_content_type?('container') %>
+          <%= render 'data_cycle_core/shared/icon', icon_type: item.try(DataCycleCore.features&.dig(:life_cycle, :attribute_key)).first.name.parameterize(separator: '_') %>
+        <% else %>
+          <%= render 'data_cycle_core/shared/icon', icon_type: item.template_name.parameterize(separator: '_') %>
+        <% end %>
         <% I18n.with_locale(item.first_available_locale(@language)) do %>
           <span class="title"><%= item.title %></span>
         <% end %>

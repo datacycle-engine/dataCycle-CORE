@@ -63,4 +63,13 @@ Rails.application.configure do
   config.web_console.whiny_requests = false
 
   config.action_mailer.default_url_options = { host: 'localhost:3003', protocol: 'http' }
+
+  # Bullet configuration
+  config.after_initialize do
+    Bullet.enable = false
+    Bullet.bullet_logger = true
+    Bullet.console = true
+    Bullet.rails_logger = true
+    Bullet.add_footer = true
+  end
 end

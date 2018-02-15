@@ -1,11 +1,11 @@
 module DataCycleCore
   class StatsDatabase
-    attr_accessor :stat_update, :pg_name, :pg_size,
-                  :pg_content, :pg_content_content, :pg_classification_content,
-                  :pg_classifications, :pg_aliases, :pg_overlays, :pg_content_history,
-                  :pg_tree_label, :pg_tree_nodes,
-                  :mongo_categories, :mongo_pois, :mongo_regions,
-                  :import_modules
+    attr_accessor(
+      :stat_update, :pg_name, :pg_size, :pg_content, :pg_content_content,
+      :pg_classification_content, :pg_classifications, :pg_aliases, :pg_overlays,
+      :pg_content_history, :pg_tree_label, :pg_tree_nodes, :mongo_categories,
+      :mongo_pois, :mongo_regions, :import_modules
+    )
 
     def initialize(user_id)
       @import_modules = []
@@ -59,17 +59,19 @@ module DataCycleCore
         mongo_dbs_index = mongo_dbs.find_index { |db| db['name'] == mongo_database }
 
         if mongo_dbs_index.nil?
-          @import_modules.push({
-                                 uuid: external_source_id,
-                                 name: import_name,
-                                 database: mongo_database,
-                                 db_size: 0,
-                                 tables: {
-                                   "no collections found": 0
-                                 },
-                                 last_import: 'never',
-                                 last_download: 'never'
-                               })
+          @import_modules.push(
+            {
+              uuid: external_source_id,
+              name: import_name,
+              database: mongo_database,
+              db_size: 0,
+              tables: {
+                "no collections found": 0
+              },
+              last_import: 'never',
+              last_download: 'never'
+            }
+          )
         else
           mongo_dbsize = mongo_dbs[mongo_dbs_index]['sizeOnDisk']
           Mongoid.clients[external_source_id] = {
@@ -91,15 +93,17 @@ module DataCycleCore
             last_download = external_source.last_download.to_s + "<i class='material-icons green'>done</i>"
           end
 
-          @import_modules.push({
-                                 uuid: external_source_id,
-                                 name: import_name,
-                                 database: mongo_database,
-                                 db_size: mongo_dbsize,
-                                 tables: mongo_data,
-                                 last_import: last_import,
-                                 last_download: last_download
-                               })
+          @import_modules.push(
+            {
+              uuid: external_source_id,
+              name: import_name,
+              database: mongo_database,
+              db_size: mongo_dbsize,
+              tables: mongo_data,
+              last_import: last_import,
+              last_download: last_download
+            }
+          )
         end
       end
     end

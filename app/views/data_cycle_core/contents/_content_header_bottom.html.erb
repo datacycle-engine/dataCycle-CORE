@@ -4,12 +4,11 @@
 
 <div class="edit">
   <%= yield :buttons %>
-
-  <% if content.metadata&.dig('validation', 'content_type') == 'variant' && can?(:create, content.class) && !content.try(:parent).nil? %>
+  <% if I18n.available_locales&.size > 1 && can?(:create, content.class) && !content.try(:parent).nil? %>
       <%= link_to "#", class:'button-prime small', data: { tooltip: '', open: 'newContent' }, title: 'Inhalt anhand dieser Vorlage erstellen', 'aria-haspopup': true do %>
           <i class="fa fa-plus" aria-hidden="true"></i>
       <% end %>
-      <%= render 'newContentFromTemplate', content: content %>
+      <%= render 'new_content_from_template', content: content %>
   <% end %>
 
   <%= link_to contents_gpx_path(id: content.id, type: content.class.table_name), class: 'button-prime small gpx-content-link', data: { tooltip: '' }, title: t('common.download_gpx', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
@@ -20,7 +19,7 @@
     <i class="fa fa-pencil" aria-hidden="true"></i>
   <% end if can? :edit, content %>
 
-  <%= link_to polymorphic_path(content, watch_list_id: @watch_list), :method => :delete, class:'button-prime small delete-content-link', data: { tooltip: "", confirm: "#{content.metadata['validation']['name']} #{t('actions.delete', locale: DataCycleCore.ui_language)}?" }, title: t('actions.delete', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
+  <%= link_to polymorphic_path(content, watch_list_id: @watch_list), :method => :delete, class:'button-prime small delete-content-link', data: { tooltip: "", confirm: "#{content.template_name} #{t('actions.delete', locale: DataCycleCore.ui_language)}?" }, title: t('actions.delete', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
     <i class="fa fa-trash-o" aria-hidden="true"></i>
   <% end if can? :destroy, content %>
 </div>
@@ -43,3 +42,5 @@
 <%= render 'validity_period', dataCycleObject: content %>
 
 <%= render 'release_status', dataCycleObject: content, status: @release_status %>
+
+<%= render 'life_cycle_buttons', local_assigns if content.is_content_type?(['container', 'entity']) && content.schema&.dig('features', 'life_cycle') %>

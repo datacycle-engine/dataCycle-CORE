@@ -23,7 +23,7 @@
   - $$Bild
   - $$Video
   - $$Audio
-  # additional types for content variants
+  # additional types for content entitys
   - $$Website
   - $$MobileApplication
   - $$Inklusiv-Leistungen

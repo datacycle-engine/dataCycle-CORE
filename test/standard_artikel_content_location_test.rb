@@ -4,10 +4,10 @@ module DataCycleCore
   class StandardArtikelContentLocationTest < ActiveSupport::TestCase
     test 'create a contentLocation' do
       # create a contentLocations
-      place_template = DataCycleCore::Place.find_by(template: true, headline: 'contentLocation', description: 'Place')
-      place_validation = place_template.metadata['validation']
+      place_template = DataCycleCore::Place.find_by(template: true, template_name: 'contentLocation')
       data_set_place1 = DataCycleCore::Place.new
-      data_set_place1.metadata = { 'validation' => place_validation }
+      data_set_place1.schema = place_template.schema
+      data_set_place1.template_name = place_template.template_name
       data_set_place1.save
       place_hash1 = {
         'name' => 'Wien',
@@ -27,10 +27,10 @@ module DataCycleCore
       count_cw = DataCycleCore::CreativeWork.count
 
       # create an author
-      person_template = DataCycleCore::Person.find_by(template: true, headline: 'Autor', description: 'Person')
-      person_validation = person_template.metadata['validation']
+      person_template = DataCycleCore::Person.find_by(template: true, template_name: 'Autor')
       data_set_person = DataCycleCore::Person.new
-      data_set_person.metadata = { 'validation' => person_validation }
+      data_set_person.schema = person_template.schema
+      data_set_person.template_name = person_template.template_name
       data_set_person.save
       person_hash = {
         'given_name' => 'Winston',
@@ -45,10 +45,10 @@ module DataCycleCore
         .where('classification_aliases.name = ?', 'Zitat').first.id
 
       # create a contentLocations
-      place_template = DataCycleCore::Place.find_by(template: true, headline: 'contentLocation', description: 'Place')
-      place_validation = place_template.metadata['validation']
+      place_template = DataCycleCore::Place.find_by(template: true, template_name: 'contentLocation')
       data_set_place1 = DataCycleCore::Place.new
-      data_set_place1.metadata = { 'validation' => place_validation }
+      data_set_place1.schema = place_template.schema
+      data_set_place1.template_name = place_template.template_name
       data_set_place1.save
       place_hash1 = {
         'name' => 'Wien',
@@ -60,7 +60,8 @@ module DataCycleCore
       place_id1 = data_set_place1.id
 
       data_set_place2 = DataCycleCore::Place.new
-      data_set_place2.metadata = { 'validation' => place_validation }
+      data_set_place2.schema = place_template.schema
+      data_set_place2.template_name = place_template.template_name
       data_set_place2.save
       place_hash2 = {
         'name' => 'Villach',
@@ -72,10 +73,10 @@ module DataCycleCore
       place_id2 = data_set_place2.id
 
       # create an Article
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Artikel', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Artikel')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test!',

@@ -1,5 +1,5 @@
 $('<%= params[:embedded_object_id] %>').children('.addContentObject').find('.fa').css('display', 'none');
-$('<%= params[:embedded_object_id] %>').children('.addContentObject').prop('disabled', false).before('<%= j render_embedded_object_partial(partial: 'new', key: params[:key], definition: params[:definition], parameters: {index: params[:index], options: params[:options]}) %>');
+$('<%= params[:embedded_object_id] %>').children('.addContentObject').prop('disabled', false).before('<%= j render_embedded_object_partial(partial: 'new', key: params[:key], definition: params[:definition], parameters: {index: params[:index], options: params[:options], locale: params[:language]}) %>');
 
 $('#<%= sanitize_to_id(params[:key]) %>_item_<%= params[:index] %>').foundation();
 $('<%= j content_for :forms %>').appendTo('body').foundation();

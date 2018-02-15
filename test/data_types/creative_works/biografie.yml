@@ -1,9 +1,8 @@
 ---
 - :data:
     :name: Biografie
-    :description: CreativeWork
     :type: object
-    :content_type: variant
+    :content_type: entity
     :releasable: true
     :permissions:
       :read_write: true
@@ -123,7 +122,6 @@
         :type: object
         :storage_location: places
         :name: contentLocation
-        :description: Place
         :delete: false
         :editor:
           :sorting: 7
@@ -136,7 +134,6 @@
         :type: object
         :storage_location: persons
         :name: Person
-        :description: Person
         :validations:
           :max: 1
         :editor:

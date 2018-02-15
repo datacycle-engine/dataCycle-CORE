@@ -67,16 +67,16 @@ module DataCycleCore
 
     # special data attributes are ignored by the standard json serializes and must be handled by the application itself
     mattr_accessor :special_data_attributes
-    self.special_data_attributes = []
+    self.special_data_attributes = ['id', 'validity_period', 'creator']
 
     mattr_accessor :internal_data_attributes
-    self.internal_data_attributes = ['creator', 'data_pool', 'data_type', 'is_part_of']
+    self.internal_data_attributes = ['creator', 'data_type', 'data_pool', 'is_part_of']
 
     mattr_accessor :default_image_type
-    self.default_image_type = nil
+    self.default_image_type = 'Bild'
 
     mattr_accessor :default_place_type
-    self.default_place_type = nil
+    self.default_place_type = 'Ort'
 
     mattr_accessor :access_tokens
     self.access_tokens = []
@@ -94,13 +94,13 @@ module DataCycleCore
     self.linked_tables = ['users']
 
     mattr_accessor :excluded_filter_classifications
-    self.excluded_filter_classifications = []
+    self.excluded_filter_classifications = ['Angebotszeitraum', 'Website', 'Zitat', 'DataCycle - File', 'DataCycle - Image']
 
     mattr_accessor :excluded_new_item_objects
     self.excluded_new_item_objects = []
 
     mattr_accessor :allowed_content_api_classifications
-    self.allowed_content_api_classifications = []
+    self.allowed_content_api_classifications = ['Angebot', 'Artikel', 'Bild', 'Social Media Posting']
 
     mattr_accessor :ui_language
     self.ui_language = :de
@@ -109,13 +109,22 @@ module DataCycleCore
     self.translatable_types = ['DataCycleCore::Person', 'DataCycleCore::Place']
 
     mattr_accessor :release_codes
-    self.release_codes = {}
+    self.release_codes = {
+      partner: 1,
+      review: 3
+    }
 
     mattr_accessor :notification_frequencies
     self.notification_frequencies = ['always', 'day', 'week']
 
-    mattr_accessor :autoload_last_filter
-    self.autoload_last_filter = false
+    # features
+    # autoload_last_filter, life_cycle
+    mattr_accessor :features
+    self.features = {}
+
+    # inheritable_attributes
+    mattr_accessor :inheritable_attributes
+    self.inheritable_attributes = ['validity_period']
 
     # webhooks
     mattr_accessor :webhooks
@@ -124,6 +133,11 @@ module DataCycleCore
       delete: [],
       update: []
     }
+
+    # template directories
+    mattr_accessor :template_path
+    mattr_accessor :default_template_paths
+    self.default_template_paths = []
   end
 
   def self.setup
@@ -208,7 +222,7 @@ end
 JbuilderTemplate.class_eval do
   def content_partial!(partial, parameters)
     partials = [
-      "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].content_type.underscore}_#{partial}",
+      "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].template_name.underscore}_#{partial}",
       "#{parameters[:content].class.class_name.underscore}_#{partial}",
       "content_#{partial}"
     ]

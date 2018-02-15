@@ -91,11 +91,10 @@ Gem::Specification.new do |s|
   # cron jobs gem
   s.add_dependency 'whenever'
 
-  # development tools
+  # development gems
   s.add_development_dependency 'better_errors'
   s.add_development_dependency 'binding_of_caller'
   s.add_development_dependency 'listen', '~> 3.0.5'
-  s.add_development_dependency 'rubocop', '~> 0.52.1'
   s.add_development_dependency 'spring'
   s.add_development_dependency 'spring-watcher-listen', '~> 2.0.0'
   s.add_development_dependency 'web-console'
@@ -103,7 +102,10 @@ Gem::Specification.new do |s|
   s.add_dependency 'dotenv-rails'
   s.add_dependency 'puma', '~> 3.10.0'
 
+  # validation gems
   s.add_development_dependency 'brakeman'
+  s.add_development_dependency 'bullet'
   s.add_development_dependency 'bundler-audit'
   s.add_development_dependency 'gemsurance'
+  s.add_development_dependency 'rubocop', '~> 0.52.1'
 end

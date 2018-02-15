@@ -6,7 +6,7 @@
 
             <% unless translated_content.nil? %>
                 <%= render_attribute_viewer key: translated_key,
-                                            definition: dataCycleObject.metadata['validation']['properties'][translated_key],
+                                            definition: dataCycleObject.schema['properties'][translated_key],
                                             value: normalize_value(translated_content),
                                             parameters: { options: {} } %>
             <% end %>
@@ -21,7 +21,7 @@
 
             <% unless translated_content.nil? %>
                 <%= render_attribute_viewer key: translated_key,
-                                            definition: dataCycleObject.metadata['validation']['properties'][translated_key],
+                                            definition: dataCycleObject.schema['properties'][translated_key],
                                             value: normalize_value(translated_property),
                                             parameters: { options: {} } %>
             <% end %>

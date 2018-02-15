@@ -1,5 +1,7 @@
 module DataCycleCore
   class CreativeWorksController < ContentsController
+    include DataCycleCore::Filter
+
     before_action :authenticate_user! # from devise (authenticate)
     load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
     after_action :check_final, only: :update
@@ -9,13 +11,19 @@ module DataCycleCore
 
     def show
       @content = DataCycleCore::CreativeWork.find_by(id: params[:id])
+
+      redirect_back(fallback_location: root_path) && return if @content.nil?
+
       I18n.with_locale(@content.first_available_locale) do
-        if @content.nil?
-          redirect_back(fallback_location: root_path)
-          return
+        if @content.is_content_type?('container')
+          @contents = get_filtered_results(method_name: 'is_part_of', parameters: @content.id) if @content.children.exists?
+
+          @entities = DataCycleCore::CreativeWork.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
+          @entities = @entities.where(template_name: @content.schema&.dig('features', 'container', 'allowed')) if @content.schema&.dig('features', 'container', 'allowed')
+          @entities = @entities.where.not(template_name: @content.schema&.dig('features', 'container', 'excluded')) if @content.schema&.dig('features', 'container', 'excluded')
         end
 
-        @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if @content.metadata['validation']['releasable'] && !@content.release_id.nil?
+        @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if @content.schema['releasable'] && !@content.release_id.nil?
         @dataSchema = @content.get_data_hash
 
         respond_to do |format|
@@ -29,8 +37,8 @@ module DataCycleCore
       locale = I18n.available_locales.include?(params[:locale].try(:to_sym)) ? params[:locale].try(:to_sym) : I18n.locale
       I18n.with_locale(locale) do
         source = Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }] unless params[:source].blank?
-        object_params = creative_work_params('creative_works', params[:template], 'CreativeWork')
-        @creativeWork = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:template], 'CreativeWork', object_params, current_user)
+        object_params = creative_work_params('creative_works', params[:template])
+        @creativeWork = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:template], object_params, current_user)
         if @creativeWork.nil?
           redirect_back(fallback_location: root_path)
           return
@@ -39,7 +47,7 @@ module DataCycleCore
         after_create(@creativeWork, current_user)
 
         if !@creativeWork.nil? && @creativeWork.save
-          flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name'], locale: DataCycleCore.ui_language
+          flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @creativeWork.template_name, locale: DataCycleCore.ui_language
           redirect_to edit_creative_work_path(@creativeWork, (source || {}).merge(watch_list_id: @watch_list))
         else
           redirect_back(fallback_location: root_path)
@@ -112,7 +120,7 @@ module DataCycleCore
         end
       end
 
-      if params[:locale] && !@content.translated_locales.include?(params[:locale]) && (DataCycleCore.translatable_types.include?(@content.class.name) || DataCycleCore.translatable_types.include?(@content.content_type))
+      if params[:locale] && !@content.translated_locales.include?(params[:locale]) && (DataCycleCore.translatable_types.include?(@content.class.name) || DataCycleCore.translatable_types.include?(@content.template_name))
         I18n.with_locale(params[:locale]) do
           @content.save
         end
@@ -134,8 +142,8 @@ module DataCycleCore
     def update
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
       I18n.with_locale(@creativeWork.first_available_locale(params[:locale])) do
-        object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], @creativeWork.metadata['validation']['description'])
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'], false)
+        object_params = creative_work_params('creative_works', @creativeWork.template_name)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.schema, false)
 
         #
         # known bugs:
@@ -148,7 +156,7 @@ module DataCycleCore
         )
 
         unless data_hash_has_changes
-          flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @creativeWork.metadata['validation']['name'], locale: DataCycleCore.ui_language
+          flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @creativeWork.template_name, locale: DataCycleCore.ui_language
           if (Rails.env.development? || params[:splitview]) && !params[:finalize]
             redirect_back(fallback_location: root_path)
           else
@@ -169,7 +177,7 @@ module DataCycleCore
         end
 
         if @creativeWork.save
-          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.metadata['validation']['name'], locale: DataCycleCore.ui_language
+          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @creativeWork.template_name, locale: DataCycleCore.ui_language
 
           # after update webhooks
           execute_after_update_webhooks @creativeWork
@@ -201,14 +209,43 @@ module DataCycleCore
 
     def validate_single_data
       @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
-      object_params = creative_work_params('creative_works', @creativeWork.metadata['validation']['name'], @creativeWork.metadata['validation']['description'])
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.metadata['validation'])
+      object_params = creative_work_params('creative_works', @creativeWork.template_name)
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.schema)
       valid = @creativeWork.validate(datahash)
       render json: valid.to_json
     end
 
-    def after_create(content, user)
-      # to be implemented by specific projects
+    def after_create(content, current_user)
+      object_params = creative_work_params('creative_works', params[:template])
+      if content.schema['content_type'] != 'container' && params[:template] != 'Video-Serie'
+        if params[:parent].blank? && params[:template] == DataCycleCore.features.dig(:life_cycle, :idea_collection, :template)
+          parent = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:parent_template], object_params, current_user)
+          life_cycle_id = helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id)
+          parent.set_data_hash_attribute(DataCycleCore.features.dig(:life_cycle, :attribute_key), [life_cycle_id], current_user)
+          content.is_part_of = parent.id
+        elsif params[:parent].present?
+          content.is_part_of = params[:parent]
+          # set_life_cycle to recherche for both
+          if params[:template] == DataCycleCore.features.dig(:life_cycle, :idea_collection, :template)
+            life_cycle_id = helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id)
+            parent = DataCycleCore::CreativeWork.find_by(id: content.is_part_of)
+            parent.set_classification_with_children(DataCycleCore.features.dig(:life_cycle, :attribute_key), life_cycle_id, current_user)
+          end
+          # get inherit attributes
+          source = Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }] if params[:source].present?
+          split_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == source['source_type'].classify } if source&.dig('source_type').present?
+          split_source = split_type.constantize.find(source['source_id']) if source&.dig('source_id').present? && split_type.present?
+          if split_source.present?
+            inherit_datahash = content.get_inherit_datahash(split_source)
+          else
+            inherit_datahash = content.get_inherit_datahash(content.parent)
+          end
+
+          redirect_back(fallback_location: root_path, alert: I18n.t(:invalid_parent_attr, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if inherit_datahash.nil?
+
+          content.set_data_hash(data_hash: inherit_datahash, current_user: current_user, prevent_history: true)
+        end
+      end
     end
 
     private
@@ -216,8 +253,8 @@ module DataCycleCore
     def create_params
     end
 
-    def creative_work_params(storage_location, template_name, template_description)
-      datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name, template_description)
+    def creative_work_params(storage_location, template_name)
+      datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name)
       params.require(:creative_work).permit(:release_id, :release_comment, datahash: datahash)
     end
 
@@ -248,13 +285,5 @@ module DataCycleCore
         end
       end
     end
-
-    # def execute_after_delete_webhooks data
-    #   Webhook::Delete.execute_all(data)
-    # end
-
-    # def execute_after_create_webhooks data
-    #   Webhook::Create.execute_all(data)
-    # end
   end
 end
