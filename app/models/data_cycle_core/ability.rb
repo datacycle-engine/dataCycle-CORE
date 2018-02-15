@@ -57,6 +57,8 @@ module DataCycleCore
             data_object&.schema&.dig('permissions', 'read_write') != false && data_object.try(:external_key).nil?
           end
 
+          can :set_life_cycle, DataCycleCore::CreativeWork
+
           can :manage, DataCycleCore::Asset
           can :create_global, DataCycleCore::StoredFilter
         end

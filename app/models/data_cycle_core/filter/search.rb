@@ -39,6 +39,14 @@ module DataCycleCore
         )
       end
 
+      def is_part_of(id = nil)
+        manager = find_children(id)
+
+        reflect(
+          @query.where(search[:content_data_id].in(manager))
+        )
+      end
+
       def modified_since(date = Time.zone.now)
         reflect(
           @query.where(
@@ -107,9 +115,22 @@ module DataCycleCore
           .on(search[:content_data_id].eq(watch_list_data_hash[:hashable_id]).and(search[:content_data_type].eq(watch_list_data_hash[:hashable_type])))
       end
 
+      def join_creative_work
+        Arel::SelectManager.new
+          .project(search[:content_data_id])
+          .from(search)
+          .join(creative_work)
+          .on(search[:content_data_id].eq(creative_work[:id]).and(search[:content_data_type].eq(quoted('DataCycleCore::CreativeWork'))))
+      end
+
       def get_watch_list_items(id)
         query = join_watch_list
         query.where(watch_list_data_hash[:watch_list_id].eq(id))
+      end
+
+      def find_children(id)
+        query = join_creative_work
+        query.where(creative_work[:is_part_of].eq(id))
       end
 
       def watch_list_data_hash
@@ -122,6 +143,10 @@ module DataCycleCore
 
       def classification_content
         DataCycleCore::ClassificationContent.arel_table
+      end
+
+      def creative_work
+        DataCycleCore::CreativeWork.arel_table
       end
     end
   end
