@@ -17,7 +17,7 @@
             <% end %>
           </div>
 
-          <% cache content do %>
+          <% cache(content, expires_in: 24.hours + Random.rand(12.hours)) do %>
             <%= render_content_tile item: content %>
           <% end %>
         </div>

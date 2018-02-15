@@ -12,7 +12,7 @@
             <%= hidden_field_tag 'parent_template', parent_template if local_assigns.has_key?(:parent_template) %>
             <div class="validation-container form-element">
                 <%= label_tag 'creative_work[datahash][name]', 'Titel' %>
-                <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value: params[:search], disabled: !params[:search].present? %>
+                <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value: params[:search], disabled: params[:search].blank? %>
             </div>
             <% if params[:search].present? %>
                 <%= f.submit "Erstellen", class: "button primary" %>

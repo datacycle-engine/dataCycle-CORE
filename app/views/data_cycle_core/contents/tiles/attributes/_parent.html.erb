@@ -1,7 +1,7 @@
 <div class="type <%= item.template_name.downcase %>">
     <div class="infoRow parent">
         <% if DataCycleCore.features&.dig(:life_cycle, :attribute_key).present? && item.is_content_type?('container') %>
-          <%= render 'data_cycle_core/shared/icon', icon_type: item.try(DataCycleCore.features&.dig(:life_cycle, :attribute_key)).first.name.parameterize(separator: '_') %>
+          <%= render 'data_cycle_core/shared/icon', icon_type: item.try(DataCycleCore.features&.dig(:life_cycle, :attribute_key))&.first&.name&.parameterize(separator: '_') %>
         <% else %>
           <%= render 'data_cycle_core/shared/icon', icon_type: item.template_name.parameterize(separator: '_') %>
         <% end %>
