@@ -26,6 +26,7 @@ module DataCycleCore
               @logging.phase_started("#{type.collection_name}_#{locale}", max_string)
 
               items.each do |item_data|
+                break if options[:max_count] && item_count >= options[:max_count]
                 item_count += 1
                 next if item_data.nil?
                 begin
@@ -42,7 +43,6 @@ module DataCycleCore
                 rescue StandardError => e
                   @logging.error(item_name, item_id, item_data, e)
                 end
-                break if options[:max_count] && item_count >= options[:max_count]
               end
             end
           rescue StandardError => e
