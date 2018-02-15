@@ -16,7 +16,7 @@ gem 'globalize', github: 'globalize/globalize'
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 # gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
-group :development, :test do
+group :development, :test, :review do
   gem 'byebug'
   gem 'dotenv-rails'
   gem 'pry'

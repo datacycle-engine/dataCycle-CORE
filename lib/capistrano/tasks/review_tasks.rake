@@ -39,12 +39,13 @@ namespace :review do
       within shared_path do
         with rails_env: fetch(:rails_env) do
           test_path = shared_path.join('.env')
+          print_message "test_path: #{test_path}"
           unless test("[ -f #{test_path} ]")
             run_locally do
-              command = "data_cycle_core:review_app:init[#{fetch(:application)}]"
+              command = "#{fetch(:cmd_prefix, '')}data_cycle_core:review_app:init[#{fetch(:application_prefix, '')}#{fetch(:application)}]"
               `bundle exec rake "#{command}"`
             end
-            upload! 'tmp/.env', '.env'
+            upload! "#{fetch(:application_root_path, '')}tmp/.env", "#{fetch(:application_root_path, '')}.env"
             print_message 'required files created'
           end
         end
@@ -65,11 +66,11 @@ namespace :review do
     on roles(:db) do
       within release_path do
         with rails_env: fetch(:rails_env) do
-          execute :rake, 'data_cycle_core:db:dump[staging_db,sql]'
+          execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:dump[staging_db,sql]"
         end
       end
       within shared_path do
-        download! 'db/backups/staging/staging_db.sql', 'tmp/staging_db.sql'
+        download! "#{fetch(:application_root_path, '')}db/backups/staging/staging_db.sql", "#{fetch(:application_root_path, '')}tmp/staging_db.sql"
       end
       print_message 'staging database: download complete'
     end
@@ -80,11 +81,11 @@ namespace :review do
     on roles(:app) do
       # upload database
       within shared_path do
-        upload! 'tmp/staging_db.sql', 'db/backups/staging_db.sql'
+        upload! "#{fetch(:application_root_path, '')}tmp/staging_db.sql", "#{fetch(:application_root_path, '')}db/backups/staging_db.sql"
       end
       within release_path do
         with rails_env: fetch(:rails_env) do
-          execute :rake, 'data_cycle_core:db:restore[staging_db]'
+          execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:restore[staging_db]"
         end
       end
       print_message 'staging database: upload complete'
