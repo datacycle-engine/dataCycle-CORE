@@ -19,15 +19,16 @@ namespace :review do
   task :undeploy do
     on roles(:all) do
       invoke 'puma:stop'
-      within release_path do
-        with rails_env: fetch(:rails_env) do
-          begin
-            execute :rake, 'db:drop'
-          rescue StandardError
-            print_message 'ERROR: Unable to DELETE database'
-          end
-        end
-      end
+      # TODO: delete database
+      # within release_path do
+      #   with rails_env: fetch(:rails_env) do
+      #     begin
+      #       execute :rake, 'db:drop'
+      #     rescue StandardError
+      #       print_message 'ERROR: Unable to DELETE database'
+      #     end
+      #   end
+      # end
       execute "rm -rf #{fetch(:deploy_to)}"
     end
   end
