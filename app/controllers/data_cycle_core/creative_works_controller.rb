@@ -16,7 +16,7 @@ module DataCycleCore
 
       I18n.with_locale(@content.first_available_locale) do
         if @content.is_content_type?('container')
-          @contents = get_filtered_results(method_name: 'is_part_of', parameters: @content.id) if @content.children.exists?
+          @contents = get_filtered_results(method_name: 'part_of', parameters: @content.id) if @content.children.exists?
 
           @entities = DataCycleCore::CreativeWork.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
           @entities = @entities.where(template_name: @content.schema&.dig('features', 'container', 'allowed')) if @content.schema&.dig('features', 'container', 'allowed')

@@ -39,7 +39,7 @@ module DataCycleCore
         )
       end
 
-      def is_part_of(id = nil)
+      def part_of(id = nil)
         manager = find_children(id)
 
         reflect(
