@@ -53,7 +53,7 @@ module DataCycleCore
 
     def edit
       @content = DataCycleCore::Place.find(params[:id])
-      if params[:locale] && !@content.translated_locales.include?(params[:locale])
+      if params[:locale] && !@content.translated_locales.include?(params[:locale]) && I18n.available_locales.include?(params[:locale]) && (DataCycleCore.translatable_types & [content.class.name, content.template_name]).present?
         I18n.with_locale(params[:locale]) do
           @content.save
         end

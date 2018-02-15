@@ -120,7 +120,7 @@ module DataCycleCore
         end
       end
 
-      if params[:locale] && !@content.translated_locales.include?(params[:locale]) && (DataCycleCore.translatable_types.include?(@content.class.name) || DataCycleCore.translatable_types.include?(@content.template_name))
+      if params[:locale] && !@content.translated_locales.include?(params[:locale]) && I18n.available_locales.include?(params[:locale]) && (DataCycleCore.translatable_types & [content.class.name, content.template_name]).present?
         I18n.with_locale(params[:locale]) do
           @content.save
         end
