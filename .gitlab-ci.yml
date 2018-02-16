@@ -112,3 +112,63 @@ deploy_development:
     name: development
     url: http://core-development.datacycle.at/
   allow_failure: false
+
+
+deploy_review:
+  stage: deploy
+  script:
+    - bundle exec rake tmp:create
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
+  only:
+    - branches
+  except:
+    - master
+    - staging
+    - develop
+    - internal
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    url: http://core-$CI_COMMIT_REF_SLUG.datacycle.at
+    on_stop: stop_review
+  allow_failure: false
+
+stop_review:
+  stage: deploy
+  variables:
+    GIT_STRATEGY: none
+  before_script:
+    # uncomment for local testing
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    # uncomment for local testing END
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+    - git init
+    - git remote add origin $CI_REPOSITORY_URL
+    - git fetch
+    - git reset origin/develop
+    - git checkout -t origin/develop
+    - git reset origin/develop --hard
+
+    - bundle install --path=cache/bundler
+
+    - cd $CI_PROJECT_DIR
+  script:
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - bundle exec cap review review:undeploy application=$CI_COMMIT_REF_SLUG
+  only:
+    - branches
+  except:
+    - master
+    - staging
+    - develop
+    - internal
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    action: stop
+  when: manual
