@@ -6,6 +6,7 @@
       <div class="clearfix form-element validation-container input">
         <label for="<%= sanitize_to_id("#{key}_release_id") %>"><%= t('common.status') %></label>
         <%= collection_select key, :release_id, DataCycleCore::Release.all, :id, :release_text, {selected: value['release_id']}, { class: "release-select", disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) } %>
+        <%= hidden_field_tag key + '[release_id]', value['release_id'] unless can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
       </div>
 
         <div class="clearfix form-element validation-container">
@@ -15,7 +16,7 @@
                 <%= t('common.comment') %>
             </label>
 
-            <%= text_area_tag key + "[release_comment]", value['release_comment'], class: "release-comment", disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
+            <%= text_area_tag key + "[release_comment]", value['release_comment'], class: "release-comment", readonly: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
         </div>
     </div>
 
