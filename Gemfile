@@ -19,6 +19,9 @@ gem 'globalize', github: 'globalize/globalize'
 gem 'dotenv-rails'
 
 group :development, :test, :review do
+  gem 'listen', '~> 3.0.5'
+  gem 'spring'
+
   gem 'byebug'
   gem 'pry'
 

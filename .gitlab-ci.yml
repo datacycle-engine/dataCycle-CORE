@@ -55,6 +55,8 @@ rails_test:
     - bundle exec rake db:migrate
     - bundle exec rake db:seed
     - rails test
+  except:
+    - feature/pr-test
 
 cypress:
   script:
@@ -74,6 +76,8 @@ cypress:
     - cypress/screenshots/
     expire_in: 1 week
     when: on_failure
+  except:
+    - feature/pr-test
 
 # code validation
 # bundle-audit
@@ -86,6 +90,8 @@ code_validation:
     - bundle audit check
     - brakeman
     - rubocop --format fuubar
+  except:
+    - feature/pr-test
 
 # deployment
 deploy_staging:
@@ -117,7 +123,7 @@ deploy_development:
 deploy_review:
   stage: deploy
   script:
-    - bundle exec rake tmp:create
+    - bundle exec rake app:tmp:create
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
   only:
