@@ -57,7 +57,7 @@ end
 # Creative Work
 crumb :'data_cycle_core/creative_work' do |creative_work, watch_list|
   I18n.with_locale(creative_work.first_available_locale) do
-    link to_html_string(creative_work.content_type, creative_work.title), polymorphic_path(creative_work, watch_list_id: watch_list)
+    link to_html_string(creative_work.template_name, creative_work.title), polymorphic_path(creative_work, watch_list_id: watch_list)
   end
 
   if watch_list
@@ -79,7 +79,7 @@ crumb :'data_cycle_core/places' do
 end
 
 crumb :'data_cycle_core/place' do |place, watch_list|
-  link to_html_string(place.metadata['validation']['name'], place.name), place_path(place, watch_list_id: watch_list)
+  link to_html_string(t("content_type.#{place.template_name.downcase}", default: place.template_name, locale: DataCycleCore.ui_language), place.title), place_path(place, watch_list_id: watch_list)
 
   parent watch_list if watch_list
   # parent :'data_cycle_core/places'

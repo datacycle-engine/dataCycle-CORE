@@ -1,7 +1,6 @@
 ---
 - :data:
     :name: Event
-    :description: Event
     :type: object
     :permissions:
       :read_write: true

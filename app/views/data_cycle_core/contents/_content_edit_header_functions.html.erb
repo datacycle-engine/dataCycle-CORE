@@ -2,7 +2,7 @@
   <div class="row expanded">
     <div class="column edit-header-functions">
       <div class="edit-headline">
-        <i class="fa fa-pencil" aria-hidden="true"></i> <%== "#{content.content_type} #{t('actions.edit', locale: DataCycleCore.ui_language)}" %>
+        <i class="fa fa-pencil" aria-hidden="true"></i> <%= t("content_type.#{content.template_name.downcase}", default: content.template_name, locale: DataCycleCore.ui_language) + ' ' + t('actions.edit', locale: DataCycleCore.ui_language) %>
       </div>
       <ul>
         <% if current_user.try(:role).try(:rank).nil? || current_user.try(:role).try(:rank).zero? %>
@@ -14,7 +14,8 @@
             <%= render 'split_sources', contents: content.siblings, selected: @splitSource, url: '', title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
           </li>
         <% end %>
-        <% if DataCycleCore.translatable_types.include?(content.class.name) || DataCycleCore.translatable_types.include?(content.content_type) %>
+
+        <% if (DataCycleCore.translatable_types & [content.class.name, content.template_name]).present? && I18n.available_locales&.size&.>(1) %>
           <%= render 'edit_locale_links', local_assigns.merge({ locales: available_locales_with_names }) %>
         <% end %>
 

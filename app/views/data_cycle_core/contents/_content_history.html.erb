@@ -1,33 +1,29 @@
-<div class="detail-content detail-content-wrapper <%= content.try(:metadata).dig('validation', 'description').try(:downcase) || '' %>">
+<div class="detail-content detail-content-wrapper">
 
     <div class="row align-center">
 
-      <% unless content.metadata.nil? %>
+        <% unless content.schema.nil? %>
 
-          <% if !content.metadata.nil? && !content.metadata['validation'].nil? %>
+            <% validation_properties = get_ordered_validation_properties(content.schema) %>
 
-              <% validation_properties = get_ordered_validation_properties(content.metadata['validation']) %>
+            <% if !validation_properties.nil? %>
 
-              <% if !validation_properties.nil? %>
+                <div class="type properties">
 
-                  <div class="type properties">
+                    <% validation_properties.each do |key, prop| %>
 
-                      <% validation_properties.each do |key, prop| %>
+                        <% value = prop.dig('type') == "object" ? content.try(key.to_sym) : schema[key] %>
+                        <%= render_attribute_history_viewer key: key, definition: prop, value: normalize_value(value), parameters: { options: options ||= {} } %>
 
-                          <% value = prop.dig('type') == "object" ? content.try(key.to_sym) : schema[key] %>
-                          <%= render_attribute_history_viewer key: key, definition: prop, value: normalize_value(value), parameters: { options: options ||= {} } %>
+                    <% end %>
 
-                      <% end %>
+                </div>
 
-                  </div>
+            <% end %>
 
-              <% end %>
+        <% end %>
 
-          <% end %>
-
-      <% end %>
-
-      <%= render 'translations', language: nil, dataCycleObject: content %>
+        <%= render 'translations', language: nil, dataCycleObject: content %>
 
     </div>
 

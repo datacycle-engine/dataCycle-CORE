@@ -13,10 +13,10 @@ module DataCycleCore
       template_p = DataCycleCore::Place.count
       template_pt = DataCycleCore::Place::Translation.count
 
-      template_without_delete = DataCycleCore::CreativeWork.find_by(template: true, headline: 'Bild', description: 'ImageObject')
-      validation_without_delete = template_without_delete.metadata['validation']
+      template_without_delete = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Bild')
       data_set_without = DataCycleCore::CreativeWork.new
-      data_set_without.metadata = { 'validation' => validation_without_delete }
+      data_set_without.schema = template_without_delete.schema
+      data_set_without.template_name = template_without_delete.template_name
       data_set_without.save
 
       data_hash = {
@@ -88,10 +88,10 @@ module DataCycleCore
     end
 
     test 'save CreativeWork with embedded object contentLocation, then delete embedded object (last and only one)' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'BildTest', description: 'ImageObject').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'BildTest').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test!',
@@ -141,10 +141,10 @@ module DataCycleCore
     end
 
     test 'save CreativeWork with embedded object contentLocation, read data with only id given' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Bild', description: 'ImageObject').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Bild').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test!',
@@ -195,10 +195,10 @@ module DataCycleCore
 
     test 'save CreativeWork with embedded object contentLocation, create relation with only id given' do
       # insert a place
-      template = DataCycleCore::Place.find_by(template: true, headline: 'contentLocation', description: 'Place')
-      validation = template.metadata['validation']
+      template = DataCycleCore::Place.find_by(template: true, template_name: 'contentLocation')
       data_set_place = DataCycleCore::Place.new
-      data_set_place.metadata = { 'validation' => validation }
+      data_set_place.schema = template.schema
+      data_set_place.template_name = template.template_name
       data_set_place.save
       place_hash = {
         'name' => 'Testort',
@@ -211,10 +211,10 @@ module DataCycleCore
       place_id = returned_place['id']
 
       # insert an image and connect it to an existing place
-      template = DataCycleCore::CreativeWork.find_by(template: true, headline: 'Bild', description: 'ImageObject')
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Bild')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test!',
@@ -244,10 +244,10 @@ module DataCycleCore
 
     test 'save CreativeWork without embedded object contentLocation, update CW and create relation with only id given' do
       # insert a place
-      template = DataCycleCore::Place.find_by(template: true, headline: 'contentLocation', description: 'Place')
-      validation = template.metadata['validation']
+      template = DataCycleCore::Place.find_by(template: true, template_name: 'contentLocation')
       data_set_place = DataCycleCore::Place.new
-      data_set_place.metadata = { 'validation' => validation }
+      data_set_place.schema = template.schema
+      data_set_place.template_name = template.template_name
       data_set_place.save
       place_hash = {
         'name' => 'Testort',
@@ -260,10 +260,10 @@ module DataCycleCore
       place_id = returned_place['id']
 
       # insert an image without connection to a place
-      template = DataCycleCore::CreativeWork.find_by(template: true, headline: 'Bild', description: 'ImageObject')
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Bild')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test!',
@@ -310,10 +310,10 @@ module DataCycleCore
     end
 
     test 'save CreativeWork with more than one embedded object contentLocation, delete multiple contentLocations at once' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'BildTest', description: 'ImageObject').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'BildTest').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test!',
@@ -388,10 +388,10 @@ module DataCycleCore
     end
 
     test 'save CreativeWork with embedded object contentLocation, write, read and write back' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Bild', description: 'ImageObject').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Bild').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test!',
@@ -437,10 +437,10 @@ module DataCycleCore
     end
 
     test 'save CreativeWork with embedded object contentLocation' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Bild', description: 'ImageObject').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Bild').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test!',
@@ -478,10 +478,10 @@ module DataCycleCore
     end
 
     test 'save CreativeWork with embedded object contentLocation consistency check get(set)=set' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'BildTest', description: 'ImageObject').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'BildTest').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test!',
@@ -522,10 +522,10 @@ module DataCycleCore
     end
 
     test 'save CreativeWork with more than one embedded object contentLocation' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Bild', description: 'ImageObject').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Bild').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test!',
@@ -575,10 +575,10 @@ module DataCycleCore
     end
 
     test 'save CreativeWork with two embedded objects then delete one' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'BildTest', description: 'ImageObject').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'BildTest').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = {
         'headline' => 'Dies ist ein Test!',
@@ -622,10 +622,10 @@ module DataCycleCore
       place_trans_templates = DataCycleCore::Place::Translation.count
       cw_trans_templates = DataCycleCore::CreativeWork::Translation.count
       # setup data-set with a template
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Bild2', description: 'ImageObject').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Bild2').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
 
       # expected de/en hashes for main object
@@ -743,10 +743,10 @@ module DataCycleCore
 
     test 'save CreativeWork with two embedded objects each for every translation (full access to embeddedObjects)' do
       # setup data-set with a template
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'BildTest', description: 'ImageObject').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'BildTest').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
 
       # expected de/en hashes for main object
@@ -824,10 +824,10 @@ module DataCycleCore
     end
 
     test 'save proper CreativeWork data-set with hash method' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Thema', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Thema').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'description' => 'wtf is going on???' })
       data_set.save
@@ -845,10 +845,10 @@ module DataCycleCore
     end
 
     test 'save CreativeWork with only Titel' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Thema', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Thema').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!' })
       data_set.save
@@ -865,10 +865,10 @@ module DataCycleCore
     end
 
     test 'save CreativeWork with sub-properties' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Thema', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Thema').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'validity_period' => { 'valid_from' => '2017-05-01', 'valid_until' => '2017-06-01' } })
       data_set.save
@@ -889,10 +889,10 @@ module DataCycleCore
     end
 
     test 'save CreativeWork with sub-properties_tree' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Thema', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Thema').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       error = data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'validity_period' => { 'valid_from' => '2017-05-01', 'valid_until' => '2017-06-01', 'test' => { 'test1' => 1, 'test2' => 2 } } })
       data_set.save
@@ -917,10 +917,10 @@ module DataCycleCore
     end
 
     test 'save CreativeWork, Data properly written to metadata' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Thema', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Thema').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
 
       expected_hash = {
@@ -957,10 +957,10 @@ module DataCycleCore
     end
 
     test 'save CreativeWork with sub-properties and invalid data' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Thema', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Thema').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       error = data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'validity_period' => { 'valid_from' => '2017-05-01', 'valid_until' => '2017-16-01' } })
       data_set.save
@@ -968,10 +968,10 @@ module DataCycleCore
     end
 
     test 'save CreativeWork with sub-properties with wrong name and valid data' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Thema', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Thema').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       data_hash = { 'headline' => 'Dies ist ein Test!', 'validity_period' => { 'date_published' => '2017-05-01', 'validTo' => '2017-06-01' } }
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -979,10 +979,10 @@ module DataCycleCore
     end
 
     test 'save CreativeWork link to user_id' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Thema', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Thema').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       DataCycleCore::User.create!(
         given_name: 'Test',
@@ -1009,10 +1009,10 @@ module DataCycleCore
     end
 
     test 'save Recherche and read back' do
-      template = DataCycleCore::CreativeWork.where(template: true, headline: 'Recherche', description: 'CreativeWork').first
-      validation = template.metadata['validation']
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Recherche').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation }
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
       data_set.save
       DataCycleCore::CreativeWork.create!(headline: 'Test')
       uuid = DataCycleCore::CreativeWork.where(headline: 'Test').first.id

@@ -1,14 +1,13 @@
+<% if item.schema.present? && item.template_name.present? %>
 
-<% if !item.metadata.nil? && !item.metadata['validation'].nil? && !item.metadata['validation']['name'].nil? %>
-
-    <div class="type <%= item.content_type.downcase %>">
-        <div class="infoRow <%= "has-parent" if item.parent %>">
-            <%= render 'data_cycle_core/shared/icon', icon_type: item.content_type.downcase %>
-            <% if item.content_type.downcase == 'contentlocation' %>
-                <span class="title">Ort</span>
+    <div class="type <%= item.template_name.downcase %> <%= "has-parent" if item.try(:parent).present? %>">
+        <div class="infoRow">
+            <% if DataCycleCore.features&.dig(:life_cycle, :attribute_key).present? && item.is_content_type?('container') %>
+              <%= render 'data_cycle_core/shared/icon', icon_type: item.try(DataCycleCore.features&.dig(:life_cycle, :attribute_key))&.first&.name&.parameterize(separator: '_') %>
             <% else %>
-                <span class="title"><%= item.content_type %></span>
+              <%= render 'data_cycle_core/shared/icon', icon_type: item.template_name.parameterize(separator: '_') %>
             <% end %>
+            <span class="title"><%= t("content_type.#{item.template_name.downcase}", default: item.template_name, locale: DataCycleCore.ui_language) %></span>
             <span class="locale">(<%= I18n.locale.to_s %>)</span>
         </div>
     </div>

@@ -13,10 +13,10 @@ module DataCycleCore
       template_cw_count = DataCycleCore::CreativeWork.count
       template_cwt_count = DataCycleCore::CreativeWork::Translation.count
 
-      template_data = DataCycleCore::CreativeWork.find_by(template: true, headline: 'TestSimple', description: 'CreativeWork')
-      validation_hash = template_data.metadata['validation']
+      template_data = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'TestSimple')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation_hash }
+      data_set.schema = template_data.schema
+      data_set.template_name = template_data.template_name
       data_set.save
       data_hash = { 'headline' => 'Dies ist ein Test!' }
       error = data_set.set_data_hash(data_hash: data_hash, prevent_history: true)
@@ -39,10 +39,10 @@ module DataCycleCore
       template_cw_count = DataCycleCore::CreativeWork.count
       template_cwt_count = DataCycleCore::CreativeWork::Translation.count
 
-      template_data = DataCycleCore::CreativeWork.find_by(template: true, headline: 'TestSimple', description: 'CreativeWork')
-      validation_hash = template_data.metadata['validation']
+      template_data = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'TestSimple')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation_hash }
+      data_set.schema = template_data.schema
+      data_set.template_name = template_data.template_name
       data_set.save
       data_hash = { 'headline' => 'Dies ist ein Test!' }
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -65,10 +65,10 @@ module DataCycleCore
       template_cw_count = DataCycleCore::CreativeWork.count
       template_cwt_count = DataCycleCore::CreativeWork::Translation.count
 
-      template_data = DataCycleCore::CreativeWork.find_by(template: true, headline: 'TestIncludedData', description: 'CreativeWork')
-      validation_hash = template_data.metadata['validation']
+      template_data = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'TestIncludedData')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation_hash }
+      data_set.schema = template_data.schema
+      data_set.template_name = template_data.template_name
       data_set.save
       data_hash = { 'headline' => 'Dies ist ein Test!', 'includedData' => { 'item1' => 'Test item 1', 'item2' => 'Test item 2' } }
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -93,10 +93,10 @@ module DataCycleCore
 
       save_time = Time.zone.now - 10.seconds
 
-      template_data = DataCycleCore::CreativeWork.find_by(template: true, headline: 'TestClassificationData', description: 'CreativeWork')
-      validation_hash = template_data.metadata['validation']
+      template_data = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'TestClassificationData')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation_hash }
+      data_set.schema = template_data.schema
+      data_set.template_name = template_data.template_name
       data_set.created_at = save_time
       data_set.updated_at = save_time
       data_set.save
@@ -129,18 +129,18 @@ module DataCycleCore
 
       save_time = Time.zone.now - 10.seconds
 
-      template_data = DataCycleCore::CreativeWork.find_by(template: true, headline: 'TestEmbeddedPlaceData', description: 'CreativeWork')
-      validation_hash = template_data.metadata['validation']
+      template_data = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'TestEmbeddedPlaceData')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation_hash }
+      data_set.schema = template_data.schema
+      data_set.template_name = template_data.template_name
       data_set.created_at = save_time
       data_set.updated_at = save_time
       data_set.save
 
-      template_place = DataCycleCore::Place.find_by(template: true, headline: 'testPlace', description: 'Place')
-      validation_place_hash = template_place.metadata['validation']
+      template_place = DataCycleCore::Place.find_by(template: true, template_name: 'testPlace')
       data_set_place = DataCycleCore::Place.new
-      data_set_place.metadata = { 'validation' => validation_place_hash }
+      data_set_place.schema = template_place.schema
+      data_set_place.template_name = template_place.template_name
       data_set_place.created_at = save_time
       data_set_place.updated_at = save_time
       data_set_place.save
@@ -179,23 +179,21 @@ module DataCycleCore
     test 'save data to History with embeddedObject from same content_table' do
       template_cw_count = DataCycleCore::CreativeWork.count
       template_cwt_count = DataCycleCore::CreativeWork::Translation.count
-      template_place_count = DataCycleCore::Place.count
-      template_place_t_count = DataCycleCore::Place::Translation.count
 
       save_time = Time.zone.now - 64.seconds
 
-      template_data = DataCycleCore::CreativeWork.find_by(template: true, headline: 'TestEmbeddedCreativeWork', description: 'CreativeWork')
-      validation_hash = template_data.metadata['validation']
+      template_data = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'TestEmbeddedCreativeWork')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation_hash }
+      data_set.schema = template_data.schema
+      data_set.template_name = template_data.template_name
       data_set.created_at = save_time
       data_set.updated_at = save_time
       data_set.save
 
-      template_cw = DataCycleCore::CreativeWork.find_by(template: true, headline: 'EmbeddedCreativeWork', description: 'CreativeWork')
-      validation_cw_hash = template_cw.metadata['validation']
+      template_cw = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'EmbeddedCreativeWork')
       data_set_cw = DataCycleCore::CreativeWork.new
-      data_set_cw.metadata = { 'validation' => validation_cw_hash }
+      data_set_cw.schema = template_cw.schema
+      data_set_cw.template_name = template_cw.template_name
       data_set_cw.created_at = save_time
       data_set_cw.updated_at = save_time
       data_set_cw.save
@@ -237,10 +235,10 @@ module DataCycleCore
       template_cw_count = DataCycleCore::CreativeWork.count
       template_cwt_count = DataCycleCore::CreativeWork::Translation.count
 
-      template_data = DataCycleCore::CreativeWork.find_by(template: true, headline: 'TestSimple', description: 'CreativeWork')
-      validation_hash = template_data.metadata['validation']
+      template_data = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'TestSimple')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation_hash }
+      data_set.schema = template_data.schema
+      data_set.template_name = template_data.template_name
       data_set.headline = 'initial'
       data_set.updated_at = Time.zone.now - 5.weeks
       data_set.created_at = data_set.updated_at
@@ -248,7 +246,7 @@ module DataCycleCore
 
       weeks4ago = Time.zone.now - 4.weeks
       data_hash_4w = { 'headline' => 'Test 4.weeks.ago!' }
-      error = data_set.set_data_hash(data_hash: data_hash_4w, current_user: nil, save_time: weeks4ago)
+      data_set.set_data_hash(data_hash: data_hash_4w, current_user: nil, save_time: weeks4ago)
       data_set.updated_at = weeks4ago
       data_set.save
 
@@ -306,23 +304,25 @@ module DataCycleCore
       template_p = DataCycleCore::Place.count
       template_pt = DataCycleCore::Place::Translation.count
 
-      template_data = DataCycleCore::CreativeWork.find_by(template: true, headline: 'CreativeWorkEmbeddedLink', description: 'CreativeWork')
-      validation_hash = template_data.metadata['validation']
+      template_data = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'CreativeWorkEmbeddedLink')
       data_set = DataCycleCore::CreativeWork.new
-      data_set.metadata = { 'validation' => validation_hash }
+      data_set.schema = template_data.schema
+      data_set.template_name = template_data.template_name
       data_set.save
 
-      template_place = DataCycleCore::Place.find_by(template: true, headline: 'testPlace', description: 'Place')
+      template_place = DataCycleCore::Place.find_by(template: true, template_name: 'testPlace')
       data_place = DataCycleCore::Place.new
-      data_place.metadata = { 'validation' => template_place.metadata['validation'] }
+      data_place.schema = template_place.schema
+      data_place.template_name = template_place.template_name
       data_place.save
       data_place.set_data_hash(data_hash: { 'name' => 'Test place 1' })
       data_place.save
       data_place_id1 = data_place.id
 
-      template_place = DataCycleCore::Place.find_by(template: true, headline: 'testPlace', description: 'Place')
+      template_place = DataCycleCore::Place.find_by(template: true, template_name: 'testPlace')
       data_place = DataCycleCore::Place.new
-      data_place.metadata = { 'validation' => template_place.metadata['validation'] }
+      data_place.schema = template_place.schema
+      data_place.template_name = template_place.template_name
       data_place.save
       data_place.set_data_hash(data_hash: { 'name' => 'Test place 2' })
       data_place.save

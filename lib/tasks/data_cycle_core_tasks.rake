@@ -127,7 +127,6 @@ namespace :data_cycle_core do
           [k, v]
         end
       end]
-      # options[:locales] = [:de] #, :en, :fr, :it, :nl]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.download(options)
@@ -142,7 +141,6 @@ namespace :data_cycle_core do
           [k, v]
         end
       end]
-      # options[:locales] = [:de] #, :fr, :en, :it, :nl]
 
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       external_source.import(options)
@@ -152,20 +150,26 @@ namespace :data_cycle_core do
   namespace :update do
     desc 'import classifications'
     task import_classifications: [:environment] do
+      puts 'importing new classification definitions'
       path = Rails.root.join('config', 'data_definitions', 'classifications.yml')
-      DataCycleCore::MasterData::ImportClassifications.new.import(path.to_s)
+      DataCycleCore::MasterData::ImportClassifications.import(path.to_s)
     end
 
-    desc 'import template definitions'
+    desc 'import all template definitions'
     task import_templates: [:environment] do
-      path = Rails.root.join('config', 'data_definitions', 'creative_works', '*.yml')
-      DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::CreativeWork)
-      path = Rails.root.join('config', 'data_definitions', 'places', '*.yml')
-      DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Place)
-      path = Rails.root.join('config', 'data_definitions', 'persons', '*.yml')
-      DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Person)
-      path = Rails.root.join('config', 'data_definitions', 'events', '*.yml')
-      DataCycleCore::MasterData::ImportTemplates.new.import(path.to_s, DataCycleCore::Event)
+      puts 'importing new template definitions'
+
+      errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
+
+      unless duplicates.blank?
+        puts 'the following templates had multiple definitions:'
+        ap duplicates
+      end
+
+      unless errors.blank?
+        puts 'the following errors were encountered during import:'
+        ap errors
+      end
     end
 
     desc 'replace the data-definitions of all data-types in the Database with the templates in the Database'
@@ -174,9 +178,9 @@ namespace :data_cycle_core do
       DataCycleCore.content_tables.each do |content_table|
         data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
         data_object.where(template: true).each do |template_object|
-          template_name = template_object.headline
-          data_count = data_object.where(template: false).where("metadata #>> '{validation, name}' = ?", template_name).count
-          puts "#{content_table.ljust(25)} | #{template_name.ljust(25)} | #{data_count.to_s.rjust(10)}"
+          template_name = template_object.template_name
+          data_count = data_object.where(template: false).where("metadata #>> '{validation, name}' = ? OR template_name = ?", template_name, template_name).count
+          puts "#{content_table.ljust(25)} | #{template_name.ljust(25)} | #{(data_count || 0).to_s.rjust(10)}"
 
           strategy = DataCycleCore::Update::UpdateTemplate
           DataCycleCore::Update::Update.new(type: data_object, template: template_object, strategy: strategy, transformation: nil)
@@ -191,8 +195,8 @@ namespace :data_cycle_core do
       DataCycleCore.content_tables.each do |content_table|
         data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
         data_object.where(template: true).each do |template_object|
-          template_name = template_object.headline
-          boost = template_object.metadata['validation']['boost']
+          template_name = template_object.template_name
+          boost = template_object.schema['boost']
 
           unless boost.blank?
             search_entries = DataCycleCore::Search.where(content_data_type: data_object.to_s, data_type: template_name).count
@@ -216,11 +220,11 @@ namespace :data_cycle_core do
       end
 
       data_object = "DataCycleCore::#{args[:content_table_name].classify}".safe_constantize
-      template = data_object.find_by(headline: args[:template_name], template: true)
+      template = data_object.find_by(template_name: args[:template_name], template: true)
 
       if template.nil?
         puts "ERROR: template not found. For the given #{args[:content_table_name]} table only the following templates are available:"
-        puts data_object.where(template: true).map(&:headline)
+        puts data_object.where(template: true).map(&:template_name)
         exit(-1)
       end
 
@@ -409,7 +413,7 @@ namespace :data_cycle_core do
 
       where_string = "metadata ?| array['" + array_names.join("','") + "']"
       DataCycleCore::CreativeWork.where(where_string).each do |item|
-        # puts "#{item.id} || #{item.metadata['validation']['name']}"
+        # puts "#{item.id} || #{item.template_name}"
         array_names.each do |name|
           next unless item.metadata.key?(name)
           # puts "#{name.split('_hasPart')[0]} -> "
@@ -430,7 +434,7 @@ namespace :data_cycle_core do
       end
 
       DataCycleCore::CreativeWork::History.where(where_string).each do |item|
-        # puts "#{item.id} || #{item.creative_work_id} || #{item.metadata['validation']['name']}"
+        # puts "#{item.id} || #{item.creative_work_id} || #{item.template_name}"
         array_names.each do |name|
           next unless item.metadata.key?(name)
           # puts "#{name.split('_hasPart')[0]} -> "
@@ -650,6 +654,70 @@ namespace :data_cycle_core do
 
       puts 'END'
       puts "--> UPDATE time: #{((Time.zone.now - temp) / 60).to_i} min"
+    end
+
+    desc 'update...move schema, template_name to separate field'
+    task schema_update: [:environment] do
+      temp = Time.zone.now
+      puts 'UPDATE'
+      puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
+
+      # update content / content_history
+      index = 0
+      DataCycleCore.content_tables.each do |content_table|
+        [content_table, content_table.singularize + '_histories'].each do |table_name|
+          content_class = "DataCycleCore::#{content_table.classify}"
+          content_class += '::History' if table_name.end_with?('_histories')
+          items_count = content_class.constantize.count
+          puts "UPDATING ==> #{content_class} (#{items_count})"
+          content = table_name
+          sql = <<-EOS
+            WITH t AS (
+              SELECT
+                id,
+                metadata #> '{validation}' AS schema_data,
+                metadata #>> '{validation, name}' AS template_name_data,
+                metadata - 'validation' AS only_metadata
+              FROM #{content}
+              WHERE metadata #> '{validation}' IS NOT NULL
+            )
+            UPDATE #{content}
+            SET
+              template_name = t.template_name_data,
+              schema = t.schema_data,
+              metadata = t.only_metadata
+            FROM t
+            WHERE #{content}.id = t.id;
+          EOS
+          # pp sql
+          ActiveRecord::Base.connection.execute(sql)
+        end
+      end
+
+      Rake::Task['data_cycle_core:update:import_templates'].invoke
+      Rake::Task['data_cycle_core:update:update_all_templates'].invoke
+
+      puts 'END'
+      puts "--> UPDATE time: #{((Time.zone.now - temp) / 60).to_i} min"
+    end
+
+    desc 'update...rename Standard-Artikel to Artikel'
+    task standard_artikel: [:environment] do
+      # delete the template first
+      obsolete_template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Standard-Artikel')
+      obsolete_template&.destroy
+      # rename the data_templates
+      sql = <<-EOS
+        UPDATE creative_works
+        SET
+          template_name = 'Artikel',
+          schema = jsonb_set(creative_works.schema, '{name}', to_jsonb('Artikel'::character varying), false)
+        WHERE
+          template_name = 'Standard-Artikel';
+      EOS
+      ActiveRecord::Base.connection.execute(sql)
+      file = Rails.root.join('config', 'data_definitions', 'creative_works', 'standardartikel.yml')
+      File.delete(file)
     end
   end
 

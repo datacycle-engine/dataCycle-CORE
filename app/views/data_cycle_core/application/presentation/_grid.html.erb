@@ -17,7 +17,7 @@
             <% end %>
           </div>
 
-          <% cache content do %>
+          <% cache([content, content.respond_to?('schema') ? Digest::MD5.hexdigest(content.schema&.to_s) : nil, @watch_list], expires_in: 24.hours + Random.rand(12.hours)) do %>
             <%= render_content_tile item: content %>
           <% end %>
         </div>

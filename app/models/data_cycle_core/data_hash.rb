@@ -47,7 +47,7 @@ module DataCycleCore
     end
 
     def set_data_hash_attribute(key, value, current_user, save_time = Time.zone.now)
-      key_hash = metadata.dig('validation', 'properties', key)
+      key_hash = schema.dig('properties', key)
       unless key_hash.nil?
         ActiveRecord::Base.transaction do
           storage_cases_set(key, value, key_hash, save_time, current_user)
@@ -170,15 +170,13 @@ module DataCycleCore
     end
 
     def validate(data)
-      template_hash = metadata['validation']
       validator = DataCycleCore::MasterData::ValidateData.new
-      validator.validate(data, template_hash)
+      validator.validate(data, schema)
     end
 
     def validate?(data, strict = false)
-      template_hash = metadata['validation']
       validator = DataCycleCore::MasterData::ValidateData.new
-      validator.valid?(data, template_hash, strict)
+      validator.valid?(data, schema, strict)
     end
 
     def set_search
@@ -197,7 +195,7 @@ module DataCycleCore
       all_text = [headline, classification_string, full_text].join(' ')
       validity_hash = metadata.nil? ? nil : metadata['validity_period']
       validity_string = get_validity(validity_hash)
-      boost = metadata['validation']['boost'] || 1.0
+      boost = schema['boost'] || 1.0
 
       connection = ActiveRecord::Base.connection
       sql_query = <<-EOS
@@ -214,7 +212,7 @@ module DataCycleCore
           '#{Time.zone.now.to_s(:long_usec)}',
           '#{headline}',
           '#{classification_string}',
-          '#{metadata.try(:[], 'validation').try(:[], 'name')}',
+          '#{template_name}',
           '#{all_text}',
           '#{validity_string}',
           #{boost}
@@ -241,7 +239,7 @@ module DataCycleCore
         xml.gpx(version: '1.1', creator: 'dataCycle', xmlns: 'http://www.topografix.com/GPX/1/1') do
           xml.metadata do
             xml.name title
-            xml.desc ActionView::Base.full_sanitizer.sanitize(self.send('description')) if self.respond_to?('description')
+            xml.desc ActionView::Base.full_sanitizer.sanitize(send('description')) if respond_to?('description')
             xml.time updated_at
             unless creator&.first&.name.blank?
               xml.author do
@@ -250,7 +248,7 @@ module DataCycleCore
             end
           end
           geo_properties.each do |key, value|
-            geo = self.send(key)
+            geo = send(key)
             geo = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true).parse_wkt(geo) if geo.is_a?(String)
 
             if geo.try(:geometry_type) == RGeo::Feature::Point
@@ -275,6 +273,29 @@ module DataCycleCore
       end
 
       builder.to_xml
+    end
+
+    def set_classification_with_children(classification_tree_label, classification_id, user)
+      set_data_hash_attribute(classification_tree_label, [classification_id], user)
+      children.each do |child|
+        child.set_data_hash_attribute(classification_tree_label, [classification_id], user)
+      end
+    end
+
+    def get_inherit_datahash(parent)
+      data_hash = get_data_hash
+
+      I18n.with_locale(parent.first_available_locale) do
+        parent_data_hash = parent.get_data_hash
+
+        DataCycleCore.inheritable_attributes.each do |attribute_key|
+          data_hash[attribute_key] = parent_data_hash[attribute_key] if parent_data_hash[attribute_key].present?
+        end
+
+        data_hash[DataCycleCore.features.dig(:life_cycle, :attribute_key)] = parent_data_hash[DataCycleCore.features.dig(:life_cycle, :attribute_key)] if DataCycleCore.features.dig(:life_cycle)
+      end
+
+      data_hash.compact!
     end
 
     private
@@ -382,7 +403,7 @@ module DataCycleCore
 
     def storage_cases_set(key, value, properties, save_time, current_user)
       if properties['type'] == 'embeddedLinkArray' || properties['type'] == 'embeddedLink'
-        set_linked_data_type(key, value, properties['type_name'], key, properties['type_name'].classify, false, save_time, current_user)
+        set_linked_data_type(key, value, properties['type_name'], key, false, save_time, current_user)
       else
         case properties['storage_location']
         when 'column'
@@ -399,10 +420,10 @@ module DataCycleCore
           set_asset_id(value, key, properties['type_name'])
         else
           unless properties['storage_location'] == 'key' # do nothing with key
-            if properties.key?('name') && properties.key?('description')
+            if properties.key?('name')
               delete = false
               delete = true if properties.key?('delete') && properties['delete'] == true
-              set_linked_data_type(key, value, properties['storage_location'], properties['name'], properties['description'], delete, save_time, current_user)
+              set_linked_data_type(key, value, properties['storage_location'], properties['name'], delete, save_time, current_user)
             else
               puts "wrong data_type #{key} | #{value}"
             end
@@ -442,8 +463,7 @@ module DataCycleCore
       data_hash
     end
 
-    def set_linked_data_type(field_name, data, table, name, description, delete, save_time, current_user)
-      relation = 'content_contents'
+    def set_linked_data_type(field_name, data, table, name, delete, save_time, current_user)
       updated_item_keys = []
 
       # for embeddedLink and embeddedLinkArray transform data
@@ -476,10 +496,11 @@ module DataCycleCore
             # get validation template
             template = ('DataCycleCore::' + table.classify).constantize
               .with_translations('de')
-              .find_by("template = true AND metadata->'validation'->>'name' = ? AND metadata->'validation'->>'description' = ?", name, description)
+              .find_by(template: true, template_name: name)
 
             insert_item = ('DataCycleCore::' + table.classify).constantize.new
-            insert_item.metadata = { 'validation' => template.metadata['validation'] }
+            insert_item.schema = template.schema
+            insert_item.template_name = template.template_name
             insert_item.save
             insert_item.set_data_hash(data_hash: item.merge({ 'is_part_of' => id }), current_user: current_user, save_time: save_time, prevent_history: true)
             insert_item.save

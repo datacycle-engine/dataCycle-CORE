@@ -4,7 +4,7 @@
 
       <%= form_for :place, :url => {:controller => :places, :action => "create"} do |f| %>
 
-          <%= hidden_field_tag 'template', 'Ort' %>
+          <%= hidden_field_tag 'template', DataCycleCore.default_place_type %>
           <%= hidden_field_tag 'locale', I18n.locale %>
           <div class="validation-container form-element">
               <%= label_tag 'place[datahash][name]', DataCycleCore::Place.human_attribute_name("name", locale: DataCycleCore.ui_language) %>

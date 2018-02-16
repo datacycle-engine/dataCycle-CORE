@@ -56,7 +56,7 @@ en:
       float: "%{data} is not of type float."
       object_type: "Wrong data-type for %{data}. Type %{type} not defined."
       wrong_object_type: "Object-type %{data} is no embedded data-type and has no 'properties'."
-      no_template: "No matching data-type template found for %{name}|%{desc}."
+      no_template: "No matching data-type template found for %{name}."
       no_fields: "No fields for 'from-date' and/or 'to-date' given."
       convert_date: "Could not validate daterange, date_time not valid."
       daterange: "Invalid Daterange, 'from' (%{from}) is after 'to' (%{to})."

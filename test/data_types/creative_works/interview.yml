@@ -1,9 +1,8 @@
 ---
 - :data:
     :name: Interview
-    :description: CreativeWork
     :type: object
-    :content_type: variant
+    :content_type: entity
     :releasable: true
     :permissions:
       :read_write: true
@@ -144,7 +143,6 @@
         :type: object
         :storage_location: places
         :name: contentLocation
-        :description: Place
         :delete: false
         :editor:
           :sorting: 9
@@ -168,7 +166,6 @@
         :type: object
         :storage_location: persons
         :name: Person
-        :description: Person
         :delete: false
         :editor:
           :sorting: 10
@@ -182,7 +179,6 @@
         :storage_location: creative_works
         :delete: true
         :name: Zitat
-        :description: CreativeWork
         :editor:
           :type: embeddedObject
           :sorting: 11
