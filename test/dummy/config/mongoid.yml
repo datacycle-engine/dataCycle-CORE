@@ -23,3 +23,25 @@ test:
         read:
           mode: :primary
         max_pool_size: 1
+
+staging:
+  clients:
+    default:
+      database: data_cycle_staging
+      hosts:
+        - 127.0.0.1:27017
+      options:
+        read:
+          mode: :primary
+        max_pool_size: 1
+
+production:
+  clients:
+    default:
+      database: data_cycle_production
+      hosts:
+        - 127.0.0.1:27017
+      options:
+        read:
+          mode: :primary
+        max_pool_size: 1
