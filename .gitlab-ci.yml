@@ -55,8 +55,6 @@ rails_test:
     - bundle exec rake db:migrate
     - bundle exec rake db:seed
     - rails test
-  except:
-    - feature/test-review
 
 cypress:
   script:
@@ -76,8 +74,6 @@ cypress:
     - cypress/screenshots/
     expire_in: 1 week
     when: on_failure
-  except:
-    - feature/test-review
 
 # code validation
 # bundle-audit
@@ -90,8 +86,6 @@ code_validation:
     - bundle audit check
     - brakeman
     - rubocop --format fuubar
-  except:
-    - feature/test-review
 
 # deployment
 deploy_staging:
