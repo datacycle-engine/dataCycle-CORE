@@ -51,7 +51,8 @@ module DataCycleCore
 
     def edit
       @content = DataCycleCore::Person.find(params[:id])
-      if params[:locale] && !@content.translated_locales.include?(params[:locale]) && I18n.available_locales.include?(params[:locale]) && (DataCycleCore.translatable_types & [content.class.name, content.template_name]).present?
+
+      if params[:locale] && !@content.translated_locales.include?(params[:locale]) && I18n.available_locales.include?(params[:locale]&.to_sym) && (DataCycleCore.translatable_types & [@content.class.name, @content.template_name]).present?
         I18n.with_locale(params[:locale]) do
           @content.save
         end
