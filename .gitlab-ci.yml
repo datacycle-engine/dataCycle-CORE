@@ -117,7 +117,7 @@ deploy_development:
 deploy_review:
   stage: deploy
   script:
-    - bundle exec rake tmp:create
+    - bundle exec rake app:tmp:create
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
   only:
