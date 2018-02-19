@@ -88,6 +88,34 @@ code_validation:
     - rubocop --format fuubar
 
 # deployment
+deploy_production:
+  stage: deploy
+  script:
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - cap production deploy
+  only:
+    - master
+  environment:
+    name: staging
+    url: http://core-production.datacycle.at/
+  when: manual
+  allow_failure: false
+
+# deployment
+deploy_release:
+  stage: deploy
+  script:
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - cap release deploy
+  only:
+    - release
+  environment:
+    name: staging
+    url: http://core-release.datacycle.at/
+  when: manual
+  allow_failure: false
+
+# deployment
 deploy_staging:
   stage: deploy
   script:
@@ -98,21 +126,7 @@ deploy_staging:
   environment:
     name: staging
     url: http://core-staging.datacycle.at/
-  when: manual
   allow_failure: false
-
-deploy_development:
-  stage: deploy
-  script:
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - cap development deploy
-  only:
-    - develop
-  environment:
-    name: development
-    url: http://core-development.datacycle.at/
-  allow_failure: false
-
 
 deploy_review:
   stage: deploy
@@ -126,7 +140,7 @@ deploy_review:
     - master
     - staging
     - develop
-    - internal
+    - release
   environment:
     name: review/$CI_COMMIT_REF_NAME
     url: http://core-$CI_COMMIT_REF_SLUG.datacycle.at
@@ -167,7 +181,7 @@ stop_review:
     - master
     - staging
     - develop
-    - internal
+    - release
   environment:
     name: review/$CI_COMMIT_REF_NAME
     action: stop

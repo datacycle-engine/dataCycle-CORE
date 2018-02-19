@@ -35,6 +35,10 @@ staging:
   <<: *default
   database: data-cycle-core_staging
 
-#production:
-#  <<: *default
-#  database: data_cycle_production
+production:
+  <<: *default
+  database: data_cycle_production
+
+release:
+  <<: *default
+  database: data_cycle_release
