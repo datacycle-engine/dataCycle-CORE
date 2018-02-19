@@ -612,7 +612,23 @@ span.single_error.object-browser-error {
 /* embedded Objects */
 
 .detail-header {
-  .embedded_object,
+  .addContentObject {
+    margin: 0;
+    transition: all ease-in-out 0.2s;
+    .fa {
+      padding: 0;
+      margin-left: 0.5rem;
+      display: none;
+      font-size: 0.9rem;
+      vertical-align: bottom;
+    }
+  }
+  .removeContentObject {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+  .embedded_object:not(.publication),
   .detail_object {
     margin-bottom: 1rem;
     padding: 0.5rem;
@@ -626,17 +642,6 @@ span.single_error.object-browser-error {
         }
       }
     }
-    .addContentObject {
-      margin: 0;
-      transition: all ease-in-out 0.2s;
-      .fa {
-        padding: 0;
-        margin-left: 0.5rem;
-        display: none;
-        font-size: 0.9rem;
-        vertical-align: bottom;
-      }
-    }
     .content-object-item {
       &:not(:last-child) {
         margin-bottom: 0.5rem;
@@ -646,11 +651,6 @@ span.single_error.object-browser-error {
       padding: 5rem 1rem 1rem 1rem;
       border-radius: 3px;
       box-shadow: 0 0 3px #9d9d9d inset;
-      .removeContentObject {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-      }
       .embedded-header {
         position: absolute;
         left: 1rem;

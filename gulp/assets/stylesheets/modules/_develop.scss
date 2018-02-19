@@ -273,7 +273,6 @@ select {
     transition: box-shadow 0.5s, border-color 0.25s ease-in-out;
     -webkit-appearance: none;
     -moz-appearance: none;
-    appearance: none;
     .dropdown-toggle {
       white-space: nowrap;
       overflow: hidden;
@@ -924,4 +923,35 @@ select:-moz-focusring {
   border-radius: 5px;
   top: -3px;
   box-shadow: 0 0 3px #ccc;
+}
+
+// publication status
+.form-element.publication {
+  .content-object-item {
+    text-align: left;
+    display: table;
+    width: 100%;
+    .embedded-header {
+      display: none;
+    }
+    .form-element {
+      display: table-cell;
+      &:not(:last-child) {
+        padding-right: 0.5rem;
+      }
+    }
+    .v-select {
+      background: $light-gray;
+      label {
+        position: relative;
+        display: inline-block;
+      }
+      .select2 {
+        padding: 0.5rem;
+        background: inherit;
+        box-shadow: none;
+        border: none;
+      }
+    }
+  }
 }
