@@ -21,7 +21,7 @@
                 </span>
 
                 <div class="buttons">
-                  <% if DataCycleCore.translatable_types.include?(object.class.name) %>
+                  <% if (DataCycleCore.translatable_types & [object.class.name, object.template_name]).present? && I18n.available_locales&.size&.>(1) %>
                     <span data-tooltip data-allow-html="true" title="<%= object.translated_locales.map{ |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }.join("<br>") %>"><i class="fa fa-language" aria-hidden="true"></i></span>
                   <% end %>
 
