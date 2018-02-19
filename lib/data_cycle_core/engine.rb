@@ -138,6 +138,18 @@ module DataCycleCore
     mattr_accessor :template_path
     mattr_accessor :default_template_paths
     self.default_template_paths = []
+
+    # available filter
+    mattr_accessor :available_filters
+    self.available_filters = {
+      main: [
+        {
+          title: 'Inhaltstyp',
+          tree_label: 'Inhaltstypen'
+        }
+      ],
+      advanced: []
+    }
   end
 
   def self.setup

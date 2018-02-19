@@ -17,22 +17,37 @@
         <div class="main-filters">
 
           <nav id="primary_nav_wrap">
+            <% main= (DataCycleCore.available_filters&.dig(:main)&.map { |t| t[:tree_label] } + DataCycleCore.available_filters&.dig(:advanced)&.map { |t| t[:tree_label] }).inspect %>
 
-            <% classification_tree_labels = ['Inhaltstypen'] %>
+            <% classification_tree_labels = DataCycleCore.available_filters&.dig(:main)&.map { |t| t[:tree_label] } + DataCycleCore.available_filters&.dig(:advanced)&.map { |t| t[:tree_label] } %>
 
             <% classification_trees = DataCycleCore::ClassificationTreeLabel.where(name: classification_tree_labels).map{|l| {l.name => l.classification_trees.includes(:parent_classification_alias, sub_classification_alias: [sub_classification_alias: [sub_classification_alias: [:sub_classification_alias]]]).where(parent_classification_alias: nil).map(&:sub_classification_alias).select { |type| !excluded_types.include?(type.name) } } }.reduce(:merge) %>
 
-
             <ul>
-              <%= render 'data_cycle_core/application/filters/classification_tree', tree_label: 'Inhaltstypen',
-                  display_label: 'Inhaltstyp', excluded_types: excluded_types,
-                  classification_trees: classification_trees, li_class: 'subtree' %>
+              <% DataCycleCore.available_filters&.dig(:main).presence.each do |filter| %>
+                <%= render 'data_cycle_core/application/filters/classification_tree', tree_label: filter.dig(:tree_label), display_label: filter.dig(:title), excluded_types: excluded_types, classification_tree: classification_trees.dig(filter.dig(:tree_label)) if classification_trees.dig(filter.dig(:tree_label)).present? %>
+              <% end %>
 
               <%= render 'data_cycle_core/application/filters/sprache'%>
             </ul>
           </nav>
 
         </div>
+
+        <% if DataCycleCore.available_filters&.dig(:advanced)&.present? %>
+          <ul class="accordion advanced-filters" data-responsive-accordion-tabs="accordion medium-tabs large-accordion" data-allow-all-closed="true">
+            <li class="accordion-item" data-accordion-item>
+              <a href="#" class="accordion-title"><span><i class="fa fa-chevron-down" aria-hidden="true"></i><span class="closed"><%= t('common.additional_filters.show') %></span><span class="open"><%= t('common.additional_filters.hide') %></span> </span></a>
+              <div class="accordion-content" data-tab-content>
+
+                <% DataCycleCore.available_filters&.dig(:advanced).each do |filter| %>
+                  <%= render 'data_cycle_core/application/filters/alternative_classification_tree', tree_label: filter.dig(:tree_label), display_label: filter.dig(:title), excluded_types: excluded_types, classification_tree: classification_trees.dig(filter.dig(:tree_label)) if classification_trees.dig(filter.dig(:tree_label)).present? %>
+                <% end %>
+
+              </div>
+            </li>
+          </ul>
+        <% end %>
 
         <div class="filtertags activefilter">
             <span class="icon"><i class="fa fa-check" aria-hidden="true"></i> <strong><%= t('common.active_filters', locale: DataCycleCore.ui_language) %></strong>
