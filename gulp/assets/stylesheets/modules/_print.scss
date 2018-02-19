@@ -16,8 +16,12 @@
     background: #fff;
     line-height: 2;
     border-top: none;
-    margin: 0;
+    //margin: 16mm;
     font-size: 16px;
+  }
+  .column, .columns{
+    padding-left: 0;
+    padding-right: 0;
   }
   a{
     &[href]:after { content: none !important }
@@ -79,6 +83,12 @@
       }
     }
   }
+  .tags{
+    font-size: 0.9rem;
+    .tag{
+      font-size: 0.9rem;
+    }
+  }
   .no-edit-bar{
     padding-top: 0;
   }
@@ -86,7 +96,14 @@
     padding-top: 0;
     padding-bottom: 0;
     height: auto;
+    li, ul li .breadcrumb-text i.fa{
+      font-size: 0.9rem;
+    }
   }
+  .fa{
+    font-size: 1rem;
+  }
+
   .tags {
     .tag{
       font-size: 1rem;
