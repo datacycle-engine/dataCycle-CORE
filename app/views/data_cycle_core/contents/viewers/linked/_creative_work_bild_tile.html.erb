@@ -6,6 +6,9 @@
         <% unless content.title.blank? %>
             <div class="description">
                 <%= content.title %>
+                <div class="show-for-print">
+                    <br />(ID: <%= content.id %>)
+                </div>
             </div>
         <% end %>
         <% if content.try(:restrictions).try(:include?, 'gesperrt') %>
