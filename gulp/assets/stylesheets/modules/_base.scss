@@ -298,7 +298,8 @@ button,
   .daterange,
   .embedded_object:not(.publication),
   .detail_object,
-  .readonly-select {
+  .readonly-select,
+  .select2 {
     border: 1px solid $light-gray;
     background: $light-gray;
     outline: none;

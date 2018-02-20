@@ -788,9 +788,8 @@ ul.translated-locales {
     border-color 0.25s ease-in-out;
     padding: 0 0 0 0;
     .select2 {
-      border: 1px solid #e6e6e6;
-      background: $light-gray;
-      padding: 3rem 0.5rem 0.5rem 0.5rem;
+      min-width: initial;
+      padding: 2.5rem 0.5rem 0.5rem 0.5rem;
       .select2-selection {
         border: 0;
         border-radius: 0;
@@ -923,35 +922,4 @@ select:-moz-focusring {
   border-radius: 5px;
   top: -3px;
   box-shadow: 0 0 3px #ccc;
-}
-
-// publication status
-.form-element.publication {
-  .content-object-item {
-    text-align: left;
-    display: table;
-    width: 100%;
-    .embedded-header {
-      display: none;
-    }
-    .form-element {
-      display: table-cell;
-      &:not(:last-child) {
-        padding-right: 0.5rem;
-      }
-    }
-    .v-select {
-      background: $light-gray;
-      label {
-        position: relative;
-        display: inline-block;
-      }
-      .select2 {
-        padding: 0.5rem;
-        background: inherit;
-        box-shadow: none;
-        border: none;
-      }
-    }
-  }
 }
