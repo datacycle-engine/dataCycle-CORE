@@ -8,7 +8,7 @@ namespace :review do
             execute :rake, 'db:create'
           rescue StandardError
             execute :rake, 'db:create'
-            invoke 'review:init_staging_db'
+            invoke 'review:init_dev_db'
           end
         end
       end
@@ -53,42 +53,42 @@ namespace :review do
     end
   end
 
-  desc 'init staging db'
-  task :init_staging_db do
+  desc 'init dev db'
+  task :init_dev_db do
     run_locally do
-      `cap staging review:download_staging_db`
+      `cap development review:download_dev_db`
     end
-    invoke 'review:upload_staging_db'
+    invoke 'review:upload_dev_db'
   end
 
-  desc 'download staging db'
-  task :download_staging_db do
+  desc 'download dev db'
+  task :download_dev_db do
     on roles(:db) do
       within release_path do
         with rails_env: fetch(:rails_env) do
-          execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:dump[staging_db,sql]"
+          execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:dump[dev_db,sql]"
         end
       end
       within shared_path do
-        download! "#{fetch(:application_root_path, '')}db/backups/staging/staging_db.sql", "#{fetch(:application_root_path, '')}tmp/staging_db.sql"
+        download! "#{fetch(:application_root_path, '')}db/backups/dev/dev_db.sql", "#{fetch(:application_root_path, '')}tmp/dev_db.sql"
       end
-      print_message 'staging database: download complete'
+      print_message 'dev database: download complete'
     end
   end
 
-  desc 'upload staging db'
-  task :upload_staging_db do
+  desc 'upload dev db'
+  task :upload_dev_db do
     on roles(:app) do
       # upload database
       within shared_path do
-        upload! "#{fetch(:application_root_path, '')}tmp/staging_db.sql", "#{fetch(:application_root_path, '')}db/backups/staging_db.sql"
+        upload! "#{fetch(:application_root_path, '')}tmp/dev_db.sql", "#{fetch(:application_root_path, '')}db/backups/dev_db.sql"
       end
       within release_path do
         with rails_env: fetch(:rails_env) do
-          execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:restore[staging_db]"
+          execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:restore[dev_db]"
         end
       end
-      print_message 'staging database: upload complete'
+      print_message 'dev database: upload complete'
     end
   end
 
