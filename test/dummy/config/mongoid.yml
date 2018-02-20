@@ -57,10 +57,10 @@ production:
           mode: :primary
         max_pool_size: 1
 
-release:
+pre_release:
   clients:
     default:
-      database: data_cycle_release
+      database: data_cycle_prerelease
       hosts:
         - 127.0.0.1:27017
       options:
