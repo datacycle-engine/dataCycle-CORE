@@ -70,7 +70,7 @@ namespace :review do
         end
       end
       within shared_path do
-        download! "#{fetch(:application_root_path, '')}db/backups/dev/dev_db.sql", "#{fetch(:application_root_path, '')}tmp/dev_db.sql"
+        download! "#{fetch(:application_root_path, '')}db/backups/staging/dev_db.sql", "#{fetch(:application_root_path, '')}tmp/dev_db.sql"
       end
       print_message 'dev database: download complete'
     end
