@@ -22,6 +22,8 @@ delete_contents = <<-EOS
   DELETE FROM event_translations;
   DELETE FROM persons;
   DELETE FROM person_translations;
+  DELETE FROM organizations;
+  DELETE FROM organization_translations;
   DELETE FROM places;
   DELETE FROM place_translations;
 
@@ -42,6 +44,8 @@ delete_content_histories = <<-EOS
   DELETE FROM event_history_translations;
   DELETE FROM person_histories;
   DELETE FROM person_history_translations;
+  DELETE FROM organization_histories;
+  DELETE FROM organization_history_translations;
   DELETE FROM place_histories;
   DELETE FROM place_history_translations;
 

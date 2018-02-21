@@ -97,6 +97,18 @@ crumb :'data_cycle_core/person' do |person, watch_list|
   # parent :'data_cycle_core/persons'
 end
 
+# Organization
+crumb :'data_cycle_core/organizations' do
+  link to_html_string('Organisationen'), organizations_path
+end
+
+crumb :'data_cycle_core/organization' do |organization, watch_list|
+  link to_html_string('Organization', organization.name + ' ' + organization.legal_name), organization_path(organization, watch_list_id: watch_list)
+
+  parent watch_list if watch_list
+  # parent :'data_cycle_core/persons'
+end
+
 # Event
 crumb :'data_cycle_core/events' do
   link to_html_string('Events'), events_path

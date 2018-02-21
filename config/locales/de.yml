@@ -233,6 +233,9 @@ de:
       data_cycle_core/person:
         one: Person
         other: Personen
+      data_cycle_core/organization:
+        one: Organisation
+        other: Organisationen
       data_cycle_core/stored_filter:
         one: Gespeicherter Filter
         other: Gespeicherte Filter
@@ -262,6 +265,9 @@ de:
         given_name: Vorname
         family_name: Familienname
         job_title: Berufsbezeichnung
+      data_cycle_core/organization:
+        name: Name
+        legal_name: Firmenname
       data_cycle_core/place:
         name: Name
         street: Straße
