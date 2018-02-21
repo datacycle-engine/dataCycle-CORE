@@ -37,28 +37,29 @@
               </li>
               <li>
                 <ul class="no-bullet publication-table">
-                  <% val.group_by { |c| l(c.metadata['publish_at']&.to_date, format: :long, locale: DataCycleCore.ui_language) }.each do |p_day, v| %>
+                  <% val.group_by { |c| l(c.metadata['publish_at']&.to_date, format: :long, locale: DataCycleCore.ui_language) }.each_with_index do |(p_day, v), idx| %>
                     <li class="publication-day <%= 'active' if v.first.metadata['publish_at']&.to_date.today? %>">
                       <span class="title"><%= p_day %></span>
                       <% publication_classifications.each do |pc_key, pc_value| %>
                         <span><%= render 'data_cycle_core/shared/icon', icon_type: pc_value.downcase %></span>
-                      <% end %>
+                      <% end if idx.zero? %>
                     </li>
-                    <% v.each do |content| %>
-                      <li>
-                        <div class="title">
-                          <% I18n.with_locale(content.content_content_b&.first&.content_a.first_available_locale) do %>
-                            <%= render 'data_cycle_core/contents/tiles/attributes/type', item: content.content_content_b&.first&.content_a %>
-                            <%= render 'data_cycle_core/contents/tiles/attributes/title', item: content.content_content_b&.first&.content_a if content.content_content_b&.first&.content_a.try(:title).present? %>
-                          <% end if content.content_content_b&.first&.content_a.present? %>
-                        </div>
-                        <% publication_classifications.each do |pc_key, pc_value| %>
-                          <span><%= content.try(pc_key)&.map(&:name)&.join(', ') %></span>
-                        <% end %>
-                      </li>
-                    <% end %>
+                    <div class="publication-table-contents">
+                      <% v.each do |content| %>
+                        <li>
+                          <div class="title">
+                            <% I18n.with_locale(content.content_content_b&.first&.content_a.first_available_locale) do %>
+                              <%= render 'data_cycle_core/contents/tiles/attributes/type', item: content.content_content_b&.first&.content_a %>
+                              <%= render 'data_cycle_core/contents/tiles/attributes/title', item: content.content_content_b&.first&.content_a if content.content_content_b&.first&.content_a.try(:title).present? %>
+                            <% end if content.content_content_b&.first&.content_a.present? %>
+                          </div>
+                          <% publication_classifications.each do |pc_key, pc_value| %>
+                            <span><%= content.try(pc_key)&.map(&:name)&.join(', ') %></span>
+                          <% end %>
+                        </li>
+                      <% end %>
+                    </div>
                   <% end %>
-                  <li></li>
                 </ul>
               </li>
             <% end %>
