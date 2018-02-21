@@ -72,6 +72,7 @@ de:
     download_gpx: Als GPX-Datei herunterladen
     no_search: Sie müssen eine Suche durchführen, bevor Sie einen neuen Inhalt erstellen können.
     publications: Geplante Publikationen
+    publications_calendar: Publikationskalender
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -82,8 +83,8 @@ de:
     active_version: Aktuelle Version
     look_at_version: Version ansehen
 
-  content_type:
-    contentlocation: Ort
+  filter:
+    language: Sprache
 
   terms:
     from: von
@@ -234,6 +235,9 @@ de:
       data_cycle_core/person:
         one: Person
         other: Personen
+      data_cycle_core/event:
+        one: Event
+        other: Events
       data_cycle_core/stored_filter:
         one: Gespeicherter Filter
         other: Gespeicherte Filter
@@ -301,6 +305,7 @@ de:
     - Fr
     - Sa
     abbr_month_names:
+    -
     - Jan
     - Feb
     - Mär
@@ -326,6 +331,7 @@ de:
       long: "%e. %B %Y"
       short: "%e. %b"
     month_names:
+    -
     - Januar
     - Februar
     - März

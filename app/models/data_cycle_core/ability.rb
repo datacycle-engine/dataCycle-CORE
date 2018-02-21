@@ -25,6 +25,7 @@ module DataCycleCore
           can :manage, DataCycleCore::WatchList, user_id: user.id
           can [:read, :create, :destroy], DataCycleCore::StoredFilter, user_id: user.id
           can :read, DataCycleCore::StoredFilter, system: true
+          can :show_publications, DataCycleCore::Content
           can [:subscribe, :history, :history_detail], [DataCycleCore::Person, DataCycleCore::CreativeWork, DataCycleCore::Place]
         end
 

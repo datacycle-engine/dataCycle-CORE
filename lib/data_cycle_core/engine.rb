@@ -118,7 +118,7 @@ module DataCycleCore
     self.notification_frequencies = ['always', 'day', 'week']
 
     # features
-    # autoload_last_filter, life_cycle
+    # autoload_last_filter, life_cycle, publishable, ...
     mattr_accessor :features
     self.features = {}
 
@@ -142,12 +142,7 @@ module DataCycleCore
     # available filter
     mattr_accessor :available_filters
     self.available_filters = {
-      main: [
-        {
-          title: 'Inhaltstyp',
-          tree_label: 'Inhaltstypen'
-        }
-      ],
+      main: ['Inhaltstypen'],
       advanced: []
     }
   end

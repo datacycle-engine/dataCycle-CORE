@@ -54,6 +54,7 @@
       .select2 {
         background: inherit;
         box-shadow: none;
+        height: 100%;
         .selection {
           ul {
             line-height: 1;
@@ -68,6 +69,79 @@
         &.select2-container--open {
           border-color: $primary-color;
           background: white;
+        }
+      }
+    }
+  }
+}
+
+.publications-list {
+  .publication-month {
+    position: relative;
+    background: transparent;
+    &:before {
+      position: absolute;
+      content: "";
+      height: 1px;
+      border-bottom: 1px solid $medium-gray;
+      right: 0;
+      left: 0;
+      top: 50%;
+    }
+    >.title {
+      position: relative;
+      display: inline-block;
+      background: white;
+      z-index: 1;
+      margin: 0.5rem;
+      padding: 0.5rem;
+      span {
+        display: inline-block;
+        &.month-name {
+          min-width: 10rem;
+        }
+        &.publication-year {
+          color: $dark-gray;
+        }
+      }
+    }
+    .navigation {
+      display: inline-block;
+      margin-right: 0.5rem;
+      >li {
+        border-radius: 30px;
+        width: 30px;
+        height: 30px;
+        background: $light-gray;
+        display: inline-block;
+        .fa {
+          display: block;
+          line-height: 30px;
+          text-align: center;
+          font-size: 1rem;
+        }
+        a {
+          padding: 0;
+          color: $dark-gray;
+          cursor: default;
+          text-decoration: none;
+        }
+      }
+    }
+  }
+  .publication-table {
+    display: table;
+    width: 100%;
+    >li {
+      display: table-row;
+      >span,
+      >div {
+        display: table-cell;
+        &.title {
+          width: 50%;
+          div {
+            display: inline-block;
+          }
         }
       }
     }

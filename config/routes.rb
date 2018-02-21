@@ -109,4 +109,6 @@ DataCycleCore::Engine.routes.draw do
   post 'contents/render_embedded_object', to: 'contents#render_embedded_object'
   get 'contents/gpx', to: 'contents#gpx'
   patch ':type/:id/set_life_cycle', to: 'contents#set_life_cycle', as: 'set_life_cycle'
+
+  resources :publications, only: :index
 end

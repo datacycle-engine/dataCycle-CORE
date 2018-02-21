@@ -1,6 +1,6 @@
 <li class="sprache">
     <%= render 'data_cycle_core/shared/icon', icon_type: "sprache" %>
-    <span class="title">Sprache</span>
+    <span class="title"><%= t('filter.language', locale: DataCycleCore.ui_language) %></span>
     <div>
         <ul class="split-list clearfix">
             <% available_locales_with_names.each do |key,value| %>

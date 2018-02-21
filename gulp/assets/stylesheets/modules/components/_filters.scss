@@ -103,9 +103,6 @@
       &:focus {
         color: $body-font-color;
       }
-      i {
-        //color: white;
-      }
       span {
         .closed {
           display: inline-block;
@@ -221,6 +218,7 @@
   }
   button[type="submit"].button {
     padding: 0.85em 1em;
+    vertical-align: middle;
   }
 }
 
@@ -387,15 +385,16 @@
     }
   }
   >ul {
-    display: table;
+    display: flex;
     position: relative;
     width: 100%;
+    line-height: 1;
     >li {
-      width: 20%;
       padding: 1rem;
       float: none;
       position: initial;
-      display: table-cell;
+      display: inline-block;
+      flex: 1;
     }
   }
   .split-list ul {
@@ -445,8 +444,10 @@
   text-align: right;
   float: right;
   margin-top: 0.5rem;
+  white-space: nowrap;
   button {
-    margin: 0 0 0 1rem;
+    margin: 0 0 0 0.5rem;
+    vertical-align: middle;
   }
 }
 
@@ -502,14 +503,18 @@
   .search {
     padding-top: 0;
     margin: 0 0.5rem;
-    display: inline-block;
+    display: flex;
+    flex: 1;
+    min-width: 300px;
     vertical-align: middle;
   }
   .filterbuttons {
-    margin: 0;
+    margin: 0 0.5rem 0 0;
     display: inline-block;
+    flex: 1;
     vertical-align: middle;
     float: none;
+    line-height: 3;
   }
 }
 
