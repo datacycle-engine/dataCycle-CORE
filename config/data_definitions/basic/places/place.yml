@@ -33,6 +33,8 @@
         :storage_location: metadata
         :editor:
           :sorting: 2
+          :options:
+            :class: detail_object
         :properties:
           :address_locality:
             :label: Ort
