@@ -69,19 +69,18 @@ module DataCycleCore::Generic::Transformations::Transformations
 
   def self.outdoor_active_to_poi
     t(:stringify_keys)
-    .>> t(:rename_keys, {
-            'id' => 'external_key',
-            'title' => 'name',
-            'shortText' => 'description',
-            'longText' => 'text',
-            'altitude' => 'elevation',
-            'countryCode' => 'address_country',
-            'fax' => 'fax_number',
-            'phone' => 'telephone',
-            'homepage' => 'url',
-            'businessHours' => 'hours_available',
-            'fee' => 'price',
-            'gettingThere' => 'directions' })
+    .>> t(:rename_keys,
+      {
+        'id' => 'external_key',
+        'title' => 'name',
+        'shortText' => 'description',
+        'longText' => 'text',
+        'altitude' => 'elevation',
+        'countryCode' => 'address_country',
+        'fax' => 'fax_number',
+        'phone' => 'telephone',
+        'businessHours' => 'hours_available'
+      })
     .>> t(:map_value, 'elevation', ->s { s.to_f })
     .>> t(:add_field, 'latitude', ->s { s['geometry'].try(:split, /[, ]/, 3).try(:[], 1).try(:to_f) })
     .>> t(:add_field, 'longitude', ->s { s['geometry'].try(:split, /[, ]/, 3).try(:[], 0).try(:to_f) })
@@ -92,24 +91,26 @@ module DataCycleCore::Generic::Transformations::Transformations
     })
     .>> t(:add_field, 'postal_code', ->s { s['address'].try(:[], 'zipcode') })
     .>> t(:add_field, 'author', ->s { s['meta'].try(:[], 'author') })
+    .>> t(:reject_keys, ['address', 'category', 'primaryImage', 'images', 'regions', 'meta'])
     .>> t(:strip_all)
   end
 
   def self.outdoor_active_to_place
     t(:stringify_keys)
-    .>> t(:rename_keys, {
-            'id' => 'external_key',
-            'title' => 'name',
-            'shortText' => 'description',
-            'longText' => 'text',
-            'altitude' => 'elevation',
-            'countryCode' => 'address_country',
-            'fax' => 'fax_number',
-            'phone' => 'telephone',
-            'homepage' => 'url',
-            'businessHours' => 'hours_available',
-            'fee' => 'price',
-            'gettingThere' => 'directions' })
+    .>> t(:rename_keys,
+      {
+        'id' => 'external_key',
+        'title' => 'name',
+        'shortText' => 'description',
+        'longText' => 'text',
+        'altitude' => 'elevation',
+        'countryCode' => 'address_country',
+        'fax' => 'fax_number',
+        'phone' => 'telephone',
+        'homepage' => 'url',
+        'businessHours' => 'hours_available',
+        'gettingThere' => 'directions'
+      })
     .>> t(:map_value, 'elevation', ->s { s.to_f })
     .>> t(:add_field, 'latitude', ->s { s['geometry'].try(:split, /[, ]/, 3).try(:[], 1).try(:to_f) })
     .>> t(:add_field, 'longitude', ->s { s['geometry'].try(:split, /[, ]/, 3).try(:[], 0).try(:to_f) })
