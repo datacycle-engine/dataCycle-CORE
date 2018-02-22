@@ -13,7 +13,6 @@ describe DataCycleCore::Organization do
   end
 
   describe 'insert data' do
-
     test_data = {
       'name' => 'Name',
       'legal_name' => 'Firmenname',
@@ -68,8 +67,5 @@ describe DataCycleCore::Organization do
     it 'extracts description' do
       organization.description.must_equal 'Short test description for company object.'
     end
-
   end
-
-
 end
