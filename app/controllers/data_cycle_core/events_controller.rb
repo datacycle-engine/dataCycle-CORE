@@ -118,7 +118,7 @@ module DataCycleCore
     def create_params
     end
 
-    def event_params(storage_location, template_name, template_description)
+    def event_params(storage_location, template_name)
       datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name)
       params.require(:event).permit(datahash: datahash)
     end
