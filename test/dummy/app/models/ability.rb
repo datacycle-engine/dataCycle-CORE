@@ -3,6 +3,6 @@ class Ability < DataCycleCore::Ability
     super
 
     return unless user && user&.has_rank?(0)
-    can :create_in_objectbrowser, [DataCycleCore::Person, DataCycleCore::Place]
+    can :create_in_objectbrowser, [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::Place]
   end
 end

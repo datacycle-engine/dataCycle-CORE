@@ -133,7 +133,7 @@
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
-        :default_value: "Person"
+        :default_value: "Organisation"
       :creator:
         :label: Ersteller
         :type: embeddedLink

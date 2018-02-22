@@ -547,6 +547,89 @@ CREATE TABLE external_sources (
 
 
 --
+-- Name: organization_histories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE organization_histories (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    organization_id uuid NOT NULL,
+    name character varying,
+    legal_name character varying,
+    metadata jsonb,
+    template boolean DEFAULT false NOT NULL,
+    seen_at timestamp without time zone,
+    template_name character varying,
+    schema jsonb,
+    external_source_id uuid,
+    external_key character varying,
+    deleted_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: organization_history_translations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE organization_history_translations (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    organization_history_id uuid NOT NULL,
+    locale character varying NOT NULL,
+    content jsonb,
+    properties jsonb,
+    headline character varying,
+    description text,
+    release jsonb,
+    release_id uuid,
+    release_comment text,
+    history_valid tstzrange,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: organization_translations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE organization_translations (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    organization_id uuid NOT NULL,
+    locale character varying NOT NULL,
+    content jsonb,
+    properties jsonb,
+    headline character varying,
+    description text,
+    release jsonb,
+    release_id uuid,
+    release_comment text,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: organizations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE organizations (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    name character varying,
+    legal_name character varying,
+    metadata jsonb,
+    template boolean DEFAULT false NOT NULL,
+    seen_at timestamp without time zone,
+    template_name character varying,
+    schema jsonb,
+    external_source_id uuid,
+    external_key character varying,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: overlay_place_tags; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1286,6 +1369,38 @@ ALTER TABLE ONLY events
 
 ALTER TABLE ONLY external_sources
     ADD CONSTRAINT external_sources_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: organization_histories organization_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY organization_histories
+    ADD CONSTRAINT organization_histories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: organization_history_translations organization_history_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY organization_history_translations
+    ADD CONSTRAINT organization_history_translations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: organization_translations organization_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY organization_translations
+    ADD CONSTRAINT organization_translations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: organizations organizations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY organizations
+    ADD CONSTRAINT organizations_pkey PRIMARY KEY (id);
 
 
 --
@@ -2061,6 +2176,48 @@ CREATE INDEX name_idx ON classification_aliases USING gin (name gin_trgm_ops);
 
 
 --
+-- Name: organization_histories_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX organization_histories_id_idx ON organization_histories USING btree (id);
+
+
+--
+-- Name: organization_history_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX organization_history_id_idx ON organization_history_translations USING btree (organization_history_id);
+
+
+--
+-- Name: organization_history_locale_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX organization_history_locale_idx ON organization_history_translations USING btree (locale);
+
+
+--
+-- Name: organization_id_foreign_key_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX organization_id_foreign_key_idx ON organization_histories USING btree (organization_id);
+
+
+--
+-- Name: organization_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX organization_id_idx ON organization_translations USING btree (organization_id);
+
+
+--
+-- Name: organization_locale_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX organization_locale_idx ON organization_translations USING btree (locale);
+
+
+--
 -- Name: parent_child_index; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2241,6 +2398,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180111111106'),
 ('20180117073708'),
 ('20180122153121'),
-('20180124091123');
+('20180124091123'),
+('20180222091614');
 
 
