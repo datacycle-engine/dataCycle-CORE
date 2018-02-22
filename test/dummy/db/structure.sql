@@ -553,8 +553,6 @@ CREATE TABLE external_sources (
 CREATE TABLE organization_histories (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
     organization_id uuid NOT NULL,
-    name character varying,
-    legal_name character varying,
     metadata jsonb,
     template boolean DEFAULT false NOT NULL,
     seen_at timestamp without time zone,
@@ -615,8 +613,6 @@ CREATE TABLE organization_translations (
 
 CREATE TABLE organizations (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    name character varying,
-    legal_name character varying,
     metadata jsonb,
     template boolean DEFAULT false NOT NULL,
     seen_at timestamp without time zone,

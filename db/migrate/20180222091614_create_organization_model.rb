@@ -1,8 +1,6 @@
 class CreateOrganizationModel < ActiveRecord::Migration[5.0]
   def up
     create_table :organizations, id: :uuid do |t|
-      t.string :name
-      t.string :legal_name
       t.jsonb :metadata
       t.boolean :template, null: false, default: false
       t.datetime :seen_at
@@ -28,8 +26,6 @@ class CreateOrganizationModel < ActiveRecord::Migration[5.0]
 
     create_table :organization_histories, id: :uuid do |t|
       t.uuid :organization_id, null: false
-      t.string :name
-      t.string :legal_name
       t.jsonb :metadata
       t.boolean :template, null: false, default: false
       t.datetime :seen_at

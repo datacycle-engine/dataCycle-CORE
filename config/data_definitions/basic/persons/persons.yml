@@ -126,7 +126,7 @@
         :label: Text
         :type: string
         :storage_type: text
-        :storage_location: content
+        :storage_location: column
         :search: true
         :editor:
           :type: quillEditor
