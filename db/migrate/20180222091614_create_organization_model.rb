@@ -61,7 +61,6 @@ class CreateOrganizationModel < ActiveRecord::Migration[5.0]
     add_index :organization_translations, :locale, name: 'organization_locale_idx'
     add_index :organization_histories, :organization_id, name: 'organization_id_foreign_key_idx'
     add_index :organization_histories, :id, name: 'organization_histories_id_idx'
-
   end
 
   def down

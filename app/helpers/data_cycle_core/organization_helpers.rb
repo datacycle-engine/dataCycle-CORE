@@ -1,7 +1,7 @@
 module DataCycleCore
   module OrganizationHelpers
     def title
-      "#{name}"
+      name
     end
 
     def desc
