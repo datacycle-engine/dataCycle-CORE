@@ -35,12 +35,18 @@ module DataCycleCore
     def search
       permitted_params = params.permit(:q, :max, :tree_label)
 
-      render json: DataCycleCore::Classification
+      classifications = DataCycleCore::Classification
         .includes(:classification_groups, :classification_aliases)
         .joins(classification_aliases: [classification_tree: [:classification_tree_label]])
         .where('classification_tree_labels.name ILIKE ?', params[:tree_label].presence || '%')
         .where('classifications.name ILIKE ?', "%#{params[:q]}%")
-        .map(&:descendants).flatten.map { |c|
+
+      if classifications.count < (params[:max].try(:to_i) || 20)
+        classifications.map(&:descendants).flatten
+      end
+
+      render json: classifications
+        .map { |c|
           {
             id: c.id,
             name: c.name,
