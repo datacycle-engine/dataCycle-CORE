@@ -248,11 +248,11 @@ namespace :data_cycle_core do
       end
 
       data_object = "DataCycleCore::#{args[:content_table_name].classify}".safe_constantize
-      template = data_object.find_by(headline: args[:template_name], template: true)
+      template = data_object.find_by(template_name: args[:template_name], template: true)
 
       if template.nil?
         puts "ERROR: template not found. For the given #{args[:content_table_name]} table only the following templates are available:"
-        puts data_object.where(template: true).map(&:headline)
+        puts data_object.where(template: true).map(&:template_name)
         exit(-1)
       end
 
