@@ -154,6 +154,7 @@ de:
       no_fields: "Keine Felder für 'from-date' und/oder 'to-date' angegeben."
       convert_date: "Datum konnte nicht konvertiert werden, um die Zeitspanne zu validieren."
       daterange: "Ungültige Zeitspanne, 'von' (%{from}) ist nach 'bis' (%{to})."
+      classification_conflict: Es gibt Konflikte bei den Publikationsdaten.
     warning:
       string: "%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}"
       no_data: "Keine Daten angegeben für %{data}"

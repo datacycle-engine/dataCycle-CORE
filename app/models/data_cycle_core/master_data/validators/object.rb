@@ -13,7 +13,7 @@ module DataCycleCore
           'asset' => Validators::Asset
         }
 
-        @@object_validations = ['daterange']
+        @@object_validations = ['daterange', 'classification_conflicts']
 
         # validate data as specified in the keys of the data template
         # data hash with key names as specified in the schema
@@ -108,6 +108,12 @@ module DataCycleCore
             elsif from_date > to_date
               @error[:error].push I18n.t :daterange, scope: [:validation, :errors], from: from_date.to_date, to: to_date.to_date, locale: DataCycleCore.ui_language
             end
+          end
+        end
+
+        def classification_conflicts(data_hash, template_hash)
+          if data_hash.present? && template_hash.present?
+            @error[:error].push I18n.t :classification_conflict, scope: [:validation, :errors], locale: DataCycleCore.ui_language if data_hash.map { |x| data_hash.select { |y| (x != y) && template_hash.map { |z| x[z].present? && y[z].present? ? (x[z] & y[z]) : [] }.all?(&:present?) } }.flatten.present?
           end
         end
 

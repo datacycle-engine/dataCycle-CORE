@@ -216,12 +216,6 @@ button,
     }
   }
   .daterange span.bis,
-  .daterange span.icon,
-  .gueltigkeit span.bis,
-  .gueltigkeit span.icon {
-    color: $dark-gray;
-  }
-  .daterange span.bis,
   .gueltigkeit span.bis {
     font-style: italic;
   }
@@ -232,9 +226,10 @@ button,
       margin-bottom: 1rem;
     }
     label {
-      width: 0;
-      height: 0;
-      overflow: hidden;
+      position: relative;
+      display: inline-block;
+      top: initial;
+      left: initial;
     }
     input {
       min-width: 100px;
@@ -245,9 +240,6 @@ button,
       input {
         background: $white
       }
-    }
-    &:hover span.icon {
-      color: $primary-color;
     }
   }
   .edit {
@@ -369,7 +361,7 @@ button,
         color: rgba($dark-gray, 50%);
       }
       &:hover {
-        label {
+        >label {
           color: $primary-color;
         }
       }

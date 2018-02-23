@@ -1,4 +1,5 @@
 var ConfirmationModal = require('./../components/confirmation_modal');
+var quill_helpers = require('./../helpers/quill_helpers');
 
 // Add Validation to Form Elements
 module.exports.initialize = function () {
@@ -21,8 +22,6 @@ module.exports.initialize = function () {
     }, 1000);
 
     $(window).on("beforeunload", function () {
-      // TODO: check for updated editor values
-      // update_editor_values();
       var new_form_data = $('.edit-content-form').serialize();
       if (form_data != new_form_data && form_data != "") return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
     });
@@ -41,6 +40,7 @@ module.exports.initialize = function () {
   // Validation
 
   if ($('.edit-content-form').length > 0) {
+    // disable button if agbs not accepted
     $('button.submit-edit-form').prop('disabled', !check_agbs_accepted());
 
     if ($('#accept_agbs').length > 0) {
@@ -63,15 +63,16 @@ module.exports.initialize = function () {
     });
     var promises = [];
 
-    $(form).on("focusout", '.validation-container', function (ev) {
-      setTimeout(function () {
-        if ($(this).find(':focus').addBack(':focus').length == 0) {
-          update_editor_values();
-          check_items_and_validate(form, this);
-          catch_promises(form, false);
-        }
-      }.bind(this), 50);
+    // validate on value change
+    $(form).on('change', '.validation-container', event => {
+      validate_item(form, event.currentTarget);
+      catch_promises(form, false);
     });
+
+    $(form).on('remove-submit-button-errors', '.validation-container', event => {
+      let items = $(event.currentTarget).find(':input')
+      remove_submit_button_errors(items)
+    })
 
     $(form).on('submit', function (event) {
       event.preventDefault();
@@ -162,83 +163,42 @@ module.exports.initialize = function () {
   }
 
   function submit_creative_work_form(form) {
-    //get quill-js values
-    update_editor_values();
+    $('.quill-editor').each((index, elem) => quill_helpers.update_value(elem))
 
     $('#validation_errors').html('');
 
     var items = [];
 
     $(form).find('.validation-container').each(function () {
-      check_items_and_validate(form, this);
+      validate_item(form, this);
       items.push(this);
     });
     catch_promises(form, true);
   }
 
-  function check_items_and_validate(form, validation_container) {
-    var $itemsToValidate = $(validation_container).find('[data-validate]');
-    if ($itemsToValidate.length > 0) {
-      var items;
-
-      if ($itemsToValidate.first().data('validate') == "text") items = $itemsToValidate;
-      else if ($itemsToValidate.first().data('validate') == "classification") items = $(validation_container).find('input[type="hidden"]');
-      else if ($itemsToValidate.first().data('validate') == "daterange") items = $(validation_container).find('input[data-validate="daterange"]');
-
-      validate_single_item(form, items);
-    }
-  }
-
-  function update_editor_values() {
-    if ($('.quill-editor').html() != undefined) {
-      $('.quill-editor').each(function () {
-        set_fe_editor_values(this);
-      });
-    }
-  }
-
-  function set_fe_editor_values(editor) {
-    var hidden_field_id = $(editor).attr('data-hidden-field-id');
-    var hidden_field = document.querySelector('input#' + hidden_field_id);
-    var text = $(editor).find('.ql-editor').html();
-    if (text != undefined) hidden_field.value = text.replace("<p><br></p>", "");
-  }
-
-  function validate_single_item(form, item) {
+  function validate_item(form, validation_container) {
     //reset errors
-    $(item).closest('.validation-container').find('.single_error').remove();
-    $(item).closest('.validation-container').removeClass('has-error');
+    $(validation_container).find('.single_error').remove()
+    $(validation_container).removeClass('has-error')
 
-    var uuid = $(form).find('input#uuid').val();
+    let items = $(validation_container).find(':input')
+    let form_data = items.serializeArray()
 
-    var formdata = $(item).serializeArray();
+    let uuid = $(form).find('input#uuid').val()
+    let table = $(form).find('input#type').val()
 
-    is_creative_work = new RegExp('^' + 'creative_work', 'i');
-    is_person = new RegExp('^' + 'person', 'i');
-    is_place = new RegExp('^' + 'place', 'i');
-
-    if (formdata.length > 0 && is_creative_work.test(formdata[0].name)) {
-      var validation_url = /validatecreativework/;
-    } else if (formdata.length > 0 && is_person.test(formdata[0].name)) {
-      var validation_url = /validateperson/;
-    } else if (formdata.length > 0 && is_place.test(formdata[0].name)) {
-      var validation_url = /validateplace/;
-    } else {
-      return false;
-    }
-
-    var url = validation_url + uuid;
+    let url = '/' + table + '/' + uuid + '/validate'
 
     promises.push($.ajax({
       type: "POST",
       url: url,
-      data: $.param(formdata)
-    }).done(function (data) {
+      data: $.param(form_data)
+    }).done(data => {
       if (data != undefined && data.error.length > 0) {
-        $(item).closest('.validation-container').append(render_error_msg(data, item));
-        $(item).closest('.validation-container').addClass('has-error');
+        $(validation_container).append(render_error_msg(data, items))
+        $(validation_container).addClass('has-error')
       } else {
-        remove_submit_button_errors(item);
+        remove_submit_button_errors(items)
       }
     }));
   }

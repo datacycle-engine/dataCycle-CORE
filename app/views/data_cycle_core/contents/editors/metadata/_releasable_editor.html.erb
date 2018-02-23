@@ -3,13 +3,13 @@
   <% if can? :update_release_status, @creative_work %>
     <% value = value.blank? ? {} : value %>
     <div class="" id="release_container_<%= sanitize_to_id(key) %>">
-      <div class="clearfix form-element validation-container input">
+      <div class="clearfix form-element input">
         <label for="<%= sanitize_to_id("#{key}_release_id") %>"><%= t('common.status') %></label>
         <%= collection_select key, :release_id, DataCycleCore::Release.all, :id, :release_text, {selected: value['release_id']}, { class: "release-select", disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) } %>
         <%= hidden_field_tag key + '[release_id]', value['release_id'] unless can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
       </div>
 
-        <div class="clearfix form-element validation-container">
+        <div class="clearfix form-element">
             <%= hidden_field_tag key + "[release_comment]", value['release_comment'], placeholder: "Kommentar", class: "release-comment" %>
 
             <label for="<%= sanitize_to_id("#{key}_release_comment") %>">

@@ -24,6 +24,11 @@ DataCycleCore::Engine.routes.draw do
       get 'compare', on: :member
     end
 
+    resources :creative_works, :persons, :places, only: :history do
+      post :validate, on: :member
+      patch :set_life_cycle, on: :member
+    end
+
     resources :persons, only: [:index, :show, :create, :edit, :update, :destroy]
     resources :places, only: [:index, :show, :create, :edit, :update, :destroy]
   end
@@ -108,7 +113,6 @@ DataCycleCore::Engine.routes.draw do
   post 'contents/new_embedded_object', to: 'contents#new_embedded_object'
   post 'contents/render_embedded_object', to: 'contents#render_embedded_object'
   get 'contents/gpx', to: 'contents#gpx'
-  patch ':type/:id/set_life_cycle', to: 'contents#set_life_cycle', as: 'set_life_cycle'
 
   resources :publications, only: :index
 end

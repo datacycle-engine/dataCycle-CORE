@@ -1,6 +1,7 @@
 var quill = require('quill');
 var Counter = require('./../components/quill_counter');
 var ConfirmationModal = require('./../components/confirmation_modal');
+var quill_helpers = require('./../helpers/quill_helpers');
 
 // Quill Config
 module.exports.initialize = function () {
@@ -20,6 +21,15 @@ module.exports.initialize = function () {
     $('.quill-editor').each(function () {
       init(this);
     });
+  }
+
+  function update_value(editor) {
+    var hidden_field = $('#' + $(editor).attr('data-hidden-field-id'));
+    var text = ($(editor).find('.ql-editor').html() || '').replace("<p><br></p>", "");
+    var changed = (hidden_field.val() != text);
+
+    if (changed) $(hidden_field).val(text);
+    return changed;
   }
 
   function init(node) {
@@ -79,6 +89,12 @@ module.exports.initialize = function () {
     };
 
     var editor = new quill('#' + node.id, options);
+
+    editor.on('selection-change', (range, oldRange, source) => {
+      if (range == null && quill_helpers.update_value(editor.container)) {
+        $(editor.container).trigger('change');
+      }
+    });
 
     $(editor.container).on('import-data', function (event, data) {
       if (editor.getLength() > 1) {

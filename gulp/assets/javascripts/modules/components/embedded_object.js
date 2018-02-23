@@ -62,7 +62,9 @@ EmbeddedObject.prototype.addEventHandlers = function () {
   this.element.children('.content-object-item').each(function () {
     $(this).children('.removeContentObject').off('click').on('click', function (event) {
       event.preventDefault();
+      $(this).siblings('.has-error').trigger('remove-submit-button-errors')
       $(this).closest('.content-object-item').remove();
+      self.element.parent('.validation-container').trigger('change')
       self.update();
     });
   });

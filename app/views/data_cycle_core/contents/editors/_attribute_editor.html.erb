@@ -3,7 +3,7 @@
   <div data-label="<%= definition['label'] %>" class="<%= [
           'clearfix',
           'form-element',
-          definition.dig('editor', 'type').in?(['date', 'datetime', 'embeddedObject']) ? '' : 'validation-container',
+          definition.dig('validations').present? ? 'validation-container' : '',
           key.split('[').last[0...-1].underscore,
           definition.dig('type').try(:underscore),
           definition.dig('editor', 'type').try(:underscore),

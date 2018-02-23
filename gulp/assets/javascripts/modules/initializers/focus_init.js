@@ -7,12 +7,12 @@ module.exports.initialize = function () {
         $(this).removeClass('focus');
       }
     }.bind(this), 50);
-    ev.stopPropagation();
+    // ev.stopPropagation();
   });
   $(document).on('focusin', '.validation-container', function (ev) {
     $(this).addClass('focus');
 
-    ev.stopPropagation();
+    // ev.stopPropagation();
   });
 
 };
