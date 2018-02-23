@@ -57,7 +57,7 @@ end
 # Creative Work
 crumb :'data_cycle_core/creative_work' do |creative_work, watch_list|
   I18n.with_locale(creative_work.first_available_locale) do
-    link to_html_string(creative_work.template_name.titleize, creative_work.title), polymorphic_path(creative_work, watch_list_id: watch_list)
+    link to_html_string(t("content_type.#{creative_work.template_name.downcase}", default: creative_work.template_name.titleize, locale: DataCycleCore.ui_language), creative_work.title), polymorphic_path(creative_work, watch_list_id: watch_list)
   end
 
   if watch_list
@@ -79,10 +79,9 @@ crumb :'data_cycle_core/places' do
 end
 
 crumb :'data_cycle_core/place' do |place, watch_list|
-  link to_html_string(DataCycleCore::Place.model_name.human(locale: DataCycleCore.ui_language), place.title), place_path(place, watch_list_id: watch_list)
+  link to_html_string(t("content_type.#{place.template_name.downcase}", default: place.template_name.titleize, locale: DataCycleCore.ui_language), place.title), place_path(place, watch_list_id: watch_list)
 
   parent watch_list if watch_list
-  # parent :'data_cycle_core/places'
 end
 
 # Person
@@ -91,10 +90,9 @@ crumb :'data_cycle_core/persons' do
 end
 
 crumb :'data_cycle_core/person' do |person, watch_list|
-  link to_html_string(DataCycleCore::Person.model_name.human(locale: DataCycleCore.ui_language), person.given_name + ' ' + person.family_name), person_path(person, watch_list_id: watch_list)
+  link to_html_string(t("content_type.#{person.template_name.downcase}", default: person.template_name.titleize, locale: DataCycleCore.ui_language), person.title), person_path(person, watch_list_id: watch_list)
 
   parent watch_list if watch_list
-  # parent :'data_cycle_core/persons'
 end
 
 # Event
@@ -103,10 +101,9 @@ crumb :'data_cycle_core/events' do
 end
 
 crumb :'data_cycle_core/event' do |event, watch_list|
-  link to_html_string(DataCycleCore::Event.model_name.human(locale: DataCycleCore.ui_language), event.headline), events_path(event, watch_list_id: watch_list)
+  link to_html_string(t("content_type.#{event.template_name.downcase}", default: event.template_name.titleize, locale: DataCycleCore.ui_language), event.headline), events_path(event, watch_list_id: watch_list)
 
   parent watch_list if watch_list
-  # parent :'data_cycle_core/persons'
 end
 
 # Merkliste
@@ -116,8 +113,6 @@ end
 
 crumb :'data_cycle_core/watch_list' do |watch_list|
   link to_html_string(DataCycleCore::WatchList.model_name.human(locale: DataCycleCore.ui_language), watch_list.headline), watch_list_path(watch_list)
-
-  # parent :'data_cycle_core/watch_lists'
 end
 
 crumb :'data_cycle_core/subscriptions' do

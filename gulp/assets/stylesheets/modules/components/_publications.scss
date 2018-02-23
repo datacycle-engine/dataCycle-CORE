@@ -21,9 +21,6 @@
       &.validation-container:last-of-type {
         margin: 0 1rem 1rem 0;
       }
-      &:hover .icon.publish_at {
-        color: $primary-color;
-      }
       &.publish_at {
         .form-element.publish_at {
           width: 100%;

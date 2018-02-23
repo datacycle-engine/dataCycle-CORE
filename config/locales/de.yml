@@ -212,6 +212,10 @@ de:
             email:
               blank: "E-Mail darf nicht leer sein."
               taken: "Für diese E-Mail existiert schon ein Benutzer."
+        data_cycle_core/user_group:
+          attributes:
+            name:
+              blank: Name darf nicht leer sein.
     models:
       data_cycle_core/user: Benutzer
       data_cycle_core/user_group:
