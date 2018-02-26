@@ -1,0 +1,76 @@
+---
+- :data:
+    :name: Publikations-Plan
+    :type: object
+    :content_type: embedded
+    :permissions:
+      :read_write: true
+    :boost: 1.0
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :publish_at:
+        :label: Publikationsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+          :minLength: 1
+        :editor:
+          :type: date
+          :options:
+            :data-type: datepicker
+            :data-validate: daterange
+            :placeholder: tt.mm.jjjj
+      :markets:
+        :label: Zielmarkt
+        :type: classificationTreeLabel
+        :type_name: Märkte
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 18
+          :options:
+            :tabindex: -1
+      :output_channels:
+        :label: Ausgabekanäle
+        :type: classificationTreeLabel
+        :type_name: Ausgabekanäle
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 23
+          :options:
+            :tabindex: -1
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_location: classification_relation
+        :default_value: "Publikations-Status"
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :date_created:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :date_modified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time

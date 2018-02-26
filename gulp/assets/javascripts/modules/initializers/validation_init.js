@@ -116,7 +116,7 @@ module.exports.initialize = function () {
     $.when.apply($, promises).then(function () {
       var isValid = true;
       for (var i = 0; i < arguments.length; i++) {
-        if (arguments[i][0] != undefined && arguments[i][0].error != undefined && arguments[i][0].error.length > 0) {
+        if (arguments[i][0] != undefined && arguments[i][0].error != undefined && Object.keys(arguments[i][0].error).length > 0) {
           isValid = false;
         }
       }
@@ -194,7 +194,8 @@ module.exports.initialize = function () {
       url: url,
       data: $.param(form_data)
     }).done(data => {
-      if (data != undefined && data.error.length > 0) {
+      console.log(data)
+      if (data != undefined && Object.keys(data.error).length > 0) {
         $(validation_container).append(render_error_msg(data, items))
         $(validation_container).addClass('has-error')
       } else {

@@ -6,7 +6,7 @@ module DataCycleCore
       class ObjectTest < ActiveSupport::TestCase
         # tests for validate (keys in data-hash are keys in template)
         test 'init object validator' do
-          error_hash = { error: [], warning: [] }
+          error_hash = { error: {}, warning: {} }
           template_hash = {
             'greeting' => {
               'label' => 'test_string',
@@ -230,7 +230,7 @@ module DataCycleCore
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(3, validator.error[:error].size)
-          assert_equal(2, validator.error[:warning].size)
+          assert_equal(2, validator.error[:warning].values[0].size)
 
           data_hash = {
             'validity_period' => {
@@ -500,7 +500,7 @@ module DataCycleCore
           }
           validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
           assert_equal(0, validator.error[:error].size)
-          assert_equal(2, validator.error[:warning].size)
+          assert_equal(2, validator.error[:warning].values[0].size)
         end
 
         test 'object validator daterange test data edge-cases' do
@@ -558,6 +558,75 @@ module DataCycleCore
           validator = DataCycleCore::MasterData::Validators::Object.new({ 'test' => 'wrong' }, template_hash)
           assert_equal(0, validator.error[:error].size)
           assert_equal(1, validator.error[:warning].size)
+        end
+
+        test 'object validator classification_conflicts' do
+          market1 = DataCycleCore::Classification.where(name: 'Australien').first.id
+          market2 = DataCycleCore::Classification.where(name: 'Belgien').first.id
+
+          output_channel1 = DataCycleCore::Classification.where(name: 'Web').first.id
+          output_channel2 = DataCycleCore::Classification.where(name: 'Social Media').first.id
+
+          template_hash = {
+            'publication_schedule' => {
+              'label' => 'Geplante Publikation',
+              'type' => 'object',
+              'storage_location' => 'creative_works',
+              'delete' => true,
+              'name' => 'Publikations-Plan',
+              'validations' => {
+                'classification_conflicts' => ['markets', 'output_channels']
+              }
+            }
+          }
+
+          data_hash1 = {
+            'publication_schedule' => [
+              {
+                'markets' => [market2],
+                'output_channels' => [output_channel1]
+              },
+              {
+                'markets' => [market1],
+                'output_channels' => [output_channel2]
+              }
+            ]
+          }
+
+          data_hash2 = {
+            'publication_schedule' => [
+              {
+                'markets' => [market1, market2],
+                'output_channels' => [output_channel1]
+              },
+              {
+                'markets' => [market1],
+                'output_channels' => [output_channel2]
+              }
+            ]
+          }
+
+          data_hash3 = {
+            'publication_schedule' => [
+              {
+                'markets' => [market1, market2],
+                'output_channels' => [output_channel1]
+              },
+              {
+                'markets' => [market1],
+                'output_channels' => [output_channel1, output_channel2]
+              }
+            ]
+          }
+
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash1, template_hash)
+          assert_equal(0, validator.error[:error].size)
+
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash2, template_hash)
+          assert_equal(0, validator.error[:error].size)
+
+          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash3, template_hash)
+          assert_equal(1, validator.error[:error].size)
         end
       end
     end

@@ -151,7 +151,13 @@ module DataCycleCore
       options = { class: "flash callout #{alert_class}" }
       options[:data] = { closable: '' } if closable
       content_tag(:div, options) do
-        concat value.to_s
+        if value.is_a?(String)
+          concat value.to_s
+        elsif value.is_a?(Hash)
+          concat value.map { |k, v| content_tag(:b, k.titleize + ': ') + v.join(', ') }.join(', ').html_safe
+        else
+          concat value.to_s
+        end
         concat close_link if closable
       end
     end
