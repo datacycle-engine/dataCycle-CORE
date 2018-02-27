@@ -37,8 +37,8 @@ staging:
 
 production:
   <<: *default
-  database: data_cycle_production
+  database: data_cycle_core_production
 
-release:
+pre_release:
   <<: *default
-  database: data_cycle_release
+  database: data_cycle_core_pre-release

@@ -16,8 +16,12 @@
     background: #fff;
     line-height: 2;
     border-top: none;
-    margin: 0;
+    //margin: 16mm;
     font-size: 16px;
+  }
+  .column, .columns{
+    padding-left: 0;
+    padding-right: 0;
   }
   a{
     &[href]:after { content: none !important }
@@ -83,14 +87,29 @@
     padding-top: 0;
   }
   .breadcrumb{
-    padding-top: 0;
-    padding-bottom: 0;
+    padding: 0;
     height: auto;
+    li, ul li .breadcrumb-text i.fa{
+      font-size: 0.9rem;
+    }
   }
+  .fa{
+    font-size: 1rem;
+  }
+
   .tags {
-    .tag{
-      font-size: 1rem;
-      line-height: inherit;
+    font-size: 0.9rem;
+    .tag-group-wrapper{
+      margin: 0 0.5rem;
+      .tag{
+        font-size: 0.9rem;
+        line-height: inherit;
+        margin: 0;
+        padding:0;
+        &:not(:last-child):after{
+          content: ", ";
+        }
+      }
     }
   }
   .detail-header {
@@ -99,15 +118,17 @@
     .detail-header-info{
       position: relative;
       top: 0;
-      left: 1rem;
+      left: 0.5rem;
       text-align: left;
     }
     .gueltigkeit{
-      margin-top: 0;
+      font-size: 0.9rem;
+      margin: 0 0.5rem;
     }
     .status-container {
+      font-size: 0.9rem;
       text-align: left;
-      margin: 1rem 0 0 1rem;
+      margin: 0.5rem;
       display: block;
       i{
         display: none;
@@ -135,10 +156,12 @@
         }
         &.media{
           .thumbnail{
+            height: 225px;
             background-image: inherit !important;
             .description{
               height: auto;
               opacity: 1;
+              display: block;
             }
           }
         }

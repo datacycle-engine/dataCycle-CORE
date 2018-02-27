@@ -12,6 +12,7 @@ module DataCycleCore::Update::UpdateData
 
   def modify_content(content_item)
     content_item.template_name = @template.template_name
+    content_item.schema = @template.schema
     content_item.save
   end
 

@@ -49,6 +49,11 @@ services:
 
 # Running tests
 rails_test:
+  only:
+    - master
+    - release
+    - pre-release
+    - develop
   script:
     - bundle exec rake db:drop
     - bundle exec rake db:create
@@ -57,6 +62,11 @@ rails_test:
     - rails test
 
 cypress:
+  only:
+    - master
+    - release
+    - pre-release
+    - develop
   script:
     - bundle exec rake db:drop
     - bundle exec rake db:create
@@ -81,25 +91,83 @@ cypress:
 # rubocop
 code_validation:
   stage: check
+  only:
+    - master
+    - release
+    - pre-release
+    - develop
   script:
     - bundle-audit update
     - bundle audit check
     - brakeman
     - rubocop --format fuubar
 
-# deployment
-deploy_production:
-  stage: deploy
-  script:
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - cap production deploy
+# Running tests
+rails_review_test:
   only:
+    - branches
+  except:
     - master
-  environment:
-    name: staging
-    url: http://core-production.datacycle.at/
-  when: manual
-  allow_failure: false
+    - release
+    - pre-release
+    - develop
+  tags:
+    - data-cycle-review
+  script:
+    - bundle exec rake db:drop
+    - bundle exec rake db:create
+    - bundle exec rake db:migrate
+    - bundle exec rake db:seed
+    - rails test
+
+cypress_review:
+  only:
+    - branches
+  except:
+    - master
+    - release
+    - pre-release
+    - develop
+  tags:
+    - data-cycle-review
+  script:
+    - bundle exec rake db:drop
+    - bundle exec rake db:create
+    - bundle exec rake db:migrate
+    - bundle exec rake db:seed
+    - bundle exec rake app:data_cycle_core:update:import_classifications
+    - bundle exec rake app:data_cycle_core:update:import_templates
+    - yarn
+    - npx gulp production
+    - cd test/dummy && rails server -b 0.0.0.0 -p 3000 -d
+    - cd $CI_PROJECT_DIR && npx cypress run
+  artifacts:
+    name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_cypress"
+    paths:
+    - cypress/screenshots/
+    expire_in: 1 week
+    when: on_failure
+
+# code validation
+# bundle-audit
+# brakeman
+# rubocop
+code_review_validation:
+  stage: check
+  only:
+    - branches
+  except:
+    - master
+    - release
+    - pre-release
+    - develop
+  tags:
+    - data-cycle-review
+  script:
+    - bundle-audit update
+    - bundle audit check
+    - brakeman
+    - rubocop --format fuubar
 
 # deployment
 deploy_release:
@@ -110,22 +178,36 @@ deploy_release:
   only:
     - release
   environment:
-    name: staging
-    url: http://core-release.datacycle.at/
+    name: release
+    url: http://core-production.datacycle.at/
   when: manual
   allow_failure: false
 
 # deployment
-deploy_staging:
+deploy_pre_release:
   stage: deploy
   script:
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - cap staging deploy
+    - cap pre_release deploy
   only:
-    - staging
+    - pre-release
   environment:
-    name: staging
-    url: http://core-staging.datacycle.at/
+    name: pre-release
+    url: http://core-pre-release.datacycle.at/
+  when: manual
+  allow_failure: false
+
+# deployment
+deploy_development:
+  stage: deploy
+  script:
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - cap development deploy
+  only:
+    - develop
+  environment:
+    name: development
+    url: http://core-development.datacycle.at/
   allow_failure: false
 
 deploy_review:
@@ -138,9 +220,11 @@ deploy_review:
     - branches
   except:
     - master
-    - staging
-    - develop
     - release
+    - pre-release
+    - develop
+  tags:
+    - data-cycle-review
   environment:
     name: review/$CI_COMMIT_REF_NAME
     url: http://core-$CI_COMMIT_REF_SLUG.datacycle.at
@@ -179,9 +263,11 @@ stop_review:
     - branches
   except:
     - master
-    - staging
-    - develop
     - release
+    - pre-release
+    - develop
+  tags:
+    - data-cycle-review
   environment:
     name: review/$CI_COMMIT_REF_NAME
     action: stop
