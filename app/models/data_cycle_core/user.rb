@@ -34,7 +34,7 @@ module DataCycleCore
     end
 
     def has_user_group?(group_name)
-      self.user_groups.map(&:name).include?(group_name)
+      self&.user_groups&.map(&:name)&.include?(group_name)
     end
 
     def send_notification(contents)
