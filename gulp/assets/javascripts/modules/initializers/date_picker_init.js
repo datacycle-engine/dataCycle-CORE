@@ -2,12 +2,12 @@ var flatpickr = require('flatpickr');
 var Deutsch = require("flatpickr/dist/l10n/de.js").de;
 flatpickr.localize(Deutsch);
 
-// Reveal Blur
 module.exports.initialize = function () {
-
+  //  TODO: dont fire change event on setup/setSibling
   var calenders = [];
 
   function init($element) {
+    let new_cals = [];
     $($element).find('input[type=datetime-local]').each(function () {
       if (!$(this).attr('readonly')) {
         var cal = $(this).flatpickr({
@@ -20,10 +20,13 @@ module.exports.initialize = function () {
           onClose: setSibling
         });
 
-        calenders.push(cal);
+        new_cals.push(cal);
         var input = $(this).next('input');
         $(input).on('change', function (e) {
-          cal.setDate($(this).val(), false, cal.config.altFormat);
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          cal.setDate($(this).val(), true, cal.config.altFormat);
           cal.close();
         });
       }
@@ -40,17 +43,20 @@ module.exports.initialize = function () {
           onClose: setSibling
         });
 
-        calenders.push(cal);
+        new_cals.push(cal);
         var input = $(this).next('input');
         $(input).on('change', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
           cal.setDate($(this).val(), true, cal.config.altFormat);
           cal.close();
         });
       }
     });
 
-    setup(calenders);
-
+    setup(new_cals);
+    calenders = calenders.concat(new_cals);
   }
 
   init(document)

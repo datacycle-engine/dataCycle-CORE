@@ -11,9 +11,9 @@
 
             <div class="validation-container form-element">
                 <%= label_tag 'creative_work[datahash][name]', 'Titel' %>
-                <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value:'' %>
+                <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value:'', required: true %>
             </div>
-            <%= submit_tag "Erstellen", class: "button primary" %>
+            <%= submit_tag t(:submit, locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: t(:submit, locale: DataCycleCore.ui_language) } %>
         <% end %>
 
         <button class="close-button" data-close aria-label="Close modal" type="button">

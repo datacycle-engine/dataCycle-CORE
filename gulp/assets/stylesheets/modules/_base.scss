@@ -318,13 +318,13 @@ button,
       background: $light-gray;
     }
   }
-  .focus .ql-toolbar.fixed-toolbar,
-  .focus .ql-toolbar.fixed-split-toolbar {
+  .form-element.focus>.editor-block>.ql-toolbar.fixed-toolbar,
+  .form-element.focus>.editor-block>.ql-toolbar.fixed-split-toolbar {
     background: white;
     border-right: 1px solid $primary-color;
     border-left: 1px solid $primary-color;
   }
-  .focus .ql-editor {
+  .form-element.focus>.editor-block>.quill-editor>.ql-editor {
     border-color: $primary-color;
     background: white;
   }

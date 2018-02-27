@@ -24,13 +24,13 @@ DataCycleCore::Engine.routes.draw do
       get 'compare', on: :member
     end
 
-    resources :creative_works, :persons, :places, only: :history do
-      post :validate, on: :member
-      patch :set_life_cycle, on: :member
-    end
-
     resources :persons, only: [:index, :show, :create, :edit, :update, :destroy]
     resources :places, only: [:index, :show, :create, :edit, :update, :destroy]
+  end
+
+  resources :creative_works, :persons, :places do
+    post :validate, on: :member
+    patch :set_life_cycle, on: :member
   end
 
   resources :subscriptions, only: [:index, :create, :destroy]

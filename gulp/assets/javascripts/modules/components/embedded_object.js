@@ -62,10 +62,10 @@ EmbeddedObject.prototype.addEventHandlers = function () {
   this.element.children('.content-object-item').each(function () {
     $(this).children('.removeContentObject').off('click').on('click', function (event) {
       event.preventDefault();
-      $(this).siblings('.has-error').trigger('remove-submit-button-errors')
+      $(this).siblings('.has-error').trigger('remove-submit-button-errors');
       $(this).closest('.content-object-item').remove();
-      self.element.parent('.validation-container').trigger('change')
       self.update();
+      self.element.parent('.validation-container').trigger('change');
     });
   });
 };
@@ -103,6 +103,12 @@ EmbeddedObject.prototype.update = function () {
     this.element.children('.content-object-item').children('.removeContentObject').hide();
   } else if (this.write) {
     this.element.children('.content-object-item').children('.removeContentObject').show();
+  }
+
+  if (this.element.children('.content-object-item').length == 0) {
+    this.element.append('<input type="hidden" value="" id="' + this.id + '_default" name="' + this.key + '[]">');
+  } else {
+    this.element.find('input[type=hidden]#' + this.id + '_default').remove();
   }
 };
 

@@ -5,6 +5,8 @@
     <% objects = object_class.where(id: value.try(:collect){ |o| o.try(:[], 'id') || o }) %>
 
     <%= label_tag(key, definition['label']) %>
+    <%= hidden_field_tag key + '[]' %>
+
     <div class="object-browser" id="<%= sanitize_to_id(key) %>"
       data-type="<%= definition.dig('editor', 'options', 'data-type').try(:downcase) %>"
       data-language="<%= I18n.locale.to_s %>"
@@ -17,10 +19,8 @@
       data-min="<%= definition.dig('validations', 'min') || 0 %>">
         <div class="media-thumbs">
           <div class="object-thumbs">
-            <% if objects.each do |object| %>
+            <% objects.presence&.each do |object| %>
               <%= render_object_browser_partial(key: key + (definition['type'] == "object" ? '[][id]' : '[]'), definition: definition, parameters: {object: object, options: options}) %>
-            <% end.empty? %>
-              <%= hidden_field_tag key + '[]' %>
             <% end %>
           </div>
           <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>

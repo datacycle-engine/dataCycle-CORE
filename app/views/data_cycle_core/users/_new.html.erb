@@ -9,12 +9,12 @@
           <%= f.email_field :email, required: true, autofocus: true %>
       </div>
 
-      <div class="form-element validation-container">
-          <%= f.text_field :given_name, class: 'no-validation' %>
+      <div class="form-element">
+          <%= f.text_field :given_name %>
       </div>
 
-      <div class="form-element validation-container">
-          <%= f.text_field :family_name, class: 'no-validation' %>
+      <div class="form-element">
+          <%= f.text_field :family_name %>
       </div>
 
       <div class="form-element validation-container">
@@ -25,11 +25,11 @@
           <%= f.password_field :password_confirmation, required: true %>
       </div>
 
-      <div class="form-element validation-container">
+      <div class="form-element">
           <%= f.select :role_id, DataCycleCore::Role.where('rank > 0 AND rank <= ?', current_user.role.try(:rank)).collect{|r| [t('roles.'+r.name, locale: DataCycleCore.ui_language), r.id]}, {}, class: 'no-margin' %>
       </div>
 
-      <%= f.submit t(:submit, locale: DataCycleCore.ui_language), class: "button primary" %>
+      <%= f.submit t(:submit, locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: t(:submit, locale: DataCycleCore.ui_language) } %>
 
     <% end %>
 
