@@ -31,8 +31,12 @@
   .inner {
     position: relative;
     overflow: hidden;
-    >div {
-      padding-bottom: 0.5rem;
+    >div,
+    >span {
+      display: block;
+      &:not(:last-child):not(.has-parent) {
+        padding-bottom: 0.5rem;
+      }
     }
   }
   .type {
