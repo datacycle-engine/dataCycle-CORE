@@ -13,6 +13,8 @@ module DataCycleCore
             @query = @query.where(content_data_type: DataCycleCore::CreativeWork)
           elsif @type == 'person'
             @query = @query.where(content_data_type: DataCycleCore::Person)
+          elsif @type == 'organization'
+            @query = @query.where(content_data_type: DataCycleCore::Organization)
           elsif @type == 'place'
             @query = @query.where(content_data_type: DataCycleCore::Place)
           end

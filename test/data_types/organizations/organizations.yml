@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: Ort
+    :name: Organization
     :type: object
     :content_type: entity
     :permissions:
@@ -15,10 +15,10 @@
         :validations:
           :format: uuid
       :name:
-        :label: Titel
+        :label: Name
         :type: string
         :storage_type: string
-        :storage_location: column
+        :storage_location: content
         :search: true
         :validations:
           :minLength: 1
@@ -27,12 +27,49 @@
           :sorting: 1
           :options:
             :data-validate: text
+      :legal_name:
+        :label: Firmenname
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :search: true
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 2
+          :options:
+            :data-validate: text
+      :telephone:
+        :label: Telefonnummer
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: input
+          :sorting: 4
+      :fax_number:
+        :label: Fax
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: input
+          :sorting: 5
+      :email:
+        :label: E-Mail
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: input
+          :sorting: 6
       :address:
         :label: Adresse
         :type: object
         :storage_location: metadata
         :editor:
-          :sorting: 2
+          :sorting: 8
           :options:
             :class: detail_object
         :properties:
@@ -40,7 +77,7 @@
             :label: Ort
             :type: string
             :storage_type: string
-            :storage_location: column
+            :storage_location: metadata
             :editor:
               :type: input
               :sorting: 1
@@ -48,7 +85,7 @@
             :label: Straße
             :type: string
             :storage_type: string
-            :storage_location: column
+            :storage_location: metadata
             :editor:
               :type: input
               :sorting: 2
@@ -56,58 +93,47 @@
             :label: PLZ
             :type: string
             :storage_type: string
-            :storage_location: column
+            :storage_location: metadata
             :editor:
               :type: input
               :sorting: 3
-          :address_country:
-            :label: Land
-            :type: string
-            :storage_type: string
-            :storage_location: column
-            :editor:
-              :type: input
-              :sorting: 4
-      :longitude:
-        :label: Longitude
-        :type: number
-        :storage_type: number
-        :storage_location: column
-        :validations:
-          :format: float
+      :url:
+        :label: Web
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
         :editor:
-          :options:
-            :data-type: input
-            :data-validate: text
-          :sorting: 3
-      :latitude:
-        :label: Latitude
-        :type: number
-        :storage_type: number
+          :type: input
+          :sorting: 9
+      :description:
+        :label: Text
+        :type: string
+        :storage_type: text
         :storage_location: column
-        :validations:
-          :format: float
+        :search: true
         :editor:
+          :type: quillEditor
+          :sorting: 10
           :options:
-            :data-type: input
-            :data-validate: text
-          :sorting: 4
-      :location:
-        :label: GPS-Koordinaten
-        :type: geographic
-        :storage_type: geographic
-        :storage_location: column
+            :data-size: full
+      :image:
+        :label: Bild
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
         :editor:
-          :sorting: 5
+          :sorting: 11
+          :type: objectBrowser
           :options:
-            :disabled: disabled
-      #meta attributes
+            :data-validate: media
+            :data-type: image
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
-        :default_value: "Ort"
+        :default_value: "Organisation"
       :creator:
         :label: Ersteller
         :type: embeddedLink

@@ -82,7 +82,7 @@ module DataCycleCore
     self.access_tokens = []
 
     mattr_accessor :content_tables
-    self.content_tables = ['creative_works', 'events', 'persons', 'places']
+    self.content_tables = ['creative_works', 'events', 'persons', 'organizations', 'places']
 
     mattr_accessor :asset_objects
     self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image']
@@ -106,7 +106,7 @@ module DataCycleCore
     self.ui_language = :de
 
     mattr_accessor :translatable_types
-    self.translatable_types = ['DataCycleCore::Person', 'DataCycleCore::Place']
+    self.translatable_types = ['DataCycleCore::Person', 'DataCycleCore::Organization', 'DataCycleCore::Place']
 
     mattr_accessor :release_codes
     self.release_codes = {
