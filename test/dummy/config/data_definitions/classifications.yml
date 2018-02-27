@@ -9,6 +9,7 @@
   - $$DataCycle - File
   - $$Person
   - $$Ort:
+    - $$Örtlichkeit    
 # embedded
   - $$Angebotszeitraum
   - $$Website
@@ -18,3 +19,5 @@
   - Weiblich
 
 - Thema:
+
+- Tags:

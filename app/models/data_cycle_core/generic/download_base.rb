@@ -42,11 +42,13 @@ module DataCycleCore
                   @logging.item_processed(item_name, item_id, item_count, max_string)
                 rescue StandardError => e
                   @logging.error(item_name, item_id, item_data, e)
+                  puts e.backtrace
                 end
               end
             end
           rescue StandardError => e
             @logging.error(nil, nil, nil, e)
+            puts e.backtrace
           ensure
             Mongoid.override_database(nil)
 

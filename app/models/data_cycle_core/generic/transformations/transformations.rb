@@ -67,21 +67,44 @@ module DataCycleCore::Generic::Transformations::Transformations
       ->s { [s['field_204'].try(:split, ','), s['field_215'].try(:split, ',')].flatten.reject(&:nil?).map(&:strip).uniq || [] })
   end
 
+  def self.xamoom_to_poi
+    t(:stringify_keys)
+    .>> t(:rename_keys, { 'position-latitude' => 'latitude', 'position-longitude' => 'longitude' })
+    .>> t(:map_value, 'latitude', ->s { s.to_f })
+    .>> t(:map_value, 'longitude', ->s { s.to_f })
+    .>> t(:location)
+    .>> t(:tags_to_ids, 'tags', 'Xamoom - Tags')
+    .>> t(:rename_keys, { 'tags' => 'xamoom_tags' })
+    .>> t(:strip_all)
+  end
+
+  def self.xamoom_to_image
+    t(:stringify_keys)
+    .>> t(:rename_keys, { 'name' => 'headline', 'image' => 'thumbnail_url' })
+    .>> t(:add_field, 'data_type', ->_s { nil })
+    .>> t(:reject_keys, ['description', 'tags', 'position-longitude', 'position-latitude'])
+    .>> t(:strip_all)
+  end
+
   def self.outdoor_active_to_poi
     t(:stringify_keys)
-    .>> t(:rename_keys, {
-            'id' => 'external_key',
-            'title' => 'name',
-            'shortText' => 'description',
-            'longText' => 'text',
-            'altitude' => 'elevation',
-            'countryCode' => 'address_country',
-            'fax' => 'fax_number',
-            'phone' => 'telephone',
-            'homepage' => 'url',
-            'businessHours' => 'hours_available',
-            'fee' => 'price',
-            'gettingThere' => 'directions' })
+    .>> t(
+      :rename_keys,
+      {
+        'id' => 'external_key',
+        'title' => 'name',
+        'shortText' => 'description',
+        'longText' => 'text',
+        'altitude' => 'elevation',
+        'countryCode' => 'address_country',
+        'fax' => 'fax_number',
+        'phone' => 'telephone',
+        'homepage' => 'url',
+        'businessHours' => 'hours_available',
+        'fee' => 'price',
+        'gettingThere' => 'directions'
+      }
+    )
     .>> t(:map_value, 'elevation', ->s { s.to_f })
     .>> t(:add_field, 'latitude', ->s { s['geometry'].try(:split, /[, ]/, 3).try(:[], 1).try(:to_f) })
     .>> t(:add_field, 'longitude', ->s { s['geometry'].try(:split, /[, ]/, 3).try(:[], 0).try(:to_f) })
