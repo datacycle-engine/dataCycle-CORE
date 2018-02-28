@@ -166,7 +166,9 @@ module.exports.initialize = function () {
   }
 
   function submit_creative_work_form(form) {
-    $('.quill-editor').each((index, elem) => quill_helpers.update_value(elem))
+    $('.quill-editor').each((index, elem) => {
+      quill_helpers.update_value(elem);
+    });
 
     $('#validation_errors').html('');
 
@@ -185,7 +187,6 @@ module.exports.initialize = function () {
     $(validation_container).removeClass('has-error');
 
     let items = $(validation_container).find('[name^="' + $(validation_container).data('key') + '"]');
-    console.log(items);
     let form_data = items.serializeArray();
     let uuid = $(form).find('input#uuid').val();
     let table = $(form).find('input#type').val();

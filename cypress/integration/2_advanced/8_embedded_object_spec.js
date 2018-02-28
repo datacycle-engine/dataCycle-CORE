@@ -16,7 +16,7 @@ describe('EmbeddedObject', function () {
   }
   var id = undefined
 
-  it('add Zitat', function () {
+  it('add Quote', function () {
     cy.createCreativeWork(cname, option).then(resp => {
       var url = resp.headers.location
       id = url.substr(url.indexOf('creative_works/') + 15, 36)
@@ -33,7 +33,7 @@ describe('EmbeddedObject', function () {
     })
   })
 
-  it('update Zitat', function () {
+  it('update Quote', function () {
     cy.visit('/creative_works/' + id + '/edit').get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
     cy.location('pathname').should('match', /\/creative_works\/.*\/edit/)
 
@@ -45,7 +45,7 @@ describe('EmbeddedObject', function () {
     cy.get('.detail-content-wrapper').contains(updated_zitat_headline).should('have.length', 1)
   })
 
-  it('use Objectbrowser inside Zitat', function () {
+  it('use Objectbrowser inside Quote', function () {
     cy.visit('/creative_works/' + id + '/edit').get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
     cy.location('pathname').should('match', /\/creative_works\/.*\/edit/)
 
@@ -67,7 +67,7 @@ describe('EmbeddedObject', function () {
     cy.get('.detail-content-wrapper').contains(person.family_name).should('have.length', 1)
   })
 
-  it('remove Zitat', function () {
+  it('remove Quote', function () {
     cy.visit('/creative_works/' + id + '/edit').get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
     cy.location('pathname').should('match', /\/creative_works\/.*\/edit/)
 
@@ -79,7 +79,7 @@ describe('EmbeddedObject', function () {
     cy.get('.detail-content-wrapper').contains(updated_zitat_headline).should('have.length', 0)
   })
 
-  it('add multiple Zitat', function () {
+  it('add multiple Quotes', function () {
     cy.visit('/creative_works/' + id + '/edit').get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
     cy.location('pathname').should('match', /\/creative_works\/.*\/edit/)
 
