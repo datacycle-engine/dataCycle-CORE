@@ -22,7 +22,7 @@ Layout/MultilineMethodCallIndentation:
 ########## Style
 
 Style/AsciiComments:
-  Enable: false
+  Enabled: false
 
 Style/BlockDelimiters:
   EnforcedStyle: braces_for_chaining
