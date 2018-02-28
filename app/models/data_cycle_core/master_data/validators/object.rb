@@ -13,7 +13,7 @@ module DataCycleCore
           'asset' => Validators::Asset
         }
 
-        @@object_validations = ['daterange', 'classification_conflicts']
+        @@object_validations = ['daterange', 'classifications']
 
         # validate data as specified in the keys of the data template
         # data hash with key names as specified in the schema
@@ -111,9 +111,9 @@ module DataCycleCore
           end
         end
 
-        def classification_conflicts(data_hash, template_hash)
-          if data_hash.present? && template_hash.present?
-            (@error[:error][@template_key] ||= []) << I18n.t(:classification_conflict, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if data_hash.map { |x| data_hash.select { |y| (x != y) && template_hash.map { |z| x[z].present? && y[z].present? ? (x[z] & y[z]) : [] }.all?(&:present?) } }.flatten.present?
+        def classifications(data_hash, template_hash)
+          if data_hash.present? && DataCycleCore.features.dig(:publication_schedule, :validation_keys).present?
+            (@error[:error][@template_key] ||= []) << I18n.t(:classification_conflict, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if data_hash.each_with_index { |d, i| d['id'] = SecureRandom.uuid if d['id'].blank? }.map { |x| data_hash.select { |y| (x != y) && DataCycleCore.features.dig(:publication_schedule, :validation_keys).map { |z| x[z].present? && y[z].present? ? (x[z] & y[z]) : [] }.all?(&:present?) } }.flatten.present?
           end
         end
 

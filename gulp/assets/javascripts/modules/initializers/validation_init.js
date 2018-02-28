@@ -70,8 +70,7 @@ module.exports.initialize = function () {
     });
 
     $(form).on('remove-submit-button-errors', '.validation-container', event => {
-      let items = $(event.currentTarget).find(':input')
-      remove_submit_button_errors(items)
+      remove_submit_button_errors($(event.currentTarget));
     })
 
     $(form).on('submit', function (event) {
@@ -99,7 +98,7 @@ module.exports.initialize = function () {
         $(this).on('change', function () {
           $(this).closest('form').find('input[type=submit]').removeAttr('disabled');
           $(this).closest('.validation-container').find('.single_error').remove();
-          check_field(this);
+          check_field($(this).closest('.validation-container'));
         });
       });
     });
@@ -145,20 +144,20 @@ module.exports.initialize = function () {
 
   function check_fields(form) {
     var isValid = true;
-    $(form).find('.validation-container').each(function (e) {
-      if (check_field($(this).find(':input').first()) == false) isValid = false;
+    $(form).find('.validation-container').each((idx, elem) => {
+      if (check_field(elem) == false) isValid = false;
     });
     return isValid;
   }
 
   function check_field(field) {
-    if ($(field).val().length == 0) {
+    let input_field = $(field).find(':input').first();
+    if ($(input_field).val().length == 0) {
       var data = {
         error: {}
       };
-      let id = $(field).prop('id');
-      data.error[id] = ["Feld darf nicht leer sein"];
-      $(field).closest('.validation-container').append(render_error_msg(data, field));
+      data.error[$(input_field).prop('id')] = ["Feld darf nicht leer sein"];
+      $(field).append(render_error_msg(data, field));
       return false;
     }
     remove_submit_button_errors(field);
@@ -200,36 +199,38 @@ module.exports.initialize = function () {
     }).done(data => {
       if (data != undefined && Object.keys(data.error).length > 0) {
         if (items.first().prop('id').search(new RegExp(Object.keys(data.error).join('|'), 'i')) != -1) {
-          $(validation_container).append(render_error_msg(data, items.first()));
+          $(validation_container).append(render_error_msg(data, validation_container));
           $(validation_container).addClass('has-error');
         }
       } else {
-        remove_submit_button_errors(items);
+        remove_submit_button_errors(validation_container);
       }
     }));
   }
 
-  function render_error_msg(data, item) {
-    var out = '';
-    var item_id = '';
-    var button_text = '';
+  function render_error_msg(data, validation_container) {
+    let out = '';
+    let item_id = '';
+    let item_label = $(validation_container).find('label').first();
+    let button_text = '';
 
-    if (item != null && $(item).attr('id') != undefined) item_id = $(item).attr('id') + "_error";
-    else if (item != null && $(item).closest('.form-element').find('label').first().attr('for') != undefined) item_id = $(item).closest('.form-element').find('label').first().attr('for') + "_error";
+    if (validation_container != null && $(validation_container).data('id') != undefined) item_id = $(validation_container).data('id') + "_error";
+    else if (validation_container != null && $(item_label).attr('for') != undefined) item_id = $(item_label).attr('for') + "_error";
 
     if ($('#' + item_id).length != 0) return '';
 
     $('.submit-edit-form').addClass('alert');
-    item_label = (item != null) ? $(item).closest('.form-element').find('label').first().html() + ": " : "";
     $('#' + $('.submit-edit-form').data('toggle')).find('#button_' + item_id).remove();
     button_text = '<span id="button_' + item_id + '" class="tooltip-error">';
     out = "<span id='" + item_id + "' class='single_error'>";
+
     for (let key in data.error) {
-      if ($(item).prop('id') != undefined && $(item).prop('id').search(new RegExp(key, 'i')) != -1) {
-        button_text += '<strong>' + item_label + '</strong><br>' + data.error[key] + '<br>';
-        out += "<strong>" + item_label + "</strong>" + data.error[key] + "</br>";
+      if (($(validation_container).data('id') != undefined && $(validation_container).data('id').search(new RegExp(key, 'i')) != -1) || ($(item_label).attr('for') != undefined && $(item_label).attr('for').search(new RegExp(key, 'i')) != -1)) {
+        button_text += '<strong>' + ($(item_label).html() || 'Error') + ':</strong><br>' + data.error[key] + '<br>';
+        out += "<strong>" + ($(item_label).html() || 'Error') + ":</strong> " + data.error[key] + "</br>";
       }
     }
+
     $('#' + $('.submit-edit-form').data('toggle')).append(button_text + '</span>');
     out += "</span>";
     return out;
@@ -237,8 +238,9 @@ module.exports.initialize = function () {
 
   function remove_submit_button_errors(item = null) {
     var item_id = '';
-    if (item != null && $(item).attr('id') != undefined) item_id = $(item).attr('id') + "_error";
-    else if (item != null && $(item).closest('.form-element').find('label').first().attr('for') != undefined) item_id = $(item).closest('.form-element').find('label').first().attr('for') + "_error";
+    let item_label = $(item).find('label').first();
+    if (item != null && $(item).data('id') != undefined) item_id = $(item).data('id') + "_error";
+    else if (item != null && $(item_label).attr('for') != undefined) item_id = $(item_label).attr('for') + "_error";
 
     if (item == null) {
       $('.submit-edit-form').removeClass('alert');

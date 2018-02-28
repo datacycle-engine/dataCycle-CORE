@@ -10,7 +10,7 @@
           definition.dig('editor', 'options', 'type').try(:underscore),
           definition.dig('editor', 'options', 'class').try(:underscore),
           definition.dig('editor', 'options', 'readonly') ? 'readonly' : ''
-        ].reject(&:blank?).join(' ') %>" data-key="<%= key %>">
+        ].reject(&:blank?).join(' ') %>" data-key="<%= key %>" data-id="<%= sanitize_to_id(key) %>">
 
     <%= yield %>
 

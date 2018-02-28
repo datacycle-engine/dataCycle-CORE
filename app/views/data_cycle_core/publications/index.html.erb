@@ -23,7 +23,7 @@
       <div class="row">
 
         <ul class="no-bullet">
-          <% @contents.presence.group_by { |c| l(c.metadata['publish_at']&.to_date, format: "%Y", locale: DataCycleCore.ui_language) }.each do |p_year, value| %>
+          <% @contents.presence&.group_by { |c| l(c.metadata['publish_at']&.to_date, format: "%Y", locale: DataCycleCore.ui_language) }&.each do |p_year, value| %>
             <% value.group_by { |c| l(c.metadata['publish_at']&.to_date, format: "%B", locale: DataCycleCore.ui_language) }.each do |p_month, val| %>
               <li class="publication-month">
                 <div class="title">
