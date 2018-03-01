@@ -23,8 +23,16 @@
 #     },
 #     'import' => 'DataCycleCore::Generic::BatchImport',
 #     'import_config' => {
-#       'spots' => {
+#       'tags' => {
 #         'sorting' => 1,
+#         'source_type' => 'spots',
+#         'import_strategy' => 'DataCycleCore::Generic::Xamoom::ImportTags',
+#         'target_type' => 'DataCycleCore::Classification',
+#         'tree_label' => 'Xamoom-Tags',
+#         'logging_strategy' => 'DataCycleCore::Generic::Logger::Console.new("import")'
+#       },
+#       'spots' => {
+#         'sorting' => 10,
 #         'source_type' => 'spots',
 #         'import_strategy' => 'DataCycleCore::Generic::Xamoom::ImportSpots',
 #         'data_template' => 'Örtlichkeit',
