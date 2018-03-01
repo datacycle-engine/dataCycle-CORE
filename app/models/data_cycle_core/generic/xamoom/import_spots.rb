@@ -4,7 +4,6 @@ module DataCycleCore
       module ImportSpots
         def import_data(**options)
           @image_template = options[:import][:image_template] || 'Bild'
-          @tree_label = options.dig(:import, :tree_label) || 'Xamoom - Tags'
 
           @spot_transformation = DataCycleCore::Generic::Transformations::Transformations.xamoom_to_poi
           @spot_image_transformation = DataCycleCore::Generic::Transformations::Transformations.xamoom_to_image
@@ -27,9 +26,6 @@ module DataCycleCore
                 extract_image_data(raw_data['attributes']).merge(external_key: "Xamoom - #{raw_data['id']}").with_indifferent_access
               )
             end
-
-            keywords = raw_data.dig('attributes', 'tags') || []
-            keywords.each { |item| import_classification({ name: item, external_id: "Xamoom - tag - #{item}", tree_name: @tree_label }) }
 
             create_or_update_content(
               @target_type,
