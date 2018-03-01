@@ -73,6 +73,8 @@ de:
     no_search: Sie müssen eine Suche durchführen, bevor Sie einen neuen Inhalt erstellen können.
     publications: Geplante Publikationen
     publications_calendar: Publikationskalender
+    show_more: Mehr anzeigen
+    show_less: Weniger anzeigen
 
   history:
     latest_edits: Letzte Bearbeitungen
