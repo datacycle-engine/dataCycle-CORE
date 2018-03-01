@@ -78,6 +78,7 @@
           position: absolute;
           width: 100%;
           font-weight: bold;
+          -webkit-print-color-adjust: exact;
           color: #6f6f6f !important;
         }
       }
@@ -89,8 +90,11 @@
   .breadcrumb{
     padding: 0;
     height: auto;
-    li, ul li .breadcrumb-text i.fa{
-      font-size: 0.9rem;
+    li, ul li .breadcrumb-text {
+      max-width: none;
+      i.fa{
+        font-size: 0.9rem;
+      }
     }
   }
   .fa{
