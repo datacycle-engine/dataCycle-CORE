@@ -796,6 +796,7 @@ ul.translated-locales {
         border: 0;
         border-radius: 0;
         background: none;
+        outline: none;
       }
       .select2-selection--single {
         .select2-selection__rendered {
@@ -924,4 +925,70 @@ select:-moz-focusring {
   border-radius: 5px;
   top: -3px;
   box-shadow: 0 0 3px #ccc;
+}
+
+// show-more css
+.show-more {
+  .show-more-long {
+    display: none;
+  }
+  .show-more-short {
+    display: block;
+  }
+  .show-more-link {
+    position: relative;
+    display: block;
+    text-align: center;
+    margin-top: 0.2rem;
+    line-height: 1rem;
+    color: $dark-gray;
+    font-size: 1rem;
+    background: transparent;
+    &::before {
+      position: absolute;
+      content: "";
+      height: 1px;
+      border-bottom: 1px solid lighten($dark-gray, 20%);
+      right: 0;
+      left: 0;
+      top: 0.7rem;
+    }
+    span {
+      background: $medium-gray;
+      padding: 0 0.5rem;
+      position: relative;
+      z-index: 1;
+    }
+    .closed {
+      display: inline-block;
+    }
+    .open {
+      display: none;
+    }
+  }
+  &.active {
+    .show-more-link {
+      .closed {
+        display: none;
+      }
+      .open {
+        display: inline-block;
+      }
+    }
+  }
+  &.is-active {
+    .accordion-title {
+      span {
+        .closed {
+          display: none;
+        }
+        .open {
+          display: inline-block;
+        }
+        i::before {
+          content: '\f077';
+        }
+      } // display: none;
+    }
+  }
 }
