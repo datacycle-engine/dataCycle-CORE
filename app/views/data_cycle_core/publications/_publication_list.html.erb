@@ -1,0 +1,45 @@
+<% contents.presence&.group_by { |c| l(c.publish_at&.to_date, format: "%Y", locale: DataCycleCore.ui_language) }&.each do |p_year, value| %>
+  <% value.group_by { |c| l(c.publish_at&.to_date, format: "%B", locale: DataCycleCore.ui_language) }.each do |p_month, val| %>
+    <% unless params[:last_month] == "#{p_month}-#{p_year}" %>
+      <li class="publication-month publication-title" data-month-year="<%= p_month %>-<%= p_year %>">
+        <div class="title">
+          <ul class="navigation no-bullet">
+            <!--<li><i class="fa fa-angle-left" aria-hidden="true"></i></li>-->
+            <li><i class="fa fa-angle-right" aria-hidden="true"></i></li>
+          </ul>
+          <span class="month-name"><%= p_month %></span>
+          <span class="publication-year"><%= p_year %></span>
+        </div>
+      </li>
+    <% end %>
+    <li class="publication-content">
+      <ul class="no-bullet publication-table">
+        <% val.group_by { |c| l(c.publish_at&.to_date, format: :long, locale: DataCycleCore.ui_language) }.each_with_index do |(p_day, v), idx| %>
+          <% unless params[:last_day] == v.first.publish_at %>
+            <li class="publication-day <%= 'active' if v.first.publish_at&.to_date.today? %>"  data-day="<%= v.first.publish_at %>">
+              <span class="title"><%= p_day %></span>
+              <% @publication_classifications.each do |pc_key, pc_value| %>
+                <span><%= render 'data_cycle_core/shared/icon', icon_type: pc_value.downcase %></span>
+              <% end if idx.zero? %>
+            </li>
+          <% end %>
+          <% v.each do |content| %>
+            <li class="publication-table-content <%= 'last' if content == v.last %>">
+              <div class="title">
+                <% I18n.with_locale(content.content_content_b&.first&.content_a.first_available_locale) do %>
+                  <%= render 'data_cycle_core/contents/tiles/attributes/type', item: content.content_content_b&.first&.content_a %>
+                  <%= link_to content.content_content_b&.first&.content_a, target: :_blank do %>
+                    <%= render 'data_cycle_core/contents/tiles/attributes/title', item: content.content_content_b&.first&.content_a if content.content_content_b&.first&.content_a.try(:title).present? %>
+                  <% end %>
+                <% end if content.content_content_b&.first&.content_a.present? %>
+              </div>
+              <% @publication_classifications.each do |pc_key, pc_value| %>
+                <span><%= content.try(pc_key)&.map(&:name)&.join(', ') %></span>
+              <% end %>
+            </li>
+          <% end %>
+        <% end %>
+      </ul>
+    </li>
+  <% end %>
+<% end %>

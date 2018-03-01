@@ -118,18 +118,24 @@
     }
   }
   .publication-table {
-    .publication-table-contents {
-      box-shadow: 0 0 2px $dark-gray;
-    }
     li {
       display: flex;
       padding: 0.5rem;
-      &:not(.publication-day) {
+      &.publication-table-content {
+        box-shadow: 0 0 2px $dark-gray;
         border-bottom: 1px solid $medium-gray;
-        &:last-child {
+        &.last {
           margin-bottom: 2rem;
         }
         >div.title {
+          a {
+            color: $dark-gray;
+            transition: color 0.2s;
+            &:hover,
+            &:focus {
+              color: darken($dark-gray, 30%);
+            }
+          }
           color: $dark-gray;
         }
       }

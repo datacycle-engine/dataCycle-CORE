@@ -575,7 +575,7 @@ module DataCycleCore
               'delete' => true,
               'name' => 'Publikations-Plan',
               'validations' => {
-                'classification_conflicts' => ['markets', 'output_channels']
+                'classifications' => 'no_conflicts'
               }
             }
           }

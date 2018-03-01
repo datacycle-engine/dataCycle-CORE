@@ -29,6 +29,7 @@ initializers.push(require('./modules/initializers/embedded_objects_init'));
 initializers.push(require('./modules/initializers/iframe_init'));
 initializers.push(require('./modules/initializers/assets_init'));
 initializers.push(require('./modules/initializers/rails_confirmation_init'));
+initializers.push(require('./modules/initializers/publication_init'));
 
 
 $(function () {

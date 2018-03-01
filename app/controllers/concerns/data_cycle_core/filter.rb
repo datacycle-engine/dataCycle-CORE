@@ -15,12 +15,9 @@ module DataCycleCore
     def get_filtered_results(method_name: nil, parameters: nil)
       @classification_array ||= []
 
-      params[:classification].presence&.each do |item|
-        @classification_array.push(item['selected'])
-      end
+      @classification_array.push(*params[:classification]&.map { |c| c[:selected] }&.flatten)
 
-      @language = params[:language]
-      @language ||= 'de' # default-language
+      @language = params.fetch(:language, 'de')
 
       if params[:search].blank?
         # @order_by = !params[:order].nil? && params[:order].split('_').first == 'udpated' ? 'updated_at' : 'updated_at'

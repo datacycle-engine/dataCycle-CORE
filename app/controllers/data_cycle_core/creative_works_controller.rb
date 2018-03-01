@@ -273,10 +273,10 @@ module DataCycleCore
     end
 
     def execute_after_update_webhooks(data)
-      if DataCycleCore.features.dig(:publication_schedule, :validation_keys).present?
+      if DataCycleCore.features.dig(:publication_schedule, :classification_keys).present? && @creativeWork.respond_to?('publication_schedule')
         datahash_params = creative_work_params('creative_works', @creativeWork.template_name).dig(:datahash)
-        DataCycleCore.features.dig(:publication_schedule, :validation_keys).each do |tree_label|
-          @creativeWork.set_data_hash_attribute(tree_label, datahash_params[:publication_schedule].map { |k, v| v[tree_label] }.flatten.uniq, current_user)
+        DataCycleCore.features.dig(:publication_schedule, :classification_keys).each do |tree_label|
+          @creativeWork.set_data_hash_attribute(tree_label, datahash_params[:publication_schedule].map { |_, v| v[tree_label] }.flatten.uniq, current_user)
         end
       end
 

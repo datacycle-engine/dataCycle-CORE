@@ -22,7 +22,7 @@
             <li class="has-dropdown right"><%= render 'watch_lists', content: content %></li>
         <% end %>
         <li class="buttons">
-          <% unless current_user.role.rank == 0 %>
+          <% unless current_user.role&.rank == 0 %>
             <a href="<%= breadcrumbs[-2].url %>" class="hascontent close-show-button"><i aria-hidden="true" class="fa fa-times"></i></a>
           <% end %>
         </li>

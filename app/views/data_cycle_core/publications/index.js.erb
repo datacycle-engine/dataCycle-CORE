@@ -1,0 +1,5 @@
+<% if params[:last_day] == @contents&.first&.publish_at %>
+  $('.publication-table-content.last').last().removeClass('last');
+<% end %>
+
+$('.publications-list > .row > ul').append('<%= escape_javascript render 'publication_list', contents: @contents %>');

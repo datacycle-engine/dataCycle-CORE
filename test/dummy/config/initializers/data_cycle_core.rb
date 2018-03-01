@@ -8,4 +8,12 @@ DataCycleCore.setup do |config|
     Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
     # Rails.root.join('..', '.', 'config', 'data_definitions', 'enhanced')
   ]
+
+  config.features = config.features.merge(
+    {
+      publication_schedule: {
+        classification_keys: ['markets', 'output_channels']
+      }
+    }
+  )
 end

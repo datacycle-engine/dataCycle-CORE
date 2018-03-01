@@ -2,13 +2,11 @@
 
 <% content_for(:title, t('common.publications_calendar', locale: DataCycleCore.ui_language)) %>
 
-<% publication_classifications = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Publikations-Status')&.schema&.dig('properties')&.select { |k, v| v['type'] == 'classificationTreeLabel' && !DataCycleCore.internal_data_attributes.include?(k) }&.map { |k, v| [k, v['type_name']] }.to_h %>
-
 <% content_for :top_content do %>
-    <%= render 'filter_minimal', tree_labels: ['Inhaltstypen'] + publication_classifications.values, hide_language: true, show_filter: true %>
+    <%= render 'filter_minimal', tree_labels: ['Inhaltstypen'] + @publication_classifications.values, hide_language: false, show_filter: true %>
 <% end %>
 
-<section class="publications-list">
+<section class="publications-list" data-pages="<%= @pages %>">
 
     <% if @contents&.size&.zero? %>
 
@@ -21,49 +19,8 @@
     <% else %>
 
       <div class="row">
-
         <ul class="no-bullet">
-          <% @contents.presence&.group_by { |c| l(c.metadata['publish_at']&.to_date, format: "%Y", locale: DataCycleCore.ui_language) }&.each do |p_year, value| %>
-            <% value.group_by { |c| l(c.metadata['publish_at']&.to_date, format: "%B", locale: DataCycleCore.ui_language) }.each do |p_month, val| %>
-              <li class="publication-month">
-                <div class="title">
-                  <ul class="navigation no-bullet">
-                    <li><i class="fa fa-angle-left" aria-hidden="true"></i></li>
-                    <li><i class="fa fa-angle-right" aria-hidden="true"></i></li>
-                  </ul>
-                  <span class="month-name"><%= p_month %></span>
-                  <span class="publication-year"><%= p_year %></span>
-                </div>
-              </li>
-              <li>
-                <ul class="no-bullet publication-table">
-                  <% val.group_by { |c| l(c.metadata['publish_at']&.to_date, format: :long, locale: DataCycleCore.ui_language) }.each_with_index do |(p_day, v), idx| %>
-                    <li class="publication-day <%= 'active' if v.first.metadata['publish_at']&.to_date.today? %>">
-                      <span class="title"><%= p_day %></span>
-                      <% publication_classifications.each do |pc_key, pc_value| %>
-                        <span><%= render 'data_cycle_core/shared/icon', icon_type: pc_value.downcase %></span>
-                      <% end if idx.zero? %>
-                    </li>
-                    <div class="publication-table-contents">
-                      <% v.each do |content| %>
-                        <li>
-                          <div class="title">
-                            <% I18n.with_locale(content.content_content_b&.first&.content_a.first_available_locale) do %>
-                              <%= render 'data_cycle_core/contents/tiles/attributes/type', item: content.content_content_b&.first&.content_a %>
-                              <%= render 'data_cycle_core/contents/tiles/attributes/title', item: content.content_content_b&.first&.content_a if content.content_content_b&.first&.content_a.try(:title).present? %>
-                            <% end if content.content_content_b&.first&.content_a.present? %>
-                          </div>
-                          <% publication_classifications.each do |pc_key, pc_value| %>
-                            <span><%= content.try(pc_key)&.map(&:name)&.join(', ') %></span>
-                          <% end %>
-                        </li>
-                      <% end %>
-                    </div>
-                  <% end %>
-                </ul>
-              </li>
-            <% end %>
-          <% end %>
+          <%= render 'publication_list', contents: @contents %>
         </ul>
 
       </div>
