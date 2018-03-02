@@ -263,7 +263,6 @@ describe DataCycleCore::Content do
     end
 
     it 'provides names of embedded properties' do
-
       # ap subject.embedded_property_names
       subject.embedded_property_names.must_equal(['existing_locations', 'nested_creative_works'])
     end
