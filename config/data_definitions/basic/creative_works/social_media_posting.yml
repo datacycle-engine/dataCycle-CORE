@@ -94,6 +94,27 @@
           :options:
             :tabindex: -1
       #meta attributes
+      :output_channels:
+        :label: Ausgabekanäle
+        :type: classificationTreeLabel
+        :type_name: Ausgabekanäle
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 23
+      :publication_schedule:
+        :label: Geplante Publikation
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: Publikations-Plan
+        :validations:
+          :classifications: no_conflicts
+        :editor:
+          :type: embeddedObject
+          :sorting: 25
+          :options:
+            :data-validate: publication
       :validity_period:
         :label: Gültigkeitszeitraum
         :type: object

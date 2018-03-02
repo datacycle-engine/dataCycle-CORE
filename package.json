@@ -75,6 +75,6 @@
     "watchify": "3.9.0"
   },
   "devDependencies": {
-    "cypress": "2.0.4"
+    "cypress": "2.1.0"
   }
 }

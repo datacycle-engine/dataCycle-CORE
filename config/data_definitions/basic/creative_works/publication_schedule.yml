@@ -28,16 +28,6 @@
             :data-type: datepicker
             :data-validate: daterange
             :placeholder: tt.mm.jjjj
-      :markets:
-        :label: Zielmarkt
-        :type: classificationTreeLabel
-        :type_name: Märkte
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
-          :sorting: 18
-          :options:
-            :tabindex: -1
       :output_channels:
         :label: Ausgabekanäle
         :type: classificationTreeLabel
@@ -46,8 +36,6 @@
         :editor:
           :type: classificationSelector
           :sorting: 23
-          :options:
-            :tabindex: -1
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel

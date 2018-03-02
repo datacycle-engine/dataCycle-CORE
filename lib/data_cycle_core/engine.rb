@@ -94,7 +94,7 @@ module DataCycleCore
     self.linked_tables = ['users']
 
     mattr_accessor :excluded_filter_classifications
-    self.excluded_filter_classifications = ['Angebotszeitraum', 'Website', 'Zitat', 'DataCycle - File', 'DataCycle - Image']
+    self.excluded_filter_classifications = ['Angebotszeitraum', 'Website', 'Zitat', 'DataCycle - File', 'DataCycle - Image', 'Publikations-Plan']
 
     mattr_accessor :excluded_new_item_objects
     self.excluded_new_item_objects = []

@@ -8,13 +8,20 @@
   - $$DataCycle - Image
   - $$DataCycle - File
   - $$Person
-  - $$Ort:
-# embedded
+  - $$Publikations-Plan
+  - $$Ort
+
+  # embedded
   - $$Angebotszeitraum
   - $$Website
 
 - Geschlecht:
   - Männlich
   - Weiblich
+
+- Ausgabekanäle:
+  - Web
+  - Social Media
+  - Print
 
 - Thema:

@@ -1,4 +1,4 @@
-describe('EmbeddedObject', function () {
+describe('Embedded Object', function () {
   beforeEach(function () {
     cy.login('admin')
   })
