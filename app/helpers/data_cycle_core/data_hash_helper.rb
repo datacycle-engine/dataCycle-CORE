@@ -42,7 +42,7 @@ module DataCycleCore
       properties.merge(Hash[unordered_properties]).nil? ? [] : properties.merge(Hash[unordered_properties])
     end
 
-    # todo: remove
+    # TODO: delete after testing
     # def data_cycle_hidden_field(key, value = nil, parent_object_keys = [])
     #   object_key = get_object_key(key, parent_object_keys)
     #   hidden_field_tag(object_key, value)
@@ -201,7 +201,7 @@ module DataCycleCore
       value
     end
 
-    private
+    # private
 
     # def get_object_key(key, parent_object_keys = [])
     #   parent_object_keys_string = ''
