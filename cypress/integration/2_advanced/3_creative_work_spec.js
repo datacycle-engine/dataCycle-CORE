@@ -1,4 +1,4 @@
-describe('CreativeWork', function () {
+describe('CreativeWork - Artikel', function () {
   beforeEach(function () {
     cy.login('admin');
   })
