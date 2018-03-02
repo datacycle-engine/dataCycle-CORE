@@ -47,7 +47,7 @@ module DataCycleCore
 
       @contents = query2.order("(metadata ->> 'publish_at')::timestamptz ASC").page(params[:page]).per(10).includes(:classifications, content_content_b: [content_a: :translations])
 
-      @total = @contents.map(&:content_content_b).map{|c| c.first.content_a_id}.uniq.size
+      @total = @contents.map(&:content_content_b).map { |c| c.first.content_a_id }.uniq.size
 
       @pages = @contents.total_pages
 
