@@ -13,13 +13,11 @@ module DataCycleCore
 
       @language = params.fetch(:language, 'de')
 
-      @order_string = DataCycleCore::Filter::Search.get_order_by_query_string(params[:search])
 
       query = DataCycleCore::Filter::Search.new(@language).in_validity_period
 
       query = query.with_relation('publication_schedule')
 
-      query = query.order(@order_string)
       query = query.fulltext_search(params[:search]) if params[:search].present?
 
       if @classification_array.present?
