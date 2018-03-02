@@ -30,7 +30,7 @@ module DataCycleCore
         end
 
         if user.has_rank?(10)
-          can :manage, [DataCycleCore::DataLink, DataCycleCore::Classification]
+          can :manage, [DataCycleCore::DataLink]
           can [:crud, :destroy], DataCycleCore::UserGroup
           can [:crud, :destroy], DataCycleCore::User do |the_user|
             user&.role&.rank&.> the_user&.role&.rank || the_user == user
