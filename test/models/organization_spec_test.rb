@@ -34,6 +34,16 @@ describe DataCycleCore::Organization do
       subject
     end
 
+    after do
+      organization.destroy_content
+      organization.destroy
+
+      organization.histories.each do |item|
+        item.destroy_content
+        item.destroy
+      end
+    end
+
     it 'extracts name' do
       organization.name.must_equal 'Name'
     end
