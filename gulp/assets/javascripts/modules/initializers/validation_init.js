@@ -94,11 +94,11 @@ module.exports.initialize = function () {
         } else if (data == undefined && check_fields(this)) this.submit();
       });
 
-      $(this).find('form input[type=text]').each(function (e) {
+      $(this).find('form .validation-container').each(function (e) {
         $(this).on('change', function () {
           $(this).closest('form').find('input[type=submit]').removeAttr('disabled');
-          $(this).closest('.validation-container').find('.single_error').remove();
-          check_field($(this).closest('.validation-container'));
+          $(this).find('.single_error').remove();
+          check_field(this);
         });
       });
     });
