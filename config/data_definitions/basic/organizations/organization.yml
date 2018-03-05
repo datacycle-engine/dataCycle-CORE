@@ -24,7 +24,7 @@
           :minLength: 1
         :editor:
           :type: input
-          :sorting: 2
+          :sorting: 1
           :options:
             :data-validate: text
       :telephone:
@@ -34,7 +34,7 @@
         :storage_location: metadata
         :editor:
           :type: input
-          :sorting: 4
+          :sorting: 2
       :fax_number:
         :label: Fax
         :type: string
@@ -42,7 +42,7 @@
         :storage_location: metadata
         :editor:
           :type: input
-          :sorting: 5
+          :sorting: 3
       :email:
         :label: E-Mail
         :type: string
@@ -50,13 +50,13 @@
         :storage_location: metadata
         :editor:
           :type: input
-          :sorting: 6
+          :sorting: 4
       :address:
         :label: Adresse
         :type: object
         :storage_location: metadata
         :editor:
-          :sorting: 8
+          :sorting: 5
           :options:
             :class: detail_object
         :properties:
@@ -91,7 +91,7 @@
         :storage_location: metadata
         :editor:
           :type: input
-          :sorting: 9
+          :sorting: 6
       :description:
         :label: Text
         :type: string
@@ -100,7 +100,7 @@
         :search: true
         :editor:
           :type: quillEditor
-          :sorting: 10
+          :sorting: 7
           :options:
             :data-size: full
       :image:
@@ -110,7 +110,7 @@
         :storage_type: array
         :storage_location: metadata
         :editor:
-          :sorting: 11
+          :sorting: 8
           :type: objectBrowser
           :options:
             :data-validate: media
