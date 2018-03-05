@@ -8,7 +8,7 @@ module DataCycleCore
           data = YAML.safe_load(File.open(file_name))
           error = validation ? validate(data) : nil
           if error.blank?
-            puts "validation was ok --> writing data to ExternalSource"
+            puts 'validation was ok --> writing data to ExternalSource'
             # import_data
             # external_source = DataCycleCore::ExternalSource.find_or_initialize_by(name: data['name'])
             # external_source.credentials = data['credentials']
@@ -70,6 +70,7 @@ module DataCycleCore
             def module?(value)
               value.safe_constantize.nil? ? false : value.safe_constantize.class == Module
             end
+
             def class?(value)
               value.safe_constantize.nil? ? false : value.safe_constantize.class == Class
             end
@@ -89,9 +90,11 @@ module DataCycleCore
             def module?(value)
               value.safe_constantize.nil? ? false : value.safe_constantize.class == Module
             end
+
             def class?(value)
               value.safe_constantize.nil? ? false : value.safe_constantize.class == Class
             end
+
             def logger?(value)
               temp = Class.new.instance_eval(value) rescue false
               temp == false ? temp : true
