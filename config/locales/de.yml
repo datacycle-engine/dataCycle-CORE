@@ -75,6 +75,7 @@ de:
     publications_calendar: Publikationskalender
     show_more: Mehr anzeigen
     show_less: Weniger anzeigen
+    expired_content: Gültigkeitszeitraum überschritten!
 
   history:
     latest_edits: Letzte Bearbeitungen

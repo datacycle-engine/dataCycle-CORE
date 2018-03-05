@@ -3,7 +3,10 @@
         <div class="show-for-print">
             <img src="<%= content.metadata['thumbnail_url'] %>" />
         </div>
-        <% unless content.title.blank? %>
+        <% unless content.is_valid %>
+          <span class="expired-item-overlay"><%= t('common.expired_content', locale: DataCycleCore.ui_language) %></span>
+        <% end %>
+        <% if content.title.present? %>
             <div class="description">
                 <%= content.title %>
                 <div class="show-for-print">
