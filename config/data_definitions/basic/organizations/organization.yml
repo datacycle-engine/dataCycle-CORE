@@ -14,19 +14,6 @@
         :storage_location: key
         :validations:
           :format: uuid
-      :name:
-        :label: Name
-        :type: string
-        :storage_type: string
-        :storage_location: content
-        :search: true
-        :validations:
-          :minLength: 1
-        :editor:
-          :type: input
-          :sorting: 1
-          :options:
-            :data-validate: text
       :legal_name:
         :label: Firmenname
         :type: string

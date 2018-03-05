@@ -7,10 +7,6 @@
           <%= hidden_field_tag 'template', 'Organization' %>
           <%= hidden_field_tag 'locale', I18n.locale %>
           <div class="validation-container form-element">
-              <%= label_tag 'organization[datahash][name]', DataCycleCore::Organization.human_attribute_name("name", locale: DataCycleCore.ui_language) %>
-              <%= text_field_tag 'organization[datahash][name]', 'Name', class: 'form-control', value:'' %>
-          </div>
-          <div class="validation-container form-element">
               <%= label_tag 'organization[datahash][legal_name]', DataCycleCore::Organization.human_attribute_name("legal_name", locale: DataCycleCore.ui_language) %>
               <%= text_field_tag 'organization[datahash][legal_name]', '', class: 'form-control', value:'' %>
           </div>
