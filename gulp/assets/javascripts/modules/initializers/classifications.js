@@ -69,8 +69,8 @@ module.exports.initialize = function () {
 
       return false;
     });
-    $('#classification-administration').on('click', 'a.discard', function (event) {
-      $(this).parent('li').removeClass('active');
+    $('#classification-administration').on('click', '.discard', function (event) {
+      $(this).closest('li.active').removeClass('active');
       return false;
     });
 

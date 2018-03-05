@@ -29,7 +29,7 @@ module DataCycleCore
         end
 
         if user.has_rank?(10)
-          can :manage, [DataCycleCore::DataLink, DataCycleCore::Classification]
+          can :manage, DataCycleCore::DataLink
           can [:crud, :destroy], DataCycleCore::UserGroup
           can [:crud, :destroy], DataCycleCore::User do |the_user|
             user&.role&.rank&.> the_user&.role&.rank || the_user == user
@@ -37,14 +37,8 @@ module DataCycleCore
 
           can :update_release_status, [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork, DataCycleCore::Place]
 
-          can :manage,
-              [
-                DataCycleCore::Classification,
-                DataCycleCore::ClassificationTreeLabel,
-                DataCycleCore::ClassificationTree,
-                DataCycleCore::ClassificationAlias
-              ],
-              external_source_id: nil
+          can :manage, [DataCycleCore::Classification, DataCycleCore::ClassificationTree], external_source_id: nil
+          can :manage, [DataCycleCore::ClassificationTreeLabel, DataCycleCore::ClassificationAlias], external_source_id: nil, internal: false
 
           can :crud, [DataCycleCore::CreativeWork, DataCycleCore::Event, DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::Place] do |data_object|
             data_object&.schema&.dig('permissions', 'read_write') != false
