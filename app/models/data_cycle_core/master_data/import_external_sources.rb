@@ -6,7 +6,7 @@ module DataCycleCore
         file_names = Dir[DataCycleCore.external_sources_path + '*.yml']
         file_names.each do |file_name|
           data = YAML.safe_load(File.open(file_name))
-          error = validation ? validate(data) : nil
+          error = validation ? validate(data.deep_symbolize_keys) : nil
           if error.blank?
             puts 'validation was ok --> writing data to ExternalSource'
             # import_data
@@ -26,19 +26,20 @@ module DataCycleCore
       end
 
       def self.validate(data_hash)
-        errors = {}
-        errors = validate_header(data_hash)
+        errors = validate_header.call(data_hash.deep_symbolize_keys).errors || {}
         errors['import_config'] = {}
         errors['download_config'] = {}
         import_config = data_hash.dig('config', 'import_config') || {}
         download_config = data_hash.dig('config', 'download_config') || {}
         import_config.each do |key, value|
-          errors['import_config'][key] = validate_import_item(value)
+          error = validate_import_item.call(value.deep_symbolize_keys).errors
+          errors['import_config'][key] = error unless error.blank?
         end
         download_config.each do |key, value|
-          errors['download_config'][key] = validate_download_item(value)
+          error = validate_download_item.call(value.deep_symbolize_keys).errors
+          errors['download_config'][key] = error unless error.blank?
         end
-        errors
+        errors.reject { |_, v| v.blank? }
       end
 
       def self.validate_header
@@ -51,14 +52,25 @@ module DataCycleCore
                 value.safe_constantize.class == Class
               end
             end
+
+            def self.messages
+              super.merge(
+                en: {
+                  errors: {
+                    class?: 'the string given does not specify a valid ruby class.'
+                  }
+                }
+              )
+            end
           end
 
-          required(:name) { :str? }
+          required(:name) { str? }
           required(:credentials)
+          optional(:api_strategy) { str? & class? }
           required(:config).schema do
-            required(:download) { :str? & :class? }
+            required(:download) { str? & class? }
             required(:download_config)
-            required(:import) { :str? & :class? }
+            required(:import) { str? & class? }
             required(:import_config)
           end
         end
@@ -74,13 +86,30 @@ module DataCycleCore
             def class?(value)
               value.safe_constantize.nil? ? false : value.safe_constantize.class == Class
             end
+
+            def logger?(value)
+              temp = Class.new.instance_eval(value) rescue false
+              temp == false ? temp : true
+            end
+
+            def self.messages
+              super.merge(
+                en: {
+                  errors: {
+                    module?: 'the string given does not specify a valid ruby module.',
+                    class?: 'the string given does not specify a valid ruby class.',
+                    logger?: 'the string given can not be evaluated.'
+                  }
+                }
+              )
+            end
           end
 
-          required(:sorting) { :int? }
-          required(:source_type) { :str? }
-          required(:endpoint) { :str? & :class? }
-          required(:download_strategy) { :str? & :module? }
-          required(:logging_strategy) { :str? & :module? }
+          required(:sorting) { int? & gt?(0) }
+          required(:source_type) { str? }
+          required(:endpoint) { str? & class? }
+          required(:download_strategy) { str? & module? }
+          required(:logging_strategy) { str? & logger? }
         end
       end
 
@@ -99,14 +128,26 @@ module DataCycleCore
               temp = Class.new.instance_eval(value) rescue false
               temp == false ? temp : true
             end
+
+            def self.messages
+              super.merge(
+                en: {
+                  errors: {
+                    module?: 'the string given does not specify a valid ruby module.',
+                    class?: 'the string given does not specify a valid ruby class.',
+                    logger?: 'the string given can not be evaluated.'
+                  }
+                }
+              )
+            end
           end
 
-          required(:sorting) { :int? }
-          required(:source_type) { :str? }
-          required(:import_strategy) { :str? & :module? }
-          required(:data_template) { :str? }
-          required(:target_type) { :str? & :class? }
-          required(:logging_strategy) { :str? & :logger? }
+          required(:sorting) { int? }
+          required(:source_type) { str? }
+          required(:import_strategy) { str? & module? }
+          required(:data_template) { str? }
+          required(:target_type) { str? & class? }
+          required(:logging_strategy) { str? & logger? }
         end
       end
     end
