@@ -23,15 +23,6 @@ module.exports.initialize = function () {
     });
   }
 
-  function update_value(editor) {
-    var hidden_field = $('#' + $(editor).attr('data-hidden-field-id'));
-    var text = ($(editor).find('.ql-editor').html() || '').replace("<p><br></p>", "");
-    var changed = (hidden_field.val() != text);
-
-    if (changed) $(hidden_field).val(text);
-    return changed;
-  }
-
   function init(node) {
     var Delta = quill.import('delta');
 
@@ -91,9 +82,7 @@ module.exports.initialize = function () {
     var editor = new quill('#' + node.id, options);
 
     editor.on('selection-change', (range, oldRange, source) => {
-      if (range == null && quill_helpers.update_value(editor.container)) {
-        $(editor.container).trigger('change');
-      }
+      if (range == null) quill_helpers.update_value(editor.container);
     });
 
     $(editor.container).on('import-data', function (event, data) {

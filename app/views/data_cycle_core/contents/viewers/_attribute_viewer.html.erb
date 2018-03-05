@@ -1,4 +1,4 @@
-<% if value.blank? == false || options.dig(:force_render) %>
+<% if value.present? || options.dig(:force_render) %>
 
     <% if options.dig(:compare) && options.dig(:item_diff).nil? == false %>
         <% item_diff = options[:item_diff] %>
