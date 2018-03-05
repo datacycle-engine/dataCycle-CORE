@@ -19,10 +19,10 @@
   background: $white;
   -webkit-filter: blur(0);
   &.expired-item {
-    box-shadow: 0 1px 4px rgba($alert-color, 0.7);
+    box-shadow: 0 1px 8px $alert-color;
     &:hover,
     &:focus {
-      box-shadow: 0 1px 25px rgba($alert-color, 0.7);
+      box-shadow: 0 1px 25px $alert-color;
     }
   }
   &:hover,
