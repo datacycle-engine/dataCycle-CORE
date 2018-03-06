@@ -1,11 +1,10 @@
----
+
 - :data:
-    :name: Event
+    :name: SubEvent
     :type: object
     :permissions:
       :read_write: false
-    :boost: 10.0
-    :content_type: entity
+    :content_type: embedded
     :properties:
       :id:
         :label: id
@@ -19,54 +18,11 @@
         :type: string
         :storage_type: string
         :storage_location: content
-        :search: true
-        :validations:
-          :minLength: 1
         :editor:
           :type: input
           :sorting: 1
           :options:
             :data-validate: text
-      # mixin: validity_period
-      :validity_period:
-        :label: Gültigkeitszeitraum
-        :type: object
-        :storage_location: metadata
-        :validations:
-          :daterange:
-            :from: valid_from
-            :to: valid_until
-        :editor:
-          :sorting: 3
-          :options:
-            :class: daterange
-        :properties:
-          :valid_from:
-            :label: Gültigkeit
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: tt.mm.jjjj
-          :valid_until:
-            :label: bis
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: tt.mm.jjjj
       :event_period:
         :label: Veranstaltungszeitraum
         :type: object
@@ -76,7 +32,7 @@
             :from: start_date
             :to: end_date
         :editor:
-          :sorting: 4
+          :sorting: 2
           :options:
             :class: daterange
         :properties:
@@ -113,10 +69,9 @@
         :type: string
         :storage_type: text
         :storage_location: column
-        :search: true
         :editor:
           :type: quillEditor
-          :sorting: 5
+          :sorting: 3
           :options:
             :data-size: basic
       :image:
@@ -126,7 +81,7 @@
         :storage_type: array
         :storage_location: metadata
         :editor:
-          :sorting: 6
+          :sorting: 4
           :type: objectBrowser
           :options:
             :data-validate: media
@@ -140,16 +95,7 @@
           :format: url
         :editor:
           :type: input
-          :sorting: 7
-      :sub_event:
-        :label: Veranstaltungsdaten
-        :type: object
-        :storage_location: events
-        :delete: true
-        :name: SubEvent
-        :editor:
-          :type: embeddedObject
-          :sorting: 8
+          :sorting: 5
       :location:
         :label: Veranstaltungsort
         :type: object
@@ -159,18 +105,18 @@
         :validations:
           :max: 1
         :editor:
-          :sorting: 9
+          :sorting: 6
           :type: objectBrowser
           :options:
             :data-validate: object
             :data-type: place
+      #metadata
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
-        :default_value: "Veranstaltung"
-      # mixin: meta_data
+        :default_value: "Veranstaltungstermin"
       :creator:
         :label: Ersteller
         :type: embeddedLink
