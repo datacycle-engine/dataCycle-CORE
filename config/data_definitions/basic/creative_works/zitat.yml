@@ -22,11 +22,10 @@
           :minLength: 1
         :editor:
           :type: quillEditor
-          :sorting: 1
+          :sorting: 4
           :options:
             :data-size: basic
             :data-validate: text
-            :tabindex: -1
       :image:
         :label: Bild
         :type: embeddedLinkArray
@@ -36,7 +35,7 @@
         :validations:
           :max: 1
         :editor:
-          :sorting: 2
+          :sorting: 5
           :type: objectBrowser
           :options:
             :data-validate: media
@@ -48,24 +47,18 @@
         :name: Person
         :delete: false
         :editor:
-          :sorting: 3
+          :sorting: 6
           :type: objectBrowser
           :options:
             :data-validate: object
             :data-type: person
-      :is_part_of:
-        :label: parent
-        :type: string
-        :storage_type: string
-        :storage_location: column
-        :validations:
-          :format: uuid
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Zitat"
+      # mixin: meta_data
       :creator:
         :label: Ersteller
         :type: embeddedLink
