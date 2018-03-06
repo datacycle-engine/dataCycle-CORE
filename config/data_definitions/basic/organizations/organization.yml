@@ -61,14 +61,14 @@
             :editor:
               :type: input
               :sorting: 3
-          :address_country:
-            :label: Land
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :editor:
-              :type: input
-              :sorting: 4
+          :address_country:
+            :label: Land
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 4
       # mixin: contact_info
       :contact_info:
         :label: Kontakt

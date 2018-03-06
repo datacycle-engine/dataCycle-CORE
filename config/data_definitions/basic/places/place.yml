@@ -61,14 +61,14 @@
             :editor:
               :type: input
               :sorting: 3
-          :address_country:
-            :label: Land
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :editor:
-              :type: input
-              :sorting: 4
+          :address_country:
+            :label: Land
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 4
       # geo mixin
       :longitude:
         :label: Longitude
@@ -145,28 +145,28 @@
             :editor:
               :type: input
               :sorting: 4
-      :text:
-        :label: Text
-        :type: string
-        :storage_type: string
-        :storage_location: content
-        :search: true
-        :editor:
-          :sorting: 8
-      :primary_image:
-        :label: Hauptbild
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :max: 1
-        :editor:
-          :type: objectBrowser
-          :sorting: 9
-          :options:
-            :data-validate: media
-            :data-type: image
+          :text:
+            :label: Text
+            :type: string
+            :storage_type: string
+            :storage_location: content
+            :search: true
+            :editor:
+              :sorting: 8
+          :primary_image:
+            :label: Hauptbild
+            :type: embeddedLinkArray
+            :type_name: creative_works
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :max: 1
+            :editor:
+              :type: objectBrowser
+              :sorting: 9
+              :options:
+                :data-validate: media
+                :data-type: image
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
