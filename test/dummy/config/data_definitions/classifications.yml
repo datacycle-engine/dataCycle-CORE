@@ -10,6 +10,7 @@
   - $$Person
   - $$Organisation
   - $$Ort:
+    - $$Örtlichkeit    
 # embedded
   - $$Angebotszeitraum
   - $$Website
@@ -19,3 +20,5 @@
   - Weiblich
 
 - Thema:
+
+- Tags:
