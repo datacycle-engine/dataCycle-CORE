@@ -192,16 +192,16 @@
           :type: input
           :sorting: 16
       :data_type:
-        :label: Inhaltstyp
+        :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Bild"
       # mixin: content_classifications
-      :thema:
-        :label: Thema
+      :topic:
+        :label: Themenbereiche
         :type: classificationTreeLabel
-        :type_name: Thema
+        :type_name: Themenbereiche
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector

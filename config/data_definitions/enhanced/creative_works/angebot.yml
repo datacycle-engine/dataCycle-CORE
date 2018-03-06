@@ -116,26 +116,10 @@
         :editor:
           :type: embeddedObject
           :sorting: 10
-      :datacycleimage:
-        :label: DataCycle-Bild
-        :type: object
-        :storage_location: creative_works
-        :delete: true
-        :name: DataCycle-Image
-        :editor:
-          :type: embeddedObject
-      :datacycleasset:
-        :label: DataCycle-File
-        :type: object
-        :storage_location: creative_works
-        :delete: true
-        :name: DataCycle-File
-        :editor:
-          :type: embeddedObject
-      :thema:
-        :label: Thema
+      :topic:
+        :label: Themenbereiche
         :type: classificationTreeLabel
-        :type_name: Thema
+        :type_name: Themenbereiche
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector

@@ -130,10 +130,10 @@
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Social Media Posting"
-      :thema:
-        :label: Thema
+      :topic:
+        :label: Themenbereiche
         :type: classificationTreeLabel
-        :type_name: Thema
+        :type_name: Themenbereiche
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
