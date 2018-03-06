@@ -27,47 +27,16 @@
           :sorting: 1
           :options:
             :data-validate: text
-      :telephone:
-        :label: Telefonnummer
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :editor:
-          :type: input
-          :sorting: 2
-      :fax_number:
-        :label: Fax
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :editor:
-          :type: input
-          :sorting: 3
-      :email:
-        :label: E-Mail
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :editor:
-          :type: input
-          :sorting: 4
+      # mixin: postal_address
       :address:
         :label: Adresse
         :type: object
         :storage_location: metadata
         :editor:
-          :sorting: 5
+          :sorting: 2
           :options:
             :class: detail_object
         :properties:
-          :address_locality:
-            :label: Ort
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :editor:
-              :type: input
-              :sorting: 1
           :street_address:
             :label: Straße
             :type: string
@@ -75,7 +44,7 @@
             :storage_location: metadata
             :editor:
               :type: input
-              :sorting: 2
+              :sorting: 1
           :postal_code:
             :label: PLZ
             :type: string
@@ -83,15 +52,65 @@
             :storage_location: metadata
             :editor:
               :type: input
+              :sorting: 2
+          :address_locality:
+            :label: Ort
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
               :sorting: 3
-      :url:
-        :label: Web
-        :type: string
-        :storage_type: string
+          :address_country:
+            :label: Land
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 4
+      # mixin: contact_info
+      :contact_info:
+        :label: Kontakt
+        :type: object
         :storage_location: metadata
         :editor:
-          :type: input
-          :sorting: 6
+          :sorting: 3
+          :options:
+            :class: detail_object
+        :properties:
+          :telephone:
+            :label: Telefonnummer
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 1
+          :fax_number:
+            :label: Fax
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 2
+          :email:
+            :label: E-Mail
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 3
+          :url:
+            :label: Web
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 4
       :description:
         :label: Text
         :type: string
@@ -100,7 +119,7 @@
         :search: true
         :editor:
           :type: quillEditor
-          :sorting: 7
+          :sorting: 4
           :options:
             :data-size: full
       :image:
@@ -110,7 +129,7 @@
         :storage_type: array
         :storage_location: metadata
         :editor:
-          :sorting: 8
+          :sorting: 5
           :type: objectBrowser
           :options:
             :data-validate: media
@@ -121,6 +140,7 @@
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Organisation"
+      # mixin: meta_data
       :creator:
         :label: Ersteller
         :type: embeddedLink
