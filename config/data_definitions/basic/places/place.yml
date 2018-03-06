@@ -1,11 +1,11 @@
 ---
 - :data:
-    :name: Ort
+    :name: Örtlichkeit
     :type: object
     :content_type: entity
     :permissions:
       :read_write: true
-    :boost: 1.0
+    :boost: 10.0
     :properties:
       :id:
         :label: id
@@ -27,47 +27,49 @@
           :sorting: 1
           :options:
             :data-validate: text
+      # mixin: postal_address
       :address:
         :label: Adresse
         :type: object
         :storage_location: metadata
         :editor:
-          :sorting: 2
+          :sorting: 3
           :options:
             :class: detail_object
         :properties:
-          :address_locality:
-            :label: Ort
-            :type: string
-            :storage_type: string
-            :storage_location: column
-            :editor:
-              :type: input
-              :sorting: 1
           :street_address:
             :label: Straße
             :type: string
             :storage_type: string
-            :storage_location: column
+            :storage_location: metadata
             :editor:
               :type: input
-              :sorting: 2
+              :sorting: 1
           :postal_code:
             :label: PLZ
             :type: string
             :storage_type: string
-            :storage_location: column
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 2
+          :address_locality:
+            :label: Ort
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
             :editor:
               :type: input
               :sorting: 3
-          :address_country:
-            :label: Land
-            :type: string
-            :storage_type: string
-            :storage_location: column
-            :editor:
-              :type: input
-              :sorting: 4
+          :address_country:
+            :label: Land
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 4
+      # geo mixin
       :longitude:
         :label: Longitude
         :type: number
@@ -79,7 +81,7 @@
           :options:
             :data-type: input
             :data-validate: text
-          :sorting: 3
+          :sorting: 4
       :latitude:
         :label: Latitude
         :type: number
@@ -91,23 +93,87 @@
           :options:
             :data-type: input
             :data-validate: text
-          :sorting: 4
+          :sorting: 5
       :location:
         :label: GPS-Koordinaten
         :type: geographic
         :storage_type: geographic
         :storage_location: column
         :editor:
-          :sorting: 5
+          :sorting: 6
           :options:
             :disabled: disabled
-      #meta attributes
+      # mixin: contact_info
+      :contact_info:
+        :label: Kontakt
+        :type: object
+        :storage_location: metadata
+        :editor:
+          :sorting: 7
+          :options:
+            :class: detail_object
+        :properties:
+          :telephone:
+            :label: Telefonnummer
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 1
+          :fax_number:
+            :label: Fax
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 2
+          :email:
+            :label: E-Mail
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 3
+          :url:
+            :label: Web
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 4
+      :text:
+        :label: Text
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :search: true
+        :editor:
+          :sorting: 8
+      :primary_image:
+        :label: Hauptbild
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :max: 1
+        :editor:
+          :type: objectBrowser
+          :sorting: 9
+          :options:
+            :data-validate: media
+            :data-type: image
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
-        :default_value: "Ort"
+        :default_value: "Örtlichkeit"
+      # mixin: meta_data
       :creator:
         :label: Ersteller
         :type: embeddedLink
