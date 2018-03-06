@@ -65,13 +65,13 @@ module DataCycleCore
           end
 
           required(:name) { str? }
-          required(:credentials)
+          required(:credentials) { hash? }
           optional(:api_strategy) { str? & class? }
           required(:config).schema do
             required(:download) { str? & class? }
-            required(:download_config)
+            required(:download_config) { hash? }
             required(:import) { str? & class? }
-            required(:import_config)
+            required(:import_config) { hash? }
           end
         end
       end
@@ -142,7 +142,7 @@ module DataCycleCore
             end
           end
 
-          required(:sorting) { int? }
+          required(:sorting) { int? & gt?(0) }
           required(:source_type) { str? }
           required(:import_strategy) { str? & module? }
           required(:data_template) { str? }
