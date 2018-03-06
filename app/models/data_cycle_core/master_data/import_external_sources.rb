@@ -8,12 +8,11 @@ module DataCycleCore
           data = YAML.safe_load(File.open(file_name))
           error = validation ? validate(data.deep_symbolize_keys) : nil
           if error.blank?
-            puts 'validation was ok --> writing data to ExternalSource'
             # import_data
-            # external_source = DataCycleCore::ExternalSource.find_or_initialize_by(name: data['name'])
-            # external_source.credentials = data['credentials']
-            # external_source.config = data['config']
-            # external_source.save
+            external_source = DataCycleCore::ExternalSource.find_or_initialize_by(name: data['name'])
+            external_source.credentials = data['credentials']
+            external_source.config = data['config']
+            external_source.save
           else
             errors[data['name']] = error
           end
