@@ -2,11 +2,10 @@ module DataCycleCore
   module MasterData
     module ImportTemplates
       def self.import_all(validation: true)
-        template_paths = DataCycleCore.default_template_paths
-        template_paths = template_paths.push(DataCycleCore.template_path) unless DataCycleCore.template_path.blank?
+        template_paths = [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
         import_hash, duplicates = check_for_duplicates(template_paths)
         errors = import_all_templates(template_hash: import_hash, validation: validation)
-        return errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.dup } }.inject(&:merge) || {}, duplicates || {}
+        return errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}, duplicates || {}
       end
 
       def self.check_for_duplicates(template_paths)

@@ -18,6 +18,10 @@ h2 {
   }
 }
 
+a {
+  outline: none;
+}
+
 h5 {
   color: $dark-gray;
 }
@@ -159,6 +163,9 @@ button,
     padding: 0 5rem 0 5rem;
     text-align: center;
     position: relative;
+  }
+  >.title {
+    padding: 0 5rem 1rem 5rem;
   }
   .button-prime {
     display: inline-block;

@@ -3,6 +3,8 @@ class FixSystemDatesForHistory < ActiveRecord::Migration[5.0]
     @connection = ActiveRecord::Base.connection
     DataCycleCore.content_tables.each do |table_name|
       content = table_name.singularize
+      next unless @connection.table_exists?(table_name)
+
       query = <<-EOS
         WITH t AS (
           SELECT

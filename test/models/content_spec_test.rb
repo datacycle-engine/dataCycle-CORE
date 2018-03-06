@@ -6,20 +6,18 @@ module SharedExamplesForContent
   def self.for_properties(storage_location, &data_provider)
     describe "for properties with storage location '#{storage_location}'" do
       data_definition = {
-        validation: {
-          properties: {
-            property: {
-              label: 'property',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: storage_location
-            },
-            existing_property: {
-              label: 'existing property',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: storage_location
-            }
+        properties: {
+          property: {
+            label: 'property',
+            type: 'string',
+            storage_type: 'string',
+            storage_location: storage_location
+          },
+          existing_property: {
+            label: 'existing property',
+            type: 'string',
+            storage_type: 'string',
+            storage_location: storage_location
           }
         }
       }
@@ -27,12 +25,8 @@ module SharedExamplesForContent
       property_value = data_provider.call
 
       subject do
-        if storage_location == 'metadata'
-          DataCycleCore::CreativeWork.new(metadata: data_definition.merge({ 'existing_property' => property_value }))
-        else
-          DataCycleCore::CreativeWork.new(metadata: data_definition,
-                                          storage_location => { 'existing_property' => property_value })
-        end
+        DataCycleCore::CreativeWork.new(schema: data_definition,
+                                        storage_location => { 'existing_property' => property_value })
       end
 
       it 'provides names of plain properties' do
@@ -61,20 +55,18 @@ module SharedExamplesForContent
   def self.for_properties_with_no_content_yet(storage_location)
     describe "for properties with storage location '#{storage_location}' and no data yet" do
       data_definition = {
-        validation: {
-          properties: {
-            property: {
-              label: 'property',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: storage_location
-            }
+        properties: {
+          property: {
+            label: 'property',
+            type: 'string',
+            storage_type: 'string',
+            storage_location: storage_location
           }
         }
       }
 
       subject do
-        DataCycleCore::CreativeWork.new(metadata: data_definition)
+        DataCycleCore::CreativeWork.new(schema: data_definition)
       end
 
       it 'provides names of plain properties' do
@@ -102,45 +94,43 @@ describe DataCycleCore::Content do
   describe 'with translatable and untranslatable properties' do
     subject do
       DataCycleCore::CreativeWork.new(
-        metadata: {
-          validation: {
-            properties: {
-              id: {
-                label: 'id',
-                type: 'string',
-                storage_type: 'string',
-                storage_location: 'key'
-              },
-              headline: {
-                label: 'headline',
-                type: 'string',
-                storage_type: 'string',
-                storage_location: 'column'
-              },
-              '1' => {
-                label: '1',
-                type: 'string',
-                storage_type: 'string',
-                storage_location: 'metadata'
-              },
-              '2' => {
-                label: '2',
-                type: 'string',
-                storage_type: 'string',
-                storage_location: 'metadata'
-              },
-              '3' => {
-                label: '3',
-                type: 'string',
-                storage_type: 'string',
-                storage_location: 'content'
-              },
-              '4' => {
-                label: '4',
-                type: 'string',
-                storage_type: 'string',
-                storage_location: 'properties'
-              }
+        schema: {
+          properties: {
+            id: {
+              label: 'id',
+              type: 'string',
+              storage_type: 'string',
+              storage_location: 'key'
+            },
+            headline: {
+              label: 'headline',
+              type: 'string',
+              storage_type: 'string',
+              storage_location: 'column'
+            },
+            '1' => {
+              label: '1',
+              type: 'string',
+              storage_type: 'string',
+              storage_location: 'metadata'
+            },
+            '2' => {
+              label: '2',
+              type: 'string',
+              storage_type: 'string',
+              storage_location: 'metadata'
+            },
+            '3' => {
+              label: '3',
+              type: 'string',
+              storage_type: 'string',
+              storage_location: 'content'
+            },
+            '4' => {
+              label: '4',
+              type: 'string',
+              storage_type: 'string',
+              storage_location: 'properties'
             }
           }
         }
@@ -193,33 +183,33 @@ describe DataCycleCore::Content do
   describe 'with linked properties' do
     subject do
       DataCycleCore::CreativeWork.new(
-        metadata: {
-          validation: {
-            properties: {
-              id: {
-                label: 'id',
-                type: 'string',
-                storage_type: 'string',
-                storage_location: 'key'
-              },
-              existing_locations: {
-                label: 'Location',
-                type: 'embeddedLinkArray',
-                type_name: 'places',
-                storage_type: 'array',
-                storage_location: 'metadata'
-              },
-              existing_main_location: {
-                label: 'Main Location',
-                type: 'embeddedLink',
-                type_name: 'places',
-                storage_type: 'number',
-                storage_location: 'metadata'
-              }
+        schema: {
+          properties: {
+            id: {
+              label: 'id',
+              type: 'string',
+              storage_type: 'string',
+              storage_location: 'key'
+            },
+            existing_locations: {
+              label: 'Location',
+              type: 'embeddedLinkArray',
+              type_name: 'places',
+              storage_type: 'array',
+              storage_location: 'metadata'
+            },
+            existing_main_location: {
+              label: 'Main Location',
+              type: 'embeddedLink',
+              type_name: 'places',
+              storage_type: 'number',
+              storage_location: 'metadata'
             }
           },
-          existing_locations: [1, 2, 3],
-          existing_main_location: 1
+          metadata: {
+            existing_locations: [1, 2, 3],
+            existing_main_location: 1
+          }
         }
       )
     end
@@ -249,25 +239,23 @@ describe DataCycleCore::Content do
   describe 'with embedded properties' do
     subject do
       DataCycleCore::CreativeWork.new(
-        metadata: {
-          validation: {
-            properties: {
-              id: {
-                label: 'id',
-                type: 'string',
-                storage_type: 'string',
-                storage_location: 'key'
-              },
-              existing_locations: {
-                label: 'Location',
-                type: 'object',
-                storage_location: 'places'
-              },
-              nested_creative_works: {
-                label: 'Nested Data',
-                type: 'object',
-                storage_location: 'creative_works'
-              }
+        schema: {
+          properties: {
+            id: {
+              label: 'id',
+              type: 'string',
+              storage_type: 'string',
+              storage_location: 'key'
+            },
+            existing_locations: {
+              label: 'Location',
+              type: 'object',
+              storage_location: 'places'
+            },
+            nested_creative_works: {
+              label: 'Nested Data',
+              type: 'object',
+              storage_location: 'creative_works'
             }
           }
         }
@@ -275,6 +263,7 @@ describe DataCycleCore::Content do
     end
 
     it 'provides names of embedded properties' do
+      # ap subject.embedded_property_names
       subject.embedded_property_names.must_equal(['existing_locations', 'nested_creative_works'])
     end
   end
@@ -282,42 +271,42 @@ describe DataCycleCore::Content do
   describe 'with included properties' do
     subject do
       DataCycleCore::CreativeWork.new(
-        metadata: {
-          validation: {
-            properties: {
-              id: {
-                label: 'id',
-                type: 'string',
-                storage_type: 'string',
-                storage_location: 'key'
-              },
-              description: {
-                label: 'description',
-                type: 'string',
-                storage_type: 'string',
-                storage_location: 'column'
-              },
-              included_object: {
-                label: 'Nested Data',
-                type: 'object',
-                storage_location: 'metadata',
-                properties: {
-                  property1: {
-                    label: 'property_name a',
-                    type: 'string',
-                    storage_type: 'string',
-                    storage_location: 'metadata'
-                  },
-                  property2: {
-                    label: 'property_name b',
-                    type: 'string',
-                    storage_type: 'string',
-                    storage_location: 'metadata'
-                  }
+        schema: {
+          properties: {
+            id: {
+              label: 'id',
+              type: 'string',
+              storage_type: 'string',
+              storage_location: 'key'
+            },
+            description: {
+              label: 'description',
+              type: 'string',
+              storage_type: 'string',
+              storage_location: 'column'
+            },
+            included_object: {
+              label: 'Nested Data',
+              type: 'object',
+              storage_location: 'metadata',
+              properties: {
+                property1: {
+                  label: 'property_name a',
+                  type: 'string',
+                  storage_type: 'string',
+                  storage_location: 'metadata'
+                },
+                property2: {
+                  label: 'property_name b',
+                  type: 'string',
+                  storage_type: 'string',
+                  storage_location: 'metadata'
                 }
               }
             }
-          },
+          }
+        },
+        metadata: {
           'included_object' => {
             'property1' => 'data property1',
             'property2' => 'data property2'
@@ -367,66 +356,64 @@ describe DataCycleCore::Content do
   describe 'with included properties, two ranks deep' do
     subject do
       DataCycleCore::CreativeWork.new(
-        metadata: {
-          validation: {
-            properties: {
-              id: {
-                label: 'id',
-                type: 'string',
-                storage_type: 'string',
-                storage_location: 'key'
-              },
-              description: {
-                label: 'description',
-                type: 'string',
-                storage_type: 'string',
-                storage_location: 'column'
-              },
-              included_object: {
-                label: 'Nested Data',
-                type: 'object',
-                storage_location: 'metadata',
-                properties: {
-                  property1: {
-                    label: 'property_name a',
-                    type: 'string',
-                    storage_type: 'string',
-                    storage_location: 'metadata'
-                  },
-                  property2: {
-                    label: 'property_name b',
-                    type: 'string',
-                    storage_type: 'string',
-                    storage_location: 'metadata'
-                  },
-                  deep_included_object: {
-                    label: 'Nested Data',
-                    type: 'object',
-                    storage_location: 'metadata',
-                    properties: {
-                      property_deep1: {
-                        label: 'deep_property_name a',
-                        type: 'string',
-                        storage_type: 'string',
-                        storage_location: 'metadata'
-                      },
-                      property_deep2: {
-                        label: 'deep_property_name b',
-                        type: 'string',
-                        storage_type: 'string',
-                        storage_location: 'metadata'
-                      },
-                      deeper_object: {
-                        label: 'deeper Data',
-                        type: 'object',
-                        storage_location: 'metadata',
-                        properties: {
-                          property_deeper: {
-                            label: 'deeper_property_name ',
-                            type: 'string',
-                            storage_type: 'string',
-                            storage_location: 'metadata'
-                          }
+        schema: {
+          properties: {
+            id: {
+              label: 'id',
+              type: 'string',
+              storage_type: 'string',
+              storage_location: 'key'
+            },
+            description: {
+              label: 'description',
+              type: 'string',
+              storage_type: 'string',
+              storage_location: 'column'
+            },
+            included_object: {
+              label: 'Nested Data',
+              type: 'object',
+              storage_location: 'metadata',
+              properties: {
+                property1: {
+                  label: 'property_name a',
+                  type: 'string',
+                  storage_type: 'string',
+                  storage_location: 'metadata'
+                },
+                property2: {
+                  label: 'property_name b',
+                  type: 'string',
+                  storage_type: 'string',
+                  storage_location: 'metadata'
+                },
+                deep_included_object: {
+                  label: 'Nested Data',
+                  type: 'object',
+                  storage_location: 'metadata',
+                  properties: {
+                    property_deep1: {
+                      label: 'deep_property_name a',
+                      type: 'string',
+                      storage_type: 'string',
+                      storage_location: 'metadata'
+                    },
+                    property_deep2: {
+                      label: 'deep_property_name b',
+                      type: 'string',
+                      storage_type: 'string',
+                      storage_location: 'metadata'
+                    },
+                    deeper_object: {
+                      label: 'deeper Data',
+                      type: 'object',
+                      storage_location: 'metadata',
+                      properties: {
+                        property_deeper: {
+                          label: 'deeper_property_name ',
+                          type: 'string',
+                          storage_type: 'string',
+                          storage_location: 'metadata'
                         }
                       }
                     }
@@ -434,7 +421,9 @@ describe DataCycleCore::Content do
                 }
               }
             }
-          },
+          }
+        },
+        metadata: {
           'included_object' => {
             'property1' => 'data property1',
             'property2' => 'data property2',

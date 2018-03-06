@@ -123,6 +123,7 @@
         :delete: true
         :name: DataCycle-Image
         :editor:
+          :sorting: 11
           :type: embeddedObject
       :datacycleasset:
         :label: DataCycle-File
@@ -132,6 +133,18 @@
         :name: DataCycle-File
         :editor:
           :type: embeddedObject
+      :firma:
+        :label: "Firma"
+        :type: object
+        :storage_location: organizations
+        :name: Organization
+        :delete: false
+        :editor:
+          :sorting: 12
+          :type: objectBrowser
+          :options:
+            :data-validate: object
+            :data-type: organization
       :thema:
         :label: Thema
         :type: classificationTreeLabel
@@ -139,7 +152,7 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 11
+          :sorting: 13
           :options:
             :tabindex: -1
       #meta attributes

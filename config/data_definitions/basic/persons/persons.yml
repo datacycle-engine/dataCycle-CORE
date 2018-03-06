@@ -81,6 +81,70 @@
         :editor:
           :type: input
           :sorting: 7
+      :address:
+        :label: Adresse
+        :type: object
+        :storage_location: metadata
+        :editor:
+          :sorting: 8
+          :options:
+            :class: detail_object
+        :properties:
+          :address_locality:
+            :label: Ort
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 1
+          :street_address:
+            :label: Straße
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 2
+          :postal_code:
+            :label: PLZ
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 3
+      :url:
+        :label: Web
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: input
+          :sorting: 9
+      :description:
+        :label: Text
+        :type: string
+        :storage_type: text
+        :storage_location: column
+        :search: true
+        :editor:
+          :type: quillEditor
+          :sorting: 10
+          :options:
+            :data-size: full
+      :image:
+        :label: Bild
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+        :editor:
+          :sorting: 11
+          :type: objectBrowser
+          :options:
+            :data-validate: media
+            :data-type: image
       :gender:
         :label: Geschlecht
         :type: classificationTreeLabel
@@ -88,9 +152,7 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 8
-          :options:
-            :tabindex: -1
+          :sorting: 12
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel

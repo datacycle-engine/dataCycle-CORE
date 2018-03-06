@@ -19,4 +19,13 @@ module.exports.initialize = function () {
     }.bind(this), 1000);
   });
 
+  // show-more handlers
+  if ($('.show-more').length) {
+    $('.show-more .show-more-link').on('click', event => {
+      $(event.currentTarget).parent('.show-more').toggleClass('active');
+      $(event.currentTarget).siblings('.show-more-short').slideToggle(250);
+      $(event.currentTarget).siblings('.show-more-long').slideToggle(250);
+    });
+  }
+
 };

@@ -33,6 +33,10 @@ module DataCycleCore
       self&.role&.rank == rank
     end
 
+    def has_user_group?(group_name)
+      self&.user_groups&.map(&:name)&.include?(group_name)
+    end
+
     def send_notification(contents)
       return unless contents.size.positive?
 

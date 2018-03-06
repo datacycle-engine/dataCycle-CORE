@@ -71,6 +71,11 @@ de:
     content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden
     download_gpx: Als GPX-Datei herunterladen
     no_search: Sie müssen eine Suche durchführen, bevor Sie einen neuen Inhalt erstellen können.
+    publications: Geplante Publikationen
+    publications_calendar: Publikationskalender
+    show_more: Mehr anzeigen
+    show_less: Weniger anzeigen
+    expired_content: Gültigkeitszeitraum überschritten!
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -233,6 +238,9 @@ de:
       data_cycle_core/person:
         one: Person
         other: Personen
+      data_cycle_core/organization:
+        one: Organisation
+        other: Organisationen
       data_cycle_core/stored_filter:
         one: Gespeicherter Filter
         other: Gespeicherte Filter
@@ -262,6 +270,9 @@ de:
         given_name: Vorname
         family_name: Familienname
         job_title: Berufsbezeichnung
+      data_cycle_core/organization:
+        name: Name
+        legal_name: Firmenname
       data_cycle_core/place:
         name: Name
         street: Straße

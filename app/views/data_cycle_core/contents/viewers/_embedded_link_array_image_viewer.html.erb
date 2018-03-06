@@ -27,7 +27,6 @@
                                    'content',
                                    item.class.name.demodulize.underscore.sub('_', '-'),
                                    item.template_name.underscore.sub('_', '-'),
-                                   item.is_valid ? '' : 'expired-item'
                                ].join(' ') %>" data-id="<%= item.id %>">
 
                     <%= render_first_existing_partial [
