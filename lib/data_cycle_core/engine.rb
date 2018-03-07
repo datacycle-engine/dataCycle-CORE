@@ -97,7 +97,7 @@ module DataCycleCore
     self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat']
 
     mattr_accessor :excluded_new_item_objects
-    self.excluded_new_item_objects = ['Event', 'Person', 'Örtlichkeit', 'Bild', 'Organization']
+    self.excluded_new_item_objects = ['Event', 'Person', 'Örtlichkeit', 'Bild', 'Organization', 'Zeitleiste', 'Linktipps']
 
     mattr_accessor :allowed_content_api_classifications
     self.allowed_content_api_classifications = ['Angebot', 'Artikel', 'Bild', 'Social Media Posting']
