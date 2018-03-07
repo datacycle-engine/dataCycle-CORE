@@ -27,5 +27,22 @@ module DataCycleCore
           .or(tsmatch(search_entries[:words], tsquery(quoted(q.squish))))
       )
     end
+
+    def with_content_type(type)
+      where("schema ->> 'content_type' = ?", type)
+    end
+
+    def expired_not_release_id(id)
+      joins(:translations)
+        .where.not("#{table_name.singularize}_translations.release_id = ? OR #{table_name.singularize}_translations.release_id IS NULL", id)
+    end
+
+    def expired_not_life_cycle_id(id)
+      if DataCycleCore.features.dig(:life_cycle, :attribute_key).present?
+        joins(:classifications)
+          .where('classification_contents.relation = ?', DataCycleCore.features.dig(:life_cycle, :attribute_key))
+          .where.not('classification_contents.classification_id = ?', id)
+      end
+    end
   end
 end

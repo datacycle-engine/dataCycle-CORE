@@ -745,4 +745,87 @@ namespace :data_cycle_core do
       end
     end
   end
+
+  namespace :archive do
+    desc 'move expired contents to archive'
+    task expired: :environment do
+      logger = Logger.new('archive.log')
+      temp = Time.zone.now
+      archive_life_cycle_id = DataCycleCore::Classification.find_by(name: DataCycleCore.features.dig(:life_cycle, :ordered)&.last)&.id
+      archive_release_id = DataCycleCore::Release.order(release_code: :desc)&.first&.id
+      current_user = DataCycleCore::User.find_by('email ILIKE ?', 'admin%')&.id
+
+      ids = DataCycleCore::Search.where('upper(validity_period) < ?', Date.current).map { |s| s.content_data&.id }
+
+      DataCycleCore.content_tables.each do |table_name|
+        if archive_release_id.present?
+          contents = ('DataCycleCore::' + table_name.singularize.classify).constantize
+            .where(id: ids)
+            .expired_not_release_id(archive_release_id)
+            .with_content_type('entity').uniq
+
+          index = 0
+          items_count = contents.size
+          puts "ARCHIVING (release_status) ==> #{table_name} (#{items_count})"
+
+          contents.each do |content|
+            # progress bar
+            if items_count > 49
+              if (index % (items_count / 100.0).round(0)).zero?
+                fraction = (index / (items_count / 100.0)).round(0)
+                fraction = 100 if fraction > 100
+                print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
+              end
+            else
+              fraction = (((index * 1.0) / items_count) * 100.0).round(0)
+              fraction = 100 if fraction > 100
+              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
+            end
+            index += 1
+
+            content.translated_locales.each do |locale|
+              I18n.with_locale(content.first_available_locale(locale)) do
+                content.set_data_hash(data_hash: content.get_data_hash, current_user: current_user)
+                content.update(release_id: archive_release_id, release_comment: I18n.t('common.archived', locale: DataCycleCore.ui_language))
+                logger.info("Archived - release_status (#{table_name}): #{content.id} (#{locale})")
+              end
+            end
+          end
+
+          puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
+        else
+          logger.warn('No Release found.')
+        end
+
+        if DataCycleCore.features.dig(:life_cycle, :attribute_key).present? && archive_life_cycle_id.present?
+          contents = ('DataCycleCore::' + table_name.singularize.classify).constantize
+            .where(id: ids)
+            .where('classification_contents.relation = ?', DataCycleCore.features.dig(:life_cycle, :attribute_key))
+            .expired_not_life_cycle_id(archive_life_cycle_id)
+            .with_content_type('entity').uniq
+
+          contents = contents.where(is_part_of: nil) if ActiveRecord::Base.connection.column_exists?(table_name, 'is_part_of')
+
+          index = 0
+          items_count = contents.size
+          puts "ARCHIVING (life_cycle) ==> #{table_name} (#{items_count})"
+
+          contents.each do |content|
+            I18n.with_locale(content.first_available_locale) do
+              data_hash = content.get_data_hash
+              data_hash[DataCycleCore.features.dig(:life_cycle, :attribute_key)] = [archive_life_cycle_id]
+              content.set_data_hash(data_hash: data_hash, current_user: current_user)
+              logger.info("Archived - life_cycle (#{table_name}): #{content.id}")
+            end
+          end
+
+          puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
+        else
+          logger.warn('Life_cycle configuration missing.')
+        end
+      end
+      puts 'END'
+      puts "--> ARCHIVING time: #{((Time.zone.now - temp) / 60).to_i} min"
+    end
+  end
 end
