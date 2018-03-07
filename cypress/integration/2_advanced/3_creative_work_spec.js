@@ -14,8 +14,8 @@ describe('CreativeWork', function () {
         cy.visit('/?search=' + name).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
         cy.get('#new-object-circle').click()
         cy.get('#new-object .option[data-open="' + option_name + '"]').then(function ($elem) {
-          // cy.expect($elem).to.be.visible
-          $elem.click({force: true})
+          cy.expect($elem).to.be.visible
+          $elem.click()
           cy.get('#' + $elem.data('open')).should('be.visible')
           cy.get('#' + $elem.data('open') + ' input[type=text]').clear().type(name)
           cy.get('#' + $elem.data('open')).find('form').submit()
