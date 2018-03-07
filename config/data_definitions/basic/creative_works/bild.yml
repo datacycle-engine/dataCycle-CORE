@@ -126,7 +126,7 @@
         :storage_location: asset_relation
         :editor:
           :type: imageAsset
-          :sorting: 5
+          :sorting: 9
       :photographer:
         :label: Fotograf
         :type: string

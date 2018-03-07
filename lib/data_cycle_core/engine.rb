@@ -76,7 +76,7 @@ module DataCycleCore
     self.default_image_type = 'Bild'
 
     mattr_accessor :default_place_type
-    self.default_place_type = 'Ort'
+    self.default_place_type = 'Örtlichkeit'
 
     mattr_accessor :access_tokens
     self.access_tokens = []
@@ -94,7 +94,7 @@ module DataCycleCore
     self.linked_tables = ['users']
 
     mattr_accessor :excluded_filter_classifications
-    self.excluded_filter_classifications = ['Angebotszeitraum', 'Website', 'Zitat', 'DataCycle - File', 'DataCycle - Image']
+    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat']
 
     mattr_accessor :excluded_new_item_objects
     self.excluded_new_item_objects = []

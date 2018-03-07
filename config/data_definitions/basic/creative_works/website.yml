@@ -44,7 +44,6 @@
         :type: string
         :storage_type: text
         :storage_location: column
-        :search: true
         :editor:
           :type: quillEditor
           :sorting: 6
