@@ -1,0 +1,158 @@
+---
+name: OutdoorActive
+credentials:
+  project: XX-XXXXXXXXXX
+  key: XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  host: http://www.outdooractive.com
+  end_point: api/project
+config:
+  download: DataCycleCore::Generic::BatchDownload
+  download_config:
+    categories:
+      sorting: 1
+      source_type: categories
+      endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
+      download_strategy: DataCycleCore::Generic::OutdoorActive::DownloadCategories
+      logging_strategy: DataCycleCore::Generic::Logger::Console.new("download")
+    regions:
+      sorting: 2
+      source_type: regions
+      endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
+      download_strategy: DataCycleCore::Generic::OutdoorActive::DownloadRegions
+      logging_strategy: DataCycleCore::Generic::Logger::Console.new("download")
+    places:
+      sorting: 3
+      source_type: places
+      endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
+      download_strategy: DataCycleCore::Generic::OutdoorActive::DownloadPlaces
+      logging_strategy: DataCycleCore::Generic::Logger::Console.new("download")
+    tours:
+      sorting: 4
+      source_type: tours
+      endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
+      download_strategy: DataCycleCore::Generic::OutdoorActive::DownloadTours
+      logging_strategy: DataCycleCore::Generic::Logger::Console.new("download")
+  import: DataCycleCore::Generic::BatchImport
+  import_config:
+    categories:
+      sorting: 1
+      source_type: categories
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportCategories
+      data_template:
+      tree_label: OutdoorActive
+      target_type: DataCycleCore::Classification
+      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+    regions:
+      sorting: 2
+      source_type: regions
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportRegions
+      data_template:
+      tree_label: OutdoorActive
+      target_type: DataCycleCore::Classification
+      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+    source_places:
+      sorting: 3
+      source_type: places
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportSources
+      data_template:
+      tree_label: OutdoorActive
+      target_type: DataCycleCore::Classification
+      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+    source_tours:
+      sorting: 4
+      source_type: tours
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportSources
+      data_template:
+      tree_label: OutdoorActive
+      target_type: DataCycleCore::Classification
+      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+    frontendtype_places:
+      sorting: 5
+      source_type: places
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportFrontendTypes
+      data_template:
+      tree_label: OutdoorActive
+      target_type: DataCycleCore::Classification
+      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+    frontendtype_tours:
+      sorting: 6
+      source_type: tours
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportFrontendTypes
+      data_template:
+      tree_label: OutdoorActive
+      target_type: DataCycleCore::Classification
+      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+    place_freizeitpark:
+      sorting: 10
+      source_type: places
+      source_filter:
+        'dump.de.frontendtype': 'poi'
+        'dump.de.meta.source.id': '1479438'
+        'dump.de.category.id': '1574450'
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportPois
+      data_template: Örtlichkeit
+      data_type: POI
+      image_template: Bild
+      target_type: DataCycleCore::Place
+      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+    place_aussichtspunkt:
+      sorting: 11
+      source_type: places
+      source_filter:
+        'dump.de.frontendtype': 'poi'
+        'dump.de.meta.source.id': '1479438'
+        'dump.de.category.id': '1574493'
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportPois
+      data_template: Örtlichkeit
+      data_type: POI
+      image_template: Bild
+      target_type: DataCycleCore::Place
+      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+    places_hist_stätte:
+      sorting: 12
+      source_type: places
+      source_filter:
+        'dump.de.frontendtype': 'poi'
+        'dump.de.meta.source.id': '1479438'
+        'dump.de.category.id': '1574482'
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportPois
+      data_template: Örtlichkeit
+      data_type: POI
+      image_template: Bild
+      target_type: DataCycleCore::Place
+      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+    places_hist_stadtkern:
+      sorting: 13
+      source_type: places
+      source_filter:
+        'dump.de.frontendtype': 'poi'
+        'dump.de.meta.source.id': '1479438'
+        'dump.de.category.id': '1574483'
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportPois
+      data_template: Örtlichkeit
+      data_type: POI
+      image_template: Bild
+      target_type: DataCycleCore::Place
+      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+    huts:
+      sorting: 15
+      source_type: places
+      source_filter:
+        'dump.de.frontendtype': 'hut'
+        # 'dump.de.meta.source.id': '1479438'
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportPois
+      data_template: Örtlichkeit
+      data_type: Hütte
+      image_template: Bild
+      target_type: DataCycleCore::Place
+      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+    tours:
+      sorting: 20
+      source_type: tours
+      source_filter:
+        'dump.de.meta.source.id': '1479438'
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportTours
+      data_template: Tour
+      image_template: Bild
+      target_type: DataCycleCore::Place
+      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")

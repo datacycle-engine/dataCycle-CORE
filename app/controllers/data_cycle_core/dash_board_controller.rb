@@ -4,6 +4,8 @@ module DataCycleCore
     authorize_resource class: false # from cancancan (authorize)
 
     def home
+      @errors = nil
+      @duplicates = nil
       @statOutdoorActive = StatsDatabase.new(current_user.id)
       @statJobQueue = StatsJobQueue.new.update
     end
@@ -34,8 +36,6 @@ module DataCycleCore
         flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'data types', locale: DataCycleCore.ui_language
       else
         error_level = errors.blank? ? :notice : :error
-        # @statOutdoorActive = StatsDatabase.new(current_user.id)
-        # @statJobQueue = StatsJobQueue.new.update
         @errors = errors
         @duplicates = duplicates
         puts 'duplicates:'
@@ -60,8 +60,6 @@ module DataCycleCore
       if errors.blank?
         flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'import configs', locale: DataCycleCore.ui_language
       else
-        # @statOutdoorActive = StatsDatabase.new(current_user.id)
-        # @statJobQueue = StatsJobQueue.new.update
         @errors = errors
         puts 'errors:'
         ap errors

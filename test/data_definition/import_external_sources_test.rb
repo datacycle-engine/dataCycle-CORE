@@ -162,16 +162,6 @@ describe DataCycleCore::MasterData::ImportExternalSources do
       subject.validate_download_item.call(test_hash).errors.must_equal({})
     end
 
-    it 'fails if download_item has no sorting specified' do
-      test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
-      assert !subject.validate_download_item.call(test_hash.except(:sorting)).blank?
-    end
-
-    it 'produces an appropriate error if no sorting is specified' do
-      test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
-      subject.validate_download_item.call(test_hash.except(:sorting)).errors.must_equal({ sorting: ['is missing'] })
-    end
-
     it 'produces an appropriate error if sorting is negative' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
       test_hash[:sorting] = -1
@@ -236,16 +226,6 @@ describe DataCycleCore::MasterData::ImportExternalSources do
       subject.validate_download_item.call(test_hash).errors.must_equal({ logging_strategy: ['the string given can not be evaluated.'] })
     end
 
-    it 'fails if import_item has no sorting specified' do
-      test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      assert !subject.validate_import_item.call(test_hash.except(:sorting)).blank?
-    end
-
-    it 'produces an appropriate error if no sorting is specified for an import_item' do
-      test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      subject.validate_import_item.call(test_hash.except(:sorting)).errors.must_equal({ sorting: ['is missing'] })
-    end
-
     it 'produces an appropriate error if sorting is negative for an import_item' do
       test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
       test_hash[:sorting] = -1
@@ -283,9 +263,9 @@ describe DataCycleCore::MasterData::ImportExternalSources do
       assert !subject.validate_import_item.call(test_hash.except(:data_template)).blank?
     end
 
-    it 'produces an appropriate error if no data_template is specified' do
+    it 'check that data_template is optional' do
       test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      subject.validate_import_item.call(test_hash.except(:data_template)).errors.must_equal({ data_template: ['is missing'] })
+      subject.validate_import_item.call(test_hash.except(:data_template)).errors.must_equal({})
     end
 
     it 'fails if import_item has no target_type specified' do

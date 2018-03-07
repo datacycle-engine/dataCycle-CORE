@@ -26,17 +26,31 @@ module DataCycleCore
 
       def self.validate(data_hash)
         errors = validate_header.call(data_hash.deep_symbolize_keys).errors || {}
-        errors['import_config'] = {}
-        errors['download_config'] = {}
-        import_config = data_hash.dig('config', 'import_config') || {}
-        download_config = data_hash.dig('config', 'download_config') || {}
-        import_config.each do |key, value|
-          error = validate_import_item.call(value.deep_symbolize_keys).errors
-          errors['import_config'][key] = error unless error.blank?
+        errors[:import_config] = {}
+        errors[:download_config] = {}
+
+        # check for single importer or batch-mode
+        if data_hash.dig(:config, :import) == 'DataCycleCore::Generic::Import'
+          error = validate_import_item.call(data_hash.dig(:config, :import_config)).errors
+          errors[:import_config] = error unless error.blank?
+        else
+          import_config = data_hash.dig(:config, :import_config) || {}
+          import_config.each do |key, value|
+            error = validate_import_item.call(value.deep_symbolize_keys).errors
+            errors[:import_config][key] = error unless error.blank?
+          end
         end
-        download_config.each do |key, value|
-          error = validate_download_item.call(value.deep_symbolize_keys).errors
-          errors['download_config'][key] = error unless error.blank?
+
+        # check for single downloader of batch-mode
+        if data_hash.dig(:config, :download) == 'DataCycleCore::Generic::Download'
+          error = validate_download_item.call(data_hash.dig(:config, :download_config)).errors
+          errors['download_config'] = error unless error.blank?
+        else
+          download_config = data_hash.dig(:config, :download_config) || {}
+          download_config.each do |key, value|
+            error = validate_download_item.call(value.deep_symbolize_keys).errors
+            errors[:download_config][key] = error unless error.blank?
+          end
         end
         errors.reject { |_, v| v.blank? }
       end
@@ -104,7 +118,7 @@ module DataCycleCore
             end
           end
 
-          required(:sorting) { int? & gt?(0) }
+          optional(:sorting) { int? & gt?(0) }
           required(:source_type) { str? }
           required(:endpoint) { str? & class? }
           required(:download_strategy) { str? & module? }
@@ -141,10 +155,10 @@ module DataCycleCore
             end
           end
 
-          required(:sorting) { int? & gt?(0) }
+          optional(:sorting) { int? & gt?(0) }
           required(:source_type) { str? }
           required(:import_strategy) { str? & module? }
-          required(:data_template) { str? }
+          optional(:data_template).maybe(:str?)
           required(:target_type) { str? & class? }
           required(:logging_strategy) { str? & logger? }
         end
