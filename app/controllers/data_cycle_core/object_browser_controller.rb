@@ -42,12 +42,16 @@ module DataCycleCore
 
     def find
       authorize! :show, :object_browser
-      if !params[:class].blank? && !params[:ids].blank?
+      if params[:class].present? && params[:ids].present?
 
         I18n.with_locale(params[:language] || I18n.locale) do
           # TODO: FIXME if breaks
           object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == params[:class].classify }
-          @objects = object_type.constantize.where(id: params[:ids])
+          if params[:external]
+            @objects = object_type.constantize.where(external_key: params[:ids])
+          else
+            @objects = object_type.constantize.where(id: params[:ids])
+          end
         end
 
         respond_to(:js)

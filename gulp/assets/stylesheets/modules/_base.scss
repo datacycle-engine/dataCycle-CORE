@@ -3,7 +3,6 @@ body {
   border-top: 0.3rem solid $customercolor;
 }
 
-
 /* Headings */
 
 h2 {
@@ -18,14 +17,20 @@ h2 {
   }
 }
 
-a {
+a,
+button,
+.button,
+.reveal {
   outline: none;
+  &:hover,
+  &:focus {
+    outline: none;
+  }
 }
 
 h5 {
   color: $dark-gray;
 }
-
 
 /* Forms */
 
@@ -66,6 +71,7 @@ button,
     border-radius: 0;
     line-height: inherit;
     line-height: 30px;
+    &:focus,
     &:hover {
       text-decoration: underline;
       background: none;
@@ -207,6 +213,7 @@ button,
       font-size: 0.8rem;
       font-style: italic;
     }
+    &:focus,
     &:hover {
       color: $primary-color;
     }
@@ -376,6 +383,7 @@ button,
         opacity: 1;
         color: rgba($dark-gray, 50%);
       }
+      &:focus,
       &:hover {
         label {
           color: $primary-color;
@@ -709,7 +717,6 @@ body .v-select {
   text-align: center;
 }
 
-
 /* Sortierung, Viewtype Startseite */
 
 .view-icons,
@@ -747,7 +754,6 @@ body .v-select {
   }
 }
 
-
 /* Korrektur für Fehler im Neuen Eintrag erstellen reveal  */
 
 .new-item {
@@ -770,7 +776,6 @@ body.login-page {
   background-color: darkgrey;
 }
 
-
 /* tabs  */
 
 .tabs {
@@ -787,7 +792,6 @@ body.login-page {
   border: 0;
   border-top: 1px solid $light-gray;
 }
-
 
 /* Animations für lazyloaded iamges */
 

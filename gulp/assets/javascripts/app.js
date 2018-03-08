@@ -5,6 +5,7 @@ var jqueryujs = require('jquery-ujs');
 var foundation = require('foundation-sites');
 var lazysizes = require('lazysizes');
 var lazysizes_unveilhooks = require('lazysizes/plugins/unveilhooks/ls.unveilhooks.min.js');
+var callout_helpers = require('./modules/helpers/callout_helpers');
 
 var initializers = [];
 initializers.push(require('./modules/initializers/masonry_init'));
@@ -44,9 +45,70 @@ $(function () {
   if ($(".home-container").length) {
     $(".home-container").appendTo("body");
     setTimeout(function () {
-      $('.home-container').addClass('show')
+      $('.home-container').addClass('show');
     }, 500);
     $('body').addClass('login-page');
+  }
+
+  // FIXME: move to OEW with event triggers working
+  if ($('#import-content-form').length) {
+    $('#import-content-form form').on('submit', event => {
+      event.preventDefault();
+
+      let url = $(event.currentTarget).find('input#cms_url').val();
+
+      if (url != undefined && url.length > 0) {
+        $(event.currentTarget).siblings('.loading').fadeIn(100);
+        $.ajax({
+          url: url,
+          dataType: 'html'
+        }).done(data => {
+          $(event.currentTarget).siblings('.loading').fadeOut(100);
+          if ($(data).filter('#cdb-item-definition').length > 0) {
+            $(event.currentTarget).find('input#cms_url').val('');
+            let contents = JSON.parse($(data).filter('#cdb-item-definition').first().html());
+
+
+            if (contents != undefined && contents.portal.length > 0) {
+              console.log(contents.portal);
+              $.ajax({
+                url: $(event.currentTarget).prop('action'),
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                  market: contents.portal
+                }
+              }).done((data) => {
+                callout_helpers.show('Abos erfolgreich erstellt.', 'success');
+              }).fail(() => {
+                callout_helpers.show('Fehler beim Erstellen der Abos.', 'alert');
+              });
+
+            } else {
+              callout_helpers.show('Keine Märkte gefunden.', 'alert');
+            }
+
+            if (contents != undefined && contents.images.length > 0) {
+              let image_ids = contents.images.map(i => i.external_key);
+              let label = $('.object_browser[data-label="Bilder"]').first().data('label');
+
+              $('.object_browser[data-label="Bilder"]').children('.object-browser').trigger('import-data', {
+                label: label,
+                external_ids: image_ids
+              });
+              callout_helpers.show('Bilder importiert.', 'success');
+            } else {
+              callout_helpers.show('Keine Bilder gefunden.', 'alert');
+            }
+          } else {
+            callout_helpers.show('Keine Bilder gefunden.', 'alert');
+          }
+        }).fail(() => {
+          $(event.currentTarget).siblings('.loading').fadeOut(100);
+          callout_helpers.show('Fehler beim Importieren von URL: ' + url, 'alert');
+        });
+      }
+    });
   }
 
 });

@@ -839,6 +839,7 @@ ul.translated-locales {
         font-weight: normal;
         opacity: .7;
       }
+      &:focus,
       &:hover {
         background-color: rgba(map-get($foundation-palette, alert), 0.5);
       }
@@ -850,6 +851,7 @@ ul.translated-locales {
         background: transparent;
         padding: 0.2rem 0.5rem;
         line-height: initial;
+        &:focus,
         &:hover {
           box-shadow: none;
         }

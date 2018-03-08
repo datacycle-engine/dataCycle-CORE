@@ -1,7 +1,7 @@
 module DataCycleCore
   class PersonsController < ContentsController
-    before_action :authenticate_user!   # from devise (authenticate)
-    load_and_authorize_resource         # from cancancan (authorize)
+    before_action :authenticate_user! # from devise (authenticate)
+    load_and_authorize_resource except: [:add_subscribers_by_market] # from cancancan (authorize)
 
     def index
       @paginateObject = DataCycleCore::Person.all.where(template: false).order(updated_at: :desc).page(params[:page])

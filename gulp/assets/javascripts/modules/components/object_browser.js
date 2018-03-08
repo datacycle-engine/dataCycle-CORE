@@ -94,29 +94,37 @@ ObjectBrowser.prototype.setup = function () {
     this.overlay.foundation("close");
   }.bind(this));
 
+  this.element.on('update-chosen', (event, data) => {
+    this.chosen = this.chosen.concat(data.chosen.filter(function (elem) {
+      return this.chosen.indexOf(elem) === -1;
+    }.bind(this)));
+  });
+
   this.element.on('import-data', function (event, data) {
-    var new_items = this.getDelta(this.chosen, data.ids);
+    let new_items = [];
+    if (data.external_ids != undefined) new_items = this.getDelta(this.chosen, data.external_ids);
+    else if (data.ids != undefined) new_items = this.getDelta(this.chosen, data.ids);
+
     if (new_items.length > 0 && ((this.chosen.length + new_items.length) <= this.max || this.max == 0)) {
+      let json_data = {
+        type: this.type,
+        language: this.language,
+        object_browser_id: '#' + this.id,
+        key: this.key,
+        definition: this.definition,
+        options: this.options,
+        class: this.class,
+        ids: new_items,
+        objects: this.chosen
+      };
+      if (data.external_ids != undefined) json_data.external = true;
+
       $.ajax({
         url: this.url + '/find',
         method: 'POST',
-        data: JSON.stringify({
-          type: this.type,
-          language: this.language,
-          object_browser_id: '#' + this.id,
-          key: this.key,
-          definition: this.definition,
-          options: this.options,
-          ids: data.ids,
-          class: this.class,
-          objects: this.chosen
-        }),
+        data: JSON.stringify(json_data),
         contentType: 'application/json'
       }).done(function (return_data) {
-        this.chosen = this.chosen.concat(data.ids.filter(function (elem) {
-          return this.chosen.indexOf(elem) === -1;
-        }.bind(this)));
-
         this.element.find('.object-thumbs .item .reveal.media-preview').each(function () {
           $(this).foundation();
         });

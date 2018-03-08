@@ -6,4 +6,5 @@
   <% end %>
 
   $('<%= params[:object_browser_id] %>').find('.object-thumbs').append('<%= j yield :rendered_items %>');
+  $('<%= params[:object_browser_id] %>').trigger('update-chosen', { chosen: <%== @objects.ids.to_json %> });
 <% end %>
