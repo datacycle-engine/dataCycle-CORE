@@ -1,0 +1,52 @@
+<div class="dropdown-menu-item">
+  <i class="fa fa-clock-o" aria-hidden="true"></i>
+  <span class="title"><%= t('data_cycle_core.stored_searches.last', locale: DataCycleCore.ui_language) %></span>
+
+  <ul class="no-bullet">
+    <% @accessible_stored_filters.order(created_at: :desc).first(5).each do |stored_filter| %>
+        <li>
+          <%= link_to root_path(stored_filter: stored_filter.id) do %>
+            <span class="stored-date"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= "vor #{time_ago_in_words stored_filter.created_at}" %></span>
+            <span class="stored-filter-params">
+              <i class="fa fa-tags" aria-hidden="true"></i>
+              <span class="tag-group"><%= t('common.language', locale: DataCycleCore.ui_language) %>:
+                <span class="tag"><%= available_locales_with_names[stored_filter.language.to_sym] %></span>
+              </span>
+              <% if stored_filter.parameters.dig('fulltext_search').present? %>
+                <span class="tag-group"><%= t('common.searchterm', locale: DataCycleCore.ui_language) %>:
+                  <span class="tag"><%= stored_filter.parameters.dig('fulltext_search') %></span>
+                </span>
+              <% end %>
+              <% if stored_filter.parameters.dig('with_classification_alias_ids').present? %>
+                <% stored_filter.parameters.dig('with_classification_alias_ids').each do |key, value| %>
+                  <span class="tag-group"><%= key %>:
+                    <% value.each do |classification_alias_id| %>
+                      <span class="tag"><%= DataCycleCore::ClassificationAlias.select(:name).find(classification_alias_id).name %></span>
+                    <% end %>
+                  </span>
+                <% end %>
+              <% end %>
+            </span>
+          <% end %>
+        </li>
+    <% end %>
+    <li><%= link_to t('data_cycle_core.stored_searches.show_search_history', locale: DataCycleCore.ui_language), '', class: 'button' %></li>
+  </ul>
+</div>
+
+<div class="dropdown-menu-item">
+  <i class="fa fa-bookmark" aria-hidden="true"></i>
+  <span class="title"><%= t('data_cycle_core.stored_searches.saved', locale: DataCycleCore.ui_language) %></span>
+
+  <ul class="no-bullet">
+    <% @accessible_stored_filters.where.not(name: nil).order(:system, updated_at: :desc).first(5).each do |stored_filter| %>
+        <li>
+          <%= link_to root_path(stored_filter: stored_filter.id) do %>
+            <span class="title <%= 'global' if stored_filter.system %>"><i class="fa fa-bookmark" aria-hidden="true"></i> <%= stored_filter.name %></span>
+            <span class="stored-date right"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= stored_filter.created_at.to_datetime.to_s(:german_datetime_format) %></span>
+          <% end %>
+        </li>
+    <% end %>
+    <li><%= link_to t('data_cycle_core.stored_searches.show_all_saved', locale: DataCycleCore.ui_language), '', class: 'button' %></li>
+  </ul>
+</div>

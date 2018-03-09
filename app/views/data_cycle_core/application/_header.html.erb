@@ -22,11 +22,6 @@
                     <% end %>
                 </li>
                 <li>
-                    <% if can?(:show_history, DataCycleCore::StoredFilter) %>
-                        <%= render 'stored_filters' %>
-                    <% end %>
-                </li>
-                <li>
                     <%= link_to '/info' do %>
                         <i class="fa fa-question" aria-hidden="true"></i><span>Info</span>
                     <% end %>

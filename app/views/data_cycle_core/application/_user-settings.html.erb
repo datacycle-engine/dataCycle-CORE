@@ -62,7 +62,7 @@
         <% if can?(:read, DataCycleCore::StoredFilter) %>
           <div class="settings-row">
             <div class="row columns">
-              <h5><%= t('data_cycle_core.stored_filter', locale: DataCycleCore.ui_language) %></h5>
+              <h5><%= t('data_cycle_core.stored_searches.my_saved', locale: DataCycleCore.ui_language) %></h5>
             </div>
 
             <div class="row columns">
@@ -70,18 +70,13 @@
                 <% @accessible_stored_filters.where.not(name: nil).order(:system, updated_at: :desc).each do |stored_filter| %>
                     <li class="<%= 'system-filter' if stored_filter.system %>">
                       <%= link_to root_path(stored_filter: stored_filter.id), class: 'stored-filter-link' do %>
-                        <i class="fa fa-filter" aria-hidden="true"></i>
-                        <%= stored_filter.name || "vor #{time_ago_in_words stored_filter.created_at}" %>
+                        <span class="icon"><i class="fa fa-search" aria-hidden="true"></i></span>
+                        <span class="title"><%= stored_filter.name || "vor #{time_ago_in_words stored_filter.created_at}" %></span>
                       <% end %>
                       <span class="buttons">
                         <% if stored_filter.api %>
                           <%= link_to api_v1_stored_filter_path(stored_filter), class: 'copy-to-clipboard', data: { tooltip: '' }, title: t('actions.copy_api_url_to_clipboard') do %>
                             <i class="fa fa-clipboard" aria-hidden="true"></i>
-                          <% end %>
-                        <% end %>
-                        <% if can?(:destroy, stored_filter) %>
-                          <%= link_to stored_filter_path(stored_filter), method: :delete, data: { confirm: "Filter #{t('actions.delete', locale: DataCycleCore.ui_language)}?" } do %>
-                            <i class="fa fa-trash-o alert" aria-hidden="true"></i>
                           <% end %>
                         <% end %>
                       </span>

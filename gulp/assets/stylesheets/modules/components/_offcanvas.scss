@@ -29,7 +29,6 @@
     }
     .inner-content {
       font-size: 1.1rem;
-      .item {}
       .more {
         text-align: center;
         i {
@@ -43,6 +42,14 @@
     li {
       position: relative;
       padding-right: 1rem;
+      .stored-filter-link {
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        line-height: 1.4rem;
+        i {
+          color: $primary-color;
+        }
+      }
       &.system-filter {
         font-weight: bold;
       }

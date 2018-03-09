@@ -49,7 +49,7 @@ de:
     language: "Sprache"
     choose_language: "Sprache wählen"
     searchterm: "Suchbegriff"
-    active_filters: "Angewendete Filter"
+    active_filters: "Aktuelle Suche"
     no_results: "Es wurden keine Inhalte für Ihre Filterkriterien gefunden."
     additional_filters:
       show: weitere Filter anzeigen
@@ -115,7 +115,7 @@ de:
     reset:
       one: "Zurücksetzen"
       other: "Alle zurücksetzen"
-    filter: "Filter anwenden"
+    filter: jetzt suchen
     move_to: "In %{data} verschieben"
     read: lesen
     write: schreiben
@@ -300,7 +300,14 @@ de:
     administration: 'Administration'
     classifications: 'Klassifizierungen'
     settings: Einstellungen
-    stored_filter: Meine gespeicherten Filter
+    stored_searches:
+      my_saved: Meine gespeicherten Suchen
+      last: Zuletzt gesucht
+      saved: Gespeicherte Suchen
+      show_all_saved: Alle Gespeicherten Suchen ansehen
+      show_search_history: Gesammten Verlauf ansehen
+
+
 
   date:
     abbr_day_names:

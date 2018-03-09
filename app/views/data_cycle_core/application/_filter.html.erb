@@ -37,7 +37,6 @@
         <% if DataCycleCore.available_filters&.dig(:advanced)&.present? %>
           <ul class="accordion advanced-filters" data-responsive-accordion-tabs="accordion medium-tabs large-accordion" data-allow-all-closed="true">
             <li class="accordion-item" data-accordion-item>
-              <a href="#" class="accordion-title"><span><i class="fa fa-chevron-down" aria-hidden="true"></i><span class="closed"><%= t('common.additional_filters.show') %></span><span class="open"><%= t('common.additional_filters.hide') %></span> </span></a>
               <div class="accordion-content" data-tab-content>
 
                 <% DataCycleCore.available_filters&.dig(:advanced).each do |filter| %>
@@ -45,6 +44,7 @@
                 <% end %>
 
               </div>
+              <a href="#" class="accordion-title"><span><i class="fa fa-chevron-down" aria-hidden="true"></i></span></a>
             </li>
           </ul>
         <% end %>
@@ -82,11 +82,27 @@
         </div>
 
         <div class=" filterbuttons">
+          <div class="filterbuttons-left">
+            <%= button_tag class: "button success" do %>
+              <i class="fa fa-search" aria-hidden="true"></i>
+              <%= t('actions.filter', locale: DataCycleCore.ui_language) %>
+            <% end %>
 
-            <button type="reset" id="reset-filter" class="button"><%= t('actions.reset', count: 2, locale: DataCycleCore.ui_language) %></button>
-            <%= button_tag(t('actions.save_filter', locale: DataCycleCore.ui_language), class: 'button', type: 'button', id: 'save-filter', data: { open: 'save-filter-with-name' }) if can?(:create, DataCycleCore::StoredFilter) %>
-            <%= button_tag(t('actions.filter', locale: DataCycleCore.ui_language), class: "button success") %>
+            <%= button_tag type: :button, id: 'save-filter', data: { open: 'save-filter-with-name' } do %>
+              <i class="fa fa-bookmark-o" aria-hidden="true"></i>
+              <%= t('actions.save_filter', locale: DataCycleCore.ui_language) %>
+            <% end if can?(:create, DataCycleCore::StoredFilter) %>
 
+            <%= button_tag type: :reset, id: 'reset-filter' do %>
+              <i class="fa fa-times" aria-hidden="true"></i>
+              <%= t('actions.reset', count: 2, locale: DataCycleCore.ui_language) %>
+            <% end %>
+          </div>
+          <div class="filterbuttons-right">
+            <% if can?(:show_history, DataCycleCore::StoredFilter) %>
+              <%= render 'stored_searches' %>
+            <% end %>
+          </div>
         </div>
 
     </div>
