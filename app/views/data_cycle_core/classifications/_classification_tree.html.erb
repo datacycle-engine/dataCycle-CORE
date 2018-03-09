@@ -12,7 +12,7 @@
     <a href="#" class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
   <% end %>
 
-  <% if can?(:destroy, classification_tree) %>
+  <% if can?(:destroy, classification_tree.sub_classification_alias) %>
     <%= link_to classifications_path(classification_tree_id: classification_tree.id), class: 'destroy',
                 data: {remote: true, method: :delete,
                        confirm: t('common.are_you_sure', locale: DataCycleCore.ui_language),
