@@ -12,17 +12,17 @@ config:
       source_type: spots
       endpoint: DataCycleCore::Generic::Xamoom::Endpoint
       download_strategy: DataCycleCore::Generic::Xamoom::Download
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("download")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
   import: DataCycleCore::Generic::BatchImport
   import_config:
     tags:
       sorting: 1
       source_type: spots
       import_strategy: DataCycleCore::Generic::Xamoom::ImportTags
-      data_template: 
+      data_template:
       target_type: DataCycleCore::Classification
       tree_label: Xamoom-Tags
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     spots:
       sorting: 2
       source_type: spots
@@ -31,4 +31,4 @@ config:
       data_type: spot
       image_template: Bild
       target_type: DataCycleCore::Place
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")

@@ -13,25 +13,25 @@ config:
       source_type: categories
       endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
       download_strategy: DataCycleCore::Generic::OutdoorActive::DownloadCategories
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("download")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
     regions:
       sorting: 2
       source_type: regions
       endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
       download_strategy: DataCycleCore::Generic::OutdoorActive::DownloadRegions
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("download")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
     places:
       sorting: 3
       source_type: places
       endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
       download_strategy: DataCycleCore::Generic::OutdoorActive::DownloadPlaces
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("download")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
     tours:
       sorting: 4
       source_type: tours
       endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
       download_strategy: DataCycleCore::Generic::OutdoorActive::DownloadTours
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("download")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
   import: DataCycleCore::Generic::BatchImport
   import_config:
     categories:
@@ -41,7 +41,7 @@ config:
       data_template:
       tree_label: OutdoorActive
       target_type: DataCycleCore::Classification
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     regions:
       sorting: 2
       source_type: regions
@@ -49,7 +49,7 @@ config:
       data_template:
       tree_label: OutdoorActive
       target_type: DataCycleCore::Classification
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     source_places:
       sorting: 3
       source_type: places
@@ -57,7 +57,7 @@ config:
       data_template:
       tree_label: OutdoorActive
       target_type: DataCycleCore::Classification
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     source_tours:
       sorting: 4
       source_type: tours
@@ -65,7 +65,7 @@ config:
       data_template:
       tree_label: OutdoorActive
       target_type: DataCycleCore::Classification
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     frontendtype_places:
       sorting: 5
       source_type: places
@@ -73,7 +73,7 @@ config:
       data_template:
       tree_label: OutdoorActive
       target_type: DataCycleCore::Classification
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     frontendtype_tours:
       sorting: 6
       source_type: tours
@@ -81,7 +81,7 @@ config:
       data_template:
       tree_label: OutdoorActive
       target_type: DataCycleCore::Classification
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     place_freizeitpark:
       sorting: 10
       source_type: places
@@ -94,7 +94,7 @@ config:
       data_type: POI
       image_template: Bild
       target_type: DataCycleCore::Place
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     place_aussichtspunkt:
       sorting: 11
       source_type: places
@@ -107,7 +107,7 @@ config:
       data_type: POI
       image_template: Bild
       target_type: DataCycleCore::Place
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     places_hist_stätte:
       sorting: 12
       source_type: places
@@ -120,7 +120,7 @@ config:
       data_type: POI
       image_template: Bild
       target_type: DataCycleCore::Place
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     places_hist_stadtkern:
       sorting: 13
       source_type: places
@@ -133,7 +133,7 @@ config:
       data_type: POI
       image_template: Bild
       target_type: DataCycleCore::Place
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     huts:
       sorting: 15
       source_type: places
@@ -145,7 +145,7 @@ config:
       data_type: Hütte
       image_template: Bild
       target_type: DataCycleCore::Place
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     tours:
       sorting: 20
       source_type: tours
@@ -155,4 +155,4 @@ config:
       data_template: Tour
       image_template: Bild
       target_type: DataCycleCore::Place
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")

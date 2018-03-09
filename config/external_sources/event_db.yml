@@ -12,13 +12,13 @@ config:
       source_type: categories
       endpoint: DataCycleCore::Generic::EventDatabase::Endpoint
       download_strategy: DataCycleCore::Generic::EventDatabase::DownloadCategories
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("download")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
     events:
       sorting: 2
       source_type: events
       endpoint: DataCycleCore::Generic::EventDatabase::Endpoint
       download_strategy: DataCycleCore::Generic::EventDatabase::Download
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("download")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
   import: DataCycleCore::Generic::BatchImport
   import_config:
     categories:
@@ -28,11 +28,11 @@ config:
       data_template: ''
       tree_label: Veranstaltungsdatenbank - Kategorien
       target_type: DataCycleCore::Classification
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     events:
       sorting: 2
       source_type: events
       import_strategy: DataCycleCore::Generic::EventDatabase::ImportEvents
       data_template: Event
       target_type: DataCycleCore::Event
-      logging_strategy: DataCycleCore::Generic::Logger::Console.new("import")
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
