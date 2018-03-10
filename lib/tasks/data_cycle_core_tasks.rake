@@ -828,4 +828,82 @@ namespace :data_cycle_core do
       puts "--> ARCHIVING time: #{((Time.zone.now - temp) / 60).to_i} min"
     end
   end
+
+  namespace :external_contents do
+    desc 'Merge duplicates of external contents'
+    task :merge_duplicates do
+      DataCycleCore::Ability::CONTENT_MODELS.each do |model_class|
+        duplicated_contents = model_class
+          .select(:external_source_id, :external_key)
+          .where.not(external_source_id: nil, external_key: nil)
+          .group(:external_source_id, :external_key)
+          .having('COUNT(*) > 1')
+
+        duplicated_contents_count = duplicated_contents.to_a.size
+
+        puts "\nMerging #{duplicated_contents_count} duplicated external contents of type #{model_class} ... "
+
+        duplicated_contents.each do |duplicated_content|
+          contents = model_class.where(external_source_id: duplicated_content.external_source_id,
+                                       external_key: duplicated_content.external_key)
+
+          original_id = contents
+            .map(&:id)
+            .map { |id| [id, DataCycleCore::ContentContent.where(content_b_id: id).count] }
+            .sort_by(&:second).reverse
+            .map(&:first)
+            .first
+
+          duplicate_ids = contents
+            .map(&:id)
+            .map { |id| [id, DataCycleCore::ContentContent.where(content_b_id: id).count] }
+            .sort_by(&:second).reverse
+            .map(&:first)
+            .drop(1)
+
+          puts " -> Merging duplicates of #{model_class}#{original_id} ..."
+
+          duplicate_ids.each do |duplicate_id|
+            DataCycleCore::ContentContent.where(content_b_id: duplicate_id).map(&:content_a).each do |linked_content|
+              I18n.with_locale(linked_content.available_locales.first) do
+                linked_content.set_data_hash(data_hash: linked_content.get_data_hash)
+              end
+            end
+
+            DataCycleCore::ContentContent.where(content_b_id: duplicate_id).update_all(content_b_id: original_id)
+          end
+
+          puts " -> Merging duplicates of #{model_class}#{original_id} ... [DONE]"
+
+          model_class.where(id: duplicate_ids).destroy_all
+        end
+
+        puts "Merging #{duplicated_contents_count} duplicated external contents of type #{model_class} ... [DONE]"
+      end
+
+      duplicated_content_relations = DataCycleCore::ContentContent
+        .select(:content_a_id, :content_a_type, :relation_a,
+                :content_b_id, :content_b_type, :relation_b,
+                'MIN(created_at) AS "oldest_creation_date"')
+        .group(:content_a_id, :content_a_type, :relation_a, :content_b_id, :content_b_type, :relation_b)
+        .having('COUNT(*) > 1')
+
+      duplicated_content_relations_count = duplicated_content_relations.to_a.size
+
+      puts "\nCleaning up #{duplicated_content_relations_count} content relations ... "
+
+      duplicated_content_relations.each do |duplicated_relation|
+        DataCycleCore::ContentContent.where(
+          content_a_id: duplicated_relation.content_a_id,
+          content_a_type: duplicated_relation.content_a_type,
+          relation_a: duplicated_relation.relation_a,
+          content_b_id: duplicated_relation.content_b_id,
+          content_b_type: duplicated_relation.content_b_type,
+          relation_b: duplicated_relation.relation_b
+        ).where('created_at > ?', duplicated_relation.oldest_creation_date).destroy_all
+      end
+
+      puts "Cleaning up #{duplicated_content_relations_count} content relations ... [DONE]"
+    end
+  end
 end
