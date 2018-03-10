@@ -216,22 +216,20 @@ button,
         content: "\f02e";
       }
     }
-  } //.tags, .gueltigkeit {
-  .gueltigkeit {
+  } //.tags {
+  .validity_period {
     text-align: left;
     margin: 1rem 0 0 1rem;
-    .icon {
-      color: $dark-gray;
+    color: $dark-gray;
+    .date {
+      color: $black;
     }
   }
   .daterange span.bis,
-  .daterange span.icon,
-  .gueltigkeit span.bis,
-  .gueltigkeit span.icon {
+  .daterange span.icon {
     color: $dark-gray;
   }
-  .daterange span.bis,
-  .gueltigkeit span.bis {
+  .daterange span.bis {
     font-style: italic;
   }
   .daterange {
