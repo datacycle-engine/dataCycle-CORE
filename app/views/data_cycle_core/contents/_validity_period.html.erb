@@ -5,11 +5,11 @@
     <%
       valid_from = dataCycleObject.metadata['validity_period']['valid_from'] ||
                    dataCycleObject.metadata['validity_period']['date_published']
-      valid_from = valid_from.blank? ? -Date::Infinity.new : Date.parse(valid_from)
+      valid_from = valid_from.blank? ? 1_000_000.years.ago.to_date : Date.parse(valid_from)
 
       valid_until = dataCycleObject.metadata['validity_period']['valid_until'] ||
                     dataCycleObject.metadata['validity_period']['expires']
-      valid_until = valid_until.blank? ? Date::Infinity.new : Date.parse(valid_until)
+      valid_until = valid_until.blank? ? 1_000_000.years.from_now : Date.parse(valid_until)
 
       validity_period = (valid_from..valid_until)
     %>
@@ -18,12 +18,12 @@
       <i class="fa fa-clock-o" aria-hidden="true"></i>
       <%= t('terms.valid', locale: DataCycleCore.ui_language) %>
 
-      <% unless validity_period.include?(1_000.years.ago) %>
+      <% if validity_period.begin > 1_000.years.ago %>
         <%= t('terms.from', locale: DataCycleCore.ui_language) %>
         <span class="date"><%= l(validity_period.begin, locale: DataCycleCore.ui_language) %></span>
       <% end %>
 
-      <% unless validity_period.include?(1_000.years.from_now) %>
+      <% if validity_period.end < 1_000.years.from_now %>
         <%= t('terms.until', locale: DataCycleCore.ui_language) %>
         <span class="date"><%= l(validity_period.end, locale: DataCycleCore.ui_language) %></span>
       <% end %>
