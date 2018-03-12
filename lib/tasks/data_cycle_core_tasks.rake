@@ -831,7 +831,7 @@ namespace :data_cycle_core do
 
   namespace :external_contents do
     desc 'Merge duplicates of external contents'
-    task :merge_duplicates do
+    task merge_duplicates: :environment do
       DataCycleCore::Ability::CONTENT_MODELS.each do |model_class|
         duplicated_contents = model_class
           .select(:external_source_id, :external_key)
@@ -861,7 +861,7 @@ namespace :data_cycle_core do
             .map(&:first)
             .drop(1)
 
-          puts " -> Merging duplicates of #{model_class}#{original_id} ..."
+          puts " -> Merging #{duplicate_ids.count} duplicates of #{model_class}##{original_id} ..."
 
           duplicate_ids.each do |duplicate_id|
             DataCycleCore::ContentContent.where(content_b_id: duplicate_id).map(&:content_a).each do |linked_content|
@@ -873,7 +873,7 @@ namespace :data_cycle_core do
             DataCycleCore::ContentContent.where(content_b_id: duplicate_id).update_all(content_b_id: original_id)
           end
 
-          puts " -> Merging duplicates of #{model_class}#{original_id} ... [DONE]"
+          puts " -> Merging #{duplicate_ids.count} duplicates of #{model_class}##{original_id} ... [DONE]"
 
           model_class.where(id: duplicate_ids).destroy_all
         end
