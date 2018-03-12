@@ -7,10 +7,18 @@ module DataCycleCore
       updated = api_strategy.update content
 
       updated.each do |item|
-        item.update(webhook_source: permitted_params[:webhook_source]) unless permitted_params[:webhook_source].blank?
+        item.available_locales.each do |locale|
+          I18n.with_locale(locale) do
+            item.update(webhook_source: permitted_params[:webhook_source]) unless permitted_params[:webhook_source].blank?
+          end
+        end
       end
 
-      execute_after_update_webhooks updated.first if updated.is_a?(Array)
+      updated.first.available_locales.each do |locale|
+        I18n.with_locale(locale) do
+          execute_after_update_webhooks updated.first if updated.is_a?(Array)
+        end
+      end
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
       render plain: { 'updated' => updated }.to_json, content_type: 'application/json'
