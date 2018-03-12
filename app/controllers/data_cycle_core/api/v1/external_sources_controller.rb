@@ -30,8 +30,9 @@ module DataCycleCore
 
     def destroy
       api_strategy = get_api_strategy
+      content = content_params.as_json
 
-      deleted = api_strategy.delete permitted_params[:external_key]
+      deleted = api_strategy.delete content
 
       execute_after_delete_webhooks deleted
 

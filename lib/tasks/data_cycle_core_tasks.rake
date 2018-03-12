@@ -745,4 +745,165 @@ namespace :data_cycle_core do
       end
     end
   end
+
+  namespace :archive do
+    desc 'move expired contents to archive'
+    task expired: :environment do
+      logger = Logger.new('archive.log')
+      temp = Time.zone.now
+      archive_life_cycle_id = DataCycleCore::Classification.find_by(name: DataCycleCore.features.dig(:life_cycle, :ordered)&.last)&.id
+      archive_release_id = DataCycleCore::Release.order(release_code: :desc)&.first&.id
+      current_user = DataCycleCore::User.find_by('email ILIKE ?', 'admin%')&.id
+
+      ids = DataCycleCore::Search.where('upper(validity_period) < ?', Date.current).map { |s| s.content_data&.id }
+
+      DataCycleCore.content_tables.each do |table_name|
+        if archive_release_id.present?
+          contents = ('DataCycleCore::' + table_name.singularize.classify).constantize
+            .where(id: ids)
+            .expired_not_release_id(archive_release_id)
+            .with_content_type('entity').uniq
+
+          index = 0
+          items_count = contents.size
+          puts "ARCHIVING (release_status) ==> #{table_name} (#{items_count})"
+
+          contents.each do |content|
+            # progress bar
+            if items_count > 49
+              if (index % (items_count / 100.0).round(0)).zero?
+                fraction = (index / (items_count / 100.0)).round(0)
+                fraction = 100 if fraction > 100
+                print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
+              end
+            else
+              fraction = (((index * 1.0) / items_count) * 100.0).round(0)
+              fraction = 100 if fraction > 100
+              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
+            end
+            index += 1
+
+            content.translated_locales.each do |locale|
+              I18n.with_locale(content.first_available_locale(locale)) do
+                content.set_data_hash(data_hash: content.get_data_hash, current_user: current_user)
+                content.update(release_id: archive_release_id, release_comment: I18n.t('common.archived', locale: DataCycleCore.ui_language))
+                logger.info("Archived - release_status (#{table_name}): #{content.id} (#{locale})")
+              end
+            end
+          end
+
+          puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
+        else
+          logger.warn('No Release found.')
+        end
+
+        if DataCycleCore.features.dig(:life_cycle, :attribute_key).present? && archive_life_cycle_id.present?
+          contents = ('DataCycleCore::' + table_name.singularize.classify).constantize
+            .where(id: ids)
+            .where('classification_contents.relation = ?', DataCycleCore.features.dig(:life_cycle, :attribute_key))
+            .expired_not_life_cycle_id(archive_life_cycle_id)
+            .with_content_type('entity').uniq
+
+          contents = contents.where(is_part_of: nil) if ActiveRecord::Base.connection.column_exists?(table_name, 'is_part_of')
+
+          index = 0
+          items_count = contents.size
+          puts "ARCHIVING (life_cycle) ==> #{table_name} (#{items_count})"
+
+          contents.each do |content|
+            I18n.with_locale(content.first_available_locale) do
+              data_hash = content.get_data_hash
+              data_hash[DataCycleCore.features.dig(:life_cycle, :attribute_key)] = [archive_life_cycle_id]
+              content.set_data_hash(data_hash: data_hash, current_user: current_user)
+              logger.info("Archived - life_cycle (#{table_name}): #{content.id}")
+            end
+          end
+
+          puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
+        else
+          logger.warn('Life_cycle configuration missing.')
+        end
+      end
+      puts 'END'
+      puts "--> ARCHIVING time: #{((Time.zone.now - temp) / 60).to_i} min"
+    end
+  end
+
+  namespace :external_contents do
+    desc 'Merge duplicates of external contents'
+    task :merge_duplicates do
+      DataCycleCore::Ability::CONTENT_MODELS.each do |model_class|
+        duplicated_contents = model_class
+          .select(:external_source_id, :external_key)
+          .where.not(external_source_id: nil, external_key: nil)
+          .group(:external_source_id, :external_key)
+          .having('COUNT(*) > 1')
+
+        duplicated_contents_count = duplicated_contents.to_a.size
+
+        puts "\nMerging #{duplicated_contents_count} duplicated external contents of type #{model_class} ... "
+
+        duplicated_contents.each do |duplicated_content|
+          contents = model_class.where(external_source_id: duplicated_content.external_source_id,
+                                       external_key: duplicated_content.external_key)
+
+          original_id = contents
+            .map(&:id)
+            .map { |id| [id, DataCycleCore::ContentContent.where(content_b_id: id).count] }
+            .sort_by(&:second).reverse
+            .map(&:first)
+            .first
+
+          duplicate_ids = contents
+            .map(&:id)
+            .map { |id| [id, DataCycleCore::ContentContent.where(content_b_id: id).count] }
+            .sort_by(&:second).reverse
+            .map(&:first)
+            .drop(1)
+
+          puts " -> Merging duplicates of #{model_class}#{original_id} ..."
+
+          duplicate_ids.each do |duplicate_id|
+            DataCycleCore::ContentContent.where(content_b_id: duplicate_id).map(&:content_a).each do |linked_content|
+              I18n.with_locale(linked_content.available_locales.first) do
+                linked_content.set_data_hash(data_hash: linked_content.get_data_hash)
+              end
+            end
+
+            DataCycleCore::ContentContent.where(content_b_id: duplicate_id).update_all(content_b_id: original_id)
+          end
+
+          puts " -> Merging duplicates of #{model_class}#{original_id} ... [DONE]"
+
+          model_class.where(id: duplicate_ids).destroy_all
+        end
+
+        puts "Merging #{duplicated_contents_count} duplicated external contents of type #{model_class} ... [DONE]"
+      end
+
+      duplicated_content_relations = DataCycleCore::ContentContent
+        .select(:content_a_id, :content_a_type, :relation_a,
+                :content_b_id, :content_b_type, :relation_b,
+                'MIN(created_at) AS "oldest_creation_date"')
+        .group(:content_a_id, :content_a_type, :relation_a, :content_b_id, :content_b_type, :relation_b)
+        .having('COUNT(*) > 1')
+
+      duplicated_content_relations_count = duplicated_content_relations.to_a.size
+
+      puts "\nCleaning up #{duplicated_content_relations_count} content relations ... "
+
+      duplicated_content_relations.each do |duplicated_relation|
+        DataCycleCore::ContentContent.where(
+          content_a_id: duplicated_relation.content_a_id,
+          content_a_type: duplicated_relation.content_a_type,
+          relation_a: duplicated_relation.relation_a,
+          content_b_id: duplicated_relation.content_b_id,
+          content_b_type: duplicated_relation.content_b_type,
+          relation_b: duplicated_relation.relation_b
+        ).where('created_at > ?', duplicated_relation.oldest_creation_date).destroy_all
+      end
+
+      puts "Cleaning up #{duplicated_content_relations_count} content relations ... [DONE]"
+    end
+  end
 end
