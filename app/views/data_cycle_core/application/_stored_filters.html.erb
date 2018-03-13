@@ -13,7 +13,7 @@
           <% end %>
         </li>
     <% end %>
-    <li><%= link_to t('data_cycle_core.stored_searches.show_search_history', locale: DataCycleCore.ui_language), stored_filters_path, class: 'button' %></li>
+    <li><%= link_to t('data_cycle_core.stored_searches.show_search_history', locale: DataCycleCore.ui_language), stored_filters_path(anchor: 'searches-history'), class: 'button' %></li>
   </ul>
 </div>
 
@@ -22,7 +22,7 @@
   <span class="title"><%= t('data_cycle_core.stored_searches.saved', count: 2, locale: DataCycleCore.ui_language) %></span>
 
   <ul class="no-bullet">
-    <% @accessible_stored_filters.where.not(name: nil).order(system: :desc, updated_at: :desc).first(5).each do |stored_filter| %>
+    <% @accessible_stored_filters.where.not(name: nil).order(updated_at: :desc).first(5).each do |stored_filter| %>
         <li>
           <%= link_to root_path(stored_filter: stored_filter.id) do %>
             <span class="title <%= 'global' if stored_filter.system %>"><i class="fa fa-bookmark" aria-hidden="true"></i> <%= stored_filter.name %></span>
@@ -30,6 +30,6 @@
           <% end %>
         </li>
     <% end %>
-    <li><%= link_to t('data_cycle_core.stored_searches.show_all_saved', count: 1, locale: DataCycleCore.ui_language), stored_filters_path, class: 'button' %></li>
+    <li><%= link_to t('data_cycle_core.stored_searches.show_all_saved', count: 1, locale: DataCycleCore.ui_language), stored_filters_path(anchor: 'searches-saved'), class: 'button' %></li>
   </ul>
 </div>

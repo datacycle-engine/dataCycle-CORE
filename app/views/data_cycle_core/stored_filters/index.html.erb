@@ -14,7 +14,7 @@
 
       <% else %>
 
-        <div class="row saved-searches">
+        <div class="row saved-searches" id="searches-saved">
           <ul class="no-bullet content-list">
             <li class="title">
               <span class="title-text"><%= t('data_cycle_core.stored_searches.saved', count: 2, locale: DataCycleCore.ui_language) %></span>
@@ -33,6 +33,9 @@
                   <%= render 'data_cycle_core/application/filters/search_params', stored_search: stored_search %>
                 </span>
                 <span class="buttons">
+                  <%= link_to api_v1_stored_filter_path(stored_search), class: 'copy-to-clipboard', data: { tooltip: '' }, title: t('actions.copy_api_url_to_clipboard') do %>
+                    <i class="fa fa-clipboard" aria-hidden="true"></i>
+                  <% end if stored_search.api && can?(:create_api, DataCycleCore::StoredFilter) %>
                   <%= link_to stored_filter_path(stored_search), method: :delete, data: { confirm: "#{t('data_cycle_core.stored_searches.saved', count: 1, locale: DataCycleCore.ui_language)} #{t('actions.delete', locale: DataCycleCore.ui_language)}?" } do %>
                   <i class="fa fa-trash-o alert" aria-hidden="true"></i>
                   <% end if can?(:destroy, stored_search) %>
@@ -42,7 +45,7 @@
           </ul>
         </div>
 
-        <div class="row search-history-list" data-pages="<%= @pages || 0 %>">
+        <div id="searches-history" class="row search-history-list" data-pages="<%= @pages || 0 %>">
           <ul class="no-bullet content-list">
             <li class="title">
               <span class="title-text"><%= t('data_cycle_core.stored_searches.history', locale: DataCycleCore.ui_language) %></span>

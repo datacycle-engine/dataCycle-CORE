@@ -710,7 +710,7 @@
         }
       }
       &.content-item {
-        padding: 0.8rem 4rem 0.8rem 1rem;
+        padding: 0.8rem 5rem 0.8rem 1rem;
         background-color: white;
         .content-title {
           &.global {
@@ -787,21 +787,27 @@
         margin: 2rem 0 0.5rem 1rem;
       }
     }
-    ul li.content-item span {
-      &.content-title {
-        font-size: 0.9rem;
-        color: lighten($dark-gray, 10%);
-        i {
+    ul li.content-item {
+      padding: 0.8rem 3rem 0.8rem 1rem;
+      span {
+        &.content-title {
           font-size: 0.9rem;
+          color: lighten($dark-gray, 10%);
+          a {
+            color: lighten($dark-gray, 10%);
+          }
+          i {
+            font-size: 0.9rem;
+          }
         }
-      }
-      &.content-attributes {
-        color: $black;
-      }
-      &.content-title,
-      &.content-attributes {
-        min-width: 8rem;
-        display: table-cell;
+        &.content-attributes {
+          color: $black;
+        }
+        &.content-title,
+        &.content-attributes {
+          min-width: 8rem;
+          display: table-cell;
+        }
       }
     }
   }
