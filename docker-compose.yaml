@@ -20,6 +20,8 @@ services:
     - MONGODB_HOST=mongodb
     - ALLOW_IP_RANGE=172.18.0.0/12
     - TZ=Europe/Vienna
+#    - APP_HOST=localhost:3010
+#    - APP_PROTOCOL=http
     command:
     - ./docker/setup.sh
     volumes:
