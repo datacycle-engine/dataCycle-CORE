@@ -42,7 +42,7 @@ namespace :review do
           print_message "test_path: #{test_path}"
           unless test("[ -f #{test_path} ]")
             run_locally do
-              command = "#{fetch(:cmd_prefix, '')}data_cycle_core:review_app:init[#{fetch(:application_prefix, '')}#{fetch(:application)}]"
+              command = "#{fetch(:cmd_prefix, '')}data_cycle_core:review_app:init[#{fetch(:application_prefix, '')}#{fetch(:application)}, #{fetch(:domain_prefix)}-#{fetch(:application)}.#{fetch(:domain)}]"
               `bundle exec rake "#{command}"`
             end
             upload! "#{fetch(:application_root_path, '')}tmp/.env", "#{fetch(:application_root_path, '')}.env"
