@@ -1,0 +1,20 @@
+---
+name: Eyebase
+credentials:
+  host: https://vorarlberg.eyebase.com/
+  end_point: api/1/webmill.php
+  token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+config:
+  download: DataCycleCore::Generic::Download
+  download_config:
+    source_type: media_assets
+    endpoint: DataCycleCore::Generic::Eyebase::Endpoint
+    download_strategy: DataCycleCore::Generic::Eyebase::Download
+    logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
+  import: DataCycleCore::Generic::Import
+  import_config:
+    source_type: media_assets
+    import_strategy: DataCycleCore::Generic::Eyebase::Import
+    data_template: Bild
+    target_type: DataCycleCore::CreativeWork
+    logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")

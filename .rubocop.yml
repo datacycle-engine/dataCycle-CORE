@@ -20,6 +20,10 @@ Layout/MultilineMethodCallIndentation:
 
 #######################################################
 ########## Style
+
+Style/AsciiComments:
+  Enabled: false
+
 Style/BlockDelimiters:
   EnforcedStyle: braces_for_chaining
 
@@ -107,6 +111,7 @@ Security/YAMLLoad:
   Exclude:
     - 'app/models/data_cycle_core/master_data/import_classifications.rb'
     - 'app/models/data_cycle_core/master_data/import_templates.rb'
+    - 'app/models/data_cycle_core/master_data/import_external_sources.rb'
 
 #######################################################
 ########## Rails

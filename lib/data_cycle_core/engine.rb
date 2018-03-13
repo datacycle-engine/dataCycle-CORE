@@ -139,6 +139,9 @@ module DataCycleCore
     mattr_accessor :default_template_paths
     self.default_template_paths = []
 
+    # location of import/download configs
+    mattr_accessor :external_sources_path
+
     # available filter
     mattr_accessor :available_filters
     self.available_filters = {

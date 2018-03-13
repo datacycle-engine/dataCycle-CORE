@@ -21,13 +21,18 @@ module DataCycleCore
 
                 extracted_classification_data = extract_data.call(raw_classification_data)
 
-                import_classification(extracted_classification_data.merge({ tree_name: tree_name }),
-                                      load_parent_classification_alias.call(raw_classification_data))
-
+                import_classification(
+                  extracted_classification_data.merge({ tree_name: tree_name }),
+                  load_parent_classification_alias.call(raw_classification_data)
+                )
                 raw_classification_data_stack += load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
 
-                @logging.item_processed(extracted_classification_data[:name],
-                                        extracted_classification_data[:id], item_count, nil)
+                @logging.item_processed(
+                  extracted_classification_data[:name],
+                  extracted_classification_data[:id],
+                  item_count,
+                  nil
+                )
 
                 break if options[:max_count] && item_count >= options[:max_count]
               end
@@ -41,33 +46,46 @@ module DataCycleCore
       def import_classification(classification_data, parent_classification_alias = nil)
         if classification_data[:external_id].blank?
           classification = DataCycleCore::Classification
-            .find_or_initialize_by(external_source_id: external_source.id,
-                                   name: classification_data[:name])
+            .find_or_initialize_by(
+              external_source_id: external_source.id,
+              name: classification_data[:name]
+            )
 
         else
           classification = DataCycleCore::Classification
-            .find_or_initialize_by(external_source_id: external_source.id,
-                                   external_key: classification_data[:external_id])
+            .find_or_initialize_by(
+              external_source_id: external_source.id,
+              external_key: classification_data[:external_id]
+            )
         end
 
         classification.name = classification_data[:name]
+        classification.external_key = classification_data[:external_id]
 
         if classification.new_record?
-          classification_alias = DataCycleCore::ClassificationAlias.create!(external_source_id: external_source.id,
-                                                                            name: classification_data[:name])
+          classification_alias = DataCycleCore::ClassificationAlias.create!(
+            external_source_id: external_source.id,
+            name: classification_data[:name]
+          )
 
-          classification_group = DataCycleCore::ClassificationGroup.create!(classification: classification,
-                                                                            classification_alias: classification_alias,
-                                                                            external_source_id: external_source.id)
+          classification_group = DataCycleCore::ClassificationGroup.create!(
+            classification: classification,
+            classification_alias: classification_alias,
+            external_source_id: external_source.id
+          )
 
-          tree_label = DataCycleCore::ClassificationTreeLabel.find_or_create_by(external_source_id: external_source.id,
-                                                                                name: classification_data[:tree_name])
+          tree_label = DataCycleCore::ClassificationTreeLabel.find_or_create_by(
+            external_source_id: external_source.id,
+            name: classification_data[:tree_name]
+          )
 
-          classification_tree = DataCycleCore::ClassificationTree.create!({
-                                                                            classification_tree_label: tree_label,
-                                                                            parent_classification_alias: parent_classification_alias,
-                                                                            sub_classification_alias: classification_alias
-                                                                          })
+          classification_tree = DataCycleCore::ClassificationTree.create!(
+            {
+              classification_tree_label: tree_label,
+              parent_classification_alias: parent_classification_alias,
+              sub_classification_alias: classification_alias
+            }
+          )
         else
           primary_classification_alias = classification.primary_classification_alias
           primary_classification_alias.name = classification_data[:name]
@@ -110,8 +128,10 @@ module DataCycleCore
       def create_or_update_content(clazz, template, data)
         return nil if data.except('external_key', 'locale').blank?
 
-        content = clazz.find_or_initialize_by(external_source_id: external_source.id,
-                                              external_key: data['external_key'])
+        content = clazz.find_or_initialize_by(
+          external_source_id: external_source.id,
+          external_key: data['external_key']
+        )
 
         content.metadata ||= {}
         content.schema = template.schema
@@ -125,7 +145,11 @@ module DataCycleCore
 
         error = content.set_data_hash(data_hash: old_data.merge(data))
 
-        @logging.error('Validating import data', data['external_key'], data, error[:error].join('\n')) unless error[:error].blank?
+        if @logging && !error[:error].blank?
+          @logging.error('Validating import data', data['external_key'], data, error[:error].join('\n'))
+        elsif !error[:error].blank?
+          raise error[:error].first
+        end
 
         content.tap(&:save!)
       end
