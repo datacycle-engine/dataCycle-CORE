@@ -66,7 +66,7 @@ namespace :review do
     on roles(:db) do
       within release_path do
         with rails_env: fetch(:rails_env) do
-          execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:dump[dev_db,sql]"
+          execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:dump[dev_db,sql,review]"
         end
       end
       within shared_path do
