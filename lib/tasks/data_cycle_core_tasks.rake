@@ -458,6 +458,20 @@ namespace :data_cycle_core do
           puts "ARCHIVING (life_cycle) ==> #{table_name} (#{items_count})"
 
           contents.each do |content|
+            # progress bar
+            if items_count > 49
+              if (index % (items_count / 100.0).round(0)).zero?
+                fraction = (index / (items_count / 100.0)).round(0)
+                fraction = 100 if fraction > 100
+                print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
+              end
+            else
+              fraction = (((index * 1.0) / items_count) * 100.0).round(0)
+              fraction = 100 if fraction > 100
+              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
+            end
+            index += 1
+
             I18n.with_locale(content.first_available_locale) do
               data_hash = content.get_data_hash
               data_hash[DataCycleCore.features.dig(:life_cycle, :attribute_key)] = [archive_life_cycle_id]
