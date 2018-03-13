@@ -1,0 +1,38 @@
+<% stored_searches.each do |key, value| %>
+  <% if params[:last_day] != key %>
+    <li class="stored-search-day" data-day="<%= key %>"><%= key %></li>
+  <% end %>
+  <% value.each do |stored_search| %>
+    <li class="content-item">
+      <span class="content-title"><i class="fa fa-clock-o" aria-hidden="true"></i><%= l(stored_search.created_at.to_datetime, format: '%H:%M', locale: DataCycleCore.ui_language) %></span>
+      <span class="content-attributes"><%= render 'data_cycle_core/application/filters/search_params', stored_search: stored_search %></span>
+      <span class="buttons">
+        <% if can?(:update, stored_search) && stored_search.name.blank? %>
+          <a class="save-search" id="save-stored-search-<%= stored_search.id %>" data-toggle="save-search-form-<%= stored_search.id %>"><i class="fa fa-bookmark-o" aria-hidden="true"></i></a>
+          <div class="dropdown-pane no-bullet align-right bottom" id="save-search-form-<%= stored_search.id %>" data-dropdown data-hover="true" data-hover-pane="true">
+            <h5><%= t('data_cycle_core.stored_searches.save', locale: DataCycleCore.ui_language) %></h5>
+            <%= form_for(stored_search, namespace: stored_search.id) do |f| %>
+              <div class="validation-container form-element">
+                <%= f.text_field :name, placeholder: DataCycleCore::StoredFilter.human_attribute_name('name', locale: DataCycleCore.ui_language), required: true, label: false %>
+              </div>
+              <% if can?(:create_api, DataCycleCore::StoredFilter) %>
+                <div class="form-element">
+                  <%= f.check_box :api %>
+                </div>
+              <% end %>
+              <% if can?(:create_global, DataCycleCore::StoredFilter) %>
+                <div class="form-element">
+                  <%= f.check_box :system %>
+                </div>
+              <% end %>
+              <%= f.submit t('actions.save', locale: DataCycleCore.ui_language), data: { disable_with: t('actions.save', locale: DataCycleCore.ui_language) } %>
+            <% end %>
+          </div>
+        <% elsif can?(:update, stored_search) %>
+          <i class="fa fa-bookmark" aria-hidden="true"></i>
+        <% end %>
+      </span>
+    </li>
+  <% end %>
+<% end %>
+

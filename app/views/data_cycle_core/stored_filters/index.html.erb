@@ -1,0 +1,56 @@
+<% breadcrumb :'data_cycle_core/stored_filters' %>
+
+  <% content_for(:title, t('data_cycle_core.stored_searches.my_searches', locale: DataCycleCore.ui_language)) %>
+
+    <section class="stored-searches-list" data-pages="<%= @pages %>">
+
+      <% if @contents&.size&.zero? %>
+
+        <div class="row">
+          <div class="small-12">
+            <span class="no-results"><%= t('common.no_results', locale: DataCycleCore.ui_language) %></span>
+          </div>
+        </div>
+
+      <% else %>
+
+        <div class="row saved-searches">
+          <ul class="no-bullet content-list">
+            <li class="title">
+              <span class="title-text"><%= t('data_cycle_core.stored_searches.saved', count: 2, locale: DataCycleCore.ui_language) %></span>
+              <span class="pages"><%= @saved_count || 0 %> <%= t('common.entries', locale: DataCycleCore.ui_language) %> <i class="fa fa-angle-down round" aria-hidden="true"></i></span>
+            </li>
+            <% @saved_stored_searches.each do |stored_search| %>
+              <li class="content-item">
+                <span class="content-title <%= 'global' if stored_search.system %>">
+                  <%= link_to root_path(stored_filter: stored_search.id) do %>
+                    <i class="fa fa-bookmark" aria-hidden="true"></i>
+                    <%= stored_search.name %>
+                  <% end %>
+                </span>
+                <span class="content-date"><i class="fa fa-clock-o" aria-hidden="true"></i><%= stored_search.created_at.to_datetime.to_s(:german_datetime_format) %></span>
+                <span class="content-attributes">
+                  <%= render 'data_cycle_core/application/filters/search_params', stored_search: stored_search %>
+                </span>
+                <span class="buttons">
+                  <%= link_to stored_filter_path(stored_search), method: :delete, data: { confirm: "#{t('data_cycle_core.stored_searches.saved', count: 1, locale: DataCycleCore.ui_language)} #{t('actions.delete', locale: DataCycleCore.ui_language)}?" } do %>
+                  <i class="fa fa-trash-o alert" aria-hidden="true"></i>
+                  <% end if can?(:destroy, stored_search) %>
+                </span>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+
+        <div class="row search-history-list" data-pages="<%= @pages || 0 %>">
+          <ul class="no-bullet content-list">
+            <li class="title">
+              <span class="title-text"><%= t('data_cycle_core.stored_searches.history', locale: DataCycleCore.ui_language) %></span>
+              <span class="pages"><%= @history_count || 0 %> <%= t('common.entries', locale: DataCycleCore.ui_language) %>  <i class="fa fa-angle-down round" aria-hidden="true"></i></span>
+            </li>
+            <%= render 'stored_searches', stored_searches: @stored_searches %>
+          </ul>
+        </div>
+
+      <% end %>
+    </section>

@@ -2,7 +2,27 @@ module DataCycleCore
   class StoredFiltersController < ApplicationController
     include DataCycleCore::Filter
     before_action :authenticate_user! # from devise (authenticate)
-    load_and_authorize_resource       # from cancancan (authorize)
+    load_and_authorize_resource # from cancancan (authorize)
+
+    def index
+      @saved_stored_searches = @accessible_stored_filters.where.not(name: nil).order(system: :desc, name: :asc)
+      @saved_count = @saved_stored_searches.size
+
+      @stored_searches = current_user.stored_filters.order(created_at: :desc).page(params[:page])
+      @history_count = @stored_searches.total_count
+      @pages = @stored_searches.total_pages
+      @stored_searches = @stored_searches.group_by { |c| l(c.created_at&.to_date, format: :long, locale: DataCycleCore.ui_language) }
+
+      respond_to(:html, :js)
+    end
+
+    def update
+      if @stored_filter.update(stored_filter_params)
+        redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Filter', locale: DataCycleCore.ui_language))
+      else
+        redirect_back(fallback_location: root_path, alert: (I18n.t :not_saved, scope: [:controllers, :errors], data: 'Filter', locale: DataCycleCore.ui_language))
+      end
+    end
 
     def create
       @contents = get_filtered_results
@@ -12,9 +32,11 @@ module DataCycleCore
     end
 
     def destroy
-      @stored_filter.update_attributes(name: nil)
-
-      redirect_back(fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Filter', locale: DataCycleCore.ui_language))
+      if @stored_filter.update(name: nil)
+        redirect_back(fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Filter', locale: DataCycleCore.ui_language))
+      else
+        redirect_back(fallback_location: root_path, alert: (I18n.t :not_deleted, scope: [:controllers, :errors], data: 'Filter', locale: DataCycleCore.ui_language))
+      end
     end
 
     private
@@ -23,7 +45,7 @@ module DataCycleCore
     end
 
     def stored_filter_params
-      params.require(:stored_filter).permit(:name)
+      params.require(:stored_filter).permit(:name, :api, :system)
     end
   end
 end

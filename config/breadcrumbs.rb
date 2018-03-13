@@ -131,6 +131,11 @@ crumb :'data_cycle_core/watch_list' do |watch_list|
 
   # parent :'data_cycle_core/watch_lists'
 end
+
 crumb :'data_cycle_core/subscriptions' do
   link to_html_string('Abos'), subscriptions_path
+end
+
+crumb :'data_cycle_core/stored_filters' do
+  link to_html_string("<i aria-hidden='true' class='fa fa-search'></i> #{t('data_cycle_core.stored_searches.my_searches', locale: DataCycleCore.ui_language)}"), stored_filters_path
 end

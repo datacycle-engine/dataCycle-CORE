@@ -10,7 +10,7 @@ module DataCycleCore
 
       if user
         can :read, :all
-        cannot :read, [DataCycleCore::WatchList, DataCycleCore::StoredFilter]
+        cannot :manage, [DataCycleCore::WatchList, DataCycleCore::StoredFilter]
         cannot :read, :backend
         can :search, DataCycleCore::User
         can [:show, :find], :object_browser
@@ -29,7 +29,7 @@ module DataCycleCore
           can [:read, :settings, :store_filter], :backend
           can :modify, DataCycleCore::User, id: user.id
           can :manage, DataCycleCore::WatchList, user_id: user.id
-          can [:read, :create, :destroy], DataCycleCore::StoredFilter, user_id: user.id
+          can [:read, :create, :update, :destroy], DataCycleCore::StoredFilter, user_id: user.id
           can :read, DataCycleCore::StoredFilter, system: true
           can [:subscribe, :history, :history_detail], [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork, DataCycleCore::Place]
         end

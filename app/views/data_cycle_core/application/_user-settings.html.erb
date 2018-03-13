@@ -67,7 +67,7 @@
 
             <div class="row columns">
               <ul class="list-items no-bullet named-stored-filters">
-                <% @accessible_stored_filters.where.not(name: nil).order(:system, updated_at: :desc).each do |stored_filter| %>
+                <% @accessible_stored_filters.where.not(name: nil).order(system: :desc, updated_at: :desc).first(5).each do |stored_filter| %>
                     <li class="<%= 'system-filter' if stored_filter.system %>">
                       <%= link_to root_path(stored_filter: stored_filter.id), class: 'stored-filter-link' do %>
                         <span class="icon"><i class="fa fa-search" aria-hidden="true"></i></span>
@@ -81,6 +81,9 @@
                         <% end %>
                       </span>
                     </li>
+                <% end %>
+                <% if @accessible_stored_filters.where.not(name: nil).order(:system, updated_at: :desc).size > 5 %>
+                  <li class="more-link"><%= link_to '...', stored_filters_path %></li>
                 <% end %>
               </ul>
             </div>

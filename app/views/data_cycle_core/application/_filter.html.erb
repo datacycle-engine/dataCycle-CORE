@@ -90,7 +90,7 @@
 
             <%= button_tag type: :button, id: 'save-filter', data: { open: 'save-filter-with-name' } do %>
               <i class="fa fa-bookmark-o" aria-hidden="true"></i>
-              <%= t('actions.save_filter', locale: DataCycleCore.ui_language) %>
+              <%= t('data_cycle_core.stored_searches.save', locale: DataCycleCore.ui_language) %>
             <% end if can?(:create, DataCycleCore::StoredFilter) %>
 
             <%= button_tag type: :reset, id: 'reset-filter' do %>
@@ -100,7 +100,7 @@
           </div>
           <div class="filterbuttons-right">
             <% if can?(:show_history, DataCycleCore::StoredFilter) %>
-              <%= render 'stored_searches' %>
+              <%= render 'stored_filters' %>
             <% end %>
           </div>
         </div>

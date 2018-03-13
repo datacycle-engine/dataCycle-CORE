@@ -1,5 +1,5 @@
 <div class="reveal" id="save-filter-with-name" data-reveal>
-  <h3><%= t('actions.save_filter', locale: DataCycleCore.ui_language) %></h3>
+  <h3><%= t('data_cycle_core.stored_searches.save', locale: DataCycleCore.ui_language) %></h3>
   <%= form_tag(DataCycleCore::StoredFilter.new, id: 'save-filter-name-form') do %>
     <div class="validation-container form-element">
       <%= label_tag 'stored_filter_name', 'Name' %>
