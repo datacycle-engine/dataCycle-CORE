@@ -141,15 +141,6 @@
         :editor:
           :type: input
           :sorting: 7
-      :sub_event:
-        :label: Veranstaltungsdaten
-        :type: object
-        :storage_location: events
-        :delete: true
-        :name: SubEvent
-        :editor:
-          :type: embeddedObject
-          :sorting: 8
       :location:
         :label: Veranstaltungsort
         :type: object
@@ -159,17 +150,35 @@
         :validations:
           :max: 1
         :editor:
-          :sorting: 9
+          :sorting: 8
           :type: objectBrowser
           :options:
             :data-validate: object
             :data-type: place
+      :sub_event:
+        :label: Veranstaltungsdaten
+        :type: object
+        :storage_location: events
+        :delete: true
+        :name: SubEvent
+        :editor:
+          :type: embeddedObject
+          :sorting: 9
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Veranstaltung"
+      # mixin: content_classifications
+      :output_channel:
+        :label: Ausgabekanal
+        :type: classificationTreeLabel
+        :type_name: Ausgabekanäle
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 80
       # mixin: meta_data
       :creator:
         :label: Ersteller

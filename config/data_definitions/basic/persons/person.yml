@@ -178,6 +178,15 @@
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Person"
+      # mixin: content_classifications
+      :output_channel:
+        :label: Ausgabekanal
+        :type: classificationTreeLabel
+        :type_name: Ausgabekanäle
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 80
       # mixin: meta_data
       :creator:
         :label: Ersteller

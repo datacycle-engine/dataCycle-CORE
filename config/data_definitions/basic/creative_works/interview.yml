@@ -148,7 +148,7 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 11
+          :sorting: 80
       :output_channel:
         :label: Ausgabekanal
         :type: classificationTreeLabel
@@ -156,7 +156,7 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 12
+          :sorting: 81
       # mixin: meta_data
       :creator:
         :label: Ersteller
