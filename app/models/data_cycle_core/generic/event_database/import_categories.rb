@@ -1,7 +1,7 @@
 module DataCycleCore::Generic::EventDatabase::ImportCategories
   def import_data(**options)
     import_classifications(@source_type,
-                           options.try(:[], :import).try(:[], :tree_label) || 'Veranstaltungsdatenbank - ',
+                           options.dig(:import, :tree_label) || 'Veranstaltungsdatenbank - Kategorien',
                            method(:load_root_classifications).to_proc,
                            method(:load_child_classifications).to_proc,
                            method(:load_parent_classification_alias).to_proc,
