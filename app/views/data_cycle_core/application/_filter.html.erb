@@ -98,6 +98,7 @@
               <%= t('actions.reset', count: 2, locale: DataCycleCore.ui_language) %>
             <% end %>
           </div>
+
           <div class="filterbuttons-right">
             <% if can?(:show_history, DataCycleCore::StoredFilter) %>
               <%= render 'stored_filters' %>
