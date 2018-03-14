@@ -162,15 +162,25 @@ namespace :data_cycle_core do
     desc 'import all template definitions'
     task import_templates: [:environment] do
       puts 'importing new template definitions'
-
       errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
-
       unless duplicates.blank?
         puts 'the following templates had multiple definitions:'
         ap duplicates
       end
-
       unless errors.blank?
+        puts 'the following errors were encountered during import:'
+        ap errors
+      end
+      duplicates.blank? && errors.blank? ? puts('[done] ... looks good') : exit(-1)
+    end
+
+    desc 'import all external_source configs'
+    task import_external_source_configs: [:environment] do
+      puts 'importing new external_source configs'
+      errors = DataCycleCore::MasterData::ImportExternalSources.import_all
+      if errors.blank?
+        puts '[done] ... looks good'
+      else
         puts 'the following errors were encountered during import:'
         ap errors
       end
@@ -316,350 +326,6 @@ namespace :data_cycle_core do
   end
 
   namespace :data_update do
-    desc 'copy data to content_content(+history) table'
-    task stage1: [:environment] do
-      @connection = ActiveRecord::Base.connection
-      data_hash = [
-        { a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', relation_a: 'content_location', b: 'place', type_b: 'DataCycleCore::Place' },
-        { a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', ralation_a: 'event', b: 'event', type_b: 'DataCycleCore::Event' },
-        { a: 'creative_work', type_a: 'DataCycleCore::CreativeWork', relation_a: '', b: 'person', type_b: 'DataCycleCore::Person' }
-      ]
-
-      data_hash.each do |item|
-        sql_query = <<-EOS
-          INSERT INTO content_contents
-          SELECT
-            id,
-            #{item[:a]}_id AS content_a_id,
-            '#{item[:type_a]}' AS content_a_type,
-            '#{item[:relation_a]}' AS relation_a,
-            #{item[:b]}_id AS  content_b_id,
-            '#{item[:type_b]}' AS content_b_type,
-            '' AS relation_b,
-            external_source_id,
-            created_at,
-            updated_at
-          FROM #{item[:a]}_#{item[:b].pluralize};
-        EOS
-        @connection.exec_query(sql_query)
-
-        sql_query = <<-EOS
-          INSERT INTO content_content_histories
-          SELECT
-            id,
-            #{item[:a]}_history_id AS content_a_history_id,
-            '#{item[:type_a]}::History' AS content_a_history_type,
-            '#{item[:relation_a]}' AS relation_a,
-            #{item[:b]}_history_id AS content_b_history_id,
-            '#{item[:type_b]}::History' AS content_b_history_type,
-            '' AS relation_b,
-            external_source_id,
-            history_valid,
-            created_at,
-            updated_at
-          FROM #{item[:a]}_#{item[:b]}_histories;
-        EOS
-        @connection.exec_query(sql_query)
-      end
-    end
-
-    desc 'cleanup relation_names in content_content(+history) table'
-    task stage1_1: [:environment] do
-      @connection = ActiveRecord::Base.connection
-      parameter_hash = [
-        { relation: 'author', template: "= 'Zitat'" },
-        { relation: 'person', template: "= 'Interview'" },
-        { relation: 'about', template: "IN ('Interview','Portrait')" }
-      ]
-
-      parameter_hash.each do |params|
-        update = <<-EOS
-          UPDATE content_contents
-          SET relation_a = '#{params[:relation]}'
-          FROM creative_works
-          WHERE content_contents.content_a_id = creative_works.id
-            AND content_contents.content_a_type = 'DataCycleCore::CreativeWork'
-            AND content_contents.relation_a = ''
-            AND content_contents.content_b_type = 'DataCycleCore::Person'
-            AND content_contents.relation_b = ''
-            AND creative_works.metadata #>> '{validation,name}' #{params[:template]};
-        EOS
-        @connection.exec_query(update)
-        update = <<-EOS
-          UPDATE content_content_histories
-          SET relation_a = '#{params[:relation]}'
-          FROM creative_work_histories
-          WHERE content_content_histories.content_a_history_id = creative_work_histories.id
-            AND content_content_histories.content_a_history_type = 'DataCycleCore::CreativeWork::History'
-            AND content_content_histories.relation_a = ''
-            AND content_content_histories.content_b_history_type = 'DataCycleCore::Person:History'
-            AND content_content_histories.relation_b = ''
-            AND creative_work_histories.metadata #>> '{validation,name}' #{params[:template]};
-        EOS
-        @connection.exec_query(update)
-      end
-    end
-
-    desc 'delete data in content_content(+history) table'
-    task undo_stage1: [:environment] do
-      @connection = ActiveRecord::Base.connection
-      delete = 'DELETE FROM content_contents;'
-      @connection.exec_query(delete)
-      delete = 'DELETE FROM content_content_histories;'
-      @connection.exec_query(delete)
-    end
-
-    desc 'update .._hasPart arrays to content_content relation table'
-    task stage2: [:environment] do
-      array_names = ['question_hasPart', 'website_hasPart', 'offer_periods_hasPart',
-                     'mobile_application_hasPart', 'quotation_hasPart', 'accepted_answer_hasPart',
-                     'suggested_answer_hasPart', 'timeline_item_hasPart']
-
-      where_string = "metadata ?| array['" + array_names.join("','") + "']"
-      DataCycleCore::CreativeWork.where(where_string).each do |item|
-        # puts "#{item.id} || #{item.template_name}"
-        array_names.each do |name|
-          next unless item.metadata.key?(name)
-          # puts "#{name.split('_hasPart')[0]} -> "
-          item.metadata[name].each do |content_id|
-            DataCycleCore::ContentContent.create!(
-              content_a_id: item.id,
-              content_a_type: 'DataCycleCore::CreativeWork',
-              relation_a: name.split('_hasPart')[0],
-              content_b_id: content_id,
-              content_b_type: 'DataCycleCore::CreativeWork',
-              relation_b: ''
-            )
-            puts "relation: #{name.split('_hasPart')[0]} | CreativeWork"
-          end
-          item.metadata = item.metadata.except(name)
-          I18n.with_locale(item.available_locales.first) { item.save }
-        end
-      end
-
-      DataCycleCore::CreativeWork::History.where(where_string).each do |item|
-        # puts "#{item.id} || #{item.creative_work_id} || #{item.template_name}"
-        array_names.each do |name|
-          next unless item.metadata.key?(name)
-          # puts "#{name.split('_hasPart')[0]} -> "
-          item.metadata[name].each do |content_id|
-            DataCycleCore::ContentContent::History.create!(
-              content_a_history_id: item.id,
-              content_a_history_type: 'DataCycleCore::CreativeWork::History',
-              relation_a: name.split('_hasPart')[0],
-              content_b_history_id: content_id,
-              content_b_history_type: 'DataCycleCore::CreativeWork::History',
-              relation_b: '',
-              history_valid: item.history_valid
-            )
-            puts "relation: #{name.split('_hasPart')[0]} | CreativeWork::History"
-          end
-          item.metadata = item.metadata.except(name)
-          I18n.with_locale(item.available_locales.first) { item.save }
-        end
-      end
-    end
-
-    desc 'update ..embeddedLink(Array) to content_content relation table'
-    task stage3: [:environment] do
-      # all embeddedLink(Array) are stored in metadata --> translations irrelevant
-
-      puts 'updating embeddedLink and embeddedLinkArray:'
-      index = 0
-      DataCycleCore.content_tables.each do |content_table|
-        content_class = "DataCycleCore::#{content_table.classify}"
-        puts "updating ==> #{content_class}"
-        content_class.constantize.all.find_each do |item|
-          item.linked_relations.each do |link_definition|
-            next if item.metadata[link_definition[:name]].blank?
-            index += 1
-
-            values = item.metadata[link_definition[:name]]
-            uuid_list = link_definition[:type] == 'embeddedLink' ? [values] : values
-
-            puts "#{index.to_s.rjust(3)}: #{item.id}"
-            puts "     #{link_definition[:name]}(#{link_definition[:type]}):"
-            uuid_list.each do |uuid|
-              puts "     --> #{uuid}"
-              item_data = [uuid, "DataCycleCore::#{link_definition[:table].classify}", '']
-              self_data = [item.id, item.class.to_s, link_definition[:name]]
-              relation_data = ['a', 'b'].map { |selector|
-                ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
-              }.flatten
-                .zip(link_definition[:table] < item.class.table_name ? item_data + self_data : self_data + item_data).to_h
-
-              DataCycleCore::ContentContent.find_or_create_by!(relation_data)
-            end
-
-            # save without metadata embeddeLink(Array) field
-            item.metadata = item.metadata.except(link_definition[:name])
-            I18n.with_locale(item.available_locales.first) { item.save }
-          end
-        end
-      end
-
-      DataCycleCore.content_tables.each do |content_table|
-        content_class = "DataCycleCore::#{content_table.classify}::History"
-        puts "updating ==> #{content_class}"
-        content_class.constantize.all.find_each do |item|
-          item.linked_relations.each do |link_definition|
-            next if item.metadata[link_definition[:name]].blank?
-            index += 1
-
-            values = item.metadata[link_definition[:name]]
-            uuid_list = link_definition[:type] == 'embeddedLink' ? [values] : values
-
-            puts "#{index.to_s.rjust(3)}: #{item.id}"
-            puts "     #{link_definition[:name]}(#{link_definition[:type]}):"
-            uuid_list.each do |uuid|
-              puts "     --> #{uuid}"
-              item_data = [uuid, "DataCycleCore::#{link_definition[:table].classify}", '']
-              self_data = [item.id, item.class.to_s, link_definition[:name]]
-              relation_data = ['a', 'b'].map { |selector|
-                ["content_#{selector}_history_id".to_sym, "content_#{selector}_history_type".to_sym, "relation_#{selector}".to_sym]
-              }.flatten
-                .zip(link_definition[:table] < item.class.table_name ? item_data + self_data : self_data + item_data).to_h
-
-              DataCycleCore::ContentContent::History.find_or_create_by!(relation_data)
-            end
-
-            # save without metadata embeddeLink(Array) field
-            item.metadata = item.metadata.except(link_definition[:name])
-            I18n.with_locale(item.available_locales.first) { item.save }
-          end
-        end
-      end
-    end
-
-    desc 'update ..classification_content relation table'
-    task stage4: [:environment] do
-      temp = Time.zone.now
-      puts 'S T A G E  4:'
-      puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
-
-      # delete inconsistent data:
-      delete_sql = <<-EOS
-      DELETE FROM classification_contents
-      WHERE id IN (
-        SELECT classification_contents.id
-          FROM classification_contents
-          WHERE relation IS NULL
-        EXCEPT
-        SELECT classification_contents.id
-          FROM classification_contents
-          JOIN creative_works ON classification_contents.content_data_id = creative_works.id
-          JOIN classifications ON classifications.id = classification_contents.classification_id
-          WHERE classification_contents.relation IS NULL
-      );
-      EOS
-      puts 'DELETE inconsistent data'
-      ActiveRecord::Base.connection.execute(delete_sql)
-      puts "[#{'*' * 100}] 100%"
-
-      puts 'IMPORT templates'
-      Rake::Task['data_cycle_core:update:import_templates'].invoke
-      puts "[#{'*' * 100}] 100%"
-
-      # update Bild templates
-      Rake::Task['data_cycle_core:update:update_template'].invoke('creative_works', 'Bild')
-
-      # rename Treelabel for keywords (new importer/type_definitions):
-      old_tree_label_ids = DataCycleCore::ClassificationTreeLabel.where(name: 'Tags', external_source_id: DataCycleCore::ExternalSource.pluck(:id))
-      unless old_tree_label_ids.empty?
-        keyword_label = old_tree_label_ids.first
-        keyword_label.name = 'MediaArchive - Tags'
-        keyword_label.save
-      end
-
-      # update classification_contents
-      index = 0
-      (DataCycleCore.content_tables - []).each do |content_table|
-        content_class = "DataCycleCore::#{content_table.classify}"
-        items_count = content_class.constantize.count
-        puts "UPDATING ==> #{content_class} (#{items_count})"
-        content_class.constantize.all.each do |item|
-          # progress bar
-          index += 1
-          if items_count > 49
-            if (index % (items_count / 100.0).round(0)).zero?
-              fraction = (index / (items_count / 100.0)).round(0)
-              fraction = 100 if fraction > 100
-              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-            end
-          else
-            fraction = (((index * 1.0) / items_count) * 100.0).round(0)
-            fraction = 100 if fraction > 100
-            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-          end
-
-          item.classification_property_names.each do |classification_name|
-            item.send(classification_name).all.each do |classification_relation|
-              if classification_relation.is_a?(DataCycleCore::ClassificationContent)
-                classification_relation.update!(relation: classification_name)
-              else
-                classification_relation.update_all(relation: classification_name)
-              end
-            end
-          end
-        end
-        puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
-      end
-
-      # delete Bild history
-      Rake::Task['data_cycle_core:update:delete_history'].invoke('creative_works', 'Bild')
-
-      # delete classification_content_histories due to wrong template in history
-      delete_sql = <<-EOS
-      DELETE FROM classification_content_histories
-      WHERE id IN (
-        SELECT classification_content_histories.id
-        FROM classification_content_histories
-        WHERE relation IS NULL
-        AND classification_content_histories.content_data_history_type = 'DataCycleCore::CreativeWork::History'
-      );
-      EOS
-      puts 'DELETE keywords for history'
-      ActiveRecord::Base.connection.execute(delete_sql)
-      puts "[#{'*' * 100}] 100%"
-
-      # update classification_content_histories
-      index = 0
-      (DataCycleCore.content_tables - []).each do |content_table|
-        content_class = "DataCycleCore::#{content_table.classify}::History"
-        items_count = content_class.constantize.count
-        puts "UPDATING ==> #{content_class} (#{items_count})"
-        content_class.constantize.all.find_each do |item|
-          # progress bar
-          if items_count > 49
-            if (index % (items_count / 100.0).round(0)).zero?
-              fraction = (index / (items_count / 100.0)).round(0)
-              fraction = 100 if fraction > 100
-              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-            end
-          else
-            fraction = (((index * 1.0) / items_count) * 100.0).round(0)
-            fraction = 100 if fraction > 100
-            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-          end
-          index += 1
-
-          item.classification_property_names.each do |classification_name|
-            item.send(classification_name).all.find_each do |classification_relation|
-              if classification_relation.is_a?(DataCycleCore::ClassificationContent::History)
-                classification_relation.update!(relation: classification_name)
-              else
-                classification_relation.update_all(relation: classification_name)
-              end
-            end
-          end
-        end
-        puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
-      end
-
-      puts 'END'
-      puts "--> UPDATE time: #{((Time.zone.now - temp) / 60).to_i} min"
-    end
-
     desc 'update...move schema, template_name to separate field'
     task schema_update: [:environment] do
       temp = Time.zone.now
@@ -703,25 +369,6 @@ namespace :data_cycle_core do
 
       puts 'END'
       puts "--> UPDATE time: #{((Time.zone.now - temp) / 60).to_i} min"
-    end
-
-    desc 'update...rename Standard-Artikel to Artikel'
-    task standard_artikel: [:environment] do
-      # delete the template first
-      obsolete_template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Standard-Artikel')
-      obsolete_template&.destroy
-      # rename the data_templates
-      sql = <<-EOS
-        UPDATE creative_works
-        SET
-          template_name = 'Artikel',
-          schema = jsonb_set(creative_works.schema, '{name}', to_jsonb('Artikel'::character varying), false)
-        WHERE
-          template_name = 'Standard-Artikel';
-      EOS
-      ActiveRecord::Base.connection.execute(sql)
-      file = Rails.root.join('config', 'data_definitions', 'creative_works', 'standardartikel.yml')
-      File.delete(file)
     end
   end
 
@@ -811,6 +458,20 @@ namespace :data_cycle_core do
           puts "ARCHIVING (life_cycle) ==> #{table_name} (#{items_count})"
 
           contents.each do |content|
+            # progress bar
+            if items_count > 49
+              if (index % (items_count / 100.0).round(0)).zero?
+                fraction = (index / (items_count / 100.0)).round(0)
+                fraction = 100 if fraction > 100
+                print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
+              end
+            else
+              fraction = (((index * 1.0) / items_count) * 100.0).round(0)
+              fraction = 100 if fraction > 100
+              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
+            end
+            index += 1
+
             I18n.with_locale(content.first_available_locale) do
               data_hash = content.get_data_hash
               data_hash[DataCycleCore.features.dig(:life_cycle, :attribute_key)] = [archive_life_cycle_id]
@@ -826,6 +487,84 @@ namespace :data_cycle_core do
       end
       puts 'END'
       puts "--> ARCHIVING time: #{((Time.zone.now - temp) / 60).to_i} min"
+    end
+  end
+
+  namespace :external_contents do
+    desc 'Merge duplicates of external contents'
+    task merge_duplicates: :environment do
+      DataCycleCore::Ability::CONTENT_MODELS.each do |model_class|
+        duplicated_contents = model_class
+          .select(:external_source_id, :external_key)
+          .where.not(external_source_id: nil, external_key: nil)
+          .group(:external_source_id, :external_key)
+          .having('COUNT(*) > 1')
+
+        duplicated_contents_count = duplicated_contents.to_a.size
+
+        puts "\nMerging #{duplicated_contents_count} duplicated external contents of type #{model_class} ... "
+
+        duplicated_contents.each do |duplicated_content|
+          contents = model_class.where(external_source_id: duplicated_content.external_source_id,
+                                       external_key: duplicated_content.external_key)
+
+          original_id = contents
+            .map(&:id)
+            .map { |id| [id, DataCycleCore::ContentContent.where(content_b_id: id).count] }
+            .sort_by(&:second).reverse
+            .map(&:first)
+            .first
+
+          duplicate_ids = contents
+            .map(&:id)
+            .map { |id| [id, DataCycleCore::ContentContent.where(content_b_id: id).count] }
+            .sort_by(&:second).reverse
+            .map(&:first)
+            .drop(1)
+
+          puts " -> Merging #{duplicate_ids.count} duplicates of #{model_class}##{original_id} ..."
+
+          duplicate_ids.each do |duplicate_id|
+            DataCycleCore::ContentContent.where(content_b_id: duplicate_id).map(&:content_a).each do |linked_content|
+              I18n.with_locale(linked_content.available_locales.first) do
+                linked_content.set_data_hash(data_hash: linked_content.get_data_hash)
+              end
+            end
+
+            DataCycleCore::ContentContent.where(content_b_id: duplicate_id).update_all(content_b_id: original_id)
+          end
+
+          puts " -> Merging #{duplicate_ids.count} duplicates of #{model_class}##{original_id} ... [DONE]"
+
+          model_class.where(id: duplicate_ids).destroy_all
+        end
+
+        puts "Merging #{duplicated_contents_count} duplicated external contents of type #{model_class} ... [DONE]"
+      end
+
+      duplicated_content_relations = DataCycleCore::ContentContent
+        .select(:content_a_id, :content_a_type, :relation_a,
+                :content_b_id, :content_b_type, :relation_b,
+                'MIN(created_at) AS "oldest_creation_date"')
+        .group(:content_a_id, :content_a_type, :relation_a, :content_b_id, :content_b_type, :relation_b)
+        .having('COUNT(*) > 1')
+
+      duplicated_content_relations_count = duplicated_content_relations.to_a.size
+
+      puts "\nCleaning up #{duplicated_content_relations_count} content relations ... "
+
+      duplicated_content_relations.each do |duplicated_relation|
+        DataCycleCore::ContentContent.where(
+          content_a_id: duplicated_relation.content_a_id,
+          content_a_type: duplicated_relation.content_a_type,
+          relation_a: duplicated_relation.relation_a,
+          content_b_id: duplicated_relation.content_b_id,
+          content_b_type: duplicated_relation.content_b_type,
+          relation_b: duplicated_relation.relation_b
+        ).where('created_at > ?', duplicated_relation.oldest_creation_date).destroy_all
+      end
+
+      puts "Cleaning up #{duplicated_content_relations_count} content relations ... [DONE]"
     end
   end
 end

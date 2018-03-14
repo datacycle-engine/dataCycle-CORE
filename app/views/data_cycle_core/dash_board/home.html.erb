@@ -16,8 +16,9 @@
             <h4>
                 <br/>master data:
             </h4>
-            <%= link_to 'import data types', admin_import_templates_path, class: 'button small' %>
+            <%= link_to 'import data-types', admin_import_templates_path, class: 'button small' %>
             <%= link_to 'import classifications', admin_import_classifications_path, class: 'button small' %>
+            <%= link_to 'import modules-config', admin_import_config_path, class:'button small' %>            
         </div>
     </div>
 
@@ -34,6 +35,10 @@
         </div>
         <div class="small-9 columns">
             <%= render 'job_queue_stats' unless @statJobQueue.count == 0 %>
+            <%= 'Duplicates:' unless @duplicates.blank? %>
+            <%= ap(@duplicates).html_safe unless @duplicates.blank? %>
+            <%= 'Errors:' unless @errors.blank? %>
+            <%= ap(@errors).html_safe unless @errors.blank? %>
         </div>
     </div>
 

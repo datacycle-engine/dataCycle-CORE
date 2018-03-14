@@ -15,7 +15,7 @@ module DataCycleCore
         protected
 
         def load_contents(mongo_item, locale)
-          mongo_item.all
+          mongo_item.where("dump.#{locale}": { '$exists' => true })
         end
 
         def process_content(raw_data, template, locale)
