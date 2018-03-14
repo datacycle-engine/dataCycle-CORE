@@ -5,9 +5,16 @@ module DataCycleCore::Generic::MediaArchive::Import
   end
 
   def load_transformations
-    @image_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_bild
-    @video_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_video
+    tree_labels = {}
+    tree_labels['keywords'] = load_tree_label('keywords') || 'MediaArchive - Tags'
+    @image_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_bild(tree_labels)
+    @video_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_video(tree_labels)
     @content_location_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_content_location
+  end
+
+  def load_tree_label(attribute)
+    template = load_template(@target_type, @data_template)
+    template.schema.dig('properties', attribute, 'type_name')
   end
 
   protected
@@ -24,9 +31,6 @@ module DataCycleCore::Generic::MediaArchive::Import
         extract_content_location_data(raw_data['contentLocation'])
           .merge({ 'external_key' => raw_data['url'] }).with_indifferent_access
       )
-
-      # keywords = raw_data['keywords'] || []
-      # keywords.each { |item| import_classification({ name: item, external_id: "MedienArchive - keyword - #{item}", tree_name: 'MediaArchive - Tags' }) }
 
       raw_data['content_location'] = [{ 'id' => content_location.try(:id) }] unless content_location.blank?
 

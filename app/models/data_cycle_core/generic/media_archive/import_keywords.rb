@@ -18,7 +18,7 @@ module DataCycleCore
           mongo_item.where("dump.#{locale}": { '$exists' => true })
         end
 
-        def process_content(raw_data, template, locale)
+        def process_content(raw_data, template, locale, **options)
           I18n.with_locale(locale) do
             keywords = raw_data['keywords'] || []
             keywords.each do |item|
