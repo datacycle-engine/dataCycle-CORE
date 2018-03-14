@@ -70,7 +70,6 @@ $(function () {
 
 
             if (contents != undefined && contents.portal.length > 0) {
-              console.log(contents.portal);
               $.ajax({
                 url: $(event.currentTarget).prop('action'),
                 method: 'POST',
