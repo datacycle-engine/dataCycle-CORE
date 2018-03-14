@@ -62,6 +62,7 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/import', to: 'dash_board#import'
   get  '/admin/import_templates', to: 'dash_board#import_templates'
   get  '/admin/import_classifications', to: 'dash_board#import_classifications'
+  get  '/admin/import_config', to: 'dash_board#import_config'
   get  '/admin/import_persons', to: 'dash_board#import_persons'
   get  '/admin/import_organizations', to: 'dash_board#import_organizations'
   get  '/admin/classifications', to: 'dash_board#classifications'

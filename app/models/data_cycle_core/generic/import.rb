@@ -20,6 +20,8 @@ module DataCycleCore
         @data_template = options[:import][:data_template]
 
         import_data(**options)
+
+        @logging.close if @logging.respond_to?(:close)
       end
     end
   end

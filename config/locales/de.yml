@@ -92,7 +92,9 @@ de:
     contentlocation: Ort
 
   terms:
+    valid: gültig
     from: von
+    until: bis
 
   pronoun:
     my:

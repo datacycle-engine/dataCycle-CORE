@@ -1,7 +1,7 @@
 namespace :data_cycle_core do
   namespace :db do
     desc 'Dumps the database to backups'
-    task :dump, [:backup_name, :format] => [:environment] do |_, args|
+    task :dump, [:backup_name, :format, :mode] => [:environment] do |_, args|
       dump_fmt   = ensure_format(args[:format])
       dump_sfx   = suffix_for_format(dump_fmt)
       backup_dir = backup_directory(Rails.env, create: true)
@@ -14,7 +14,12 @@ namespace :data_cycle_core do
         else
           full_path = "#{backup_dir}/#{args[:backup_name]}.#{dump_sfx}"
         end
-        cmd = "PGCLUSTER=9.6/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}'"
+
+        if args[:mode] == 'review'
+          cmd = "PGCLUSTER=9.6/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions' --exclude-table-data='*histories'"
+        else
+          cmd = "PGCLUSTER=9.6/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}'"
+        end
       end
 
       puts cmd

@@ -1,6 +1,6 @@
 module DataCycleCore
   class Ability
-    CONTENT_MODELS = [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork, DataCycleCore::Place].freeze
+    CONTENT_MODELS = [DataCycleCore::Place, DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork].freeze
 
     include CanCan::Ability
 

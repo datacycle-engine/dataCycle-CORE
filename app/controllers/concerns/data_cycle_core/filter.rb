@@ -47,9 +47,9 @@ module DataCycleCore
         end
       end
 
-      @total = query.count(:id)
-
       @paginateObject = query.includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
+
+      @total = @paginateObject.total_count
 
       @paginateObject.map(&:content_data)
     end
@@ -72,7 +72,6 @@ module DataCycleCore
       end
 
       query = filter.apply
-      @total = query.count(:id)
       query
     end
 
