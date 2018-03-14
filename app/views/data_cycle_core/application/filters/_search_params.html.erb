@@ -1,16 +1,20 @@
 <% if stored_search.parameters.dig('fulltext_search').present? %>
-  <i class="fa fa-search" aria-hidden="true"></i>
-  <span class="tag-group search-term"><%= t('common.searchterm', locale: DataCycleCore.ui_language) %>:
+  <span class="tag-group search-term">
+    <i class="fa fa-search" aria-hidden="true"></i>
+    <%= t('common.searchterm', locale: DataCycleCore.ui_language) %>:
     <span class="tag"><%= stored_search.parameters.dig('fulltext_search') %></span>
   </span>
 <% end %>
-<i class="fa fa-tags" aria-hidden="true"></i>
-<span class="tag-group"><%= t('common.language', locale: DataCycleCore.ui_language) %>:
+<span class="tag-group">
+  <i class="fa fa-language" aria-hidden="true"></i>
+  <%= t('common.language', locale: DataCycleCore.ui_language) %>:
   <span class="tag"><%= available_locales_with_names[stored_search.language.to_sym] %></span>
 </span>
 <% if stored_search.parameters.dig('with_classification_alias_ids').present? %>
   <% stored_search.parameters.dig('with_classification_alias_ids').each do |key, value| %>
-    <span class="tag-group"><%= key %>:
+    <span class="tag-group">
+      <i class="fa fa-tags" aria-hidden="true"></i>
+      <%= key %>:
       <% value.each do |classification_alias_id| %>
         <span class="tag"><%= DataCycleCore::ClassificationAlias.select(:name).find(classification_alias_id).name %></span>
       <% end %>

@@ -483,6 +483,7 @@
               &.stored-date {
                 display: table-cell;
                 width: 15rem;
+                min-width: 15rem;
                 &.right {
                   width: auto;
                 }
@@ -494,7 +495,7 @@
                 .tag-group {
                   font-style: italic;
                   color: $dark-gray;
-                  white-space: nowrap;
+                  display: block;
                   margin-right: 0.5rem;
                   .tag {
                     color: $black;
@@ -503,6 +504,7 @@
                     padding: 0 0.3rem;
                     line-height: 1.2rem;
                     border-radius: 5px;
+                    white-space: nowrap;
                   }
                   &.search-term .tag {
                     background-color: lighten($primary-color, 50%);
@@ -762,7 +764,7 @@
             .tag-group {
               font-style: italic;
               color: $dark-gray;
-              white-space: nowrap;
+              display: block;
               margin-right: 0.5rem;
               .tag {
                 color: $black;
@@ -771,6 +773,7 @@
                 padding: 0 0.3rem;
                 line-height: 1.2rem;
                 border-radius: 5px;
+                white-space: nowrap;
               }
               &.search-term .tag {
                 background-color: lighten($primary-color, 50%);
