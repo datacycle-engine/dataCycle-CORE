@@ -24,7 +24,7 @@ if DataCycleCore::User.where(given_name: 'Ad', family_name: 'Ministrator', email
   )
 end
 
-if DataCycleCore::User.where(given_name: 'Test', family_name: 'User', email: 'tester@datacycle.at').count.zero?
+if !Rails.env.production? && DataCycleCore::User.where(given_name: 'Test', family_name: 'User', email: 'tester@datacycle.at').count.zero?
   DataCycleCore::User.create!(
     given_name:   'Test',
     family_name:  'User',
