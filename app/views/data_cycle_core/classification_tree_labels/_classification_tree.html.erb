@@ -1,0 +1,9 @@
+<li id="<%= classification_tree.id %>">
+  <span class="inner-item">
+    <%= link_to classification_tree.sub_classification_alias.try(:name),
+          classification_tree_label_path(classification_tree_label, classification_tree_id: classification_tree.id),
+          data: {remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"}, class: 'tree-link' %>
+  </span>
+  <ul class="children"></ul>
+  <ul class="contents no-bullet"></ul>
+</li>

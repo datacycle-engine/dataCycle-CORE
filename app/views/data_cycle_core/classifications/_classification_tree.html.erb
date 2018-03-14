@@ -6,7 +6,7 @@
 
   <%= link_to classification_tree.sub_classification_alias.try(:name),
               classifications_path(classification_tree_id: classification_tree.id),
-              data: {remote: true, 'disable-with' => '<i class="fa fa-spinner fa-spin"></i> #{t("common.loading", locale: DataCycleCore.ui_language)}'} %>
+              data: {remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"} %>
 
   <% if can?(:update, classification_tree.sub_classification_alias) %>
     <a href="#" class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
@@ -16,7 +16,7 @@
     <%= link_to classifications_path(classification_tree_id: classification_tree.id), class: 'destroy',
                 data: {remote: true, method: :delete,
                        confirm: t('common.are_you_sure', locale: DataCycleCore.ui_language),
-                       'disable-with' => '<i class="fa fa-spinner fa-spin"></i>'} do %>
+                       disable_with: '<i class="fa fa-spinner fa-spin"></i>'} do %>
       <i class="fa fa-trash-o" aria-hidden="true"></i>
     <% end %>
   <% end %>

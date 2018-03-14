@@ -70,6 +70,15 @@ module DataCycleCore
         reflect(@query.where(search[:content_data_id].in(manager)))
       end
 
+      def with_classification_alias_ids_without_recursion(ids = nil)
+        return self if ids.blank?
+
+        query2 = join_classification_alias2
+        manager = query2.where(classification_alias[:id].in(ids))
+
+        reflect(@query.where(search[:content_data_id].in(manager)))
+      end
+
       def with_classification_aliases(tree_name, *aliases)
         reflect(
           @query.where(id: DataCycleCore::Search.joins(:classification_aliases).merge(

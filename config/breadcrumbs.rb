@@ -20,6 +20,10 @@ crumb :classifications do
   parent :admin
 end
 
+crumb :classification_tree_label do |label|
+  link to_html_string(t('data_cycle_core.classification_tree_label', locale: DataCycleCore.ui_language), label.name), '#'
+end
+
 # User
 crumb :'data_cycle_core/users' do
   link to_html_string(DataCycleCore::User.model_name.human(count: 2, locale: DataCycleCore.ui_language)), users_path

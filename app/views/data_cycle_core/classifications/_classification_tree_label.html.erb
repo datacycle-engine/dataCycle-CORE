@@ -2,7 +2,7 @@
 <span class="inner-item">
   <%= link_to tree_label.name,
               classifications_path(classification_tree_label_id: tree_label.id),
-              data: {remote: true, 'disable-with' => '<i class="fa fa-spinner fa-spin"></i> ' + t("common.loading", locale: DataCycleCore.ui_language)} %>
+              data: {remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"} %>
 
   <% if can?(:update, tree_label) %>
     <a href="#" class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
@@ -12,7 +12,7 @@
     <%= link_to classifications_path(classification_tree_label_id: tree_label.id), class: 'destroy',
                 data: {remote: true, method: :delete,
                        confirm: t('common.are_you_sure', locale: DataCycleCore.ui_language),
-                       'disable-with' => '<i class="fa fa-spinner fa-spin"></i>'} do %>
+                       disable_with: '<i class="fa fa-spinner fa-spin"></i>'} do %>
       <i class="fa fa-trash-o" aria-hidden="true"></i>
     <% end %>
  <% end %>

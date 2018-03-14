@@ -76,4 +76,20 @@ module.exports.initialize = function () {
 
   }
 
+  // Themenbaum
+
+  if ($('#classification-tee-label-list').length) {
+    $('#classification-tee-label-list').on('ajax:beforeSend', 'a', function (event, xhr, options) {
+      var childrenContainer = $(event.target).closest('li').children('ul.children, ul.contents');
+
+      childrenContainer.siblings('.inner-item').toggleClass('open');
+
+      if (childrenContainer.hasClass('loaded') && options.type != 'POST') {
+        childrenContainer.toggle();
+
+        return false;
+      }
+    });
+  }
+
 }

@@ -58,6 +58,7 @@ de:
       show: Filter anzeigen
       hide: Filter ausblenden
     contents:
+      zero: Keine Inhalte
       one: Inhalt
       other: Inhalte
     splitsource: Vorlage
@@ -301,6 +302,7 @@ de:
   data_cycle_core:
     administration: 'Administration'
     classifications: 'Klassifizierungen'
+    classification_tree_label: 'Themenbaum'
     settings: Einstellungen
     stored_filter: Meine gespeicherten Filter
 

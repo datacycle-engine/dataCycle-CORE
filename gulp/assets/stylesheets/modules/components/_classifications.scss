@@ -194,3 +194,95 @@ ul.backend-treeview-list {
     border: 0;
   }
 }
+
+#classification-tee-label-list {
+  .backend-treeview-list {
+    >li {
+      ul.children {
+        >li {
+          .inner-item {
+            padding: 1rem 0 1rem 1rem;
+            &:before {
+              bottom: 50%;
+            }
+            .tree-link:after {
+              content: "\f107";
+              font-family: FontAwesome;
+              font-style: normal;
+              font-weight: normal;
+              text-decoration: inherit;
+              position: relative;
+              font-size: 0.8rem;
+              margin-left: 0.5rem;
+            }
+            &.open {
+              .tree-link:after {
+                content: "\f106";
+              }
+            }
+          }
+          &:nth-last-child(2) {
+            border-left: 1px solid $medium-gray;
+          }
+          &:last-child {
+            margin-left: 2em;
+            padding: 0;
+          }
+        }
+      }
+      ul.contents {
+        display: none;
+        padding: 1rem 0px 1rem 1rem;
+        >li.content-row {
+          position: relative;
+          display: flex;
+          border-bottom: 1px solid $medium-gray;
+          background-color: white;
+          padding: 1rem;
+          &:before {
+            content: '';
+            position: absolute;
+            display: block;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            z-index: -1;
+            box-shadow: 0 1px 3px $dark-gray;
+          }
+          div {
+            display: inline-block;
+            &.type,
+            &.title,
+            &.tags {
+              flex: 1;
+            }
+            &.type {
+              max-width: 15rem;
+            }
+            &.title {
+              color: $dark-gray;
+            }
+            &.tags {
+              max-width: 50%;
+              &:before {
+                content: "\f02c";
+                font-family: FontAwesome;
+                font-style: normal;
+                font-weight: normal;
+                text-decoration: inherit;
+                position: relative;
+                color: $black;
+              }
+              .tag {
+                color: $black;
+                background-color: lighten($light-gray, 5%);
+                white-space: nowrap;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

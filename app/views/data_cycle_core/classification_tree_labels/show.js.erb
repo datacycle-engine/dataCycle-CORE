@@ -1,0 +1,10 @@
+<% if @classification_tree.present? %>
+  $('#<%= @classification_tree.id %> ul.children, #<%= @classification_tree.id %> > ul.contents').hide(0).empty();
+
+  $('<%= escape_javascript(render 'classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees) %>')
+    .appendTo('#<%= @classification_tree.id %> > ul.children');
+
+  $('<%= escape_javascript(render 'contents', contents: @contents) %>').appendTo('#<%= @classification_tree.id %> > ul.contents');
+
+  $('#<%= @classification_tree.id %> > ul.children, #<%= @classification_tree.id %> > ul.contents').addClass('loaded').show();
+<% end %>
