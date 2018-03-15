@@ -154,7 +154,24 @@ module DataCycleCore
         content.tap(&:save!)
       end
 
+      def load_default_values(data_hash)
+        return nil if data_hash.blank?
+        return_data = {}
+        data_hash.each do |key, value|
+          return_data[key] = default_classification(value.symbolize_keys)
+        end
+        return_data.reject { |_, value| value.blank? }
+      end
+
       private
+
+      def default_classification(value:, tree_label:)
+        [
+          DataCycleCore::Classification
+            .joins(classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]])
+            .where(classification_tree_labels: { name: tree_label }, classifications: { name: value })&.first&.id
+        ].reject(&:nil?)
+      end
 
       def around_import(source_type, **options)
         options[:locales] ||= I18n.available_locales
