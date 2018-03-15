@@ -5,9 +5,9 @@ DataCycleCore.setup do |config|
 
   # config.template_path = Rails.root.join('..', '..', 'config', 'data_definitions', 'basic')
   config.default_template_paths = [
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'container')
+    Rails.root.join('..', '..', 'config', 'data_definitions', 'basic')
+    # Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
+    # Rails.root.join('..', '..', 'config', 'data_definitions', 'container')
     # Rails.root.join('..', '..', 'config', 'data_definitions', 'test')
   ]
 
