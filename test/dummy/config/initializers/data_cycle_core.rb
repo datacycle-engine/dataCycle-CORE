@@ -13,5 +13,6 @@ DataCycleCore.setup do |config|
 
   config.external_sources_path = Rails.root.join('config', 'external_sources')
 
-  config.excluded_new_item_objects = ['Bild', 'Datei']
+  # config.excluded_new_item_objects = ['Bild', 'Datei']
+  config.excluded_new_item_objects = ['Event', 'Person', 'Örtlichkeit', 'Bild', 'Organization', 'Zeitleiste', 'Linktipps', 'Datei']
 end
