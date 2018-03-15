@@ -50,11 +50,11 @@
             :data-validate: media
             :data-type: image
       :opening_hours_specification:
-        :label: Öffnungszeiten
+        :label: Öffnungszeit
         :type: object
         :storage_location: creative_works
         :delete: true
-        :name: Öffnungszeiten
+        :name: Öffnungszeit
         :editor:
           :type: embeddedObject
           :sorting: 5

@@ -14,6 +14,7 @@
   - $$Organisation
   - $$Ort:
     - $$Örtlichkeit
+    - $$Tour
   - $$Quiz
   - $$Veranstaltung
   - $$Zeitleiste
@@ -25,6 +26,8 @@
   - $$Frage
   - $$Antwort
   - $$Veranstaltungstermin
+  - $$Öffnungszeit
+  - $$Örtlichkeit - Overlay
 
 - Geschlecht:
   - Männlich
@@ -33,3 +36,5 @@
 - Themenbereiche:
 
 - Ausgabekanäle:
+
+- Plattform:
