@@ -18,6 +18,8 @@
   - $$Quiz
   - $$Veranstaltung
   - $$Zeitleiste
+# container
+  - $$Container
 # embedded
   - $$Angebotszeitraum
   - $$Website
