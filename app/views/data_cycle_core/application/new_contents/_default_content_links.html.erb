@@ -54,7 +54,8 @@
     <% end %>
 <% elsif containers.exists? %>
     <% containers.each do |container| %>
-        <%= render 'new_content_reveal', reveal_id: "new-#{container.template_name&.parameterize(separator: '_')}", reveal_title: t('actions.new', data: container.template_name.titleize, locale: DataCycleCore.ui_language), reveal_template: container.template_name %>
+        <%= render_new_content_reveal(item: container) %>
+        <%#= render 'new_content_reveal', reveal_id: "new-#{container.template_name&.parameterize(separator: '_')}", reveal_title: t('actions.new', data: container.template_name.titleize, locale: DataCycleCore.ui_language), reveal_template: container.template_name %>
     <% end %>
 <% else %>
     <% object_types = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) } %>
