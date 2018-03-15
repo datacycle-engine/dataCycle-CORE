@@ -26,7 +26,7 @@
             <ul>
               <% DataCycleCore.available_filters&.dig(:main).presence.each do |filter| %>
                 <%= render 'data_cycle_core/application/filters/classification_tree', tree_label: filter.dig(:tree_label), display_label: filter.dig(:title), excluded_types: excluded_types, classification_tree: classification_trees.dig(filter.dig(:tree_label)) if classification_trees.dig(filter.dig(:tree_label)).present? %>
-              <% end %>
+              <% end unless classification_trees.nil? %>
 
               <%= render 'data_cycle_core/application/filters/sprache'%>
             </ul>
