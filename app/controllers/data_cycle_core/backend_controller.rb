@@ -17,7 +17,7 @@ module DataCycleCore
         @paginateObject = apply_filter(filter_id: params[:stored_filter]).includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
         @contents = @paginateObject.map(&:content_data)
       end
-
+      # TODO: remove creativeWork variable
       @creativeWork = CreativeWork.new
     end
 

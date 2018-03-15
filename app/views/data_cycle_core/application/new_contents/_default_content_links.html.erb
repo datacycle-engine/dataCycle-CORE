@@ -60,7 +60,9 @@
     <% object_types = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) } %>
     <% object_types.each do |object_type| %>
         <% object_type.constantize.where("template = true AND schema ->> 'content_type' = ? AND template_name NOT IN(?)", 'entity', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects).order(:template_name).each do |default_type| %>
-            <%= render 'new_content_reveal', reveal_id: "new-#{default_type.template_name.parameterize(separator: '_')}", reveal_title: t('actions.new', data: default_type.template_name.titleize, locale: DataCycleCore.ui_language), reveal_template: default_type.template_name %>
+
+            <%= render_new_content_reveal(item: default_type) %>
+            <%#= render 'new_content_reveal', reveal_id: "new-#{default_type.template_name.parameterize(separator: '_')}", reveal_title: t('actions.new', data: default_type.template_name.titleize, locale: DataCycleCore.ui_language), reveal_template: default_type.template_name %>
         <% end %>
     <% end %>
 <% end %>
