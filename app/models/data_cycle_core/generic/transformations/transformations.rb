@@ -209,7 +209,7 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:strip_all)
   end
 
-  def self.event_database_item_to_event
+  def self.event_database_item_to_event(external_source_id)
     t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
     .>> t(:reject_keys, ['@context', '@type', 'image', 'subEvents', 'allDay', 'location', 'categories'])
     .>> t(:underscore_keys).
@@ -219,7 +219,7 @@ module DataCycleCore::Generic::Transformations::Transformations
       'tags' => 'tag',
       'name' => 'headline')
     .>> t(:nest, 'event_period', ['start_date', 'end_date'])
-    .>> t(:tags_to_ids, 'tag', 'Veranstaltungsdatenbank - Tag')
+    .>> t(:tags_to_ids, 'tag', external_source_id, 'Veranstaltungsdatenbank - tags - ')
     .>> t(:compact)
     .>> t(:strip_all)
   end

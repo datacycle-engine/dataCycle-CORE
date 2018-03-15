@@ -1,16 +1,18 @@
 module DataCycleCore::Generic::EventDatabase::ImportEvents
   def import_data(**options)
-    @image_template = options[:import][:image_template] || 'Bild'
+    @image_template = options&.dig(:import, :image_template) || 'Bild'
     load_transformations
-    import_contents(@source_type,
-                    @target_type,
-                    method(:load_contents).to_proc,
-                    method(:process_content).to_proc,
-                    **options)
+    import_contents(
+      @source_type,
+      @target_type,
+      method(:load_contents).to_proc,
+      method(:process_content).to_proc,
+      **options
+    )
   end
 
   def load_transformations
-    @event_transformation = DataCycleCore::Generic::Transformations::Transformations.event_database_item_to_event
+    @event_transformation = DataCycleCore::Generic::Transformations::Transformations.event_database_item_to_event(external_source.id)
     @sub_event_transformation = DataCycleCore::Generic::Transformations::Transformations.event_database_sub_item_to_sub_event
     @event_location_transformation = DataCycleCore::Generic::Transformations::Transformations.event_database_location_to_content_location
   end
