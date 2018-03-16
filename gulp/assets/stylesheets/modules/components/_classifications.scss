@@ -9,12 +9,15 @@ ul.backend-treeview-list {
     }
     a.edit,
     a.destroy,
-    a.download {
+    a.download,
+    a.contents-list {
       margin: 0 0 0 0.2rem;
       color: $dark-gray;
+      cursor: pointer;
     }
     a.edit:hover,
-    a.download:hover {
+    a.download:hover,
+    a.contents-list:hover {
       color: $primary-color;
     }
     a.destroy:hover {
@@ -195,6 +198,7 @@ ul.backend-treeview-list {
   }
 }
 
+// classification_tree_label_view
 #classification-tee-label-list {
   .backend-treeview-list {
     >li {
@@ -204,6 +208,9 @@ ul.backend-treeview-list {
             padding: 1rem 0 1rem 1rem;
             &:before {
               bottom: 50%;
+            }
+            .children-count {
+              color: $dark-gray;
             }
             .tree-link:after {
               content: "\f107";
@@ -232,9 +239,11 @@ ul.backend-treeview-list {
       }
       ul.contents {
         display: none;
+        position: relative;
         padding: 1rem 0px 1rem 1rem;
         >li.content-row {
           position: relative;
+          width: 100%;
           display: flex;
           border-bottom: 1px solid $medium-gray;
           background-color: white;
@@ -250,21 +259,31 @@ ul.backend-treeview-list {
             z-index: -1;
             box-shadow: 0 1px 3px $dark-gray;
           }
-          div {
-            display: inline-block;
-            &.type,
-            &.title,
-            &.tags {
-              flex: 1;
+          >div {
+            position: relative;
+            display: inline;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            &:not(:last-child) {
+              padding-right: 0.5rem;
             }
             &.type {
               max-width: 15rem;
+              white-space: nowrap;
+              a {
+                color: inherit;
+              }
             }
-            &.title {
+            &.title-text {
               color: $dark-gray;
+              height: 1.6rem;
+              a {
+                color: inherit;
+              }
             }
             &.tags {
-              max-width: 50%;
+              max-height: 1.6rem;
               &:before {
                 content: "\f02c";
                 font-family: FontAwesome;
@@ -279,6 +298,50 @@ ul.backend-treeview-list {
                 background-color: lighten($light-gray, 5%);
                 white-space: nowrap;
               }
+            }
+            &.thumbnails {
+              margin: -0.5rem 0;
+              line-height: 2.8rem;
+              max-height: 2.6rem;
+              max-width: 20%;
+              img {
+                height: 2.6rem;
+                vertical-align: top;
+                &:before {
+                  display: none;
+                }
+              }
+            }
+            &.buttons {
+              display: inline-block;
+              max-width: 2rem;
+              a {
+                padding: 0.5rem;
+                margin-right: -0.5rem;
+              }
+            }
+          }
+          &.show-all {
+            .title-text {
+              height: auto;
+            }
+            .tags,
+            .thumbnails {
+              max-height: none;
+            }
+            .type {
+              white-space: normal;
+            }
+          }
+          &.button-row {
+            padding: 0;
+            text-align: center;
+            a {
+              background-color: $primary-color;
+              display: block;
+              width: 100%;
+              padding: 1rem;
+              color: white;
             }
           }
         }

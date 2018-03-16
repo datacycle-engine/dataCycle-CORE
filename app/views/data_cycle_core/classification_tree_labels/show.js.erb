@@ -1,10 +1,40 @@
 <% if @classification_tree.present? %>
-  $('#<%= @classification_tree.id %> ul.children, #<%= @classification_tree.id %> > ul.contents').hide(0).empty();
+  $('#<%= @classification_tree.id %> ul.children, #<%= @classification_tree.id %> > ul.contents').hide(0);
+  $('#<%= @classification_tree.id %> > ul.contents > li.button-row').remove();
 
-  $('<%= escape_javascript(render 'classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees) %>')
-    .appendTo('#<%= @classification_tree.id %> > ul.children');
+  $('<%= escape_javascript(render 'classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees, content_counts: @content_count) %>').appendTo('#<%= @classification_tree.id %> > ul.children');
 
-  $('<%= escape_javascript(render 'contents', contents: @contents) %>').appendTo('#<%= @classification_tree.id %> > ul.contents');
+  var contents = $('<%= escape_javascript(render 'contents', contents: @contents, classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, total_pages: @total_pages, page: @page) %>');
+
+  contents.appendTo('#<%= @classification_tree.id %> > ul.contents');
 
   $('#<%= @classification_tree.id %> > ul.children, #<%= @classification_tree.id %> > ul.contents').addClass('loaded').show();
+
+  $(function () {
+    contents.filter('li.content-row:not(.button-row)').each((index, element) => {
+      let images = $(element).find('img.lazyload');
+      let count = 0;
+      let tags = $(element).find('.tag');
+      if (images.length){
+        images.one('lazyloaded', event => {
+          count += 1;
+          if (count >= images.length &&
+            ($(element).find('.tag, img.lazyloaded').map((idx, elem) => $(elem).position().top >= $(element).find('.tags').outerHeight()).toArray().reduce((a, b) => a || b) ||
+            $(element).find('.title-text').first().innerHeight() < $(element).find('.title-text .title').first().innerHeight() || ($(element).find('.type > .locale').length && $(element).find('.type > .locale').position().left + $(element).find('.type > .locale').first().outerWidth() >= $(element).find('.type').first().width()))) {
+            $(element).find('.buttons').append('<a class="show-more-link"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></span>');
+            $(element).find('.buttons .show-more-link').on('click', event => {
+              event.preventDefault();
+              $(element).toggleClass('show-all');
+            });
+          }
+        });
+      } else if ((tags.length && tags.last().position().top >= $(element).find('.tags').outerHeight()) || $(element).find('.title-text').first().innerHeight() < $(element).find('.title-text .title').first().innerHeight() || ($(element).find('.type > .locale').length && $(element).find('.type > .locale').position().left + $(element).find('.type > .locale').first().outerWidth() >= $(element).find('.type').first().width())) {
+        $(element).find('.buttons').append('<a class="show-more-link"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></span>');
+        $(element).find('.buttons .show-more-link').on('click', event => {
+          event.preventDefault();
+          $(element).toggleClass('show-all');
+        });
+      }
+    });
+  });
 <% end %>

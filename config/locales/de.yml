@@ -45,6 +45,7 @@ de:
 
   common:
     loading: 'Laden ...'
+    load_more: Weitere Einträge laden
     are_you_sure: 'Sind Sie sicher?'
     language: "Sprache"
     choose_language: "Sprache wählen"
@@ -303,6 +304,7 @@ de:
     administration: 'Administration'
     classifications: 'Klassifizierungen'
     classification_tree_label: 'Themenbaum'
+    show_contents_for_tree_label: "Inhalte zu %{data} auflisten"
     settings: Einstellungen
     stored_filter: Meine gespeicherten Filter
 

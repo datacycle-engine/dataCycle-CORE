@@ -1,3 +1,3 @@
-<% classification_trees.includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source]).each do |classification_tree| %>
-  <%= render 'classification_tree', classification_tree_label: classification_tree_label, classification_tree: classification_tree %>
+<% classification_trees.each do |classification_tree| %>
+  <%= render 'classification_tree', classification_tree_label: classification_tree_label, classification_tree: classification_tree, content_count: content_counts[classification_tree.id] %>
 <% end %>

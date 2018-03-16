@@ -7,7 +7,7 @@
     <ul class="backend-treeview-list">
       <li><h2><%= @classification_tree_label.name %></h2>
         <ul class="children">
-          <%= render 'classification_trees', classification_tree_label: @classification_tree_label, classification_trees: @classification_trees %>
+          <%= render 'classification_trees', classification_tree_label: @classification_tree_label, classification_trees: @classification_trees, content_counts: @content_count %>
         </ul>
       </li>
     </ul>

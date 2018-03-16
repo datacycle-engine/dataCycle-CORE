@@ -1,9 +1,40 @@
+<li><%= @total_count %></li>
+
 <% contents.presence&.each do |content| %>
   <% I18n.with_locale(content.first_available_locale) do %>
     <li id="<%= content.id %>" class="content-row">
-      <%= render 'data_cycle_core/contents/tiles/attributes/type', item: content %>
-      <%= render 'data_cycle_core/contents/tiles/attributes/title', item: content if content.try(:title).present? %>
+
+      <div class="type <%= content.template_name.downcase %>">
+        <%= link_to polymorphic_path(content) do %>
+          <%= render 'data_cycle_core/shared/icon', icon_type: content.template_name.parameterize(separator: '_') %>
+          <span class="title"><%= t("content_type.#{content.template_name.downcase}", default: content.template_name, locale: DataCycleCore.ui_language) %></span>
+          <span class="locale">(<%= content.translated_locales.join(', ') %>)</span>
+        <% end %>
+      </div>
+      <div class="title-text">
+        <span class="title"><%= link_to content.title, polymorphic_path(content) if content.try(:title).present? %></span>
+      </div>
       <%= render 'data_cycle_core/contents/tiles/attributes/tags', item: content if content.try(:display_classification_aliases).present? %>
+
+      <div class="thumbnails">
+        <% if content.try(:image).is_a?(ActiveRecord::Relation) && content.try(:image).present? %>
+          <% content.image.each do |image| %>
+              <img data-src="<%= image.thumbnail_url %>" alt="<%= image.headline %>" class="lazyload" />
+          <% end %>
+        <% elsif content.try(:thumbnail_url).present? %>
+          <img data-src="<%= content.thumbnail_url %>" alt="<%= content.headline %>" class="lazyload" />
+        <% elsif content.try(:image).is_a?(String) && content.try(:image).present? %>
+          <img data-src="<%= content.image %>" alt="<%= content.headline %>" class="lazyload" />
+        <% end %>
+      </div>
+      <div class="buttons"></div>
     </li>
   <% end %>
+<% end %>
+<% if page < total_pages %>
+  <li class="content-row button-row">
+    <%= link_to classification_tree_label_path(classification_tree_label, classification_tree_id: classification_tree.id, page: (page + 1)), data: {remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"}, class: 'tree-link' do %>
+      <%= t('common.load_more', locale: DataCycleCore.ui_language) %>
+    <% end %>
+  </li>
 <% end %>
