@@ -5,7 +5,7 @@ module DataCycleCore::Generic::Transformations::Transformations
 
   def self.media_archive_to_video
     t(:stringify_keys)
-    .>> t(:reject_keys, ['@context', '@name', '@type', 'visibility', 'contentLocation'])
+    .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
     .>> t(:underscore_keys)
     .>> t(:tags_to_ids, 'keywords', 'MediaArchive - Tags')
     .>> t(:copy_keys, 'url' => 'external_key')
@@ -15,7 +15,7 @@ module DataCycleCore::Generic::Transformations::Transformations
 
   def self.media_archive_to_bild
     t(:stringify_keys)
-    .>> t(:reject_keys, ['@context', '@name', '@type', 'visibility', 'contentLocation'])
+    .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
     .>> t(:underscore_keys)
     .>> t(:tags_to_ids, 'keywords', 'MediaArchive - Tags')
     .>> t(:copy_keys, 'url' => 'external_key')
