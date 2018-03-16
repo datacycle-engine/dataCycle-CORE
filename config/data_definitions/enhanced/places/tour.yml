@@ -13,7 +13,7 @@
         :storage_location: key
         :validations:
           :format: uuid
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_type: string
