@@ -1,0 +1,307 @@
+---
+- :data:
+    :name: Bild
+    :type: object
+    :content_type: entity
+    :permissions:
+      :read_write: true
+    :boost: 10.0
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :search: true
+        :editor:
+          :type: input
+          :sorting: 1
+          :options:
+            :data-validate: text
+      # mixin: validity_period
+      :validity_period:
+        :label: Gültigkeitszeitraum
+        :type: object
+        :storage_location: metadata
+        :validations:
+          :daterange:
+            :from: valid_from
+            :to: valid_until
+        :editor:
+          :sorting: 3
+          :options:
+            :class: daterange
+        :properties:
+          :valid_from:
+            :label: Gültigkeit
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: tt.mm.jjjj
+          :valid_until:
+            :label: bis
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :validations:
+              :format: date_time
+            :editor:
+              :type: date
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: tt.mm.jjjj
+      :caption:
+        :label: Alt-Label
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :search: true
+        :editor:
+          :sorting: 4
+          :type: input
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_type: text
+        :storage_location: column
+        :search: true
+        :editor:
+          :type: quillEditor
+          :sorting: 5
+          :options:
+            :data-size: basic
+      :content_url:
+        :label: Bild URL
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
+        :editor:
+          :type: input
+          :sorting: 6
+          :options:
+            :data-validate: text
+      :thumbnail_url:
+        :label: Thumbnail URL
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
+        :editor:
+          :type: image
+          :sorting: 7
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
+        :editor:
+          :type: input
+          :sorting: 8
+          :options:
+            :data-validate: text
+#      :asset:
+#        :label: Datei
+#        :type: asset
+#        :type_name: DataCycleCore::Image
+#        :storage_location: asset_relation
+#        :editor:
+#          :type: imageAsset
+#          :sorting: 9
+      :photographer:
+        :label: Fotograf
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :search: true
+        :editor:
+          :type: input
+          :sorting: 10
+      :license:
+        :label: Copyright / Lizenz
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :search: true
+        :editor:
+          :type: input
+          :sorting: 11
+      :content_location:
+        :label: Ort
+        :type: object
+        :storage_location: places
+        :name: Örtlichkeit
+        :editor:
+          :type: objectBrowser
+          :sorting: 12
+      :width:
+        :label: Breite
+        :type: number
+        :storage_type: number
+        :storage_location: metadata
+        :validations:
+          :format: integer
+        :editor:
+          :type: input
+          :sorting: 13
+      :height:
+        :label: Höhe
+        :type: number
+        :storage_type: number
+        :storage_location: metadata
+        :validations:
+          :format: integer
+        :editor:
+          :type: input
+          :sorting: 14
+      :content_size:
+        :label: Dateigröße
+        :type: number
+        :storage_type: number
+        :storage_location: metadata
+        :validations:
+          :format: integer
+        :editor:
+          :type: input
+          :sorting: 15
+      :file_format:
+        :label: Dateiformat
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: input
+          :sorting: 16
+      # mixin: media_archive
+      :mandatory_license:
+        :label: Copyright Nennung verpflichtend
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: boolean
+        :editor:
+          :type: input
+          :sorting: 50
+      :comment:
+        :label: Kommentar
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :search: true
+        :editor:
+          :type: input
+          :sorting: 51
+      :source:
+        :label: Erhalten von
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: input
+          :sorting: 52
+      :image_id:
+        :label: Bildnummer
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: input
+          :sorting: 53
+      :visibility:
+        :label: Sichtbarkeit
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: input
+          :sorting: 54
+      :restrictions:
+        :label: Einschränkungen
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :search: true
+        :editor:
+          :type: input
+          :sorting: 55
+      # mixin: media_archive_categories
+      :access:
+        :label: Rechte/Einsatzgebiet
+        :type: classificationTreeLabel
+        :type_name: Rechte
+        :storage_location: classification_relation
+        :editor:
+          :type: input
+          :sorting: 60
+      :keywords:
+        :label: Tags
+        :type: classificationTreeLabel
+        :type_name: MediaArchive - Tags
+        :storage_location: classification_relation
+        :editor:
+          :type: input
+          :sorting: 61
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_location: classification_relation
+        :default_value: "Bild"
+      # mixin: content_classifications
+      :topic:
+        :label: Themenbereiche
+        :type: classificationTreeLabel
+        :type_name: Themenbereiche
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 80
+      :output_channel:
+        :label: Ausgabekanal
+        :type: classificationTreeLabel
+        :type_name: Ausgabekanäle
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 81
+      # mixin: meta_data
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :date_created:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :date_modified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
