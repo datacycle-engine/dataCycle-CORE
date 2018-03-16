@@ -105,8 +105,10 @@
         :validations:
           :format: url
         :editor:
-          :type: image
+          :type: input
           :sorting: 7
+          :options:
+            :data-type: image
       :url:
         :label: Inhalt URL
         :type: string
