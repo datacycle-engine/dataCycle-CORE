@@ -164,14 +164,14 @@ namespace :data_cycle_core do
       puts 'importing new template definitions'
       errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
       unless duplicates.blank?
-        puts 'the following templates had multiple definitions:'
+        puts 'INFO: the following templates had multiple definitions:'
         ap duplicates
       end
       unless errors.blank?
         puts 'the following errors were encountered during import:'
         ap errors
       end
-      duplicates.blank? && errors.blank? ? puts('[done] ... looks good') : exit(-1)
+      errors.blank? ? puts('[done] ... looks good') : exit(-1)
     end
 
     desc 'import all external_source configs'
