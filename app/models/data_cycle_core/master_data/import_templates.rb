@@ -77,7 +77,7 @@ module DataCycleCore
         end
         errors
       rescue StandardError => e
-        puts "could not access a YML File #{template_location[:file]}"
+        puts 'could not access a YML File'
         puts e.message
         puts e.backtrace
       end
