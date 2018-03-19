@@ -1,6 +1,6 @@
 module DataCycleCore::Generic::MediaArchive::Import
   def import_data(**options)
-    @place_template = options[:import][:place_template] || 'Örtlichkeit'
+    @place_template = options[:import][:place_template] || 'contentLocation'
     load_transformations
     import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)
   end
