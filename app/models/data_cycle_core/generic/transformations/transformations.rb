@@ -3,21 +3,21 @@ module DataCycleCore::Generic::Transformations::Transformations
     DataCycleCore::Generic::Transformations::Functions[*args]
   end
 
-  def self.media_archive_to_video(tree_labels)
+  def self.media_archive_to_video(external_source_id)
     t(:stringify_keys)
     .>> t(:reject_keys, ['@context', '@name', '@type', 'visibility', 'contentLocation'])
     .>> t(:underscore_keys)
-    .>> t(:tags_to_ids, 'keywords', tree_labels['keywords'])
+    .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
     .>> t(:copy_keys, 'url' => 'external_key')
     .>> t(:map_value, 'external_key', ->s { s.split('/').last })
     .>> t(:strip_all)
   end
 
-  def self.media_archive_to_bild(tree_labels)
+  def self.media_archive_to_bild(external_source_id)
     t(:stringify_keys)
     .>> t(:reject_keys, ['@context', '@name', '@type', 'visibility', 'contentLocation'])
     .>> t(:underscore_keys)
-    .>> t(:tags_to_ids, 'keywords', tree_labels['keywords'])
+    .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
     .>> t(:copy_keys, 'url' => 'external_key')
     .>> t(:map_value, 'external_key', ->s { s.split('/').last })
     .>> t(:strip_all)

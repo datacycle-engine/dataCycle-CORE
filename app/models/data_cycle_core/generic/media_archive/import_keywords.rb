@@ -3,7 +3,7 @@ module DataCycleCore
     module MediaArchive
       module ImportKeywords
         def import_data(**options)
-          @tree_label = options.dig(:import, :tree_label) || 'MediaArchive - Tags'
+          @tree_label = options&.dig(:import, :tree_label) || 'MediaArchive - Tags'
 
           # dummy variables to please the import machinery ... not used in this strategy
           @target_type = DataCycleCore::Place

@@ -1,14 +1,13 @@
 module DataCycleCore::Generic::MediaArchive::Import
   def import_data(**options)
     load_transformations
+    @place_template = options&.dig(:import, :place_template) || 'contentLocation'
     import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)
   end
 
   def load_transformations
-    tree_labels = {}
-    tree_labels['keywords'] = load_tree_label('keywords') || 'MediaArchive - Tags'
-    @image_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_bild(tree_labels)
-    @video_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_video(tree_labels)
+    @image_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_bild(external_source.id)
+    @video_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_video(external_source.id)
     @content_location_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_content_location
   end
 
@@ -27,7 +26,7 @@ module DataCycleCore::Generic::MediaArchive::Import
     I18n.with_locale(locale) do
       content_location = create_or_update_content(
         DataCycleCore::Place,
-        load_template(DataCycleCore::Place, 'contentLocation'),
+        load_template(DataCycleCore::Place, @place_template),
         extract_content_location_data(raw_data['contentLocation'])
           .merge({ 'external_key' => raw_data['url'] }).with_indifferent_access
       )

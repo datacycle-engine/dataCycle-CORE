@@ -41,19 +41,6 @@ module DataCycleCore::Generic::Transformations::Functions
     data_hash
   end
 
-  def self.tags_to_ids_old(data_hash, attribute, tree_label)
-    if data_hash[attribute].blank?
-      data_hash[attribute] = []
-    else
-      data_hash[attribute] = data_hash[attribute].map { |keyword|
-        DataCycleCore::Classification
-          .joins(classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]])
-          .where('classification_tree_labels.name = ? and classifications.name = ? ', tree_label, keyword).try(:first).try(:id)
-      }.reject(&:nil?) || []
-    end
-    data_hash
-  end
-
   def self.add_field(data_hash, name, function)
     data_hash.merge({ name => function.call(data_hash) })
   end
