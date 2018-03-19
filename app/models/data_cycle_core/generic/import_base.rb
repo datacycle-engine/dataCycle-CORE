@@ -139,11 +139,12 @@ module DataCycleCore
         content.save!
 
         old_data = (content.get_data_hash || {}).merge({
-          metadata: content.metadata.except('validation'), # TODO: .except('validation') can be removed when schema/template_name are updated
+          metadata: content.metadata,
           validation: template.schema
         }.stringify_keys)
 
-        error = content.set_data_hash(data_hash: old_data.merge(data))
+        # TODO: check if prevent_history should stay activated for imports!
+        error = content.set_data_hash(data_hash: old_data.merge(data), prevent_history: true)
 
         if @logging && !error[:error].blank?
           @logging.error('Validating import data', data['external_key'], data, error[:error].join('\n'))
