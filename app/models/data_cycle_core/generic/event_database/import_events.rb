@@ -1,6 +1,7 @@
 module DataCycleCore::Generic::EventDatabase::ImportEvents
   def import_data(**options)
     @image_template = options&.dig(:import, :image_template) || 'Bild'
+    @place_template = options&.dig(:import, :place_template) || 'Veranstaltungsort'
     load_transformations
     import_contents(
       @source_type,
@@ -36,7 +37,7 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
       unless raw_data.dig('location').nil?
         content_location = create_or_update_content(
           DataCycleCore::Place,
-          load_template(DataCycleCore::Place, 'Veranstaltungsort'),
+          load_template(DataCycleCore::Place, @place_template),
           extract_content_location_data(raw_data['location'])
         )
       end
@@ -67,7 +68,7 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
       unless sub_event.dig('location').nil?
         content_location = create_or_update_content(
           DataCycleCore::Place,
-          load_template(DataCycleCore::Place, 'Veranstaltungsort'),
+          load_template(DataCycleCore::Place, @place_template),
           extract_content_location_data(sub_event['location'])
         )
       end
