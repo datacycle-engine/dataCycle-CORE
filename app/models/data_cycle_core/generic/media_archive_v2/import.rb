@@ -25,21 +25,21 @@ module DataCycleCore::Generic::MediaArchiveV2::Import
         DataCycleCore::Place,
         load_template(DataCycleCore::Place, @place_template),
         extract_content_location_data(raw_data['contentLocation'])
-          .merge({ 'external_key' => "#{raw_data['contentType']}-#{@place_template}: #{raw_data['url'].split('/').last}"}).with_indifferent_access
+          .merge({ 'external_key' => "#{raw_data['contentType']}-#{@place_template}: #{raw_data['url'].split('/').last}" }).with_indifferent_access
       )
 
       director = create_or_update_content(
         DataCycleCore::Person,
         load_template(DataCycleCore::Person, @person_template),
         extract_person_data(raw_data['director'])
-          .merge({ 'external_key' => "Regie: #{raw_data['url'].split('/').last}"}).with_indifferent_access
+          .merge({ 'external_key' => "Regie: #{raw_data['url'].split('/').last}" }).with_indifferent_access
       )
 
       contributor = create_or_update_content(
         DataCycleCore::Person,
         load_template(DataCycleCore::Person, @person_template),
         extract_person_data(raw_data['contributor'])
-          .merge({ 'external_key' => "Kamera: #{raw_data['url'].split('/').last}"}).with_indifferent_access
+          .merge({ 'external_key' => "Kamera: #{raw_data['url'].split('/').last}" }).with_indifferent_access
       )
 
       raw_data['content_location'] = [{ 'id' => content_location.try(:id) }] unless content_location.blank?

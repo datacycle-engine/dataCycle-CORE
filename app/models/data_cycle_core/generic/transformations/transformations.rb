@@ -79,8 +79,8 @@ module DataCycleCore::Generic::Transformations::Transformations
   def self.media_archive_to_person
     t(:stringify_keys)
     .>> t(:underscore_keys)
-    .>> t(:map_value, 'given_name', ->s {(s.empty? ? ' ' : s)})
-    .>> t(:map_value, 'family_name', ->s {(s.empty? ? ' ' : s)})
+    .>> t(:map_value, 'given_name', ->s { (s.empty? ? ' ' : s) })
+    .>> t(:map_value, 'family_name', ->s { (s.empty? ? ' ' : s) })
     .>> t(:compact)
   end
 

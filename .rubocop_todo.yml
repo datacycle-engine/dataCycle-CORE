@@ -131,6 +131,7 @@ Rails/Output:
     - 'app/models/data_cycle_core/data_hash.rb'
     - 'app/models/data_cycle_core/generic/logger/console.rb'
     - 'app/models/data_cycle_core/generic/media_archive/import.rb'
+    - 'app/models/data_cycle_core/generic/media_archive_v2/import.rb'
     - 'app/models/data_cycle_core/master_data/import_classifications.rb'
     - 'app/models/data_cycle_core/master_data/import_templates.rb'
     - 'app/models/data_cycle_core/master_data/import_external_sources.rb'
