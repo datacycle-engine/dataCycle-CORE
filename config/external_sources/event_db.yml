@@ -41,5 +41,7 @@ config:
       source_type: events
       import_strategy: DataCycleCore::Generic::EventDatabase::ImportEvents
       data_template: Event
+      image_template: Bild
+      place_template: Veranstaltungsort      
       target_type: DataCycleCore::Event
       logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
