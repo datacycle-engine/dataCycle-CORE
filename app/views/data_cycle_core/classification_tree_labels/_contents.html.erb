@@ -1,5 +1,3 @@
-<li><%= @total_count %></li>
-
 <% contents.presence&.each do |content| %>
   <% I18n.with_locale(content.first_available_locale) do %>
     <li id="<%= content.id %>" class="content-row">

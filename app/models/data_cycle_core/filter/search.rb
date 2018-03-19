@@ -63,6 +63,12 @@ module DataCycleCore
         )
       end
 
+      def unique_by_column(column = :id)
+        query = DataCycleCore::Search.select("DISTINCT ON (#{column}) id")
+
+        reflect(@query.where(id: query))
+      end
+
       def with_classification_alias_ids(ids = nil)
         return self if ids.blank?
 

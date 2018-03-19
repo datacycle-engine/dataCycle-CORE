@@ -6,31 +6,50 @@ module DataCycleCore
     def show
       respond_to do |format|
         format.html do
-          @classification_trees = @classification_tree_label.classification_trees.accessible_by(current_ability)
+          @classification_trees = @classification_tree_label.classification_trees
+            .accessible_by(current_ability)
+            .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
             .where(parent_classification_alias: nil)
             .where.not(classification_aliases: { name: DataCycleCore.excluded_filter_classifications })
-            .order('classification_aliases.name').includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
+            .order('classification_aliases.name')
 
-          @content_count = @classification_trees.map { |c| [c.id, DataCycleCore::Filter::Search.new(nil, DataCycleCore::Search.distinct).with_classification_alias_ids_without_recursion(c.sub_classification_alias.id).pluck(:content_data_id).count] }.to_h
+          @content_count = @classification_trees.map { |c|
+            [
+              c.id,
+              DataCycleCore::Filter::Search.new(nil, DataCycleCore::Search.distinct)
+                .with_classification_alias_ids_without_recursion(c.sub_classification_alias.id)
+                .pluck(:content_data_id)
+                .size
+            ]
+          }.to_h
         end
+
         format.js do
-          if classification_tree_label_params[:classification_tree_id].present?
-            @classification_tree = DataCycleCore::ClassificationTree.find(classification_tree_label_params[:classification_tree_id])
+          if permitted_params[:classification_tree_id].present?
+            @classification_tree = DataCycleCore::ClassificationTree.find(permitted_params[:classification_tree_id])
+
             @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees
-              .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source]).accessible_by(current_ability)
+              .accessible_by(current_ability)
+              .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
               .where.not(classification_aliases: { name: DataCycleCore.excluded_filter_classifications })
               .order('classification_aliases.name')
 
-            @content_count = @classification_trees.map { |c| [c.id, DataCycleCore::Filter::Search.new(nil, DataCycleCore::Search.distinct).with_classification_alias_ids_without_recursion(c.sub_classification_alias.id).pluck(:content_data_id).count] }.to_h
+            @content_count = @classification_trees.map { |c|
+              [
+                c.id,
+                DataCycleCore::Filter::Search.new(nil, DataCycleCore::Search.distinct)
+                  .with_classification_alias_ids_without_recursion(c.sub_classification_alias.id)
+                  .pluck(:content_data_id)
+                  .size
+              ]
+            }.to_h
 
-            query = DataCycleCore::Filter::Search.new(nil, DataCycleCore::Search)
-
-            @contents = query
-              .with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
+            @contents = DataCycleCore::Filter::Search.new(nil, DataCycleCore::Search)
               .includes(content_data: [:display_classification_aliases])
+              .unique_by_column(:content_data_id)
+              .with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
               .order(boost: :desc, data_type: :asc, headline: :asc)
-
-            @contents = @contents.page(params[:page])
+              .page(params[:page])
 
             @page = @contents.current_page
             @total_count = @contents.total_count
@@ -43,7 +62,7 @@ module DataCycleCore
 
     private
 
-    def classification_tree_label_params
+    def permitted_params
       params.permit(:classification_tree_id)
     end
   end
