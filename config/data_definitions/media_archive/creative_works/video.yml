@@ -184,7 +184,7 @@
           :format: integer
         :editor:
           :type: input
-          :sorting: 14
+          :sorting: 15
       :height:
         :label: Höhe
         :type: number
