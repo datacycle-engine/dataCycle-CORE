@@ -2,10 +2,8 @@
 
 <div id="classification-tee-label-list" class="row">
   <div class="small-12 columns">
-    <h1><%= t('data_cycle_core.classification_tree_label', locale: DataCycleCore.ui_language) %></h1>
-
     <ul class="backend-treeview-list">
-      <li><h2><%= @classification_tree_label.name %></h2>
+      <li><h1><%= @classification_tree_label.name %></h1>
         <ul class="children">
           <%= render 'classification_trees', classification_tree_label: @classification_tree_label, classification_trees: @classification_trees, content_counts: @content_count %>
         </ul>

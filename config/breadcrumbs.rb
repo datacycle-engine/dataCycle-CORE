@@ -21,7 +21,7 @@ crumb :classifications do
 end
 
 crumb :classification_tree_label do |label|
-  link to_html_string(t('data_cycle_core.classification_tree_label', locale: DataCycleCore.ui_language), label.name), '#'
+  link to_html_string(label.name), '#'
 end
 
 # User

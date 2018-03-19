@@ -202,6 +202,7 @@ ul.backend-treeview-list {
 #classification-tee-label-list {
   .backend-treeview-list {
     >li {
+      border: none;
       ul.children {
         >li {
           .inner-item {
@@ -296,7 +297,6 @@ ul.backend-treeview-list {
               .tag {
                 color: $black;
                 background-color: lighten($light-gray, 5%);
-                white-space: nowrap;
               }
             }
             &.thumbnails {

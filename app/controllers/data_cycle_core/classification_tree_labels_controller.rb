@@ -8,9 +8,9 @@ module DataCycleCore
         format.html do
           @classification_trees = @classification_tree_label.classification_trees
             .accessible_by(current_ability)
-            .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
             .where(parent_classification_alias: nil)
             .where.not(classification_aliases: { name: DataCycleCore.excluded_filter_classifications })
+            .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
             .order('classification_aliases.name')
 
           @content_count = @classification_trees.map { |c|
@@ -45,9 +45,9 @@ module DataCycleCore
             }.to_h
 
             @contents = DataCycleCore::Filter::Search.new(nil, DataCycleCore::Search)
-              .includes(content_data: [:display_classification_aliases])
               .unique_by_column(:content_data_id)
               .with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
+              .includes(content_data: [:display_classification_aliases, :translations])
               .order(boost: :desc, data_type: :asc, headline: :asc)
               .page(params[:page])
 
