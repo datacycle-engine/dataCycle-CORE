@@ -396,7 +396,8 @@ namespace :data_cycle_core do
   namespace :archive do
     desc 'move expired contents to archive'
     task expired: :environment do
-      logger = Logger.new('archive.log')
+      logger = Logger.new('log/archive.log')
+      logger.info('Started Archiving...')
       temp = Time.zone.now
       archive_life_cycle_id = DataCycleCore::Classification.find_by(name: DataCycleCore.features.dig(:life_cycle, :ordered)&.last)&.id
       archive_release_id = DataCycleCore::Release.order(release_code: :desc)&.first&.id
@@ -487,6 +488,7 @@ namespace :data_cycle_core do
       end
       puts 'END'
       puts "--> ARCHIVING time: #{((Time.zone.now - temp) / 60).to_i} min"
+      logger.info("Finished Archiving after #{((Time.zone.now - temp) / 60).to_i} min")
     end
   end
 
