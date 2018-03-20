@@ -11,11 +11,6 @@ module DataCycleCore::Generic::MediaArchive::Import
     @content_location_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_content_location
   end
 
-  def load_tree_label(attribute)
-    template = load_template(@target_type, @data_template)
-    template.schema.dig('properties', attribute, 'type_name')
-  end
-
   protected
 
   def load_contents(mongo_item, locale)
