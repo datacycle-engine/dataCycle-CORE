@@ -67,13 +67,13 @@ module DataCycleCore::Generic::Transformations::Transformations
       ->s { [s['field_204'].try(:split, ','), s['field_215'].try(:split, ',')].flatten.reject(&:nil?).map(&:strip).uniq || [] })
   end
 
-  def self.xamoom_to_poi
+  def self.xamoom_to_poi(external_source_id)
     t(:stringify_keys)
     .>> t(:rename_keys, { 'position-latitude' => 'latitude', 'position-longitude' => 'longitude' })
     .>> t(:map_value, 'latitude', ->s { s.to_f })
     .>> t(:map_value, 'longitude', ->s { s.to_f })
     .>> t(:location)
-    .>> t(:tags_to_ids, 'tags', 'Xamoom - Tags')
+    .>> t(:tags_to_ids, 'tags', external_source_id, 'Xamoom - tag - ')
     .>> t(:rename_keys, { 'tags' => 'xamoom_tags' })
     .>> t(:strip_all)
   end

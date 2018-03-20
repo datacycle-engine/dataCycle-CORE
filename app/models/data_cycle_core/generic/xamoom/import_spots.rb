@@ -5,7 +5,7 @@ module DataCycleCore
         def import_data(**options)
           @image_template = options[:import][:image_template] || 'Bild'
 
-          @spot_transformation = DataCycleCore::Generic::Transformations::Transformations.xamoom_to_poi
+          @spot_transformation = DataCycleCore::Generic::Transformations::Transformations.xamoom_to_poi(external_source.id)
           @spot_image_transformation = DataCycleCore::Generic::Transformations::Transformations.xamoom_to_image
 
           import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)

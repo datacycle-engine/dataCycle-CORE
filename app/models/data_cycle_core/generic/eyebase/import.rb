@@ -1,6 +1,6 @@
 module DataCycleCore::Generic::Eyebase::Import
   def import_data(**options)
-    @eyebase_transformation = DataCycleCore::Generic::Transformations::Transformations.eyebase_to_bild
+    @eyebase_transformation = DataCycleCore::Generic::Transformations::Transformations.eyebase_to_bild(external_source.id)
     @eyebase_get_keywords = DataCycleCore::Generic::Transformations::Transformations.eyebase_get_keywords
 
     import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)
