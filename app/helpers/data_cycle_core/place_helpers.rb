@@ -14,5 +14,9 @@ module DataCycleCore
     def coordinates
       "#{latitude}, #{longitude}" if latitude.present? && longitude.present?
     end
+
+    def new_content_fields
+      ['name']
+    end
   end
 end

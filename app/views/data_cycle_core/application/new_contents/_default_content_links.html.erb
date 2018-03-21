@@ -3,59 +3,68 @@
 <div id="new-object-circle">
     <a data-toggle="new-object" class="button-prime"><i class="fa fa-plus" aria-hidden="true"></i></a>
     <div class="reveal" id="new-object" data-reveal data-append-to="#new-object-circle" data-v-offset="auto">
-      <% if containers.present? && DataCycleCore.features.dig(:life_cycle, :ordered) %>
-        <% containers.each do |container| %>
-          <% DataCycleCore.features.dig(:life_cycle, :ordered)[0..-2].each do |life_cycle_stage| %>
-            <% if life_cycle_stage == DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage) %>
-              <a class="option" href="#" data-open="new-<%= container.template_name&.parameterize(separator: '_') %>-<%= life_cycle_stage.parameterize(separator: '_') %>">
-                <%= render 'data_cycle_core/shared/icon', icon_type: "#{container.template_name&.parameterize(separator: '_')}_#{life_cycle_stage.parameterize(separator: '_')}" %>
-                <%= t('actions.new', data: "#{container.template_name.titleize} (#{life_cycle_stage.titleize})", locale: DataCycleCore.ui_language) %>
-              </a>
-            <% else %>
-              <a class="option" href="#" data-open="new-<%= container.template_name&.parameterize(separator: '_') %>-<%= life_cycle_stage.parameterize(separator: '_') %>">
-                <%= render 'data_cycle_core/shared/icon', icon_type: "#{container.template_name&.parameterize(separator: '_')}_#{life_cycle_stage.parameterize(separator: '_')}" %>
-                <%= t('actions.new', data: "#{container.template_name.titleize} (#{life_cycle_stage.titleize})", locale: DataCycleCore.ui_language) %>
-              </a>
+        <% if containers.present? && DataCycleCore.features.dig(:life_cycle, :ordered) %>
+            <% containers.each do |container| %>
+                <% DataCycleCore.features.dig(:life_cycle, :ordered)[0..-2].each do |life_cycle_stage| %>
+                    <% if life_cycle_stage == DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage) %>
+                        <a class="option" href="#" data-open="new-<%= container.template_name&.parameterize(separator: '_') %>-<%= life_cycle_stage.parameterize(separator: '_') %>">
+                            <%= render 'data_cycle_core/shared/icon', icon_type: "#{container.template_name&.parameterize(separator: '_')}_#{life_cycle_stage.parameterize(separator: '_')}" %>
+                            <%= t('actions.new', data: "#{container.template_name.titleize} (#{life_cycle_stage.titleize})", locale: DataCycleCore.ui_language) %>
+                        </a>
+                    <% else %>
+                        <a class="option" href="#" data-open="new-<%= container.template_name&.parameterize(separator: '_') %>-<%= life_cycle_stage.parameterize(separator: '_') %>">
+                            <%= render 'data_cycle_core/shared/icon', icon_type: "#{container.template_name&.parameterize(separator: '_')}_#{life_cycle_stage.parameterize(separator: '_')}" %>
+                            <%= t('actions.new', data: "#{container.template_name.titleize} (#{life_cycle_stage.titleize})", locale: DataCycleCore.ui_language) %>
+                        </a>
+                    <% end %>
+                <% end %>
             <% end %>
-          <% end %>
+        <% elsif containers.exists? %>
+            <% containers.each do |container| %>
+                <a class="option" href="#" data-open="new-<%= container.template_name&.parameterize(separator: '_') %>">
+                    <%= render 'data_cycle_core/shared/icon', icon_type: container.template_name&.parameterize(separator: '_') %>
+                    <%= t('actions.new', data: container.template_name&.titleize, locale: DataCycleCore.ui_language) %>
+                </a>
+            <% end %>
+        <% else %>
+            <% object_types = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) } %>
+            <% object_types.each do |object_type| %>
+                <% object_type.constantize.where("template = true AND schema ->> 'content_type' = ? AND template_name NOT IN(?)", 'entity', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects).order(:template_name).each do |entity| %>
+                    <a class="option" href="#" data-open="new-<%= entity.template_name.parameterize(separator: '_') %>">
+                        <%= render 'data_cycle_core/shared/icon', icon_type: entity.template_name.parameterize(separator: '_') %>
+                        <%= t('actions.new', data: entity.template_name.titleize, locale: DataCycleCore.ui_language) %>
+                    </a>
+                <% end %>
+            <% end %>
         <% end %>
-      <% elsif containers.exists? %>
-        <% containers.each do |container| %>
-          <a class="option" href="#" data-open="new-<%= container.template_name&.parameterize(separator: '_') %>">
-            <%= render 'data_cycle_core/shared/icon', icon_type: container.template_name&.parameterize(separator: '_') %>
-            <%= t('actions.new', data: container.template_name&.titleize, locale: DataCycleCore.ui_language) %>
-          </a>
-        <% end %>
-      <% else %>
-        <% DataCycleCore::CreativeWork.where("template = true AND schema ->> 'content_type' = ? AND template_name NOT IN(?)", 'entity', DataCycleCore.excluded_filter_classifications).order(:template_name).each do |entity| %>
-          <a class="option" href="#" data-open="new-<%= entity.template_name.parameterize(separator: '_') %>">
-            <%= render 'data_cycle_core/shared/icon', icon_type: entity.template_name.parameterize(separator: '_') %>
-            <%= t('actions.new', data: entity.template_name.titleize, locale: DataCycleCore.ui_language) %>
-          </a>
-        <% end %>
-      <% end %>
-      <%= yield :additional_content_links %>
+        <%= yield :additional_content_links %>
     </div>
 </div>
 
 <%# Reveal partials for links %>
 <% if containers.present? && DataCycleCore.features.dig(:life_cycle, :ordered) %>
-  <% containers.each do |container| %>
-    <% DataCycleCore.features.dig(:life_cycle, :ordered)[0..-2].each do |life_cycle_stage| %>
-      <% if life_cycle_stage == DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage) %>
-        <%= render 'new_content_reveal', reveal_id: "new-#{container.template_name&.parameterize(separator: '_')}-#{life_cycle_stage.parameterize(separator: '_')}", reveal_title: t('actions.new', data: "#{container.template_name.titleize} (#{life_cycle_stage.titleize})", locale: DataCycleCore.ui_language), reveal_template: DataCycleCore.features.dig(:life_cycle, :idea_collection, :template), parent_template: container.template_name, life_cycle_name: life_cycle_stage %>
-      <% else %>
-        <%= render 'new_content_reveal', reveal_id: "new-#{container.template_name&.parameterize(separator: '_')}-#{life_cycle_stage.parameterize(separator: '_')}", reveal_title: t('actions.new', data: "#{container.template_name.titleize} (#{life_cycle_stage.titleize})", locale: DataCycleCore.ui_language), reveal_template: container.template_name, life_cycle_name: life_cycle_stage %>
-      <% end %>
+    <% containers.each do |container| %>
+        <% DataCycleCore.features.dig(:life_cycle, :ordered)[0..-2].each do |life_cycle_stage| %>
+            <% if life_cycle_stage == DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage) %>
+                <%= render 'new_content_reveal', reveal_id: "new-#{container.template_name&.parameterize(separator: '_')}-#{life_cycle_stage.parameterize(separator: '_')}", reveal_title: t('actions.new', data: "#{container.template_name.titleize} (#{life_cycle_stage.titleize})", locale: DataCycleCore.ui_language), reveal_template: DataCycleCore.features.dig(:life_cycle, :idea_collection, :template), parent_template: container.template_name, life_cycle_name: life_cycle_stage %>
+            <% else %>
+                <%= render 'new_content_reveal', reveal_id: "new-#{container.template_name&.parameterize(separator: '_')}-#{life_cycle_stage.parameterize(separator: '_')}", reveal_title: t('actions.new', data: "#{container.template_name.titleize} (#{life_cycle_stage.titleize})", locale: DataCycleCore.ui_language), reveal_template: container.template_name, life_cycle_name: life_cycle_stage %>
+            <% end %>
+        <% end %>
     <% end %>
-  <% end %>
 <% elsif containers.exists? %>
-  <% containers.each do |container| %>
-    <%= render 'new_content_reveal', reveal_id: "new-#{container.template_name&.parameterize(separator: '_')}", reveal_title: t('actions.new', data: container.template_name.titleize, locale: DataCycleCore.ui_language), reveal_template: container.template_name %>
-  <% end %>
+    <% containers.each do |container| %>
+        <%= render_new_content_reveal(item: container) %>
+        <%#= render 'new_content_reveal', reveal_id: "new-#{container.template_name&.parameterize(separator: '_')}", reveal_title: t('actions.new', data: container.template_name.titleize, locale: DataCycleCore.ui_language), reveal_template: container.template_name %>
+    <% end %>
 <% else %>
-  <% DataCycleCore::CreativeWork.where("template = true AND schema ->> 'content_type' = ? AND template_name NOT IN(?)", 'entity', DataCycleCore.excluded_filter_classifications).order(:template_name).each do |default_type| %>
-    <%= render 'new_content_reveal', reveal_id: "new-#{default_type.template_name.parameterize(separator: '_')}", reveal_title: t('actions.new', data: default_type.template_name.titleize, locale: DataCycleCore.ui_language), reveal_template: default_type.template_name %>
-  <% end %>
+    <% object_types = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) } %>
+    <% object_types.each do |object_type| %>
+        <% object_type.constantize.where("template = true AND schema ->> 'content_type' = ? AND template_name NOT IN(?)", 'entity', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects).order(:template_name).each do |default_type| %>
+
+            <%= render_new_content_reveal(item: default_type) %>
+            <%#= render 'new_content_reveal', reveal_id: "new-#{default_type.template_name.parameterize(separator: '_')}", reveal_title: t('actions.new', data: default_type.template_name.titleize, locale: DataCycleCore.ui_language), reveal_template: default_type.template_name %>
+        <% end %>
+    <% end %>
 <% end %>
 <%= yield :additional_content_reveals %>

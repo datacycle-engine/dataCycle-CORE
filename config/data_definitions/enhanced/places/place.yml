@@ -1,0 +1,388 @@
+---
+- :data:
+    :name: Örtlichkeit
+    :type: object
+    :content_type: entity
+    :permissions:
+      :read_write: true
+    :boost: 10.0
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :name:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :sorting: 1
+          :options:
+            :data-validate: text
+      # overlay mixin
+      :overlay:
+        :label: Overlay
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: PlaceOverlay
+        :validations:
+          :maxLength: 1
+        :editor:
+          :type: embeddedObject
+          :sorting: 2
+      # mixin: postal_address
+      :address:
+        :label: Adresse
+        :type: object
+        :storage_location: metadata
+        :editor:
+          :sorting: 3
+          :options:
+            :class: detail_object
+        :properties:
+          :street_address:
+            :label: Straße
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 1
+          :postal_code:
+            :label: PLZ
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 2
+          :address_locality:
+            :label: Ort
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 3
+          :address_country:
+            :label: Land
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 4
+      # geo mixin
+      :longitude:
+        :label: Longitude
+        :type: number
+        :storage_type: number
+        :storage_location: column
+        :validations:
+          :format: float
+        :editor:
+          :options:
+            :data-type: input
+            :data-validate: text
+          :sorting: 4
+      :latitude:
+        :label: Latitude
+        :type: number
+        :storage_type: number
+        :storage_location: column
+        :validations:
+          :format: float
+        :editor:
+          :options:
+            :data-type: input
+            :data-validate: text
+          :sorting: 5
+      :location:
+        :label: GPS-Koordinaten
+        :type: geographic
+        :storage_type: geographic
+        :storage_location: column
+        :editor:
+          :sorting: 6
+          :options:
+            :disabled: disabled
+      # mixin: contact_info
+      :contact_info:
+        :label: Kontakt
+        :type: object
+        :storage_location: metadata
+        :editor:
+          :sorting: 7
+          :options:
+            :class: detail_object
+        :properties:
+          :telephone:
+            :label: Telefonnummer
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 1
+          :fax_number:
+            :label: Fax
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 2
+          :email:
+            :label: E-Mail
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 3
+          :url:
+            :label: Web
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 4
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :search: true
+        :editor:
+          :sorting: 8
+          :options:
+            :readonly: true
+      :text:
+        :label: Text
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :search: true
+        :editor:
+          :type: quillEditor
+          :sorting: 9
+          :options:
+            :data-size: basic
+      :primary_image:
+        :label: Hauptbild
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :max: 1
+        :editor:
+          :type: objectBrowser
+          :sorting: 10
+          :options:
+            :data-validate: media
+            :data-type: image
+      :image:
+        :label: Bilder
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: objectBrowser
+          :sorting: 11
+          :options:
+            :data-validate: media
+            :data-type: image
+      # mixin: Outdoor Active
+      :author:
+        :label: Autor
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :sorting: 17
+          :type: input
+      :price:
+        :label: Preis
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :editor:
+          :sorting: 18
+      :directions:
+        :label: Anfahrtsbeschreibung
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :search: true
+        :editor:
+          :sorting: 19
+          :type: input
+      :parking:
+        :label: Parkmöglichkeit
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :search: true
+        :editor:
+          :sorting: 20
+          :type: input
+      :elevation:
+        :label: Meereshöhe
+        :type: number
+        :storage_type: number
+        :storage_location: column
+        :validations:
+          :format: float
+        :editor:
+          :sorting: 21
+          :type: input
+      :hours_available:
+        :label: Service-Zeiten
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :editor:
+          :sorting: 22
+          :type: input
+      # mixin Outdoor Active Categories
+      :frontend_type:
+        :label: Frontend-Typ
+        :type: classificationTreeLabel
+        :type_name: OutdoorActive - FrontendTypes
+        :storage_location: classification_relation
+        :editor:
+          :sorting: 30
+          :options:
+            :readonly: true
+      :categories:
+        :label: Kategorien
+        :type: classificationTreeLabel
+        :type_name: OutdoorActive - Kategorien
+        :storage_location: classification_relation
+        :editor:
+          :sorting: 31
+      :regions:
+        :label: Regionen
+        :type: classificationTreeLabel
+        :type_name: OutdoorActive - Regionen
+        :storage_location: classification_relation
+        :editor:
+          :sorting: 32
+          :options:
+            :readonly: true
+      :source:
+        :label: Quelle
+        :type: classificationTreeLabel
+        :type_name: OutdoorActive - Quellen
+        :storage_location: classification_relation
+        :editor:
+          :sorting: 33
+          :options:
+            :readonly: true
+      # mixin: Feratel Categories
+      :holiday_themes:
+        :label: Feratel - Urlaubsthemen
+        :type: classificationTreeLabel
+        :type_name: Feratel - Urlaubsthemen
+        :storage_location: classification_relation
+        :editor:
+          :sorting: 40
+          :options:
+            :readonly: true
+      :accommodation_categories:
+        :label: Feratel - Unterkunftsarten
+        :type: classificationTreeLabel
+        :type_name: Feratel - Unterkunftsarten
+        :storage_location: classification_relation
+        :editor:
+          :sorting: 41
+          :options:
+            :readonly: true
+      :feratel_classifications:
+        :label: Feratel - Unterkunftsklassifizierungen
+        :type: classificationTreeLabel
+        :type_name: Feratel - Unterkunftsklassifizierungen
+        :storage_location: classification_relation
+        :editor:
+          :sorting: 42
+          :options:
+            :readonly: true
+      :stars:
+        :label: Feratel - Sterne
+        :type: classificationTreeLabel
+        :type_name: Feratel - Sterne
+        :storage_location: classification_relation
+        :editor:
+          :sorting: 43
+          :options:
+            :readonly: true
+      :feratel_owners:
+        :label: Feratel - Inhaber
+        :type: classificationTreeLabel
+        :type_name: Feratel - Inhaber
+        :storage_location: classification_relation
+        :editor:
+          :sorting: 44
+          :options:
+            :readonly: true
+      # mixin: Xamoom
+      :xamoom_tags:
+        :label: Xamoom - Tags
+        :type: classificationTreeLabel
+        :type_name: Xamoom - Tags
+        :storage_location: classification_relation
+        :editor:
+          :sorting: 70
+          :options:
+            :readonly: true
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_location: classification_relation
+        :default_value: "Örtlichkeit"
+      # mixin: content_classifications
+      :output_channel:
+        :label: Ausgabekanal
+        :type: classificationTreeLabel
+        :type_name: Ausgabekanäle
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 80
+      # mixin: meta_data
+      :creator:
+        :label: Ersteller
+        :type: embeddedLink
+        :type_name: users
+        :storage_type: string
+        :storage_location: metadata
+      :date_created:
+        :label: Erstellungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+      :date_modified:
+        :label: Änderungsdatum
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: date_time
+
+
+

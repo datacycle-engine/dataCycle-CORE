@@ -1,0 +1,30 @@
+<% if item.present? %>
+    <div class="reveal new-item" id="<%= "new-#{item.template_name.parameterize(separator: '_')}" %>" data-reveal>
+        <h3><%= t('actions.new', data: item.template_name.titleize, locale: DataCycleCore.ui_language) %></h3>
+
+        <% if params[:search].blank? %>
+            <span class="notice"><%= t('common.no_search', locale: DataCycleCore.ui_language) %></span>
+        <% end %>
+
+        <%= form_for(item.class.new) do |f| %>
+            <%= hidden_field_tag 'template', item.template_name %>
+            <%= hidden_field_tag "#{item.class.name.demodulize.underscore}[datahash][#{DataCycleCore.features.dig(:life_cycle, :attribute_key)}][]", life_cycle_items.dig(life_cycle_name, :id) if DataCycleCore.features.dig(:life_cycle) && local_assigns.has_key?(:life_cycle_name) %>
+            <%= hidden_field_tag 'parent_template', parent_template if local_assigns.has_key?(:parent_template) %>
+
+            <% item.new_content_fields.each_with_index do |attribute, index| %>
+                <div class="validation-container form-element">
+                    <%= label_tag "#{item.class.name.demodulize.underscore}[datahash][#{attribute}]", "#{item.schema['properties'][attribute]['label']}" %>
+                    <%= text_field_tag "#{item.class.name.demodulize.underscore}[datahash][#{attribute}]", '', class: 'form-control', value: (index==0 ? params[:search] : ''), disabled: params[:search].blank? %>
+                </div>
+            <% end %>
+
+            <% if params[:search].present? %>
+                <%= f.submit "Erstellen", class: "button primary" %>
+            <% end %>
+        <% end %>
+
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+<% end %>
