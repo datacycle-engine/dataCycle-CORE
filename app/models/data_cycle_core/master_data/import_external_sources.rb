@@ -34,7 +34,7 @@ module DataCycleCore
         )
         use_case.save unless use_case.persisted?
       rescue StandardError => e
-        puts "could not find the super_admin user"
+        puts 'could not find the super_admin user'
         puts e.message
         puts e.backtrace
       end
