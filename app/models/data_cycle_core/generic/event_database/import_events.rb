@@ -52,7 +52,9 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
 
       sub_events = raw_data.dig('subEvents').nil? ? {} : extract_sub_event_data(raw_data['subEvents'])
 
-      event_data = extract_event_data(raw_data)
+      event_default_values = {}
+      event_default_values = load_default_values(@options.dig(:import, :default_values, :event)) if @options.dig(:import, :default_values, :event).present?
+      event_data = event_default_values.merge(extract_event_data(raw_data))
 
       event_data['location'] = [{ 'id' => content_location.try(:id) }] unless content_location.blank?
       event_data['category'] = categories.map(&:id) unless categories.blank?
