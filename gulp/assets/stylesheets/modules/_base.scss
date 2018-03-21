@@ -836,8 +836,8 @@ a[data-toggle] {
   >ul {
     margin: 0;
     &.list-items {
-      max-height: 24rem;
       overflow-y: auto;
+      position: relative;
       .buttons {
         float: right;
         vertical-align: middle;
@@ -910,6 +910,15 @@ a[data-toggle] {
       display: block;
       text-align: center;
       overflow: hidden;
+    }
+  }
+  &.align-top {
+    top: auto !important;
+    bottom: calc(100% + 1rem) !important;
+    &:before {
+      top: auto;
+      bottom: -17px;
+      transform: scaleX(3) rotate(180deg);
     }
   }
 }
