@@ -81,7 +81,6 @@ module DataCycleCore::Generic::Transformations::Transformations
   def self.xamoom_to_image
     t(:stringify_keys)
     .>> t(:rename_keys, { 'name' => 'headline', 'image' => 'thumbnail_url' })
-    .>> t(:add_field, 'data_type', ->_s { nil })
     .>> t(:reject_keys, ['description', 'tags', 'position-longitude', 'position-latitude'])
     .>> t(:strip_all)
   end
