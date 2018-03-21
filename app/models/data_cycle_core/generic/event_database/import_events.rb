@@ -27,18 +27,22 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
       image = []
 
       unless raw_data.dig('image').nil?
+        image_default_values = {}
+        image_default_values = load_default_values(@options.dig(:import, :default_values, :image)) if @options.dig(:import, :default_values, :image).present?
         image = create_or_update_content(
           DataCycleCore::CreativeWork,
           load_template(DataCycleCore::CreativeWork, @image_template),
-          extract_event_image_data(raw_data.dig('image'), raw_data['name']).with_indifferent_access
+          image_default_values.merge(extract_event_image_data(raw_data.dig('image'), raw_data['name'])).with_indifferent_access
         )
       end
 
       unless raw_data.dig('location').nil?
+        location_default_values = {}
+        location_default_values = load_default_values(@options.dig(:import, :default_values, :place)) if @options.dig(:import, :default_values, :place).present?
         content_location = create_or_update_content(
           DataCycleCore::Place,
           load_template(DataCycleCore::Place, @place_template),
-          extract_content_location_data(raw_data['location'])
+          location_default_values.merge(extract_content_location_data(raw_data['location']))
         )
       end
 
@@ -50,7 +54,7 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
 
       event_data = extract_event_data(raw_data)
 
-      event_data['content_location'] = [{ 'id' => content_location.try(:id) }] unless content_location.blank?
+      event_data['location'] = [{ 'id' => content_location.try(:id) }] unless content_location.blank?
       event_data['category'] = categories.map(&:id) unless categories.blank?
       event_data['image'] = [image.try(:id)] unless image.blank?
       event_data['sub_event'] = sub_events unless sub_events.blank?
@@ -66,15 +70,19 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
   def extract_sub_event_data(raw_data)
     sub_events = raw_data.collect do |sub_event|
       unless sub_event.dig('location').nil?
+        location_default_values = {}
+        location_default_values = load_default_values(@options.dig(:import, :default_values, :place)) if @options.dig(:import, :default_values, :place).present?
         content_location = create_or_update_content(
           DataCycleCore::Place,
           load_template(DataCycleCore::Place, @place_template),
-          extract_content_location_data(sub_event['location'])
+          location_default_values.merge(extract_content_location_data(sub_event['location']))
         )
       end
 
-      item = @sub_event_transformation.call(sub_event)
-      item.merge!({ 'content_location' => [{ 'id' => content_location.try(:id) }] }) unless content_location.blank?
+      subevent_default_values = {}
+      subevent_default_values = load_default_values(@options.dig(:import, :default_values, :subevent)) if @options.dig(:import, :default_values, :subevent).present?
+      item = subevent_default_values.merge(@sub_event_transformation.call(sub_event))
+      item.merge!({ 'location' => [{ 'id' => content_location.try(:id) }] }) unless content_location.blank?
     end
   end
 

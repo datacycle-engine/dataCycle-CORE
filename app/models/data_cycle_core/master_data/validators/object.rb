@@ -68,7 +68,6 @@ module DataCycleCore
         def verify_embedded_object(data, table, name)
           return if data.empty?
           template = ('DataCycleCore::' + table.classify).constantize
-            .with_translations('de')
             .find_by(template: true, template_name: name)
 
           if template.blank?
