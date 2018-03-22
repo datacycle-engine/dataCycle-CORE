@@ -18,6 +18,7 @@ module DataCycleCore::Generic::MediaArchive::Import
   end
 
   def process_content(raw_data, template, locale)
+    @place_template ||= DataCycleCore.try(:default_place_type)
     I18n.with_locale(locale) do
       content_location = create_or_update_content(
         DataCycleCore::Place,
