@@ -62,7 +62,7 @@ module DataCycleCore
     def raw_validity_period
       if try(:validity_period)
         valid_from, valid_to = get_validity_values(validity_period.to_h)
-        { 'date_published' => valid_from.blank? ? '' : valid_from, 'expires' => valid_to.blank? || valid_to.to_s(:german_date_format).include?('9999') ? '' : valid_to }
+        { 'date_published' => valid_from.presence || '', 'expires' => valid_to.blank? || valid_to.to_s(:german_date_format).include?('9999') ? '' : valid_to }
       end
     end
   end
