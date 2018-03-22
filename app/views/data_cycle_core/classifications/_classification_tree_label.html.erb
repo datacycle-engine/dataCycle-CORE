@@ -9,9 +9,17 @@
   <% end %>
 
   <% if can?(:destroy, tree_label) %>
+    <% confirmation_text = "#{t('common.are_you_sure', locale: DataCycleCore.ui_language)}<br>" %>
+    <% confirmation_text += "<br>
+      <i>#{t('data_cycle_core.classification_contents', locale: DataCycleCore.ui_language)}:
+      <b>#{t('common.' + tree_label.classification_aliases.any? { |ca| ca.classifications.includes(:classification_contents).any? { |c| c.classification_contents.exists? } }.to_s, locale: DataCycleCore.ui_language)}</b></i>" %>
+    <% confirmation_text += "<br>
+      <i>#{t('data_cycle_core.child_classifications', locale: DataCycleCore.ui_language)}:
+      <b>#{tree_label.classification_aliases.size}</b></i>" if tree_label.classification_aliases.size.positive? %>
+
     <%= link_to classifications_path(classification_tree_label_id: tree_label.id), class: 'destroy',
                 data: {remote: true, method: :delete,
-                       confirm: t('common.are_you_sure', locale: DataCycleCore.ui_language),
+                       confirm: confirmation_text,
                        disable_with: '<i class="fa fa-spinner fa-spin"></i>'} do %>
       <i class="fa fa-trash-o" aria-hidden="true"></i>
     <% end %>
@@ -24,7 +32,7 @@
    <% end %>
  <% end %>
 
-  <%= link_to classification_tree_label_path(tree_label), class: 'contents-list', target: :_blank, data: { tooltip: '' }, title: t('data_cycle_core.show_contents_for_tree_label', data: tree_label.name, locale: DataCycleCore.ui_language) do %>
+  <%= link_to classification_tree_label_path(tree_label), class: 'contents-list', target: :_blank, title: t('data_cycle_core.show_contents_for_tree_label', data: tree_label.name, locale: DataCycleCore.ui_language) do %>
     <i class="fa fa-list" aria-hidden="true"></i>
   <% end %>
 

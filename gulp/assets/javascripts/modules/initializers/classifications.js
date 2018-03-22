@@ -78,8 +78,8 @@ module.exports.initialize = function () {
 
   // Themenbaum
 
-  if ($('#classification-tee-label-list').length) {
-    $('#classification-tee-label-list').on('ajax:beforeSend', 'a', function (event, xhr, options) {
+  if ($('#classification-tree-label-list').length) {
+    $('#classification-tree-label-list').on('ajax:beforeSend', 'a', function (event, xhr, options) {
       var childrenContainer = $(event.target).closest('li').children('ul.children, ul.contents');
 
       childrenContainer.siblings('.inner-item').toggleClass('open');
@@ -90,6 +90,27 @@ module.exports.initialize = function () {
         return false;
       }
     });
-  }
 
+    let location_array = location.hash.substr(1).split('+').filter(Boolean);
+    load_sub_classifications(location_array);
+  }
 }
+
+function load_sub_classifications(location_array) {
+  if (location_array.length) {
+    let id = location_array.shift();
+    let link = $('#' + id + ' .tree-link');
+
+    link.on('ajax:complete', (event, xhr, options) => {
+      document.getElementById(id).scrollIntoView({
+        behavior: 'smooth'
+      });
+
+      if (location_array.length) {
+        load_sub_classifications(location_array);
+      }
+    });
+
+    link.prop('href', link.prop('href') + '#' + location_array.join('#')).click();
+  }
+};

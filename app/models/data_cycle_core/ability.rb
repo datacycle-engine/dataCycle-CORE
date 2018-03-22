@@ -44,7 +44,13 @@ module DataCycleCore
           can :update_release_status, [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork, DataCycleCore::Place]
 
           can :manage, [DataCycleCore::Classification, DataCycleCore::ClassificationTree], external_source_id: nil
-          can :manage, [DataCycleCore::ClassificationTreeLabel, DataCycleCore::ClassificationAlias], external_source_id: nil, internal: false
+          can [:update, :download], [DataCycleCore::ClassificationTreeLabel, DataCycleCore::ClassificationAlias], external_source_id: nil, internal: false
+          can :destroy, DataCycleCore::ClassificationTreeLabel do |c|
+            c.external_source_id.nil? && !c.internal && !c.classification_aliases&.any?(&:internal)
+          end
+          can :destroy, DataCycleCore::ClassificationAlias do |c|
+            c.external_source_id.nil? && !c.internal && !c.sub_classification_alias&.any?(&:internal)
+          end
 
           can :crud, [DataCycleCore::CreativeWork, DataCycleCore::Event, DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::Place] do |data_object|
             data_object&.schema&.dig('permissions', 'read_write') != false

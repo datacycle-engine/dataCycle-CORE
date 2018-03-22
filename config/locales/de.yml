@@ -44,6 +44,8 @@ de:
       week: wöchentlich
 
   common:
+    'true': Ja
+    'false': Nein
     loading: 'Laden ...'
     load_more: Weitere Einträge laden
     are_you_sure: 'Sind Sie sicher?'
@@ -303,9 +305,11 @@ de:
   data_cycle_core:
     administration: 'Administration'
     classifications: 'Klassifizierungen'
-    show_contents_for_tree_label: "Inhalte zu %{data} auflisten"
+    show_contents_for_tree_label: "Inhalte in %{data} auflisten"
     settings: Einstellungen
     stored_filter: Meine gespeicherten Filter
+    classification_contents: Verknüpfte Datensätze
+    child_classifications: Kind-Klassifizierungen
 
   date:
     abbr_day_names:
