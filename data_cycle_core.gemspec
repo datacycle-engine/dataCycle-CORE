@@ -91,6 +91,8 @@ Gem::Specification.new do |s|
   # cron jobs gem
   s.add_dependency 'whenever'
 
+  s.add_dependency 'puma_worker_killer'
+
   # development gems
   s.add_development_dependency 'better_errors'
   s.add_development_dependency 'binding_of_caller'
