@@ -50,14 +50,14 @@ module DataCycleCore
           {
             id: c.id,
             name: c.name,
-            path: c.ancestors.reverse.map(&:name).join(' > '),
+            title: c.ancestors.reverse.map(&:name).join(' > '),
             disabled: !c.primary_classification_alias.try(:assignable)
           }
         }.uniq.sort_by { |c|
           [
-            -1 * c[:path].scan(/#{params[:q]}/i).count,
-            c[:path][c[:path].rindex(/#{params[:q]}/i)..-1].scan(' > ').count
-          ] + c[:path].split('').map(&:ord)
+            -1 * c[:title].scan(/#{params[:q]}/i).count,
+            c[:title][c[:title].rindex(/#{params[:q]}/i)..-1].scan(' > ').count
+          ] + c[:title].split('').map(&:ord)
         }.first(params[:max].try(:to_i) || 20)
     end
 

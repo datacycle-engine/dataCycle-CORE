@@ -10,7 +10,7 @@
   <% if classification_alias.persisted? %>
     <div class="v-select">
     <%= f.select(:classification_ids,
-                 options_for_select(classification_alias.classifications.map { |c| [c.name, c.id] },
+                 options_for_select(classification_alias.classifications.map { |c| [c.name, c.id, { title: c.ancestors.reverse.map(&:name).join(' > ') }] },
                                     classification_alias.classifications.map(&:id)),
                  {},
                  {multiple: true}) %>
