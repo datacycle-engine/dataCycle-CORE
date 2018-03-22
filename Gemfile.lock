@@ -1,12 +1,3 @@
-GIT
-  remote: https://github.com/globalize/globalize.git
-  revision: b228455065888d91fd2aca6340dd7ef3d8d5c92e
-  specs:
-    globalize (5.1.0.beta2)
-      activemodel (>= 4.2, < 5.2)
-      activerecord (>= 4.2, < 5.2)
-      request_store (~> 1.0)
-
 PATH
   remote: .
   specs:
@@ -28,6 +19,7 @@ PATH
       faraday
       foundation-rails (~> 6.2.4)
       foundation_rails_helper (>= 3.0.0.rc2, < 4.0)
+      globalize (~> 5.1.0)
       gretel
       hashdiff
       jbuilder
@@ -232,6 +224,10 @@ GEM
     git (1.3.0)
     globalid (0.4.1)
       activesupport (>= 4.2.0)
+    globalize (5.1.0)
+      activemodel (>= 4.2, < 5.2)
+      activerecord (>= 4.2, < 5.2)
+      request_store (~> 1.0)
     gretel (3.0.9)
       rails (>= 3.1.0)
     hashdiff (0.3.7)
@@ -338,7 +334,7 @@ GEM
     rb-fsevent (0.10.2)
     rb-inotify (0.9.10)
       ffi (>= 0.5.0, < 2)
-    request_store (1.4.0)
+    request_store (1.4.1)
       rack (>= 1.4)
     responders (2.4.0)
       actionpack (>= 4.2.0, < 5.3)
@@ -425,7 +421,6 @@ DEPENDENCIES
   data_cycle_core!
   dotenv-rails
   gemsurance
-  globalize!
   listen (~> 3.0.5)
   pry
   rubocop (~> 0.52.1)
