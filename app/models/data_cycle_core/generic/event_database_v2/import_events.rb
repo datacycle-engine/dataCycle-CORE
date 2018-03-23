@@ -1,4 +1,4 @@
-module DataCycleCore::Generic::EventDatabase::ImportEvents
+module DataCycleCore::Generic::EventDatabaseV2::ImportEvents
   def import_data(**options)
     @image_template = options&.dig(:import, :image_template) || 'Bild'
     @place_template = options&.dig(:import, :place_template) || 'Veranstaltungsort'

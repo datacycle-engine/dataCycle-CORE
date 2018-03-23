@@ -2,7 +2,7 @@
 - :data:
     :name: Event
     :type: object
-    :boost: 10.0
+    :boost: 100.0
     :content_type: entity
     :permissions:
       :read_write: true
