@@ -1,6 +1,5 @@
-var flatpickr = require('flatpickr');
-var Deutsch = require("flatpickr/dist/l10n/de.js").de;
-flatpickr.localize(Deutsch);
+var flatpickr = require("flatpickr");
+var Deutsch = require("flatpickr/dist/l10n/de.js").default.de;
 
 module.exports.initialize = function () {
   //  TODO: dont fire change event on setup/setSibling
@@ -11,13 +10,14 @@ module.exports.initialize = function () {
     $($element).find('input[type=datetime-local]').each(function () {
       if (!$(this).attr('readonly')) {
         var cal = $(this).flatpickr({
+          locale: Deutsch,
           altFormat: "d.m.Y H:i",
           enableTime: true,
           altInput: true,
           time_24hr: true,
           allowInput: true,
           static: true,
-          onClose: setSibling
+          onClose: set_sibling
         });
 
         new_cals.push(cal);
@@ -35,12 +35,13 @@ module.exports.initialize = function () {
     $($element).find('input[type=date]').each(function () {
       if (!$(this).attr('readonly')) {
         var cal = $(this).flatpickr({
+          locale: Deutsch,
           altFormat: "d.m.Y",
           altInput: true,
           time_24hr: true,
           allowInput: true,
           static: true,
-          onClose: setSibling
+          onClose: set_sibling
         });
 
         new_cals.push(cal);
@@ -65,33 +66,43 @@ module.exports.initialize = function () {
     init(this);
   });
 
-  function setSibling(selectedDates, dateStr, instance) {
+  function set_sibling(selectedDates, dateStr, instance) {
     if (calenders.indexOf(instance) >= 0) {
       var siblings = calenders.filter(function (val) {
-        return getIdFromCalender(val) == getIdFromCalender(instance);
+        return get_id_from_calender(val) == get_id_from_calender(instance);
       });
 
+      $(siblings[0].input).add(siblings[1].input).on('change', remove_event_handlers);
       if (siblings.length == 2 && instance == siblings[0]) siblings[1].set("minDate", dateStr);
       if (siblings.length == 2 && instance == siblings[1]) siblings[0].set("maxDate", dateStr);
+      $(siblings[0].input).add(siblings[1].input).off('change', remove_event_handlers);
     }
   }
 
   function setup(cals) {
     for (var i = 0; i < cals.length; i++) {
       var siblings = cals.filter(function (val) {
-        return getIdFromCalender(val) == getIdFromCalender(cals[i]);
+        return get_id_from_calender(val) == get_id_from_calender(cals[i]);
       });
 
       if (siblings.length == 2) {
+        $(siblings[0].input).add(siblings[1].input).on('change', remove_event_handlers);
         siblings[0].set("maxDate", siblings[1].input.value);
         siblings[1].set("minDate", siblings[0].input.value);
+        $(siblings[0].input).add(siblings[1].input).off('change', remove_event_handlers);
       }
       i++;
     }
 
   }
 
-  function getIdFromCalender(instance) {
+  function remove_event_handlers(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+  };
+
+  function get_id_from_calender(instance) {
     var ignore = ['from', 'until', 'start', 'end'];
     var id = instance.element.id.split('_');
     id = id.filter(function (val) {
