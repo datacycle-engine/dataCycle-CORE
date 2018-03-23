@@ -71,11 +71,12 @@ module.exports.initialize = function () {
       var siblings = calenders.filter(function (val) {
         return get_id_from_calender(val) == get_id_from_calender(instance);
       });
-
-      $(siblings[0].input).add(siblings[1].input).on('change', remove_event_handlers);
-      if (siblings.length == 2 && instance == siblings[0]) siblings[1].set("minDate", dateStr);
-      if (siblings.length == 2 && instance == siblings[1]) siblings[0].set("maxDate", dateStr);
-      $(siblings[0].input).add(siblings[1].input).off('change', remove_event_handlers);
+      if (siblings.length == 2) {
+        $(siblings[0].input).add(siblings[1].input).on('change', remove_event_handlers);
+        if (instance == siblings[0]) siblings[1].set("minDate", dateStr);
+        if (instance == siblings[1]) siblings[0].set("maxDate", dateStr);
+        $(siblings[0].input).add(siblings[1].input).off('change', remove_event_handlers);
+      }
     }
   }
 
