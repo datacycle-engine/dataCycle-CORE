@@ -5,95 +5,10 @@ module DataCycleCore
         template_paths = [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
         import_hash, duplicates = check_for_duplicates(template_paths)
         # load all mixins
-        @default_mixins, @mixin_list = import_all_mixins(template_paths)
-
+        @mixin_list, mixin_duplicates = DataCycleCore::MasterData::ImportMixins::import_all_mixins(template_paths)
         errors = import_all_templates(template_hash: import_hash, validation: validation)
-        raise nil.inspect
         # add notice + warnings
         return errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}, duplicates || {}
-      end
-
-      def self.import_all_mixins(template_paths)
-        # load general mixins
-        mixins_folder = 'mixins'
-        default_mixins = {}
-        # general_mixins =
-        template_paths.each do |core_template_path|
-          mixin_path = core_template_path.join(mixins_folder)
-          files = mixin_path + '*.yml'
-          file_names = Dir[files]
-
-          file_names.each do |file_name|
-            data_templates = YAML.load(File.open(file_name.to_s))
-            data_templates.each_index do |index|
-              new_template_data = { name: data_templates[index][:data][:name], properties: data_templates[index][:data][:properties], position: index }
-              default_mixins[new_template_data[:name].to_sym] = new_template_data
-            end
-          end
-        end
-        # load content_object mixins
-
-        mixin_list = {}
-        DataCycleCore.content_tables.each do |content_table_name|
-          mixin_list[content_table_name.to_sym] = {}
-        end
-
-        template_paths.each do |core_template_path|
-          DataCycleCore.content_tables.each do |content_table_name|
-            # mixin_path = core_template_path.join(mixins_folder)
-            files = core_template_path + content_table_name + mixins_folder + '*.yml'
-            file_names = Dir[files]
-
-            file_names.each do |file_name|
-              data_templates = YAML.load(File.open(file_name.to_s))
-              data_templates.each_index do |index|
-                new_template_data = { name: data_templates[index][:data][:name], properties: data_templates[index][:data][:properties], position: index }
-                mixin_list[content_table_name.to_sym][new_template_data[:name].to_sym] = new_template_data
-              end
-            end
-          end
-        end
-
-        return default_mixins, mixin_list
-      end
-
-      # test with default mixins
-      def self.replace_mixins(datahash)
-        # find mixins and replace it
-        new_properties = {}
-        sorting = 1
-        datahash[:properties].each do |property_name, property_value|
-          # check for mixins
-          if property_value[:type] == 'mixin'
-            # replace with mixin
-            if @default_mixins[property_value[:name].to_sym].present?
-              @default_mixins[property_value[:name].to_sym][:properties].each do |key, prop|
-                new_properties[key.to_sym], sorting = add_sorting(prop, sorting)
-              end
-            else
-              raise 'WHAT ? '.inspect
-            end
-          else
-            # add sorting
-            new_properties[property_name.to_sym], sorting = add_sorting(property_value, sorting)
-          end
-        end
-        new_properties
-      end
-
-      def self.add_sorting(hash, sorting)
-        if hash[:type] == 'object' && hash.key?(:properties).present?
-          # simple opject
-          properties = replace_mixins(hash)
-          hash[:properties] = properties
-        end
-        return apply_sorting(hash, sorting), sorting + 1
-      end
-
-      def self.apply_sorting(hash, sorting)
-        hash[:editor] = {} if hash.key?(:editor).present? == false
-        hash[:editor][:sorting] = sorting
-        hash
       end
 
       def self.check_for_duplicates(template_paths)
@@ -110,7 +25,7 @@ module DataCycleCore
             file_names = Dir[files]
             file_names.each do |file_name|
               data_templates = YAML.load(File.open(file_name.to_s))
-              new_template_definitions = data_templates.map { |item| item[:data][:name] }
+              # new_template_definitions = data_templates.map { |item| item[:data][:name] }
               data_templates.each_index do |index|
                 already_exist_index = import_list[content_table_name.to_sym].index { |item| item[:name] == data_templates[index][:data][:name] }
                 new_template_data = { name: data_templates[index][:data][:name], file: file_name, position: index }
@@ -147,6 +62,7 @@ module DataCycleCore
         errors = {}
         template_list.each do |template_location|
           template = YAML.load(File.open(template_location[:file]))[template_location[:position]]
+          template[:data] = transform_schema(schema: template[:data].dup, content_object: content_object)
           error = {}
           error = validate(template) if validation
           if error.blank?
@@ -157,18 +73,58 @@ module DataCycleCore
                 template: true
               )
             data_set.seen_at = Time.zone.now
-            # TODO: replace mixins
-            data_set.schema = replace_mixins(template[:data])
+            data_set.schema = template[:data]
             data_set.save
           else
             errors[template[:data][:name]] = error unless error.blank?
           end
         end
         errors
-        # rescue StandardError => e
-        #   puts 'could not access a YML File'
-        #   puts e.message
-        #   puts e.backtrace
+        rescue StandardError => e
+          puts 'could not access a YML File'
+          puts e.message
+          puts e.backtrace
+      end
+
+      def self.transform_schema(schema: {}, content_object: nil)
+        schema[:properties] = transform_properties(property_hash: schema[:properties], content_object: content_object)
+        schema
+      end
+
+      def self.transform_properties(property_hash: {}, content_object: nil)
+        new_properties = {}
+        sorting = 1
+        property_hash.each do |property_name, property_value|
+          if property_value[:type] == 'mixin'
+            if !content_object.nil? && @mixin_list[content_object.name.demodulize.pluralize.underscore.to_sym][property_value[:name].to_sym].present?
+              @mixin_list[content_object.name.demodulize.pluralize.underscore.to_sym][property_value[:name].to_sym][:properties].each do |key, prop|
+                new_properties[key.to_sym], sorting = add_sorting(prop, sorting)
+              end
+            elsif @mixin_list[:default][property_value[:name].to_sym].present?
+              @mixin_list[:default][property_value[:name].to_sym][:properties].each do |key, prop|
+                new_properties[key.to_sym], sorting = add_sorting(prop, sorting)
+              end
+            else
+              raise 'WHAT ? '.inspect
+            end
+          else
+            new_properties[property_name.to_sym], sorting = add_sorting(property_value, sorting)
+          end
+        end
+        new_properties
+      end
+
+      def self.add_sorting(hash, sorting)
+        if hash[:type] == 'object' && hash.key?(:properties).present?
+          hash[:properties] = transform_properties(property_hash: hash[:properties])
+        end
+        return apply_sorting(hash, sorting), sorting + 1
+      end
+
+      def self.apply_sorting(hash, sorting)
+        # ignore sorting, if no editor is set
+        hash[:editor][:sorting] = sorting if hash.key?(:editor)
+        hash
       end
 
       def self.validate(template)
