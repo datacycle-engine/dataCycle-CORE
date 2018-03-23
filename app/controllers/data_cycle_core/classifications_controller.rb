@@ -19,12 +19,16 @@ module DataCycleCore
             @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
             @classification_trees = @classification_tree_label.classification_trees.accessible_by(current_ability)
               .where(parent_classification_alias: nil)
-              .order(:created_at)
+              .order(:created_at).page(params[:page])
+            @page = @classification_trees.current_page
+            @total_pages = @classification_trees.total_pages
           elsif permitted_params.include?(:classification_tree_id)
             @classification_tree = DataCycleCore::ClassificationTree.find(params[:classification_tree_id])
             @classification_tree_label = @classification_tree.classification_tree_label
             @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees.accessible_by(current_ability)
-              .order(:created_at)
+              .order(:created_at).page(params[:page])
+            @page = @classification_trees.current_page
+            @total_pages = @classification_trees.total_pages
           else
             raise 'Missing parameter; either classification_tree_label_id or classification_tree_id must be provided'
           end

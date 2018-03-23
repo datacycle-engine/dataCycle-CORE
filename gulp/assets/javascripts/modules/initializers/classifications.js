@@ -70,6 +70,7 @@ module.exports.initialize = function () {
       return false;
     });
     $('#classification-administration').on('click', '.discard', function (event) {
+      $(this).parent('form').get(0).reset();
       $(this).closest('li.active').removeClass('active');
       return false;
     });

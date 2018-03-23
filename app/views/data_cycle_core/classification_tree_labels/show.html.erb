@@ -3,7 +3,7 @@
 <div id="classification-tree-label-list" class="row">
   <div class="small-12 columns">
     <ul class="backend-treeview-list">
-      <li><h1><%= @classification_tree_label.name %></h1>
+      <li id="<%= @classification_tree_label.id %>"><h1><%= @classification_tree_label.name %></h1>
         <ul class="children">
           <%= render 'classification_trees', classification_tree_label: @classification_tree_label, classification_trees: @classification_trees, content_counts: @content_count %>
         </ul>

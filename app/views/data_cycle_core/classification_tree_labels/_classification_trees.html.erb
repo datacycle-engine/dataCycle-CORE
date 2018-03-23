@@ -1,1 +1,9 @@
 <%= render partial: 'classification_tree', collection: classification_trees, locals: { classification_tree_label: classification_tree_label, content_counts: content_counts } %>
+
+<% if @tree_page < @tree_total_pages %>
+  <li class="load-more-link">
+    <span class="inner-item">
+      <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), classification_tree_label_path(classification_tree_label, classification_tree_id: local_assigns[:classification_tree]&.id, tree_page: (@tree_page + 1)), data: {remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"} %>
+    </span>
+  </li>
+<% end %>

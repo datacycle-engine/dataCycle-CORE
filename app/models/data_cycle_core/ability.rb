@@ -45,6 +45,9 @@ module DataCycleCore
 
           can :manage, [DataCycleCore::Classification, DataCycleCore::ClassificationTree], external_source_id: nil
           can [:update, :download], [DataCycleCore::ClassificationTreeLabel, DataCycleCore::ClassificationAlias], external_source_id: nil, internal: false
+
+          can :map_classifications, DataCycleCore::ClassificationAlias
+
           can :destroy, DataCycleCore::ClassificationTreeLabel do |c|
             c.external_source_id.nil? && !c.internal && !c.classification_aliases&.any?(&:internal)
           end
