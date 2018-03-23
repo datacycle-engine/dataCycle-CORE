@@ -24,127 +24,17 @@
           :minLength: 1
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
-      # mixin: postal_address
-      :address:
-        :label: Adresse
-        :type: object
-        :storage_location: metadata
-        :editor:
-          :sorting: 3
-          :options:
-            :class: detail_object
-        :properties:
-          :street_address:
-            :label: Straße
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :editor:
-              :type: input
-              :sorting: 1
-          :postal_code:
-            :label: PLZ
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :editor:
-              :type: input
-              :sorting: 2
-          :address_locality:
-            :label: Ort
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :editor:
-              :type: input
-              :sorting: 3
-          :address_country:
-            :label: Land
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :editor:
-              :type: input
-              :sorting: 4
-      # geo mixin
-      :longitude:
-        :label: Longitude
-        :type: number
-        :storage_type: number
-        :storage_location: column
-        :validations:
-          :format: float
-        :editor:
-          :options:
-            :data-type: input
-            :data-validate: text
-          :sorting: 4
-      :latitude:
-        :label: Latitude
-        :type: number
-        :storage_type: number
-        :storage_location: column
-        :validations:
-          :format: float
-        :editor:
-          :options:
-            :data-type: input
-            :data-validate: text
-          :sorting: 5
-      :location:
-        :label: GPS-Koordinaten
-        :type: geographic
-        :storage_type: geographic
-        :storage_location: column
-        :editor:
-          :sorting: 6
-          :options:
-            :disabled: disabled
-      # mixin: contact_info
+      :postal_address:
+        :type: mixin
+        :name: postal_address
+      :geo:
+        :type: mixin
+        :name: geo
       :contact_info:
-        :label: Kontakt
-        :type: object
-        :storage_location: metadata
-        :editor:
-          :sorting: 7
-          :options:
-            :class: detail_object
-        :properties:
-          :telephone:
-            :label: Telefonnummer
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :editor:
-              :type: input
-              :sorting: 1
-          :fax_number:
-            :label: Fax
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :editor:
-              :type: input
-              :sorting: 2
-          :email:
-            :label: E-Mail
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :editor:
-              :type: input
-              :sorting: 3
-          :url:
-            :label: Web
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :editor:
-              :type: input
-              :sorting: 4
+        :type: mixin
+        :name: contact_info
       :description:
         :label: Beschreibung
         :type: string
@@ -152,7 +42,6 @@
         :storage_location: column
         :search: true
         :editor:
-          :sorting: 8
           :options:
             :readonly: true
       :text:
@@ -163,7 +52,6 @@
         :search: true
         :editor:
           :type: quillEditor
-          :sorting: 9
           :options:
             :data-size: basic
       :primary_image:
@@ -176,7 +64,6 @@
           :max: 1
         :editor:
           :type: objectBrowser
-          :sorting: 10
           :options:
             :data-validate: media
             :data-type: image
@@ -188,7 +75,6 @@
         :storage_location: metadata
         :editor:
           :type: objectBrowser
-          :sorting: 11
           :options:
             :data-validate: media
             :data-type: image
@@ -198,33 +84,9 @@
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Örtlichkeit"
-      # mixin: content_classifications
-      :output_channel:
-        :label: Ausgabekanal
-        :type: classificationTreeLabel
-        :type_name: Ausgabekanäle
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
-          :sorting: 80
-      # mixin: meta_data
-      :creator:
-        :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
-      :date_created:
-        :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
-      :date_modified:
-        :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data

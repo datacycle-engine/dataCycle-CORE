@@ -1,0 +1,46 @@
+---
+- :data:
+    :name: contact_info
+    :type: mixin
+    :properties:
+      :contact_info:
+        :label: Kontakt
+        :type: object
+        :storage_location: metadata
+        :editor:
+          :sorting: 3
+          :options:
+            :class: detail_object
+        :properties:
+          :telephone:
+            :label: Telefonnummer
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 1
+          :fax_number:
+            :label: Fax
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 2
+          :email:
+            :label: E-Mail
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 3
+          :url:
+            :label: Web
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 4

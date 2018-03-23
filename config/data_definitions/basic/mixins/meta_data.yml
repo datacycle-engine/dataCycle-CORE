@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: content_meta_data
+    :name: meta_data
     :type: mixin
     :properties:
       :creator:

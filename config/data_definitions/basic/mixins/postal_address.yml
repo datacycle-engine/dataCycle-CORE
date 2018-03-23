@@ -1,0 +1,46 @@
+---
+- :data:
+    :name: postal_address
+    :type: mixin
+    :properties:
+      :address:
+        :label: Adresse
+        :type: object
+        :storage_location: metadata
+        :editor:
+          :sorting: 2
+          :options:
+            :class: detail_object
+        :properties:
+          :street_address:
+            :label: Straße
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 1
+          :postal_code:
+            :label: PLZ
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 2
+          :address_locality:
+            :label: Ort
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 3
+          :address_country:
+            :label: Land
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 4
