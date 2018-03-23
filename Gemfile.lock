@@ -27,7 +27,7 @@ PATH
       json-schema
       kaminari
       logging
-      loofah (~> 2.2.1)
+      loofah (~> 2.2.2)
       material_icons
       mini_magick
       mongoid
@@ -36,6 +36,7 @@ PATH
       pg (~> 0.21)
       puma (~> 3.10.0)
       rails (~> 5.0.0, >= 5.0.0.1)
+      rails-html-sanitizer (>= 1.0.4)
       rake (~> 12.1.0)
       rgeo
       sass-rails (~> 5.0)
@@ -63,13 +64,13 @@ GEM
       rack (~> 2.0)
       rack-test (~> 0.6.3)
       rails-dom-testing (~> 2.0)
-      rails-html-sanitizer (~> 1.0, >= 1.0.2)
+      rails-html-sanitizer (~> 1.0, >= 1.0.4)
     actionview (5.0.6)
       activesupport (= 5.0.6)
       builder (~> 3.1)
       erubis (~> 2.7.0)
       rails-dom-testing (~> 2.0)
-      rails-html-sanitizer (~> 1.0, >= 1.0.3)
+      rails-html-sanitizer (~> 1.0, >= 1.0.4)
     activejob (5.0.6)
       activesupport (= 5.0.6)
       globalid (>= 0.3.6)
@@ -263,7 +264,7 @@ GEM
     logging (2.2.2)
       little-plugger (~> 1.1)
       multi_json (~> 1.10)
-    loofah (2.2.1)
+    loofah (2.2.2)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.7.0)
@@ -321,8 +322,8 @@ GEM
     rails-dom-testing (2.0.3)
       activesupport (>= 4.2.0)
       nokogiri (>= 1.6)
-    rails-html-sanitizer (1.0.3)
-      loofah (~> 2.2.1)
+    rails-html-sanitizer (1.0.4)
+      loofah (~> 2.2, >= 2.2.2)
     railties (5.0.6)
       actionpack (= 5.0.6)
       activesupport (= 5.0.6)
