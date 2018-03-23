@@ -265,10 +265,10 @@ module DataCycleCore::Generic::Transformations::Transformations
     # >> t(:map_value, 'infos', -> s {s.try(:join, ', ')}).
     >> t(:rename_keys,
       'id' => 'external_key',
-      'tags' => 'tag',
+      'tags' => 'event_tag',
       'name' => 'headline')
     .>> t(:nest, 'event_period', ['start_date', 'end_date'])
-    .>> t(:tags_to_ids, 'tag', external_source_id, 'Veranstaltungsdatenbank - tags - ')
+    .>> t(:tags_to_ids, 'event_tag', external_source_id, 'Veranstaltungsdatenbank - tags - ')
     .>> t(:compact)
     .>> t(:strip_all)
   end

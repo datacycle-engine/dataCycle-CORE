@@ -148,6 +148,8 @@ module DataCycleCore
         content.tap(&:save!)
       end
 
+      private
+
       def load_default_values(data_hash)
         return nil if data_hash.blank?
         return_data = {}
@@ -157,14 +159,26 @@ module DataCycleCore
         return_data.reject { |_, value| value.blank? }
       end
 
-      private
-
       def default_classification(value:, tree_label:)
         [
           DataCycleCore::Classification
             .joins(classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]])
             .where(classification_tree_labels: { name: tree_label }, classifications: { name: value })&.first&.id
         ].reject(&:nil?)
+      end
+
+      def load_template(target_type, template_name)
+        I18n.with_locale(:de) do
+          target_type.find_by!(template: true, template_name: template_name)
+        end
+      rescue ActiveRecord::RecordNotFound
+        raise "Missing template #{template_name} for #{target_type}"
+      end
+
+      def merge_default_values(item, data_hash)
+        new_hash = {}
+        new_hash = load_default_values(@options.dig(:import, :default_values, item)) if @options.dig(:import, :default_values, item).present?
+        new_hash.merge(data_hash)
       end
 
       def around_import(source_type, **options)
@@ -179,14 +193,6 @@ module DataCycleCore
             Mongoid.override_database(nil)
           end
         end
-      end
-
-      def load_template(target_type, template_name)
-        I18n.with_locale(:de) do
-          target_type.find_by!(template: true, template_name: template_name)
-        end
-      rescue ActiveRecord::RecordNotFound
-        raise "Missing template #{template_name} for #{target_type}"
       end
     end
   end
