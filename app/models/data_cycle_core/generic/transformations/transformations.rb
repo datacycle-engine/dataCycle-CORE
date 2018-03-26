@@ -34,11 +34,11 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:strip_all)
   end
 
-  def self.media_archive_v2_to_bild
+  def self.media_archive_v2_to_bild(external_source_id)
     t(:stringify_keys)
     .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
     .>> t(:underscore_keys)
-    .>> t(:tags_to_ids, 'keywords', 'MediaArchive - Tags')
+    .>> t(:tags_to_ids, 'keywords', external_source_id, 'MediaArchive - Tags')
     .>> t(:copy_keys, 'url' => 'external_key')
     .>> t(:map_value, 'external_key', ->s { s.split('/').last })
     .>> t(:unwrap, 'validity_period', ['date_published', 'expires'])
@@ -49,11 +49,11 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:strip_all)
   end
 
-  def self.media_archive_v2_to_video
+  def self.media_archive_v2_to_video(external_source_id)
     t(:stringify_keys)
       .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
       .>> t(:underscore_keys)
-      .>> t(:tags_to_ids, 'keywords', 'MediaArchive - Tags')
+      .>> t(:tags_to_ids, 'keywords', external_source_id, 'MediaArchive - Tags')
       .>> t(:copy_keys, 'url' => 'external_key')
       .>> t(:map_value, 'external_key', ->s { s.split('/').last })
       .>> t(:unwrap, 'validity_period', ['date_published', 'expires'])
