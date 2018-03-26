@@ -37,7 +37,6 @@
           :type: quillEditor
           :options:
             :data-size: basic
-            :tabindex: -1
       :caption:
         :label: Alt-Label
         :type: string

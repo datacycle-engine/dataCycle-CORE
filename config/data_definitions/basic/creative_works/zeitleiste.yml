@@ -25,7 +25,6 @@
           :minLength: 1
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
       :validity_period:

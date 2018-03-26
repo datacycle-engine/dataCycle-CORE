@@ -34,7 +34,6 @@
         :storage_location: content
         :search: true
         :editor:
-          :sorting: 4
           :type: input
       :description:
         :label: Beschreibung

@@ -87,7 +87,6 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 9
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel

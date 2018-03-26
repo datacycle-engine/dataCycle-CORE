@@ -126,7 +126,6 @@
           :maxLength: 1
         :editor:
           :type: embeddedObject
-          :sorting: 6
       :suggested_answer:
         :label: Falsche Antwort
         :type: object

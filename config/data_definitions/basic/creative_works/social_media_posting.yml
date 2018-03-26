@@ -59,7 +59,6 @@
 #        :storage_location: metadata
 #        :releasable: true
 #        :editor:
-#          :sorting: 5
 #          :options:
 #            :data-validate: media
 #            :data-type: video
