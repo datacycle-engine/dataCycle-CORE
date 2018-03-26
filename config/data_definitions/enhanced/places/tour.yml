@@ -5,7 +5,7 @@
     :content_type: entity
     :permissions:
       :read_write: true
-    :boost: 10.0
+    :boost: 100.0
     :properties:
       :id:
         :label: id

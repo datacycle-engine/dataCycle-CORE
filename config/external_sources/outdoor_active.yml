@@ -39,7 +39,7 @@ config:
       source_type: categories
       import_strategy: DataCycleCore::Generic::OutdoorActive::ImportCategories
       data_template:
-      tree_label: OutdoorActive
+      tree_label: OutdoorActive - Kategorien
       target_type: DataCycleCore::Classification
       logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     regions:
@@ -47,7 +47,7 @@ config:
       source_type: regions
       import_strategy: DataCycleCore::Generic::OutdoorActive::ImportRegions
       data_template:
-      tree_label: OutdoorActive
+      tree_label: OutdoorActive - Regionen
       target_type: DataCycleCore::Classification
       logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     source_places:
@@ -55,7 +55,7 @@ config:
       source_type: places
       import_strategy: DataCycleCore::Generic::OutdoorActive::ImportSources
       data_template:
-      tree_label: OutdoorActive
+      tree_label: OutdoorActive - Quellen
       target_type: DataCycleCore::Classification
       logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     source_tours:
@@ -63,7 +63,7 @@ config:
       source_type: tours
       import_strategy: DataCycleCore::Generic::OutdoorActive::ImportSources
       data_template:
-      tree_label: OutdoorActive
+      tree_label: OutdoorActive - Quellen
       target_type: DataCycleCore::Classification
       logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     frontendtype_places:
@@ -71,7 +71,7 @@ config:
       source_type: places
       import_strategy: DataCycleCore::Generic::OutdoorActive::ImportFrontendTypes
       data_template:
-      tree_label: OutdoorActive
+      tree_label: OutdoorActive - FrontendTypes
       target_type: DataCycleCore::Classification
       logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     frontendtype_tours:
@@ -79,7 +79,7 @@ config:
       source_type: tours
       import_strategy: DataCycleCore::Generic::OutdoorActive::ImportFrontendTypes
       data_template:
-      tree_label: OutdoorActive
+      tree_label: OutdoorActive - FrontendTypes
       target_type: DataCycleCore::Classification
       logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     place_freizeitpark:

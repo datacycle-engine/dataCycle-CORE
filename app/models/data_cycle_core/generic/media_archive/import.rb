@@ -2,12 +2,13 @@ module DataCycleCore::Generic::MediaArchive::Import
   def import_data(**options)
     @place_template = options[:import][:place_template] || 'contentLocation'
     load_transformations
+    @place_template = options&.dig(:import, :place_template) || 'contentLocation'
     import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)
   end
 
   def load_transformations
-    @image_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_bild
-    @video_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_video
+    @image_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_bild(external_source.id)
+    @video_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_video(external_source.id)
     @content_location_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_content_location
   end
 
@@ -26,9 +27,6 @@ module DataCycleCore::Generic::MediaArchive::Import
         extract_content_location_data(raw_data['contentLocation'])
           .merge({ 'external_key' => raw_data['url'] }).with_indifferent_access
       )
-
-      # keywords = raw_data['keywords'] || []
-      # keywords.each { |item| import_classification({ name: item, external_id: "MedienArchive - keyword - #{item}", tree_name: 'MediaArchive - Tags' }) }
 
       raw_data['content_location'] = [{ 'id' => content_location.try(:id) }] unless content_location.blank?
 

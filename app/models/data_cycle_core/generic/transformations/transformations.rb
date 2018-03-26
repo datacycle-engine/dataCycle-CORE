@@ -3,21 +3,21 @@ module DataCycleCore::Generic::Transformations::Transformations
     DataCycleCore::Generic::Transformations::Functions[*args]
   end
 
-  def self.media_archive_to_video
+  def self.media_archive_to_video(external_source_id)
     t(:stringify_keys)
     .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
     .>> t(:underscore_keys)
-    .>> t(:tags_to_ids, 'keywords', 'MediaArchive - Tags')
+    .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
     .>> t(:copy_keys, 'url' => 'external_key')
     .>> t(:map_value, 'external_key', ->s { s.split('/').last })
     .>> t(:strip_all)
   end
 
-  def self.media_archive_to_bild
+  def self.media_archive_to_bild(external_source_id)
     t(:stringify_keys)
     .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
     .>> t(:underscore_keys)
-    .>> t(:tags_to_ids, 'keywords', 'MediaArchive - Tags')
+    .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
     .>> t(:copy_keys, 'url' => 'external_key')
     .>> t(:map_value, 'external_key', ->s { s.split('/').last })
     .>> t(:strip_all)
@@ -117,13 +117,13 @@ module DataCycleCore::Generic::Transformations::Transformations
       ->s { [s['field_204'].try(:split, ','), s['field_215'].try(:split, ',')].flatten.reject(&:nil?).map(&:strip).uniq || [] })
   end
 
-  def self.xamoom_to_poi
+  def self.xamoom_to_poi(external_source_id)
     t(:stringify_keys)
     .>> t(:rename_keys, { 'position-latitude' => 'latitude', 'position-longitude' => 'longitude' })
     .>> t(:map_value, 'latitude', ->s { s.to_f })
     .>> t(:map_value, 'longitude', ->s { s.to_f })
     .>> t(:location)
-    .>> t(:tags_to_ids, 'tags', 'Xamoom - Tags')
+    .>> t(:tags_to_ids, 'tags', external_source_id, 'Xamoom - tag - ')
     .>> t(:rename_keys, { 'tags' => 'xamoom_tags' })
     .>> t(:strip_all)
   end
@@ -131,7 +131,6 @@ module DataCycleCore::Generic::Transformations::Transformations
   def self.xamoom_to_image
     t(:stringify_keys)
     .>> t(:rename_keys, { 'name' => 'headline', 'image' => 'thumbnail_url' })
-    .>> t(:add_field, 'data_type', ->_s { nil })
     .>> t(:reject_keys, ['description', 'tags', 'position-longitude', 'position-latitude'])
     .>> t(:strip_all)
   end
@@ -259,17 +258,17 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:strip_all)
   end
 
-  def self.event_database_item_to_event
+  def self.event_database_item_to_event(external_source_id)
     t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
     .>> t(:reject_keys, ['@context', '@type', 'image', 'subEvents', 'allDay', 'location', 'categories'])
     .>> t(:underscore_keys).
     # >> t(:map_value, 'infos', -> s {s.try(:join, ', ')}).
     >> t(:rename_keys,
       'id' => 'external_key',
-      'tags' => 'tag',
+      'tags' => 'event_tag',
       'name' => 'headline')
     .>> t(:nest, 'event_period', ['start_date', 'end_date'])
-    .>> t(:tags_to_ids, 'tag', 'Veranstaltungsdatenbank - Tag')
+    .>> t(:tags_to_ids, 'event_tag', external_source_id, 'Veranstaltungsdatenbank - tags - ')
     .>> t(:compact)
     .>> t(:strip_all)
   end
