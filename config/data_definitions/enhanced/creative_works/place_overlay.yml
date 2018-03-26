@@ -23,7 +23,6 @@
           :minLength: 1
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
       :description:
@@ -34,7 +33,6 @@
         :search: true
         :editor:
           :type: quillEditor
-          :sorting: 3
           :options:
             :data-size: full
       :image:
@@ -44,7 +42,6 @@
         :storage_type: array
         :storage_location: metadata
         :editor:
-          :sorting: 4
           :type: objectBrowser
           :options:
             :data-validate: media
@@ -57,31 +54,12 @@
         :name: Öffnungszeit
         :editor:
           :type: embeddedObject
-          :sorting: 5
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Örtlichkeit - Overlay"
-      # mixin: meta_data
-      :creator:
-        :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
-      :date_created:
-        :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
-      :date_modified:
-        :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+      :meta_data:
+        :type: mixin
+        :name: meta_data
