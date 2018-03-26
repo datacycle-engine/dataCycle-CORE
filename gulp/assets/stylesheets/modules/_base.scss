@@ -3,7 +3,6 @@ body {
   border-top: 0.3rem solid $customercolor;
 }
 
-
 /* Headings */
 
 h2 {
@@ -25,7 +24,6 @@ a {
 h5 {
   color: $dark-gray;
 }
-
 
 /* Forms */
 
@@ -707,7 +705,6 @@ body .v-select {
   text-align: center;
 }
 
-
 /* Sortierung, Viewtype Startseite */
 
 .view-icons,
@@ -745,6 +742,10 @@ body .v-select {
   }
 }
 
+.warning {
+  color: map-get($foundation-palette, alert);
+  font-style: italic;
+}
 
 /* Korrektur für Fehler im Neuen Eintrag erstellen reveal  */
 
@@ -768,7 +769,6 @@ body.login-page {
   background-color: darkgrey;
 }
 
-
 /* tabs  */
 
 .tabs {
@@ -785,7 +785,6 @@ body.login-page {
   border: 0;
   border-top: 1px solid $light-gray;
 }
-
 
 /* Animations für lazyloaded iamges */
 

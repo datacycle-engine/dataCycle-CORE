@@ -10,12 +10,11 @@
 
   <% if can?(:destroy, tree_label) %>
     <% confirmation_text = "#{t('common.are_you_sure', locale: DataCycleCore.ui_language)}<br>" %>
-    <% confirmation_text += "<br>
-      <i>#{t('data_cycle_core.classification_contents', locale: DataCycleCore.ui_language)}:
-      <b>#{t('common.' + tree_label.classification_aliases.any? { |ca| ca.classifications.includes(:classification_contents).any? { |c| c.classification_contents.exists? } }.to_s, locale: DataCycleCore.ui_language)}</b></i>" %>
-    <% confirmation_text += "<br>
-      <i>#{t('data_cycle_core.child_classifications', locale: DataCycleCore.ui_language)}:
-      <b>#{tree_label.classification_aliases.size}</b></i>" if tree_label.classification_aliases.size.positive? %>
+    <% confirmation_text += "<br><span class='warning'>
+      <i class='fa fa-exclamation-triangle' aria-hidden='true'></i> #{t('data_cycle_core.classification_tree_relations', locale: DataCycleCore.ui_language)}</span>" if tree_label.classification_aliases.any? { |ca| ca.classifications.includes(:classification_contents).any? { |c| c.classification_contents.exists? } } %>
+
+    <% confirmation_text += "<br><span class='warning'>
+      <i class='fa fa-exclamation-triangle' aria-hidden='true'></i> #{t('data_cycle_core.child_classification_relations', count: tree_label.classification_aliases.size, data: t('data_cycle_core.this_classification_tree', locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language)}</span>" if tree_label.classification_aliases.size.positive? %>
 
     <%= link_to classifications_path(classification_tree_label_id: tree_label.id), class: 'destroy',
                 data: {remote: true, method: :delete,
