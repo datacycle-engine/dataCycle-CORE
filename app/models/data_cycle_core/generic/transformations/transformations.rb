@@ -265,8 +265,7 @@ module DataCycleCore::Generic::Transformations::Transformations
     # >> t(:map_value, 'infos', -> s {s.try(:join, ', ')}).
     >> t(:rename_keys,
       'id' => 'external_key',
-      'tags' => 'event_tag',
-      'name' => 'headline')
+      'tags' => 'event_tag')
     .>> t(:nest, 'event_period', ['start_date', 'end_date'])
     .>> t(:tags_to_ids, 'event_tag', external_source_id, 'Veranstaltungsdatenbank - tags - ')
     .>> t(:compact)
