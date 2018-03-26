@@ -25,49 +25,11 @@
           :minLength: 1
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
-      # mixin: validity_period
       :validity_period:
-        :label: Gültigkeitszeitraum
-        :type: object
-        :storage_location: metadata
-        :validations:
-          :daterange:
-            :from: valid_from
-            :to: valid_until
-        :editor:
-          :sorting: 3
-          :options:
-            :class: daterange
-        :properties:
-          :valid_from:
-            :label: Gültigkeit
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: tt.mm.jjjj
-          :valid_until:
-            :label: bis
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: tt.mm.jjjj
+        :type: mixin
+        :name: validity_period
       :description:
         :label: Teasertext
         :type: string
@@ -76,7 +38,6 @@
         :search: true
         :editor:
           :type: quillEditor
-          :sorting: 4
           :options:
             :data-size: basic
       :name:
@@ -87,7 +48,6 @@
         :search: true
         :editor:
           :type: input
-          :sorting: 5
       :image:
         :label: Bilder
         :type: embeddedLinkArray
@@ -95,7 +55,6 @@
         :storage_type: array
         :storage_location: metadata
         :editor:
-          :sorting: 6
           :type: objectBrowser
           :options:
             :data-validate: media
@@ -108,7 +67,6 @@
         :search: true
         :editor:
           :type: quillEditor
-          :sorting: 7
           :options:
             :data-size: full
       :recipe_yield:
@@ -119,7 +77,6 @@
         :search: true
         :editor:
           :type: input
-          :sorting: 8
       :total_time:
         :label: Kochzeit
         :type: number
@@ -130,7 +87,6 @@
           :max: 300
         :editor:
           :type: duration
-          :sorting: 9
           :options:
             :data-type: duration
             :data-validate: integer
@@ -142,7 +98,6 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 10
       :recipe_category:
         :label: 'Kategorie'
         :type: classificationTreeLabel
@@ -150,7 +105,6 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 11
       :recipe_ingredient:
         :label: Zutaten
         :type: string
@@ -158,7 +112,6 @@
         :storage_location: content
         :editor:
           :type: quillEditor
-          :sorting: 12
           :options:
             :data-size: full
       :data_type:
@@ -167,41 +120,9 @@
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Rezept"
-      # mixin: content_classifications
-      :topic:
-        :label: Themenbereiche
-        :type: classificationTreeLabel
-        :type_name: Themenbereiche
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
-          :sorting: 80
-      :output_channel:
-        :label: Ausgabekanal
-        :type: classificationTreeLabel
-        :type_name: Ausgabekanäle
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
-          :sorting: 81
-      # mixin: meta_data
-      :creator:
-        :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
-      :date_created:
-        :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
-      :date_modified:
-        :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data

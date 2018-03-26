@@ -24,7 +24,6 @@
           :minLength: 1
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
       :youtube_url:
@@ -37,7 +36,6 @@
           :format: url
         :editor:
           :type: input
-          :sorting: 2
           :options:
             :data-validate: text
       :data_type:
@@ -46,24 +44,9 @@
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Youtube-Video"
-      # mixin: meta_data
-      :creator:
-        :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
-      :date_created:
-        :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
-      :date_modified:
-        :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data

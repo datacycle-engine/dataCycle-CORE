@@ -24,7 +24,6 @@
           :format: url
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
       :operating_system:
@@ -34,33 +33,12 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 2
-          :options:
-            :tabindex: -1
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "MobileApplication"
-      # mixin: meta_data
-      :creator:
-        :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
-      :date_created:
-        :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
-      :date_modified:
-        :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+      :meta_data:
+        :type: mixin
+        :name: meta_data
