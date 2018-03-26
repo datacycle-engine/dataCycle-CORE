@@ -52,13 +52,15 @@
               <% end %>
               <strong>:</strong> </span>
 
-              <span class="your-choice tags sprache">
-                <i class="choice-label"><%= t('common.language', locale: DataCycleCore.ui_language) %>:</i>
-                <% lang = params[:language] || 'de' %>
+              <% unless (hide_language ||= false) %>
+                <span class="your-choice tags sprache">
+                  <i class="choice-label"><%= t('common.language', locale: DataCycleCore.ui_language) %>:</i>
+                  <% lang = params[:language] || 'de' %>
                   <a class="tag">
                     <%= available_locales_with_names[lang.try(:to_sym)] %>
                   </a>
                 </span>
+              <% end %>
 
               <% tree_labels.each do |label| %>
                   <% selected_classifications = get_classifications_for_id(@classification_array, label)  %>
