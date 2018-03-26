@@ -14,12 +14,12 @@
 
   <% if can?(:destroy, classification_tree.sub_classification_alias) %>
     <% confirmation_text = "#{t('common.are_you_sure', locale: DataCycleCore.ui_language)}<br>" %>
-    <% confirmation_text += "<br>
-      <i>#{t('data_cycle_core.classification_contents', locale: DataCycleCore.ui_language)}:
-      <b>#{classification_tree.sub_classification_alias.linked_contents.size}</b></i>" if classification_tree.sub_classification_alias.linked_contents.size.positive? %>
-    <% confirmation_text += "<br>
-      <i>#{t('data_cycle_core.child_classifications', locale: DataCycleCore.ui_language)}:
-      <b>#{classification_tree.sub_classification_alias.sub_classification_alias.with_descendants.size}</b></i>" if classification_tree.sub_classification_alias.sub_classification_alias.with_descendants.size.positive? %>
+
+    <% confirmation_text += "<br><span class='warning'>
+      <i class='fa fa-exclamation-triangle' aria-hidden='true'></i> #{t('data_cycle_core.classification_relations', count: classification_tree.sub_classification_alias.linked_contents.size, locale: DataCycleCore.ui_language)}</span>" if classification_tree.sub_classification_alias.linked_contents.size.positive? %>
+
+    <% confirmation_text += "<br><span class='warning'>
+      <i class='fa fa-exclamation-triangle' aria-hidden='true'></i> #{t('data_cycle_core.child_classification_relations', count: classification_tree.sub_classification_alias.sub_classification_alias.with_descendants.size, data: t('data_cycle_core.this_classification', locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language)}</span>" if classification_tree.sub_classification_alias.sub_classification_alias.with_descendants.size.positive? %>
 
     <%= link_to classifications_path(classification_tree_id: classification_tree.id), class: 'destroy',
                 data: {
