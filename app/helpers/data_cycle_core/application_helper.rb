@@ -61,7 +61,7 @@ module DataCycleCore
         definition.try(:[], 'editor').try(:[], 'type').try(:underscore).to_s,
         definition['type'].underscore.to_s
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/#{p}_editor" }
-      parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options]))
+      parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], parameters[:content]))
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
     end
 
