@@ -7,8 +7,8 @@ module DataCycleCore::Generic::MediaArchiveV2::Import
   end
 
   def load_transformations
-    @image_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_v2_to_bild
-    @video_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_v2_to_video
+    @image_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_v2_to_bild(external_source.id)
+    @video_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_v2_to_video(external_source.id)
     @content_location_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_v2_to_content_location
     @person_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_person
   end

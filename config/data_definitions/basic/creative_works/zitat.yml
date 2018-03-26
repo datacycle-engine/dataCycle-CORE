@@ -22,7 +22,6 @@
           :minLength: 1
         :editor:
           :type: quillEditor
-          :sorting: 4
           :options:
             :data-size: basic
             :data-validate: text
@@ -35,7 +34,6 @@
         :validations:
           :max: 1
         :editor:
-          :sorting: 5
           :type: objectBrowser
           :options:
             :data-validate: media
@@ -47,7 +45,6 @@
         :name: Person
         :delete: false
         :editor:
-          :sorting: 6
           :type: objectBrowser
           :options:
             :data-validate: object
@@ -58,24 +55,6 @@
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Zitat"
-      # mixin: meta_data
-      :creator:
-        :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
-      :date_created:
-        :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
-      :date_modified:
-        :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+      :meta_data:
+        :type: mixin
+        :name: meta_data

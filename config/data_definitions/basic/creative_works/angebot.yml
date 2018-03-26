@@ -25,49 +25,11 @@
           :minLength: 1
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
-      # mixin: validity_period
       :validity_period:
-        :label: Gültigkeitszeitraum
-        :type: object
-        :storage_location: metadata
-        :validations:
-          :daterange:
-            :from: valid_from
-            :to: valid_until
-        :editor:
-          :sorting: 3
-          :options:
-            :class: daterange
-        :properties:
-          :valid_from:
-            :label: Gültigkeit
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: tt.mm.jjjj
-          :valid_until:
-            :label: bis
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: tt.mm.jjjj
+        :type: mixin
+        :name: validity_period
       :alternative_headline:
         :label: Subüberschrift
         :type: string
@@ -76,7 +38,6 @@
         :search: true
         :editor:
           :type: input
-          :sorting: 4
       :description:
         :label: Teasertext
         :type: string
@@ -85,7 +46,6 @@
         :search: true
         :editor:
           :type: quillEditor
-          :sorting: 5
           :options:
             :data-size: basic
       :name:
@@ -96,7 +56,6 @@
         :search: true
         :editor:
           :type: input
-          :sorting: 6
       :text:
         :label: Fließtext
         :type: string
@@ -105,7 +64,6 @@
         :search: true
         :editor:
           :type: quillEditor
-          :sorting: 7
           :options:
             :data-size: full
       :price:
@@ -115,7 +73,6 @@
         :storage_location: content
         :editor:
           :type: input
-          :sorting: 8
       :service:
         :label: Inklusivleistungen
         :type: string
@@ -124,7 +81,6 @@
         :search: true
         :editor:
           :type: quillEditor
-          :sorting: 9
           :options:
             :data-size: full
       :offer_period:
@@ -135,7 +91,6 @@
         :name: Angebotszeitraum
         :editor:
           :type: embeddedObject
-          :sorting: 10
       :image:
         :label: Bilder
         :type: embeddedLinkArray
@@ -143,7 +98,6 @@
         :storage_type: array
         :storage_location: metadata
         :editor:
-          :sorting: 11
           :type: objectBrowser
           :options:
             :data-validate: media
@@ -156,51 +110,18 @@
         :name: Website
         :editor:
           :type: embeddedObject
-          :sorting: 12
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Angebot"
-      # mixin: content_classifications
-      :topic:
-        :label: Themenbereiche
-        :type: classificationTreeLabel
-        :type_name: Themenbereiche
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
-          :sorting: 80
-      :output_channel:
-        :label: Ausgabekanal
-        :type: classificationTreeLabel
-        :type_name: Ausgabekanäle
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
-          :sorting: 81
-      # mixin: meta_data
-      :creator:
-        :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
-      :date_created:
-        :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
-      :date_modified:
-        :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data
 #      :datacycleimage:
 #        :label: DataCycle-Bild
 #        :type: object
@@ -208,7 +129,6 @@
 #        :delete: true
 #        :name: DataCycle-Image
 #        :editor:
-#          :sorting: 11
 #          :type: embeddedObject
 #      :datacycleasset:
 #        :label: DataCycle-File
@@ -225,7 +145,6 @@
 #        :name: Organization
 #        :delete: false
 #        :editor:
-#          :sorting: 12
 #          :type: objectBrowser
 #          :options:
 #            :data-validate: object
@@ -254,7 +173,6 @@
             :from: valid_from
             :to: valid_until
         :editor:
-          :sorting: 1
           :options:
             :class: daterange validation-container
         :properties:
@@ -290,24 +208,6 @@
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Angebotszeitraum"
-      # mixin: meta_data
-      :creator:
-        :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
-      :date_created:
-        :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
-      :date_modified:
-        :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+      :meta_data:
+        :type: mixin
+        :name: meta_data
