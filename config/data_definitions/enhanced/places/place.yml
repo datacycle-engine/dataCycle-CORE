@@ -6,6 +6,8 @@
     :permissions:
       :read_write: true
     :boost: 10.0
+    :features:
+      :overlay: ['overlay']
     :properties:
       :id:
         :label: id
