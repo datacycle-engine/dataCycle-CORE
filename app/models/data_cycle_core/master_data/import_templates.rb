@@ -5,7 +5,7 @@ module DataCycleCore
         template_paths = [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
         import_hash, duplicates = check_for_duplicates(template_paths)
         # load all mixins
-        @mixin_list, mixin_duplicates = DataCycleCore::MasterData::ImportMixins::import_all_mixins(template_paths)
+        @mixin_list, mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths)
         errors = import_all_templates(template_hash: import_hash, validation: validation)
         # add notice + warnings
         return errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}, duplicates || {}
@@ -80,10 +80,10 @@ module DataCycleCore
           end
         end
         errors
-        rescue StandardError => e
-          puts 'could not access a YML File'
-          puts e.message
-          puts e.backtrace
+      rescue StandardError => e
+        puts 'could not access a YML File'
+        puts e.message
+        puts e.backtrace
       end
 
       def self.transform_schema(schema: {}, content_object: nil)

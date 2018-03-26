@@ -43,7 +43,6 @@ module DataCycleCore
 
         return mixin_list, collisions.reject { |_, value| value.blank? }.map { |key, value| { key => value.dup } }.inject(&:merge)
       end
-
     end
   end
 end
