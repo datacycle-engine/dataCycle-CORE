@@ -12,10 +12,13 @@
     <% end %>
     <%# FIXME: change to '@contents.histories.first' when histories are fixed %>
     <% @contents.each do |content| %>
-      <p><%= link_to polymorphic_url([:history, content], history_id: content.histories.sort_by{|h| I18n.with_locale(h.first_available_locale) do h.history_valid&.first end }.last.id) do %>
-          <%= content.template_name %>: <%= content.title.blank? ? content.id : content.title %>
-        <% end %>
-      </p>
+      <% I18n.with_locale(content.first_available_locale) do %>
+        <p>
+          <%= link_to polymorphic_url([:history, content], history_id: content.histories.sort_by{|h| h.history_valid&.first }.last.id) do %>
+            <%= content.template_name %>: <%= content.title.blank? ? content.id : content.title %>
+          <% end %>
+        </p>
+      <% end %>
     <% end %>
 
     <br><br>

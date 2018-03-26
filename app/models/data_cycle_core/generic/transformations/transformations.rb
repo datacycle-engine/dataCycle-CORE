@@ -5,7 +5,7 @@ module DataCycleCore::Generic::Transformations::Transformations
 
   def self.media_archive_to_video
     t(:stringify_keys)
-    .>> t(:reject_keys, ['@context', '@name', '@type', 'visibility', 'contentLocation'])
+    .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
     .>> t(:underscore_keys)
     .>> t(:tags_to_ids, 'keywords', 'MediaArchive - Tags')
     .>> t(:copy_keys, 'url' => 'external_key')
@@ -15,7 +15,7 @@ module DataCycleCore::Generic::Transformations::Transformations
 
   def self.media_archive_to_bild
     t(:stringify_keys)
-    .>> t(:reject_keys, ['@context', '@name', '@type', 'visibility', 'contentLocation'])
+    .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
     .>> t(:underscore_keys)
     .>> t(:tags_to_ids, 'keywords', 'MediaArchive - Tags')
     .>> t(:copy_keys, 'url' => 'external_key')
@@ -32,6 +32,56 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:location)
     .>> t(:compact)
     .>> t(:strip_all)
+  end
+
+  def self.media_archive_v2_to_bild
+    t(:stringify_keys)
+    .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
+    .>> t(:underscore_keys)
+    .>> t(:tags_to_ids, 'keywords', 'MediaArchive - Tags')
+    .>> t(:copy_keys, 'url' => 'external_key')
+    .>> t(:map_value, 'external_key', ->s { s.split('/').last })
+    .>> t(:unwrap, 'validity_period', ['date_published', 'expires'])
+    .>> t(:rename_keys,
+          'date_published' => 'valid_from',
+          'expires' => 'valid_until')
+    .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
+    .>> t(:strip_all)
+  end
+
+  def self.media_archive_v2_to_video
+    t(:stringify_keys)
+      .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
+      .>> t(:underscore_keys)
+      .>> t(:tags_to_ids, 'keywords', 'MediaArchive - Tags')
+      .>> t(:copy_keys, 'url' => 'external_key')
+      .>> t(:map_value, 'external_key', ->s { s.split('/').last })
+      .>> t(:unwrap, 'validity_period', ['date_published', 'expires'])
+      .>> t(:rename_keys,
+            'date_published' => 'valid_from',
+            'expires' => 'valid_until')
+      .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
+      .>> t(:strip_all)
+  end
+
+  def self.media_archive_v2_to_content_location
+    t(:stringify_keys)
+    .>> t(:underscore_keys)
+    .>> t(:unwrap, 'geo', ['longitude', 'latitude'])
+    .>> t(:rename_keys, 'address' => 'street_address')
+    .>> t(:nest, 'address', ['street_address'])
+    .>> t(:map_value, 'name', ->s { s.try :[], I18n.locale.to_s })
+    .>> t(:location)
+    .>> t(:compact)
+    .>> t(:strip_all)
+  end
+
+  def self.media_archive_to_person
+    t(:stringify_keys)
+    .>> t(:underscore_keys)
+    .>> t(:map_value, 'given_name', ->s { (s.empty? ? ' ' : s) })
+    .>> t(:map_value, 'family_name', ->s { (s.empty? ? ' ' : s) })
+    .>> t(:compact)
   end
 
   def self.eyebase_to_bild

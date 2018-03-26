@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: Organization
+    :name: Person
     :type: object
     :content_type: entity
     :permissions:
@@ -14,11 +14,11 @@
         :storage_location: key
         :validations:
           :format: uuid
-      :name:
-        :label: Name
+      :given_name:
+        :label: Vorname
         :type: string
         :storage_type: string
-        :storage_location: content
+        :storage_location: column
         :search: true
         :validations:
           :minLength: 1
@@ -27,11 +27,11 @@
           :sorting: 1
           :options:
             :data-validate: text
-      :legal_name:
-        :label: Firmenname
+      :family_name:
+        :label: Nachname
         :type: string
         :storage_type: string
-        :storage_location: content
+        :storage_location: column
         :search: true
         :validations:
           :minLength: 1
@@ -40,47 +40,24 @@
           :sorting: 2
           :options:
             :data-validate: text
-      :telephone:
-        :label: Telefonnummer
+      :honorific_prefix:
+        :label: "Anrede / Titel"
         :type: string
         :storage_type: string
-        :storage_location: metadata
+        :storage_location: content
         :editor:
           :type: input
-          :sorting: 4
-      :fax_number:
-        :label: Fax
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :editor:
-          :type: input
-          :sorting: 5
-      :email:
-        :label: E-Mail
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :editor:
-          :type: input
-          :sorting: 6
+          :sorting: 3
+      # mixin: postal_address
       :address:
         :label: Adresse
         :type: object
         :storage_location: metadata
         :editor:
-          :sorting: 8
+          :sorting: 4
           :options:
             :class: detail_object
         :properties:
-          :address_locality:
-            :label: Ort
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :editor:
-              :type: input
-              :sorting: 1
           :street_address:
             :label: Straße
             :type: string
@@ -88,7 +65,7 @@
             :storage_location: metadata
             :editor:
               :type: input
-              :sorting: 2
+              :sorting: 1
           :postal_code:
             :label: PLZ
             :type: string
@@ -96,15 +73,74 @@
             :storage_location: metadata
             :editor:
               :type: input
+              :sorting: 2
+          :address_locality:
+            :label: Ort
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
               :sorting: 3
-      :url:
-        :label: Web
-        :type: string
-        :storage_type: string
+          :address_country:
+            :label: Land
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 4
+      # mixin: contact_info
+      :contact_info:
+        :label: Kontakt
+        :type: object
         :storage_location: metadata
         :editor:
+          :sorting: 5
+          :options:
+            :class: detail_object
+        :properties:
+          :telephone:
+            :label: Telefonnummer
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 1
+          :fax_number:
+            :label: Fax
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 2
+          :email:
+            :label: E-Mail
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 3
+          :url:
+            :label: Web
+            :type: string
+            :storage_type: string
+            :storage_location: metadata
+            :editor:
+              :type: input
+              :sorting: 4
+      :job_title:
+        :label: Position
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :search: true
+        :editor:
           :type: input
-          :sorting: 9
+          :sorting: 6
       :description:
         :label: Text
         :type: string
@@ -113,7 +149,7 @@
         :search: true
         :editor:
           :type: quillEditor
-          :sorting: 10
+          :sorting: 7
           :options:
             :data-size: full
       :image:
@@ -123,17 +159,35 @@
         :storage_type: array
         :storage_location: metadata
         :editor:
-          :sorting: 11
+          :sorting: 8
           :type: objectBrowser
           :options:
             :data-validate: media
             :data-type: image
+      :gender:
+        :label: Geschlecht
+        :type: classificationTreeLabel
+        :type_name: Geschlecht
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 9
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
-        :default_value: "Organisation"
+        :default_value: "Person"
+      # mixin: content_classifications
+      :output_channel:
+        :label: Ausgabekanal
+        :type: classificationTreeLabel
+        :type_name: Ausgabekanäle
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+          :sorting: 80
+      # mixin: meta_data
       :creator:
         :label: Ersteller
         :type: embeddedLink

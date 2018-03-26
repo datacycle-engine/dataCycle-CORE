@@ -1,5 +1,6 @@
 module DataCycleCore::Generic::MediaArchive::Import
   def import_data(**options)
+    @place_template = options[:import][:place_template] || 'contentLocation'
     load_transformations
     import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)
   end
@@ -17,10 +18,11 @@ module DataCycleCore::Generic::MediaArchive::Import
   end
 
   def process_content(raw_data, template, locale)
+    @place_template ||= DataCycleCore.try(:default_place_type)
     I18n.with_locale(locale) do
       content_location = create_or_update_content(
         DataCycleCore::Place,
-        load_template(DataCycleCore::Place, 'contentLocation'),
+        load_template(DataCycleCore::Place, @place_template),
         extract_content_location_data(raw_data['contentLocation'])
           .merge({ 'external_key' => raw_data['url'] }).with_indifferent_access
       )
