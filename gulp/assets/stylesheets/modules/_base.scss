@@ -745,6 +745,8 @@ body .v-select {
 .warning {
   color: map-get($foundation-palette, alert);
   font-style: italic;
+  display: block;
+  margin-top: 1rem;
 }
 
 /* Korrektur für Fehler im Neuen Eintrag erstellen reveal  */

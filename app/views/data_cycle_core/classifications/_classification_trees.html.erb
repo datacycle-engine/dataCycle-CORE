@@ -4,9 +4,9 @@
   <li class="load-more-link">
     <span class="inner-item">
       <% if classification_tree.present? %>
-        <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), classifications_path(classification_tree_id: classification_tree&.id, page: (@page + 1)), data: {remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"} %>
+        <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), classifications_path(classification_tree_id: classification_tree&.id, page: (@page + 1)), data: {remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"}, class: 'button small secondary' %>
       <% else %>
-        <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), classifications_path(classification_tree_label_id: classification_tree_label&.id, page: (@page + 1)), data: {remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"} %>
+        <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), classifications_path(classification_tree_label_id: classification_tree_label&.id, page: (@page + 1)), data: {remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"}, class: 'button small secondary' %>
       <% end %>
     </span>
   </li>

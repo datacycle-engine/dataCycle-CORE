@@ -57,8 +57,8 @@ ul.backend-treeview-list {
       >li:last-child {
         border-left: 1px solid transparent;
       }
-      >li:last-child {
-        padding: 0.5rem 0.5rem 1.5rem 1rem;
+      >li.new-button {
+        padding: 1rem 0.5rem 1.5rem 1rem;
         margin: 0;
       }
     }
@@ -195,6 +195,22 @@ ul.backend-treeview-list {
   .new-classification-tree-label {
     margin: 0.5rem 0;
     border: 0;
+  }
+  >li {
+    ul.children {
+      li.load-more-link {
+        font-style: italic;
+        >span.inner-item {
+          .fa {
+            font-size: 0.75rem;
+          }
+          padding-top: 1.5rem;
+        }
+        .button {
+          margin: 0;
+        }
+      }
+    }
   }
 }
 
