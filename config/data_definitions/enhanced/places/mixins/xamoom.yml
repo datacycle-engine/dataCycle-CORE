@@ -8,6 +8,3 @@
         :type: classificationTreeLabel
         :type_name: Xamoom - Tags
         :storage_location: classification_relation
-        :editor:
-          :options:
-            :readonly: true

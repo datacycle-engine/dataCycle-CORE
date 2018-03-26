@@ -33,8 +33,7 @@
         :storage_location: column
         :search: true
         :editor:
-          :options:
-            :readonly: true
+          :type: input
       :text:
         :label: Text
         :type: string

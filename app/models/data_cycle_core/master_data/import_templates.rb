@@ -4,10 +4,9 @@ module DataCycleCore
       def self.import_all(validation: true)
         template_paths = [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
         import_hash, duplicates = check_for_duplicates(template_paths)
-        # load all mixins
         @mixin_list, mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths)
         errors = import_all_templates(template_hash: import_hash, validation: validation)
-        # add notice + warnings
+        # TODO: add notice + warning
         return errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}, duplicates || {}
       end
 
@@ -95,6 +94,7 @@ module DataCycleCore
         new_properties = {}
         sorting = 1
         property_hash.each do |property_name, property_value|
+          # TODO: refactor: add errors + warnings
           if property_value[:type] == 'mixin'
             if !content_object.nil? && @mixin_list[content_object.name.demodulize.pluralize.underscore.to_sym][property_value[:name].to_sym].present?
               @mixin_list[content_object.name.demodulize.pluralize.underscore.to_sym][property_value[:name].to_sym][:properties].each do |key, prop|
@@ -105,7 +105,7 @@ module DataCycleCore
                 new_properties[key.to_sym], sorting = add_sorting(prop, sorting)
               end
             else
-              raise 'WHAT ? '.inspect
+              raise "mixin for #{property_value[:name]} not found".inspect
             end
           else
             new_properties[property_name.to_sym], sorting = add_sorting(property_value, sorting)
