@@ -3,7 +3,7 @@
 <% content_for(:title, t('common.publications_calendar', locale: DataCycleCore.ui_language)) %>
 
 <% content_for :top_content do %>
-    <%= render 'filter_minimal', tree_labels: ['Inhaltstypen'] + @publication_classifications.values, hide_language: false, show_filter: true %>
+    <%= render 'filter_minimal', tree_labels: ['Inhaltstypen'] + @publication_classifications.values, hide_language: true, show_filter: true %>
 <% end %>
 
 <section class="publications-list" data-pages="<%= @pages %>">

@@ -11,9 +11,7 @@ module DataCycleCore
 
       @classification_array.push(*params[:classification]&.map { |c| c[:selected] }&.flatten)
 
-      @language = params.fetch(:language, 'de')
-
-      query = DataCycleCore::Filter::Search.new(@language).in_validity_period
+      query = DataCycleCore::Filter::Search.new(nil, DataCycleCore::Search).in_validity_period
 
       query = query.with_relation('publication_schedule')
 
