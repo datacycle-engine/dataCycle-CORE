@@ -1,9 +1,18 @@
 <% breadcrumb :'data_cycle_core/publications' %>
 
-<% content_for(:title, t('common.publications_calendar', locale: DataCycleCore.ui_language)) %>
+<% content_for(:title, t('data_cycle_core.publications_calendar', locale: DataCycleCore.ui_language)) %>
 
 <% content_for :top_content do %>
-    <%= render 'filter_minimal', tree_labels: ['Inhaltstypen'] + @publication_classifications.values, hide_language: true, show_filter: true %>
+    <% content_for :advanced_filters do %>
+      <div class="date-range">
+        <%= label_tag :publications_from, "#{t('data_cycle_core.publication_date', locale: DataCycleCore.ui_language)}:" %>
+        <%= date_field_tag :publications_from, params[:publications_from], placeholder: t('terms.from', locale: DataCycleCore.ui_language) %>
+        <%= label_tag :publications_until, ' - ' %>
+        <%= date_field_tag :publications_until, params[:publications_until], placeholder: t('terms.until', locale: DataCycleCore.ui_language) %>
+      </div>
+    <% end %>
+
+    <%= render 'filter_minimal', tree_labels: ['Inhaltstypen'] + @publication_classifications.values, hide_language: false, show_filter: true %>
 <% end %>
 
 <section class="publications-list" data-pages="<%= @pages %>">
@@ -19,7 +28,7 @@
     <% else %>
 
       <div class="row">
-        <ul class="no-bullet">
+        <ul class="no-bullet accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
           <%= render 'publication_list', contents: @contents %>
         </ul>
 

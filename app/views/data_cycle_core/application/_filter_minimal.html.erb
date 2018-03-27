@@ -33,18 +33,24 @@
                             </div>
 
                             <div class=" filterbuttons">
-                                <button type="reset" id="reset-filter" class="button"><%= t('actions.reset', count: 2, locale: DataCycleCore.ui_language) %></button>
+                                <%= link_to t('actions.reset', count: 2, locale: DataCycleCore.ui_language), request.path, class: 'button', id: 'reset-filter' %>
                                 <%= button_tag(t('actions.filter', locale: DataCycleCore.ui_language), class: "button success") %>
                             </div>
                         </ul>
                     </nav>
 
                 </div>
+
+                <div class="advanced-filters">
+                  <%= content_for :advanced_filters %>
+                </div>
+
               </div>
               <a href="#" class="accordion-title"><span><i class="fa fa-chevron-down" aria-hidden="true"></i><span class="closed"><%= t('common.filter.show') %></span><span class="open"><%= t('common.filter.hide') %></span> </span></a>
 
             </div>
           </div>
+
           <div class="filtertags activefilter">
               <span class="icon"><i class="fa fa-check" aria-hidden="true"></i> <strong><%= t('common.active_filters', locale: DataCycleCore.ui_language) %></strong>
               <% unless @total.nil? || @total.zero? %>

@@ -44,22 +44,9 @@ module.exports.initialize = function () {
     });
   }
 
-  function clearForm(form) {
-    $(form).find(':input').not(':button, :submit, :reset, :hidden, :checkbox, :radio').val('');
-    $(form).find(':checkbox, :radio').prop('checked', false);
-  }
-
   function setup() {
     // hide activated filters
     if ($('.activefilter').find('.your-choice.tags:visible').length == 0) $('.activefilter').hide();
-    // Reset selected Tags
-    $('#search-form #reset-filter').on('click', function (e) {
-      e.preventDefault();
-      var form = $(this).closest('#search-form');
-      clearForm(form);
-      // $(form).append('<input type="hidden" name="reset" value="true" />');
-      form.submit();
-    });
 
     // Save active Filter with specific name
     $('#save-filter-name-form').on('submit', function (e) {

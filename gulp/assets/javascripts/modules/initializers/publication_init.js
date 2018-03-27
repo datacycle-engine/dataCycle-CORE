@@ -18,8 +18,11 @@ module.exports.initialize = () => {
         name: 'page',
         value: page
       }, {
+        name: 'last_year',
+        value: $('.publication-year').last().data('year')
+      }, {
         name: 'last_month',
-        value: $('.publication-month').last().data('month-year')
+        value: $('.publication-month').last().data('month')
       }, {
         name: 'last_day',
         value: $('.publication-day').last().data('day')
@@ -35,13 +38,13 @@ module.exports.initialize = () => {
       }).done((data) => {
         loading = false;
         spinner.hide();
-        if (page < pages && !loading && ($('.publication-table-content').last().offset().top + $('.publication-table-content').last().outerHeight() + 80) < $(window).height()) {
+        if (page < pages && !loading && ($('.publication-content').last().offset().top + $('.publication-content').last().outerHeight() + 80) < $(window).height()) {
           load_more();
         }
       });
     };
 
-    if (page < pages && !loading && ($('.publication-table-content').last().offset().top + $('.publication-table-content').last().outerHeight() + 80) < $(window).height()) {
+    if (page < pages && !loading && ($('.publication-content').last().offset().top + $('.publication-content').last().outerHeight() + 80) < $(window).height()) {
       load_more();
     }
 

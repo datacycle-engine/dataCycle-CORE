@@ -71,7 +71,6 @@ de:
     content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden
     download_gpx: Als GPX-Datei herunterladen
     no_search: Sie müssen eine Suche durchführen, bevor Sie einen neuen Inhalt erstellen können.
-    publications_calendar: Publikationskalender
     show_more: Mehr anzeigen
     show_less: Weniger anzeigen
 
@@ -89,6 +88,7 @@ de:
 
   terms:
     from: von
+    until: bis
 
   pronoun:
     my:
@@ -300,6 +300,8 @@ de:
     classifications: 'Klassifizierungen'
     settings: Einstellungen
     stored_filter: Meine gespeicherten Filter
+    publication_date: Publikationszeitraum
+    publications_calendar: Publikationskalender
 
   date:
     abbr_day_names:

@@ -446,7 +446,9 @@
   float: right;
   margin-top: 0.5rem;
   white-space: nowrap;
+  a,
   button {
+    font-weight: bold;
     margin: 0 0 0 0.5rem;
     vertical-align: middle;
   }
@@ -470,9 +472,22 @@
       }
       .accordion2-content {
         display: none;
-        background: $light-gray;
-        padding: 0.5rem;
         margin-top: 1rem;
+        .main-filters {
+          background: $light-gray;
+          padding: 0.5rem;
+        }
+        .advanced-filters {
+          margin: 1rem 0;
+          input {
+            margin: 0;
+          }
+          .date-range {
+            label {
+              display: inline-block;
+            }
+          }
+        }
       }
       .accordion-title {
         display: block;

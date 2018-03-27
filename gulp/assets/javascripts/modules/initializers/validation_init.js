@@ -225,14 +225,23 @@ module.exports.initialize = function () {
     out = "<span id='" + item_id + "' class='single_error'>";
 
     for (let key in data.error) {
-      if (($(validation_container).data('id') != undefined && $(validation_container).data('id').search(new RegExp(key, 'i')) != -1) || ($(item_label).attr('for') != undefined && $(item_label).attr('for').search(new RegExp(key, 'i')) != -1)) {
+      if ((
+          $(validation_container).data('id') != undefined &&
+          $(validation_container).data('id').search(new RegExp(key, 'i')) != -1
+        ) || (
+          $(validation_container).data('id') == undefined &&
+          $(item_label).attr('for') != undefined &&
+          $(item_label).attr('for').search(new RegExp(key, 'i')) != -1
+        )) {
         button_text += '<strong>' + ($(item_label).html() || 'Error') + ':</strong><br>' + data.error[key] + '<br>';
         out += "<strong>" + ($(item_label).html() || 'Error') + ":</strong> " + data.error[key] + "</br>";
       }
     }
+    out += "</span>";
+
+    if ($(out).text().length == 0) return ''; // return if there are no errors for this container
 
     $('#' + $('.submit-edit-form').data('toggle')).append(button_text + '</span>');
-    out += "</span>";
     return out;
   }
 

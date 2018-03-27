@@ -98,68 +98,146 @@
 }
 
 .publications-list {
-  .publication-month {
-    position: relative;
-    background: transparent;
-    &:before {
-      position: absolute;
-      content: "";
-      height: 1px;
-      border-bottom: 1px solid $medium-gray;
-      right: 0;
-      left: 0;
-      top: 50%;
-    }
-    >.title {
-      position: relative;
-      display: inline-block;
-      background: white;
-      z-index: 1;
-      margin: 0.5rem;
-      padding: 0.5rem;
-      span {
-        display: inline-block;
-        &.month-name {
-          min-width: 6rem;
+  margin-bottom: 5rem;
+  .accordion {
+    background-color: inherit;
+    >.accordion-item {
+      >.accordion-title {
+        padding: 0;
+        border: none;
+        font-size: inherit;
+        line-height: inherit;
+        color: inherit;
+        &::before {
+          display: none;
         }
-        &.publication-year {
-          color: $dark-gray;
+        &:hover,
+        &:focus {
+          background-color: inherit;
+        }
+        >.title>.title-container>.icon>.fa::before {
+          content: '\f107';
         }
       }
-    }
-    .navigation {
-      display: inline-block;
-      margin-right: 0.5rem;
-      >li {
-        border-radius: 30px;
-        width: 30px;
-        height: 30px;
-        background: $light-gray;
-        display: inline-block;
-        .fa {
-          display: block;
-          line-height: 30px;
-          text-align: center;
-          font-size: 1rem;
-        }
-        a {
-          padding: 0;
-          color: $dark-gray;
-          cursor: default;
-          text-decoration: none;
+      >.accordion-content {
+        padding: 0;
+        border: none;
+        background-color: inherit;
+        color: inherit;
+      }
+      &.is-active {
+        >.accordion-title>.title>.title-container>.icon>.fa::before {
+          content: '\f106';
         }
       }
     }
   }
-  .publication-table {
-    li {
-      display: flex;
-      padding: 0.5rem;
-      &.publication-table-content {
-        box-shadow: 0 0 2px $dark-gray;
-        border-bottom: 1px solid $medium-gray;
-        &.last {
-          margin-bottom: 2rem;
+  ul {
+    position: relative;
+    >li {
+      position: relative;
+      &.publication-year {
+        margin-top: 1rem;
+        &:not(:first-child) {
+          margin-top: 4rem;
+        }
+        >.accordion-title>.title {
+          position: relative;
+          display: block;
+          h4 {
+            position: relative;
+            display: inline-block;
+            margin: 0;
+            background-color: white;
+            padding: 0;
+            vertical-align: middle;
+          }
+          &:before {
+            position: absolute;
+            content: "";
+            height: 1px;
+            border-bottom: 1px solid $medium-gray;
+            right: 0;
+            left: 0;
+            top: 50%;
+          }
+        }
+      }
+      span {
+        display: inline-block;
+        &.title-container {
+          position: relative;
+          background: white;
+          z-index: 1;
+          margin: 0 0.5rem;
+          padding: 0 0.5rem;
+          .icon {
+            margin-right: 0.5rem;
+            border-radius: 30px;
+            width: 30px;
+            height: 30px;
+            background: $light-gray;
+            .fa {
+              display: block;
+              line-height: 30px;
+              text-align: center;
+              font-size: 0.8rem;
+            }
+          }
+        }
+      }
+      &.publication-month {
+        margin-top: 1rem;
+        &:not(:first-child) {
+          margin-top: 3rem;
+        }
+        >.accordion-title>.title {
+          position: relative;
+          display: block;
+          >.title-container {
+            margin-left: 1.5rem;
+          }
+          &:before {
+            position: absolute;
+            content: "";
+            height: 1px;
+            border-bottom: 1px solid $medium-gray;
+            right: 0;
+            left: 0;
+            top: 50%;
+          }
+        }
+      }
+      &.publication-day {
+        margin-top: 2rem;
+        .flex {
+          display: flex;
+          &.title-row {
+            position: relative;
+            padding: 0.5rem;
+            .title {
+              padding-left: 0.5rem;
+            }
+          }
+          >span,
+          >div {
+            display: inline-block;
+            flex: 1;
+            &.title {
+              width: 50%;
+              min-width: 50%;
+              padding: 0 0.5rem;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              .title {
+                padding-left: 1rem;
+              }
+              div {
+                display: inline-block;
+              }
+            }
+          }
         }
         >div.title {
           a {
@@ -172,25 +250,42 @@
           }
           color: $dark-gray;
         }
+        >ul {
+          box-shadow: 0 1px 3px $dark-gray;
+        }
       }
-      >span,
-      >div {
-        display: inline-block;
-        flex: 1;
-        &.title {
-          width: 50%;
-          min-width: 50%;
-          padding: 0 0.5rem;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          .title {
-            padding-left: 1rem;
-          }
-          div {
-            display: inline-block;
+      &.publication-content {
+        background-color: white;
+        padding: 0.5rem;
+        &:not(:last-child) {
+          border-bottom: 1px solid $medium-gray;
+        }
+        a {
+          color: $dark-gray;
+          transition: color ease-in-out 0.2s;
+          &:hover,
+          &:focus {
+            color: darken($dark-gray, 20%);
           }
         }
+        .flex span.title {
+          display: inline;
+        }
+      }
+    }
+  }
+}
+
+.detail-content {
+  .publication-list {
+    .publication-row {
+      display: flex;
+      position: relative;
+      background-color: white;
+      padding: 0.5rem;
+      border-bottom: 1px solid $medium-gray;
+      .publication-attribute {
+        flex: 1;
       }
     }
   }
