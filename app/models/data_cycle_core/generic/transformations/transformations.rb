@@ -84,7 +84,7 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:compact)
   end
 
-  def self.eyebase_to_bild
+  def self.eyebase_to_bild(external_source_id)
     t(:stringify_keys)
     .>> t(:reject_keys, ['quality_256', 'quality_1024', 'picturepins', 'ordnerstruktur'])
     .>> t(:unwrap, 'quality_1', ['resolution_x', 'resolution_y', 'size_mb'])
@@ -106,7 +106,7 @@ module DataCycleCore::Generic::Transformations::Transformations
       ->s { File.join(ActionMailer::Base.default_url_options[:host], 'eyebase', 'media_assets', 'files', s['quality_512']['filename']) rescue nil })
     .>> t(:add_field, 'keywords',
       ->s { [s['field_204'].try(:split, ','), s['field_215'].try(:split, ',')].flatten.reject(&:nil?).map(&:strip).uniq || [] })
-    .>> t(:tags_to_ids, 'keywords', 'Tags')
+    .>> t(:tags_to_ids, 'keywords', external_source_id, 'Eyebase - Tag -')
     .>> t(:reject_keys, ['quality_1', 'quality_512'])
     .>> t(:compact)
     .>> t(:strip_all)
