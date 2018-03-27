@@ -7,9 +7,9 @@ module DataCycleCore
     queue_as :default
 
     after_enqueue do |_|
-      job_record = Delayed::Job.where(id: @provider_job_id).first
+      job_record = Delayed::Job.find(@provider_job_id)
       job_record.delayed_reference_id = @arguments.first
-      store_job_id_to_externalSource = ExternalSource.where(id: job_record.delayed_reference_id).first
+      store_job_id_to_externalSource = ExternalSource.find(job_record.delayed_reference_id)
       if store_job_id_to_externalSource.config.nil?
         store_job_id_to_externalSource.config = { 'last_import_job_id' => @provider_job_id }
       else
@@ -25,10 +25,10 @@ module DataCycleCore
       block.call
       # Do something after perform
       uuid = @arguments.first
-      external_source = ExternalSource.where(id: uuid).first
+      external_source = ExternalSource.find(uuid)
       job_record_id = external_source.config['last_import_job_id']
-      job_record = Delayed::Job.where(id: job_record_id).first
-      if !job_record.nil? && job_record.failed_at.nil?
+      job_record = Delayed::Job.find(job_record_id)
+      if job_record.present? && job_record.failed_at.blank?
         external_source.last_import = Time.zone.now
         external_source.save
       end
