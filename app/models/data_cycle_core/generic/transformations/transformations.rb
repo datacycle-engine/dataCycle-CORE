@@ -44,7 +44,8 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:unwrap, 'validity_period', ['date_published', 'expires'])
     .>> t(:rename_keys,
           'date_published' => 'valid_from',
-          'expires' => 'valid_until')
+          'expires' => 'valid_until',
+          'keywords' => 'keywords_medienarchive')
     .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
     .>> t(:strip_all)
   end
@@ -59,7 +60,8 @@ module DataCycleCore::Generic::Transformations::Transformations
       .>> t(:unwrap, 'validity_period', ['date_published', 'expires'])
       .>> t(:rename_keys,
             'date_published' => 'valid_from',
-            'expires' => 'valid_until')
+            'expires' => 'valid_until',
+            'keywords' => 'keywords_medienarchive')
       .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
       .>> t(:strip_all)
   end

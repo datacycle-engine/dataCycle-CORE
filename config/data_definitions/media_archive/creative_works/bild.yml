@@ -142,6 +142,9 @@
         :storage_location: metadata
         :editor:
           :type: input
+      :tags:
+        :type: mixin
+        :name: tags          
       :media_archive:
         :type: mixin
         :name: media_archive
