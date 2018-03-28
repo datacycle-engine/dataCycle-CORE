@@ -23,7 +23,7 @@
                 </li>
                 <li>
                     <% if DataCycleCore.features.dig(:publication_schedule) && can?(:show_publications, DataCycleCore::Content) %>
-                        <%= link_to t('common.publications_calendar', locale: DataCycleCore.ui_language), publications_path, class: 'publications-link' %>
+                        <%= link_to t('data_cycle_core.publications_calendar', locale: DataCycleCore.ui_language), publications_path, class: 'publications-link' %>
                     <% end %>
                 </li>
                 <li>

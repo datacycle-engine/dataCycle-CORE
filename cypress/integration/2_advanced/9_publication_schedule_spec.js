@@ -12,6 +12,11 @@ describe('Publication Schedule', function () {
     month: '2-digit',
     year: 'numeric'
   });
+  const show_publication_date = new Date(Date.now()).toLocaleDateString('de-DE', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  });
   let id = undefined;
 
   it('add publication schedule', function () {
@@ -29,7 +34,7 @@ describe('Publication Schedule', function () {
       cy.get('.submit-edit-form').should('be.visible').click();
       cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit');
       cy.get('.flash.callout').should('be.visible').should('have.class', 'success').find('.close-button').click().should('be.hidden');
-      cy.get('.detail-content-wrapper').contains(publication_date).should('have.length', 1);
+      cy.get('.detail-content-wrapper').contains(show_publication_date).should('have.length', 1);
     })
   })
 

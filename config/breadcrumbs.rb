@@ -120,5 +120,5 @@ crumb :'data_cycle_core/subscriptions' do
 end
 
 crumb :'data_cycle_core/publications' do
-  link to_html_string("<i class='fa fa-calendar' aria-hidden='true'></i>#{t('common.publications_calendar', locale: DataCycleCore.ui_language)}"), publications_path
+  link to_html_string("<i class='fa fa-calendar' aria-hidden='true'></i>#{t('data_cycle_core.publications_calendar', locale: DataCycleCore.ui_language)}"), publications_path
 end
