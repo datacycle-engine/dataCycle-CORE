@@ -81,14 +81,14 @@ module DataCycleCore
       def self.get_order_by_query_string(search)
         search_string = (search || '').split(' ').join('%')
 
-        ActiveRecord::Base.send(:sanitize_sql_for_order,
-                                "boost * (
-            8 * similarity(classification_string,'%#{search_string}%') +
-            4 * similarity(headline, '%#{search_string}%') +
-            2 * ts_rank_cd(words, plainto_tsquery('simple', '#{(search || '').squish}'),16) +
-            1 * similarity(full_text, '%#{search_string}%'))
+        ActiveRecord::Base.send(:sanitize_sql_array,
+                                ["boost * (
+            8 * similarity(classification_string, :search_string) +
+            4 * similarity(headline, :search_string) +
+            2 * ts_rank_cd(words, plainto_tsquery('simple', :search),16) +
+            1 * similarity(full_text, :search_string))
             DESC NULLS LAST,
-            updated_at DESC")
+            updated_at DESC", search_string: "%#{search_string}%", search: (search || '').squish])
       end
 
       private
