@@ -473,12 +473,13 @@
       .accordion2-content {
         display: none;
         margin-top: 1rem;
+        background: $light-gray;
         .main-filters {
-          background: $light-gray;
           padding: 0.5rem;
         }
         .advanced-filters {
-          margin: 1rem 0;
+          margin: 0;
+          padding: 0.5rem;
           input {
             margin: 0;
           }

@@ -36,7 +36,7 @@
     display: flex;
     position: relative;
     width: 100%;
-    padding-right: 3rem;
+    padding-right: 4rem;
     .embedded-header {
       display: none;
     }
@@ -51,9 +51,6 @@
       display: flex;
       flex: 1;
       margin-right: 1px;
-      &.validation-container:last-of-type {
-        margin: 0 1rem 1rem 0;
-      }
       &.publish_at {
         .form-element.publish_at {
           width: 100%;
@@ -85,6 +82,7 @@
           }
         }
         &:hover {
+          z-index: 1;
           box-shadow: 0 0 7px $primary-color;
           z-index: 1;
         }
@@ -137,9 +135,9 @@
     >li {
       position: relative;
       &.publication-year {
-        margin-top: 1rem;
-        &:not(:first-child) {
-          margin-top: 4rem;
+        margin: 1rem 0;
+        &.is-active {
+          margin-bottom: 4rem;
         }
         >.accordion-title>.title {
           position: relative;
@@ -151,12 +149,13 @@
             background-color: white;
             padding: 0;
             vertical-align: middle;
+            font-weight: 600;
           }
           &:before {
             position: absolute;
             content: "";
             height: 1px;
-            border-bottom: 1px solid $medium-gray;
+            border-bottom: 1px solid lighten($dark-gray, 10%);
             right: 0;
             left: 0;
             top: 50%;
@@ -187,15 +186,28 @@
         }
       }
       &.publication-month {
-        margin-top: 1rem;
-        &:not(:first-child) {
-          margin-top: 3rem;
+        margin: 0.5rem 0 1rem 0;
+        &.is-active {
+          margin-bottom: 3rem;
         }
         >.accordion-title>.title {
           position: relative;
           display: block;
           >.title-container {
-            margin-left: 1.5rem;
+            font-weight: 600;
+            margin-left: 1.2rem;
+            .title {
+              vertical-align: middle;
+            }
+            .icon {
+              width: 20px;
+              height: 20px;
+              border-radius: 20px;
+              .fa {
+                line-height: 20px;
+                font-size: 0.6rem;
+              }
+            }
           }
           &:before {
             position: absolute;
@@ -209,14 +221,25 @@
         }
       }
       &.publication-day {
-        margin-top: 2rem;
+        margin: 0.5rem 0 2rem 0;
         .flex {
           display: flex;
           &.title-row {
             position: relative;
             padding: 0.5rem;
+            font-size: 0.9rem;
+            .fa {
+              font-size: 1rem;
+            }
             .title {
-              padding-left: 0.5rem;
+              font-weight: 600;
+              .icon {
+                margin-right: 0.5rem;
+              }
+              .fa {
+                display: block;
+                text-align: center;
+              }
             }
           }
           >span,
@@ -286,6 +309,13 @@
       border-bottom: 1px solid $medium-gray;
       .publication-attribute {
         flex: 1;
+      }
+      &.title-row {
+        font-size: 1rem;
+        font-weight: 600;
+        .fa {
+          font-size: 1rem;
+        }
       }
     }
   }

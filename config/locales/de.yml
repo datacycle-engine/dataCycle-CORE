@@ -57,6 +57,9 @@ de:
     filter:
       show: Filter anzeigen
       hide: Filter ausblenden
+    details:
+      show: Details anzeigen
+      hide: Details ausblenden
     contents:
       one: Inhalt
       other: Inhalte
@@ -300,7 +303,7 @@ de:
     classifications: 'Klassifizierungen'
     settings: Einstellungen
     stored_filter: Meine gespeicherten Filter
-    publication_date: Publikationszeitraum
+    publication_date: Publikationsdatum
     publications_calendar: Publikationskalender
 
   date:

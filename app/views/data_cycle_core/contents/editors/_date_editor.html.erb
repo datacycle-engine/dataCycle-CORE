@@ -3,7 +3,7 @@
   <div class="form-element <%= key.split('[').last[0...-1] %>">
       <%= label_tag key do %>
         <span class="icon <%= key.split('[').last[0...-1] %>">
-            <i aria-hidden="true" class="fa fa-clock-o"></i> <%= definition['label'] %>
+            <i aria-hidden="true" class="fa fa-calendar"></i> <%= definition['label'] %>
         </span>
       <% end %>
       <%= date_field_tag key, value, options %>

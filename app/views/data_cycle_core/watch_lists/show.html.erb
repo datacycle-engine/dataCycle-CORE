@@ -47,15 +47,13 @@
 
     </div>
 
-    <%= render 'filter_minimal' if user_signed_in? %>
-
-    <%#= render 'data_cycle_core/backend/views' if user_signed_in? %>
-
 <% end %>
 
 <div class="detail-content watchlist">
 
     <div class="row">
+
+        <%= render 'filter_minimal' if user_signed_in? %>
 
         <%= render 'results', contents: @contents unless @contents.nil? %>
 

@@ -15,7 +15,7 @@
             <span class="title">
               <span class="title-container">
                 <span class="icon"><i class="fa fa-angle-up" aria-hidden="true"></i></span>
-                <span class="text"><%= p_month %></span>
+                <span class="title"><%= p_month %></span>
               </span>
             </span>
           </a>
@@ -23,7 +23,7 @@
             <% val.group_by { |c| l(c.publish_at&.to_date, format: :long, locale: DataCycleCore.ui_language) }.each_with_index do |(p_day, v), idx| %>
               <li class="publication-day <%= 'active' if v.first.publish_at&.to_date.today? %>"  data-day="<%= v.first.publish_at %>">
                 <div class="flex title-row">
-                  <span class="title"><%= p_day %></span>
+                  <span class="title"><span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span><span class="title-text"><%= p_day %></span></span>
                   <% @publication_classifications.each do |pc_key, pc_value| %>
                     <span><%= render 'data_cycle_core/shared/icon', icon_type: pc_value.downcase %></span>
                   <% end if idx.zero? %>
