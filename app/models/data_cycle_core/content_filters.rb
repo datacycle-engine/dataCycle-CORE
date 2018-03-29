@@ -34,7 +34,10 @@ module DataCycleCore
 
     def expired_not_release_id(id)
       joins(:translations)
-        .where.not("#{table_name.singularize}_translations.release_id = ? OR #{table_name.singularize}_translations.release_id IS NULL", id)
+        .where.not(
+          arel_table[:release_id].eq(id)
+          .or(arel_table[:release_id].eq(nil))
+        )
     end
 
     def expired_not_life_cycle_id(id)
