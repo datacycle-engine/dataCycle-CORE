@@ -33,10 +33,11 @@ module DataCycleCore
     end
 
     def expired_not_release_id(id)
+      translation_table = "DataCycleCore::#{table_name.classify}::Translation".constantize.arel_table
       joins(:translations)
         .where.not(
-          arel_table[:release_id].eq(id)
-          .or(arel_table[:release_id].eq(nil))
+          tranlation_table[:release_id].eq(id)
+          .or(translation_table[:release_id].eq(nil))
         )
     end
 
