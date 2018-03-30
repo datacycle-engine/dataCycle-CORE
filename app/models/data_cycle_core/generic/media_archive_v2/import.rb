@@ -55,7 +55,9 @@ module DataCycleCore::Generic::MediaArchiveV2::Import
         data = nil
         ap "Unkown contentType #{raw_data}"
       end
-      # ap data
+      default_values = load_default_values(@options.dig(:import, :default_values)) if @options.dig(:import, :default_values).present?
+      data.merge!(default_values) if default_values.present?
+
       unless data.nil?
         content = create_or_update_content(
           @target_type,
