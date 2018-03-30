@@ -44,6 +44,8 @@ de:
       week: wöchentlich
 
   common:
+    'true': Ja
+    'false': Nein
     loading: 'Laden ...'
     are_you_sure: 'Sind Sie sicher?'
     language: "Sprache"
