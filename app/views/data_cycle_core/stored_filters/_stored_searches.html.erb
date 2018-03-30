@@ -20,11 +20,6 @@
               <div class="validation-container form-element">
                 <%= f.text_field :name, placeholder: DataCycleCore::StoredFilter.human_attribute_name('name', locale: DataCycleCore.ui_language), required: true, label: false %>
               </div>
-              <% if can?(:create_api, DataCycleCore::StoredFilter) %>
-                <div class="form-element">
-                  <%= f.check_box :api %>
-                </div>
-              <% end %>
               <% if can?(:create_global, DataCycleCore::StoredFilter) %>
                 <div class="form-element">
                   <%= f.check_box :system %>

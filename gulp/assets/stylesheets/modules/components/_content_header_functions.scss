@@ -73,7 +73,7 @@
         transition: all ease-in-out 0.25s;
         padding: 0 0.5rem 1rem 0.5rem;
         cursor: pointer;
-        line-height: 1rem;
+        line-height: 1.6;
         &:hover {
           opacity: 1;
           color: lighten($body-font-color, 30%);

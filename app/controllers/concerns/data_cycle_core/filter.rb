@@ -75,15 +75,14 @@ module DataCycleCore
       query
     end
 
-    def save_filter(method_name: nil, parameters: nil)
-      new_filter = DataCycleCore::StoredFilter.new
+    def save_filter(method_name: nil, parameters: nil, new_filter: nil)
+      new_filter ||= DataCycleCore::StoredFilter.new
       new_filter.user_id = current_user.id
       new_filter.language = @language
-      new_filter.name = filter_params[:stored_filter_name] if filter_params[:stored_filter_name].present?
-      new_filter.system = filter_params[:stored_filter_system]
-      new_filter.api = filter_params[:stored_filter_api]
+      new_filter.name = filter_params[:name] if params[:stored_filter].present? && filter_params[:name].present? && new_filter.id.nil?
+      new_filter.system = filter_params[:system] if params[:stored_filter].present? && filter_params[:system].present?
       new_filter.parameters = {}
-      new_filter.parameters[:in_validity_period] = Time.zone.now
+      # new_filter.parameters[:in_validity_period] = Time.zone.now
       new_filter.parameters[:order] = @order_string if @order_string.present?
       new_filter.parameters[:fulltext_search] = params[:search] if params[:search].present?
       new_filter.parameters[:with_classification_alias_ids] = @with_classification_alias_ids if @with_classification_alias_ids.present?
@@ -95,7 +94,7 @@ module DataCycleCore
     private
 
     def filter_params
-      params.permit(:stored_filter_name, :stored_filter_system, :stored_filter_api)
+      params.require(:stored_filter).permit(:id, :name, :system)
     end
   end
 end

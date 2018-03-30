@@ -5,7 +5,7 @@
         <li class="<%= item == @historySource ? 'active' : '' %>">
             <% if item.metadata.try(:[], 'last_updated_by') %>
                 <% person = get_user_for_id(item.metadata['last_updated_by']) %>
-                <%= "<a class='email-link' href='mailto:#{person.email}'>#{person.name}</a>".html_safe %>
+                <%= "<a class='email-link' href='mailto:#{person.email}'>#{person.full_name}</a>".html_safe %>
             <% else %>
                 <%= "Unbekannt".html_safe %>
             <% end %>

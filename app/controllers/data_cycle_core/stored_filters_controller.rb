@@ -2,7 +2,7 @@ module DataCycleCore
   class StoredFiltersController < ApplicationController
     include DataCycleCore::Filter
     before_action :authenticate_user! # from devise (authenticate)
-    load_and_authorize_resource # from cancancan (authorize)
+    load_and_authorize_resource except: :search # from cancancan (authorize)
 
     def index
       @saved_stored_searches = @accessible_stored_filters.where.not(name: nil).order(:name)
@@ -26,9 +26,14 @@ module DataCycleCore
 
     def create
       @contents = get_filtered_results
-      @stored_filter = save_filter
 
-      redirect_to(root_path(stored_filter: @stored_filter), notice: (I18n.t :created, scope: [:controllers, :success], data: 'Filter', locale: DataCycleCore.ui_language))
+      if stored_filter_params[:id].present?
+        @stored_filter = save_filter(new_filter: DataCycleCore::StoredFilter.find(stored_filter_params[:id]))
+        redirect_to(root_path(stored_filter: @stored_filter), notice: (I18n.t :updated, scope: [:controllers, :success], data: 'Filter', locale: DataCycleCore.ui_language))
+      else
+        @stored_filter = save_filter
+        redirect_to(root_path(stored_filter: @stored_filter), notice: (I18n.t :created, scope: [:controllers, :success], data: 'Filter', locale: DataCycleCore.ui_language))
+      end
     end
 
     def destroy
@@ -39,13 +44,21 @@ module DataCycleCore
       end
     end
 
+    def search
+      authorize! :show, :stored_filter
+
+      stored_filters = DataCycleCore::StoredFilter.where('name ILIKE :q', q: "%#{params[:q]}%").limit(20)
+
+      render json: stored_filters
+    end
+
     private
 
     def create_params
     end
 
     def stored_filter_params
-      params.require(:stored_filter).permit(:name, :api, :system)
+      params.require(:stored_filter).permit(:id, :name, :system, :api, api_users: [])
     end
   end
 end

@@ -712,7 +712,7 @@
         }
       }
       &.content-item {
-        padding: 0.8rem 5rem 0.8rem 1rem;
+        padding: 0.8rem 7rem 0.8rem 1rem;
         background-color: white;
         .content-title {
           &.global {
@@ -813,5 +813,12 @@
         }
       }
     }
+  }
+}
+
+.update-search-form {
+  overflow-y: visible;
+  .form-element {
+    margin-bottom: 1rem;
   }
 }

@@ -37,8 +37,8 @@ module DataCycleCore
         if user.has_rank?(10)
           can :manage, DataCycleCore::DataLink
           can [:crud, :destroy], DataCycleCore::UserGroup
-          can [:crud, :destroy], DataCycleCore::User do |the_user|
-            user&.role&.rank&.> the_user&.role&.rank || the_user == user
+          can [:crud, :destroy, :generate_access_token], DataCycleCore::User do |the_user|
+            user&.role&.rank&.>(the_user&.role&.rank) || the_user == user
           end
 
           can :update_release_status, [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork, DataCycleCore::Place]
@@ -60,7 +60,7 @@ module DataCycleCore
           can :set_life_cycle, DataCycleCore::CreativeWork
 
           can :manage, DataCycleCore::Asset
-          can :create_global, DataCycleCore::StoredFilter
+          can [:create_global, :create_api], DataCycleCore::StoredFilter
         end
 
         can :manage, :dash_board if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)

@@ -9,19 +9,47 @@
     a {
       color: $black;
       display: inline-block;
-      margin-bottom: 1.5rem;
       outline-width: 0;
-      span {
-        display: inline-block;
-        &.icon {
-          width: 2rem;
-          i {
-            margin-right: 0.3rem;
+    }
+    .row {
+      position: relative;
+      margin-bottom: 1.5rem;
+      &.access-token {
+        white-space: nowrap;
+        .title {
+          position: relative;
+          padding: 2px 5px;
+          border-radius: 5px;
+          box-shadow: 0 0 3px $medium-gray inset;
+          &.copy-to-clipboard::after {
+            content: "\f0ea";
+            font-family: FontAwesome;
+            position: absolute;
+            display: none;
+            right: 0;
+            top: 0;
+            padding: 2px 5px;
+            background-color: white;
+          }
+          &.copy-to-clipboard:hover,
+          &.copy-to-clipboard:focus {
+            &::after {
+              display: block;
+            }
           }
         }
-        &.title {
-          position: relative;
+      }
+    }
+    span {
+      display: inline-block;
+      &.icon {
+        width: 2rem;
+        i {
+          margin-right: 0.3rem;
         }
+      }
+      &.title {
+        position: relative;
       }
     }
     .heading {

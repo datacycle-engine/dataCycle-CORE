@@ -21,15 +21,15 @@ describe('User', function () {
     cy.location('pathname').should('match', /\/users/)
 
     cy.get('[data-toggle="new-object"]').click()
-    cy.get('#new-object .option').click()
+    cy.get('#new-object .option[data-open="new_data_cycle_core_user"]').click()
 
-    cy.get('#new_user').should('be.visible')
-    cy.get('#new_user input#user_email').type(user.email)
-    cy.get('#new_user input#user_given_name').type('Der')
-    cy.get('#new_user input#user_family_name').type('Tester')
-    cy.get('#new_user input#user_password').type(user.password)
-    cy.get('#new_user input#user_password_confirmation').type(user.password)
-    cy.get('#new_user input[type="submit"]').click()
+    cy.get('#new_data_cycle_core_user').should('be.visible')
+    cy.get('#new_data_cycle_core_user input#user_email').type(user.email)
+    cy.get('#new_data_cycle_core_user input#user_given_name').type('Der')
+    cy.get('#new_data_cycle_core_user input#user_family_name').type('Tester')
+    cy.get('#new_data_cycle_core_user input#user_password').type(user.password)
+    cy.get('#new_data_cycle_core_user input#user_password_confirmation').type(user.password)
+    cy.get('#new_data_cycle_core_user input[type="submit"]').click()
     cy.location('pathname').should('match', /\/users/)
 
     cy.get('.flash.callout').should('be.visible').should('have.class', 'success').find('.close-button').click().should('be.hidden')
