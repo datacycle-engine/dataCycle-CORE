@@ -110,10 +110,13 @@ module DataCycleCore::Generic::Feratel::ImportPlaces
           'AddressLine1' => 'street_address',
           'Town' => 'address_locality',
           'ZipCode' => 'postal_code',
+          'Country' => 'address_country',
           'Fax' => 'fax_number',
           'Phone' => 'telephone',
           'Email' => 'email',
           'URL' => 'url')
+    .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
+    .>> t(:nest, 'contact_info', ['email', 'fax_number', 'telephone', 'url'])
   end
 
   # def extract_place_data(raw_data)
