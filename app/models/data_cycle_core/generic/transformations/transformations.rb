@@ -44,7 +44,8 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:unwrap, 'validity_period', ['date_published', 'expires'])
     .>> t(:rename_keys,
           'date_published' => 'valid_from',
-          'expires' => 'valid_until')
+          'expires' => 'valid_until',
+          'keywords' => 'keywords_medienarchive')
     .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
     .>> t(:strip_all)
   end
@@ -59,7 +60,8 @@ module DataCycleCore::Generic::Transformations::Transformations
       .>> t(:unwrap, 'validity_period', ['date_published', 'expires'])
       .>> t(:rename_keys,
             'date_published' => 'valid_from',
-            'expires' => 'valid_until')
+            'expires' => 'valid_until',
+            'keywords' => 'keywords_medienarchive')
       .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
       .>> t(:strip_all)
   end
@@ -84,7 +86,7 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:compact)
   end
 
-  def self.eyebase_to_bild
+  def self.eyebase_to_bild(external_source_id)
     t(:stringify_keys)
     .>> t(:reject_keys, ['quality_256', 'quality_1024', 'picturepins', 'ordnerstruktur'])
     .>> t(:unwrap, 'quality_1', ['resolution_x', 'resolution_y', 'size_mb'])
@@ -101,12 +103,12 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:map_value, 'width', ->s { s.to_i })
     .>> t(:map_value, 'height', ->s { s.to_i })
     .>> t(:add_field, 'content_url',
-      ->s { File.join(ActionMailer::Base.default_url_options[:host], 'eyebase', 'media_assets', 'files', s['quality_1']['filename']) rescue nil })
+      ->s { File.join("#{ActionMailer::Base.default_url_options[:protocol]}://#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', s['quality_1']['filename']) rescue nil })
     .>> t(:add_field, 'thumbnail_url',
-      ->s { File.join(ActionMailer::Base.default_url_options[:host], 'eyebase', 'media_assets', 'files', s['quality_512']['filename']) rescue nil })
-    .>> t(:add_field, 'keywords',
+      ->s { File.join("#{ActionMailer::Base.default_url_options[:protocol]}://#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', s['quality_512']['filename']) rescue nil })
+    .>> t(:add_field, 'keywords_eyebase',
       ->s { [s['field_204'].try(:split, ','), s['field_215'].try(:split, ',')].flatten.reject(&:nil?).map(&:strip).uniq || [] })
-    .>> t(:tags_to_ids, 'keywords', 'Tags')
+    .>> t(:tags_to_ids, 'keywords_eyebase', external_source_id, 'Eyebase - Tag - ')
     .>> t(:reject_keys, ['quality_1', 'quality_512'])
     .>> t(:compact)
     .>> t(:strip_all)

@@ -140,6 +140,9 @@
         :storage_location: metadata
         :editor:
           :type: input
+      :tags:
+        :type: mixin
+        :name: tags
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
