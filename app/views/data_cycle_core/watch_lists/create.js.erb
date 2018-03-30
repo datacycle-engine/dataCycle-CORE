@@ -3,7 +3,7 @@ $('.add-watchlist').each(function () {
     hashable_type: $(this).parent('.watch-lists').data('content-type'),
     hashable_id: $(this).parent('.watch-lists').data('content-id')
   }
-  $(this).siblings('.list-items').append('<li><%= escape_javascript(render 'data_cycle_core/application/watch_lists/add_link', content: nil, watchlist: @watch_list) %></li>');
+  $(this).siblings('.list-items').append('<li><%= escape_javascript(render 'data_cycle_core/application/watch_lists/edit_link', content: nil, watch_list: @watch_list) %></li>');
 
   var item = $(this).siblings('.list-items').find('> li > .watch-list-item').last();
   item.prop('id', 'content-' + content.hashable_id + '-watch-list-' + '<%= @watch_list.id %>');
@@ -15,4 +15,4 @@ $('.add-watchlist').each(function () {
 });
 
 $('.add-watchlist-to-menu input[type="text"]').val('');
-$('.add-watchlist-to-menu').siblings('.list-items').append('<li><%= escape_javascript(render 'data_cycle_core/application/watch_lists/read_link', watchlist: @watch_list) %></li>');
+$('.add-watchlist-to-menu').siblings('.list-items').append('<%= escape_javascript(render 'data_cycle_core/application/watch_lists/read_link', watch_list: @watch_list) %>');

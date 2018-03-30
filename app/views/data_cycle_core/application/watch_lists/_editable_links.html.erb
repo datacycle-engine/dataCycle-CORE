@@ -2,15 +2,7 @@
 <div class="dropdown-pane no-bullet bottom watch-lists" id="watch-lists-<%= content.id %>" data-dropdown data-hover="true" data-hover-pane="true" data-content-id="<%= content&.id %>" data-content-type="<%= content&.class&.name %>">
     <h5>Zu Merkliste hinzufügen</h5>
     <ul class="list-items">
-      <% @accessible_watch_lists.each do |watchlist| %>
-          <li>
-              <% if content.watch_lists.include?(watchlist) %>
-                <%= render 'data_cycle_core/application/watch_lists/remove_link', local_assigns.merge({ watchlist: watchlist }) %>
-              <% else %>
-                <%= render 'data_cycle_core/application/watch_lists/add_link', local_assigns.merge({ watchlist: watchlist }) %>
-              <% end %>
-          </li>
-      <% end %>
+      <%= render partial: 'data_cycle_core/application/watch_lists/edit_link', collection: @accessible_watch_lists, as: :watch_list, locals: local_assigns %>
     </ul>
 
     <%= render 'data_cycle_core/application/watch_lists/new', local_assigns %>

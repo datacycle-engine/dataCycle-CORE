@@ -8,10 +8,9 @@
         </span>
     </label>
 
-    <% if item.sub_classification_alias.select { |type| !excluded_types.include?(type.name) }.size > 0 %>
+    <% if item.sub_classification_alias.reject { |type| excluded_types.include?(type.name) }.present? %>
         <ul class="sub-classifications">
-          <%= render partial: 'data_cycle_core/application/filters/classification_items', collection: item.sub_classification_alias.select { |type| !excluded_types.include?(type.name) }.sort{|a,b| a.name <=> b.name}, as: :item %>
+          <%= render partial: 'data_cycle_core/application/filters/classification_items', collection: item.sub_classification_alias.reject { |type| excluded_types.include?(type.name) }.sort{|a,b| a.name <=> b.name}, as: :item %>
         </ul>
     <% end %>
-
 </li>
