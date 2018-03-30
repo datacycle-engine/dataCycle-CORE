@@ -1,7 +1,9 @@
 module DataCycleCore
   module EventHelpers
     def title
-      name
+      # TODO: remove later
+      name if respond_to?(:name)
+      headline if respond_to?(:headline)
     end
 
     def desc

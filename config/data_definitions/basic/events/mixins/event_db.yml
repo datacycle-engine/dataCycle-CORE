@@ -1,0 +1,5 @@
+---
+- :data:
+    :name: event_db
+    :type: mixin
+    :properties:
