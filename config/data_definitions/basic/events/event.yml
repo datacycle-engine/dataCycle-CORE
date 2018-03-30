@@ -130,3 +130,6 @@
       :meta_data:
         :type: mixin
         :name: meta_data
+      :event_db:
+        :type: mixin
+        :name: event_db
