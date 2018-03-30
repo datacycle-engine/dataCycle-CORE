@@ -6,26 +6,41 @@
 
   <%= link_to classification_tree.sub_classification_alias.try(:name),
               classifications_path(classification_tree_id: classification_tree.id),
-              data: {remote: true, 'disable-with' => '<i class="fa fa-spinner fa-spin"></i> #{t("common.loading", locale: DataCycleCore.ui_language)}'} %>
+              data: {remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"} %>
 
-  <% if can?(:update, classification_tree.sub_classification_alias) %>
+  <% if can?(:update, classification_tree.sub_classification_alias) || can?(:map_classifications, classification_tree.sub_classification_alias) %>
     <a href="#" class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
   <% end %>
 
   <% if can?(:destroy, classification_tree.sub_classification_alias) %>
+    <% confirmation_text = "#{t('common.are_you_sure', locale: DataCycleCore.ui_language)}" %>
+
+    <% confirmation_text += "<span class='warning'>
+      <i class='fa fa-exclamation-triangle' aria-hidden='true'></i> #{t('data_cycle_core.classification_relations', count: classification_tree.sub_classification_alias.linked_contents.size, locale: DataCycleCore.ui_language)}</span>" if classification_tree.sub_classification_alias.linked_contents.size.positive? %>
+
+    <% confirmation_text += "<span class='warning'>
+      <i class='fa fa-exclamation-triangle' aria-hidden='true'></i> #{t('data_cycle_core.child_classification_relations', count: classification_tree.sub_classification_alias.sub_classification_alias.with_descendants.size, data: t('data_cycle_core.this_classification', locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language)}</span>" if classification_tree.sub_classification_alias.sub_classification_alias.with_descendants.size.positive? %>
+
     <%= link_to classifications_path(classification_tree_id: classification_tree.id), class: 'destroy',
-                data: {remote: true, method: :delete,
-                       confirm: t('common.are_you_sure', locale: DataCycleCore.ui_language),
-                       'disable-with' => '<i class="fa fa-spinner fa-spin"></i>'} do %>
+                data: {
+                  remote: true,
+                  method: :delete,
+                  confirm: confirmation_text,
+                  disable_with: '<i class="fa fa-spinner fa-spin"></i>'
+                } do %>
       <i class="fa fa-trash-o" aria-hidden="true"></i>
     <% end %>
   <% end %>
   </span>
-    <% if can?(:update, classification_tree.sub_classification_alias) %>
+  <% if can?(:update, classification_tree.sub_classification_alias) || can?(:map_classifications, classification_tree.sub_classification_alias) %>
     <%= render 'classification_alias_form',
                 classification_tree_label: classification_tree_label,
                 classification_tree: classification_tree,
                 classification_alias: classification_tree.sub_classification_alias %>
+  <% end %>
+
+  <%= link_to classification_tree_label_path(classification_tree_label, anchor: "#{(ancestors.join('+') + '+') if ancestors.present? }#{classification_tree.id}"), class: 'contents-list', target: :_blank, title: t('data_cycle_core.show_contents_for_tree_label', data: classification_tree.sub_classification_alias.try(:name), locale: DataCycleCore.ui_language) do %>
+    <i class="fa fa-list" aria-hidden="true"></i>
   <% end %>
 
   <ul class="classifications">

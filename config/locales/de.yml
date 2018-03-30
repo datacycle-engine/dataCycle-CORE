@@ -47,6 +47,7 @@ de:
     'true': Ja
     'false': Nein
     loading: 'Laden ...'
+    load_more: ... weitere Einträge laden
     are_you_sure: 'Sind Sie sicher?'
     language: "Sprache"
     choose_language: "Sprache wählen"
@@ -60,6 +61,7 @@ de:
       show: Filter anzeigen
       hide: Filter ausblenden
     contents:
+      zero: Keine Inhalte
       one: Inhalt
       other: Inhalte
     splitsource: Vorlage
@@ -303,8 +305,18 @@ de:
   data_cycle_core:
     administration: 'Administration'
     classifications: 'Klassifizierungen'
+    this_classification: Dieser Klassifizierung
+    this_classification_tree: Diesem Klassifizierungsbaum
+    show_contents_for_tree_label: "Inhalte in %{data} auflisten"
     settings: Einstellungen
     stored_filter: Meine gespeicherten Filter
+    classification_tree_relations: 'ACHTUNG: Mit diesem Klassifizierungsbaum sind Inhalte verknüpft!'
+    classification_relations:
+      one: 'ACHTUNG: Mit dieser Klassifizierung ist <b>1</b> Inhalt verknüpft!'
+      other: 'ACHTUNG: Mit dieser Klassifizierung sind <b>%{count}</b> Inhalte verknüpft!'
+    child_classification_relations:
+      one: 'ACHTUNG: %{data} ist <b>1</b> Klassifizierung zugeordnet. Dies wird mitgelöscht!'
+      other: 'ACHTUNG: %{data} sind <b>%{count}</b> Klassifizierungen zugeordnet.<br>Diese werden mitgelöscht!'
 
   date:
     abbr_day_names:

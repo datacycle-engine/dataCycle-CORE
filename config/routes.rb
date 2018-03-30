@@ -32,6 +32,7 @@ DataCycleCore::Engine.routes.draw do
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :events, only: [:index, :show, :create, :edit, :update, :destroy]
   resources :stored_filters, only: [:create, :destroy]
+  resources :classification_tree_labels, only: :show
 
   scope('files') do
     resources :assets, only: [:index, :show, :new, :create, :destroy] do
