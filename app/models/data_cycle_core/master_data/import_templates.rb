@@ -96,17 +96,20 @@ module DataCycleCore
         property_hash.each do |property_name, property_value|
           # TODO: refactor: add errors + warnings
           if property_value[:type] == 'mixin'
-            if !content_object.nil? && @mixin_list[content_object.name.demodulize.pluralize.underscore.to_sym][property_value[:name].to_sym].present?
-              @mixin_list[content_object.name.demodulize.pluralize.underscore.to_sym][property_value[:name].to_sym][:properties].each do |key, prop|
-                new_properties[key.to_sym], sorting = add_sorting(prop, sorting)
-              end
-            elsif @mixin_list[:default][property_value[:name].to_sym].present?
-              @mixin_list[:default][property_value[:name].to_sym][:properties].each do |key, prop|
-                new_properties[key.to_sym], sorting = add_sorting(prop, sorting)
-              end
+            if !content_object.nil? && @mixin_list.dig(content_object.name.demodulize.pluralize.underscore.to_sym, property_value[:name].to_sym).present?
+              active_mixin = @mixin_list[content_object.name.demodulize.pluralize.underscore.to_sym]
+            elsif @mixin_list.dig(:default, property_value[:name].to_sym).present?
+              active_mixin = @mixin_list[:default]
             else
               raise "mixin for #{property_value[:name]} not found".inspect
             end
+
+            next if active_mixin.dig(property_value[:name].to_sym, :properties).blank?
+
+            active_mixin[property_value[:name].to_sym][:properties].each do |key, prop|
+              new_properties[key.to_sym], sorting = add_sorting(prop, sorting)
+            end
+
           else
             new_properties[property_name.to_sym], sorting = add_sorting(property_value, sorting)
           end
