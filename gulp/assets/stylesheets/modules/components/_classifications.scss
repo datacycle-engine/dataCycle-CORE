@@ -9,12 +9,15 @@ ul.backend-treeview-list {
     }
     a.edit,
     a.destroy,
-    a.download {
+    a.download,
+    a.contents-list {
       margin: 0 0 0 0.2rem;
       color: $dark-gray;
+      cursor: pointer;
     }
     a.edit:hover,
-    a.download:hover {
+    a.download:hover,
+    a.contents-list:hover {
       color: $primary-color;
     }
     a.destroy:hover {
@@ -54,8 +57,8 @@ ul.backend-treeview-list {
       >li:last-child {
         border-left: 1px solid transparent;
       }
-      >li:last-child {
-        padding: 0.5rem 0.5rem 1.5rem 1rem;
+      >li.new-button {
+        padding: 1rem 0.5rem 1.5rem 1rem;
         margin: 0;
       }
     }
@@ -192,5 +195,173 @@ ul.backend-treeview-list {
   .new-classification-tree-label {
     margin: 0.5rem 0;
     border: 0;
+  }
+  >li {
+    ul.children {
+      li.load-more-link {
+        font-style: italic;
+        >span.inner-item {
+          .fa {
+            font-size: 0.75rem;
+          }
+          padding-top: 1.5rem;
+        }
+        .button {
+          margin: 0;
+        }
+      }
+    }
+  }
+}
+
+// classification_tree_label_view
+#classification-tree-label-list {
+  .backend-treeview-list {
+    >li {
+      border: none;
+      ul.children {
+        >li {
+          .inner-item {
+            padding: 1rem 0 1rem 1rem;
+            &:before {
+              bottom: 50%;
+            }
+            .children-count {
+              color: $dark-gray;
+            }
+            .tree-link:after {
+              content: "\f107";
+              font-family: FontAwesome;
+              font-style: normal;
+              font-weight: normal;
+              text-decoration: inherit;
+              position: relative;
+              font-size: 0.8rem;
+              margin-left: 0.5rem;
+            }
+            &.open {
+              .tree-link:after {
+                content: "\f106";
+              }
+            }
+          }
+          &:nth-last-child(2) {
+            border-left: 1px solid $medium-gray;
+          }
+          &:last-child {
+            margin-left: 2em;
+            padding: 0;
+          }
+        }
+      }
+      ul.contents {
+        display: none;
+        position: relative;
+        padding: 1rem 0px 1rem 1rem;
+        >li.content-row {
+          position: relative;
+          width: 100%;
+          display: flex;
+          border-bottom: 1px solid $medium-gray;
+          background-color: white;
+          padding: 1rem;
+          &:before {
+            content: '';
+            position: absolute;
+            display: block;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            z-index: -1;
+            box-shadow: 0 1px 3px $dark-gray;
+          }
+          >div {
+            position: relative;
+            display: inline;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            &:not(:last-child) {
+              padding-right: 0.5rem;
+            }
+            &.type {
+              max-width: 15rem;
+              white-space: nowrap;
+              a {
+                color: inherit;
+              }
+            }
+            &.title-text {
+              color: $dark-gray;
+              height: 1.6rem;
+              a {
+                color: inherit;
+              }
+            }
+            &.tags {
+              max-height: 1.6rem;
+              &:before {
+                content: "\f02c";
+                font-family: FontAwesome;
+                font-style: normal;
+                font-weight: normal;
+                text-decoration: inherit;
+                position: relative;
+                color: $black;
+              }
+              .tag {
+                color: $black;
+                background-color: lighten($light-gray, 5%);
+              }
+            }
+            &.thumbnails {
+              margin: -0.5rem 0;
+              line-height: 2.8rem;
+              max-height: 2.6rem;
+              max-width: 20%;
+              img {
+                height: 2.6rem;
+                vertical-align: top;
+                &:before {
+                  display: none;
+                }
+              }
+            }
+            &.buttons {
+              display: inline-block;
+              max-width: 2rem;
+              a {
+                padding: 0.5rem;
+                margin-right: -0.5rem;
+              }
+            }
+          }
+          &.show-all {
+            .title-text {
+              height: auto;
+            }
+            .tags,
+            .thumbnails {
+              max-height: none;
+            }
+            .type {
+              white-space: normal;
+            }
+          }
+          &.button-row {
+            padding: 0;
+            text-align: center;
+            a {
+              background-color: $primary-color;
+              display: block;
+              width: 100%;
+              padding: 1rem;
+              color: white;
+            }
+          }
+        }
+      }
+    }
   }
 }

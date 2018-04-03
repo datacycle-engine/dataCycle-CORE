@@ -1,4 +1,4 @@
-<%= form_for(classification_tree_label, url: classifications_path, remote: true) do |f| %>
+<%= form_for(classification_tree_label, url: classifications_path, namespace: classification_tree_label&.id, remote: true) do |f| %>
   <%= f.hidden_field :id %>
   <%= f.text_field :name %>
   <button class="button-prime small success update"><i aria-hidden="true" class="fa fa-check"></i></button>
