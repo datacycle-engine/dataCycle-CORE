@@ -1,7 +1,7 @@
 <div class="media person item <%= 'active' if (objects ||= []).include?(object.id) %>" data-id="<%= object.id %>">
   <%= hidden_field_tag key, object.id %>
 
-  <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
+  <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, object)) %>
     <span class="delete-thumbnail"><i aria-hidden="true" class="fa fa-times"></i></span>
   <% end %>
 
