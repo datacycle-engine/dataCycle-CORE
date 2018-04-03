@@ -34,13 +34,13 @@
                 </span>
                 <span class="buttons">
                   <% if stored_search.api && can?(:create_api, stored_search) %>
-                    <%= link_to api_v1_stored_filter_path(stored_search), class: 'copy-to-clipboard', data: { tooltip: '', value: api_v1_stored_filter_url(stored_search) }, title: t('actions.copy_to_clipboard') do %>
+                    <%= link_to api_v1_stored_filter_path(stored_search), class: 'copy-to-clipboard', data: { tooltip: '', value: api_v1_stored_filter_url(stored_search) }, title: t('actions.copy_to_clipboard', locale: DataCycleCore.ui_language) do %>
                       <i class="fa fa-clipboard" aria-hidden="true"></i>
                     <% end %>
                   <% end %>
 
                   <% if can?(:create_api, stored_search) %>
-                    <a id="update-stored-search-<%= stored_search.id %>" data-open="update-search-form-<%= stored_search.id %>"><i class="fa fa-external-link" aria-hidden="true"></i></a>
+                    <a id="update-stored-search-<%= stored_search.id %>" data-open="update-search-form-<%= stored_search.id %>"><i class="fa fa-pencil" aria-hidden="true"></i></a>
                     <div class="reveal update-search-form" id="update-search-form-<%= stored_search.id %>" data-reveal>
                       <h3><%= "#{stored_search.model_name.human(locale: DataCycleCore.ui_language)} #{t('actions.edit', locale: DataCycleCore.ui_language)}" %></h3>
                       <%= form_for(stored_search, namespace: stored_search.id) do |f| %>
