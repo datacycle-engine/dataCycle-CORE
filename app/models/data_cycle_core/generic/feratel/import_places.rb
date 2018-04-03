@@ -104,6 +104,7 @@ module DataCycleCore::Generic::Feratel::ImportPlaces
     .>> t(:location)
     .>> t(:unwrap_description, 'ServiceProviderDescription')
     .>> t(:rename_keys, 'ServiceProviderDescription' => 'description')
+    .>> t(:reject_keys, ['Town'])
     .>> t(:unwrap_address, 'Object')
     .>> t(:unwrap, 'Address')
     .>> t(:rename_keys,
