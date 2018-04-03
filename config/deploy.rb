@@ -7,7 +7,7 @@ set :repo_url, 'git@git.pixelpoint.biz:data-cycle/data-cycle-core.git'
 set :rvm_ruby_version, '2.4.3'
 
 set :puma_rackup, -> { File.join(current_path, 'test', 'dummy', 'config.ru') }
-
+set :puma_conf, "#{shared_path}/config/puma.rb"
 # Default value for :format is :airbrussh.
 # set :format, :airbrussh
 
@@ -21,7 +21,7 @@ set :puma_rackup, -> { File.join(current_path, 'test', 'dummy', 'config.ru') }
 set :bundle_without, (['development', 'test'] - [fetch(:stage).to_s]).join(' ')
 
 # Default value for :linked_files is []
-append :linked_files, 'test/dummy/.env'
+append :linked_files, 'test/dummy/.env', 'config/puma.rb'
 
 # Default value for linked_dirs is []
 append :linked_dirs, 'log', 'node_modules', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'test/dummy/public/assets', 'test/dummy/db/backups'
@@ -116,6 +116,7 @@ namespace :deploy do
   before 'assets:precompile', 'deploy:npm'
   after 'deploy:npm', 'deploy:gulp'
   after 'assets:precompile', 'deploy:iconfonts'
+  before 'check:linked_files', 'puma:config'
 
   before 'deploy:reverted', 'deploy:npm'
 end
