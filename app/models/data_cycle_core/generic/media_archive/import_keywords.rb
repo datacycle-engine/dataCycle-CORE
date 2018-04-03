@@ -3,7 +3,7 @@ module DataCycleCore
     module MediaArchive
       module ImportKeywords
         def import_data(**options)
-          @tree_label = options.dig(:import, :tree_label) || 'MediaArchive - Tags'
+          @tree_label = options&.dig(:import, :tree_label) || 'MediaArchive - Tags'
 
           # dummy variables to please the import machinery ... not used in this strategy
           @target_type = DataCycleCore::Place
@@ -18,7 +18,7 @@ module DataCycleCore
           mongo_item.where("dump.#{locale}": { '$exists' => true })
         end
 
-        def process_content(raw_data, template, locale)
+        def process_content(raw_data, template, locale, **options)
           I18n.with_locale(locale) do
             keywords = raw_data['keywords'] || []
             keywords.each do |item|

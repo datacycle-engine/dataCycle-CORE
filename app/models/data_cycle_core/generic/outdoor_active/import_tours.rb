@@ -21,7 +21,7 @@ module DataCycleCore
 
         def process_content(raw_data, template, locale)
           I18n.with_locale(locale) do
-            images = (raw_data.try(:[], 'images').try(:[], 'image') || []).map do |raw_image_data|
+            images = (raw_data.dig('images', 'image') || []).map do |raw_image_data|
               create_or_update_content(
                 DataCycleCore::CreativeWork,
                 load_template(DataCycleCore::CreativeWork, @image_template),

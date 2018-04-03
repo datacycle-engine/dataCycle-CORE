@@ -7,8 +7,8 @@ module DataCycleCore::Generic::MediaArchiveV2::Import
   end
 
   def load_transformations
-    @image_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_v2_to_bild
-    @video_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_v2_to_video
+    @image_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_v2_to_bild(external_source.id)
+    @video_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_v2_to_video(external_source.id)
     @content_location_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_v2_to_content_location
     @person_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_person
   end
@@ -55,7 +55,9 @@ module DataCycleCore::Generic::MediaArchiveV2::Import
         data = nil
         ap "Unkown contentType #{raw_data}"
       end
-      # ap data
+      default_values = load_default_values(@options.dig(:import, :default_values)) if @options.dig(:import, :default_values).present?
+      data.merge!(default_values) if default_values.present?
+
       unless data.nil?
         content = create_or_update_content(
           @target_type,

@@ -23,7 +23,6 @@
           :format: url
         :editor:
           :type: input
-          :sorting: 4
           :options:
             :data-validate: text
       :name:
@@ -35,7 +34,6 @@
           :minLength: 1
         :editor:
           :type: quillEditor
-          :sorting: 5
           :options:
             :data-size: basic
             :data-validate: text
@@ -46,7 +44,6 @@
         :storage_location: column
         :editor:
           :type: quillEditor
-          :sorting: 6
           :options:
             :data-size: basic
       :data_type:
@@ -55,24 +52,6 @@
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Website"
-      # mixin: meta_data
-      :creator:
-        :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
-      :date_created:
-        :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
-      :date_modified:
-        :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+      :meta_data:
+        :type: mixin
+        :name: meta_data

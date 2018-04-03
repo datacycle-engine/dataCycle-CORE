@@ -26,14 +26,16 @@ module DataCycleCore::Generic::Transformations::Functions
     data_hash.merge(new_hash)
   end
 
-  def self.tags_to_ids(data_hash, attribute, tree_label)
+  def self.tags_to_ids(data_hash, attribute, external_source_id, external_prefix)
     if data_hash[attribute].blank?
       data_hash[attribute] = []
     else
       data_hash[attribute] = data_hash[attribute].map { |keyword|
-        DataCycleCore::Classification
-          .joins(classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]])
-          .where('classification_tree_labels.name = ? and classifications.name = ? ', tree_label, keyword).try(:first).try(:id)
+        DataCycleCore::Classification.where(
+          name: keyword,
+          external_source_id: external_source_id,
+          external_key: external_prefix + keyword
+        ).try(:first).try(:id)
       }.reject(&:nil?) || []
     end
     data_hash

@@ -23,7 +23,7 @@
               <%= hidden_field_tag key + '[]' %>
             <% end %>
           </div>
-          <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
+          <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content)) %>
             <button class="button" id="show" type="button" data-open="object_browser_<%= sanitize_to_id(key) %>">
               <i class="fa fa-plus"></i>
             </button>

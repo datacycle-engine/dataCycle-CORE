@@ -1,5 +1,5 @@
 <%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
-
+    
   <% value = value.blank? ? {} : value %>
   <div class="release-status" id="release_container_<%= sanitize_to_id(key) %>">
     <%= collection_select key, :release_id, DataCycleCore::Release.all, :id, :release_text, {selected: value['release_id']}, { class: "release-select", disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) } %>

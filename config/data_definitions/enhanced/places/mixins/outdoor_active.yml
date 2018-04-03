@@ -1,0 +1,42 @@
+---
+- :data:
+    :name: outdoor_active
+    :type: mixin
+    :properties:
+      :author:
+        :label: Autor
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: input
+      :price:
+        :label: Preis
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :editor:
+          :type: input
+      :directions:
+        :label: Anfahrtsbeschreibung
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :search: true
+        :editor:
+          :type: input
+      :parking:
+        :label: Parkmöglichkeit
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :search: true
+        :editor:
+          :type: input
+      :hours_available:
+        :label: Service-Zeiten
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :editor:
+          :type: input

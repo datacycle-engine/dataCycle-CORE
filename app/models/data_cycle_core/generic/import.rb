@@ -13,7 +13,7 @@ module DataCycleCore
         raise "Missing target_type for #{self.class}, options given: #{options}"      if options[:import][:target_type].nil?
 
         extend(options[:import][:import_strategy].constantize)
-        @options = options
+        @options = options.with_indifferent_access
         @source_object = DataCycleCore::Generic::Collection
         @source_type = Mongoid::PersistenceContext.new(@source_object, collection: options[:import][:source_type])
         @target_type = options[:import][:target_type].constantize

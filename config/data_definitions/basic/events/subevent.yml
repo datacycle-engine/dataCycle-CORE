@@ -20,7 +20,6 @@
         :storage_location: content
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
       :event_period:
@@ -32,7 +31,6 @@
             :from: start_date
             :to: end_date
         :editor:
-          :sorting: 2
           :options:
             :class: daterange
         :properties:
@@ -45,7 +43,6 @@
               :format: date_time
             :editor:
               :type: datetime
-              :sorting: 1
               :options:
                 :data-type: datepicker
                 :data-validate: daterange
@@ -59,7 +56,6 @@
               :format: date_time
             :editor:
               :type: datetime
-              :sorting: 2
               :options:
                 :data-type: datepicker
                 :data-validate: daterange
@@ -71,7 +67,6 @@
         :storage_location: column
         :editor:
           :type: quillEditor
-          :sorting: 3
           :options:
             :data-size: basic
       :image:
@@ -81,7 +76,6 @@
         :storage_type: array
         :storage_location: metadata
         :editor:
-          :sorting: 4
           :type: objectBrowser
           :options:
             :data-validate: media
@@ -95,7 +89,6 @@
           :format: url
         :editor:
           :type: input
-          :sorting: 5
       :location:
         :label: Veranstaltungsort
         :type: object
@@ -105,7 +98,6 @@
         :validations:
           :max: 1
         :editor:
-          :sorting: 6
           :type: objectBrowser
           :options:
             :data-validate: object
@@ -117,23 +109,6 @@
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Veranstaltungstermin"
-      :creator:
-        :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
-      :date_created:
-        :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
-      :date_modified:
-        :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+      :meta_data:
+        :type: mixin
+        :name: meta_data
