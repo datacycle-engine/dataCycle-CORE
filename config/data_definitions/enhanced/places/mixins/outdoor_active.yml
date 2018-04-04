@@ -7,7 +7,7 @@
         :label: Autor
         :type: string
         :storage_type: string
-        :storage_location: metadata
+        :storage_location: content
         :editor:
           :type: input
       :price:
