@@ -11,8 +11,7 @@ set :puma_workers, 1
 set :puma_preload_app, true
 set :puma_init_active_record, true
 set :puma_worker_killer, true
-
-append :rvm_map_bins, 'puma', 'pumactl'
+set :puma_restart_command, 'bundle exec puma'
 
 # Default value for :format is :airbrussh.
 # set :format, :airbrussh
