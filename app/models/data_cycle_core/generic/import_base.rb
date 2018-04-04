@@ -5,6 +5,8 @@ module DataCycleCore
 
       def import_classifications(type, tree_name, load_root_classifications, load_child_classifications,
                                  load_parent_classification_alias, extract_data, **options)
+        raise ArgumentError('tree_name cannot be blank') if tree_name.blank?
+
         around_import(type, **options) do |locale|
           phase_name = type.collection_name
 
