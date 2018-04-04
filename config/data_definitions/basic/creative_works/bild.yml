@@ -22,49 +22,11 @@
         :search: true
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
-      # mixin: validity_period
       :validity_period:
-        :label: Gültigkeitszeitraum
-        :type: object
-        :storage_location: metadata
-        :validations:
-          :daterange:
-            :from: valid_from
-            :to: valid_until
-        :editor:
-          :sorting: 3
-          :options:
-            :class: daterange
-        :properties:
-          :valid_from:
-            :label: Gültigkeit
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: tt.mm.jjjj
-          :valid_until:
-            :label: bis
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: tt.mm.jjjj
+        :type: mixin
+        :name: validity_period
       :caption:
         :label: Alt-Label
         :type: string
@@ -72,7 +34,6 @@
         :storage_location: content
         :search: true
         :editor:
-          :sorting: 4
           :type: input
       :description:
         :label: Beschreibung
@@ -82,7 +43,6 @@
         :search: true
         :editor:
           :type: quillEditor
-          :sorting: 5
           :options:
             :data-size: basic
       :content_url:
@@ -94,7 +54,6 @@
           :format: url
         :editor:
           :type: input
-          :sorting: 6
           :options:
             :data-validate: text
       :thumbnail_url:
@@ -106,7 +65,6 @@
           :format: url
         :editor:
           :type: image
-          :sorting: 7
       :url:
         :label: Inhalt URL
         :type: string
@@ -116,7 +74,6 @@
           :format: url
         :editor:
           :type: input
-          :sorting: 8
           :options:
             :data-validate: text
       :asset:
@@ -126,7 +83,6 @@
         :storage_location: asset_relation
         :editor:
           :type: imageAsset
-          :sorting: 9
       :photographer:
         :label: Fotograf
         :type: string
@@ -135,7 +91,6 @@
         :search: true
         :editor:
           :type: input
-          :sorting: 10
       :license:
         :label: Copyright / Lizenz
         :type: string
@@ -144,7 +99,6 @@
         :search: true
         :editor:
           :type: input
-          :sorting: 11
       :content_location:
         :label: Ort
         :type: object
@@ -152,7 +106,6 @@
         :name: Örtlichkeit
         :editor:
           :type: objectBrowser
-          :sorting: 12
       :width:
         :label: Breite
         :type: number
@@ -162,7 +115,6 @@
           :format: integer
         :editor:
           :type: input
-          :sorting: 13
       :height:
         :label: Höhe
         :type: number
@@ -172,7 +124,6 @@
           :format: integer
         :editor:
           :type: input
-          :sorting: 14
       :content_size:
         :label: Dateigröße
         :type: number
@@ -182,7 +133,6 @@
           :format: integer
         :editor:
           :type: input
-          :sorting: 15
       :file_format:
         :label: Dateiformat
         :type: string
@@ -190,48 +140,18 @@
         :storage_location: metadata
         :editor:
           :type: input
-          :sorting: 16
+      :tags:
+        :type: mixin
+        :name: tags
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Bild"
-      # mixin: content_classifications
-      :topic:
-        :label: Themenbereiche
-        :type: classificationTreeLabel
-        :type_name: Themenbereiche
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
-          :sorting: 80
-      :output_channel:
-        :label: Ausgabekanal
-        :type: classificationTreeLabel
-        :type_name: Ausgabekanäle
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
-          :sorting: 81
-      # mixin: meta_data
-      :creator:
-        :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
-      :date_created:
-        :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
-      :date_modified:
-        :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data

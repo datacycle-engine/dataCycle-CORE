@@ -72,7 +72,8 @@
     "select2": "4.0.3",
     "turbolinks": "5.0.3",
     "vinyl-source-stream": "1.1.0",
-    "watchify": "3.9.0"
+    "watchify": "3.9.0",
+    "yarn": "^1.5.1"
   },
   "devDependencies": {
     "cypress": "^1.4.2"

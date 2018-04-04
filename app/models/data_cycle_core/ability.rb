@@ -58,14 +58,15 @@ module DataCycleCore
           end
 
           can :crud, [DataCycleCore::CreativeWork, DataCycleCore::Event, DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::Place] do |data_object|
-            data_object&.schema&.dig('permissions', 'read_write') != false
+            # data_object&.schema&.dig('permissions', 'read_write') != false
+            data_object.try(:external_key).blank? || data_object&.schema&.dig('features', 'overlay').present?
           end
 
           can [:set_role, :set_user_groups], DataCycleCore::User do |the_user|
             !the_user.has_rank?(user.role.rank) || user == the_user
           end
           can :destroy, [DataCycleCore::CreativeWork, DataCycleCore::Event, DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::Place] do |data_object|
-            data_object&.schema&.dig('permissions', 'read_write') != false && data_object.try(:external_key).nil?
+            data_object.try(:external_key).blank?
           end
 
           can :set_life_cycle, DataCycleCore::CreativeWork
@@ -77,7 +78,11 @@ module DataCycleCore
         can :manage, :dash_board if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)
 
         can :edit, DataCycleCore::DataAttribute do |attribute|
-          !attribute.options['readonly']
+          # !attribute.options['readonly']
+          (
+            attribute.content.try(:external_key).blank? ||
+            (attribute.content&.schema&.dig('features', 'overlay').present? && attribute.content.schema.dig('features', 'overlay').include?(attribute.key.split('[').last[0...-1]))
+          )
         end
 
         unless user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/

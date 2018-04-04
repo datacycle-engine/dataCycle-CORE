@@ -7,12 +7,12 @@
     <div class="content-object-item" id="<%= sanitize_to_id(key) %>_item_<%= index %>">
       <span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.template_name.downcase %> <%= definition['label'] %></span>
 
-      <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
+      <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, internal_template)) %>
         <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
       <% end %>
 
       <% validation_properties.each do |o_key, o_prop| %>
-        <%= render_attribute_editor key: "#{key}[#{index}][#{o_key}]", definition: o_prop, value: nil, parameters: { options: o_prop.dig('editor', 'options') || {} } %>
+        <%= render_attribute_editor key: "#{key}[#{index}][#{o_key}]", definition: o_prop, value: nil, parameters: { options: o_prop.dig('editor', 'options') || {}, content: internal_template } %>
       <% end %>
     </div>
   <% end %>

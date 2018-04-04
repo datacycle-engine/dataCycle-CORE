@@ -25,6 +25,7 @@ module DataCycleCore::Generic::Feratel::ImportDataOwners
   end
 
   def extract_data(raw_data)
+    return {} if raw_data['Id'].blank?
     {
       external_id: "OWNER:#{Digest::MD5.hexdigest(raw_data['Id'])}",
       name: raw_data['Name']

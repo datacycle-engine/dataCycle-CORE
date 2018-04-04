@@ -33,9 +33,10 @@ module DataCycleCore
     end
 
     def classification_tree_definitions
-      schema['properties'].select { |_, definition|
-        definition['type'] == 'classificationTreeLabel' && definition['editor']
+      schema['properties'].select { |name, definition|
+        definition['type'] == 'classificationTreeLabel' && !DataCycleCore.internal_data_attributes.include?(name)
       }.map { |key, definition|
+        definition['editor'] ||= { 'sorting' => 0 }
         { key: key }.merge(definition)
       }.sort do |d1, d2|
         d1['editor']['sorting'] <=> d2['editor']['sorting']

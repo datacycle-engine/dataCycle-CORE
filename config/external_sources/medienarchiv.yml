@@ -39,6 +39,7 @@ config:
       source_type: images
       import_strategy: DataCycleCore::Generic::MediaArchive::Import
       data_template: Bild
+      place_template: contentLocation
       target_type: DataCycleCore::CreativeWork
       logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     videos:
@@ -46,6 +47,7 @@ config:
       source_type: videos
       import_strategy: DataCycleCore::Generic::MediaArchive::Import
       data_template: Video
+      place_template: contentLocation      
       target_type: DataCycleCore::CreativeWork
       logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     # documents:

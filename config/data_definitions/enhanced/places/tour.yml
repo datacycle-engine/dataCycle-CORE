@@ -2,9 +2,10 @@
 - :data:
     :name: Tour
     :type: object
+    :content_type: entity
     :permissions:
       :read_write: true
-    :boost: 10.0
+    :boost: 100.0
     :properties:
       :id:
         :label: id
@@ -23,7 +24,6 @@
           :minLength: 1
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
       :description:
@@ -33,9 +33,7 @@
         :storage_location: column
         :search: true
         :editor:
-          :sorting: 8
-          :options:
-            :readonly: true
+          :type: input
       :text:
         :label: Text
         :type: string
@@ -44,7 +42,6 @@
         :search: true
         :editor:
           :type: quillEditor
-          :sorting: 9
           :options:
             :data-size: basic
       :primary_image:
@@ -57,7 +54,6 @@
           :max: 1
         :editor:
           :type: objectBrowser
-          :sorting: 10
           :options:
             :data-validate: media
             :data-type: image
@@ -69,116 +65,25 @@
         :storage_location: metadata
         :editor:
           :type: objectBrowser
-          :sorting: 11
           :options:
             :data-validate: media
             :data-type: image
-      # mixin: Outdoor Active
-      :author:
-        :label: Autor
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :editor:
-          :sorting: 17
-          :type: input
-      :price:
-        :label: Preis
-        :type: string
-        :storage_type: string
-        :storage_location: content
-        :editor:
-          :sorting: 18
-      :directions:
-        :label: Anfahrtsbeschreibung
-        :type: string
-        :storage_type: string
-        :storage_location: content
-        :search: true
-        :editor:
-          :sorting: 19
-          :type: input
-      :parking:
-        :label: Parkmöglichkeit
-        :type: string
-        :storage_type: string
-        :storage_location: content
-        :search: true
-        :editor:
-          :sorting: 20
-          :type: input
-      :elevation:
-        :label: Meereshöhe
-        :type: number
-        :storage_type: number
-        :storage_location: column
-        :validations:
-          :format: float
-        :editor:
-          :sorting: 21
-          :type: input
-      :hours_available:
-        :label: Service-Zeiten
-        :type: string
-        :storage_type: string
-        :storage_location: content
-        :editor:
-          :sorting: 22
-          :type: input
-      # mixin Outdoor Active Categories
-      :frontend_type:
-        :label: Frontend-Typ
-        :type: classificationTreeLabel
-        :type_name: OutdoorActive - FrontendTypes
-        :storage_location: classification_relation
-        :editor:
-          :sorting: 30
-          :options:
-            :readonly: true
-      :categories:
-        :label: Kategorien
-        :type: classificationTreeLabel
-        :type_name: OutdoorActive - Kategorien
-        :storage_location: classification_relation
-        :editor:
-          :sorting: 31
-      :regions:
-        :label: Regionen
-        :type: classificationTreeLabel
-        :type_name: OutdoorActive - Regionen
-        :storage_location: classification_relation
-        :editor:
-          :sorting: 32
-          :options:
-            :readonly: true
-      :source:
-        :label: Quelle
-        :type: classificationTreeLabel
-        :type_name: OutdoorActive - Quellen
-        :storage_location: classification_relation
-        :editor:
-          :sorting: 33
-          :options:
-            :readonly: true
-      # minxin: Outdoor Active Tour
+      :outdoor_active:
+        :type: mixin
+        :name: outdoor_active
+      :outdoor_active_categories:
+        :type: mixin
+        :name: outdoor_active_categories
       :start_location:
         :label: Startkoordinaten
         :type: geographic
         :storage_type: geographic
         :storage_location: metadata
-        :editor:
-          :sorting: 50
-          :options:
-            :disabled: disabled
       :tour:
         :label: Route
         :type: geographic
         :storage_type: geographic
         :storage_location: metadata
-        :editor:
-          :sorting: 51
-          :options:
-            :disabled: disabled
       :directions_public_transport:
         :label: Anfahrt mit öffentlichen Verkehrsmitteln
         :type: string
@@ -186,7 +91,6 @@
         :storage_location: content
         :search: true
         :editor:
-          :sorting: 52
           :type: input
       :instructions:
         :label: Wegbeschreibung
@@ -195,7 +99,6 @@
         :storage_location: content
         :search: true
         :editor:
-          :sorting: 53
           :type: input
       :safety_instructions:
         :label: Sicherheitshinweis
@@ -204,7 +107,6 @@
         :storage_location: content
         :search: true
         :editor:
-          :sorting: 54
           :type: input
       :equipment:
         :label: Ausrüstung
@@ -213,7 +115,6 @@
         :storage_location: content
         :search: true
         :editor:
-          :sorting: 55
           :type: input
       :suggestion:
         :label: Tipps
@@ -222,7 +123,6 @@
         :storage_location: content
         :search: true
         :editor:
-          :sorting: 56
           :type: input
       :additional_information:
         :label: Zusatzinformation
@@ -231,7 +131,6 @@
         :storage_location: content
         :search: true
         :editor:
-          :sorting: 57
           :type: input
       :ascent:
         :label: Aufstieg (m)
@@ -239,7 +138,6 @@
         :storage_type: number
         :storage_location: metadata
         :editor:
-          :sorting: 58
           :type: input
       :descent:
         :label: Abstieg (m)
@@ -247,7 +145,6 @@
         :storage_type: number
         :storage_location: metadata
         :editor:
-          :sorting: 59
           :type: input
       :min_altitude:
         :label: Minimale Seehöhe (m)
@@ -255,7 +152,6 @@
         :storage_type: number
         :storage_location: metadata
         :editor:
-          :sorting: 60
           :type: input
       :max_altitude:
         :label: Maximale Seehöhe (m)
@@ -263,7 +159,6 @@
         :storage_type: number
         :storage_location: metadata
         :editor:
-          :sorting: 61
           :type: input
       :length:
         :label: Länge (m)
@@ -271,7 +166,6 @@
         :storage_type: number
         :storage_location: metadata
         :editor:
-          :sorting: 62
           :type: input
       :duration:
         :label: Dauer (min)
@@ -279,7 +173,6 @@
         :storage_type: number
         :storage_location: metadata
         :editor:
-          :sorting: 63
           :type: input
       :condition_rating:
         :label: Bewertung - Kondition
@@ -287,7 +180,6 @@
         :storage_type: number
         :storage_location: metadata
         :editor:
-          :sorting: 64
           :type: input
       :difficulty_rating:
         :label: Bewertung - Schwierigkeit
@@ -295,7 +187,6 @@
         :storage_type: number
         :storage_location: metadata
         :editor:
-          :sorting: 65
           :type: input
       :experience_rating:
         :label: Bewertung - Erlebnis
@@ -303,7 +194,6 @@
         :storage_type: number
         :storage_location: metadata
         :editor:
-          :sorting: 66
           :type: input
       :landscape_rating:
         :label: Bewertung - Landschaft
@@ -311,7 +201,6 @@
         :storage_type: number
         :storage_location: metadata
         :editor:
-          :sorting: 67
           :type: input
       :data_type:
         :label: Inhaltstype
@@ -319,33 +208,9 @@
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Tour"
-      # mixin: content_classifications
-      :output_channel:
-        :label: Ausgabekanal
-        :type: classificationTreeLabel
-        :type_name: Ausgabekanäle
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
-          :sorting: 80
-      # mixin: meta_data
-      :creator:
-        :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
-      :date_created:
-        :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
-      :date_modified:
-        :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data

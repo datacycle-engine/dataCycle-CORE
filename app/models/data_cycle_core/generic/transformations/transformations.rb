@@ -3,21 +3,21 @@ module DataCycleCore::Generic::Transformations::Transformations
     DataCycleCore::Generic::Transformations::Functions[*args]
   end
 
-  def self.media_archive_to_video
+  def self.media_archive_to_video(external_source_id)
     t(:stringify_keys)
     .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
     .>> t(:underscore_keys)
-    .>> t(:tags_to_ids, 'keywords', 'MediaArchive - Tags')
+    .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
     .>> t(:copy_keys, 'url' => 'external_key')
     .>> t(:map_value, 'external_key', ->s { s.split('/').last })
     .>> t(:strip_all)
   end
 
-  def self.media_archive_to_bild
+  def self.media_archive_to_bild(external_source_id)
     t(:stringify_keys)
     .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
     .>> t(:underscore_keys)
-    .>> t(:tags_to_ids, 'keywords', 'MediaArchive - Tags')
+    .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
     .>> t(:copy_keys, 'url' => 'external_key')
     .>> t(:map_value, 'external_key', ->s { s.split('/').last })
     .>> t(:strip_all)
@@ -34,32 +34,34 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:strip_all)
   end
 
-  def self.media_archive_v2_to_bild
+  def self.media_archive_v2_to_bild(external_source_id)
     t(:stringify_keys)
     .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
     .>> t(:underscore_keys)
-    .>> t(:tags_to_ids, 'keywords', 'MediaArchive - Tags')
+    .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
     .>> t(:copy_keys, 'url' => 'external_key')
     .>> t(:map_value, 'external_key', ->s { s.split('/').last })
     .>> t(:unwrap, 'validity_period', ['date_published', 'expires'])
     .>> t(:rename_keys,
           'date_published' => 'valid_from',
-          'expires' => 'valid_until')
+          'expires' => 'valid_until',
+          'keywords' => 'keywords_medienarchive')
     .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
     .>> t(:strip_all)
   end
 
-  def self.media_archive_v2_to_video
+  def self.media_archive_v2_to_video(external_source_id)
     t(:stringify_keys)
       .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
       .>> t(:underscore_keys)
-      .>> t(:tags_to_ids, 'keywords', 'MediaArchive - Tags')
+      .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
       .>> t(:copy_keys, 'url' => 'external_key')
       .>> t(:map_value, 'external_key', ->s { s.split('/').last })
       .>> t(:unwrap, 'validity_period', ['date_published', 'expires'])
       .>> t(:rename_keys,
             'date_published' => 'valid_from',
-            'expires' => 'valid_until')
+            'expires' => 'valid_until',
+            'keywords' => 'keywords_medienarchive')
       .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
       .>> t(:strip_all)
   end
@@ -84,7 +86,7 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:compact)
   end
 
-  def self.eyebase_to_bild
+  def self.eyebase_to_bild(external_source_id)
     t(:stringify_keys)
     .>> t(:reject_keys, ['quality_256', 'quality_1024', 'picturepins', 'ordnerstruktur'])
     .>> t(:unwrap, 'quality_1', ['resolution_x', 'resolution_y', 'size_mb'])
@@ -101,12 +103,12 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:map_value, 'width', ->s { s.to_i })
     .>> t(:map_value, 'height', ->s { s.to_i })
     .>> t(:add_field, 'content_url',
-      ->s { File.join(ActionMailer::Base.default_url_options[:host], 'eyebase', 'media_assets', 'files', s['quality_1']['filename']) rescue nil })
+      ->s { File.join("#{ActionMailer::Base.default_url_options[:protocol]}://#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', s['quality_1']['filename']) rescue nil })
     .>> t(:add_field, 'thumbnail_url',
-      ->s { File.join(ActionMailer::Base.default_url_options[:host], 'eyebase', 'media_assets', 'files', s['quality_512']['filename']) rescue nil })
-    .>> t(:add_field, 'keywords',
+      ->s { File.join("#{ActionMailer::Base.default_url_options[:protocol]}://#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', s['quality_512']['filename']) rescue nil })
+    .>> t(:add_field, 'keywords_eyebase',
       ->s { [s['field_204'].try(:split, ','), s['field_215'].try(:split, ',')].flatten.reject(&:nil?).map(&:strip).uniq || [] })
-    .>> t(:tags_to_ids, 'keywords', 'Tags')
+    .>> t(:tags_to_ids, 'keywords_eyebase', external_source_id, 'Eyebase - Tag - ')
     .>> t(:reject_keys, ['quality_1', 'quality_512'])
     .>> t(:compact)
     .>> t(:strip_all)
@@ -117,13 +119,13 @@ module DataCycleCore::Generic::Transformations::Transformations
       ->s { [s['field_204'].try(:split, ','), s['field_215'].try(:split, ',')].flatten.reject(&:nil?).map(&:strip).uniq || [] })
   end
 
-  def self.xamoom_to_poi
+  def self.xamoom_to_poi(external_source_id)
     t(:stringify_keys)
     .>> t(:rename_keys, { 'position-latitude' => 'latitude', 'position-longitude' => 'longitude' })
     .>> t(:map_value, 'latitude', ->s { s.to_f })
     .>> t(:map_value, 'longitude', ->s { s.to_f })
     .>> t(:location)
-    .>> t(:tags_to_ids, 'tags', 'Xamoom - Tags')
+    .>> t(:tags_to_ids, 'tags', external_source_id, 'Xamoom - tag - ')
     .>> t(:rename_keys, { 'tags' => 'xamoom_tags' })
     .>> t(:strip_all)
   end
@@ -131,7 +133,6 @@ module DataCycleCore::Generic::Transformations::Transformations
   def self.xamoom_to_image
     t(:stringify_keys)
     .>> t(:rename_keys, { 'name' => 'headline', 'image' => 'thumbnail_url' })
-    .>> t(:add_field, 'data_type', ->_s { nil })
     .>> t(:reject_keys, ['description', 'tags', 'position-longitude', 'position-latitude'])
     .>> t(:strip_all)
   end
@@ -259,17 +260,16 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:strip_all)
   end
 
-  def self.event_database_item_to_event
+  def self.event_database_item_to_event(external_source_id)
     t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
     .>> t(:reject_keys, ['@context', '@type', 'image', 'subEvents', 'allDay', 'location', 'categories'])
     .>> t(:underscore_keys).
     # >> t(:map_value, 'infos', -> s {s.try(:join, ', ')}).
     >> t(:rename_keys,
       'id' => 'external_key',
-      'tags' => 'tag',
-      'name' => 'headline')
+      'tags' => 'event_tag')
     .>> t(:nest, 'event_period', ['start_date', 'end_date'])
-    .>> t(:tags_to_ids, 'tag', 'Veranstaltungsdatenbank - Tag')
+    .>> t(:tags_to_ids, 'event_tag', external_source_id, 'Veranstaltungsdatenbank - tags - ')
     .>> t(:compact)
     .>> t(:strip_all)
   end

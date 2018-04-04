@@ -1,16 +1,19 @@
 module DataCycleCore::Generic::EventDatabase::ImportEvents
   def import_data(**options)
-    @image_template = options[:import][:image_template] || 'Bild'
+    @image_template = options&.dig(:import, :image_template) || 'Bild'
+    @place_template = options&.dig(:import, :place_template) || 'Veranstaltungsort'
     load_transformations
-    import_contents(@source_type,
-                    @target_type,
-                    method(:load_contents).to_proc,
-                    method(:process_content).to_proc,
-                    **options)
+    import_contents(
+      @source_type,
+      @target_type,
+      method(:load_contents).to_proc,
+      method(:process_content).to_proc,
+      **options
+    )
   end
 
   def load_transformations
-    @event_transformation = DataCycleCore::Generic::Transformations::Transformations.event_database_item_to_event
+    @event_transformation = DataCycleCore::Generic::Transformations::Transformations.event_database_item_to_event(external_source.id)
     @sub_event_transformation = DataCycleCore::Generic::Transformations::Transformations.event_database_sub_item_to_sub_event
     @event_location_transformation = DataCycleCore::Generic::Transformations::Transformations.event_database_location_to_content_location
   end
@@ -27,15 +30,15 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
         image = create_or_update_content(
           DataCycleCore::CreativeWork,
           load_template(DataCycleCore::CreativeWork, @image_template),
-          extract_event_image_data(raw_data.dig('image'), raw_data['name']).with_indifferent_access
+          merge_default_values(:image, extract_event_image_data(raw_data.dig('image'), raw_data['name'])).with_indifferent_access
         )
       end
 
       unless raw_data.dig('location').nil?
         content_location = create_or_update_content(
           DataCycleCore::Place,
-          load_template(DataCycleCore::Place, 'Veranstaltungsort'),
-          extract_content_location_data(raw_data['location'])
+          load_template(DataCycleCore::Place, @place_template),
+          merge_default_values(:place, extract_content_location_data(raw_data['location'])).with_indifferent_access
         )
       end
 
@@ -43,15 +46,14 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
         DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "CATEGORY:#{category.try(:[], 'id')}")
       }.reject(&:nil?)
 
-      tags = raw_data['tags'] || []
-      tags.each { |item| import_classification({ name: item, external_id: "Veranstaltungsdatenbank - tags - #{item}", tree_name: 'Veranstaltungsdatenbank - Tag' }) }
-
       sub_events = raw_data.dig('subEvents').nil? ? {} : extract_sub_event_data(raw_data['subEvents'])
 
-      event_data = extract_event_data(raw_data)
+      event_default_values = {}
+      event_default_values = load_default_values(@options.dig(:import, :default_values, :event)) if @options.dig(:import, :default_values, :event).present?
+      event_data = merge_default_values(:event, extract_event_data(raw_data)).with_indifferent_access
 
       event_data['content_location'] = [{ 'id' => content_location.try(:id) }] unless content_location.blank?
-      event_data['category'] = categories.map(&:id) unless categories.blank?
+      event_data['event_category'] = categories.map(&:id) unless categories.blank?
       event_data['image'] = [image.try(:id)] unless image.blank?
       event_data['sub_event'] = sub_events unless sub_events.blank?
 
@@ -68,12 +70,11 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
       unless sub_event.dig('location').nil?
         content_location = create_or_update_content(
           DataCycleCore::Place,
-          load_template(DataCycleCore::Place, 'Veranstaltungsort'),
-          extract_content_location_data(sub_event['location'])
+          load_template(DataCycleCore::Place, @place_template),
+          merge_default_values(:place, extract_content_location_data(sub_event['location']))
         )
       end
-
-      item = @sub_event_transformation.call(sub_event)
+      item = merge_default_values(:subevent, @sub_event_transformation.call(sub_event))
       item.merge!({ 'content_location' => [{ 'id' => content_location.try(:id) }] }) unless content_location.blank?
     end
   end
