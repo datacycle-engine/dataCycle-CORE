@@ -1,7 +1,7 @@
 <span class="created-at">
   <% if content.is_history? %>
     <%= t('history.updated_at', locale: DataCycleCore.ui_language) %>
-    <strong><%= Time.zone.at(I18n.with_locale(content.first_available_locale){content.history_valid.last}).to_s(:german_datetime_format)%></strong>
+    <strong><%= Time.zone.at(I18n.with_locale(content.first_available_locale){content.history_valid&.first})&.to_s(:german_datetime_format)%></strong>
   <% else %>
     <%= t('history.valid_since', locale: DataCycleCore.ui_language) %>
     <strong><%= Time.zone.at(content.updated_at).to_s(:german_datetime_format)%></strong>

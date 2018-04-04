@@ -1,2 +1,2 @@
 $('a[data-toggle="watch-lists-<%= @content_object.id %>"] > .fa').removeClass('fa-bookmark-o').addClass('fa-bookmark');
-$('#content-<%= @content_object.id %>-watch-list-<%= @watch_list.id %>').replaceWith('<%= escape_javascript(render 'data_cycle_core/application/watch_lists/remove_link', content: @content_object, watchlist: @watch_list) %>');
+$('#content-<%= @content_object.id %>-watch-list-<%= @watch_list.id %>').replaceWith('<%= escape_javascript(render 'data_cycle_core/application/watch_lists/edit_link', content: @content_object, watch_list: @watch_list) %>');

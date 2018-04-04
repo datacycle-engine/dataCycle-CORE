@@ -12,7 +12,7 @@ Rails.application.configure do
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
-  config.cache_classes = false
+  config.cache_classes = true
 
   # Do not eager load code on boot.
   config.eager_load = false
@@ -62,8 +62,7 @@ Rails.application.configure do
 
   # config.web_console.whiny_requests = false
 
-  config.action_mailer.default_url_options = { host: 'localhost:3003', protocol: 'http' }
-
+  config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST') { 'localhost:3003' }, protocol: ENV.fetch('APP_PROTOCOL') { 'http' } }
   # Bullet configuration
   # config.after_initialize do
   #   Bullet.enable = false

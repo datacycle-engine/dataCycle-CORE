@@ -3,6 +3,7 @@
     :name: SocialMediaPosting
     :type: object
     :content_type: entity
+    :releasable: true
     :permissions:
       :read_write: true
     :boost: 100.0
@@ -24,9 +25,11 @@
           :minLength: 1
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
+      :validity_period:
+        :type: mixin
+        :name: validity_period
       :text:
         :label: Text
         :type: string
@@ -35,7 +38,6 @@
         :search: true
         :editor:
           :type: quillEditor
-          :sorting: 3
           :options:
             :data-size: basic
       :image:
@@ -45,7 +47,6 @@
         :storage_type: array
         :storage_location: metadata
         :editor:
-          :sorting: 4
           :type: objectBrowser
           :options:
             :data-validate: media
@@ -58,7 +59,6 @@
 #        :storage_location: metadata
 #        :releasable: true
 #        :editor:
-#          :sorting: 5
 #          :options:
 #            :data-validate: media
 #            :data-type: video
@@ -68,95 +68,30 @@
         :storage_type: string
         :storage_location: content
         :search: true
+        :validations:
+          :format: url
         :editor:
           :type: input
-          :sorting: 6
       :content_location:
         :label: Ort
         :type: object
         :storage_location: places
-        :name: Ort
+        :name: Örtlichkeit
         :delete: false
         :editor:
-          :sorting: 7
           :type: objectBrowser
           :options:
             :data-validate: object
             :data-type: place
-      :thema:
-        :label: Thema
-        :type: classificationTreeLabel
-        :type_name: Thema
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
-          :sorting: 8
-          :options:
-            :tabindex: -1
-      #meta attributes
-      :validity_period:
-        :label: Gültigkeitszeitraum
-        :type: object
-        :storage_location: metadata
-        :validations:
-          :daterange:
-            :from: valid_from
-            :to: valid_until
-        :editor:
-          :sorting: 99
-          :options:
-            :class: daterange
-            :tabindex: -1
-        :properties:
-          :valid_from:
-            :label: Gültigkeit
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: tt.mm.jjjj
-          :valid_until:
-            :label: bis
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: tt.mm.jjjj
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Social Media Posting"
-      :creator:
-        :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
-      :date_created:
-        :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
-      :date_modified:
-        :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data

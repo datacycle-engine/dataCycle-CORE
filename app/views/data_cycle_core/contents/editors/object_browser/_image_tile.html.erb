@@ -6,11 +6,15 @@
     <span data-tooltip aria-haspopup="true" class="has-tip warning" data-disable-hover="false" tabindex="1" title="Einschränkungen: <%= object.try(:restrictions) %>"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
   <% end %>
 
+  <% unless object.is_valid %>
+    <span class="expired-item-overlay"><%= t('common.expired_content', locale: DataCycleCore.ui_language) %></span>
+  <% end %>
+
   <% if object.try(:title) %>
     <div class="description"><%= object.try(:title) %></div>
   <% end %>
 
-  <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
+  <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, object)) %>
     <span class="delete-thumbnail"><i aria-hidden="true" class="fa fa-times"></i></span>
   <% end %>
 

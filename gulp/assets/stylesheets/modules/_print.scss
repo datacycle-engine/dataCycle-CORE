@@ -10,13 +10,13 @@
   /* fix end */
 
   @page {
-    margin: 3mm;
+    margin: 0 10mm 10mm;
   }
   body{
     background: #fff;
     line-height: 2;
     border-top: none;
-    //margin: 16mm;
+    margin: 10mm 0 0;
     font-size: 16px;
   }
   .column, .columns{
@@ -78,6 +78,7 @@
           position: absolute;
           width: 100%;
           font-weight: bold;
+          -webkit-print-color-adjust: exact;
           color: #6f6f6f !important;
         }
       }
@@ -89,8 +90,11 @@
   .breadcrumb{
     padding: 0;
     height: auto;
-    li, ul li .breadcrumb-text i.fa{
-      font-size: 0.9rem;
+    li, ul li .breadcrumb-text {
+      max-width: none;
+      i.fa{
+        font-size: 0.9rem;
+      }
     }
   }
   .fa{
@@ -121,7 +125,7 @@
       left: 0.5rem;
       text-align: left;
     }
-    .gueltigkeit{
+    .validity_period {
       font-size: 0.9rem;
       margin: 0 0.5rem;
     }

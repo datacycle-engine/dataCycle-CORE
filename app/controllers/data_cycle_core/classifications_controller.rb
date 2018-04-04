@@ -19,12 +19,16 @@ module DataCycleCore
             @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
             @classification_trees = @classification_tree_label.classification_trees.accessible_by(current_ability)
               .where(parent_classification_alias: nil)
-              .order(:created_at)
+              .order(:created_at).page(params[:page])
+            @page = @classification_trees.current_page
+            @total_pages = @classification_trees.total_pages
           elsif permitted_params.include?(:classification_tree_id)
             @classification_tree = DataCycleCore::ClassificationTree.find(params[:classification_tree_id])
             @classification_tree_label = @classification_tree.classification_tree_label
             @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees.accessible_by(current_ability)
-              .order(:created_at)
+              .order(:created_at).page(params[:page])
+            @page = @classification_trees.current_page
+            @total_pages = @classification_trees.total_pages
           else
             raise 'Missing parameter; either classification_tree_label_id or classification_tree_id must be provided'
           end
@@ -35,19 +39,30 @@ module DataCycleCore
     def search
       permitted_params = params.permit(:q, :max, :tree_label)
 
-      render json: DataCycleCore::Classification
+      classifications = DataCycleCore::Classification
         .includes(:classification_groups, :classification_aliases)
         .joins(classification_aliases: [classification_tree: [:classification_tree_label]])
         .where('classification_tree_labels.name ILIKE ?', params[:tree_label].presence || '%')
         .where('classifications.name ILIKE ?', "%#{params[:q]}%")
-        .limit(params[:max].try(:to_i) || 10).map(&:descendants).flatten.map { |c|
+
+      if classifications.count < (params[:max].try(:to_i) || 20)
+        classifications.map(&:descendants).flatten
+      end
+
+      render json: classifications
+        .map { |c|
           {
             id: c.id,
             name: c.name,
-            path: c.ancestors.reverse.map(&:name).join(' > '),
+            title: c.ancestors.reverse.map(&:name).join(' > '),
             disabled: !c.primary_classification_alias.try(:assignable)
           }
-        }.uniq.first(params[:max].try(:to_i) || 10).sort_by { |c| c[:path] }
+        }.uniq.sort_by { |c|
+          [
+            -1 * c[:title].scan(/#{params[:q]}/i).count,
+            c[:title][c[:title].rindex(/#{params[:q]}/i)..-1].scan(' > ').count
+          ] + c[:title].split('').map(&:ord)
+        }.first(params[:max].try(:to_i) || 20)
     end
 
     def create

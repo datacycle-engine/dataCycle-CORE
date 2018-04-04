@@ -3,7 +3,6 @@ body {
   border-top: 0.3rem solid $customercolor;
 }
 
-
 /* Headings */
 
 h2 {
@@ -18,10 +17,13 @@ h2 {
   }
 }
 
+a {
+  outline: none;
+}
+
 h5 {
   color: $dark-gray;
 }
-
 
 /* Forms */
 
@@ -160,6 +162,9 @@ button,
     text-align: center;
     position: relative;
   }
+  >.title {
+    padding: 0 5rem 1rem 5rem;
+  }
   .button-prime {
     display: inline-block;
   }
@@ -209,22 +214,20 @@ button,
         content: "\f02e";
       }
     }
-  } //.tags, .gueltigkeit {
-  .gueltigkeit {
+  } //.tags {
+  .validity_period {
     text-align: left;
     margin: 1rem 0 0 1rem;
-    .icon {
-      color: $dark-gray;
+    color: $dark-gray;
+    .date {
+      color: $black;
     }
   }
   .daterange span.bis,
-  .daterange span.icon,
-  .gueltigkeit span.bis,
-  .gueltigkeit span.icon {
+  .daterange span.icon {
     color: $dark-gray;
   }
-  .daterange span.bis,
-  .gueltigkeit span.bis {
+  .daterange span.bis {
     font-style: italic;
   }
   .daterange {
@@ -571,6 +574,9 @@ span.single_error:before,
       border-width: 50px 60px 50px 0;
       border-color: transparent #ffffff transparent transparent;
     }
+    .detail-type.object_browser{
+      position: relative;
+    }
   }
   hr {
     padding: 1rem 0;
@@ -702,7 +708,6 @@ body .v-select {
   text-align: center;
 }
 
-
 /* Sortierung, Viewtype Startseite */
 
 .view-icons,
@@ -740,6 +745,12 @@ body .v-select {
   }
 }
 
+.warning {
+  color: map-get($foundation-palette, alert);
+  font-style: italic;
+  display: block;
+  margin-top: 1rem;
+}
 
 /* Korrektur für Fehler im Neuen Eintrag erstellen reveal  */
 
@@ -763,7 +774,6 @@ body.login-page {
   background-color: darkgrey;
 }
 
-
 /* tabs  */
 
 .tabs {
@@ -780,7 +790,6 @@ body.login-page {
   border: 0;
   border-top: 1px solid $light-gray;
 }
-
 
 /* Animations für lazyloaded iamges */
 

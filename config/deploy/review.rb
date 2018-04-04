@@ -10,6 +10,8 @@ set :deploy_to, "/var/www/data-cycle-core/#{ENV.fetch('application', 'developmen
 set :cmd_prefix, 'app:'
 set :application_prefix, 'data-cycle-core_'
 set :application_root_path, 'test/dummy/'
+set :domain_prefix, 'core'
+set :domain, 'datacycle.at'
 
 Rake::Task['deploy:create_db'].clear_actions
 namespace :deploy do

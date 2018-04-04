@@ -5,7 +5,7 @@ module DataCycleCore
         def import_data(**options)
           import_classifications(
             @source_type,
-            "#{options.try(:[], :import).try(:[], :tree_label) || 'OutdoorActive'} - Quellen",
+            options.dig(:import, :tree_label) || 'OutdoorActive - Quellen',
             method(:load_root_classifications).to_proc,
             ->(_, _, _) { [] },
             ->(_) { nil },

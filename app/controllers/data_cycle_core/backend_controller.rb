@@ -9,15 +9,17 @@ module DataCycleCore
       if DataCycleCore.features&.dig(:autoload_last_filter) && params[:stored_filter].blank? && !params[:utf8] && current_user.stored_filters.size.positive?
         filter_id = current_user.stored_filters.order(created_at: :desc)&.first&.id
         @paginateObject = apply_filter(filter_id: filter_id).includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
+        @total = @paginateObject.total_count
         @contents = @paginateObject.map(&:content_data)
       elsif params[:stored_filter].blank?
         @contents = get_filtered_results
         @stored_filter = save_filter
       else
         @paginateObject = apply_filter(filter_id: params[:stored_filter]).includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
+        @total = @paginateObject.total_count
         @contents = @paginateObject.map(&:content_data)
       end
-
+      # TODO: remove creativeWork variable
       @creativeWork = CreativeWork.new
     end
 
