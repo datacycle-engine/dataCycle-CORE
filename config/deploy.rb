@@ -25,7 +25,7 @@ set :puma_worker_killer, true
 set :bundle_without, (['development', 'test'] - [fetch(:stage).to_s]).join(' ')
 
 # Default value for :linked_files is []
-append :linked_files, 'test/dummy/.env', 'config/puma.rb'
+append :linked_files, 'test/dummy/.env'
 
 # Default value for linked_dirs is []
 append :linked_dirs, 'log', 'node_modules', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'test/dummy/public/assets', 'test/dummy/db/backups'
