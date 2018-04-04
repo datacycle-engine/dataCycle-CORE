@@ -139,7 +139,7 @@ module DataCycleCore
         content.template_name = template.template_name
         content.save!
 
-        error = content.set_data_hash(data_hash: data, prevent_history: true)
+        error = content.set_data_hash(data_hash: content.get_data_hash.merge(data), prevent_history: true)
 
         if @logging && !error[:error].blank?
           @logging.error('Validating import data', data['external_key'], data, error[:error].join('\n'))
