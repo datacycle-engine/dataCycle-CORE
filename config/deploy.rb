@@ -12,6 +12,8 @@ set :puma_preload_app, true
 set :puma_init_active_record, true
 set :puma_worker_killer, true
 
+append :rvm_map_bins, 'puma', 'pumactl'
+
 # Default value for :format is :airbrussh.
 # set :format, :airbrussh
 
@@ -120,7 +122,6 @@ namespace :deploy do
   before 'assets:precompile', 'deploy:npm'
   after 'deploy:npm', 'deploy:gulp'
   after 'assets:precompile', 'deploy:iconfonts'
-  before 'check:linked_files', 'puma:config'
 
   before 'deploy:reverted', 'deploy:npm'
 end
