@@ -30,7 +30,7 @@ module DataCycleCore
 
         def extract_data(raw_data)
           {
-            external_id: "MediaArchive - #{options.dig(:import, :classification_attribute)} - #{raw_data['classification']}",
+            external_id: "MedienArchive - #{@options.dig(:import, :classification_attribute).singularize} - #{raw_data['classification']}",
             name: raw_data['classification']
           }
         end
