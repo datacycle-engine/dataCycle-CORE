@@ -39,7 +39,7 @@ module.exports.initialize = function () {
 
   // Validation
 
-  if ($('.edit-content-form').length > 0) {
+  if ($('.validation-form').length > 0) {
     // disable button if agbs not accepted
     $('button.submit-edit-form').prop('disabled', !check_agbs_accepted());
 
@@ -64,104 +64,65 @@ module.exports.initialize = function () {
     var promises = [];
 
     // validate on value change
-    $(form).on('change', '.validation-container', event => {
-      validate_item(form, event.currentTarget);
-      catch_promises(form, false);
-    });
+    $('.validation-form').each((index, element) => {
+      $(element).on('change', '.validation-container', event => {
+        validate_item(element, event.currentTarget);
+        catch_promises(element, false);
+      });
 
-    $(form).on('remove-submit-button-errors', '.validation-container', event => {
-      remove_submit_button_errors($(event.currentTarget));
-    })
+      $(element).on('remove-submit-button-errors', '.validation-container', event => {
+        remove_submit_button_errors($(event.currentTarget));
+      })
 
-    $(form).on('submit', function (event) {
-      event.preventDefault();
-      submit_creative_work_form(form);
-    });
-  }
-
-  if ($('.new-item form').html() != undefined) {
-    var forms = $('.new-item form');
-
-    $(document).on('open.zf.reveal', '.new-item', function (ev) {
-      $(this).find('form').on('submit', function (event, data) {
+      $(element).on('submit', event => {
         event.preventDefault();
-        // event.stopPropagation();
-        // event.stopImmediatePropagation();
-        if (data != undefined && data.object_browser) {
-          if (check_fields(this)) $(this).trigger('submit', {
-            valid: true
-          });
-        } else if (data == undefined && check_fields(this)) this.submit();
+        submit_creative_work_form(element);
       });
 
-      $(this).find('form .validation-container').each(function (e) {
-        $(this).on('change', function () {
-          $(this).closest('form').find('input[type=submit]').removeAttr('disabled');
-          $(this).find('.single_error').remove();
-          check_field(this);
+      if ($('.reveal.new-item').length) {
+        $(document).on('closed.zf.reveal', '.new-item', event => {
+          $(event.currentTarget).find('.has-error').removeClass('has-error');
+          $(event.currentTarget).find('.single_error').remove();
         });
-      });
-    });
-
-    $(document).on('closed.zf.reveal', '.new-item', function (e) {
-      $(this).find('form').off('submit');
-      $(this).find('form input[type=text]').each(function (ev) {
-        $(this).off('change');
-      });
+      }
     });
   }
 
   function catch_promises(form, submit) {
-    $.when.apply($, promises).then(function () {
+    $.when(...promises).then(function () {
       var isValid = true;
-      for (var i = 0; i < arguments.length; i++) {
-        if (arguments[i][0] != undefined && arguments[i][0].error != undefined && Object.keys(arguments[i][0].error).length > 0) {
-          isValid = false;
+      if (Array.isArray(arguments[0])) {
+        for (var i = 0; i < arguments.length; i++) {
+          if (arguments[i][0] != undefined && arguments[i][0].error != undefined && Object.keys(arguments[i][0].error).length > 0) {
+            isValid = false;
+          }
         }
-      }
+      } else if (arguments[0] != undefined && arguments[0].error != undefined && Object.keys(arguments[0].error).length > 0) isValid = false;
+
       promises = [];
       if (isValid && submit) {
         $(window).off("beforeunload");
         form.submit();
       } else if (submit) {
+        $(form).find('input[type=submit]').removeAttr('disabled');
         var first_error_offset, container;
-        var error_container = $('.single_error').first();
+        if ($(form).hasClass('edit-content-form')) {
+          var error_container = $('.single_error').first();
 
-        if ($('.split-content.edit-content').length > 0) {
-          container = $('.flex-box .edit-content');
-          first_error_offset = error_container.offset().top - container.offset().top + container.scrollTop() - 50;
-        } else {
-          container = $('html, body');
-          first_error_offset = error_container.offset().top - 100;
+          if ($('.split-content.edit-content').length > 0) {
+            container = $('.flex-box .edit-content');
+            first_error_offset = error_container.offset().top - container.offset().top + container.scrollTop() - 50;
+          } else {
+            container = $('html, body');
+            first_error_offset = error_container.offset().top - 100;
+          }
+
+          container.animate({
+            scrollTop: first_error_offset
+          }, 500);
         }
-
-        container.animate({
-          scrollTop: first_error_offset
-        }, 500);
       }
     });
-  }
-
-  function check_fields(form) {
-    var isValid = true;
-    $(form).find('.validation-container').each((idx, elem) => {
-      if (check_field(elem) == false) isValid = false;
-    });
-    return isValid;
-  }
-
-  function check_field(field) {
-    let input_field = $(field).find(':input').first();
-    if ($(input_field).val().length == 0) {
-      var data = {
-        error: {}
-      };
-      data.error[$(input_field).prop('id')] = ["Feld darf nicht leer sein"];
-      $(field).append(render_error_msg(data, field));
-      return false;
-    }
-    remove_submit_button_errors(field);
-    return true;
   }
 
   function submit_creative_work_form(form) {
@@ -173,9 +134,9 @@ module.exports.initialize = function () {
 
     var items = [];
 
-    $(form).find('.validation-container').each(function () {
-      validate_item(form, this);
-      items.push(this);
+    $(form).find('.validation-container').each((index, elem) => {
+      validate_item(form, elem);
+      items.push(elem);
     });
     catch_promises(form, true);
   }
@@ -185,12 +146,25 @@ module.exports.initialize = function () {
     $(validation_container).children('.single_error').remove();
     $(validation_container).removeClass('has-error');
 
-    let items = $(validation_container).find('[name^="' + $(validation_container).data('key') + '"]');
+    let items = [];
+    if ($(validation_container).data('key') != undefined) {
+      items = $(validation_container).find('[name^="' + $(validation_container).data('key') + '"]');
+    } else if ($(validation_container).children('label').length) {
+      items = $(validation_container).find('#' + $(validation_container).children('label').first().prop('for'));
+    }
+
     let form_data = items.serializeArray();
     let uuid = $(form).find('input#uuid').val();
-    let table = $(form).find('input#type').val();
+    let table = $(form).find('input#table').val();
+    let template = $(form).find('#template');
+    if (template.length) {
+      form_data.push({
+        name: 'template',
+        value: template.val()
+      });
+    }
 
-    let url = '/' + table + '/' + uuid + '/validate';
+    let url = '/' + table + (uuid != undefined ? '/' + uuid : '') + '/validate';
 
     promises.push($.ajax({
       type: "POST",
@@ -219,8 +193,6 @@ module.exports.initialize = function () {
 
     if ($('#' + item_id).length != 0) return '';
 
-    $('.submit-edit-form').addClass('alert');
-    $('#' + $('.submit-edit-form').data('toggle')).find('#button_' + item_id).remove();
     button_text = '<span id="button_' + item_id + '" class="tooltip-error">';
     out = "<span id='" + item_id + "' class='single_error'>";
 
@@ -240,8 +212,11 @@ module.exports.initialize = function () {
     out += "</span>";
 
     if ($(out).text().length == 0) return ''; // return if there are no errors for this container
-
-    $('#' + $('.submit-edit-form').data('toggle')).append(button_text + '</span>');
+    if ($(validation_container).closest('form').hasClass('edit-content-form')) {
+      $('.submit-edit-form').addClass('alert');
+      $('#' + $('.submit-edit-form').data('toggle')).find('#button_' + item_id).remove();
+      $('#' + $('.submit-edit-form').data('toggle')).append(button_text + '</span>');
+    }
     return out;
   }
 

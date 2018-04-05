@@ -37,9 +37,15 @@ module DataCycleCore
     end
 
     def validate
-      object_type = DataCycleCore.content_tables.find { |object| object == controller_name }
-      @object = ('DataCycleCore::' + object_type.singularize.classify).constantize.find_by(id: params[:id])
-      object_params = content_params(object_type, @object.template_name)
+      @object = ('DataCycleCore::' + controller_name.singularize.classify).constantize.find_by(id: params[:id])
+
+      if @object.blank? && params[:template].present?
+        @object = ('DataCycleCore::' + controller_name.singularize.classify).constantize.find_by(template: true, template_name: params[:template])
+      end
+
+      render json: { warning: { content: ['content/template not found'] } } && return if @object.blank?
+
+      object_params = content_params(controller_name, @object.template_name)
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @object.schema)
       valid = @object.validate(datahash)
       render json: valid.to_json

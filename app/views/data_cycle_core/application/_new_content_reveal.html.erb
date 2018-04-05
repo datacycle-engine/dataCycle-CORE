@@ -6,13 +6,14 @@
             <span class="notice"><%= t('common.no_search', locale: DataCycleCore.ui_language) %></span>
         <% end %>
 
-        <%= form_for(@creativeWork) do |f| %>
+        <%= form_for @creativeWork, html: { class: 'validation-form' } do |f| %>
+            <%= hidden_field_tag :table, :creative_works %>
             <%= hidden_field_tag 'template', reveal_template %>
             <%= hidden_field_tag "creative_work[datahash][#{DataCycleCore.features.dig(:life_cycle, :attribute_key)}][]", life_cycle_items.dig(life_cycle_name, :id) if DataCycleCore.features.dig(:life_cycle) && local_assigns.has_key?(:life_cycle_name) %>
             <%= hidden_field_tag 'parent_template', parent_template if local_assigns.has_key?(:parent_template) %>
             <div class="validation-container form-element">
                 <%= label_tag 'creative_work[datahash][headline]', 'Titel' %>
-                <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value: params[:search], disabled: params[:search].blank?, required: true %>
+                <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value: params[:search], disabled: params[:search].blank? %>
             </div>
             <% if params[:search].present? %>
                 <%= f.submit t(:submit, locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: t(:submit, locale: DataCycleCore.ui_language) } %>

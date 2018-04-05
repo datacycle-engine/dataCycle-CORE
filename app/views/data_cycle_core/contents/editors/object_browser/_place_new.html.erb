@@ -2,8 +2,9 @@
   <div class="reveal new-item" id="new_<%= new_overlay_key ||= '' %>" data-reveal data-multiple-opened="true" data-overlay="false" data-reset-on-close="true">
       <h3>Neuen Ort erstellen</h3>
 
-      <%= form_for :place, :url => {:controller => :places, :action => "create"} do |f| %>
+      <%= form_for :place, :url => {:controller => :places, :action => "create"}, html: { class: 'validation-form' } do |f| %>
 
+          <%= hidden_field_tag :table, :places %>
           <%= hidden_field_tag 'template', DataCycleCore.default_place_type %>
           <%= hidden_field_tag 'locale', I18n.locale %>
           <div class="validation-container form-element">

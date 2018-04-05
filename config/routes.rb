@@ -30,6 +30,7 @@ DataCycleCore::Engine.routes.draw do
 
   resources :creative_works, :persons, :places do
     post :validate, on: :member
+    post :validate, on: :collection
     patch :set_life_cycle, on: :member
   end
 

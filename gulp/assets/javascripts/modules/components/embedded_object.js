@@ -26,26 +26,30 @@ EmbeddedObject.prototype.setup = function () {
       return $(elem).data('id');
     }).get();
 
-    if (this.write && (this.max == 0 || this.element.children('.content-object-item').length < this.max) && ids.indexOf(data.ids[0]) === -1) {
-      this.element.children('#add_' + this.id).prop('disabled', true).find('.fa').css('display', 'inline-block');
-      $.ajax({
-        url: this.url + '/render_embedded_object',
-        method: 'POST',
-        data: JSON.stringify({
-          index: this.index,
-          language: this.language,
-          embedded_object_id: '#' + this.id,
-          key: this.key,
-          definition: this.definition,
-          options: this.options,
-          id: data.ids
-        }),
-        contentType: 'application/json'
-      }).done(function (data) {
+    let new_ids = data.ids.filter(item => ids.indexOf(item) === -1);
+
+    if (this.write && new_ids.length > 0 && (this.max == 0 || (this.element.children('.content-object-item').length + new_ids.length) <= this.max)) {
+      new_ids.forEach(new_id => {
+        this.element.children('#add_' + this.id).prop('disabled', true).find('.fa').css('display', 'inline-block');
         this.index++;
-        this.update();
-        this.addEventHandlers();
-      }.bind(this));
+        $.ajax({
+          url: this.url + '/render_embedded_object',
+          method: 'POST',
+          data: JSON.stringify({
+            index: this.index,
+            language: this.language,
+            embedded_object_id: '#' + this.id,
+            key: this.key,
+            definition: this.definition,
+            options: this.options,
+            id: new_id
+          }),
+          contentType: 'application/json'
+        }).done(function (data) {
+          this.update();
+          this.addEventHandlers();
+        }.bind(this));
+      });
     } else if (this.write && this.max != 0 && ids.indexOf(data.ids[0]) === -1) {
       var confirmationModal = new ConfirmationModal("Maximalanzahl: " + this.max);
     }
