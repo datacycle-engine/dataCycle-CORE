@@ -6,7 +6,7 @@
     - $$Interview
     - $$Social Media Posting
     - $$Zitat
-  - $$Assets:
+  - $$Asset:
     - $$Bild
     - $$Datei
     - $$Video
@@ -30,7 +30,7 @@
   - $$Antwort
   - $$Veranstaltungstermin
   - $$Öffnungszeit
-  - $$Örtlichkeit - Overlay
+  - $$Overlay
 
 - Geschlecht:
   - Männlich
