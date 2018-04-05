@@ -68,14 +68,15 @@ $(function () {
             $(event.currentTarget).find('input#cms_url').val('');
             let contents = JSON.parse($(data).filter('#cdb-item-definition').first().html());
 
+            if (contents != undefined && contents.language_relations.length > 0) {
+              let markets = contents.language_relations.map(x => Object.keys(x)[0]);
 
-            if (contents != undefined && contents.portal.length > 0) {
               $.ajax({
                 url: $(event.currentTarget).prop('action'),
                 method: 'POST',
                 dataType: 'json',
                 data: {
-                  market: contents.portal
+                  markets: markets
                 }
               }).done((data) => {
                 callout_helpers.show('Abos erfolgreich erstellt.', 'success');
