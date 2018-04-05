@@ -77,7 +77,8 @@ module DataCycleCore::Generic::MediaArchiveV2::Import
   end
 
   def extract_content_location_data(raw_data)
-    raw_data.nil? ? {} : @content_location_transformation.call(raw_data)
+    return {} if raw_data.nil? || (raw_data['address'].blank? && (raw_data['geo'].blank? || (raw_data['geo']['latitude'] == 0.0 && raw_data['geo']['longitude'] == 0.0)))
+    @content_location_transformation.call(raw_data)
   end
 
   def extract_person_data(raw_data)

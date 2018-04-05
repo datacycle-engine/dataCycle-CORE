@@ -5,6 +5,8 @@ module DataCycleCore
 
       def import_classifications(type, tree_name, load_root_classifications, load_child_classifications,
                                  load_parent_classification_alias, extract_data, **options)
+        raise ArgumentError('tree_name cannot be blank') if tree_name.blank?
+
         around_import(type, **options) do |locale|
           phase_name = type.collection_name
 
@@ -137,7 +139,7 @@ module DataCycleCore
         content.template_name = template.template_name
         content.save!
 
-        error = content.set_data_hash(data_hash: data, prevent_history: true)
+        error = content.set_data_hash(data_hash: (content.get_data_hash || {}).merge(data), prevent_history: true)
 
         if @logging && !error[:error].blank?
           @logging.error('Validating import data', data['external_key'], data, error[:error].join('\n'))

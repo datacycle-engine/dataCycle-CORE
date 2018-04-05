@@ -8,6 +8,7 @@ class DataCycleCore::Generic::EventDatabase::Endpoint
 
   def categories(lang: :de)
     Enumerator.new do |yielder|
+      next unless lang == :de
       load_data(action: '/categories/tree')['categories'].each do |category|
         children = category['children'].collect { |c| c.merge({ 'parentId' => category['id'] }) }
         primary_category = category.without('children').merge({ 'parentId' => nil })
@@ -25,6 +26,7 @@ class DataCycleCore::Generic::EventDatabase::Endpoint
     max_pages = total_items.fdiv(@per).ceil
 
     Enumerator.new do |yielder|
+      next unless lang == :de
       (1..max_pages).each do |page|
         load_data(page: page, per: @per, lang: lang)['events'].each do |event_record|
           yielder << event_record
