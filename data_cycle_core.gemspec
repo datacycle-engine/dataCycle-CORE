@@ -101,6 +101,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'dotenv-rails'
   s.add_dependency 'puma', '~> 3.10.0'
+  s.add_dependency 'puma_worker_killer'
 
   # validation gems
   s.add_development_dependency 'brakeman'
