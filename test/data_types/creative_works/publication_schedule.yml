@@ -24,6 +24,7 @@
           :minLength: 1
         :editor:
           :type: date
+          :sorting: 1
           :options:
             :data-type: datepicker
             :data-validate: daterange

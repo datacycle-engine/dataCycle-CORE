@@ -9,7 +9,7 @@
           <%= hidden_field_tag 'locale', I18n.locale %>
           <div class="validation-container form-element">
               <%= label_tag 'place[datahash][name]', DataCycleCore::Place.human_attribute_name("name", locale: DataCycleCore.ui_language) %>
-              <%= text_field_tag 'place[datahash][name]', '', class: 'form-control', value:'', required: true %>
+              <%= text_field_tag 'place[datahash][name]', '', class: 'form-control', value:'' %>
           </div>
           <div class="form-element">
               <%= label_tag 'place[datahash][address][street_address]', DataCycleCore::Place.human_attribute_name("street", locale: DataCycleCore.ui_language) %>

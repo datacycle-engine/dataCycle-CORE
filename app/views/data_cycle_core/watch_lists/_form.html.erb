@@ -1,6 +1,6 @@
-<%= form_for content, html: {class: 'edit-content-form'} do |f| %>
+<%= form_for content, html: {class: 'edit-content-form validation-form'} do |f| %>
 	<%= hidden_field_tag 'uuid', content.id %>
-	<%= hidden_field_tag 'type', content.class.table_name %>
+	<%= hidden_field_tag :table, content.class.table_name %>
 
 	<section class="edit-header">
 		<div class="row expanded">

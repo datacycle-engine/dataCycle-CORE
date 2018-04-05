@@ -13,7 +13,7 @@ describe('Publication Schedule', function () {
     year: 'numeric'
   });
   const show_publication_date = new Date(Date.now()).toLocaleDateString('de-DE', {
-    day: '2-digit',
+    day: 'numeric',
     month: 'long',
     year: 'numeric'
   });

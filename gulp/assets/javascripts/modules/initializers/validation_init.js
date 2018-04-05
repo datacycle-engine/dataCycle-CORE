@@ -64,7 +64,25 @@ module.exports.initialize = function () {
     var promises = [];
 
     // validate on value change
-    $('.validation-form').each((index, element) => {
+    init_event_handlers('body');
+
+    if ($('.reveal.new-item').length) {
+      $(document).on('open.zf.reveal', '.new-item[data-reset-on-close]', event => {
+        init_event_handlers(event.currentTarget);
+      });
+      $(document).on('closed.zf.reveal', '.new-item[data-reset-on-close]', event => {
+        remove_event_handlers(event.currentTarget);
+      });
+
+      $(document).on('closed.zf.reveal', '.new-item', event => {
+        $(event.currentTarget).find('.has-error').removeClass('has-error');
+        $(event.currentTarget).find('.single_error').remove();
+      });
+    }
+  }
+
+  function init_event_handlers(container) {
+    $(container).find('.validation-form').each((index, element) => {
       $(element).on('change', '.validation-container', event => {
         validate_item(element, event.currentTarget);
         catch_promises(element, false);
@@ -72,19 +90,21 @@ module.exports.initialize = function () {
 
       $(element).on('remove-submit-button-errors', '.validation-container', event => {
         remove_submit_button_errors($(event.currentTarget));
-      })
+      });
 
       $(element).on('submit', event => {
         event.preventDefault();
+        event.stopImmediatePropagation();
         submit_creative_work_form(element);
       });
+    });
+  }
 
-      if ($('.reveal.new-item').length) {
-        $(document).on('closed.zf.reveal', '.new-item', event => {
-          $(event.currentTarget).find('.has-error').removeClass('has-error');
-          $(event.currentTarget).find('.single_error').remove();
-        });
-      }
+  function remove_event_handlers(container) {
+    $(container).find('.validation-form').each((index, element) => {
+      $(element).off('change', '.validation-container');
+      $(element).off('remove-submit-button-errors', '.validation-container');
+      $(element).off('submit');
     });
   }
 
@@ -101,8 +121,12 @@ module.exports.initialize = function () {
 
       promises = [];
       if (isValid && submit) {
-        $(window).off("beforeunload");
-        form.submit();
+        if ($(form).parent('.reveal.in-object-browser').length) {
+          $(form).trigger('submit_without_redirect');
+        } else {
+          $(window).off("beforeunload");
+          form.submit();
+        }
       } else if (submit) {
         $(form).find('input[type=submit]').removeAttr('disabled');
         var first_error_offset, container;
