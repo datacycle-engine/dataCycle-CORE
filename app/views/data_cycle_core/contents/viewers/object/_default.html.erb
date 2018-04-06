@@ -3,7 +3,7 @@
 
     <% objects_length = objects.size %>
 
-    <% objects.each_with_index do |object,index| %>
+    <% objects.each_with_index do |object, index| %>
 
         <% I18n.with_locale(object.first_available_locale) do %>
 
@@ -17,7 +17,7 @@
                        data_attributes: {id: object.id.split(','), editor: definition.dig('editor', 'type').try(:underscore)} do %>
 
                 <span class="detail-label">
-                    <%= render 'data_cycle_core/shared/icon', icon_type: objects[0].template_name.downcase %><strong><%= definition['label'].titleize %> <%= content_tag(:span, index+1) if objects_length > 1 %></strong>
+                    <%= render 'data_cycle_core/shared/icon', icon_type: objects[0].template_name.downcase %><strong><%= definition['label'].titleize %> <%= content_tag(:span, (params.fetch(:page, 1).to_i - 1) * DataCycleCore.linked_objects_page_size + index + 1) if objects_length > 1 || value&.total_pages > 1 %></strong>
                 </span>
 
                 <div class="buttons">
@@ -44,7 +44,9 @@
 
                             <% object_value = prop.dig('type') == "object" ? object.try(key.to_sym) : objectDataHash[key] %>
 
-                            <%= render_attribute_viewer key: key, definition: prop, value: object_value, parameters: { options: options } %>
+                            <% object_value = object_value.presence&.page(1)&.per(DataCycleCore.linked_objects_page_size) if object_value.is_a?(ActiveRecord::Relation) %>
+
+                            <%= render_attribute_viewer key: key, definition: prop, value: object_value, parameters: { options: options, content: object } %>
 
                         <% end %>
 
@@ -57,5 +59,7 @@
         <% end %>
 
     <% end %>
+
+    <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path([:load_more_embedded_objects, content], key: key, definition: definition, options: options, page: params.fetch(:page, 1).to_i + 1), remote: true, id: "load_more_#{content&.id}_#{key}", data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" } unless value&.last_page? %>
 
 <% end %>

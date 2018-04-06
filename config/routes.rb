@@ -29,6 +29,10 @@ DataCycleCore::Engine.routes.draw do
     resources :places, only: [:index, :show, :create, :edit, :update, :destroy]
   end
 
+  resources(*DataCycleCore.content_tables.map(&:to_sym)) do
+    get :load_more_embedded_objects, on: :member
+  end
+
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :events, only: [:index, :show, :create, :edit, :update, :destroy]
   resources :stored_filters, only: [:create, :destroy]

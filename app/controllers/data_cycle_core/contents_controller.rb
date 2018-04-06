@@ -36,6 +36,16 @@ module DataCycleCore
       redirect_back(fallback_location: root_path, notice: (I18n.t :moved_to, scope: [:controllers, :success], data: life_cycle_params[:name], locale: DataCycleCore.ui_language))
     end
 
+    def load_more_embedded_objects
+      @object = ('DataCycleCore::' + controller_name.singularize.classify).constantize.find_by(id: params[:id])
+      authorize! :show, @object
+
+      @page = params.fetch(:page, 1)
+      @embedded_objects = @object.try(params[:key])&.page(@page)&.per(DataCycleCore.linked_objects_page_size)
+
+      respond_to :js
+    end
+
     private
 
     def set_watch_list

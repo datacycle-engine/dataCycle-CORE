@@ -1,0 +1,5 @@
+var load_more_button = $('#load_more_<%= @object.id %>_<%= params[:key] %>');
+
+$('<%= j render_attribute_viewer key: params[:key], definition: params[:definition], value: @embedded_objects, parameters: { options: params[:options].presence || {}, content: @object } %>').insertAfter(load_more_button).foundation();
+
+load_more_button.remove();

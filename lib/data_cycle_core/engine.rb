@@ -126,6 +126,10 @@ module DataCycleCore
     mattr_accessor :inheritable_attributes
     self.inheritable_attributes = ['validity_period']
 
+    # embedded_objects in show
+    mattr_accessor :linked_objects_page_size
+    self.linked_objects_page_size = 5
+
     # webhooks
     mattr_accessor :webhooks
     self.webhooks = {

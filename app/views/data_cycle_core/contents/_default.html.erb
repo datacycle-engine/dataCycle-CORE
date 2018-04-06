@@ -13,8 +13,10 @@
 
                 <% value = prop.dig('type') == "object" ? dataCycleObject.try(key.to_sym) : dataCycleObjectSchema[key] %>
 
+                <% value = value.presence&.page(1)&.per(DataCycleCore.linked_objects_page_size) if value.is_a?(ActiveRecord::Relation) %>
+
                 <% if !exludedProperties.include?(key) %>
-                    <%= render_attribute_viewer key: key, definition: prop, value: normalize_value(value), parameters: { options: options } %>
+                    <%= render_attribute_viewer key: key, definition: prop, value: normalize_value(value), parameters: { options: options, content: dataCycleObject } %>
                 <% end %>
 
             <% end %>

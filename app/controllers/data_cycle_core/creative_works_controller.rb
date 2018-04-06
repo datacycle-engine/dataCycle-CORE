@@ -3,7 +3,7 @@ module DataCycleCore
     include DataCycleCore::Filter
 
     before_action :authenticate_user! # from devise (authenticate)
-    load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
+    load_and_authorize_resource except: [:validate_single_data, :compare, :load_more_embedded_objects] # from cancancan (authorize)
     after_action :check_final, only: :update
 
     def index
