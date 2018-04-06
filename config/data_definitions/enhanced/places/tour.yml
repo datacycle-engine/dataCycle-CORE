@@ -79,11 +79,17 @@
         :type: geographic
         :storage_type: geographic
         :storage_location: metadata
+        :editor:
+          :options:
+            :disabled: disabled
       :tour:
         :label: Route
         :type: geographic
         :storage_type: geographic
         :storage_location: metadata
+        :editor:
+          :options:
+            :disabled: disabled
       :directions_public_transport:
         :label: Anfahrt mit öffentlichen Verkehrsmitteln
         :type: string
