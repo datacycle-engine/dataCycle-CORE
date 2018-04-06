@@ -60,7 +60,7 @@ module DataCycleCore
           can :set_life_cycle, DataCycleCore::CreativeWork
 
           can :manage, DataCycleCore::Asset
-          can [:create_global, :create_api], DataCycleCore::StoredFilter
+          can [:create_global, :create_api], DataCycleCore::StoredFilter, user_id: user.id
         end
 
         can :manage, :dash_board if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)
