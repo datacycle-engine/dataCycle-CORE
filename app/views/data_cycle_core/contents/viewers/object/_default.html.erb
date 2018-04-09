@@ -60,6 +60,6 @@
 
     <% end %>
 
-    <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path([:load_more_embedded_objects, content], key: key, definition: definition, options: options, page: params.fetch(:page, 1).to_i + 1), remote: true, id: "load_more_#{content&.id}_#{key}", data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" } unless value&.last_page? %>
+    <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path([:load_more_embedded_objects, content], key: key, definition: definition, options: options, page: params.fetch(:page, 1).to_i + 1), remote: true, id: "load_more_#{content&.id}_#{key}", class: 'load-more-linked-contents', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" } unless value&.last_page? %>
 
 <% end %>

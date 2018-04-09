@@ -1,5 +1,31 @@
 var load_more_button = $('#load_more_<%= @object.id %>_<%= params[:key] %>');
 
-$('<%= j render_attribute_viewer key: params[:key], definition: params[:definition], value: @embedded_objects, parameters: { options: params[:options].presence || {}, content: @object } %>').insertAfter(load_more_button).foundation();
+<% if params[:definition][:type] == 'embeddedLinkArray' %>
+  <% content_for :rendered_items do %>
+    <% @embedded_objects.each do |content| %>
+      <li class="<%= [
+                        'copy-single',
+                          'content',
+                          content.class.name.demodulize.underscore.sub('_', '-'),
+                          content.template_name.underscore.sub('_', '-'),
+                      ].join(' ') %>" data-id="<%= content.id %>">
+
+          <%= render_first_existing_partial [
+                                                "data_cycle_core/contents/viewers/linked/#{content.class.name.demodulize.underscore}_#{content.template_name.underscore}_tile",
+                                                "data_cycle_core/contents/viewers/linked/#{content.class.name.demodulize.underscore}_tile",
+                                                'data_cycle_core/contents/viewers/linked/content_tile'
+                                            ], {
+                                                content: content
+                                            } %>
+      </li>
+    <% end %>
+
+    <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path([:load_more_embedded_objects, @object], key: params[:key], definition: params[:definition], options: params[:options], page: params.fetch(:page, 1).to_i + 1), remote: true, id: "load_more_#{@object&.id}_#{params[:key]}", class: 'load-more-linked-contents', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" } unless @embedded_objects.last_page? %>
+  <% end %>
+
+  $('<%= j yield :rendered_items %>').insertAfter(load_more_button).foundation();
+<% else %>
+  $('<%= j render_attribute_viewer key: params[:key], definition: params[:definition], value: @embedded_objects, parameters: { options: params[:options].presence || {}, content: @object } %>').insertAfter(load_more_button).foundation();
+<% end %>
 
 load_more_button.remove();

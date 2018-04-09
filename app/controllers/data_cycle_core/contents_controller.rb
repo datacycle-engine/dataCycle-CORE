@@ -37,7 +37,7 @@ module DataCycleCore
     end
 
     def load_more_embedded_objects
-      @object = ('DataCycleCore::' + controller_name.singularize.classify).constantize.find_by(id: params[:id])
+      @object = ('DataCycleCore::' + controller_name.singularize.classify).constantize.find(params[:id])
       authorize! :show, @object
 
       @page = params.fetch(:page, 1)

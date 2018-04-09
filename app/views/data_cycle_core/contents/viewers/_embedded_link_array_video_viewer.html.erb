@@ -20,7 +20,8 @@
 
     <ul class="content-tiles">
         <% unless value.nil? %>
-            <% object.find(value).each do |item| %>
+            <% objects = object.where(id: value).presence&.page(1)&.per(DataCycleCore.linked_objects_page_size) %>
+            <% objects.each do |item| %>
                 <li class="<%= [
                                   'copy-single',
                                    'content',
@@ -36,6 +37,9 @@
                                                       } %>
                 </li>
             <% end %>
+
+            <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path([:load_more_embedded_objects, content], key: key, definition: definition, options: options, page: params.fetch(:page, 1).to_i + 1), remote: true, id: "load_more_#{content&.id}_#{key}", class: 'load-more-linked-contents', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" } unless objects.last_page? %>
+
         <% end %>
     </ul>
 
