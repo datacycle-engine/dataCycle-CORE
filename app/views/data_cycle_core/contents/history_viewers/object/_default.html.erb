@@ -1,40 +1,45 @@
 <% original_objects = options.dig(:original_objects) ? options[:original_objects].try(key.to_sym) : @creativeWork.try(key.to_sym) %>
 
-<% objects = value %>
-<% if !objects.nil? && !objects.blank? %>
+<% if original_objects.present? %>
+  <% objects = value %>
+  <% if objects.present? %>
 
-    <% removed_objects = get_removed_objects(objects, original_objects) %>
-    <% edited_objects = get_edited_objects(objects, removed_objects) %>
+      <% removed_objects = get_removed_objects(objects, original_objects) %>
+      <% edited_objects = get_edited_objects(objects, removed_objects) %>
 
-    <!-- render edited aobjects -->
-    <%= render 'data_cycle_core/contents/history_viewers/object/object_details',
-               objects: edited_objects,
-               original_objects: original_objects,
-               mode: 'edit',
-               key: key,
-               definition: definition,
-               value: value,
-               options: options %>
+      <!-- render edited aobjects -->
+      <%= render 'data_cycle_core/contents/history_viewers/object/object_details',
+                objects: edited_objects,
+                original_objects: original_objects,
+                mode: 'edit',
+                key: key,
+                definition: definition,
+                value: value,
+                content: content,
+                options: options %>
 
-    <!-- render removed objects -->
-    <%= render 'data_cycle_core/contents/history_viewers/object/object_details',
-               objects: removed_objects,
-               original_objects: original_objects,
-               mode: 'remove',
-               key: key,
-               definition: definition,
-               value: value,
-               options: options %>
+      <!-- render removed objects -->
+      <%= render 'data_cycle_core/contents/history_viewers/object/object_details',
+                objects: removed_objects,
+                original_objects: original_objects,
+                mode: 'remove',
+                key: key,
+                definition: definition,
+                value: value,
+                content: content,
+                options: options %>
 
+  <% end %>
+
+  <!-- render new objects -->
+  <% new_objects = get_new_objects(objects, original_objects) %>
+  <%= render 'data_cycle_core/contents/history_viewers/object/object_details',
+            objects: new_objects,
+            original_objects: original_objects,
+            mode: 'new',
+            key: key,
+            definition: definition,
+            value: value,
+            content: content,
+            options: options %>
 <% end %>
-
-<!-- render new objects -->
-<% new_objects = get_new_objects(objects, original_objects) %>
-<%= render 'data_cycle_core/contents/history_viewers/object/object_details',
-           objects: new_objects,
-           original_objects: original_objects,
-           mode: 'new',
-           key: key,
-           definition: definition,
-           value: value,
-           options: options %>

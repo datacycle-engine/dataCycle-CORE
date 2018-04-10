@@ -1,24 +1,22 @@
 <% I18n.with_locale(object.first_available_locale) do %>
     <% new_content ||= false %>
-    <% objectDataHash = object.get_data_hash %>
-
-    <% unless object.schema.nil? %>
+    <% if object.schema.present? %>
 
         <% validation_properties = get_ordered_validation_properties(object.schema) %>
         <% if !validation_properties.nil? %>
 
             <div class="content-object-item" id="<%= sanitize_to_id(key) %>_item_<%= index %>" data-id="<%= object.id %>">
-                <span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.template_name.downcase %> <%= definition['label'] %></span>
+                <span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %> <%= definition['label'] %></span>
 
                 <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, object)) %>
                     <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
                 <% end %>
 
-                <%= hidden_field_tag("#{key}[#{index}][id]", objectDataHash['id']) unless new_content %>
+                <%= hidden_field_tag("#{key}[#{index}][id]", object.id) unless new_content %>
 
                 <% validation_properties.each do |o_key, o_prop| %>
 
-                    <% value = o_prop.dig('type') == "object" || o_prop.dig('type') == "classificationTreeLabel" ? object.try(o_key.to_sym) : objectDataHash[o_key] %>
+                    <% value = object.try(o_key.to_sym) %>
 
                     <%= render_attribute_editor key: "#{key}[#{index}][#{o_key}]", definition: o_prop, value: value, parameters: { options: (o_prop.dig('editor', 'options') || {}), new_content: new_content, content: object } %>
 

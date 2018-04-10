@@ -18,7 +18,7 @@ initializers.push(require('./modules/initializers/validation_init'));
 initializers.push(require('./modules/initializers/counter_init'));
 initializers.push(require('./modules/initializers/date_picker_init'));
 initializers.push(require('./modules/initializers/slider_init'));
-initializers.push(require('./modules/initializers/copy_contents_init'));
+initializers.push(require('./modules/initializers/split_contents_init'));
 initializers.push(require('./modules/initializers/map_init'));
 initializers.push(require('./modules/initializers/classifications'));
 initializers.push(require('./modules/initializers/classification_select_init'));

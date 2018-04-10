@@ -30,7 +30,7 @@ DataCycleCore::Engine.routes.draw do
   end
 
   resources(*DataCycleCore.content_tables.map(&:to_sym)) do
-    get :load_more_embedded_objects, on: :member
+    get :load_more_linked_objects, on: :member
   end
 
   resources :subscriptions, only: [:index, :create, :destroy]

@@ -1,6 +1,8 @@
-<% object = ("DataCycleCore::"+("#{definition['type_name']}".classify)).constantize %>
 <%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: (value.is_a?(Hash) ? value['value'] : value), options: options, data_attributes: {id: (value.is_a?(Hash) ? value['value'] : value), editor: "object_browser" } do %>
 
+<%
+=begin
+%>
     <% if definition['releasable'] && value.is_a?(Hash) %>
         <div class="release-status">
             <span class="status-information"><%= DataCycleCore::Release.find(value['release_id']).release_text %></span>
@@ -17,32 +19,30 @@
         </div>
         <% value = value['value'] unless value.blank? %>
     <% end %>
+<%
+=end
+%>
+  <ul class="content-tiles">
+    <% objects = value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
+    <% objects.presence&.each do |item| %>
+        <li class="<%= [
+                          'copy-single',
+                            'content',
+                            item.class.name.demodulize.underscore.sub('_', '-'),
+                            item.template_name.underscore.sub('_', '-'),
+                        ].join(' ') %>" data-id="<%= [item.id] %>">
 
-    <ul class="content-tiles">
-        <% unless value.nil? %>
-            <% objects = object.where(id: value).presence&.page(1)&.per(DataCycleCore.linked_objects_page_size) %>
-            <% objects.each do |item| %>
+            <%= render_first_existing_partial [
+                                                  "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_#{item.template_name.underscore}_tile",
+                                                  "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_tile",
+                                                  'data_cycle_core/contents/viewers/linked/content_tile'
+                                              ], {
+                                                  content: item
+                                              } %>
+        </li>
+    <% end %>
 
-                <li class="<%= [
-                                  'copy-single',
-                                   'content',
-                                   item.class.name.demodulize.underscore.sub('_', '-'),
-                                   item.template_name.underscore.sub('_', '-'),
-                               ].join(' ') %>" data-id="<%= item.id %>">
-
-                    <%= render_first_existing_partial [
-                                                          "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_#{item.template_name.underscore}_tile",
-                                                          "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_tile",
-                                                          'data_cycle_core/contents/viewers/linked/content_tile'
-                                                      ], {
-                                                          content: item
-                                                      } %>
-                </li>
-            <% end %>
-
-            <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path([:load_more_embedded_objects, content], key: key, definition: definition, options: options, page: params.fetch(:page, 1).to_i + 1), remote: true, id: "load_more_#{content&.id}_#{key}", class: 'load-more-linked-contents', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" } unless objects.last_page? %>
-
-        <% end %>
-    </ul>
+    <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path([:load_more_linked_objects, content], key: key, definition: definition, options: options, page: params.fetch(:page, 1).to_i + 1, load_more_action: :show), remote: true, id: "load_more_#{content&.id}_#{sanitize_to_id(key)}", class: 'load-more-linked-contents', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" } unless objects.blank? || objects.total_pages.zero? || objects.last_page? %>
+  </ul>
 
 <% end %>

@@ -6,14 +6,15 @@
 
             <% validation_properties = get_ordered_validation_properties(content.schema) %>
 
-            <% if !validation_properties.nil? %>
+            <% if validation_properties.present? %>
 
                 <div class="type properties">
 
                     <% validation_properties.each do |key, prop| %>
 
-                        <% value = prop.dig('type') == "object" ? content.try(key.to_sym) : schema[key] %>
-                        <%= render_attribute_history_viewer key: key, definition: prop, value: normalize_value(value), parameters: { options: options ||= {} } %>
+                        <% value = content.try(key.to_sym) %>
+
+                        <%= render_attribute_history_viewer key: key, definition: prop, value: value, parameters: { options: options ||= {}, content: content } %>
 
                     <% end %>
 

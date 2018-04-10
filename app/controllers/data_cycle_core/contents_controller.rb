@@ -8,7 +8,8 @@ module DataCycleCore
 
     def render_embedded_object
       object_type = DataCycleCore.content_tables.find { |object| object == params[:definition]['storage_location'] }
-      @object = ('DataCycleCore::' + object_type.singularize.classify).constantize.find_by(id: params[:id])
+      @objects = ('DataCycleCore::' + object_type.singularize.classify).constantize.where(id: params[:id])
+
       respond_to(:js)
     end
 
@@ -36,12 +37,12 @@ module DataCycleCore
       redirect_back(fallback_location: root_path, notice: (I18n.t :moved_to, scope: [:controllers, :success], data: life_cycle_params[:name], locale: DataCycleCore.ui_language))
     end
 
-    def load_more_embedded_objects
+    def load_more_linked_objects
       @object = ('DataCycleCore::' + controller_name.singularize.classify).constantize.find(params[:id])
       authorize! :show, @object
 
       @page = params.fetch(:page, 1)
-      @embedded_objects = @object.try(params[:key])&.page(@page)&.per(DataCycleCore.linked_objects_page_size)
+      @linked_objects = @object.try(params[:key])&.includes(:translations)&.page(@page)&.per(DataCycleCore.linked_objects_page_size)
 
       respond_to :js
     end

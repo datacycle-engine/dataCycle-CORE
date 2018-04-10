@@ -1,58 +1,32 @@
-<% if !objects.nil? && !objects.blank? %>
+<% objects.presence&.each_with_index do |object, index| %>
 
-    <% objects_length = objects.size %>
+    <% I18n.with_locale(object.first_available_locale) do %>
 
-    <% objects.each_with_index do |object,index| %>
+        <% original_object = find_original_object original_objects, object.id %>
+        <% object_has_changed = mode == 'edit' ? get_object_changes(object, original_object) : true %>
 
-        <% I18n.with_locale(object.first_available_locale) do %>
+        <%= render 'data_cycle_core/contents/viewers/attribute_viewer',
+                    key: key,
+                    definition: definition,
+                    value: value,
+                    options: options.merge({ hide_label: true, item_diff: object_has_changed, mode: mode }),
+                    data_attributes: { id: object.id.split(','), editor: definition['editor']['type'] } do %>
 
-            <% objectDataHash = object.get_data_hash %>
+            <span class="detail-label">
+                <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %><strong><%= definition['label'].capitalize %> <%= content_tag(:span, index + 1) if objects.size.positive? %></strong>
+            </span>
 
-            <% object_id = objectDataHash['id'] %>
-            <% original_object = find_original_object original_objects, object_id %>
-            <% object_has_changed = mode == 'edit' ? get_object_changes(object, original_object) : true %>
+            <% unless object.schema.nil? %>
 
-            <%= render 'data_cycle_core/contents/viewers/attribute_viewer',
-                       key: key,
-                       definition: definition,
-                       value: value,
-                       options: options.merge({hide_label: true, item_diff: object_has_changed, mode: mode}),
-                       data_attributes: {id: object.id.split(','), editor: definition['editor']['type']} do %>
+                <% validation_properties = get_ordered_validation_properties(object.schema) %>
 
-                <span class="detail-label">
-                    <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %><strong><%= definition['label'].capitalize %> <%= content_tag(:span, index+1) if objects_length > 1 %></strong>
-                </span>
-<!--
-                <div class="buttons">
-                  <%# if DataCycleCore.translatable_types.include?(object.class.name) %>
-                    <a data-toggle="translated-locales-history-<%#= object.id %>"><i class="fa fa-language" aria-hidden="true"></i></a>
-                    <ul class="dropdown-pane no-bullet bottom translated-locales" id="translated-locales-history-<%#= object.id %>" data-dropdown data-hover="true" data-hover-pane="true">
-                      <%# object.translated_locales.each do |locale| %>
-                        <li><%#= t("locales.#{locale}", locale: DataCycleCore.ui_language) %></li>
-                      <%# end %>
-                    </ul>
+                <% validation_properties.presence&.each do |key, prop| %>
 
-                  <%# end %>
-                  <%#= link_to '<i class="fa fa-pencil" aria-hidden="true"></i>'.html_safe, edit_polymorphic_path(object, locale: I18n.locale), target: :_blank, class: "edit-link" if definition['editor']['type'] == "objectBrowser" && @historySource.nil? && can?(:crud, object) %>
-                </div>
--->
-                <% unless object.schema.nil? %>
+                    <% object_value = object.try(key.to_sym) %>
 
-                    <% validation_properties = get_ordered_validation_properties(object.schema) %>
+                    <% item_has_changed = mode == 'edit' ? get_object_item_has_changed(key, prop, object_value, object_has_changed, definition) : false %>
 
-                    <% if !validation_properties.nil? %>
-
-                        <% validation_properties.each do |key, prop| %>
-
-                            <% object_value = prop.dig('type') == "object" ? object.try(key.to_sym) : objectDataHash[key] %>
-
-                            <% item_has_changed = mode == 'edit' ? get_object_item_has_changed(key, prop, object_value, object_has_changed, definition) : false %>
-
-                            <%= render_attribute_history_viewer key: key, definition: prop, value: object_value, parameters: { options: options.merge({item_diff: item_has_changed, original_objects: original_object, mode: mode})} %>
-
-                        <% end %>
-
-                    <% end %>
+                    <%= render_attribute_history_viewer key: key, definition: prop, value: object_value, parameters: { options: options.merge({ item_diff: item_has_changed, original_objects: original_object, mode: mode }), content: object } %>
 
                 <% end %>
 

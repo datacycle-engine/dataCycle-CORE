@@ -58,7 +58,7 @@
                                        definition: {'type' => 'releasable'},
                                        options:{force_render: true} if @creativeWork.schema.dig('releasable') == true %>
 
-                            <%= render_content_partial 'details', content: @creativeWork, schema: @dataSchema, options: {force_render: true} %>
+                            <%= render_content_partial 'details', content: @creativeWork, options: {force_render: true} %>
 
                         </div>
 
