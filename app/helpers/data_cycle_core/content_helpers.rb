@@ -1,6 +1,5 @@
 module DataCycleCore
   module ContentHelpers
-
     def title
       raise NotImplementedError
     end

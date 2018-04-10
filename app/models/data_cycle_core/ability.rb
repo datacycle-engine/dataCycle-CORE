@@ -1,6 +1,5 @@
 module DataCycleCore
   class Ability
-
     CONTENT_MODELS = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify).constantize }.freeze
     include CanCan::Ability
 
