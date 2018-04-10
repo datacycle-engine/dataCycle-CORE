@@ -1,7 +1,7 @@
 module DataCycleCore
   class Ability
-    CONTENT_MODELS = [DataCycleCore::Place, DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork].freeze
 
+    CONTENT_MODELS = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify).constantize }.freeze
     include CanCan::Ability
 
     def initialize(user, session = {})
@@ -31,7 +31,7 @@ module DataCycleCore
           can :manage, DataCycleCore::WatchList, user_id: user.id
           can [:read, :create, :destroy], DataCycleCore::StoredFilter, user_id: user.id
           can :read, DataCycleCore::StoredFilter, system: true
-          can [:subscribe, :history, :history_detail], [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork, DataCycleCore::Place]
+          can [:subscribe, :history, :history_detail], CONTENT_MODELS
         end
 
         if user.has_rank?(10)
@@ -41,7 +41,7 @@ module DataCycleCore
             user&.role&.rank&.> the_user&.role&.rank || the_user == user
           end
 
-          can :update_release_status, [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork, DataCycleCore::Place]
+          can :update_release_status, CONTENT_MODELS
 
           can :manage, [DataCycleCore::Classification, DataCycleCore::ClassificationTree], external_source_id: nil
           can :download, DataCycleCore::ClassificationTreeLabel
@@ -57,14 +57,14 @@ module DataCycleCore
             c.external_source_id.nil? && !c.internal && !c.sub_classification_alias&.any?(&:internal) && !c.sub_classification_alias&.any?(&:external_source_id)
           end
 
-          can :crud, [DataCycleCore::CreativeWork, DataCycleCore::Event, DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::Place] do |data_object|
+          can :crud, CONTENT_MODELS do |data_object|
             data_object.try(:external_key).blank? || (DataCycleCore.features.dig(:overlay, :enabled) && data_object&.schema&.dig('features', 'overlay').present?)
           end
 
           can [:set_role, :set_user_groups], DataCycleCore::User do |the_user|
             !the_user.has_rank?(user.role.rank) || user == the_user
           end
-          can :destroy, [DataCycleCore::CreativeWork, DataCycleCore::Event, DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::Place] do |data_object|
+          can :destroy, CONTENT_MODELS do |data_object|
             data_object.try(:external_key).blank?
           end
 
