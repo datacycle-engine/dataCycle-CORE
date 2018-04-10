@@ -15,4 +15,12 @@ DataCycleCore.setup do |config|
   config.external_sources_path = Rails.root.join('config', 'external_sources').freeze
 
   #config.excluded_new_item_objects = ['Event', 'Person', 'Örtlichkeit', 'Bild', 'Organization', 'Zeitleiste', 'Linktipps', 'Datei']
+
+  config.features = config.features.merge(
+    {
+      overlay: {
+        enabled: true
+      }
+    }
+  ).freeze
 end
