@@ -3,8 +3,6 @@
     :name: Tour
     :type: object
     :content_type: entity
-    :permissions:
-      :read_write: true
     :boost: 100.0
     :properties:
       :id:

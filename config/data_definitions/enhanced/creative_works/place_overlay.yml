@@ -3,8 +3,6 @@
     :name: PlaceOverlay
     :type: object
     :content_type: embedded
-    :permissions:
-      :read_write: true
     :properties:
       :id:
         :label: id

@@ -3,8 +3,6 @@
     :name: Thema
     :type: object
     :content_type: container
-    :permissions:
-      :read_write: true
     :boost: 10000.0
     :features:
       :container:

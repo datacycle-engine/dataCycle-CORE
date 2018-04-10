@@ -4,8 +4,6 @@
     :type: object
     :content_type: entity
     :releasable: true
-    :permissions:
-      :read_write: true
     :boost: 100.0
     :properties:
       :id:
@@ -122,40 +120,11 @@
       :meta_data:
         :type: mixin
         :name: meta_data
-#      :datacycleimage:
-#        :label: DataCycle-Bild
-#        :type: object
-#        :storage_location: creative_works
-#        :delete: true
-#        :name: DataCycle-Image
-#        :editor:
-#          :type: embeddedObject
-#      :datacycleasset:
-#        :label: DataCycle-File
-#        :type: object
-#        :storage_location: creative_works
-#        :delete: true
-#        :name: DataCycle-File
-#        :editor:
-#          :type: embeddedObject
-#      :firma:
-#        :label: "Firma"
-#        :type: object
-#        :storage_location: organizations
-#        :name: Organization
-#        :delete: false
-#        :editor:
-#          :type: objectBrowser
-#          :options:
-#            :data-validate: object
-#            :data-type: organization
 
 - :data:
     :name: Angebotszeitraum
     :type: object
     :content_type: embedded
-    :permissions:
-      :read_write: true
     :properties:
       :id:
         :label: id

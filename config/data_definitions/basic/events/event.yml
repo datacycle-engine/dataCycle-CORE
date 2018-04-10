@@ -4,8 +4,6 @@
     :type: object
     :boost: 100.0
     :content_type: entity
-    :permissions:
-      :read_write: true
     :features:
       :overlay: ['overlay']
     :properties:
