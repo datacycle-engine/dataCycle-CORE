@@ -81,7 +81,10 @@ module DataCycleCore
           # !attribute.options['readonly']
           (
             attribute.content.try(:external_key).blank? ||
-            (attribute.content&.schema&.dig('features', 'overlay').present? && attribute.content.schema.dig('features', 'overlay').include?(attribute.key.split('[').last[0...-1]))
+            (
+              attribute.content&.schema&.dig('features', 'overlay').present? &&
+              (attribute.key.scan(/\[(.*?)\]/).flatten & attribute.content.schema.dig('features', 'overlay')).size.nonzero?
+            )
           )
         end
 
