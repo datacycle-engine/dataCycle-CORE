@@ -182,7 +182,16 @@ module DataCycleCore
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
 
+    config.assets.version = '1.0'
     config.assets.precompile += ['data_cycle_core/*']
+
+    config.action_dispatch.cookies_serializer = :json
+    config.action_controller.raise_on_unfiltered_parameters = true
+    config.action_controller.per_form_csrf_tokens = true
+    config.action_controller.forgery_protection_origin_check = true
+    
+    # Require `belongs_to` associations by default. Previous versions had false.
+    config.active_record.belongs_to_required_by_default = true
 
     # use active_record as orm (!not mongoid)
     config.app_generators.orm = :active_record
