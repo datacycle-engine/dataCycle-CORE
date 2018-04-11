@@ -189,7 +189,7 @@ module DataCycleCore
     config.action_controller.raise_on_unfiltered_parameters = true
     config.action_controller.per_form_csrf_tokens = true
     config.action_controller.forgery_protection_origin_check = true
-    
+
     # Require `belongs_to` associations by default. Previous versions had false.
     config.active_record.belongs_to_required_by_default = true
 

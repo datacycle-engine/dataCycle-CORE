@@ -1,6 +1,5 @@
 DataCycleCore.setup do |config|
-
-  # gem initializers
+  # general settings
   I18n.available_locales = [:de]
   # Precompile additional assets.
   # application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
@@ -8,7 +7,6 @@ DataCycleCore.setup do |config|
   Rails.application.config.assets.precompile += ['logo.svg', 'logo.png']
   # Configure sensitive parameters which will be filtered from the log file.
   Rails.application.config.filter_parameters += [:password]
-
 
   # Make Ruby 2.4 preserve the timezone of the receiver when calling `to_time`.
   # Previous versions had false.
@@ -26,7 +24,7 @@ DataCycleCore.setup do |config|
   Rails.application.config.ssl_options = { hsts: { subdomains: true } }
   Rails.application.config.session_store :cookie_store, key: '_dummy_session'
 
-
+  # DataCycleCore settings
   config.access_tokens = [
     'd48a84faseei512hjkl159ggg9a72adf'
   ]
