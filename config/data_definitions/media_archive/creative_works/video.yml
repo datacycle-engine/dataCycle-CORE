@@ -179,6 +179,9 @@
           :options:
             :data-validate: object
             :data-type: person
+      :tags:
+        :type: mixin
+        :name: tags
       :media_archive:
         :type: mixin
         :name: media_archive
