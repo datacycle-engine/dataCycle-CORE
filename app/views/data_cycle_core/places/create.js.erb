@@ -1,8 +1,8 @@
-$('<%= params[:new_overlay_id] %>').foundation('close');
-$('<%= params[:overlay_id] %> .items .no-results').remove();
+$('#new_<%= sanitize_to_id(params[:key]) %>').foundation('close');
+$('#object_browser_<%= sanitize_to_id(params[:key]) %> .items .no-results').remove();
 
-$('<%= params[:overlay_id] %>').find('.items .loading').before('<%= j render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: {object: @place, options: params[:options], objects: params[:objects]}) if !@place.nil? %>');
+$('#object_browser_<%= sanitize_to_id(params[:key]) %> .items .loading').before('<%= j render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: {object: @organization, options: params[:options], objects: params[:objects]}) if !@organization.nil? %>');
 
-$('<%= params[:overlay_id] %>').find('.item-info').html('<%= escape_javascript(render_object_browser_partial(partial: 'detail', key: params[:key], definition: params[:definition], parameters: {object: @place, options: params[:options]})) %>');
+$('#object_browser_<%= sanitize_to_id(params[:key]) %> .item-info').html('<%= escape_javascript(render_object_browser_partial(partial: 'detail', key: params[:key], definition: params[:definition], parameters: {object: @organization, options: params[:options]})) %>');
 
-$('<%= params[:overlay_id] %>').trigger('import-complete', {id: '<%= @place.id %>'});
+$('#object_browser_<%= sanitize_to_id(params[:key]) %>').trigger('import-complete', {id: '<%= @organization.id %>'});

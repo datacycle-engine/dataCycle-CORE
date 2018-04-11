@@ -11,23 +11,34 @@
       data-definition="<%= definition.to_json %>"
       data-options="<%= options.to_json %>"
       data-class="<%= object_class %>"
+      data-per="<%= DataCycleCore.linked_objects_page_size %>"
       data-objects="<%= value.presence&.ids %>"
       data-max="<%= definition.dig('validations', 'max') || 0 %>"
       data-min="<%= definition.dig('validations', 'min') || 0 %>">
         <%= label_tag(key, definition['label']) %>
         <div class="media-thumbs">
           <div class="object-thumbs">
-            <% if value.presence&.includes(:translations)&.each do |object| %>
+            <% objects = value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
+            <% if objects.presence&.each do |object| %>
               <%= render_object_browser_partial(key: key + (definition['type'] == "object" ? '[][id]' : '[]'), definition: definition, parameters: {object: object, options: options}) %>
             <% end.blank? %>
               <%= hidden_field_tag key + '[]' %>
             <% end %>
           </div>
-          <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content)) %>
-            <button class="button" id="show" type="button" data-open="object_browser_<%= sanitize_to_id(key) %>">
-              <i class="fa fa-plus"></i>
-            </button>
-          <% end %>
+
+          <div class="buttons">
+            <% if value.presence&.size&.>(DataCycleCore.linked_objects_page_size) %>
+              <button id="load_more_<%= sanitize_to_id(key) %>" class="load-more-linked-contents button" type="button" data-page="2">
+                <%= t('common.load_more', locale: DataCycleCore.ui_language) %>
+              </button>
+            <% end %>
+
+            <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content)) %>
+              <button class="button" id="show-object-browser-<%= sanitize_to_id(key) %>" type="button" data-open="object_browser_<%= sanitize_to_id(key) %>">
+                <i class="fa fa-plus"></i>
+              </button>
+            <% end %>
+          </div>
         </div>
     </div>
 
@@ -68,7 +79,6 @@
             <button data-open="new_<%= sanitize_to_id(key) %>" class="new-item-button button-prime small" type="button">
               <i class="fa fa-plus"></i>
             </button>
-
           <% end %>
           <button class="button-prime small close-object-browser" type="button" data-close>
             <i aria-hidden="true" class="fa fa-times"></i>

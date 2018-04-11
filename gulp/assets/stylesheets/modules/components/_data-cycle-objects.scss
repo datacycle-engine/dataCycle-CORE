@@ -641,7 +641,7 @@ span.single_error.object-browser-error {
         }
       }
     }
-    .buttons button {
+    >.embedded-object>.buttons button {
       margin: 0;
       transition: all ease-in-out 0.2s;
       .fa {

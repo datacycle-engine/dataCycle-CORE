@@ -13,6 +13,10 @@
     data-min="<%= definition.dig('validations', 'minLength') || 0 %>"
     data-write="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content)) %>">
 
+    <% value.ids.presence&.each_with_index do |id, index| %>
+      <%= hidden_field_tag "#{key}[#{index}][id]", id %>
+    <% end %>
+
     <% objects = value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
 
     <% objects.presence&.each_with_index do |object, index| %>
@@ -20,7 +24,7 @@
     <% end %>
 
     <div class="buttons">
-      <% if objects.try(:total_pages)&.positive? && !objects&.last_page? %>
+      <% if value.presence&.size&.>(DataCycleCore.linked_objects_page_size) %>
         <button id="load_more_<%= sanitize_to_id(key) %>" class="load-more-linked-contents button" type="button" data-page="2">
           <%= t('common.load_more', locale: DataCycleCore.ui_language) %>
         </button>

@@ -4,14 +4,11 @@
   <% end %>
 <% end %>
 
-$('#<%= sanitize_to_id(params[:key]) %>').find('> .buttons > .addContentObject .fa').css('display', 'none');
-$('#<%= sanitize_to_id(params[:key]) %>').find('> .buttons > button').prop('disabled', false);
-$('#<%= sanitize_to_id(params[:key]) %>').find('> .buttons').before('<%= j yield :rendered_items %>');
+$('#<%= sanitize_to_id(params[:key]) %> > .buttons > .addContentObject .fa').css('display', 'none');
+$('#<%= sanitize_to_id(params[:key]) %> > .buttons > button').prop('disabled', false);
+$('#<%= sanitize_to_id(params[:key]) %> > .buttons').before('<%= j yield :rendered_items %>');
 $('<%= j content_for :forms %>').appendTo('body').foundation();
 
 $('<%= (params[:index].presence&.to_i..(params[:index].presence&.to_i + @objects.size)).map { |i| "##{sanitize_to_id(params[:key])}_item_#{i}" }.join(', ') %>').foundation().trigger('clone-added');
 
-console.log('<%= params[:page] %>');
-
-//  $('#load_more_<%= @objects.first.id %>_<%= sanitize_to_id(params[:key]) %>').remove();
-// $('#<%= sanitize_to_id(params[:key]) %>_item_<%= params[:index] %>');
+$('#<%= sanitize_to_id(params[:key]) %> > .buttons > button.load-more-linked-contents').data('page', <%= params.fetch(:page, 1).to_i + 1 %>);

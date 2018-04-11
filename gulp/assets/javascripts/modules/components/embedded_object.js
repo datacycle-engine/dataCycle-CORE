@@ -5,7 +5,6 @@ var EmbeddedObject = function (selector) {
   this.element = selector;
   this.page = 1;
   this.id = this.element.prop('id');
-  this.index = this.element.children('.content-object-item').length;
   this.language = this.element.data('language') || 'de';
   this.key = this.element.data('key');
   this.label = this.element.data('label');
@@ -15,7 +14,9 @@ var EmbeddedObject = function (selector) {
   this.min = this.element.data('min') || 0;
   this.write = this.element.data('write') || true;
   this.total = this.element.data('total') || 0;
+  this.index = this.total;
   this.ids = this.element.data('ids') || [];
+  this.active_ids = this.element.data('ids') || [];
   this.per = this.element.data('per') || 5;
   this.url = '/contents';
 
@@ -26,34 +27,13 @@ EmbeddedObject.prototype.setup = function () {
   if (this.write && (this.max == 0 || this.element.children('.content-object-item').length < this.max)) $(this.element).find('> .buttons > #add_' + this.id).show();
 
   this.element.off('import-data').on('import-data', function (event, data) {
-    var ids = this.element.children('.content-object-item').map(function (index, elem) {
-      return $(elem).data('id');
-    }).get();
-
     let page = data.page || 1;
 
-    if (this.write && (this.max == 0 || this.element.children('.content-object-item').length < this.max) && ids.indexOf(data.ids[0]) === -1) {
-      this.element.find('> .buttons > button').prop('disabled', true).find('.fa').css('display', 'inline-block');
-      $.ajax({
-        url: this.url + '/render_embedded_object',
-        method: 'POST',
-        data: JSON.stringify({
-          index: this.index,
-          language: this.language,
-          embedded_object_id: '#' + this.id,
-          key: this.key,
-          definition: this.definition,
-          options: this.options,
-          id: data.ids,
-          page: page
-        }),
-        contentType: 'application/json'
-      }).done(function (data) {
-        this.index++;
-        this.update();
-        this.addEventHandlers();
-      }.bind(this));
-    } else if (this.write && this.max != 0 && ids.indexOf(data.ids[0]) === -1) {
+    let new_items = data.ids.diff(this.element.children('.content-object-item').map((index, elem) => $(elem).data('id')).get());
+
+    if (this.write && (this.max == 0 || this.element.children('.content-object-item').length < this.max) && new_items.length > 0) {
+      this.render_embedded_objects(new_items, this.index);
+    } else if (this.write && this.max != 0 && (ids.length + new_items.length) > this.max) {
       var confirmationModal = new ConfirmationModal("Maximalanzahl: " + this.max);
     }
   }.bind(this));
@@ -61,15 +41,45 @@ EmbeddedObject.prototype.setup = function () {
   this.addEventHandlers();
 };
 
+EmbeddedObject.prototype.render_embedded_objects = function (ids, index, update_index = true, page = 1) {
+  this.element.find('> .buttons > button').prop('disabled', true).find('.fa').css('display', 'inline-block');
+  $.ajax({
+    url: this.url + '/render_embedded_object',
+    method: 'POST',
+    data: JSON.stringify({
+      index: index,
+      language: this.language,
+      key: this.key,
+      definition: this.definition,
+      options: this.options,
+      id: ids,
+      page: page
+    }),
+    contentType: 'application/json'
+  }).done(data => {
+    if (update_index) this.index += ids.length;
+    this.ids = this.ids.concat(ids.diff(this.ids));
+    this.active_ids = this.active_ids.concat(ids.diff(this.active_ids));
+    if (this.active_ids.diff(this.element.children('.content-object-item').map((index, elem) => $(elem).data('id')).get()).length == 0) {
+      this.element.find('> .buttons > #load_more_' + this.id).off('click').remove();
+    }
+    this.update();
+    this.addEventHandlers();
+  });
+};
+
 EmbeddedObject.prototype.addEventHandlers = function () {
   var self = this;
 
   this.element.find('> .buttons > #add_' + this.id).off('click').on('click', this.renderEmbeddedObject.bind(this));
 
-  this.element.children('.content-object-item').each(function () {
-    $(this).children('.removeContentObject').off('click').on('click', function (event) {
+  this.element.children('.content-object-item').each((index, element) => {
+    $(element).children('.removeContentObject').off('click').on('click', event => {
       event.preventDefault();
-      $(this).closest('.content-object-item').remove();
+      let id = $(event.currentTarget).closest('.content-object-item').data('id');
+      this.element.find('input:hidden[value="' + id + '"]').remove();
+      this.active_ids = this.active_ids.filter(e => e !== id);
+      $(event.currentTarget).closest('.content-object-item').remove();
       self.update();
     });
   });
@@ -77,13 +87,8 @@ EmbeddedObject.prototype.addEventHandlers = function () {
   this.element.find('> .buttons > #load_more_' + this.id).off('click').on('click', event => {
     event.preventDefault();
     let page = $(event.currentTarget).data('page');
-    console.log(this.ids);
-    console.log(this.ids.slice((page - 1) * this.per, page * this.per));
-    this.element.trigger('import-data', {
-      label: this.label,
-      ids: this.ids.slice((page - 1) * this.per, page * this.per),
-      page: page
-    });
+
+    this.render_embedded_objects(this.ids.slice((page - 1) * this.per, page * this.per), (page - 1) * this.per, false, page);
   });
 };
 
@@ -95,7 +100,6 @@ EmbeddedObject.prototype.renderEmbeddedObject = function () {
     data: JSON.stringify({
       index: this.index,
       language: this.language,
-      embedded_object_id: '#' + this.id,
       key: this.key,
       definition: this.definition,
       options: this.options

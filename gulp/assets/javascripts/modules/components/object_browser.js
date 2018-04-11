@@ -7,7 +7,8 @@ var ObjectBrowser = function (selector) {
   this.scrollTop = 0;
   this.overlay = $('#object_browser_' + this.id);
   this.label = $('[for=' + this.id + ']').text();
-  this.per = 25;
+  this.overlay_per = 25;
+  this.per = selector.data('per') || 5;
   this.type = selector.data('type');
   this.language = selector.data('language');
   this.key = selector.data('key');
@@ -16,12 +17,14 @@ var ObjectBrowser = function (selector) {
   this.class = selector.data('class');
   this.max = selector.data('max');
   this.min = selector.data('min');
+  this.index = this.per;
   this.page = 1;
   this.loading = false;
   this.search = "";
   this.url = "/object_browser";
   this.total = 0;
-  this.chosen = selector.data('objects');
+  this.ids = selector.data('objects') || [];
+  this.chosen = this.ids;
   this.selected = '';
   this.setup();
 };
@@ -77,6 +80,8 @@ ObjectBrowser.prototype.setup = function () {
       var confirmationModal = new ConfirmationModal("Mindestanzahl: " + self.min);
     } else {
       self.chosen.splice(self.chosen.indexOf($(this).parent().data('id')), 1);
+      self.ids.splice(self.ids.indexOf($(this).parent().data('id')), 1);
+      self.index--;
       $('.reveal-overlay > #media_reveal_' + $(this).parent().data('id')).parent('.reveal-overlay').remove();
       $(this).parent().remove();
     }
@@ -95,37 +100,20 @@ ObjectBrowser.prototype.setup = function () {
   }.bind(this));
 
   this.element.on('import-data', function (event, data) {
-    var new_items = this.getDelta(this.chosen, data.ids);
+    var new_items = data.ids.diff(this.chosen);
     if (new_items.length > 0 && ((this.chosen.length + new_items.length) <= this.max || this.max == 0)) {
-      $.ajax({
-        url: this.url + '/find',
-        method: 'POST',
-        data: JSON.stringify({
-          type: this.type,
-          language: this.language,
-          object_browser_id: '#' + this.id,
-          key: this.key,
-          definition: this.definition,
-          options: this.options,
-          ids: data.ids,
-          class: this.class,
-          objects: this.chosen
-        }),
-        contentType: 'application/json'
-      }).done(function (return_data) {
-        this.chosen = this.chosen.concat(data.ids.filter(function (elem) {
-          return this.chosen.indexOf(elem) === -1;
-        }.bind(this)));
-
-        this.element.find('.object-thumbs .item .reveal.media-preview').each(function () {
-          $(this).foundation();
-        });
-
-      }.bind(this));
+      this.findObjects(new_items);
     } else if (this.max != 0 && (this.chosen.length + new_items.length) > this.max) {
       var confirmationModal = new ConfirmationModal("Maximalanzahl: " + self.max);
     }
   }.bind(this));
+
+  this.element.find('> .media-thumbs > .buttons > #load_more_' + this.id).off('click').on('click', event => {
+    event.preventDefault();
+    let page = $(event.currentTarget).data('page');
+
+    this.findObjects(this.ids.slice(this.index, this.index + this.per), page);
+  });
 
   this.overlay.on('import-complete', function (event, data) {
     this.overlay.children('.items').find('[data-id=' + data.id + ']').get(0).scrollIntoView({
@@ -144,13 +132,11 @@ ObjectBrowser.prototype.setup = function () {
         $.extend(form_data, {
           type: self.type,
           language: self.language,
-          overlay_id: '#object_browser_' + self.id,
           key: self.key,
           definition: self.definition,
           options: self.options,
           class: self.class,
           objects: self.chosen,
-          new_overlay_id: '#new_' + self.id
         });
 
         $.ajax({
@@ -173,6 +159,36 @@ ObjectBrowser.prototype.setup = function () {
 
   $('#new_' + this.id).on('closed.zf.reveal', function (event) {
     $("body").addClass("is-reveal-open");
+  });
+};
+
+ObjectBrowser.prototype.findObjects = function (ids, page = 1) {
+  $.ajax({
+    url: this.url + '/find',
+    method: 'POST',
+    dataType: 'script',
+    data: JSON.stringify({
+      type: this.type,
+      language: this.language,
+      key: this.key,
+      definition: this.definition,
+      options: this.options,
+      ids: ids,
+      class: this.class,
+      objects: this.chosen,
+      page: page
+    }),
+    contentType: 'application/json'
+  }).done(return_data => {
+    this.chosen = this.chosen.concat(ids.diff(this.chosen));
+    this.index += ids.length;
+    if (this.element.find('> .media-thumbs > .object-thumbs > .item').length >= this.ids.length) {
+      this.element.find('> .media-thumbs > .buttons > #load_more_' + this.id).remove();
+    }
+    this.updateChosenCounter();
+    this.element.find('.object-thumbs .item .reveal.media-preview').each(function () {
+      $(this).foundation();
+    });
   });
 };
 
@@ -199,6 +215,8 @@ ObjectBrowser.prototype.removeObject = function (id, event) {
     var confirmationModal = new ConfirmationModal("Mindestanzahl: " + this.min);
   } else {
     this.chosen.splice(this.chosen.indexOf(id), 1);
+    this.ids.splice(this.ids.indexOf(id), 1);
+    this.index--;
     this.overlay.find('.chosen-items-container [data-id=' + id + ']').remove();
     this.overlay.children(".items").find('.item[data-id=' + id + ']').removeClass('active');
     this.updateChosenCounter();
@@ -218,10 +236,10 @@ ObjectBrowser.prototype.loadDetails = function (id) {
   $.ajax({
     url: this.url + '/details',
     method: 'POST',
+    dataType: 'script',
     data: JSON.stringify({
       type: this.type,
       language: this.language,
-      overlay_id: '#object_browser_' + this.id,
       key: this.key,
       definition: this.definition,
       options: this.options,
@@ -241,10 +259,8 @@ ObjectBrowser.prototype.resetOverlay = function () {
 };
 
 ObjectBrowser.prototype.setPreselected = function () {
-  this.overlay.find('.chosen-items-container').html(this.element.children('.media-thumbs').children('.object-thumbs').children('.item').clone(true));
-  this.chosen = $.map(this.element.children('.media-thumbs').children('.object-thumbs').children('.item'), function (val, i) {
-    return $(val).data('id');
-  });
+  this.overlay.find('.chosen-items-container').html(this.element.find('> .media-thumbs > .object-thumbs > .item').clone(true));
+  this.chosen = $.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id'));
 }
 
 ObjectBrowser.prototype.openOverlay = function (ev) {
@@ -276,6 +292,11 @@ ObjectBrowser.prototype.openOverlay = function (ev) {
 
   $(window).on('message onmessage', this.import.bind(this));
 
+  let pre_selected = this.ids.diff($.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id')));
+
+  if (pre_selected.length > 0) this.findObjects(pre_selected);
+
+  this.element.find('> .media-thumbs > .buttons > #load_more_' + this.id).remove();
   this.loadObjects(false);
 };
 
@@ -296,12 +317,12 @@ ObjectBrowser.prototype.import = function (event) {
     $.ajax({
       type: 'POST',
       url: '/creative_works/import',
+      dataType: 'script',
       data: JSON.stringify({
         authenticity_token: AUTH_TOKEN,
         type: this.type + "_object",
         data: event.originalEvent.data.data,
         language: this.language,
-        overlay_id: '#object_browser_' + this.id,
         key: this.key,
         definition: this.definition,
         options: this.options,
@@ -326,12 +347,12 @@ ObjectBrowser.prototype.loadObjects = function (append = true) {
   $.ajax({
     url: this.url + '/show',
     method: 'POST',
+    dataType: 'script',
     data: JSON.stringify({
       page: this.page,
-      per: this.per,
+      per: this.overlay_per,
       type: this.type,
       language: this.language,
-      overlay_id: '#object_browser_' + this.id,
       key: this.key,
       definition: this.definition,
       options: this.options,
@@ -340,7 +361,7 @@ ObjectBrowser.prototype.loadObjects = function (append = true) {
       append: append
     }),
     contentType: 'application/json'
-  }).done(function (data) {
+  }).done(data => {
     this.total = this.overlay.data("total");
     this.overlay.find('.items .item .reveal.media-preview').each(function () {
       if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
@@ -350,15 +371,7 @@ ObjectBrowser.prototype.loadObjects = function (append = true) {
       this.page += 1;
       this.loadObjects();
     }
-  }.bind(this));
-};
-
-ObjectBrowser.prototype.getDelta = function (arr1, arr2) {
-  var delta = [];
-  for (var i = 0; i < arr2.length; i++) {
-    if (arr1.indexOf(arr2[i]) === -1) delta.push(arr2[i]);
-  }
-  return delta;
+  });
 };
 
 module.exports = ObjectBrowser;
