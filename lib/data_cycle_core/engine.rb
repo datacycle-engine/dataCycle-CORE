@@ -189,6 +189,17 @@ module DataCycleCore
     config.action_controller.raise_on_unfiltered_parameters = true
     config.action_controller.per_form_csrf_tokens = true
     config.action_controller.forgery_protection_origin_check = true
+    # Configure SSL options to enable HSTS with subdomains. Previous versions had false.
+    config.ssl_options = { hsts: { subdomains: true } }
+    # Make Ruby 2.4 preserve the timezone of the receiver when calling `to_time`.
+    # Previous versions had false.
+    ActiveSupport.to_time_preserves_timezone = true
+    # Do not halt callback chains when a callback returns false. Previous versions had true.
+    ActiveSupport.halt_callback_chains_on_return_false = false
+    # Enable parameter wrapping for JSON. You can disable this by setting :format to an empty array.
+    ActiveSupport.on_load(:action_controller) do
+      wrap_parameters format: [:json]
+    end
 
     # use active_record as orm (!not mongoid)
     config.app_generators.orm = :active_record

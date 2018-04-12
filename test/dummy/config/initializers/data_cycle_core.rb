@@ -7,24 +7,8 @@ DataCycleCore.setup do |config|
   Rails.application.config.assets.precompile += ['logo.svg', 'logo.png']
   # Configure sensitive parameters which will be filtered from the log file.
   Rails.application.config.filter_parameters += [:password]
-
-  # Make Ruby 2.4 preserve the timezone of the receiver when calling `to_time`.
-  # Previous versions had false.
-  ActiveSupport.to_time_preserves_timezone = true
-
   # Require `belongs_to` associations by default. Previous versions had false.
   Rails.application.config.active_record.belongs_to_required_by_default = true
-
-  # Do not halt callback chains when a callback returns false. Previous versions had true.
-  ActiveSupport.halt_callback_chains_on_return_false = false
-
-  # Enable parameter wrapping for JSON. You can disable this by setting :format to an empty array.
-  ActiveSupport.on_load(:action_controller) do
-    wrap_parameters format: [:json]
-  end
-
-  # Configure SSL options to enable HSTS with subdomains. Previous versions had false.
-  Rails.application.config.ssl_options = { hsts: { subdomains: true } }
   Rails.application.config.session_store :cookie_store, key: '_dummy_session'
 
   # DataCycleCore settings
