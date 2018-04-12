@@ -72,26 +72,20 @@ module DataCycleCore
     mattr_accessor :internal_data_attributes
     self.internal_data_attributes = ['creator', 'data_type', 'data_pool', 'is_part_of']
 
-    mattr_accessor :default_image_type
-    self.default_image_type = 'Bild'
-
-    mattr_accessor :default_place_type
-    self.default_place_type = 'Örtlichkeit'
-
     mattr_accessor :access_tokens
     self.access_tokens = []
 
     mattr_accessor :content_tables
     self.content_tables = ['creative_works', 'events', 'persons', 'organizations', 'places']
 
+    mattr_accessor :linked_tables
+    self.linked_tables = ['users']
+
     mattr_accessor :asset_objects
     self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image']
 
     mattr_accessor :allowed_api_strategies
     self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource']
-
-    mattr_accessor :linked_tables
-    self.linked_tables = ['users']
 
     mattr_accessor :excluded_filter_classifications
     self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Overlay']
@@ -154,6 +148,22 @@ module DataCycleCore
     # obsolete: remove after projects initializer update
     mattr_accessor :allowed_content_api_classifications
     self.allowed_content_api_classifications = []
+
+    # replace default_image_type + default_place_type with default_templates
+    mattr_accessor :default_image_type
+    self.default_image_type = 'Bild'
+
+    mattr_accessor :default_place_type
+    self.default_place_type = 'Örtlichkeit'
+
+    mattr_accessor :default_templates
+    self.default_templates = {
+      images: 'Bild',
+      places: 'Örtlichkeit',
+      events: 'Event',
+      persons: 'Person',
+      organizations: 'Organization'
+    }
   end
 
   def self.setup
