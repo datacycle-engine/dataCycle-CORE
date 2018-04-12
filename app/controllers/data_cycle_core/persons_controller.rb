@@ -68,7 +68,22 @@ module DataCycleCore
       @person = DataCycleCore::Person.find(params[:id])
       I18n.with_locale(@person.first_available_locale(params[:locale])) do
         object_params = person_params('persons', @person.template_name)
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @person.schema, false)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @person.schema)
+
+        data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
+          datahash.merge({ 'id' => @person.id}),
+          @person.get_data_hash
+        )
+
+        unless data_hash_has_changes
+          flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @person.template_name, locale: DataCycleCore.ui_language
+          if (Rails.env.development? || params[:splitview]) && !params[:finalize]
+            redirect_back(fallback_location: root_path)
+          else
+            redirect_to person_path(@person, watch_list_id: @watch_list)
+          end
+          return
+        end
 
         valid = @person.set_data_hash(data_hash: datahash, current_user: current_user)
 

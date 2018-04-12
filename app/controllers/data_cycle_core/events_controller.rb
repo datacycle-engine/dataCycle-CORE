@@ -68,7 +68,22 @@ module DataCycleCore
       @event = DataCycleCore::Event.find(params[:id])
       I18n.with_locale(@event.first_available_locale(params[:locale])) do
         object_params = event_params('events', @event.template_name)
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @event.schema, false)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @event.schema)
+
+        data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
+          datahash.merge({ 'id' => @event.id}),
+          @event.get_data_hash
+        )
+
+        unless data_hash_has_changes
+          flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @event.template_name, locale: DataCycleCore.ui_language
+          if (Rails.env.development? || params[:splitview]) && !params[:finalize]
+            redirect_back(fallback_location: root_path)
+          else
+            redirect_to events_path(@event, watch_list_id: @watch_list)
+          end
+          return
+        end
 
         valid = @event.set_data_hash(data_hash: datahash, current_user: current_user)
 
