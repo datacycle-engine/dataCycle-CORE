@@ -22,5 +22,9 @@ module DataCycleCore
       self.file_size = file.size
       self
     end
+
+    def self.available_asset_objects
+      [name] + subclasses.map(&:name)
+    end
   end
 end

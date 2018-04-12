@@ -81,9 +81,6 @@ module DataCycleCore
     mattr_accessor :linked_tables
     self.linked_tables = ['users']
 
-    mattr_accessor :asset_objects
-    self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image']
-
     mattr_accessor :allowed_api_strategies
     self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource']
 
