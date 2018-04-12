@@ -1,9 +1,7 @@
 DataCycleCore.setup do |config|
   # general settings
   I18n.available_locales = [:de]
-  # Precompile additional assets.
-  # application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
-  # Rails.application.config.assets.precompile += %w( search.js )
+  # only required for DataCycleCore dummy app
   Rails.application.config.assets.precompile += ['logo.svg', 'logo.png']
   # Configure sensitive parameters which will be filtered from the log file.
   Rails.application.config.filter_parameters += [:password]
@@ -26,7 +24,7 @@ DataCycleCore.setup do |config|
   ].freeze
 
   config.external_sources_path = Rails.root.join('config', 'external_sources').freeze
-  config.excluded_new_item_objects = ['Event', 'Person', 'Örtlichkeit', 'Bild', 'Organization', 'Zeitleiste', 'Linktipps', 'Datei']
+  config.excluded_new_item_objects = ['Event', 'Person', 'Örtlichkeit', 'Bild', 'Organization', 'Zeitleiste', 'Linktipps', 'Datei', 'Tour', 'Video']
 
   config.features = config.features.merge(
     {
