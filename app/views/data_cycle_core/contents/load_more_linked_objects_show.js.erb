@@ -1,4 +1,4 @@
-var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(params[:key]) %>');
+var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(params[:key]) %>').parent('.clear-both');
 
 <% if params[:definition][:type] == 'embeddedLinkArray' %>
   <% content_for :rendered_items do %>
@@ -20,7 +20,9 @@ var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(params
       </li>
     <% end %>
 
-    <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path([:load_more_linked_objects, @object], key: params[:key], definition: params[:definition], options: params[:options], page: params.fetch(:page, 1).to_i + 1, load_more_action: :show), remote: true, id: "load_more_#{@object&.id}_#{sanitize_to_id(params[:key])}", class: 'load-more-linked-contents', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" } unless @linked_objects.last_page? %>
+    <div class="clear-both">
+      <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path([:load_more_linked_objects, @object], key: params[:key], definition: params[:definition], options: params[:options], page: params.fetch(:page, 1).to_i + 1, load_more_action: :show), remote: true, id: "load_more_#{@object&.id}_#{sanitize_to_id(params[:key])}", class: 'load-more-linked-contents button small secondary', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" } if @linked_objects.try(:total_pages)&.positive? && !@linked_objects&.last_page? %>
+    </div>
   <% end %>
 
   $('<%= j yield :rendered_items %>').insertAfter(load_more_button).trigger('contents-added', { editor: 'object_browser', single: true }).foundation();

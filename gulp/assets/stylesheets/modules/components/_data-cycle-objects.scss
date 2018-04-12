@@ -439,6 +439,21 @@
       }
     }
   }
+  >.items {
+    .media.item {
+      &.active {
+        border-color: $primary-color;
+        background-color: $primary-color;
+        box-shadow: 0 0 0 1px rgba($primary-color, 1);
+        .person {
+          color: white;
+        }
+        .warning {
+          opacity: 1;
+        }
+      }
+    }
+  }
   .items {
     &.margin-bottom-10::after {
       content: '';
@@ -483,17 +498,6 @@
         position: relative;
       }
       &.item {
-        &.active {
-          border-color: $primary-color;
-          background-color: $primary-color;
-          box-shadow: 0 0 0 1px rgba($primary-color, 1);
-          .person {
-            color: white;
-          }
-          .warning {
-            opacity: 1;
-          }
-        }
         display: block;
         float: left;
         margin: 0 1rem 1rem 0;

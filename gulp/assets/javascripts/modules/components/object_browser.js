@@ -12,9 +12,12 @@ var ObjectBrowser = function (selector) {
   this.type = selector.data('type');
   this.language = selector.data('language');
   this.key = selector.data('key');
+  this.object_id = selector.data('object-id');
+  this.object_key = selector.data('object-key');
   this.definition = selector.data('definition');
   this.options = selector.data('options');
   this.class = selector.data('class');
+  this.table = selector.data('table');
   this.max = selector.data('max');
   this.min = selector.data('min');
   this.index = this.per;
@@ -25,13 +28,16 @@ var ObjectBrowser = function (selector) {
   this.url = "/object_browser";
   this.total = 0;
   this.ids = selector.data('objects') || [];
-  this.chosen = this.ids;
+  this.chosen = this.ids.slice(0);
   this.selected = '';
+
   this.setup();
 };
 
 ObjectBrowser.prototype.setup = function () {
   var self = this;
+
+  this.ids = this.ids.diff($.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id')));
 
   // initialize all eventhandlers
   this.overlay.on('open.zf.reveal', this.openOverlay.bind(this));
@@ -80,9 +86,9 @@ ObjectBrowser.prototype.setup = function () {
     if (self.min != 0 && self.chosen.length <= self.min) {
       var confirmationModal = new ConfirmationModal("Mindestanzahl: " + self.min);
     } else {
-      self.chosen.splice(self.chosen.indexOf($(this).parent().data('id')), 1);
-      self.ids.splice(self.ids.indexOf($(this).parent().data('id')), 1);
-      self.index--;
+      self.chosen = self.chosen.diff($(this).parent().data('id'));
+      self.ids = self.ids.diff($(this).parent().data('id'));
+      self.element.children('input:hidden[value="' + $(this).parent().data('id') + '"]').remove();
       $('.reveal-overlay > #media_reveal_' + $(this).parent().data('id')).parent('.reveal-overlay').remove();
       $(this).parent().remove();
     }
@@ -101,20 +107,13 @@ ObjectBrowser.prototype.setup = function () {
   }.bind(this));
 
   this.element.on('import-data', function (event, data) {
-    var new_items = data.ids.diff(this.chosen);
+    var new_items = data.ids.diff($.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id')));
     if (new_items.length > 0 && ((this.chosen.length + new_items.length) <= this.max || this.max == 0)) {
       this.findObjects(new_items);
     } else if (this.max != 0 && (this.chosen.length + new_items.length) > this.max) {
       var confirmationModal = new ConfirmationModal("Maximalanzahl: " + self.max);
     }
   }.bind(this));
-
-  this.element.find('> .media-thumbs > .buttons > #load_more_' + this.id).off('click').on('click', event => {
-    event.preventDefault();
-    let page = $(event.currentTarget).data('page');
-
-    this.findObjects(this.ids.slice(this.index, this.index + this.per), page);
-  });
 
   this.overlay.on('import-complete', function (event, data) {
     this.overlay.children('.items').find('[data-id=' + data.id + ']').get(0).scrollIntoView({
@@ -163,7 +162,8 @@ ObjectBrowser.prototype.setup = function () {
   });
 };
 
-ObjectBrowser.prototype.findObjects = function (ids, page = 1) {
+ObjectBrowser.prototype.findObjects = function (ids) {
+  this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('disabled', true).html(this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).data('loading-text'));
   $.ajax({
     url: this.url + '/find',
     method: 'POST',
@@ -177,19 +177,28 @@ ObjectBrowser.prototype.findObjects = function (ids, page = 1) {
       ids: ids,
       editable: this.editable,
       class: this.class,
-      objects: this.chosen,
-      page: page
+      objects: this.chosen
     }),
     contentType: 'application/json'
   }).done(return_data => {
     this.chosen = this.chosen.concat(ids.diff(this.chosen));
-    this.index += ids.length;
-    if (this.element.find('> .media-thumbs > .object-thumbs > .item').length >= this.ids.length) {
-      this.element.find('> .media-thumbs > .buttons > #load_more_' + this.id).remove();
+    this.ids = this.ids.diff(ids);
+
+    $($.map(ids, id => this.element.children('input:hidden[value="' + id + '"]'))).each((index, elem) => $(elem).remove());
+
+    if (this.ids.length == 0) {
+      this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).remove();
+    } else {
+      this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('disabled', false).html(this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('title'));
     }
+
     this.updateChosenCounter();
-    this.element.find('.object-thumbs .item .reveal.media-preview').each(function () {
-      $(this).foundation();
+    this.overlay.find('.items .item .reveal.media-preview').each(function () {
+      if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
+    });
+
+    this.element.find('.object-thumbs .item .reveal.media-preview').each((index, element) => {
+      $(element).foundation();
     });
   });
 };
@@ -216,9 +225,8 @@ ObjectBrowser.prototype.removeObject = function (id, event) {
   if (this.min != 0 && this.chosen.length <= this.min) {
     var confirmationModal = new ConfirmationModal("Mindestanzahl: " + this.min);
   } else {
-    this.chosen.splice(this.chosen.indexOf(id), 1);
-    this.ids.splice(this.ids.indexOf(id), 1);
-    this.index--;
+    this.chosen = this.chosen.diff(id);
+    this.element.children('input:hidden[value="' + id + '"]').remove();
     this.overlay.find('.chosen-items-container [data-id=' + id + ']').remove();
     this.overlay.children(".items").find('.item[data-id=' + id + ']').removeClass('active');
     this.updateChosenCounter();
@@ -287,10 +295,10 @@ ObjectBrowser.prototype.openOverlay = function (ev) {
     " auswählen</i></span></li>"
   );
 
-  $(".breadcrumb ul li").on("click", ".close-object-browser", function (e) {
-    e.preventDefault();
+  $(".breadcrumb ul li").on("click", ".close-object-browser", event => {
+    event.preventDefault();
     this.overlay.foundation("close");
-  }.bind(this));
+  });
 
   $(window).on('message onmessage', this.import.bind(this));
 
@@ -298,7 +306,7 @@ ObjectBrowser.prototype.openOverlay = function (ev) {
 
   if (pre_selected.length > 0) this.findObjects(pre_selected);
 
-  this.element.find('> .media-thumbs > .buttons > #load_more_' + this.id).remove();
+  this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).remove();
   this.loadObjects(false);
 };
 

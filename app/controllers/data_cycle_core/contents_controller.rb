@@ -44,7 +44,17 @@ module DataCycleCore
       @page = params.fetch(:page, 1)
       @linked_objects = @object.try(params[:key])&.includes(:translations)&.page(@page)&.per(DataCycleCore.linked_objects_page_size)
 
-      respond_to :js
+      respond_to do |format|
+        format.js do
+          if params[:load_more_action] == 'object_browser'
+            render :load_more_linked_objects_object_browser
+          elsif params[:load_more_action] == 'embedded_object'
+            render :load_more_linked_objects_embedded_object
+          else
+            render :load_more_linked_objects_show
+          end
+        end
+      end
     end
 
     private

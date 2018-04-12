@@ -8,8 +8,8 @@
             <div class="content-object-item" id="<%= sanitize_to_id(key) %>_item_<%= index %>" data-id="<%= object.id %>">
                 <span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %> <%= definition['label'] %></span>
 
-                <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content)) %>
-                    <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
+                <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, object)) %>
+                  <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
                 <% end %>
 
                 <%= hidden_field_tag("#{key}[#{index}][id]", object.id) unless new_content %>

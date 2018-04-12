@@ -10,5 +10,3 @@ var html_content = '<%= j yield :rendered_items %>';
 
 $('#<%= sanitize_to_id(params[:key]) %> .object-thumbs').append(html_content);
 $('#object_browser_<%= sanitize_to_id(params[:key]) %> .chosen-items-container').append(html_content);
-
-$('#<%= sanitize_to_id(params[:key]) %> > .media-thumbs > .buttons > button.load-more-linked-contents').data('page', <%= params.fetch(:page, 1).to_i + 1 %>);

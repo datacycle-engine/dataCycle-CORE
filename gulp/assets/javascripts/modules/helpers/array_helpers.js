@@ -1,12 +1,12 @@
 // Array Helpermethods
 Array.prototype.diff = function (a) {
-  return this.filter(function (i) {
-    return a.indexOf(i) === -1;
-  });
+  return this.filter(i => a.indexOf(i) === -1);
 };
 
 Array.prototype.intersect = function (a) {
-  return this.filter(function (i) {
-    return a.indexOf(i) !== -1;
-  });
+  return this.filter(i => a.indexOf(i) !== -1);
+};
+
+Array.prototype.equal_to = function (a) {
+  return this.length === a.length && this.filter(i => a.indexOf(i) === -1).length === this.length;
 };

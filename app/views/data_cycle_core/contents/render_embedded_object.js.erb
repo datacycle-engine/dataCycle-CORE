@@ -10,5 +10,3 @@ $('#<%= sanitize_to_id(params[:key]) %> > .buttons').before('<%= j yield :render
 $('<%= j content_for :forms %>').appendTo('body').foundation();
 
 $('<%= (params[:index].presence&.to_i..(params[:index].presence&.to_i + @objects.size)).map { |i| "##{sanitize_to_id(params[:key])}_item_#{i}" }.join(', ') %>').foundation().trigger('clone-added');
-
-$('#<%= sanitize_to_id(params[:key]) %> > .buttons > button.load-more-linked-contents').data('page', <%= params.fetch(:page, 1).to_i + 1 %>);
