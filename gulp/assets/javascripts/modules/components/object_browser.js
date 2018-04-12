@@ -175,6 +175,7 @@ ObjectBrowser.prototype.findObjects = function (ids, page = 1) {
       definition: this.definition,
       options: this.options,
       ids: ids,
+      editable: this.editable,
       class: this.class,
       objects: this.chosen,
       page: page

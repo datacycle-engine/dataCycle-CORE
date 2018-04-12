@@ -20,7 +20,7 @@
           <div class="object-thumbs">
             <% objects = value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
             <% if objects.presence&.each do |object| %>
-              <%= render_object_browser_partial(key: key + (definition['type'] == "object" ? '[][id]' : '[]'), definition: definition, parameters: {object: object, options: options}) %>
+              <%= render_object_browser_partial(key: key + (definition['type'] == "object" ? '[][id]' : '[]'), definition: definition, parameters: {object: object, options: options, editable: can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content))}) %>
             <% end.blank? %>
               <%= hidden_field_tag key + '[]' %>
             <% end %>

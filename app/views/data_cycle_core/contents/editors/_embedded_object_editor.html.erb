@@ -29,7 +29,10 @@
           <%= t('common.load_more', locale: DataCycleCore.ui_language) %>
         </button>
       <% end %>
-      <button id="add_<%= sanitize_to_id(key) %>" type="button" class="button addContentObject" style="display: none;"><%= definition['label'] %> hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
+
+      <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content)) %>
+        <button id="add_<%= sanitize_to_id(key) %>" type="button" class="button addContentObject" style="display: none;"><%= definition['label'] %> hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
+      <% end %>
     </div>
   </div>
 
