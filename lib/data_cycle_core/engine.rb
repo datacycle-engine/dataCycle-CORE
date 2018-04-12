@@ -99,9 +99,6 @@ module DataCycleCore
     mattr_accessor :excluded_new_item_objects
     self.excluded_new_item_objects = []
 
-    mattr_accessor :allowed_content_api_classifications
-    self.allowed_content_api_classifications = ['Angebot', 'Artikel', 'Bild', 'Rezept', 'Social Media Posting', 'Veranstaltung']
-
     mattr_accessor :ui_language
     self.ui_language = :de
 
@@ -153,6 +150,10 @@ module DataCycleCore
       ],
       advanced: []
     }
+
+    # obsolete: remove after projects initializer update
+    mattr_accessor :allowed_content_api_classifications
+    self.allowed_content_api_classifications = []
   end
 
   def self.setup
