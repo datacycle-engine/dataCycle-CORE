@@ -38,17 +38,17 @@ module DataCycleCore
     end
 
     def load_more_linked_objects
-      @object = ('DataCycleCore::' + controller_name.singularize.classify).constantize.find(params[:id])
+      @object = ('DataCycleCore::' + controller_name.singularize.classify).constantize.find(linked_object_params[:id])
       authorize! :show, @object
 
-      @page = params.fetch(:page, 1)
-      @linked_objects = @object.try(params[:key])&.includes(:translations)&.page(@page)&.per(DataCycleCore.linked_objects_page_size)
+      @page = linked_object_params.fetch(:page, 1)
+      @linked_objects = @object.try(linked_object_params[:key])&.includes(:translations)&.page(@page)&.per(DataCycleCore.linked_objects_page_size)
 
       respond_to do |format|
         format.js do
-          if params[:load_more_action] == 'object_browser'
+          if linked_object_params[:load_more_action] == 'object_browser'
             render :load_more_linked_objects_object_browser
-          elsif params[:load_more_action] == 'embedded_object'
+          elsif linked_object_params[:load_more_action] == 'embedded_object'
             render :load_more_linked_objects_embedded_object
           else
             render :load_more_linked_objects_show
@@ -62,6 +62,10 @@ module DataCycleCore
     def set_watch_list
       watch_list = DataCycleCore::WatchList.find(params[:watch_list_id]) if params[:watch_list_id]
       @watch_list = watch_list if can?(:manage, watch_list)
+    end
+
+    def linked_object_params
+      params.permit(:id, :key, :page, :load_more_action)
     end
 
     def life_cycle_params

@@ -27,17 +27,3 @@ $('<%= j content_for :forms %>').appendTo('body').foundation();
 
 $($.map(<%== @linked_objects.ids %>, id => $('#<%= sanitize_to_id(params[:complete_key]) %> > input:hidden[value="' + id + '"]'))).each((index, elem) => $(elem).remove());
 load_more_button.remove();
-
-
-/*
-$('#<%= sanitize_to_id(params[:complete_key]) %> > .media-thumbs > .buttons').prepend('<%= j yield :buttons %>');
-
-<%== @linked_objects.ids %>.forEach(element => {
-  html_content = html_content.replace('id="media_reveal_' + element + '"', 'id="overlay_media_reveal_' + element + '"');
-});
-
-$(html_content).appendTo('#object_browser_<%= sanitize_to_id(params[:complete_key]) %> .chosen-items-container');
-
-$($.map(<%== @linked_objects.ids %>, id => $('#<%= sanitize_to_id(params[:complete_key]) %> > input:hidden[value="' + id + '"]'))).each((index, elem) => $(elem).remove());
-load_more_button.remove();
-*/
