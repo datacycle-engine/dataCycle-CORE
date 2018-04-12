@@ -100,13 +100,13 @@ module DataCycleCore
     self.excluded_new_item_objects = []
 
     mattr_accessor :allowed_content_api_classifications
-    self.allowed_content_api_classifications = ['Angebot', 'Artikel', 'Bild', 'Social Media Posting']
+    self.allowed_content_api_classifications = ['Angebot', 'Artikel', 'Bild', 'Rezept', 'Social Media Posting', 'Veranstaltung']
 
     mattr_accessor :ui_language
     self.ui_language = :de
 
     mattr_accessor :translatable_types
-    self.translatable_types = ['DataCycleCore::Person', 'DataCycleCore::Organization', 'DataCycleCore::Place']
+    self.translatable_types = ['DataCycleCore::Person', 'DataCycleCore::Organization', 'DataCycleCore::Place', 'DataCycleCore::Event']
 
     mattr_accessor :release_codes
     self.release_codes = {
@@ -186,7 +186,8 @@ module DataCycleCore
     config.assets.precompile += ['data_cycle_core/*']
 
     config.action_dispatch.cookies_serializer = :json
-    config.action_controller.raise_on_unfiltered_parameters = true
+    # TODO: check: raise_on_unfiltered_parameters never worked in main application
+    # config.action_controller.raise_on_unfiltered_parameters = true
     config.action_controller.per_form_csrf_tokens = true
     config.action_controller.forgery_protection_origin_check = true
     # Configure SSL options to enable HSTS with subdomains. Previous versions had false.
