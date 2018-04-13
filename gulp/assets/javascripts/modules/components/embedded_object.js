@@ -1,4 +1,5 @@
 var ConfirmationModal = require('./../components/confirmation_modal');
+var Sortable = require('sortablejs');
 
 // Embedded Object Module
 var EmbeddedObject = function (selector) {
@@ -18,11 +19,17 @@ var EmbeddedObject = function (selector) {
   this.ids = this.element.data('ids') || [];
   this.per = this.element.data('per') || 5;
   this.url = '/contents';
+  this.sortable;
 
   this.setup();
 };
 
 EmbeddedObject.prototype.setup = function () {
+  this.sortable = new Sortable(this.element[0], {
+    handle: '.draggable-handle',
+    draggable: '.content-object-item'
+  });
+
   if (this.write && (this.max == 0 || this.element.children('.content-object-item').length < this.max)) $(this.element).find('> .buttons > #add_' + this.id).show();
 
   this.element.off('reinit-event-handlers').on('reinit-event-handlers', this.addEventHandlers.bind(this));

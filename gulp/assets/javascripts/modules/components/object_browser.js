@@ -1,4 +1,5 @@
 var ConfirmationModal = require('./../components/confirmation_modal');
+var Sortable = require('sortablejs');
 
 // Object Browser Module
 var ObjectBrowser = function (selector) {
@@ -30,12 +31,18 @@ var ObjectBrowser = function (selector) {
   this.ids = selector.data('objects') || [];
   this.chosen = this.ids.slice(0);
   this.selected = '';
+  this.sortable;
 
   this.setup();
 };
 
 ObjectBrowser.prototype.setup = function () {
   var self = this;
+
+  this.sortable = new Sortable(this.element.find('> .media-thumbs > .object-thumbs')[0], {
+    handle: '.draggable-handle',
+    draggable: '.item'
+  });
 
   this.ids = this.ids.diff($.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id')));
 
@@ -241,6 +248,24 @@ ObjectBrowser.prototype.updateChosenCounter = function () {
   this.overlay.find('.chosen-counter').html(html);
 };
 
+ObjectBrowser.prototype.loadMore = function (loaded) {
+  $.ajax({
+    url: '/' + this.table + '/' + this.object_id + '/load_more_linked_objects',
+    method: 'POST',
+    dataType: 'script',
+    data: {
+      key: this.object_key,
+      complete_key: this.key,
+      language: this.language,
+      definition: this.definition,
+      options: this.options,
+      class: this.class,
+      id: id
+    },
+    contentType: 'application/json'
+  });
+};
+
 ObjectBrowser.prototype.loadDetails = function (id) {
   this.selected = id;
   $.ajax({
@@ -302,9 +327,9 @@ ObjectBrowser.prototype.openOverlay = function (ev) {
 
   $(window).on('message onmessage', this.import.bind(this));
 
-  let pre_selected = this.ids.diff($.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id')));
+  let loaded = $.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id'));
 
-  if (pre_selected.length > 0) this.findObjects(pre_selected);
+  if (pre_selected.length > 0) this.loadMore(loaded);
 
   this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).remove();
   this.loadObjects(false);

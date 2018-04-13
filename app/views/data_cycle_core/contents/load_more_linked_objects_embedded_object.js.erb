@@ -16,7 +16,7 @@ var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(params
 
 var html_content = '<%= j yield :rendered_items %>';
 
-$(html_content).insertBefore('#<%= sanitize_to_id(params[:complete_key]) %> > .buttons');
+$(html_content).insertBefore($('#<%= sanitize_to_id(params[:complete_key]) %> > input:hidden').first());
 
 $('<%= ((active_index_multiplier * DataCycleCore.linked_objects_page_size)..((active_index_multiplier * DataCycleCore.linked_objects_page_size) + @linked_objects.size)).map { |i| "##{sanitize_to_id(params[:complete_key])}_item_#{i}" }.join(', ') %>').foundation().trigger('clone-added');
 

@@ -15,12 +15,14 @@
     data-min="<%= definition.dig('validations', 'minLength') || 0 %>"
     data-write="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content)) %>">
 
-    <% value.presence&.ids&.reject { |v| objects.presence&.ids&.include?(v) }&.each_with_index do |id, index| %>
-      <%= hidden_field_tag "#{key}[#{index + objects.size}][id]", id %>
-    <% end %>
+    <% if objects.present? %>
+      <% objects.each_with_index do |object, index| %>
+        <%= render_embedded_object_partial(key: key, definition: definition, parameters: { object: object, index: index, options: options, new_content: new_content ||= false }) %>
+      <% end %>
 
-    <% objects.presence&.each_with_index do |object, index| %>
-      <%= render_embedded_object_partial(key: key, definition: definition, parameters: { object: object, index: index, options: options, new_content: new_content ||= false }) %>
+      <% value.presence&.ids&.reject { |v| objects.presence&.ids&.include?(v) }&.each_with_index do |id, index| %>
+        <%= hidden_field_tag "#{key}[#{index + objects.size}][id]", id %>
+      <% end %>
     <% end %>
 
     <div class="buttons">
