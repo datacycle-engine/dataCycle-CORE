@@ -15,10 +15,10 @@ module.exports.initialize = function () {
   // check if data changed and confirm leaving the page
 
   if ($('.edit-content-form').length > 0) {
-    var form_data = [];
-    setTimeout(function () {
-      form_data = $('.edit-content-form').serializeArray();
-    }, 1000);
+    var form_data = $('.edit-content-form').serializeArray();
+    // setTimeout(function () {
+    //   form_data = $('.edit-content-form').serializeArray();
+    // }, 1000);
 
     $(window).on("beforeunload", function () {
       var new_form_data = $('.edit-content-form').serializeArray();

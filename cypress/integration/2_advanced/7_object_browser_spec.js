@@ -14,7 +14,7 @@ describe('ObjectBrowser', function () {
       id = url.substr(url.indexOf('creative_works/') + 15, 36)
       cy.visit(url).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
 
-      cy.get('.object-browser[data-type="place"]').should('be.visible').find('.button#show').should('be.visible').click()
+      cy.get('.object-browser[data-type="place"]').should('be.visible').find('.button.show-objectbrowser').should('be.visible').click()
       cy.get('.object-browser-overlay:visible').should('be.visible').find('.new-item-button').should('be.visible').click()
       cy.get('.new-item:visible').should('be.visible').find('#place_datahash_name').should('be.visible').type(place + '{enter}')
       cy.get('.chosen-items:visible').should('be.visible').contains(place).should('have.length', 1)
@@ -47,7 +47,7 @@ describe('ObjectBrowser', function () {
     cy.visit('/creative_works/' + id + '/edit').get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
     cy.location('pathname').should('match', /\/creative_works\/.*\/edit/)
 
-    cy.get('.object-browser[data-type="place"]').should('be.visible').find('.button#show').should('be.visible').click()
+    cy.get('.object-browser[data-type="place"]').should('be.visible').find('.button.show-objectbrowser').should('be.visible').click()
 
     cy.get('.object-browser-search:visible').should('be.visible').type(place + '{enter}')
     cy.get('.items:not(.chosen-items):visible .item:contains(' + place + ')').should('have.length', 1).should('be.visible').trigger('click')
@@ -66,7 +66,7 @@ describe('ObjectBrowser', function () {
     cy.visit('/creative_works/' + id + '/edit').get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
     cy.location('pathname').should('match', /\/creative_works\/.*\/edit/)
 
-    cy.get('.object-browser[data-type="place"]').should('be.visible').find('.button#show').should('be.visible').click()
+    cy.get('.object-browser[data-type="place"]').should('be.visible').find('.button.show-objectbrowser').should('be.visible').click()
 
     cy.get('.object-browser-search:visible').should('be.visible').type(place + '{enter}')
     cy.get('.items:not(.chosen-items):visible .item:contains(' + place + ')').should('have.length', 1).should('be.visible').trigger('click')

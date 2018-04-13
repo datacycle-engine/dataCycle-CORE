@@ -8,5 +8,5 @@ Array.prototype.intersect = function (a) {
 };
 
 Array.prototype.equal_to = function (a) {
-  return this.length === a.length && this.filter(i => a.indexOf(i) === -1).length === this.length;
+  return this.length === a.length && this.filter(i => a.findIndex(e => e.name === i.name && e.value === i.value) !== -1).length === this.length;
 };
