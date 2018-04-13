@@ -479,7 +479,7 @@
         }
         .advanced-filters {
           margin: 0;
-          padding: 0.5rem;
+          padding: 0.5rem 0.5rem 0.5rem 1.5rem;
           input {
             margin: 0;
           }
@@ -518,20 +518,7 @@
     }
   }
   .search {
-    padding-top: 0;
-    margin: 0 0.5rem;
-    display: flex;
-    flex: 1;
-    min-width: 300px;
-    vertical-align: middle;
-  }
-  .filterbuttons {
-    margin: 0 0.5rem 0 0;
-    display: inline-block;
-    flex: 1;
-    vertical-align: middle;
-    float: none;
-    line-height: 3;
+    padding: 0.5rem 0.5rem 0 0.5rem;
   }
 }
 

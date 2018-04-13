@@ -14,7 +14,7 @@
     </li>
   </ul>
 
-  <%= render 'filter_minimal' %>
+  <%= render 'filter_minimal', filter: { search: true, language: true } %>
   <%= render 'results', contents: @contents %>
 
   <% content_for :new_button do %>

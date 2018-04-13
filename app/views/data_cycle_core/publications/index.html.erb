@@ -4,6 +4,7 @@
 
 <% content_for :advanced_filters do %>
   <div class="date-range">
+    <i class="fa fa-calendar" aria-hidden="true"></i>
     <%= label_tag :publications_from, "#{t('data_cycle_core.publication_date', locale: DataCycleCore.ui_language)}:" %>
     <%= date_field_tag :publications_from, params[:publications_from], placeholder: t('terms.from', locale: DataCycleCore.ui_language) %>
     <%= label_tag :publications_until, ' - ' %>
@@ -11,7 +12,7 @@
   </div>
 <% end %>
 
-<%= render 'filter_minimal', tree_labels: ['Inhaltstypen'] + @publication_classifications.values, hide_language: false, show_filter: true %>
+<%= render 'filter_minimal', filter: { language: true, classification_trees: ['Inhaltstypen'] + @publication_classifications.values }, show_filter: true %>
 
 <section class="publications-list" data-pages="<%= @pages %>">
   <div class="row">

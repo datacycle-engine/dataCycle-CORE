@@ -53,7 +53,7 @@
 
     <div class="row">
 
-        <%= render 'filter_minimal' if user_signed_in? %>
+        <%= render 'filter_minimal', filter: { search: true, language: true } %>
 
         <%= render 'results', contents: @contents unless @contents.nil? %>
 
