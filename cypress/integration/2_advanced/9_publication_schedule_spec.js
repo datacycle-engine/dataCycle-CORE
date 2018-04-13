@@ -45,7 +45,7 @@ describe('Publication Schedule', function () {
       force: true
     });
 
-    cy.get('#search').should('be.visible').type(cname + '{enter}');
+    cy.get('.filterbuttons button[type="submit"]').should('be.visible').click();
     cy.location('pathname').should('match', /\/publications/);
 
     cy.get('.publications-list').should('be.visible').contains(cname).should('have.length', 1);
