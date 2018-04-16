@@ -45,9 +45,6 @@ module.exports.initialize = function () {
   }
 
   function setup() {
-    // hide activated filters
-    if ($('.activefilter').find('.your-choice.tags:visible').length == 0) $('.activefilter').hide();
-
     // remove your-choice tags on click
     $(document).on('click', '.filters .your-choice.tags label', function (e) {
       removeFilter($(this));

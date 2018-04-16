@@ -405,7 +405,7 @@
 
 .filtertags {
   font-size: 0.8rem;
-  padding: 0 0 1rem 0;
+  margin: 2rem 0; // padding: 0 0 1rem 0;
   display: inline-block;
   .fa-check {
     color: $primary-color;
@@ -590,65 +590,87 @@
 }
 
 .filter-minimal {
-  .filters {
-    background: white;
-    padding-bottom: 0;
-    .filtertags {
-      padding: 0;
+  margin: 1rem 0;
+  .accordion {
+    background: initial;
+    #primary_nav_wrap {
+      margin: 0;
     }
-    .accordion {
-      background: initial;
-      #primary_nav_wrap {
-        margin: 0;
-      }
-      .accordion2-content {
-        display: none;
-        margin-top: 1rem;
-        background: $light-gray;
-        .main-filters {
-          padding: 0.5rem;
+    .is-active .accordion-title {
+      margin-top: 1rem;
+      span {
+        i::before {
+          content: '\f077';
         }
-        .advanced-filters {
+      }
+    }
+    .accordion2-content {
+      display: none;
+      background: $light-gray;
+      .advanced-filters {
+        margin: 1rem 0 0 0;
+        padding-left: 1rem;
+        input {
           margin: 0;
-          padding: 0.5rem 0.5rem 0.5rem 1.5rem;
-          input {
-            margin: 0;
-          }
-          .date-range {
-            label {
-              display: inline-block;
-            }
+        }
+        .date-range {
+          label {
+            display: inline-block;
           }
         }
       }
-      .accordion-title {
-        display: block;
+    }
+    .accordion-title {
+      font-size: 1rem;
+      text-align: center;
+      color: $dark-gray;
+      padding: 0;
+      transition: color ease-in-out 0.25s;
+      display: block;
+      border: none !important;
+      background: transparent;
+      margin: 0;
+      &:hover,
+      &:focus {
+        color: $body-font-color;
+      }
+      span {
+        z-index: 1;
+        position: relative;
         padding: 0;
-        text-align: center;
-        border: none !important;
-        background: transparent;
-        margin-top: 1rem;
-        &::before {
-          position: absolute;
-          content: "";
-          height: 1px;
-          border-bottom: 1px solid $medium-gray;
-          right: 0;
-          left: 0;
-          top: -1px;
-        }
-        span {
-          font-size: 1rem;
-          padding: 0;
-          position: relative;
-          z-index: 1;
-          background: $light-gray;
-        }
+        display: inline-block;
+        height: 1.5rem;
+        width: 3rem;
+        border-bottom-left-radius: 3rem;
+        border-bottom-right-radius: 3rem;
+        box-shadow: 0 2px 3px lighten($dark-gray, 20%);
+        font-size: 1rem;
+        background: $light-gray;
+      }
+      &::before {
+        position: absolute;
+        content: "";
+        height: 1px;
+        border-bottom: 1px solid $medium-gray;
+        right: 0;
+        left: 0;
+        top: 0.5rem;
       }
     }
   }
+  .filters {
+    padding: 1rem;
+    >.filtertags {
+      padding: 0;
+      margin: 2rem 0;
+    }
+    .filterbuttons {
+      margin: 0;
+    }
+  }
   .search {
-    padding: 0.5rem 0.5rem 0 0.5rem;
+    padding: 0;
+    margin-bottom: 1rem;
   }
 }
 
