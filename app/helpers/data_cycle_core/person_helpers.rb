@@ -7,5 +7,9 @@ module DataCycleCore
     def desc
       content['job_title']
     end
+
+    def new_content_fields
+      ['given_name', 'family_name']
+    end
   end
 end

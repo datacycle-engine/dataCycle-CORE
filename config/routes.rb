@@ -37,6 +37,7 @@ DataCycleCore::Engine.routes.draw do
   resources :stored_filters, only: [:index, :create, :update, :destroy], path: :search_history do
     get :search, on: :collection
   end
+  resources :classification_tree_labels, only: :show
 
   scope('files') do
     resources :assets, only: [:index, :show, :new, :create, :destroy] do

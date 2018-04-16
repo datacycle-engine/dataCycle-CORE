@@ -10,7 +10,7 @@
             <div class="content-object-item" id="<%= sanitize_to_id(key) %>_item_<%= index %>" data-id="<%= object.id %>">
                 <span class="embedded-header"><%= render 'data_cycle_core/shared/icon', icon_type: internal_template.template_name.downcase %> <%= definition['label'] %></span>
 
-                <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
+                <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content)) %>
                     <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
                 <% end %>
 
@@ -19,8 +19,7 @@
                 <% validation_properties.each do |o_key, o_prop| %>
 
                     <% value = o_prop.dig('type') == "object" || o_prop.dig('type') == "classificationTreeLabel" ? object.try(o_key.to_sym) : objectDataHash[o_key] %>
-
-                    <%= render_attribute_editor key: "#{key}[#{index}][#{o_key}]", definition: o_prop, value: value, parameters: { options: (o_prop.dig('editor', 'options') || {}), new_content: new_content } %>
+                    <%= render_attribute_editor key: "#{key}[#{index}][#{o_key}]", definition: o_prop, value: value, parameters: { options: (o_prop.dig('editor', 'options') || {}), new_content: new_content, content: content } %>
 
                 <% end %>
             </div>

@@ -61,7 +61,7 @@ module DataCycleCore
         definition.try(:[], 'editor').try(:[], 'type').try(:underscore).to_s,
         definition['type'].underscore.to_s
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/#{p}_editor" }
-      parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options]))
+      parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], parameters[:content]))
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
     end
 
@@ -131,6 +131,15 @@ module DataCycleCore
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/asset/#{p}_#{partial}" }
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
+    end
+
+    def render_new_content_reveal(item:, parameters: {})
+      partials = [
+        "#{item.class.name.demodulize.underscore}_#{item.template_name.parameterize(separator: '_')}",
+        item.class.name.demodulize.underscore,
+        'default'
+      ].reject(&:blank?).map { |p| "data_cycle_core/application/new_contents/#{p}_content_reveal" }
+      render_first_existing_partial(partials, parameters.merge({ item: item }))
     end
 
     private

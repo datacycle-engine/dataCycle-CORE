@@ -1,0 +1,50 @@
+<%  if (c_type = @classification_tree || @classification_tree_label) && params[:tree_page].present? %>
+  $('#<%= c_type.id %> > ul.children > li.load-more-link').hide();
+
+  $('#<%= c_type.id %> > ul.children').append('<%= escape_javascript(render 'classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees, content_counts: @content_count) %>');
+  var contents = undefined;
+<% elsif params[:page].present? && @classification_tree.present? %>
+  $('#<%= @classification_tree.id %> > ul.contents > li.button-row').remove();
+
+  var contents = $('<%= escape_javascript(render 'contents', contents: @contents, classification_tree_label: @classification_tree_label, classification_tree: @classification_tree) %>');
+
+  contents.appendTo('#<%= @classification_tree.id %> > ul.contents');
+  $('#<%= @classification_tree.id %> > ul.children, #<%= @classification_tree.id %> > ul.contents').addClass('loaded').show();
+<% elsif @classification_tree.present? %>
+  $('#<%= @classification_tree.id %> > ul.children').append('<%= escape_javascript(render 'classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees, content_counts: @content_count) %>');
+
+  var contents = $('<%= escape_javascript(render 'contents', contents: @contents, classification_tree_label: @classification_tree_label, classification_tree: @classification_tree) %>');
+
+  contents.appendTo('#<%= @classification_tree.id %> > ul.contents');
+  $('#<%= @classification_tree.id %> > ul.children, #<%= @classification_tree.id %> > ul.contents').addClass('loaded').show();
+<% end %>
+
+$(function () {
+  if (contents != undefined) {
+    contents.filter('li.content-row:not(.button-row)').each((index, element) => {
+      let images = $(element).find('img.lazyload');
+      let count = 0;
+      let tags = $(element).find('.tag');
+      if (images.length){
+        images.one('lazyloaded', event => {
+          count += 1;
+          if (count >= images.length &&
+            ($(element).find('.tag, img.lazyloaded').map((idx, elem) => $(elem).position().top >= $(element).find('.tags').outerHeight()).toArray().reduce((a, b) => a || b) ||
+            $(element).find('.title-text').first().innerHeight() < $(element).find('.title-text .title').first().innerHeight() || ($(element).find('.type > .locale').length && $(element).find('.type > .locale').position().left + $(element).find('.type > .locale').first().outerWidth() >= $(element).find('.type').first().width()))) {
+            $(element).find('.buttons').append('<a class="show-more-link"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></span>');
+            $(element).find('.buttons .show-more-link').on('click', event => {
+              event.preventDefault();
+              $(element).toggleClass('show-all');
+            });
+          }
+        });
+      } else if ((tags.length && tags.last().position().top >= $(element).find('.tags').outerHeight()) || $(element).find('.title-text').first().innerHeight() < $(element).find('.title-text .title').first().innerHeight() || ($(element).find('.type > .locale').length && $(element).find('.type > .locale').position().left + $(element).find('.type > .locale').first().outerWidth() >= $(element).find('.type').first().width())) {
+        $(element).find('.buttons').append('<a class="show-more-link"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></span>');
+        $(element).find('.buttons .show-more-link').on('click', event => {
+          event.preventDefault();
+          $(element).toggleClass('show-all');
+        });
+      }
+    });
+  }
+});

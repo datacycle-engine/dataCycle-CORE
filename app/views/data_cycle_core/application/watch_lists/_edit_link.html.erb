@@ -1,0 +1,19 @@
+<li>
+  <span class="watch-list-item" id="content-<%= content&.id %>-watch-list-<%= watch_list&.id %>">
+    <span class="check <%= 'checked' if content&.watch_lists&.include?(watch_list) %>"><i class="fa fa-check" aria-hidden="true"></i></span>
+    <span class="watchlist-headline">
+      <%= link_to_unless content&.watch_lists&.include?(watch_list), watch_list.headline, add_item_watch_list_path(watch_list, hashable_type: content&.class&.name, hashable_id: content), class: 'add-to-watchlist-link', remote: true %>
+    </span>
+    <span class="change-link">
+      <% if content&.watch_lists&.include?(watch_list) %>
+        <%= link_to remove_item_watch_list_path(watch_list, hashable_type: content&.class&.name, hashable_id: content&.id), class: 'remove-from-watchlist-link', remote: true, method: :delete, data: { confirm: "Inhalt (#{content&.title}) von<br>Merkliste (#{watch_list.headline}) entfernen?" } do %>
+          <i aria-hidden="true" class="fa fa-times-circle"></i>
+        <% end %>
+      <% else %>
+        <%= link_to add_item_watch_list_path(watch_list, hashable_type: content&.class&.name, hashable_id: content), class: 'add-to-watchlist-link', remote: true do %>
+          <i class="fa fa-plus-circle" aria-hidden="true"></i>
+        <% end %>
+      <% end %>
+    </span>
+  </span>
+</li>

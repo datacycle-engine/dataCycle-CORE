@@ -1,0 +1,48 @@
+- Inhaltstypen:
+  - $$Text:
+    - $$Artikel
+    - $$Angebot
+    - $$Biografie
+    - $$Interview
+    - $$Rezept
+    - $$Social Media Posting
+    - $$Zitat
+  - $$Asset:
+    - $$Bild
+    - $$Datei
+    - $$Video
+  - $$App
+  - $$Linktipps
+  - $$Person
+  - $$Organisation
+  - $$Ort:
+    - $$Örtlichkeit
+    - $$Tour
+  - $$Quiz
+  - $$Veranstaltung
+  - $$Video-Serie
+  - $$Zeitleiste
+# embedded
+  - $$Angebotszeitraum
+  - $$Website
+  - $$Zeitleiste-Eintrag
+  - $$Zitat
+  - $$Frage
+  - $$Antwort
+  - $$Veranstaltungstermin
+  - $$Öffnungszeit
+  - $$Örtlichkeit - Overlay
+  - $$MobileApplication
+  - $$Youtube-Video
+
+- Geschlecht:
+  - Männlich
+  - Weiblich
+
+- Themenbereiche:
+
+- Ausgabekanäle:
+
+- Rezept-Gänge:
+
+- Rezept-Kategorien:

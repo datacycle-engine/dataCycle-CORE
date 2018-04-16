@@ -22,6 +22,6 @@
 
 <button id="add_<%= sanitize_to_id(key) %>" style="<%= 'display:none;' unless value.blank? %>" type="button" class="button addAsset">hochladen <i class="fa fa-upload"></i></button>
 
-<% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
+<% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content)) %>
     <button type="button" style="<%= 'display:none;' if value.blank? %>" class="button removeAsset"><i class="fa fa-times"></i></button>
 <% end %>

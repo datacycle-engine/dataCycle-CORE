@@ -2,7 +2,7 @@
 - :data:
     :name: Bild
     :type: object
-    :content_type: embedded
+    :content_type: entity
     :permissions:
       :read_write: true
     :boost: 10.0
@@ -22,9 +22,11 @@
         :search: true
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
+      :validity_period:
+        :type: mixin
+        :name: validity_period
       :caption:
         :label: Alt-Label
         :type: string
@@ -32,7 +34,6 @@
         :storage_location: content
         :search: true
         :editor:
-          :sorting: 3
           :type: input
       :description:
         :label: Beschreibung
@@ -42,24 +43,10 @@
         :search: true
         :editor:
           :type: quillEditor
-          :sorting: 4
           :options:
             :data-size: basic
-            :tabindex: -1
-      :url:
-        :label: URL
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: url
-        :editor:
-          :type: input
-          :sorting: 5
-          :options:
-            :data-validate: text
       :content_url:
-        :label: URL
+        :label: Bild URL
         :type: string
         :storage_type: string
         :storage_location: metadata
@@ -67,7 +54,6 @@
           :format: url
         :editor:
           :type: input
-          :sorting: 6
           :options:
             :data-validate: text
       :thumbnail_url:
@@ -79,7 +65,47 @@
           :format: url
         :editor:
           :type: image
-          :sorting: 2
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
+        :editor:
+          :type: input
+          :options:
+            :data-validate: text
+      :asset:
+        :label: Datei
+        :type: asset
+        :type_name: DataCycleCore::Image
+        :storage_location: asset_relation
+        :editor:
+          :type: imageAsset
+      :photographer:
+        :label: Fotograf
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :search: true
+        :editor:
+          :type: input
+      :license:
+        :label: Copyright / Lizenz
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :search: true
+        :editor:
+          :type: input
+      :content_location:
+        :label: Ort
+        :type: object
+        :storage_location: places
+        :name: Örtlichkeit
+        :editor:
+          :type: objectBrowser
       :width:
         :label: Breite
         :type: number
@@ -89,7 +115,6 @@
           :format: integer
         :editor:
           :type: input
-          :sorting: 7
       :height:
         :label: Höhe
         :type: number
@@ -99,7 +124,6 @@
           :format: integer
         :editor:
           :type: input
-          :sorting: 8
       :content_size:
         :label: Dateigröße
         :type: number
@@ -109,89 +133,25 @@
           :format: integer
         :editor:
           :type: input
-          :sorting: 9
-      :photographer:
-        :label: Fotograf
+      :file_format:
+        :label: Dateiformat
         :type: string
         :storage_type: string
         :storage_location: metadata
-        :search: true
         :editor:
           :type: input
-          :sorting: 10
-      :license:
-        :label: Copyright / Lizenz
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :search: true
-        :editor:
-          :type: input
-          :sorting: 11
-      #meta attributes
-      :validity_period:
-        :label: Gültigkeitszeitraum
-        :type: object
-        :storage_location: metadata
-        :validations:
-          :daterange:
-            :from: valid_from
-            :to: valid_until
-        :editor:
-          :sorting: 99
-          :options:
-            :class: daterange
-            :tabindex: -1
-        :properties:
-          :valid_from:
-            :label: Gültigkeit
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: tt.mm.jjjj
-          :valid_until:
-            :label: bis
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: tt.mm.jjjj
+      :tags:
+        :type: mixin
+        :name: tags
       :data_type:
-        :label: Inhaltstyp
+        :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Bild"
-      :creator:
-        :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
-      :date_created:
-        :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
-      :date_modified:
-        :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data

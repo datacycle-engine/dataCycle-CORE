@@ -13,6 +13,8 @@ module DataCycleCore
             external_source.credentials = data['credentials']
             external_source.config = data['config']
             external_source.save
+
+            check_for_use_case(external_source.id)
           else
             errors[data['name']] = error
           end
@@ -20,6 +22,19 @@ module DataCycleCore
         return errors
       rescue StandardError => e
         puts "could not access the YML File #{file_name}"
+        puts e.message
+        puts e.backtrace
+      end
+
+      def self.check_for_use_case(external_source_id)
+        user = DataCycleCore::User.find_by(email: 'admin@pixelpoint.at') || DataCycleCore::User.find_by(email: 'admin@datacycle.at')
+        use_case = DataCycleCore::UseCase.find_or_initialize_by(
+          user_id: user.id,
+          external_source_id: external_source_id
+        )
+        use_case.save unless use_case.persisted?
+      rescue StandardError => e
+        puts 'could not find the super_admin user'
         puts e.message
         puts e.backtrace
       end

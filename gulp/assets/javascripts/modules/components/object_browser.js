@@ -16,6 +16,7 @@ var ObjectBrowser = function (selector) {
   this.class = selector.data('class');
   this.max = selector.data('max');
   this.min = selector.data('min');
+  this.editable = selector.data('editable');
   this.page = 1;
   this.loading = false;
   this.search = "";
@@ -108,6 +109,7 @@ ObjectBrowser.prototype.setup = function () {
           definition: this.definition,
           options: this.options,
           ids: data.ids,
+          editable: this.editable,
           class: this.class,
           objects: this.chosen
         }),
@@ -337,6 +339,7 @@ ObjectBrowser.prototype.loadObjects = function (append = true) {
       options: this.options,
       search: this.search,
       objects: this.chosen,
+      editable: this.editable,
       append: append
     }),
     contentType: 'application/json'

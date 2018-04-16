@@ -28,11 +28,11 @@ module.exports.initialize = function () {
         },
         templateResult: function (data) {
           if (data.loading) {
-            return data.path;
+            return data.title;
           }
 
           var term = query.term || '';
-          var result = data.path ? select2_helpers.markMatch(data.path, term) : null;
+          var result = data.title ? select2_helpers.markMatch(data.title, term) : null;
           select2_helpers.decorateResult(result);
 
           return result;

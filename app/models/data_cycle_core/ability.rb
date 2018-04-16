@@ -44,17 +44,29 @@ module DataCycleCore
           can :update_release_status, [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork, DataCycleCore::Place]
 
           can :manage, [DataCycleCore::Classification, DataCycleCore::ClassificationTree], external_source_id: nil
-          can :manage, [DataCycleCore::ClassificationTreeLabel, DataCycleCore::ClassificationAlias], external_source_id: nil, internal: false
+          can :download, DataCycleCore::ClassificationTreeLabel
+          can [:update, :download], [DataCycleCore::ClassificationTreeLabel, DataCycleCore::ClassificationAlias], external_source_id: nil, internal: false
+
+          can :map_classifications, DataCycleCore::ClassificationAlias
+
+          can :destroy, DataCycleCore::ClassificationTreeLabel do |c|
+            c.external_source_id.nil? && !c.internal && !c.classification_aliases&.any?(&:internal) && !c.classification_aliases&.any?(&:external_source_id)
+          end
+
+          can :destroy, DataCycleCore::ClassificationAlias do |c|
+            c.external_source_id.nil? && !c.internal && !c.sub_classification_alias&.any?(&:internal) && !c.sub_classification_alias&.any?(&:external_source_id)
+          end
 
           can :crud, [DataCycleCore::CreativeWork, DataCycleCore::Event, DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::Place] do |data_object|
-            data_object&.schema&.dig('permissions', 'read_write') != false
+            # data_object&.schema&.dig('permissions', 'read_write') != false
+            data_object.try(:external_key).blank? || data_object&.schema&.dig('features', 'overlay').present?
           end
 
           can [:set_role, :set_user_groups], DataCycleCore::User do |the_user|
             !the_user.has_rank?(user.role.rank) || user == the_user
           end
           can :destroy, [DataCycleCore::CreativeWork, DataCycleCore::Event, DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::Place] do |data_object|
-            data_object&.schema&.dig('permissions', 'read_write') != false && data_object.try(:external_key).nil?
+            data_object.try(:external_key).blank?
           end
 
           can :set_life_cycle, DataCycleCore::CreativeWork
@@ -66,7 +78,14 @@ module DataCycleCore
         can :manage, :dash_board if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)
 
         can :edit, DataCycleCore::DataAttribute do |attribute|
-          !attribute.options['readonly']
+          # !attribute.options['readonly']
+          (
+            attribute.content.try(:external_key).blank? ||
+            (
+              attribute.content&.schema&.dig('features', 'overlay').present? &&
+              (attribute.key.scan(/\[(.*?)\]/).flatten & attribute.content.schema.dig('features', 'overlay')).size.nonzero?
+            )
+          )
         end
 
         unless user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/

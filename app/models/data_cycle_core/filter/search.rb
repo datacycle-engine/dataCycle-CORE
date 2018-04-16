@@ -63,10 +63,25 @@ module DataCycleCore
         )
       end
 
+      def unique_by_column(column = :id)
+        query = DataCycleCore::Search.select("DISTINCT ON (#{column}) id")
+
+        reflect(@query.where(id: query))
+      end
+
       def with_classification_alias_ids(ids = nil)
         return self if ids.blank?
 
         manager = create_classification_alias_recursion(ids)
+        reflect(@query.where(search[:content_data_id].in(manager)))
+      end
+
+      def with_classification_alias_ids_without_recursion(ids = nil)
+        return self if ids.blank?
+
+        query2 = join_classification_alias2
+        manager = query2.where(classification_alias[:id].in(ids))
+
         reflect(@query.where(search[:content_data_id].in(manager)))
       end
 
@@ -81,14 +96,14 @@ module DataCycleCore
       def self.get_order_by_query_string(search)
         search_string = (search || '').split(' ').join('%')
 
-        ActiveRecord::Base.send(:sanitize_sql_for_order,
-                                "boost * (
-            8 * similarity(classification_string,'%#{search_string}%') +
-            4 * similarity(headline, '%#{search_string}%') +
-            2 * ts_rank_cd(words, plainto_tsquery('simple', '#{(search || '').squish}'),16) +
-            1 * similarity(full_text, '%#{search_string}%'))
+        ActiveRecord::Base.send(:sanitize_sql_array,
+                                ["boost * (
+            8 * similarity(classification_string, :search_string) +
+            4 * similarity(headline, :search_string) +
+            2 * ts_rank_cd(words, plainto_tsquery('simple', :search),16) +
+            1 * similarity(full_text, :search_string))
             DESC NULLS LAST,
-            updated_at DESC")
+            updated_at DESC", search_string: "%#{search_string}%", search: (search || '').squish])
       end
 
       private

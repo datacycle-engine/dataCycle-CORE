@@ -21,7 +21,7 @@ config:
       import_strategy: DataCycleCore::Generic::Xamoom::ImportTags
       data_template:
       target_type: DataCycleCore::Classification
-      tree_label: Xamoom-Tags
+      tree_label: Xamoom - Tags
       logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     spots:
       sorting: 2

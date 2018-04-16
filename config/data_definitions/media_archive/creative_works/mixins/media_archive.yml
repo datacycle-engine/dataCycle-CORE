@@ -1,0 +1,51 @@
+---
+- :data:
+    :name: media_archive
+    :type: mixin
+    :properties:
+      :mandatory_license:
+        :label: Copyright Nennung verpflichtend
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: boolean
+        :editor:
+          :type: input
+      :comment:
+        :label: Kommentar
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :search: true
+        :editor:
+          :type: input
+      :source:
+        :label: Erhalten von
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: input
+      :image_id:
+        :label: Bildnummer
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: input
+      :visibility:
+        :label: Sichtbarkeit
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: input
+      :restrictions:
+        :label: Einschränkungen
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :search: true
+        :editor:
+          :type: input

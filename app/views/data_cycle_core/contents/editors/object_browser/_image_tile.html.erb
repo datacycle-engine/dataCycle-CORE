@@ -14,7 +14,7 @@
     <div class="description"><%= object.try(:title) %></div>
   <% end %>
 
-  <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
+  <% if editable ||= false %>
     <span class="delete-thumbnail"><i aria-hidden="true" class="fa fa-times"></i></span>
   <% end %>
 

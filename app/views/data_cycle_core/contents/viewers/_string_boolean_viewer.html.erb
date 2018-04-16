@@ -1,5 +1,5 @@
 <%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: value, options: options do %>
 
-    <span class="detail-content"><%= value==true ? "Ja" : "Nein" %></span>
+  <span class="detail-content"><%= t("common.#{value.to_s}", locale: DataCycleCore.ui_language) %></span>
 
 <% end %>
