@@ -5,7 +5,7 @@ module DataCycleCore
     module Validators
       class NumberTest < ActiveSupport::TestCase
         test 'init number validator' do
-          error_hash = { error: [], warning: [] }
+          error_hash = { error: {}, warning: {} }
           template_hash = {
             'label' => 'Test',
             'type' => 'number',

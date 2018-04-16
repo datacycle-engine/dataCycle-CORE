@@ -1,6 +1,7 @@
 var quill = require('quill');
 var Counter = require('./../components/quill_counter');
 var ConfirmationModal = require('./../components/confirmation_modal');
+var quill_helpers = require('./../helpers/quill_helpers');
 
 // Quill Config
 module.exports.initialize = function () {
@@ -79,6 +80,10 @@ module.exports.initialize = function () {
     };
 
     var editor = new quill('#' + node.id, options);
+
+    editor.on('selection-change', (range, oldRange, source) => {
+      if (range == null) quill_helpers.update_value(editor.container);
+    });
 
     $(editor.container).on('import-data', function (event, data) {
       if (editor.getLength() > 1) {

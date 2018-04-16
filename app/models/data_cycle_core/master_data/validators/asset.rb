@@ -2,7 +2,7 @@ module DataCycleCore
   module MasterData
     module Validators
       class Asset < BasicValidator
-        def validate(data, template)
+        def validate(data, template, template_key)
           if blank?(data)
             @error[:warning].push I18n.t :no_data, scope: [:validation, :errors], data: template['label'], locale: DataCycleCore.ui_language
           elsif data.is_a?(::Array)

@@ -3,9 +3,9 @@ module.exports.initialize = function () {
 
   $('.copy-to-clipboard').on('click', function (event) {
     event.preventDefault();
-    var text = this.href;
+    var text = $(this).data('value');
     var inp = document.createElement('input');
-    document.body.appendChild(inp)
+    document.body.appendChild(inp);
     inp.value = text;
     inp.select();
     document.execCommand('copy', false);

@@ -7,8 +7,6 @@ module.exports.initialize = function () {
     var label = $(this).data('label');
     var ids = $(this).data('id');
     if ($('.flex-box .edit-content [data-label="' + label + '"]').length > 0 && ids.length > 0) {
-      // add buttons to copy single elements
-      // console.log($(this).find('.copy-single'));
       $(this).find('.copy-single').append('<a class="button-prime small copy-single-button"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>');
 
       if ($(this).children('.buttons').length > 0) $(this).children('.buttons').append('<a class="button-prime small copy ids"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>');

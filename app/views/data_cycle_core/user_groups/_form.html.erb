@@ -1,5 +1,6 @@
-<%= form_for content, html: {class: 'edit-content-form'} do |f| %>
+<%= form_for content, html: {class: 'edit-content-form validation-form'} do |f| %>
 	<%= hidden_field_tag 'uuid', content.id %>
+	<%= hidden_field_tag :table, content.class.table_name %>
 
 	<section class="edit-header">
 		<div class="row expanded">
@@ -32,16 +33,16 @@
 					</div>
 				</div>
 
-				<div class="form-element validation-container input">
+				<div class="form-element input">
 						<%= f.text_field :name, required: true %>
 				</div>
 
-				<div class="form-element validation-container">
+				<div class="form-element">
 
           <div class="v-select">
             <%= f.label :user_ids %>
             <%= hidden_field_tag 'user_group[user_ids][]', nil, id: 'hidden_user_group_user_ids' %>
-            <%= select_tag('user_group[user_ids][]', options_for_select(DataCycleCore::User.all.map { |c| [c.name, c.id] }, content.users.map(&:id)), {multiple: true, class: 'multi-select'}) %>
+            <%= select_tag('user_group[user_ids][]', options_for_select(DataCycleCore::User.all.map { |c| [c.full_name, c.id] }, content.users.map(&:id)), {multiple: true, class: 'multi-select'}) %>
           </div>
 
 				</div>

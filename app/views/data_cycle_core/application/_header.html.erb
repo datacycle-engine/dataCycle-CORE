@@ -22,8 +22,8 @@
                     <% end %>
                 </li>
                 <li>
-                    <% if can?(:show_history, DataCycleCore::StoredFilter) %>
-                        <%= render 'stored_filters' %>
+                    <% if DataCycleCore.features.dig(:publication_schedule) && can?(:show_publications, DataCycleCore::Content) %>
+                        <%= link_to t('data_cycle_core.publications_calendar', locale: DataCycleCore.ui_language), publications_path, class: 'publications-link' %>
                     <% end %>
                 </li>
                 <li>
