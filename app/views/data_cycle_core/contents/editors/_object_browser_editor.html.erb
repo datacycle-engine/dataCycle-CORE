@@ -21,7 +21,7 @@
         <div class="media-thumbs">
           <div class="object-thumbs">
             <% objects.presence&.each do |object| %>
-              <%= render_object_browser_partial(key: key + (definition['type'] == "object" ? '[][id]' : '[]'), definition: definition, parameters: {object: object, options: options}) %>
+              <%= render_object_browser_partial(key: key + (definition['type'] == "object" ? '[][id]' : '[]'), definition: definition, parameters: { object: object, options: options, editable: can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content)) }) %>
             <% end %>
           </div>
           <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content)) %>
