@@ -10,7 +10,7 @@ module DataCycleCore
 
       if user
         can :read, :all
-        cannot :read, [DataCycleCore::WatchList, DataCycleCore::StoredFilter]
+        cannot :manage, [DataCycleCore::WatchList, DataCycleCore::StoredFilter]
         cannot :read, :backend
         can :search, DataCycleCore::User
         can [:show, :find], :object_browser
@@ -29,7 +29,7 @@ module DataCycleCore
           can [:read, :settings, :store_filter], :backend
           can :modify, DataCycleCore::User, id: user.id
           can :manage, DataCycleCore::WatchList, user_id: user.id
-          can [:read, :create, :destroy], DataCycleCore::StoredFilter, user_id: user.id
+          can [:read, :create, :update, :destroy, :show_history], DataCycleCore::StoredFilter, user_id: user.id
           can :read, DataCycleCore::StoredFilter, system: true
           can :show_publications, DataCycleCore::Content
           can [:subscribe, :history, :history_detail], [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork, DataCycleCore::Place]
@@ -38,8 +38,8 @@ module DataCycleCore
         if user.has_rank?(10)
           can :manage, DataCycleCore::DataLink
           can [:crud, :destroy], DataCycleCore::UserGroup
-          can [:crud, :destroy], DataCycleCore::User do |the_user|
-            user&.role&.rank&.> the_user&.role&.rank || the_user == user
+          can [:crud, :destroy, :generate_access_token], DataCycleCore::User do |the_user|
+            user&.role&.rank&.>(the_user&.role&.rank) || the_user == user
           end
 
           can :update_release_status, [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork, DataCycleCore::Place]
@@ -73,7 +73,7 @@ module DataCycleCore
           can :set_life_cycle, DataCycleCore::CreativeWork
 
           can :manage, DataCycleCore::Asset
-          can :create_global, DataCycleCore::StoredFilter
+          can [:create_global, :create_api], DataCycleCore::StoredFilter, user_id: user.id
         end
 
         can :manage, :dash_board if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)

@@ -138,3 +138,7 @@ end
 crumb :'data_cycle_core/publications' do
   link to_html_string("<i class='fa fa-calendar' aria-hidden='true'></i>#{t('data_cycle_core.publications_calendar', locale: DataCycleCore.ui_language)}"), publications_path
 end
+
+crumb :'data_cycle_core/stored_filters' do
+  link to_html_string("<i aria-hidden='true' class='fa fa-search'></i> #{t('data_cycle_core.stored_searches.my_searches', locale: DataCycleCore.ui_language)}"), stored_filters_path
+end

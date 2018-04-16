@@ -48,20 +48,6 @@ module.exports.initialize = function () {
     // hide activated filters
     if ($('.activefilter').find('.your-choice.tags:visible').length == 0) $('.activefilter').hide();
 
-    // Save active Filter with specific name
-    $('#save-filter-name-form').on('submit', function (e) {
-      e.preventDefault();
-      var form = $('#search-form');
-      $(form).prop('action', $(this).prop('action'));
-      $(form).prop('method', $(this).prop('method'));
-      $(form).append($(this).find('input[type=hidden]').clone());
-      $(form).append('<input type="hidden" name="stored_filter_name" value="' + $(this).find('#stored_filter_name').val() + '">');
-      $(form).append('<input type="hidden" name="stored_filter_system" value="' + $(this).find('#stored_filter_system').is(':checked') + '">');
-      $(form).append('<input type="hidden" name="stored_filter_api" value="' + $(this).find('#stored_filter_api').is(':checked') + '">');
-
-      form.submit();
-    });
-
     // remove your-choice tags on click
     $(document).on('click', '.filters .your-choice.tags label', function (e) {
       removeFilter($(this));

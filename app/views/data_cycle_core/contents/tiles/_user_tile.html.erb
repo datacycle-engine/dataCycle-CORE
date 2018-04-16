@@ -3,15 +3,14 @@
     <div class="inner">
 
         <div class="infoRow">
-            <% icon_type = (item.role && item.role.rank > 0) ? 'person' : 'anonym' %>
-            <%= render 'data_cycle_core/shared/icon', icon_type: icon_type %>
+            <%= render 'data_cycle_core/shared/icon', icon_type: item.class.name.demodulize.underscore %>
             <%== "<del>" if item.access_locked? %>
               <span class="title"><%= item.model_name.human(locale: DataCycleCore.ui_language) %> <%= "("+item.class.human_attribute_name('external', locale: DataCycleCore.ui_language)+")" if item.external %></span>
             <%== "</del>" if item.access_locked? %>
         </div>
 
         <div class="title">
-          <%= item.name %>
+          <%= item.full_name %>
         </div>
 
         <div class="description">
