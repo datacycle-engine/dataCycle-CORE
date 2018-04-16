@@ -49,7 +49,6 @@ module DataCycleCore
         @linked_objects = @object.try(linked_object_params[:key])&.includes(:translations)&.page(@page)&.per(DataCycleCore.linked_objects_page_size)
       end
 
-
       respond_to do |format|
         format.js do
           if linked_object_params[:load_more_action] == 'object_browser'
