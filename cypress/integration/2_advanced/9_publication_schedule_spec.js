@@ -27,7 +27,7 @@ describe('Publication Schedule', function () {
 
       cy.get('.embedded-object[data-key="creative_work[datahash][publication_schedule]"]').should('be.visible').find('.button.addContentObject').should('be.visible').click();
 
-      cy.get('.embedded-object[data-key="creative_work[datahash][publication_schedule]"]').should('be.visible').find('.content-object-item#creative_work_datahash_publication_schedule_item_0').should('be.visible').find('.output_channels .select2-search__field').should('be.visible').type(publication_output_channel).parents('.v-select').find('.select2-dropdown .select2-results__option:contains("' + publication_output_channel + '")').should('be.visible').click();
+      cy.get('.embedded-object[data-key="creative_work[datahash][publication_schedule]"]').should('be.visible').find('.content-object-item#creative_work_datahash_publication_schedule_item_0').should('be.visible').find('.output_channel .select2-search__field').should('be.visible').type(publication_output_channel).parents('.v-select').find('.select2-dropdown .select2-results__option:contains("' + publication_output_channel + '")').should('be.visible').click();
 
       cy.get('.embedded-object[data-key="creative_work[datahash][publication_schedule]"]').should('be.visible').find('.content-object-item#creative_work_datahash_publication_schedule_item_0').should('be.visible').find('.publish_at .flatpickr-input:visible').should('be.visible').type(publication_date);
 

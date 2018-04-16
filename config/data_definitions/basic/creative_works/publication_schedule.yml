@@ -29,7 +29,7 @@
             :data-type: datepicker
             :data-validate: daterange
             :placeholder: tt.mm.jjjj
-      :output_channels:
+      :output_channel:
         :label: Ausgabekanäle
         :type: classificationTreeLabel
         :type_name: Ausgabekanäle

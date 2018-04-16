@@ -18,7 +18,7 @@ DataCycleCore.setup do |config|
   config.features = config.features.merge(
     {
       publication_schedule: {
-        classification_keys: ['output_channels']
+        classification_keys: ['output_channel']
       }
     }
   )
