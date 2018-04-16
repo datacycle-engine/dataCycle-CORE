@@ -5,9 +5,7 @@
     <h1><%= t('data_cycle_core.classifications', locale: DataCycleCore.ui_language) %></h1>
 
     <ul class="backend-treeview-list">
-      <% @classification_tree_labels.each do |tree_label| %>
-        <%= render 'classification_tree_label', tree_label: tree_label %>
-      <% end %>
+      <%= render partial: 'classification_tree_label', collection: @classification_tree_labels, as: :tree_label %>
 
       <li class="new-classification-tree-label">
         <a href="#" class="create button-prime small"><i class="fa fa-plus"></i></a>

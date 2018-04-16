@@ -76,13 +76,13 @@ module DataCycleCore
     self.default_image_type = 'Bild'
 
     mattr_accessor :default_place_type
-    self.default_place_type = 'Ort'
+    self.default_place_type = 'Örtlichkeit'
 
     mattr_accessor :access_tokens
     self.access_tokens = []
 
     mattr_accessor :content_tables
-    self.content_tables = ['creative_works', 'events', 'persons', 'places']
+    self.content_tables = ['creative_works', 'events', 'persons', 'organizations', 'places']
 
     mattr_accessor :asset_objects
     self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image']
@@ -94,7 +94,7 @@ module DataCycleCore
     self.linked_tables = ['users']
 
     mattr_accessor :excluded_filter_classifications
-    self.excluded_filter_classifications = ['Angebotszeitraum', 'Website', 'Zitat', 'DataCycle - File', 'DataCycle - Image', 'Publikations-Plan']
+    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Örtlichkeit - Overlay']
 
     mattr_accessor :excluded_new_item_objects
     self.excluded_new_item_objects = []
@@ -106,7 +106,7 @@ module DataCycleCore
     self.ui_language = :de
 
     mattr_accessor :translatable_types
-    self.translatable_types = ['DataCycleCore::Person', 'DataCycleCore::Place']
+    self.translatable_types = ['DataCycleCore::Person', 'DataCycleCore::Organization', 'DataCycleCore::Place']
 
     mattr_accessor :release_codes
     self.release_codes = {
@@ -138,6 +138,9 @@ module DataCycleCore
     mattr_accessor :template_path
     mattr_accessor :default_template_paths
     self.default_template_paths = []
+
+    # location of import/download configs
+    mattr_accessor :external_sources_path
 
     # available filter
     mattr_accessor :available_filters

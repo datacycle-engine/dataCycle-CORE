@@ -1,0 +1,60 @@
+---
+name: Medienarchiv
+credentials:
+  end_point: /api/v1/media.json
+  host: https://views2.austria.info
+  token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+config:
+  download: DataCycleCore::Generic::BatchDownload
+  download_config:
+    images:
+      sorting: 1
+      source_type: images
+      endpoint: DataCycleCore::Generic::MediaArchive::Endpoint
+      download_strategy: DataCycleCore::Generic::MediaArchive::Download
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
+    videos:
+      sorting: 2
+      source_type: videos
+      endpoint: DataCycleCore::Generic::MediaArchive::Endpoint
+      download_strategy: DataCycleCore::Generic::MediaArchive::Download
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
+    # documents:
+    #   sorting: 3
+    #   source_type: documents
+    #   endpoint: DataCycleCore::Generic::MediaArchive::Endpoint
+    #   download_strategy: DataCycleCore::Generic::MediaArchive::Download
+    #   logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
+  import: DataCycleCore::Generic::BatchImport
+  import_config:
+    tags:
+      sorting: 1
+      source_type: images
+      import_strategy: DataCycleCore::Generic::MediaArchive::ImportKeywords
+      target_type: DataCycleCore::Classification
+      tree_label: MediaArchive - Tags
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+    images:
+      sorting: 5
+      source_type: images
+      import_strategy: DataCycleCore::Generic::MediaArchive::Import
+      data_template: Bild
+      place_template: contentLocation
+      target_type: DataCycleCore::CreativeWork
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+    videos:
+      sorting: 6
+      source_type: videos
+      import_strategy: DataCycleCore::Generic::MediaArchive::Import
+      data_template: Video
+      place_template: contentLocation      
+      target_type: DataCycleCore::CreativeWork
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+    # documents:
+    #   sorting: 7
+    #   source_type: documents
+    #   import_strategy: DataCycleCore::Generic::MediaArchive::Import
+    #   data_template: Document
+    #   target_type: DataCycleCore::CreativeWork
+    #   logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+  api_strategy: DataCycleCore::Api::MediaArchiveExternalSource

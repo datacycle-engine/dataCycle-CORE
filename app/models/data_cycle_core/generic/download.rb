@@ -18,6 +18,8 @@ module DataCycleCore
         @end_point_object = options[:download][:endpoint].constantize
 
         download_content(**options)
+
+        @logging.close if @logging.respond_to?(:close)
       end
     end
   end

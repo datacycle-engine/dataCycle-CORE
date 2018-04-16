@@ -25,7 +25,6 @@
               <% DataCycleCore.available_filters[:main].presence&.each do |filter| %>
                 <%= render 'data_cycle_core/application/filters/classification_tree', tree_label: filter, display_label: t("filter.#{filter}", default: filter, locale: DataCycleCore.ui_language), excluded_types: excluded_types, classification_tree: classification_trees[filter] if classification_trees[filter].present? %>
               <% end %>
-
               <%= render 'data_cycle_core/application/filters/sprache'%>
             </ul>
           </nav>

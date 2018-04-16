@@ -25,6 +25,7 @@ DataCycleCore::Engine.routes.draw do
     end
 
     resources :persons, only: [:index, :show, :create, :edit, :update, :destroy]
+    resources :organizations, only: [:index, :show, :create, :edit, :update, :destroy]
     resources :places, only: [:index, :show, :create, :edit, :update, :destroy]
   end
 
@@ -37,6 +38,7 @@ DataCycleCore::Engine.routes.draw do
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :events, only: [:index, :show, :create, :edit, :update, :destroy]
   resources :stored_filters, only: [:create, :destroy]
+  resources :classification_tree_labels, only: :show
 
   scope('files') do
     resources :assets, only: [:index, :show, :new, :create, :destroy] do
@@ -67,13 +69,16 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/import', to: 'dash_board#import'
   get  '/admin/import_templates', to: 'dash_board#import_templates'
   get  '/admin/import_classifications', to: 'dash_board#import_classifications'
+  get  '/admin/import_config', to: 'dash_board#import_config'
   get  '/admin/import_persons', to: 'dash_board#import_persons'
+  get  '/admin/import_organizations', to: 'dash_board#import_organizations'
   get  '/admin/classifications', to: 'dash_board#classifications'
   # mount RailsDb::Engine => '/db', :as => 'db'
 
   # backend validation endpoints
   match '/validatecreativework(/:id)', to: 'creative_works#validate_single_data', via: [:patch, :post]
   match '/validateperson(/:id)', to: 'persons#validate_single_data', via: [:patch, :post]
+  match '/validateorganization(/:id)', to: 'organizations#validate_single_data', via: [:patch, :post]
   match '/validateplace(/:id)', to: 'places#validate_single_data', via: [:patch, :post]
 
   defaults format: :json do
@@ -87,7 +92,7 @@ DataCycleCore::Engine.routes.draw do
 
         resources :collections, only: [:index, :show], controller: :watch_lists
 
-        type_regexp = Regexp.new([:creative_works, :persons, :places].join('|'))
+        type_regexp = Regexp.new([:creative_works, :persons, :organizations, :places].join('|'))
         resources :contents, path: ':type', constraints: { type: type_regexp }, only: [:show] do
           get :search, on: :collection
           patch :update, on: :member

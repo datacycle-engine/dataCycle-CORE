@@ -18,6 +18,13 @@
   transition: all ease-in-out 0.2s;
   background: $white;
   -webkit-filter: blur(0);
+  &.expired-item {
+    box-shadow: 0 1px 8px $alert-color;
+    &:hover,
+    &:focus {
+      box-shadow: 0 1px 25px $alert-color;
+    }
+  }
   &:hover,
   &:focus {
     box-shadow: 0px 1px 25px rgba(0, 0, 0, 0.3); //background: $primary-color;
@@ -148,9 +155,6 @@
     padding: 1px;
     margin: 0;
     box-shadow: 0 0 0 0;
-    &.expired-item {
-      border: 2px solid $alert-color;
-    }
   }
   &:before,
   &:after {
@@ -160,6 +164,23 @@
   &:after {
     clear: both;
   }
+}
+
+.expired-item-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  line-height: 1.5;
+  color: white;
+  background-color: rgba($alert-color, 0.8);
+  font-size: 0.9rem;
 }
 
 .detail-content:not(.imageobject) .type.properties .detail-type.media {
@@ -226,6 +247,9 @@
         }
       }
       .description {
+        position: absolute;
+        left: 0;
+        top: 0;
         opacity: 0;
         width: 100%;
         background: rgba(255, 255, 255, 0.9);
@@ -244,9 +268,6 @@
         align-items: center;
         -ms-flex-pack: center;
         justify-content: center;
-      }
-      &.expired-item {
-        border: 2px solid $alert-color;
       }
     }
     span.caption {
@@ -349,6 +370,9 @@
     .chosen-items-container {
       width: max-content;
       line-height: 1;
+      .expired-item-overlay {
+        font-size: 0;
+      }
       .description {
         display: none;
       }
@@ -380,9 +404,6 @@
           }
           .warning {
             display: none;
-          }
-          &.expired-item {
-            border: 2px solid $alert-color;
           }
         }
       }
@@ -465,17 +486,11 @@
         background-repeat: no-repeat;
         position: relative;
       }
-      &.expired-item {
-        border: 2px solid $alert-color;
-      }
       &.item {
         &.active {
           border-color: $primary-color;
           background-color: $primary-color;
           box-shadow: 0 0 0 1px rgba($primary-color, 1);
-          &.expired-item {
-            border: 2px solid $alert-color;
-          }
           .person {
             color: white;
           }

@@ -1,0 +1,25 @@
+---
+- :data:
+    :name: outdoor_active_categories
+    :type: mixin
+    :properties:
+      :frontend_type:
+        :label: Frontend-Typ
+        :type: classificationTreeLabel
+        :type_name: OutdoorActive - FrontendTypes
+        :storage_location: classification_relation
+      :categories:
+        :label: Kategorien
+        :type: classificationTreeLabel
+        :type_name: OutdoorActive - Kategorien
+        :storage_location: classification_relation
+      :regions:
+        :label: Regionen
+        :type: classificationTreeLabel
+        :type_name: OutdoorActive - Regionen
+        :storage_location: classification_relation
+      :source:
+        :label: Quelle
+        :type: classificationTreeLabel
+        :type_name: OutdoorActive - Quellen
+        :storage_location: classification_relation

@@ -21,4 +21,14 @@ module.exports.initialize = function () {
     }
   });
 
+  if ($('.new-item-iframe').length > 0) {
+    $('.new-item-iframe').on('load', event => {
+      let creator = $(event.currentTarget).data('creator');
+      $(event.currentTarget).get(0).contentWindow.postMessage({
+        email: creator.email,
+        firstname: creator.given_name,
+        lastname: creator.family_name
+      }, "*");
+    });
+  }
 };

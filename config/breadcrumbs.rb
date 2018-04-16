@@ -20,6 +20,10 @@ crumb :classifications do
   parent :admin
 end
 
+crumb :classification_tree_label do |label|
+  link to_html_string(label.name), '#'
+end
+
 # User
 crumb :'data_cycle_core/users' do
   link to_html_string(DataCycleCore::User.model_name.human(count: 2, locale: DataCycleCore.ui_language)), users_path
@@ -93,6 +97,18 @@ crumb :'data_cycle_core/person' do |person, watch_list|
   link to_html_string(t("content_type.#{person.template_name.downcase}", default: person.template_name.titleize, locale: DataCycleCore.ui_language), person.title), person_path(person, watch_list_id: watch_list)
 
   parent watch_list if watch_list
+end
+
+# Organization
+crumb :'data_cycle_core/organizations' do
+  link to_html_string('Organisationen'), organizations_path
+end
+
+crumb :'data_cycle_core/organization' do |organization, watch_list|
+  link to_html_string('Organization', organization.legal_name), organization_path(organization, watch_list_id: watch_list)
+
+  parent watch_list if watch_list
+  # parent :'data_cycle_core/persons'
 end
 
 # Event

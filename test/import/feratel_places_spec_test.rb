@@ -290,13 +290,13 @@ describe DataCycleCore::Generic::Feratel::ImportPlaces do
     end
 
     it 'extracts address' do
-      subject.extract_place_data(raw_data)['street_address'].must_equal 'Dorfstraße 10'
-      subject.extract_place_data(raw_data)['address_locality'].must_equal 'Feld am See'
-      subject.extract_place_data(raw_data)['postal_code'].must_equal '9544'
-      subject.extract_place_data(raw_data)['telephone'].must_equal '+43 4246 2297'
-      subject.extract_place_data(raw_data)['fax_number'].must_equal '+43 4246 3952'
-      subject.extract_place_data(raw_data)['email'].must_equal 'hotel@burgstallerhof.at'
-      subject.extract_place_data(raw_data)['url'].must_equal 'http://www.burgstallerhof.at'
+      subject.extract_place_data(raw_data)['address']['street_address'].must_equal 'Dorfstraße 10'
+      subject.extract_place_data(raw_data)['address']['address_locality'].must_equal 'Feld am See'
+      subject.extract_place_data(raw_data)['address']['postal_code'].must_equal '9544'
+      subject.extract_place_data(raw_data)['contact_info']['telephone'].must_equal '+43 4246 2297'
+      subject.extract_place_data(raw_data)['contact_info']['fax_number'].must_equal '+43 4246 3952'
+      subject.extract_place_data(raw_data)['contact_info']['email'].must_equal 'hotel@burgstallerhof.at'
+      subject.extract_place_data(raw_data)['contact_info']['url'].must_equal 'http://www.burgstallerhof.at'
     end
   end
 end

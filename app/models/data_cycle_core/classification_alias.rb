@@ -47,6 +47,12 @@ module DataCycleCore
       query.unscoped.where('classification_aliases.id IN (' + sql + ')')
     end
 
+    def linked_contents
+      classifications.includes(:classification_contents).map(&:classification_contents).flatten + sub_classification_alias.includes(classifications: :classification_contents).with_descendants.map { |c|
+        c.classifications.map(&:classification_contents)
+      }.flatten
+    end
+
     def ancestors
       Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 10.minutes) do
         if parent_classification_alias_with_deleted

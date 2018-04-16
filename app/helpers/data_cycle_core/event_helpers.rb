@@ -1,11 +1,17 @@
 module DataCycleCore
   module EventHelpers
     def title
-      headline
+      # TODO: remove later
+      return name if respond_to?(:name) && name.present?
+      headline if respond_to?(:headline) && headline.present?
     end
 
     def desc
       description
+    end
+
+    def new_content_fields
+      ['name']
     end
   end
 end

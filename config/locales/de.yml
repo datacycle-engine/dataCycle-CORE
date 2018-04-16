@@ -44,7 +44,10 @@ de:
       week: wöchentlich
 
   common:
+    'true': Ja
+    'false': Nein
     loading: 'Laden ...'
+    load_more: ... weitere Einträge laden
     are_you_sure: 'Sind Sie sicher?'
     language: "Sprache"
     choose_language: "Sprache wählen"
@@ -61,6 +64,7 @@ de:
       show: Details anzeigen
       hide: Details ausblenden
     contents:
+      zero: Keine Inhalte
       one: Inhalt
       other: Inhalte
     splitsource: Vorlage
@@ -74,8 +78,12 @@ de:
     content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden
     download_gpx: Als GPX-Datei herunterladen
     no_search: Sie müssen eine Suche durchführen, bevor Sie einen neuen Inhalt erstellen können.
+    publications: Geplante Publikationen
+    publications_calendar: Publikationskalender
     show_more: Mehr anzeigen
     show_less: Weniger anzeigen
+    expired_content: Gültigkeitszeitraum überschritten!
+    archived: Automatisch archiviert.
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -90,6 +98,7 @@ de:
     language: Sprache
 
   terms:
+    valid: gültig
     from: von
     until: bis
 
@@ -247,6 +256,9 @@ de:
       data_cycle_core/event:
         one: Event
         other: Events
+      data_cycle_core/organization:
+        one: Organisation
+        other: Organisationen
       data_cycle_core/stored_filter:
         one: Gespeicherter Filter
         other: Gespeicherte Filter
@@ -276,6 +288,9 @@ de:
         given_name: Vorname
         family_name: Familienname
         job_title: Berufsbezeichnung
+      data_cycle_core/organization:
+        name: Name
+        legal_name: Firmenname
       data_cycle_core/place:
         name: Name
         street: Straße
@@ -301,10 +316,20 @@ de:
   data_cycle_core:
     administration: 'Administration'
     classifications: 'Klassifizierungen'
+    this_classification: Dieser Klassifizierung
+    this_classification_tree: Diesem Klassifizierungsbaum
+    show_contents_for_tree_label: "Inhalte in %{data} auflisten"
     settings: Einstellungen
     stored_filter: Meine gespeicherten Filter
     publication_date: Publikationsdatum
     publications_calendar: Publikationskalender
+    classification_tree_relations: 'ACHTUNG: Mit diesem Klassifizierungsbaum sind Inhalte verknüpft!'
+    classification_relations:
+      one: 'ACHTUNG: Mit dieser Klassifizierung ist <b>1</b> Inhalt verknüpft!'
+      other: 'ACHTUNG: Mit dieser Klassifizierung sind <b>%{count}</b> Inhalte verknüpft!'
+    child_classification_relations:
+      one: 'ACHTUNG: %{data} ist <b>1</b> Klassifizierung zugeordnet. Dies wird mitgelöscht!'
+      other: 'ACHTUNG: %{data} sind <b>%{count}</b> Klassifizierungen zugeordnet.<br>Diese werden mitgelöscht!'
 
   date:
     abbr_day_names:

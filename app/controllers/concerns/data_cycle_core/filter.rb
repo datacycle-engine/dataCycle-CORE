@@ -29,7 +29,7 @@ module DataCycleCore
         @order_string = DataCycleCore::Filter::Search.get_order_by_query_string(params[:search])
       end
 
-      query = DataCycleCore::Filter::Search.new(@language).in_validity_period
+      query = DataCycleCore::Filter::Search.new(@language)
 
       # optional querymethods
       query = query.send(method_name, parameters) unless method_name.blank?
@@ -44,9 +44,9 @@ module DataCycleCore
         end
       end
 
-      @total = query.count(:id)
-
       @paginateObject = query.includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
+
+      @total = @paginateObject.total_count
 
       @paginateObject.map(&:content_data)
     end
@@ -69,7 +69,6 @@ module DataCycleCore
       end
 
       query = filter.apply
-      @total = query.count(:id)
       query
     end
 

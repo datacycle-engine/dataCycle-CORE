@@ -1,0 +1,30 @@
+---
+- :data:
+    :name: feratel_categories
+    :type: mixin
+    :properties:
+      :holiday_themes:
+        :label: Feratel - Urlaubsthemen
+        :type: classificationTreeLabel
+        :type_name: Feratel - Urlaubsthemen
+        :storage_location: classification_relation
+      :accommodation_categories:
+        :label: Feratel - Unterkunftsarten
+        :type: classificationTreeLabel
+        :type_name: Feratel - Unterkunftsarten
+        :storage_location: classification_relation
+      :feratel_classifications:
+        :label: Feratel - Unterkunftsklassifizierungen
+        :type: classificationTreeLabel
+        :type_name: Feratel - Unterkunftsklassifizierungen
+        :storage_location: classification_relation
+      :stars:
+        :label: Feratel - Sterne
+        :type: classificationTreeLabel
+        :type_name: Feratel - Sterne
+        :storage_location: classification_relation
+      :feratel_owners:
+        :label: Feratel - Inhaber
+        :type: classificationTreeLabel
+        :type_name: Feratel - Inhaber
+        :storage_location: classification_relation

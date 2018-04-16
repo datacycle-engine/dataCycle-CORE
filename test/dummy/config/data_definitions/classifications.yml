@@ -2,18 +2,36 @@
   - $$Text:
     - $$Artikel
     - $$Angebot
+    - $$Biografie
+    - $$Interview
     - $$Social Media Posting
     - $$Zitat
-  - $$Bild
-  - $$DataCycle - Image
-  - $$DataCycle - File
+  - $$Assets:
+    - $$Bild
+    - $$Datei
+    - $$Video
+  - $$Linktipps
   - $$Person
   - $$Publikations-Plan
-  - $$Ort
-
-  # embedded
+  - $$Organisation
+  - $$Ort:
+    - $$Örtlichkeit
+    - $$Tour
+  - $$Quiz
+  - $$Veranstaltung
+  - $$Zeitleiste
+# container
+  - $$Container
+# embedded
   - $$Angebotszeitraum
   - $$Website
+  - $$Zeitleiste-Eintrag
+  - $$Zitat
+  - $$Frage
+  - $$Antwort
+  - $$Veranstaltungstermin
+  - $$Öffnungszeit
+  - $$Örtlichkeit - Overlay
 
 - Geschlecht:
   - Männlich
@@ -24,4 +42,8 @@
   - Social Media
   - Print
 
-- Thema:
+- Themenbereiche:
+
+- Ausgabekanäle:
+
+- Plattform:

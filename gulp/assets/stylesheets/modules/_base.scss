@@ -214,16 +214,20 @@ button,
         content: "\f02e";
       }
     }
-  } //.tags, .gueltigkeit {
-  .gueltigkeit {
+  } //.tags {
+  .validity_period {
     text-align: left;
     margin: 1rem 0 0 1rem;
-    .icon {
-      color: $dark-gray;
+    color: $dark-gray;
+    .date {
+      color: $black;
     }
   }
   .daterange span.bis,
-  .gueltigkeit span.bis {
+  .daterange span.icon {
+    color: $dark-gray;
+  }
+  .daterange span.bis {
     font-style: italic;
   }
   .daterange {
@@ -570,6 +574,9 @@ span.single_error:before,
       border-width: 50px 60px 50px 0;
       border-color: transparent #ffffff transparent transparent;
     }
+    .detail-type.object_browser{
+      position: relative;
+    }
   }
   hr {
     padding: 1rem 0;
@@ -736,6 +743,13 @@ body .v-select {
       height: 12px;
     }
   }
+}
+
+.warning {
+  color: map-get($foundation-palette, alert);
+  font-style: italic;
+  display: block;
+  margin-top: 1rem;
 }
 
 /* Korrektur für Fehler im Neuen Eintrag erstellen reveal  */
