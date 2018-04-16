@@ -584,11 +584,11 @@ module DataCycleCore
             'publication_schedule' => [
               {
                 'markets' => [market2],
-                'output_channels' => [output_channel1]
+                'output_channel' => [output_channel1]
               },
               {
                 'markets' => [market1],
-                'output_channels' => [output_channel2]
+                'output_channel' => [output_channel2]
               }
             ]
           }
@@ -597,11 +597,11 @@ module DataCycleCore
             'publication_schedule' => [
               {
                 'markets' => [market1, market2],
-                'output_channels' => [output_channel1]
+                'output_channel' => [output_channel1]
               },
               {
                 'markets' => [market1],
-                'output_channels' => [output_channel2]
+                'output_channel' => [output_channel2]
               }
             ]
           }
@@ -610,11 +610,11 @@ module DataCycleCore
             'publication_schedule' => [
               {
                 'markets' => [market1, market2],
-                'output_channels' => [output_channel1]
+                'output_channel' => [output_channel1]
               },
               {
                 'markets' => [market1],
-                'output_channels' => [output_channel1, output_channel2]
+                'output_channel' => [output_channel1, output_channel2]
               }
             ]
           }
