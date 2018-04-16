@@ -312,6 +312,9 @@
   margin: 7.9rem 0 0 0 !important;
   outline: none;
   padding: 0;
+  .draggable-handle {
+    display: none;
+  }
   .object-browser-header {
     h4 {
       display: none;

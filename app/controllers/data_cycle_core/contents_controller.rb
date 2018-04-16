@@ -42,7 +42,13 @@ module DataCycleCore
       authorize! :show, @object
 
       @page = linked_object_params.fetch(:page, 1)
-      @linked_objects = @object.try(linked_object_params[:key])&.includes(:translations)&.page(@page)&.per(DataCycleCore.linked_objects_page_size)
+
+      if linked_object_params[:load_more_type] == 'all'
+        @linked_objects = @object.try(linked_object_params[:key])&.where&.not(id: linked_object_params[:load_more_except])&.includes(:translations)
+      else
+        @linked_objects = @object.try(linked_object_params[:key])&.includes(:translations)&.page(@page)&.per(DataCycleCore.linked_objects_page_size)
+      end
+
 
       respond_to do |format|
         format.js do
@@ -65,7 +71,7 @@ module DataCycleCore
     end
 
     def linked_object_params
-      params.permit(:id, :key, :page, :load_more_action)
+      params.permit(:id, :key, :page, :load_more_action, :load_more_type, load_more_except: [])
     end
 
     def life_cycle_params

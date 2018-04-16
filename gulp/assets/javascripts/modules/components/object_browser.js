@@ -248,10 +248,10 @@ ObjectBrowser.prototype.updateChosenCounter = function () {
   this.overlay.find('.chosen-counter').html(html);
 };
 
-ObjectBrowser.prototype.loadMore = function (loaded) {
+ObjectBrowser.prototype.loadMore = function (loaded_ids) {
   $.ajax({
     url: '/' + this.table + '/' + this.object_id + '/load_more_linked_objects',
-    method: 'POST',
+    method: 'GET',
     dataType: 'script',
     data: {
       key: this.object_key,
@@ -260,7 +260,10 @@ ObjectBrowser.prototype.loadMore = function (loaded) {
       definition: this.definition,
       options: this.options,
       class: this.class,
-      id: id
+      editable: this.editable,
+      load_more_action: 'object_browser',
+      load_more_type: 'all',
+      load_more_except: loaded_ids
     },
     contentType: 'application/json'
   });
@@ -329,7 +332,7 @@ ObjectBrowser.prototype.openOverlay = function (ev) {
 
   let loaded = $.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id'));
 
-  if (pre_selected.length > 0) this.loadMore(loaded);
+  if (this.ids.diff(loaded).length > 0) this.loadMore(loaded);
 
   this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).remove();
   this.loadObjects(false);
@@ -361,6 +364,7 @@ ObjectBrowser.prototype.import = function (event) {
         key: this.key,
         definition: this.definition,
         options: this.options,
+        editable: this.editable,
         objects: this.chosen
       }),
       contentType: 'application/json'
