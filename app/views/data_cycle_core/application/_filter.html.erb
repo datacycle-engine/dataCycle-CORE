@@ -90,7 +90,10 @@
               <%= t('data_cycle_core.stored_searches.save', locale: DataCycleCore.ui_language) %>
             <% end if can?(:create, DataCycleCore::StoredFilter) %>
 
-            <%= link_to t('actions.reset', count: 2, locale: DataCycleCore.ui_language), request.path, class: 'button', id: 'reset-filter' %>
+            <%= link_to request.path, class: 'button', id: 'reset-filter' do %>
+              <i class="fa fa-times" aria-hidden="true"></i>
+              <%= t('actions.reset', count: 2, locale: DataCycleCore.ui_language) %>
+            <% end %>
           </div>
 
           <div class="filterbuttons-right">

@@ -10,16 +10,16 @@
       </div>
 
       <% if type == DataCycleCore::UserOrganization %>
-        <div class="form-element validation-container">
-            <%= f.text_field :name, class: 'no-validation' %>
+        <div class="form-element">
+            <%= f.text_field :name %>
         </div>
       <% else %>
-        <div class="form-element validation-container">
-            <%= f.text_field :given_name, class: 'no-validation' %>
+        <div class="form-element">
+            <%= f.text_field :given_name %>
         </div>
 
-        <div class="form-element validation-container">
-            <%= f.text_field :family_name, class: 'no-validation' %>
+        <div class="form-element">
+            <%= f.text_field :family_name %>
         </div>
       <% end %>
 

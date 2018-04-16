@@ -86,8 +86,13 @@
           </div>
 
           <div class=" filterbuttons">
-              <%= link_to t('actions.reset', count: 2, locale: DataCycleCore.ui_language), request.path, class: 'button', id: 'reset-filter' %>
+            <div class="filterbuttons-left">
               <%= button_tag(t('actions.filter', locale: DataCycleCore.ui_language), class: "button success") %>
+              <%= link_to request.path, class: 'button', id: 'reset-filter' do %>
+                <i class="fa fa-times" aria-hidden="true"></i>
+                <%= t('actions.reset', count: 2, locale: DataCycleCore.ui_language) %>
+              <% end %>
+            </div>
           </div>
       </div>
     </section>

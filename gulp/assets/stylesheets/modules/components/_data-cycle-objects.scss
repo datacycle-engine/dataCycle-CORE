@@ -632,7 +632,8 @@ span.single_error.object-browser-error {
 
 .detail-header {
   .addContentObject {
-    margin: 0;
+    display: block;
+    margin: 0 auto;
     transition: all ease-in-out 0.2s;
     .fa {
       padding: 0;

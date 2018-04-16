@@ -438,6 +438,29 @@
   position: relative;
   .filterbuttons-left {
     float: left;
+    a.button {
+      color: $black;
+      background: transparent;
+    }
+    button,
+    .button {
+      padding: 0.85em 1em;
+      font-size: 0.9rem;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+      &:not(.success):hover,
+      &:not(.success):focus {
+        color: lighten($black, 30%);
+      }
+      transition: background-color ease-in-out 0.25s,
+      color ease-in-out 0.25s;
+      margin: 0 2rem 0 0;
+      font-weight: normal;
+      i {
+        margin-right: 0.2rem;
+      }
+    }
   }
   .filterbuttons-right {
     display: inline-block;
@@ -560,24 +583,6 @@
   line-height: 1rem;
   color: $black;
   margin-top: 1rem;
-  button {
-    padding: 0.85em 1em;
-    font-size: 0.9rem;
-    line-height: 1;
-    display: inline-block;
-    vertical-align: middle;
-    &:hover,
-    &:focus {
-      color: lighten($black, 30%);
-    }
-    transition: background-color ease-in-out 0.25s,
-    color ease-in-out 0.25s;
-    margin: 0 2rem 0 0;
-    font-weight: normal;
-    i {
-      margin-right: 0.2rem;
-    }
-  }
 }
 
 .search-results {
