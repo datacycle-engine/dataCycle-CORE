@@ -6,10 +6,11 @@
             <span class="notice"><%= t('common.no_search', locale: DataCycleCore.ui_language) %></span>
         <% end %>
 
-        <%= form_for(item.class.new) do |f| %>
+        <%= form_for(item.class.new, html: {class: 'validation-form'} ) do |f| %>
             <%= hidden_field_tag 'template', item.template_name %>
             <%= hidden_field_tag "#{item.class.name.demodulize.underscore}[datahash][#{DataCycleCore.features.dig(:life_cycle, :attribute_key)}][]", life_cycle_items.dig(life_cycle_name, :id) if DataCycleCore.features.dig(:life_cycle) && local_assigns.has_key?(:life_cycle_name) %>
             <%= hidden_field_tag 'parent_template', parent_template if local_assigns.has_key?(:parent_template) %>
+            <%= hidden_field_tag 'table', "#{item.class.table_name}" %>
 
             <% item.new_content_fields.each_with_index do |attribute, index| %>
                 <div class="validation-container form-element">
