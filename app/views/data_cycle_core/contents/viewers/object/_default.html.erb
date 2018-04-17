@@ -1,9 +1,9 @@
 <% objects = value %>
-<% if !objects.nil? && !objects.blank? %>
+<% if objects.present? %>
 
     <% objects_length = objects.size %>
 
-    <% objects.each_with_index do |object,index| %>
+    <% objects.each_with_index do |object, index| %>
 
         <% I18n.with_locale(object.first_available_locale) do %>
 
@@ -17,7 +17,7 @@
                        data_attributes: {id: object.id.split(','), editor: definition.dig('editor', 'type').try(:underscore)} do %>
 
                 <span class="detail-label">
-                    <%= render 'data_cycle_core/shared/icon', icon_type: objects[0].template_name.downcase %><strong><%= definition['label'].titleize %> <%= content_tag(:span, index+1) if objects_length > 1 %></strong>
+                    <%= render 'data_cycle_core/shared/icon', icon_type: objects[0].template_name.downcase %><strong><%= definition['label'] %> <%= content_tag(:span, index+1) if objects_length > 1 %></strong>
                 </span>
 
                 <div class="buttons">
@@ -34,7 +34,7 @@
                   <% end if definition['editor']['type'] == "objectBrowser" && @historySource.nil? && can?(:crud, object) %>
                 </div>
 
-                <% unless object.schema.nil? %>
+                <% if object.schema.present? %>
 
                     <% validation_properties = get_ordered_validation_properties(object.schema) %>
 
@@ -43,6 +43,8 @@
                         <% validation_properties.each do |key, prop| %>
 
                             <% object_value = prop.dig('type') == "object" ? object.try(key.to_sym) : objectDataHash[key] %>
+
+                            <% options[:force_render] = true if object.template_name == 'Publikations-Plan' %>
 
                             <%= render_attribute_viewer key: key, definition: prop, value: object_value, parameters: { options: options } %>
 

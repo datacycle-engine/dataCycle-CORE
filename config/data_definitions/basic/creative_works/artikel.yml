@@ -110,3 +110,13 @@
       :meta_data:
         :type: mixin
         :name: meta_data
+      :publication_schedule:
+        :label: Geplante Publikation
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: Publikations-Plan
+        :validations:
+          :classifications: no_conflicts
+        :editor:
+          :type: embeddedObject

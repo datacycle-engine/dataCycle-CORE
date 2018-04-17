@@ -11,7 +11,7 @@
       <%== '<i class="fa fa-arrow-left" aria-hidden="true"></i>' if active_index > index %>
     <% else %>
       <%== '<i class="fa fa-arrow-right" aria-hidden="true"></i>' if active_index < index %>
-      <%= link_to set_life_cycle_path(content.class.table_name, content.id, life_cycle: { id: item[:id], name: item[:alias]&.name}), method: :patch, class: "hollow button content-pool" do %>
+      <%= link_to polymorphic_path(content, life_cycle: { id: item[:id], name: item[:alias]&.name}, action: :set_life_cycle), method: :patch, class: "hollow button content-pool" do %>
         <%= t('actions.move_to', data: item[:alias]&.name, locale: DataCycleCore.ui_language) %>
       <% end %>
       <%== '<i class="fa fa-arrow-left" aria-hidden="true"></i>' if active_index > index %>

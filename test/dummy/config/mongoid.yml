@@ -18,7 +18,7 @@ test:
     default:
       database: data_cycle_test
       hosts:
-        - 127.0.0.1:27017
+        - <%= ENV["MONGODB_HOST"] || "127.0.0.1" %>:27017
       options:
         read:
           mode: :primary

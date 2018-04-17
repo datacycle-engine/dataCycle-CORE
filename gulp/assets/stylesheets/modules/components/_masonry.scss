@@ -48,26 +48,8 @@
     }
     .watch-lists {
       right: -22px !important;
-      left: auto !important;
-      top: 35px !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.10);
-      max-width: 300px;
-      &::before {
-        content: '▲';
-        font-size: 28px;
-        top: -17px;
-        color: white;
-        transform: scaleX(3);
-        text-shadow: 0 -2px 1px rgba(0, 0, 0, 0.1);
-        position: absolute;
-        left: auto;
+      &:before {
         right: 11px;
-        width: 2rem;
-        height: 1.1rem;
-        line-height: 1rem;
-        display: block;
-        text-align: center;
-        overflow: hidden;
       }
     }
     .status {

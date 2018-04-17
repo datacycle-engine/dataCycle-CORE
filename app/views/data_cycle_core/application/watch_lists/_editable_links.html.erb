@@ -1,5 +1,5 @@
-<a id="add-to-watchlist-link" class="hascontent watch-lists-link" data-toggle="watch-lists-<%= content.id %>"><i class="fa <%= (@accessible_watch_lists - content.watch_lists).length < @accessible_watch_lists.length ? 'fa-bookmark' : 'fa-bookmark-o' %>" aria-hidden="true"></i></a>
-<div class="dropdown-pane no-bullet bottom watch-lists" id="watch-lists-<%= content.id %>" data-dropdown data-hover="true" data-hover-pane="true" data-content-id="<%= content&.id %>" data-content-type="<%= content&.class&.name %>">
+<a id="add-to-watchlist-link" class="watch-lists-link" data-toggle="watch-lists-<%= content.id %>"><i class="fa <%= (@accessible_watch_lists - content.watch_lists).length < @accessible_watch_lists.length ? 'fa-bookmark' : 'fa-bookmark-o' %>" aria-hidden="true"></i></a>
+<div class="dropdown-pane no-bullet align-right bottom watch-lists" id="watch-lists-<%= content.id %>" data-dropdown data-hover="true" data-hover-pane="true" data-content-id="<%= content&.id %>" data-content-type="<%= content&.class&.name %>">
     <h5>Zu Merkliste hinzufügen</h5>
     <ul class="list-items">
       <%= render partial: 'data_cycle_core/application/watch_lists/edit_link', collection: @accessible_watch_lists, as: :watch_list, locals: local_assigns %>

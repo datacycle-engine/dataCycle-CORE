@@ -9,7 +9,7 @@ module DataCycleCore
     module Validators
       class ClassificationTreeLabelTest < ActiveSupport::TestCase
         test 'successful validation of classification_tree_label validator' do
-          error_hash = { error: [], warning: [] }
+          error_hash = { error: {}, warning: {} }
           template_hash = {
             'label' => 'Bundesland',
             'type' => 'classificationTreeLabel',
@@ -39,7 +39,7 @@ module DataCycleCore
         end
 
         test 'successful validation one uuid given' do
-          error_hash = { error: [], warning: [] }
+          error_hash = { error: {}, warning: {} }
           template_hash = {
             'label' => 'Bundesland',
             'type' => 'classificationTreeLabel',
@@ -89,7 +89,7 @@ module DataCycleCore
         end
 
         test "successful validation several uuid's given" do
-          error_hash = { error: [], warning: [] }
+          error_hash = { error: {}, warning: {} }
           template_hash = {
             'label' => 'Bundesland',
             'type' => 'classificationTreeLabel',
@@ -105,7 +105,7 @@ module DataCycleCore
         end
 
         test "successful validation several uuid's given with min, max validations" do
-          error_hash = { error: [], warning: [] }
+          error_hash = { error: {}, warning: {} }
           template_hash = {
             'label' => 'Bundesland',
             'type' => 'classificationTreeLabel',
@@ -125,7 +125,7 @@ module DataCycleCore
         end
 
         test "error for invalid uuid's given in an array" do
-          error_hash = { error: [], warning: [] }
+          error_hash = { error: {}, warning: {} }
           template_hash = {
             'label' => 'Bundesland',
             'type' => 'classificationTreeLabel',
@@ -142,7 +142,7 @@ module DataCycleCore
         end
 
         test 'error wrong type_name (tree_label) given for valid uuid' do
-          error_hash = { error: [], warning: [] }
+          error_hash = { error: {}, warning: {} }
           template_hash = {
             'label' => 'Bundesland',
             'type' => 'classificationTreeLabel',
@@ -157,7 +157,7 @@ module DataCycleCore
         end
 
         test 'error wrong uuid-format given' do
-          error_hash = { error: [], warning: [] }
+          error_hash = { error: {}, warning: {} }
           template_hash = {
             'label' => 'Bundesland',
             'type' => 'classificationTreeLabel',
@@ -178,7 +178,7 @@ module DataCycleCore
         end
 
         test "error aggregation for several wrong uuid's given" do
-          error_hash = { error: [], warning: [] }
+          error_hash = { error: {}, warning: {} }
           template_hash = {
             'label' => 'Bundesland',
             'type' => 'classificationTreeLabel',
@@ -189,12 +189,12 @@ module DataCycleCore
           uuid = DataCycleCore::Classification.where(name: 'Kärnten').first.id
           uuid2 = DataCycleCore::Classification.where(name: 'Steiermark').first.id
           validator = DataCycleCore::MasterData::Validators::ClassificationTreeLabel.new([uuid, 'abcde', 'asödflkjasdfölkj', uuid2, 'aöslkfjasdöflj', 3, 'asödlkfasödkfj'], template_hash)
-          assert_equal(5, validator.error[:error].size)
+          assert_equal(5, validator.error[:error].values[0].size)
           assert_equal(0, validator.error[:warning].size)
         end
 
         test 'warning when empty string in array is given as input' do
-          error_hash = { error: [], warning: [] }
+          error_hash = { error: {}, warning: {} }
           template_hash = {
             'label' => 'Bundesland',
             'type' => 'classificationTreeLabel',

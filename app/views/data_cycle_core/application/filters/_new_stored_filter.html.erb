@@ -1,23 +1,18 @@
 <div class="reveal" id="save-filter-with-name" data-reveal>
-  <h3><%= t('actions.save_filter', locale: DataCycleCore.ui_language) %></h3>
-  <%= form_tag(DataCycleCore::StoredFilter.new, id: 'save-filter-name-form') do %>
+  <h3><%= t('data_cycle_core.stored_searches.save', locale: DataCycleCore.ui_language) %></h3>
+  <%= form_for(DataCycleCore::StoredFilter.new, html: { id: 'save-filter-name-form' }) do |f| %>
     <div class="validation-container form-element">
-      <%= label_tag 'stored_filter_name', 'Name' %>
-      <%= text_field_tag 'stored_filter_name', nil, required: true %>
+      <%= f.label :name, DataCycleCore::StoredFilter.human_attribute_name(:name, locale: DataCycleCore.ui_language) %>
+      <%= f.text_field :name, required: true, label: false, list: "search_history", class: "ajax-datalist search_history", autocomplete: :off %>
+      <datalist id="search_history"></datalist>
     </div>
-    <% if can?(:create_api, DataCycleCore::StoredFilter) %>
-      <div class="validation-container form-element">
-        <%= check_box_tag 'stored_filter_api' %>
-        <%= label_tag 'stored_filter_api', DataCycleCore::StoredFilter.human_attribute_name("api", locale: DataCycleCore.ui_language) %>
-      </div>
-    <% end %>
     <% if can?(:create_global, DataCycleCore::StoredFilter) %>
       <div class="validation-container form-element">
-        <%= check_box_tag 'stored_filter_system' %>
-        <%= label_tag 'stored_filter_system', DataCycleCore::StoredFilter.human_attribute_name("system", locale: DataCycleCore.ui_language) %><br>
+        <%= f.check_box :system, label: false %>
+        <%= f.label :system, DataCycleCore::StoredFilter.human_attribute_name(:system, locale: DataCycleCore.ui_language) %><br>
       </div>
     <% end %>
-    <input name="commit" value="Speichern" class="button primary" data-disable-with="Speichern..." type="submit">
+    <%= f.submit t('actions.save', locale: DataCycleCore.ui_language), class: 'button primary', data: { save: t('actions.save', locale: DataCycleCore.ui_language), update: t('actions.update', locale: DataCycleCore.ui_language), disable_with: t('actions.save', locale: DataCycleCore.ui_language) } %>
   <% end %>
   <button class="close-button" data-close aria-label="Close modal" type="button">
     <span aria-hidden="true">&times;</span>

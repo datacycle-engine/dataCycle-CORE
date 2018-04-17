@@ -1,5 +1,9 @@
 .detail-header-functions,
 .edit-header-functions {
+  button,
+  a {
+    display: inline-block;
+  }
   .button {
     margin: 1rem 0 0 0;
     font-weight: bold;
@@ -28,10 +32,6 @@
         }
         a {
           padding: 0;
-        }
-        button,
-        a {
-          display: inline-block;
         }
         >.button,
         >a>.button {
@@ -63,29 +63,6 @@
           }
         }
       }
-      &.has-dropdown.right {
-        .dropdown-pane {
-          right: -18px !important;
-          left: auto !important; // top: 2rem !important;
-          &::before {
-            content: '▲';
-            font-size: 28px;
-            top: -18px;
-            color: white;
-            transform: scaleX(3);
-            text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
-            position: absolute;
-            left: auto;
-            right: 18px;
-            width: 2rem;
-            height: 1.1rem;
-            line-height: 1rem;
-            display: block;
-            text-align: center;
-            overflow: hidden;
-          }
-        }
-      }
       display: inline-block;
       position: relative;
       vertical-align: top;
@@ -96,96 +73,10 @@
         transition: all ease-in-out 0.25s;
         padding: 0 0.5rem 1rem 0.5rem;
         cursor: pointer;
+        line-height: 1.6;
         &:hover {
           opacity: 1;
           color: lighten($body-font-color, 30%);
-        }
-      }
-      .dropdown-pane {
-        line-height: 1rem;
-        font-size: 0.8rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        z-index: 100;
-        &::before {
-          content: '▲';
-          font-size: 28px;
-          top: -18px;
-          color: white;
-          transform: scaleX(3);
-          text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
-          position: absolute;
-          left: 30px;
-          width: 2rem;
-          height: 1.1rem;
-          line-height: 1rem;
-          display: block;
-          text-align: center;
-          overflow: hidden;
-        }
-        input {
-          max-width: 100%;
-          min-width: initial;
-          &[readonly] {
-            cursor: pointer !important;
-          }
-        }
-        >ul {
-          margin: 0;
-          &.list-items {
-            max-height: 24rem;
-            overflow-y: auto;
-            .buttons {
-              float: right;
-              vertical-align: middle;
-              span,
-              a {
-                color: $primary-color;
-                cursor: pointer;
-                &:hover,
-                &:focus {
-                  color: darken($primary-color, 30%);
-                }
-                &.invalidate-data-link {
-                  color: map-get($foundation-palette, alert);
-                  &:hover,
-                  &:focus {
-                    color: darken(map-get($foundation-palette, alert), 30%);
-                  }
-                }
-              }
-            }
-          }
-          >li {
-            position: relative;
-            text-align: left;
-            font-size: 0.8rem;
-            line-height: 1.2rem;
-            padding: 0 0 0.2rem 0;
-            i:not(.fa) {
-              color: $dark-gray;
-            }
-          }
-        }
-        &.data-links {
-          text-align: center;
-          li {
-            text-align: left;
-          }
-          .center-text {
-            text-align: center;
-          }
-          .invalid {
-            color: $dark-gray;
-          }
-          .email {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: calc(100% - 3rem);
-            display: inline-block;
-            vertical-align: middle;
-          }
         }
       }
     }
