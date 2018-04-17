@@ -17,15 +17,13 @@
         <div class="main-filters">
 
           <nav id="primary_nav_wrap">
-            <% main= (DataCycleCore.available_filters&.dig(:main)&.map { |t| t[:tree_label] } + DataCycleCore.available_filters&.dig(:advanced)&.map { |t| t[:tree_label] }).inspect %>
-
-            <% classification_tree_labels = DataCycleCore.available_filters&.dig(:main)&.map { |t| t[:tree_label] } + DataCycleCore.available_filters&.dig(:advanced)&.map { |t| t[:tree_label] } %>
+            <% classification_tree_labels = DataCycleCore.available_filters[:main] + DataCycleCore.available_filters[:advanced] %>
 
             <% classification_trees = DataCycleCore::ClassificationTreeLabel.where(name: classification_tree_labels).map{|l| {l.name => l.classification_trees.includes(:parent_classification_alias, sub_classification_alias: [sub_classification_alias: [sub_classification_alias: [:sub_classification_alias]]]).where(parent_classification_alias: nil).map(&:sub_classification_alias).select { |type| !excluded_types.include?(type.name) } } }.reduce(:merge) %>
 
             <ul>
-              <% DataCycleCore.available_filters&.dig(:main).presence.each do |filter| %>
-                <%= render 'data_cycle_core/application/filters/classification_tree', tree_label: filter&.dig(:tree_label), display_label: filter&.dig(:title), excluded_types: excluded_types, classification_tree: classification_trees&.dig(filter&.dig(:tree_label)) if classification_trees&.dig(filter&.dig(:tree_label)).present? %>
+              <% DataCycleCore.available_filters[:main].presence&.each do |filter| %>
+                <%= render 'data_cycle_core/application/filters/classification_tree', tree_label: filter, display_label: t("filter.#{filter}", default: filter, locale: DataCycleCore.ui_language), excluded_types: excluded_types, classification_tree: classification_trees[filter] if classification_trees[filter].present? %>
               <% end %>
               <%= render 'data_cycle_core/application/filters/sprache'%>
             </ul>
@@ -33,24 +31,24 @@
 
         </div>
 
-        <% if DataCycleCore.available_filters&.dig(:advanced)&.present? %>
+        <% if DataCycleCore.available_filters[:advanced].present? %>
           <ul class="accordion advanced-filters" data-responsive-accordion-tabs="accordion medium-tabs large-accordion" data-allow-all-closed="true">
             <li class="accordion-item" data-accordion-item>
-              <a href="#" class="accordion-title"><span><i class="fa fa-chevron-down" aria-hidden="true"></i><span class="closed"><%= t('common.additional_filters.show') %></span><span class="open"><%= t('common.additional_filters.hide') %></span> </span></a>
               <div class="accordion-content" data-tab-content>
 
-                <% DataCycleCore.available_filters&.dig(:advanced).each do |filter| %>
-                  <%= render 'data_cycle_core/application/filters/alternative_classification_tree', tree_label: filter.dig(:tree_label), display_label: filter.dig(:title), excluded_types: excluded_types, classification_tree: classification_trees.dig(filter.dig(:tree_label)) if classification_trees.dig(filter.dig(:tree_label)).present? %>
+                <% DataCycleCore.available_filters[:advanced].each do |filter| %>
+                  <%= render 'data_cycle_core/application/filters/alternative_classification_tree', tree_label: filter, display_label: t("filter.#{filter}", default: filter, locale: DataCycleCore.ui_language), excluded_types: excluded_types, classification_tree: classification_trees[filter] if classification_trees[filter].present? %>
                 <% end %>
 
               </div>
+              <a href="#" class="accordion-title"><span><i class="fa fa-chevron-down" aria-hidden="true"></i></span></a>
             </li>
           </ul>
         <% end %>
 
         <div class="filtertags activefilter">
             <span class="icon"><i class="fa fa-check" aria-hidden="true"></i> <strong><%= t('common.active_filters', locale: DataCycleCore.ui_language) %></strong>
-            <% unless @total.nil? || @total.zero? %>
+            <% if @total&.positive? %>
               <span class="result-count">(<strong><%= @total %></strong> <%= t('common.contents', count: @total, locale: DataCycleCore.ui_language) %>)</span>
             <% end %>
             <strong>:</strong> </span>
@@ -81,11 +79,28 @@
         </div>
 
         <div class=" filterbuttons">
+          <div class="filterbuttons-left">
+            <%= button_tag class: "button success" do %>
+              <i class="fa fa-search" aria-hidden="true"></i>
+              <%= t('actions.filter', locale: DataCycleCore.ui_language) %>
+            <% end %>
 
-            <button type="reset" id="reset-filter" class="button"><%= t('actions.reset', count: 2, locale: DataCycleCore.ui_language) %></button>
-            <%= button_tag(t('actions.save_filter', locale: DataCycleCore.ui_language), class: 'button', type: 'button', id: 'save-filter', data: { open: 'save-filter-with-name' }) if can?(:create, DataCycleCore::StoredFilter) %>
-            <%= button_tag(t('actions.filter', locale: DataCycleCore.ui_language), class: "button success") %>
+            <%= button_tag type: :button, id: 'save-filter', data: { open: 'save-filter-with-name' } do %>
+              <i class="fa fa-bookmark-o" aria-hidden="true"></i>
+              <%= t('data_cycle_core.stored_searches.save', locale: DataCycleCore.ui_language) %>
+            <% end if can?(:create, DataCycleCore::StoredFilter) %>
 
+            <%= link_to request.path, class: 'button', id: 'reset-filter' do %>
+              <i class="fa fa-times" aria-hidden="true"></i>
+              <%= t('actions.reset', count: 2, locale: DataCycleCore.ui_language) %>
+            <% end %>
+          </div>
+
+          <div class="filterbuttons-right">
+            <% if can?(:show_history, DataCycleCore::StoredFilter) %>
+              <%= render 'stored_filters' %>
+            <% end %>
+          </div>
         </div>
 
     </div>

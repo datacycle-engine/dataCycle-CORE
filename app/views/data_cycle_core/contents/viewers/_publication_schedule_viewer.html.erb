@@ -1,0 +1,26 @@
+<%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: value, options: options, data_attributes: { id: value.map(&:id), editor: definition.dig('editor', 'type').try(:underscore) } do %>
+
+  <div class="publication-list">
+    <% value.presence&.order("(metadata ->> 'publish_at')::timestamptz ASC")&.each_with_index do |publication, idx| %>
+      <% classification_attributes = publication.schema&.dig('properties')&.select { |k, v| v['type'] == 'classificationTreeLabel' && !DataCycleCore.internal_data_attributes.include?(k) }&.map { |k, v| [k, v['label']] }.to_h %>
+      <% if idx.zero? %>
+        <div class="publication-row title-row">
+          <span class="publication-attribute publication-date"><span class="icon"><i class="fa fa-calendar" aria-hidden="true"></span></i> <%= t('data_cycle_core.publication_date', locale: DataCycleCore.ui_language) %></span>
+          <% classification_attributes.presence&.each_value do |c_attribute| %>
+            <span class="publication-attribute"><%= render 'data_cycle_core/shared/icon', icon_type: c_attribute.downcase %><%= c_attribute %></span>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div class="publication-row">
+        <span class="publication-attribute publication-date"><%= l(publication.publish_at&.to_date, format: :long, locale: DataCycleCore.ui_language) %></span>
+        <% classification_attributes.presence&.each_key do |c_attribute| %>
+          <span class="publication-attribute">
+            <%= publication.send(c_attribute).presence&.map(&:name)&.join(', ') %>
+          </span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+<% end %>

@@ -44,7 +44,7 @@ cache:
 services:
   - name: mdillon/postgis:9.6
     alias: postgres
-  - name: mvertes/alpine-mongo
+  - name: mvertes/alpine-mongo:3.6.3-0
     alias: mongodb
 
 # Running tests

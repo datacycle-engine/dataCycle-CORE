@@ -1,6 +1,7 @@
 // confirmation modal
-var ConfirmationModal = function (text = '', buttonClass = '', cancelable = false, confirmationCallback = null) {
+var ConfirmationModal = function (text = '', buttonClass = '', cancelable = false, confirmationCallback = null, cancelCallback = null) {
   this.confirmationCallback = confirmationCallback;
+  this.cancelCallback = cancelCallback;
   this.buttonClass = buttonClass;
   this.cancelable = cancelable;
   this.text = text;
@@ -10,6 +11,7 @@ var ConfirmationModal = function (text = '', buttonClass = '', cancelable = fals
 };
 
 ConfirmationModal.prototype.setup = function () {
+  $('.confirmation-modal-overlay').remove();
   this.html = '<div id="' + this.id + '" class="confirmation-modal-overlay"><div class="confirmation-modal">';
   this.html += '<div class="confirmation-text">' + this.text + '</div>';
   this.html += '<div class="confirmation-buttons">';
@@ -29,14 +31,20 @@ ConfirmationModal.prototype.addEvents = function () {
     if (event.target !== this) return;
     self.close();
   });
-  $('#' + this.id + ' .close-button, #' + this.id + ' .confirmation-cancel').on('click', this.close.bind(this));
+  $('#' + this.id + ' .close-button, #' + this.id + ' .confirmation-cancel').on('click', this.cancel.bind(this));
 
   $('#' + this.id + ' .confirmation-confirm').on('click', this.confirm.bind(this));
   $(document).on('keydown', function (event) {
     event.preventDefault();
+    event.stopImmediatePropagation();
     if (event.which == 13) self.confirm();
-    else if (event.which == 27) self.close();
+    else if (event.which == 27) self.cancel();
   });
+};
+
+ConfirmationModal.prototype.cancel = function () {
+  this.close();
+  if (this.cancelCallback != null) this.cancelCallback();
 };
 
 ConfirmationModal.prototype.confirm = function () {

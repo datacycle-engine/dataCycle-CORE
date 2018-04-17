@@ -6,18 +6,18 @@ module DataCycleCore
 
     def initialize(user, session = {})
       alias_action :update, :destroy, to: :modify
-      alias_action :create, :import, :read, :update, :create_user, :search, :unlock, :validate_single_data, to: :crud
+      alias_action :create, :import, :read, :update, :create_user, :search, :unlock, :validate, :validate_single_data, to: :crud
 
       if user
         can :read, :all
-        cannot :read, [DataCycleCore::WatchList, DataCycleCore::StoredFilter]
+        cannot :manage, [DataCycleCore::WatchList, DataCycleCore::StoredFilter]
         cannot :read, :backend
         can :search, DataCycleCore::User
         can [:show, :find], :object_browser
 
         if user.has_rank?(0)
           DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
-            can [:update, :validate_single_data, :import], link.item_type.constantize, { id: link.item_id } if link.is_valid?
+            can [:update, :validate, :validate_single_data, :import], link.item_type.constantize, { id: link.item_id } if link.is_valid?
           end
 
           can :print, CONTENT_MODELS do |content|
@@ -29,16 +29,17 @@ module DataCycleCore
           can [:read, :settings, :store_filter], :backend
           can :modify, DataCycleCore::User, id: user.id
           can :manage, DataCycleCore::WatchList, user_id: user.id
-          can [:read, :create, :destroy], DataCycleCore::StoredFilter, user_id: user.id
+          can [:read, :create, :update, :destroy, :show_history], DataCycleCore::StoredFilter, user_id: user.id
           can :read, DataCycleCore::StoredFilter, system: true
+          can :show_publications, DataCycleCore::Content
           can [:subscribe, :history, :history_detail], [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork, DataCycleCore::Place]
         end
 
         if user.has_rank?(10)
           can :manage, DataCycleCore::DataLink
           can [:crud, :destroy], DataCycleCore::UserGroup
-          can [:crud, :destroy], DataCycleCore::User do |the_user|
-            user&.role&.rank&.> the_user&.role&.rank || the_user == user
+          can [:crud, :destroy, :generate_access_token], DataCycleCore::User do |the_user|
+            user&.role&.rank&.>(the_user&.role&.rank) || the_user == user
           end
 
           can :update_release_status, [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork, DataCycleCore::Place]
@@ -72,7 +73,7 @@ module DataCycleCore
           can :set_life_cycle, DataCycleCore::CreativeWork
 
           can :manage, DataCycleCore::Asset
-          can :create_global, DataCycleCore::StoredFilter
+          can [:create_global, :create_api], DataCycleCore::StoredFilter, user_id: user.id
         end
 
         can :manage, :dash_board if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)
@@ -81,7 +82,10 @@ module DataCycleCore
           # !attribute.options['readonly']
           (
             attribute.content.try(:external_key).blank? ||
-            (attribute.content&.schema&.dig('features', 'overlay').present? && attribute.content.schema.dig('features', 'overlay').include?(attribute.key.split('[').last[0...-1]))
+            (
+              attribute.content&.schema&.dig('features', 'overlay').present? &&
+              (attribute.key.scan(/\[(.*?)\]/).flatten & attribute.content.schema.dig('features', 'overlay')).size.nonzero?
+            )
           )
         end
 

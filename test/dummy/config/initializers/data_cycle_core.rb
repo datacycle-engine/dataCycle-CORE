@@ -15,4 +15,11 @@ DataCycleCore.setup do |config|
 
   # config.excluded_new_item_objects = ['Bild', 'Datei']
   config.excluded_new_item_objects = ['Event', 'Person', 'Örtlichkeit', 'Bild', 'Organization', 'Zeitleiste', 'Linktipps', 'Datei']
+  config.features = config.features.merge(
+    {
+      publication_schedule: {
+        classification_keys: ['output_channel']
+      }
+    }
+  )
 end

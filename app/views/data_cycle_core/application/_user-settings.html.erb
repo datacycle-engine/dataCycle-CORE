@@ -1,96 +1,113 @@
 <div class="off-canvas position-right" id="settings-off-canvas" data-off-canvas data-content-overlay="false">
-        <div class="settings-row">
-            <div class="row column">
-                <%= link_to data_cycle_core.destroy_user_session_path, method: :delete, class: 'logout-link' do %>
-                    <span class="icon"><i class="fa fa-sign-out" aria-hidden="true"></i></span>
-                    <span class="title">Ausloggen</span>
-                <% end %>
-            </div>
-          <% if current_user.role && current_user.role.rank > 0 %>
-            <% if can? :update, current_user %>
-              <div class="row columns">
-                  <%= link_to edit_user_path(current_user), class: 'edit-user-link' do %>
-                      <span class="icon"><i class="fa fa-pencil" aria-hidden="true"></i></span>
-                      <span class="title"><%= DataCycleCore::User.model_name.human(locale: DataCycleCore.ui_language) %> <%= t('actions.edit', locale: DataCycleCore.ui_language) %></span>
-                  <% end %>
-              </div>
-            <% end %>
-            <div class="row columns">
-                <%= link_to settings_path, class: 'user-settings-link' do %>
-                    <span class="icon"><i class="fa fa-cogs" aria-hidden="true"></i></span>
-                    <span class="title">Einstellungen</span>
-                <% end %>
-            </div>
+  <div class="settings-row">
+    <div class="row columns">
+      <h5><%= t('data_cycle_core.user_details', locale: DataCycleCore.ui_language) %></h5>
+    </div>
+    <div class="row columns">
+      <span class="icon"><i class="fa fa-smile-o" aria-hidden="true"></i></span>
+      <span class="title"><%= current_user&.full_name %></span>
+    </div>
+    <% if current_user.access_token.present? %>
+      <div class="row columns access-token">
+        <span class="icon"><i class="fa fa-key" aria-hidden="true"></i></span>
+        <span class="title copy-to-clipboard" title="<%= DataCycleCore::User.human_attribute_name(:access_token, locale: DataCycleCore.ui_language) %>" data-value="<%= current_user.access_token %>"><%= current_user.access_token %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="settings-row">
+    <div class="row columns">
+      <h5><%= t('data_cycle_core.user_settings', locale: DataCycleCore.ui_language) %></h5>
+    </div>
+    <div class="row columns">
+      <%= link_to data_cycle_core.destroy_user_session_path, method: :delete, class: 'logout-link' do %>
+        <span class="icon"><i class="fa fa-sign-out" aria-hidden="true"></i></span>
+        <span class="title">Ausloggen</span>
+      <% end %>
+    </div>
+    <% if current_user.role && current_user.role.rank > 0 %>
+      <% if can? :update, current_user %>
+        <div class="row columns">
+          <%= link_to edit_user_path(current_user), class: 'edit-user-link' do %>
+            <span class="icon"><i class="fa fa-pencil" aria-hidden="true"></i></span>
+            <span class="title"><%= DataCycleCore::User.model_name.human(locale: DataCycleCore.ui_language) %> <%= t('actions.edit', locale: DataCycleCore.ui_language) %></span>
           <% end %>
         </div>
-
-        <% if can?(:crud, DataCycleCore::Classification) || can?(:crud, DataCycleCore::User) || can?(:crud, DataCycleCore::UserGroup) %>
-            <div class="settings-row">
-                <div class="row columns">
-                    <h5><%= t('data_cycle_core.administration', locale: DataCycleCore.ui_language) %></h5>
-                </div>
-
-                <% if can? :manage, DataCycleCore::Classification %>
-                    <div class="row columns">
-                        <%= link_to classifications_path, class: 'classifications-link' do %>
-                            <span class="icon"><i class="fa fa-sitemap" aria-hidden="true"></i></span>
-                            <span class="title"><%= t('data_cycle_core.classifications', locale: DataCycleCore.ui_language) %></span>
-                        <% end %>
-                    </div>
-                <% end %>
-
-                <% if can? :crud, DataCycleCore::User %>
-                    <div class="row columns">
-                        <%= link_to users_path, class: 'users-link' do %>
-                            <span class="icon"><i class="fa fa-user" aria-hidden="true"></i></span>
-                            <span class="title"><%= DataCycleCore::User.model_name.human(count: 2, locale: DataCycleCore.ui_language) %> <%= t('actions.manage', locale: DataCycleCore.ui_language) %></span>
-                        <% end %>
-                    </div>
-                <% end %>
-
-                <% if can? :crud, DataCycleCore::UserGroup %>
-                    <div class="row columns">
-                        <%= link_to user_groups_path, class: 'user-groups-link' do %>
-                            <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
-                            <span class="title"><%= DataCycleCore::UserGroup.model_name.human(count: 2, locale: DataCycleCore.ui_language) %> <%= t('actions.manage', locale: DataCycleCore.ui_language) %></span>
-                        <% end %>
-                    </div>
-                <% end %>
-            </div>
+      <% end %>
+      <div class="row columns">
+        <%= link_to settings_path, class: 'user-settings-link' do %>
+          <span class="icon"><i class="fa fa-cogs" aria-hidden="true"></i></span>
+          <span class="title">Einstellungen</span>
         <% end %>
+      </div>
+    <% end %>
+  </div>
 
-        <% if can?(:read, DataCycleCore::StoredFilter) %>
-          <div class="settings-row">
-            <div class="row columns">
-              <h5><%= t('data_cycle_core.stored_filter', locale: DataCycleCore.ui_language) %></h5>
-            </div>
+  <% if can?(:crud, DataCycleCore::Classification) || can?(:crud, DataCycleCore::User) || can?(:crud, DataCycleCore::UserGroup) %>
+    <div class="settings-row">
+      <div class="row columns">
+        <h5><%= t('data_cycle_core.administration', locale: DataCycleCore.ui_language) %></h5>
+      </div>
 
-            <div class="row columns">
-              <ul class="list-items no-bullet named-stored-filters">
-                <% @accessible_stored_filters.where.not(name: nil).order(:system, updated_at: :desc).each do |stored_filter| %>
-                    <li class="<%= 'system-filter' if stored_filter.system %>">
-                      <%= link_to root_path(stored_filter: stored_filter.id), class: 'stored-filter-link' do %>
-                        <i class="fa fa-filter" aria-hidden="true"></i>
-                        <%= stored_filter.name || "vor #{time_ago_in_words stored_filter.created_at}" %>
-                      <% end %>
-                      <span class="buttons">
-                        <% if stored_filter.api %>
-                          <%= link_to api_v1_stored_filter_path(stored_filter), class: 'copy-to-clipboard', data: { tooltip: '' }, title: t('actions.copy_api_url_to_clipboard') do %>
-                            <i class="fa fa-clipboard" aria-hidden="true"></i>
-                          <% end %>
-                        <% end %>
-                        <% if can?(:destroy, stored_filter) %>
-                          <%= link_to stored_filter_path(stored_filter), method: :delete, data: { confirm: "Filter #{t('actions.delete', locale: DataCycleCore.ui_language)}?" } do %>
-                            <i class="fa fa-trash-o alert" aria-hidden="true"></i>
-                          <% end %>
-                        <% end %>
-                      </span>
-                    </li>
+      <% if can? :manage, DataCycleCore::Classification %>
+        <div class="row columns">
+          <%= link_to classifications_path, class: 'classifications-link' do %>
+            <span class="icon"><i class="fa fa-sitemap" aria-hidden="true"></i></span>
+            <span class="title"><%= t('data_cycle_core.classifications', locale: DataCycleCore.ui_language) %></span>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% if can? :crud, DataCycleCore::User %>
+        <div class="row columns">
+          <%= link_to users_path, class: 'users-link' do %>
+            <span class="icon"><i class="fa fa-user" aria-hidden="true"></i></span>
+            <span class="title"><%= DataCycleCore::User.model_name.human(count: 2, locale: DataCycleCore.ui_language) %> <%= t('actions.manage', locale: DataCycleCore.ui_language) %></span>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% if can? :crud, DataCycleCore::UserGroup %>
+        <div class="row columns">
+          <%= link_to user_groups_path, class: 'user-groups-link' do %>
+            <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
+            <span class="title"><%= DataCycleCore::UserGroup.model_name.human(count: 2, locale: DataCycleCore.ui_language) %> <%= t('actions.manage', locale: DataCycleCore.ui_language) %></span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if can?(:read, DataCycleCore::StoredFilter) %>
+    <div class="settings-row">
+      <div class="row columns">
+        <h5><%= t('data_cycle_core.stored_searches.my_saved', locale: DataCycleCore.ui_language) %></h5>
+      </div>
+
+      <div class="row columns">
+        <ul class="list-items no-bullet named-stored-filters">
+          <% @accessible_stored_filters.where.not(name: nil).order(updated_at: :desc).first(5).each do |stored_filter| %>
+            <li class="<%= 'system-filter' if stored_filter.system %>">
+              <%= link_to root_path(stored_filter: stored_filter.id), class: 'stored-filter-link' do %>
+                <span class="icon"><i class="fa fa-search" aria-hidden="true"></i></span>
+                <span class="title"><%= stored_filter.name || "vor #{time_ago_in_words stored_filter.created_at}" %></span>
+              <% end %>
+              <span class="buttons">
+                <% if stored_filter.api && can?(:create_api, DataCycleCore::StoredFilter) %>
+                  <%= link_to api_v1_stored_filter_path(stored_filter), class: 'copy-to-clipboard', data: { tooltip: '', value: api_v1_stored_filter_url(stored_filter) }, title: t('actions.copy_to_clipboard') do %>
+                    <i class="fa fa-clipboard" aria-hidden="true"></i>
+                  <% end %>
                 <% end %>
-              </ul>
-            </div>
-          </div>
-        <% end %>
+              </span>
+            </li>
+          <% end %>
+          <% if @accessible_stored_filters.where.not(name: nil).order(:system, updated_at: :desc).size > 5 %>
+            <li class="more-link"><%= link_to '...', stored_filters_path %></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
     <!--<div class="settings-row">-->
     <!--<div class="row column">-->
     <!--<div class="heading">Meine letzten Suchen</div>-->

@@ -72,7 +72,7 @@ describe('UserGroup', function () {
     cy.get('.search-results .grid-item:contains(' + user.email + ')').should('have.length', 1).find('.edit-link').click()
     cy.location('pathname').should('match', /\/users\/.*\/edit/)
 
-    cy.get('#user_user_group_ids_').should('have.length', 1).siblings('.select2').should(($elem) => {
+    cy.get('#user_user_group_ids').should('have.length', 1).siblings('.select2').should(($elem) => {
       expect($elem.first()).to.contain(name)
     })
   })

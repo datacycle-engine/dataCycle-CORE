@@ -20,22 +20,9 @@
                        data_attributes: {id: object.id.split(','), editor: definition['editor']['type']} do %>
 
                 <span class="detail-label">
-                    <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %><strong><%= definition['label'].capitalize %> <%= content_tag(:span, index+1) if objects_length > 1 %></strong>
+                    <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %><strong><%= definition['label'] %> <%= content_tag(:span, index+1) if objects_length > 1 %></strong>
                 </span>
-<!--
-                <div class="buttons">
-                  <%# if DataCycleCore.translatable_types.include?(object.class.name) %>
-                    <a data-toggle="translated-locales-history-<%#= object.id %>"><i class="fa fa-language" aria-hidden="true"></i></a>
-                    <ul class="dropdown-pane no-bullet bottom translated-locales" id="translated-locales-history-<%#= object.id %>" data-dropdown data-hover="true" data-hover-pane="true">
-                      <%# object.translated_locales.each do |locale| %>
-                        <li><%#= t("locales.#{locale}", locale: DataCycleCore.ui_language) %></li>
-                      <%# end %>
-                    </ul>
 
-                  <%# end %>
-                  <%#= link_to '<i class="fa fa-pencil" aria-hidden="true"></i>'.html_safe, edit_polymorphic_path(object, locale: I18n.locale), target: :_blank, class: "edit-link" if definition['editor']['type'] == "objectBrowser" && @historySource.nil? && can?(:crud, object) %>
-                </div>
--->
                 <% unless object.schema.nil? %>
 
                     <% validation_properties = get_ordered_validation_properties(object.schema) %>
