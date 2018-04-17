@@ -146,17 +146,6 @@
 #        :name: DataCycle-File
 #        :editor:
 #          :type: embeddedObject
-#      :firma:
-#        :label: "Firma"
-#        :type: object
-#        :storage_location: organizations
-#        :name: Organization
-#        :delete: false
-#        :editor:
-#          :type: objectBrowser
-#          :options:
-#            :data-validate: object
-#            :data-type: organization
 
 - :data:
     :name: Angebotszeitraum

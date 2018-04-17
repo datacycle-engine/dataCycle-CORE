@@ -31,7 +31,7 @@ module DataCycleCore
           can [:read, :create, :update, :destroy, :show_history], DataCycleCore::StoredFilter, user_id: user.id
           can :read, DataCycleCore::StoredFilter, system: true
           can :show_publications, DataCycleCore::Content
-          can [:subscribe, :history, :history_detail], [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork, DataCycleCore::Place]
+          can [:subscribe, :history, :history_detail], CONTENT_MODELS
         end
 
         if user.has_rank?(10)
