@@ -992,7 +992,8 @@ CREATE TABLE stored_filters (
     system boolean DEFAULT false,
     api boolean DEFAULT false,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    api_users text[]
 );
 
 
@@ -1087,7 +1088,10 @@ CREATE TABLE users (
     locked_at timestamp without time zone,
     external boolean DEFAULT true NOT NULL,
     role_id uuid,
-    notification_frequency character varying DEFAULT 'always'::character varying
+    notification_frequency character varying DEFAULT 'always'::character varying,
+    access_token character varying,
+    type character varying,
+    name character varying
 );
 
 
@@ -2395,6 +2399,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180117073708'),
 ('20180122153121'),
 ('20180124091123'),
-('20180222091614');
+('20180222091614'),
+('20180328122539'),
+('20180329064133'),
+('20180330063016');
 
 

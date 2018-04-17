@@ -1,11 +1,8 @@
 ---
 - :data:
-    :name: Event
+    :name: EventOverlay
     :type: object
-    :boost: 100.0
-    :content_type: entity
-    :features:
-      :overlay: ['overlay']
+    :content_type: embedded
     :properties:
       :id:
         :label: id
@@ -14,16 +11,6 @@
         :storage_location: key
         :validations:
           :format: uuid
-      :overlay:
-        :label: Overlay
-        :type: object
-        :storage_location: events
-        :delete: true
-        :name: EventOverlay
-        :validations:
-          :maxLength: 1
-        :editor:
-          :type: embeddedObject
       :name:
         :label: Titel
         :type: string
@@ -36,9 +23,6 @@
           :type: input
           :options:
             :data-validate: text
-      :validity_period:
-        :type: mixin
-        :name: validity_period
       :event_period:
         :label: Veranstaltungszeitraum
         :type: object
@@ -120,26 +104,18 @@
           :options:
             :data-validate: object
             :data-type: place
-      :sub_event:
-        :label: Veranstaltungsdaten
-        :type: object
-        :storage_location: events
-        :delete: true
-        :name: SubEvent
-        :editor:
-          :type: embeddedObject
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
-        :default_value: "Veranstaltung"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
+        :default_value: "Overlay"
       :meta_data:
         :type: mixin
         :name: meta_data
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :event_db:
         :type: mixin
         :name: event_db
