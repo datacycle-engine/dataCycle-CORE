@@ -150,6 +150,7 @@ ObjectBrowser.prototype.setup = function () {
         overlay_id: '#object_browser_' + self.id,
         key: self.key,
         definition: self.definition,
+        editable: self.editable,
         options: self.options,
         class: self.class,
         objects: self.chosen,
@@ -298,6 +299,7 @@ ObjectBrowser.prototype.import = function (event) {
         language: this.language,
         overlay_id: '#object_browser_' + this.id,
         key: this.key,
+        editable: this.editable,
         definition: this.definition,
         options: this.options,
         objects: this.chosen
