@@ -77,14 +77,29 @@ module DataCycleCore
         can :manage, :dash_board if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)
 
         can :edit, DataCycleCore::DataAttribute do |attribute|
-          (
-            attribute.content.try(:external_key).blank? ||
+          if DataCycleCore.features.dig(:publication_schedule, :enabled) && attribute.content&.schema&.dig('features', 'publication_schedule').present?
             (
-              DataCycleCore.features.dig(:overlay, :enabled) &&
-              attribute.content&.schema&.dig('features', 'overlay').present? &&
-              (attribute.key.scan(/\[(.*?)\]/).flatten & attribute.content.schema.dig('features', 'overlay')).size.positive?
+              !(
+                (Regexp.union(*DataCycleCore.features.dig(:publication_schedule, :classification_keys)) === attribute.key) &&
+                (attribute.key.scan(/\[(.*?)\]/).flatten & attribute.content.schema.dig('features', 'publication_schedule')).size.zero?
+              )
             )
-          )
+          else
+            (
+              attribute.content.try(:external_key).blank? ||
+              (
+                DataCycleCore.features.dig(:overlay, :enabled) &&
+                attribute.content&.schema&.dig('features', 'overlay').present? &&
+                (attribute.key.scan(/\[(.*?)\]/).flatten & attribute.content.schema.dig('features', 'overlay')).size.positive?
+              )
+            )
+          end
+        end
+
+        can :show_attribute, DataCycleCore::DataAttribute do |attribute|
+          # return if disabled by feature
+
+          true
         end
 
         unless user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/
@@ -92,6 +107,7 @@ module DataCycleCore
             the_user.has_rank?(user.role.try(:rank)) && the_user != user
           end
         end
+
       end
     end
   end

@@ -29,6 +29,7 @@ DataCycleCore.setup do |config|
   config.features = config.features.merge(
     {
       publication_schedule: {
+        enabled: true,
         classification_keys: ['output_channel']
       },
       overlay: {

@@ -277,7 +277,7 @@ module DataCycleCore
     end
 
     def set_publication_attributes
-      if DataCycleCore.features.dig(:publication_schedule, :classification_keys).present? && @creativeWork.respond_to?('publication_schedule')
+      if DataCycleCore.features.dig(:publication_schedule, :classification_keys).present? && @creativeWork&.schema&.dig('features', 'publication_schedule').present? && @creativeWork.respond_to?('publication_schedule')
         I18n.with_locale(@creativeWork.first_available_locale) do
           datahash_params = creative_work_params('creative_works', @creativeWork.template_name)
           datahash = DataCycleCore::DataHashService.flatten_datahash_value(datahash_params[:datahash], @creativeWork.schema, false)

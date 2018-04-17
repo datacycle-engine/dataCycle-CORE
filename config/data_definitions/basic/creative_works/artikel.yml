@@ -5,6 +5,8 @@
     :content_type: entity
     :releasable: true
     :boost: 100.0
+    :features:
+      :publication_schedule: ['publication_schedule']
     :properties:
       :id:
         :label: id
