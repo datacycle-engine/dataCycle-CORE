@@ -1,8 +1,7 @@
 module DataCycleCore
   class OrganizationsController < ContentsController
-    before_action :authenticate_user!   # from devise (authenticate)
+    before_action :authenticate_user! # from devise (authenticate)
     load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
-
 
     def show
       @content = DataCycleCore::Organization.find_by(id: params[:id])
@@ -71,9 +70,8 @@ module DataCycleCore
         object_params = organization_params('organizations', @organization.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @organization.schema)
 
-
         data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
-          datahash.merge({ 'id' => @organization.id}),
+          datahash.merge({ 'id' => @organization.id }),
           @organization.get_data_hash
         )
 

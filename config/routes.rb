@@ -21,7 +21,7 @@ DataCycleCore::Engine.routes.draw do
 
   scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
     resources(*DataCycleCore.content_tables.map(&:to_sym), only: [:index, :show, :create, :edit, :update, :history, :history_detail, :destroy]) do
-    # resources :creative_works, only: [:index, :show, :create, :edit, :update, :history, :history_detail, :destroy] do
+      # resources :creative_works, only: [:index, :show, :create, :edit, :update, :history, :history_detail, :destroy] do
       post :import, on: :collection
       get 'history', on: :member
       get 'history_detail', on: :member
@@ -94,12 +94,12 @@ DataCycleCore::Engine.routes.draw do
 
         resources :collections, only: [:index, :show], controller: :watch_lists
 
-        type_regexp = Regexp.new([:creative_works, :persons, :organizations, :places].join('|'))
+        type_regexp = Regexp.new(*DataCycleCore.content_tables.map(&:to_sym).join('|'))
         resources :contents, path: ':type', constraints: { type: type_regexp }, only: [:show] do
           get :search, on: :collection
           patch :update, on: :member
         end
-        resources :events, only: [:index, :show]
+
         get 'contents/search', to: 'contents#search'
         get 'contents/get_deleted', to: 'contents#get_deleted'
 

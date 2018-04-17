@@ -75,7 +75,7 @@ module DataCycleCore
         datahash = set_location(datahash)
 
         data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
-          datahash.merge({ 'id' => @place.id}),
+          datahash.merge({ 'id' => @place.id }),
           @place.get_data_hash
         )
 

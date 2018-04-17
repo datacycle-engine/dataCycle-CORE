@@ -6,7 +6,7 @@ module DataCycleCore
     def show
       @content = DataCycleCore::Event.find_by(id: params[:id])
 
-      redirect_back(fallback_location: root_path) if @content.nil?
+      redirect_back(fallback_location: root_path) && return if @content.nil?
 
       I18n.with_locale(@content.first_available_locale) do
         @dataSchema = @content.get_data_hash
@@ -15,7 +15,7 @@ module DataCycleCore
 
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: 'events', id: params[:id]) }
-          format.html
+          format.html { render 'show' }
         end
       end
     end
@@ -71,7 +71,7 @@ module DataCycleCore
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @event.schema)
 
         data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
-          datahash.merge({ 'id' => @event.id}),
+          datahash.merge({ 'id' => @event.id }),
           @event.get_data_hash
         )
 

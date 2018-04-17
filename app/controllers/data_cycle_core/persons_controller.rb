@@ -1,6 +1,6 @@
 module DataCycleCore
   class PersonsController < ContentsController
-    before_action :authenticate_user!   # from devise (authenticate)
+    before_action :authenticate_user! # from devise (authenticate)
     load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
 
     def show
@@ -71,7 +71,7 @@ module DataCycleCore
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @person.schema)
 
         data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
-          datahash.merge({ 'id' => @person.id}),
+          datahash.merge({ 'id' => @person.id }),
           @person.get_data_hash
         )
 
