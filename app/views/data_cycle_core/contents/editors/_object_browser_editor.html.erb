@@ -5,7 +5,7 @@
     <% objects = value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
 
     <%= label_tag(key, definition['label']) %>
-    <%= hidden_field_tag key + '[]' %>
+    <%#= hidden_field_tag key + '[]' %>
 
     <div class="object-browser" id="<%= sanitize_to_id(key) %>"
       data-type="<%= definition.dig('editor', 'options', 'data-type').try(:downcase) %>"
