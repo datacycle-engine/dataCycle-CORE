@@ -105,7 +105,7 @@ crumb :'data_cycle_core/organizations' do
 end
 
 crumb :'data_cycle_core/organization' do |organization, watch_list|
-  link to_html_string(t("content_type.#{organization.template_name.downcase}", default: organization.template_name.titleize, locale: DataCycleCore.ui_language), person.title), organization_path(organization, watch_list_id: watch_list)
+  link to_html_string(t("content_type.#{organization.template_name.downcase}", default: organization.template_name.titleize, locale: DataCycleCore.ui_language), organization.legal_name), organization_path(organization, watch_list_id: watch_list)
 
   parent watch_list if watch_list
 end
