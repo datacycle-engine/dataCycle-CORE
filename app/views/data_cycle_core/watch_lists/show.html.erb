@@ -53,7 +53,7 @@
 
     <div class="row">
 
-        <%= render 'filter_minimal', filter: { search: true, language: true } %>
+        <%= render 'filter', filter: { classification_trees: ['Inhaltstypen'], search: true, language: true, collapse: true } %>
 
         <%= render 'results', contents: @contents unless @contents.nil? %>
 
