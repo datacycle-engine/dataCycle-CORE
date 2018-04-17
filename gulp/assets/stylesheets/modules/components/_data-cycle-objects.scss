@@ -639,9 +639,6 @@ span.single_error.object-browser-error {
 
 .detail-header {
   .addContentObject {
-    display: block;
-    margin: 0 auto;
-    transition: all ease-in-out 0.2s;
     .fa {
       padding: 0;
       margin-left: 0.5rem;
@@ -669,15 +666,18 @@ span.single_error.object-browser-error {
         }
       }
     }
-    >.embedded-object>.buttons button {
-      margin: 0;
-      transition: all ease-in-out 0.2s;
-      .fa {
-        padding: 0;
-        margin-left: 0.5rem;
-        display: none;
-        font-size: 0.9rem;
-        vertical-align: bottom;
+    >.embedded-object>.buttons {
+      text-align: center;
+      button {
+        margin: 0;
+        transition: all ease-in-out 0.2s;
+        .fa {
+          padding: 0;
+          margin-left: 0.5rem;
+          display: none;
+          font-size: 0.9rem;
+          vertical-align: bottom;
+        }
       }
     }
     .content-object-item {

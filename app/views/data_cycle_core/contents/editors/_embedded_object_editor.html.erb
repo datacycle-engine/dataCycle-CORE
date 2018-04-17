@@ -24,6 +24,8 @@
       <% value.presence&.ids&.reject { |v| objects.presence&.ids&.include?(v) }&.each_with_index do |id, index| %>
         <%= hidden_field_tag "#{key}[#{index + objects.size}][id]", id %>
       <% end %>
+    <% else %>
+      <%= hidden_field_tag key + '[]', nil, id: "#{sanitize_to_id(key)}_default" %>
     <% end %>
 
     <div class="buttons">
