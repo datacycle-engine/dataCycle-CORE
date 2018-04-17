@@ -65,6 +65,8 @@ module DataCycleCore
             title: c.ancestors.reverse.map(&:name).join(' > '),
             disabled: !c.primary_classification_alias.try(:assignable)
           }
+        }.select { |c|
+          c[:title].starts_with?(params[:tree_label].presence || '')
         }.map { |c|
           c.merge(
             sorting: [
