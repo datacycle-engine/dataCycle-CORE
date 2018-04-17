@@ -15,8 +15,6 @@ module DataCycleCore
     has_many :classification_groups, dependent: :destroy
     has_many :classification_aliases, through: :classification_groups
 
-    has_one :primary_classification_group, -> { min_by(&:created_at) }, class_name: ClassificationGroup
-
     def primary_classification_group
       classification_groups.min_by(&:created_at)
     end
@@ -26,13 +24,13 @@ module DataCycleCore
     end
 
     def ancestors
-      Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 10.minutes) do
+      Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 5.days + Random.rand(2.5.days)) do
         [primary_classification_alias] + primary_classification_alias.ancestors
       end
     end
 
     def descendants
-      Rails.cache.fetch("#{cache_key}/descendants", expires_in: 10.minutes) do
+      Rails.cache.fetch("#{cache_key}/descendants", expires_in: 5.days + Random.rand(2.5.days)) do
         primary_classification_alias.try(:descendants).try(:flatten)
       end
     end
