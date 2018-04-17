@@ -55,12 +55,14 @@ module DataCycleCore
     end
 
     def render_attribute_editor(key:, definition:, value:, parameters: {})
+      return unless can?(:show_attribute, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], parameters[:content]))
       partials = [
         (definition.try(:[], 'releasable') ? 'releasable' : '').to_s,
         definition.try(:[], 'editor').try(:[], 'options').try(:[], 'type').try(:underscore).to_s,
         definition.try(:[], 'editor').try(:[], 'type').try(:underscore).to_s,
         definition['type'].underscore.to_s
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/#{p}_editor" }
+      # todo: check if required ?
       parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], parameters[:content]))
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
     end
