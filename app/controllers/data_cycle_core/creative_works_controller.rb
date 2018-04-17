@@ -89,7 +89,7 @@ module DataCycleCore
       end
 
       I18n.with_locale(@creativeWork.first_available_locale) do
-        unless can?(:edit, @content)
+        unless can?(:edit, @creativeWork)
           redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end
