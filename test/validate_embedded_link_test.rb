@@ -5,7 +5,7 @@ module DataCycleCore
     module Validators
       class EmbeddedLinkTest < ActiveSupport::TestCase
         test 'successful validation of embeddedLink validator' do
-          error_hash = { error: [], warning: [] }
+          error_hash = { error: {}, warning: {} }
           template_hash = {
             'label' => 'Ersteller',
             'type' => 'embeddedLink',

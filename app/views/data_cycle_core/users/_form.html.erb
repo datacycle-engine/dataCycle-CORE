@@ -1,5 +1,6 @@
-<%= form_for content, html: {class: 'edit-content-form'} do |f| %>
+<%= form_for content, html: {class: 'edit-content-form validation-form'} do |f| %>
 	<%= hidden_field_tag 'uuid', content.id %>
+	<%= hidden_field_tag :table, content.class.table_name %>
 
 	<section class="edit-header">
 		<div class="row expanded">
@@ -32,47 +33,59 @@
 					</div>
 				</div>
 
+        <% if @user.is_a?(DataCycleCore::UserOrganization) %>
+          <div class="form-element input">
+              <%= f.text_field :name, readonly: @user.external %>
+          </div>
+        <% else %>
+          <div class="form-element input">
+              <%= f.text_field :given_name, readonly: @user.external %>
+          </div>
+
+          <div class="form-element input">
+              <%= f.text_field :family_name, readonly: @user.external %>
+          </div>
+        <% end %>
+
+        <div class="form-element input">
+            <%= f.email_field :email, required: true, readonly: @user.external %>
+        </div>
+
         <% unless @user.external %>
-          <div class="form-element validation-container input">
-              <%= f.text_field :given_name %>
-          </div>
-
-          <div class="form-element validation-container input">
-              <%= f.text_field :family_name %>
-          </div>
-
-          <div class="form-element validation-container input">
-              <%= f.email_field :email, required: true %>
-          </div>
-
-          <div class="form-element validation-container input">
+          <div class="form-element input">
               <%= f.password_field :password, autocomplete: 'off' %>
           </div>
 
-          <div class="form-element validation-container input">
+          <div class="form-element input">
               <%= f.password_field :password_confirmation, autocomplete: 'off' %>
           </div>
 
           <% if current_user == @user %>
-            <div class="form-element validation-container input">
+            <div class="form-element input">
                 <%= f.password_field :current_password %>
             </div>
           <% end %>
         <% end %>
 
+        <% if can? :generate_access_token, @user %>
+          <div class="form-element">
+            <%= f.label :access_token, nil, class: 'margin-left' %>
+            <%= f.check_box :access_token, label: false, checked: @user.access_token.present? %>
+          </div>
+        <% end %>
+
         <% if can? :set_role, @user %>
-          <div class="form-element validation-container">
-              <%= f.select :role_id, DataCycleCore::Role.where('rank > 0 AND rank <= ?', current_user.role.try(:rank)).collect{|r| [t('roles.'+r.name, locale: DataCycleCore.ui_language), r.id]}, {}, class: "with-label" %>
+          <div class="form-element">
+              <%= f.select :role_id, DataCycleCore::Role.where('rank <= ?', current_user.role.try(:rank)).collect{|r| [t('roles.'+r.name, locale: DataCycleCore.ui_language), r.id]}, {}, class: "with-label" %>
           </div>
         <% end %>
 
         <% if can? :set_user_groups, @user %>
-          <div class="form-element validation-container">
+          <div class="form-element">
 
             <div class="v-select">
               <%= f.label :user_group_ids %>
-              <%= hidden_field_tag 'user[user_group_ids][]', nil, id: 'hidden_user_group_ids' %>
-              <%= select_tag('user[user_group_ids][]', options_for_select(DataCycleCore::UserGroup.all.map { |c| [c.name, c.id] }, content.user_groups.map(&:id)), {multiple: true, class: 'multi-select'}) %>
+              <%= f.collection_select :user_group_ids, DataCycleCore::UserGroup.all, :id, :name, {}, {multiple: true, class: 'multi-select'} %>
             </div>
 
           </div>

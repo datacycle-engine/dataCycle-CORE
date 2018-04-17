@@ -4,6 +4,9 @@
     <% object_class = ("DataCycleCore::"+("#{object_class_name}".classify)).constantize %>
     <% objects = value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
 
+    <%= label_tag(key, definition['label']) %>
+    <%= hidden_field_tag key + '[]' %>
+
     <div class="object-browser" id="<%= sanitize_to_id(key) %>"
       data-type="<%= definition.dig('editor', 'options', 'data-type').try(:downcase) %>"
       data-language="<%= I18n.locale.to_s %>"
@@ -19,8 +22,6 @@
       data-objects="<%= value.presence&.ids %>"
       data-max="<%= definition.dig('validations', 'max') || 0 %>"
       data-min="<%= definition.dig('validations', 'min') || 0 %>">
-        <%= label_tag(key, definition['label']) %>
-
         <div class="media-thumbs">
           <div class="object-thumbs">
             <% if objects.present? %>

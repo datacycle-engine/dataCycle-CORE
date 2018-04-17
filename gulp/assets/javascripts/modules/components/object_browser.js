@@ -78,6 +78,7 @@ ObjectBrowser.prototype.setup = function () {
     event.preventDefault();
     event.stopImmediatePropagation();
     if (self.selected != $(this).data('id')) {
+      $(this).addClass('in-object-browser');
       self.loadDetails($(this).data('id'));
     }
     if (self.chosen.indexOf($(this).data('id')) == -1) {
@@ -129,6 +130,8 @@ ObjectBrowser.prototype.setup = function () {
     this.addObject(data.id, this.overlay.find('[data-id=' + data.id + ']').clone(true), event);
   }.bind(this));
 
+  $('#new_' + this.id).addClass('in-object-browser');
+
   $('#new_' + this.id).on('open.zf.reveal', function (event) {
     $(this).find('form').on('submit', function (ev, data) {
       if (data != undefined && data.valid) {
@@ -146,21 +149,13 @@ ObjectBrowser.prototype.setup = function () {
           objects: self.chosen,
         });
 
-        $.ajax({
-          url: $(this).prop('action'),
-          method: 'POST',
-          data: JSON.stringify(form_data),
-          dataType: 'script',
-          contentType: 'application/json'
-        });
-      } else if (data == undefined) {
-        ev.preventDefault();
-        ev.stopPropagation();
-        ev.stopImmediatePropagation();
-        $(this).trigger('submit', {
-          object_browser: true
-        });
-      };
+      $.ajax({
+        url: $(this).prop('action'),
+        method: 'POST',
+        data: JSON.stringify(form_data),
+        dataType: 'script',
+        contentType: 'application/json'
+      });
     });
   });
 

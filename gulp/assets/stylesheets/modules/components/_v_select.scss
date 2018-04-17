@@ -10,7 +10,6 @@
   box-sizing: border-box;
 }
 
-
 /* Open Indicator */
 
 .v-select .open-indicator {
@@ -43,7 +42,6 @@
   box-sizing: inherit;
 }
 
-
 /* Open Indicator States */
 
 .v-select.open .open-indicator:before {
@@ -57,7 +55,6 @@
 .v-select.open .open-indicator {
   bottom: 1px;
 }
-
 
 /* Dropdown Toggle */
 
@@ -83,7 +80,6 @@
   height: 0;
 }
 
-
 /* Dropdown Toggle States */
 
 .v-select.searchable .dropdown-toggle {
@@ -99,7 +95,6 @@
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
 }
-
 
 /* Dropdown Menu */
 
@@ -126,7 +121,6 @@
 .v-select .no-options {
   text-align: center;
 }
-
 
 /* Selected Tags */
 
@@ -159,7 +153,6 @@
   opacity: .2;
 }
 
-
 /* Search Input */
 
 .v-select input[type="search"]::-webkit-search-decoration,
@@ -188,13 +181,11 @@
   clear: none;
 }
 
-
 /* Search Input States */
 
 .v-select.unsearchable input[type="search"] {
   max-width: 1px;
 }
-
 
 /* List Items */
 
@@ -237,7 +228,6 @@
   /* Fixes Bulma Margin */
 }
 
-
 /* Loading Spinner */
 
 .v-select .spinner {
@@ -264,13 +254,11 @@
   height: 5em;
 }
 
-
 /* Loading Spinner States */
 
 .v-select.loading .spinner {
   opacity: 1;
 }
-
 
 /* KeyFrames */
 
@@ -291,7 +279,6 @@
     transform: rotate(360deg);
   }
 }
-
 
 /* Dropdown Default Transition */
 

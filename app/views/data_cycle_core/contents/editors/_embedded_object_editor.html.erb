@@ -1,5 +1,6 @@
 <%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
 
+  <%= label_tag(key, definition['label']) if key.include?('publication') %>
   <% objects = value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
 
   <div class="embedded-object" id="<%= sanitize_to_id(key) %>"

@@ -102,6 +102,12 @@ EmbeddedObject.prototype.update = function () {
   } else if (this.write) {
     this.element.children('.content-object-item').children('.removeContentObject').show();
   }
+
+  if (this.element.children('.content-object-item').length == 0) {
+    this.element.append('<input type="hidden" value="" id="' + this.id + '_default" name="' + this.key + '[]">');
+  } else {
+    this.element.find('input[type=hidden]#' + this.id + '_default').remove();
+  }
 };
 
 module.exports = EmbeddedObject;

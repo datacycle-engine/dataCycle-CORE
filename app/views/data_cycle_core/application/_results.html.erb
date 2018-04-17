@@ -1,14 +1,6 @@
 <section class="search-results">
 
-    <% if contents&.size.nil? || contents&.size.zero? %>
-
-        <div class="row">
-            <div class="small-12">
-                <span class="no-results"><%= t('common.no_results', locale: DataCycleCore.ui_language) %></span>
-            </div>
-        </div>
-
-    <% else %>
+    <% if contents&.size&.positive? %>
 
         <div class="row">
             <div class="small-12">
@@ -26,6 +18,14 @@
         <div class="row">
             <div class="small-12">
                 <%= paginate @paginateObject %>
+            </div>
+        </div>
+
+    <% else %>
+
+        <div class="row">
+            <div class="small-12">
+                <span class="no-results"><%= t('common.no_results', locale: DataCycleCore.ui_language) %></span>
             </div>
         </div>
 

@@ -1,4 +1,4 @@
-describe('ObjectBrowser', function () {
+describe('Object Browser', function () {
   beforeEach(function () {
     cy.login('admin')
   })

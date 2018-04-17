@@ -38,6 +38,7 @@
 
                     <%= render_attribute_viewer key: key, definition: prop, value: object_value, parameters: { options: options, content: object } %>
 
+                            <% options[:force_render] = true if object.template_name == 'Publikations-Plan' %>
                 <% end %>
 
             <% end %>

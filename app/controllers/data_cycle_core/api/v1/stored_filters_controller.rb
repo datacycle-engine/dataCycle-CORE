@@ -5,7 +5,13 @@ module DataCycleCore
         include DataCycleCore::Filter
 
         def show
-          @contents = apply_filter(filter_id: permitted_params[:id], api_only: true).page(permitted_params[:page]).includes(content_data: [:classifications, :translations, :watch_lists]).map(&:content_data)
+          @stored_filter = DataCycleCore::StoredFilter.find(permitted_params[:id])
+
+          raise ActiveRecord::RecordNotFound unless @stored_filter.api_users.include?(current_user.id)
+
+          query = apply_filter(filter_id: permitted_params[:id], api_only: true).page(permitted_params[:page]).includes(content_data: [:classifications, :translations, :watch_lists])
+          @contents = query.map(&:content_data)
+          @total = query.total_count
         end
 
         private

@@ -14,6 +14,9 @@ DataCycleCore::Engine.routes.draw do
     post :create_user, on: :collection
     get :search, on: :collection
   end
+  resources :user_organizations do
+    post :create_user, on: :collection
+  end
   resources :user_groups
 
   scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
@@ -31,11 +34,16 @@ DataCycleCore::Engine.routes.draw do
 
   resources(*DataCycleCore.content_tables.map(&:to_sym)) do
     get :load_more_linked_objects, on: :member
+    post :validate, on: :member
+    post :validate, on: :collection
+    patch :set_life_cycle, on: :member
   end
 
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :events, only: [:index, :show, :create, :edit, :update, :destroy]
-  resources :stored_filters, only: [:create, :destroy]
+  resources :stored_filters, only: [:index, :create, :update, :destroy], path: :search_history do
+    get :search, on: :collection
+  end
   resources :classification_tree_labels, only: :show
 
   scope('files') do
@@ -117,5 +125,6 @@ DataCycleCore::Engine.routes.draw do
   post 'contents/new_embedded_object', to: 'contents#new_embedded_object'
   post 'contents/render_embedded_object', to: 'contents#render_embedded_object'
   get 'contents/gpx', to: 'contents#gpx'
-  patch ':type/:id/set_life_cycle', to: 'contents#set_life_cycle', as: 'set_life_cycle'
+
+  resources :publications, only: :index
 end

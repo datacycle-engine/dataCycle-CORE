@@ -6,7 +6,7 @@
           <%= render 'data_cycle_core/shared/icon', icon_type: item.template_name.parameterize(separator: '_') %>
         <% end %>
         <% I18n.with_locale(item.first_available_locale(@language)) do %>
-          <span class="title"><%= item.title %></span>
+          <span class="title" title="<%= item.title %>"><%= item.title %></span>
         <% end %>
     </div>
 </div>

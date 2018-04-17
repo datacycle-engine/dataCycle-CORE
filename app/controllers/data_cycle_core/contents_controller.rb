@@ -21,7 +21,7 @@ module DataCycleCore
     end
 
     def set_life_cycle
-      object_type = DataCycleCore.content_tables.find { |object| object == params[:type] }
+      object_type = DataCycleCore.content_tables.find { |object| object == controller_name }
       @object = ('DataCycleCore::' + object_type.singularize.classify).constantize.find_by(id: params[:id])
 
       # Create idea_collection if it doesn't exist and active life_cycle_stage is correct
@@ -35,6 +35,21 @@ module DataCycleCore
       @object.set_classification_with_children(DataCycleCore.features.dig(:life_cycle, :attribute_key), life_cycle_params[:id], current_user)
 
       redirect_back(fallback_location: root_path, notice: (I18n.t :moved_to, scope: [:controllers, :success], data: life_cycle_params[:name], locale: DataCycleCore.ui_language))
+    end
+
+    def validate
+      @object = ('DataCycleCore::' + controller_name.singularize.classify).constantize.find_by(id: params[:id])
+
+      if @object.blank? && params[:template].present?
+        @object = ('DataCycleCore::' + controller_name.singularize.classify).constantize.find_by(template: true, template_name: params[:template])
+      end
+
+      render json: { warning: { content: ['content/template not found'] } } && return if @object.blank?
+
+      object_params = content_params(controller_name, @object.template_name)
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @object.schema)
+      valid = @object.validate(datahash)
+      render json: valid.to_json
     end
 
     def load_more_linked_objects
@@ -75,6 +90,11 @@ module DataCycleCore
 
     def life_cycle_params
       params.require(:life_cycle).permit(:name, :id)
+    end
+
+    def content_params(storage_location, template_name)
+      datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name)
+      params.require(controller_name.singularize.to_sym).permit(datahash: datahash)
     end
   end
 end
