@@ -4,7 +4,7 @@ module DataCycleCore
 
     before_action :authenticate_user! # from devise (authenticate)
     load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
-    after_action :check_final, only: :update
+    after_action :check_final, :set_publication_attributes, only: :update
 
     def index
     end
@@ -277,6 +277,19 @@ module DataCycleCore
 
     def execute_after_update_webhooks(data)
       Webhook::Update.execute_all(data)
+    end
+
+    def set_publication_attributes
+      if DataCycleCore.features.dig(:publication_schedule, :classification_keys).present? && @creativeWork.respond_to?('publication_schedule')
+        I18n.with_locale(@creativeWork.first_available_locale) do
+          datahash_params = creative_work_params('creative_works', @creativeWork.template_name)
+          datahash = DataCycleCore::DataHashService.flatten_datahash_value(datahash_params[:datahash], @creativeWork.schema, false)
+
+          DataCycleCore.features.dig(:publication_schedule, :classification_keys).each do |tree_label|
+            @creativeWork.set_data_hash_attribute(tree_label, datahash.dig('publication_schedule')&.map { |p| p[tree_label] }&.flatten&.uniq, current_user)
+          end
+        end
+      end
     end
 
     def check_final

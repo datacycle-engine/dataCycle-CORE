@@ -120,6 +120,43 @@
       :meta_data:
         :type: mixin
         :name: meta_data
+      :publication_schedule:
+        :label: Geplante Publikation
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: Publikations-Plan
+        :validations:
+          :classifications: no_conflicts
+        :editor:
+          :type: embeddedObject
+#      :datacycleimage:
+#        :label: DataCycle-Bild
+#        :type: object
+#        :storage_location: creative_works
+#        :delete: true
+#        :name: DataCycle-Image
+#        :editor:
+#          :type: embeddedObject
+#      :datacycleasset:
+#        :label: DataCycle-File
+#        :type: object
+#        :storage_location: creative_works
+#        :delete: true
+#        :name: DataCycle-File
+#        :editor:
+#          :type: embeddedObject
+#      :firma:
+#        :label: "Firma"
+#        :type: object
+#        :storage_location: organizations
+#        :name: Organization
+#        :delete: false
+#        :editor:
+#          :type: objectBrowser
+#          :options:
+#            :data-validate: object
+#            :data-type: organization
 
 - :data:
     :name: Angebotszeitraum

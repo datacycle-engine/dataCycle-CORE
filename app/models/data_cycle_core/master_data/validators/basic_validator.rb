@@ -4,8 +4,9 @@ module DataCycleCore
       class BasicValidator
         attr_reader :error
 
-        def initialize(data, template)
-          @error = { error: [], warning: [] }
+        def initialize(data, template, template_key = '')
+          @error = { error: {}, warning: {} }
+          @template_key = template_key
           validate(data, template)
         end
 
@@ -14,7 +15,7 @@ module DataCycleCore
 
         def merge_errors(error_hash)
           @error.each_key do |key|
-            @error[key] += error_hash[key] if error_hash.key?(key)
+            @error[key].merge!(error_hash[key]) if error_hash.key?(key)
           end
         end
       end

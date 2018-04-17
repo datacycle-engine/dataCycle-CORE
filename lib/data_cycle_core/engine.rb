@@ -85,6 +85,7 @@ module DataCycleCore
     self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource']
 
     mattr_accessor :excluded_filter_classifications
+    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Örtlichkeit - Overlay', 'Publikations-Plan']
     self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Overlay']
 
     mattr_accessor :excluded_new_item_objects
@@ -106,7 +107,7 @@ module DataCycleCore
     self.notification_frequencies = ['always', 'day', 'week']
 
     # features
-    # autoload_last_filter, life_cycle
+    # autoload_last_filter, life_cycle, publishable, ...
     mattr_accessor :features
     self.features = {}
 
@@ -133,12 +134,7 @@ module DataCycleCore
     # available filter
     mattr_accessor :available_filters
     self.available_filters = {
-      main: [
-        {
-          title: 'Inhaltstyp',
-          tree_label: 'Inhaltstypen'
-        }
-      ],
+      main: ['Inhaltstypen'],
       advanced: []
     }
 

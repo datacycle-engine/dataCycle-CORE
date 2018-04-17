@@ -5,6 +5,14 @@ module DataCycleCore
     before_action :load_stored_filters
     before_action :better_errors_hack, if: -> { Rails.env.development? }
 
+    def after_sign_in_path_for(resource)
+      if current_user&.is_rank?(0)
+        session['user_return_to'] || info_path
+      else
+        session['user_return_to'] || root_path
+      end
+    end
+
     def load_watch_lists
       @accessible_watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
     end
