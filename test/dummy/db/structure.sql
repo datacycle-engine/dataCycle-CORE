@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.6
--- Dumped by pg_dump version 9.6.6
+-- Dumped from database version 9.6.1
+-- Dumped by pg_dump version 9.6.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1626,6 +1626,20 @@ CREATE UNIQUE INDEX child_parent_index ON classification_trees USING btree (clas
 
 
 --
+-- Name: classification_content_data_history_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX classification_content_data_history_idx ON classification_content_histories USING btree (content_data_history_type, content_data_history_id);
+
+
+--
+-- Name: classification_content_data_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX classification_content_data_idx ON classification_contents USING btree (content_data_type, content_data_id);
+
+
+--
 -- Name: classification_string_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1815,17 +1829,17 @@ CREATE UNIQUE INDEX index_classification_aliases_on_id ON classification_aliases
 
 
 --
+-- Name: index_classification_content_histories_on_classification_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_content_histories_on_classification_id ON classification_content_histories USING btree (classification_id);
+
+
+--
 -- Name: index_classification_contents_on_classification_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_classification_contents_on_classification_id ON classification_contents USING btree (classification_id);
-
-
---
--- Name: index_classification_contents_on_content_data_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_classification_contents_on_content_data_id ON classification_contents USING btree (content_data_id);
 
 
 --
@@ -2395,6 +2409,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180117073708'),
 ('20180122153121'),
 ('20180124091123'),
-('20180222091614');
+('20180222091614'),
+('20180410220414');
 
 
