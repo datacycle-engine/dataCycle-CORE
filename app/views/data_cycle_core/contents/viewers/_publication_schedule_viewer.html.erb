@@ -1,4 +1,4 @@
-<%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: value, options: options, data_attributes: { id: value.map(&:id), editor: definition.dig('editor', 'type').try(:underscore) } do %>
+<%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: value, options: options, data_attributes: { id: value.presence&.map(&:id), editor: definition.dig('editor', 'type').try(:underscore) } do %>
 
   <div class="publication-list">
     <% value.presence&.order("(metadata ->> 'publish_at')::timestamptz ASC")&.each_with_index do |publication, idx| %>
