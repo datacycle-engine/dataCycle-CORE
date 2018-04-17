@@ -6,9 +6,6 @@ module DataCycleCore
     load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
     after_action :check_final, :set_publication_attributes, only: :update
 
-    def index
-    end
-
     def show
       @content = DataCycleCore::CreativeWork.find_by(id: params[:id])
 
@@ -130,7 +127,7 @@ module DataCycleCore
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
         unless can?(:edit, @content)
-          redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
+          redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end
 

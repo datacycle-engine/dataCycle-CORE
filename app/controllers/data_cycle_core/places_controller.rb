@@ -1,12 +1,7 @@
 module DataCycleCore
   class PlacesController < ContentsController
     before_action :authenticate_user! # from devise (authenticate)
-    # load_and_authorize_resource       # from cancancan (authorize)
-
-    def index
-      @paginateObject = DataCycleCore::Place.all.where(template: false).order(updated_at: :desc).page(params[:page])
-      @place = DataCycleCore::Place.new
-    end
+    load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
 
     def show
       @content = DataCycleCore::Place.find_by(id: params[:id])
@@ -62,7 +57,7 @@ module DataCycleCore
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
         unless can?(:edit, @content)
-          redirect_to places_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
+          redirect_to place_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end
         @dataSchema = @content.get_data_hash

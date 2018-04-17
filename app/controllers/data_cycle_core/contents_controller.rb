@@ -2,6 +2,10 @@ module DataCycleCore
   class ContentsController < ApplicationController
     before_action :set_watch_list
 
+    def index
+      redirect_back(fallback_location: root_path)
+    end
+
     def new_embedded_object
       respond_to(:js)
     end
