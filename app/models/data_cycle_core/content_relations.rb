@@ -7,6 +7,8 @@ module DataCycleCore
         table_given = options[:table_name]
         postfix = options[:postfix]
 
+        belongs_to :external_source
+
         table_full = table_given.to_s.singularize
         table_full += "_#{postfix}" unless postfix.nil?
 
