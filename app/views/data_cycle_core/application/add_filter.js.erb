@@ -1,0 +1,4 @@
+$('<%= j render_first_existing_partial(["data_cycle_core/application/filters/new/#{params.fetch(:filter_type, 'default')}"], { filter_name: params[:filter_value], filter_method: params[:filter_method], value: nil }) %>').appendTo('.filters .custom-filters').trigger('clone-added');
+
+$('.filters #add_custom_filter').data('index', $('.filters #add_custom_filter').data('index') + 1);
+

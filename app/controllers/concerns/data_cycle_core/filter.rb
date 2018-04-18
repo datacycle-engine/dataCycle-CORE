@@ -44,6 +44,22 @@ module DataCycleCore
         end
       end
 
+      @custom_filters = params[:custom_filters] || {}
+
+      @custom_filters.presence&.each do |custom_filter|
+        query = query.send("with_#{custom_filter[:filter_type]}", custom_filter) if query.respond_to?("with_#{custom_filter[:filter_type]}")
+      end
+
+      # params.dig(:custom_filters, :classification_tree).presence&.each_value do |tree_label|
+      #   tree_label.presence&.each_value do |id_group|
+      #     if id_group[:method] == 'include'
+      #       query = query.with_classification_alias_ids(id_group[:values]) if id_group[:values].present?
+      #     elsif id_group[:method] == 'exclude'
+      #       # classifications to exclude
+      #     end
+      #   end
+      # end
+
       @paginateObject = query.includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
 
       @total = @paginateObject.total_count

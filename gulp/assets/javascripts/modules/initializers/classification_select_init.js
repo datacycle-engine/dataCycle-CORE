@@ -6,7 +6,7 @@ var select2_helpers = require('./../helpers/select2_helpers');
 
 module.exports.initialize = function () {
 
-  $(document).on('clone-added', '.content-object-item', function () {
+  $(document).on('clone-added', '.content-object-item, .custom-filter', function () {
     init(this);
   });
 
@@ -16,6 +16,7 @@ module.exports.initialize = function () {
     $(element).find('.async-select').each(function () {
       var query = {};
       var tree_label = $(this).data('tree-label');
+      var alias_ids = $(this).data('alias-ids') || 0;
       var max = $(this).data('max');
       var that = this;
 
@@ -33,6 +34,7 @@ module.exports.initialize = function () {
 
           var term = query.term || '';
           var result = data.title ? select2_helpers.markMatch(data.title, term) : null;
+          select2_helpers.removeTreeLabel(result, tree_label);
           select2_helpers.decorateResult(result);
 
           return result;
@@ -49,7 +51,8 @@ module.exports.initialize = function () {
             return {
               q: params.term,
               tree_label: tree_label,
-              max: max
+              max: max,
+              alias_ids: alias_ids
             };
           },
           processResults: function (data) {

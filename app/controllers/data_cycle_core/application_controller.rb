@@ -25,6 +25,10 @@ module DataCycleCore
       @current_ability ||= ::Ability.new(current_user, session)
     end
 
+    def add_filter
+      respond_to(:js)
+    end
+
     rescue_from CanCan::AccessDenied do |exception|
       respond_to do |format|
         format.json { head :forbidden, content_type: 'text/html' }

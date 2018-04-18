@@ -37,7 +37,7 @@ module DataCycleCore
     end
 
     def search
-      permitted_params = params.permit(:q, :max, :tree_label)
+      permitted_params = params.permit(:q, :max, :tree_label, :alias_ids)
 
       classifications = DataCycleCore::Classification
         .includes(:classification_groups, :classification_aliases)
@@ -52,7 +52,7 @@ module DataCycleCore
       render json: classifications
         .map { |c|
           {
-            id: c.id,
+            id: permitted_params[:alias_ids] == '1' ? c.primary_classification_alias&.id : c.id,
             name: c.name,
             title: c.ancestors.reverse.map(&:name).join(' > '),
             disabled: !c.primary_classification_alias.try(:assignable)

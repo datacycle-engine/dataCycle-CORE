@@ -85,6 +85,8 @@ de:
     expired_content: Gültigkeitszeitraum überschritten!
     archived: Automatisch archiviert.
     entries: Einträge
+    is: ist
+    is_not: ist nicht
 
   history:
     latest_edits: Letzte Bearbeitungen

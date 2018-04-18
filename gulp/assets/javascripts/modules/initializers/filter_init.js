@@ -88,6 +88,28 @@ module.exports.initialize = function () {
         $(this).css('min-height', height);
       });
     });
+
+    $('.filters .custom-filters #add_custom_filter').on('change', event => {
+      event.preventDefault();
+      $.ajax({
+        url: $(event.currentTarget).data('url'),
+        method: 'GET',
+        data: {
+          filter_type: $(event.currentTarget).val(),
+          filter_value: $(event.currentTarget).find(':selected').data('treelabel'),
+          filter_method: $(event.currentTarget).data('method'),
+          index: $(event.currentTarget).data('index')
+        },
+        dataType: 'script',
+        contentType: 'application/json'
+      });
+      $(event.currentTarget).val('');
+    });
+
+    $('.filters .custom-filters').on('click', '.remove-custom-filter-button', event => {
+      event.preventDefault();
+      $(event.currentTarget).closest('.custom-filter').remove();
+    });
   }
 
   function removeFilter(elem) {
