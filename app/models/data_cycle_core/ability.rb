@@ -78,12 +78,12 @@ module DataCycleCore
 
         can :edit, DataCycleCore::DataAttribute do |attribute|
           if DataCycleCore.features.dig(:publication_schedule, :enabled) && attribute.content&.schema&.dig('features', 'publication_schedule').present?
-            (
-              !(
-                (Regexp.union(*DataCycleCore.features.dig(:publication_schedule, :classification_keys)) === attribute.key) &&
-                (attribute.key.scan(/\[(.*?)\]/).flatten & attribute.content.schema.dig('features', 'publication_schedule')).size.zero?
-              )
+
+            !(
+              (attribute.key =~ Regexp.union(*DataCycleCore.features.dig(:publication_schedule, :classification_keys))) &&
+              (attribute.key.scan(/\[(.*?)\]/).flatten & attribute.content.schema.dig('features', 'publication_schedule')).size.zero?
             )
+
           else
             (
               attribute.content.try(:external_key).blank? ||
@@ -96,7 +96,7 @@ module DataCycleCore
           end
         end
 
-        can :show_attribute, DataCycleCore::DataAttribute do |attribute|
+        can :show_attribute, DataCycleCore::DataAttribute do |_attribute|
           # return if disabled by feature
 
           true
