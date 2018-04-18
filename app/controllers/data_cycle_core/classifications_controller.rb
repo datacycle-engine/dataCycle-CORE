@@ -73,7 +73,7 @@ module DataCycleCore
               -1 * c[:name].scan(/#{params[:q]}/i).count,
               c[:name].scan(/#{params[:q]}/i).count.positive? ? c[:name].length : FIXNUM_MAX,
               -1 * c[:title].scan(/#{params[:q]}/i).count,
-              c[:title][c[:title].rindex(/#{params[:q]}/i)..-1].scan(' > ').count
+              c[:title][(c[:title].rindex(/#{params[:q]}/i) || 0)..-1].scan(' > ').count
             ]
           )
         }.uniq.sort_by { |c|
