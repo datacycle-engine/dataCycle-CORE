@@ -3,10 +3,10 @@
     :name: Angebot
     :type: object
     :content_type: entity
-    :releasable: true
     :boost: 100.0
     :features:
       :publication_schedule: ['publication_schedule']
+      :releasable: true
     :properties:
       :id:
         :label: id

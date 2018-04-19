@@ -3,8 +3,9 @@
     :name: App
     :type: object
     :content_type: entity
-    :releasable: true
     :boost: 100.0
+    :features:
+      :releasable: true
     :properties:
       :id:
         :label: id
