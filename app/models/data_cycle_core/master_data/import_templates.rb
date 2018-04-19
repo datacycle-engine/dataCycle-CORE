@@ -158,7 +158,6 @@ module DataCycleCore
             required(:name) { str? }
             required(:type) { str? & eql?('object') }
             optional(:content_type) { str? & included_in?(['variant', 'embedded', 'entity', 'container']) }
-            optional(:releasable) { bool? }
             optional(:boost) { float? }
             required(:properties)
           end

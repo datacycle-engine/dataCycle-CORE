@@ -110,18 +110,18 @@ module DataCycleCore
     mattr_accessor :features
     self.features = {
       publication_schedule: {
-        enabled: false,
+        enabled: false
       },
       overlay: {
         enabled: false
       },
-      releasable:{
+      releasable: {
         enabled: false
       },
-      life_cycle:{
+      life_cycle: {
         enabled: false
       },
-      container:{
+      container: {
         enabled: false
       }
     }

@@ -21,7 +21,7 @@ module DataCycleCore
           @entities = @entities.where.not(template_name: @content.schema&.dig('features', 'container', 'excluded')) if @content.schema&.dig('features', 'container', 'excluded')
         end
 
-        @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if @content.schema['releasable'] && !@content.release_id.nil?
+        @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if DataCycleCore::Feature::Releasable.present?(@content) && !@content.release_id.nil?
         @dataSchema = @content.get_data_hash
 
         respond_to do |format|

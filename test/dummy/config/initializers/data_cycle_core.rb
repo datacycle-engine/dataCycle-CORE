@@ -34,6 +34,9 @@ DataCycleCore.setup do |config|
       },
       overlay: {
         enabled: true
+      },
+      releasable: {
+        enabled: true
       }
     }
   ).freeze
