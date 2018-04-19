@@ -77,7 +77,7 @@ module.exports.initialize = function () {
     }, 500);
   }
 
-  $('.flex-box .edit-content .form-element.input').on('import-data', function (event, data) {
+  $('.edit-content-form .form-element.input').on('import-data', function (event, data) {
     if ($(this).find('input[type=text]').val().length === 0) {
       $(this).find('input[type=text]').val(data.value).trigger('input');
     } else {

@@ -115,8 +115,9 @@ ObjectBrowser.prototype.setup = function () {
         key: this.key,
         definition: this.definition,
         options: this.options,
-        class: this.class,
         ids: new_items,
+        editable: this.editable,
+        class: this.class,
         objects: this.chosen
       };
       if (data.external_ids != undefined) json_data.external = true;
@@ -124,18 +125,7 @@ ObjectBrowser.prototype.setup = function () {
       $.ajax({
         url: this.url + '/find',
         method: 'POST',
-        data: JSON.stringify({
-          type: this.type,
-          language: this.language,
-          object_browser_id: '#' + this.id,
-          key: this.key,
-          definition: this.definition,
-          options: this.options,
-          ids: data.ids,
-          editable: this.editable,
-          class: this.class,
-          objects: this.chosen
-        }),
+        data: JSON.stringify(json_data),
         contentType: 'application/json'
       }).done(function (return_data) {
         this.element.find('.object-thumbs .item .reveal.media-preview').each(function () {

@@ -71,6 +71,21 @@ $(function () {
             $(event.currentTarget).find('input#cms_url').val('');
             let contents = JSON.parse($(data).filter('#cdb-item-definition').first().html());
 
+            if (contents.title != undefined) {
+              console.log($('[data-label="Meta-Titel"] > input[type=text]'));
+              $('[data-label="Meta-Titel"] > input[type=text]').trigger('import-data', {
+                label: 'Meta-Titel',
+                value: contents.title
+              });
+            }
+
+            if (contents.description != undefined) {
+              $('[data-label="Meta-Description"] > .editor-block > .quill-editor').trigger('import-data', {
+                label: 'Meta-Description',
+                value: contents.description
+              });
+            }
+
             if (contents != undefined && contents.language_relations.length > 0) {
               let markets = contents.language_relations.map(x => Object.keys(x)[0]);
 
