@@ -24,7 +24,7 @@
     <%= f.fields_for :receiver, data_link.receiver || DataCycleCore::User.new do |r| %>
       <%= r.label :email, DataCycleCore::User.human_attribute_name("email", locale: DataCycleCore.ui_language) %>
       <% if data_link.receiver.nil? %>
-        <%= r.text_field :email, required: true, readonly: data_link.id.nil? ? false : true, label: false, list: "users", class: "ajax-datalist", autocomplete: :off %>
+        <%= r.text_field :email, required: true, readonly: data_link.id.nil? ? false : true, label: false, list: "users", class: "ajax-datalist users", autocomplete: :off %>
         <datalist id="users"></datalist>
       <% else %>
         <%= r.text_field :email, required: true, readonly: data_link.id.nil? ? false : true, label: false %>

@@ -5,6 +5,8 @@ module DataCycleCore
 
       def import_classifications(type, tree_name, load_root_classifications, load_child_classifications,
                                  load_parent_classification_alias, extract_data, **options)
+        raise ArgumentError('tree_name cannot be blank') if tree_name.blank?
+
         around_import(type, **options) do |locale|
           phase_name = type.collection_name
 
@@ -132,18 +134,12 @@ module DataCycleCore
           external_source_id: external_source.id,
           external_key: data['external_key']
         )
-
         content.metadata ||= {}
         content.schema = template.schema
         content.template_name = template.template_name
         content.save!
 
-        old_data = (content.get_data_hash || {}).merge({
-          metadata: content.metadata.except('validation'), # TODO: .except('validation') can be removed when schema/template_name are updated
-          validation: template.schema
-        }.stringify_keys)
-
-        error = content.set_data_hash(data_hash: old_data.merge(data))
+        error = content.set_data_hash(data_hash: (content.get_data_hash || {}).merge(data), prevent_history: true)
 
         if @logging && !error[:error].blank?
           @logging.error('Validating import data', data['external_key'], data, error[:error].join('\n'))
@@ -156,18 +152,21 @@ module DataCycleCore
 
       private
 
-      def around_import(source_type, **options)
-        options[:locales] ||= I18n.available_locales
-
-        options[:locales].each do |locale|
-          begin
-            Mongoid.override_database("#{source_type.database_name}_#{external_source.id}")
-
-            yield(locale)
-          ensure
-            Mongoid.override_database(nil)
-          end
+      def load_default_values(data_hash)
+        return nil if data_hash.blank?
+        return_data = {}
+        data_hash.each do |key, value|
+          return_data[key] = default_classification(value.symbolize_keys)
         end
+        return_data.reject { |_, value| value.blank? }
+      end
+
+      def default_classification(value:, tree_label:)
+        [
+          DataCycleCore::Classification
+            .joins(classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]])
+            .where(classification_tree_labels: { name: tree_label }, classifications: { name: value })&.first&.id
+        ].reject(&:nil?)
       end
 
       def load_template(target_type, template_name)
@@ -176,6 +175,26 @@ module DataCycleCore
         end
       rescue ActiveRecord::RecordNotFound
         raise "Missing template #{template_name} for #{target_type}"
+      end
+
+      def merge_default_values(item, data_hash)
+        new_hash = {}
+        new_hash = load_default_values(@options.dig(:import, :default_values, item)) if @options.dig(:import, :default_values, item).present?
+        new_hash.merge(data_hash)
+      end
+
+      def around_import(source_type, **options)
+        options[:locales] ||= options[:import][:locales] || I18n.available_locales
+
+        options[:locales].each do |locale|
+          begin
+            Mongoid.override_database("#{source_type.database_name}_#{external_source.id}")
+
+            yield(locale.to_sym)
+          ensure
+            Mongoid.override_database(nil)
+          end
+        end
       end
     end
   end

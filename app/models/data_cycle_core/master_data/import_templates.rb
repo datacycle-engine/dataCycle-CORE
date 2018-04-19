@@ -4,7 +4,9 @@ module DataCycleCore
       def self.import_all(validation: true)
         template_paths = [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
         import_hash, duplicates = check_for_duplicates(template_paths)
+        @mixin_list, mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths)
         errors = import_all_templates(template_hash: import_hash, validation: validation)
+        # TODO: add notice + warning
         return errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}, duplicates || {}
       end
 
@@ -22,7 +24,7 @@ module DataCycleCore
             file_names = Dir[files]
             file_names.each do |file_name|
               data_templates = YAML.load(File.open(file_name.to_s))
-              new_template_definitions = data_templates.map { |item| item[:data][:name] }
+              # new_template_definitions = data_templates.map { |item| item[:data][:name] }
               data_templates.each_index do |index|
                 already_exist_index = import_list[content_table_name.to_sym].index { |item| item[:name] == data_templates[index][:data][:name] }
                 new_template_data = { name: data_templates[index][:data][:name], file: file_name, position: index }
@@ -59,6 +61,7 @@ module DataCycleCore
         errors = {}
         template_list.each do |template_location|
           template = YAML.load(File.open(template_location[:file]))[template_location[:position]]
+          template[:data] = transform_schema(schema: template[:data].dup, content_object: content_object)
           error = {}
           error = validate(template) if validation
           if error.blank?
@@ -80,6 +83,51 @@ module DataCycleCore
         puts 'could not access a YML File'
         puts e.message
         puts e.backtrace
+      end
+
+      def self.transform_schema(schema: {}, content_object: nil)
+        schema[:properties] = transform_properties(property_hash: schema[:properties], content_object: content_object)
+        schema
+      end
+
+      def self.transform_properties(property_hash: {}, content_object: nil)
+        new_properties = {}
+        sorting = 1
+        property_hash.each do |property_name, property_value|
+          # TODO: refactor: add errors + warnings
+          if property_value[:type] == 'mixin'
+            if !content_object.nil? && @mixin_list.dig(content_object.name.demodulize.pluralize.underscore.to_sym, property_value[:name].to_sym).present?
+              active_mixin = @mixin_list[content_object.name.demodulize.pluralize.underscore.to_sym]
+            elsif @mixin_list.dig(:default, property_value[:name].to_sym).present?
+              active_mixin = @mixin_list[:default]
+            else
+              raise "mixin for #{property_value[:name]} not found".inspect
+            end
+
+            next if active_mixin.dig(property_value[:name].to_sym, :properties).blank?
+
+            active_mixin[property_value[:name].to_sym][:properties].each do |key, prop|
+              new_properties[key.to_sym], sorting = add_sorting(prop, sorting)
+            end
+
+          else
+            new_properties[property_name.to_sym], sorting = add_sorting(property_value, sorting)
+          end
+        end
+        new_properties
+      end
+
+      def self.add_sorting(hash, sorting)
+        if hash[:type] == 'object' && hash.key?(:properties).present?
+          hash[:properties] = transform_properties(property_hash: hash[:properties])
+        end
+        return apply_sorting(hash, sorting), sorting + 1
+      end
+
+      def self.apply_sorting(hash, sorting)
+        # ignore sorting, if no editor is set
+        hash[:editor][:sorting] = sorting if hash.key?(:editor)
+        hash
       end
 
       def self.validate(template)
@@ -166,7 +214,8 @@ module DataCycleCore
                   'embeddedLinkArray',
                   'embeddedLink',
                   'classificationTreeLabel',
-                  'asset'
+                  'asset',
+                  'mixin'
                 ]
               )
           end
@@ -180,7 +229,8 @@ module DataCycleCore
                   'content',
                   'properties',
                   'classification_relation',
-                  'asset_relation'
+                  'asset_relation',
+                  'mixin'
                 ] + DataCycleCore.content_tables
               )
           end

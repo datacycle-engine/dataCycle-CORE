@@ -495,7 +495,6 @@ module DataCycleCore
 
             # get validation template
             template = ('DataCycleCore::' + table.classify).constantize
-              .with_translations('de')
               .find_by(template: true, template_name: name)
 
             insert_item = ('DataCycleCore::' + table.classify).constantize.new

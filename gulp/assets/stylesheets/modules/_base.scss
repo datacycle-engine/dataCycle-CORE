@@ -53,6 +53,7 @@ form {
 
 button,
 .button {
+  font-weight: normal;
   cursor: pointer;
 }
 
@@ -101,7 +102,7 @@ button,
   padding-top: 3.5rem;
 }
 
-.validation-container {
+.form-element {
   position: relative;
 }
 
@@ -246,9 +247,10 @@ button,
       margin-bottom: 1rem;
     }
     label {
-      width: 0;
-      height: 0;
-      overflow: hidden;
+      position: relative;
+      display: inline-block;
+      top: initial;
+      left: initial;
     }
     input {
       min-width: 100px;
@@ -259,9 +261,6 @@ button,
       input {
         background: $white
       }
-    }
-    &:hover span.icon {
-      color: $primary-color;
     }
   }
   .edit {
@@ -310,9 +309,10 @@ button,
   input,
   .ql-editor,
   .daterange,
-  .embedded_object,
+  .embedded_object:not(.publication_schedule),
   .detail_object,
-  .readonly-select {
+  .readonly-select,
+  .select2 {
     border: 1px solid $light-gray;
     background: $light-gray;
     outline: none;
@@ -326,6 +326,7 @@ button,
     min-width: 280px;
     &:hover {
       box-shadow: 0 0 7px $primary-color;
+      z-index: 1;
     }
     &:focus {
       border-color: $primary-color;
@@ -339,13 +340,13 @@ button,
       background: $light-gray;
     }
   }
-  .focus .ql-toolbar.fixed-toolbar,
-  .focus .ql-toolbar.fixed-split-toolbar {
+  .form-element.focus>.editor-block>.ql-toolbar.fixed-toolbar,
+  .form-element.focus>.editor-block>.ql-toolbar.fixed-split-toolbar {
     background: white;
     border-right: 1px solid $primary-color;
     border-left: 1px solid $primary-color;
   }
-  .focus .ql-editor {
+  .form-element.focus>.editor-block>.quill-editor>.ql-editor {
     border-color: $primary-color;
     background: white;
   }
@@ -363,7 +364,7 @@ button,
     background: none;
     .translated {
       position: absolute;
-      z-index: 1;
+      z-index: 2;
       right: 0.5rem;
       margin-top: 0.5rem;
     }
@@ -383,7 +384,7 @@ button,
       }
       &:focus,
       &:hover {
-        label {
+        >label {
           color: $primary-color;
         }
       }
@@ -584,6 +585,9 @@ span.single_error:before,
       border-width: 50px 60px 50px 0;
       border-color: transparent #ffffff transparent transparent;
     }
+    .detail-type.object_browser {
+      position: relative;
+    }
   }
   hr {
     padding: 1rem 0;
@@ -752,6 +756,13 @@ body .v-select {
   }
 }
 
+.warning {
+  color: map-get($foundation-palette, alert);
+  font-style: italic;
+  display: block;
+  margin-top: 1rem;
+}
+
 /* Korrektur für Fehler im Neuen Eintrag erstellen reveal  */
 
 .new-item {
@@ -801,4 +812,134 @@ body.login-page {
 .lazyloaded {
   opacity: 1;
   transition: opacity 300ms;
+}
+
+a[data-toggle] {
+  display: inline-block;
+  padding-bottom: 1rem;
+}
+
+.dropdown-pane {
+  line-height: 1rem;
+  font-size: 0.8rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  z-index: 100;
+  max-width: 300px;
+  &::before {
+    content: '▲';
+    font-size: 28px;
+    top: -17px;
+    color: white;
+    transform: scaleX(3);
+    text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    left: 30px;
+    width: 2rem;
+    height: 1.1rem;
+    line-height: 1rem;
+    display: block;
+    text-align: center;
+    overflow: hidden;
+  }
+  input {
+    max-width: 100%;
+    min-width: initial;
+    &[readonly] {
+      cursor: pointer !important;
+    }
+  }
+  button,
+  .button {
+    font-weight: bold;
+    margin: 1rem 0 0 0;
+  }
+  >ul {
+    margin: 0;
+    &.list-items {
+      overflow-y: auto;
+      position: relative;
+      .buttons {
+        float: right;
+        vertical-align: middle;
+        span,
+        a {
+          color: $primary-color;
+          cursor: pointer;
+          &:hover,
+          &:focus {
+            color: darken($primary-color, 30%);
+          }
+          &.invalidate-data-link {
+            color: map-get($foundation-palette, alert);
+            &:hover,
+            &:focus {
+              color: darken(map-get($foundation-palette, alert), 30%);
+            }
+          }
+        }
+      }
+    }
+    >li {
+      position: relative;
+      text-align: left;
+      font-size: 0.8rem;
+      line-height: 1.2rem;
+      padding: 0 0 0.2rem 0;
+      i:not(.fa) {
+        color: $dark-gray;
+      }
+    }
+  }
+  &.data-links {
+    text-align: center;
+    li {
+      text-align: left;
+    }
+    .center-text {
+      text-align: center;
+    }
+    .invalid {
+      color: $dark-gray;
+    }
+    .email {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: calc(100% - 3rem);
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+  &.align-right {
+    right: -18px !important;
+    left: auto !important;
+    top: 100% !important;
+    &:before {
+      content: '▲';
+      font-size: 28px;
+      top: -17px;
+      color: white;
+      transform: scaleX(3);
+      text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
+      position: absolute;
+      left: auto;
+      right: 18px;
+      width: 2rem;
+      height: 1.1rem;
+      line-height: 1rem;
+      display: block;
+      text-align: center;
+      overflow: hidden;
+    }
+  }
+  &.align-top {
+    top: auto !important;
+    bottom: calc(100% + 1rem) !important;
+    &:before {
+      top: auto;
+      bottom: -17px;
+      transform: scaleX(3) rotate(180deg);
+    }
+  }
 }

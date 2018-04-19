@@ -14,8 +14,7 @@ module DataCycleCore
     end
 
     def create_user
-      @user = DataCycleCore::User.new(user_params)
-      @user.external = false
+      @user = ('DataCycleCore::' + controller_name.singularize.classify).constantize.new(permitted_params)
 
       if @user.save
         flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
@@ -29,14 +28,21 @@ module DataCycleCore
     end
 
     def update
-      authorize! :set_role, @user if user_params[:role_id]
+      authorize! :set_role, @user if permitted_params[:role_id].present?
+      authorize! :generate_access_token, @user if params.dig(:user, :access_token).present?
 
-      method = current_user == @user && !user_params[:password].nil? ? 'update_with_password' : 'update'
+      method = current_user == @user && permitted_params[:password].present? ? 'update_with_password' : 'update'
 
-      if @user.send(method, user_params)
+      if params.dig(controller_name.singularize.to_sym, :access_token).present? && params.dig(controller_name.singularize.to_sym, :access_token) == '1' && @user.access_token.blank?
+        @user.update(access_token: SecureRandom.hex)
+      elsif params.dig(controller_name.singularize.to_sym, :access_token).present? && params.dig(controller_name.singularize.to_sym, :access_token) == '0'
+        @user.update(access_token: nil)
+      end
+
+      if @user.send(method, permitted_params)
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
 
-        bypass_sign_in(@user) if current_user == @user && !user_params[:password].nil?
+        bypass_sign_in(@user) if current_user == @user && !permitted_params[:password].nil?
 
         if params[:user_settings]
           redirect_to(settings_path, notice: I18n.t(:updated_multiple, scope: [:controllers, :success], data: 'Benutzereinstellungen', locale: DataCycleCore.ui_language))
@@ -75,10 +81,10 @@ module DataCycleCore
 
     private
 
-    def user_params
-      allowed_params = [:email, :family_name, :given_name, :role_id, :notification_frequency, user_group_ids: []]
-      allowed_params.push(:password, :password_confirmation, :current_password) unless params[:user].blank? || params[:user][:password].blank? || params[:user][:password_confirmation].blank?
-      params.require(:user).permit(allowed_params)
+    def permitted_params
+      allowed_params = [:email, :family_name, :given_name, :name, :role_id, :notification_frequency, :type, :external, user_group_ids: []]
+      allowed_params.push(:password, :password_confirmation, :current_password) unless params[controller_name.singularize.to_sym].blank? || params[controller_name.singularize.to_sym][:password].blank? || params[controller_name.singularize.to_sym][:password_confirmation].blank?
+      params.require(controller_name.singularize.to_sym).permit(allowed_params)
     end
 
     def set_user

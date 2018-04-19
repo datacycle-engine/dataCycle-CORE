@@ -1,0 +1,23 @@
+<%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
+    
+  <% value = value.blank? ? {} : value %>
+  <div class="release-status" id="release_container_<%= sanitize_to_id(key) %>">
+    <%= collection_select key, :release_id, DataCycleCore::Release.all, :id, :release_text, {selected: value['release_id']}, { class: "release-select", disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) } %>
+    <%= hidden_field_tag key + "[release_comment]", value['release_comment'], placeholder: "Kommentar", class: "release-comment" %>
+
+    <span class="button" data-open="release_comment_<%= sanitize_to_id(key) %>">Kommentar</span>
+    <div class="reveal release-comment-overlay" id="release_comment_<%= sanitize_to_id(key) %>" data-reveal>
+      <p class="lead">Kommentar</p>
+      <%= text_area_tag key + "[release_comment_text]", value['release_comment'], class: "release-comment", disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>
+      <button class="button save" data-hidden-field-id="<%= key %>_release_comment" data-close aria-label="Ok" type="button">Ok</button>
+      <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  </div>
+
+  <% options = definition.dig('editor', 'options') || {} %>
+
+  <%= render_attribute_editor key: "#{key}[value]", definition: definition.except('releasable'), value: value.try(:[], 'value'), parameters: { options: options.merge({ "no-wrapper" => true }) } %>
+
+<% end %>

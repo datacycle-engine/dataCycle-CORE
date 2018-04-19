@@ -76,7 +76,7 @@ module DataCycleCore
     self.default_image_type = 'Bild'
 
     mattr_accessor :default_place_type
-    self.default_place_type = 'Ort'
+    self.default_place_type = 'Örtlichkeit'
 
     mattr_accessor :access_tokens
     self.access_tokens = []
@@ -94,7 +94,7 @@ module DataCycleCore
     self.linked_tables = ['users']
 
     mattr_accessor :excluded_filter_classifications
-    self.excluded_filter_classifications = ['Angebotszeitraum', 'Website', 'Zitat', 'DataCycle - File', 'DataCycle - Image']
+    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Örtlichkeit - Overlay', 'Publikations-Plan']
 
     mattr_accessor :excluded_new_item_objects
     self.excluded_new_item_objects = []
@@ -118,7 +118,7 @@ module DataCycleCore
     self.notification_frequencies = ['always', 'day', 'week']
 
     # features
-    # autoload_last_filter, life_cycle
+    # autoload_last_filter, life_cycle, publishable, ...
     mattr_accessor :features
     self.features = {}
 
@@ -145,12 +145,7 @@ module DataCycleCore
     # available filter
     mattr_accessor :available_filters
     self.available_filters = {
-      main: [
-        {
-          title: 'Inhaltstyp',
-          tree_label: 'Inhaltstypen'
-        }
-      ],
+      main: ['Inhaltstypen'],
       advanced: []
     }
   end

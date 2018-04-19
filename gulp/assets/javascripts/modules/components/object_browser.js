@@ -16,6 +16,7 @@ var ObjectBrowser = function (selector) {
   this.class = selector.data('class');
   this.max = selector.data('max');
   this.min = selector.data('min');
+  this.editable = selector.data('editable');
   this.page = 1;
   this.loading = false;
   this.search = "";
@@ -61,6 +62,7 @@ ObjectBrowser.prototype.setup = function () {
     event.preventDefault();
     event.stopImmediatePropagation();
     if (self.selected != $(this).data('id')) {
+      $(this).addClass('in-object-browser');
       self.loadDetails($(this).data('id'));
     }
     if (self.chosen.indexOf($(this).data('id')) == -1) {
@@ -122,7 +124,18 @@ ObjectBrowser.prototype.setup = function () {
       $.ajax({
         url: this.url + '/find',
         method: 'POST',
-        data: JSON.stringify(json_data),
+        data: JSON.stringify({
+          type: this.type,
+          language: this.language,
+          object_browser_id: '#' + this.id,
+          key: this.key,
+          definition: this.definition,
+          options: this.options,
+          ids: data.ids,
+          editable: this.editable,
+          class: this.class,
+          objects: this.chosen
+        }),
         contentType: 'application/json'
       }).done(function (return_data) {
         this.element.find('.object-thumbs .item .reveal.media-preview').each(function () {
@@ -142,40 +155,33 @@ ObjectBrowser.prototype.setup = function () {
     this.addObject(data.id, this.overlay.find('[data-id=' + data.id + ']').clone(true), event);
   }.bind(this));
 
-  $('#new_' + this.id).on('open.zf.reveal', function (event) {
-    $(this).find('form').on('submit', function (ev, data) {
-      if (data != undefined && data.valid) {
-        ev.preventDefault();
-        ev.stopPropagation();
-        ev.stopImmediatePropagation();
-        var form_data = $(this).serializeJSON();
-        $.extend(form_data, {
-          type: self.type,
-          language: self.language,
-          overlay_id: '#object_browser_' + self.id,
-          key: self.key,
-          definition: self.definition,
-          options: self.options,
-          class: self.class,
-          objects: self.chosen,
-          new_overlay_id: '#new_' + self.id
-        });
+  $('#new_' + this.id).addClass('in-object-browser');
 
-        $.ajax({
-          url: $(this).prop('action'),
-          method: 'POST',
-          data: JSON.stringify(form_data),
-          dataType: 'script',
-          contentType: 'application/json'
-        });
-      } else if (data == undefined) {
-        ev.preventDefault();
-        ev.stopPropagation();
-        ev.stopImmediatePropagation();
-        $(this).trigger('submit', {
-          object_browser: true
-        });
-      };
+  $('#new_' + this.id).on('open.zf.reveal', function (event) {
+    $(this).find('form').on('submit_without_redirect', function (ev, data) {
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+      var form_data = $(this).serializeJSON();
+      $.extend(form_data, {
+        type: self.type,
+        language: self.language,
+        overlay_id: '#object_browser_' + self.id,
+        key: self.key,
+        definition: self.definition,
+        editable: self.editable,
+        options: self.options,
+        class: self.class,
+        objects: self.chosen,
+        new_overlay_id: '#new_' + self.id
+      });
+
+      $.ajax({
+        url: $(this).prop('action'),
+        method: 'POST',
+        data: JSON.stringify(form_data),
+        dataType: 'script',
+        contentType: 'application/json'
+      });
     });
   });
 
@@ -311,6 +317,7 @@ ObjectBrowser.prototype.import = function (event) {
         language: this.language,
         overlay_id: '#object_browser_' + this.id,
         key: this.key,
+        editable: this.editable,
         definition: this.definition,
         options: this.options,
         objects: this.chosen
@@ -345,6 +352,7 @@ ObjectBrowser.prototype.loadObjects = function (append = true) {
       options: this.options,
       search: this.search,
       objects: this.chosen,
+      editable: this.editable,
       append: append
     }),
     contentType: 'application/json'

@@ -8,6 +8,6 @@
   <% end %>
   <% unless content.metadata.nil? || content.metadata['last_updated_by'].blank? %>
     <% updater = get_user_for_id(content.metadata['last_updated_by']) %>
-    <%= t('terms.from', locale: DataCycleCore.ui_language) %> <strong><a href="mailto:<%= updater.email %>"><%= updater.name %></a></strong>
+    <%= t('terms.from', locale: DataCycleCore.ui_language) %> <strong><a href="mailto:<%= updater.email %>"><%= updater.full_name %></a></strong>
   <% end %>
 </span>

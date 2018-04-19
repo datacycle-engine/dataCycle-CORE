@@ -1,7 +1,7 @@
 $('<%= params[:new_overlay_id] %>').foundation('close');
 $('<%= params[:overlay_id] %> .items .no-results').remove();
 
-$('<%= params[:overlay_id] %>').find('.items .loading').before('<%= j render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: {object: @place, options: params[:options], objects: params[:objects]}) if !@place.nil? %>');
+$('<%= params[:overlay_id] %>').find('.items .loading').before('<%= j render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: {object: @place, options: params[:options], objects: params[:objects], editable: params[:editable]}) if !@place.nil? %>');
 
 $('<%= params[:overlay_id] %>').find('.item-info').html('<%= escape_javascript(render_object_browser_partial(partial: 'detail', key: params[:key], definition: params[:definition], parameters: {object: @place, options: params[:options]})) %>');
 

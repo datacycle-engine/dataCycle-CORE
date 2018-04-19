@@ -19,3 +19,4 @@ gemsurance_report.html
 test/dummy/public/uploads
 test/dummy/public/assets
 rdoc/
+package-lock.json

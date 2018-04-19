@@ -1,5 +1,9 @@
 module DataCycleCore
   class ClassificationsController < ApplicationController
+    FIXNUM_MAX = (2**(0.size * 8 - 2) - 1)
+
+    DEFAULT_CLASSIFICATION_SEARCH_LIMIT = 128
+
     def index
       respond_to do |format|
         format.html do
@@ -19,12 +23,16 @@ module DataCycleCore
             @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
             @classification_trees = @classification_tree_label.classification_trees.accessible_by(current_ability)
               .where(parent_classification_alias: nil)
-              .order(:created_at)
+              .order(:created_at).page(params[:page])
+            @page = @classification_trees.current_page
+            @total_pages = @classification_trees.total_pages
           elsif permitted_params.include?(:classification_tree_id)
             @classification_tree = DataCycleCore::ClassificationTree.find(params[:classification_tree_id])
             @classification_tree_label = @classification_tree.classification_tree_label
             @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees.accessible_by(current_ability)
-              .order(:created_at)
+              .order(:created_at).page(params[:page])
+            @page = @classification_trees.current_page
+            @total_pages = @classification_trees.total_pages
           else
             raise 'Missing parameter; either classification_tree_label_id or classification_tree_id must be provided'
           end
@@ -41,8 +49,12 @@ module DataCycleCore
         .where('classification_tree_labels.name ILIKE ?', params[:tree_label].presence || '%')
         .where('classifications.name ILIKE ?', "%#{params[:q]}%")
 
-      if classifications.count < (params[:max].try(:to_i) || 20)
-        classifications.map(&:descendants).flatten
+      if classifications.count < (params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
+        classifications = (classifications + classifications.map(&:descendants).flatten).uniq
+      end
+
+      classifications.sample(5).each do |c|
+        Rails.cache.delete("#{c.cache_key}/ancestors")
       end
 
       render json: classifications
@@ -50,15 +62,23 @@ module DataCycleCore
           {
             id: c.id,
             name: c.name,
-            path: c.ancestors.reverse.map(&:name).join(' > '),
+            title: c.ancestors.reverse.map(&:name).join(' > '),
             disabled: !c.primary_classification_alias.try(:assignable)
           }
+        }.select { |c|
+          c[:title].starts_with?(params[:tree_label].presence || '')
+        }.map { |c|
+          c.merge(
+            sorting: [
+              -1 * c[:name].scan(/#{params[:q]}/i).count,
+              c[:name].scan(/#{params[:q]}/i).count.positive? ? c[:name].length : FIXNUM_MAX,
+              -1 * c[:title].scan(/#{params[:q]}/i).count,
+              c[:title][(c[:title].rindex(/#{params[:q]}/i) || 0)..-1].scan(' > ').count
+            ]
+          )
         }.uniq.sort_by { |c|
-          [
-            -1 * c[:path].scan(/#{params[:q]}/i).count,
-            c[:path][c[:path].rindex(/#{params[:q]}/i)..-1].scan(' > ').count
-          ] + c[:path].split('').map(&:ord)
-        }.first(params[:max].try(:to_i) || 20)
+          c[:sorting] + c[:title].split('').map(&:ord)
+        }.first(params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
     end
 
     def create

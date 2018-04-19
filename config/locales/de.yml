@@ -44,12 +44,15 @@ de:
       week: wöchentlich
 
   common:
+    'true': Ja
+    'false': Nein
     loading: 'Laden ...'
+    load_more: ... weitere Einträge laden
     are_you_sure: 'Sind Sie sicher?'
     language: "Sprache"
     choose_language: "Sprache wählen"
     searchterm: "Suchbegriff"
-    active_filters: "Angewendete Filter"
+    active_filters: "Aktuelle Suche"
     no_results: "Es wurden keine Inhalte für Ihre Filterkriterien gefunden."
     additional_filters:
       show: weitere Filter anzeigen
@@ -57,7 +60,11 @@ de:
     filter:
       show: Filter anzeigen
       hide: Filter ausblenden
+    details:
+      show: Details anzeigen
+      hide: Details ausblenden
     contents:
+      zero: Keine Inhalte
       one: Inhalt
       other: Inhalte
     splitsource: Vorlage
@@ -77,6 +84,7 @@ de:
     show_less: Weniger anzeigen
     expired_content: Gültigkeitszeitraum überschritten!
     archived: Automatisch archiviert.
+    entries: Einträge
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -87,8 +95,8 @@ de:
     active_version: Aktuelle Version
     look_at_version: Version ansehen
 
-  content_type:
-    contentlocation: Ort
+  filter:
+    language: Sprache
 
   terms:
     valid: gültig
@@ -116,15 +124,17 @@ de:
     subscribed: "abonniert"
     reset:
       one: "Zurücksetzen"
-      other: "Alle zurücksetzen"
-    filter: "Filter anwenden"
+      other: "Suche zurücksetzen"
+    filter: jetzt suchen
     move_to: "In %{data} verschieben"
     read: lesen
     write: schreiben
     save_and_send: "Speichern und Senden"
     finalize: Bearbeitung abschließen
-    save_filter: Filter speichern
-    copy_api_url_to_clipboard: API Link in die Zwischenablage kopieren
+    copy_to_clipboard: In die Zwischenablage kopieren
+    save: Speichern
+    update: Aktualisieren
+
 
   validation:
     errors:
@@ -160,6 +170,9 @@ de:
       no_fields: "Keine Felder für 'from-date' und/oder 'to-date' angegeben."
       convert_date: "Datum konnte nicht konvertiert werden, um die Zeitspanne zu validieren."
       daterange: "Ungültige Zeitspanne, 'von' (%{from}) ist nach 'bis' (%{to})."
+      classification_conflict: Es gibt Konflikte bei den Publikationsdaten.
+      not_deleted: "Beim Löschen von %{data} ist ein Fehler aufgetreten."
+      not_saved: "Beim Speichern von %{data} ist ein Fehler aufgetreten."
     warning:
       string: "%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}"
       no_data: "Keine Daten angegeben für %{data}"
@@ -217,8 +230,13 @@ de:
             email:
               blank: "E-Mail darf nicht leer sein."
               taken: "Für diese E-Mail existiert schon ein Benutzer."
+        data_cycle_core/user_group:
+          attributes:
+            name:
+              blank: Name darf nicht leer sein.
     models:
       data_cycle_core/user: Benutzer
+      data_cycle_core/user_organization: Organisation
       data_cycle_core/user_group:
         one: Benutzergruppe
         other: Benutzergruppen
@@ -241,12 +259,15 @@ de:
       data_cycle_core/person:
         one: Person
         other: Personen
+      data_cycle_core/event:
+        one: Event
+        other: Events
       data_cycle_core/organization:
         one: Organisation
         other: Organisationen
       data_cycle_core/stored_filter:
-        one: Gespeicherter Filter
-        other: Gespeicherte Filter
+        one: Gespeicherte Suche
+        other: Gespeicherte Suchen
       data_cycle_core/content:
         one: Inhalt
         other: Inhalte
@@ -269,6 +290,7 @@ de:
         user_group_ids: Benutzergruppen
         external: SSO
         notification_frequency: Benachrichtigung von Abos
+        access_token: API Token
       data_cycle_core/person:
         given_name: Vorname
         family_name: Familienname
@@ -293,16 +315,44 @@ de:
         permissions_read: "Lesen"
         permissions_write: "Bearbeiten"
       data_cycle_core/stored_filter:
-        system: Globaler Filter
+        system: Für alle Benutzer sichtbar
         api: Über API abrufbar
+        api_users: Für API zugelassene Benutzer
+        name: Name
   unauthorized:
     manage:
       all: "Keine Zugriffsberechtigung!"
   data_cycle_core:
     administration: 'Administration'
+    user_settings: Benutzeraktionen
+    user_details: Benutzerdetails
     classifications: 'Klassifizierungen'
+    this_classification: Dieser Klassifizierung
+    this_classification_tree: Diesem Klassifizierungsbaum
+    show_contents_for_tree_label: "Inhalte in %{data} auflisten"
     settings: Einstellungen
-    stored_filter: Meine gespeicherten Filter
+    publication_date: Publikationsdatum
+    publications_calendar: Publikationskalender
+    classification_tree_relations: 'ACHTUNG: Mit diesem Klassifizierungsbaum sind Inhalte verknüpft!'
+    classification_relations:
+      one: 'ACHTUNG: Mit dieser Klassifizierung ist <b>1</b> Inhalt verknüpft!'
+      other: 'ACHTUNG: Mit dieser Klassifizierung sind <b>%{count}</b> Inhalte verknüpft!'
+    child_classification_relations:
+      one: 'ACHTUNG: %{data} ist <b>1</b> Klassifizierung zugeordnet. Dies wird mitgelöscht!'
+      other: 'ACHTUNG: %{data} sind <b>%{count}</b> Klassifizierungen zugeordnet.<br>Diese werden mitgelöscht!'
+    stored_searches:
+      my_searches: Meine Suchen
+      my_saved: Meine gespeicherten Suchen
+      last: Zuletzt gesucht
+      saved:
+        one: Gepeicherte Suche
+        other: Gespeicherte Suchen
+      show_all_saved: Alle Gespeicherten Suchen ansehen
+      show_search_history: Gesammten Verlauf ansehen
+      save: Suche speichern
+      history: Suchverlauf
+
+
 
   date:
     abbr_day_names:
@@ -314,6 +364,7 @@ de:
     - Fr
     - Sa
     abbr_month_names:
+    -
     - Jan
     - Feb
     - Mär
@@ -339,6 +390,7 @@ de:
       long: "%e. %B %Y"
       short: "%e. %b"
     month_names:
+    -
     - Januar
     - Februar
     - März

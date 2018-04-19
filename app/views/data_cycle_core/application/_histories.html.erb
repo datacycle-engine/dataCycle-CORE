@@ -1,11 +1,11 @@
-<div class="dropdown-pane no-bullet bottom" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
+<div class="dropdown-pane no-bullet bottom <%= additional_classes if local_assigns[:additional_classes].present? %>" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
   <h5><%= t('history.latest_edits', locale: DataCycleCore.ui_language) %>:</h5>
   <ul class="list-items">
     <% content.histories.each do |item|%>
         <li class="<%= item == @historySource ? 'active' : '' %>">
             <% if item.metadata.try(:[], 'last_updated_by') %>
                 <% person = get_user_for_id(item.metadata['last_updated_by']) %>
-                <%= "<a class='email-link' href='mailto:#{person.email}'>#{person.name}</a>".html_safe %>
+                <%= "<a class='email-link' href='mailto:#{person.email}'>#{person.full_name}</a>".html_safe %>
             <% else %>
                 <%= "Unbekannt".html_safe %>
             <% end %>

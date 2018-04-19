@@ -54,6 +54,14 @@ delete_content_histories = <<-EOS
   DELETE FROM classification_content_histories;
 EOS
 
+delete_soft_deleted_classifications = <<-EOS
+  DELETE FROM classifications WHERE deleted_at IS NOT NULL;
+  DELETE FROM classification_groups WHERE deleted_at IS NOT NULL;
+  DELETE FROM classification_aliases WHERE deleted_at IS NOT NULL;
+  DELETE FROM classification_trees WHERE deleted_at IS NOT NULL;
+  DELETE FROM classification_tree_labels WHERE deleted_at IS NOT NULL;
+EOS
+
 Rake::Task['db:create'].enhance do
   if ENV['RAILS_ENV']
     ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
@@ -96,6 +104,11 @@ namespace :data_cycle_core do
     desc 'Remove the history of all content data'
     task history: :environment do
       ActiveRecord::Base.connection.execute(delete_content_histories)
+    end
+
+    desc 'Remove all soft-deleted classification data (paranoid)'
+    task contents: :environment do
+      ActiveRecord::Base.connection.execute(delete_soft_deleted_classifications)
     end
   end
 
@@ -164,14 +177,14 @@ namespace :data_cycle_core do
       puts 'importing new template definitions'
       errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
       unless duplicates.blank?
-        puts 'the following templates had multiple definitions:'
+        puts 'INFO: the following templates had multiple definitions:'
         ap duplicates
       end
       unless errors.blank?
         puts 'the following errors were encountered during import:'
         ap errors
       end
-      duplicates.blank? && errors.blank? ? puts('[done] ... looks good') : exit(-1)
+      errors.blank? ? puts('[done] ... looks good') : exit(-1)
     end
 
     desc 'import all external_source configs'
@@ -197,6 +210,22 @@ namespace :data_cycle_core do
           puts "#{content_table.ljust(25)} | #{template_name.ljust(25)} | #{(data_count || 0).to_s.rjust(10)}"
 
           strategy = DataCycleCore::Update::UpdateTemplate
+          DataCycleCore::Update::Update.new(type: data_object, template: template_object, strategy: strategy, transformation: nil)
+        end
+      end
+    end
+
+    desc 'recreate the entries in the search table for all data-types in the Database'
+    task rebuild_search: [:environment] do
+      puts 'updating search:'
+      DataCycleCore.content_tables.each do |content_table|
+        data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
+        data_object.where(template: true).each do |template_object|
+          template_name = template_object.template_name
+          data_count = data_object.where(template: false).where('template_name = ?', template_name).count
+          puts "#{content_table.ljust(25)} | #{template_name.ljust(25)} | #{(data_count || 0).to_s.rjust(10)}"
+
+          strategy = DataCycleCore::Update::UpdateSearch
           DataCycleCore::Update::Update.new(type: data_object, template: template_object, strategy: strategy, transformation: nil)
         end
       end
@@ -396,7 +425,8 @@ namespace :data_cycle_core do
   namespace :archive do
     desc 'move expired contents to archive'
     task expired: :environment do
-      logger = Logger.new('archive.log')
+      logger = Logger.new('log/archive.log')
+      logger.info('Started Archiving...')
       temp = Time.zone.now
       archive_life_cycle_id = DataCycleCore::Classification.find_by(name: DataCycleCore.features.dig(:life_cycle, :ordered)&.last)&.id
       archive_release_id = DataCycleCore::Release.order(release_code: :desc)&.first&.id
@@ -487,6 +517,7 @@ namespace :data_cycle_core do
       end
       puts 'END'
       puts "--> ARCHIVING time: #{((Time.zone.now - temp) / 60).to_i} min"
+      logger.info("Finished Archiving after #{((Time.zone.now - temp) / 60).to_i} min")
     end
   end
 

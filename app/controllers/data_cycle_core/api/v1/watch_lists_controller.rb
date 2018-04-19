@@ -1,12 +1,12 @@
 module DataCycleCore
   class Api::V1::WatchListsController < Api::V1::ApiBaseController
     def index
-      if current_user
-        @watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
-          .where(user: User.find_by(email: permitted_params[:user_email]) || current_user)
+      if permitted_params[:user_email].present?
+        @watch_lists = DataCycleCore::WatchList
+          .where(user: User.find_by(email: permitted_params[:user_email]))
           .all
       else
-        @watch_lists = DataCycleCore::WatchList.where(user: User.find_by!(email: permitted_params[:user_email])).all
+        @watch_lists = DataCycleCore::WatchList.where(user: current_user).all
       end
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial

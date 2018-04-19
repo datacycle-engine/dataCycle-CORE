@@ -1,9 +1,11 @@
 <%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
 
-  <span class="icon <%= key.split('[').last[0...-1] %>">
-      <i aria-hidden="true" class="fa fa-clock-o"></i> <%= definition['label'] %>
-  </span>
   <div class="form-element <%= key.split('[').last[0...-1] %>">
+      <%= label_tag key do %>
+        <span class="icon <%= key.split('[').last[0...-1] %>">
+            <i aria-hidden="true" class="fa fa-clock-o"></i> <%= definition['label'] %>
+        </span>
+      <% end %>
       <%= datetime_field_tag key, value, options %>
   </div>
 

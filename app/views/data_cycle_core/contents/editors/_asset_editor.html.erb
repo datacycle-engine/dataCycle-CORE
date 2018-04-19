@@ -9,7 +9,7 @@
          data-definition="<%= definition.to_json %>"
          data-options="<%= options.to_json %>"
          data-max="1"
-         data-write="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options)) %>">
+         data-write="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content)) %>">
 
         <%= render_asset_partial(key: key, value: value, definition: definition, parameters: {options: options}) %>
 

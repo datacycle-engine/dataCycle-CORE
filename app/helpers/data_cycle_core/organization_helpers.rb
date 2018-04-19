@@ -1,11 +1,15 @@
 module DataCycleCore
   module OrganizationHelpers
     def title
-      name
+      content['legal_name']
     end
 
     def desc
-      content['legalName']
+      description
+    end
+
+    def new_content_fields
+      ['legal_name']
     end
   end
 end

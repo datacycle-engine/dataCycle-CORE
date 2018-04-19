@@ -38,8 +38,12 @@
   .inner {
     position: relative;
     overflow: hidden;
-    >div {
-      padding-bottom: 0.5rem;
+    >div,
+    >span {
+      display: block;
+      &:not(:last-child):not(.has-parent) {
+        padding-bottom: 0.5rem;
+      }
     }
   }
   .type {
@@ -303,7 +307,7 @@
   float: left;
   width: 100%;
   text-align: center;
-  padding: 1rem 0;
+  padding: 1rem 0 5rem 0;
   .fa {
     font-size: 3rem;
     color: $dark-gray;
@@ -630,7 +634,24 @@ span.single_error.object-browser-error {
 /* embedded Objects */
 
 .detail-header {
-  .embedded_object,
+  .addContentObject {
+    display: block;
+    margin: 0 auto;
+    transition: all ease-in-out 0.2s;
+    .fa {
+      padding: 0;
+      margin-left: 0.5rem;
+      display: none;
+      font-size: 0.9rem;
+      vertical-align: bottom;
+    }
+  }
+  .removeContentObject {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+  .embedded_object:not(.publication_schedule),
   .detail_object {
     margin-bottom: 1rem;
     padding: 0.5rem;
@@ -644,17 +665,6 @@ span.single_error.object-browser-error {
         }
       }
     }
-    .addContentObject {
-      margin: 0;
-      transition: all ease-in-out 0.2s;
-      .fa {
-        padding: 0;
-        margin-left: 0.5rem;
-        display: none;
-        font-size: 0.9rem;
-        vertical-align: bottom;
-      }
-    }
     .content-object-item {
       &:not(:last-child) {
         margin-bottom: 0.5rem;
@@ -664,11 +674,6 @@ span.single_error.object-browser-error {
       padding: 5rem 1rem 1rem 1rem;
       border-radius: 3px;
       box-shadow: 0 0 3px #9d9d9d inset;
-      .removeContentObject {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-      }
       .embedded-header {
         position: absolute;
         left: 1rem;

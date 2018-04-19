@@ -1,4 +1,3 @@
-
 require 'date'
 
 $LOAD_PATH.push File.expand_path('../lib', __FILE__)
@@ -88,6 +87,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'carrierwave_backgrounder', '~> 0.4.2'
   s.add_dependency 'mini_magick'
 
+  s.add_dependency 'globalize', '~> 5.1.0'
+  s.add_dependency 'loofah', '~> 2.2.2'
+  s.add_dependency 'rails-html-sanitizer', '>= 1.0.4'
   # cron jobs gem
   s.add_dependency 'whenever'
 

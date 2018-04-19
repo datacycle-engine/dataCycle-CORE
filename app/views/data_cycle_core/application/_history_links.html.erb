@@ -18,7 +18,7 @@
 
     <% if person.kind_of?(Object) && person.nil? == false %>
         <span> von </span>
-        <span><strong><a class="email-link" href="mailto:<%= "#{person.email}" %>"><%= "#{person.name}" %></a></strong></span>
+        <span><strong><a class="email-link" href="mailto:<%= "#{person.email}" %>"><%= "#{person.full_name}" %></a></strong></span>
     <% else %>
         <span> von </span>
         <span><strong>Unbekannt</strong></span>

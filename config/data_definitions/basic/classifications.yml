@@ -2,23 +2,38 @@
   - $$Text:
     - $$Artikel
     - $$Angebot
+    - $$Biografie
+    - $$Interview
     - $$Social Media Posting
-    - $$Zitat
-  - $$Bild
-  - $$DataCycle - Image
-  - $$DataCycle - File
+  - $$Asset:
+    - $$Bild
+    - $$Datei
+  - $$Linktipps
   - $$Person
   - $$Organisation
   - $$Ort:
     - $$Örtlichkeit
+  - $$Quiz
+  - $$Veranstaltung
+  - $$Zeitleiste
 # embedded
   - $$Angebotszeitraum
   - $$Website
+  - $$Zeitleiste-Eintrag
+  - $$Zitat
+  - $$Frage
+  - $$Antwort
+  - $$Veranstaltungstermin
 
 - Geschlecht:
   - Männlich
   - Weiblich
 
-- Thema:
+- Ausgabekanäle:
+  - Web
+  - Social Media
+  - Print
+
+- Themenbereiche:
 
 - Tags:

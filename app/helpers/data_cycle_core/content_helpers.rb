@@ -33,9 +33,10 @@ module DataCycleCore
     end
 
     def classification_tree_definitions
-      schema['properties'].select { |_, definition|
-        definition['type'] == 'classificationTreeLabel' && definition['editor']
+      schema['properties'].select { |name, definition|
+        definition['type'] == 'classificationTreeLabel' && !DataCycleCore.internal_data_attributes.include?(name)
       }.map { |key, definition|
+        definition['editor'] ||= { 'sorting' => 0 }
         { key: key }.merge(definition)
       }.sort do |d1, d2|
         d1['editor']['sorting'] <=> d2['editor']['sorting']
@@ -56,6 +57,13 @@ module DataCycleCore
       if try(:validity_period)
         valid_from, valid_to = get_validity_values(validity_period.to_h)
         { 'date_published' => valid_from.blank? ? '' : valid_from.to_s(:german_date_format), 'expires' => valid_to.blank? || valid_to.to_s(:german_date_format).include?('9999') ? '' : valid_to.to_s(:german_date_format) }
+      end
+    end
+
+    def raw_validity_period
+      if try(:validity_period)
+        valid_from, valid_to = get_validity_values(validity_period.to_h)
+        { 'date_published' => valid_from.presence || '', 'expires' => valid_to.blank? || valid_to.to_s(:german_date_format).include?('9999') ? '' : valid_to }
       end
     end
   end

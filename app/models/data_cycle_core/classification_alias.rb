@@ -43,7 +43,14 @@ module DataCycleCore
 
       sql = ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql)
 
-      query.unscope(where: query.bound_attributes.map(&:name)).where('classification_aliases.id IN (' + sql + ')')
+      # query.unscope(where: query.bound_attributes.map(&:name)).where('classification_aliases.id IN (' + sql + ')')
+      query.unscoped.where('classification_aliases.id IN (' + sql + ')')
+    end
+
+    def linked_contents
+      classifications.includes(:classification_contents).map(&:classification_contents).flatten + sub_classification_alias.includes(classifications: :classification_contents).with_descendants.map { |c|
+        c.classifications.map(&:classification_contents)
+      }.flatten
     end
 
     def ancestors
