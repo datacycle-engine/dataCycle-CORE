@@ -47,6 +47,14 @@ module DataCycleCore
         )
       end
 
+      def with_relation(name = nil)
+        manager = find_relation(name)
+
+        reflect(
+          @query.where(search[:content_data_id].in(manager))
+        )
+      end
+
       def modified_since(date = Time.zone.now)
         reflect(
           @query.where(
@@ -138,6 +146,14 @@ module DataCycleCore
           .on(search[:content_data_id].eq(creative_work[:id]).and(search[:content_data_type].eq(quoted('DataCycleCore::CreativeWork'))))
       end
 
+      def join_content_relation
+        Arel::SelectManager.new
+          .project(search[:content_data_id])
+          .from(search)
+          .join(content_content)
+          .on(search[:content_data_id].eq(content_content[:content_a_id]).and(search[:content_data_type].eq(quoted(content_content[:content_a_type]))))
+      end
+
       def get_watch_list_items(id)
         query = join_watch_list
         query.where(watch_list_data_hash[:watch_list_id].eq(id))
@@ -146,6 +162,11 @@ module DataCycleCore
       def find_children(id)
         query = join_creative_work
         query.where(creative_work[:is_part_of].eq(id))
+      end
+
+      def find_relation(name)
+        query = join_content_relation
+        query.where(content_content[:relation_a].eq(name))
       end
 
       def watch_list_data_hash
@@ -162,6 +183,10 @@ module DataCycleCore
 
       def creative_work
         DataCycleCore::CreativeWork.arel_table
+      end
+
+      def content_content
+        DataCycleCore::ContentContent.arel_table
       end
     end
   end

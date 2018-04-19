@@ -1,4 +1,3 @@
-
 require 'date'
 
 $LOAD_PATH.push File.expand_path('../lib', __FILE__)
@@ -104,6 +103,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'dotenv-rails'
   s.add_dependency 'puma', '~> 3.10.0'
+  s.add_dependency 'puma_worker_killer'
 
   # validation gems
   s.add_development_dependency 'brakeman'

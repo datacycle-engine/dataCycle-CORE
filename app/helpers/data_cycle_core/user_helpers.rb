@@ -1,7 +1,7 @@
 module DataCycleCore
   module UserHelpers
-    def name
-      "#{given_name} #{family_name}"
+    def full_name
+      name || "#{given_name} #{family_name}"
     end
   end
 end

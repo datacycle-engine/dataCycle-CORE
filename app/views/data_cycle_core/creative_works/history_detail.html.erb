@@ -12,9 +12,9 @@
                         <i class="fa fa-history" aria-hidden="true"></i> <%= @creativeWork.template_name %> <%= t('common.compare', locale: DataCycleCore.ui_language) %>
                     </div>
                     <ul>
-                      <li class="has-dropdown right">
+                      <li class="has-dropdown">
                         <a id="show-history-link" data-toggle="show-history"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= t('common.version', locale: DataCycleCore.ui_language) %></a>
-                        <%= render 'histories', content: @creativeWork %>
+                        <%= render 'histories', content: @creativeWork, additional_classes: 'align-right' %>
                       </li>
                       <li class="buttons"></li>
                     </ul>

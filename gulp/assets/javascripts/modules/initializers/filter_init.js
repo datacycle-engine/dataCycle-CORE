@@ -44,37 +44,7 @@ module.exports.initialize = function () {
     });
   }
 
-  function clearForm(form) {
-    $(form).find(':input').not(':button, :submit, :reset, :hidden, :checkbox, :radio').val('');
-    $(form).find(':checkbox, :radio').prop('checked', false);
-  }
-
   function setup() {
-    // hide activated filters
-    if ($('.activefilter').find('.your-choice.tags:visible').length == 0) $('.activefilter').hide();
-    // Reset selected Tags
-    $('#search-form #reset-filter').on('click', function (e) {
-      e.preventDefault();
-      var form = $(this).closest('#search-form');
-      clearForm(form);
-      // $(form).append('<input type="hidden" name="reset" value="true" />');
-      form.submit();
-    });
-
-    // Save active Filter with specific name
-    $('#save-filter-name-form').on('submit', function (e) {
-      e.preventDefault();
-      var form = $('#search-form');
-      $(form).prop('action', $(this).prop('action'));
-      $(form).prop('method', $(this).prop('method'));
-      $(form).append($(this).find('input[type=hidden]').clone());
-      $(form).append('<input type="hidden" name="stored_filter_name" value="' + $(this).find('#stored_filter_name').val() + '">');
-      $(form).append('<input type="hidden" name="stored_filter_system" value="' + $(this).find('#stored_filter_system').is(':checked') + '">');
-      $(form).append('<input type="hidden" name="stored_filter_api" value="' + $(this).find('#stored_filter_api').is(':checked') + '">');
-
-      form.submit();
-    });
-
     // remove your-choice tags on click
     $(document).on('click', '.filters .your-choice.tags label', function (e) {
       removeFilter($(this));

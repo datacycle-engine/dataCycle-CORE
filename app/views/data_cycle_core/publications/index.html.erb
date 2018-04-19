@@ -1,0 +1,29 @@
+<% breadcrumb :'data_cycle_core/publications' %>
+
+<% content_for(:title, t('data_cycle_core.publications_calendar', locale: DataCycleCore.ui_language)) %>
+
+<% content_for :advanced_filters do %>
+  <div class="date-range">
+    <i class="fa fa-calendar" aria-hidden="true"></i>
+    <%= label_tag :publications_from, "#{t('data_cycle_core.publication_date', locale: DataCycleCore.ui_language)}:" %>
+    <%= date_field_tag :publications_from, params[:publications_from], placeholder: t('terms.from', locale: DataCycleCore.ui_language) %>
+    <%= label_tag :publications_until, ' - ' %>
+    <%= date_field_tag :publications_until, params[:publications_until], placeholder: t('terms.until', locale: DataCycleCore.ui_language) %>
+  </div>
+<% end %>
+
+<%= render 'filter_minimal', filter: { language: true, classification_trees: ['Inhaltstypen'] + @publication_classifications.values }, show_filter: true %>
+
+<section class="publications-list" data-pages="<%= @pages %>">
+  <div class="row">
+    <% if @contents&.size&.zero? %>
+      <div class="small-12">
+        <span class="no-results"><%= t('common.no_results', locale: DataCycleCore.ui_language) %></span>
+      </div>
+    <% else %>
+      <ul class="no-bullet accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
+        <%= render 'publication_list', contents: @contents %>
+      </ul>
+    <% end %>
+  </div>
+</section>
