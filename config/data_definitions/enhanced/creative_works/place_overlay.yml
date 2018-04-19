@@ -11,11 +11,11 @@
         :storage_location: key
         :validations:
           :format: uuid
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_type: string
-        :storage_location: column
+        :storage_location: content
         :search: true
         :validations:
           :minLength: 1
