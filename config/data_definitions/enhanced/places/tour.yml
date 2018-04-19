@@ -3,8 +3,6 @@
     :name: Tour
     :type: object
     :content_type: entity
-    :permissions:
-      :read_write: true
     :boost: 100.0
     :properties:
       :id:
@@ -79,11 +77,17 @@
         :type: geographic
         :storage_type: geographic
         :storage_location: metadata
+        :editor:
+          :options:
+            :disabled: disabled
       :tour:
         :label: Route
         :type: geographic
         :storage_type: geographic
         :storage_location: metadata
+        :editor:
+          :options:
+            :disabled: disabled
       :directions_public_transport:
         :label: Anfahrt mit öffentlichen Verkehrsmitteln
         :type: string

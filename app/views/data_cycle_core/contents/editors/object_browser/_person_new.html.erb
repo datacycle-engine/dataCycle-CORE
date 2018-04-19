@@ -2,19 +2,20 @@
   <div class="reveal new-item" id="new_<%= new_overlay_key ||= '' %>" data-reveal data-multiple-opened="true" data-overlay="false" data-reset-on-close="true">
       <h3>Neue Person erstellen</h3>
 
-      <%= form_for :person, :url => {:controller => :persons, :action => "create"} do |f| %>
+      <%= form_for :person, :url => {:controller => :persons, :action => "create"}, html: { class: 'validation-form' } do |f| %>
 
+          <%= hidden_field_tag :table, :persons %>
           <%= hidden_field_tag 'template', 'Person' %>
           <%= hidden_field_tag 'locale', I18n.locale %>
           <div class="validation-container form-element">
               <%= label_tag 'person[datahash][given_name]', DataCycleCore::Person.human_attribute_name("given_name", locale: DataCycleCore.ui_language) %>
-              <%= text_field_tag 'person[datahash][given_name]', 'Vorname', class: 'form-control', value:'' %>
+              <%= text_field_tag 'person[datahash][given_name]', 'Vorname', class: 'form-control', value:'', required: true %>
           </div>
           <div class="validation-container form-element">
               <%= label_tag 'person[datahash][family_name]', DataCycleCore::Person.human_attribute_name("family_name", locale: DataCycleCore.ui_language) %>
-              <%= text_field_tag 'person[datahash][family_name]', '', class: 'form-control', value:'' %>
+              <%= text_field_tag 'person[datahash][family_name]', '', class: 'form-control', value:'', required: true %>
           </div>
-          <%= f.submit t(:submit, locale: DataCycleCore.ui_language), class: "button primary" %>
+          <%= f.submit t(:submit, locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: t(:submit, locale: DataCycleCore.ui_language) } %>
 
       <% end %>
 

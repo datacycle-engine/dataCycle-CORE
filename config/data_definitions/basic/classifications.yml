@@ -24,13 +24,17 @@
   - $$Frage
   - $$Antwort
   - $$Veranstaltungstermin
+  - $$Overlay
 
 - Geschlecht:
   - Männlich
   - Weiblich
 
-- Themenbereiche:
-
 - Ausgabekanäle:
+  - Web
+  - Social Media
+  - Print
+
+- Themenbereiche:
 
 - Tags:

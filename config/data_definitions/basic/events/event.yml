@@ -4,8 +4,8 @@
     :type: object
     :boost: 100.0
     :content_type: entity
-    :permissions:
-      :read_write: true
+    :features:
+      :overlay: ['overlay']
     :properties:
       :id:
         :label: id
@@ -14,6 +14,16 @@
         :storage_location: key
         :validations:
           :format: uuid
+      :overlay:
+        :label: Overlay
+        :type: object
+        :storage_location: events
+        :delete: true
+        :name: EventOverlay
+        :validations:
+          :maxLength: 1
+        :editor:
+          :type: embeddedObject
       :name:
         :label: Titel
         :type: string

@@ -1,6 +1,8 @@
 <%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
   <% new_content ||= false %>
 
+  <%= label_tag(key, definition['label']) if key.include?('publication') %>
+
   <div class="embedded-object" id="<%= sanitize_to_id(key) %>"
     data-language="<%= I18n.locale.to_s %>"
     data-key="<%= key %>"
@@ -14,14 +16,16 @@
     <% internal_template = DataCycleCore::DataHashService.get_internal_template(definition['storage_location'], definition['name']) %>
     <% internal_objects = DataCycleCore::DataHashService.get_internal_data(definition['storage_location'], value) %>
 
-    <% unless internal_template.template_name.nil? %>
-      <% unless internal_objects.blank? %>
-        <% internal_objects.each_with_index do |object, index| %>
-          <%= render_embedded_object_partial(key: key, definition: definition, parameters: {internal_template: internal_template, object: object, index: index, options: options, new_content: new_content}) %>
-        <% end %>
+    <% if internal_template&.template_name.present? && internal_objects.present? %>
+      <% internal_objects.each_with_index do |object, index| %>
+        <%= render_embedded_object_partial(key: key, definition: definition, parameters: {internal_template: internal_template, object: object, index: index, options: options, new_content: new_content, content: content}) %>
       <% end %>
+    <% elsif internal_template&.template_name.present? && internal_objects.blank? %>
+      <%= hidden_field_tag key + '[]', nil, id: "#{sanitize_to_id(key)}_default" %>
     <% end %>
 
-    <button id="add_<%= sanitize_to_id(key) %>" type="button" class="button addContentObject" style="display: none;"><%= definition['label'] %> hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
-  </div>
+    <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content)) %>
+        <button id="add_<%= sanitize_to_id(key) %>" type="button" class="button addContentObject" style="display: none;"><%= definition['label'] %> hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
+    <% end %>
+    </div>
 <% end %>

@@ -9,7 +9,7 @@
     <strong><%= Time.at(content.created_at).to_s(:german_datetime_format) %></strong>
     <% if !content.metadata.nil? && !content.creator.blank? %>
       <% creator = content.creator.first %>
-      <%= t('terms.from', locale: DataCycleCore.ui_language) %> <strong><a href="mailto:<%= "#{creator.email}" %>"><%= "#{creator.name}" %></a></strong>
+      <%= t('terms.from', locale: DataCycleCore.ui_language) %> <strong><a href="mailto:<%= "#{creator.email}" %>"><%= "#{creator.full_name}" %></a></strong>
     <% end %>
   </span>
 

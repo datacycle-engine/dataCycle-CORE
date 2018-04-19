@@ -2,8 +2,6 @@
 - :data:
     :name: SubEvent
     :type: object
-    :permissions:
-      :read_write: false
     :content_type: embedded
     :properties:
       :id:

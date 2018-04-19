@@ -2,8 +2,9 @@
 
 <%= render_content_partial 'edit_header_functions', content: content %>
 
-<%= form_for content, url: polymorphic_path(content, watch_list_id: @watch_list), html: {class: 'edit-content-form'}, builder: DataCycleCore::DataHashHelper::DataCycleFormBuilder do |f| %>
+<%= form_for content, url: polymorphic_path(content, watch_list_id: @watch_list), html: {class: 'validation-form edit-content-form'}, builder: DataCycleCore::DataHashHelper::DataCycleFormBuilder do |f| %>
 	<%= hidden_field_tag 'uuid', content.id %>
+	<%= hidden_field_tag :table, content.class.table_name %>
 	<%= hidden_field_tag 'creative_work[datahash][creator]', content.try(:creator).try(:first).try(:id) %>
   <%= hidden_field_tag 'locale', I18n.locale %>
 
@@ -56,7 +57,7 @@
 							   value: {'release_id' => content.release_id, 'release_comment' => content.release_comment},
 							   key: 'creative_work',
 							   definition: {'type' => 'releasable'},
-							   options:{} if content.schema.dig('releasable') == true %>
+							   options:{} if DataCycleCore::Feature::Releasable.present?(content) %>
 
 					<% if !validation_properties.nil? %>
 

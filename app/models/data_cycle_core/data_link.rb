@@ -1,6 +1,6 @@
 module DataCycleCore
   class DataLink < ApplicationRecord
-    after_save :set_release_status, if: -> { permissions == 'write' }
+    after_commit :set_release_status, on: [:create, :update], if: -> { permissions == 'write' }
 
     belongs_to :item, polymorphic: true
 
@@ -19,7 +19,7 @@ module DataCycleCore
       creator.subscriptions.create({ subscribable_id: item.id, subscribable_type: item.class }) unless creator.subscriptions.exists?(subscribable_id: item.id, subscribable_type: item.class)
 
       I18n.with_locale(item.first_available_locale) do
-        item.update(release_id: DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:partner]).try(:first).try(:id)) if item.metadata.dig('validation', 'releasable') && !DataCycleCore.release_codes.blank?
+        item.update(release_id: DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner])&.id) if DataCycleCore::Feature::Releasable.present?(item) && DataCycleCore.release_codes.present? && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner]).present?
       end
     end
   end

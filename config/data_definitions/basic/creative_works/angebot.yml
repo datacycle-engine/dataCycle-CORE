@@ -3,10 +3,10 @@
     :name: Angebot
     :type: object
     :content_type: entity
-    :releasable: true
-    :permissions:
-      :read_write: true
     :boost: 100.0
+    :features:
+      :publication_schedule: ['publication_schedule']
+      :releasable: true
     :properties:
       :id:
         :label: id
@@ -119,6 +119,9 @@
       :content_classifications:
         :type: mixin
         :name: content_classifications
+      :publication_schedule:
+        :type: mixin
+        :name: publication_schedule
       :meta_data:
         :type: mixin
         :name: meta_data
@@ -138,24 +141,11 @@
 #        :name: DataCycle-File
 #        :editor:
 #          :type: embeddedObject
-#      :firma:
-#        :label: "Firma"
-#        :type: object
-#        :storage_location: organizations
-#        :name: Organization
-#        :delete: false
-#        :editor:
-#          :type: objectBrowser
-#          :options:
-#            :data-validate: object
-#            :data-type: organization
 
 - :data:
     :name: Angebotszeitraum
     :type: object
     :content_type: embedded
-    :permissions:
-      :read_write: true
     :properties:
       :id:
         :label: id

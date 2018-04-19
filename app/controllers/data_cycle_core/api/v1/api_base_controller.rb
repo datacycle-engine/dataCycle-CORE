@@ -34,7 +34,17 @@ module DataCycleCore
     private
 
     def authenticate
-      raise CanCan::AccessDenied, 'invalid or missing authentication token' if !tokens.include?(permitted_params[:token]) && current_user.nil?
+      return if current_user
+
+      user = User.find_by(access_token: params[:token]) if params[:token].present?
+
+      if user
+        sign_in user
+      else
+        raise CanCan::AccessDenied, 'invalid or missing authentication token'
+      end
+
+      # raise CanCan::AccessDenied, 'invalid or missing authentication token' if !tokens.include?(permitted_params[:token]) && current_user.nil?
     end
 
     def access_denied(exception)

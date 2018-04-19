@@ -23,7 +23,7 @@ directory 'test/dummy'
 # Workers do not work on JRuby or Windows (both of which do not support
 # processes).
 #
-# workers ENV.fetch('WEB_CONCURRENCY') { 1 }
+workers ENV.fetch('WEB_CONCURRENCY') { 1 }
 
 # Use the `preload_app!` method when specifying a `workers` number.
 # This directive tells Puma to first boot the application and load code
@@ -32,7 +32,7 @@ directory 'test/dummy'
 # you need to make sure to reconnect any threads in the `on_worker_boot`
 # block.
 #
-# preload_app!
+preload_app!
 
 # The code in the `on_worker_boot` will be called if you are using
 # clustered mode by specifying a number of `workers`. After each worker
@@ -41,9 +41,19 @@ directory 'test/dummy'
 # or connections that may have been created at application boot, Ruby
 # cannot share connections between processes.
 #
-# on_worker_boot do
-#   ActiveRecord::Base.establish_connection if defined?(ActiveRecord)
-# end
+on_worker_boot do
+  ActiveSupport.on_load(:active_record) do
+    ActiveRecord::Base.establish_connection
+  end
+end
 
 # Allow puma to be restarted by `rails restart` command.
 plugin :tmp_restart
+
+unless Rails.env.production?
+  before_fork do
+    require 'puma_worker_killer'
+
+    PumaWorkerKiller.enable_rolling_restart # Default is every 6 hours
+  end
+end

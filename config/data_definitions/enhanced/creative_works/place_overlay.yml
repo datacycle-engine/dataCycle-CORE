@@ -3,8 +3,6 @@
     :name: PlaceOverlay
     :type: object
     :content_type: embedded
-    :permissions:
-      :read_write: true
     :properties:
       :id:
         :label: id
@@ -13,11 +11,11 @@
         :storage_location: key
         :validations:
           :format: uuid
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_type: string
-        :storage_location: column
+        :storage_location: content
         :search: true
         :validations:
           :minLength: 1
@@ -59,7 +57,7 @@
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
-        :default_value: "Örtlichkeit - Overlay"
+        :default_value: "Overlay"
       :meta_data:
         :type: mixin
         :name: meta_data

@@ -1,17 +1,12 @@
 module DataCycleCore
   class EventsController < ContentsController
     before_action :authenticate_user! # from devise (authenticate)
-    # load_and_authorize_resource       # from cancancan (authorize)
-
-    def index
-      @paginateObject = DataCycleCore::Event.all.where(template: false).order(updated_at: :desc).page(params[:page])
-      @event = DataCycleCore::Event.new
-    end
+    load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
 
     def show
       @content = DataCycleCore::Event.find_by(id: params[:id])
 
-      redirect_back(fallback_location: root_path) if @content.nil?
+      redirect_back(fallback_location: root_path) && return if @content.nil?
 
       I18n.with_locale(@content.first_available_locale) do
         @dataSchema = @content.get_data_hash
@@ -20,7 +15,7 @@ module DataCycleCore
 
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: 'events', id: params[:id]) }
-          format.html
+          format.html { render 'show' }
         end
       end
     end
@@ -59,6 +54,11 @@ module DataCycleCore
       end
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
+        unless can?(:edit, @content)
+          redirect_to event_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
+          return
+        end
+
         @dataSchema = @content.get_data_hash
         render 'edit'
       end
@@ -68,7 +68,22 @@ module DataCycleCore
       @event = DataCycleCore::Event.find(params[:id])
       I18n.with_locale(@event.first_available_locale(params[:locale])) do
         object_params = event_params('events', @event.template_name)
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @event.schema, false)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @event.schema)
+
+        data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
+          datahash.merge({ 'id' => @event.id }),
+          @event.get_data_hash
+        )
+
+        unless data_hash_has_changes
+          flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @event.template_name, locale: DataCycleCore.ui_language
+          if (Rails.env.development? || params[:splitview]) && !params[:finalize]
+            redirect_back(fallback_location: root_path)
+          else
+            redirect_to events_path(@event, watch_list_id: @watch_list)
+          end
+          return
+        end
 
         valid = @event.set_data_hash(data_hash: datahash, current_user: current_user)
 

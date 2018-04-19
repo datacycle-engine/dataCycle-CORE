@@ -6,12 +6,13 @@
     - $$Interview
     - $$Social Media Posting
     - $$Zitat
-  - $$Assets:
+  - $$Asset:
     - $$Bild
     - $$Datei
     - $$Video
   - $$Linktipps
   - $$Person
+  - $$Publikations-Plan
   - $$Organisation
   - $$Ort:
     - $$Örtlichkeit
@@ -30,14 +31,17 @@
   - $$Antwort
   - $$Veranstaltungstermin
   - $$Öffnungszeit
-  - $$Örtlichkeit - Overlay
+  - $$Overlay
 
 - Geschlecht:
   - Männlich
   - Weiblich
 
-- Themenbereiche:
-
 - Ausgabekanäle:
+  - Web
+  - Social Media
+  - Print
+
+- Themenbereiche:
 
 - Plattform:

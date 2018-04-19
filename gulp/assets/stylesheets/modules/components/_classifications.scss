@@ -102,6 +102,7 @@ ul.backend-treeview-list {
       background: $light-gray;
       box-shadow: none;
       &:hover {
+        z-index: 1;
         box-shadow: 0 0 7px $primary-color;
       }
       &:focus {
@@ -151,6 +152,7 @@ ul.backend-treeview-list {
           background: none;
         }
         &:hover {
+          z-index: 1;
           box-shadow: 0 0 7px $primary-color;
         }
         &:focus,

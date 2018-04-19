@@ -1,12 +1,7 @@
 module DataCycleCore
   class OrganizationsController < ContentsController
-    before_action :authenticate_user!   # from devise (authenticate)
-    load_and_authorize_resource         # from cancancan (authorize)
-
-    def index
-      @paginateObject = DataCycleCore::Organization.all.where(template: false).order(updated_at: :desc).page(params[:page])
-      @organization = DataCycleCore::Organization.new
-    end
+    before_action :authenticate_user! # from devise (authenticate)
+    load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
 
     def show
       @content = DataCycleCore::Organization.find_by(id: params[:id])
@@ -59,6 +54,11 @@ module DataCycleCore
       end
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
+        unless can?(:edit, @content)
+          redirect_to organization_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
+          return
+        end
+
         @dataSchema = @content.get_data_hash
         render 'edit'
       end
@@ -68,7 +68,22 @@ module DataCycleCore
       @organization = DataCycleCore::Organization.find(params[:id])
       I18n.with_locale(@organization.first_available_locale(params[:locale])) do
         object_params = organization_params('organizations', @organization.template_name)
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @organization.schema, false)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @organization.schema)
+
+        data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
+          datahash.merge({ 'id' => @organization.id }),
+          @organization.get_data_hash
+        )
+
+        unless data_hash_has_changes
+          flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @organization.template_name, locale: DataCycleCore.ui_language
+          if (Rails.env.development? || params[:splitview]) && !params[:finalize]
+            redirect_back(fallback_location: root_path)
+          else
+            redirect_to organizations_path(@organization, watch_list_id: @watch_list)
+          end
+          return
+        end
 
         valid = @organization.set_data_hash(data_hash: datahash, current_user: current_user)
 

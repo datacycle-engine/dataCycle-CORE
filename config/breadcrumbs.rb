@@ -61,7 +61,7 @@ end
 # Creative Work
 crumb :'data_cycle_core/creative_work' do |creative_work, watch_list|
   I18n.with_locale(creative_work.first_available_locale) do
-    link to_html_string(creative_work.template_name.titleize, creative_work.title), polymorphic_path(creative_work, watch_list_id: watch_list)
+    link to_html_string(t("content_type.#{creative_work.template_name.downcase}", default: creative_work.template_name.titleize, locale: DataCycleCore.ui_language), creative_work.title), polymorphic_path(creative_work, watch_list_id: watch_list)
   end
 
   if watch_list
@@ -79,62 +79,65 @@ end
 
 # Place
 crumb :'data_cycle_core/places' do
-  link to_html_string('Orte'), places_path
+  link to_html_string(DataCycleCore::Place.model_name.human(count: 2, locale: DataCycleCore.ui_language)), places_path
 end
 
 crumb :'data_cycle_core/place' do |place, watch_list|
   link to_html_string(t("content_type.#{place.template_name.downcase}", default: place.template_name.titleize, locale: DataCycleCore.ui_language), place.title), place_path(place, watch_list_id: watch_list)
 
   parent watch_list if watch_list
-  # parent :'data_cycle_core/places'
 end
 
 # Person
 crumb :'data_cycle_core/persons' do
-  link to_html_string('Personen'), persons_path
+  link to_html_string(DataCycleCore::Person.model_name.human(count: 2, locale: DataCycleCore.ui_language)), persons_path
 end
 
 crumb :'data_cycle_core/person' do |person, watch_list|
-  link to_html_string('Person', person.given_name + ' ' + person.family_name), person_path(person, watch_list_id: watch_list)
+  link to_html_string(t("content_type.#{person.template_name.downcase}", default: person.template_name.titleize, locale: DataCycleCore.ui_language), person.title), person_path(person, watch_list_id: watch_list)
 
   parent watch_list if watch_list
-  # parent :'data_cycle_core/persons'
 end
 
 # Organization
 crumb :'data_cycle_core/organizations' do
-  link to_html_string('Organisationen'), organizations_path
+  link to_html_string(DataCycleCore::Organization.model_name.human(count: 2, locale: DataCycleCore.ui_language)), organizations_path
 end
 
 crumb :'data_cycle_core/organization' do |organization, watch_list|
-  link to_html_string('Organization', organization.legal_name), organization_path(organization, watch_list_id: watch_list)
+  link to_html_string(t("content_type.#{organization.template_name.downcase}", default: organization.template_name.titleize, locale: DataCycleCore.ui_language), organization.legal_name), organization_path(organization, watch_list_id: watch_list)
 
   parent watch_list if watch_list
-  # parent :'data_cycle_core/persons'
 end
 
 # Event
 crumb :'data_cycle_core/events' do
-  link to_html_string('Events'), events_path
+  link to_html_string(DataCycleCore::Event.model_name.human(count: 2, locale: DataCycleCore.ui_language)), events_path
 end
 
 crumb :'data_cycle_core/event' do |event, watch_list|
-  link to_html_string('Event', event.headline), events_path(event, watch_list_id: watch_list)
+  link to_html_string(t("content_type.#{event.template_name.downcase}", default: event.template_name.titleize, locale: DataCycleCore.ui_language), event.title), event_path(event, watch_list_id: watch_list)
 
   parent watch_list if watch_list
-  # parent :'data_cycle_core/persons'
 end
 
 # Merkliste
 crumb :'data_cycle_core/watch_lists' do
-  link to_html_string('Merklisten'), watch_lists_path
+  link to_html_string(DataCycleCore::WatchList.model_name.human(count: 2, locale: DataCycleCore.ui_language)), watch_lists_path
 end
 
 crumb :'data_cycle_core/watch_list' do |watch_list|
-  link to_html_string('Merkliste', watch_list.headline), watch_list_path(watch_list)
-
-  # parent :'data_cycle_core/watch_lists'
+  link to_html_string(DataCycleCore::WatchList.model_name.human(locale: DataCycleCore.ui_language), watch_list.headline), watch_list_path(watch_list)
 end
+
 crumb :'data_cycle_core/subscriptions' do
-  link to_html_string('Abos'), subscriptions_path
+  link to_html_string(DataCycleCore::Subscription.model_name.human(count: 2, locale: DataCycleCore.ui_language)), subscriptions_path
+end
+
+crumb :'data_cycle_core/publications' do
+  link to_html_string("<i class='fa fa-calendar' aria-hidden='true'></i>#{t('data_cycle_core.publications_calendar', locale: DataCycleCore.ui_language)}"), publications_path
+end
+
+crumb :'data_cycle_core/stored_filters' do
+  link to_html_string("<i aria-hidden='true' class='fa fa-search'></i> #{t('data_cycle_core.stored_searches.my_searches', locale: DataCycleCore.ui_language)}"), stored_filters_path
 end

@@ -55,12 +55,14 @@ module DataCycleCore
     end
 
     def render_attribute_editor(key:, definition:, value:, parameters: {})
+      return unless can?(:show_attribute, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], parameters[:content]))
       partials = [
         (definition.try(:[], 'releasable') ? 'releasable' : '').to_s,
         definition.try(:[], 'editor').try(:[], 'options').try(:[], 'type').try(:underscore).to_s,
         definition.try(:[], 'editor').try(:[], 'type').try(:underscore).to_s,
         definition['type'].underscore.to_s
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/#{p}_editor" }
+      # TODO: check if required ?
       parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], parameters[:content]))
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
     end
@@ -68,6 +70,7 @@ module DataCycleCore
     def render_attribute_viewer(key:, definition:, value:, parameters: {})
       partials = [
         parameters.dig(:options).dig(:force_partial).try(:underscore).to_s,
+        key&.underscore&.to_s,
         definition&.dig('validations', 'format')&.underscore&.to_s,
         "#{definition['type']&.underscore}_#{definition&.dig('editor', 'options', 'data-type')&.underscore || 'default'}",
         "#{definition['type']&.underscore}_#{definition&.dig('validations', 'format')&.underscore || 'default'}",
@@ -160,7 +163,13 @@ module DataCycleCore
       options = { class: "flash callout #{alert_class}" }
       options[:data] = { closable: '' } if closable
       content_tag(:div, options) do
-        concat value.to_s
+        if value.is_a?(String)
+          concat value.to_s
+        elsif value.is_a?(Hash)
+          concat value.map { |k, v| content_tag(:b, k.titleize + ': ') + v.join(', ') }.join(', ').html_safe
+        else
+          concat value.to_s
+        end
         concat close_link if closable
       end
     end

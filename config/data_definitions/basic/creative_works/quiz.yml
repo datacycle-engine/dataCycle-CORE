@@ -3,10 +3,9 @@
     :name: Quiz
     :type: object
     :content_type: entity
-    :releasable: true
-    :permissions:
-      :read_write: true
     :boost: 100.0
+    :features:
+      :releasable: true
     :properties:
       :id:
         :label: id
@@ -73,8 +72,6 @@
     :name: Frage
     :type: object
     :content_type: embedded
-    :permissions:
-      :read_write: true
     :properties:
       :id:
         :label: id
@@ -148,8 +145,6 @@
     :name: Antwort
     :type: object
     :content_type: embedded
-    :permissions:
-      :read_write: true
     :properties:
       :id:
         :label: id

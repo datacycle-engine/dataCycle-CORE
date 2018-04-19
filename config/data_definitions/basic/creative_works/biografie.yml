@@ -3,10 +3,9 @@
     :name: Biografie
     :type: object
     :content_type: entity
-    :releasable: true
-    :permissions:
-      :read_write: true
     :boost: 100.0
+    :features:
+      :releasable: true
     :properties:
       :id:
         :label: id

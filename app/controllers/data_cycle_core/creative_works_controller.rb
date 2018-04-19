@@ -4,10 +4,7 @@ module DataCycleCore
 
     before_action :authenticate_user! # from devise (authenticate)
     load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
-    after_action :check_final, only: :update
-
-    def index
-    end
+    after_action :check_final, :set_publication_attributes, only: :update
 
     def show
       @content = DataCycleCore::CreativeWork.find_by(id: params[:id])
@@ -24,7 +21,7 @@ module DataCycleCore
           @entities = @entities.where.not(template_name: @content.schema&.dig('features', 'container', 'excluded')) if @content.schema&.dig('features', 'container', 'excluded')
         end
 
-        @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if @content.schema['releasable'] && !@content.release_id.nil?
+        @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if DataCycleCore::Feature::Releasable.present?(@content) && !@content.release_id.nil?
         @dataSchema = @content.get_data_hash
 
         respond_to do |format|
@@ -89,7 +86,7 @@ module DataCycleCore
       end
 
       I18n.with_locale(@creativeWork.first_available_locale) do
-        unless @creativeWork.read_write?
+        unless can?(:edit, @creativeWork)
           redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end
@@ -129,7 +126,7 @@ module DataCycleCore
       end
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
-        unless @content.read_write?
+        unless can?(:edit, @content)
           redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end
@@ -277,6 +274,19 @@ module DataCycleCore
 
     def execute_after_update_webhooks(data)
       Webhook::Update.execute_all(data)
+    end
+
+    def set_publication_attributes
+      if DataCycleCore.features.dig(:publication_schedule, :classification_keys).present? && @creativeWork&.schema&.dig('features', 'publication_schedule').present? && @creativeWork.respond_to?('publication_schedule')
+        I18n.with_locale(@creativeWork.first_available_locale) do
+          datahash_params = creative_work_params('creative_works', @creativeWork.template_name)
+          datahash = DataCycleCore::DataHashService.flatten_datahash_value(datahash_params[:datahash], @creativeWork.schema, false)
+
+          DataCycleCore.features.dig(:publication_schedule, :classification_keys).each do |tree_label|
+            @creativeWork.set_data_hash_attribute(tree_label, datahash.dig('publication_schedule')&.map { |p| p[tree_label] }&.flatten&.uniq, current_user)
+          end
+        end
+      end
     end
 
     def check_final

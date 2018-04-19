@@ -16,7 +16,7 @@
         :label: Kommentar
         :type: string
         :storage_type: string
-        :storage_location: metadata
+        :storage_location: content
         :search: true
         :editor:
           :type: input

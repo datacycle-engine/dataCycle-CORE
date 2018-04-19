@@ -14,24 +14,32 @@ DataCycleCore::Engine.routes.draw do
     post :create_user, on: :collection
     get :search, on: :collection
   end
+  resources :user_organizations do
+    post :create_user, on: :collection
+  end
   resources :user_groups
 
   scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
-    resources :creative_works, only: [:index, :show, :create, :edit, :update, :history, :history_detail, :destroy] do
+    resources(*DataCycleCore.content_tables.map(&:to_sym), only: [:index, :show, :create, :edit, :update, :history, :history_detail, :destroy]) do
+      # resources :creative_works, only: [:index, :show, :create, :edit, :update, :history, :history_detail, :destroy] do
       post :import, on: :collection
       get 'history', on: :member
       get 'history_detail', on: :member
       get 'compare', on: :member
     end
+  end
 
-    resources :persons, only: [:index, :show, :create, :edit, :update, :destroy]
-    resources :organizations, only: [:index, :show, :create, :edit, :update, :destroy]
-    resources :places, only: [:index, :show, :create, :edit, :update, :destroy]
+  resources(*DataCycleCore.content_tables.map(&:to_sym)) do
+    post :validate, on: :member
+    post :validate, on: :collection
+    patch :set_life_cycle, on: :member
   end
 
   resources :subscriptions, only: [:index, :create, :destroy]
-  resources :events, only: [:index, :show, :create, :edit, :update, :destroy]
-  resources :stored_filters, only: [:create, :destroy]
+  # resources :events, only: [:index, :show, :create, :edit, :update, :destroy]
+  resources :stored_filters, only: [:index, :create, :update, :destroy], path: :search_history do
+    get :search, on: :collection
+  end
   resources :classification_tree_labels, only: :show
 
   scope('files') do
@@ -86,12 +94,12 @@ DataCycleCore::Engine.routes.draw do
 
         resources :collections, only: [:index, :show], controller: :watch_lists
 
-        type_regexp = Regexp.new([:creative_works, :persons, :organizations, :places].join('|'))
+        type_regexp = Regexp.new(*DataCycleCore.content_tables.map(&:to_sym).join('|'))
         resources :contents, path: ':type', constraints: { type: type_regexp }, only: [:show] do
           get :search, on: :collection
           patch :update, on: :member
         end
-        resources :events, only: [:index, :show]
+
         get 'contents/search', to: 'contents#search'
         get 'contents/get_deleted', to: 'contents#get_deleted'
 
@@ -113,5 +121,6 @@ DataCycleCore::Engine.routes.draw do
   post 'contents/new_embedded_object', to: 'contents#new_embedded_object'
   post 'contents/render_embedded_object', to: 'contents#render_embedded_object'
   get 'contents/gpx', to: 'contents#gpx'
-  patch ':type/:id/set_life_cycle', to: 'contents#set_life_cycle', as: 'set_life_cycle'
+
+  resources :publications, only: :index
 end
