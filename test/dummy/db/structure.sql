@@ -204,10 +204,11 @@ CREATE TABLE content_content_histories (
     content_b_history_id uuid,
     content_b_history_type character varying,
     relation_b character varying,
-    external_source_id uuid,
     history_valid tstzrange,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    order_a integer,
+    order_b integer
 );
 
 
@@ -223,9 +224,10 @@ CREATE TABLE content_contents (
     content_b_id uuid,
     content_b_type character varying,
     relation_b character varying,
-    external_source_id uuid,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    order_a integer,
+    order_b integer
 );
 
 
@@ -992,7 +994,8 @@ CREATE TABLE stored_filters (
     system boolean DEFAULT false,
     api boolean DEFAULT false,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    api_users text[]
 );
 
 
@@ -1087,7 +1090,10 @@ CREATE TABLE users (
     locked_at timestamp without time zone,
     external boolean DEFAULT true NOT NULL,
     role_id uuid,
-    notification_frequency character varying DEFAULT 'always'::character varying
+    notification_frequency character varying DEFAULT 'always'::character varying,
+    access_token character varying,
+    type character varying,
+    name character varying
 );
 
 
@@ -2410,6 +2416,10 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180122153121'),
 ('20180124091123'),
 ('20180222091614'),
-('20180410220414');
+('20180328122539'),
+('20180329064133'),
+('20180330063016'),
+('20180410220414'),
+('20180417130441');
 
 

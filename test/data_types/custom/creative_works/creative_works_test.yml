@@ -84,6 +84,22 @@
         :name: EmbeddedCreativeWork
 
 - :data:
+    :name: TestEmbeddedArray
+    :type: object
+    :properties:
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: column
+      testArray:
+        :label: Verlinkt
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+
+- :data:
     :name: EmbeddedCreativeWork
     :type: object
     :properties:
