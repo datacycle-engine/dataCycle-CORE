@@ -89,10 +89,11 @@ module DataCycleCore
 
         # cc embedded data from other content tables
         embedded_relations.each do |content_name|
-          send(content_name[:name]).each do |content_item|
+          content_relation = send(content_name[:name])
+          content_relation.each_with_index do |content_item, index|
             new_content_history = content_item.to_history(save_time: save_time)
             content_one_data = [new_content_history.id, new_content_history.class.to_s, '', nil]
-            content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name[:name], nil]
+            content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name[:name], index]
             content_relation_history_data = ['a', 'b'].map { |selector|
               [
                 "content_#{selector}_history_id".to_sym,
@@ -108,9 +109,10 @@ module DataCycleCore
         end
 
         linked_relations.each do |content_name|
-          send(content_name[:name]).each do |content_item|
+          content_relation = send(content_name[:name])
+          content_relation.each_with_index do |content_item, index|
             content_one_data = [content_item.id, content_item.class.to_s, '', nil]
-            content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name[:name], nil]
+            content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name[:name], index]
             content_relation_history_data = ['a', 'b'].map { |selector|
               [
                 "content_#{selector}_history_id".to_sym,
