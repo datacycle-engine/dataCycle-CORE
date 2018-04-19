@@ -1,5 +1,7 @@
 module DataCycleCore
   class Api::V1::ContentsController < Api::V1::ApiBaseController
+    before_action :index, :prepare_url_parameters
+
     def show
       object_type = DataCycleCore.content_tables.find { |object| object == permitted_params[:type] }
 
@@ -68,6 +70,10 @@ module DataCycleCore
     end
 
     private
+
+    def prepare_url_parameters
+      @url_parameters = permitted_params.reject { |k, _| k == 'format' }
+    end
 
     def build_search_query
       query = DataCycleCore::Filter::Search.new(permitted_params.fetch(:language, 'de'))
