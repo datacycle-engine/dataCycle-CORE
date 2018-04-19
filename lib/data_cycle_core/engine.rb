@@ -106,9 +106,25 @@ module DataCycleCore
     self.notification_frequencies = ['always', 'day', 'week']
 
     # features
-    # autoload_last_filter, life_cycle, publishable, ...
+    # autoload_last_filter?, life_cycle, releasable, overlay, container, publishing ...
     mattr_accessor :features
-    self.features = {}
+    self.features = {
+      publication_schedule: {
+        enabled: false,
+      },
+      overlay: {
+        enabled: false
+      },
+      releasable:{
+        enabled: false
+      },
+      life_cycle:{
+        enabled: false
+      },
+      container:{
+        enabled: false
+      }
+    }
 
     # inheritable_attributes
     mattr_accessor :inheritable_attributes
