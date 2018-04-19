@@ -199,7 +199,7 @@ module DataCycleCore
       property_definitions.select { |_, v| v['type'] == 'geographic' }
     end
 
-    #private
+    # private
 
     def get_property_value(property_name, property_definition, timestamp = Time.zone.now, object = true)
       # linked data via embeddedLink/embeddedLinkArray
