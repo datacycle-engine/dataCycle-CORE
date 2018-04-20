@@ -121,7 +121,7 @@
           :type: embeddedObject
           :options:
             :data-validate: text
-      :image:
+      :asset_image:
         :label: Bild
         :type: asset
         :type_name: DataCycleCore::Image
@@ -135,24 +135,21 @@
         :storage_location: asset_relation
         :editor:
           :type: fileAsset
-      :contact_info:
-        :type: mixin
-        :name: contact_info
-      :postal_address:
-        :type: mixin
-        :name: postal_address
-      :geo:
-        :type: mixin
-        :name: geo
-      :validity_period:
-        :type: mixin
-        :name: validity_period
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
         :default_value: "Test-Template"
+      :contact_info:
+        :type: mixin
+        :name: contact_info
+      :postal_address:
+        :type: mixin
+        :name: postal_address
+      :validity_period:
+        :type: mixin
+        :name: validity_period
       :content_classifications:
         :type: mixin
         :name: content_classifications
