@@ -2,15 +2,14 @@ module DataCycleCore
   module MasterData
     module Validators
       class Asset < BasicValidator
-        def validate(data, template, template_key)
-          if blank?(data)
-            @error[:warning].push I18n.t :no_data, scope: [:validation, :errors], data: template['label'], locale: DataCycleCore.ui_language
-          elsif data.is_a?(::Array)
+        def validate(data, template)
+          return if data.blank?
+          if data.is_a?(::Array)
             check_reference_array(data, template)
           elsif data.is_a?(::String)
             check_reference_array([data], template)
           else
-            @error[:error].push I18n.t :data_type, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language
+            (@error[:warning][key] ||= []) << I18n.t(:data_type, scope: [:validation, :warning], data: data, locale: DataCycleCore.ui_language)
           end
           @error
         end
@@ -24,7 +23,7 @@ module DataCycleCore
               if @@keywords.include?(key)
                 method(key).call(data, template['validations'][key])
               else
-                @error[:warning].push I18n.t :keyword, scope: [:validation, :errors], key: key, type: 'Asset reference List', locale: DataCycleCore.ui_language
+                (@error[:warning][key] ||= []) << I18n.t(:keyword, scope: [:validation, :warning], data: key, type: 'Asset reference List', locale: DataCycleCore.ui_language)
               end
             end
           end
@@ -34,7 +33,7 @@ module DataCycleCore
             if key.is_a?(::String)
               check_reference(key)
             else
-              @error[:error].push I18n.t :data_array_format, scope: [:validation, :errors], key: key, template: template['label'], locale: DataCycleCore.ui_language
+              (@error[:warning][key] ||= []) << I18n.t(:data_array_format, scope: [:validation, :warning], data: key, template: template['label'], locale: DataCycleCore.ui_language)
             end
           end
         end
@@ -42,7 +41,7 @@ module DataCycleCore
         def check_reference(key)
           if uuid?(key)
             find_asset = DataCycleCore::Asset.find(key)
-            @error[:error].push I18n.t :asset_upload, scope: [:validation, :errors], locale: DataCycleCore.ui_language if find_asset.nil?
+            (@error[:warning][key] ||= []) << I18n.t(:asset_upload, scope: [:validation, :warning], locale: DataCycleCore.ui_language) if find_asset.nil?
           end
         end
 
@@ -50,7 +49,7 @@ module DataCycleCore
           data.downcase!
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
           check_uuid = data.length == 36 && !(data =~ uuid).nil?
-          @error[:error].push I18n.t :uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language unless check_uuid
+          (@error[:warning][key] ||= []) << I18n.t(:uuid, scope: [:validation, :warning], data: data, locale: DataCycleCore.ui_language) unless check_uuid
           check_uuid
         end
 
