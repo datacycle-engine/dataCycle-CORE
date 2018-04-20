@@ -33,7 +33,7 @@ module DataCycleCore
           if !@person.nil? && @person.save
             format.html do
               flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @person.template_name, locale: DataCycleCore.ui_language
-              redirect_to @person
+              redirect_to edit_person_path @person
             end
             format.js
           else
