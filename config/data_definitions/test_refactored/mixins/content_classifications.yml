@@ -1,0 +1,13 @@
+---
+- :data:
+    :name: content_classifications
+    :type: mixin
+    :properties:
+      :topic:
+        :label: Themenbereiche
+        :type: classification
+        :classification_tree: Themenbereiche
+      :output_channel:
+        :label: Ausgabekanal
+        :type: classification
+        :classification_tree: Ausgabekanäle

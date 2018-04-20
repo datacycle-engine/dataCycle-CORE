@@ -1,0 +1,9 @@
+---
+- :data:
+    :name: content_classifications
+    :type: mixin
+    :properties:
+      :output_channel:
+        :label: Ausgabekanal
+        :type: classification
+        :classification_tree: Ausgabekanäle

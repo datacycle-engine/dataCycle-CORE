@@ -1,0 +1,17 @@
+---
+- :data:
+    :name: meta_data
+    :type: mixin
+    :properties:
+      :creator:
+        :label: Ersteller
+        :type: linked
+        :linked_table: users
+      :date_created:
+        :label: Erstellungsdatum
+        :type: date_time
+        :storage_location: metadata
+      :date_modified:
+        :label: Änderungsdatum
+        :type: date_time
+        :storage_location: metadata

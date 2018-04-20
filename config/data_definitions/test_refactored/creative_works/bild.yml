@@ -1,0 +1,114 @@
+---
+- :data:
+    :name: Bild
+    :type: object
+    :content_type: entity
+    :boost: 10.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :minLength: 1
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :caption:
+        :label: Alt-Label
+        :type: string
+        :storage_location: content
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: quillEditor
+            :options:
+              :data-size: basic
+      :content_url:
+        :label: Bild URL
+        :type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
+      :thumbnail_url:
+        :label: Thumbnail URL
+        :type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
+        :ui:
+          :view:
+            :type: image
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
+      :asset:
+        :label: Datei
+        :type: asset
+        :asset_type: image
+      :photographer:
+        :label: Fotograf
+        :type: string
+        :storage_location: metadata
+        :search: true
+      :license:
+        :label: Copyright / Lizenz
+        :type: string
+        :storage_location: metadata
+        :search: true
+      :content_location:
+        :label: Ort
+        :type: linked
+        :linked_table: places
+        :stored_filter: (name ?)
+        :ui:
+          :edit:
+            :type: objectBrowser
+            :options:
+              :data-validate: object
+              :data-type: place
+      :width:
+        :label: Breite
+        :type: number
+        :storage_location: metadata
+        :validations:
+          :format: integer
+      :height:
+        :label: Höhe
+        :type: number
+        :storage_location: metadata
+        :validations:
+          :format: integer
+      :content_size:
+        :label: Dateigröße
+        :type: number
+        :storage_location: metadata
+        :validations:
+          :format: integer
+      :file_format:
+        :label: Dateiformat
+        :type: string
+        :storage_location: metadata
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :classification_tree: Inhaltstypen
+        :default_value: "Bild"
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data

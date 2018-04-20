@@ -1,0 +1,44 @@
+---
+- :data:
+    :name: TestOverlay
+    :type: object
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: content
+        :validations:
+          :minLength: 1
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: quillEditor
+            :options:
+              :data-size: basic
+      :image:
+        :label: Bilder
+        :type: linked
+        :linked_table: creative_works
+        :stored_filter: (name ?)
+        :ui:
+          :edit:
+            :type: objectBrowser
+            :options:
+              :data-validate: media
+              :data-type: image
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :classification_tree: Inhaltstypen
+        :default_value: "Overlay"
+      :meta_data:
+        :type: mixin
+        :name: meta_data

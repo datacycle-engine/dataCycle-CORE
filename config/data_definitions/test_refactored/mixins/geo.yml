@@ -1,0 +1,30 @@
+---
+- :data:
+    :name: geo
+    :type: mixin
+    :properties:
+      :longitude:
+        :label: Longitude
+        :type: number
+        :storage_location: column
+        :validations:
+          :format: float
+      :latitude:
+        :label: Latitude
+        :type: number
+        :storage_location: column
+        :validations:
+          :format: float
+      :elevation:
+        :label: Meereshöhe
+        :type: number
+        :storage_location: column
+        :validations:
+          :format: float
+      :location:
+        :label: GPS-Koordinaten
+        :type: geographic
+        :storage_location: column
+        :ui:
+          :edit:
+            :disabled: disabled
