@@ -75,6 +75,9 @@ module DataCycleCore
     mattr_accessor :access_tokens
     self.access_tokens = []
 
+    mattr_accessor :asset_objects
+    self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image']
+
     mattr_accessor :content_tables
     self.content_tables = ['creative_works', 'events', 'persons', 'organizations', 'places']
 

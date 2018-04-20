@@ -1,0 +1,58 @@
+---
+- :data:
+    :name: Zitat
+    :type: object
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :text:
+        :label: text
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: quillEditor
+          :options:
+            :data-size: basic
+            :data-validate: text
+      :image:
+        :label: Bild
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+        :validations:
+          :max: 1
+        :editor:
+          :type: objectBrowser
+          :options:
+            :data-validate: media
+            :data-type: image
+      :author:
+        :label: "Zitat von"
+        :type: object
+        :storage_location: persons
+        :name: Person
+        :delete: false
+        :editor:
+          :type: objectBrowser
+          :options:
+            :data-validate: object
+            :data-type: person
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_location: classification_relation
+        :default_value: "Zitat"
+      :meta_data:
+        :type: mixin
+        :name: meta_data

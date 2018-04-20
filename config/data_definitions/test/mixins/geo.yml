@@ -39,3 +39,6 @@
         :type: geographic
         :storage_type: geographic
         :storage_location: column
+        :editor:
+          :options:
+            :disabled: disabled

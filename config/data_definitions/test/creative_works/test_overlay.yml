@@ -1,11 +1,8 @@
 ---
 - :data:
-    :name: App
+    :name: TestOverlay
     :type: object
-    :content_type: entity
-    :boost: 100.0
-    :features:
-      :releasable: true
+    :content_type: embedded
     :properties:
       :id:
         :label: id
@@ -14,47 +11,26 @@
         :storage_location: key
         :validations:
           :format: uuid
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_type: string
-        :storage_location: column
-        :search: true
+        :storage_location: content
         :validations:
           :minLength: 1
         :editor:
           :type: input
           :options:
             :data-validate: text
-      :validity_period:
-        :type: mixin
-        :name: validity_period
-      :alternative_headline:
-        :label: Subüberschrift
-        :type: string
-        :storage_type: string
-        :storage_location: content
-        :search: true
-        :editor:
-          :type: input
       :description:
-        :label: Teasertext
+        :label: Beschreibung
         :type: string
         :storage_type: text
         :storage_location: column
-        :search: true
         :editor:
           :type: quillEditor
           :options:
-            :data-size: basic
-      :name:
-        :label: Linktitel
-        :type: string
-        :storage_type: string
-        :storage_location: content
-        :search: true
-        :editor:
-          :type: input
+            :data-size: full
       :image:
         :label: Bilder
         :type: embeddedLinkArray
@@ -66,23 +42,12 @@
           :options:
             :data-validate: media
             :data-type: image
-      :mobile_application:
-        :label: Link
-        :type: object
-        :storage_location: creative_works
-        :delete: true
-        :name: MobileApplication
-        :editor:
-          :type: embeddedObject
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
-        :default_value: "App"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
+        :default_value: "Overlay"
       :meta_data:
         :type: mixin
         :name: meta_data

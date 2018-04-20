@@ -34,7 +34,7 @@ module DataCycleCore
           # validate ?
           if !@event.nil? && @event.save
             flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @event.template_name, locale: DataCycleCore.ui_language
-            format.html { redirect_to @event }
+            format.html { redirect_to edit_event_path @event}
             format.json { render json: @event }
           else
             redirect_back(fallback_location: root_path)
