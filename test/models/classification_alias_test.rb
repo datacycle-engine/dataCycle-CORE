@@ -25,4 +25,21 @@ describe DataCycleCore::ClassificationAlias do
     classification_alias.name.must_equal 'UPDATED NAME'
     classification_alias.primary_classification.name.must_equal 'UPDATED NAME'
   end
+
+  describe 'when searching' do
+    before do
+      classification_tree.create_classification_alias('A')
+      classification_tree.create_classification_alias('A', 'A - 1')
+      classification_tree.create_classification_alias('A', 'AB - 2')
+      classification_tree.create_classification_alias('B')
+      classification_tree.create_classification_alias('B', 'BCD - 1')
+    end
+
+    it 'should return matching classification aliases' do
+      DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('A').count.must_equal 3
+      DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('b').count.must_equal 3
+      DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('1').count.must_equal 2
+      DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('2').count.must_equal 1
+    end
+  end
 end

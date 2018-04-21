@@ -1,8 +1,18 @@
 module DataCycleCore
   class ClassificationAlias < ApplicationRecord
-    belongs_to :external_source
+    class Path < ApplicationRecord
+      self.table_name = 'classification_aliase_paths'
+
+      def readonly?
+        true
+      end
+    end
 
     acts_as_paranoid
+
+    belongs_to :external_source
+
+    belongs_to :classification_alias_path, class_name: 'Path', primary_key: 'id', foreign_key: 'id'
 
     has_one :classification_tree, dependent: :destroy
     has_one :parent_classification_alias, through: :classification_tree
@@ -47,6 +57,10 @@ module DataCycleCore
 
       # query.unscope(where: query.bound_attributes.map(&:name)).where('classification_aliases.id IN (' + sql + ')')
       query.unscoped.where('classification_aliases.id IN (' + sql + ')')
+    end
+
+    def self.search(q)
+      where(arel_table[:name].matches("%#{q}%"))
     end
 
     def primary_classification
