@@ -18,6 +18,8 @@ module DataCycleCore
     has_many :classification_groups, dependent: :destroy
     has_many :classifications, -> { order(:name) }, through: :classification_groups
 
+    after_update :update_primary_classification
+
     def self.for_tree(tree_name)
       joins(classification_tree: :classification_tree_label)
         .where('classification_trees' => { 'classification_tree_labels' => { 'name' => tree_name } })
@@ -47,6 +49,10 @@ module DataCycleCore
       query.unscoped.where('classification_aliases.id IN (' + sql + ')')
     end
 
+    def primary_classification
+      classifications.uniq.sort_by { |c| (created_at - c.created_at).abs }.first
+    end
+
     def linked_contents
       classifications.includes(:classification_contents).map(&:classification_contents).flatten + sub_classification_alias.includes(classifications: :classification_contents).with_descendants.map { |c|
         c.classifications.map(&:classification_contents)
@@ -69,6 +75,17 @@ module DataCycleCore
           classifications.to_a + sub_classification_alias.includes(:classifications).order(:name).map(&:descendants).to_a
         else
           classifications.to_a
+        end
+      end
+    end
+
+    private
+
+    def update_primary_classification
+      if changed.include?('name')
+        primary_classification.tap do |c|
+          c.name = name
+          c.save!
         end
       end
     end
