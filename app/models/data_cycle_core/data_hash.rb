@@ -485,7 +485,7 @@ module DataCycleCore
         DataCycleCore::ContentContent.find_by(get_embeddedlink_hash(field_name, table)).destroy
       else # update
         temp = DataCycleCore::ContentContent.find_by(get_embeddedlink_hash(field_name, table))
-        selector = table <= self.class.table_name ? 'a' : 'b'
+        selector = table < self.class.table_name ? 'b' : 'a'
         temp.send("content_#{selector}_id=".to_sym, input_data)
         temp.send("content_#{selector}_type=".to_sym, "DataCycleCore::#{table.classify}")
         temp.send("relation_#{selector}=".to_sym, '')
