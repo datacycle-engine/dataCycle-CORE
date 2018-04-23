@@ -54,6 +54,14 @@ delete_content_histories = <<-EOS
   DELETE FROM classification_content_histories;
 EOS
 
+delete_soft_deleted_classifications = <<-EOS
+  DELETE FROM classifications WHERE deleted_at IS NOT NULL;
+  DELETE FROM classification_groups WHERE deleted_at IS NOT NULL;
+  DELETE FROM classification_aliases WHERE deleted_at IS NOT NULL;
+  DELETE FROM classification_trees WHERE deleted_at IS NOT NULL;
+  DELETE FROM classification_tree_labels WHERE deleted_at IS NOT NULL;
+EOS
+
 Rake::Task['db:create'].enhance do
   if ENV['RAILS_ENV']
     ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
@@ -96,6 +104,11 @@ namespace :data_cycle_core do
     desc 'Remove the history of all content data'
     task history: :environment do
       ActiveRecord::Base.connection.execute(delete_content_histories)
+    end
+
+    desc 'Remove all soft-deleted classification data (paranoid)'
+    task contents: :environment do
+      ActiveRecord::Base.connection.execute(delete_soft_deleted_classifications)
     end
   end
 
@@ -197,6 +210,22 @@ namespace :data_cycle_core do
           puts "#{content_table.ljust(25)} | #{template_name.ljust(25)} | #{(data_count || 0).to_s.rjust(10)}"
 
           strategy = DataCycleCore::Update::UpdateTemplate
+          DataCycleCore::Update::Update.new(type: data_object, template: template_object, strategy: strategy, transformation: nil)
+        end
+      end
+    end
+
+    desc 'recreate the entries in the search table for all data-types in the Database'
+    task rebuild_search: [:environment] do
+      puts 'updating search:'
+      DataCycleCore.content_tables.each do |content_table|
+        data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
+        data_object.where(template: true).each do |template_object|
+          template_name = template_object.template_name
+          data_count = data_object.where(template: false).where('template_name = ?', template_name).count
+          puts "#{content_table.ljust(25)} | #{template_name.ljust(25)} | #{(data_count || 0).to_s.rjust(10)}"
+
+          strategy = DataCycleCore::Update::UpdateSearch
           DataCycleCore::Update::Update.new(type: data_object, template: template_object, strategy: strategy, transformation: nil)
         end
       end
