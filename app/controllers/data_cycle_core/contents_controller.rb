@@ -12,7 +12,8 @@ module DataCycleCore
 
     def render_embedded_object
       object_type = DataCycleCore.content_tables.find { |object| object == params[:definition]['storage_location'] }
-      @object = ('DataCycleCore::' + object_type.singularize.classify).constantize.find_by(id: params[:id])
+      @objects = ('DataCycleCore::' + object_type.singularize.classify).constantize.where(id: params[:id]).includes(:translations)
+
       respond_to(:js)
     end
 
@@ -55,11 +56,40 @@ module DataCycleCore
       render json: valid.to_json
     end
 
+    def load_more_linked_objects
+      @object = ('DataCycleCore::' + controller_name.singularize.classify).constantize.find(linked_object_params[:id])
+      authorize! :show, @object
+
+      @page = linked_object_params.fetch(:page, 1)
+
+      if linked_object_params[:load_more_type] == 'all'
+        @linked_objects = @object.try(linked_object_params[:key])&.where&.not(id: linked_object_params[:load_more_except])&.includes(:translations)
+      else
+        @linked_objects = @object.try(linked_object_params[:key])&.includes(:translations)&.page(@page)&.per(DataCycleCore.linked_objects_page_size)
+      end
+
+      respond_to do |format|
+        format.js do
+          if linked_object_params[:load_more_action] == 'object_browser'
+            render :load_more_linked_objects_object_browser
+          elsif linked_object_params[:load_more_action] == 'embedded_object'
+            render :load_more_linked_objects_embedded_object
+          else
+            render :load_more_linked_objects_show
+          end
+        end
+      end
+    end
+
     private
 
     def set_watch_list
       watch_list = DataCycleCore::WatchList.find(params[:watch_list_id]) if params[:watch_list_id]
       @watch_list = watch_list if can?(:manage, watch_list)
+    end
+
+    def linked_object_params
+      params.permit(:id, :key, :page, :load_more_action, :load_more_type, load_more_except: [])
     end
 
     def life_cycle_params

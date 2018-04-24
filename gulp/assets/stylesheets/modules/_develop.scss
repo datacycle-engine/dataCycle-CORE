@@ -1052,7 +1052,32 @@ select:-moz-focusring {
         i::before {
           content: '\f077';
         }
-      } // display: none;
+      }
+    }
+  }
+}
+
+.clear-both {
+  clear: both;
+}
+
+.object-browser>.media-thumbs>.buttons,
+.embedded-object>.buttons {
+  .fa {
+    font-size: 0.9rem;
+  }
+}
+
+.buttons>.load-more-linked-contents,
+.buttons>.button {
+  margin: 0;
+}
+
+.load-more-linked-contents {
+  display: inline-block;
+  &.small {
+    .fa {
+      font-size: 0.8rem;
     }
   }
 }

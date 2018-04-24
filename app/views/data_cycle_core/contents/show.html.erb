@@ -21,6 +21,6 @@
     <%= render 'new_content_links' if can?(:create, DataCycleCore::CreativeWork) %>
   <% end %>
 <% else %>
-  <%= render_content_partial 'details', content: @content, schema: @dataSchema %>
+  <%= render_content_partial 'details', content: @content %>
 <% end %>
 

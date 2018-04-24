@@ -43,7 +43,7 @@ module DataCycleCore
 
     def find
       authorize! :show, :object_browser
-      if !params[:class].blank? && !params[:ids].blank?
+      if params[:class].present? && params[:ids].present?
 
         I18n.with_locale(params[:language] || I18n.locale) do
           # TODO: FIXME if breaks

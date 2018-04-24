@@ -1,0 +1,27 @@
+var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(params[:complete_key]) %>');
+
+<% content_for :rendered_items, flush: true do %>
+  <% I18n.with_locale(params[:language] || I18n.locale) do %>
+    <% @linked_objects.each do |content| %>
+      <%= render_object_browser_partial(key: params[:complete_key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: { object: content, options: params[:options], objects: params[:objects], editable: params[:editable] }) %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% content_for :buttons, flush: true do %>
+  <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path([:load_more_linked_objects, @object], key: params[:key], complete_key: params[:complete_key], definition: params[:definition], options: params[:options], page: params.fetch(:page, 1).to_i + 1, load_more_action: :object_browser, editable: params[:editable]), remote: true, id: "load_more_#{@object&.id}_#{sanitize_to_id(params[:complete_key])}", class: 'load-more-linked-contents button', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.load_more', locale: DataCycleCore.ui_language)}..." } if @linked_objects.try(:total_pages)&.positive? && !@linked_objects&.last_page? %>
+<% end %>
+
+var html_content = '<%= j yield :rendered_items %>';
+
+$(html_content).insertBefore($('#<%= sanitize_to_id(params[:complete_key]) %> .object-thumbs > input:hidden').first()).foundation();
+$('#<%= sanitize_to_id(params[:complete_key]) %> > .media-thumbs > .buttons').prepend('<%= j yield :buttons %>');
+
+<%== @linked_objects.ids %>.forEach(element => {
+  html_content = html_content.replace('id="media_reveal_' + element + '"', 'id="overlay_media_reveal_' + element + '"');
+});
+
+$(html_content).appendTo('#object_browser_<%= sanitize_to_id(params[:complete_key]) %> .chosen-items-container');
+
+$($.map(<%== @linked_objects.ids %>, id => $('#<%= sanitize_to_id(params[:complete_key]) %> .object-thumbs > input:hidden[value="' + id + '"]'))).each((index, elem) => $(elem).remove());
+load_more_button.remove();

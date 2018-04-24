@@ -199,7 +199,7 @@ module DataCycleCore
       property_definitions.select { |_, v| v['type'] == 'geographic' }
     end
 
-    private
+    # private
 
     def get_property_value(property_name, property_definition, timestamp = Time.zone.now, object = true)
       # linked data via embeddedLink/embeddedLinkArray
@@ -287,11 +287,14 @@ module DataCycleCore
       relation_table = is_history? ? :content_content_histories : :content_contents
       join_table = selector ? :content_content_a_history : :content_content_b_history if is_history?
       join_table = selector ? :content_content_a : :content_content_b unless is_history?
+      order_string = selector ? 'content_contents.order_b ASC' : 'content_contents.order_a ASC'
+      order_string = selector ? 'content_content_histories.order_b ASC' : 'content_content_histories.order_a ASC' if is_history?
+
       query = target_class.constantize.joins(join_table)
       where_hash.each do |key, value|
         query = query.where(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["#{relation_table}.#{key} = ?", value]))
       end
-      query
+      query.order(order_string)
     end
 
     def load_included_data(property_name, property_definition)

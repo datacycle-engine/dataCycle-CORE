@@ -16,14 +16,15 @@ module.exports.initialize = function () {
   // check if data changed and confirm leaving the page
 
   if ($('.edit-content-form').length > 0) {
-    var form_data = "";
-    setTimeout(function () {
-      form_data = $('.edit-content-form').serialize();
-    }, 1000);
+    var form_data = $('.edit-content-form').serializeArray();
+    // setTimeout(function () {
+    //   form_data = $('.edit-content-form').serializeArray();
+    // }, 1000);
 
     $(window).on("beforeunload", function () {
-      var new_form_data = $('.edit-content-form').serialize();
-      if (form_data != new_form_data && form_data != "") return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
+      var new_form_data = $('.edit-content-form').serializeArray();
+
+      if (!form_data.equal_to(new_form_data)) return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
     });
   }
 

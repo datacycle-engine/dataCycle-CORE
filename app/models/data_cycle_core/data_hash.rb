@@ -89,14 +89,18 @@ module DataCycleCore
 
         # cc embedded data from other content tables
         embedded_relations.each do |content_name|
-          send(content_name[:name]).each do |content_item|
+          content_relation = send(content_name[:name])
+          content_relation.each_with_index do |content_item, index|
             new_content_history = content_item.to_history(save_time: save_time)
-            content_one_data = [new_content_history.id, new_content_history.class.to_s, '']
-            content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name[:name]]
+            content_one_data = [new_content_history.id, new_content_history.class.to_s, '', nil]
+            content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name[:name], index]
             content_relation_history_data = ['a', 'b'].map { |selector|
-              ["content_#{selector}_history_id".to_sym,
-               "content_#{selector}_history_type".to_sym,
-               "relation_#{selector}".to_sym]
+              [
+                "content_#{selector}_history_id".to_sym,
+                "content_#{selector}_history_type".to_sym,
+                "relation_#{selector}".to_sym,
+                "order_#{selector}".to_sym
+              ]
             }.flatten
               .zip(content_name[:table] < origin_table ? content_one_data + content_two_data : content_two_data + content_one_data).to_h
             content_relation_history_data['history_valid'] = (content_item.updated_at...save_time)
@@ -105,13 +109,17 @@ module DataCycleCore
         end
 
         linked_relations.each do |content_name|
-          send(content_name[:name]).each do |content_item|
-            content_one_data = [content_item.id, content_item.class.to_s, '']
-            content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name[:name]]
+          content_relation = send(content_name[:name])
+          content_relation.each_with_index do |content_item, index|
+            content_one_data = [content_item.id, content_item.class.to_s, '', nil]
+            content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name[:name], index]
             content_relation_history_data = ['a', 'b'].map { |selector|
-              ["content_#{selector}_history_id".to_sym,
-               "content_#{selector}_history_type".to_sym,
-               "relation_#{selector}".to_sym]
+              [
+                "content_#{selector}_history_id".to_sym,
+                "content_#{selector}_history_type".to_sym,
+                "relation_#{selector}".to_sym,
+                "order_#{selector}".to_sym
+              ]
             }.flatten
               .zip(content_name[:table] < origin_table ? content_one_data + content_two_data : content_two_data + content_one_data).to_h
             content_relation_history_data['history_valid'] = (content_item.updated_at...save_time)
@@ -402,8 +410,10 @@ module DataCycleCore
     end
 
     def storage_cases_set(key, value, properties, save_time, current_user)
-      if properties['type'] == 'embeddedLinkArray' || properties['type'] == 'embeddedLink'
-        set_linked_data_type(key, value, properties['type_name'], key, false, save_time, current_user)
+      if properties['type'] == 'embeddedLinkArray'
+        set_linked_data_type(key, value, properties['type_name'], nil, false, save_time, current_user)
+      elsif properties['type'] == 'embeddedLink'
+        set_single_link(key, value, properties['type_name'], save_time, current_user)
       else
         case properties['storage_location']
         when 'column'
@@ -463,51 +473,86 @@ module DataCycleCore
       data_hash
     end
 
-    def set_linked_data_type(field_name, data, table, name, delete, save_time, current_user)
+    ######################### for single embeddedLink ##########################
+    def set_single_link(field_name, input_data, table, save_time, current_user)
+      relation = send(field_name.to_sym)
+      raise if relation.count > 1
+      if relation.count.zero?
+        if input_data.present? # insert
+          DataCycleCore::ContentContent.create(get_relation_data_hash_order(field_name, table, input_data, 0))
+        end
+      elsif input_data.blank? # delete
+        DataCycleCore::ContentContent.find_by(get_embeddedlink_hash(field_name, table)).destroy
+      else # update
+        temp = DataCycleCore::ContentContent.find_by(get_embeddedlink_hash(field_name, table))
+        selector = table <= self.class.table_name ? 'a' : 'b'
+        temp.send("content_#{selector}_id=".to_sym, input_data)
+        temp.send("content_#{selector}_type=".to_sym, "DataCycleCore::#{table.classify}")
+        temp.send("relation_#{selector}=".to_sym, '')
+        temp.send("order_#{selector}=".to_sym, nil)
+        temp.save
+      end
+    end
+
+    def get_embeddedlink_hash(field_name, table)
+      if table < self.class.table_name
+        {
+          content_b_id: id,
+          content_b_type: self.class.to_s,
+          relation_b: field_name
+        }
+      else
+        {
+          content_a_id: id,
+          content_a_type: self.class.to_s,
+          relation_a: field_name
+        }
+      end
+    end
+    ############################################################################
+
+    def set_linked_data_type(field_name, input_data, table, name, delete, save_time, current_user)
       updated_item_keys = []
 
-      # for embeddedLink and embeddedLinkArray transform data
+      selector = table < self.class.table_name
+      data = input_data.dup
+      # for embeddedLinkArray transform data
       if data.is_a?(::Array) && !data.blank? && data.first.is_a?(::String)
         data.map! { |item| { 'id' => item } }
-      elsif data.is_a?(::String) && !data.blank?
-        data = [{ 'id' => data }]
       end
 
       unless is_blank?(data)
-        # update/insert linked_data
-        data.each do |item|
-          if item.key?('id') && !item['id'].blank? && item.keys.count == 1
-            # puts "id is the only item --> no update"
-            updated_item_keys.push(item['id'])
+        old_relations = get_relation(field_name, table)
+        data.each_index do |index|
+          item = data[index]
+          if item.key?('id') && item['id'].present?
             # relation update/insert
             upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
               get_relation_data_hash(field_name, table, item['id'])
             )
+            upsert_relation.send(selector ? 'order_b='.to_sym : 'order_a='.to_sym, index)
             upsert_relation.save
-          elsif item.key?('id') && !item['id'].blank?
-            # puts "update"
-            update_item = ('DataCycleCore::' + table.classify).constantize.find_by(id: item['id'])
-            update_item.set_data_hash(data_hash: item, current_user: current_user, save_time: save_time, prevent_history: true)
-            update_item.save
-            updated_item_keys.push(update_item.id)
-          else
-            # puts "insert"
-
-            # get validation template
+            if item.keys.count > 1 # update actual data
+              update_item = ('DataCycleCore::' + table.classify).constantize.find_by(id: item['id'])
+              update_item.set_data_hash(data_hash: item, current_user: current_user, save_time: save_time, prevent_history: true)
+              update_item.save
+            end
+            updated_item_keys.push(item['id']) # remember updated id
+          else # insert new data
             template = ('DataCycleCore::' + table.classify).constantize
               .find_by(template: true, template_name: name)
-
             insert_item = ('DataCycleCore::' + table.classify).constantize.new
             insert_item.schema = template.schema
             insert_item.template_name = template.template_name
             insert_item.save
             insert_item.set_data_hash(data_hash: item.merge({ 'is_part_of' => id }), current_user: current_user, save_time: save_time, prevent_history: true)
             insert_item.save
-            updated_item_keys.push(insert_item.id)
+            updated_item_keys.push(insert_item.id) # remember inserted id
 
             # insert_relation
+            order_hash = selector ? { order_a: nil, order_b: index } : { order_a: index, order_b: nil }
             DataCycleCore::ContentContent.create!(
-              get_relation_data_hash(field_name, table, insert_item.id)
+              get_relation_data_hash(field_name, table, insert_item.id).merge(order_hash)
             )
           end
         end
@@ -540,7 +585,24 @@ module DataCycleCore
             .destroy
         end
       end
-      method(table).call.reload # MO: force reload of the relation, otherwise cached data can obsure the next get_data_hash
+      method(table).call.reload # MO: force reload of the relation, otherwise cached data can obscure the next get_data_hash
+    end
+
+    def get_relation(field_name, table)
+      if table < self.class.table_name
+        content_content_b.where(relation_b: field_name)
+      else
+        content_content_a.where(relation_a: field_name)
+      end
+    end
+
+    def get_relation_data_hash_order(field_name, table, item_id, order)
+      item_data = [item_id, "DataCycleCore::#{table.classify}", '', nil]
+      self_data = [id, self.class.to_s, field_name, order]
+      ['a', 'b'].map { |selector|
+        ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym, "order_#{selector}".to_sym]
+      }.flatten
+        .zip(table < self.class.table_name ? item_data + self_data : self_data + item_data).to_h
     end
 
     def get_relation_data_hash(field_name, table, item_id)

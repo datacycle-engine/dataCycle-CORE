@@ -1,9 +1,12 @@
-<% I18n.with_locale(params[:language] || I18n.locale) do %>
-  <% content_for :rendered_items do %>
+<% content_for :rendered_items, flush: true do %>
+  <% I18n.with_locale(params[:language] || I18n.locale) do %>
     <% @objects.each do |content| %>
-      <%= render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: { object: content, options: params[:options], objects: params[:objects], editable: params[:editable] }) unless params[:objects].include?(content.id) %>
+      <%= render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: { object: content, options: params[:options], objects: params[:objects], editable: params[:editable] }) %>
     <% end %>
   <% end %>
-
-  $('<%= params[:object_browser_id] %>').find('.object-thumbs').append('<%= j yield :rendered_items %>');
 <% end %>
+
+var html_content = '<%= j yield :rendered_items %>';
+
+$('#<%= sanitize_to_id(params[:key]) %> .object-thumbs').append(html_content);
+$('#object_browser_<%= sanitize_to_id(params[:key]) %> .chosen-items-container').append(html_content);

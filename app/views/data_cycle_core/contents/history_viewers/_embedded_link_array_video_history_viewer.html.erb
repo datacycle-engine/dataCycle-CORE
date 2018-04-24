@@ -5,7 +5,9 @@
            value: (value.is_a?(Hash) ? value['value'] : value),
            options: options,
            data_attributes: {id: (value.is_a?(Hash) ? value['value'] : value) } do |item_diff| %>
-
+<%
+=begin
+%>
     <% if definition['releasable'] && value.is_a?(Hash) %>
         <div class="release-status">
             <span class="status-information"><%= DataCycleCore::Release.find(value['release_id']).release_text %></span>
@@ -22,48 +24,47 @@
         </div>
         <% value = value['value'] unless value.blank? %>
     <% end %>
-
+<%
+=end
+%>
     <% added_objects, removed_objects = getRelationObjectChanges item_diff %>
+
     <ul class="content-tiles">
-        <% unless value.nil? %>
-            <% object.find(value).each do |item| %>
-                <li class="<%= [
-                                   'content',
-                                   item.class.name.demodulize.underscore.sub('_', '-'),
-                                   item.template_name.underscore.sub('_', '-'),
-                                    removed_objects.include?(item.id) ? 'has-changed removed' : ''
-                               ].join(' ') %>">
-                    <%= render_first_existing_partial [
-                                                          "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_#{item.template_name.underscore}_tile",
-                                                          "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_tile",
-                                                          'data_cycle_core/contents/viewers/linked/content_tile'
-                                                      ], {
-                                                          content: item
-                                                      } %>
-                </li>
-            <% end %>
+        <% value.presence&.each do |item| %>
+            <li class="<%= [
+                                'content',
+                                item.class.name.demodulize.underscore.sub('_', '-'),
+                                item.template_name.underscore.sub('_', '-'),
+                                removed_objects.include?(item.id) ? 'has-changed removed' : ''
+                            ].join(' ') %>">
+
+                <%= render_first_existing_partial [
+                                                      "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_#{item.template_name.underscore}_tile",
+                                                      "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_tile",
+                                                      'data_cycle_core/contents/viewers/linked/content_tile'
+                                                  ], {
+                                                      content: item
+                                                  } %>
+            </li>
         <% end %>
 
-        <% unless added_objects.blank? %>
-            <% object.find(added_objects).each do |item| %>
-                <li class="<%= [
-                                   'content',
-                                   item.class.name.demodulize.underscore.sub('_', '-'),
-                                   item.template_name.underscore.sub('_', '-'),
-                                   'has-changed added'
-                               ].join(' ') %>">
+        <% object.find(added_objects).presence&.each do |item| %>
+            <li class="<%= [
+                                'content',
+                                item.class.name.demodulize.underscore.sub('_', '-'),
+                                item.template_name.underscore.sub('_', '-'),
+                                'has-changed added'
+                            ].join(' ') %>">
 
-                    <%= render_first_existing_partial [
-                                                          "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_#{item.template_name.underscore}_tile",
-                                                          "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_tile",
-                                                          'data_cycle_core/contents/viewers/linked/content_tile'
-                                                      ], {
-                                                          content: item
-                                                      } %>
-                </li>
-            <% end %>
+                <%= render_first_existing_partial [
+                                                      "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_#{item.template_name.underscore}_tile",
+                                                      "data_cycle_core/contents/viewers/linked/#{item.class.name.demodulize.underscore}_tile",
+                                                      'data_cycle_core/contents/viewers/linked/content_tile'
+                                                  ], {
+                                                      content: item
+                                                  } %>
+            </li>
         <% end %>
-
     </ul>
 
 <% end %>

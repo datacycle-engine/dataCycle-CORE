@@ -3,7 +3,7 @@ module DataCycleCore
     include DataCycleCore::Filter
 
     before_action :authenticate_user! # from devise (authenticate)
-    load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
+    load_and_authorize_resource except: [:validate_single_data, :compare, :load_more_linked_objects] # from cancancan (authorize)
     after_action :check_final, :set_publication_attributes, only: :update
 
     def show
@@ -21,8 +21,8 @@ module DataCycleCore
           @entities = @entities.where.not(template_name: @content.schema&.dig('features', 'container', 'excluded')) if @content.schema&.dig('features', 'container', 'excluded')
         end
 
-        @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if DataCycleCore::Feature::Releasable.present?(@content) && !@content.release_id.nil?
-        @dataSchema = @content.get_data_hash
+        @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if @content.schema['releasable'] && !@content.release_id.nil?
+        # @dataSchema = @content.get_data_hash
 
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: 'creative_works', id: params[:id]) }
@@ -134,7 +134,7 @@ module DataCycleCore
         @place = DataCycleCore::Place.new
         @person = DataCycleCore::Person.new
         @organization = DataCycleCore::Organization.new
-        @dataSchema = @content.get_data_hash
+        # @dataSchema = @content.get_data_hash
         render 'edit'
       end
     end
