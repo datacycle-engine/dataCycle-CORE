@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.6
--- Dumped by pg_dump version 9.6.6
+-- Dumped from database version 9.6.1
+-- Dumped by pg_dump version 9.6.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -84,67 +84,6 @@ CREATE TABLE classification_aliases (
 
 
 --
--- Name: classification_tree_labels; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE classification_tree_labels (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    name character varying,
-    external_source_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    internal boolean DEFAULT false,
-    deleted_at timestamp without time zone
-);
-
-
---
--- Name: classification_trees; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE classification_trees (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    external_source_id uuid,
-    parent_classification_alias_id uuid,
-    classification_alias_id uuid,
-    relationship_label character varying,
-    classification_tree_label_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    deleted_at timestamp without time zone
-);
-
-
---
--- Name: classification_alias_paths; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW classification_alias_paths AS
- WITH RECURSIVE classification_alias_paths(id, ancestor_names, ancestor_ids) AS (
-         SELECT classification_aliases.id,
-            ARRAY[classification_tree_labels.name, classification_aliases.name] AS ancestor_names,
-            ARRAY[]::uuid[] AS ancestor_ids
-           FROM ((classification_trees
-             JOIN classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
-             JOIN classification_tree_labels ON ((classification_tree_labels.id = classification_trees.classification_tree_label_id)))
-          WHERE (classification_trees.parent_classification_alias_id IS NULL)
-        UNION ALL
-         SELECT classification_aliases.id,
-            (classification_alias_paths_1.ancestor_names || classification_aliases.name) AS ancestor_names,
-            (classification_alias_paths_1.ancestor_ids || classification_alias_paths_1.id) AS ancestor_ids
-           FROM ((classification_trees
-             JOIN classification_alias_paths classification_alias_paths_1 ON ((classification_alias_paths_1.id = classification_trees.parent_classification_alias_id)))
-             JOIN classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
-        )
- SELECT classification_alias_paths.id,
-    classification_alias_paths.ancestor_names,
-    classification_alias_paths.ancestor_ids
-   FROM classification_alias_paths;
-
-
---
 -- Name: classification_content_histories; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -199,6 +138,40 @@ CREATE TABLE classification_groups (
 
 
 --
+-- Name: classification_tree_labels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE classification_tree_labels (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    name character varying,
+    external_source_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    internal boolean DEFAULT false,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: classification_trees; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE classification_trees (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    external_source_id uuid,
+    parent_classification_alias_id uuid,
+    classification_alias_id uuid,
+    relationship_label character varying,
+    classification_tree_label_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
 -- Name: classifications; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -231,10 +204,11 @@ CREATE TABLE content_content_histories (
     content_b_history_id uuid,
     content_b_history_type character varying,
     relation_b character varying,
-    external_source_id uuid,
     history_valid tstzrange,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    order_a integer,
+    order_b integer
 );
 
 
@@ -250,9 +224,10 @@ CREATE TABLE content_contents (
     content_b_id uuid,
     content_b_type character varying,
     relation_b character varying,
-    external_source_id uuid,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    order_a integer,
+    order_b integer
 );
 
 
@@ -2445,6 +2420,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180329064133'),
 ('20180330063016'),
 ('20180410220414'),
-('20180421162723');
+('20180417130441');
 
 

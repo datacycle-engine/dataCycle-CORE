@@ -20,7 +20,7 @@ DataCycleCore.setup do |config|
     # Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
     # Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive')
     # Rails.root.join('..', '..', 'config', 'data_definitions', 'container')
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'test')
+    Rails.root.join('..', '..', 'config', 'data_definitions', 'test_refactored')
   ].freeze
 
   config.external_sources_path = Rails.root.join('config', 'external_sources').freeze

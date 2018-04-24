@@ -121,13 +121,7 @@ module DataCycleCore
         if hash[:type] == 'object' && hash.key?(:properties).present?
           hash[:properties] = transform_properties(property_hash: hash[:properties])
         end
-        return apply_sorting(hash, sorting), sorting + 1
-      end
-
-      def self.apply_sorting(hash, sorting)
-        # ignore sorting, if no editor is set
-        hash[:editor][:sorting] = sorting if hash.key?(:editor)
-        hash
+        return hash, sorting + 1
       end
 
       def self.validate(template)
@@ -146,7 +140,6 @@ module DataCycleCore
           result_property = validate_property.call(property_definition)
           error = result_property.errors(full: true)
           error.merge!(validate_properties(property_definition)) if property_definition.key?(:properties)
-          # ap property_definition if !result_property.success?
           errors[property_name] = error unless error.blank?
         end
         errors
@@ -159,6 +152,7 @@ module DataCycleCore
             required(:type) { str? & eql?('object') }
             optional(:content_type) { str? & included_in?(['variant', 'embedded', 'entity', 'container']) }
             optional(:boost) { float? }
+            optional(:features)
             required(:properties)
           end
         end
@@ -182,15 +176,13 @@ module DataCycleCore
               super.merge(
                 en: {
                   errors: {
-                    key_attribute: 'keys are UUIDs in DataCycleCore, therefore :type and :storage_type must be defined as strings',
-                    embeddedLinkArray: 'type_name must be a table_name (plural), storage_type = array, storage_location = jsonb field(metadata, content)',
-                    embeddedLink: 'type_name must be a table_name (plural), storage_location = jsonb field(metadata, content)',
-                    classification_relation: "type must be 'classificationTreeLabel' and type_name must be a name of a ClassificationTreeLabel record: #{DataCycleCore::ClassificationTreeLabel.pluck(:name)}",
-                    embedded_object: 'type must be object, storage_location must be a content_table_name',
-                    included_object: 'storage_location must be a jsonb field, type must be object and must have properties',
+                    included_object: "type must be 'object' and must have properties defined. storage_location must be a jsonb field (content for translated fields, metadata for not translatable data).",
+                    embedded_object: "type must be 'embedded'. either define a stored_filter, or a linked_table (plural) in combination with a template_name",
+                    linked_object:   "type must be 'linked'. either define a stored_filter, or a linked_table (plural) in combination with a template_name",
+                    asset_relation:  "type must be 'asset' and asset_type must be one of: 'image', 'video', 'file'",
+                    classification_relation: "type must be 'classification' and classification_tree one of: #{DataCycleCore::ClassificationTreeLabel.pluck(:name)}",
                     valid_classification?: 'specified default_value could not be found in classification_aliases',
-                    instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.',
-                    asset_relation: "type must be 'asset' and type_name must be a name of a AssetType"
+                    instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.'
                   }
                 }
               )
@@ -202,105 +194,80 @@ module DataCycleCore
             str? &
               included_in?(
                 [
+                  'key',
                   'string',
                   'text',
                   'number',
+                  'date_time',
                   'geographic',
                   'object',
-                  'embeddedLinkArray',
-                  'embeddedLink',
-                  'classificationTreeLabel',
+                  'embedded',
+                  'linked',
+                  'classification',
                   'asset',
                   'mixin'
                 ]
               )
           end
-          required(:storage_location) do
+          optional(:storage_location) do
             str? &
               included_in?(
                 [
-                  'key',
                   'column',
                   'metadata',
-                  'content',
-                  'properties',
-                  'classification_relation',
-                  'asset_relation',
-                  'mixin'
+                  'content'
                 ] + DataCycleCore.content_tables
               )
           end
-          # TODO: add type_name validation after polymorphic relation tables
-          # optional(:type_name) {
-          #   str? &
-          #   included_in?(
-          #     DataCycleCore.content_tables+['users','Rechte']+
-          #     DataCycleCore::ClassificationTreeLabel.pluck(:name)
-          #   )
-          # }
-          optional(:storage_type) do
+          optional(:search) { bool? }
+          optional(:validations) { hash? }
+          optional(:properties) { hash? }
+          optional(:UI) { hash? }
+          optional(:delete) { bool? }
+          optional(:default_value) { str? & valid_classification? }
+          optional(:asset_type) do
             str? &
               included_in?(
                 [
-                  'string',
-                  'text',
-                  'number',
-                  'geographic',
-                  'array'
+                  'image',
+                  'video',
+                  'file'
                 ]
               )
           end
-          optional(:name) { str? }
-          optional(:delete) { bool? }
-          optional(:search) { bool? }
-          optional(:editor) { hash? }
-          optional(:validations) { hash? }
-          optional(:properties) { hash? }
-          optional(:default_value) { str? & valid_classification? }
+          optional(:stored_filter) { str? }
 
-          rule(key_attribute: [:storage_location, :type, :storage_type]) do |storage_location, type, storage_type|
-            storage_location.eql?('key') > (storage_type.eql?('string') & type.eql?('string'))
-          end
-
-          rule(embeddedLinkArray: [:type, :type_name, :storage_type, :storage_location]) do |type, type_name, storage_type, storage_location|
-            type.eql?('embeddedLinkArray') > (
-            type_name.instantiable? &
-              storage_type.eql?('array') &
-              storage_location.included_in?(['metadata', 'content', 'properties'])
-            )
-          end
-
-          rule(embeddedLink: [:type, :type_name, :storage_type, :storage_location]) do |type, type_name, _storage_type, storage_location|
-            type.eql?('embeddedLink') > (
-            type_name.instantiable? &
-              storage_location.included_in?(['metadata', 'content', 'properties'])
-            )
-          end
-
-          rule(classification_relation: [:storage_location, :type, :type_name, :default_value]) do |storage_location, type, type_name, _default_value|
-            (storage_location.eql?('classification_relation') > (
-            type.eql?('classificationTreeLabel') &
-              type_name.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte'])
-            )) & (type.eql?('classificationTreeLabel') > (
-            storage_location.eql?('classification_relation') &
-              type_name.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte'])
-            ))
-          end
-
-          rule(embedded_object: [:storage_location, :type, :name]) do |storage_location, type, name|
-            (storage_location.included_in?(DataCycleCore.content_tables) > (
-            type.eql?('object') & name.filled?)
-            ) & (
-              (type.eql?('object') & name.filled?) >
-              storage_location.included_in?(DataCycleCore.content_tables)
-            )
-          end
-
-          rule(included_object: [:storage_location, :type, :properties]) do |storage_location, type, properties|
+          rule(included_object: [:type, :storage_location, :properties]) do |type, storage_location, properties|
             properties.filled? > (
             type.eql?('object') &
-              storage_location.included_in?(['metadata', 'content', 'properties'])
+              storage_location.included_in?(['metadata', 'content'])
             )
+          end
+
+          rule(embedded_object: [:type, :linked_table, :template_name, :stored_filter]) do |type, linked_table, template_name, stored_filter|
+            (type.eql?('embedded') >
+              (linked_table.filled? & template_name.filled?)
+            ) |
+              (type.eql?('embedded') >
+              stored_filter.filled?)
+          end
+
+          rule(linked_object: [:type, :linked_table, :template_name, :stored_filter]) do |type, linked_table, template_name, stored_filter|
+            (type.eql?('linked') >
+              (linked_table.filled? & template_name.filled?)
+            ) |
+              (type.eql?('linked') >
+              stored_filter.filled?)
+          end
+
+          rule(classification_relation: [:type, :classification_tree]) do |type, classification_tree|
+            type.eql?('classification') >
+              classification_tree.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte'])
+          end
+
+          rule(asset_relation: [:type, :asset_type]) do |type, asset_type|
+            type.eql?('asset') >
+              asset_type.filled?
           end
         end
       end

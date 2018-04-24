@@ -105,7 +105,7 @@
       :asset:
         :label: File-Asset
         :type: asset
-        :asset_type: asset
+        :asset_type: file
       :data_type:
         :label: Inhaltstype
         :type: classification
