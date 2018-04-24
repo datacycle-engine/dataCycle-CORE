@@ -39,6 +39,5 @@ module DataCycleCore
         options: JSON.parse(params['asset']['options'])
       }
     end
-
   end
 end
