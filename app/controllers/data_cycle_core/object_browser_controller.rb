@@ -17,9 +17,9 @@ module DataCycleCore
 
         query = DataCycleCore::Filter::ObjectBrowserQueryBuilder.new(@language, @type).in_validity_period
         query = query.fulltext_search(params[:search]) unless params[:search].blank?
-        query = query.with_classification_alias_ids(get_classification_aliases_for_type(@type).map(&:id)) unless get_classification_aliases_for_type(@type).blank?
+        query = query.classification_alias_ids(get_classification_aliases_for_type(@type).map(&:id)) unless get_classification_aliases_for_type(@type).blank?
 
-        query = query.with_classification_alias_ids([helpers.life_cycle_items&.dig(DataCycleCore.features&.dig(:life_cycle, :default_filter), :alias)&.id]) if DataCycleCore.features&.dig(:life_cycle, :default_filter).present? && params.dig(:definition, 'type_name') == 'creative_works'
+        query = query.classification_alias_ids([helpers.life_cycle_items&.dig(DataCycleCore.features&.dig(:life_cycle, :default_filter), :alias)&.id]) if DataCycleCore.features&.dig(:life_cycle, :default_filter).present? && params.dig(:definition, 'type_name') == 'creative_works'
 
         query = query.order(order_string)
 

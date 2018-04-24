@@ -31,7 +31,7 @@ module DataCycleCore
         )
       end
 
-      def by_watch_list_id(id = nil)
+      def watch_list_id(id = nil)
         manager = get_watch_list_items(id)
 
         reflect(
@@ -47,7 +47,7 @@ module DataCycleCore
         )
       end
 
-      def with_relation(name = nil)
+      def relation(name = nil)
         manager = find_relation(name)
 
         reflect(
@@ -77,7 +77,7 @@ module DataCycleCore
         reflect(@query.where(id: query))
       end
 
-      def with_classification_alias_ids(ids = nil)
+      def classification_alias_ids(ids = nil)
         return self if ids.blank?
 
         manager = create_classification_alias_recursion(ids)

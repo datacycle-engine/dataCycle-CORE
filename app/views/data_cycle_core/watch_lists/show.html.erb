@@ -52,7 +52,6 @@
 <div class="detail-content watchlist">
 
     <div class="row">
-
         <%= render 'filter', filter: { classification_trees: ['Inhaltstypen'], search: true, language: true, collapse: true } %>
 
         <%= render 'results', contents: @contents unless @contents.nil? %>

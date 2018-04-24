@@ -98,6 +98,7 @@ de:
     look_at_version: Version ansehen
 
   filter:
+    add: Filter hinzufügen
     language: Sprache
 
   terms:
@@ -273,6 +274,9 @@ de:
       data_cycle_core/content:
         one: Inhalt
         other: Inhalte
+      data_cycle_core/external_source:
+        one: Externe Quelle
+        other: Externe Quellen
     attributes:
       data_cycle_core/classification_alias:
         assignable: Zuweisbar

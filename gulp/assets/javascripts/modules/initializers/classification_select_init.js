@@ -6,7 +6,7 @@ var select2_helpers = require('./../helpers/select2_helpers');
 
 module.exports.initialize = function () {
 
-  $(document).on('clone-added', '.content-object-item, .custom-filter', function () {
+  $(document).on('clone-added', '.content-object-item, .advanced-filter', function () {
     init(this);
   });
 
@@ -40,7 +40,10 @@ module.exports.initialize = function () {
           return result;
         },
         templateSelection: function (data) {
-          return data.name || data.text;
+          data.selected = true;
+          data.text = data.name || data.text;
+          $(data.element).text(data.text);
+          return data.text;
         },
         ajax: {
           url: '/classifications/search',

@@ -13,7 +13,14 @@ module DataCycleCore
 
       redirect_to root if @watch_list.nil?
 
-      @contents = get_filtered_results(method_name: 'by_watch_list_id', parameters: @watch_list.id)
+      @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
+      @filters.push(
+        {
+          t: 'watch_list_id',
+          v: @watch_list.id
+        }
+      )
+      @contents = get_filtered_results
 
       respond_to do |format|
         format.html
