@@ -84,6 +84,67 @@ CREATE TABLE classification_aliases (
 
 
 --
+-- Name: classification_tree_labels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE classification_tree_labels (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    name character varying,
+    external_source_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    internal boolean DEFAULT false,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: classification_trees; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE classification_trees (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    external_source_id uuid,
+    parent_classification_alias_id uuid,
+    classification_alias_id uuid,
+    relationship_label character varying,
+    classification_tree_label_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: classification_alias_paths; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW classification_alias_paths AS
+ WITH RECURSIVE classification_alias_paths(id, ancestor_names, ancestor_ids) AS (
+         SELECT classification_aliases.id,
+            ARRAY[classification_tree_labels.name, classification_aliases.name] AS ancestor_names,
+            ARRAY[]::uuid[] AS ancestor_ids
+           FROM ((classification_trees
+             JOIN classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
+             JOIN classification_tree_labels ON ((classification_tree_labels.id = classification_trees.classification_tree_label_id)))
+          WHERE (classification_trees.parent_classification_alias_id IS NULL)
+        UNION ALL
+         SELECT classification_aliases.id,
+            (classification_alias_paths_1.ancestor_names || classification_aliases.name) AS ancestor_names,
+            (classification_alias_paths_1.ancestor_ids || classification_alias_paths_1.id) AS ancestor_ids
+           FROM ((classification_trees
+             JOIN classification_alias_paths classification_alias_paths_1 ON ((classification_alias_paths_1.id = classification_trees.parent_classification_alias_id)))
+             JOIN classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
+        )
+ SELECT classification_alias_paths.id,
+    classification_alias_paths.ancestor_names,
+    classification_alias_paths.ancestor_ids
+   FROM classification_alias_paths;
+
+
+--
 -- Name: classification_content_histories; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -130,40 +191,6 @@ CREATE TABLE classification_groups (
     classification_id uuid,
     classification_alias_id uuid,
     external_source_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    deleted_at timestamp without time zone
-);
-
-
---
--- Name: classification_tree_labels; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE classification_tree_labels (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    name character varying,
-    external_source_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    internal boolean DEFAULT false,
-    deleted_at timestamp without time zone
-);
-
-
---
--- Name: classification_trees; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE classification_trees (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    external_source_id uuid,
-    parent_classification_alias_id uuid,
-    classification_alias_id uuid,
-    relationship_label character varying,
-    classification_tree_label_id uuid,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
@@ -2417,6 +2444,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180328122539'),
 ('20180329064133'),
 ('20180330063016'),
-('20180410220414');
+('20180410220414'),
+('20180421162723');
 
 
