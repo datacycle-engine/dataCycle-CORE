@@ -45,9 +45,9 @@ module DataCycleCore
         content_ids = []
         @publication_classification_alias_ids.each_with_index do |alias_ids, index|
           if index.zero?
-            content_ids = query2.with_classification_alias_ids(alias_ids['v']&.values).pluck(:id)
+            content_ids = query2.with_classification_alias_ids(alias_ids['v']).pluck(:id)
           else
-            content_ids &= query2.with_classification_alias_ids(alias_ids['v']&.values).pluck(:id)
+            content_ids &= query2.with_classification_alias_ids(alias_ids['v']).pluck(:id)
           end
         end
 
