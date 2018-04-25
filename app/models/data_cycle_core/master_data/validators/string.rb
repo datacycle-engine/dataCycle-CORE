@@ -3,7 +3,7 @@ module DataCycleCore
     module Validators
       class String < BasicValidator
         @@string_keywords = ['minLength', 'maxLength', 'format', 'pattern']
-        @@string_formats = ['date_time', 'date', 'uuid', 'boolean', 'url']
+        @@string_formats = ['uuid', 'boolean', 'url']
 
         def validate(data, template)
           if data.is_a?(::String)
@@ -57,18 +57,6 @@ module DataCycleCore
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
           check_uuid = data.length == 36 && !(data =~ uuid).nil?
           (@error[:error][@template_key] ||= []) << I18n.t(:uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless check_uuid
-        end
-
-        def date_time(data)
-          data.to_datetime
-        rescue StandardError
-          (@error[:error][@template_key] ||= []) << I18n.t(:date_time, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language)
-        end
-
-        def date(data)
-          data.to_date
-        rescue StandardError
-          (@error[:error][@template_key] ||= []) << I18n.t(:date, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language)
         end
 
         def boolean(data)

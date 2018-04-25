@@ -244,19 +244,13 @@ module DataCycleCore
           end
 
           rule(embedded_object: [:type, :linked_table, :template_name, :stored_filter]) do |type, linked_table, template_name, stored_filter|
-            (type.eql?('embedded') >
-              (linked_table.filled? & template_name.filled?)
-            ) |
-              (type.eql?('embedded') >
-              stored_filter.filled?)
+            (type.eql?('embedded') > (linked_table.filled? & template_name.filled?)) |
+              (type.eql?('embedded') > stored_filter.filled?)
           end
 
-          rule(linked_object: [:type, :linked_table, :template_name, :stored_filter]) do |type, linked_table, template_name, stored_filter|
-            (type.eql?('linked') >
-              (linked_table.filled? & template_name.filled?)
-            ) |
-              (type.eql?('linked') >
-              stored_filter.filled?)
+          rule(linked_object: [:type, :linked_table, :stored_filter]) do |type, linked_table, stored_filter|
+            (type.eql?('linked') > linked_table.filled?) |
+              (type.eql?('linked') > stored_filter.filled?)
           end
 
           rule(classification_relation: [:type, :classification_tree]) do |type, classification_tree|
