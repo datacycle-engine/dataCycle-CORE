@@ -16,8 +16,8 @@ module DataCycleCore
       @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
       @filters.push(
         {
-          t: 'watch_list_id',
-          v: @watch_list.id
+          't' => 'watch_list_id',
+          'v' => @watch_list.id
         }
       )
       @contents = get_filtered_results
