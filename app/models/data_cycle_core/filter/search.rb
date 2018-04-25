@@ -31,6 +31,17 @@ module DataCycleCore
         )
       end
 
+      def external_source(ids = nil)
+        return self if ids.blank?
+
+        query = Arel::SelectManager.new
+          .project(content_meta_item[:id])
+          .from(content_meta_item)
+          .where(content_meta_item[:external_source_id].in(ids))
+
+        reflect(@query.where(search[:content_data_id].in(query)))
+      end
+
       def watch_list_id(id = nil)
         manager = get_watch_list_items(id)
 
@@ -183,6 +194,10 @@ module DataCycleCore
 
       def creative_work
         DataCycleCore::CreativeWork.arel_table
+      end
+
+      def content_meta_item
+        DataCycleCore::ContentMetaItem.arel_table
       end
 
       def content_content

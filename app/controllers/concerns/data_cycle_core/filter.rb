@@ -2,7 +2,7 @@ module DataCycleCore
   module Filter
     extend ActiveSupport::Concern
 
-    def get_filtered_results
+    def get_filtered_results(query = nil)
       @filters ||= params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
       @language ||= params.fetch(:language, DataCycleCore.ui_language)
 
@@ -25,11 +25,13 @@ module DataCycleCore
         )
       end
 
-      query = DataCycleCore::Filter::Search.new(@language)
+      query ||= DataCycleCore::Filter::Search.new(@language)
 
       @filters.presence&.each do |filter|
         query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
       end
+
+      @filters += @stored_filters if @stored_filters.present?
 
       @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
       @advanced_filters = @filters.select { |f| f['c'] == 'a' }
@@ -50,7 +52,8 @@ module DataCycleCore
       filter.update(updated_at: Time.zone.now)
 
       @language = filter.language
-      @filters = (filter.parameters || []) + (params[:f].presence&.values&.reject { |f| f['v'].blank? } || [])
+      @stored_filters = filter.parameters || []
+      filter.apply
     end
 
     def save_filter(new_filter: nil)
@@ -72,7 +75,8 @@ module DataCycleCore
       if DataCycleCore.features&.dig(:life_cycle, :tree_label).present? &&
          DataCycleCore.features&.dig(:life_cycle, :default_filter).present? &&
          helpers.life_cycle_items.present? &&
-         @filters.none? { |f| f['n'] == DataCycleCore.features&.dig(:life_cycle, :tree_label) && f['v'].present? }
+         @filters.none? { |f| f['n'] == DataCycleCore.features&.dig(:life_cycle, :tree_label) && f['v'].present? } &&
+         params[:stored_filter].blank?
 
         @filters.push(
           {

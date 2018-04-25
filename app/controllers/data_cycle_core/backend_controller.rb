@@ -16,8 +16,8 @@ module DataCycleCore
         @contents = get_filtered_results
         @stored_filter = save_filter
       else
-        apply_filter(filter_id: params[:stored_filter])
-        @contents = get_filtered_results
+        query = apply_filter(filter_id: params[:stored_filter])
+        @contents = get_filtered_results(query)
       end
       # TODO: remove creativeWork variable
       @creativeWork = CreativeWork.new
