@@ -16,6 +16,8 @@ module DataCycleCore
         can [:show, :find], :object_browser
 
         if user.has_rank?(0)
+          can :show, DataCycleCore::WatchList
+
           DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
             can [:update, :validate, :validate_single_data, :import], link.item_type.constantize, { id: link.item_id } if link.is_valid?
           end
