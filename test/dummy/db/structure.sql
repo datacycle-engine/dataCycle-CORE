@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.6
--- Dumped by pg_dump version 9.6.6
+-- Dumped from database version 9.6.5
+-- Dumped by pg_dump version 10.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -84,6 +84,67 @@ CREATE TABLE classification_aliases (
 
 
 --
+-- Name: classification_tree_labels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE classification_tree_labels (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    name character varying,
+    external_source_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    internal boolean DEFAULT false,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: classification_trees; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE classification_trees (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    external_source_id uuid,
+    parent_classification_alias_id uuid,
+    classification_alias_id uuid,
+    relationship_label character varying,
+    classification_tree_label_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: classification_alias_paths; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW classification_alias_paths AS
+ WITH RECURSIVE classification_alias_paths(id, ancestor_names, ancestor_ids) AS (
+         SELECT classification_aliases.id,
+            ARRAY[classification_tree_labels.name, classification_aliases.name] AS ancestor_names,
+            ARRAY[]::uuid[] AS ancestor_ids
+           FROM ((classification_trees
+             JOIN classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
+             JOIN classification_tree_labels ON ((classification_tree_labels.id = classification_trees.classification_tree_label_id)))
+          WHERE (classification_trees.parent_classification_alias_id IS NULL)
+        UNION ALL
+         SELECT classification_aliases.id,
+            (classification_alias_paths_1.ancestor_names || classification_aliases.name) AS ancestor_names,
+            (classification_alias_paths_1.ancestor_ids || classification_alias_paths_1.id) AS ancestor_ids
+           FROM ((classification_trees
+             JOIN classification_alias_paths classification_alias_paths_1 ON ((classification_alias_paths_1.id = classification_trees.parent_classification_alias_id)))
+             JOIN classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
+        )
+ SELECT classification_alias_paths.id,
+    classification_alias_paths.ancestor_names,
+    classification_alias_paths.ancestor_ids
+   FROM classification_alias_paths;
+
+
+--
 -- Name: classification_content_histories; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -130,40 +191,6 @@ CREATE TABLE classification_groups (
     classification_id uuid,
     classification_alias_id uuid,
     external_source_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    deleted_at timestamp without time zone
-);
-
-
---
--- Name: classification_tree_labels; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE classification_tree_labels (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    name character varying,
-    external_source_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    internal boolean DEFAULT false,
-    deleted_at timestamp without time zone
-);
-
-
---
--- Name: classification_trees; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE classification_trees (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    external_source_id uuid,
-    parent_classification_alias_id uuid,
-    classification_alias_id uuid,
-    relationship_label character varying,
-    classification_tree_label_id uuid,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
@@ -992,7 +1019,8 @@ CREATE TABLE stored_filters (
     system boolean DEFAULT false,
     api boolean DEFAULT false,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    api_users text[]
 );
 
 
@@ -1087,7 +1115,10 @@ CREATE TABLE users (
     locked_at timestamp without time zone,
     external boolean DEFAULT true NOT NULL,
     role_id uuid,
-    notification_frequency character varying DEFAULT 'always'::character varying
+    notification_frequency character varying DEFAULT 'always'::character varying,
+    access_token character varying,
+    type character varying,
+    name character varying
 );
 
 
@@ -1626,6 +1657,20 @@ CREATE UNIQUE INDEX child_parent_index ON classification_trees USING btree (clas
 
 
 --
+-- Name: classification_content_data_history_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX classification_content_data_history_idx ON classification_content_histories USING btree (content_data_history_type, content_data_history_id);
+
+
+--
+-- Name: classification_content_data_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX classification_content_data_idx ON classification_contents USING btree (content_data_type, content_data_id);
+
+
+--
 -- Name: classification_string_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1815,17 +1860,17 @@ CREATE UNIQUE INDEX index_classification_aliases_on_id ON classification_aliases
 
 
 --
+-- Name: index_classification_content_histories_on_classification_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_content_histories_on_classification_id ON classification_content_histories USING btree (classification_id);
+
+
+--
 -- Name: index_classification_contents_on_classification_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_classification_contents_on_classification_id ON classification_contents USING btree (classification_id);
-
-
---
--- Name: index_classification_contents_on_content_data_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_classification_contents_on_content_data_id ON classification_contents USING btree (content_data_id);
 
 
 --
@@ -2395,6 +2440,11 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180117073708'),
 ('20180122153121'),
 ('20180124091123'),
-('20180222091614');
+('20180222091614'),
+('20180328122539'),
+('20180329064133'),
+('20180330063016'),
+('20180410220414'),
+('20180421162723');
 
 
