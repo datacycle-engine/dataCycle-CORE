@@ -6,9 +6,9 @@ module DataCycleCore
           'object' => Validators::Object,
           'string' => Validators::String,
           'number' => Validators::Number,
+          'date_time' => Validators::DateTime,
           'geographic' => Validators::Geographic,
-          'embeddedLink' => Validators::EmbeddedLink,             # only one or zero links allowed
-          'embeddedLinkArray' => Validators::EmbeddedLinkArray,   # arbitray number of links to the same table allowed
+          'embeddedLinkArray' => Validators::EmbeddedLinkArray, # arbitray number of links to the same table allowed
           'classificationTreeLabel' => Validators::ClassificationTreeLabel,
           'asset' => Validators::Asset
         }

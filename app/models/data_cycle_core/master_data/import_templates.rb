@@ -204,8 +204,7 @@ module DataCycleCore
                   'embedded',
                   'linked',
                   'classification',
-                  'asset',
-                  'mixin'
+                  'asset'
                 ]
               )
           end
@@ -216,7 +215,7 @@ module DataCycleCore
                   'column',
                   'metadata',
                   'content'
-                ] + DataCycleCore.content_tables
+                ]
               )
           end
           optional(:search) { bool? }
@@ -239,7 +238,7 @@ module DataCycleCore
 
           rule(included_object: [:type, :storage_location, :properties]) do |type, storage_location, properties|
             properties.filled? > (
-            type.eql?('object') &
+              type.eql?('object') &
               storage_location.included_in?(['metadata', 'content'])
             )
           end

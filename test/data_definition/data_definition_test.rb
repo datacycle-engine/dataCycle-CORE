@@ -14,44 +14,25 @@ describe DataCycleCore::MasterData::ImportTemplates do
           name: 'App',
           type: 'object',
           content_type: 'entity',
-          releasable: true,
-          permissions: { read_write: true },
-          boost: 100.0,
+          boost: 10.0,
           properties: {
             id: {
               label: 'id',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'key',
-              validations: { format: 'uuid' }
+              type: 'key'
             },
             headline: {
               label: 'Arbeitstitel',
               type: 'string',
-              storage_type: 'string',
               storage_location: 'column',
               search: true,
-              validations: {
-                minLength: 1
-              },
-              editor: {
-                type: 'input',
-                sorting: 1,
-                options: { "data-validate": 'text' }
-              }
+              validations: { minLength: 1 }
             },
             headline_external: {
               label: 'Titel',
               type: 'string',
-              storage_type: 'string',
               storage_location: 'content',
               search: true,
-              validations: { minLength: 1 },
-              editor: {
-                type: 'input',
-                sorting: 2,
-                options: { "data-validate": 'text' }
-              }
+              validations: { minLength: 1 }
             },
             validity_period: {
               label: 'Gültigkeitszeitraum',
@@ -63,41 +44,39 @@ describe DataCycleCore::MasterData::ImportTemplates do
                   to: 'valid_until'
                 }
               },
-              editor: {
-                sorting: 3,
-                options: {
-                  class: 'daterange',
-                  tabindex: -1
+              ui: {
+                edit: {
+                  options: {
+                    class: 'daterange'
+                  }
                 }
               },
               properties: {
                 valid_from: {
                   label: 'Gültigkeit',
-                  type: 'string',
-                  storage_type: 'string',
+                  type: 'date_time',
                   storage_location: 'metadata',
                   validations: { format: 'date_time' },
-                  editor: {
-                    type: 'date',
-                    options: {
-                      "data-type": 'datepicker',
-                      "data-validate": 'daterange',
-                      placeholder: 'tt.mm.jjjj'
+                  ui: {
+                    edit: {
+                      options: {
+                        'data-validate': 'daterange',
+                        placeholder: 'tt.mm.jjjj'
+                      }
                     }
                   }
                 },
                 valid_until: {
                   label: 'bis',
                   type: 'string',
-                  storage_type: 'string',
                   storage_location: 'metadata',
                   validations: { format: 'date_time' },
-                  editor: {
-                    type: 'date',
-                    options: {
-                      "data-type": 'datepicker',
-                      "data-validate": 'daterange',
-                      placeholder: 'tt.mm.jjjj'
+                  ui: {
+                    edit: {
+                      options: {
+                        'data-validate': 'daterange',
+                        placeholder: 'tt.mm.jjjj'
+                      }
                     }
                   }
                 }
@@ -106,197 +85,167 @@ describe DataCycleCore::MasterData::ImportTemplates do
             alternative_headline: {
               label: 'Subüberschrift',
               type: 'string',
-              storage_type: 'string',
               storage_location: 'content',
-              search: true,
-              editor: {
-                type: 'input',
-                sorting: 4
-              }
+              search: true
             },
             description: {
               label: 'Teasertext',
               type: 'string',
-              storage_type: 'text',
               storage_location: 'column',
-              search: true,
-              editor: {
-                type: 'quillEditor',
-                sorting: 5,
-                options: {
-                  "data-size": 'basic',
-                  tabindex: -1
-                }
-              }
+              search: true
             },
             image: {
               label: 'Bild',
-              type: 'embeddedLinkArray',
-              type_name: 'creative_works',
-              storage_type: 'array',
-              storage_location: 'metadata',
+              type: 'linked',
+              linked_table: 'creative_works',
+              template_name: 'Bild',
               validations: { max: 1 },
-              editor: {
-                sorting: 10,
-                type: 'objectBrowser',
-                options: {
-                  "data-validate": 'media',
-                  "data-type": 'image'
+              ui: {
+                edit: {
+                  type: 'objectBrowser',
+                  options: {
+                    "data-validate": 'media',
+                    "data-type": 'image'
+                  }
                 }
               }
             },
             video: {
               label: 'Video',
-              type: 'embeddedLinkArray',
-              type_name: 'creative_works',
-              storage_type: 'array',
-              storage_location: 'metadata',
+              type: 'linked',
+              linked_table: 'creative_works',
+              template_name: 'Video',
               validations: { max: 1 },
-              editor: {
-                sorting: 11,
-                type: 'objectBrowser',
-                options: {
-                  "data-validate": 'media',
-                  "data-type": 'video'
+              ui: {
+                edit: {
+                  type: 'objectBrowser',
+                  options: {
+                    "data-validate": 'media',
+                    "data-type": 'video'
+                  }
                 }
               }
             },
             mobile_application: {
               label: 'Link',
-              type: 'object',
-              storage_location: 'creative_works',
-              delete: true,
-              name: 'MobileApplication',
-              editor: {
-                type: 'embeddedObject',
-                sorting: 12
+              type: 'embedded',
+              linked_table: 'creative_works',
+              template_name: 'MobileApplication',
+              ui: {
+                edit: {
+                  type: 'embeddedObject'
+                }
               }
             },
             topics: {
               label: 'Themenbereiche',
-              type: 'classificationTreeLabel',
-              type_name: 'Themenbereiche',
-              storage_location: 'classification_relation',
-              editor: {
-                type: 'classificationSelector',
-                sorting: 20,
-                options: { tabindex: -1 }
+              type: 'classification',
+              classification_tree: 'Themenbereiche',
+              ui: {
+                edit: {
+                  type: 'classificationSelector'
+                }
               }
             },
             markets: {
               label: 'Zielmarkt',
-              type: 'classificationTreeLabel',
-              type_name: 'Märkte',
-              storage_location: 'classification_relation',
-              editor: {
-                type: 'classificationSelector',
-                sorting: 21,
-                options: { tabindex: -1 }
+              type: 'classification',
+              classification_tree: 'Märkte',
+              ui: {
+                edit: {
+                  type: 'classificationSelector'
+                }
               }
             },
             kind: {
               label: 'Inhaltsart',
-              type: 'classificationTreeLabel',
-              type_name: 'Inhaltsarten',
-              storage_location: 'classification_relation',
-              editor: {
-                type: 'classificationSelector',
-                sorting: 22,
-                options: { tabindex: -1 }
+              type: 'classification',
+              classification_tree: 'Inhaltsarten',
+              ui: {
+                edit: {
+                  type: 'classificationSelector'
+                }
               }
             },
             season: {
               label: 'Jahreszeit',
-              type: 'classificationTreeLabel',
-              type_name: 'Jahreszeiten',
-              storage_location: 'classification_relation',
-              editor: {
-                type: 'classificationSelector',
-                sorting: 23,
-                options: { tabindex: -1 }
+              type: 'classification',
+              classification_tree: 'Jahreszeiten',
+              ui: {
+                edit: {
+                  type: 'classificationSelector'
+                }
               }
             },
             state: {
               label: 'Bundesland',
-              type: 'classificationTreeLabel',
-              type_name: 'Bundesländer',
-              storage_location: 'classification_relation',
-              editor: {
-                type: 'classificationSelector',
-                sorting: 24,
-                options: {
-                  "data-validate": 'classification',
-                  tabindex: -1
+              type: 'classification',
+              classification_tree: 'Bundesländer',
+              ui: {
+                edit: {
+                  type: 'classificationSelector',
+                  options: {
+                    "data-validate": 'classification'
+                  }
                 }
               }
             },
             tags: {
               label: 'Tags',
-              type: 'classificationTreeLabel',
-              type_name: 'Tags',
-              storage_location: 'classification_relation',
-              editor: {
-                type: 'classificationSelector',
-                sorting: 25,
-                options: { tabindex: -1 }
+              type: 'classification',
+              classification_tree: 'Tags',
+              ui: {
+                edit: {
+                  type: 'classificationSelector'
+                }
               }
             },
             output_channels: {
               label: 'Ausgabekanäle',
-              type: 'classificationTreeLabel',
-              type_name: 'Ausgabekanäle',
-              storage_location: 'classification_relation',
-              editor: {
-                type: 'classificationSelector',
-                sorting: 26,
-                options: { tabindex: -1 }
+              type: 'classification',
+              classification_tree: 'Ausgabekanäle',
+              ui: {
+                edit: {
+                  type: 'classificationSelector'
+                }
               }
             },
             permitted_creator: {
               label: 'Ersteller',
-              type: 'classificationTreeLabel',
-              type_name: 'Ersteller',
-              storage_location: 'classification_relation',
-              editor: {
-                type: 'classificationSelector',
-                sorting: 27,
-                options: { tabindex: -1 }
+              type: 'classification',
+              classification_tree: 'Ersteller',
+              ui: {
+                edit: {
+                  type: 'classificationSelector'
+                }
               }
             },
             data_pool: {
               label: 'Inhaltspool',
-              type: 'classificationTreeLabel',
-              type_name: 'Inhaltspools',
-              storage_location: 'classification_relation',
+              type: 'classification',
+              classification_tree: 'Inhaltspools',
               default_value: 'Aktuelle Inhalte'
             },
             data_type: {
               label: 'Inhaltstype',
-              type: 'classificationTreeLabel',
-              type_name: 'Inhaltstypen',
-              storage_location: 'classification_relation',
+              type: 'classification',
+              classification_tree: 'Inhaltstypen',
               default_value: 'App'
             },
             creator: {
               label: 'Ersteller',
-              type: 'embeddedLink',
-              type_name: 'users',
-              storage_type: 'string',
-              storage_location: 'metadata'
+              type: 'linked',
+              linked_table: 'users'
             },
             date_created: {
               label: 'Erstellungsdatum',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'metadata',
-              validations: { format: 'date_time' }
+              type: 'date_time',
+              storage_location: 'metadata'
             },
             date_modified: {
               label: 'Änderungsdatum',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'metadata',
-              validations: { format: 'date_time' }
+              type: 'date_time',
+              storage_location: 'metadata'
             }
           }
         }
@@ -316,7 +265,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
       {
         label: 'whatever',
         type: 'string',
-        storage_type: 'string',
         storage_location: 'column'
       }
     end
@@ -324,9 +272,8 @@ describe DataCycleCore::MasterData::ImportTemplates do
     let(:classification_relation_hash) do
       {
         label: 'whatever',
-        type: 'classificationTreeLabel',
-        type_name: 'Inhaltspools',
-        storage_location: 'classification_relation',
+        type: 'classification',
+        classification_tree: 'Inhaltspools',
         default_value: 'Aktuelle Inhalte'
       }
     end
@@ -334,9 +281,9 @@ describe DataCycleCore::MasterData::ImportTemplates do
     let(:embedded_object_hash) do
       {
         label: 'whatever',
-        type: 'object',
-        storage_location: 'creative_works',
-        name: 'MobileApplication'
+        type: 'embedded',
+        linked_table: 'creative_works',
+        template_name: 'MobileApplication'
       }
     end
 
@@ -349,13 +296,11 @@ describe DataCycleCore::MasterData::ImportTemplates do
           propertyA: {
             label: 'label Property A',
             type: 'string',
-            storage_type: 'string',
             storage_location: 'metadata'
           },
           propertyB: {
             label: 'label Property B',
             type: 'string',
-            storage_type: 'string',
             storage_location: 'metadata'
           }
         }
@@ -427,30 +372,9 @@ describe DataCycleCore::MasterData::ImportTemplates do
 
     it 'checks properties for valid types' do
       test_hash = simple_property_hash
-      available_types = ['string', 'text', 'number', 'geographic']
+      available_types = ['key', 'string', 'text', 'number', 'date_time', 'geographic', 'object', 'embedded', 'linked', 'classification']
       available_types.each do |type_name|
         test_hash[:type] = type_name
-        assert subject.validate_property.call(test_hash).success?
-      end
-    end
-
-    it 'checks properties for storage_type is a string' do
-      test_hash = simple_property_hash
-      test_hash[:storage_type] = nil
-      assert !subject.validate_property.call(test_hash).success?
-    end
-
-    it 'checks properties for storage_type is a wrong string' do
-      test_hash = simple_property_hash
-      test_hash[:storage_type] = 'long'
-      assert !subject.validate_property.call(test_hash).success?
-    end
-
-    it 'checks properties for valid storage_types' do
-      test_hash = simple_property_hash
-      available_storage_types = ['string', 'text', 'number', 'geographic', 'array']
-      available_storage_types.each do |storage_type_name|
-        test_hash[:storage_type] = storage_type_name
         assert subject.validate_property.call(test_hash).success?
       end
     end
@@ -469,7 +393,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
 
     it 'checks properties for valid storage_location' do
       test_hash = simple_property_hash
-      available_storage_locations = ['key', 'column', 'metadata', 'content', 'properties']
+      available_storage_locations = ['column', 'metadata', 'content']
       available_storage_locations.each do |storage_location|
         test_hash[:storage_location] = storage_location
         assert subject.validate_property.call(test_hash).success?
@@ -503,18 +427,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
     it 'checks correct embedded_object_hash' do
       test_hash = embedded_object_hash
       assert subject.validate_property.call(test_hash).success?
-    end
-
-    it 'checks embedded_object for wrong type' do
-      test_hash = embedded_object_hash
-      test_hash[:type] = 'string'
-      assert !subject.validate_property.call(test_hash).success?
-    end
-
-    it 'checks embedded_object for correct storage_location' do
-      test_hash = embedded_object_hash
-      test_hash[:storage_location] = 'content'
-      assert !subject.validate_property.call(test_hash).success?
     end
 
     it 'checks included_object_hash correctly' do
