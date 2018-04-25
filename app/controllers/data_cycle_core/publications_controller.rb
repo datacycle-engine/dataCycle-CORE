@@ -14,7 +14,9 @@ module DataCycleCore
           'v' => 'publication_schedule'
         }
       )
-      query = DataCycleCore::Filter::Search.new(params.fetch(:language, 'de'))
+
+      @language ||= params.fetch(:language, DataCycleCore.ui_language)
+      query = DataCycleCore::Filter::Search.new(@language)
 
       query = query.fulltext_search(params[:search]) if params[:search].present?
 
