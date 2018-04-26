@@ -18,6 +18,7 @@ namespace :review do
   desc 'undeploy review app'
   task :undeploy do
     on roles(:all) do
+      invoke 'delayed_job:stop'
       invoke 'puma:stop'
       # TODO: delete database
       # within release_path do
@@ -29,7 +30,7 @@ namespace :review do
       #     end
       #   end
       # end
-      execute "rm -rf #{fetch(:deploy_to)}"
+      # execute "rm -rf #{fetch(:deploy_to)}"
     end
   end
 
