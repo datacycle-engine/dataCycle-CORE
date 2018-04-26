@@ -4,9 +4,6 @@
     :type: object
     :content_type: container
     :boost: 10000.0
-    :features:
-      :container:
-        :excluded: ['Bild', 'Video']
     :properties:
       :id:
         :label: id

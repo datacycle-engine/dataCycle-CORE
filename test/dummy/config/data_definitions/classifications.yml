@@ -1,12 +1,36 @@
 - Inhaltstypen:
-  - $$Test-Template
+  - $$Text:
+    - $$Artikel
+    - $$Angebot
+    - $$Biografie
+    - $$Interview
+    - $$Social Media Posting
+    - $$Zitat
   - $$Asset:
     - $$Bild
+    - $$Datei
+    - $$Video
+  - $$Linktipps
+  - $$Person
+  - $$Publikations-Plan
+  - $$Organisation
   - $$Ort:
     - $$Örtlichkeit
-  - $$Person
+    - $$Tour
+  - $$Quiz
+  - $$Veranstaltung
+  - $$Zeitleiste
+# container
+  - $$Container
 # embedded
+  - $$Angebotszeitraum
+  - $$Website
+  - $$Zeitleiste-Eintrag
   - $$Zitat
+  - $$Frage
+  - $$Antwort
+  - $$Veranstaltungstermin
+  - $$Öffnungszeit
   - $$Overlay
 
 - Geschlecht:
@@ -22,3 +46,5 @@
   - Ausgabekanal 1
   - Ausgabekanal 2
   - Ausgabekanal 3
+  
+- Plattform:

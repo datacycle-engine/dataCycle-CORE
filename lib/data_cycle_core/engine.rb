@@ -125,7 +125,9 @@ module DataCycleCore
         enabled: false
       },
       container: {
-        enabled: false
+        enabled: false,
+        exluded: [],
+        allowed: []
       }
     }
 

@@ -6,6 +6,8 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 
 json.content_partial! 'header', content: content, options: options
 
+json.partial! 'container_parent_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled?
+
 json.partial! 'untranslated_properties', content: content, locale: content.translations.first.locale, options: options
 
 if content.translations.reject { |t| t.id.nil? }.size == 1
@@ -28,3 +30,5 @@ json.partial! 'embedded_properties', content: content, options: options
 json.partial! 'asset_properties', content: content, options: options
 
 json.partial! 'overlay_properties', content: content, options: options
+
+json.partial! 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.is_content_type?('container')

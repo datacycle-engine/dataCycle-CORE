@@ -12,13 +12,13 @@ module DataCycleCore
       redirect_back(fallback_location: root_path) && return if @content.nil?
 
       I18n.with_locale(@content.first_available_locale) do
-        if @content.is_content_type?('container')
+        if DataCycleCore::Feature::Container.enabled? && @content.is_content_type?('container')
           @contents = get_filtered_results(method_name: 'part_of', parameters: @content.id) if @content.children.exists?
 
           @entities = DataCycleCore::CreativeWork.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
           @entities = @entities.where('template_name NOT IN(?)', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects)
-          @entities = @entities.where(template_name: @content.schema&.dig('features', 'container', 'allowed')) if @content.schema&.dig('features', 'container', 'allowed')
-          @entities = @entities.where.not(template_name: @content.schema&.dig('features', 'container', 'excluded')) if @content.schema&.dig('features', 'container', 'excluded')
+          @entities = DataCycleCore::Feature::Container.apply_allowed_contents(@content, @entities)
+          @entities = DataCycleCore::Feature::Container.apply_excluded_contents(@content, @entities)
         end
 
         @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if DataCycleCore::Feature::Releasable.present?(@content) && !@content.release_id.nil?
