@@ -1,0 +1,3 @@
+DataCycleBase;git@git.pixelpoint.biz:data-cycle/data-cycle-base.git
+DataCycleKaernten;git@git.pixelpoint.biz:data-cycle/data-cycle-kw.git
+DataCycleOew;git@git.pixelpoint.biz:data-cycle/oew-content-db.git

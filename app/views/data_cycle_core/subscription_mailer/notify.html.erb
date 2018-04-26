@@ -10,12 +10,17 @@
     <% else %>
       <p>Ein abonnierter Inhalt hat sich geändert:</p>
     <% end %>
-    <%# FIXME: change to '@contents.histories.first' when histories are fixed %>
     <% @contents.each do |content| %>
       <% I18n.with_locale(content.first_available_locale) do %>
         <p>
-          <%= link_to polymorphic_url([:history, content], history_id: content.histories.sort_by{|h| h.history_valid&.first }.last.id) do %>
-            <%= content.template_name %>: <%= content.title.blank? ? content.id : content.title %>
+          <% if content.histories.blank? %>
+            <%= link_to polymorphic_url(content) do %>
+              <%= content.template_name %>: <%= content.title.blank? ? content.id : content.title %>
+            <% end %>
+          <% else %>
+            <%= link_to polymorphic_url([:history, content], history_id: content.histories&.first&.id) do %>
+              <%= content.template_name %>: <%= content.title.blank? ? content.id : content.title %>
+            <% end %>
           <% end %>
         </p>
       <% end %>

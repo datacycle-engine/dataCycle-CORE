@@ -184,13 +184,13 @@ module DataCycleCore
       end
 
       def around_import(source_type, **options)
-        options[:locales] ||= I18n.available_locales
+        options[:locales] ||= options[:import][:locales] || I18n.available_locales
 
         options[:locales].each do |locale|
           begin
             Mongoid.override_database("#{source_type.database_name}_#{external_source.id}")
 
-            yield(locale)
+            yield(locale.to_sym)
           ensure
             Mongoid.override_database(nil)
           end
