@@ -22,8 +22,8 @@ describe DataCycleCore::MasterData::Validators::String do
         'type' => 'string',
         'storage_location' => 'translated_value',
         'validations' => {
-          'minLength' => 20,
-          'maxLength' => 40,
+          'min' => 20,
+          'max' => 40,
           'pattern' => '/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/',
           'format' => 'uuid'
         }
@@ -58,14 +58,14 @@ describe DataCycleCore::MasterData::Validators::String do
     end
 
     it 'errors out when string is not long enough' do
-      new_template = template_hash.deep_dup.merge({ 'validations' => { 'minLength' => 3 } })
+      new_template = template_hash.deep_dup.merge({ 'validations' => { 'min' => 3 } })
       validator = subject.new('x', new_template)
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
 
     it 'errors out when string is too long' do
-      new_template = template_hash.deep_dup.merge({ 'validations' => { 'maxLength' => 3 } })
+      new_template = template_hash.deep_dup.merge({ 'validations' => { 'max' => 3 } })
       validator = subject.new('xxxx', new_template)
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)

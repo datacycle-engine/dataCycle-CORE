@@ -2,11 +2,13 @@ module DataCycleCore
   module MasterData
     module Validators
       class EmbeddedLinkArray < BasicValidator
-        @@keywords = ['min', 'max']
+        def keywords
+          ['min', 'max']
+        end
 
         # only allow single uuid referencing to a given table
         def validate(data, template)
-          if is_blank?(data)
+          if blank?(data)
             (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
             # @error[:warning].push "No data given for #{template['label']}."
           elsif data.is_a?(::Array)
@@ -26,7 +28,7 @@ module DataCycleCore
           # validate given validations
           if template.key?('validations')
             template['validations'].each_key do |key|
-              if @@keywords.include?(key)
+              if keywords.include?(key)
                 method(key).call(data, template['validations'][key])
               else
                 (@error[:error][@template_key] ||= []) << I18n.t(:keyword, scope: [:validation, :warnings], key: key, type: 'EmbeddedLinkArray', locale: DataCycleCore.ui_language)
@@ -49,7 +51,7 @@ module DataCycleCore
         end
 
         # validate nil,"",[],[nil],[""] as blank.
-        def is_blank?(data)
+        def blank?(data)
           return true if data.blank?
           if data.is_a?(::Array)
             return true if data.length == 1 && data[0].blank?

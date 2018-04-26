@@ -2,20 +2,24 @@ module DataCycleCore
   module MasterData
     module Validators
       class Object < BasicValidator
-        @@basic_types = {
-          'object' => Validators::Object,
-          'string' => Validators::String,
-          'number' => Validators::Number,
-          'date_time' => Validators::Datetime,
-          'boolean' => Validators::Boolean,
-          'geographic' => Validators::Geographic,
-          'linked' => Validators::Embedded,
-          'embedded' => Validators::Embedded,
-          'classification' => Validators::Classification,
-          'asset' => Validators::Asset
-        }
+        def basic_types
+          {
+            'object' => Validators::Object,
+            'string' => Validators::String,
+            'number' => Validators::Number,
+            'date_time' => Validators::Datetime,
+            'boolean' => Validators::Boolean,
+            'geographic' => Validators::Geographic,
+            'linked' => Validators::Embedded,
+            'embedded' => Validators::Embedded,
+            'classification' => Validators::Classification,
+            'asset' => Validators::Asset
+          }
+        end
 
-        @@object_validations = ['daterange', 'classifications']
+        def object_validations
+          ['daterange', 'classifications']
+        end
 
         # validate data as specified in the keys of the data template
         # data hash with key names as specified in the schema
@@ -29,21 +33,21 @@ module DataCycleCore
               next
             end
 
-            unless @@basic_types.include?(key_item['type'])
+            unless basic_types.include?(key_item['type'])
               (@error[:error][key] ||= []) << I18n.t(:object_type, scope: [:validation, :errors], data: key_item, type: key_item['type'], locale: DataCycleCore.ui_language)
               next
             end
 
             unless key_item['type'] == 'object'
               # puts "call #{@@basic_types[key_item['type']]}.constantize.new(#{data[key]}, #{key_item})"
-              validator_object = (@@basic_types[key_item['type']]).to_s.constantize.new(data[key], key_item, key)
+              validator_object = basic_types[key_item['type']].to_s.constantize.new(data[key], key_item, key)
               merge_errors(validator_object.error) unless validator_object.nil?
               next
             end
 
             if key_item.key?('validations') # validations for a particular object
               key_item['validations'].each do |val_key, val_item|
-                if @@object_validations.include?(val_key)
+                if object_validations.include?(val_key)
                   method(val_key).call(data[key], val_item)
                 else
                   (@error[:warning][key] ||= []) << I18n.t(:keyword, scope: [:validation, :warning], key: val_key, type: 'Object', locale: DataCycleCore.ui_language)
@@ -53,7 +57,7 @@ module DataCycleCore
 
             if key_item.key?('properties')
               # puts "call #{@@basic_types[key_item['type']]}.constantize.new(#{data[key]}, #{key_item['properties']},#{@schema})"
-              validator_object = (@@basic_types[key_item['type']]).to_s.constantize.new(data[key], key_item['properties'], key)
+              validator_object = basic_types[key_item['type']].to_s.constantize.new(data[key], key_item['properties'], key)
               merge_errors(validator_object.error) unless validator_object.nil?
               next
             elsif key_item.key?('name') && key_item.key?('storage_location')

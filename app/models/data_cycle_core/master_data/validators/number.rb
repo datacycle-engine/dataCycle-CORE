@@ -2,14 +2,19 @@ module DataCycleCore
   module MasterData
     module Validators
       class Number < BasicValidator
-        @@number_keywords = ['min', 'max', 'format']
-        @@number_formats = ['integer', 'float']
+        def number_keywords
+          ['min', 'max', 'format']
+        end
+
+        def number_formats
+          ['integer', 'float']
+        end
 
         def validate(data, template)
           if data.is_a?(Numeric)
             if template.key?('validations')
               template['validations'].each_key do |key|
-                if @@number_keywords.include?(key)
+                if number_keywords.include?(key)
                   method(key).call(data, template['validations'][key])
                 else
                   (@error[:warning][@template_key] ||= []) << I18n.t(:keyword, scope: [:validation, :warning], key: key, type: 'Number', locale: DataCycleCore.ui_language) unless key == 'type'
@@ -36,7 +41,7 @@ module DataCycleCore
         end
 
         def format(data, format_string)
-          if @@number_formats.include?(format_string)
+          if number_formats.include?(format_string)
             method(format_string).call(data)
           else
             (@error[:error][@template_key] ||= []) << I18n.t(:format, scope: [:validation, :errors], data: data, format_string: format_string, locale: DataCycleCore.ui_language)

@@ -2,8 +2,13 @@ module DataCycleCore
   module MasterData
     module Validators
       class String < BasicValidator
-        @@string_keywords = ['minLength', 'maxLength', 'format', 'pattern']
-        @@string_formats = ['uuid', 'url']
+        def string_keywords
+          ['min', 'max', 'format', 'pattern']
+        end
+
+        def string_formats
+          ['uuid', 'url']
+        end
 
         def validate(data, template)
           if data.is_a?(::String)
@@ -28,11 +33,11 @@ module DataCycleCore
 
         # given string validations
 
-        def minLength(data, value)
+        def min(data, value)
           (@error[:error][@template_key] ||= []) << I18n.t(:min, scope: [:validation, :errors], data: data, min: value.to_i, length: data.length, locale: DataCycleCore.ui_language) if data.length < value.to_i
         end
 
-        def maxLength(data, value)
+        def max(data, value)
           (@error[:error][@template_key] ||= []) << I18n.t(:max, scope: [:validation, :errors], data: data, max: value.to_i, length: data.length, locale: DataCycleCore.ui_language) if data.length > value.to_i
         end
 
