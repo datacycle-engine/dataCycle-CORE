@@ -21,7 +21,7 @@
       :caption:
         :label: Alt-Label
         :type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
       :description:
         :label: Teasertext
@@ -36,13 +36,13 @@
       :content_url:
         :label: Bild URL
         :type: string
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: url
       :thumbnail_url:
         :label: Thumbnail URL
         :type: string
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: url
         :ui:
@@ -51,7 +51,7 @@
       :url:
         :label: Inhalt URL
         :type: string
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: url
       :asset:
@@ -61,12 +61,12 @@
       :photographer:
         :label: Fotograf
         :type: string
-        :storage_location: metadata
+        :storage_location: value
         :search: true
       :license:
         :label: Copyright / Lizenz
         :type: string
-        :storage_location: metadata
+        :storage_location: value
         :search: true
       :content_location:
         :label: Ort
@@ -82,29 +82,29 @@
       :width:
         :label: Breite
         :type: number
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: integer
       :height:
         :label: Höhe
         :type: number
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: integer
       :content_size:
         :label: Dateigröße
         :type: number
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: integer
       :file_format:
         :label: Dateiformat
         :type: string
-        :storage_location: metadata
+        :storage_location: value
       :data_type:
         :label: Inhaltstype
         :type: classification
-        :classification_tree: Inhaltstypen
+        :tree_label: Inhaltstypen
         :default_value: "Bild"
       :content_classifications:
         :type: mixin

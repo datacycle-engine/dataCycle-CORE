@@ -12,7 +12,7 @@ describe DataCycleCore::MasterData::Validators::Number do
       {
         'label' => 'Test',
         'type' => 'number',
-        'storage_location' => 'content'
+        'storage_location' => 'translated_value'
       }
     end
 
@@ -20,7 +20,7 @@ describe DataCycleCore::MasterData::Validators::Number do
       {
         'label' => 'Test',
         'type' => 'number',
-        'storage_location' => 'content',
+        'storage_location' => 'translated_value',
         'validations' => {
           'min' => 3,
           'max' => 100,

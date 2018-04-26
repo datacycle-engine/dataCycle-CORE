@@ -6,4 +6,4 @@
       :output_channel:
         :label: Ausgabekanal
         :type: classification
-        :classification_tree: Ausgabekanäle
+        :tree_label: Ausgabekanäle

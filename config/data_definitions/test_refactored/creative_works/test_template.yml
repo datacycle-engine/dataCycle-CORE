@@ -37,7 +37,7 @@
       :text:
         :label: Fließtext
         :type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
         :ui:
           :edit:
@@ -47,13 +47,13 @@
       :number_test:
         :label: Number-Test
         :type: number
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: integer
       :url:
         :label: Inhalt URL
         :type: string
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: url
       :primary_image:
@@ -109,7 +109,7 @@
       :data_type:
         :label: Inhaltstype
         :type: classification
-        :classification_tree: Inhaltstypen
+        :tree_label: Inhaltstypen
         :default_value: "Test-Template"
       :contact_info:
         :type: mixin

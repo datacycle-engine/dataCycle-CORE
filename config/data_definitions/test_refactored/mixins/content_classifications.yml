@@ -6,8 +6,8 @@
       :topic:
         :label: Themenbereiche
         :type: classification
-        :classification_tree: Themenbereiche
+        :tree_label: Themenbereiche
       :output_channel:
         :label: Ausgabekanal
         :type: classification
-        :classification_tree: Ausgabekanäle
+        :tree_label: Ausgabekanäle

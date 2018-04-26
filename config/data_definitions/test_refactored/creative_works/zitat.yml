@@ -10,7 +10,7 @@
       :text:
         :label: Fließtext
         :type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
         :validations:
           :minLength: 1
@@ -45,7 +45,7 @@
       :data_type:
         :label: Inhaltstype
         :type: classification
-        :classification_tree: Inhaltstypen
+        :tree_label: Inhaltstypen
         :default_value: "Zitat"
       :meta_data:
         :type: mixin

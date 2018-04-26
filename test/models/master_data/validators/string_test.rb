@@ -12,7 +12,7 @@ describe DataCycleCore::MasterData::Validators::String do
       {
         'label' => 'Test',
         'type' => 'string',
-        'storage_location' => 'content'
+        'storage_location' => 'translated_value'
       }
     end
 
@@ -20,7 +20,7 @@ describe DataCycleCore::MasterData::Validators::String do
       {
         'label' => 'Test',
         'type' => 'string',
-        'storage_location' => 'content',
+        'storage_location' => 'translated_value',
         'validations' => {
           'minLength' => 20,
           'maxLength' => 40,
@@ -132,26 +132,6 @@ describe DataCycleCore::MasterData::Validators::String do
     it 'fails to recognize the following cases as errors' do
       new_template = template_hash.deep_dup.merge({ 'validations' => { 'format' => 'url' } })
       cases = ['https://www.....example.com', 'http://test.com/franz:99999999999999999']
-      cases.each do |test_case|
-        validator = subject.new(test_case, new_template)
-        assert_equal(0, validator.error[:error].size)
-        assert_equal(0, validator.error[:warning].size)
-      end
-    end
-
-    it 'errors out when string does not fulfill bool format restriction' do
-      new_template = template_hash.deep_dup.merge({ 'validations' => { 'format' => 'boolean' } })
-      cases = ['!test', 'test/franz', 'true     s', 'true_', 5]
-      cases.each do |test_case|
-        validator = subject.new(test_case, new_template)
-        assert_equal(1, validator.error[:error].size)
-        assert_equal(0, validator.error[:warning].size)
-      end
-    end
-
-    it 'passes when string fulfills bool restriction' do
-      new_template = template_hash.deep_dup.merge({ 'validations' => { 'format' => 'boolean' } })
-      cases = ['true', 'false', ' false  ']
       cases.each do |test_case|
         validator = subject.new(test_case, new_template)
         assert_equal(0, validator.error[:error].size)

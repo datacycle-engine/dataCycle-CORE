@@ -32,7 +32,7 @@
       :text:
         :label: Text
         :type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
         :ui:
           :edit:
@@ -68,7 +68,7 @@
       :data_type:
         :label: Inhaltstype
         :type: classification
-        :classification_tree: Inhaltstypen
+        :tree_label: Inhaltstypen
         :default_value: "Örtlichkeit"
       :content_classifications:
         :type: mixin

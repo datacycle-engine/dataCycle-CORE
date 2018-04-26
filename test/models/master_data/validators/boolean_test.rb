@@ -2,17 +2,17 @@ require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
 
-describe DataCycleCore::MasterData::Validators::DateTime do
+describe DataCycleCore::MasterData::Validators::Boolean do
   subject do
-    DataCycleCore::MasterData::Validators::DateTime
+    DataCycleCore::MasterData::Validators::Boolean
   end
 
   describe 'validate data' do
     let(:template_hash) do
       {
         'label' => 'Test',
-        'type' => 'date_time',
-        'storage_location' => 'content'
+        'type' => 'boolean',
+        'storage_location' => 'translated_value'
       }
     end
 
@@ -21,7 +21,7 @@ describe DataCycleCore::MasterData::Validators::DateTime do
     end
 
     it 'properly validates a DateObject' do
-      date_object = '2010-01-01'.to_datetime
+      date_object = true
       assert_equal(no_error_hash, subject.new(date_object, template_hash).error)
     end
 
@@ -34,24 +34,8 @@ describe DataCycleCore::MasterData::Validators::DateTime do
       end
     end
 
-    it 'converts unexpected strings to dates' do
-      test_cases = ['10', '10.10.10.10.']
-      test_cases.each do |test_case|
-        validator = subject.new(test_case, template_hash)
-        assert_equal(0, validator.error[:error].size)
-        assert_equal(0, validator.error[:warning].size)
-      end
-    end
-
     it 'accepts different Date, DateTime objects' do
-      test_cases = [
-        Time.now,
-        Time.zone.now,
-        '01.01.2000'.to_datetime,
-        '01.01.2000'.to_date,
-        Date.new(2000).in_time_zone,
-        Time.utc(2000).in_time_zone
-      ]
+      test_cases = [true, false, 'true', 'false', '    true     ']
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash)
         assert_equal(0, validator.error[:error].size)

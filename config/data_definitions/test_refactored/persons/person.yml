@@ -25,7 +25,7 @@
       :honorific_prefix:
         :label: "Anrede / Titel"
         :type: string
-        :storage_location: content
+        :storage_location: translated_value
       :contact_info:
         :type: mixin
         :name: contact_info
@@ -35,7 +35,7 @@
       :job_title:
         :label: Position
         :type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
       :description:
         :label: Teasertext
@@ -61,11 +61,11 @@
       :gender:
         :label: Geschlecht
         :type: classification
-        :classification_tree: Geschlecht
+        :tree_label: Geschlecht
       :data_type:
         :label: Inhaltstype
         :type: classification
-        :classification_tree: Inhaltstypen
+        :tree_label: Inhaltstypen
         :default_value: "Person"
       :content_classifications:
         :type: mixin

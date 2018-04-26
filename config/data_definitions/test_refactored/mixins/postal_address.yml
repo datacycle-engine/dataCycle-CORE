@@ -6,21 +6,21 @@
       :address:
         :label: Adresse
         :type: object
-        :storage_location: metadata
+        :storage_location: value
         :properties:
           :street_address:
             :label: Straße
             :type: string
-            :storage_location: metadata
+            :storage_location: value
           :postal_code:
             :label: PLZ
             :type: string
-            :storage_location: metadata
+            :storage_location: value
           :address_locality:
             :label: Ort
             :type: string
-            :storage_location: metadata
+            :storage_location: value
           :address_country:
             :label: Land
             :type: string
-            :storage_location: metadata
+            :storage_location: value

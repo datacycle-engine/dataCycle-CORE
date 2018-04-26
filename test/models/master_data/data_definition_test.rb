@@ -30,14 +30,14 @@ describe DataCycleCore::MasterData::ImportTemplates do
             headline_external: {
               label: 'Titel',
               type: 'string',
-              storage_location: 'content',
+              storage_location: 'translated_value',
               search: true,
               validations: { minLength: 1 }
             },
             validity_period: {
               label: 'Gültigkeitszeitraum',
               type: 'object',
-              storage_location: 'metadata',
+              storage_location: 'translated_value',
               validations: {
                 daterange: {
                   from: 'valid_from',
@@ -54,9 +54,8 @@ describe DataCycleCore::MasterData::ImportTemplates do
               properties: {
                 valid_from: {
                   label: 'Gültigkeit',
-                  type: 'date_time',
-                  storage_location: 'metadata',
-                  validations: { format: 'date_time' },
+                  type: 'datetime',
+                  storage_location: 'translated_value',
                   ui: {
                     edit: {
                       options: {
@@ -68,9 +67,8 @@ describe DataCycleCore::MasterData::ImportTemplates do
                 },
                 valid_until: {
                   label: 'bis',
-                  type: 'string',
-                  storage_location: 'metadata',
-                  validations: { format: 'date_time' },
+                  type: 'datetime',
+                  storage_location: 'translated_value',
                   ui: {
                     edit: {
                       options: {
@@ -85,7 +83,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
             alternative_headline: {
               label: 'Subüberschrift',
               type: 'string',
-              storage_location: 'content',
+              storage_location: 'translated_value',
               search: true
             },
             description: {
@@ -140,7 +138,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
             topics: {
               label: 'Themenbereiche',
               type: 'classification',
-              classification_tree: 'Themenbereiche',
+              tree_label: 'Themenbereiche',
               ui: {
                 edit: {
                   type: 'classificationSelector'
@@ -150,7 +148,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
             markets: {
               label: 'Zielmarkt',
               type: 'classification',
-              classification_tree: 'Märkte',
+              tree_label: 'Märkte',
               ui: {
                 edit: {
                   type: 'classificationSelector'
@@ -160,7 +158,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
             kind: {
               label: 'Inhaltsart',
               type: 'classification',
-              classification_tree: 'Inhaltsarten',
+              tree_label: 'Inhaltsarten',
               ui: {
                 edit: {
                   type: 'classificationSelector'
@@ -170,7 +168,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
             season: {
               label: 'Jahreszeit',
               type: 'classification',
-              classification_tree: 'Jahreszeiten',
+              tree_label: 'Jahreszeiten',
               ui: {
                 edit: {
                   type: 'classificationSelector'
@@ -180,7 +178,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
             state: {
               label: 'Bundesland',
               type: 'classification',
-              classification_tree: 'Bundesländer',
+              tree_label: 'Bundesländer',
               ui: {
                 edit: {
                   type: 'classificationSelector',
@@ -193,7 +191,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
             tags: {
               label: 'Tags',
               type: 'classification',
-              classification_tree: 'Tags',
+              tree_label: 'Tags',
               ui: {
                 edit: {
                   type: 'classificationSelector'
@@ -203,7 +201,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
             output_channels: {
               label: 'Ausgabekanäle',
               type: 'classification',
-              classification_tree: 'Ausgabekanäle',
+              tree_label: 'Ausgabekanäle',
               ui: {
                 edit: {
                   type: 'classificationSelector'
@@ -213,7 +211,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
             permitted_creator: {
               label: 'Ersteller',
               type: 'classification',
-              classification_tree: 'Ersteller',
+              tree_label: 'Ersteller',
               ui: {
                 edit: {
                   type: 'classificationSelector'
@@ -223,13 +221,13 @@ describe DataCycleCore::MasterData::ImportTemplates do
             data_pool: {
               label: 'Inhaltspool',
               type: 'classification',
-              classification_tree: 'Inhaltspools',
+              tree_label: 'Inhaltspools',
               default_value: 'Aktuelle Inhalte'
             },
             data_type: {
               label: 'Inhaltstype',
               type: 'classification',
-              classification_tree: 'Inhaltstypen',
+              tree_label: 'Inhaltstypen',
               default_value: 'App'
             },
             creator: {
@@ -239,13 +237,13 @@ describe DataCycleCore::MasterData::ImportTemplates do
             },
             date_created: {
               label: 'Erstellungsdatum',
-              type: 'date_time',
-              storage_location: 'metadata'
+              type: 'datetime',
+              storage_location: 'value'
             },
             date_modified: {
               label: 'Änderungsdatum',
-              type: 'date_time',
-              storage_location: 'metadata'
+              type: 'datetime',
+              storage_location: 'value'
             }
           }
         }
@@ -273,7 +271,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
       {
         label: 'whatever',
         type: 'classification',
-        classification_tree: 'Inhaltspools',
+        tree_label: 'Inhaltspools',
         default_value: 'Aktuelle Inhalte'
       }
     end
@@ -291,17 +289,17 @@ describe DataCycleCore::MasterData::ImportTemplates do
       {
         label: 'whatever',
         type: 'object',
-        storage_location: 'metadata',
+        storage_location: 'translated_value',
         properties: {
           propertyA: {
             label: 'label Property A',
             type: 'string',
-            storage_location: 'metadata'
+            storage_location: 'translated_value'
           },
           propertyB: {
             label: 'label Property B',
             type: 'string',
-            storage_location: 'metadata'
+            storage_location: 'translated_value'
           }
         }
       }
@@ -372,7 +370,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
 
     it 'checks properties for valid types' do
       test_hash = simple_property_hash
-      available_types = ['key', 'string', 'text', 'number', 'date_time', 'geographic', 'object', 'embedded', 'linked', 'classification']
+      available_types = ['key', 'string', 'text', 'number', 'boolean', 'datetime', 'geographic', 'object', 'embedded', 'linked']
       available_types.each do |type_name|
         test_hash[:type] = type_name
         assert subject.validate_property.call(test_hash).success?
@@ -393,7 +391,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
 
     it 'checks properties for valid storage_location' do
       test_hash = simple_property_hash
-      available_storage_locations = ['column', 'metadata', 'content']
+      available_storage_locations = ['column', 'value', 'translated_value']
       available_storage_locations.each do |storage_location|
         test_hash[:storage_location] = storage_location
         assert subject.validate_property.call(test_hash).success?

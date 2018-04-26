@@ -198,7 +198,8 @@ module DataCycleCore
                   'string',
                   'text',
                   'number',
-                  'date_time',
+                  'boolean',
+                  'datetime',
                   'geographic',
                   'object',
                   'embedded',
@@ -213,8 +214,8 @@ module DataCycleCore
               included_in?(
                 [
                   'column',
-                  'metadata',
-                  'content'
+                  'value',
+                  'translated_value'
                 ]
               )
           end
@@ -234,12 +235,13 @@ module DataCycleCore
                 ]
               )
           end
+          optional(:tree_label) { str? }
           optional(:stored_filter) { str? }
 
           rule(included_object: [:type, :storage_location, :properties]) do |type, storage_location, properties|
             properties.filled? > (
               type.eql?('object') &
-              storage_location.included_in?(['metadata', 'content'])
+              storage_location.included_in?(['value', 'translated_value'])
             )
           end
 
@@ -253,9 +255,9 @@ module DataCycleCore
               (type.eql?('linked') > stored_filter.filled?)
           end
 
-          rule(classification_relation: [:type, :classification_tree]) do |type, classification_tree|
+          rule(classification_relation: [:type, :tree_label]) do |type, tree_label|
             type.eql?('classification') >
-              classification_tree.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte'])
+              tree_label.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte'])
           end
 
           rule(asset_relation: [:type, :asset_type]) do |type, asset_type|

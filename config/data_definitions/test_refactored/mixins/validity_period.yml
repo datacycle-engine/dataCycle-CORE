@@ -6,7 +6,7 @@
       :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :daterange:
             :from: valid_from
@@ -19,7 +19,7 @@
           :valid_from:
             :label: Gültigkeit
             :type: date_time
-            :storage_location: metadata
+            :storage_location: value
             :validations:
               :format: date_time
             :ui:
@@ -30,7 +30,7 @@
           :valid_until:
             :label: bis
             :type: date_time
-            :storage_location: metadata
+            :storage_location: value
             :validations:
               :format: date_time
             :ui:

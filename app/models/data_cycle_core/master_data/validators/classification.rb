@@ -2,10 +2,10 @@ module DataCycleCore
   module MasterData
     module Validators
       class ClassificationTreeLabel < BasicValidator
-        @@keywords = ['min', 'max']
+        @keywords = ['min', 'max']
 
         def validate(data, template)
-          if is_blank?(data)
+          if blank?(data)
             (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :errors], data: template['label'], locale: DataCycleCore.ui_language)
           elsif data.is_a?(::Array)
             check_reference_array(data, template)
@@ -23,7 +23,7 @@ module DataCycleCore
           # check given validations
           if template.key?('validations')
             template['validations'].each_key do |key|
-              if @@keywords.include?(key)
+              if @keywords.include?(key)
                 method(key).call(data, template['validations'][key])
               else
                 (@error[:warning][@template_key] ||= []) << I18n.t(:keyword, scope: [:validation, :errors], key: key, type: 'ClassificationTreeLabel reference List', locale: DataCycleCore.ui_language)
@@ -47,9 +47,9 @@ module DataCycleCore
               .joins(:classification_tree_label)
               .joins(sub_classification_alias: [classification_groups: [:classification]])
               .where('classifications.id = ? ', key)
-              .where('classification_tree_labels.name = ?', template['type_name'])
+              .where('classification_tree_labels.name = ?', template['tree_label'])
 
-            (@error[:error][@template_key] ||= []) << I18n.t(:classification, scope: [:validation, :errors], key: key, label: template['label'], tree_label: template['type_name'], locale: DataCycleCore.ui_language) if find_classification_alias.count < 1
+            (@error[:error][@template_key] ||= []) << I18n.t(:classification, scope: [:validation, :errors], key: key, label: template['label'], tree_label: template['tree_label'], locale: DataCycleCore.ui_language) if find_classification_alias.count < 1
           end
         end
 
@@ -62,7 +62,7 @@ module DataCycleCore
         end
 
         # validate nil,"",[],[nil],[""] as blank.
-        def is_blank?(data)
+        def blank?(data)
           return true if data.blank?
           if data.is_a?(::Array)
             return true if data.length == 1 && data[0].blank?
