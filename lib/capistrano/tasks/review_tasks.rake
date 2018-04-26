@@ -20,16 +20,17 @@ namespace :review do
     on roles(:all) do
       invoke 'delayed_job:stop'
       invoke 'puma:stop'
-      # TODO: delete database
-      # within release_path do
-      #   with rails_env: fetch(:rails_env) do
-      #     begin
-      #       execute :rake, 'db:drop'
-      #     rescue StandardError
-      #       print_message 'ERROR: Unable to DELETE database'
-      #     end
-      #   end
-      # end
+      # delete database
+      within release_path do
+        with rails_env: fetch(:rails_env) do
+          begin
+            execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:clear_connections"
+            execute :rake, 'db:drop'
+          rescue StandardError
+            print_message 'ERROR: Unable to DELETE database'
+          end
+        end
+      end
       execute "rm -rf #{fetch(:deploy_to)}"
     end
   end
