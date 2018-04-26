@@ -10,7 +10,7 @@ module DataCycleCore
             'date_time' => Validators::Datetime,
             'boolean' => Validators::Boolean,
             'geographic' => Validators::Geographic,
-            'linked' => Validators::Embedded,
+            'linked' => Validators::Linked,
             'embedded' => Validators::Embedded,
             'classification' => Validators::Classification,
             'asset' => Validators::Asset

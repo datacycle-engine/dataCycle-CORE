@@ -1,7 +1,7 @@
 module DataCycleCore
   module MasterData
     module Validators
-      class EmbeddedLinkArray < BasicValidator
+      class Embedded < BasicValidator
         def keywords
           ['min', 'max']
         end
@@ -38,16 +38,33 @@ module DataCycleCore
 
           # validate references
           data.each do |key|
-            if key.is_a?(::String)
-              validate_link = EmbeddedLink.new(key, template)
-              merge_errors(validate_link.error) unless validate_link.nil?
-            elsif key.is_a?(::Hash) && key.key?('id')
-              validate_link = EmbeddedLink.new(key['id'], template)
-              merge_errors(validate_link.error) unless validate_link.nil?
-            else
-              (@error[:error][@template_key] ||= []) << I18n.t(:data_format, scope: [:validation, :errors], key: key, template: template['label'], locale: DataCycleCore.ui_language)
-            end
+            validate_reference(key, template)
           end
+        end
+
+        def validate_reference(key, template)
+          if key.is_a?(::String)
+            check_reference(key, template)
+          elsif key.is_a?(::Hash) && key.key?('id')
+            check_reference(key['id'], template)
+          else
+            (@error[:error][@template_key] ||= []) << I18n.t(:data_format, scope: [:validation, :errors], key: key, template: template['label'], locale: DataCycleCore.ui_language)
+          end
+        end
+
+        def check_reference(key, template)
+          if uuid?(key)
+            data_set = "DataCycleCore::#{template['linked_table'].classify}".constantize.where(id: key)
+            (@error[:error][@template_key] ||= []) << I18n.t(:not_found, scope: [:validation, :errors], key: key, template: template['label'], table: template['linked_table'], locale: DataCycleCore.ui_language) if data_set.count < 1
+          end
+        end
+
+        def uuid?(data)
+          data.downcase!
+          uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
+          check_uuid = data.length == 36 && !(data =~ uuid).nil?
+          (@error[:error][@template_key] ||= []) << I18n.t(:uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless check_uuid
+          check_uuid
         end
 
         # validate nil,"",[],[nil],[""] as blank.
