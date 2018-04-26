@@ -30,7 +30,7 @@ namespace :review do
       #     end
       #   end
       # end
-      # execute "rm -rf #{fetch(:deploy_to)}"
+      execute "rm -rf #{fetch(:deploy_to)}"
     end
   end
 
