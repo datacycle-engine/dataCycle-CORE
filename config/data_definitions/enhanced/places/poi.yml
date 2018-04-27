@@ -1,13 +1,11 @@
 ---
 - :data:
-    :name: Örtlichkeit
+    :name: POI
     :type: object
     :content_type: entity
     :permissions:
       :read_write: true
     :boost: 10.0
-    :features:
-      :overlay: ['overlay']
     :properties:
       :id:
         :label: id
@@ -28,15 +26,12 @@
           :type: input
           :options:
             :data-validate: text
-      # overlay mixin
-      :overlay:
-        :label: Overlay
+      :opening_hours_specification:
+        :label: Öffnungszeit
         :type: object
         :storage_location: creative_works
         :delete: true
-        :name: PlaceOverlay
-        :validations:
-          :maxLength: 1
+        :name: Öffnungszeit
         :editor:
           :type: embeddedObject
       :postal_address:
@@ -55,9 +50,7 @@
         :storage_location: column
         :search: true
         :editor:
-          :type: quillEditor
-          :options:
-            :data-size: basic
+          :type: input
       :text:
         :label: Text
         :type: string
@@ -92,24 +85,12 @@
           :options:
             :data-validate: media
             :data-type: image
-      :outdoor_active:
-        :type: mixin
-        :name: outdoor_active
-      :outdoor_active_categories:
-        :type: mixin
-        :name: outdoor_active_categories
-      :feratel_categories:
-        :type: mixin
-        :name: feratel_categories
-      :xamoom:
-        :type: mixin
-        :name: xamoom
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
-        :default_value: "Örtlichkeit"
+        :default_value: "POI"
       :content_classifications:
         :type: mixin
         :name: content_classifications

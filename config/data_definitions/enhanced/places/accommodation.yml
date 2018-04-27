@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: Örtlichkeit
+    :name: Unterkunft
     :type: object
     :content_type: entity
     :permissions:
@@ -55,9 +55,7 @@
         :storage_location: column
         :search: true
         :editor:
-          :type: quillEditor
-          :options:
-            :data-size: basic
+          :type: input
       :text:
         :label: Text
         :type: string
@@ -109,7 +107,7 @@
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
-        :default_value: "Örtlichkeit"
+        :default_value: "Unterkunft"
       :content_classifications:
         :type: mixin
         :name: content_classifications
