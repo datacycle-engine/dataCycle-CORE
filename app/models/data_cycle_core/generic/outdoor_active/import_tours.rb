@@ -33,6 +33,10 @@ module DataCycleCore
               DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "CATEGORY:#{id}")
             }.reject(&:nil?)
 
+            tags = (raw_data.dig('properties', 'property') || []).reject(&:blank?).map { |t| t['tag'] }.map { |id|
+              DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "TAG:#{id}")
+            }.reject(&:nil?)
+
             regions = (raw_data.dig('regions', 'region') || []).map { |r| r['id'] }.reject(&:blank?).map { |id|
               DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "REGION:#{id}")
             }.reject(&:nil?)
@@ -49,6 +53,7 @@ module DataCycleCore
                 data_type: nil,
                 image: images.map(&:id),
                 categories: categories.map(&:id),
+                tags: tags.map(&:id),
                 regions: regions.map(&:id),
                 source: sources_hash
               ).with_indifferent_access
