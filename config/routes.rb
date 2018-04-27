@@ -32,7 +32,7 @@ DataCycleCore::Engine.routes.draw do
     resources :places, only: [:index, :show, :create, :edit, :update, :destroy]
   end
 
-  resources :creative_works, :persons, :places do
+  resources(*DataCycleCore.content_tables.map(&:to_sym)) do
     post :validate, on: :member
     post :validate, on: :collection
     patch :set_life_cycle, on: :member
