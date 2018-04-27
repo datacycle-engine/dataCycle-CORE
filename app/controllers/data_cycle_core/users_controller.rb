@@ -1,12 +1,12 @@
 module DataCycleCore
   class UsersController < ApplicationController
-    before_action :authenticate_user!   # from devise (authenticate)
-    load_and_authorize_resource         # from cancancan (authorize)
+    before_action :authenticate_user! # from devise (authenticate)
+    load_and_authorize_resource except: :search # from cancancan (authorize)
     before_action :set_user, only: [:edit, :update, :destroy, :unlock]
 
     def index
-      authorize! :crud, DataCycleCore::User
-      if current_user.is_rank?(10)
+      authorize! :index, DataCycleCore::User
+      if current_user.has_rank?(10)
         @paginateObject = DataCycleCore::User.includes(:role).page(params[:page])
       else
         @paginateObject = DataCycleCore::User.where(locked_at: nil).includes(:role).page(params[:page])
@@ -74,6 +74,7 @@ module DataCycleCore
     end
 
     def search
+      authorize! :show, DataCycleCore::DataLink
       users = DataCycleCore::User.where('email ILIKE :q', q: "%#{params[:q]}%").limit(20)
 
       render json: users

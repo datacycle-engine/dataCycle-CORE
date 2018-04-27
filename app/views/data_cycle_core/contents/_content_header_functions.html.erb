@@ -18,7 +18,7 @@
                 </div>
             </li>
         <% end %>
-        <% if can? :manage, DataCycleCore::WatchList %>
+        <% if can? :read, DataCycleCore::WatchList %>
             <li class="has-dropdown"><%= render 'watch_lists', content: content %></li>
         <% end %>
         <% if can? :print, content %>
@@ -27,7 +27,7 @@
           </li>
         <% end %>
         <li class="buttons">
-          <% unless current_user.role&.rank == 0 %>
+          <% if current_user.role&.rank&.positive? %>
             <a href="<%= breadcrumbs[-2].url %>" class="hascontent close-show-button"><i aria-hidden="true" class="fa fa-times"></i></a>
           <% end %>
         </li>

@@ -22,7 +22,7 @@
 
     <hr />
 
-  <% elsif current_user.is_rank?(0) && @creative_work.data_links.where(receiver_id: current_user.id, permissions: 'write').size > 0 %>
+  <% elsif current_user.is_rank?(0) && (@creative_work.data_links.where(receiver_id: current_user.id, permissions: 'write').exists? || @creative_work.watch_lists.includes(:data_links).where(data_links: { receiver_id: current_user.id }).exists?) %>
     <hr />
     <div class="finalize-button-container">
       <%= check_box_tag 'finalize' %>

@@ -14,6 +14,7 @@ module DataCycleCore
     end
 
     def load_watch_lists
+      @watch_list = DataCycleCore::WatchList.find_by(id: params[:watch_list_id]) if params[:watch_list_id]
       @accessible_watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
     end
 

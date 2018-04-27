@@ -277,6 +277,9 @@ de:
       data_cycle_core/external_source:
         one: Externe Quelle
         other: Externe Quellen
+      data_cycle_core/asset:
+        one: Asset
+        other: Assets
     attributes:
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
@@ -357,8 +360,8 @@ de:
       show_search_history: Gesammten Verlauf ansehen
       save: Suche speichern
       history: Suchverlauf
-
-
+    watch_list:
+      locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
 
   date:
     abbr_day_names:

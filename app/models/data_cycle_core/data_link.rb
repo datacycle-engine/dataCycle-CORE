@@ -10,16 +10,25 @@ module DataCycleCore
     scope :session_edit_links, ->(ids) { where(permissions: 'write', id: ids) }
 
     def is_valid?
-      (valid_from.nil? || DateTime.now > valid_from) && (valid_until.nil? || DateTime.now < valid_until)
+      !valid_from.presence&.>(DateTime.now) && !valid_until.presence&.<(DateTime.now)
     end
 
     private
 
     def set_release_status
-      creator.subscriptions.create({ subscribable_id: item.id, subscribable_type: item.class }) unless creator.subscriptions.exists?(subscribable_id: item.id, subscribable_type: item.class)
+      creator.subscriptions.find_or_create_by(subscribable_id: item.id, subscribable_type: item.class) if DataCycleCore.content_tables.include?(item.class.table_name)
 
-      I18n.with_locale(item.first_available_locale) do
-        item.update(release_id: DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner])&.id) if item.schema&.dig('releasable') && DataCycleCore.release_codes.present? && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner]).present?
+      if item.try(:schema)&.dig('releasable') && DataCycleCore.release_codes.present? && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner]).present?
+        I18n.with_locale(item.first_available_locale) do
+          item.update(release_id: DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner])&.id)
+        end
+      elsif item.is_a?(DataCycleCore::WatchList)
+        release_id = DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner])&.id
+        item.watch_list_data_hashes.includes(:hashable).map(&:hashable).each do |content|
+          I18n.with_locale(content.first_available_locale) do
+            content.update(release_id: release_id) if content.try(:schema)&.dig('releasable') && content.release_id != release_id
+          end
+        end
       end
     end
   end

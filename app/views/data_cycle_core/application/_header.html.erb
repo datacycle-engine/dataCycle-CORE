@@ -17,12 +17,12 @@
                   <% end if user_signed_in? && current_user.role&.rank&.positive? %>
                 </li>
                 <li>
-                    <% if can?(:manage, DataCycleCore::WatchList) %>
+                    <% if can?(:read, DataCycleCore::WatchList) %>
                         <%= render 'watch_lists' %>
                     <% end %>
                 </li>
                 <li>
-                    <% if DataCycleCore.features.dig(:publication_schedule) && can?(:show_publications, DataCycleCore::Content) %>
+                    <% if DataCycleCore.features.dig(:publication_schedule) && can?(:index, :publication) %>
                         <%= link_to t('data_cycle_core.publications_calendar', locale: DataCycleCore.ui_language), publications_path, class: 'publications-link' %>
                     <% end %>
                 </li>

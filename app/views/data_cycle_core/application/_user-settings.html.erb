@@ -43,7 +43,7 @@
     <% end %>
   </div>
 
-  <% if can?(:crud, DataCycleCore::Classification) || can?(:crud, DataCycleCore::User) || can?(:crud, DataCycleCore::UserGroup) %>
+  <% if can?(:index, DataCycleCore::Classification) || can?(:index, DataCycleCore::User) || can?(:index, DataCycleCore::UserGroup) %>
     <div class="settings-row">
       <div class="row columns">
         <h5><%= t('data_cycle_core.administration', locale: DataCycleCore.ui_language) %></h5>
@@ -58,7 +58,7 @@
         </div>
       <% end %>
 
-      <% if can? :crud, DataCycleCore::User %>
+      <% if can? :index, DataCycleCore::User %>
         <div class="row columns">
           <%= link_to users_path, class: 'users-link' do %>
             <span class="icon"><i class="fa fa-user" aria-hidden="true"></i></span>
@@ -67,7 +67,7 @@
         </div>
       <% end %>
 
-      <% if can? :crud, DataCycleCore::UserGroup %>
+      <% if can? :index, DataCycleCore::UserGroup %>
         <div class="row columns">
           <%= link_to user_groups_path, class: 'user-groups-link' do %>
             <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>

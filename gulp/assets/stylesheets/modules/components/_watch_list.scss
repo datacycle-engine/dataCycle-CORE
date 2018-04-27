@@ -118,30 +118,11 @@
         margin: 0;
         line-height: 1.4rem;
         border: none;
+        z-index: 1;
       }
       button[type="submit"].button i {
         font-size: 1rem;
         line-height: 1.2rem;
-      }
-    }
-  }
-}
-
-#settings-off-canvas {
-  .settings-row {
-    &.watchlists {
-      a {
-        margin: 0;
-      }
-      .add-watch-list {
-        float: right;
-      }
-      .item {
-        padding: 0.5rem;
-      }
-      span.icon {
-        display: inline-block;
-        width: 2rem;
       }
     }
   }

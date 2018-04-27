@@ -17,6 +17,9 @@ module DataCycleCore
     has_many :user_group_users, dependent: :destroy
     has_many :user_groups, through: :user_group_users
 
+    has_many :received_data_links, class_name: :DataLink, foreign_key: :receiver_id, dependent: :destroy
+    has_many :created_data_links, class_name: :DataLink, foreign_key: :creator_id, dependent: :destroy
+
     before_create :set_default_role
 
     include UserHelpers

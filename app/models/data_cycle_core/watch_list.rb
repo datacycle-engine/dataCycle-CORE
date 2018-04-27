@@ -7,6 +7,6 @@ module DataCycleCore
     has_many :watch_list_data_hashes, dependent: :destroy
     belongs_to :user
 
-    has_many :data_links, as: :item
+    has_many :data_links, as: :item, dependent: :destroy
   end
 end

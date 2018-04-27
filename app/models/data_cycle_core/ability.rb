@@ -1,6 +1,6 @@
 module DataCycleCore
   class Ability
-    CONTENT_MODELS = [DataCycleCore::Place, DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork].freeze
+    CONTENT_MODELS = DataCycleCore.content_tables.map { |table| "DataCycleCore::#{table.classify}".constantize }.freeze
 
     include CanCan::Ability
 
@@ -9,17 +9,23 @@ module DataCycleCore
       alias_action :create, :import, :read, :update, :create_user, :search, :unlock, :validate, :validate_single_data, to: :crud
 
       if user
-        can :read, :all
-        cannot :manage, [DataCycleCore::WatchList, DataCycleCore::StoredFilter]
-        cannot :read, :backend
-        can :search, DataCycleCore::User
-        can [:show, :find], :object_browser
+        can :show, :all
 
         if user.has_rank?(0)
-          can :show, DataCycleCore::WatchList
+          can [:show, :find], :object_browser
 
           DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
-            can [:update, :validate, :validate_single_data, :import], link.item_type.constantize, { id: link.item_id } if link.is_valid?
+            if link.is_valid? && link.item_type == 'DataCycleCore::WatchList'
+              can [:update, :validate, :validate_single_data, :import], CONTENT_MODELS do |content|
+                if content.try(:schema)&.dig('releasable') && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner]).present?
+                  link.item.watch_list_data_hashes.pluck(:hashable_id).include?(content.id) && content.release_id == DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner]).id
+                else
+                  link.item.watch_list_data_hashes.pluck(:hashable_id).include?(content.id)
+                end
+              end
+            elsif link.is_valid?
+              can [:update, :validate, :validate_single_data, :import], link.item_type.constantize, id: link.item_id
+            end
           end
 
           can :print, CONTENT_MODELS do |content|
@@ -28,39 +34,41 @@ module DataCycleCore
         end
 
         if user.has_rank?(1)
-          can [:read, :settings, :store_filter], :backend
-          can :modify, DataCycleCore::User, id: user.id
-          can :manage, DataCycleCore::WatchList, user_id: user.id
+          can [:read, :settings], :backend
+          can [:show, :update], DataCycleCore::User, id: user.id
           can [:read, :create, :update, :destroy, :show_history], DataCycleCore::StoredFilter, user_id: user.id
           can :read, DataCycleCore::StoredFilter, system: true
-          can :show_publications, DataCycleCore::Content
-          can [:subscribe, :history, :history_detail], [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork, DataCycleCore::Place]
+          can :read, :publication
+          can :read, DataCycleCore::Subscription
+          can [:subscribe, :history, :history_detail], CONTENT_MODELS
+
+          can [:read, :create, :update, :destroy], DataCycleCore::WatchList, user_id: user.id
+          can [:add_item, :remove_item], DataCycleCore::WatchList do |watch_list|
+            watch_list.data_links.where(permissions: 'write').none?(&:is_valid?) && watch_list.user_id == user.id
+          end
         end
 
         if user.has_rank?(10)
-          can :manage, DataCycleCore::DataLink
-          can [:crud, :destroy], DataCycleCore::UserGroup
-          can [:crud, :destroy, :generate_access_token], DataCycleCore::User do |the_user|
-            user&.role&.rank&.>(the_user&.role&.rank) || the_user == user
+          can [:read, :create, :update, :destroy], [DataCycleCore::DataLink, DataCycleCore::UserGroup]
+          can [:read, :create_user, :update, :destroy, :unlock, :generate_access_token], DataCycleCore::User do |the_user|
+            the_user == user || user&.role&.rank&.>(the_user&.role&.rank)
           end
 
-          can :update_release_status, [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork, DataCycleCore::Place]
+          can :update_release_status, CONTENT_MODELS
 
           can :manage, [DataCycleCore::Classification, DataCycleCore::ClassificationTree], external_source_id: nil
-          can :download, DataCycleCore::ClassificationTreeLabel
+          can [:read, :download], DataCycleCore::ClassificationTreeLabel
           can [:update, :download], [DataCycleCore::ClassificationTreeLabel, DataCycleCore::ClassificationAlias], external_source_id: nil, internal: false
 
           can :map_classifications, DataCycleCore::ClassificationAlias
-
           can :destroy, DataCycleCore::ClassificationTreeLabel do |c|
             c.external_source_id.nil? && !c.internal && !c.classification_aliases&.any?(&:internal) && !c.classification_aliases&.any?(&:external_source_id)
           end
-
           can :destroy, DataCycleCore::ClassificationAlias do |c|
             c.external_source_id.nil? && !c.internal && !c.sub_classification_alias&.any?(&:internal) && !c.sub_classification_alias&.any?(&:external_source_id)
           end
 
-          can :crud, [DataCycleCore::CreativeWork, DataCycleCore::Event, DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::Place] do |data_object|
+          can :crud, CONTENT_MODELS do |data_object|
             # data_object&.schema&.dig('permissions', 'read_write') != false
             data_object.try(:external_key).blank? || data_object&.schema&.dig('features', 'overlay').present?
           end
@@ -68,7 +76,7 @@ module DataCycleCore
           can [:set_role, :set_user_groups], DataCycleCore::User do |the_user|
             !the_user.has_rank?(user.role.rank) || user == the_user
           end
-          can :destroy, [DataCycleCore::CreativeWork, DataCycleCore::Event, DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::Place] do |data_object|
+          can :destroy, CONTENT_MODELS do |data_object|
             data_object.try(:external_key).blank?
           end
 

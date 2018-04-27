@@ -8,7 +8,7 @@
                             <li>
                                 <% if link.current? %>
                                     <span class="breadcrumb-text"><%= link.text %></span>
-                                <% elsif current_user.role.rank == 0 %>
+                                <% elsif current_user.role&.rank&.zero? %>
                                     <span class="breadcrumb-text"><%= link.text %></span>
                                     <i class="fa fa-angle-right breadcrumb-separator" aria-hidden="true"></i>
                                 <% else %>

@@ -7,7 +7,7 @@ module DataCycleCore
     def index
       respond_to do |format|
         format.html do
-          authorize! :read, DataCycleCore::ClassificationTreeLabel
+          authorize! :index, DataCycleCore::ClassificationTreeLabel
 
           @classification_tree_labels = DataCycleCore::ClassificationTreeLabel.accessible_by(current_ability)
             .order(:created_at)
@@ -15,7 +15,7 @@ module DataCycleCore
         end
 
         format.js do
-          authorize! :read, DataCycleCore::ClassificationTree
+          authorize! :index, DataCycleCore::ClassificationTree
 
           permitted_params = params.permit(:classification_tree_label_id, :classification_tree_id)
 
