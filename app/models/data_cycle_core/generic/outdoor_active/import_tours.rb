@@ -53,7 +53,7 @@ module DataCycleCore
                 data_type: nil,
                 image: images.map(&:id),
                 categories: categories.map(&:id),
-                tags: tags.map(&:id),
+                outdoor_active_tags: tags.map(&:id),
                 regions: regions.map(&:id),
                 source: sources_hash
               ).with_indifferent_access

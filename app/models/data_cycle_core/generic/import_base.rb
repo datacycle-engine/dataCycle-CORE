@@ -142,7 +142,7 @@ module DataCycleCore
         error = content.set_data_hash(data_hash: (content.get_data_hash || {}).merge(data), prevent_history: true)
 
         if @logging && !error[:error].blank?
-          @logging.error('Validating import data', data['external_key'], data, error[:error].join('\n'))
+          @logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))
         elsif !error[:error].blank?
           raise error[:error].first
         end
