@@ -22,9 +22,6 @@ module DataCycleCore
       data_set.save
       data_set.set_search
       data_set.save
-
-      # ap data_set.search_property_names
-      # ap data_set.content_search
     end
   end
 end

@@ -9,15 +9,10 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
         :search: true
         :editor:
@@ -25,15 +20,13 @@
       :caption:
         :label: Alt-Label
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
         :editor:
           :type: input
       :description:
         :label: Beschreibung
         :type: string
-        :storage_type: string
         :storage_location: column
         :search: true
         :editor:
@@ -41,45 +34,37 @@
       :photographer:
         :label: Fotograf
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :search: true
         :editor:
           :type: input
       :creator:
         :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: users
       :license:
         :label: Copyright / Lizenz
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :editor:
           :type: input
       :mandatory_license:
         :label: Copyright Nennung verpflichtend
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: boolean
+        :type: boolean
+        :storage_location: value
         :editor:
           :type: input
       :content_location:
         :label: Ort
-        :type: object
-        :storage_location: places
-        :name: contentLocation
+        :type: embedded
+        :linked_table: places
+        :template_name: contentLocation
         :editor:
           :type: objectBrowser
       :width:
         :label: Breite
         :type: number
-        :storage_type: number
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: integer
         :editor:
@@ -87,8 +72,7 @@
       :height:
         :label: Höhe
         :type: number
-        :storage_type: number
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: integer
         :editor:
@@ -96,8 +80,7 @@
       :content_size:
         :label: Dateigröße
         :type: number
-        :storage_type: number
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: integer
         :editor:
@@ -105,22 +88,20 @@
       :file_format:
         :label: Dateiformat
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :editor:
           :type: input
       :comment:
         :label: Kommentar
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :search: true
         :editor:
           :type: input
       :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
-        :storage_location: metadata
+        :storage_location: value
         :editor:
           :sorting: 3
           :options:
@@ -129,11 +110,8 @@
         :properties:
           :date_published:
             :label: Gültig von
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
+            :type: datetime
+            :storage_location: value
             :editor:
               :type: date
               :options:
@@ -142,11 +120,8 @@
                 :placeholder: tt.mm.jjjj
           :expires:
             :label: Gültig bis
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
+            :type: datetime
+            :storage_location: value
             :editor:
               :type: date
               :options:
@@ -155,51 +130,40 @@
                 :placeholder: tt.mm.jjjj
       :date_created:
         :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
       :date_modified:
         :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
       :source:
         :label: Erhalten von
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :editor:
           :type: input
       :image_id:
         :label: Bildnummer
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :editor:
           :type: input
       :visibility:
         :label: Sichtbarkeit
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :editor:
           :type: input
       :access:
         :label: Rechte/Einsatzgebiet
-        :type: classificationTreeLabel
-        :type_name: Rechte
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Rechte
         :editor:
           :type: input
       :content_url:
         :label: Bild URL
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: url
         :editor:
@@ -207,43 +171,36 @@
       :thumbnail_url:
         :label: Thumbnail URL
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: url
         :editor:
           :type: image
-          :sorting: 1
       :url:
         :label: URL
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: url
         :editor:
           :type: input
       :keywords:
         :label: Tags
-        :type: classificationTreeLabel
-        :type_name: MediaArchive - Tags
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: MediaArchive - Tags
         :editor:
           :type: input
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Bild"
       :data_pool:
         :label: Inhaltspool
-        :type: classificationTreeLabel
-        :type_name: Inhaltspools
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltspools
         :default_value: "Aktuelle Inhalte"
       :restrictions:
         :label: Einschränkungen
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value

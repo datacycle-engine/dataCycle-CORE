@@ -7,101 +7,72 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :given_name:
         :label: Vorname
         :type: string
-        :storage_type: string
         :storage_location: column
-        :validations:
-          :minLength: 1
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
       :family_name:
         :label: Nachname
         :type: string
-        :storage_type: string
         :storage_location: column
         :validations:
-          :minLength: 1
+          :min: 1
         :editor:
           :type: input
-          :sorting: 2
           :options:
             :data-validate: text
       :honorific_prefix:
         :label: "Anrede / Titel"
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :editor:
           :type: input
-          :sorting: 3
       :telephone:
         :label: Telefonnummer
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :editor:
           :type: input
-          :sorting: 4
       :fax_number:
         :label: Fax
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :editor:
           :type: input
-          :sorting: 5
       :email:
         :label: E-Mail
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :editor:
           :type: input
-          :sorting: 6
       :job_title:
         :label: Position
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :editor:
           :type: input
-          :sorting: 7
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Person"
       :creator:
         :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: users
       :date_created:
         :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
       :date_modified:
         :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
 
 - :data:
     :name: Autor
@@ -111,40 +82,30 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :given_name:
         :label: Vorname
         :type: string
-        :storage_type: string
         :storage_location: column
         :validations:
-          :minLength: 1
+          :min: 1
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
       :family_name:
         :label: Nachname
         :type: string
-        :storage_type: string
         :storage_location: column
         :validations:
-          :minLength: 1
+          :min: 1
         :editor:
           :type: input
-          :sorting: 2
           :options:
             :data-validate: text
       :job_title:
         :label: Beruf
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :editor:
           :type: input
-          :sorting: 3

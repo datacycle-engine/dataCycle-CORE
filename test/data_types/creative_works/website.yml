@@ -9,34 +9,26 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :url:
         :label: Link
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :validations:
-          :minLength: 1
+          :min: 1
           :format: url
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
       :name:
         :label: Linktitel
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: translated_value
         :validations:
-          :minLength: 1
+          :min: 1
         :editor:
           :type: quillEditor
-          :sorting: 2
           :options:
             :data-size: basic
             :data-validate: text
@@ -44,11 +36,9 @@
       :description:
         :label: Linkbeschreibung
         :type: string
-        :storage_type: text
         :storage_location: column
         :editor:
           :type: quillEditor
-          :sorting: 3
           :options:
             :data-size: basic
             :data-validate: text
@@ -56,33 +46,24 @@
       :is_part_of:
         :label: parent
         :type: string
-        :storage_type: string
         :storage_location: column
         :validations:
           :format: uuid
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Website"
       :creator:
         :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: users
+        :storage_location: value
       :date_created:
         :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
       :date_modified:
         :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value

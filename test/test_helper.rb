@@ -30,6 +30,11 @@ DataCycleCore::MasterData::ImportTemplates.import_all_templates(template_hash: i
 classification_yaml = Rails.root.join('..', 'data_types', 'classifications.yml')
 DataCycleCore::MasterData::ImportClassifications.import(classification_yaml)
 
+DataCycleCore.content_tables.each do |item|
+  puts "Templates for #{item}"
+  ap "DataCycleCore::#{item.classify}".constantize.where(template: true).pluck(:template_name)
+end
+
 # seed release table
 if DataCycleCore::Release.count.zero?
   DataCycleCore::Release.create!(

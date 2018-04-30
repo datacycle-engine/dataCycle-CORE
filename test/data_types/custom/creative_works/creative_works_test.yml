@@ -7,7 +7,6 @@
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
 
 - :data:
@@ -17,23 +16,20 @@
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
       :includedData:
         :label: embeddedDataLabel
         :type: object
-        :storage_location: content
+        :storage_location: translated_value
         :properties:
           :item1:
             :label: Item1Label
             :type: string
-            :storage_type: string
-            :storage_location: content
+            :storage_location: translated_value
           :item2:
             :label: Item2Label
             :type: string
-            :storage_type: string
-            :storage_location: content
+            :storage_location: translated_value
 
 - :data:
     :name: TestClassificationData
@@ -42,13 +38,11 @@
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
       :data_pool:
         :label: Inhaltspool
-        :type: classificationTreeLabel
-        :type_name: Inhaltspools
-        :storage_location: classification_relation
+        :type: classification
+        :table_name: Inhaltspools
         :default_value: "Aktuelle Inhalte"
 
 - :data:
@@ -58,14 +52,13 @@
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
       :testPlace:
         :label: Ort
-        :type: object
+        :type: embedded
         :delete: true
-        :storage_location: places
-        :name: testPlace
+        :linked_table: places
+        :template_name: testPlace
 
 - :data:
     :name: TestEmbeddedCreativeWork
@@ -74,14 +67,13 @@
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
       :testCW:
         :label: Kreativdaten
-        :type: object
+        :type: embedded
         :delete: true
-        :storage_location: creative_works
-        :name: EmbeddedCreativeWork
+        :linked_table: creative_works
+        :template_name: EmbeddedCreativeWork
 
 - :data:
     :name: TestEmbeddedArray
@@ -90,14 +82,11 @@
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
       testArray:
         :label: Verlinkt
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
+        :type: linked
+        :linked_table: creative_works
 
 - :data:
     :name: EmbeddedCreativeWork
@@ -105,21 +94,15 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
       :data_pool:
         :label: Inhaltspool
-        :type: classificationTreeLabel
-        :type_name: Inhaltspools
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltspools
         :default_value: "Aktuelle Inhalte"
 
 - :data:
@@ -128,22 +111,15 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
       :linked:
         :label: Verlinkt
-        :type: embeddedLink
-        :type_name: places
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: places
 
 - :data:
     :name: CreativeWorkEmbeddedLinkUser
@@ -151,22 +127,15 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
       :linked:
         :label: Verlinkt
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: users
 
 - :data:
     :name: TestObject
@@ -175,19 +144,17 @@
       :headline1:
         :label: Titel
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :validations:
-          :minLength: 1
+          :min: 1
       :description1:
         :label: Beschreibung
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: translated_value
       :period:
         :label: Gültigkeitszeitraum
         :type: object
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :daterange:
             :from: created_at
@@ -195,18 +162,12 @@
         :properties:
           :created_at:
             :label: Gültigkeit
-            :type: string
-            :storage_type: string
+            :type: datetime
             :storage_location: column
-            :validations:
-              :format: date_time
           :updated_at:
             :label: bis
-            :type: string
-            :storage_type: string
+            :type: datetime
             :storage_location: column
-            :validations:
-              :format: date_time
 
 - :data:
     :name: TestObject2
@@ -215,14 +176,13 @@
       :headline1:
         :label: Titel
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :validations:
-          :minLength: 1
+          :min: 1
       :period:
         :label: Gültigkeitszeitraum
         :type: object
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :daterange:
             :from: created_at
@@ -230,27 +190,20 @@
         :properties:
           :created_at:
             :label: gültig_von
-            :type: string
-            :storage_type: string
+            :type: datetime
             :storage_location: column
-            :validations:
-              :format: date_time
           :updated_at:
             :label: gültig_bis
-            :type: string
-            :storage_type: string
+            :type: datetime
             :storage_location: column
-            :validations:
-              :format: date_time
           :description:
             :label: Beschreibung
             :type: string
-            :storage_type: text
-            :storage_location: metadata
+            :storage_location: value
           :validity_period:
             :label: Zeitraum
             :type: object
-            :storage_location: metadata
+            :storage_location: value
             :validations:
               :daterange:
                 :from: valid_from
@@ -258,32 +211,23 @@
             :properties:
               :valid_from:
                 :label: Gültigkeit
-                :type: string
-                :storage_type: string
-                :storage_location: metadata
-                :validations:
-                  :format: date_time
+                :type: datetime
+                :storage_location: value
               :valid_until:
                 :label: bis
-                :type: string
-                :storage_type: string
-                :storage_location: metadata
-                :validations:
-                  :format: date_time
+                :type: datetime
+                :storage_location: value
 
 - :data:
     :name: ThemaTest
     :type: object
-    :permissions:
-      :read_write: true
     :properties:
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
         :validations:
-          :minLength: 1
+          :min: 1
         :editor:
           :type: input
           :sorting: 1
@@ -338,7 +282,7 @@
       :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :daterange:
             :from: valid_from
@@ -352,7 +296,7 @@
             :label: Gültigkeit
             :type: string
             :storage_type: string
-            :storage_location: metadata
+            :storage_location: value
             :validations:
               :format: date_time
             :editor:
@@ -364,7 +308,7 @@
             :label: bis
             :type: string
             :storage_type: string
-            :storage_location: metadata
+            :storage_location: value
             :validations:
               :format: date_time
             :editor:
@@ -383,19 +327,19 @@
         :type: embeddedLink
         :type_name: users
         :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
       :date_created:
         :label: Erstellungsdatum
         :type: string
         :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: date_time
       :date_modified:
         :label: Änderungsdatum
         :type: string
         :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: date_time
 
@@ -408,46 +352,35 @@
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
         :validations:
-          :minLength: 1
+          :min: 1
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
       :image:
         :label: Bilder
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
-        :editor:
-          :sorting: 3
+        :type: linked
+        :linked_table: creative_works
+        :storage_location: value
       :video:
         :label: Videos
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
-        :editor:
-          :sorting: 4
+        :type: linked
+        :linked_table: creative_works
+        :storage_location: value
       :text:
         :label: Recherchedaten
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: translated_value
         :editor:
           :type: quillEditor
-          :sorting: 2
           :options:
             :data-size: full
       :data_pool:
         :label: Inhaltspool
-        :type: classificationTreeLabel
-        :type_name: Inhaltspools
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltspools
         :default_value: "Recherche"
 #      :data_type:
 #        :label: Inhaltstype
@@ -457,24 +390,19 @@
 #        :default_value: "Aktuelle Inhalte"
       :creator:
         :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: users
+        :storage_location: value
+        :validations:
+          :max: 1
       :date_created:
         :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
       :date_modified:
         :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
 
 - :data:
     :name: BildTest
@@ -485,157 +413,124 @@
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
       :caption:
         :label: Alt-Label
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
       :description:
         :label: Beschreibung
         :type: string
-        :storage_type: string
         :storage_location: column
       :creator:
         :label: Fotograf
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
       :license:
         :label: Copyright / Lizenz
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
       :mandatory_license:
         :label: Copyright Nennung verpflichtend
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: boolean
+        :type: boolean
+        :storage_location: value
       :content_location:
         :label: Ort
-        :type: object
-        :delete: true
-        :storage_location: places
-        :name: contentLocation
+        :type: embedded
+        :linked_table: places
+        :template_name: contentLocation
       :width:
         :label: Breite
         :type: number
-        :storage_type: number
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: integer
       :height:
         :label: Höhe
         :type: number
-        :storage_type: number
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: integer
       :content_size:
         :label: Dateigröße
         :type: number
-        :storage_type: number
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: integer
       :file_format:
         :label: Dateiformat
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
       :comment:
         :label: Kommentar
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
       :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
-        :storage_location: metadata
+        :storage_location: value
         :properties:
           :date_published:
             :label: Gültig von
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
+            :type: datetime
+            :storage_location: value
           :expires:
             :label: Gültig bis
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
+            :type: datetime
+            :storage_location: value
       :accountablePerson:
         :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: users
+        :storage_location: value
+        :validations:
+          :max: 1
       :date_created:
         :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
       :date_modified:
         :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
       :source:
         :label: Erhalten von
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
       :image_id:
         :label: Bildnummer
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
       :visibility:
         :label: Sichtbarkeit
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
       :access:
         :label: Rechte/Einsatzgebiet
-        :type: classificationTreeLabel
-        :type_name: Rechte
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Rechte
       :content_url:
         :label: Bild URL
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: url
       :thumbnail_url:
         :label: Thumbnail URL
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: url
       :url:
         :label: URL
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: url
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Bild"
 
 - :data:
@@ -647,27 +542,22 @@
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
         :validations:
-          :minLength: 1
+          :min: 1
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
       :alternative_headline:
         :label: Subüberschrift
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :editor:
           :type: input
-          :sorting: 2
       :description:
         :label: Teasertext
         :type: string
-        :storage_type: text
         :storage_location: column
         :editor:
           :type: quillEditor
@@ -677,129 +567,97 @@
       :name:
         :label: Linktext
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :editor:
           :type: input
-          :sorting: 4
       :text:
         :label: Fließtext
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: translated_value
         :editor:
           :type: quillEditor
-          :sorting: 5
           :options:
             :data-size: full
       :meta_title:
         :label: Meta-Titel
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :editor:
           :type: input
-          :sorting: 6
       :meta_description:
         :label: Meta-Description
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: translated_value
         :editor:
           :type: quillEditor
-          :sorting: 7
           :options:
             :data-size: full
       :keywords:
         :label: SEO Keywords
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: translated_value
         :editor:
           :type: quillEditor
-          :sorting: 8
           :options:
             :data-size: none
       :same_as:
         :label: Canonical Tag
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :editor:
           :type: input
-          :sorting: 9
       :image:
         :label: Bilder
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
-        :editor:
-          :sorting: 10
+        :type: linked
+        :linked_table: creative_works
       :video:
         :label: Videos
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
-        :editor:
-          :sorting: 11
+        :type: linked
+        :linked_table: creative_works
       :topics:
         :label: Themenbereiche
-        :type: classificationTreeLabel
-        :type_name: Themenbereiche
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Themenbereiche
         :editor:
           :type: classificationSelector
-          :sorting: 20
       :markets:
         :label: Zielmarkt
-        :type: classificationTreeLabel
-        :type_name: Märkte
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Märkte
         :editor:
           :type: classificationSelector
-          :sorting: 21
       :tags:
         :label: Tags
-        :type: classificationTreeLabel
-        :type_name: Sonstiges
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Sonstiges
         :editor:
           :type: classificationSelector
-          :sorting: 22
       :state:
         :label: Bundesland
-        :type: classificationTreeLabel
-        :type_name: Bundesländer
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Bundesländer
         :validations:
           :max: 1
         :editor:
           :type: classificationSelector
-          :sorting: 23
           :options:
             :data-validate: classification
       :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :daterange:
             :from: valid_from
             :to: valid_until
         :editor:
-          :sorting: 30
           :options:
             :class: daterange validation-container
         :properties:
           :valid_from:
             :label: Gültigkeit
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
+            :type: datetime
+            :storage_location: value
             :editor:
               :type: date
               :options:
@@ -807,45 +665,29 @@
                 :data-validate: daterange
           :valid_until:
             :label: bis
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
+            :type: datetime
+            :storage_location: value
             :editor:
               :type: date
               :options:
                 :data-type: datepicker
                 :data-validate: daterange
-#      :data_pool:
-#        :label: Inhaltspool
-#        :type: classificationTreeLabel
-#        :type_name: Inhaltspools
-#        :storage_location: classification_relation
-#        :default_value: "Aktuelle Inhalte"
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Artikel"
       :creator:
         :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: users
+        :validations:
+          max: 1
       :date_created:
         :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
       :date_modified:
         :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value

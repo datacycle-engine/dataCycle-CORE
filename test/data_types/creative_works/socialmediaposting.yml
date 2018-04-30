@@ -10,41 +10,33 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :headline:
         :label: Arbeitstitel
         :type: string
-        :storage_type: string
         :storage_location: column
         :search: true
         :validations:
-          :minLength: 1
+          :min: 1
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
       :headline_external:
         :label: Titel
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
         :validations:
-          :minLength: 1
+          :min: 1
         :editor:
           :type: input
-          :sorting: 2
           :options:
             :data-validate: text
       :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :daterange:
             :from: valid_from
@@ -57,11 +49,8 @@
         :properties:
           :valid_from:
             :label: Gültigkeit
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
+            :type: datetime
+            :storage_location: value
             :editor:
               :type: date
               :options:
@@ -70,11 +59,8 @@
                 :placeholder: tt.mm.jjjj
           :valid_until:
             :label: bis
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
-            :validations:
-              :format: date_time
+            :type: datetime
+            :storage_location: value
             :editor:
               :type: date
               :options:
@@ -84,35 +70,29 @@
       :text:
         :label: Text
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
         :editor:
           :type: quillEditor
-          :sorting: 4
           :options:
             :data-size: basic
             :tabindex: -1
       :image:
         :label: Bilder
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
         :editor:
-          :sorting: 5
           :type: objectBrowser
           :options:
             :data-validate: media
             :data-type: image
       :video:
         :label: Videos
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Video
         :editor:
-          :sorting: 6
           :type: objectBrowser
           :options:
             :data-validate: media
@@ -120,135 +100,107 @@
       :url:
         :label: Link
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :editor:
           :type: input
-          :sorting: 7
       :content_location:
         :label: Ort
-        :type: object
-        :storage_location: places
-        :name: contentLocation
+        :type: embedded
+        :linked_table: places
+        :template_name: contentLocation
         :delete: false
         :validations:
           :max: 1
         :editor:
-          :sorting: 8
           :type: objectBrowser
           :options:
             :data-validate: object
             :data-type: place
       :topics:
         :label: Themenbereiche
-        :type: classificationTreeLabel
-        :type_name: Themenbereiche
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Themenbereiche
         :editor:
           :type: classificationSelector
-          :sorting: 20
           :options:
             :tabindex: -1
       :markets:
         :label: Zielmarkt
-        :type: classificationTreeLabel
-        :type_name: Märkte
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Märkte
         :editor:
           :type: classificationSelector
-          :sorting: 21
           :options:
             :tabindex: -1
       :kind:
         :label: Inhaltsart
-        :type: classificationTreeLabel
-        :type_name: Inhaltsarten
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltsarten
         :editor:
           :type: classificationSelector
-          :sorting: 22
           :options:
             :tabindex: -1
       :season:
         :label: Jahreszeit
-        :type: classificationTreeLabel
-        :type_name: Jahreszeiten
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Jahreszeiten
         :editor:
           :type: classificationSelector
-          :sorting: 23
           :options:
             :tabindex: -1
       :state:
         :label: Bundesland
-        :type: classificationTreeLabel
-        :type_name: Bundesländer
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Bundesländer
         :editor:
           :type: classificationSelector
-          :sorting: 24
           :options:
             :data-validate: classification
             :tabindex: -1
       :tags:
         :label: Tags
-        :type: classificationTreeLabel
-        :type_name: Tags
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Tags
         :editor:
           :type: classificationSelector
-          :sorting: 25
           :options:
             :tabindex: -1
       :output_channels:
         :label: Ausgabekanäle
-        :type: classificationTreeLabel
-        :type_name: Ausgabekanäle
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Ausgabekanäle
         :editor:
           :type: classificationSelector
-          :sorting: 26
           :options:
             :tabindex: -1
       :permitted_creator:
         :label: Ersteller
-        :type: classificationTreeLabel
-        :type_name: Ersteller
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Ersteller
         :editor:
           :type: classificationSelector
-          :sorting: 27
           :options:
             :tabindex: -1
       :data_pool:
         :label: Inhaltspool
-        :type: classificationTreeLabel
-        :type_name: Inhaltspools
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltspools
         :default_value: "Aktuelle Inhalte"
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Social Media Posting"
       :creator:
         :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: users
+        :storage_location: value
       :date_created:
         :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
       :date_modified:
         :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
