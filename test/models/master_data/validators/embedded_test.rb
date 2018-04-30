@@ -38,7 +38,7 @@ describe DataCycleCore::MasterData::Validators::Embedded do
 
     it 'successfully validates embedded Bild' do
       uuid = bild1.id
-      validator = subject.new([{'id' => uuid}], template_hash, 'Bilder')
+      validator = subject.new([{ 'id' => uuid }], template_hash, 'Bilder')
       assert_equal(0, validator.error[:error].size)
     end
 
