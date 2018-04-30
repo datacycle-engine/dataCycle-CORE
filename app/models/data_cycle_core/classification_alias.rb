@@ -66,7 +66,7 @@ module DataCycleCore
     end
 
     def primary_classification
-      classifications.uniq.sort_by { |c| (created_at - c.created_at).abs }.first
+      classifications.sort_by { |c| (created_at - c.created_at).abs }.first
     end
 
     def linked_contents
