@@ -52,7 +52,17 @@ module DataCycleCore
     end
 
     def self.search(q)
-      where(arel_table[:name].matches("%#{q}%"))
+      joins(:classification_alias_path).where("ARRAY_TO_STRING(full_path_names, ' | ') ILIKE ?", "%#{q}%")
+    end
+
+    def self.order_by_similarity(term)
+      max_cardinality = Path.all.pluck('MAX(CARDINALITY(full_path_names))').max
+
+      joins(:classification_alias_path).order(
+        (1..max_cardinality).map { |c|
+          "COALESCE(10 ^ (#{max_cardinality} - #{c}) * (1 - (full_path_names[#{c}] <-> '#{term}')), 0)"
+        }.join(' + ') + ' DESC'
+      )
     end
 
     def primary_classification

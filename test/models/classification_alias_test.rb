@@ -33,13 +33,27 @@ describe DataCycleCore::ClassificationAlias do
       classification_tree.create_classification_alias('A', 'AB - 2')
       classification_tree.create_classification_alias('B')
       classification_tree.create_classification_alias('B', 'BCD - 1')
+      classification_tree.create_classification_alias('X')
+      classification_tree.create_classification_alias('X', '9')
+      classification_tree.create_classification_alias('X', '8')
+      classification_tree.create_classification_alias('X', '7')
     end
 
     it 'should return matching classification aliases' do
-      DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('A').count.must_equal 3
+      DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('B').count.must_equal 3
       DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('b').count.must_equal 3
       DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('1').count.must_equal 2
       DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('2').count.must_equal 1
+    end
+
+    it 'should include descendants' do
+      paths = DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('X').map(&:full_path)
+
+      paths.size.must_equal 4
+      paths.must_include 'CLASSIFICATION TREE > X'
+      paths.must_include 'CLASSIFICATION TREE > X > 7'
+      paths.must_include 'CLASSIFICATION TREE > X > 8'
+      paths.must_include 'CLASSIFICATION TREE > X > 9'
     end
   end
 
@@ -113,6 +127,30 @@ describe DataCycleCore::ClassificationAlias do
       names.must_include 'A - 3 - a'
       names.must_include 'A - 3 - b'
       names.must_include 'A - 3 - c'
+    end
+  end
+
+  describe 'when sorting by similarity' do
+    before do
+      classification_tree.create_classification_alias('A')
+      classification_tree.create_classification_alias('A', 'Frühling')
+      classification_tree.create_classification_alias('A', 'Sommer')
+      classification_tree.create_classification_alias('A', 'Sommer', 'Montag')
+      classification_tree.create_classification_alias('A', 'Sommer', 'Dienstag')
+      classification_tree.create_classification_alias('A', 'Sommer', 'Mittwoch')
+      classification_tree.create_classification_alias('A', 'Sommer', 'Donnerstag')
+      classification_tree.create_classification_alias('A', 'Sommer', 'Freitag')
+      classification_tree.create_classification_alias('A', 'Sommer', 'Samstag')
+      classification_tree.create_classification_alias('A', 'Sommer', 'Sonntag')
+    end
+
+    it 'should order correctly' do
+      paths = DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').with_name('Sommer')
+        .with_descendants.order_by_similarity('Sommer').map(&:full_path)
+
+      paths[0].must_equal 'CLASSIFICATION TREE > A > Sommer'
+      paths[1].must_equal 'CLASSIFICATION TREE > A > Sommer > Sonntag'
+      paths[2].must_equal 'CLASSIFICATION TREE > A > Sommer > Samstag'
     end
   end
 end
