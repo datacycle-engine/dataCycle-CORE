@@ -5,7 +5,7 @@
     :content_type: entity
     :boost: 100.0
     :features:
-      :publication_schedule: ['publication_schedule']
+#      :publication_schedule: ['publication_schedule']
       :releasable: true
     :properties:
       :id:
@@ -119,9 +119,9 @@
       :content_classifications:
         :type: mixin
         :name: content_classifications
-      :publication_schedule:
-        :type: mixin
-        :name: publication_schedule
+#      :publication_schedule:
+#        :type: mixin
+#        :name: publication_schedule
       :meta_data:
         :type: mixin
         :name: meta_data
