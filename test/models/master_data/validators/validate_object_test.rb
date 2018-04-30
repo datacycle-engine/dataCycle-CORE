@@ -1,634 +1,238 @@
 require 'test_helper'
+require 'minitest/spec'
+require 'minitest/autorun'
 
-module DataCycleCore
-  module MasterData
-    module Validators
-      class ObjectTest < ActiveSupport::TestCase
-        # tests for validate (keys in data-hash are keys in template)
-        test 'init object validator' do
-          error_hash = { error: {}, warning: {} }
-          template_hash = {
-            'greeting' => {
-              'label' => 'test_string',
-              'type' => 'string',
-              'storage_type' => 'string',
-              'storage_location' => 'content'
+describe DataCycleCore::MasterData::Validators::Object do
+  subject do
+    DataCycleCore::MasterData::Validators::Object
+  end
+
+  describe 'validate data' do
+    let(:template_hash) do
+      {
+        'greeting' => {
+          'label' => 'test_string',
+          'type' => 'string',
+          'storage_location' => 'translated_value'
+        },
+        'anzahl' => {
+          'label' => 'test_number',
+          'type' => 'number',
+          'storage_location' => 'translated_value'
+        }
+      }
+    end
+
+    let(:daterange_hash) do
+      {
+        'validity_period' => {
+          'label' =>  'Gültigkeitszeitraum',
+          'type' => 'object',
+          'storage_location' => 'value',
+          'validations' => {
+            'daterange' => {
+              'from' => 'valid_from',
+              'to' => 'valid_until'
+            }
+          },
+          'properties' => {
+            'valid_from' => {
+              'label' => 'Gültigkeit',
+              'type' => 'datetime',
+              'storage_location' => 'value'
             },
-            'anzahl' => {
-              'label' => 'test_number',
-              'type' => 'number',
-              'storage_type' => 'number',
-              'storage_location' => 'content'
+            'valid_until' => {
+              'label' => 'bis',
+              'type' => 'datetime',
+              'storage_location' => 'value'
             }
           }
-          data_hash = {
-            'greeting' => 'Hello World!',
-            'anzahl' => 5
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(error_hash, validator.error)
-        end
+        }
+      }
+    end
 
-        test 'error wrong type in object validator' do
-          template_hash = {
-            'greeting' => {
-              'label' => 'test_string',
-              'type' => 'wrong type',
-              'storage_type' => 'string',
-              'storage_location' => 'content'
-            }
-          }
-          data_hash = {
-            'greeting' => 'Hello World!'
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(1, validator.error[:error].size)
-          assert_equal(0, validator.error[:warning].size)
-        end
+    let(:no_error_hash) do
+      { error: {}, warning: {} }
+    end
 
-        test 'no error/ignore additional data given' do
-          template_hash = {
-            'greeting' => {
-              'label' => 'test_string',
-              'type' => 'string',
-              'storage_type' => 'string',
-              'storage_location' => 'content'
-            },
-            'anzahl' => {
-              'label' => 'test_number',
-              'type' => 'number',
-              'storage_type' => 'number',
-              'storage_location' => 'content'
-            }
-          }
-          data_hash = {
-            'greeting' => 'Hello World!',
-            'anzahl' => 5,
-            'xxx' => 'xxx'
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(0, validator.error[:error].size)
-          assert_equal(0, validator.error[:warning].size)
-        end
+    it 'works with a simple hash' do
+      data_hash = { 'greeting' => 'Hello World!', 'anzahl' => 5 }
+      validator = subject.new(data_hash, template_hash)
+      assert_equal(no_error_hash, validator.error)
+    end
 
-        test 'warning data missing' do
-          template_hash = {
-            'greeting' => {
-              'label' => 'test_string',
-              'type' => 'string',
-              'storage_type' => 'string',
-              'storage_location' => 'content'
-            },
-            'anzahl' => {
-              'label' => 'test_number',
-              'type' => 'number',
-              'storage_type' => 'number',
-              'storage_location' => 'content'
-            }
-          }
-          data_hash = {
-            'greeting' => 'Hello World!'
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(0, validator.error[:error].size)
-          assert_equal(1, validator.error[:warning].size)
-        end
+    it 'errors out when a wrong type is given' do
+      new_template_hash = template_hash.deep_dup
+      new_template_hash['greeting']['type'] = 'wrong type'
+      data_hash = { 'greeting' => 'Hello World!', 'anzahl' => 5 }
+      validator = subject.new(data_hash, new_template_hash)
+      assert_equal(1, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
+    end
 
-        test 'error object definition missing' do
-          template_hash = {
-            'greeting' => {
-              'label' => 'test_string',
-              'type' => 'string',
-              'storage_type' => 'string',
-              'storage_location' => 'content'
-            },
-            'anzahl' => {
-              'label' => 'test_number',
-              'type' => 'object',
-              'storage_location' => 'content'
-            }
-          }
-          data_hash = {
-            'greeting' => 'Hello World!',
-            'anzahl' => 5
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(1, validator.error[:error].size)
-          assert_equal(0, validator.error[:warning].size)
-        end
+    it 'ignores additional data given' do
+      data_hash = { 'greeting' => 'Hello World!', 'anzahl' => 5, 'xxx' => 'xxx' }
+      validator = subject.new(data_hash, template_hash)
+      assert_equal(no_error_hash, validator.error)
+    end
 
-        test 'error collecting' do
-          template_hash = {
-            'greeting' => {
-              'label' => 'test_string',
-              'type' => 'string',
-              'storage_type' => 'string',
-              'storage_location' => 'content'
-            },
-            'anzahl' => {
-              'label' => 'test_number',
-              'type' => 'object',
-              'storage_location' => 'content',
-              'properties' => {
-                'test1' => {
-                  'label' => 'test1',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'content'
-                },
-                'test2' => {
-                  'label' => 'test2',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'content'
-                }
-              }
+    it 'warns for missing data' do
+      data_hash = { 'greeting' => 'Hello World!' }
+      validator = subject.new(data_hash, template_hash)
+      assert_equal(0, validator.error[:error].size)
+      assert_equal(1, validator.error[:warning].size)
+    end
 
-            }
-          }
-          data_hash = {
-            'greeting' => 0,
-            'anzahl' => {
-              'test1' => 1,
-              'test2' => 2
-            }
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(3, validator.error[:error].size)
-          assert_equal(0, validator.error[:warning].size)
-          data_hash = {
-            'greeting' => 0,
-            'anzahl' => {
-              'test1' => 1
-            }
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(2, validator.error[:error].size)
-          assert_equal(1, validator.error[:warning].size)
-        end
+    it 'produces an error when a object definition is missing' do
+      new_template_hash = template_hash.deep_dup
+      new_template_hash['anzahl']['type'] = 'object'
+      data_hash = { 'greeting' => 'Hello World!', 'anzahl' => 5 }
+      validator = subject.new(data_hash, new_template_hash)
+      assert_equal(1, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
+    end
 
-        test 'object validator daterange with proper template, and varying test-data' do
-          template_hash = {
-            'validity_period' => {
-              'label' =>  'Gültigkeitszeitraum',
-              'type' => 'object',
-              'storage_location' => 'metadata',
-              'validations' => {
-                'daterange' => {
-                  'from' => 'valid_from',
-                  'to' => 'valid_until'
-                }
-              },
-              'properties' => {
-                'valid_from' => {
-                  'label' => 'Gültigkeit',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'metadata',
-                  'validations' => {
-                    'format' => 'date_time'
-                  }
-                },
-                'valid_until' => {
-                  'label' => 'bis',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'metadata',
-                  'validations' => {
-                    'format' => 'date_time'
-                  }
-                }
-              }
-            }
-          }
+    it 'aggregates errors/warnings' do
+      data_hash = { 'greeting' => ['test', 'test2'], 'anzahl' => '5' }
+      validator = subject.new(data_hash, template_hash)
+      assert_equal(2, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
+      data_hash = { 'greeting' => nil, 'anzahl' => nil }
+      validator = subject.new(data_hash, template_hash)
+      assert_equal(0, validator.error[:error].size)
+      assert_equal(2, validator.error[:warning].size)
+    end
 
-          data_hash = {
-            'validity_period' => {
-              'valid_from' => '2016-01-01',
-              'valid_until' => '2017-01-01'
-            }
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(0, validator.error[:error].size)
-          assert_equal(0, validator.error[:warning].size)
+    it 'successfully validates daterange with proper template and varying test-data' do
+      data_hash = {
+        'validity_period' => {
+          'valid_from' => '2016-01-01',
+          'valid_until' => '2017-01-01'
+        }
+      }
+      validator = subject.new(data_hash, daterange_hash)
+      assert_equal(0, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
 
-          data_hash = {
-            'validity_period' => {
-              'valid_from' => '2017-01-01',
-              'valid_until' => '2016-01-01'
-            }
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(1, validator.error[:error].size)
-          assert_equal(0, validator.error[:warning].size)
+      data_hash = {
+        'validity_period' => {
+          'valid_from' => '2017-01-01',
+          'valid_until' => '2016-01-01'
+        }
+      }
+      validator = subject.new(data_hash, daterange_hash)
+      assert_equal(1, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
 
-          data_hash = {
-            'validity_period' => {
-              'valid_from' => 'a',
-              'valid_until' => 'b'
-            }
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(3, validator.error[:error].size)
-          assert_equal(2, validator.error[:warning].values[0].size)
+      data_hash = {
+        'validity_period' => {
+          'valid_from' => 'a',
+          'valid_until' => 'b'
+        }
+      }
+      validator = subject.new(data_hash, daterange_hash)
+      assert_equal(3, validator.error[:error].size)
+      assert_equal(2, validator.error[:warning].values[0].size)
 
-          data_hash = {
-            'validity_period' => {
-              'valid_from' => 'a',
-              'valid_until' => '2017-01-01'
-            }
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(2, validator.error[:error].size)
-          assert_equal(1, validator.error[:warning].size)
+      data_hash = {
+        'validity_period' => {
+          'valid_from' => 'a',
+          'valid_until' => '2017-01-01'
+        }
+      }
+      validator = subject.new(data_hash, daterange_hash)
+      assert_equal(2, validator.error[:error].size)
+      assert_equal(1, validator.error[:warning].size)
 
-          data_hash = {
-            'validity_period' => {
-              'valid_from' => '',
-              'valid_until' => '2017-01-01'
-            }
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(0, validator.error[:error].size)
-          assert_equal(1, validator.error[:warning].size)
+      data_hash = {
+        'validity_period' => {
+          'valid_from' => '',
+          'valid_until' => '2017-01-01'
+        }
+      }
+      validator = subject.new(data_hash, daterange_hash)
+      assert_equal(0, validator.error[:error].size)
+      assert_equal(1, validator.error[:warning].size)
 
-          data_hash = {
-            'validity_period' => {
-              'valid_from' => '',
-              'valid_until' => ''
-            }
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(0, validator.error[:error].size)
-          assert_equal(2, validator.error[:warning].size)
-        end
+      data_hash = {
+        'validity_period' => {
+          'valid_from' => '',
+          'valid_until' => ''
+        }
+      }
+      validator = subject.new(data_hash, daterange_hash)
+      assert_equal(0, validator.error[:error].size)
+      assert_equal(2, validator.error[:warning].size)
+    end
 
-        test 'object validator daterange with faulty templates, and fixed test-data' do
-          template_hash = {
-            'validity_period' => {
-              'label' =>  'Gültigkeitszeitraum',
-              'type' => 'object',
-              'storage_location' => 'metadata',
-              'validations' => {
-                'daterange' => {
-                  'from' => 'from',
-                  'to' => 'valid_until'
-                }
-              },
-              'properties' => {
-                'valid_from' => {
-                  'label' => 'Gültigkeit',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'metadata',
-                  'validations' => {
-                    'format' => 'date_time'
-                  }
-                },
-                'valid_until' => {
-                  'label' => 'bis',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'metadata',
-                  'validations' => {
-                    'format' => 'date_time'
-                  }
-                }
-              }
-            }
-          }
+    it 'validates daterange with faulty templates, appropriately' do
+      data_hash = {
+        'validity_period' => {
+          'valid_from' => '2016-01-01',
+          'valid_until' => '2017-01-01'
+        }
+      }
 
-          data_hash = {
-            'validity_period' => {
-              'valid_from' => '2016-01-01',
-              'valid_until' => '2017-01-01'
-            }
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(0, validator.error[:error].size)
-          assert_equal(1, validator.error[:warning].size)
+      new_template_hash = daterange_hash.deep_dup
+      new_template_hash['validity_period']['validations']['daterange']['from'] = 'from'
+      validator = subject.new(data_hash, new_template_hash)
+      assert_equal(1, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
 
-          template_hash = {
-            'validity_period' => {
-              'label' =>  'Gültigkeitszeitraum',
-              'type' => 'object',
-              'storage_location' => 'metadata',
-              'validations' => {
-                'daterange' => {
-                  'from' => 'valid_from',
-                  'to' => 'to'
-                }
-              },
-              'properties' => {
-                'valid_from' => {
-                  'label' => 'Gültigkeit',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'metadata',
-                  'validations' => {
-                    'format' => 'date_time'
-                  }
-                },
-                'valid_until' => {
-                  'label' => 'bis',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'metadata',
-                  'validations' => {
-                    'format' => 'date_time'
-                  }
-                }
-              }
-            }
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(0, validator.error[:error].size)
-          assert_equal(1, validator.error[:warning].size)
+      new_template_hash = daterange_hash.deep_dup
+      new_template_hash['validity_period']['validations']['daterange']['to'] = 'to'
+      validator = subject.new(data_hash, new_template_hash)
+      assert_equal(1, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
 
-          template_hash = {
-            'validity_period' => {
-              'label' =>  'Gültigkeitszeitraum',
-              'type' => 'object',
-              'storage_location' => 'metadata',
-              'validations' => {
-                'daterange' => {
-                  'from' => 'valid_from'
-                }
-              },
-              'properties' => {
-                'valid_from' => {
-                  'label' => 'Gültigkeit',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'metadata',
-                  'validations' => {
-                    'format' => 'date_time'
-                  }
-                },
-                'valid_until' => {
-                  'label' => 'bis',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'metadata',
-                  'validations' => {
-                    'format' => 'date_time'
-                  }
-                }
-              }
-            }
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(1, validator.error[:error].size)
-          assert_equal(0, validator.error[:warning].size)
+      new_template_hash = daterange_hash.deep_dup
+      new_template_hash['validity_period']['validations']['daterange'] = { 'from' => 'valid_from' }
+      validator = subject.new(data_hash, new_template_hash)
+      assert_equal(1, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
 
-          template_hash = {
-            'validity_period' => {
-              'label' =>  'Gültigkeitszeitraum',
-              'type' => 'object',
-              'storage_location' => 'metadata',
-              'validations' => {
-                'daterange' => {
-                  'to' => 'valid_until'
-                }
-              },
-              'properties' => {
-                'valid_from' => {
-                  'label' => 'Gültigkeit',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'metadata',
-                  'validations' => {
-                    'format' => 'date_time'
-                  }
-                },
-                'valid_until' => {
-                  'label' => 'bis',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'metadata',
-                  'validations' => {
-                    'format' => 'date_time'
-                  }
-                }
-              }
-            }
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(1, validator.error[:error].size)
-          assert_equal(0, validator.error[:warning].size)
+      new_template_hash = daterange_hash.deep_dup
+      new_template_hash['validity_period']['validations']['daterange'] = { 'to' => 'valid_until' }
+      validator = subject.new(data_hash, new_template_hash)
+      assert_equal(1, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
 
-          template_hash = {
-            'validity_period' => {
-              'label' =>  'Gültigkeitszeitraum',
-              'type' => 'object',
-              'storage_location' => 'metadata',
-              'validations' => {
-                'daterange' => {}
-              },
-              'properties' => {
-                'valid_from' => {
-                  'label' => 'Gültigkeit',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'metadata',
-                  'validations' => {
-                    'format' => 'date_time'
-                  }
-                },
-                'valid_until' => {
-                  'label' => 'bis',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'metadata',
-                  'validations' => {
-                    'format' => 'date_time'
-                  }
-                }
-              }
-            }
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(1, validator.error[:error].size)
-          assert_equal(0, validator.error[:warning].size)
-        end
+      new_template_hash = daterange_hash.deep_dup
+      new_template_hash['validity_period']['validations']['daterange'] = {}
+      validator = subject.new(data_hash, new_template_hash)
+      assert_equal(1, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
 
-        test 'object validator daterange with template validations not implemented' do
-          template_hash = {
-            'validity_period' => {
-              'label' =>  'Gültigkeitszeitraum',
-              'type' => 'object',
-              'storage_location' => 'metadata',
-              'validations' => {
-                'daterange' => {
-                  'from' => 'valid_from',
-                  'to' => 'valid_until'
-                },
-                'integerrange' => {
-                  'from' => 'valid_from',
-                  'to' => 'valid_until'
-                },
-                'format' => 'data_time'
-              },
-              'properties' => {
-                'valid_from' => {
-                  'label' => 'Gültigkeit',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'metadata',
-                  'validations' => {
-                    'format' => 'date_time'
-                  }
-                },
-                'valid_until' => {
-                  'label' => 'bis',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'metadata',
-                  'validations' => {
-                    'format' => 'date_time'
-                  }
-                }
-              }
-            }
-          }
+      new_template_hash = daterange_hash.deep_dup
+      new_template_hash['validity_period']['validations']['integerrange'] = { 'from' => 'valid_from', 'to' => 'valid_until' }
+      new_template_hash['validity_period']['validations']['format'] = { 'from' => 'data_time' }
+      validator = subject.new(data_hash, new_template_hash)
+      assert_equal(0, validator.error[:error].size)
+      assert_equal(2, validator.error[:warning]['validity_period'].size)
+    end
 
-          data_hash = {
-            'validity_period' => {
-              'valid_from' => '2016-01-01',
-              'valid_until' => '2017-01-01'
-            }
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(0, validator.error[:error].size)
-          assert_equal(2, validator.error[:warning].values[0].size)
-        end
+    it 'validates object daterange edge-cases correctly' do
+      data_hash = {
+        'validity_period' => {
+          'valid_from' => '2016-01-01',
+          'valid_until' => '2017-01-01'
+        }
+      }
+      validator = subject.new(data_hash, daterange_hash)
+      assert_equal(0, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
 
-        test 'object validator daterange test data edge-cases' do
-          template_hash = {
-            'validity_period' => {
-              'label' => 'Gültigkeitszeitraum',
-              'type' => 'object',
-              'storage_location' => 'metadata',
-              'validations' => {
-                'daterange' => {
-                  'from' => 'valid_from',
-                  'to' => 'valid_until'
-                }
-              },
-              'properties' => {
-                'valid_from' => {
-                  'label' => 'Gültigkeit',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'metadata',
-                  'validations' => {
-                    'format' => 'date_time'
-                  }
-                },
-                'valid_until' => {
-                  'label' => 'bis',
-                  'type' => 'string',
-                  'storage_type' => 'string',
-                  'storage_location' => 'metadata',
-                  'validations' => {
-                    'format' => 'date_time'
-                  }
-                }
-              }
-            }
-          }
-          data_hash = {
-            'validity_period' => {
-              'valid_from' => '2016-01-01',
-              'valid_until' => '2017-01-01'
-            }
-          }
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash, template_hash)
-          assert_equal(0, validator.error[:error].size)
-          assert_equal(0, validator.error[:warning].size)
+      validator = subject.new({}, daterange_hash)
+      assert_equal(0, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
 
-          validator = DataCycleCore::MasterData::Validators::Object.new({}, template_hash)
-          assert_equal(0, validator.error[:error].size)
-          assert_equal(0, validator.error[:warning].size)
+      validator = subject.new(nil, daterange_hash)
+      assert_equal(0, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
 
-          validator = DataCycleCore::MasterData::Validators::Object.new(nil, template_hash)
-          assert_equal(0, validator.error[:error].size)
-          assert_equal(0, validator.error[:warning].size)
-
-          validator = DataCycleCore::MasterData::Validators::Object.new({ 'test' => 'wrong' }, template_hash)
-          assert_equal(0, validator.error[:error].size)
-          assert_equal(1, validator.error[:warning].size)
-        end
-
-        test 'object validator classification_conflicts' do
-          market1 = DataCycleCore::Classification.where(name: 'Australien').first.id
-          market2 = DataCycleCore::Classification.where(name: 'Belgien').first.id
-
-          output_channel1 = DataCycleCore::Classification.where(name: 'Web').first.id
-          output_channel2 = DataCycleCore::Classification.where(name: 'Social Media').first.id
-
-          template_hash = {
-            'publication_schedule' => {
-              'label' => 'Geplante Publikation',
-              'type' => 'object',
-              'storage_location' => 'creative_works',
-              'delete' => true,
-              'name' => 'Publikations-Plan',
-              'validations' => {
-                'classifications' => 'no_conflicts'
-              }
-            }
-          }
-
-          data_hash1 = {
-            'publication_schedule' => [
-              {
-                'markets' => [market2],
-                'output_channel' => [output_channel1]
-              },
-              {
-                'markets' => [market1],
-                'output_channel' => [output_channel2]
-              }
-            ]
-          }
-
-          data_hash2 = {
-            'publication_schedule' => [
-              {
-                'markets' => [market1, market2],
-                'output_channel' => [output_channel1]
-              },
-              {
-                'markets' => [market1],
-                'output_channel' => [output_channel2]
-              }
-            ]
-          }
-
-          data_hash3 = {
-            'publication_schedule' => [
-              {
-                'markets' => [market1, market2],
-                'output_channel' => [output_channel1]
-              },
-              {
-                'markets' => [market1],
-                'output_channel' => [output_channel1, output_channel2]
-              }
-            ]
-          }
-
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash1, template_hash)
-          assert_equal(0, validator.error[:error].size)
-
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash2, template_hash)
-          assert_equal(0, validator.error[:error].size)
-
-          validator = DataCycleCore::MasterData::Validators::Object.new(data_hash3, template_hash)
-          assert_equal(1, validator.error[:error].size)
-        end
-      end
+      validator = subject.new({ 'test' => 'wrong' }, daterange_hash)
+      assert_equal(0, validator.error[:error].size)
+      assert_equal(1, validator.error[:warning].size)
     end
   end
 end

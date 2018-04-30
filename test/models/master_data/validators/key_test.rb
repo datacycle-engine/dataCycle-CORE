@@ -2,17 +2,16 @@ require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
 
-describe DataCycleCore::MasterData::Validators::Boolean do
+describe DataCycleCore::MasterData::Validators::Key do
   subject do
-    DataCycleCore::MasterData::Validators::Boolean
+    DataCycleCore::MasterData::Validators::Key
   end
 
   describe 'validate data' do
     let(:template_hash) do
       {
-        'label' => 'Test',
-        'type' => 'boolean',
-        'storage_location' => 'translated_value'
+        'label' => 'id',
+        'type' => 'key'
       }
     end
 
@@ -20,13 +19,13 @@ describe DataCycleCore::MasterData::Validators::Boolean do
       { error: {}, warning: {} }
     end
 
-    it 'properly validates a bool' do
-      date_object = true
-      assert_equal(no_error_hash, subject.new(date_object, template_hash).error)
+    it 'properly validates a key' do
+      key_object = '00000000-0000-0000-0000-000000000000'
+      assert_equal(no_error_hash, subject.new(key_object, template_hash).error)
     end
 
     it 'rejects arbitrary objects' do
-      test_cases = [10, :wednesday]
+      test_cases = [10, :wednesday, 'servus']
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash)
         assert_equal(1, validator.error[:error].size)
@@ -35,7 +34,7 @@ describe DataCycleCore::MasterData::Validators::Boolean do
     end
 
     it 'accepts different boolean objects' do
-      test_cases = [true, false, 'true', 'false', '    true     ']
+      test_cases = ['00000000-0000-0000-0000-000000000000', ' 00000000-0000-0000-0000-000000000000  ']
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash)
         assert_equal(0, validator.error[:error].size)

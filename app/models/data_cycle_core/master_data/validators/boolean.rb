@@ -4,9 +4,9 @@ module DataCycleCore
       class Boolean < BasicValidator
         def validate(data, template)
           @template_key = template['label']
-          if data.is_a?(TrueClass) || data.is_a?(FalseClass)
+          if data.is_a?(::TrueClass) || data.is_a?(::FalseClass)
             # all good
-          elsif data.is_a?(String)
+          elsif data.is_a?(::String)
             boolean(data)
           elsif data.blank?
             (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warning], data: template['label'], locale: DataCycleCore.ui_language)

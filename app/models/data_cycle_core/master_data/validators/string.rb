@@ -14,7 +14,7 @@ module DataCycleCore
           if data.is_a?(::String)
             if template.key?('validations')
               template['validations'].each_key do |key|
-                if @@string_keywords.include?(key)
+                if string_keywords.include?(key)
                   method(key).call(data, template['validations'][key])
                 else
                   (@error[:warning][@template_key] ||= []) << I18n.t(:string, scope: [:validation, :warnings], data: data, key: key, template: template, locale: DataCycleCore.ui_language) unless key == 'type'
@@ -48,20 +48,11 @@ module DataCycleCore
         end
 
         def format(data, format_string)
-          if @@string_formats.include?(format_string)
+          if string_formats.include?(format_string)
             method(format_string).call(data)
           else
             (@error[:error][@template_key] ||= []) << I18n.t(:format, scope: [:validation, :errors], data: data, format_string: format_string, locale: DataCycleCore.ui_language)
           end
-        end
-
-        # check string for given format
-
-        def uuid(data)
-          data.downcase!
-          uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
-          check_uuid = data.length == 36 && !(data =~ uuid).nil?
-          (@error[:error][@template_key] ||= []) << I18n.t(:uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless check_uuid
         end
 
         def url(data)
@@ -73,6 +64,13 @@ module DataCycleCore
               (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language)
             end
           end
+        end
+
+        def uuid(data)
+          data.downcase!
+          uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
+          check_uuid = data.length == 36 && !(data =~ uuid).nil?
+          (@error[:error][@template_key] ||= []) << I18n.t(:uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless check_uuid
         end
       end
     end

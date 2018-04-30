@@ -38,8 +38,8 @@ describe DataCycleCore::MasterData::Validators::Embedded do
 
     it 'successfully validates embedded Bild' do
       uuid = bild1.id
-      validator = subject.new([uuid], template_hash, 'Bilder')
-      assert_equal(no_error_hash, validator.error)
+      validator = subject.new([{'id' => uuid}], template_hash, 'Bilder')
+      assert_equal(0, validator.error[:error].size)
     end
 
     it 'successfully validates more than one embedded item' do
@@ -47,18 +47,94 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       uuid = bild1.id
       uuid2 = bild2.id
       data_cases = [
-        uuid,
-        [uuid],
-        [uuid, uuid2],
         [{ 'id' => uuid }],
-        [{ 'id' => uuid }, { 'id' => uuid2 }],
-        [{ 'id' => uuid }, uuid2]
+        [{ 'id' => uuid }, { 'id' => uuid2 }]
       ]
       data_cases.each do |item_case|
         validator = subject.new(item_case, new_template_hash)
         assert_equal(0, validator.error[:error].size)
-        assert_equal(0, validator.error[:warning].size)
       end
     end
+
+    it 'rejects data in the following formats' do
+      new_template_hash = template_hash.deep_dup.except('validations')
+      uuid = bild1.id
+      uuid2 = bild2.id
+      data_cases = [
+        uuid,
+        [uuid],
+        [uuid, uuid2],
+        [{ 'id' => uuid }, uuid2]
+      ]
+      data_cases.each do |item_case|
+        validator = subject.new(item_case, new_template_hash)
+        assert_equal(1, validator.error[:error].size)
+      end
+    end
+
+    # it 'validates properly classification_conflicts' do
+    #   market1 = DataCycleCore::Classification.where(name: 'Australien').first.id
+    #   market2 = DataCycleCore::Classification.where(name: 'Belgien').first.id
+    #
+    #   output_channel1 = DataCycleCore::Classification.where(name: 'Web').first.id
+    #   output_channel2 = DataCycleCore::Classification.where(name: 'Social Media').first.id
+    #
+    #   template_hash = {
+    #     'publication_schedule' => {
+    #       'label' => 'Geplante Publikation',
+    #       'type' => 'embedded',
+    #       'linked_table' => 'creative_works',
+    #       'template_name' => 'Publikations-Plan',
+    #       'validations' => {
+    #         'classifications' => 'no_conflicts'
+    #       }
+    #     }
+    #   }
+    #
+    #   data_hash1 = {
+    #     'publication_schedule' => [
+    #       {
+    #         # 'markets' => [market2],
+    #         'output_channel' => [output_channel1]
+    #       },
+    #       {
+    #         # 'markets' => [market1],
+    #         'output_channel' => [output_channel2]
+    #       }
+    #     ]
+    #   }
+    #   validator = subject.new(data_hash1, template_hash)
+    #   assert_equal(0, validator.error[:error].size)
+    #
+    #   data_hash2 = {
+    #     'publication_schedule' => [
+    #       {
+    #         # 'markets' => [market1, market2],
+    #         'output_channel' => [output_channel1]
+    #       },
+    #       {
+    #         # 'markets' => [market1],
+    #         'output_channel' => [output_channel2]
+    #       }
+    #     ]
+    #   }
+    #   validator = subject.new(data_hash2, template_hash)
+    #   assert_equal(0, validator.error[:error].size)
+    #
+    #   data_hash3 = {
+    #     'publication_schedule' => [
+    #       {
+    #         # 'markets' => [market1, market2],
+    #         'output_channel' => [output_channel1]
+    #       },
+    #       {
+    #         # 'markets' => [market1],
+    #         'output_channel' => [output_channel1, output_channel2]
+    #       }
+    #     ]
+    #   }
+    #   validator = subject.new(data_hash3, template_hash)
+    #   assert_equal(1, validator.error[:error].size)
+    # end
   end
 end

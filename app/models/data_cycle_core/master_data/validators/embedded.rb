@@ -3,21 +3,18 @@ module DataCycleCore
     module Validators
       class Embedded < BasicValidator
         def keywords
-          ['min', 'max']
+          ['min', 'max', 'classifications']
         end
 
-        # only allow single uuid referencing to a given table
         def validate(data, template)
           if blank?(data)
             (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
-            # @error[:warning].push "No data given for #{template['label']}."
           elsif data.is_a?(::Array)
             check_reference_array(data, template)
-          elsif data.is_a?(::String)
+          elsif data.is_a?(::Hash)
             check_reference_array([data], template)
           else
-            (@error[:error][@template_key] ||= []) << I18n.t(:data_type, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language)
-            # @error[:error].push "Wrong data type given for #{template['label']} (#{data}). Expected an UUID or an array of UUID's."
+            (@error[:error][@template_key] ||= []) << I18n.t(:data_format_embedded, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language)
           end
           @error
         end
@@ -37,37 +34,43 @@ module DataCycleCore
           end
 
           # validate references
-          data.each do |key|
-            validate_reference(key, template)
+          embedded_template = ('DataCycleCore::' + template['linked_table'].classify).constantize
+            .find_by(template: true, template_name: template['template_name'])
+          if template.blank?
+            (@error[:error][@template_key] ||= []) << I18n.t(:no_template, scope: [:validation, :errors], name: name, locale: DataCycleCore.ui_language)
+            return
+          end
+          data.each do |item|
+            next if item.empty?
+            if item.is_a?(::Hash)
+              validator_object = DataCycleCore::MasterData::ValidateData.new
+              merge_errors(validator_object.validate(item, embedded_template.schema))
+            else
+              (@error[:error][@template_key] ||= []) << I18n.t(:data_format_embedded, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language)
+            end
           end
         end
 
-        def validate_reference(key, template)
-          if key.is_a?(::String)
-            check_reference(key, template)
-          elsif key.is_a?(::Hash) && key.key?('id')
-            check_reference(key['id'], template)
-          else
-            (@error[:error][@template_key] ||= []) << I18n.t(:data_format, scope: [:validation, :errors], key: key, template: template['label'], locale: DataCycleCore.ui_language)
+        def verify_embedded_object(data, def_template)
+          return if data.empty?
+          template = ('DataCycleCore::' + def_template['linked_table'].classify).constantize
+            .find_by(template: true, template_name: def_template['template_name'])
+          if template.blank?
+            (@error[:error][@template_key] ||= []) << I18n.t(:no_template, scope: [:validation, :errors], name: name, locale: DataCycleCore.ui_language)
+            return
           end
+
+          validator_object = DataCycleCore::MasterData::ValidateData.new
+          merge_errors(validator_object.validate(data, template.schema))
         end
 
-        def check_reference(key, template)
-          if uuid?(key)
-            data_set = "DataCycleCore::#{template['linked_table'].classify}".constantize.where(id: key)
-            (@error[:error][@template_key] ||= []) << I18n.t(:not_found, scope: [:validation, :errors], key: key, template: template['label'], table: template['linked_table'], locale: DataCycleCore.ui_language) if data_set.count < 1
-          end
-        end
+        # def classifications(data_hash, template_hash)
+        #   if data_hash.present? && DataCycleCore.features.dig(:publication_schedule, :classification_keys).present?
+        #     (@error[:error][@template_key] ||= []) << I18n.t(:classification_conflict, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if data_hash.each { |d| d['id'] = SecureRandom.uuid if d['id'].blank? }.map { |x| data_hash.select { |y| (x != y) && DataCycleCore.features.dig(:publication_schedule, :classification_keys).map { |z| x[z].present? && y[z].present? ? (x[z] & y[z]) : [] }.all?(&:present?) } }.flatten.present?
+        #   end
+        # end
 
-        def uuid?(data)
-          data.downcase!
-          uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
-          check_uuid = data.length == 36 && !(data =~ uuid).nil?
-          (@error[:error][@template_key] ||= []) << I18n.t(:uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless check_uuid
-          check_uuid
-        end
-
-        # validate nil,"",[],[nil],[""] as blank.
+        # validate nil,"",[],[nil],[""],[{}] as blank.
         def blank?(data)
           return true if data.blank?
           if data.is_a?(::Array)

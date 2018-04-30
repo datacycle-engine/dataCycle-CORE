@@ -11,7 +11,7 @@ module DataCycleCore
         end
 
         def validate(data, template)
-          if data.is_a?(Numeric)
+          if data.is_a?(::Numeric)
             if template.key?('validations')
               template['validations'].each_key do |key|
                 if number_keywords.include?(key)

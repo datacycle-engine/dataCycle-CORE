@@ -49,6 +49,7 @@ describe DataCycleCore::MasterData::Validators::Datetime do
         Time.zone.now,
         '01.01.2000'.to_datetime,
         '01.01.2000'.to_date,
+        '2020-01-01'.to_datetime,
         Date.new(2000).in_time_zone,
         Time.utc(2000).in_time_zone
       ]
