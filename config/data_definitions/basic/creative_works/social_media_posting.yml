@@ -87,16 +87,6 @@
       :meta_data:
         :type: mixin
         :name: meta_data
-      :publication_schedule:
-        :label: Geplante Publikation
-        :type: object
-        :storage_location: creative_works
-        :delete: true
-        :name: Publikations-Plan
-        :validations:
-          :classifications: no_conflicts
-        :editor:
-          :type: embeddedObject
       :additional_properties:
         :type: mixin
         :name: additional_properties
