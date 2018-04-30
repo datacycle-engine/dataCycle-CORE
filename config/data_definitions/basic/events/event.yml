@@ -143,3 +143,6 @@
       :event_db:
         :type: mixin
         :name: event_db
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

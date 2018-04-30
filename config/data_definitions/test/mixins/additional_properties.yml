@@ -1,0 +1,5 @@
+---
+- :data:
+    :name: additional_properties
+    :type: mixin
+    :properties: ~

@@ -8,6 +8,7 @@
   - $$Asset:
     - $$Bild
     - $$Datei
+    - $$Video
   - $$Linktipps
   - $$Person
   - $$Organisation
@@ -16,6 +17,7 @@
   - $$Quiz
   - $$Veranstaltung
   - $$Zeitleiste
+  - $$Rezept
 # embedded
   - $$Angebotszeitraum
   - $$Website
