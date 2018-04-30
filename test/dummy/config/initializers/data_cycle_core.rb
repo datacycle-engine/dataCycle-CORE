@@ -19,7 +19,7 @@ DataCycleCore.setup do |config|
     Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
     # Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
     # Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive')
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'container')
+    # Rails.root.join('..', '..', 'config', 'data_definitions', 'container')
     # Rails.root.join('..', '..', 'config', 'data_definitions', 'test')
   ].freeze
 
