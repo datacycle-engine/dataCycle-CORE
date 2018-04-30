@@ -42,4 +42,77 @@ describe DataCycleCore::ClassificationAlias do
       DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('2').count.must_equal 1
     end
   end
+
+  describe 'when including descendants' do
+    before do
+      classification_tree.create_classification_alias('A')
+      classification_tree.create_classification_alias('A', 'A - 1')
+      classification_tree.create_classification_alias('A', 'A - 2')
+      classification_tree.create_classification_alias('A', 'A - 3')
+      classification_tree.create_classification_alias('A', 'A - 3', 'A - 3 - a')
+      classification_tree.create_classification_alias('A', 'A - 3', 'A - 3 - b')
+      classification_tree.create_classification_alias('A', 'A - 3', 'A - 3 - c')
+    end
+
+    it 'should return correct number of classification aliases' do
+      DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').with_name('A - 3')
+        .with_descendants.count.must_equal 4
+    end
+
+    it 'should return classification aliases with correct name' do
+      names = DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE')
+        .with_name('A - 3')
+        .with_descendants
+        .map(&:name)
+
+      names.must_include 'A - 3'
+      names.must_include 'A - 3 - a'
+      names.must_include 'A - 3 - b'
+      names.must_include 'A - 3 - c'
+    end
+
+    it 'should return classification aliases with correct paths' do
+      paths = DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE')
+        .with_name('A - 3')
+        .with_descendants
+        .map(&:full_path)
+
+      paths.must_include 'CLASSIFICATION TREE > A > A - 3'
+      paths.must_include 'CLASSIFICATION TREE > A > A - 3 > A - 3 - a'
+      paths.must_include 'CLASSIFICATION TREE > A > A - 3 > A - 3 - b'
+      paths.must_include 'CLASSIFICATION TREE > A > A - 3 > A - 3 - c'
+    end
+  end
+
+  describe 'when loading descendants' do
+    before do
+      classification_tree.create_classification_alias('A')
+      classification_tree.create_classification_alias('A', 'A - 1')
+      classification_tree.create_classification_alias('A', 'A - 2')
+      classification_tree.create_classification_alias('A', 'A - 3')
+      classification_tree.create_classification_alias('A', 'A - 3', 'A - 3 - a')
+      classification_tree.create_classification_alias('A', 'A - 3', 'A - 3 - b')
+      classification_tree.create_classification_alias('A', 'A - 3', 'A - 3 - c')
+    end
+
+    it 'should return correct number of descendants' do
+      DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').with_name('A')
+        .first.descendants.count.must_equal 6
+      DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').with_name('A - 3')
+        .first.descendants.count.must_equal 3
+    end
+
+    it 'should return descendants with correct name' do
+      names = DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').with_name('A - 3')
+        .first.descendants.map(&:name)
+
+      names.wont_include 'A'
+      names.wont_include 'A - 1'
+      names.wont_include 'A - 2'
+      names.wont_include 'A - 3'
+      names.must_include 'A - 3 - a'
+      names.must_include 'A - 3 - b'
+      names.must_include 'A - 3 - c'
+    end
+  end
 end

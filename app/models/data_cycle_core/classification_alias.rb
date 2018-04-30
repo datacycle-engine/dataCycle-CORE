@@ -1,7 +1,9 @@
 module DataCycleCore
   class ClassificationAlias < ApplicationRecord
     class Path < ApplicationRecord
-      self.table_name = 'classification_aliase_paths'
+      self.table_name = 'classification_alias_paths'
+
+      belongs_to :classification_alias, foreign_key: 'id'
 
       def readonly?
         true
@@ -28,6 +30,10 @@ module DataCycleCore
     has_many :classification_groups, dependent: :destroy
     has_many :classifications, -> { order(:name) }, through: :classification_groups
 
+    has_many :descendant_paths, ->(a) { unscope(:where).where('ancestor_ids @> ARRAY[?]::uuid[]', a.id) },
+             class_name: 'Path'
+    has_many :descendants, through: :descendant_paths, source: :classification_alias
+
     after_update :update_primary_classification
 
     def self.for_tree(tree_name)
@@ -42,21 +48,7 @@ module DataCycleCore
     def self.with_descendants
       query = is_a?(ActiveRecord::Relation) ? self : all
 
-      sql = <<-SQL.gsub(/\s+/, ' ').gsub(/(?<=\A)\s+/, '').gsub(/\s+(?=\z)/, '')
-        WITH RECURSIVE aliases AS (
-          #{query.to_sql}
-          UNION
-          SELECT classification_aliases.*
-          FROM classification_aliases
-          JOIN classification_trees ON classification_trees.classification_alias_id = classification_aliases.id
-          JOIN aliases AS parent_aliases ON parent_aliases.id = classification_trees.parent_classification_alias_id
-        ) SELECT id FROM aliases
-        SQL
-
-      sql = ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql)
-
-      # query.unscope(where: query.bound_attributes.map(&:name)).where('classification_aliases.id IN (' + sql + ')')
-      query.unscoped.where('classification_aliases.id IN (' + sql + ')')
+      query.unscoped.joins(:classification_alias_path).where('full_path_ids && ARRAY[?]::uuid[]', query.pluck(:id))
     end
 
     def self.search(q)
@@ -83,14 +75,8 @@ module DataCycleCore
       end
     end
 
-    def descendants
-      Rails.cache.fetch("#{cache_key}/descendants", expires_in: 10.minutes) do
-        if sub_classification_alias
-          classifications.to_a + sub_classification_alias.includes(:classifications).order(:name).map(&:descendants).to_a
-        else
-          classifications.to_a
-        end
-      end
+    def full_path
+      classification_alias_path.full_path_names.reverse.join(' > ')
     end
 
     private
