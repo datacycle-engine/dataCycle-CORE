@@ -250,7 +250,8 @@
         :label: Ersteller
         :type: linked
         :linked_table: users
-        :stroage_location: value
+        :validations:
+          :max: 1
       :date_created:
         :label: Erstellungsdatum
         :type: datetime
@@ -280,7 +281,6 @@
         :label: Ersteller
         :type: linked
         :linked_table: users
-        :stroage_location: value
         :validations:
           :max: 1
       :date_created:

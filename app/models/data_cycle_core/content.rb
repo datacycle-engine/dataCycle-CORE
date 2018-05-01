@@ -1,7 +1,12 @@
 module DataCycleCore
   class Content < ApplicationRecord
-    NESTED_STORAGE_LOCATIONS = ['metadata', 'content', 'properties']
-    PLAIN_PROPERTY_TYPES = ['string', 'text', 'number', 'geographic']
+    NESTED_STORAGE_LOCATIONS = ['metadata', 'content']
+    NEW_STORAGE_LOCATION = {
+      'value' => 'metadata',
+      'translated_value' => 'content',
+      'column' => 'column'
+    }
+    PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'datetime', 'boolean', 'geographic']
 
     self.abstract_class = true
 
@@ -22,6 +27,7 @@ module DataCycleCore
 
     def method_missing(name, *args, &block)
       property_definition = property_definitions.try(:[], name.to_s.gsub(/=$/, ''))
+      # puts "#{name.to_s.gsub(/=$/, '')} // #{property_definition} // #{args.first}"
       if property_definition && name.to_s.ends_with?('=')
         raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" unless args.size == 1
 
@@ -52,7 +58,7 @@ module DataCycleCore
       translated_columns = (self.class.to_s + '::Translation').constantize.column_names
 
       property_definitions.select { |property_name, definition|
-        ['content', 'properties'].include?(definition['storage_location']) ||
+        definition['storage_location'] == 'translated_value' ||
           (definition['storage_location'] == 'column' && translated_columns.include?(property_name))
       }.keys
     end
@@ -61,7 +67,7 @@ module DataCycleCore
       untranslated_columns = self.class.column_names
 
       property_definitions.select { |property_name, definition|
-        ['key', 'metadata'].include?(definition['storage_location']) ||
+        definition['storage_location'] == 'value' || definition['type'] == 'key' ||
           (definition['storage_location'] == 'column' && untranslated_columns.include?(property_name))
       }.keys
     end
@@ -74,25 +80,25 @@ module DataCycleCore
 
     def linked_property_names
       property_definitions.select { |_, definition|
-        definition['type'] == 'embeddedLink' || definition['type'] == 'embeddedLinkArray'
+        definition['type'] == 'linked'
       }.keys
     end
 
     def embedded_property_names
       property_definitions.select { |_, definition|
-        definition['type'] == 'object' && !NESTED_STORAGE_LOCATIONS.include?(definition['storage_location'])
+        definition['type'] == 'embedded'
       }.keys
     end
 
     def included_property_names
       property_definitions.select { |_, definition|
-        definition['type'] == 'object' &&  NESTED_STORAGE_LOCATIONS.include?(definition['storage_location'])
+        definition['type'] == 'object' || NESTED_STORAGE_LOCATIONS.include?(NEW_STORAGE_LOCATION[definition['storage_location']])
       }.keys
     end
 
     def classification_property_names
       property_definitions.select { |_, definition|
-        definition['type'] == 'classificationTreeLabel'
+        definition['type'] == 'classification'
       }.keys
     end
 
@@ -109,6 +115,7 @@ module DataCycleCore
     end
 
     def to_h(timestamp = Time.zone.now)
+      #byebug
       property_names.map { |property_name|
         property_value =
           if property_name == 'id' && is_history?
@@ -118,7 +125,7 @@ module DataCycleCore
           elsif classification_property_names.include?(property_name)
             send(property_name).try(:pluck, :id)
           elsif linked_property_names.include?(property_name)
-            get_property_value(property_name, property_definitions[property_name], timestamp, false)
+            get_property_value(property_name, property_definitions[property_name], timestamp, false).presence
           elsif included_property_names.include?(property_name)
             embedded_hash = send(property_name).to_h
             embedded_hash.presence
@@ -185,13 +192,13 @@ module DataCycleCore
 
     def embedded_relations
       embedded_property_names.map { |property_name|
-        { name: property_name, table: property_definitions[property_name]['storage_location'] }
+        { name: property_name, table: property_definitions[property_name]['linked_table'] }
       }.compact.uniq
     end
 
     def linked_relations
       linked_property_names.map { |property_name|
-        { name: property_name, table: property_definitions[property_name]['type_name'], type: property_definitions[property_name]['type'] }
+        { name: property_name, table: property_definitions[property_name]['linked_table'] }
       }.compact.uniq
     end
 
@@ -205,25 +212,16 @@ module DataCycleCore
       # linked data via embeddedLink/embeddedLinkArray
       # handled like embedded_objects with delete=false
       if linked_property_names.include?(property_name)
-        if object
-          load_embedded_objects(
-            property_definition['type_name'],
-            property_name,
-            true
-          )
-        elsif property_definition['type'] == 'embeddedLink'
-          load_embedded_objects(
-            property_definition['type_name'],
-            property_name,
-            true
-          ).try(:first).try(:id)
-        else
-          load_embedded_objects(
-            property_definition['type_name'],
-            property_name,
-            true
-          ).try(:ids)
-        end
+        load_embedded_objects(
+          property_definition['linked_table'],
+          property_name,
+          true
+        )
+
+        # plain properties (e.g. string,text, ... )
+        # non-structured properties of this content-data_set
+      elsif PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
+        send(NEW_STORAGE_LOCATION[property_definition['storage_location']]).try(:[], property_name.to_s)
 
         # included subobjects
         # properties stored in this content-data_set directly
@@ -237,7 +235,7 @@ module DataCycleCore
         # all properties from the embeddedObject are handled within this content-data_set
       elsif embedded_property_names.include?(property_name)
         load_embedded_objects(
-          property_definition['storage_location'],
+          property_definition['linked_table'],
           property_name
         )
 
@@ -251,10 +249,6 @@ module DataCycleCore
       elsif asset_property_names.include?(property_name)
         load_asset_relation_ids(property_name)
 
-        # plain properties (e.g. string,text, ... )
-        # non-structured properties of this content-data_set
-      elsif PLAIN_PROPERTY_TYPES.include?(property_definition['storage_type'])
-        send(property_definition['storage_location']).try(:[], property_name.to_s)
       else
         raise NotImplementedError
       end
@@ -304,7 +298,7 @@ module DataCycleCore
         load_subproperty_hash(
           sub_property_definitions,
           property_definition['storage_location'],
-          send(property_definition['storage_location']).try(:[], property_name)
+          send(NEW_STORAGE_LOCATION[property_definition['storage_location']]).try(:[], property_name)
         )
       ).freeze
     end
@@ -343,9 +337,9 @@ module DataCycleCore
     end
 
     def set_property_value(property_name, property_definition, value)
-      if PLAIN_PROPERTY_TYPES.include?(property_definition['storage_type'])
-        send(property_definition['storage_location'] + '=',
-             (send(property_definition['storage_location']) || {}).merge({ property_name => value }))
+      if PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
+        send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
+             (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value }))
       else
         raise NotImplementedError
       end

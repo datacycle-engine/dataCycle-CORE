@@ -1,6 +1,7 @@
 DataCycleCore.setup do |config|
   # general settings
-  I18n.available_locales = [:de]
+  I18n.available_locales = [:de, :en]
+
   # only required for DataCycleCore dummy app
   Rails.application.config.assets.precompile += ['logo.svg', 'logo.png']
   # Configure sensitive parameters which will be filtered from the log file.

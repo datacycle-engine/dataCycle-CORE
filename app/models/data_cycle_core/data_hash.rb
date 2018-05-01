@@ -410,35 +410,35 @@ module DataCycleCore
     end
 
     def storage_cases_set(key, value, properties, save_time, current_user)
-      if properties['type'] == 'embeddedLinkArray'
-        set_linked_data_type(key, value, properties['type_name'], nil, false, save_time, current_user)
-      elsif properties['type'] == 'embeddedLink'
-        set_single_link(key, value, properties['type_name'], save_time, current_user)
+      case properties['type']
+      when 'linked'
+        set_linked_data_type(key, value, properties['linked_table'], properties['template_name'], false, save_time, current_user)
+      when 'embedded'
+        delete = false
+        delete = true if properties.key?('delete') && properties['delete'] == true
+        set_linked_data_type(key, value, properties['linked_table'], properties['template_name'], delete, save_time, current_user)
+      when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
+        save_values(key, value, properties)
+      when 'classification'
+        set_relation_ids(value, key, properties['tree_label'], properties['default_value'])
+      when 'asset'
+        set_asset_id(value, key, properties['type_name'])
+      when 'key'
+        # do nothing
+        true
       else
-        case properties['storage_location']
-        when 'column'
-          method("#{key}=").call(value)
-        when 'content'
-          save_to_jsonb(key, value, properties, 'content')
-        when 'metadata'
-          save_to_jsonb(key, value, properties, 'metadata')
-        when 'properties'
-          save_to_jsonb(key, value, properties, 'properties')
-        when 'classification_relation'
-          set_relation_ids(value, key, properties['type_name'], properties['default_value'])
-        when 'asset_relation'
-          set_asset_id(value, key, properties['type_name'])
-        else
-          unless properties['storage_location'] == 'key' # do nothing with key
-            if properties.key?('name')
-              delete = false
-              delete = true if properties.key?('delete') && properties['delete'] == true
-              set_linked_data_type(key, value, properties['storage_location'], properties['name'], delete, save_time, current_user)
-            else
-              puts "wrong data_type #{key} | #{value}"
-            end
-          end
-        end
+        puts "wrong data_type #{key} | #{value}"
+      end
+    end
+
+    def save_values(key, value, properties)
+      case properties['storage_location']
+      when 'column'
+        method("#{key}=").call(value)
+      when 'value'
+        save_to_jsonb(key, value, properties, 'metadata')
+      when 'translated_value'
+        save_to_jsonb(key, value, properties, 'content')
       end
     end
 
@@ -464,34 +464,13 @@ module DataCycleCore
       data_definitions.each_key do |key|
         if data_definitions[key]['type'] == 'object'
           data_hash[key] = set_data_tree_hash(data[key], data_definitions[key]['properties'], location)
-        elsif data_definitions[key]['storage_location'] == location
-          data_hash[key] = data[key]
+        elsif (data_definitions[key]['storage_location'] == 'value' && location == 'metadata') || (data_definitions[key]['storage_location'] == 'translated_value' && location == 'content')
+          data_hash[key] = data[key] # TODO: if necessary make data casts here!!
         elsif data_definitions[key]['storage_location'] == 'column'
           method("#{key}=").call(data[key])
         end
       end
       data_hash
-    end
-
-    ######################### for single embeddedLink ##########################
-    def set_single_link(field_name, input_data, table, save_time, current_user)
-      relation = send(field_name.to_sym)
-      raise if relation.count > 1
-      if relation.count.zero?
-        if input_data.present? # insert
-          DataCycleCore::ContentContent.create(get_relation_data_hash_order(field_name, table, input_data, 0))
-        end
-      elsif input_data.blank? # delete
-        DataCycleCore::ContentContent.find_by(get_embeddedlink_hash(field_name, table)).destroy
-      else # update
-        temp = DataCycleCore::ContentContent.find_by(get_embeddedlink_hash(field_name, table))
-        selector = table <= self.class.table_name ? 'a' : 'b'
-        temp.send("content_#{selector}_id=".to_sym, input_data)
-        temp.send("content_#{selector}_type=".to_sym, "DataCycleCore::#{table.classify}")
-        temp.send("relation_#{selector}=".to_sym, '')
-        temp.send("order_#{selector}=".to_sym, nil)
-        temp.save
-      end
     end
 
     def get_embeddedlink_hash(field_name, table)

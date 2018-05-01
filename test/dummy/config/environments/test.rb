@@ -11,6 +11,10 @@ Rails.application.configure do
 
   config.consider_all_requests_local = true
 
+  # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
+  # the I18n.default_locale when a translation cannot be found).
+  config.i18n.fallbacks = false
+
   # Enable/disable caching. By default caching is disabled.
   if Rails.root.join('tmp', 'caching-dev.txt').exist?
     config.action_controller.perform_caching = true

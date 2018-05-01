@@ -47,7 +47,8 @@
         :label: Ersteller
         :type: linked
         :linked_table: users
-        :storage_location: value
+        :validations:
+          :max: 1
       :date_created:
         :label: Erstellungsdatum
         :type: datetime
