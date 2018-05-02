@@ -1,0 +1,58 @@
+---
+- :data:
+    :name: Website
+    :type: object
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :url:
+        :label: Link
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :validations:
+          :minLength: 1
+          :format: url
+        :editor:
+          :type: input
+          :options:
+            :data-validate: text
+      :name:
+        :label: Linktitel
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: quillEditor
+          :options:
+            :data-size: basic
+            :data-validate: text
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_type: text
+        :storage_location: column
+        :editor:
+          :type: quillEditor
+          :options:
+            :data-size: basic
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_location: classification_relation
+        :default_value: "Website"
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

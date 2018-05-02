@@ -1,0 +1,84 @@
+---
+- :data:
+    :name: Datei
+    :type: object
+    :content_type: entity
+    :boost: 10.0
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :search: true
+        :editor:
+          :type: input
+          :options:
+            :data-validate: text
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_type: text
+        :storage_location: column
+        :search: true
+        :editor:
+          :type: quillEditor
+          :options:
+            :data-size: basic
+      :caption:
+        :label: Alt-Label
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :search: true
+        :editor:
+          :type: input
+      :asset:
+        :label: File-Asset
+        :type: asset
+        :type_name: DataCycleCore::Asset
+        :storage_location: asset_relation
+        :editor:
+          :type: fileAsset
+      :content_size:
+        :label: Dateigröße
+        :type: number
+        :storage_type: number
+        :storage_location: metadata
+        :validations:
+          :format: integer
+        :editor:
+          :type: input
+      :file_format:
+        :label: Dateiformat
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: input
+      #meta attributes
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_location: classification_relation
+        :default_value: "Datei"
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties
