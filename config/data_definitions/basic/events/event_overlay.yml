@@ -16,7 +16,6 @@
         :type: string
         :storage_type: string
         :storage_location: content
-        :search: true
         :validations:
           :minLength: 1
         :editor:
@@ -66,7 +65,6 @@
         :type: string
         :storage_type: text
         :storage_location: column
-        :search: true
         :editor:
           :type: quillEditor
           :options:
