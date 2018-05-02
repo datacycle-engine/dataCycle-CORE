@@ -132,6 +132,9 @@
           :classifications: no_conflicts
         :editor:
           :type: embeddedObject
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties
 #      :datacycleimage:
 #        :label: DataCycle-Bild
 #        :type: object

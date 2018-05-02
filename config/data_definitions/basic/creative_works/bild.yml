@@ -155,3 +155,6 @@
       :meta_data:
         :type: mixin
         :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

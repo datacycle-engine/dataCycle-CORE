@@ -1,11 +1,13 @@
 ---
 - :data:
-    :name: Örtlichkeit
+    :name: Unterkunft
     :type: object
     :content_type: entity
     :permissions:
       :read_write: true
     :boost: 10.0
+    :features:
+      :overlay: ['overlay']
     :properties:
       :id:
         :label: id
@@ -26,6 +28,17 @@
           :type: input
           :options:
             :data-validate: text
+      # overlay mixin
+      :overlay:
+        :label: Overlay
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: PlaceOverlay
+        :validations:
+          :maxLength: 1
+        :editor:
+          :type: embeddedObject
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -41,6 +54,8 @@
         :storage_type: string
         :storage_location: column
         :search: true
+        :editor:
+          :type: input
       :text:
         :label: Text
         :type: string
@@ -75,12 +90,24 @@
           :options:
             :data-validate: media
             :data-type: image
+      :outdoor_active:
+        :type: mixin
+        :name: outdoor_active
+      :outdoor_active_categories:
+        :type: mixin
+        :name: outdoor_active_categories
+      :feratel_categories:
+        :type: mixin
+        :name: feratel_categories
+      :xamoom:
+        :type: mixin
+        :name: xamoom
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
-        :default_value: "Örtlichkeit"
+        :default_value: "Unterkunft"
       :content_classifications:
         :type: mixin
         :name: content_classifications

@@ -120,3 +120,6 @@
           :classifications: no_conflicts
         :editor:
           :type: embeddedObject
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties
