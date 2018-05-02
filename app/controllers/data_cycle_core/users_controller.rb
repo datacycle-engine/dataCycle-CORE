@@ -48,7 +48,7 @@ module DataCycleCore
           redirect_to(settings_path, notice: I18n.t(:updated_multiple, scope: [:controllers, :success], data: 'Benutzereinstellungen', locale: DataCycleCore.ui_language))
         elsif Rails.env.development?
           redirect_to edit_user_path(@user)
-        elsif can? :crud, DataCycleCore::User
+        elsif can? :index, DataCycleCore::User
           redirect_to users_path
         else
           redirect_to root_path
