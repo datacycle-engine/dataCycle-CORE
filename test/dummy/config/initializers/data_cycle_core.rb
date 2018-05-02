@@ -20,6 +20,7 @@ DataCycleCore.setup do |config|
     config.default_template_paths = [
       Rails.root.join('..', '..', 'config', 'data_definitions', 'gitlab_ci')
     ].freeze
+    config.excluded_new_item_objects = ['Event', 'Person', 'Örtlichkeit', 'Bild', 'Organization', 'Zeitleiste', 'Linktipps', 'Datei', 'Tour', 'Video', 'Unterkunft']
   else
     config.default_template_paths = [
       Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
@@ -30,6 +31,7 @@ DataCycleCore.setup do |config|
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'gitlab_ci')
     ].freeze
   end
+
   config.external_sources_path = Rails.root.join('config', 'external_sources').freeze
   # config.excluded_new_item_objects = ['Event', 'Person', 'Örtlichkeit', 'Bild', 'Organization', 'Zeitleiste', 'Linktipps', 'Datei', 'Tour', 'Video', 'Unterkunft']
 
