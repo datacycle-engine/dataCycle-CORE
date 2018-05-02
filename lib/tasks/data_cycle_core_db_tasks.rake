@@ -116,6 +116,12 @@ namespace :data_cycle_core do
       end
     end
 
+    desc 'remove all active database connections'
+    task clear_connections: :environment do
+      ActiveRecord::Base.establish_connection
+      ActiveRecord::Base.connection.select_all "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE datname='#{ActiveRecord::Base.connection_config[:database]}' AND pid <> pg_backend_pid();"
+    end
+
     private
 
     def ensure_format(format)

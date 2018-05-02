@@ -13,6 +13,11 @@
         :type: classificationTreeLabel
         :type_name: OutdoorActive - Kategorien
         :storage_location: classification_relation
+      :outdoor_active_tags:
+        :label: OutdoorActive - Tags
+        :type: classificationTreeLabel
+        :type_name: OutdoorActive - Tags
+        :storage_location: classification_relation
       :regions:
         :label: Regionen
         :type: classificationTreeLabel

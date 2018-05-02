@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: Biografie
+    :name: Rezept
     :type: object
     :content_type: entity
     :releasable: true
@@ -40,16 +40,14 @@
           :type: quillEditor
           :options:
             :data-size: basic
-      :text:
-        :label: Fließtext
+      :name:
+        :label: Linktitel
         :type: string
-        :storage_type: text
+        :storage_type: string
         :storage_location: content
         :search: true
         :editor:
-          :type: quillEditor
-          :options:
-            :data-size: full
+          :type: input
       :image:
         :label: Bilder
         :type: embeddedLinkArray
@@ -61,24 +59,67 @@
           :options:
             :data-validate: media
             :data-type: image
-      :about:
-        :label: Person
-        :type: object
-        :storage_location: persons
-        :name: Person
-        :validations:
-          :max: 1
+      :recipe_instructions:
+        :label: Fließtext
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :search: true
         :editor:
-          :type: objectBrowser
+          :type: quillEditor
           :options:
-            :data-validate: object
-            :data-type: person
+            :data-size: full
+      :recipe_yield:
+        :label: Portionen
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :search: true
+        :editor:
+          :type: input
+      :total_time:
+        :label: Kochzeit
+        :type: number
+        :storage_type: number
+        :storage_location: content
+        :validations:
+          :format: integer
+          :max: 300
+        :editor:
+          :type: duration
+          :options:
+            :data-type: duration
+            :data-validate: integer
+            :data-unit: min
+      :recipe_course:
+        :label: 'Gang'
+        :type: classificationTreeLabel
+        :type_name: 'Rezept-Gänge'
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+      :recipe_category:
+        :label: 'Kategorie'
+        :type: classificationTreeLabel
+        :type_name: 'Rezept-Kategorien'
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+      :recipe_ingredient:
+        :label: Zutaten
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :editor:
+          :type: quillEditor
+          :options:
+            :data-size: full
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
-        :default_value: "Biografie"
+        :default_value: "Rezept"
       :content_classifications:
         :type: mixin
         :name: content_classifications

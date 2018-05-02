@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: Bild
+    :name: Video
     :type: object
     :content_type: entity
     :permissions:
@@ -64,11 +64,29 @@
         :validations:
           :format: url
         :editor:
-          :type: input
-          :options:
-            :data-type: image
+          :type: image
       :url:
         :label: Inhalt URL
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
+        :editor:
+          :type: input
+          :options:
+            :data-validate: text
+      :image:
+        :label: Teaserbild
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
+        :editor:
+          :type: image
+      :youtube_url:
+        :label: YouTube URL
         :type: string
         :storage_type: string
         :storage_location: metadata
@@ -81,18 +99,10 @@
 #      :asset:
 #        :label: Datei
 #        :type: asset
-#        :type_name: DataCycleCore::Image
+#        :type_name: DataCycleCore::Video
 #        :storage_location: asset_relation
 #        :editor:
-#          :type: imageAsset
-      :photographer:
-        :label: Fotograf
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :search: true
-        :editor:
-          :type: input
+#          :type: videoAsset
       :license:
         :label: Copyright / Lizenz
         :type: string
@@ -142,21 +152,41 @@
         :storage_location: metadata
         :editor:
           :type: input
-      :tags:
-        :type: mixin
-        :name: tags          
-      :media_archive:
-        :type: mixin
-        :name: media_archive
-      :media_archive_categories:
-        :type: mixin
-        :name: media_archive_categories
+      :duration:
+        :label: Länge
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :editor:
+          :type: input
+      :director:
+        :label: "Regie"
+        :type: object
+        :storage_location: persons
+        :name: Person
+        :delete: false
+        :editor:
+          :type: objectBrowser
+          :options:
+            :data-validate: object
+            :data-type: person
+      :contributor:
+        :label: "Kamera"
+        :type: object
+        :storage_location: persons
+        :name: Person
+        :delete: false
+        :editor:
+          :type: objectBrowser
+          :options:
+            :data-validate: object
+            :data-type: person
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
         :type_name: Inhaltstypen
         :storage_location: classification_relation
-        :default_value: "Bild"
+        :default_value: "Video"
       :content_classifications:
         :type: mixin
         :name: content_classifications
