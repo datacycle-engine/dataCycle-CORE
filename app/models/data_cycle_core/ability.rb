@@ -58,7 +58,7 @@ module DataCycleCore
           end
 
           can :crud, CONTENT_MODELS do |data_object|
-            data_object.try(:external_key).blank? || (DataCycleCore.features.dig(:overlay, :enabled) && data_object&.schema&.dig('features', 'overlay').present?)
+            data_object.try(:external_key).blank? || DataCycleCore::Feature::Overlay.allowed?(data_object)
           end
 
           can [:set_role, :set_user_groups], DataCycleCore::User do |the_user|
@@ -77,20 +77,19 @@ module DataCycleCore
         can :manage, :dash_board if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)
 
         can :edit, DataCycleCore::DataAttribute do |attribute|
-          if DataCycleCore.features.dig(:publication_schedule, :enabled) && attribute.content&.schema&.dig('features', 'publication_schedule').present?
+          if DataCycleCore::Feature::PublicationSchedule.allowed?(attribute.content)
 
             !(
               (attribute.key =~ Regexp.union(*DataCycleCore.features.dig(:publication_schedule, :classification_keys))) &&
-              (attribute.key.scan(/\[(.*?)\]/).flatten & attribute.content.schema.dig('features', 'publication_schedule')).size.zero?
+              !DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(attribute.content, attribute.key)
             )
 
           else
             (
               attribute.content.try(:external_key).blank? ||
               (
-                DataCycleCore.features.dig(:overlay, :enabled) &&
-                attribute.content&.schema&.dig('features', 'overlay').present? &&
-                (attribute.key.scan(/\[(.*?)\]/).flatten & attribute.content.schema.dig('features', 'overlay')).size.positive?
+                DataCycleCore::Feature::Overlay.allowed?(attribute.content) &&
+                DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
               )
             )
           end
