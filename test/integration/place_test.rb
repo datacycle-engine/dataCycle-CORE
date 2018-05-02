@@ -13,11 +13,11 @@ module DataCycleCore
       data_set.schema = template.schema
       data_set.template_name = template.template_name
       data_set.save
-      error = data_set.set_data_hash(data_hash: { 'name' => 'Dies ist ein Test!', 'longitude' => 40.56, 'latitude' => 13.13 })
+      error = data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'longitude' => 40.56, 'latitude' => 13.13 })
       data_set.save
       expected_hash = {
         'id' => data_set.id,
-        'name' => 'Dies ist ein Test!',
+        'headline' => 'Dies ist ein Test!',
         'longitude' => 40.56,
         'latitude' => 13.13
       }
@@ -31,11 +31,11 @@ module DataCycleCore
       data_set.template_name = template.template_name
       data_set.save
       point = RGeo::Geographic.spherical_factory(srid: 4326).point(40.56, 13.13)
-      error = data_set.set_data_hash(data_hash: { 'name' => 'Dies ist ein Test!', 'longitude' => 40.56, 'latitude' => 13.13, 'location' => point })
+      error = data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'longitude' => 40.56, 'latitude' => 13.13, 'location' => point })
       data_set.save
       expected_hash = {
         'id' => data_set.id,
-        'name' => 'Dies ist ein Test!',
+        'headline' => 'Dies ist ein Test!',
         'longitude' => 40.56,
         'latitude' => 13.13,
         'location' => point
@@ -61,7 +61,7 @@ module DataCycleCore
       point = RGeo::Geographic.spherical_factory(srid: 4326).point(40.56, 13.13)
       error = data_set.set_data_hash(
         data_hash: {
-          'name' => 'Dies ist ein Test!',
+          'headline' => 'Dies ist ein Test!',
           'longitude' => 40.56,
           'latitude' => 13.13,
           'location' => point,
@@ -71,7 +71,7 @@ module DataCycleCore
       data_set.save
       expected_hash = {
         'id' => data_set.id,
-        'name' => 'Dies ist ein Test!',
+        'headline' => 'Dies ist ein Test!',
         'longitude' => 40.56,
         'latitude' => 13.13,
         'location' => point,

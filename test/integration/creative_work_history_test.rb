@@ -339,7 +339,7 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Place::History::Translation.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
-      error = data_set.set_data_hash(data_hash: { 'headline' => 'Test Link', 'linked' => data_place_id1 })
+      error = data_set.set_data_hash(data_hash: { 'headline' => 'Test Link', 'linked' => [data_place_id1] })
       data_set.save
 
       assert_equal(0, error[:error].size)
@@ -354,7 +354,7 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Place::History::Translation.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
-      error = data_set.set_data_hash(data_hash: { 'headline' => 'Test Link2', 'linked' => data_place_id2 })
+      error = data_set.set_data_hash(data_hash: { 'headline' => 'Test Link2', 'linked' => [data_place_id2] })
       data_set.save
 
       assert_equal(0, error[:error].size)
@@ -369,7 +369,7 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Place::History::Translation.count)
       assert_equal(1, DataCycleCore::ContentContent::History.count)
 
-      error = data_set.set_data_hash(data_hash: { 'headline' => 'Test Link1', 'linked' => data_place_id1 })
+      error = data_set.set_data_hash(data_hash: { 'headline' => 'Test Link1', 'linked' => [data_place_id1] })
       data_set.save
 
       assert_equal(0, error[:error].size)

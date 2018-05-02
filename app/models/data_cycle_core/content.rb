@@ -125,7 +125,8 @@ module DataCycleCore
           elsif classification_property_names.include?(property_name)
             send(property_name).try(:pluck, :id)
           elsif linked_property_names.include?(property_name)
-            get_property_value(property_name, property_definitions[property_name], timestamp).presence
+            linked_array = get_property_value(property_name, property_definitions[property_name], timestamp)
+            linked_array.presence || []
           elsif included_property_names.include?(property_name)
             embedded_hash = send(property_name).to_h
             embedded_hash.presence

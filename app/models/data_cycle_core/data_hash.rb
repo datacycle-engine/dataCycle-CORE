@@ -140,7 +140,7 @@ module DataCycleCore
         delete = definition['delete'] unless definition['delete'].blank?
         delete = true if is_history?
 
-        relation_name = definition['storage_location']
+        relation_name = definition['linked_table']
         if delete
           load_embedded_objects(relation_name, name).each do |item|
             item.delete_childs(delete)

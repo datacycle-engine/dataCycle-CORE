@@ -145,7 +145,7 @@
       :video:
         :label: Videos
         :type: linked
-        :liked_table: creative_works
+        :linked_table: creative_works
         :editor:
           :type: objectBrowser
           :options:

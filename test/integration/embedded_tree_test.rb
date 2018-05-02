@@ -57,6 +57,7 @@ module DataCycleCore
         'state' => [],
         'season' => [],
         'topics' => [],
+        'creator' => [],
         'markets' => [],
         'headline' => 'Dies ist ein Test!',
         'quotation' => [{
@@ -69,7 +70,7 @@ module DataCycleCore
             'given_name' => 'Winston',
             'family_name' => 'Churchill'
           }],
-          'creator' => nil,
+          'creator' => [],
           'is_part_of' => parent_id,
           'data_type' => [data_type_zitat_id],
           'date_created' => nil,
@@ -143,6 +144,7 @@ module DataCycleCore
         'season' => [],
         'topics' => [],
         'markets' => [],
+        'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'quotation' => [{
           'id' => '',
@@ -154,7 +156,7 @@ module DataCycleCore
             'given_name' => 'Winston',
             'family_name' => 'Churchill'
           }],
-          'creator' => nil,
+          'creator' => [],
           'is_part_of' => parent_id,
           'data_type' => [data_type_zitat_id],
           'date_created' => nil,
@@ -244,6 +246,7 @@ module DataCycleCore
         'state' => [],
         'season' => [],
         'topics' => [],
+        'creator' => [],
         'markets' => [],
         'headline' => 'Dies ist ein Test!',
         'output_channels' => [],
@@ -346,13 +349,14 @@ module DataCycleCore
         'state' => [],
         'season' => [],
         'topics' => [],
+        'creator' => [],
         'markets' => [],
         'headline' => 'Dies ist ein Test!',
         'quotation' => [{
           'id' => '',
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
           'image' => [],
-          'creator' => nil,
+          'creator' => [],
           'author' => [{
             'id' => person_id,
             'job_title' => nil,

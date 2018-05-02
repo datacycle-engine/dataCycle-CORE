@@ -69,6 +69,7 @@ module DataCycleCore
       data_hash = {
         'kind' => [],
         'tags' => [],
+        'creator' => [],
         'image' => {
           'value' => [bild1.id],
           'release_id' => DataCycleCore::Release.first.id,
@@ -87,7 +88,8 @@ module DataCycleCore
             'release_id' => DataCycleCore::Release.second.id,
             'release_comment' => 'zitat bild kommentar'
           },
-          'author' => []
+          'author' => [],
+          'creator' => []
         }],
         'output_channels' => [],
         'content_location' => [],
@@ -99,9 +101,17 @@ module DataCycleCore
       error = data_set.set_data_hash(data_hash: set_hash)
       data_set.save
 
+      expected_data_hash = data_hash.deep_dup
+      expected_data_hash['image']['value'] = DataCycleCore::CreativeWork.where(id: bild1.id)
+      expected_data_hash['quotation'].first['image']['value'] = DataCycleCore::CreativeWork.where(id: bild2.id)
+
       returned_data_hash = data_set.get_data_hash
-      assert_equal(data_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'quotation', 'data_pool'))
-      assert_equal(data_hash['quotation'][0], returned_data_hash['quotation'][0].compact.except('id', 'data_type', 'is_part_of'))
+      assert_equal(expected_data_hash.except('quotation', 'image'), returned_data_hash.compact.except('id', 'data_type', 'quotation', 'data_pool', 'image'))
+      assert_equal(expected_data_hash['image'].except('value'), returned_data_hash['image'].except('value'))
+      assert_equal(bild1.id, returned_data_hash['image']['value'].ids.first)
+      assert_equal(expected_data_hash['quotation'][0].except('image'), returned_data_hash['quotation'][0].compact.except('id', 'data_type', 'is_part_of', 'image'))
+      assert_equal(expected_data_hash['quotation'][0]['image'].except('value'), returned_data_hash['quotation'][0]['image'].except('value'))
+      assert_equal(bild2.id, returned_data_hash['quotation'][0]['image']['value'].ids.first)
 
       expected_release_main_object = {
         'image' => {

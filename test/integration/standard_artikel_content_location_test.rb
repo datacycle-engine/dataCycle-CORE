@@ -10,7 +10,7 @@ module DataCycleCore
       data_set_place1.template_name = place_template.template_name
       data_set_place1.save
       place_hash1 = {
-        'name' => 'Wien',
+        'headline' => 'Wien',
         'latitude' => 1,
         'longitude' => 2
       }
@@ -51,7 +51,7 @@ module DataCycleCore
       data_set_place1.template_name = place_template.template_name
       data_set_place1.save
       place_hash1 = {
-        'name' => 'Wien',
+        'headline' => 'Wien',
         'latitude' => 1,
         'longitude' => 2
       }
@@ -64,7 +64,7 @@ module DataCycleCore
       data_set_place2.template_name = place_template.template_name
       data_set_place2.save
       place_hash2 = {
-        'name' => 'Villach',
+        'headline' => 'Villach',
         'latitude' => 10,
         'longitude' => 20
       }
@@ -92,6 +92,7 @@ module DataCycleCore
           'id' => place_id1
         }]
       }
+
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
@@ -108,6 +109,7 @@ module DataCycleCore
         'markets' => [],
         'image' => [],
         'video' => [],
+        'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'quotation' => [{
           'id' => '',
@@ -119,7 +121,7 @@ module DataCycleCore
             'given_name' => 'Winston',
             'family_name' => 'Churchill'
           }],
-          'creator' => nil,
+          'creator' => [],
           'is_part_of' => parent_id,
           'data_type' => [data_type_zitat_id],
           'date_created' => nil,
@@ -128,7 +130,7 @@ module DataCycleCore
         'output_channels' => [],
         'content_location' => [{
           'id' => place_id1,
-          'name' => 'Wien',
+          'headline' => 'Wien',
           'latitude' => 1.0,
           'longitude' => 2.0,
           'external_source_id' => nil,
@@ -156,7 +158,7 @@ module DataCycleCore
       updated_data_hash = data_set.get_data_hash
       expected_hash['content_location'] = [{
         'id' => place_id2,
-        'name' => 'Villach',
+        'headline' => 'Villach',
         'latitude' => 10,
         'longitude' => 20,
         'external_source_id' => nil,

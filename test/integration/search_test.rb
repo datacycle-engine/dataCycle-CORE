@@ -22,6 +22,8 @@ module DataCycleCore
       data_set.save
       data_set.set_search
       data_set.save
+
+      assert(1, DataCycleCore::Search.count)
     end
   end
 end
