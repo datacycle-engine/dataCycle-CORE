@@ -135,6 +135,7 @@ module DataCycleCore
         'state' => [],
         'season' => [],
         'topics' => [],
+        'creator' => [],
         'markets' => [],
         'headline' => 'Dies ist ein Test Quiz!',
         'output_channels' => [],
@@ -148,7 +149,7 @@ module DataCycleCore
 
       assert_equal(0, error[:error].count)
       assert_equal(expected_hash_quiz, returned_data_hash.except('question', 'id', 'data_type', 'validity_period', 'data_pool').compact)
-      assert_equal(data_hash['question'][0], returned_data_hash['question'][0].except('id', 'data_type', 'image').compact)
+      assert_equal(data_hash['question'][0], returned_data_hash['question'][0].except('id', 'data_type', 'image', 'creator').compact)
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.count - cw_temp)

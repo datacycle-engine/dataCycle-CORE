@@ -10,9 +10,9 @@ module DataCycleCore
           if blank?(data)
             (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
           elsif data.is_a?(::Array)
-            check_reference_array(data, template)
+            check_data_array(data, template)
           elsif data.is_a?(::Hash)
-            check_reference_array([data], template)
+            check_data_array([data], template)
           else
             (@error[:error][@template_key] ||= []) << I18n.t(:data_format_embedded, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language)
           end
@@ -21,7 +21,7 @@ module DataCycleCore
 
         private
 
-        def check_reference_array(data, template)
+        def check_data_array(data, template)
           # validate given validations
           if template.key?('validations')
             template['validations'].each_key do |key|
