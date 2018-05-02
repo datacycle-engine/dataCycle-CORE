@@ -56,12 +56,16 @@ module DataCycleCore
     end
 
     def self.order_by_similarity(term)
+      term = ActiveRecord::Base.connection.quote(term)
+
       max_cardinality = Path.all.pluck('MAX(CARDINALITY(full_path_names))').max
 
       joins(:classification_alias_path).order(
-        (1..max_cardinality).map { |c|
-          "COALESCE(10 ^ (#{max_cardinality} - #{c}) * (1 - (full_path_names[#{c}] <-> '#{term}')), 0)"
-        }.join(' + ') + ' DESC'
+        ActiveRecord::Base.sanitize_sql_for_order(
+          (1..max_cardinality).map { |c|
+            "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> #{term})), 0)"
+          }.join(' + ') + ' DESC'
+        )
       )
     end
 
