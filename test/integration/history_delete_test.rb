@@ -53,6 +53,7 @@ module DataCycleCore
         'state' => [],
         'season' => [],
         'topics' => [],
+        'creator' => [],
         'markets' => [],
         'headline' => 'Dies ist ein Test Quiz!',
         'output_channels' => [],
