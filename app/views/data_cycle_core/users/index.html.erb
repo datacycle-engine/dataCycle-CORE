@@ -2,7 +2,7 @@
 
 <%= render 'results', contents: @paginateObject %>
 
-<% if can? :create, DataCycleCore::User %>
+<% if can? :create_user, DataCycleCore::User %>
   <% content_for :new_button do %>
     <div id="new-object-circle">
         <a data-toggle="new-object" class="button-prime"><i class="fa fa-plus" aria-hidden="true"></i></a>

@@ -8,7 +8,7 @@
 
                 <div class="detail-header-functions">
                     <ul class="no-bullet">
-                        <% if can?(:manage, DataCycleCore::DataLink) %>
+                        <% if can?(:index, DataCycleCore::DataLink) %>
                             <li><%= render 'data_links', content: @watch_list %></li>
                         <% end %>
                         <li class="buttons">

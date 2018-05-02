@@ -6,7 +6,7 @@
             <%= render 'split_sources', contents: content.siblings.select{|s| s.template_name == content.template_name }, selected: @splitSource, url: compare_creative_work_path(content), title_text: t('common.compare_contents', locale: DataCycleCore.ui_language) %>
           </li>
         <% end %>
-        <% if can?(:manage, DataCycleCore::DataLink) %>
+        <% if can?(:index, DataCycleCore::DataLink) %>
             <li class="has-dropdown"><%= render 'data_links', content: content %></li>
         <% end %>
         <% if can? :subscribe, content %>
@@ -18,10 +18,10 @@
                 </div>
             </li>
         <% end %>
-        <% if can? :read, DataCycleCore::WatchList %>
+        <% if can?(:index, DataCycleCore::WatchList) %>
             <li class="has-dropdown"><%= render 'watch_lists', content: content %></li>
         <% end %>
-        <% if can? :print, content %>
+        <% if can?(:print, content) %>
           <li class="buttons">
             <button class="link" onclick="window.print();"><i aria-hidden="true" class="fa fa-print"></i></button>
           </li>
