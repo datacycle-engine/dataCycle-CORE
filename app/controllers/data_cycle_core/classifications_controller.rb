@@ -41,10 +41,10 @@ module DataCycleCore
     end
 
     def search
-      permitted_params = params.permit(:q, :max, :tree_label, :alias_ids)
+      permitted_params = params.permit(:q, :max, :tree_label)
 
       query = if params[:tree_label].present?
-                DataCycleCore::ClassificationAlias.for_tree(params[:tree_label])
+                DataCycleCore::ClassificationAlias.for_tree(params[:tree_label]).where.not(name: DataCycleCore.excluded_filter_classifications)
               else
                 DataCycleCore::ClassificationAlias.all
               end
@@ -56,7 +56,6 @@ module DataCycleCore
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
       render plain: query.map { |a|
         {
-          id: a.primary_classification.id, # TODO: remove this property after all references have been removed
           classification_id: a.primary_classification.id,
           classification_alias_id: a.id,
           name: a.name,

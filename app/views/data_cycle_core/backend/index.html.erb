@@ -7,9 +7,11 @@
 <% end %>
 
 <% content_for :top_content do %>
-  <% classification_filters = DataCycleCore::ClassificationTreeLabel.order(:name).pluck(:name).map { |c| [t("filter.#{c}", default: c, locale: DataCycleCore.ui_language), 'classification_alias_ids', data: { name: c }]} %>
-
-  <% classification_filters.push([DataCycleCore::ExternalSource.model_name.human(locale: DataCycleCore.ui_language), 'external_source', data: { name: DataCycleCore::ExternalSource.model_name.human(locale: DataCycleCore.ui_language) }]) %>
+  <% if current_user&.role&.rank&.<(10) %>
+    <% classification_filters = [['Inhaltspools', 'classification_alias_ids', data: { name: 'Inhaltspools' }]] %>
+  <% else %>
+    <% classification_filters = DataCycleCore.available_filters[:advanced].map { |c| [t("filter.#{c}", default: c, locale: DataCycleCore.ui_language), 'classification_alias_ids', data: { name: c }]} %>
+  <% end %>
 
   <%= render 'filter', filter: { search: true, language: true, store: true, advanced: classification_filters } if user_signed_in? %>
 <% end %>

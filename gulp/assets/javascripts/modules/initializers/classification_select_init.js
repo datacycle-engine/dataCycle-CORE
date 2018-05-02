@@ -16,7 +16,7 @@ module.exports.initialize = function () {
     $(element).find('.async-select').each(function () {
       var query = {};
       var tree_label = $(this).data('tree-label');
-      var alias_ids = $(this).data('alias-ids') || 0;
+      var alias_ids = $(this).data('alias-ids') || false;
       var max = $(this).data('max');
       var that = this;
 
@@ -54,14 +54,17 @@ module.exports.initialize = function () {
             return {
               q: params.term,
               tree_label: tree_label,
-              max: max,
-              alias_ids: alias_ids
+              max: max
             };
           },
           processResults: function (data) {
             $(that).data('select2').$container.removeClass('select2-loading');
             return {
-              results: data
+              results: data.map(value => {
+                if (alias_ids && value.classification_alias_id != undefined) value.id = value.classification_alias_id;
+                else if (value.classification_id != undefined) value.id = value.classification_id;
+                return value;
+              })
             };
           }
         }
