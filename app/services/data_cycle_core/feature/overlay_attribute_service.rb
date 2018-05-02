@@ -4,7 +4,7 @@ module DataCycleCore
       private
 
       def process
-        DataCycleCore::Feature::Overlay.attribute_keys(@content)
+        DataCycleCore::Feature::Overlay.allowed_attribute_keys(@content)
       end
     end
   end

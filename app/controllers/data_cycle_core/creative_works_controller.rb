@@ -21,7 +21,7 @@ module DataCycleCore
           @entities = DataCycleCore::Feature::Container.apply_excluded_contents(@content, @entities)
         end
 
-        @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if DataCycleCore::Feature::Releasable.present?(@content) && !@content.release_id.nil?
+        @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if DataCycleCore::Feature::Releasable.allowed?(@content) && !@content.release_id.nil?
         @dataSchema = @content.get_data_hash
 
         respond_to do |format|

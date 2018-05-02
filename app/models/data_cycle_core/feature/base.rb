@@ -12,12 +12,24 @@ module DataCycleCore
           DataCycleCore.features.dig(name.demodulize.underscore.to_sym, :enabled)
         end
 
-        def present?(content)
-          enabled? && content&.schema&.dig('features', name.demodulize.underscore).present?
+        def attribute_keys(content)
+          content&.schema&.dig('features', name.demodulize.underscore)
         end
 
-        def attribute_keys(content)
-          enabled? && present?(content) ? content&.schema&.dig('features', name.demodulize.underscore) : []
+        def available?(content)
+          attribute_keys(content).present?
+        end
+
+        def allowed?(content)
+          enabled? && available?(content)
+        end
+
+        def allowed_attribute_keys(content)
+          allowed?(content) ? attribute_keys(content) : []
+        end
+
+        def includes_attribute_key(content, key)
+          (key.scan(/\[(.*?)\]/).flatten & attribute_keys(content)).size.positive?
         end
       end
     end

@@ -97,8 +97,6 @@ module DataCycleCore
         end
 
         can :show_attribute, DataCycleCore::DataAttribute do |_attribute|
-          # return if disabled by feature
-
           true
         end
 
