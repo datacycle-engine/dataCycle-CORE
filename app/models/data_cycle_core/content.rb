@@ -125,7 +125,7 @@ module DataCycleCore
           elsif classification_property_names.include?(property_name)
             send(property_name).try(:pluck, :id)
           elsif linked_property_names.include?(property_name)
-            get_property_value(property_name, property_definitions[property_name], timestamp, false).presence
+            get_property_value(property_name, property_definitions[property_name], timestamp).presence
           elsif included_property_names.include?(property_name)
             embedded_hash = send(property_name).to_h
             embedded_hash.presence
@@ -208,7 +208,7 @@ module DataCycleCore
 
     # private
 
-    def get_property_value(property_name, property_definition, timestamp = Time.zone.now, object = true)
+    def get_property_value(property_name, property_definition, timestamp = Time.zone.now)
       # linked data via embeddedLink/embeddedLinkArray
       # handled like embedded_objects with delete=false
       if linked_property_names.include?(property_name)

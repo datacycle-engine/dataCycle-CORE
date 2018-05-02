@@ -11,7 +11,7 @@
       :event_period:
         :label: Gültigkeitszeitraum
         :type: object
-        :stroage_location: value
+        :storage_location: value
         :validations:
           :daterange:
             :from: start_date
@@ -44,7 +44,7 @@
       :url:
         :label: Link
         :type: string
-        :stroage_location: value
+        :storage_location: value
         :editor:
           :type: input
       :creator:
@@ -56,8 +56,8 @@
       :date_created:
         :label: Erstellungsdatum
         :type: datetime
-        :stroage_location: value
+        :storage_location: value
       :date_modified:
         :label: Änderungsdatum
         :type: datetime
-        :stroage_location: value
+        :storage_location: value

@@ -25,7 +25,7 @@
       :headline_external:
         :label: Titel
         :type: string
-        :stroage_location: translated_value
+        :storage_location: translated_value
         :search: true
         :validations:
           :min: 1
@@ -36,7 +36,7 @@
       :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
-        :stroage_location: value
+        :storage_location: value
         :validations:
           :daterange:
             :from: valid_from
@@ -49,7 +49,7 @@
           :valid_from:
             :label: Gültigkeit
             :type: datetime
-            :stroage_location: value
+            :storage_location: value
             :editor:
               :type: date
               :options:
@@ -59,7 +59,7 @@
           :valid_until:
             :label: bis
             :type: datetime
-            :stroage_location: value
+            :storage_location: value
             :editor:
               :type: date
               :options:
@@ -69,7 +69,7 @@
       :alternative_headline:
         :label: Subüberschrift
         :type: string
-        :stroage_location: translated_value
+        :storage_location: translated_value
         :search: true
         :editor:
           :type: input
@@ -86,13 +86,13 @@
       :name:
         :label: Linktext
         :type: string
-        :stroage_location: translated_value
+        :storage_location: translated_value
         :editor:
           :type: input
       :text:
         :label: Fließtext
         :type: string
-        :stroage_location: translated_value
+        :storage_location: translated_value
         :search: true
         :editor:
           :type: quillEditor
@@ -102,13 +102,13 @@
       :price:
         :label: Preis
         :type: string
-        :stroage_location: translated_value
+        :storage_location: translated_value
         :editor:
           :type: input
       :service:
         :label: Inklusivleistungen
         :type: string
-        :stroage_location: translated_value
+        :storage_location: translated_value
         :editor:
           :type: quillEditor
           :options:
@@ -215,7 +215,7 @@
       :tags:
         :label: Tags
         :type: classification
-        :tree_lable: Tags
+        :tree_label: Tags
         :editor:
           :type: classificationSelector
           :options:
@@ -255,11 +255,11 @@
       :date_created:
         :label: Erstellungsdatum
         :type: datetime
-        :stroage_location: value
+        :storage_location: value
       :date_modified:
         :label: Änderungsdatum
         :type: datetime
-        :stroage_location: value
+        :storage_location: value
 
 - :data:
     :name: Angebotszeitraum
@@ -286,11 +286,11 @@
       :date_created:
         :label: Erstellungsdatum
         :type: datetime
-        :stroage_location: value
+        :storage_location: value
       :date_modified:
         :label: Änderungsdatum
         :type: datetime
-        :stroage_location: value
+        :storage_location: value
       :data_type:
         :label: Inhaltstype
         :type: classification
@@ -299,7 +299,7 @@
       :offer_period:
         :label: Zeitraum
         :type: object
-        :stroage_location: value
+        :storage_location: value
         :validations:
           :daterange:
             :from: valid_from
@@ -312,7 +312,7 @@
           :valid_from:
             :label: "Zeitraum von"
             :type: datetime
-            :stroage_location: value
+            :storage_location: value
             :editor:
               :type: date
               :options:
@@ -322,7 +322,7 @@
           :valid_until:
             :label: "bis"
             :type: datetime
-            :stroage_location: value
+            :storage_location: value
             :editor:
               :type: date
               :options:

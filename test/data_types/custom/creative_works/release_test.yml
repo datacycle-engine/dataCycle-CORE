@@ -30,7 +30,7 @@
       :description2:
         :label: zweite Beschreibung
         :type: string
-        :storage_location: content
+        :storage_location: translated_value
         :releasable: true
         :editor:
           :type: quillEditor

@@ -176,11 +176,11 @@ module DataCycleCore
               super.merge(
                 en: {
                   errors: {
-                    included_object: "type must be 'object' and must have properties defined. storage_location must be a jsonb field (content for translated fields, metadata for not translatable data).",
+                    included_object: "type must be 'object' and must have properties defined. storage_location must be a jsonb field (translated_value for translated fields, value for not translatable data).",
                     embedded_object: "type must be 'embedded'. either define a stored_filter, or a linked_table (plural) in combination with a template_name",
                     linked_object:   "type must be 'linked'. either define a stored_filter, or a linked_table (plural) in combination with a template_name",
                     asset_relation:  "type must be 'asset' and asset_type must be one of: 'image', 'video', 'file'",
-                    classification_relation: "type must be 'classification' and classification_tree one of: #{DataCycleCore::ClassificationTreeLabel.pluck(:name)}",
+                    classification_relation: "type must be 'classification' and classification_tree one of: #{DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte']}",
                     valid_classification?: 'specified default_value could not be found in classification_aliases',
                     instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.'
                   }

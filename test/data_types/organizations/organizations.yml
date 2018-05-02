@@ -73,13 +73,13 @@
           :postal_code:
             :label: PLZ
             :type: string
-            :stroage_location: value
+            :storage_location: value
             :editor:
               :type: input
       :url:
         :label: Web
         :type: string
-        :stroage_location: value
+        :storage_location: value
         :editor:
           :type: input
       :description:
@@ -95,7 +95,7 @@
         :label: Bild
         :type: linked
         :linked_table: creative_works
-        :stroage_location: value
+        :storage_location: value
         :editor:
           :type: objectBrowser
           :options:
@@ -115,8 +115,8 @@
       :date_created:
         :label: Erstellungsdatum
         :type: datetime
-        :stroage_location: value
+        :storage_location: value
       :date_modified:
         :label: Änderungsdatum
         :type: datetime
-        :stroage_location: value
+        :storage_location: value

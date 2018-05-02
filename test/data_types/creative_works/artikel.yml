@@ -48,7 +48,7 @@
         :properties:
           :valid_from:
             :label: Gültigkeit
-            :type: date_time
+            :type: datetime
             :storage_location: value
             :editor:
               :type: date

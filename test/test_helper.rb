@@ -26,7 +26,8 @@ Minitest.backtrace_filter = Minitest::BacktraceFilter.new
 # load template, classifications for all tests
 template_paths = [Rails.root.join('..', 'data_types'), Rails.root.join('..', 'data_types', 'custom')]
 import_hash, duplicates = DataCycleCore::MasterData::ImportTemplates.check_for_duplicates(template_paths)
-DataCycleCore::MasterData::ImportTemplates.import_all_templates(template_hash: import_hash, validation: true)
+errors = DataCycleCore::MasterData::ImportTemplates.import_all_templates(template_hash: import_hash, validation: true)
+ap errors
 classification_yaml = Rails.root.join('..', 'data_types', 'classifications.yml')
 DataCycleCore::MasterData::ImportClassifications.import(classification_yaml)
 

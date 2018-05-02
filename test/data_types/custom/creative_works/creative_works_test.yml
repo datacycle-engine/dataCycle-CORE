@@ -40,9 +40,9 @@
         :type: string
         :storage_location: column
       :data_pool:
-        :label: Inhaltspool
+        :label: Inhaltspools
         :type: classification
-        :table_name: Inhaltspools
+        :tree_label: Inhaltspools
         :default_value: "Aktuelle Inhalte"
 
 - :data:
@@ -83,7 +83,7 @@
         :label: Titel
         :type: string
         :storage_location: column
-      testArray:
+      :testArray:
         :label: Verlinkt
         :type: linked
         :linked_table: creative_works
@@ -230,53 +230,42 @@
           :min: 1
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
       :description:
         :label: Beschreibung
         :type: string
-        :storage_type: text
         :storage_location: column
         :editor:
           :type: quillEditor
-          :sorting: 2
           :options:
             :data-size: basic
       :topics:
         :label: Themenbereiche
-        :type: classificationTreeLabel
-        :type_name: Themenbereiche
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Themenbereiche
         :editor:
           :type: classificationSelector
-          :sorting: 3
       :markets:
         :label: Zielmarkt
-        :type: classificationTreeLabel
-        :type_name: Märkte
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Märkte
         :editor:
           :type: classificationSelector
-          :sorting: 4
       :tags:
         :label: Tags
-        :type: classificationTreeLabel
-        :type_name: Sonstiges
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Tags
         :editor:
           :type: classificationSelector
-          :sorting: 5
       :state:
         :label: Bundesland
-        :type: classificationTreeLabel
-        :type_name: Bundesländer
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Bundesländer
         :validations:
           :max: 1
         :editor:
           :type: classificationSelector
-          :sorting: 6
           :options:
             :data-validate: classification
       :validity_period:
@@ -288,17 +277,13 @@
             :from: valid_from
             :to: valid_until
         :editor:
-          :sorting: 7
           :options:
             :class: daterange validation-container
         :properties:
           :valid_from:
             :label: Gültigkeit
-            :type: string
-            :storage_type: string
+            :type: datetime
             :storage_location: value
-            :validations:
-              :format: date_time
             :editor:
               :type: date
               :options:
@@ -306,11 +291,8 @@
                 :data-validate: daterange
           :valid_until:
             :label: bis
-            :type: string
-            :storage_type: string
+            :type: datetime
             :storage_location: value
-            :validations:
-              :format: date_time
             :editor:
               :type: date
               :options:
@@ -318,30 +300,23 @@
                 :data-validate: daterange
       :data_pool:
         :label: Inhaltspool
-        :type: classificationTreeLabel
-        :type_name: Inhaltspools
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltspools
         :default_value: "Aktuelle Inhalte"
       :creator:
         :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: value
+        :type: linked
+        :linked_table: users
+        :validations:
+          :max: 1
       :date_created:
         :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
+        :type: datetime
         :storage_location: value
-        :validations:
-          :format: date_time
       :date_modified:
         :label: Änderungsdatum
-        :type: string
-        :storage_type: string
+        :type: datetime
         :storage_location: value
-        :validations:
-          :format: date_time
 
 - :data:
     :name: RechercheTest
@@ -382,17 +357,10 @@
         :type: classification
         :tree_label: Inhaltspools
         :default_value: "Recherche"
-#      :data_type:
-#        :label: Inhaltstype
-#        :type: classificationTreeLabel
-#        :type_name: Inhaltstypen
-#        :storage_location: classification_relation
-#        :default_value: "Aktuelle Inhalte"
       :creator:
         :label: Ersteller
         :type: linked
         :linked_table: users
-        :storage_location: value
         :validations:
           :max: 1
       :date_created:
@@ -629,7 +597,7 @@
       :tags:
         :label: Tags
         :type: classification
-        :tree_label: Sonstiges
+        :tree_label: Tags
         :editor:
           :type: classificationSelector
       :state:
