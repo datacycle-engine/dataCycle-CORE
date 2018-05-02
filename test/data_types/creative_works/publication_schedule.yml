@@ -30,7 +30,7 @@
           :type: classificationSelector
           :options:
             :tabindex: -1
-      :output_channels:
+      :output_channel:
         :label: Ausgabekanäle
         :type: classification
         :tree_label: Ausgabekanäle

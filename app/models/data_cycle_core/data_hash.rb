@@ -432,6 +432,7 @@ module DataCycleCore
     end
 
     def save_values(key, value, properties)
+      return if value.blank?
       case properties['storage_location']
       when 'column'
         method("#{key}=").call(value)

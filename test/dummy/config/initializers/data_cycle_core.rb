@@ -1,6 +1,6 @@
 DataCycleCore.setup do |config|
   # general settings
-  I18n.available_locales = [:de, :en]
+  # I18n.available_locales = [:de, :en]
 
   # only required for DataCycleCore dummy app
   Rails.application.config.assets.precompile += ['logo.svg', 'logo.png']
@@ -40,5 +40,5 @@ DataCycleCore.setup do |config|
         enabled: true
       }
     }
-  ).freeze
+  )
 end

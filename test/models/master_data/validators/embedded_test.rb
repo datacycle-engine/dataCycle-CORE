@@ -20,6 +20,18 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       }
     end
 
+    let(:template_class_hash) do
+      {
+        'label' => 'Geplante Publikation',
+        'type' => 'embedded',
+        'linked_table' => 'creative_works',
+        'template_name' => 'Publikations-Plan',
+        'validations' => {
+          'classifications' => 'no_conflicts'
+        }
+      }
+    end
+
     let(:no_error_hash) do
       { error: {}, warning: {} }
     end
@@ -34,6 +46,11 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       DataCycleCore::CreativeWork.find_or_create_by!(id: '00000000-0000-0000-0000-000000000001') do |item|
         item.headline = 'Bild2'
       end
+    end
+
+    after do
+      DataCycleCore::CreativeWork.find_by(id: '00000000-0000-0000-0000-000000000000')&.destroy
+      DataCycleCore::CreativeWork.find_by(id: '00000000-0000-0000-0000-000000000001')&.destroy
     end
 
     it 'successfully validates embedded Bild' do
@@ -72,69 +89,62 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       end
     end
 
-    # it 'validates properly classification_conflicts' do
-    #   market1 = DataCycleCore::Classification.where(name: 'Australien').first.id
-    #   market2 = DataCycleCore::Classification.where(name: 'Belgien').first.id
-    #
-    #   output_channel1 = DataCycleCore::Classification.where(name: 'Web').first.id
-    #   output_channel2 = DataCycleCore::Classification.where(name: 'Social Media').first.id
-    #
-    #   template_hash = {
-    #     'publication_schedule' => {
-    #       'label' => 'Geplante Publikation',
-    #       'type' => 'embedded',
-    #       'linked_table' => 'creative_works',
-    #       'template_name' => 'Publikations-Plan',
-    #       'validations' => {
-    #         'classifications' => 'no_conflicts'
-    #       }
-    #     }
-    #   }
-    #
-    #   data_hash1 = {
-    #     'publication_schedule' => [
-    #       {
-    #         # 'markets' => [market2],
-    #         'output_channel' => [output_channel1]
-    #       },
-    #       {
-    #         # 'markets' => [market1],
-    #         'output_channel' => [output_channel2]
-    #       }
-    #     ]
-    #   }
-    #   validator = subject.new(data_hash1, template_hash)
-    #   assert_equal(0, validator.error[:error].size)
-    #
-    #   data_hash2 = {
-    #     'publication_schedule' => [
-    #       {
-    #         # 'markets' => [market1, market2],
-    #         'output_channel' => [output_channel1]
-    #       },
-    #       {
-    #         # 'markets' => [market1],
-    #         'output_channel' => [output_channel2]
-    #       }
-    #     ]
-    #   }
-    #   validator = subject.new(data_hash2, template_hash)
-    #   assert_equal(0, validator.error[:error].size)
-    #
-    #   data_hash3 = {
-    #     'publication_schedule' => [
-    #       {
-    #         # 'markets' => [market1, market2],
-    #         'output_channel' => [output_channel1]
-    #       },
-    #       {
-    #         # 'markets' => [market1],
-    #         'output_channel' => [output_channel1, output_channel2]
-    #       }
-    #     ]
-    #   }
-    #   validator = subject.new(data_hash3, template_hash)
-    #   assert_equal(1, validator.error[:error].size)
-    # end
+    it 'validates properly classification_conflicts for a single classification' do
+      old_class = DataCycleCore.features[:publication_schedule][:classification_keys]
+      DataCycleCore.features[:publication_schedule][:classification_keys] = ['output_channel']
+
+      output_channel1 = DataCycleCore::Classification.where(name: 'Web').first.id
+      output_channel2 = DataCycleCore::Classification.where(name: 'Social Media').first.id
+
+      data_hash1 = [
+        { 'output_channel' => [output_channel1] },
+        { 'output_channel' => [output_channel2] }
+      ]
+      validator = subject.new(data_hash1, template_class_hash)
+      assert_equal(0, validator.error[:error].size)
+
+      data_hash2 = [
+        { 'output_channel' => [output_channel1] },
+        { 'output_channel' => [output_channel1, output_channel2] }
+      ]
+      validator = subject.new(data_hash2, template_class_hash)
+      assert_equal(1, validator.error[:error].size)
+
+      DataCycleCore.features[:publication_schedule][:classification_keys] = old_class
+    end
+
+    it 'validates properly classification_conflicts for multiple classifications' do
+      old_class = DataCycleCore.features[:publication_schedule][:classification_keys]
+      DataCycleCore.features[:publication_schedule][:classification_keys] = ['output_channel', 'markets']
+
+      market1 = DataCycleCore::Classification.where(name: 'Australien').first.id
+      market2 = DataCycleCore::Classification.where(name: 'Belgien').first.id
+
+      output_channel1 = DataCycleCore::Classification.where(name: 'Web').first.id
+      output_channel2 = DataCycleCore::Classification.where(name: 'Social Media').first.id
+
+      data_hash1 = [
+        { 'markets' => [market2], 'output_channel' => [output_channel1] },
+        { 'markets' => [market1], 'output_channel' => [output_channel2] }
+      ]
+      validator = subject.new(data_hash1, template_class_hash)
+      assert_equal(0, validator.error[:error].size)
+
+      data_hash2 = [
+        { 'markets' => [market1, market2], 'output_channel' => [output_channel1] },
+        { 'markets' => [market2], 'output_channel' => [output_channel2] }
+      ]
+      validator = subject.new(data_hash2, template_class_hash)
+      assert_equal(0, validator.error[:error].size)
+
+      data_hash3 = [
+        { 'markets' => [market1, market2], 'output_channel' => [output_channel1] },
+        { 'markets' => [market2], 'output_channel' => [output_channel1, output_channel2] }
+      ]
+      validator = subject.new(data_hash3, template_class_hash)
+      assert_equal(1, validator.error[:error].size)
+
+      DataCycleCore.features[:publication_schedule][:classification_keys] = old_class
+    end
   end
 end

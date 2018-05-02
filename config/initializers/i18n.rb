@@ -1,2 +1,2 @@
 # add specific fallbacks for Globalize
-Globalize.fallbacks = false
+# Globalize.fallbacks = false
