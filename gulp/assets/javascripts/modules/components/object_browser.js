@@ -9,7 +9,7 @@ var ObjectBrowser = function (selector) {
   this.label = $('[for=' + this.id + ']').text();
   this.per = 25;
   this.type = selector.data('type');
-  this.language = selector.data('language');
+  this.locale = selector.data('locale');
   this.key = selector.data('key');
   this.definition = selector.data('definition');
   this.options = selector.data('options');
@@ -24,6 +24,7 @@ var ObjectBrowser = function (selector) {
   this.total = 0;
   this.chosen = selector.data('objects');
   this.selected = '';
+  this.excluded = [];
   this.setup();
 };
 
@@ -104,7 +105,7 @@ ObjectBrowser.prototype.setup = function () {
         method: 'POST',
         data: JSON.stringify({
           type: this.type,
-          language: this.language,
+          locale: this.locale,
           object_browser_id: '#' + this.id,
           key: this.key,
           definition: this.definition,
@@ -131,6 +132,7 @@ ObjectBrowser.prototype.setup = function () {
   }.bind(this));
 
   this.overlay.on('import-complete', function (event, data) {
+    this.excluded.push(data.id);
     this.overlay.children('.items').find('[data-id=' + data.id + ']').get(0).scrollIntoView({
       behavior: "smooth"
     });
@@ -146,7 +148,7 @@ ObjectBrowser.prototype.setup = function () {
       var form_data = $(this).serializeJSON();
       $.extend(form_data, {
         type: self.type,
-        language: self.language,
+        locale: self.locale,
         overlay_id: '#object_browser_' + self.id,
         key: self.key,
         definition: self.definition,
@@ -216,7 +218,7 @@ ObjectBrowser.prototype.loadDetails = function (id) {
     method: 'POST',
     data: JSON.stringify({
       type: this.type,
-      language: this.language,
+      locale: this.locale,
       overlay_id: '#object_browser_' + this.id,
       key: this.key,
       definition: this.definition,
@@ -296,7 +298,7 @@ ObjectBrowser.prototype.import = function (event) {
         authenticity_token: AUTH_TOKEN,
         type: this.type + "_object",
         data: event.originalEvent.data.data,
-        language: this.language,
+        locale: this.locale,
         overlay_id: '#object_browser_' + this.id,
         key: this.key,
         editable: this.editable,
@@ -327,7 +329,7 @@ ObjectBrowser.prototype.loadObjects = function (append = true) {
       page: this.page,
       per: this.per,
       type: this.type,
-      language: this.language,
+      locale: this.locale,
       overlay_id: '#object_browser_' + this.id,
       key: this.key,
       definition: this.definition,
@@ -335,6 +337,7 @@ ObjectBrowser.prototype.loadObjects = function (append = true) {
       search: this.search,
       objects: this.chosen,
       editable: this.editable,
+      excluded: this.excluded,
       append: append
     }),
     contentType: 'application/json'
