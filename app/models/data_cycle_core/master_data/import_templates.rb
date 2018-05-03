@@ -121,7 +121,13 @@ module DataCycleCore
         if hash[:type] == 'object' && hash.key?(:properties).present?
           hash[:properties] = transform_properties(property_hash: hash[:properties])
         end
-        return hash, sorting + 1
+        return apply_sorting(hash, sorting), sorting + 1
+      end
+
+      def self.apply_sorting(hash, sorting)
+        # ignore sorting, if no editor is set
+        hash[:sorting] = sorting unless hash.dig(:ui, :edit, :disabled).present?
+        hash
       end
 
       def self.validate(template)

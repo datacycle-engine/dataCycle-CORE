@@ -7,7 +7,7 @@
     <% end %>
 
     <% get_ordered_validation_properties(definition).each do |o_key, o_definition| %>
-      <%= render_attribute_editor key: "#{key}[#{o_key}]", definition: o_definition, value: value.try(:[], o_key), parameters: { options: o_definition.dig('editor', 'options') || {}, content: content } %>
+      <%= render_attribute_editor key: "#{key}[#{o_key}]", definition: o_definition, value: value.try(:[], o_key), parameters: { options: o_definition.dig('editor', 'options') || {}} , content: content %>
     <% end %>
 
   </div>

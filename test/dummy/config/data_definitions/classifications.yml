@@ -1,61 +1,24 @@
 - Inhaltstypen:
+  - $$Test-Template
   - $$Asset:
     - $$Bild
-    - $$Datei
-    - $$Video
+  - $$Ort:
+    - $$Örtlichkeit
   - $$Person
-  - $$Tour
-  - $$POI
-  - $$Unterkunft
-  - $$Veranstaltung
-  - $$Text:
-    - $$Linktipps
-    - $$Quiz
-    - $$Angebot
-    - $$Artikel
-    - $$Biografie
-    - $$Interview
-    - $$Social Media Posting
-    - $$Rezept
-# hidden
-  - $$Organisation
-  - $$Zeitleiste
-  - $$Örtlichkeit
-# container
-  - $$Container
 # embedded
-  - $$Angebotszeitraum
-  - $$Website
-  - $$Zeitleiste-Eintrag
   - $$Zitat
-  - $$Frage
-  - $$Antwort
-  - $$Veranstaltungstermin
-  - $$Öffnungszeit
   - $$Overlay
 
 - Geschlecht:
   - Männlich
   - Weiblich
 
-- Wochentage:
-  - Montag
-  - Dienstag
-  - Mittwoch
-  - Donnerstag
-  - Freitag
-  - Samstag
-  - Sonntag
-
 - Themenbereiche:
-  - Thema 1
-  - Thema 2
-  - Thema 3
+  - Test-Thema 1
+  - Test-Thema 2
+  - Test-Thema 3
 
 - Ausgabekanäle:
-  - Web
-  - Print
-
-- Rezept-Gänge:
-
-- Rezept-Kategorien:
+  - Ausgabekanal 1
+  - Ausgabekanal 2
+  - Ausgabekanal 3

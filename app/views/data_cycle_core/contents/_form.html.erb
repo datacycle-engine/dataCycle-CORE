@@ -66,7 +66,7 @@
 
               <%== '<span class="translated"><i class="fa fa-language" aria-hidden="true"></i></span>' if (content.translated_attributes.keys&.include?(key) || content.translated_attributes['content']&.keys&.include?(key)) && (DataCycleCore.translatable_types & [content.class.name, content.template_name]).present? && I18n.available_locales&.size&.>(1) %>
 
-							<%= render_attribute_editor key: "#{keyPrefix}[#{key}]", definition: prop, value: value, parameters: { options: (prop.dig('editor', 'options') || {}), content: content } %>
+							<%= render_attribute_editor key: "#{keyPrefix}[#{key}]", definition: prop, value: value, parameters: { options: (prop.dig('editor', 'options') || {})}, content: content %>
 
 						<% end %>
 

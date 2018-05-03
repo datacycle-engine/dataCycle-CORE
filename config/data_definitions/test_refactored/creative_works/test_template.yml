@@ -24,38 +24,38 @@
         :search: true
         :validations:
           :minLength: 1
-#      :description:
-#        :label: Teasertext
-#        :type: string
-#        :storage_location: column
-#        :search: true
-#        :ui:
-#          :edit:
-#            :type: quillEditor
-#            :options:
-#              :data-size: basic
-#      :text:
-#        :label: Fließtext
-#        :type: string
-#        :storage_location: translated_value
-#        :search: true
-#        :ui:
-#          :edit:
-#            :type: quillEditor
-#            :options:
-#              :data-size: full
-#      :number_test:
-#        :label: Number-Test
-#        :type: number
-#        :storage_location: value
-#        :validations:
-#          :format: integer
-#      :url:
-#        :label: Inhalt URL
-#        :type: string
-#        :storage_location: value
-#        :validations:
-#          :format: url
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: quillEditor
+            :options:
+              :data-size: basic
+      :text:
+        :label: Fließtext
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: quillEditor
+            :options:
+              :data-size: full
+      :number_test:
+        :label: Number-Test
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: integer
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_location: value
+        :validations:
+          :format: url
 #      :primary_image:
 #        :label: Hauptbild
 #        :type: linked
