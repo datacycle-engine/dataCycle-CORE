@@ -137,7 +137,7 @@ module DataCycleCore
         definition = property_definitions[name]
 
         delete = false
-        #delete = definition['delete'] unless definition['delete'].blank?
+        # delete = definition['delete'] unless definition['delete'].blank?
         delete = true if is_history? || definition['type'] == 'embedded'
 
         relation_name = definition['linked_table']
