@@ -18,7 +18,7 @@
         :properties:
           :valid_from:
             :label: Gültigkeit
-            :type: date_time
+            :type: datetime
             :storage_location: value
             :validations:
               :format: date_time
@@ -29,7 +29,7 @@
                   :placeholder: tt.mm.jjjj
           :valid_until:
             :label: bis
-            :type: date_time
+            :type: datetime
             :storage_location: value
             :validations:
               :format: date_time

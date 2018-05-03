@@ -118,7 +118,6 @@
         :label: Angebotszeitraum
         :type: embedded
         :linked_table: creative_works
-        :delete: true
         :template_name: Angebotszeitraum
         :editor:
           :type: embeddedObject

@@ -11,9 +11,9 @@
           :max: 1
       :date_created:
         :label: Erstellungsdatum
-        :type: date_time
+        :type: datetime
         :storage_location: value
       :date_modified:
         :label: Änderungsdatum
-        :type: date_time
+        :type: datetime
         :storage_location: value
