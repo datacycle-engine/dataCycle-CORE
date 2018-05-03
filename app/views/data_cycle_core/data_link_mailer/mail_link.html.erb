@@ -12,11 +12,11 @@
       </p>
     <% end %>
     <p>
-      <%= @user.full_name %> hat einen Inhalt mit Ihnen geteilt und bittet um Ihre Ergänzungen und ihr Feedback. Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor: <br>
+      <%= @user.full_name %> hat einen Inhalt mit Ihnen geteilt und bittet um Ihre Ergänzungen und ihr Feedback. Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor: <br><br>
       <%= link_to @headline, @url %>.<br>
     </p>
     <p>
-      <b>Berechtigung: </b> <%= t('helpers.label.data_link.permissions.' + @data_link.permissions) %>
+      <b>Berechtigung: </b> <%= DataCycleCore::DataLink.human_attribute_name("permissions_#{@data_link.permissions}".to_sym, locale: DataCycleCore.ui_language) %>
     </p>
     <p>
       <b>Gültigkeit: </b>
