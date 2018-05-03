@@ -3,9 +3,8 @@
     :name: Rezept
     :type: object
     :content_type: entity
-    :releasable: true
-    :permissions:
-      :read_write: true
+    :features:
+      :releasable: true
     :boost: 100.0
     :properties:
       :id:
