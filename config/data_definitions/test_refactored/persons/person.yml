@@ -51,7 +51,7 @@
         :label: Bilder
         :type: linked
         :linked_table: creative_works
-        :stored_filter: (name ?)
+#        :stored_filter: (name ?)
         :ui:
           :edit:
             :type: objectBrowser

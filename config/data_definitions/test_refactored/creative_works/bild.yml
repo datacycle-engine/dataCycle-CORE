@@ -68,11 +68,15 @@
         :type: string
         :storage_location: value
         :search: true
+      :mandatory_license:
+        :label: Copyright Nennung verpflichtend
+        :type: boolean
+        :storage_location: value
       :content_location:
         :label: Ort
         :type: linked
         :linked_table: places
-        :stored_filter: (name ?)
+#        :stored_filter: (name ?)
         :ui:
           :edit:
             :type: objectBrowser

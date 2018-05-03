@@ -60,7 +60,7 @@
         :label: Hauptbild
         :type: linked
         :linked_table: creative_works
-        :stored_filter: (name ?)
+#        :stored_filter: (name ?)
         :validations:
           :max: 1
         :ui:
@@ -73,7 +73,7 @@
         :label: Bilder
         :type: linked
         :linked_table: creative_works
-        :stored_filter: (name ?)
+#        :stored_filter: (name ?)
         :validations:
           :max: 1
         :ui:
@@ -86,7 +86,7 @@
         :label: Ort
         :type: linked
         :linked_table: places
-        :stored_filter: (name ?)
+#        :stored_filter: (name ?)
         :ui:
           :edit:
             :type: objectBrowser
