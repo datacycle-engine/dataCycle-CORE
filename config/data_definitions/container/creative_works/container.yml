@@ -4,9 +4,6 @@
     :type: object
     :content_type: container
     :boost: 10000.0
-    :features:
-      :container:
-        :excluded: ['Bild', 'Video']
     :properties:
       :id:
         :label: id
@@ -52,3 +49,6 @@
       :meta_data:
         :type: mixin
         :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

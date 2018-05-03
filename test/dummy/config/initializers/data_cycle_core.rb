@@ -16,16 +16,25 @@ DataCycleCore.setup do |config|
   ]
 
   config.template_path = Rails.root.join('config', 'data_definitions').freeze
-  config.default_template_paths = [
-    # Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
-    # Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
-    # Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive')
-    # Rails.root.join('..', '..', 'config', 'data_definitions', 'container')
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'test_refactored')
-  ].freeze
+
+  if ENV['RAILS_ENV'] == 'test'
+    config.default_template_paths = [
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'gitlab_ci')
+    ].freeze
+    config.excluded_new_item_objects = ['Event', 'Person', 'Örtlichkeit', 'Bild', 'Organization', 'Zeitleiste', 'Linktipps', 'Datei', 'Tour', 'Video', 'Unterkunft']
+  else
+    config.default_template_paths = [
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive')
+      # Rails.root.join('..', '..', 'config', 'data_definitions', 'container')
+      # Rails.root.join('..', '..', 'config', 'data_definitions', 'test')
+      # Rails.root.join('..', '..', 'config', 'data_definitions', 'gitlab_ci')
+    ].freeze
+  end
 
   config.external_sources_path = Rails.root.join('config', 'external_sources').freeze
-  # config.excluded_new_item_objects = ['Event', 'Person', 'Örtlichkeit', 'Bild', 'Organization', 'Zeitleiste', 'Linktipps', 'Datei', 'Tour', 'Video']
+  # config.excluded_new_item_objects = ['Event', 'Person', 'Örtlichkeit', 'Bild', 'Organization', 'Zeitleiste', 'Linktipps', 'Datei', 'Tour', 'Video', 'Unterkunft']
 
   config.features = config.features.merge(
     {
@@ -37,7 +46,11 @@ DataCycleCore.setup do |config|
         enabled: true
       },
       releasable: {
-        enabled: false
+        enabled: true
+      },
+      container: {
+        enabled: true,
+        excluded: ['Bild', 'Video']
       }
     }
   )

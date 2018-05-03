@@ -10,4 +10,4 @@
     <% end unless can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content)) %>
   </div>
 
-<% end %>
+<% end if classification_tree_label_has_children?(definition['type_name']) %>

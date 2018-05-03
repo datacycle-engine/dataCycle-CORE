@@ -53,7 +53,9 @@
         :storage_location: column
         :search: true
         :editor:
-          :type: input
+          :type: quillEditor
+          :options:
+            :data-size: basic
       :text:
         :label: Text
         :type: string
@@ -112,3 +114,6 @@
       :meta_data:
         :type: mixin
         :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

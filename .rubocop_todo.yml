@@ -164,6 +164,12 @@ Style/ClassVars:
     - 'app/controllers/data_cycle_core/api/v1/contents_controller.rb'
     - 'app/controllers/data_cycle_core/object_browser_controller.rb'
     - 'app/helpers/data_cycle_core/data_hash_helper.rb'
+    - 'app/models/data_cycle_core/master_data/validators/classification_tree_label.rb'
+    - 'app/models/data_cycle_core/master_data/validators/embedded_link_array.rb'
+    - 'app/models/data_cycle_core/master_data/validators/number.rb'
+    - 'app/models/data_cycle_core/master_data/validators/object.rb'
+    - 'app/models/data_cycle_core/master_data/validators/string.rb'
+    - 'app/models/data_cycle_core/master_data/validators/asset.rb'
 
 # Offense count: 33
 Style/DateTime:

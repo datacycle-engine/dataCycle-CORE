@@ -11,7 +11,7 @@ var ObjectBrowser = function (selector) {
   this.overlay_per = 25;
   this.per = selector.data('per') || 5;
   this.type = selector.data('type');
-  this.language = selector.data('language');
+  this.locale = selector.data('locale');
   this.key = selector.data('key');
   this.object_id = selector.data('object-id');
   this.object_key = selector.data('object-key');
@@ -31,8 +31,7 @@ var ObjectBrowser = function (selector) {
   this.ids = selector.data('objects') || [];
   this.chosen = this.ids.slice(0);
   this.selected = '';
-  this.sortable;
-
+  this.excluded = [];
   this.setup();
 };
 
@@ -117,13 +116,39 @@ ObjectBrowser.prototype.setup = function () {
   this.element.on('import-data', function (event, data) {
     var new_items = data.ids.diff($.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id')));
     if (new_items.length > 0 && ((this.chosen.length + new_items.length) <= this.max || this.max == 0)) {
-      this.findObjects(new_items);
+      $.ajax({
+        url: this.url + '/find',
+        method: 'POST',
+        data: JSON.stringify({
+          type: this.type,
+          locale: this.locale,
+          object_browser_id: '#' + this.id,
+          key: this.key,
+          definition: this.definition,
+          options: this.options,
+          ids: data.ids,
+          editable: this.editable,
+          class: this.class,
+          objects: this.chosen
+        }),
+        contentType: 'application/json'
+      }).done(function (return_data) {
+        this.chosen = this.chosen.concat(data.ids.filter(function (elem) {
+          return this.chosen.indexOf(elem) === -1;
+        }.bind(this)));
+
+        this.element.find('.object-thumbs .item .reveal.media-preview').each(function () {
+          $(this).foundation();
+        });
+
+      }.bind(this));
     } else if (this.max != 0 && (this.chosen.length + new_items.length) > this.max) {
       var confirmationModal = new ConfirmationModal("Maximalanzahl: " + self.max);
     }
   }.bind(this));
 
   this.overlay.on('import-complete', function (event, data) {
+    this.excluded.push(data.id);
     this.overlay.children('.items').find('[data-id=' + data.id + ']').get(0).scrollIntoView({
       behavior: "smooth"
     });
@@ -139,7 +164,7 @@ ObjectBrowser.prototype.setup = function () {
       var form_data = $(this).serializeJSON();
       $.extend(form_data, {
         type: self.type,
-        language: self.language,
+        locale: self.locale,
         overlay_id: '#object_browser_' + self.id,
         key: self.key,
         definition: self.definition,
@@ -273,7 +298,8 @@ ObjectBrowser.prototype.loadDetails = function (id) {
     dataType: 'script',
     data: JSON.stringify({
       type: this.type,
-      language: this.language,
+      locale: this.locale,
+      overlay_id: '#object_browser_' + this.id,
       key: this.key,
       definition: this.definition,
       options: this.options,
@@ -289,6 +315,7 @@ ObjectBrowser.prototype.resetOverlay = function () {
   this.overlay.find('.chosen-items-container .item').remove();
   this.chosen = this.element.data('objects');
   this.search = "";
+  this.excluded = [];
   this.page = 1;
 };
 
@@ -356,7 +383,8 @@ ObjectBrowser.prototype.import = function (event) {
         authenticity_token: AUTH_TOKEN,
         type: this.type + "_object",
         data: event.originalEvent.data.data,
-        language: this.language,
+        locale: this.locale,
+        overlay_id: '#object_browser_' + this.id,
         key: this.key,
         editable: this.editable,
         definition: this.definition,
@@ -375,6 +403,7 @@ ObjectBrowser.prototype.import = function (event) {
 
 ObjectBrowser.prototype.loadObjects = function (append = true) {
   if (!append) {
+    this.excluded = [];
     this.overlay.children('.items').scrollTop(0);
     this.overlay.children('.items').html('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
   }
@@ -388,13 +417,15 @@ ObjectBrowser.prototype.loadObjects = function (append = true) {
       page: this.page,
       per: this.overlay_per,
       type: this.type,
-      language: this.language,
+      locale: this.locale,
+      overlay_id: '#object_browser_' + this.id,
       key: this.key,
       definition: this.definition,
       options: this.options,
       search: this.search,
       objects: this.chosen,
       editable: this.editable,
+      excluded: this.excluded,
       append: append
     }),
     contentType: 'application/json'

@@ -115,7 +115,7 @@ module DataCycleCore
 
       flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Organization', locale: DataCycleCore.ui_language
 
-      redirect_to organizations_path
+      redirect_to root_path
     end
 
     def validate_single_data

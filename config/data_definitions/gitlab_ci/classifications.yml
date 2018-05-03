@@ -5,23 +5,19 @@
     - $$Biografie
     - $$Interview
     - $$Social Media Posting
-    - $$Zitat
   - $$Asset:
     - $$Bild
     - $$Datei
     - $$Video
   - $$Linktipps
   - $$Person
-  - $$Publikations-Plan
   - $$Organisation
   - $$Ort:
     - $$Örtlichkeit
-    - $$Tour
   - $$Quiz
   - $$Veranstaltung
   - $$Zeitleiste
-# container
-  - $$Container
+  - $$Rezept
 # embedded
   - $$Angebotszeitraum
   - $$Website
@@ -30,7 +26,6 @@
   - $$Frage
   - $$Antwort
   - $$Veranstaltungstermin
-  - $$Öffnungszeit
   - $$Overlay
 
 - Geschlecht:
@@ -44,4 +39,4 @@
 
 - Themenbereiche:
 
-- Plattform:
+- Tags:

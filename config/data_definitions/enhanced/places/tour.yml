@@ -25,7 +25,7 @@
           :options:
             :data-validate: text
       :description:
-        :label: Beschreibung
+        :label: Kurzbeschreibung
         :type: string
         :storage_type: string
         :storage_location: column
@@ -33,7 +33,7 @@
         :editor:
           :type: input
       :text:
-        :label: Text
+        :label: Beschreibung
         :type: string
         :storage_type: text
         :storage_location: content
@@ -218,3 +218,6 @@
       :meta_data:
         :type: mixin
         :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties
