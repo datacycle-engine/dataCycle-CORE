@@ -61,7 +61,10 @@ module.exports.initialize = function () {
           processResults: function (data) {
             select.data('select2').$container.removeClass('select2-loading');
             return {
-              results: data
+              results: data.map(value => {
+                if (value.classification_id != undefined) value.id = value.classification_id;
+                return value;
+              })
             };
           }
         }
