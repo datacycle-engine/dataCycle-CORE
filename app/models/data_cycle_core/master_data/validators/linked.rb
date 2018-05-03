@@ -10,7 +10,7 @@ module DataCycleCore
           if blank?(data)
             (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
             # @error[:warning].push "No data given for #{template['label']}."
-          elsif data.is_a?(::Array)
+          elsif data.is_a?(::Array) || data.is_a?(ActiveRecord::Relation)
             check_reference_array(data, template)
           elsif data.is_a?(::String)
             check_reference_array([data], template)
@@ -22,20 +22,14 @@ module DataCycleCore
 
         private
 
-        def validate_reference(key, template)
-          if key.is_a?(::String)
-            check_reference(key, template)
-          else
-            (@error[:error][@template_key] ||= []) << I18n.t(:data_format, scope: [:validation, :errors], key: key, template: template['label'], locale: DataCycleCore.ui_language)
-          end
-        end
-
         def check_reference_array(data, template)
+          converted_data = data.deep_dup
+          converted_data = converted_data.ids if data.is_a?(ActiveRecord::Relation)
           # validate given validations
           if template.key?('validations')
             template['validations'].each_key do |key|
               if keywords.include?(key)
-                method(key).call(data, template['validations'][key])
+                method(key).call(converted_data, template['validations'][key])
               else
                 (@error[:error][@template_key] ||= []) << I18n.t(:keyword, scope: [:validation, :warnings], key: key, type: 'EmbeddedLinkArray', locale: DataCycleCore.ui_language)
               end
@@ -43,8 +37,16 @@ module DataCycleCore
           end
 
           # validate references
-          data.each do |key|
+          converted_data.each do |key|
             validate_reference(key, template)
+          end
+        end
+
+        def validate_reference(key, template)
+          if key.is_a?(::String)
+            check_reference(key, template)
+          else
+            (@error[:error][@template_key] ||= []) << I18n.t(:data_format, scope: [:validation, :errors], key: key, template: template['label'], locale: DataCycleCore.ui_language)
           end
         end
 

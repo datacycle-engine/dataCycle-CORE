@@ -37,9 +37,7 @@ module DataCycleCore
         'text' => 'wtf is going on???',
         'quotation' => [{
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
-          'author' => [{
-            'id' => person_id
-          }],
+          'author' => [person_id],
           'data_type' => [data_type_zitat_id]
         }]
       }
@@ -61,15 +59,9 @@ module DataCycleCore
         'markets' => [],
         'headline' => 'Dies ist ein Test!',
         'quotation' => [{
-          'id' => '',
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
           'image' => [],
-          'author' => [{
-            'id' => person_id,
-            'job_title' => nil,
-            'given_name' => 'Winston',
-            'family_name' => 'Churchill'
-          }],
+          'author' => [person_id],
           'creator' => [],
           'is_part_of' => parent_id,
           'data_type' => [data_type_zitat_id],
@@ -80,9 +72,10 @@ module DataCycleCore
         'content_location' => [],
         'permitted_creator' => []
       }
-      expected_hash['quotation'][0]['id'] = returned_data_hash['quotation'][0]['id']
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'data_pool'))
+      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation'))
+      assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('id', 'author'))
+      assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
@@ -91,8 +84,8 @@ module DataCycleCore
     end
 
     test 'insert quotation, then delete quotation' do
-      # quotation is attached with "delete: true" --> should be deleted
-      # author within quotation is without delete  --> only link should be deleted
+      # quotation is embedded --> should be deleted
+      # author within quotation is linked --> only link should be deleted
 
       # create an author
       template = DataCycleCore::Person.find_by(template: true, template_name: 'Autor')
@@ -123,9 +116,7 @@ module DataCycleCore
         'text' => 'wtf is going on???',
         'quotation' => [{
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
-          'author' => [{
-            'id' => person_id
-          }],
+          'author' => [person_id],
           'data_type' => [data_type_zitat_id]
         }]
       }
@@ -147,15 +138,9 @@ module DataCycleCore
         'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'quotation' => [{
-          'id' => '',
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
           'image' => [],
-          'author' => [{
-            'id' => person_id,
-            'job_title' => nil,
-            'given_name' => 'Winston',
-            'family_name' => 'Churchill'
-          }],
+          'author' => [person_id],
           'creator' => [],
           'is_part_of' => parent_id,
           'data_type' => [data_type_zitat_id],
@@ -166,9 +151,10 @@ module DataCycleCore
         'content_location' => [],
         'permitted_creator' => []
       }
-      expected_hash['quotation'][0]['id'] = returned_data_hash['quotation'][0]['id']
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'data_pool'))
+      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation'))
+      assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('id', 'author'))
+      assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
@@ -194,8 +180,8 @@ module DataCycleCore
     end
 
     test 'insert quotations, then delete quotations' do
-      # quotation is attached with "delete: true" --> should be deleted
-      # author within quotation is without delete  --> only link should be deleted
+      # quotation (embedded) is attached --> should be deletable
+      # author within quotation is linked --> only link should be deleted
 
       # create an author
       template = DataCycleCore::Person.find_by(template: true, template_name: 'Autor')
@@ -222,14 +208,10 @@ module DataCycleCore
         'text' => 'wtf is going on???',
         'quotation' => [{
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
-          'author' => [{
-            'id' => person_id
-          }]
+          'author' => [person_id]
         }, {
           'text' => 'Men occasionally stumble over the truth, but most of them pick themselves up and hurry off as if nothing ever happened.',
-          'author' => [{
-            'id' => person_id
-          }]
+          'author' => [person_id]
         }]
       }
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -329,9 +311,7 @@ module DataCycleCore
         'text' => 'wtf is going on???',
         'quotation' => [{
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
-          'author' => [{
-            'id' => person_id
-          }]
+          'author' => [person_id]
         }]
       }
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -353,7 +333,6 @@ module DataCycleCore
         'markets' => [],
         'headline' => 'Dies ist ein Test!',
         'quotation' => [{
-          'id' => '',
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
           'image' => [],
           'creator' => [],
@@ -372,9 +351,10 @@ module DataCycleCore
         'content_location' => [],
         'permitted_creator' => []
       }
-      expected_hash['quotation'][0]['id'] = returned_data_hash['quotation'][0]['id']
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'data_pool'))
+      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation'))
+      assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('id', 'author'))
+      assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
@@ -385,7 +365,7 @@ module DataCycleCore
       data_hash['quotation'].push(
         {
           'text' => 'Men occasionally stumble over the truth, but most of them pick themselves up and hurry off as if nothing ever happened.',
-          'author' => [{ 'id' => person_id }]
+          'author' => [person_id]
         }
       )
       error = data_set.set_data_hash(data_hash: data_hash)

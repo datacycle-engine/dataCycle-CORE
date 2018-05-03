@@ -37,10 +37,9 @@
             :data-type: image
       :author:
         :label: "Zitat von"
-        :type: embedded
+        :type: linked
         :linked_table: persons
         :template_name: Person
-        :delete: false
         :editor:
           :type: objectBrowser
           :options:

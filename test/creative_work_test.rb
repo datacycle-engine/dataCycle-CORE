@@ -7,93 +7,19 @@ module DataCycleCore
       assert_equal(data.class, DataCycleCore::CreativeWork)
     end
 
-    test 'different behaviour for embeddedObject without delete flag' do
-      template_cw = DataCycleCore::CreativeWork.count
-      template_cwt = DataCycleCore::CreativeWork::Translation.count
-      template_p = DataCycleCore::Place.count
-      template_pt = DataCycleCore::Place::Translation.count
-
-      template_without_delete = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Bild')
-      data_set_without = DataCycleCore::CreativeWork.new
-      data_set_without.schema = template_without_delete.schema
-      data_set_without.template_name = template_without_delete.template_name
-      data_set_without.save
-
-      data_hash = {
-        'headline' => 'Dies ist ein Test!',
-        'description' => 'wtf is going on???',
-        'content_location' => [{
-          'headline' => 'Testort',
-          'longitude' => 13.10,
-          'latitude' => 25.30
-        }]
-      }
-      error = data_set_without.set_data_hash(data_hash: data_hash)
-      data_set_without.save
-
-      returned_data_hash_without = data_set_without.get_data_hash
-      expected_hash = {
-        'access' => [],
-        'creator' => [],
-        'headline' => 'Dies ist ein Test!',
-        'description' => 'wtf is going on???',
-        'content_location' => [{
-          'id' => returned_data_hash_without['content_location'][0]['id'],
-          'headline' => 'Testort',
-          'latitude' => 25.3,
-          'location' => nil,
-          'longitude' => 13.1,
-          'external_source_id' => nil
-        }]
-      }
-
-      assert_equal(expected_hash, returned_data_hash_without.compact.except('id', 'data_type', 'data_pool', 'keywords'))
-      assert_equal(0, error[:error].count)
-
-      # check consistency of data in DB
-      assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
-      assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
-      assert_equal(1, DataCycleCore::ContentContent.count)
-      assert_equal(2, DataCycleCore::ClassificationContent.count)
-      assert_equal(1, DataCycleCore::Place.count - template_p)
-      assert_equal(1, DataCycleCore::Place::Translation.count - template_pt)
-
-      assert_equal(1, DataCycleCore::CreativeWork::History.count)
-      assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(0, DataCycleCore::ClassificationContent::History.count)
-      assert_equal(0, DataCycleCore::ContentContent::History.count)
-      assert_equal(0, DataCycleCore::Place::History.count)
-      assert_equal(0, DataCycleCore::Place::History::Translation.count)
-
-      returned_data_hash_without['content_location'] = []
-      error = data_set_without.set_data_hash(data_hash: returned_data_hash_without)
-      data_set_without.save
-
-      returned_again = data_set_without.get_data_hash
-      assert_equal(returned_data_hash_without, returned_again)
-
-      # check consistency of data in DB
-      assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
-      assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
-      assert_equal(0, DataCycleCore::ContentContent.count)
-      assert_equal(2, DataCycleCore::ClassificationContent.count)
-      assert_equal(1, DataCycleCore::Place.count - template_p)
-      assert_equal(1, DataCycleCore::Place::Translation.count - template_pt)
-
-      assert_equal(2, DataCycleCore::CreativeWork::History.count)
-      assert_equal(2, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(1, DataCycleCore::ContentContent::History.count)
-      assert_equal(2, DataCycleCore::ClassificationContent::History.count)
-      assert_equal(1, DataCycleCore::Place::History.count)
-      assert_equal(1, DataCycleCore::Place::History::Translation.count)
-    end
-
-    # test 'save CreativeWork with embedded object contentLocation, then delete embedded object (last and only one)' do
-    #   template = DataCycleCore::CreativeWork.where(template: true, template_name: 'BildTest').first
-    #   data_set = DataCycleCore::CreativeWork.new
-    #   data_set.schema = template.schema
-    #   data_set.template_name = template.template_name
-    #   data_set.save
+    # # this case does not exist any more!
+    # test 'different behaviour for embeddedObject without delete flag' do
+    #   template_cw = DataCycleCore::CreativeWork.count
+    #   template_cwt = DataCycleCore::CreativeWork::Translation.count
+    #   template_p = DataCycleCore::Place.count
+    #   template_pt = DataCycleCore::Place::Translation.count
+    #
+    #   template_without_delete = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Bild')
+    #   data_set_without = DataCycleCore::CreativeWork.new
+    #   data_set_without.schema = template_without_delete.schema
+    #   data_set_without.template_name = template_without_delete.template_name
+    #   data_set_without.save
+    #
     #   data_hash = {
     #     'headline' => 'Dies ist ein Test!',
     #     'description' => 'wtf is going on???',
@@ -103,44 +29,119 @@ module DataCycleCore
     #       'latitude' => 25.30
     #     }]
     #   }
-    #   error = data_set.set_data_hash(data_hash: data_hash)
-    #   data_set.save
-    #   returned_data_hash = data_set.get_data_hash
+    #   error = data_set_without.set_data_hash(data_hash: data_hash)
+    #   data_set_without.save
     #
+    #   returned_data_hash_without = data_set_without.get_data_hash
     #   expected_hash = {
     #     'access' => [],
+    #     'creator' => [],
     #     'headline' => 'Dies ist ein Test!',
     #     'description' => 'wtf is going on???',
     #     'content_location' => [{
-    #       'id' => returned_data_hash['content_location'][0]['id'],
+    #       'id' => returned_data_hash_without['content_location'][0]['id'],
     #       'headline' => 'Testort',
     #       'latitude' => 25.3,
     #       'location' => nil,
     #       'longitude' => 13.1,
     #       'external_source_id' => nil
-    #     }],
-    #     'accountablePerson' => []
+    #     }]
     #   }
     #
-    #   assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type'))
+    #   assert_equal(expected_hash, returned_data_hash_without.compact.except('id', 'data_type', 'data_pool', 'keywords'))
     #   assert_equal(0, error[:error].count)
     #
     #   # check consistency of data in DB
-    #   assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+    #   assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
+    #   assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
     #   assert_equal(1, DataCycleCore::ContentContent.count)
-    #   assert_equal(1, DataCycleCore::Place.where(template: false).count)
+    #   assert_equal(2, DataCycleCore::ClassificationContent.count)
+    #   assert_equal(1, DataCycleCore::Place.count - template_p)
+    #   assert_equal(1, DataCycleCore::Place::Translation.count - template_pt)
     #
-    #   returned_data_hash['content_location'] = []
-    #   error = data_set.set_data_hash(data_hash: returned_data_hash)
-    #   data_set.save
-    #   returned_again = data_set.get_data_hash
-    #   assert_equal(returned_data_hash, returned_again)
+    #   assert_equal(1, DataCycleCore::CreativeWork::History.count)
+    #   assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
+    #   assert_equal(0, DataCycleCore::ClassificationContent::History.count)
+    #   assert_equal(0, DataCycleCore::ContentContent::History.count)
+    #   assert_equal(0, DataCycleCore::Place::History.count)
+    #   assert_equal(0, DataCycleCore::Place::History::Translation.count)
+    #
+    #   returned_data_hash_without['content_location'] = []
+    #   error = data_set_without.set_data_hash(data_hash: returned_data_hash_without)
+    #   data_set_without.save
+    #
+    #   returned_again = data_set_without.get_data_hash
+    #   assert_equal(returned_data_hash_without, returned_again)
     #
     #   # check consistency of data in DB
-    #   assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+    #   assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
+    #   assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
     #   assert_equal(0, DataCycleCore::ContentContent.count)
-    #   assert_equal(0, DataCycleCore::Place.where(template: false).count)
+    #   assert_equal(2, DataCycleCore::ClassificationContent.count)
+    #   assert_equal(1, DataCycleCore::Place.count - template_p)
+    #   assert_equal(1, DataCycleCore::Place::Translation.count - template_pt)
+    #
+    #   assert_equal(2, DataCycleCore::CreativeWork::History.count)
+    #   assert_equal(2, DataCycleCore::CreativeWork::History::Translation.count)
+    #   assert_equal(1, DataCycleCore::ContentContent::History.count)
+    #   assert_equal(2, DataCycleCore::ClassificationContent::History.count)
+    #   assert_equal(1, DataCycleCore::Place::History.count)
+    #   assert_equal(1, DataCycleCore::Place::History::Translation.count)
     # end
+
+    test 'save CreativeWork with embedded object contentLocation, then delete embedded object (last and only one)' do
+      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'BildTest').first
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
+      data_set.save
+      data_hash = {
+        'headline' => 'Dies ist ein Test!',
+        'description' => 'wtf is going on???',
+        'content_location' => [{
+          'headline' => 'Testort',
+          'longitude' => 13.10,
+          'latitude' => 25.30
+        }]
+      }
+      error = data_set.set_data_hash(data_hash: data_hash)
+      data_set.save
+      returned_data_hash = data_set.get_data_hash
+
+      expected_hash = {
+        'access' => [],
+        'headline' => 'Dies ist ein Test!',
+        'description' => 'wtf is going on???',
+        'content_location' => [{
+          'id' => returned_data_hash['content_location'][0]['id'],
+          'headline' => 'Testort',
+          'latitude' => 25.3,
+          'location' => nil,
+          'longitude' => 13.1,
+          'external_source_id' => nil
+        }],
+        'accountablePerson' => []
+      }
+
+      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type'))
+      assert_equal(0, error[:error].count)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(1, DataCycleCore::ContentContent.count)
+      assert_equal(1, DataCycleCore::Place.where(template: false).count)
+
+      returned_data_hash['content_location'] = []
+      error = data_set.set_data_hash(data_hash: returned_data_hash)
+      data_set.save
+      returned_again = data_set.get_data_hash
+      assert_equal(returned_data_hash, returned_again)
+
+      # check consistency of data in DB
+      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(0, DataCycleCore::ContentContent.count)
+      assert_equal(0, DataCycleCore::Place.where(template: false).count)
+    end
 
     test 'save CreativeWork with embedded object contentLocation, read data with only id given' do
       template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Bild').first

@@ -95,7 +95,6 @@
         :label: Bild
         :type: linked
         :linked_table: creative_works
-        :storage_location: value
         :editor:
           :type: objectBrowser
           :options:
@@ -109,7 +108,7 @@
       :creator:
         :label: Ersteller
         :type: linked
-        :table_name: users
+        :linked_table: users
         :validations:
           :max: 1
       :date_created:

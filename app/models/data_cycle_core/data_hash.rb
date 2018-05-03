@@ -137,8 +137,8 @@ module DataCycleCore
         definition = property_definitions[name]
 
         delete = false
-        delete = definition['delete'] unless definition['delete'].blank?
-        delete = true if is_history?
+        #delete = definition['delete'] unless definition['delete'].blank?
+        delete = true if is_history? || definition['type'] == 'embedded'
 
         relation_name = definition['linked_table']
         if delete
@@ -414,9 +414,9 @@ module DataCycleCore
       when 'linked'
         set_linked_data_type(key, value, properties['linked_table'], properties['template_name'], false, save_time, current_user)
       when 'embedded'
-        delete = false
-        delete = true if properties.key?('delete') && properties['delete'] == true
-        set_linked_data_type(key, value, properties['linked_table'], properties['template_name'], delete, save_time, current_user)
+        # delete = false
+        # delete = true if properties.key?('delete') && properties['delete'] == true
+        set_linked_data_type(key, value, properties['linked_table'], properties['template_name'], true, save_time, current_user)
       when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
         save_values(key, value, properties)
       when 'classification'
@@ -496,6 +496,8 @@ module DataCycleCore
 
       selector = table < self.class.table_name
       data = input_data.dup
+
+      data = data.ids if data.is_a?(ActiveRecord::Relation)
       # for embeddedLinkArray transform data
       if data.is_a?(::Array) && !data.blank? && data.first.is_a?(::String)
         data.map! { |item| { 'id' => item } }

@@ -83,14 +83,10 @@ module DataCycleCore
         'text' => 'wtf is going on???',
         'quotation' => [{
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
-          'author' => [{
-            'id' => person_id
-          }],
+          'author' => [person_id],
           'data_type' => [data_type_zitat_id]
         }],
-        'content_location' => [{
-          'id' => place_id1
-        }]
+        'content_location' => [place_id1]
       }
 
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -115,12 +111,7 @@ module DataCycleCore
           'id' => '',
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
           'image' => [],
-          'author' => [{
-            'id' => person_id,
-            'job_title' => nil,
-            'given_name' => 'Winston',
-            'family_name' => 'Churchill'
-          }],
+          'author' => [person_id],
           'creator' => [],
           'is_part_of' => parent_id,
           'data_type' => [data_type_zitat_id],
@@ -128,18 +119,14 @@ module DataCycleCore
           'date_modified' => nil
         }],
         'output_channels' => [],
-        'content_location' => [{
-          'id' => place_id1,
-          'headline' => 'Wien',
-          'latitude' => 1.0,
-          'longitude' => 2.0,
-          'external_source_id' => nil,
-          'location' => nil
-        }]
+        'content_location' => [place_id1]
       }
       expected_hash['quotation'][0]['id'] = returned_data_hash['quotation'][0]['id']
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'validity_period', 'data_pool'))
+      assert_equal(expected_hash.except('quotation', 'content_location'), returned_data_hash.compact.except('id', 'data_type', 'validity_period', 'data_pool', 'quotation', 'content_location'))
+      assert_equal([place_id1], returned_data_hash['content_location'].ids)
+      assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('author'))
+      assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
@@ -152,20 +139,17 @@ module DataCycleCore
       assert_equal(['author', 'content_location', 'quotation'], DataCycleCore::ContentContent.all.pluck(:relation_a).uniq.sort)
       assert_equal([''], DataCycleCore::ContentContent.all.pluck(:relation_b).uniq)
 
-      returned_data_hash['content_location'] = [{ 'id' => place_id2 }]
+      returned_data_hash['content_location'] = [place_id2]
       error = data_set.set_data_hash(data_hash: returned_data_hash)
       data_set.save
       updated_data_hash = data_set.get_data_hash
-      expected_hash['content_location'] = [{
-        'id' => place_id2,
-        'headline' => 'Villach',
-        'latitude' => 10,
-        'longitude' => 20,
-        'external_source_id' => nil,
-        'location' => nil
-      }]
+
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, updated_data_hash.compact.except('id', 'data_type', 'validity_period', 'data_pool'))
+      assert_equal(expected_hash.except('quotation', 'content_location'), updated_data_hash.compact.except('id', 'data_type', 'validity_period', 'data_pool', 'quotation', 'content_location'))
+      assert_equal([place_id2], updated_data_hash['content_location'].ids)
+      assert_equal(expected_hash['quotation'].first.except('author'), updated_data_hash['quotation'].first.except('author'))
+      assert_equal([person_id], updated_data_hash['quotation'].first['author'].ids)
+
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
@@ -176,8 +160,8 @@ module DataCycleCore
       assert_equal(3, DataCycleCore::CreativeWork::History.count)
       assert_equal(3, DataCycleCore::ContentContent::History.count)
       assert_equal(3, DataCycleCore::ClassificationContent::History.count)
-      assert_equal(1, DataCycleCore::Person::History.count)
-      assert_equal(1, DataCycleCore::Place::History.count)
+      assert_equal(0, DataCycleCore::Person::History.count)
+      assert_equal(0, DataCycleCore::Place::History.count)
 
       # update the whole data_set to see if it is properly moved to history
       new_hash = data_set.get_data_hash
@@ -192,8 +176,8 @@ module DataCycleCore
       assert_equal(5, DataCycleCore::CreativeWork::History.count)
       assert_equal(6, DataCycleCore::ContentContent::History.count)
       assert_equal(6, DataCycleCore::ClassificationContent::History.count)
-      assert_equal(2, DataCycleCore::Person::History.count)
-      assert_equal(2, DataCycleCore::Place::History.count)
+      assert_equal(0, DataCycleCore::Person::History.count)
+      assert_equal(0, DataCycleCore::Place::History.count)
 
       # delete data_set
       data_set.destroy_content

@@ -153,10 +153,9 @@
             :data-type: video
       :content_location:
         :label: Ort
-        :type: embedded
+        :type: linked
         :linked_table: places
         :template_name: contentLocation
-        :delete: false
         :editor:
           :type: objectBrowser
           :options:
@@ -166,7 +165,6 @@
         :label: Zitat
         :type: embedded
         :linked_table: creative_works
-        :delete: true
         :template_name: Zitat
         :editor:
           :type: embeddedObject
