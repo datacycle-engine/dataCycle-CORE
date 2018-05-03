@@ -235,6 +235,7 @@ ObjectBrowser.prototype.resetOverlay = function () {
   this.overlay.find('.chosen-items-container .item').remove();
   this.chosen = this.element.data('objects');
   this.search = "";
+  this.excluded = [];
   this.page = 1;
 };
 
