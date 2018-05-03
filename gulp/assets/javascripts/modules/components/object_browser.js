@@ -318,6 +318,7 @@ ObjectBrowser.prototype.import = function (event) {
 
 ObjectBrowser.prototype.loadObjects = function (append = true) {
   if (!append) {
+    this.excluded = [];
     this.overlay.children('.items').scrollTop(0);
     this.overlay.children('.items').html('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
   }
