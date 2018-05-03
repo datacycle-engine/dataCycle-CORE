@@ -2,8 +2,6 @@
 - :data:
     :name: Person
     :type: object
-    :permissions:
-      :read_write: true
     :properties:
       :id:
         :label: id

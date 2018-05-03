@@ -4,8 +4,6 @@
     :type: object
     :content_type: entity
     :releasable: true
-    :permissions:
-      :read_write: true
     :boost: 100.0
     :properties:
       :id:
@@ -84,10 +82,9 @@
           :type: input
       :content_location:
         :label: Veranstaltungsort
-        :type: embedded
+        :type: linked
         :linked_table: places
         :template_name: contentLocation
-        :delete: false
         :validations:
           :max: 1
         :editor:
@@ -99,7 +96,6 @@
         :label: Veranstaltungsdaten
         :type: embedded
         :linked_table: events
-        :delete: true
         :template_name: Event
         :editor:
           :type: embeddedObject

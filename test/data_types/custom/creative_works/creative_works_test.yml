@@ -56,7 +56,6 @@
       :testPlace:
         :label: Ort
         :type: embedded
-        :delete: true
         :linked_table: places
         :template_name: testPlace
 
@@ -71,7 +70,6 @@
       :testCW:
         :label: Kreativdaten
         :type: embedded
-        :delete: true
         :linked_table: creative_works
         :template_name: EmbeddedCreativeWork
 

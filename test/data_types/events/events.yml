@@ -2,8 +2,6 @@
 - :data:
     :name: Event
     :type: object
-    :permissions:
-      :read_write: true
     :properties:
       :id:
         :label: id

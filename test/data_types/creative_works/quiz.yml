@@ -4,8 +4,6 @@
     :type: object
     :content_type: entity
     :releasable: true
-    :permissions:
-      :read_write: true
     :boost: 100.0
     :properties:
       :id:
@@ -87,7 +85,6 @@
         :label: Frage
         :type: embedded
         :linked_table: creative_works
-        :delete: true
         :template_name: Frage
         :editor:
           :type: embeddedObject
@@ -225,7 +222,6 @@
         :label: Richtige Antwort
         :type: embedded
         :linked_table: creative_works
-        :delete: true
         :template_name: Antwort
         :validations:
           :max: 1
@@ -235,7 +231,6 @@
         :label: Falsche Antwort
         :type: embedded
         :linked_table: creative_works
-        :delete: true
         :template_name: Antwort
         :editor:
           :type: embeddedObject

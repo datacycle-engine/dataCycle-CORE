@@ -4,8 +4,6 @@
     :name: ReleaseTest
     :type: object
     :releasable: true
-    :permissions:
-      :read_write: true
     :properties:
       :headline:
         :label: Titel

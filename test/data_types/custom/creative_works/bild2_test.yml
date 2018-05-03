@@ -2,8 +2,6 @@
     :name: Bild2
     :type: object
     :content_type: entity
-    :permissions:
-      :read_write: false
     :properties:
       :id:
         :label: id

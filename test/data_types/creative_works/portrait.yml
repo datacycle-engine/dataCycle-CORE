@@ -4,8 +4,6 @@
     :type: object
     :content_type: entity
     :releasable: true
-    :permissions:
-      :read_write: true
     :boost: 100.0
     :properties:
       :id:
@@ -107,10 +105,9 @@
             :data-type: video
       :content_location:
         :label: Ort
-        :type: embedded
+        :type: linked
         :linked_table: places
         :template_name: contentLocation
-        :delete: false
         :editor:
           :type: objectBrowser
           :options:

@@ -3,8 +3,6 @@
     :name: Website
     :type: object
     :content_type: embedded
-    :permissions:
-      :read_write: true
     :boost: 1.0
     :properties:
       :id:
@@ -59,7 +57,7 @@
         :type: linked
         :linked_table: users
         :validations:
-          :max: 1        
+          :max: 1
       :date_created:
         :label: Erstellungsdatum
         :type: datetime
