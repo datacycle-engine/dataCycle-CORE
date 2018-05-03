@@ -122,25 +122,28 @@ CREATE TABLE classification_trees (
 --
 
 CREATE VIEW classification_alias_paths AS
- WITH RECURSIVE classification_alias_paths(id, ancestor_names, ancestor_ids) AS (
+ WITH RECURSIVE classification_alias_paths(id, ancestor_ids, full_path_ids, full_path_names) AS (
          SELECT classification_aliases.id,
-            ARRAY[classification_tree_labels.name, classification_aliases.name] AS ancestor_names,
-            ARRAY[]::uuid[] AS ancestor_ids
+            ARRAY[]::uuid[] AS ancestor_ids,
+            ARRAY[classification_aliases.id] AS full_path_ids,
+            ARRAY[classification_aliases.name, classification_tree_labels.name] AS full_path_names
            FROM ((classification_trees
              JOIN classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
              JOIN classification_tree_labels ON ((classification_tree_labels.id = classification_trees.classification_tree_label_id)))
           WHERE (classification_trees.parent_classification_alias_id IS NULL)
         UNION ALL
          SELECT classification_aliases.id,
-            (classification_alias_paths_1.ancestor_names || classification_aliases.name) AS ancestor_names,
-            (classification_alias_paths_1.ancestor_ids || classification_alias_paths_1.id) AS ancestor_ids
+            (classification_alias_paths_1.id || classification_alias_paths_1.ancestor_ids) AS ancestor_ids,
+            (classification_aliases.id || classification_alias_paths_1.full_path_ids) AS full_path_ids,
+            (classification_aliases.name || classification_alias_paths_1.full_path_names) AS full_path_names
            FROM ((classification_trees
              JOIN classification_alias_paths classification_alias_paths_1 ON ((classification_alias_paths_1.id = classification_trees.parent_classification_alias_id)))
              JOIN classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
         )
  SELECT classification_alias_paths.id,
-    classification_alias_paths.ancestor_names,
-    classification_alias_paths.ancestor_ids
+    classification_alias_paths.ancestor_ids,
+    classification_alias_paths.full_path_ids,
+    classification_alias_paths.full_path_names
    FROM classification_alias_paths;
 
 
@@ -2445,6 +2448,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180329064133'),
 ('20180330063016'),
 ('20180410220414'),
-('20180421162723');
+('20180421162723'),
+('20180430064709');
 
 

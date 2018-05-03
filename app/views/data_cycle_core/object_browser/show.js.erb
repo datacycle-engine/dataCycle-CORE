@@ -4,7 +4,7 @@ $('<%= params[:overlay_id] %>').find('.items .loading').hide();
 
 <% content_for :rendered_items do %>
   <% @results.each do |content| %>
-    <% I18n.with_locale(params[:language] || I18n.locale) do %>
+    <% I18n.with_locale(params[:locale] || I18n.locale) do %>
       <%= render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: { object: content, options: params[:options], objects: params[:objects], editable: params[:editable] }) %>
     <% end %>
   <% end %>

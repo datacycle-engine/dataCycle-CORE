@@ -4,8 +4,8 @@ module DataCycleCore
 
     def show
       authorize! :show, :object_browser
-      I18n.with_locale(params[:language] || I18n.locale) do
-        @language = params[:language] unless params[:language].blank?
+      I18n.with_locale(params[:locale] || I18n.locale) do
+        @language = params[:locale] unless params[:locale].blank?
         @language ||= 'de'
 
         @@default_per = 50
@@ -16,7 +16,8 @@ module DataCycleCore
         order_string = DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(params[:search])
 
         query = DataCycleCore::Filter::ObjectBrowserQueryBuilder.new(@language, @type).in_validity_period
-        query = query.fulltext_search(params[:search]) unless params[:search].blank?
+        query = query.fulltext_search(params[:search]) if params[:search].present?
+        query = query.where('content_data_id NOT IN (?)', params[:excluded]) if params[:excluded].present?
         query = query.with_classification_alias_ids(get_classification_aliases_for_type(@type).map(&:id)) unless get_classification_aliases_for_type(@type).blank?
 
         query = query.with_classification_alias_ids([helpers.life_cycle_items&.dig(DataCycleCore.features&.dig(:life_cycle, :default_filter), :alias)&.id]) if DataCycleCore.features&.dig(:life_cycle, :default_filter).present? && params.dig(:definition, 'type_name') == 'creative_works'
@@ -45,7 +46,7 @@ module DataCycleCore
       authorize! :show, :object_browser
       if !params[:class].blank? && !params[:ids].blank?
 
-        I18n.with_locale(params[:language] || I18n.locale) do
+        I18n.with_locale(params[:locale] || I18n.locale) do
           # TODO: FIXME if breaks
           object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == params[:class].classify }
           @objects = object_type.constantize.where(id: params[:ids])
@@ -59,7 +60,7 @@ module DataCycleCore
       authorize! :show, :object_browser
 
       unless params[:class].blank? || params[:id].blank?
-        I18n.with_locale(params[:language] || I18n.locale) do
+        I18n.with_locale(params[:locale] || I18n.locale) do
           # TODO: FIXME if breaks
           object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == params[:class].classify }
           @object = object_type.constantize.find(params[:id])
