@@ -41,7 +41,7 @@
                     </nav>
                   </div>
 
-                  <% if content_for?(:advanced_filters) || filter[:advanced] %>
+                  <% if content_for?(:advanced_filters) || filter[:advanced].present? %>
                     <div class="advanced-filters accordion" data-responsive-accordion-tabs="accordion medium-tabs large-accordion" data-allow-all-closed="true">
                       <div class="accordion-item <%= 'is-active' if @advanced_filters.present? %>" data-accordion-item>
                         <div class="accordion-content" data-tab-content>
