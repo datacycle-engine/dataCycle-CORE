@@ -7,20 +7,27 @@ module DataCycleCore
     def index
       @publication_classifications = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Publikations-Plan')&.schema&.dig('properties')&.select { |k, v| v['type'] == 'classificationTreeLabel' && !DataCycleCore.internal_data_attributes.include?(k) }&.map { |k, v| [k, v['type_name']] }.to_h
 
-      @classification_array ||= []
+      @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
+      @filters.push(
+        {
+          't' => 'relation',
+          'v' => 'publication_schedule'
+        }
+      )
 
-      @classification_array.push(*params[:classification]&.map { |c| c[:selected] }&.flatten)
-
-      query = DataCycleCore::Filter::Search.new(params.fetch(:language, 'de'))
-
-      query = query.with_relation('publication_schedule')
+      @language ||= params.fetch(:language, DataCycleCore.ui_language)
+      query = DataCycleCore::Filter::Search.new(@language)
 
       query = query.fulltext_search(params[:search]) if params[:search].present?
 
-      @with_classification_alias_ids = parse_classifications(@classification_array) if @classification_array.present?
-      @with_classification_alias_ids.presence&.each_value do |class_array|
-        query = query.with_classification_alias_ids(class_array)
+      @filters.presence&.each do |filter|
+        query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
       end
+
+      @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
+      @advanced_filters = @filters.select { |f| f['c'] == 'a' }
+      @selected_classifications = @default_filters.map { |c| c['v'] }.flatten.compact.uniq
+      @selected_classification_aliases = DataCycleCore::ClassificationAlias.select(:id, :name).where(id: @filters.select { |f| f['t'] == 'classification_alias_ids' }.map { |f| f['v'] }.flatten.compact.uniq).map { |c| [c.id, c.name] }.to_h
 
       query2 = DataCycleCore::CreativeWork.joins(:content_content_b).where(template: false, template_name: 'Publikations-Plan', content_contents: { content_a_id: query.pluck(:content_data_id) })
 
@@ -32,17 +39,18 @@ module DataCycleCore
 
       query2 = query2.where("(metadata ->> 'publish_at')::timestamptz <= ?", params[:publications_until]) if params[:publications_until].present?
 
-      @publication_classification_alias_ids = @with_classification_alias_ids&.select { |k, _| @publication_classifications.values&.include?(k) }
+      @publication_classification_alias_ids = @default_filters.select { |f| @publication_classifications.values&.include?(f['n']) }
 
       if @publication_classification_alias_ids.present?
         content_ids = []
-        @publication_classification_alias_ids.each_with_index do |(_, class_array), index|
+        @publication_classification_alias_ids.each_with_index do |alias_ids, index|
           if index.zero?
-            content_ids = query2.with_classification_alias_ids(class_array).pluck(:id)
+            content_ids = query2.with_classification_alias_ids(alias_ids['v']).pluck(:id)
           else
-            content_ids &= query2.with_classification_alias_ids(class_array).pluck(:id)
+            content_ids &= query2.with_classification_alias_ids(alias_ids['v']).pluck(:id)
           end
         end
+
         query2 = query2.where(id: content_ids)
       end
 

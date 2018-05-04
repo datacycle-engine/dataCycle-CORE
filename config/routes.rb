@@ -126,4 +126,7 @@ DataCycleCore::Engine.routes.draw do
   get 'contents/gpx', to: 'contents#gpx'
 
   resources :publications, only: :index
+
+  get :add_filter, controller: :application
+  get :add_tag_group, controller: :application
 end

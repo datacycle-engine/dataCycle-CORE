@@ -324,11 +324,13 @@ module DataCycleCore
       if is_history?
         join_relation = :classification_content_histories
         class_id = :content_data_history_id
+        class_type = :content_data_history_type
       else
         join_relation = :classification_contents
         class_id = :content_data_id
+        class_type = :content_data_type
       end
-      DataCycleCore::Classification.joins(join_relation).where(join_relation => { class_id => id, relation: relation_name })
+      DataCycleCore::Classification.joins(join_relation).where(join_relation => { class_type => self.class.to_s, class_id => id, relation: relation_name })
     end
 
     def load_asset_relation_ids(relation_name)

@@ -8,7 +8,7 @@
 
                 <div class="detail-header-functions">
                     <ul class="no-bullet">
-                        <% if can? :manage, @data_link %>
+                        <% if can?(:manage, DataCycleCore::DataLink) %>
                             <li><%= render 'data_links', content: @watch_list %></li>
                         <% end %>
                         <li class="buttons"><a href="<%= breadcrumbs[-2].url %>" class="hascontent close-show-button"><i aria-hidden="true" class="fa fa-times"></i></a></li>
@@ -52,8 +52,7 @@
 <div class="detail-content watchlist">
 
     <div class="row">
-
-        <%= render 'filter_minimal', filter: { search: true, language: true } %>
+        <%= render 'filter', filter: { classification_trees: ['Inhaltstypen'], search: true, language: true, collapse: true } %>
 
         <%= render 'results', contents: @contents unless @contents.nil? %>
 
