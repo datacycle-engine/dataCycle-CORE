@@ -54,6 +54,7 @@ DataCycleCore::Engine.routes.draw do
 
   resources :data_links do
     post :send_mail, on: :member
+    get :download, on: :member
   end
 
   resources :watch_lists do

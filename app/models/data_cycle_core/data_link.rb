@@ -7,6 +7,9 @@ module DataCycleCore
     belongs_to :creator, class_name: :User
     belongs_to :receiver, class_name: :User
 
+    mount_uploader :file, FileUploader
+    process_in_background :file
+
     scope :session_edit_links, ->(ids) { where(permissions: 'write', id: ids) }
 
     def is_valid?

@@ -41,6 +41,12 @@ module DataCycleCore
       @data_link = DataCycleCore::DataLink.find(params[:id])
 
       @data_link.update(create_link_params.merge(creator_id: current_user.id))
+      if create_link_params[:file].present?
+        @data_link.file = create_link_params[:file]
+      else
+        @data_link.remove_file!
+      end
+      @data_link.save
 
       DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later
 
@@ -54,11 +60,19 @@ module DataCycleCore
       redirect_back(fallback_location: root_path, notice: (I18n.t :invalidated, scope: [:controllers, :success], locale: DataCycleCore.ui_language))
     end
 
+    def download_pdf
+      @data_link = DataCycleCore::DataLink.find(params[:id])
+
+      raise @data_link.file.inspect
+
+      send_file(@data_link.file.path, type: , url_based_filename: false)
+    end
+
     private
 
     def create_link_params
       params[:data_link][:valid_until] = params.dig(:data_link, :valid_until)&.to_datetime&.end_of_day.to_s
-      params.require(:data_link).permit(:item_id, :item_type, :permissions, :comment, :valid_from, :valid_until)
+      params.require(:data_link).permit(:item_id, :item_type, :permissions, :comment, :valid_from, :valid_until, :file)
     end
 
     def receiver_params

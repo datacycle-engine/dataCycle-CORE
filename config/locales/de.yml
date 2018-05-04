@@ -323,6 +323,7 @@ de:
         valid_until: bis
         permissions_read: "Lesen"
         permissions_write: "Bearbeiten"
+        file: "Erläuterung (PDF)"
       data_cycle_core/stored_filter:
         system: Für alle Benutzer sichtbar
         api: Über API abrufbar

@@ -799,6 +799,19 @@ a.email-link {
   button[type=submit].button {
     padding: 0.85rem 1rem;
   }
+  .selected-file {
+    position: relative;
+    display: block;
+    padding: 0.5rem 3rem 0.5rem 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    .remove-file {
+      position: absolute;
+      right: 0;
+      padding: 0 0.5rem;
+      cursor: pointer;
+    }
+  }
 }
 
 ul.translated-locales {
