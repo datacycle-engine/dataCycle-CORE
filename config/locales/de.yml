@@ -87,6 +87,7 @@ de:
     entries: Einträge
     is: ist
     is_not: ist nicht
+    no_translation: Keine Übersetzung vorhanden
 
   history:
     latest_edits: Letzte Bearbeitungen
