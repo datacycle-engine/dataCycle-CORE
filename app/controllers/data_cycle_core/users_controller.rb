@@ -7,9 +7,9 @@ module DataCycleCore
     def index
       authorize! :crud, DataCycleCore::User
       if current_user.is_rank?(10)
-        @paginateObject = DataCycleCore::User.includes(:role).page(params[:page])
+        @paginateObject = DataCycleCore::User.includes(:role).order(:email).page(params[:page])
       else
-        @paginateObject = DataCycleCore::User.where(locked_at: nil).includes(:role).page(params[:page])
+        @paginateObject = DataCycleCore::User.where(locked_at: nil).includes(:role).order(:email).page(params[:page])
       end
     end
 
