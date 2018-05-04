@@ -3,13 +3,14 @@
   <div data-label="<%= definition['label'] %>" class="<%= [
           'clearfix',
           'form-element',
-          definition.dig('validations').present? ? 'validation-container' : '',
           key.split('[').last[0...-1].underscore,
+          definition.dig('validations').present? ? 'validation-container' : '',
           definition.dig('type').try(:underscore),
-          definition.dig('editor', 'type').try(:underscore),
-          definition.dig('editor', 'options', 'type').try(:underscore),
-          definition.dig('editor', 'options', 'class').try(:underscore),
-          definition.dig('editor', 'options', 'readonly') ? 'readonly' : ''
+          definition.dig('ui', 'edit', 'type').try(:underscore),
+          options.try(:[], 'class'),
+          # definition.dig('editor', 'options', 'type').try(:underscore),
+          # definition.dig('editor', 'options', 'class').try(:underscore),
+          # definition.dig('editor', 'options', 'readonly') ? 'readonly' : ''
         ].reject(&:blank?).join(' ') %>" data-key="<%= key %>" data-id="<%= sanitize_to_id(key) %>">
 
     <%= yield %>

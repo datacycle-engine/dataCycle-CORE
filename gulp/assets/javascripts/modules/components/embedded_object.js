@@ -1,11 +1,10 @@
 var ConfirmationModal = require('./../components/confirmation_modal');
-var Sortable = require('sortablejs');
 
 // Embedded Object Module
 var EmbeddedObject = function (selector) {
   this.element = selector;
-  this.page = 1;
   this.id = this.element.prop('id');
+  this.index = this.element.children('.content-object-item').length;
   this.language = this.element.data('language') || 'de';
   this.key = this.element.data('key');
   this.label = this.element.data('label');
@@ -14,34 +13,44 @@ var EmbeddedObject = function (selector) {
   this.max = this.element.data('max') || 0;
   this.min = this.element.data('min') || 0;
   this.write = this.element.data('write') || true;
-  this.total = this.element.data('total') || 0;
-  this.index = this.total;
-  this.ids = this.element.data('ids') || [];
-  this.per = this.element.data('per') || 5;
   this.url = '/contents';
-  this.sortable;
 
   this.setup();
 };
 
 EmbeddedObject.prototype.setup = function () {
-  this.sortable = new Sortable(this.element[0], {
-    handle: '.draggable-handle',
-    draggable: '.content-object-item'
-  });
-
-  if (this.write && (this.max == 0 || this.element.children('.content-object-item').length < this.max)) $(this.element).find('> .buttons > #add_' + this.id).show();
-
-  this.element.off('reinit-event-handlers').on('reinit-event-handlers', this.addEventHandlers.bind(this));
+  if (this.write && (this.max == 0 || this.element.children('.content-object-item').length < this.max)) $(this.element).children('#add_' + this.id).show();
 
   this.element.off('import-data').on('import-data', function (event, data) {
-    let page = data.page || 1;
+    var ids = this.element.children('.content-object-item').map(function (index, elem) {
+      return $(elem).data('id');
+    }).get();
 
-    let new_items = data.ids.diff(this.element.children('.content-object-item').map((index, elem) => $(elem).data('id')).get());
+    let new_ids = data.ids.filter(item => ids.indexOf(item) === -1);
 
-    if (this.write && (this.max == 0 || this.element.children('.content-object-item').length < this.max) && new_items.length > 0) {
-      this.renderEmbeddedObjects('render', new_items);
-    } else if (this.write && this.max != 0 && (ids.length + new_items.length) > this.max) {
+    if (this.write && new_ids.length > 0 && (this.max == 0 || (this.element.children('.content-object-item').length + new_ids.length) <= this.max)) {
+      new_ids.forEach(new_id => {
+        this.element.children('#add_' + this.id).prop('disabled', true).find('.fa').css('display', 'inline-block');
+        this.index++;
+        $.ajax({
+          url: this.url + '/render_embedded_object',
+          method: 'POST',
+          data: JSON.stringify({
+            index: this.index,
+            language: this.language,
+            embedded_object_id: '#' + this.id,
+            key: this.key,
+            definition: this.definition,
+            options: this.options,
+            id: new_id
+          }),
+          contentType: 'application/json'
+        }).done(function (data) {
+          this.update();
+          this.addEventHandlers();
+        }.bind(this));
+      });
+    } else if (this.write && this.max != 0 && ids.indexOf(data.ids[0]) === -1) {
       var confirmationModal = new ConfirmationModal("Maximalanzahl: " + this.max);
     }
   }.bind(this));
@@ -49,52 +58,49 @@ EmbeddedObject.prototype.setup = function () {
   this.addEventHandlers();
 };
 
-EmbeddedObject.prototype.renderEmbeddedObjects = function (type, ids = []) {
-  this.element.find('> .buttons > button').prop('disabled', true).find('.fa').css('display', 'inline-block');
+EmbeddedObject.prototype.addEventHandlers = function () {
+  var self = this;
+
+  this.element.children('#add_' + this.id).off('click').on('click', this.renderEmbeddedObject.bind(this));
+
+  this.element.children('.content-object-item').each(function () {
+    $(this).children('.removeContentObject').off('click').on('click', function (event) {
+      event.preventDefault();
+      $(this).siblings('.has-error').trigger('remove-submit-button-errors');
+      $(this).closest('.content-object-item').remove();
+      self.update();
+      self.element.parent('.validation-container').trigger('change');
+    });
+  });
+};
+
+EmbeddedObject.prototype.renderEmbeddedObject = function () {
+  this.element.children('#add_' + this.id).prop('disabled', true).find('.fa').css('display', 'inline-block');
   $.ajax({
-    url: this.url + '/' + type + '_embedded_object',
+    url: this.url + '/new_embedded_object',
     method: 'POST',
     data: JSON.stringify({
       index: this.index,
       language: this.language,
+      embedded_object_id: '#' + this.id,
       key: this.key,
       definition: this.definition,
-      options: this.options,
-      id: ids
+      options: this.options
     }),
     contentType: 'application/json'
-  }).done(data => {
+  }).done(function (data) {
     this.index++;
-    if (ids.length > 0) this.ids = this.ids.concat(ids.diff(this.ids));
     this.update();
     this.addEventHandlers();
-  });
-};
-
-EmbeddedObject.prototype.addEventHandlers = function () {
-  var self = this;
-
-  this.element.find('> .buttons > #add_' + this.id).off('click').on('click', event => {
-    this.renderEmbeddedObjects('new');
-  });
-
-  this.element.children('.content-object-item').each((index, element) => {
-    $(element).children('.removeContentObject').off('click').on('click', event => {
-      event.preventDefault();
-      let id = $(event.currentTarget).closest('.content-object-item').data('id');
-      this.element.find('input:hidden[value="' + id + '"]').remove();
-      $(event.currentTarget).closest('.content-object-item').remove();
-      self.update();
-    });
-  });
+  }.bind(this));
 };
 
 EmbeddedObject.prototype.update = function () {
   var self = this;
   if (this.max != 0 && this.element.children('.content-object-item').length >= this.max) {
-    this.element.find('> .buttons > #add_' + this.id).hide();
+    this.element.children('#add_' + this.id).hide();
   } else if (this.write) {
-    this.element.find('> .buttons > #add_' + this.id).show();
+    this.element.children('#add_' + this.id).show();
   }
 
   if (this.min != 0 && this.element.children('.content-object-item').length <= this.min) {

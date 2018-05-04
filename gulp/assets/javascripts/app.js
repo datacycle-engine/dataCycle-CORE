@@ -5,7 +5,6 @@ var jqueryujs = require('jquery-ujs');
 var foundation = require('foundation-sites');
 var lazysizes = require('lazysizes');
 var lazysizes_unveilhooks = require('lazysizes/plugins/unveilhooks/ls.unveilhooks.min.js');
-var array_helpers = require('./modules/helpers/array_helpers');
 
 var initializers = [];
 initializers.push(require('./modules/initializers/masonry_init'));
@@ -19,7 +18,7 @@ initializers.push(require('./modules/initializers/validation_init'));
 initializers.push(require('./modules/initializers/counter_init'));
 initializers.push(require('./modules/initializers/date_picker_init'));
 initializers.push(require('./modules/initializers/slider_init'));
-initializers.push(require('./modules/initializers/split_contents_init'));
+initializers.push(require('./modules/initializers/copy_contents_init'));
 initializers.push(require('./modules/initializers/map_init'));
 initializers.push(require('./modules/initializers/classifications'));
 initializers.push(require('./modules/initializers/classification_select_init'));

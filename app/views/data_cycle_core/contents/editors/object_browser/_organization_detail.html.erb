@@ -1,0 +1,15 @@
+<div class="padding-bottom-10">
+  <h5>Details</h5>
+  <% if can?(:edit, object) %>
+    <%= link_to edit_polymorphic_path(object), class: 'edit-link', target: :_blank do %>
+      <i class="fa fa-pencil" aria-hidden="true"></i>
+    <% end %>
+  <% end %>
+
+  <% unless object.legal_name.blank? %>
+    <dl>
+      <dt>Firmenname: </dt>
+      <dd><%= object.legal_name %></dd>
+    </dl>
+  <% end %>
+</div>

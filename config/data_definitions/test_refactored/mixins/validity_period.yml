@@ -13,17 +13,17 @@
             :to: valid_until
         :ui:
           :edit:
-            :options:
-              :class: daterange
+            :type: daterange
         :properties:
           :valid_from:
             :label: Gültigkeit
             :type: datetime
             :storage_location: value
-            :validations:
-              :format: date_time
+#            :validations:
+#              :format: date_time
             :ui:
               :edit:
+                :type: date
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
@@ -31,10 +31,11 @@
             :label: bis
             :type: datetime
             :storage_location: value
-            :validations:
-              :format: date_time
+#            :validations:
+#              :format: date_time
             :ui:
               :edit:
+                :type: date
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj

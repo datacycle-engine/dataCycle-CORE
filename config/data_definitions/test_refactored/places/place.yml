@@ -39,32 +39,32 @@
             :type: quillEditor
             :options:
               :data-size: basic
-      :primary_image:
-        :label: Hauptbild
-        :type: linked
-        :linked_table: creative_works
-#        :stored_filter: (name ?)
-        :validations:
-          :max: 1
-        :ui:
-          :edit:
-            :type: objectBrowser
-            :options:
-              :data-validate: media
-              :data-type: image
-      :image:
-        :label: Bilder
-        :type: linked
-        :linked_table: creative_works
-#        :stored_filter: (name ?)
-        :validations:
-          :max: 1
-        :ui:
-          :edit:
-            :type: objectBrowser
-            :options:
-              :data-validate: media
-              :data-type: image
+#      :primary_image:
+#        :label: Hauptbild
+#        :type: linked
+#        :linked_table: creative_works
+##        :stored_filter: (name ?)
+#        :validations:
+#          :max: 1
+#        :ui:
+#          :edit:
+#            :type: objectBrowser
+#            :options:
+#              :data-validate: media
+#              :data-type: image
+#      :image:
+#        :label: Bilder
+#        :type: linked
+#        :linked_table: creative_works
+##        :stored_filter: (name ?)
+#        :validations:
+#          :max: 1
+#        :ui:
+#          :edit:
+#            :type: objectBrowser
+#            :options:
+#              :data-validate: media
+#              :data-type: image
       :data_type:
         :label: Inhaltstype
         :type: classification

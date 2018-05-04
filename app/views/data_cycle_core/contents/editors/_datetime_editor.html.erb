@@ -1,0 +1,12 @@
+<%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options, content: content do %>
+
+  <div class="form-element <%= attribute_name_from_key(key) %>">
+      <%= label_tag key do %>
+        <span class="icon <%= attribute_name_from_key(key) %>">
+            <i aria-hidden="true" class="fa fa-clock-o"></i> <%= definition['label'] %>
+        </span>
+      <% end %>
+      <%= datetime_field_tag key, value, options %>
+  </div>
+
+<% end %>

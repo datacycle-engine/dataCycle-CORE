@@ -95,7 +95,7 @@ module DataCycleCore
           end
         end
 
-        can :show_attribute, DataCycleCore::DataAttribute do |_attribute|
+        can :show, DataCycleCore::DataAttribute do |_attribute|
           true
         end
 

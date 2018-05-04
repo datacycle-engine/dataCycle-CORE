@@ -1,5 +1,4 @@
 var ConfirmationModal = require('./../components/confirmation_modal');
-var Sortable = require('sortablejs');
 
 // Object Browser Module
 var ObjectBrowser = function (selector) {
@@ -8,42 +7,28 @@ var ObjectBrowser = function (selector) {
   this.scrollTop = 0;
   this.overlay = $('#object_browser_' + this.id);
   this.label = $('[for=' + this.id + ']').text();
-  this.overlay_per = 25;
-  this.per = selector.data('per') || 5;
+  this.per = 25;
   this.type = selector.data('type');
-  this.locale = selector.data('locale');
+  this.language = selector.data('language');
   this.key = selector.data('key');
-  this.object_id = selector.data('object-id');
-  this.object_key = selector.data('object-key');
   this.definition = selector.data('definition');
   this.options = selector.data('options');
   this.class = selector.data('class');
-  this.table = selector.data('table');
   this.max = selector.data('max');
   this.min = selector.data('min');
-  this.index = this.per;
   this.editable = selector.data('editable');
   this.page = 1;
   this.loading = false;
   this.search = "";
   this.url = "/object_browser";
   this.total = 0;
-  this.ids = selector.data('objects') || [];
-  this.chosen = this.ids.slice(0);
+  this.chosen = selector.data('objects');
   this.selected = '';
-  this.excluded = [];
   this.setup();
 };
 
 ObjectBrowser.prototype.setup = function () {
   var self = this;
-
-  this.sortable = new Sortable(this.element.find('> .media-thumbs > .object-thumbs')[0], {
-    handle: '.draggable-handle',
-    draggable: '.item'
-  });
-
-  this.ids = this.ids.diff($.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id')));
 
   // initialize all eventhandlers
   this.overlay.on('open.zf.reveal', this.openOverlay.bind(this));
@@ -93,9 +78,7 @@ ObjectBrowser.prototype.setup = function () {
     if (self.min != 0 && self.chosen.length <= self.min) {
       var confirmationModal = new ConfirmationModal("Mindestanzahl: " + self.min);
     } else {
-      self.chosen = self.chosen.diff($(this).parent().data('id'));
-      self.ids = self.ids.diff($(this).parent().data('id'));
-      self.element.children('input:hidden[value="' + $(this).parent().data('id') + '"]').remove();
+      self.chosen.splice(self.chosen.indexOf($(this).parent().data('id')), 1);
       $('.reveal-overlay > #media_reveal_' + $(this).parent().data('id')).parent('.reveal-overlay').remove();
       $(this).parent().remove();
     }
@@ -114,14 +97,14 @@ ObjectBrowser.prototype.setup = function () {
   }.bind(this));
 
   this.element.on('import-data', function (event, data) {
-    var new_items = data.ids.diff($.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id')));
+    var new_items = this.getDelta(this.chosen, data.ids);
     if (new_items.length > 0 && ((this.chosen.length + new_items.length) <= this.max || this.max == 0)) {
       $.ajax({
         url: this.url + '/find',
         method: 'POST',
         data: JSON.stringify({
           type: this.type,
-          locale: this.locale,
+          language: this.language,
           object_browser_id: '#' + this.id,
           key: this.key,
           definition: this.definition,
@@ -148,7 +131,6 @@ ObjectBrowser.prototype.setup = function () {
   }.bind(this));
 
   this.overlay.on('import-complete', function (event, data) {
-    this.excluded.push(data.id);
     this.overlay.children('.items').find('[data-id=' + data.id + ']').get(0).scrollIntoView({
       behavior: "smooth"
     });
@@ -164,7 +146,7 @@ ObjectBrowser.prototype.setup = function () {
       var form_data = $(this).serializeJSON();
       $.extend(form_data, {
         type: self.type,
-        locale: self.locale,
+        language: self.language,
         overlay_id: '#object_browser_' + self.id,
         key: self.key,
         definition: self.definition,
@@ -190,47 +172,6 @@ ObjectBrowser.prototype.setup = function () {
   });
 };
 
-ObjectBrowser.prototype.findObjects = function (ids) {
-  this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('disabled', true).html(this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).data('loading-text'));
-  $.ajax({
-    url: this.url + '/find',
-    method: 'POST',
-    dataType: 'script',
-    data: JSON.stringify({
-      type: this.type,
-      language: this.language,
-      key: this.key,
-      definition: this.definition,
-      options: this.options,
-      ids: ids,
-      editable: this.editable,
-      class: this.class,
-      objects: this.chosen
-    }),
-    contentType: 'application/json'
-  }).done(return_data => {
-    this.chosen = this.chosen.concat(ids.diff(this.chosen));
-    this.ids = this.ids.diff(ids);
-
-    $($.map(ids, id => this.element.children('input:hidden[value="' + id + '"]'))).each((index, elem) => $(elem).remove());
-
-    if (this.ids.length == 0) {
-      this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).remove();
-    } else {
-      this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('disabled', false).html(this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('title'));
-    }
-
-    this.updateChosenCounter();
-    this.overlay.find('.items .item .reveal.media-preview').each(function () {
-      if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
-    });
-
-    this.element.find('.object-thumbs .item .reveal.media-preview').each((index, element) => {
-      $(element).foundation();
-    });
-  });
-};
-
 ObjectBrowser.prototype.setChosen = function () {
   this.element.children('.media-thumbs').children('.object-thumbs').html(this.overlay.find('.chosen-items-container .item').clone()).children('.item').find('.reveal.media-preview').each(function () {
     if ($(this).prop('id').indexOf('overlay_') != -1) $(this).prop('id', $(this).prop('id').replace('overlay_', ''));
@@ -253,8 +194,7 @@ ObjectBrowser.prototype.removeObject = function (id, event) {
   if (this.min != 0 && this.chosen.length <= this.min) {
     var confirmationModal = new ConfirmationModal("Mindestanzahl: " + this.min);
   } else {
-    this.chosen = this.chosen.diff(id);
-    this.element.children('input:hidden[value="' + id + '"]').remove();
+    this.chosen.splice(this.chosen.indexOf(id), 1);
     this.overlay.find('.chosen-items-container [data-id=' + id + ']').remove();
     this.overlay.children(".items").find('.item[data-id=' + id + ']').removeClass('active');
     this.updateChosenCounter();
@@ -269,36 +209,14 @@ ObjectBrowser.prototype.updateChosenCounter = function () {
   this.overlay.find('.chosen-counter').html(html);
 };
 
-ObjectBrowser.prototype.loadMore = function (loaded_ids) {
-  $.ajax({
-    url: '/' + this.table + '/' + this.object_id + '/load_more_linked_objects',
-    method: 'GET',
-    dataType: 'script',
-    data: {
-      key: this.object_key,
-      complete_key: this.key,
-      language: this.language,
-      definition: this.definition,
-      options: this.options,
-      class: this.class,
-      editable: this.editable,
-      load_more_action: 'object_browser',
-      load_more_type: 'all',
-      load_more_except: loaded_ids
-    },
-    contentType: 'application/json'
-  });
-};
-
 ObjectBrowser.prototype.loadDetails = function (id) {
   this.selected = id;
   $.ajax({
     url: this.url + '/details',
     method: 'POST',
-    dataType: 'script',
     data: JSON.stringify({
       type: this.type,
-      locale: this.locale,
+      language: this.language,
       overlay_id: '#object_browser_' + this.id,
       key: this.key,
       definition: this.definition,
@@ -315,13 +233,14 @@ ObjectBrowser.prototype.resetOverlay = function () {
   this.overlay.find('.chosen-items-container .item').remove();
   this.chosen = this.element.data('objects');
   this.search = "";
-  this.excluded = [];
   this.page = 1;
 };
 
 ObjectBrowser.prototype.setPreselected = function () {
-  this.overlay.find('.chosen-items-container').html(this.element.find('> .media-thumbs > .object-thumbs > .item').clone(true));
-  this.chosen = $.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id'));
+  this.overlay.find('.chosen-items-container').html(this.element.children('.media-thumbs').children('.object-thumbs').children('.item').clone(true));
+  this.chosen = $.map(this.element.children('.media-thumbs').children('.object-thumbs').children('.item'), function (val, i) {
+    return $(val).data('id');
+  });
 }
 
 ObjectBrowser.prototype.openOverlay = function (ev) {
@@ -346,18 +265,13 @@ ObjectBrowser.prototype.openOverlay = function (ev) {
     " auswählen</i></span></li>"
   );
 
-  $(".breadcrumb ul li").on("click", ".close-object-browser", event => {
-    event.preventDefault();
+  $(".breadcrumb ul li").on("click", ".close-object-browser", function (e) {
+    e.preventDefault();
     this.overlay.foundation("close");
-  });
+  }.bind(this));
 
   $(window).on('message onmessage', this.import.bind(this));
 
-  let loaded = $.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id'));
-
-  if (this.ids.diff(loaded).length > 0) this.loadMore(loaded);
-
-  this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).remove();
   this.loadObjects(false);
 };
 
@@ -378,18 +292,16 @@ ObjectBrowser.prototype.import = function (event) {
     $.ajax({
       type: 'POST',
       url: '/creative_works/import',
-      dataType: 'script',
       data: JSON.stringify({
         authenticity_token: AUTH_TOKEN,
         type: this.type + "_object",
         data: event.originalEvent.data.data,
-        locale: this.locale,
+        language: this.language,
         overlay_id: '#object_browser_' + this.id,
         key: this.key,
         editable: this.editable,
         definition: this.definition,
         options: this.options,
-        editable: this.editable,
         objects: this.chosen
       }),
       contentType: 'application/json'
@@ -403,7 +315,6 @@ ObjectBrowser.prototype.import = function (event) {
 
 ObjectBrowser.prototype.loadObjects = function (append = true) {
   if (!append) {
-    this.excluded = [];
     this.overlay.children('.items').scrollTop(0);
     this.overlay.children('.items').html('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
   }
@@ -412,12 +323,11 @@ ObjectBrowser.prototype.loadObjects = function (append = true) {
   $.ajax({
     url: this.url + '/show',
     method: 'POST',
-    dataType: 'script',
     data: JSON.stringify({
       page: this.page,
-      per: this.overlay_per,
+      per: this.per,
       type: this.type,
-      locale: this.locale,
+      language: this.language,
       overlay_id: '#object_browser_' + this.id,
       key: this.key,
       definition: this.definition,
@@ -425,11 +335,10 @@ ObjectBrowser.prototype.loadObjects = function (append = true) {
       search: this.search,
       objects: this.chosen,
       editable: this.editable,
-      excluded: this.excluded,
       append: append
     }),
     contentType: 'application/json'
-  }).done(data => {
+  }).done(function (data) {
     this.total = this.overlay.data("total");
     this.overlay.find('.items .item .reveal.media-preview').each(function () {
       if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
@@ -439,7 +348,15 @@ ObjectBrowser.prototype.loadObjects = function (append = true) {
       this.page += 1;
       this.loadObjects();
     }
-  });
+  }.bind(this));
+};
+
+ObjectBrowser.prototype.getDelta = function (arr1, arr2) {
+  var delta = [];
+  for (var i = 0; i < arr2.length; i++) {
+    if (arr1.indexOf(arr2[i]) === -1) delta.push(arr2[i]);
+  }
+  return delta;
 };
 
 module.exports = ObjectBrowser;

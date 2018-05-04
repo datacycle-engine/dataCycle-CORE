@@ -387,7 +387,7 @@ button,
       display: none;
     }
     .input input,
-    .string:not(.date, .datetime, .headline, .headline_external, .quill_editor) input,
+    .string:not(.date, .datetime, .headline, .headline_external, .text_editor) input,
     .number input {
       padding: 2.5rem 1rem 2rem 1rem;
       line-height: initial;

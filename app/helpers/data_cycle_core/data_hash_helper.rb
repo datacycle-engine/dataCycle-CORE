@@ -1,7 +1,8 @@
 module DataCycleCore
   module DataHashHelper
-    @@partials_path = 'data_cycle_core/creative_works/partials/edit/datatype/'
-    @@key_prefix = 'creative_work[datahash]'
+    INTERNAL_PROPERTIES = DataCycleCore.internal_data_attributes + ['id']
+    # @@partials_path = 'data_cycle_core/creative_works/partials/edit/datatype/'
+    # @@key_prefix = 'creative_work[datahash]'
 
     class DataCycleFormBuilder < ActionView::Helpers::FormBuilder
       # def text_field(attribute, options={})
@@ -9,18 +10,18 @@ module DataCycleCore
       # end
     end
 
-    def set_key_prefix(prefix)
-      @@key_prefix = prefix
-    end
+    # def set_key_prefix(prefix)
+    #   @@key_prefix = prefix
+    # end
 
-    def get_ordered_validation_properties(validation)
+    def ordered_validation_properties(validation)
       return nil if validation.nil? || validation['properties'].blank?
 
       ordered_properties = ActiveSupport::OrderedHash.new
 
       validation['properties'].each do |prop|
 
-        if prop[1]['sorting'].present? && !DataCycleCore.internal_data_attributes.include?(prop[0])
+        if prop[1]['sorting'].present? && !INTERNAL_PROPERTIES.include?(prop[0])
           ordered_properties[prop[1]['sorting'].to_i] = prop
         end
 

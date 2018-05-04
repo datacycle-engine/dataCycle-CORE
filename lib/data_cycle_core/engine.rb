@@ -70,7 +70,7 @@ module DataCycleCore
     self.special_data_attributes = ['id', 'validity_period', 'creator']
 
     mattr_accessor :internal_data_attributes
-    self.internal_data_attributes = ['id', 'date_created', 'date_modified', 'creator', 'data_type', 'data_pool', 'is_part_of']
+    self.internal_data_attributes = ['date_created', 'date_modified', 'creator', 'data_type', 'data_pool', 'is_part_of']
 
     mattr_accessor :access_tokens
     self.access_tokens = []

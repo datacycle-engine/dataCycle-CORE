@@ -20,7 +20,11 @@
             :label: E-Mail
             :type: string
             :storage_location: translated_value
+#            :validations:
+#              :format: email
           :url:
             :label: Web
             :type: string
             :storage_location: translated_value
+            :validations:
+              :format: url

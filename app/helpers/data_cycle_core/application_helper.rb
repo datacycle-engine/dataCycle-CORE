@@ -44,6 +44,16 @@ module DataCycleCore
       end
     end
 
+    def attribute_name_from_key(key)
+      key.scan(/\[(.*?)\]/).flatten.last
+    end
+
+    def add_attribute_options(options, definition, scope)
+      attribute_options = definition.try(:[], 'ui').try(:[], scope.to_s).try(:[], 'options')
+      return options if attribute_options.nil?
+      options.merge(attribute_options)
+    end
+
     def render_content_partial(partial, parameters)
       partials = [
         "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].template_name.underscore}_#{partial}",
@@ -56,15 +66,17 @@ module DataCycleCore
 
     # TODO: refactor cancan: show_attribute + edit
     def render_attribute_editor(key:, definition:, value:, parameters: {}, content: nil)
-      return unless can?(:show_attribute, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content))
+      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content), :edit)
       partials = [
-        (definition.try(:[], 'releasable') ? 'releasable' : '').to_s,
-        # definition.try(:[], 'editor').try(:[], 'options').try(:[], 'type').try(:underscore).to_s,
-        # definition.try(:[], 'editor').try(:[], 'type').try(:underscore).to_s,
+        attribute_name_from_key(key).underscore.to_s,
+        definition.try(:[], 'ui').try(:[], 'edit').try(:[], 'type').try(:underscore).to_s,
         definition['type'].underscore.to_s
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/#{p}_editor" }
-      # TODO: check if required ?
-      parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content))
+
+      # TODO: check if required ? refactor readonly
+      parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, :edit))
+
+      parameters[:options] = add_attribute_options(parameters[:options], definition, :edit)
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
 

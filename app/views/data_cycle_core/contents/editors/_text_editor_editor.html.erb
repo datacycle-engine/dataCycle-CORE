@@ -1,0 +1,20 @@
+<%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options, content: content do %>
+
+  <%= label_tag(key, definition['label']) %>
+  <div class="editor-block">
+
+      <%= hidden_field_tag key, value, options %>
+
+      <% options.merge!({'data-hidden-field-id' => sanitize_to_id(key),:class => 'quill-editor', :id => "#{sanitize_to_id(key)}-editor" }) %>
+
+      <%= content_tag :div, options do %>
+
+          <% if !value.nil? && !value.blank? %>
+              <%= value.html_safe %>
+          <% end %>
+
+      <% end %>
+
+  </div>
+
+<% end %>

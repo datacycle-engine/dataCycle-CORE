@@ -85,7 +85,7 @@ module DataCycleCore
 
         def daterange(data_hash, template_hash)
           data_hash = {} if data_hash.nil?
-          if template_hash.blank? || !data_hash.key?(template_hash['from']) || !data_hash.key?(template_hash['to'])
+          if template_hash.blank? || template_hash['from'].blank? || template_hash['to'].blank?
             (@error[:error][@template_key] ||= []) << I18n.t(:no_fields, scope: [:validation, :errors], locale: DataCycleCore.ui_language)
           else
             if data_hash[template_hash['from']].blank?
