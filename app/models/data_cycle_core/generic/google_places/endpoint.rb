@@ -2,6 +2,8 @@ module DataCycleCore
   module Generic
     module GooglePlaces
       class Endpoint
+        SCALE = 112_000.0 # ~ km/1° longitude
+
         def initialize(host: nil, end_point: nil, key: nil, bbox: nil, read_type: nil)
           @host = host
           @end_point = end_point
@@ -12,14 +14,13 @@ module DataCycleCore
         end
 
         def places(lang: :de)
-          radius0 = 112_000.0 # ~ km/1° longitude
           scale = 100
 
-          radius = radius0 / scale
-          raster = 1 / scale
+          radius = SCALE / scale
+          raster = 1.0 / scale
 
-          lines, columns = calculate_grid(@bbox, radius, raster)
-          lat_start = @bbox.to_a.last.x + 3**0.5 / 2 * raster
+          lines, columns = calculate_grid(@bbox, radius)
+          lat_start = @bbox.to_a.last.x + 3**0.5 / 2.0 * raster
           long_start = @bbox.to_a.first.y + 0.5 * raster
 
           Enumerator.new do |yielder|
@@ -28,18 +29,9 @@ module DataCycleCore
               y_start = x.odd? ? raster * 0.5 * 3**0.5 : 0
               (0..columns).each do |y|
                 y_pos = long_start + y_start + y * raster * 3**0.5
-                load_tile(x: x_pos, y: y_pos, r: radius)
-                # loop do
-                #   temp = load_data(location_x: x_pos, location_y: y_pos, radius: radius, next_page: next_page)
-                #   # puts "----> (#{x} // #{lines}) (#{y} // #{columns})"
-                #   # puts "----> items in request: #{temp['results'].size}, #{temp.key?('next_page_token')}"
-                #   temp['results'].each do |record|
-                #     yielder << record
-                #   end
-                #
-                #   next_page = temp['next_page_token']
-                #   break unless temp.key?('next_page_token')
-                # end
+                load_tile(x: x_pos, y: y_pos, r: radius). each do |record|
+                  yielder << record
+                end
               end
             end
           end
@@ -53,16 +45,17 @@ module DataCycleCore
           end
         end
 
-        # 0.01 in long, lat are ca. 1200m
-        def calculate_grid(bbox, radius, raster)
+        # calculate hex-grid
+        def calculate_grid(bbox, radius)
           a = radius * (3**0.5)
-          scale = a * raster / 1200.0
+          scale = a / SCALE
           ul, lr = bbox.to_a
           lines = (ul.x - lr.x).abs / scale
           columns = (ul.y - lr.y).abs / scale
           return lines.ceil, columns.ceil
         end
 
+        # zoom into one hex-grid-tile
         def zoom(x0, y0, a0)
           a_z = a0 * 3.0**0.5 / 4.0
           x_off = 3.0**0.5 / 2.0 * a_z
