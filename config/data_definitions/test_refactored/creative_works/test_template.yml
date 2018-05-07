@@ -56,43 +56,23 @@
         :storage_location: value
         :validations:
           :format: url
-#      :primary_image:
-#        :label: Hauptbild
-#        :type: linked
-#        :linked_table: creative_works
-##        :stored_filter: (name ?)
-#        :validations:
-#          :max: 1
-#        :ui:
-#          :edit:
-#            :type: objectBrowser
-#            :options:
-#              :data-validate: media
-#              :data-type: image
-#      :image:
-#        :label: Bilder
-#        :type: linked
-#        :linked_table: creative_works
-##        :stored_filter: (name ?)
-#        :validations:
-#          :max: 1
-#        :ui:
-#          :edit:
-#            :type: objectBrowser
-#            :options:
-#              :data-validate: media
-#              :data-type: image
+      :primary_image:
+        :label: Hauptbild
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
+        :validations:
+          :max: 1
+      :image:
+        :label: Bilder
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
       :content_location:
         :label: Ort
         :type: linked
         :linked_table: places
-#        :stored_filter: (name ?)
-        :ui:
-          :edit:
-            :type: objectBrowser
-            :options:
-              :data-validate: object
-              :data-type: place
+        :template_name: Örtlichkeit
       :quotation:
         :label: Zitat
         :type: embedded

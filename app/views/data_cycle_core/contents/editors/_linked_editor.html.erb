@@ -8,7 +8,7 @@
     <%#= hidden_field_tag key + '[]' %>
 
     <div class="object-browser" id="<%= sanitize_to_id(key) %>"
-      data-type="<%= definition.dig('ui', 'edit', 'options', 'data-type').try(:downcase) %>"
+      data-type="<%= definition.fetch('template_name', nil) %>"
       data-locale="<%= I18n.locale.to_s %>"
       data-key="<%= key %>"
       data-object-id="<%= content.id %>"
@@ -26,11 +26,11 @@
           <div class="object-thumbs">
             <% if objects.present? %>
               <% objects.each do |object| %>
-                <%= render_object_browser_partial(key: key + (definition['type'] == "object" ? '[][id]' : '[]'), definition: definition, parameters: { object: object, options: options, editable: can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content)) }) %>
+                <%= render_object_browser_partial(key: key + (definition['type'] == "linked" ? '[][id]' : '[]'), definition: definition, parameters: { object: object, options: options, editable: can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content)) }, content: content) %>
               <% end %>
 
               <% value.presence&.ids&.reject { |v| objects.presence&.ids&.include?(v) }&.each do |id| %>
-                <%= hidden_field_tag key + (definition['type'] == "object" ? '[][id]' : '[]'), id %>
+                <%= hidden_field_tag key + (definition['type'] == "linked" ? '[][id]' : '[]'), id %>
               <% end %>
             <% else %>
               <%= hidden_field_tag key + '[]' %>
@@ -93,7 +93,7 @@
 
           <% if can?(:create_in_objectbrowser, object_class) %>
             <% begin %>
-              <%= render_object_browser_partial(partial: 'new', key: key, definition: definition, parameters: {new_overlay_key: sanitize_to_id(key)}) %>
+              <%= render_object_browser_partial(partial: 'new', key: key, definition: definition, parameters: {new_overlay_key: sanitize_to_id(key)}, content: content) %>
             <% rescue %>
             <% end %>
           <% end %>

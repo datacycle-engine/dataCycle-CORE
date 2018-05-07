@@ -10,15 +10,15 @@ module DataCycleCore
 
         @@default_per = 50
 
-        @type = params[:type] unless params[:type].blank?
-        @type ||= 'image'
+        @definition = params.fetch(:definition, nil)
 
         order_string = DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(params[:search])
 
-        query = DataCycleCore::Filter::ObjectBrowserQueryBuilder.new(@language, @type).in_validity_period
+        query = DataCycleCore::Filter::ObjectBrowserQueryBuilder.new(@language, @definition).in_validity_period
         query = query.fulltext_search(params[:search]) if params[:search].present?
         query = query.where('content_data_id NOT IN (?)', params[:excluded]) if params[:excluded].present?
-        query = query.with_classification_alias_ids(get_classification_aliases_for_type(@type).map(&:id)) unless get_classification_aliases_for_type(@type).blank?
+
+        # query = query.with_classification_alias_ids(get_classification_aliases_for_type(@type).map(&:id)) unless get_classification_aliases_for_type(@type).blank?
 
         query = query.with_classification_alias_ids([helpers.life_cycle_items&.dig(DataCycleCore.features&.dig(:life_cycle, :default_filter), :alias)&.id]) if DataCycleCore.features&.dig(:life_cycle, :default_filter).present? && params.dig(:definition, 'type_name') == 'creative_works'
 
@@ -72,25 +72,25 @@ module DataCycleCore
 
     private
 
-    def get_classification_aliases_for_type(type)
-      if type == 'image'
-        get_content_classification_aliases('Bild', 'Inhaltstypen')
-      elsif type == 'video'
-        get_content_classification_aliases('Video', 'Inhaltstypen')
-      else
-        {}
-      end
-    end
-
-    def get_content_classification_aliases(labels, tree_label)
-      DataCycleCore::ClassificationAlias.joins(
-        :classification_tree_label
-      ).where(
-        classification_trees: {
-          classification_tree_label: DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label)
-        },
-        name: [labels]
-      )
-    end
+    # def get_classification_aliases_for_type(type)
+    #   if type == 'image'
+    #     get_content_classification_aliases('Bild', 'Inhaltstypen')
+    #   elsif type == 'video'
+    #     get_content_classification_aliases('Video', 'Inhaltstypen')
+    #   else
+    #     {}
+    #   end
+    # end
+    #
+    # def get_content_classification_aliases(labels, tree_label)
+    #   DataCycleCore::ClassificationAlias.joins(
+    #     :classification_tree_label
+    #   ).where(
+    #     classification_trees: {
+    #       classification_tree_label: DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label)
+    #     },
+    #     name: [labels]
+    #   )
+    # end
   end
 end

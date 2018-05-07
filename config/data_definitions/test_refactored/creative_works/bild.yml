@@ -54,10 +54,10 @@
         :storage_location: value
         :validations:
           :format: url
-      :asset:
-        :label: Datei
-        :type: asset
-        :asset_type: image
+#      :asset:
+#        :label: Datei
+#        :type: asset
+#        :asset_type: image
       :photographer:
         :label: Fotograf
         :type: string
@@ -68,10 +68,10 @@
         :type: string
         :storage_location: value
         :search: true
-      :mandatory_license:
-        :label: Copyright Nennung verpflichtend
-        :type: boolean
-        :storage_location: value
+#      :mandatory_license:
+#        :label: Copyright Nennung verpflichtend
+#        :type: boolean
+#        :storage_location: value
       :content_location:
         :label: Ort
         :type: linked

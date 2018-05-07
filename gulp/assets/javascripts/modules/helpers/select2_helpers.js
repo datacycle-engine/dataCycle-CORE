@@ -34,5 +34,12 @@ module.exports = {
         return text.join(' > ');
       }
     });
+  },
+  removeTreeLabel: function (result, treelabel) {
+    $(result).html((index, value) => {
+      if (value != undefined) {
+        return value.replace(treelabel + ' &gt; ', '');
+      }
+    });
   }
 };
