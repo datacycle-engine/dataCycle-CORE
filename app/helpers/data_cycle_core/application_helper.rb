@@ -80,16 +80,22 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
 
-    def render_attribute_viewer(key:, definition:, value:, parameters: {})
+    def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: content)
+      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content), :show)
       partials = [
-        parameters.dig(:options).dig(:force_partial).try(:underscore).to_s,
-        key&.underscore&.to_s,
-        definition&.dig('validations', 'format')&.underscore&.to_s,
-        "#{definition['type']&.underscore}_#{definition&.dig('editor', 'options', 'data-type')&.underscore || 'default'}",
-        "#{definition['type']&.underscore}_#{definition&.dig('validations', 'format')&.underscore || 'default'}",
-        definition&.dig('editor', 'type')&.underscore&.to_s,
+        # attribute_name_from_key(key).underscore.to_s,
+        key.underscore.to_s,
+        definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore).to_s,
+        # parameters.dig(:options).dig(:force_partial).try(:underscore).to_s,
+        # key&.underscore&.to_s,
+        # definition&.dig('validations', 'format')&.underscore&.to_s,
+        # "#{definition['type']&.underscore}_#{definition&.dig('editor', 'options', 'data-type')&.underscore || 'default'}",
+        # "#{definition['type']&.underscore}_#{definition&.dig('validations', 'format')&.underscore || 'default'}",
+        # definition&.dig('editor', 'type')&.underscore&.to_s,
         definition['type'].underscore.to_s
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/#{p}_viewer" }
+
+      parameters[:options] = add_attribute_options(parameters[:options], definition, :show)
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
     end
 
