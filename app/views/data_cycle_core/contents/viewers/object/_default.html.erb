@@ -1,0 +1,64 @@
+<% objects = value %>
+<% if objects.present? %>
+
+    <% objects_length = objects.size %>
+
+    <% objects.each_with_index do |object, index| %>
+
+        <% I18n.with_locale(object.first_available_locale) do %>
+
+            <% objectDataHash = object.get_data_hash %>
+
+            <%= render 'data_cycle_core/contents/viewers/attribute_viewer',
+                       key: key,
+                       definition: definition,
+                       value: value,
+                       options: options.merge({hide_label: true}),
+                       content: content do %>
+
+                <span class="detail-label">
+                    <%= render 'data_cycle_core/shared/icon', icon_type: objects[0].template_name.downcase %>
+                    <strong><%= definition['label'] %> <%= content_tag(:span, index + 1) if objects_length > 1 %></strong>
+                </span>
+
+                <div class="buttons">
+                    <% if (DataCycleCore.translatable_types & [object.class.name, object.template_name]).present? && I18n.available_locales&.size&.>(1) %>
+                        <span data-tooltip data-allow-html="true" title="<%= object.translated_locales.map {|t| t("locales.#{t}", locale: DataCycleCore.ui_language)}.join("<br>") %>"><i class="fa fa-language" aria-hidden="true"></i></span>
+                    <% end %>
+
+                    <%= link_to contents_gpx_path(id: object.id, type: object.class.table_name), class: '', data: {tooltip: ''}, title: t('common.download_gpx', locale: DataCycleCore.ui_language) do %>
+                        <i class="fa fa-location-arrow" aria-hidden="true"></i>
+                    <% end if object.respond_to?(:create_gpx) && object.geo_properties.present? %>
+
+                    <%= link_to edit_polymorphic_path(object, locale: I18n.locale), data: {tooltip: ''}, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "edit-link" do %>
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                    <% end if definition['type'] == "embedded" && @historySource.nil? && can?(:crud, object) %>
+                </div>
+
+                <% if object.schema.present? %>
+
+                    <% validation_properties = ordered_validation_properties(object.schema) %>
+
+                    <% if !validation_properties.nil? %>
+
+                        <% validation_properties.each do |key, prop| %>
+
+                            <% object_value = prop.dig('type') == "object" ? object.try(key.to_sym) : objectDataHash[key] %>
+
+                            <% options[:force_render] = true if object.template_name == 'Publikations-Plan' %>
+
+                            <%= render_attribute_viewer key: key, definition: prop, value: object_value, parameters: {options: options}, content: content %>
+
+                        <% end %>
+
+                    <% end %>
+
+                <% end %>
+
+            <% end %>
+
+        <% end %>
+
+    <% end %>
+
+<% end %>

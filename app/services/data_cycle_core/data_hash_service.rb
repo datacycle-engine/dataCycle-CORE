@@ -127,7 +127,6 @@ module DataCycleCore
           elsif value.is_a?(::Array)
             value = value.reject(&:blank?).uniq
           elsif properties['type'] == 'number' && properties.dig('validations', 'format') == 'float'
-            ap value
             value = value.to_f
           elsif properties['type'] == 'number'
             value = value.to_i

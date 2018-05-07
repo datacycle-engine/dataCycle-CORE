@@ -70,8 +70,8 @@ module DataCycleCore
       respond_to(:js)
     end
 
-    private
-
+    # private
+    #
     # def get_classification_aliases_for_type(type)
     #   if type == 'image'
     #     get_content_classification_aliases('Bild', 'Inhaltstypen')
