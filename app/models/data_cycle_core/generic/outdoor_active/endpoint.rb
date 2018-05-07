@@ -9,6 +9,38 @@ module DataCycleCore
           @key = key
         end
 
+        def tour_categories(lang: :de)
+          Enumerator.new do |yielder|
+            process_category = lambda do |category_data|
+              yielder << category_data.except('category')
+
+              (category_data['category'] || []).each do |child_category_data|
+                process_category.call(child_category_data.merge({ 'parentId' => category_data['id'] }))
+              end
+            end
+
+            load_data(['category', 'tree', 'tour'], lang)['category'].each do |category_data|
+              process_category.call(category_data)
+            end
+          end
+        end
+
+        def place_categories(lang: :de)
+          Enumerator.new do |yielder|
+            process_category = lambda do |category_data|
+              yielder << category_data.except('category')
+
+              (category_data['category'] || []).each do |child_category_data|
+                process_category.call(child_category_data.merge({ 'parentId' => category_data['id'] }))
+              end
+            end
+
+            load_data(['category', 'tree', 'poi'], lang)['category'].each do |category_data|
+              process_category.call(category_data)
+            end
+          end
+        end
+
         def categories(lang: :de)
           Enumerator.new do |yielder|
             process_category = lambda do |category_data|

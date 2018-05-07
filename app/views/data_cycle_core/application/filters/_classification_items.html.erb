@@ -1,7 +1,6 @@
 <% excluded_types ||= [] %>
-<% selected = (@classification_array && @classification_array.include?(item.id)) ? "checked" : "" %>
 <li<%= " data-children='#{item.sub_classification_alias.size}'" if item.sub_classification_alias.size > 0 %>>
-    <input type="checkbox" name="classification[][selected]" value="<%= item.id %>" id="<%= item.id %>" <%= selected %> />
+    <input type="checkbox" name="f[<%= index %>][v][]" value="<%= item.id %>" id="<%= item.id %>" <%= 'checked' if @selected_classifications.presence&.include?(item.id) %> />
     <label for="<%= item.id %>">
         <span class="title">
             <span class="inner-title"><%= item.name %></span>
@@ -10,7 +9,7 @@
 
     <% if item.sub_classification_alias.reject { |type| excluded_types.include?(type.name) }.present? %>
         <ul class="sub-classifications">
-          <%= render partial: 'data_cycle_core/application/filters/classification_items', collection: item.sub_classification_alias.reject { |type| excluded_types.include?(type.name) }.sort{|a,b| a.name <=> b.name}, as: :item %>
+          <%= render partial: 'data_cycle_core/application/filters/classification_items', collection: item.sub_classification_alias.reject { |type| excluded_types.include?(type.name) }.sort{|a,b| a.name <=> b.name}, as: :item, locals: { excluded_types: excluded_types, tree_label: tree_label, index: index } %>
         </ul>
     <% end %>
 </li>
