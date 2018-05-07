@@ -8,7 +8,7 @@
 
                 <div class="detail-header-functions">
                     <ul class="no-bullet">
-                        <% if can?(:manage, DataCycleCore::DataLink) %>
+                        <% if false && can?(:manage, DataCycleCore::DataLink) %>
                             <li><%= render 'data_links', content: @watch_list %></li>
                         <% end %>
                         <li class="buttons"><a href="<%= breadcrumbs[-2].url %>" class="hascontent close-show-button"><i aria-hidden="true" class="fa fa-times"></i></a></li>
