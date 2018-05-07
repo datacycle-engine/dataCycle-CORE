@@ -6,17 +6,13 @@ module DataCycleCore
       @filters ||= params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
       @language ||= params.fetch(:language, DataCycleCore.ui_language)
 
-      if params[:search].blank?
-        # @order_by = !params[:order].nil? && params[:order].split('_').first == 'udpated' ? 'updated_at' : 'updated_at'
-        @order_by = 'updated_at'
-        @order = !params[:order].nil? && params[:order].split('_').last == 'asc' ? 'ASC' : 'DESC'
-        @order_string = 'boost DESC, ' + @order_by + ' ' + @order
+      if @filters.any? { |f| f['t'] == 'fulltext_search' }
+        @order_string = DataCycleCore::Filter::Search.get_order_by_query_string(@filters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'))
       else
-        # order by ranking
-        @order_string = DataCycleCore::Filter::Search.get_order_by_query_string(params[:search])
+        @order_string = 'boost DESC, updated_at DESC'
       end
 
-      if @filters.find { |f| f['t'] == 'order' }.blank?
+      if @filters.none? { |f| f['t'] == 'order' }
         @filters.push(
           {
             't' => 'order',
@@ -31,7 +27,7 @@ module DataCycleCore
         query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
       end
 
-      @filters += @stored_filters if @stored_filters.present?
+      @filters.concat(@stored_filters) if @stored_filters.present?
 
       @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
       @advanced_filters = @filters.select { |f| f['c'] == 'a' }
@@ -39,9 +35,7 @@ module DataCycleCore
       @selected_classification_aliases = DataCycleCore::ClassificationAlias.select(:id, :name).where(id: @filters.select { |f| f['t'] == 'classification_alias_ids' }.map { |f| f['v'] }.flatten.compact.uniq).map { |c| [c.id, c.name] }.to_h
 
       @paginateObject = query.includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
-
       @total = @paginateObject.total_count
-
       @paginateObject.map(&:content_data)
     end
 

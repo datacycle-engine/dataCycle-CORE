@@ -7,11 +7,7 @@
 <% end %>
 
 <% content_for :top_content do %>
-  <% if current_user&.role&.rank&.<(10) %>
-    <% classification_filters = [['Inhaltspools', 'classification_alias_ids', data: { name: 'Inhaltspools' }]] %>
-  <% else %>
-    <% classification_filters = DataCycleCore.available_filters[:advanced].presence&.map { |c| [t("filter.#{c}", default: c, locale: DataCycleCore.ui_language), 'classification_alias_ids', data: { name: c }]} || [] %>
-  <% end %>
+  <% classification_filters = DataCycleCore.available_filters[:advanced].presence&.map { |c| [t("filter.#{c}", default: c, locale: DataCycleCore.ui_language), 'classification_alias_ids', data: { name: c }]} || [] %>
 
   <%= render 'filter', filter: { search: true, language: true, store: true, advanced: classification_filters } if user_signed_in? %>
 <% end %>
