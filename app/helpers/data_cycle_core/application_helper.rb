@@ -64,13 +64,13 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters)
     end
 
-    # TODO: refactor cancan: show_attribute + edit
     def render_attribute_editor(key:, definition:, value:, parameters: {}, content: nil)
-      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content), :edit)
+      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, :edit))
       partials = [
         attribute_name_from_key(key).underscore.to_s,
         definition.try(:[], 'ui').try(:[], 'edit').try(:[], 'type').try(:underscore).to_s,
-        definition['type'].underscore.to_s
+        definition['type'].underscore.to_s,
+        'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/#{p}_editor" }
 
       # TODO: check if required ? refactor readonly
@@ -96,7 +96,7 @@ module DataCycleCore
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/#{p}_viewer" }
 
       parameters[:options] = add_attribute_options(parameters[:options], definition, :show)
-      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
 
     # TODO: find proper replacement for description
@@ -131,12 +131,12 @@ module DataCycleCore
     def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {}, content: nil)
       partials = [
         # definition.dig('editor', 'options', 'data-type').try(:underscore).to_s,
-        "#{definition.dig('linked_table').try(:singularize).try(:underscore).to_s}_#{definition.dig('template_name').try(:downcase).try(:underscore).to_s}",
+        "#{definition.dig('linked_table').try(:singularize).try(:underscore)}_#{definition.dig('template_name').try(:downcase).try(:underscore)}",
         definition.dig('linked_table').try(:singularize).try(:underscore).to_s,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_#{partial}" }
 
-      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition }))
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content  }))
     end
 
     def render_embedded_object_partial(partial: 'detail', key:, definition:, parameters: {}, content: content)
@@ -146,15 +146,15 @@ module DataCycleCore
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/embedded_object/#{p}_#{partial}" }
 
-      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition }))
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content  }))
     end
 
-    def render_asset_partial(partial: 'detail', key:, value:, definition:, parameters: {})
+    def render_asset_partial(partial: 'detail', key:, value:, definition:, parameters: {}, content: content)
       partials = [
-        definition.try(:[], 'editor').try(:[], 'type').to_s.try(:underscore),
+        definition.try(:[], 'asset_type').to_s.try(:underscore),
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/asset/#{p}_#{partial}" }
-      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content  }))
     end
 
     def render_new_content_reveal(item:, parameters: {})

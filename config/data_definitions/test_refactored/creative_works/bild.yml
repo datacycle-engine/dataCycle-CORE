@@ -14,7 +14,7 @@
         :storage_location: column
         :search: true
         :validations:
-          :minLength: 1
+          :min: 1
       :validity_period:
         :type: mixin
         :name: validity_period
@@ -30,7 +30,7 @@
         :search: true
         :ui:
           :edit:
-            :type: quillEditor
+            :type: text_editor
             :options:
               :data-size: basic
       :content_url:
@@ -54,10 +54,10 @@
         :storage_location: value
         :validations:
           :format: url
-#      :asset:
-#        :label: Datei
-#        :type: asset
-#        :asset_type: image
+      :asset:
+        :label: Datei
+        :type: asset
+        :asset_type: image
       :photographer:
         :label: Fotograf
         :type: string
@@ -68,20 +68,15 @@
         :type: string
         :storage_location: value
         :search: true
-#      :mandatory_license:
-#        :label: Copyright Nennung verpflichtend
-#        :type: boolean
-#        :storage_location: value
+      :mandatory_license:
+        :label: Copyright Nennung verpflichtend
+        :type: boolean
+        :storage_location: value
       :content_location:
         :label: Ort
         :type: linked
         :linked_table: places
-        :ui:
-          :edit:
-            :type: objectBrowser
-            :options:
-              :data-validate: object
-              :data-type: place
+        :template_name: Örtlichkeit
       :width:
         :label: Breite
         :type: number

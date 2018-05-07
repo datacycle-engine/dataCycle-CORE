@@ -23,7 +23,7 @@ module SharedExamplesForContent
       property_value = data_provider.call
 
       subject do
-        convert_storage_location = {'value' => 'metadata', 'translated_value' => 'content'}
+        convert_storage_location = { 'value' => 'metadata', 'translated_value' => 'content' }
         DataCycleCore::CreativeWork.new(
           schema: data_definition,
           convert_storage_location[storage_location] => { 'existing_property' => property_value }
@@ -116,7 +116,7 @@ describe DataCycleCore::Content do
               label: '3',
               type: 'string',
               storage_location: 'translated_value'
-            },
+            }
           }
         }
       )

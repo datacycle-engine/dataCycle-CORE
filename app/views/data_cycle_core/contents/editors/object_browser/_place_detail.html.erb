@@ -1,44 +1,44 @@
 <div class="padding-bottom-10">
-  <h5>Details</h5>
-  <% if can?(:edit, object) %>
-    <%= link_to edit_polymorphic_path(object), class: 'edit-link', target: :_blank do %>
-      <i class="fa fa-pencil" aria-hidden="true"></i>
+    <h5>Details</h5>
+    <% if can?(:edit, object) %>
+        <%= link_to edit_polymorphic_path(object), class: 'edit-link', target: :_blank do %>
+            <i class="fa fa-pencil" aria-hidden="true"></i>
+        <% end %>
     <% end %>
-  <% end %>
 
-  <% unless object.name.blank? %>
-    <dl>
-      <dt>Name: </dt>
-      <dd><%= object.name %></dd>
-    </dl>
-  <% end %>
+    <% unless object.name.blank? %>
+        <dl>
+            <dt>Name: </dt>
+            <dd><%= object.name %></dd>
+        </dl>
+    <% end %>
 
-  <% unless object.metadata.nil? %>
-    <dl>
-      <% unless object.try(:street_address).nil? %>
-        <dt>Straße: </dt>
-        <dd><%= object.try(:street_address) %></dd>
-      <% end %>
+    <% unless object.metadata.nil? %>
+        <dl>
+            <% unless object.try(:street_address).nil? %>
+                <dt>Straße: </dt>
+                <dd><%= object.try(:street_address) %></dd>
+            <% end %>
 
-      <% unless object.try(:postal_code).nil? %>
-        <dt>PLZ: </dt>
-        <dd><%= object.try(:postal_code) %></dd>
-      <% end %>
+            <% unless object.try(:postal_code).nil? %>
+                <dt>PLZ: </dt>
+                <dd><%= object.try(:postal_code) %></dd>
+            <% end %>
 
-      <% unless object.try(:address_locality).nil? %>
-        <dt>Ort: </dt>
-        <dd><%= object.try(:address_locality) %></dd>
-      <% end %>
+            <% unless object.try(:address_locality).nil? %>
+                <dt>Ort: </dt>
+                <dd><%= object.try(:address_locality) %></dd>
+            <% end %>
 
-      <% unless object.try(:latitude).nil? %>
-        <dt>Breitengrad: </dt>
-        <dd><%= object.try(:latitude) %></dd>
-      <% end %>
+            <% unless object.try(:latitude).nil? %>
+                <dt>Breitengrad: </dt>
+                <dd><%= object.try(:latitude) %></dd>
+            <% end %>
 
-      <% unless object.try(:longitude).nil? %>
-        <dt>Längengrad: </dt>
-        <dd><%= object.try(:longitude) %></dd>
-      <% end %>
-    </dl>
-  <% end %>
+            <% unless object.try(:longitude).nil? %>
+                <dt>Längengrad: </dt>
+                <dd><%= object.try(:longitude) %></dd>
+            <% end %>
+        </dl>
+    <% end %>
 </div>

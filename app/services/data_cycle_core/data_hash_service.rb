@@ -84,12 +84,12 @@ module DataCycleCore
           orig_key = key
           key = 'value' if value['releasable']
 
-          if value['type'] == 'object' && !value.dig('editor', 'type').nil?
+          if value['type'] == 'embedded'
             object_properties = get_internal_template(value['linked_table'], value['template_name'])
             key = { key.to_sym => get_params_from_hash(object_properties.schema) }
           elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
             key = { key.to_sym => get_params_from_hash(value) }
-          elsif value['type'] == 'classification' || value['type'] == 'embedded' || value['type'] == 'linked'
+          elsif value['type'] == 'classification' || value['type'] == 'linked'
             key = { key.to_sym => [] }
           else
             key = key.to_sym
@@ -111,7 +111,7 @@ module DataCycleCore
 
           if value.is_a?(::Hash)
 
-            if properties['type'] == 'object' && !properties.dig('editor', 'type').nil? && properties.dig('editor', 'type') == 'embedded'
+            if properties['type'] == 'embedded'
               object_properties = get_internal_template(properties['linked_table'], properties['template_name'])
               temp_value = []
 
@@ -126,7 +126,8 @@ module DataCycleCore
             end
           elsif value.is_a?(::Array)
             value = value.reject(&:blank?).uniq
-          elsif properties['type'] == 'number' && !properties['validations'].nil? && !properties['validations']['format'].nil? && properties['validations']['format'] == 'float'
+          elsif properties['type'] == 'number' && properties.dig('validations', 'format') == 'float'
+            ap value
             value = value.to_f
           elsif properties['type'] == 'number'
             value = value.to_i

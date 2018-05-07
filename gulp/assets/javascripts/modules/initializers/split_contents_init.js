@@ -49,7 +49,7 @@ module.exports.initialize = function () {
       add_buttons(elem, $(elem).data('label'), $(elem).data('id'), 'data-id');
     });
 
-    $(container).children('div[data-editor=input], div[data-editor=text_editor]').each((idx, elem) => {
+    $(container).children('div[data-editor=input], div[data-editor=quill_editor]').each((idx, elem) => {
       add_buttons(elem, $(elem).data('label'), $(elem).find('.detail-content').html(), 'html');
     });
   }

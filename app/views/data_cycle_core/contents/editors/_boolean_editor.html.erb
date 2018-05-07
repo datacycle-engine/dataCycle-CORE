@@ -1,0 +1,7 @@
+<%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options, content: content do %>
+
+    <% value ||= false %>
+    <%= check_box_tag key, true, value, options.merge({ class: 'form-control' }) %>
+    <%= label_tag(key, definition['label']) %>
+
+<% end %>

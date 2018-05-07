@@ -27,4 +27,4 @@
         :storage_location: column
         :ui:
           :edit:
-            :disabled: disabled
+            :disabled: true

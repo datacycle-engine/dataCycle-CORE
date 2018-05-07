@@ -20,11 +20,9 @@ module DataCycleCore
       ordered_properties = ActiveSupport::OrderedHash.new
 
       validation['properties'].each do |prop|
-
         if prop[1]['sorting'].present? && !INTERNAL_PROPERTIES.include?(prop[0])
           ordered_properties[prop[1]['sorting'].to_i] = prop
         end
-
       end
 
       Hash[ordered_properties.sort.map { |_, v| v }]
@@ -58,6 +56,5 @@ module DataCycleCore
       value = value.reject(&:blank?) if value.is_a?(Array)
       value
     end
-
   end
 end

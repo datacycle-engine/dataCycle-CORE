@@ -9,6 +9,7 @@ module DataCycleCore
 
       if user
         can :read, :all
+        cannot :show, DataCycleCore::DataAttribute
         cannot :manage, [DataCycleCore::WatchList, DataCycleCore::StoredFilter]
         cannot :read, :backend
         can :search, DataCycleCore::User
@@ -95,8 +96,8 @@ module DataCycleCore
           end
         end
 
-        can :show, DataCycleCore::DataAttribute do |_attribute|
-          true
+        can :show, DataCycleCore::DataAttribute do |attribute|
+          !attribute.definition.dig('ui', attribute.scope.to_s, 'disabled') == true
         end
 
         unless user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/

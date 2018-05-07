@@ -432,7 +432,6 @@ module DataCycleCore
     end
 
     def save_values(key, value, properties)
-      return if value.blank?
       case properties['storage_location']
       when 'column'
         method("#{key}=").call(value)
@@ -459,7 +458,6 @@ module DataCycleCore
     end
 
     def set_data_tree_hash(data, data_definitions, location)
-      # ap data_definitions
       data_hash = {}
       return if data.blank?
       data_definitions.each_key do |key|

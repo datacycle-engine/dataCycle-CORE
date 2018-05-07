@@ -144,7 +144,6 @@ module DataCycleCore
       I18n.with_locale(@creativeWork.first_available_locale(params[:locale])) do
         object_params = creative_work_params('creative_works', @creativeWork.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.schema, false)
-
         #
         # known bugs:
         # saving without changed properites after initial create is identified as change. (nil => "")

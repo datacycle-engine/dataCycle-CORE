@@ -150,7 +150,6 @@ module DataCycleCore
       assert_equal(expected_hash['quotation'].first.except('author'), updated_data_hash['quotation'].first.except('author'))
       assert_equal([person_id], updated_data_hash['quotation'].first['author'].ids)
 
-
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
       assert_equal(3, DataCycleCore::ContentContent.count)

@@ -10,13 +10,13 @@
       :id:
         :label: id
         :type: key
-#      :overlay:
-#        :label: TestOverlay
-#        :type: embedded
-#        :linked_table: creative_works
-#        :template_name: TestOverlay
-#        :validations:
-#          :maxLength: 1
+      :overlay:
+        :label: TestOverlay
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: TestOverlay
+        :validations:
+          :max: 1
       :headline:
         :label: Titel
         :type: string
@@ -78,14 +78,14 @@
         :type: embedded
         :linked_table: creative_works
         :template_name: Zitat
-#      :asset_image:
-#        :label: Bild
-#        :type: asset
-#        :asset_type: image
-#      :asset:
-#        :label: File-Asset
-#        :type: asset
-#        :asset_type: file
+      :asset_image:
+        :label: Image-Asset
+        :type: asset
+        :asset_type: image
+      :asset:
+        :label: File-Asset
+        :type: asset
+        :asset_type: asset
       :data_type:
         :label: Inhaltstype
         :type: classification

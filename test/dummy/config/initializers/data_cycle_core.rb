@@ -47,7 +47,7 @@ DataCycleCore.setup do |config|
         enabled: true
       },
       releasable: {
-        enabled: false
+        enabled: true
       },
       container: {
         enabled: false,

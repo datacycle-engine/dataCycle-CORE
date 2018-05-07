@@ -12,7 +12,7 @@
         :type: string
         :storage_location: translated_value
         :validations:
-          :minLength: 1
+          :min: 1
       :description:
         :label: Teasertext
         :type: string
@@ -20,20 +20,14 @@
         :search: true
         :ui:
           :edit:
-            :type: quillEditor
+            :type: text_editor
             :options:
               :data-size: basic
       :image:
         :label: Bilder
         :type: linked
         :linked_table: creative_works
-#        :stored_filter: (name ?)
-        :ui:
-          :edit:
-            :type: objectBrowser
-            :options:
-              :data-validate: media
-              :data-type: image
+        :template_name: Bild
       :data_type:
         :label: Inhaltstype
         :type: classification

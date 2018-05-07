@@ -19,8 +19,8 @@
             :label: Gültigkeit
             :type: datetime
             :storage_location: value
-#            :validations:
-#              :format: date_time
+            :validations:
+              :format: date_time
             :ui:
               :edit:
                 :type: date
@@ -31,8 +31,8 @@
             :label: bis
             :type: datetime
             :storage_location: value
-#            :validations:
-#              :format: date_time
+            :validations:
+              :format: date_time
             :ui:
               :edit:
                 :type: date
