@@ -82,6 +82,7 @@ ObjectBrowser.prototype.setup = function () {
       self.chosen.splice(self.chosen.indexOf($(this).parent().data('id')), 1);
       $('.reveal-overlay > #media_reveal_' + $(this).parent().data('id')).parent('.reveal-overlay').remove();
       $(this).parent().remove();
+      if (self.chosen.length == 0) self.renderHiddenField();
     }
   });
 
@@ -174,11 +175,59 @@ ObjectBrowser.prototype.setup = function () {
   });
 };
 
-ObjectBrowser.prototype.setChosen = function () {
-  this.element.children('.media-thumbs').children('.object-thumbs').html(this.overlay.find('.chosen-items-container .item').clone()).children('.item').find('.reveal.media-preview').each(function () {
-    if ($(this).prop('id').indexOf('overlay_') != -1) $(this).prop('id', $(this).prop('id').replace('overlay_', ''));
-    $(this).foundation();
+ObjectBrowser.prototype.renderHiddenField = function () {
+  this.element.find('> .media-thumbs > .object-thumbs').html('<input type="hidden" id="' + this.key.replace(/\[/g, '_').replace(/\]/g, '') + '_default" name="' + this.key + '[]">');
+};
+
+ObjectBrowser.prototype.findObjects = function (ids) {
+  this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('disabled', true).html(this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).data('loading-text'));
+  $.ajax({
+    url: this.url + '/find',
+    method: 'POST',
+    dataType: 'script',
+    data: JSON.stringify({
+      type: this.type,
+      language: this.language,
+      key: this.key,
+      definition: this.definition,
+      options: this.options,
+      ids: ids,
+      editable: this.editable,
+      class: this.class,
+      objects: this.chosen
+    }),
+    contentType: 'application/json'
+  }).done(return_data => {
+    this.chosen = this.chosen.concat(ids.diff(this.chosen));
+    this.ids = this.ids.diff(ids);
+
+    $($.map(ids, id => this.element.children('input:hidden[value="' + id + '"]'))).each((index, elem) => $(elem).remove());
+
+    if (this.ids.length == 0) {
+      this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).remove();
+    } else {
+      this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('disabled', false).html(this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('title'));
+    }
+
+    this.updateChosenCounter();
+    this.overlay.find('.items .item .reveal.media-preview').each(function () {
+      if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
+    });
+
+    this.element.find('.object-thumbs .item .reveal.media-preview').each((index, element) => {
+      $(element).foundation();
+    });
   });
+};
+
+ObjectBrowser.prototype.setChosen = function () {
+  if (this.chosen.length == 0) this.renderHiddenField();
+  else {
+    this.element.children('.media-thumbs').children('.object-thumbs').html(this.overlay.find('.chosen-items-container .item').clone()).children('.item').find('.reveal.media-preview').each(function () {
+      if ($(this).prop('id').indexOf('overlay_') != -1) $(this).prop('id', $(this).prop('id').replace('overlay_', ''));
+      $(this).foundation();
+    });
+  }
 };
 
 ObjectBrowser.prototype.addObject = function (id, element, event) {
