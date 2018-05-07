@@ -7,11 +7,13 @@ module DataCycleCore
     end
 
     def new_embedded_object
+      object_type = DataCycleCore.content_tables.find { |object| object == params[:definition]['linked_table'] }
+      @object = @objects = ('DataCycleCore::' + object_type.singularize.classify).constantize
       respond_to(:js)
     end
 
     def render_embedded_object
-      object_type = DataCycleCore.content_tables.find { |object| object == params[:definition]['storage_location'] }
+      object_type = DataCycleCore.content_tables.find { |object| object == params[:definition]['linked_table'] }
       @objects = ('DataCycleCore::' + object_type.singularize.classify).constantize.where(id: params[:id]).includes(:translations)
 
       respond_to(:js)

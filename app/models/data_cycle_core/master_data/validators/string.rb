@@ -7,7 +7,7 @@ module DataCycleCore
         end
 
         def string_formats
-          ['uuid', 'url']
+          ['uuid', 'url', 'email']
         end
 
         def validate(data, template)
@@ -65,6 +65,18 @@ module DataCycleCore
             end
           end
         end
+
+        # def email(data)
+        #   unless data.blank?
+        #     begin
+        #       uri = URI.parse data
+        #       URI::MailTo
+        #       (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless uri.is_a? URI::HTTP
+        #     rescue URI::InvalidURIError
+        #       (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language)
+        #     end
+        #   end
+        # end
 
         def uuid(data)
           data.downcase!

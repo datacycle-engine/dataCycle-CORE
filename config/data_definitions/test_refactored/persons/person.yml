@@ -14,14 +14,14 @@
         :storage_location: column
         :search: true
         :validations:
-          :minLength: 1
+          :min: 1
       :family_name:
         :label: Nachname
         :type: string
         :storage_location: column
         :search: true
         :validations:
-          :minLength: 1
+          :min: 1
       :honorific_prefix:
         :label: "Anrede / Titel"
         :type: string
@@ -44,20 +44,14 @@
         :search: true
         :ui:
           :edit:
-            :type: quillEditor
+            :type: text_editor
             :options:
               :data-size: full
-#      :image:
-#        :label: Bilder
-#        :type: linked
-#        :linked_table: creative_works
-##        :stored_filter: (name ?)
-#        :ui:
-#          :edit:
-#            :type: objectBrowser
-#            :options:
-#              :data-validate: media
-#              :data-type: image
+      :image:
+        :label: Bilder
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
       :gender:
         :label: Geschlecht
         :type: classification

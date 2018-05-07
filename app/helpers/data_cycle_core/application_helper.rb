@@ -133,7 +133,7 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition }))
     end
 
-    def render_embedded_object_partial(partial: 'detail', key:, definition:, parameters: {})
+    def render_embedded_object_partial(partial: 'detail', key:, definition:, parameters: {}, content: content)
       partials = [
         "#{definition.try(:[], 'name')}_#{definition.try(:[], 'description')}".underscore.parameterize(separator: '_'),
         definition.try(:[], 'description').to_s.underscore.parameterize(separator: '_'),

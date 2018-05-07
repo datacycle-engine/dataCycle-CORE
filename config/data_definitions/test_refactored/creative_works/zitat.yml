@@ -13,35 +13,24 @@
         :storage_location: translated_value
         :search: true
         :validations:
-          :minLength: 1
+          :min: 1
         :ui:
           :edit:
-            :type: quillEditor
+            :type: text_editor
             :options:
               :data-size: basic
       :image:
         :label: Bilder
         :type: linked
         :linked_table: creative_works
-#        :stored_filter: (name ?)
+        :template_name: Bild
         :validations:
           :max: 1
-        :ui:
-          :edit:
-            :type: objectBrowser
-            :options:
-              :data-validate: media
-              :data-type: image
       :author:
         :label: "Zitat von"
         :type: linked
         :linked_table: persons
-#        :stored_filter: (name ?)
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: object
-            :data-type: person
+        :template_name: Person
       :data_type:
         :label: Inhaltstype
         :type: classification
