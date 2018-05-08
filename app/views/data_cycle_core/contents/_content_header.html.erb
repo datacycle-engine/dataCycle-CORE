@@ -12,30 +12,6 @@
             <%= content_title %>
         <% end %>
 
-<%
-=begin
-%>
-        <% if content.is_content_type?('container') && content.desc&.size&.>(300) %>
-          <div class="description show-more">
-            <div class="show-more-short">
-              <%= sanitize(truncate(content.desc, length: 300, separator: " ", escape: false)) %>
-            </div>
-            <div class="show-more-long">
-              <%= sanitize(content.desc) %>
-            </div>
-            <a href="#" class="show-more-link">
-              <span class="closed"><i class="fa fa-chevron-down" aria-hidden="true"></i> <%= t 'common.show_more', locale: DataCycleCore.ui_language %></span>
-              <span class="open"><i class="fa fa-chevron-up" aria-hidden="true"></i> <%= t 'common.show_less', locale: DataCycleCore.ui_language %></span>
-            </a>
-          </div>
-        <% elsif content.is_content_type?('container') %>
-          <div class="description">
-            <%= sanitize(content.desc) %>
-          </div>
-        <% end %>
-<%
-=end
-%>
         <%= render_content_partial 'header_bottom', content: content %>
     </div>
 </div>

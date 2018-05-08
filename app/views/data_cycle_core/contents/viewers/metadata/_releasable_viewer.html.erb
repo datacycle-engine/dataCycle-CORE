@@ -5,11 +5,11 @@
 
     <div class="type properties" id="release_container_<%= sanitize_to_id(key) %>">
 
-        <%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: "release_id", definition: {"label"=>"Status"}, value: value['release_id'], options: options do %>
+        <%= render 'data_cycle_core/contents/viewers/attribute', key: "release_id", definition: {"label"=>"Status"}, value: value['release_id'], options: options do %>
             <span class="detail-content"><%= DataCycleCore::Release.find(value['release_id']).release_text unless value['release_id'].blank? %></span>
         <% end %>
 
-        <%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: "release_comment", definition: {"label"=> "Kommentar"}, value: value['release_comment'], options: options do %>
+        <%= render 'data_cycle_core/contents/viewers/attribute', key: "release_comment", definition: {"label"=> "Kommentar"}, value: value['release_comment'], options: options do %>
             <%= simple_format(value['release_comment']) unless value['release_comment'].nil? %>
         <% end %>
 

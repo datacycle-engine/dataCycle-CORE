@@ -1,4 +1,4 @@
-<%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: value, options: options, content: content do %>
+<%= render 'data_cycle_core/contents/viewers/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
     <% value = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true).parse_wkt(value) if value.is_a?(String) %>
 
     <% if value.try(:geometry_type) == RGeo::Feature::Point %> <%# only show points for now, not the lines %>

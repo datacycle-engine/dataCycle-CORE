@@ -1,5 +1,0 @@
-<%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: value, options: options, content: content do %>
-
-    <span class="detail-content"><%= value.to_datetime.to_s(:german_date_format) unless value.blank? %></span>
-
-<% end %>

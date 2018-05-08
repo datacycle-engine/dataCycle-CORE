@@ -78,6 +78,7 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
 
+    # TODO: check force_partial option
     def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil)
       return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content), :show)
       partials = [
@@ -86,7 +87,7 @@ module DataCycleCore
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
         # parameters.dig(:options).dig(:force_partial).try(:underscore).to_s,
         definition['type'].underscore.to_s
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/#{p}_viewer" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/#{p}" }
 
       parameters[:options] = add_attribute_options(parameters[:options], definition, :show)
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
@@ -113,7 +114,7 @@ module DataCycleCore
       partials = [
         key.underscore.to_s,
         definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore).to_s,
-        "#{definition.try(:[], 'linked_table').try(:singularize).try(:underscore).to_s}_#{definition.try(:[], 'template_name').try(:parameterize).try(:underscore).to_s}",
+        "#{definition.try(:[], 'linked_table').try(:singularize).try(:underscore)}_#{definition.try(:[], 'template_name').try(:parameterize).try(:underscore)}",
         definition.try(:[], 'linked_table').try(:singularize).try(:underscore).to_s,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/linked/#{p}" }
