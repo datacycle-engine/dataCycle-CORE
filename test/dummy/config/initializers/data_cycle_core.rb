@@ -58,5 +58,4 @@ DataCycleCore.setup do |config|
     main: ['Inhaltstypen'],
     advanced: []
   }
-
 end
