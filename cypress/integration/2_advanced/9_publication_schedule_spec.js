@@ -5,7 +5,7 @@ describe('Publication Schedule', function () {
 
   const option = 'Artikel';
   const cname = 'Test_' + option + '_' + Date.now();
-  const tree_label = 'ausgabekanäle';
+  const tree_label = 'Ausgabekanäle';
   const publication_output_channel = 'Web';
   const publication_date = new Date(Date.now()).toLocaleDateString('de-DE', {
     day: '2-digit',

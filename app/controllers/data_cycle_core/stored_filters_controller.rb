@@ -3,6 +3,7 @@ module DataCycleCore
     include DataCycleCore::Filter
     before_action :authenticate_user! # from devise (authenticate)
     load_and_authorize_resource except: :search # from cancancan (authorize)
+    before_action :set_default_filter, only: :create, if: -> { DataCycleCore.features&.dig(:life_cycle, :default_filter).present? }
 
     def index
       @saved_stored_searches = @accessible_stored_filters.where.not(name: nil).order(:name)

@@ -7,11 +7,7 @@
 
   <i class="fa fa-map-marker" aria-hidden="true"></i>
 
-  <% if object.try(:title) %>
-    <span class="name"><%= object.try(:title) %></span>
-  <% else %>
-    <span class="name">Keine Übersetzung vorhanden</span>
-  <% end %>
+  <span class="name"><%= object.try(:title) %></span>
 </div>
 
 

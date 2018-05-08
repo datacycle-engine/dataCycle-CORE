@@ -40,7 +40,7 @@
     <%= f.label :permissions, DataCycleCore::DataLink.human_attribute_name("permissions", locale: DataCycleCore.ui_language) %>
     <%= f.radio_button(:permissions, 'read', checked: true, label: false) %>
     <%= f.label :permissions_read, DataCycleCore::DataLink.human_attribute_name(:permissions_read, locale: DataCycleCore.ui_language) %>
-    <% if can?(:edit, content) %>
+    <% if can?(:edit, content) && !content.is_a?(DataCycleCore::WatchList) %>
       <%= f.radio_button(:permissions, 'write', label: false) %>
       <%= f.label :permissions_write, DataCycleCore::DataLink.human_attribute_name(:permissions_write, locale: DataCycleCore.ui_language) %>
     <% end %>

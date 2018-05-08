@@ -5,7 +5,7 @@
         <ul class="split-list clearfix">
             <% available_locales_with_names.each do |key,value| %>
                 <li>
-                    <input type="radio" name="language" value="<%= key.to_s %>" id="<%= key.to_s %>" <%= "checked" if key.to_s == "de" || key.to_s == params[:language]%> />
+                    <input type="radio" name="language" value="<%= key.to_s %>" id="<%= key.to_s %>" <%= "checked" if key.to_s == "de" || key.to_s == @language %> />
                     <label for="<%= key.to_s %>">
                         <span class="title">
                             <%= value %>
