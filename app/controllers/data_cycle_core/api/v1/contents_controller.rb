@@ -1,6 +1,6 @@
 module DataCycleCore
   class Api::V1::ContentsController < Api::V1::ApiBaseController
-    before_action :index, :prepare_url_parameters
+    before_action :prepare_url_parameters, only: :index
 
     def show
       object_type = DataCycleCore.content_tables.find { |object| object == permitted_params[:type] }
