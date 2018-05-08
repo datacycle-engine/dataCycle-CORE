@@ -3,6 +3,7 @@ module DataCycleCore
     module GooglePlaces
       class Endpoint
         SCALE = 112_000.0 # ~ km/1° longitude
+        FIXNUM_MAX = (2**(0.size * 4 - 2) - 1)
 
         def initialize(host: nil, end_point: nil, key: nil, bbox: nil, read_type: nil)
           @host = host
@@ -14,7 +15,7 @@ module DataCycleCore
         end
 
         def places(lang: :de)
-          scale = 100
+          scale = 4 # 100
 
           radius = SCALE / scale
           raster = 1.0 / scale
@@ -29,7 +30,7 @@ module DataCycleCore
               y_start = x.odd? ? raster * 0.5 * 3**0.5 : 0
               (0..columns).each do |y|
                 y_pos = long_start + y_start + y * raster * 3**0.5
-                load_tile(x: x_pos, y: y_pos, r: radius). each do |record|
+                load_tile(x: x_pos, y: y_pos, r: radius).each do |record|
                   yielder << record
                 end
               end
@@ -37,10 +38,12 @@ module DataCycleCore
           end
         end
 
-        def places_detail
+        def places_detail(lang: :de)
           Enumerator.new do |yielder|
-            @read_type.find_each do |item|
-              yielder << load_detail(item.external_id)['result']
+            DataCycleCore::Generic::Collection2.with(@read_type) do |mongo_item|
+              mongo_item.all.no_timeout.max_time_ms(FIXNUM_MAX).each do |item|
+                yielder << load_detail(item.external_id)['result']
+              end
             end
           end
         end
@@ -84,7 +87,7 @@ module DataCycleCore
             temp = load_data(location_x: x, location_y: y, radius: r, next_page: next_page_token)
             data_pool += temp['results']
 
-            # got 60 datapoints within one query --> expect more to be present
+            # got 60 datapoints within one query --> expect more to be present ==> zoom
             if page_no == 3 && temp['results'].size == 20
               new_tiles = zoom(x, y, r)
               new_tiles['tiles'].each do |tile|
@@ -104,11 +107,12 @@ module DataCycleCore
         end
 
         def load_data(location_x: 0, location_y: 0, radius: 1000, next_page: nil)
+          # puts "--> load: (#{[location_x.round(6), location_y.round(6)].join(',')}) // #{radius.round(6)}"
           response = Faraday.new.get do |req|
             req.url(@host + @end_point + 'nearbysearch/json')
             req.headers['Accept'] = 'application/json'
-            req.params['radius'] = radius
-            req.params['location'] = [location_x, location_y].join(',')
+            req.params['radius'] = radius.round(6)
+            req.params['location'] = [location_x.round(6), location_y.round(6)].join(',')
             req.params['key'] = @key
             req.params['language'] = 'de'
             req.params['pagetoken'] = next_page
@@ -116,13 +120,13 @@ module DataCycleCore
           if response.success?
             JSON.parse(response.body)
           else
-            raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point} / page:#{page} / per:#{per} / lang:#{lang} / type:#{type}" << response.body
+            raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point + 'nearbysearch/json'} / x:#{location_x} / y:#{location_y} / r:#{radius}" << response.body
           end
         end
 
         def load_detail(place_id)
           response = Faraday.new.get do |req|
-            req.url(@host + @end_point + 'detail/json')
+            req.url(@host + @end_point + 'details/json')
             req.headers['Accept'] = 'application/json'
             req.params['key'] = @key
             req.params['language'] = 'de'
@@ -131,7 +135,7 @@ module DataCycleCore
           if response.success?
             JSON.parse(response.body)
           else
-            raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point} / page:#{page} / per:#{per} / lang:#{lang} / type:#{type}" << response.body
+            raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point + 'details/json'} / place_id: #{place_id}" << response.body
           end
         end
       end
