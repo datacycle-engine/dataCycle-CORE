@@ -1,0 +1,12 @@
+---
+- :data:
+    :name: content_classifications
+    :type: mixin
+    :properties:
+      :output_channel:
+        :label: Ausgabekanal
+        :type: classificationTreeLabel
+        :type_name: Ausgabekanäle
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector

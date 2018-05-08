@@ -101,14 +101,13 @@ end
 
 # Organization
 crumb :'data_cycle_core/organizations' do
-  link to_html_string('Organisationen'), organizations_path
+  link to_html_string(DataCycleCore::Organization.model_name.human(count: 2, locale: DataCycleCore.ui_language)), organizations_path
 end
 
 crumb :'data_cycle_core/organization' do |organization, watch_list|
-  link to_html_string('Organization', organization.legal_name), organization_path(organization, watch_list_id: watch_list)
+  link to_html_string(t("content_type.#{organization.template_name.downcase}", default: organization.template_name.titleize, locale: DataCycleCore.ui_language), organization.legal_name), organization_path(organization, watch_list_id: watch_list)
 
   parent watch_list if watch_list
-  # parent :'data_cycle_core/persons'
 end
 
 # Event
@@ -117,7 +116,7 @@ crumb :'data_cycle_core/events' do
 end
 
 crumb :'data_cycle_core/event' do |event, watch_list|
-  link to_html_string(t("content_type.#{event.template_name.downcase}", default: event.template_name.titleize, locale: DataCycleCore.ui_language), event.headline), events_path(event, watch_list_id: watch_list)
+  link to_html_string(t("content_type.#{event.template_name.downcase}", default: event.template_name.titleize, locale: DataCycleCore.ui_language), event.title), event_path(event, watch_list_id: watch_list)
 
   parent watch_list if watch_list
 end

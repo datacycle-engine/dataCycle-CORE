@@ -1,12 +1,7 @@
 module DataCycleCore
   class PlacesController < ContentsController
     before_action :authenticate_user! # from devise (authenticate)
-    # load_and_authorize_resource       # from cancancan (authorize)
-
-    def index
-      @paginateObject = DataCycleCore::Place.all.where(template: false).order(updated_at: :desc).page(params[:page])
-      @place = DataCycleCore::Place.new
-    end
+    load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
 
     def show
       @content = DataCycleCore::Place.find_by(id: params[:id])
@@ -40,7 +35,7 @@ module DataCycleCore
           if !@place.nil? && @place.save
             format.html do
               flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @place.template_name, locale: DataCycleCore.ui_language
-              redirect_to @place
+              redirect_to edit_place_path @place
             end
             format.js
           else
@@ -61,6 +56,10 @@ module DataCycleCore
       end
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
+        unless can?(:edit, @content)
+          redirect_to place_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
+          return
+        end
         @dataSchema = @content.get_data_hash
         render 'edit'
       end
@@ -70,10 +69,25 @@ module DataCycleCore
       @place = DataCycleCore::Place.find(params[:id])
       I18n.with_locale(@place.first_available_locale(params[:locale])) do
         object_params = place_params('places', @place.template_name)
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @place.schema, false)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @place.schema)
 
         # TODO: implement preprocessor
         datahash = set_location(datahash)
+
+        data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
+          datahash.merge({ 'id' => @place.id }),
+          @place.get_data_hash
+        )
+
+        unless data_hash_has_changes
+          flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @place.template_name, locale: DataCycleCore.ui_language
+          if (Rails.env.development? || params[:splitview]) && !params[:finalize]
+            redirect_back(fallback_location: root_path)
+          else
+            redirect_to places_path(@place, watch_list_id: @watch_list)
+          end
+          return
+        end
 
         valid = @place.set_data_hash(data_hash: datahash, current_user: current_user)
 
@@ -105,7 +119,7 @@ module DataCycleCore
 
       flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Ort', locale: DataCycleCore.ui_language
 
-      redirect_to places_path
+      redirect_to root_path
     end
 
     def validate_single_data

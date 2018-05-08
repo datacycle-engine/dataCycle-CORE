@@ -1,7 +1,6 @@
 module DataCycleCore
   class Ability
-    CONTENT_MODELS = [DataCycleCore::Place, DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork].freeze
-
+    CONTENT_MODELS = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify).constantize }.freeze
     include CanCan::Ability
 
     def initialize(user, session = {})
@@ -34,7 +33,7 @@ module DataCycleCore
           can [:read, :create, :update, :destroy, :show_history], DataCycleCore::StoredFilter, user_id: user.id
           can :read, DataCycleCore::StoredFilter, system: true
           can :show_publications, DataCycleCore::Content
-          can [:subscribe, :history, :history_detail], [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork, DataCycleCore::Place]
+          can [:subscribe, :history, :history_detail], CONTENT_MODELS
         end
 
         if user.has_rank?(10)
@@ -44,7 +43,7 @@ module DataCycleCore
             user&.role&.rank&.>(the_user&.role&.rank) || the_user == user
           end
 
-          can :update_release_status, [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::CreativeWork, DataCycleCore::Place]
+          can :update_release_status, CONTENT_MODELS
 
           can :manage, [DataCycleCore::Classification, DataCycleCore::ClassificationTree], external_source_id: nil
           can :download, DataCycleCore::ClassificationTreeLabel
@@ -60,15 +59,14 @@ module DataCycleCore
             c.external_source_id.nil? && !c.internal && !c.sub_classification_alias&.any?(&:internal) && !c.sub_classification_alias&.any?(&:external_source_id)
           end
 
-          can :crud, [DataCycleCore::CreativeWork, DataCycleCore::Event, DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::Place] do |data_object|
-            # data_object&.schema&.dig('permissions', 'read_write') != false
-            data_object.try(:external_key).blank? || data_object&.schema&.dig('features', 'overlay').present?
+          can :crud, CONTENT_MODELS do |data_object|
+            data_object.try(:external_key).blank? || DataCycleCore::Feature::Overlay.allowed?(data_object)
           end
 
           can [:set_role, :set_user_groups], DataCycleCore::User do |the_user|
             !the_user.has_rank?(user.role.rank) || user == the_user
           end
-          can :destroy, [DataCycleCore::CreativeWork, DataCycleCore::Event, DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::Place] do |data_object|
+          can :destroy, CONTENT_MODELS do |data_object|
             data_object.try(:external_key).blank?
           end
 
@@ -81,14 +79,26 @@ module DataCycleCore
         can :manage, :dash_board if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)
 
         can :edit, DataCycleCore::DataAttribute do |attribute|
-          # !attribute.options['readonly']
-          (
-            attribute.content.try(:external_key).blank? ||
-            (
-              attribute.content&.schema&.dig('features', 'overlay').present? &&
-              (attribute.key.scan(/\[(.*?)\]/).flatten & attribute.content.schema.dig('features', 'overlay')).size.nonzero?
+          if DataCycleCore::Feature::PublicationSchedule.allowed?(attribute.content)
+
+            !(
+              (attribute.key =~ Regexp.union(*DataCycleCore.features.dig(:publication_schedule, :classification_keys))) &&
+              !DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(attribute.content, attribute.key)
             )
-          )
+
+          else
+            (
+              attribute.content.try(:external_key).blank? ||
+              (
+                DataCycleCore::Feature::Overlay.allowed?(attribute.content) &&
+                DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
+              )
+            )
+          end
+        end
+
+        can :show_attribute, DataCycleCore::DataAttribute do |_attribute|
+          true
         end
 
         unless user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/
@@ -96,6 +106,7 @@ module DataCycleCore
             the_user.has_rank?(user.role.try(:rank)) && the_user != user
           end
         end
+
       end
     end
   end
