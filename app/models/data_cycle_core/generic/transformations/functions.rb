@@ -41,6 +41,16 @@ module DataCycleCore::Generic::Transformations::Functions
     data_hash
   end
 
+  def self.local_image(data_hash, attribute)
+    return data_hash if data_hash[attribute].blank?
+
+    asset = DataCycleCore::Image.new(remote_file_url: data_hash[attribute]).set_content_type.set_file_size
+    asset.save!
+
+    data_hash[attribute] = asset.try(:id)
+    data_hash
+  end
+
   def self.add_field(data_hash, name, function)
     data_hash.merge({ name => function.call(data_hash) })
   end

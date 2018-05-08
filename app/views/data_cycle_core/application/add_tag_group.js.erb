@@ -1,0 +1,7 @@
+var new_html = '<%= j render_first_existing_partial(["data_cycle_core/application/filters/tag_groups/#{params['t']}", "data_cycle_core/application/filters/tag_groups/default"], { key: params['n'], value: params['v'] || [], index: params['index'], buttons: true }) %>';
+
+if($('.filters .tag-group[data-id="<%= sanitize_to_id(params['n']) %>_<%= params['index'] %>"]').length){
+  $('.filters .tag-group[data-id="<%= sanitize_to_id(params['n']) %>_<%= params['index'] %>"]').replaceWith(new_html);
+} else {
+  $('.filters .filtertags .filter-groups').append(new_html);
+}

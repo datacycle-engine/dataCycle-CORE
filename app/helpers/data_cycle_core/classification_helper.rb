@@ -10,24 +10,6 @@ module DataCycleCore
     end
 
     # TODO: refactor
-    def get_classifications_for_id(uids, treeLabel = nil)
-      unless uids.nil?
-        if !treeLabel.nil?
-          allowed_classifications = get_classifications_for_name(treeLabel)
-            .classification_trees
-            .map { |classification| classification.sub_classification_alias.id }
-          allowed_uids = uids.select { |uid| allowed_classifications.include?(uid) }
-          @selected_classifications = DataCycleCore::ClassificationAlias.find(allowed_uids)
-        else
-          @selected_classifications = DataCycleCore::ClassificationAlias.find(uids)
-        end
-      end
-    rescue StandardError
-      logger.warn("cannot find classifications for the following ids: #{(uids || []).join(', ')}")
-      nil
-    end
-
-    # TODO: refactor
     def get_classificationAliases_for_classificationIDs(uids)
       result = []
       unless uids.nil?
@@ -73,6 +55,13 @@ module DataCycleCore
         classification_tree.push(walk_classification_tree(value.sub_classification_alias).flatten)
       end
       classification_tree
+    end
+
+    def classification_tree_label_has_children?(treelabel)
+      DataCycleCore::Classification
+        .includes(:classification_groups, :classification_aliases)
+        .joins(classification_aliases: [classification_tree: [:classification_tree_label]])
+        .where('classification_tree_labels.name = ?', treelabel).count.positive?
     end
   end
 end

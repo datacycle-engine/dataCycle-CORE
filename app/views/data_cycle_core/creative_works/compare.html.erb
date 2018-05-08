@@ -34,7 +34,7 @@
                                        value: @source.get_releasable_hash,
                                        key: 'creative_work',
                                        definition: {'type' => 'releasable'},
-                                       options:{compare: true, force_render: true} if @source.schema.dig('releasable') == true %>
+                                       options:{compare: true, force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@source) %>
 
                             <%= render_content_partial 'history', content: @source, schema: @sourceSchema, options: {force_render: true, compare: true} %>
 
@@ -56,7 +56,7 @@
                                        value: @creativeWork.get_releasable_hash,
                                        key: 'creative_work',
                                        definition: {'type' => 'releasable'},
-                                       options:{force_render: true} if @creativeWork.schema.dig('releasable') == true %>
+                                       options:{force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@creativeWork) %>
 
                             <%= render_content_partial 'details', content: @creativeWork, schema: @dataSchema, options: {force_render: true} %>
 

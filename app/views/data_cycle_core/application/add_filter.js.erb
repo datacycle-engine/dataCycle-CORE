@@ -1,0 +1,4 @@
+$('<%= j render_first_existing_partial(["data_cycle_core/application/filters/new/#{params.fetch('t', 'default')}"], { filter_name: params['n'], filter_method: params['m'], value: nil, index: params[:index] }) %>').appendTo('.filters .advanced-filters > .accordion-item > .accordion-content').trigger('clone-added');
+
+$('.filters #add_advanced_filter').data('index', $('.filters #add_advanced_filter').data('index') + 1);
+

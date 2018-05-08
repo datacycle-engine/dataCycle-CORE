@@ -1,0 +1,19 @@
+<span class="tag-group tags" data-id="<%= "#{sanitize_to_id(key)}_#{index}" if buttons ||= false %>">
+  <i class="tag-group-label">
+    <i class="fa fa-external-link" aria-hidden="true"></i>
+    <%= key %>:
+  </i>
+
+  <% external_sources = DataCycleCore::ExternalSource.select(:id, :name).where(id: value).map { |c| [c.id, c.name] }.to_h %>
+
+  <% value.each do |external_source_id| %>
+    <span class="tag"><%= external_sources[external_source_id] %></span>
+  <% end %>
+
+  <% if buttons %>
+    <span class="tag-buttons">
+      <a class="focus-advanced-filter advanced-filter-link" data-target="<%= sanitize_to_id(key) %>_<%= index %>"><i aria-hidden="true" class="fa fa-cog"></i></a>
+      <a class="remove-advanced-filter advanced-filter-link" data-target="<%= sanitize_to_id(key) %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+    </span>
+  <% end %>
+</span>

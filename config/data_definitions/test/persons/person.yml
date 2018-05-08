@@ -1,0 +1,99 @@
+---
+- :data:
+    :name: Person
+    :type: object
+    :content_type: entity
+    :boost: 1.0
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :given_name:
+        :label: Vorname
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :options:
+            :data-validate: text
+      :family_name:
+        :label: Nachname
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :options:
+            :data-validate: text
+      :honorific_prefix:
+        :label: "Anrede / Titel"
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :editor:
+          :type: input
+      :contact_info:
+        :type: mixin
+        :name: contact_info
+      :postal_address:
+        :type: mixin
+        :name: postal_address
+      :job_title:
+        :label: Position
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :search: true
+        :editor:
+          :type: input
+      :description:
+        :label: Text
+        :type: string
+        :storage_type: text
+        :storage_location: column
+        :search: true
+        :editor:
+          :type: quillEditor
+          :options:
+            :data-size: full
+      :image:
+        :label: Bild
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+        :editor:
+          :type: objectBrowser
+          :options:
+            :data-validate: media
+            :data-type: image
+      :gender:
+        :label: Geschlecht
+        :type: classificationTreeLabel
+        :type_name: Geschlecht
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_location: classification_relation
+        :default_value: "Person"
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data
