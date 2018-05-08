@@ -81,9 +81,9 @@
       :content_classifications:
         :type: mixin
         :name: content_classifications
-#      :publication_schedule:
-#        :type: mixin
-#        :name: publication_schedule
+      :publication_schedule:
+        :type: mixin
+        :name: publication_schedule
       :meta_data:
         :type: mixin
         :name: meta_data
