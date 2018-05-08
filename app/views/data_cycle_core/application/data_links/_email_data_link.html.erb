@@ -44,18 +44,17 @@
       <%= f.radio_button(:permissions, 'write', label: false) %>
       <%= f.label :permissions_write, DataCycleCore::DataLink.human_attribute_name(:permissions_write, locale: DataCycleCore.ui_language) %>
     <% end %>
+
+    <%= f.label :text_file, DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language) %>
+    <div class="form-element">
+      <div class="v-select white with-upload">
+        <%= f.collection_select :asset_id, DataCycleCore::TextFile.where(content_type: 'application/pdf'), :id, :name, { label: false, prompt: true }, { class: 'single-select select', data: { placeholder: '' }, include_blank: true } %>
+        <a class="button upload-button" title="<%= "#{DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language)} #{t('actions.upload')}" %>" data-open="data-link-file-upload-overlay"><i class="fa fa-upload" aria-hidden="true"></i></a>
+      </div>
+    </div>
+
     <%= f.label :comment, DataCycleCore::DataLink.human_attribute_name("comment", locale: DataCycleCore.ui_language) %>
     <%= f.text_area :comment, class: "large-textfield", label: false %>
-
-    <%= f.label :file, DataCycleCore::DataLink.human_attribute_name("file", locale: DataCycleCore.ui_language) %>
-    <% if data_link.file.present? %>
-      <span class="selected-file">
-        <%= f.hidden_field :file %>
-        <%= data_link.file_identifier %> (<%= number_to_human_size(data_link.file.size, locale: DataCycleCore.ui_language) %>)
-        <span class="remove-file"><i class="fa fa-times" aria-hidden="true"></i></span>
-      </span>
-    <% end %>
-    <%= f.file_field :file, accept: 'application/pdf', label: false %>
 
     <%= f.button t('actions.save_and_send', locale: DataCycleCore.ui_language), class: "button submit-button", data: { disable_with: t('common.loading', locale: DataCycleCore.ui_language) } %>
   <% end %>

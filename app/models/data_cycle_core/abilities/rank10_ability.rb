@@ -6,6 +6,7 @@ module DataCycleCore
 
       def initialize(user, _session = {})
         can [:read, :create, :update, :destroy], [DataCycleCore::DataLink, DataCycleCore::UserGroup]
+        can [:read, :create, :update], DataCycleCore::TextFile, creator_id: user.id
 
         # User Administraion
         can [:read, :create_user, :update, :destroy, :unlock, :generate_access_token], DataCycleCore::User do |the_user|

@@ -7,8 +7,10 @@ module DataCycleCore
     belongs_to :creator, class_name: :User
     belongs_to :receiver, class_name: :User
 
-    mount_uploader :file, FileUploader
-    process_in_background :file
+    belongs_to :text_file, foreign_key: :asset_id
+
+    # mount_uploader :file, FileUploader
+    # process_in_background :file
 
     scope :session_edit_links, ->(ids) { where(permissions: 'write', id: ids) }
 

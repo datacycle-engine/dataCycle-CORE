@@ -1,10 +1,41 @@
 module DataCycleCore
   class AssetsController < ApplicationController
     before_action :authenticate_user! # from devise (authenticate)
-    # authorize_resource :class => false # from cancancan (authorize)
 
     def index
+      authorize! :index, DataCycleCore::Asset
       @assets = DataCycleCore::Asset.all
+    end
+
+    def create
+      if asset_params[:file].present?
+        object_type = DataCycleCore.asset_objects.find { |object| object == params[:type] }
+
+        authorize! :create, object_type
+
+        @asset = object_type.constantize.new(asset_params).set_content_type.set_file_size
+        @asset.name = @asset.file.identifier if asset_params[:name].blank?
+        @asset.creator_id = current_user.try(:id)
+
+        @asset.save
+      end
+
+      respond_to(:js)
+    end
+
+    def update
+      if asset_params[:file].present?
+        object_type = DataCycleCore.asset_objects.find { |object| object == params[:type] }
+        @asset = object_type.constantize.find(params[:id])
+
+        authorize! :update, @asset
+
+        @asset.update(asset_params)
+      end
+
+      respond_to do |format|
+        format.js { render :create }
+      end
     end
 
     def new_asset_object
@@ -29,7 +60,7 @@ module DataCycleCore
     private
 
     def asset_params
-      params.require(:asset).permit(:file)
+      params.require(:asset).permit(:name, :file)
     end
 
     def additional_params

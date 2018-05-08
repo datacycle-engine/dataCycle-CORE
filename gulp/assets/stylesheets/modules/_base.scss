@@ -933,3 +933,22 @@ a[data-toggle] {
     }
   }
 }
+
+.button.progress-container {
+  position: relative;
+  .progresstitle {
+    position: relative;
+    display: block;
+    z-index: 2;
+  }
+  .progressbar-meter {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    height: 100%;
+    width: 0;
+    background: darken($primary-color, 20%);
+    z-index: 1;
+  }
+}

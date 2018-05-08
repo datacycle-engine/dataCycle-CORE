@@ -920,6 +920,25 @@ ul.translated-locales {
         background-color: rgba(map-get($foundation-palette, alert), 0.5);
       }
     }
+    &.with-upload {
+      display: flex;
+      .upload-button {
+        margin: 0 0 0 1rem;
+        padding: 0.5rem 0.6rem;
+      }
+      label {
+        display: inline-block;
+        position: relative;
+        top: 0;
+        left: 0;
+        padding: 0.5rem 0.6rem;
+        margin: 0 0 0 1rem;
+        color: white;
+      }
+      input[type="file"] {
+        display: none;
+      }
+    }
     &.white {
       margin-bottom: 1rem;
       .select2 {
@@ -1072,4 +1091,11 @@ select:-moz-focusring {
 
 .copy-to-clipboard {
   cursor: pointer;
+}
+
+.reveal {
+  button[type="submit"].button {
+    padding: 0.85rem 1rem;
+    margin: 0;
+  }
 }
