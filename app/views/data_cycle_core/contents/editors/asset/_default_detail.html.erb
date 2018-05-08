@@ -1,6 +1,6 @@
 <% if value.blank? %>
 
-    <%= hidden_field_tag "#{key}[]", '', id: "#{sanitize_to_id(key)}_hidden" %>
+    <%= hidden_field_tag "#{key}", '', id: "#{sanitize_to_id(key)}_hidden" %>
     <%= file_field_tag "asset[file]", id:"#{sanitize_to_id(key)}_file" %>
 
 <% else %>

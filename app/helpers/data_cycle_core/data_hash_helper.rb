@@ -1,18 +1,13 @@
 module DataCycleCore
   module DataHashHelper
     INTERNAL_PROPERTIES = DataCycleCore.internal_data_attributes + ['id']
-    # @@partials_path = 'data_cycle_core/creative_works/partials/edit/datatype/'
-    # @@key_prefix = 'creative_work[datahash]'
 
-    class DataCycleFormBuilder < ActionView::Helpers::FormBuilder
-      # def text_field(attribute, options={})
-      #   label(attribute) + super
-      # end
+    def object_from_definition(definition)
+      return nil if definition.blank? || definition.dig('linked_table').nil? || definition.dig('template_name').nil?
+      object_type = "DataCycleCore::"+ definition['linked_table'].classify
+      template_name = definition['template_name']
+      object_type.constantize.find_by("template = true AND schema ->> 'content_type' = ? AND template_name =?", 'entity', template_name)
     end
-
-    # def set_key_prefix(prefix)
-    #   @@key_prefix = prefix
-    # end
 
     def ordered_validation_properties(validation)
       return nil if validation.nil? || validation['properties'].blank?

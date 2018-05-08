@@ -11,5 +11,9 @@ module DataCycleCore
     def new_content_fields
       ['legal_name']
     end
+
+    def object_browser_fields
+      ['legal_name']
+    end
   end
 end

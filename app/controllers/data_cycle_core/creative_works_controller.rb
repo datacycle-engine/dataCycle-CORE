@@ -131,9 +131,9 @@ module DataCycleCore
           return
         end
 
-        @place = DataCycleCore::Place.new
-        @person = DataCycleCore::Person.new
-        @organization = DataCycleCore::Organization.new
+        # @place = DataCycleCore::Place.new
+        # @person = DataCycleCore::Person.new
+        # @organization = DataCycleCore::Organization.new
         # @dataSchema = @content.get_data_hash
         render 'edit'
       end

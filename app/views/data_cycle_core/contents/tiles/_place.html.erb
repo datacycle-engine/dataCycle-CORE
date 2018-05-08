@@ -4,6 +4,6 @@
   </div>
 <% end if item.try(:primary_image).present? %>
 
-<%= render 'data_cycle_core/contents/tiles/default_tile', local_assigns do %>
+<%= render 'data_cycle_core/contents/tiles/default', local_assigns do %>
   <%= render 'data_cycle_core/contents/tiles/attributes/address', local_assigns %>
 <% end %>

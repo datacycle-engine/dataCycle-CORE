@@ -1,8 +1,8 @@
-<%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options.merge('class' => 'detail_object'), content: content do %>
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge('class' => 'detail_object'), content: content do %>
 
     <div class="content-object-item">
 
-        <!-- TODO: add icon to data_definition -->
+        <!-- TODO: [patrick]: add icon to data_definition -->
         <span class="embedded-header"><span class="icon"><i class="fa fa-folder-open" aria-hidden="true"></i></span> <%= definition['label'] %></span>
 
         <% ordered_validation_properties(definition).each do |o_key, o_definition| %>

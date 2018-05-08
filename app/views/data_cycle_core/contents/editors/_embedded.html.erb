@@ -1,4 +1,4 @@
-<%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options.merge('class' => 'object embedded_object'), content: content do %>
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge('class' => 'object embedded_object'), content: content do %>
 
     <%= label_tag(key, definition['label']) if DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(content, key) %>
     <% objects = value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>

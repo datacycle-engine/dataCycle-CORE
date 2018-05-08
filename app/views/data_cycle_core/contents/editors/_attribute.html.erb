@@ -1,0 +1,14 @@
+<div data-label="<%= definition['label'] %>" class="<%= [
+    'clearfix',
+    'form-element',
+    key.split('[').last[0...-1].underscore,
+    definition.dig('validations').present? ? 'validation-container' : '',
+    definition.dig('type').try(:underscore),
+    definition.dig('ui', 'edit', 'type').try(:underscore),
+    definition.dig('ui', 'edit', 'options', 'class').try(:underscore),
+    options.try(:[], 'class'),
+].reject(&:blank?).join(' ') %>" data-key="<%= key %>" data-id="<%= sanitize_to_id(key) %>">
+
+    <%= yield %>
+
+</div>

@@ -50,8 +50,7 @@ module DataCycleCore
 
     def add_attribute_options(options, definition, scope)
       attribute_options = definition.try(:[], 'ui').try(:[], scope.to_s).try(:[], 'options')
-      return options if attribute_options.nil?
-      options.merge(attribute_options)
+      attribute_options.nil? ? options : options.merge(attribute_options)
     end
 
     def render_content_partial(partial, parameters)
@@ -70,7 +69,7 @@ module DataCycleCore
         attribute_name_from_key(key).underscore.to_s,
         definition.try(:[], 'ui').try(:[], 'edit').try(:[], 'type').try(:underscore).to_s,
         definition['type'].underscore.to_s
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/#{p}_editor" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/#{p}" }
 
       # TODO: check if required ? refactor readonly
       parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, :edit))
@@ -86,11 +85,6 @@ module DataCycleCore
         definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore).to_s,
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
         # parameters.dig(:options).dig(:force_partial).try(:underscore).to_s,
-        # key&.underscore&.to_s,
-        # definition&.dig('validations', 'format')&.underscore&.to_s,
-        # "#{definition['type']&.underscore}_#{definition&.dig('editor', 'options', 'data-type')&.underscore || 'default'}",
-        # "#{definition['type']&.underscore}_#{definition&.dig('validations', 'format')&.underscore || 'default'}",
-        # definition&.dig('editor', 'type')&.underscore&.to_s,
         definition['type'].underscore.to_s
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/#{p}_viewer" }
 
@@ -127,16 +121,14 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
 
-    # TODO: find proper replacement for description
     def render_content_tile(item:, parameters: {})
+      # TODO: [patrick]: add dashboard ability
       partials = [
-        # "#{item.try(:metadata).try(:dig, 'validation', 'name')}_#{item.try(:metadata).try(:dig, 'validation', 'description')}".underscore.parameterize(separator: '_'),
-        # item.try(:metadata).try(:dig, 'validation', 'description').to_s.underscore.parameterize(separator: '_'),
+        "#{item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_')}_#{item.try(:template_name)&.underscore&.parameterize(separator: '_')}",
         item.try(:template_name)&.underscore&.parameterize(separator: '_'),
-        "#{item.try(:template_name)&.underscore&.parameterize(separator: '_')}_#{item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_')}",
         item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_'),
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}_tile" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}" }
 
       render_first_existing_partial(partials, parameters.merge({ item: item }))
     end
