@@ -98,6 +98,23 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
 
+    def render_attribute_history_viewer(key:, definition:, value:, parameters: {}, content: nil)
+      partials = [
+        key.underscore.to_s,
+        definition.try(:[], 'ui').try(:[], 'history').try(:[], 'type').try(:underscore).to_s,
+        "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
+        # "#{definition['type'].underscore}_#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'data-type').try(:underscore)}",
+        # "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
+        # definition.try(:[], 'editor').try(:[], 'type').try(:underscore).to_s,
+        definition['type'].underscore.to_s
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/history_viewers/#{p}_history_viewer" }
+      begin
+        render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
+      rescue StandardError
+        render_attribute_viewer key: key, definition: definition, value: value, parameters: parameters, content: content
+      end
+    end
+
     def render_linked_viewer(key:, definition:, value:, parameters: {}, content: nil)
       partials = [
         key.underscore.to_s,
@@ -122,21 +139,6 @@ module DataCycleCore
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}_tile" }
 
       render_first_existing_partial(partials, parameters.merge({ item: item }))
-    end
-
-    def render_attribute_history_viewer(key:, definition:, value:, parameters: {})
-      partials = [
-        "#{definition['type'].underscore}_#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'data-type').try(:underscore)}",
-        "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
-        definition.try(:[], 'editor').try(:[], 'type').try(:underscore).to_s,
-        definition['type'].underscore.to_s
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/history_viewers/#{p}_history_viewer" }
-
-      begin
-        render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value }))
-      rescue StandardError
-        render_attribute_viewer key: key, definition: definition, value: value, parameters: parameters
-      end
     end
 
     def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {}, content: nil)

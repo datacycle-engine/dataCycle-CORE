@@ -44,7 +44,7 @@
 
                         <% validation_properties.each do |key, prop| %>
 
-                            <% object_value = prop.dig('type') == "object" ? object.try(key.to_sym) : objectDataHash[key] %>
+                            <% object_value = object.try(key.to_sym) %>
 
                             <% options[:force_render] = true if object.template_name == 'Publikations-Plan' %>
 
