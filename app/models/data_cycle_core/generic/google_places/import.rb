@@ -23,9 +23,6 @@ module DataCycleCore
               DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "GooglePlaces - Tags - #{name}")
             }.reject(&:nil?)
 
-            ap extract_poi_data(raw_data).merge(data_type: [@data_type], categories: categories.map(&:id))
-            byebug
-
             create_or_update_content(
               @target_type,
               load_template(@target_type, @data_template),
