@@ -1,0 +1,119 @@
+---
+- :data:
+    :name: EventOverlay
+    :type: object
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :name:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :options:
+            :data-validate: text
+      :event_period:
+        :label: Veranstaltungszeitraum
+        :type: object
+        :storage_location: metadata
+        :validations:
+          :daterange:
+            :from: start_date
+            :to: end_date
+        :editor:
+          :options:
+            :class: daterange
+        :properties:
+          :start_date:
+            :label: Startzeitpunkt
+            :type: string
+            :storage_type: string
+            :storage_location: column
+            :validations:
+              :format: date_time
+            :editor:
+              :type: datetime
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: "tt.mm.jjjj --:--"
+          :end_date:
+            :label: Endzeitpunkt
+            :type: string
+            :storage_type: string
+            :storage_location: column
+            :validations:
+              :format: date_time
+            :editor:
+              :type: datetime
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: "tt.mm.jjjj --:--"
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_type: text
+        :storage_location: column
+        :editor:
+          :type: quillEditor
+          :options:
+            :data-size: basic
+      :image:
+        :label: Bilder
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+        :editor:
+          :type: objectBrowser
+          :options:
+            :data-validate: media
+            :data-type: image
+      :url:
+        :label: URL
+        :type: string
+        :storage_type: string
+        :storage_location: content
+        :validations:
+          :format: url
+        :editor:
+          :type: input
+      :location:
+        :label: Veranstaltungsort
+        :type: object
+        :storage_location: places
+        :name: Örtlichkeit
+        :delete: false
+        :validations:
+          :max: 1
+        :editor:
+          :type: objectBrowser
+          :options:
+            :data-validate: object
+            :data-type: place
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_location: classification_relation
+        :default_value: "Overlay"
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :event_db:
+        :type: mixin
+        :name: event_db

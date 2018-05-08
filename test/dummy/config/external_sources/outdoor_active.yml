@@ -1,0 +1,92 @@
+---
+name: 'OutdoorActive Kärnten'
+credentials:
+  project: 'ar-kaernten'
+  key: '71bf10dbf6f38ce14b94019c729e355'
+  host: http://www.outdooractive.com
+  end_point: api/project
+config:
+  download: DataCycleCore::Generic::BatchDownload
+  download_config:
+    categories:
+      sorting: 1
+      source_type: categories
+      endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
+      download_strategy: DataCycleCore::Generic::OutdoorActive::DownloadCategories
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
+    regions:
+      sorting: 2
+      source_type: regions
+      endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
+      download_strategy: DataCycleCore::Generic::OutdoorActive::DownloadRegions
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
+    places:
+      sorting: 3
+      source_type: places
+      endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
+      download_strategy: DataCycleCore::Generic::OutdoorActive::DownloadPlaces
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
+    tours:
+      sorting: 4
+      source_type: tours
+      endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
+      download_strategy: DataCycleCore::Generic::OutdoorActive::DownloadTours
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
+  import: DataCycleCore::Generic::BatchImport
+  import_config:
+    categories:
+      sorting: 1
+      source_type: categories
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportCategories
+      data_template:
+      tree_label: OutdoorActive - Kategorien
+      target_type: DataCycleCore::Classification
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+    regions:
+      sorting: 2
+      source_type: regions
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportRegions
+      data_template:
+      tree_label: OutdoorActive - Regionen
+      target_type: DataCycleCore::Classification
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+    source_places:
+      sorting: 3
+      source_type: places
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportSources
+      data_template:
+      tree_label: OutdoorActive - Quellen
+      target_type: DataCycleCore::Classification
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+    source_tours:
+      sorting: 4
+      source_type: tours
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportSources
+      data_template:
+      tree_label: OutdoorActive - Quellen
+      target_type: DataCycleCore::Classification
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+    frontendtype_places:
+      sorting: 5
+      source_type: places
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportFrontendTypes
+      data_template:
+      tree_label: OutdoorActive - FrontendTypes
+      target_type: DataCycleCore::Classification
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+    frontendtype_tours:
+      sorting: 6
+      source_type: tours
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportFrontendTypes
+      data_template:
+      tree_label: OutdoorActive - FrontendTypes
+      target_type: DataCycleCore::Classification
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+    tours:
+      sorting: 20
+      source_type: tours
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportTours
+      data_template: Tour
+      image_template: Bild
+      target_type: DataCycleCore::Place
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")

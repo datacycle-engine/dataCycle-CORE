@@ -57,7 +57,7 @@
 							   value: {'release_id' => content.release_id, 'release_comment' => content.release_comment},
 							   key: 'creative_work',
 							   definition: {'type' => 'releasable'},
-							   options:{} if content.schema.dig('releasable') == true %>
+							   options:{} if DataCycleCore::Feature::Releasable.allowed?(content) %>
 
 					<% if !validation_properties.nil? %>
 

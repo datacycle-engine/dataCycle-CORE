@@ -1,0 +1,64 @@
+---
+name: Veranstaltungsdatenbank
+credentials:
+  action: /endpoints/557ea81f6d6564769e010000
+  end_point: /api/v2
+  host: http://veranstaltungen.kaernten.at
+config:
+  download: DataCycleCore::Generic::BatchDownload
+  download_config:
+    categories:
+      sorting: 1
+      source_type: categories
+      endpoint: DataCycleCore::Generic::EventDatabase::Endpoint
+      download_strategy: DataCycleCore::Generic::EventDatabase::DownloadCategories
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
+    events:
+      sorting: 2
+      source_type: events
+      endpoint: DataCycleCore::Generic::EventDatabase::Endpoint
+      download_strategy: DataCycleCore::Generic::EventDatabase::Download
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
+  import: DataCycleCore::Generic::BatchImport
+  import_config:
+    categories:
+      sorting: 1
+      source_type: categories
+      import_strategy: DataCycleCore::Generic::EventDatabase::ImportCategories
+      data_template: ''
+      tree_label: Veranstaltungsdatenbank - Kategorien
+      target_type: DataCycleCore::Classification
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+    tags:
+      sorting: 2
+      source_type: events
+      import_strategy: DataCycleCore::Generic::EventDatabase::ImportKeywords
+      target_type: DataCycleCore::Classification
+      tree_label: Veranstaltungsdatenbank - Tag
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+    events:
+      sorting: 3
+      source_type: events
+      import_strategy: DataCycleCore::Generic::EventDatabaseV2::ImportEvents
+      data_template: Event
+      image_template: Bild
+      place_template: Örtlichkeit
+      default_values:
+        event:
+          data_type:
+            tree_label: Inhaltstypen
+            value: Veranstaltung
+        subevent:
+          data_type:
+            tree_label: Inhaltstypen
+            value: Veranstaltungstermin
+        place:
+          data_type:
+            tree_label: Inhaltstypen
+            value: Ort
+        image:
+          data_type:
+            tree_label: Inhaltstypen
+            value: Bild
+      target_type: DataCycleCore::Event
+      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")

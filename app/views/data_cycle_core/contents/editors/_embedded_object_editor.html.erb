@@ -1,7 +1,7 @@
 <%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
   <% new_content ||= false %>
 
-  <%= label_tag(key, definition['label']) if key.include?('publication') %>
+  <%= label_tag(key, definition['label']) if DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(content, key) %>
 
   <div class="embedded-object" id="<%= sanitize_to_id(key) %>"
     data-language="<%= I18n.locale.to_s %>"
@@ -28,4 +28,4 @@
         <button id="add_<%= sanitize_to_id(key) %>" type="button" class="button addContentObject" style="display: none;"><%= definition['label'] %> hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
     <% end %>
     </div>
-<% end %>
+<% end unless (DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(content, key) && !DataCycleCore::Feature::PublicationSchedule.enabled?) %>
