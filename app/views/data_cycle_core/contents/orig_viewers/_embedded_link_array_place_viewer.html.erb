@@ -1,7 +1,0 @@
-<%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: value, options: options, data_attributes: { id: value.presence&.ids, editor: "object_browser" } do %>
-
-  <% value.presence&.each do |item| %>
-    <%= render_attribute_viewer key: key, definition: item.schema, value: item, parameters: { options: options, content: content } %>
-  <% end %>
-
-<% end %>

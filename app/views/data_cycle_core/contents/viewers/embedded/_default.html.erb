@@ -1,4 +1,5 @@
 <% objects = value %>
+
 <% if objects.present? %>
 
     <% objects_length = objects.size %>
@@ -14,7 +15,7 @@
                        definition: definition,
                        value: value,
                        options: options.merge({hide_label: true}),
-                       data_attributes: {id: object.id.split(','), editor: definition.dig('editor', 'type').try(:underscore)} do %>
+                       content: content do %>
 
                 <span class="detail-label">
                     <%= render 'data_cycle_core/shared/icon', icon_type: objects[0].template_name.downcase %>
@@ -32,12 +33,12 @@
 
                     <%= link_to edit_polymorphic_path(object, locale: I18n.locale), data: {tooltip: ''}, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "edit-link" do %>
                         <i class="fa fa-pencil" aria-hidden="true"></i>
-                    <% end if definition['editor']['type'] == "objectBrowser" && @historySource.nil? && can?(:crud, object) %>
+                    <% end if definition['type'] == "linked" && @historySource.nil? && can?(:crud, object) %>
                 </div>
 
                 <% if object.schema.present? %>
 
-                    <% validation_properties = get_ordered_validation_properties(object.schema) %>
+                    <% validation_properties = ordered_validation_properties(object.schema) %>
 
                     <% if !validation_properties.nil? %>
 
@@ -47,7 +48,7 @@
 
                             <% options[:force_render] = true if object.template_name == 'Publikations-Plan' %>
 
-                            <%= render_attribute_viewer key: key, definition: prop, value: object_value, parameters: {options: options} %>
+                            <%= render_attribute_viewer key: key, definition: prop, value: object_value, parameters: {options: options}, content: content %>
 
                         <% end %>
 

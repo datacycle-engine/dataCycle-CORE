@@ -1,0 +1,27 @@
+<% objects = value %>
+<%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: (value.is_a?(Hash) ? value['value'] : value), options: options.merge({'class' => 'embedded_link_array object_browser media'}), data_attributes: {id: (value.is_a?(Hash) ? value['value'] : value), editor: "object_browser" } do %>
+
+    <ul class="content-tiles">
+        <% unless value.nil? %>
+            <% value.each do |item| %>
+
+                <li class="<%= [
+                                  'copy-single',
+                                   'content',
+                                   item.class.name.demodulize.underscore.sub('_', '-'),
+                                   item.template_name.underscore.sub('_', '-'),
+                               ].join(' ') %>" data-id="<%= item.id %>">
+
+                    <%= render_first_existing_partial [
+                                                          "data_cycle_core/contents/viewers/tiles/#{item.class.name.demodulize.underscore}_#{item.template_name.underscore}",
+                                                          "data_cycle_core/contents/viewers/tiles/#{item.class.name.demodulize.underscore}",
+                                                          'data_cycle_core/contents/viewers/tiles/default_tile'
+                                                      ], {
+                                                          content: item
+                                                      } %>
+                </li>
+            <% end %>
+        <% end %>
+    </ul>
+
+<% end %>

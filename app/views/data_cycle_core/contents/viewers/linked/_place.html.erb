@@ -1,0 +1,11 @@
+<%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: (value.is_a?(Hash) ? value['value'] : value), options: options, data_attributes: {id: (value.is_a?(Hash) ? value['value'] : value), editor: "object_browser" } do %>
+
+  <%# value.each do |item| %>
+
+        <%#= render_attribute_viewer key: key, definition: item.schema, value: item, parameters: { options: options }, content: @content %>
+        <%= render_first_existing_partial [
+              'data_cycle_core/contents/viewers/embedded/default'
+          ], local_assigns %>
+  <%# end %>
+
+<% end %>

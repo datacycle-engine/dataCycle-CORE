@@ -98,6 +98,18 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
 
+    def render_linked_viewer(key:, definition:, value:, parameters: {}, content: nil)
+      partials = [
+        key.underscore.to_s,
+        definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore).to_s,
+        "#{definition.try(:[], 'linked_table').try(:singularize).try(:underscore).to_s}_#{definition.try(:[], 'template_name').try(:parameterize).try(:underscore).to_s}",
+        definition.try(:[], 'linked_table').try(:singularize).try(:underscore).to_s,
+        'default'
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/linked/#{p}" }
+
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
+    end
+
     # TODO: find proper replacement for description
     def render_content_tile(item:, parameters: {})
       partials = [
@@ -138,12 +150,13 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
 
+    # TODO: remove ?
     def render_embedded_object_partial(partial: 'detail', key:, definition:, parameters: {}, content: nil)
       partials = [
-        "#{definition.try(:[], 'name')}_#{definition.try(:[], 'description')}".underscore.parameterize(separator: '_'),
-        definition.try(:[], 'description').to_s.underscore.parameterize(separator: '_'),
+        # "#{definition.try(:[], 'name')}_#{definition.try(:[], 'description')}".underscore.parameterize(separator: '_'),
+        definition.try(:[], 'name').to_s.underscore.parameterize(separator: '_'),
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/embedded_object/#{p}_#{partial}" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/embedded/#{p}_#{partial}" }
 
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end

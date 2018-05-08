@@ -16,7 +16,7 @@
         :validations:
           :format: float
       :elevation:
-        :label: Meereshöhe
+        :label: Meereshöhe (m)
         :type: number
         :storage_location: column
         :validations:
