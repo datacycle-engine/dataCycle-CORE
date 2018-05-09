@@ -67,7 +67,7 @@ module DataCycleCore
       return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, :edit))
       partials = [
         attribute_name_from_key(key).underscore.to_s,
-        definition.try(:[], 'ui').try(:[], 'edit').try(:[], 'type').try(:underscore).to_s,
+        "#{definition['type'].underscore.to_s}_#{definition.try(:[], 'ui').try(:[], 'edit').try(:[], 'type').try(:underscore).to_s}",
         definition['type'].underscore.to_s
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/#{p}" }
 
@@ -78,12 +78,11 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
 
-    # TODO: check force_partial option
     def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil)
       return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content), :show)
       partials = [
         key.underscore.to_s,
-        definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore).to_s,
+        "#{definition['type'].underscore.to_s}_#{definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore).to_s}",
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
         definition['type'].underscore.to_s
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/#{p}" }

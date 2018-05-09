@@ -3,10 +3,10 @@
     :name: content_classifications
     :type: mixin
     :properties:
-      :topic:
-        :label: Themenbereiche
+      :tags:
+        :label: Tags
         :type: classification
-        :tree_label: Themenbereiche
+        :tree_label: Tags
       :output_channel:
         :label: Ausgabekanal
         :type: classification

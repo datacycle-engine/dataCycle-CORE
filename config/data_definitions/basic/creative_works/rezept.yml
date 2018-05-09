@@ -66,8 +66,6 @@
           :edit:
             :type: duration
             :options:
-              :data-type: duration
-              :data-validate: integer
               :data-unit: min
       :recipe_course:
         :label: 'Gang'

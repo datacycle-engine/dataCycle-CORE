@@ -47,7 +47,7 @@
           :format: url
         :ui:
           :show:
-            :type: image
+            :type: preview_image
       :url:
         :label: Inhalt URL
         :type: string

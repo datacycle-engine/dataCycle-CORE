@@ -62,11 +62,7 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :headline:
         :label: Titel
         :type: string
@@ -91,14 +87,14 @@
           :max: 1
       :accepted_answer:
         :label: Richtige Antwort
-        :type: object
+        :type: embedded
         :linked_table: creative_works
         :template_name: Antwort
         :validations:
           :max: 1
       :suggested_answer:
         :label: Falsche Antwort
-        :type: object
+        :type: embedded
         :linked_table: creative_works
         :template_name: Antwort
       :data_type:
@@ -117,11 +113,7 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :text:
         :label: Antwort
         :type: string

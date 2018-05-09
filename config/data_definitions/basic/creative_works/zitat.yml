@@ -25,11 +25,13 @@
         :template_name: Bild
         :validations:
           :max: 1
-      :quotation:
-        :label: Zitat
-        :type: embedded
-        :linked_table: creative_works
-        :template_name: Zitat
+      :author:
+        :label: "Zitat von"
+        :type: linked
+        :linked_table: persons
+        :template_name: Person
+        :validations:
+          :max: 1
       :data_type:
         :label: Inhaltstype
         :type: classification

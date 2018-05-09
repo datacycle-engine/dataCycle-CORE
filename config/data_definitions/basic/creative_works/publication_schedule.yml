@@ -21,6 +21,8 @@
             :options:
               :data-validate: daterange
               :placeholder: tt.mm.jjjj
+          :show:
+            :type: date
       :output_channel:
         :tree_label: Themenbereiche
         :label: Ausgabekanäle

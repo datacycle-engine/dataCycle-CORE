@@ -53,7 +53,7 @@
         :linked_table: creative_works
         :template_name: Bild
       :gender:
-        :label: Inhaltstype
+        :label: Geschlecht
         :type: classification
         :tree_label: Geschlecht
       :data_type:

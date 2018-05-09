@@ -62,7 +62,7 @@
           :format: url
         :ui:
           :show:
-            :type: image
+            :type: preview_image
       :youtube_url:
         :label: YouTube URL
         :type: string

@@ -120,7 +120,7 @@
         :properties:
           :valid_from:
             :label: "Zeitraum von"
-            :type: string
+            :type: datetime
             :storage_location: value
             :validations:
               :format: date_time
@@ -132,7 +132,7 @@
                   :placeholder: tt.mm.jjjj
           :valid_until:
             :label: "bis"
-            :type: string
+            :type: datetime
             :storage_location: value
             :validations:
               :format: date_time
