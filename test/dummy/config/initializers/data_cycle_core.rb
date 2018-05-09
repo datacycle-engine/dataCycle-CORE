@@ -56,6 +56,6 @@ DataCycleCore.setup do |config|
 
   config.available_filters = {
     main: ['Inhaltstypen'],
-    advanced: []
+    advanced: {}
   }
 end

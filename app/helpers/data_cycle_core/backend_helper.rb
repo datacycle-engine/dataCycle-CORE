@@ -6,7 +6,7 @@ module DataCycleCore
 
     def parse_advanced_filters
       advanced_filters = []
-      if DataCycleCore.available_filters.dig(:advanced, :classification_alias_ids) == 'all'
+      if DataCycleCore.available_filters[:advanced].is_a?(Hash) && DataCycleCore.available_filters.dig(:advanced, :classification_alias_ids) == 'all'
         advanced_filters = DataCycleCore::ClassificationTreeLabel.all.pluck(:name).map do |c|
           [
             t("filter.#{c}", default: c, locale: DataCycleCore.ui_language),
@@ -14,7 +14,7 @@ module DataCycleCore
             data: { name: c }
           ]
         end
-      elsif DataCycleCore.available_filters.dig(:advanced, :classification_alias_ids)&.is_a?(Array)
+      elsif DataCycleCore.available_filters[:advanced].is_a?(Hash) && DataCycleCore.available_filters.dig(:advanced, :classification_alias_ids)&.is_a?(Array)
         advanced_filters = DataCycleCore.available_filters.dig(:advanced, :classification_alias_ids).presence&.map do |c|
           [
             t("filter.#{c}", default: c, locale: DataCycleCore.ui_language),
@@ -24,7 +24,7 @@ module DataCycleCore
         end
       end
 
-      if DataCycleCore.available_filters[:advanced].except(:classification_alias_ids).present?
+      if DataCycleCore.available_filters[:advanced].is_a?(Hash) && DataCycleCore.available_filters[:advanced].except(:classification_alias_ids).present?
         advanced_filters.concat(DataCycleCore.available_filters[:advanced].except(:classification_alias_ids).map { |k, v|
           [
             t("filter.#{v}", default: v, locale: DataCycleCore.ui_language),
@@ -33,6 +33,7 @@ module DataCycleCore
           ]
         })
       end
+      advanced_filters
     end
   end
 end
