@@ -95,7 +95,7 @@ DataCycleCore::Engine.routes.draw do
         resources :collections, only: [:index, :show], controller: :watch_lists
 
         type_regexp = Regexp.new(*DataCycleCore.content_tables.map(&:to_sym).join('|'))
-        resources :contents, path: ':type', constraints: { type: type_regexp }, only: [:show] do
+        resources :contents, path: ':type', constraints: { type: type_regexp }, only: [:index, :show] do
           get :search, on: :collection
           patch :update, on: :member
         end
