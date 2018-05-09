@@ -7,42 +7,25 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :given_name:
         :label: Vorname
         :type: string
-        :storage_type: string
         :storage_location: column
         :search: true
         :validations:
-          :minLength: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
+          :min: 1
       :family_name:
         :label: Nachname
         :type: string
-        :storage_type: string
         :storage_location: column
         :search: true
         :validations:
-          :minLength: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
+          :min: 1
       :honorific_prefix:
         :label: "Anrede / Titel"
         :type: string
-        :storage_type: string
-        :storage_location: content
-        :editor:
-          :type: input
+        :storage_location: translated_value
       :contact_info:
         :type: mixin
         :name: contact_info
@@ -52,44 +35,31 @@
       :job_title:
         :label: Position
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :description:
         :label: Text
         :type: string
-        :storage_type: text
         :storage_location: column
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: full
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
       :image:
-        :label: Bild
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: media
-            :data-type: image
+        :label: Bilder
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
       :gender:
-        :label: Geschlecht
-        :type: classificationTreeLabel
-        :type_name: Geschlecht
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Geschlecht
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Person"
       :content_classifications:
         :type: mixin

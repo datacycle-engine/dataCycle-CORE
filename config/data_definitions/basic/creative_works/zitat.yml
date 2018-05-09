@@ -6,52 +6,34 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :text:
         :label: text
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: translated_value
         :validations:
-          :minLength: 1
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: basic
-            :data-validate: text
+          :min: 1
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
       :image:
-        :label: Bild
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
+        :label: Bilder
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
         :validations:
           :max: 1
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: media
-            :data-type: image
-      :author:
-        :label: "Zitat von"
-        :type: object
-        :storage_location: persons
-        :name: Person
-        :delete: false
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: object
-            :data-type: person
+      :quotation:
+        :label: Zitat
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: Zitat
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Zitat"
       :meta_data:
         :type: mixin

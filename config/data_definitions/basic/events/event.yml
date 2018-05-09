@@ -9,130 +9,97 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :overlay:
         :label: Overlay
-        :type: object
-        :storage_location: events
-        :delete: true
-        :name: EventOverlay
+        :type: embedded
+        :linked_table: events
+        :template_name: EventOverlay
         :validations:
-          :maxLength: 1
-        :editor:
-          :type: embeddedObject
+          :max: 1
       :name:
         :label: Titel
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
         :validations:
-          :minLength: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
+          :min: 1
       :validity_period:
         :type: mixin
         :name: validity_period
       :event_period:
         :label: Veranstaltungszeitraum
         :type: object
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :daterange:
             :from: start_date
             :to: end_date
-        :editor:
-          :options:
-            :class: daterange
+        :ui:
+          :edit:
+            :type: daterange
         :properties:
           :start_date:
             :label: Startzeitpunkt
-            :type: string
-            :storage_type: string
+            :type: datetime
             :storage_location: column
             :validations:
               :format: date_time
-            :editor:
-              :type: datetime
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: "tt.mm.jjjj --:--"
+            :ui:
+              :edit:
+                :type: datetime
+                :options:
+                  :data-validate: daterange
+                  :placeholder: "tt.mm.jjjj --:--"
           :end_date:
             :label: Endzeitpunkt
-            :type: string
-            :storage_type: string
+            :type: datetime
             :storage_location: column
             :validations:
               :format: date_time
-            :editor:
-              :type: datetime
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: "tt.mm.jjjj --:--"
+            :ui:
+              :edit:
+                :type: datetime
+                :options:
+                  :data-validate: daterange
+                  :placeholder: "tt.mm.jjjj --:--"
       :description:
         :label: Beschreibung
         :type: string
-        :storage_type: text
         :storage_location: column
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: basic
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :image:
         :label: Bilder
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: media
-            :data-type: image
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
       :url:
-        :label: URL
+        :label: Inhalt URL
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :validations:
           :format: url
-        :editor:
-          :type: input
       :location:
         :label: Veranstaltungsort
-        :type: object
-        :storage_location: places
-        :name: Örtlichkeit
-        :delete: false
+        :type: linked
+        :linked_table: places
+        :template_name: Örtlichkeit
         :validations:
           :max: 1
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: object
-            :data-type: place
       :sub_event:
         :label: Veranstaltungsdaten
-        :type: object
-        :storage_location: events
-        :delete: true
-        :name: SubEvent
-        :editor:
-          :type: embeddedObject
+        :type: embedded
+        :linked_table: events
+        :template_name: SubEvent
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Veranstaltung"
       :content_classifications:
         :type: mixin

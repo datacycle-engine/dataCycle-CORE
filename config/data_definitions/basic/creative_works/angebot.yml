@@ -10,140 +10,93 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
         :search: true
         :validations:
-          :minLength: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
+          :min: 1
       :validity_period:
         :type: mixin
         :name: validity_period
       :alternative_headline:
         :label: Subüberschrift
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :description:
         :label: Teasertext
         :type: string
-        :storage_type: text
         :storage_location: column
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: basic
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :name:
         :label: Linktitel
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :text:
         :label: Fließtext
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: full
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
       :price:
         :label: Preis
         :type: string
-        :storage_type: text
-        :storage_location: content
-        :editor:
-          :type: input
+        :storage_location: value
       :service:
         :label: Inklusivleistungen
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: full
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
       :offer_period:
         :label: Angebotszeitraum
-        :type: object
-        :storage_location: creative_works
-        :delete: true
-        :name: Angebotszeitraum
-        :editor:
-          :type: embeddedObject
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: Angebotszeitraum
       :image:
         :label: Bilder
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: media
-            :data-type: image
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
       :website:
         :label: Link
-        :type: object
-        :storage_location: creative_works
-        :delete: true
-        :name: Website
-        :editor:
-          :type: embeddedObject
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: Website
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Angebot"
       :content_classifications:
         :type: mixin
         :name: content_classifications
-#      :publication_schedule:
-#        :type: mixin
-#        :name: publication_schedule
+      :publication_schedule:
+        :type: mixin
+        :name: publication_schedule
       :meta_data:
         :type: mixin
         :name: meta_data
       :additional_properties:
         :type: mixin
         :name: additional_properties
-#      :datacycleimage:
-#        :label: DataCycle-Bild
-#        :type: object
-#        :storage_location: creative_works
-#        :delete: true
-#        :name: DataCycle-Image
-#        :editor:
-#          :type: embeddedObject
-#      :datacycleasset:
-#        :label: DataCycle-File
-#        :type: object
-#        :storage_location: creative_works
-#        :delete: true
-#        :name: DataCycle-File
-#        :editor:
-#          :type: embeddedObject
 
 - :data:
     :name: Angebotszeitraum
@@ -152,54 +105,47 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :offer_period:
         :label: Zeitraum
         :type: object
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :daterange:
             :from: valid_from
             :to: valid_until
-        :editor:
-          :options:
-            :class: daterange validation-container
+        :ui:
+          :edit:
+            :type: daterange
         :properties:
           :valid_from:
             :label: "Zeitraum von"
             :type: string
-            :storage_type: string
-            :storage_location: metadata
+            :storage_location: value
             :validations:
-              :format: date
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: "tt.mm.jjjj"
+              :format: date_time
+            :ui:
+              :edit:
+                :type: date
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
           :valid_until:
             :label: "bis"
             :type: string
-            :storage_type: string
-            :storage_location: metadata
+            :storage_location: value
             :validations:
-              :format: date
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: "tt.mm.jjjj"
+              :format: date_time
+            :ui:
+              :edit:
+                :type: date
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Angebotszeitraum"
       :meta_data:
         :type: mixin

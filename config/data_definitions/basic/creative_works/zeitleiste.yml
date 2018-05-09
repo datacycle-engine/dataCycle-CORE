@@ -9,49 +9,36 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
         :search: true
         :validations:
-          :minLength: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
+          :min: 1
       :validity_period:
         :type: mixin
         :name: validity_period
       :description:
         :label: Teasertext
         :type: string
-        :storage_type: text
         :storage_location: column
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: full
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :timeline_item:
         :label: Eintrag
-        :type: object
-        :storage_location: creative_works
-        :delete: true
-        :name: Zeitleiste-Eintrag
-        :editor:
-          :type: embeddedObject
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: Zeitleiste-Eintrag
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Zeitleiste"
       :content_classifications:
         :type: mixin
@@ -78,85 +65,68 @@
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
+        :search: true
         :validations:
-          :minLength: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
+          :min: 1
       :temporal_coverage:
         :label: Zeitraum
         :type: object
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :daterange:
             :from: valid_from
             :to: valid_until
-        :editor:
-          :options:
-            :class: daterange
+        :ui:
+          :edit:
+            :type: daterange
         :properties:
           :valid_from:
             :label: Zeitraum
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
+            :type: datetime
+            :storage_location: value
             :validations:
-              :format: date
-            :editor:
-              :type: datetime
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: "tt.mm.jjjj --:--"
+              :format: date_time
+            :ui:
+              :edit:
+                :type: datetime
+                :options:
+                  :data-validate: daterange
+                  :placeholder: "tt.mm.jjjj --:--"
           :valid_until:
             :label: bis
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
+            :type: datetime
+            :storage_location: value
             :validations:
-              :format: date
-            :editor:
-              :type: datetime
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: "tt.mm.jjjj --:--"
+              :format: date_time
+            :ui:
+              :edit:
+                :type: datetime
+                :options:
+                  :data-validate: daterange
+                  :placeholder: "tt.mm.jjjj --:--"
       :description:
         :label: Teasertext
         :type: string
-        :storage_type: text
         :storage_location: column
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: full
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :image:
-        :label: Bild
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
+        :label: Bilder
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
         :validations:
           :max: 1
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: media
-            :data-type: image
       :content_location:
         :label: Ort
-        :type: object
-        :storage_location: places
-        :name: Örtlichkeit
-        :delete: false
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: object
-            :data-type: place
+        :type: linked
+        :linked_table: places
+        :template_name: Örtlichkeit
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel

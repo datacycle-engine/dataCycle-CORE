@@ -46,7 +46,7 @@
         :validations:
           :format: url
         :ui:
-          :view:
+          :show:
             :type: image
       :url:
         :label: Inhalt URL
