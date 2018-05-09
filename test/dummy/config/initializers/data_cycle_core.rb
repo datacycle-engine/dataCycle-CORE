@@ -24,12 +24,12 @@ DataCycleCore.setup do |config|
     config.excluded_new_item_objects = ['Event', 'Person', 'Örtlichkeit', 'Bild', 'Organization', 'Zeitleiste', 'Linktipps', 'Datei', 'Tour', 'Video', 'Unterkunft']
   else
     config.default_template_paths = [
-      # Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive')
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'container')
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'test')
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'test_refactored')
+      # Rails.root.join('..', '..', 'config', 'data_definitions', 'test_refactored')
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'gitlab_ci')
     ].freeze
   end
@@ -40,7 +40,7 @@ DataCycleCore.setup do |config|
   config.features = config.features.merge(
     {
       publication_schedule: {
-        enabled: false,
+        enabled: true,
         classification_keys: ['output_channel']
       },
       overlay: {
