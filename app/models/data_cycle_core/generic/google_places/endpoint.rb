@@ -24,7 +24,7 @@ module DataCycleCore
 
         def places(lang: :de)
           factory = RGeo::Geographic.simple_mercator_factory
-          scale = 100
+          scale = 50
 
           radius = SCALE / scale
           raster = 1.0 / scale
@@ -40,9 +40,9 @@ module DataCycleCore
               (0..columns).each do |x|
                 x_pos = long_start + x_start + x.to_f * raster * 3**0.5
                 position = factory.parse_wkt("POINT (#{x_pos} #{y_pos})")
-                # puts "skipped  (x: #{x_pos.round(6).to_s.rjust(10)}, y: #{y_pos.round(6).to_s.rjust(10)}, r: #{radius})" if @border.present? && position.buffer(radius).distance(@border).positive?
+                # puts "skipped   (x: #{x_pos.round(6).to_s.rjust(10)}, y: #{y_pos.round(6).to_s.rjust(10)}, r: #{radius})" if @border.present? && position.buffer(radius).distance(@border).positive?
                 next if @border.present? && position.buffer(radius).distance(@border).positive?
-                # puts "load_tile(x: #{x_pos.round(6).to_s.rjust(10)}, y: #{y_pos.round(6).to_s.rjust(10)}, r: #{radius})"
+                # puts "load_tile (x: #{x_pos.round(6).to_s.rjust(10)}, y: #{y_pos.round(6).to_s.rjust(10)}, r: #{radius})"
                 load_tile(x: x_pos, y: y_pos, r: radius, i: raster).each do |record|
                   yielder << record
                 end
@@ -78,6 +78,7 @@ module DataCycleCore
           y_off = 3.0 / 2.0 * incr
           {
             'r' => a_z,
+            'i' => incr,
             'tiles' => [
               [x0, y0],
               [x0 + 2 * x_off, y0],
@@ -99,12 +100,15 @@ module DataCycleCore
           loop do
             temp = load_data(location_x: x, location_y: y, radius: r, next_page: next_page_token)
             data_pool += temp['results']
-
+            # puts "loadedXXXX(#{x}, #{y}, #{r}, #{next_page_token.present?}) /// items: #{temp['results'].size}/// paging: #{page_no}"
             # got 60 datapoints within one query --> expect more to be present ==> zoom
             if page_no == 3 && temp['results'].size == 20
               new_tiles = zoom(x, y, r, i)
+              # puts "***ZOOM***(#{x}, #{y}, #{r}, #{i})"
               new_tiles['tiles'].each do |tile|
-                data_pool += load_tile(tile[0], tile[1], new_tiles['r'])
+                # puts "load_zoom (#{tile[0]}, #{tile[1]}, #{new_tiles['r']}, #{new_tiles['i']})"
+                position = RGeo::Geographic.simple_mercator_factory.parse_wkt("POINT (#{tile[0]} #{tile[1]})")
+                data_pool += load_tile(x: tile[0], y: tile[1], r: new_tiles['r'], i: new_tiles['i']) if @border.present? && position.buffer(new_tiles['r']).distance(@border).zero?
               end
             end
             next_page_token = temp['next_page_token']
@@ -121,14 +125,24 @@ module DataCycleCore
 
         def load_data(location_x: 0, location_y: 0, radius: 1000, next_page: nil)
           # puts "--> load: (#{[location_x.round(6), location_y.round(6)].join(',')}) // #{radius.round(6)}"
-          response = Faraday.new.get do |req|
-            req.url(@host + @end_point + 'nearbysearch/json')
-            req.headers['Accept'] = 'application/json'
-            req.params['radius'] = radius.round(6)
-            req.params['location'] = [location_y.round(6), location_x.round(6)].join(',')
-            req.params['key'] = @key
-            req.params['language'] = 'de'
-            req.params['pagetoken'] = next_page
+          if next_page.nil?
+            response = Faraday.new.get do |req|
+              req.url(@host + @end_point + 'nearbysearch/json')
+              req.headers['Accept'] = 'application/json'
+              req.params['radius'] = radius.round(6)
+              req.params['location'] = [location_y.round(6), location_x.round(6)].join(',')
+              req.params['key'] = @key
+              req.params['language'] = 'de'
+            end
+          else
+            sleep 10 # TODO: test how low it can reliably get
+            response = Faraday.new.get do |req|
+              req.url(@host + @end_point + 'nearbysearch/json')
+              req.headers['Accept'] = 'application/json'
+              req.params['key'] = @key
+              req.params['pagetoken'] = next_page
+              req.params['language'] = 'de'
+            end
           end
           if response.success?
             JSON.parse(response.body)
