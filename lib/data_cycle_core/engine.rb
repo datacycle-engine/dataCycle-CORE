@@ -9,6 +9,7 @@ require 'pg'
 require 'activerecord-postgis-adapter'
 require 'acts_as_tree'
 require 'rgeo'
+require 'rgeo-geojson'
 require 'mongoid'
 
 # authentication

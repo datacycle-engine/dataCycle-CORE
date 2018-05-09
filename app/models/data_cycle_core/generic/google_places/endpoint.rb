@@ -5,32 +5,45 @@ module DataCycleCore
         SCALE = 112_000.0 # ~ km/1° longitude
         FIXNUM_MAX = (2**(0.size * 4 - 2) - 1)
 
-        def initialize(host: nil, end_point: nil, key: nil, bbox: nil, read_type: nil)
+        def initialize(host: nil, end_point: nil, key: nil, bbox: nil, **options)
           @host = host
           @end_point = end_point
           @key = key
-          @bbox = RGeo::Geographic.spherical_factory(srid: 4326).parse_wkt(bbox)
-          @ul, @lr = @bbox.to_a
-          @read_type = read_type
+          @read_type = options[:read_type] if options[:read_type].present?
+
+          factory = RGeo::Geographic.simple_mercator_factory
+          if options[:geojson].present?
+            @border = RGeo::GeoJSON.decode(File.read(Rails.root.join(options[:geojson])), geo_factory: factory).first.geometry.first
+            @bbox = RGeo::Cartesian::BoundingBox.create_from_geometry(@border)
+          else
+            @border = nil
+            points = factory.parse_wkt(bbox)
+            @bbox = RGeo::Cartesian::BoundingBox.create_from_points(points.to_a.first, points.to_a.last)
+          end
         end
 
         def places(lang: :de)
-          scale = 4 # 100
+          factory = RGeo::Geographic.simple_mercator_factory
+          scale = 100
 
           radius = SCALE / scale
           raster = 1.0 / scale
 
           lines, columns = calculate_grid(@bbox, radius)
-          lat_start = @bbox.to_a.last.x + 3**0.5 / 2.0 * raster
-          long_start = @bbox.to_a.first.y + 0.5 * raster
+          lat_start = @bbox.min_y + 0.5 * raster
+          long_start = @bbox.min_x
 
           Enumerator.new do |yielder|
-            (0..lines).each do |x|
-              x_pos = lat_start + x * 1.5 * raster
-              y_start = x.odd? ? raster * 0.5 * 3**0.5 : 0
-              (0..columns).each do |y|
-                y_pos = long_start + y_start + y * raster * 3**0.5
-                load_tile(x: x_pos, y: y_pos, r: radius).each do |record|
+            (0..lines).each do |y|
+              y_pos = lat_start + y.to_f * 1.5 * raster
+              x_start = y.odd? ? raster * 0.5 * 3**0.5 : 0.0
+              (0..columns).each do |x|
+                x_pos = long_start + x_start + x.to_f * raster * 3**0.5
+                position = factory.parse_wkt("POINT (#{x_pos} #{y_pos})")
+                # puts "skipped  (x: #{x_pos.round(6).to_s.rjust(10)}, y: #{y_pos.round(6).to_s.rjust(10)}, r: #{radius})" if @border.present? && position.buffer(radius).distance(@border).positive?
+                next if @border.present? && position.buffer(radius).distance(@border).positive?
+                # puts "load_tile(x: #{x_pos.round(6).to_s.rjust(10)}, y: #{y_pos.round(6).to_s.rjust(10)}, r: #{radius})"
+                load_tile(x: x_pos, y: y_pos, r: radius, i: raster).each do |record|
                   yielder << record
                 end
               end
@@ -52,17 +65,17 @@ module DataCycleCore
         def calculate_grid(bbox, radius)
           a = radius * (3**0.5)
           scale = a / SCALE
-          ul, lr = bbox.to_a
-          lines = (ul.x - lr.x).abs / scale
-          columns = (ul.y - lr.y).abs / scale
+          columns = (bbox.max_x - bbox.min_x) / scale
+          lines = (bbox.max_y - bbox.min_y) / scale
           return lines.ceil, columns.ceil
         end
 
         # zoom into one hex-grid-tile
-        def zoom(x0, y0, a0)
+        def zoom(x0, y0, a0, i)
           a_z = a0 * 3.0**0.5 / 4.0
-          x_off = 3.0**0.5 / 2.0 * a_z
-          y_off = 3.0 / 2.0 * a_z
+          incr = i * a_z / a0
+          x_off = 3.0**0.5 / 2.0 * incr
+          y_off = 3.0 / 2.0 * incr
           {
             'r' => a_z,
             'tiles' => [
@@ -79,7 +92,7 @@ module DataCycleCore
 
         protected
 
-        def load_tile(x: 0, y: 0, r: 1150)
+        def load_tile(x: 0, y: 0, r: 1150, i: 0.01)
           data_pool = []
           next_page_token = nil
           page_no = 1
@@ -89,7 +102,7 @@ module DataCycleCore
 
             # got 60 datapoints within one query --> expect more to be present ==> zoom
             if page_no == 3 && temp['results'].size == 20
-              new_tiles = zoom(x, y, r)
+              new_tiles = zoom(x, y, r, i)
               new_tiles['tiles'].each do |tile|
                 data_pool += load_tile(tile[0], tile[1], new_tiles['r'])
               end
@@ -112,7 +125,7 @@ module DataCycleCore
             req.url(@host + @end_point + 'nearbysearch/json')
             req.headers['Accept'] = 'application/json'
             req.params['radius'] = radius.round(6)
-            req.params['location'] = [location_x.round(6), location_y.round(6)].join(',')
+            req.params['location'] = [location_y.round(6), location_x.round(6)].join(',')
             req.params['key'] = @key
             req.params['language'] = 'de'
             req.params['pagetoken'] = next_page
