@@ -85,7 +85,6 @@ module DataCycleCore
         key.underscore.to_s,
         definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore).to_s,
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
-        # parameters.dig(:options).dig(:force_partial).try(:underscore).to_s,
         definition['type'].underscore.to_s
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/#{p}" }
 
@@ -98,9 +97,6 @@ module DataCycleCore
         key.underscore.to_s,
         definition.try(:[], 'ui').try(:[], 'history').try(:[], 'type').try(:underscore).to_s,
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
-        # "#{definition['type'].underscore}_#{definition.try(:[], 'editor').try(:[], 'options').try(:[], 'data-type').try(:underscore)}",
-        # "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
-        # definition.try(:[], 'editor').try(:[], 'type').try(:underscore).to_s,
         definition['type'].underscore.to_s
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/history_viewers/#{p}_history_viewer" }
       begin
@@ -122,6 +118,22 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
 
+    def render_asset_editor(key:, value:, definition:, parameters: {}, content: nil)
+      partials = [
+        definition.try(:[], 'asset_type').to_s.try(:underscore),
+        'default'
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/asset/#{p}" }
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
+    end
+
+    def render_asset_viewer(key:, value:, definition:, parameters: {}, content: nil)
+      partials = [
+        definition.try(:[], 'asset_type').to_s.try(:underscore),
+        'default'
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/asset/#{p}" }
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
+    end
+
     def render_content_tile(item:, parameters: {})
       # TODO: [patrick]: add dashboard ability
       partials = [
@@ -136,7 +148,6 @@ module DataCycleCore
 
     def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {}, content: nil)
       partials = [
-        # definition.dig('editor', 'options', 'data-type').try(:underscore).to_s,
         "#{definition.dig('linked_table').try(:singularize).try(:underscore)}_#{definition.dig('template_name').try(:downcase).try(:underscore)}",
         definition.dig('linked_table').try(:singularize).try(:underscore).to_s,
         'default'
@@ -145,23 +156,13 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
 
-    # TODO: remove ?
     def render_embedded_object_partial(partial: 'detail', key:, definition:, parameters: {}, content: nil)
       partials = [
-        # "#{definition.try(:[], 'name')}_#{definition.try(:[], 'description')}".underscore.parameterize(separator: '_'),
         definition.try(:[], 'name').to_s.underscore.parameterize(separator: '_'),
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/embedded/#{p}_#{partial}" }
 
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
-    end
-
-    def render_asset_partial(partial: 'detail', key:, value:, definition:, parameters: {}, content: nil)
-      partials = [
-        definition.try(:[], 'asset_type').to_s.try(:underscore),
-        'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/asset/#{p}_#{partial}" }
-      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
 
     def render_new_content_reveal(item:, parameters: {})

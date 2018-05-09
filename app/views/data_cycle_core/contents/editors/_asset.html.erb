@@ -11,7 +11,7 @@
          data-max="1"
          data-write="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>">
 
-        <%= render_asset_partial(key: key, value: value, definition: definition, parameters: {options: options}, content: content) %>
+        <%= render_asset_editor(key: key, value: value, definition: definition, parameters: {options: options}, content: content) %>
 
     </div>
 

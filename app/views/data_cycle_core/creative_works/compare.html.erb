@@ -30,7 +30,7 @@
                               <%= render 'meta_data', content: @source %>
                             </div>
 
-                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable_viewer',
+                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable',
                                        value: @source.get_releasable_hash,
                                        key: 'creative_work',
                                        definition: {'type' => 'releasable'},
@@ -52,7 +52,7 @@
                               <%= render 'meta_data', content: @creativeWork %>
                             </div>
 
-                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable_viewer',
+                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable',
                                        value: @creativeWork.get_releasable_hash,
                                        key: 'creative_work',
                                        definition: {'type' => 'releasable'},
