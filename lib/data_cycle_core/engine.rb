@@ -155,7 +155,7 @@ module DataCycleCore
     mattr_accessor :available_filters
     self.available_filters = {
       main: ['Inhaltstypen'],
-      advanced: []
+      advanced: {}
     }
 
     # obsolete: remove after projects initializer update
