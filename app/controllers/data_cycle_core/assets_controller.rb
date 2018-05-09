@@ -11,7 +11,7 @@ module DataCycleCore
       if asset_params[:file].present?
         object_type = DataCycleCore.asset_objects.find { |object| object == params[:type] }
 
-        authorize! :create, object_type
+        authorize! :create, object_type.constantize
 
         @asset = object_type.constantize.new(asset_params).set_content_type.set_file_size
         @asset.name = @asset.file.identifier if asset_params[:name].blank?

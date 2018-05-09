@@ -1,6 +1,6 @@
 module DataCycleCore
   class DataLinksController < ApplicationController
-    load_and_authorize_resource except: [:show, :find] # from cancancan (authorize)
+    load_and_authorize_resource except: [:show, :find, :get_text_file] # from cancancan (authorize)
 
     def show
       link = DataCycleCore::DataLink.find_by(id: params[:id])
@@ -67,9 +67,9 @@ module DataCycleCore
     def get_text_file
       @data_link = DataCycleCore::DataLink.find(params[:id])
 
-      raise @data_link.asset.inspect
+      raise ActiveRecord::RecordNotFound if @data_link.text_file.blank?
 
-      send_file(@data_link.asset.path, type: @data_link.asset.content_type, url_based_filename: false)
+      send_file(@data_link.text_file.file.current_path, type: @data_link.text_file.content_type, disposition: :inline, filename: "#{@data_link.text_file.name.presence&.parameterize(separator: '_') || DataCycleCore::DataLink.human_attribute_name('text_file', locale: DataCycleCore.ui_language).parameterize(separator: '_')}.#{@data_link.text_file.content_type.split('/').last}")
     end
 
     private

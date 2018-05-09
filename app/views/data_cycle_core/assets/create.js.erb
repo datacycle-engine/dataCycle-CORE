@@ -1,8 +1,13 @@
 <% if @asset&.errors&.messages.present? %>
   $('.file-upload-reveal form :submit').before('<%= raw @asset.errors.messages.map { |k, v| "<span class=\"warning\">#{DataCycleCore::Asset.human_attribute_name(k, locale: DataCycleCore.ui_language)}: #{v.join(', ')}</span>" }.join.html_safe %>');
 <% elsif @asset.present? %>
-  var new_option = new Option('<%= @asset.name %>', '<%= @asset.id %>', true, true);
-  $('[data-open="' + $('.file-upload-reveal').prop('id') + '"]').siblings('select.select').append(new_option).trigger('change');
+  var select2_selector = $('[data-open="' + $('.file-upload-reveal').prop('id') + '"]').siblings('select.select');
+  if (select2_selector.find('option[value="<%= @asset.id %>"]').length){
+    select2_selector.val('<%= @asset.id %>').trigger('change');
+  } else {
+    var new_option = new Option('<%= @asset.name %>', '<%= @asset.id %>', true, true);
+    select2_selector.append(new_option).trigger('change');
+  }
 
   $('.file-upload-reveal form :submit').attr('disabled', false);
   $('.file-upload-reveal').foundation('close');

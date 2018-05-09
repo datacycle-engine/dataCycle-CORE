@@ -1,6 +1,5 @@
 // Validate PDF File Client Side
 var progress_helper = require('./../helpers/progress_helper');
-var ConfirmationModal = require('./../components/confirmation_modal');
 
 module.exports.initialize = function () {
 
