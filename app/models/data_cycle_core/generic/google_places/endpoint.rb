@@ -11,19 +11,21 @@ module DataCycleCore
           @key = key
           @read_type = options[:read_type] if options[:read_type].present?
 
-          factory = RGeo::Geographic.simple_mercator_factory
-          if options[:geojson].present?
-            @border = RGeo::GeoJSON.decode(File.read(Rails.root.join(options[:geojson])), geo_factory: factory).first.geometry.first
-            @bbox = RGeo::Cartesian::BoundingBox.create_from_geometry(@border)
-          else
-            @border = nil
-            points = factory.parse_wkt(bbox)
-            @bbox = RGeo::Cartesian::BoundingBox.create_from_points(points.to_a.first, points.to_a.last)
-          end
+          @factory = RGeo::Geographic.simple_mercator_factory
+          @border = RGeo::GeoJSON.decode(File.read(Rails.root.join(options[:geojson])), geo_factory: @factory).first.geometry.first
+          @bbox = RGeo::Cartesian::BoundingBox.create_from_geometry(@border)
+
+          # if options[:geojson].present?
+          #   @border = RGeo::GeoJSON.decode(File.read(Rails.root.join(options[:geojson])), geo_factory: @factory).first.geometry.first
+          #   @bbox = RGeo::Cartesian::BoundingBox.create_from_geometry(@border)
+          # else
+          #   @border = nil
+          #   points = @factory.parse_wkt(bbox)
+          #   @bbox = RGeo::Cartesian::BoundingBox.create_from_points(points.to_a.first, points.to_a.last)
+          # end
         end
 
         def places(lang: :de)
-          factory = RGeo::Geographic.simple_mercator_factory
           scale = 50
 
           radius = SCALE / scale
@@ -39,7 +41,7 @@ module DataCycleCore
               x_start = y.odd? ? raster * 0.5 * 3**0.5 : 0.0
               (0..columns).each do |x|
                 x_pos = long_start + x_start + x.to_f * raster * 3**0.5
-                position = factory.parse_wkt("POINT (#{x_pos} #{y_pos})")
+                position = @factory.parse_wkt("POINT (#{x_pos} #{y_pos})")
                 # puts "skipped   (x: #{x_pos.round(6).to_s.rjust(10)}, y: #{y_pos.round(6).to_s.rjust(10)}, r: #{radius})" if @border.present? && position.buffer(radius).distance(@border).positive?
                 next if @border.present? && position.buffer(radius).distance(@border).positive?
                 # puts "load_tile (x: #{x_pos.round(6).to_s.rjust(10)}, y: #{y_pos.round(6).to_s.rjust(10)}, r: #{radius})"
@@ -55,6 +57,11 @@ module DataCycleCore
           Enumerator.new do |yielder|
             DataCycleCore::Generic::Collection2.with(@read_type) do |mongo_item|
               mongo_item.all.no_timeout.max_time_ms(FIXNUM_MAX).each do |item|
+                lat = item.dig('dump', lang, 'geometry', 'location', 'lat')
+                lng = item.dig('dump', lang, 'geometry', 'location', 'lng')
+                position = nil
+                position = @factory.parse_wkt("POINT (#{lng} #{lat})") if lat.present? && lng.present?
+                next if @border.present? && position.present? && position.distance(@border).positive?
                 yielder << load_detail(item.external_id)['result']
               end
             end
@@ -107,7 +114,7 @@ module DataCycleCore
               # puts "***ZOOM***(#{x}, #{y}, #{r}, #{i})"
               new_tiles['tiles'].each do |tile|
                 # puts "load_zoom (#{tile[0]}, #{tile[1]}, #{new_tiles['r']}, #{new_tiles['i']})"
-                position = RGeo::Geographic.simple_mercator_factory.parse_wkt("POINT (#{tile[0]} #{tile[1]})")
+                position = @factory.parse_wkt("POINT (#{tile[0]} #{tile[1]})")
                 data_pool += load_tile(x: tile[0], y: tile[1], r: new_tiles['r'], i: new_tiles['i']) if @border.present? && position.buffer(new_tiles['r']).distance(@border).zero?
               end
             end
