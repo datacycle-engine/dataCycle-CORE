@@ -5,7 +5,7 @@ module DataCycleCore::Generic::Transformations::Transformations
 
   def self.google_places_to_poi
     t(:stringify_keys)
-    .>> t(:reject_keys, ['photos', 'adr_address', 'reviews'])
+    .>> t(:reject_keys, ['id', 'photos', 'adr_address', 'reviews'])
     .>> t(:rename_keys,
           'website' => 'url',
           'place_id' => 'external_key',
@@ -17,7 +17,7 @@ module DataCycleCore::Generic::Transformations::Transformations
     })
     .>> t(:add_field, 'street_number', ->s { s['address_components'].select { |item| item['types'].include?('street_number') }&.first.try(:[], 'long_name') })
     .>> t(:add_field, 'street_name', ->s { s['address_components'].select { |item| item['types'].include?('route') }&.first.try(:[], 'long_name') })
-    .>> t(:add_field, 'street_address', ->s { [s['stree_name'], s['street_number']].join(' ') })
+    .>> t(:add_field, 'street_address', ->s { [s['street_name'], s['street_number']].join(' ') })
     .>> t(:add_field, 'address_locality', ->s { s['address_components'].select { |item| item['types'].include?('locality') }&.first.try(:[], 'long_name') })
     .>> t(:add_field, 'postal_code', ->s { s['address_components'].select { |item| item['types'].include?('postal_code') }&.first.try(:[], 'long_name') })
     .>> t(:add_field, 'address_country', ->s { s['address_components'].select { |item| item['types'].include?('country') }&.first.try(:[], 'long_name') })
