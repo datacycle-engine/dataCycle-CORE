@@ -9,7 +9,7 @@ module DataCycleCore
 
     def create
       if asset_params[:file].present?
-        object_type = DataCycleCore.asset_objects.find { |object| object == params[:type] }
+        object_type = DataCycleCore.asset_objects.find { |object| object == permitted_params[:type] }
 
         authorize! :create, object_type.constantize
 
@@ -25,8 +25,8 @@ module DataCycleCore
 
     def update
       if asset_params[:file].present?
-        object_type = DataCycleCore.asset_objects.find { |object| object == params[:type] }
-        @asset = object_type.constantize.find(params[:id])
+        object_type = DataCycleCore.asset_objects.find { |object| object == permitted_params[:type] }
+        @asset = object_type.constantize.find(permitted_params[:id])
 
         authorize! :update, @asset
 
@@ -61,6 +61,10 @@ module DataCycleCore
 
     def asset_params
       params.require(:asset).permit(:name, :file)
+    end
+
+    def permitted_params
+      params.permit(:id, :type)
     end
 
     def additional_params

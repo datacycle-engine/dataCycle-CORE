@@ -33,9 +33,11 @@
       <div class="data-link-text-files">
         <b><%= DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language) %>: </b>
 
+        <ul class="no-bullet">
         <% @creative_work.indirect_data_links.by_receiver(current_user).valid.each do |data_link| %>
-          <%= link_to data_link.text_file.name, get_text_file_data_link_url(data_link), target: :_blank if data_link.text_file.present? %>
+          <li><%= link_to data_link.text_file.name, get_text_file_data_link_url(data_link), target: :_blank if data_link.text_file.present? %></li>
         <% end %>
+        </ul>
       </div>
       <% end %>
 

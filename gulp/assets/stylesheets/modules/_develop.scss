@@ -26,6 +26,21 @@
         left: initial;
       }
     }
+    .data-link-text-files {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      >ul {
+        display: inline-block;
+        >li {
+          display: inline;
+          &:not(:last-child) {
+            &::after {
+              content: ', ';
+            }
+          }
+        }
+      }
+    }
     &.headline,
     &.headline_external {
       input {
