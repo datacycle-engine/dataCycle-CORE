@@ -25,6 +25,6 @@
     <%= a.label :file, DataCycleCore::Asset.human_attribute_name("file", locale: DataCycleCore.ui_language) %>
     <%= a.file_field :file, accept: 'application/pdf', label: false, data: { max_file_size: 5000000, file_types: 'application/pdf' } %>
 
-    <%= a.button t('actions.upload', locale: DataCycleCore.ui_language), class: "button submit-button", data: { create: t('actions.upload', locale: DataCycleCore.ui_language), update: t('actions.update', locale: DataCycleCore.ui_language) } %>
+    <%= a.button t('actions.upload', locale: DataCycleCore.ui_language), class: "button submit-button progress-button", data: { create: t('actions.upload', locale: DataCycleCore.ui_language), update: t('actions.update', locale: DataCycleCore.ui_language) } %>
   <% end %>
 </div>
