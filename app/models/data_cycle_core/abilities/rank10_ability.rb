@@ -6,7 +6,8 @@ module DataCycleCore
 
       def initialize(user, _session = {})
         can [:read, :create, :update, :destroy], [DataCycleCore::DataLink, DataCycleCore::UserGroup]
-        can [:read, :create, :update], DataCycleCore::TextFile, creator_id: user.id
+        can :index, DataCycleCore::TextFile, creator_id: user.sibling_ids
+        can [:create, :update], DataCycleCore::TextFile, creator_id: user.id
 
         # User Administraion
         can [:read, :create_user, :update, :destroy, :unlock, :generate_access_token], DataCycleCore::User do |the_user|
@@ -26,7 +27,7 @@ module DataCycleCore
           data_object.try(:external_key).blank?
         end
 
-        can [:read, :new_asset_object, :remove_asset_object], DataCycleCore::Asset
+        can [:show, :new_asset_object, :remove_asset_object], DataCycleCore::Asset
         can [:create_global, :create_api], DataCycleCore::StoredFilter, user_id: user.id
 
         # Classifications

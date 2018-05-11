@@ -1,5 +1,6 @@
 // Validate PDF File Client Side
 var progress_helper = require('./../helpers/progress_helper');
+var AjaxQueue = require('./../components/ajax_queue');
 
 module.exports.initialize = function () {
 
@@ -15,27 +16,30 @@ module.exports.initialize = function () {
       $(event.currentTarget).siblings('.warning').remove();
     });
 
+    let ajax_queue = new AjaxQueue();
+
     // check for existing texts with the same name and change form accordingly
     if ($('#data-link-file-upload-overlay form input.validate-uniqueness').length) {
       $('#data-link-file-upload-overlay').on('input', 'form input.validate-uniqueness', event => {
         var form = $(event.currentTarget).closest('form');
         var submitButton = form.find(':submit').first();
 
-        reset_form(form);
-        submitButton.attr('disabled', true);
+        reset_form(form, true);
 
-        $.get('/data_links/find', {
+        var ajax_request = $.get('/data_links/find', {
           q: $(event.currentTarget).val()
-        }, data => {
+        });
+
+        ajax_queue.queue(ajax_request, ajax_request.done((data) => {
           if (data && data.editable) {
             form.prop('action', form.data('action') + '/' + data.id).prepend('<input name="_method" value="patch" type="hidden">');
             submitButton.html(submitButton.data('update')).attr('disabled', false).data('confirm', 'Die Datei mit dem Namen: ' + data.name + ' wird überschrieben.<br>Fortfahren?');
           } else if (data && !data.editable) {
-            submitButton.before('<span class="warning">Name schon vorhanden.</span>');
+            submitButton.attr('disabled', true).before('<span class="warning">Name schon vorhanden.</span>');
           } else if (data == null) {
             reset_form(form);
           }
-        });
+        }));
       });
     }
 
@@ -77,11 +81,11 @@ module.exports.initialize = function () {
     });
   }
 
-  function reset_form(form) {
+  function reset_form(form, disabled_state = false) {
     var submitButton = form.find(':submit').first();
 
     form.find('.warning').remove();
     form.prop('action', form.data('action')).find('input:hidden[name="_method"]').remove();
-    submitButton.html(submitButton.data('create')).attr('disabled', false).removeData('confirm');
+    submitButton.html(submitButton.data('create')).attr('disabled', disabled_state).removeData('confirm');
   }
 };

@@ -40,6 +40,10 @@ module DataCycleCore
       self&.user_groups&.map(&:name)&.include?(group_name)
     end
 
+    def sibling_ids
+      [id].concat(user_groups.map { |ug| ug.users.ids }.flatten).uniq
+    end
+
     def send_notification(contents)
       return unless contents.size.positive?
 

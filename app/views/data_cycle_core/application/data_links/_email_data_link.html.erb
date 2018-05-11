@@ -48,8 +48,11 @@
     <%= f.label :text_file, DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language) %>
     <div class="form-element">
       <div class="v-select white with-upload">
-        <%= f.collection_select :asset_id, DataCycleCore::TextFile.where(content_type: 'application/pdf'), :id, :name, { label: false, prompt: true }, { class: 'single-select select', data: { placeholder: '' }, include_blank: true } %>
-        <a class="button upload-button" title="<%= "#{DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language)} #{t('actions.upload')}" %>" data-open="data-link-file-upload-overlay"><i class="fa fa-upload" aria-hidden="true"></i></a>
+        <%= f.collection_select :asset_id, DataCycleCore::TextFile.accessible_by(current_ability).where(content_type: 'application/pdf'), :id, :name, { label: false, prompt: true }, { class: 'single-select select', data: { placeholder: '' }, include_blank: true } %>
+
+        <% if can?(:edit, DataCycleCore::TextFile) %>
+          <a class="button upload-button" title="<%= "#{DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language)} #{t('actions.upload')}" %>" data-open="data-link-file-upload-overlay"><i class="fa fa-upload" aria-hidden="true"></i></a>
+        <% end %>
       </div>
     </div>
 
