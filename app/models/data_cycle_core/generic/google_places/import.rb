@@ -25,7 +25,7 @@ module DataCycleCore
 
             periods = raw_data.dig('opening_hours', 'periods')
             opening_hours_specifications = nil
-            if periods.present? && periods.size == 1 && periods.first.size == 1 && periods.first.dig('open', 'day') == 0 && periods.first.dig('open', 'time') == '0000'
+            if periods.present? && periods.size == 1 && periods.first.size == 1 && periods.first.dig('open', 'day').zero? && periods.first.dig('open', 'time') == '0000'
               # --> always open
               opening_hours_specifications = (0..6).map do |item|
                 {

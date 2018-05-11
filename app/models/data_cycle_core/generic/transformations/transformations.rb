@@ -13,7 +13,7 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:add_field, 'latitude', ->s { s['geometry'].try(:[], 'location').try(:[], 'lat').try(:to_f) })
     .>> t(:add_field, 'longitude', ->s { s['geometry'].try(:[], 'location').try(:[], 'lng').try(:to_f) })
     .>> t(:add_field, 'location', ->s {
-      RGeo::Geographic.spherical_factory(srid: 4326).point(s['latitude'], s['longitude']) if s['longitude'] && s['latitude']
+      RGeo::Geographic.spherical_factory(srid: 4326).point(s['longitude'], s['latitude']) if s['longitude'] && s['latitude']
     })
     .>> t(:add_field, 'street_number', ->s { s['address_components'].select { |item| item['types'].include?('street_number') }&.first.try(:[], 'long_name') })
     .>> t(:add_field, 'street_name', ->s { s['address_components'].select { |item| item['types'].include?('route') }&.first.try(:[], 'long_name') })
