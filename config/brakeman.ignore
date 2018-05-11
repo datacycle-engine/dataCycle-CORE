@@ -3,24 +3,24 @@
     {
       "warning_type": "File Access",
       "warning_code": 16,
-      "fingerprint": "ef722425c7544040318d202c9bf77d69d86958ee17e3f6777557cd48b0460e8c",
+      "fingerprint": "4c3e5690e3a2c6f301ffa68bfd75f8b7db841e433abc5e8b27946ab34471f207",
       "check_name": "SendFile",
       "message": "Model attribute used in file name",
       "file": "app/controllers/data_cycle_core/data_links_controller.rb",
       "line": 72,
       "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "send_file(DataCycleCore::DataLink.find(params[:id]).text_file.file.current_path.to_s, :type => DataCycleCore::DataLink.find(params[:id]).text_file.content_type, :disposition => :inline, :filename => (\"#{(DataCycleCore::DataLink.find(params[:id]).text_file.name.presence.parameterize(:separator => \"_\") or DataCycleCore::DataLink.human_attribute_name(\"text_file\", :locale => DataCycleCore.ui_language).parameterize(:separator => \"_\"))}.#{DataCycleCore::DataLink.find(params[:id]).text_file.content_type.split(\"/\").last}\"))",
+      "code": "send_file(DataCycleCore::DataLink.find(params[:id]).text_file.file.current_path, :type => DataCycleCore::DataLink.find(params[:id]).text_file.content_type, :disposition => :inline, :filename => (\"#{(DataCycleCore::DataLink.find(params[:id]).text_file.name.presence.parameterize(:separator => \"_\") or DataCycleCore::DataLink.human_attribute_name(\"text_file\", :locale => DataCycleCore.ui_language).parameterize(:separator => \"_\"))}.#{DataCycleCore::DataLink.find(params[:id]).text_file.content_type.split(\"/\").last}\"))",
       "render_path": null,
       "location": {
         "type": "method",
         "class": "DataCycleCore::DataLinksController",
         "method": "get_text_file"
       },
-      "user_input": "DataCycleCore::DataLink.find(params[:id]).text_file.file.current_path.to_s",
+      "user_input": "DataCycleCore::DataLink.find(params[:id]).text_file.file.current_path",
       "confidence": "Medium",
-      "note": "send_file uploaded through carrierwave"
+      "note": ""
     }
   ],
-  "updated": "2018-05-11 11:37:45 +0200",
+  "updated": "2018-05-11 12:02:19 +0200",
   "brakeman_version": "4.2.1"
 }
