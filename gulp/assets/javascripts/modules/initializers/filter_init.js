@@ -3,7 +3,7 @@ module.exports.initialize = function () {
 
   // submit searchform on blur
   if ($('#search-form').length > 0) {
-    $('#search-form input#search').change(function () {
+    $('#search-form input.fulltext-search-field').change(function () {
       $(this).closest('#search-form').submit();
     });
   }
@@ -45,13 +45,13 @@ module.exports.initialize = function () {
   }
 
   function setup() {
-    // remove your-choice tags on click
-    $(document).on('click', '.filters .your-choice.tags label', function (e) {
+    // remove tag-group tags on click
+    $(document).on('click', '.filters .tag-group.tags:not(.advanced-tags) label', function (e) {
       removeFilter($(this));
     });
 
     $(document).on('click', '.filters .sprache ul label', function (e) {
-      $('.filters .your-choice.tags.sprache .tag').text($(this).text());
+      $('.filters .tag-group.tags.sprache .tag').text($(this).text());
     });
 
     $(document).on('click', '.filters .filter ul label', function (e) {
@@ -59,18 +59,22 @@ module.exports.initialize = function () {
       var title = $(this).find('span.inner-title').first().html();
       var tree_label = $(this).parents('.filter').data('tree-label');
 
-      if ($(this).siblings('input[type=checkbox]').first().is(':checked') == true) {
-        removeFilter($('.filters .your-choice.tags.' + tree_label).find('label[for=' + id + ']'));
+      if ($(this).siblings('input[type=checkbox]').first().is(':checked')) {
+        removeFilter($('.filters .tag-group.tags:not(.advanced-tags).' + tree_label).find('label[for=' + id + ']'));
       } else {
-        var selected_label = $('.filters .your-choice.tags.' + tree_label).find('[for=' + id + ']');
+        if (!$('.filters .tag-group.tags:not(.advanced-tags).' + tree_label).length) {
+          $('.filters .filtertags .filter-groups').append('<span class="tag-group tags ' + tree_label + '"><i class="tag-group-label"><i class="fa fa-tags" aria-hidden="true"></i> ' + tree_label + ':</i> <span class="tags-container"></span></span>');
+        }
+
+        var selected_label = $('.filters .tag-group.tags.' + tree_label).find('[for=' + id + ']');
         if (selected_label.length == 0) {
           var renderedTag = '<label for="' + id + '"><a class="tag">' + title + '<i class="fa fa-times" aria-hidden="true"></i></a> </label>';
-          $('.filters .your-choice.tags.' + tree_label).append(renderedTag);
+          $('.filters .tag-group.tags:not(.advanced-tags).' + tree_label + ' .tags-container').append(renderedTag);
         } else {
           selected_label.show();
         }
         $('.activefilter').show();
-        $('.filters .your-choice.tags.' + tree_label).show();
+        $('.filters .tag-group.tags.' + tree_label).show();
       }
     });
 
@@ -88,6 +92,56 @@ module.exports.initialize = function () {
         $(this).css('min-height', height);
       });
     });
+
+    $('.filters .advanced-filters').on('change', ' .advanced-filter', event => {
+      $.ajax({
+        url: '/add_tag_group',
+        method: 'GET',
+        data: {
+          t: $(event.currentTarget).find(':input[name*="[t]"]').first().val(),
+          n: $(event.currentTarget).find(':input[name*="[n]"]').first().val(),
+          v: $(event.currentTarget).find(':input[name*="[v]"]').first().map((index, element) => $(element).val()).get(),
+          index: $(event.currentTarget).data('index')
+        },
+        dataType: 'script',
+        contentType: 'application/json'
+      });
+    });
+
+    $('.filters .advanced-filters #add_advanced_filter').on('change', event => {
+      event.preventDefault();
+      $(event.currentTarget).prop('disabled', true);
+      $.ajax({
+        url: $(event.currentTarget).data('url'),
+        method: 'GET',
+        data: {
+          t: $(event.currentTarget).val(),
+          n: $(event.currentTarget).find(':selected').data('name'),
+          m: $(event.currentTarget).data('method'),
+          index: $(event.currentTarget).data('index')
+        },
+        dataType: 'script',
+        contentType: 'application/json'
+      }).always(() => {
+        $(event.currentTarget).prop('disabled', false);
+      });
+      $(event.currentTarget).val('');
+    });
+
+    $('.filters .advanced-filters, .filters').on('click', '.remove-advanced-filter', event => {
+      event.preventDefault();
+      $('.advanced-filter[data-id="' + $(event.currentTarget).data('target') + '"], .filters .tag-group[data-id="' + $(event.currentTarget).data('target') + '"]').remove();
+    });
+
+    $('.filters .advanced-filters, .filters').on('click', '.focus-advanced-filter', event => {
+      event.preventDefault();
+      $('.advanced-filter[data-id="' + $(event.currentTarget).data('target') + '"]').addClass('highlight').get(0).scrollIntoView({
+        behavior: "smooth"
+      });
+      setTimeout(() => {
+        $('.advanced-filter[data-id="' + $(event.currentTarget).data('target') + '"]').removeClass('highlight');
+      }, 1000);
+    });
   }
 
   function removeFilter(elem) {
@@ -95,7 +149,7 @@ module.exports.initialize = function () {
       elem.parent().hide();
     }
     elem.hide();
-    if ($('.activefilter').find('.your-choice.tags:visible').length == 0) $('.activefilter').hide();
+    if ($('.activefilter').find('.tag-group.tags:visible').length == 0) $('.activefilter').hide();
   }
 
 };

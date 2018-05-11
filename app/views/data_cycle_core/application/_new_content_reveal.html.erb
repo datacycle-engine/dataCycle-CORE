@@ -2,7 +2,7 @@
     <div class="reveal new-item" id="<%= reveal_id %>" data-reveal>
         <h3><%= reveal_title %></h3>
 
-        <% if params[:search].blank? %>
+        <% if params.dig(:f, :s, :v).blank? %>
             <span class="notice"><%= t('common.no_search', locale: DataCycleCore.ui_language) %></span>
         <% end %>
 
@@ -13,9 +13,9 @@
             <%= hidden_field_tag 'parent_template', parent_template if local_assigns.has_key?(:parent_template) %>
             <div class="validation-container form-element">
                 <%= label_tag 'creative_work[datahash][headline]', 'Titel' %>
-                <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value: params[:search], disabled: params[:search].blank? %>
+                <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value: params.dig(:f, :s, :v), disabled: params.dig(:f, :s, :v).blank? %>
             </div>
-            <% if params[:search].present? %>
+            <% if params.dig(:f, :s, :v).present? %>
                 <%= f.submit t(:submit, locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: t(:submit, locale: DataCycleCore.ui_language) } %>
             <% end %>
         <% end %>

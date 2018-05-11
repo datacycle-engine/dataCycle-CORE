@@ -173,6 +173,7 @@ Style/ClassVars:
     - 'app/models/data_cycle_core/master_data/validators/number.rb'
     - 'app/models/data_cycle_core/master_data/validators/object.rb'
     - 'app/models/data_cycle_core/master_data/validators/string.rb'
+    - 'app/models/data_cycle_core/master_data/validators/asset.rb'
 
 # Offense count: 33
 Style/DateTime:

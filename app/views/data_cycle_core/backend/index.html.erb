@@ -7,7 +7,7 @@
 <% end %>
 
 <% content_for :top_content do %>
-  <%= render 'filter' if user_signed_in? %>
+  <%= render 'filter', filter: { search: true, language: true, store: true, advanced: parse_advanced_filters } if user_signed_in? %>
 <% end %>
 
 <%= render 'results', contents: @contents %>

@@ -31,7 +31,18 @@ module DataCycleCore
         )
       end
 
-      def by_watch_list_id(id = nil)
+      def external_source(ids = nil)
+        return self if ids.blank?
+
+        query = Arel::SelectManager.new
+          .project(content_meta_item[:id])
+          .from(content_meta_item)
+          .where(content_meta_item[:external_source_id].in(ids))
+
+        reflect(@query.where(search[:content_data_id].in(query)))
+      end
+
+      def watch_list_id(id = nil)
         manager = get_watch_list_items(id)
 
         reflect(
@@ -47,7 +58,7 @@ module DataCycleCore
         )
       end
 
-      def with_relation(name = nil)
+      def relation(name = nil)
         manager = find_relation(name)
 
         reflect(
@@ -77,7 +88,7 @@ module DataCycleCore
         reflect(@query.where(id: query))
       end
 
-      def with_classification_alias_ids(ids = nil)
+      def classification_alias_ids(ids = nil)
         return self if ids.blank?
 
         manager = create_classification_alias_recursion(ids)
@@ -183,6 +194,10 @@ module DataCycleCore
 
       def creative_work
         DataCycleCore::CreativeWork.arel_table
+      end
+
+      def content_meta_item
+        DataCycleCore::ContentMetaItem.arel_table
       end
 
       def content_content

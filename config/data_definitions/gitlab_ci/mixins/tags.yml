@@ -1,0 +1,12 @@
+---
+- :data:
+    :name: tags
+    :type: mixin
+    :properties:
+      :keywords:
+        :label: Tags
+        :type: classificationTreeLabel
+        :type_name: Tags
+        :storage_location: classification_relation
+        :editor:
+          :type: input

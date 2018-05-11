@@ -11,7 +11,7 @@
         :editor:
           :type: input
       :keywords_medienarchive:
-        :label: Tags
+        :label: MediaArchive - Tags
         :type: classificationTreeLabel
         :type_name: MediaArchive - Tags
         :storage_location: classification_relation

@@ -1,0 +1,17 @@
+<span class="tag-group tags" data-id="<%= "#{sanitize_to_id(key)}_#{index}" if buttons ||= false %>">
+  <i class="tag-group-label">
+    <i class="fa fa-tags" aria-hidden="true"></i>
+    <%= key %>:
+  </i>
+
+  <% value.each do |tag| %>
+    <span class="tag"><%= tag %></span>
+  <% end %>
+
+  <% if buttons %>
+    <span class="tag-buttons">
+      <a class="focus-advanced-filter advanced-filter-link" data-target="<%= sanitize_to_id(key) %>_<%= index %>"><i aria-hidden="true" class="fa fa-cog"></i></a>
+      <a class="remove-advanced-filter advanced-filter-link" data-target="<%= sanitize_to_id(key) %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+    </span>
+  <% end %>
+</span>

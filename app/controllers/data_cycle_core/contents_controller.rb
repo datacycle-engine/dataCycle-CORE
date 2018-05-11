@@ -2,6 +2,10 @@ module DataCycleCore
   class ContentsController < ApplicationController
     before_action :set_watch_list
 
+    def index
+      redirect_back(fallback_location: root_path)
+    end
+
     def new_embedded_object
       respond_to(:js)
     end
@@ -24,7 +28,7 @@ module DataCycleCore
       @object = ('DataCycleCore::' + object_type.singularize.classify).constantize.find_by(id: params[:id])
 
       # Create idea_collection if it doesn't exist and active life_cycle_stage is correct
-      if @object.is_content_type?('container') && helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id) == life_cycle_params[:id] && !@object.children.where(template_name: DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage)).exists?
+      if DataCycleCore::Feature::Container.enabled? && @object.is_content_type?('container') && helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id) == life_cycle_params[:id] && !@object.children.where(template_name: DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage)).exists?
         idea_collection_params = ActionController::Parameters.new({ datahash: { headline: @object.headline } }).permit!
         idea_collection = DataCycleCore::DataHashService.create_internal_object(object_type, DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), idea_collection_params, current_user)
         idea_collection.is_part_of = @object.id unless @object.nil?
