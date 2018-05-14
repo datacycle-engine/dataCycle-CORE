@@ -422,7 +422,7 @@ module DataCycleCore
       when 'classification'
         set_relation_ids(value, key, properties['tree_label'], properties['default_value'])
       when 'asset'
-        set_asset_id(value, key, properties['type_name'])
+        set_asset_id(value, key, properties['asset_type'])
       when 'key'
         # do nothing
         true

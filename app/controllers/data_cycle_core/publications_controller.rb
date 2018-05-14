@@ -5,7 +5,7 @@ module DataCycleCore
     authorize_resource class: false # from cancancan (authorize)
 
     def index
-      @publication_classifications = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Publikations-Plan')&.schema&.dig('properties')&.select { |k, v| v['type'] == 'classificationTreeLabel' && !DataCycleCore.internal_data_attributes.include?(k) }&.map { |k, v| [k, v['type_name']] }.to_h
+      @publication_classifications = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Publikations-Plan')&.schema&.dig('properties')&.select { |k, v| v['type'] == 'classification' && !DataCycleCore.internal_data_attributes.include?(k) }&.map { |k, v| [k, v['tree_label']] }.to_h
 
       @classification_array ||= []
 
