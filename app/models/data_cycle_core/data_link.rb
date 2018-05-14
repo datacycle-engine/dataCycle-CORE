@@ -25,11 +25,11 @@ module DataCycleCore
     end
 
     def self.valid
-      where('(valid_from IS NULL OR valid_from <= :d) AND (valid_until IS NULL OR valid_until >= :d)', d: DateTime.now)
+      where('(valid_from IS NULL OR valid_from <= :d) AND (valid_until IS NULL OR valid_until >= :d)', d: Time.now.round)
     end
 
     def is_valid?
-      !valid_from.presence&.>(DateTime.now) && !valid_until.presence&.<(DateTime.now)
+      !valid_from.presence&.>(Time.now.round) && !valid_until.presence&.<(Time.now.round)
     end
 
     private
@@ -37,19 +37,20 @@ module DataCycleCore
     def set_release_status
       creator.subscriptions.find_or_create_by(subscribable_id: item.id, subscribable_type: item.class) if DataCycleCore.content_tables.include?(item.class.table_name)
 
-      if item.try(:schema)&.dig('releasable') && DataCycleCore.release_codes.present? && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner]).present?
+      release_id = DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner])&.id if DataCycleCore.release_codes.present?
+
+      if DataCycleCore::Feature::Releasable.allowed?(item) && release_id.present? && item.release_id != release_id
         I18n.with_locale(item.first_available_locale) do
-          item.update(release_id: DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner])&.id)
+          item.update(release_id: release_id)
         end
-      elsif item.is_a?(DataCycleCore::WatchList)
-        release_id = DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner])&.id
+      elsif item.is_a?(DataCycleCore::WatchList) && release_id.present?
         item.watch_list_data_hashes.includes(:hashable).map(&:hashable).each do |content|
+          next unless DataCycleCore::Feature::Releasable.allowed?(content) && content.release_id != release_id
+
           I18n.with_locale(content.first_available_locale) do
-            content.update(release_id: release_id) if content.try(:schema)&.dig('releasable') && content.release_id != release_id
+            content.update(release_id: release_id)
           end
         end
-      I18n.with_locale(item.first_available_locale) do
-        item.update(release_id: DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner])&.id) if DataCycleCore::Feature::Releasable.allowed?(item) && DataCycleCore.release_codes.present? && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner]).present?
       end
     end
   end

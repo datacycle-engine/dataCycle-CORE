@@ -5,7 +5,6 @@ module DataCycleCore
     before_action :set_user, only: [:edit, :update, :destroy, :unlock]
 
     def index
-      authorize! :index, DataCycleCore::User
       if current_user.has_rank?(10)
         @paginateObject = DataCycleCore::User.includes(:role, :user_groups).order(:email).page(params[:page])
       else
@@ -74,7 +73,7 @@ module DataCycleCore
     end
 
     def search
-      authorize! :show, DataCycleCore::DataLink
+      authorize! :show, DataCycleCore::User
       users = DataCycleCore::User.where('email ILIKE :q', q: "%#{params[:q]}%").limit(20)
 
       render json: users

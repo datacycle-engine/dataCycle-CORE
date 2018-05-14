@@ -9,26 +9,23 @@ module DataCycleCore
         can :index, DataCycleCore::TextFile, creator_id: user.sibling_ids
         can [:create, :update], DataCycleCore::TextFile, creator_id: user.id
 
+        can [:show, :new_asset_object, :remove_asset_object], DataCycleCore::Asset
+        can [:create_global, :create_api], DataCycleCore::StoredFilter, user_id: user.id
+
         # User Administraion
-        can [:read, :create_user, :update, :destroy, :unlock, :generate_access_token], DataCycleCore::User do |the_user|
-          the_user == user || user&.role&.rank&.>(the_user&.role&.rank)
-        end
-        can [:set_role, :set_user_groups], DataCycleCore::User do |the_user|
-          !the_user.has_rank?(user.role.rank) || user == the_user
+        can [:read, :create_user, :update, :destroy, :unlock, :generate_access_token, :set_role, :set_user_groups], DataCycleCore::User do |the_user|
+          the_user == user || !the_user.has_rank?(user.role.rank)
         end
 
         # Contents
         can [:update_release_status, :set_life_cycle], CONTENT_MODELS
 
-        can [:read, :create, :import, :update, :validate, :validate_single_data], CONTENT_MODELS do |data_object|
-          data_object.try(:external_key).blank? || data_object&.schema&.dig('features', 'overlay').present?
+        can [:read, :create, :import, :update, :validate, :validate_single_data], CONTENT_MODELS do |content|
+          content.try(:external_key).blank? || DataCycleCore::Feature::Overlay.allowed?(content)
         end
-        can :destroy, CONTENT_MODELS do |data_object|
-          data_object.try(:external_key).blank?
+        can :destroy, CONTENT_MODELS do |content|
+          content.try(:external_key).blank?
         end
-
-        can [:show, :new_asset_object, :remove_asset_object], DataCycleCore::Asset
-        can [:create_global, :create_api], DataCycleCore::StoredFilter, user_id: user.id
 
         # Classifications
         can :manage, [DataCycleCore::Classification, DataCycleCore::ClassificationTree], external_source_id: nil

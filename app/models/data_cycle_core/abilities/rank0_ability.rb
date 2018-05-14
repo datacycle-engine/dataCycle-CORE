@@ -8,20 +8,33 @@ module DataCycleCore
         can [:show, :find], :object_browser
 
         can :edit, DataCycleCore::DataAttribute do |attribute|
-          (
-            attribute.content.try(:external_key).blank? ||
-            (
-              attribute.content&.schema&.dig('features', 'overlay').present? &&
-              (attribute.key.scan(/\[(.*?)\]/).flatten & attribute.content.schema.dig('features', 'overlay')).size.nonzero?
+          if DataCycleCore::Feature::PublicationSchedule.allowed?(attribute.content)
+
+            !(
+              (attribute.key =~ Regexp.union(*DataCycleCore.features.dig(:publication_schedule, :classification_keys))) &&
+              !DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(attribute.content, attribute.key)
             )
-          )
+
+          else
+            (
+              attribute.content.try(:external_key).blank? ||
+              (
+                DataCycleCore::Feature::Overlay.allowed?(attribute.content) &&
+                DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
+              )
+            )
+          end
+        end
+
+        can :show_attribute, DataCycleCore::DataAttribute do |_attribute|
+          true
         end
 
         DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
           if link.is_valid? && link.item_type == 'DataCycleCore::WatchList'
             can [:update, :validate, :validate_single_data, :import], CONTENT_MODELS do |content|
-              if content.try(:schema)&.dig('releasable') && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner]).present?
-                link.item.watch_list_data_hashes.pluck(:hashable_id).include?(content.id) && content.release_id == DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner]).id
+              if DataCycleCore::Feature::Releasable.allowed?(content) && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner]).present?
+                link.item.watch_list_data_hashes.pluck(:hashable_id).include?(content.id) && content.release_id == DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner])&.id
               else
                 link.item.watch_list_data_hashes.pluck(:hashable_id).include?(content.id)
               end
