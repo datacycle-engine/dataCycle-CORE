@@ -2,7 +2,7 @@
 
     <span class="detail-content">
       <%= definition&.dig('validations', 'format') == 'float' ? value.to_f : value.to_i %>
-      <%= definition&.dig('editor', 'options', 'data-unit').presence&.html_safe %>
+      <%= definition&.dig('ui', 'show', 'options', 'data-unit').presence&.html_safe %>
     </span>
 
 <% end %>

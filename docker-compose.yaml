@@ -13,6 +13,7 @@ services:
   web:
     build: .
     environment:
+#    - RAILS_ENV=test
     - POSTGRES_USER=postgres
     - POSTGRES_PASSWORD=
     - POSTGRES_HOST=postgres
