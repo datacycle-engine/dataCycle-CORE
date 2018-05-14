@@ -7,75 +7,53 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
         :search: true
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
+        :validations:
+          :min: 1
       :validity_period:
         :type: mixin
         :name: validity_period
       :caption:
         :label: Alt-Label
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :description:
-        :label: Beschreibung
+        :label: Teasertext
         :type: string
-        :storage_type: text
         :storage_location: column
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: basic
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :content_url:
         :label: Bild URL
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: url
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
       :thumbnail_url:
         :label: Thumbnail URL
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: url
-        :editor:
-          :type: input
-          :options:
-            :data-type: image
+        :ui:
+          :show:
+            :type: preview_image
       :url:
         :label: Inhalt URL
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: url
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
 #      :asset:
 #        :label: Datei
 #        :type: asset
@@ -86,60 +64,40 @@
       :photographer:
         :label: Fotograf
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :search: true
-        :editor:
-          :type: input
       :license:
         :label: Copyright / Lizenz
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :search: true
-        :editor:
-          :type: input
       :content_location:
         :label: Ort
-        :type: object
-        :storage_location: places
-        :name: Örtlichkeit
-        :editor:
-          :type: objectBrowser
+        :type: linked
+        :linked_table: places
+        :template_name: Örtlichkeit
       :width:
         :label: Breite
         :type: number
-        :storage_type: number
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: integer
-        :editor:
-          :type: input
       :height:
         :label: Höhe
         :type: number
-        :storage_type: number
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: integer
-        :editor:
-          :type: input
       :content_size:
         :label: Dateigröße
         :type: number
-        :storage_type: number
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: integer
-        :editor:
-          :type: input
       :file_format:
         :label: Dateiformat
         :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :editor:
-          :type: input
+        :storage_location: value
       :tags:
         :type: mixin
         :name: tags          
@@ -151,9 +109,8 @@
         :name: media_archive_categories
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Bild"
       :content_classifications:
         :type: mixin

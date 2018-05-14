@@ -3,17 +3,11 @@
     :name: tags
     :type: mixin
     :properties:
-      :keywords:
+      :tags:
         :label: Tags
-        :type: classificationTreeLabel
-        :type_name: Tags
-        :storage_location: classification_relation
-        :editor:
-          :type: input
+        :type: classification
+        :tree_label: Tags
       :keywords_medienarchive:
         :label: MediaArchive - Tags
-        :type: classificationTreeLabel
-        :type_name: MediaArchive - Tags
-        :storage_location: classification_relation
-        :editor:
-          :type: input
+        :type: classification
+        :tree_label: MediaArchive - Tags

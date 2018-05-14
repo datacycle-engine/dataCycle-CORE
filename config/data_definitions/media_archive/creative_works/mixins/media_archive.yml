@@ -5,47 +5,26 @@
     :properties:
       :mandatory_license:
         :label: Copyright Nennung verpflichtend
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: boolean
-        :editor:
-          :type: input
+        :type: boolean
+        :storage_location: value
       :comment:
         :label: Kommentar
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :source:
         :label: Erhalten von
         :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :editor:
-          :type: input
+        :storage_location: value
       :image_id:
         :label: Bildnummer
         :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :editor:
-          :type: input
+        :storage_location: value
       :visibility:
         :label: Sichtbarkeit
         :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :editor:
-          :type: input
+        :storage_location: value
       :restrictions:
         :label: Einschränkungen
         :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :search: true
-        :editor:
-          :type: input
+        :storage_location: value

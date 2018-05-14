@@ -5,8 +5,5 @@
     :properties:
       :access:
         :label: Rechte/Einsatzgebiet
-        :type: classificationTreeLabel
-        :type_name: Rechte
-        :storage_location: classification_relation
-        :editor:
-          :type: input
+        :type: classification
+        :tree_label: Rechte
