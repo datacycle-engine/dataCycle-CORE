@@ -264,8 +264,9 @@ module DataCycleCore
           end
 
           rule(classification_relation: [:type, :tree_label]) do |type, tree_label|
-            type.eql?('classification') >
-              tree_label.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte'])
+            # type.eql?('classification') >
+            #   tree_label.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte'])
+            type.eql?('classification') > tree_label.filled?
           end
 
           rule(asset_relation: [:type, :asset_type]) do |type, asset_type|
