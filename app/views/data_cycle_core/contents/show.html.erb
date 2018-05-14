@@ -4,7 +4,7 @@
     <%= render_content_partial 'header', content: @content %>
 <% end %>
 
-<% if @content.is_content_type?('container') %>
+<% if DataCycleCore::Feature::Container.enabled? && @content.is_content_type?('container') %>
   <ul class="accordion container-details" data-accordion data-allow-all-closed="true">
     <li class="accordion-item is-active" data-accordion-item>
       <div class="accordion-content" data-tab-content>

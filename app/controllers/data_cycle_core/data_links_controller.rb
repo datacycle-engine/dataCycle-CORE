@@ -1,5 +1,6 @@
 module DataCycleCore
   class DataLinksController < ApplicationController
+    before_action :authenticate_user!, except: [:show, :find, :get_text_file] # from devise (authenticate)
     load_and_authorize_resource except: [:show, :find, :get_text_file] # from cancancan (authorize)
 
     def show
