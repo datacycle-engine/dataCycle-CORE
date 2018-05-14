@@ -19,7 +19,6 @@
           :edit:
             :type: date
             :options:
-              :data-validate: daterange
               :placeholder: tt.mm.jjjj
           :show:
             :type: date
