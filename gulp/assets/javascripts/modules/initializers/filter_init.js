@@ -3,7 +3,7 @@ module.exports.initialize = function () {
 
   // submit searchform on blur
   if ($('#search-form').length > 0) {
-    $('#search-form input#search').change(function () {
+    $('#search-form input.fulltext-search-field').change(function () {
       $(this).closest('#search-form').submit();
     });
   }

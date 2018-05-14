@@ -56,5 +56,12 @@ module DataCycleCore
       end
       classification_tree
     end
+
+    def classification_tree_label_has_children?(treelabel)
+      DataCycleCore::Classification
+        .includes(:classification_groups, :classification_aliases)
+        .joins(classification_aliases: [classification_tree: [:classification_tree_label]])
+        .where('classification_tree_labels.name = ?', treelabel).count.positive?
+    end
   end
 end

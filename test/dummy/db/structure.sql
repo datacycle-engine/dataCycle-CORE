@@ -234,10 +234,11 @@ CREATE TABLE content_content_histories (
     content_b_history_id uuid,
     content_b_history_type character varying,
     relation_b character varying,
-    external_source_id uuid,
     history_valid tstzrange,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    order_a integer,
+    order_b integer
 );
 
 
@@ -253,7 +254,66 @@ CREATE TABLE content_contents (
     content_b_id uuid,
     content_b_type character varying,
     relation_b character varying,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    order_a integer,
+    order_b integer
+);
+
+
+--
+-- Name: creative_works; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE creative_works (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    "position" integer DEFAULT 0,
+    is_part_of uuid,
+    metadata jsonb,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     external_source_id uuid,
+    template boolean DEFAULT false NOT NULL,
+    external_key character varying,
+    template_name character varying,
+    schema jsonb
+);
+
+
+--
+-- Name: events; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE events (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    start_date timestamp without time zone,
+    end_date timestamp without time zone,
+    metadata jsonb,
+    template boolean DEFAULT false NOT NULL,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    external_source_id uuid,
+    external_key character varying,
+    template_name character varying,
+    schema jsonb
+);
+
+
+--
+-- Name: organizations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE organizations (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    metadata jsonb,
+    template boolean DEFAULT false NOT NULL,
+    seen_at timestamp without time zone,
+    template_name character varying,
+    schema jsonb,
+    external_source_id uuid,
+    external_key character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -2499,6 +2559,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180329064133'),
 ('20180330063016'),
 ('20180410220414'),
+('20180417130441'),
 ('20180421162723'),
 ('20180425110943'),
 ('20180430064709');

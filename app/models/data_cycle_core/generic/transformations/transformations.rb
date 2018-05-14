@@ -3,6 +3,29 @@ module DataCycleCore::Generic::Transformations::Transformations
     DataCycleCore::Generic::Transformations::Functions[*args]
   end
 
+  def self.google_places_to_poi
+    t(:stringify_keys)
+    .>> t(:reject_keys, ['id', 'photos', 'adr_address', 'reviews'])
+    .>> t(:rename_keys,
+          'website' => 'url',
+          'place_id' => 'external_key',
+          'formatted_phone_number' => 'telephone')
+    .>> t(:add_field, 'latitude', ->s { s['geometry'].try(:[], 'location').try(:[], 'lat').try(:to_f) })
+    .>> t(:add_field, 'longitude', ->s { s['geometry'].try(:[], 'location').try(:[], 'lng').try(:to_f) })
+    .>> t(:add_field, 'location', ->s {
+      RGeo::Geographic.spherical_factory(srid: 4326).point(s['longitude'], s['latitude']) if s['longitude'] && s['latitude']
+    })
+    .>> t(:add_field, 'street_number', ->s { s['address_components'].select { |item| item['types'].include?('street_number') }&.first.try(:[], 'long_name') })
+    .>> t(:add_field, 'street_name', ->s { s['address_components'].select { |item| item['types'].include?('route') }&.first.try(:[], 'long_name') })
+    .>> t(:add_field, 'street_address', ->s { [s['street_name'], s['street_number']].join(' ') })
+    .>> t(:add_field, 'address_locality', ->s { s['address_components'].select { |item| item['types'].include?('locality') }&.first.try(:[], 'long_name') })
+    .>> t(:add_field, 'postal_code', ->s { s['address_components'].select { |item| item['types'].include?('postal_code') }&.first.try(:[], 'long_name') })
+    .>> t(:add_field, 'address_country', ->s { s['address_components'].select { |item| item['types'].include?('country') }&.first.try(:[], 'long_name') })
+    .>> t(:nest, 'address', ['street_address', 'address_locality', 'address_country', 'postal_code'])
+    .>> t(:reject_keys, ['geometry', 'address_components'])
+    .>> t(:strip_all)
+  end
+
   def self.media_archive_to_video(external_source_id)
     t(:stringify_keys)
     .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])

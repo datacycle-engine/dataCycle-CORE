@@ -38,7 +38,6 @@ module DataCycleCore
                   item.dump ||= {}
                   item.dump[locale] = item_data
                   item.save!
-
                   @logging.item_processed(item_name, item_id, item_count, max_string)
                 rescue StandardError => e
                   @logging.error(item_name, item_id, item_data, e)

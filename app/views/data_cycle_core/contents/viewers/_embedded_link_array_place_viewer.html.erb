@@ -5,7 +5,7 @@
 
         <% data_hash = item.get_data_hash %>
 
-        <%= render_attribute_viewer key: key, definition: item.schema, value: normalize_value(data_hash), parameters: { options: options } %>
+        <%= render_attribute_viewer key: key, definition: item.schema, value: normalize_value(data_hash), parameters: { options: options, content: @content  } %>
 
   <% end %>
 

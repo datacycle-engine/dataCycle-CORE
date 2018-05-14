@@ -9,6 +9,7 @@ require 'pg'
 require 'activerecord-postgis-adapter'
 require 'acts_as_tree'
 require 'rgeo'
+require 'rgeo-geojson'
 require 'mongoid'
 
 # authentication
@@ -72,41 +73,32 @@ module DataCycleCore
     mattr_accessor :internal_data_attributes
     self.internal_data_attributes = ['creator', 'data_type', 'data_pool', 'is_part_of']
 
-    mattr_accessor :default_image_type
-    self.default_image_type = 'Bild'
-
-    mattr_accessor :default_place_type
-    self.default_place_type = 'Örtlichkeit'
-
     mattr_accessor :access_tokens
     self.access_tokens = []
-
-    mattr_accessor :content_tables
-    self.content_tables = ['creative_works', 'events', 'persons', 'organizations', 'places']
 
     mattr_accessor :asset_objects
     self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::TextFile']
 
-    mattr_accessor :allowed_api_strategies
-    self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource']
+    mattr_accessor :content_tables
+    self.content_tables = ['creative_works', 'events', 'persons', 'organizations', 'places']
 
     mattr_accessor :linked_tables
     self.linked_tables = ['users']
 
+    mattr_accessor :allowed_api_strategies
+    self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource']
+
     mattr_accessor :excluded_filter_classifications
-    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Örtlichkeit - Overlay', 'Publikations-Plan']
+    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Overlay', 'Publikations-Plan']
 
     mattr_accessor :excluded_new_item_objects
     self.excluded_new_item_objects = []
-
-    mattr_accessor :allowed_content_api_classifications
-    self.allowed_content_api_classifications = ['Angebot', 'Artikel', 'Bild', 'Social Media Posting']
 
     mattr_accessor :ui_language
     self.ui_language = :de
 
     mattr_accessor :translatable_types
-    self.translatable_types = ['DataCycleCore::Person', 'DataCycleCore::Organization', 'DataCycleCore::Place']
+    self.translatable_types = ['DataCycleCore::Person', 'DataCycleCore::Organization', 'DataCycleCore::Place', 'DataCycleCore::Event']
 
     mattr_accessor :release_codes
     self.release_codes = {
@@ -118,9 +110,27 @@ module DataCycleCore
     self.notification_frequencies = ['always', 'day', 'week']
 
     # features
-    # autoload_last_filter, life_cycle, publishable, ...
+    # autoload_last_filter?, life_cycle, releasable, overlay, container, publishing ...
     mattr_accessor :features
-    self.features = {}
+    self.features = {
+      publication_schedule: {
+        enabled: false
+      },
+      overlay: {
+        enabled: false
+      },
+      releasable: {
+        enabled: false
+      },
+      life_cycle: {
+        enabled: false
+      },
+      container: {
+        enabled: false,
+        exluded: [],
+        allowed: []
+      }
+    }
 
     # inheritable_attributes
     mattr_accessor :inheritable_attributes
@@ -146,7 +156,27 @@ module DataCycleCore
     mattr_accessor :available_filters
     self.available_filters = {
       main: ['Inhaltstypen'],
-      advanced: []
+      advanced: {}
+    }
+
+    # obsolete: remove after projects initializer update
+    mattr_accessor :allowed_content_api_classifications
+    self.allowed_content_api_classifications = []
+
+    # replace default_image_type + default_place_type with default_templates
+    mattr_accessor :default_image_type
+    self.default_image_type = 'Bild'
+
+    mattr_accessor :default_place_type
+    self.default_place_type = 'Örtlichkeit'
+
+    mattr_accessor :default_templates
+    self.default_templates = {
+      images: 'Bild',
+      places: 'Örtlichkeit',
+      events: 'Event',
+      persons: 'Person',
+      organizations: 'Organization'
     }
   end
 
@@ -177,7 +207,25 @@ module DataCycleCore
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
 
+    config.assets.version = '1.0'
     config.assets.precompile += ['data_cycle_core/*']
+
+    config.action_dispatch.cookies_serializer = :json
+    # TODO: check: raise_on_unfiltered_parameters never worked in main application
+    # config.action_controller.raise_on_unfiltered_parameters = true
+    config.action_controller.per_form_csrf_tokens = true
+    config.action_controller.forgery_protection_origin_check = true
+    # Configure SSL options to enable HSTS with subdomains. Previous versions had false.
+    config.ssl_options = { hsts: { subdomains: true } }
+    # Make Ruby 2.4 preserve the timezone of the receiver when calling `to_time`.
+    # Previous versions had false.
+    ActiveSupport.to_time_preserves_timezone = true
+    # Do not halt callback chains when a callback returns false. Previous versions had true.
+    ActiveSupport.halt_callback_chains_on_return_false = false
+    # Enable parameter wrapping for JSON. You can disable this by setting :format to an empty array.
+    ActiveSupport.on_load(:action_controller) do
+      wrap_parameters format: [:json]
+    end
 
     # use active_record as orm (!not mongoid)
     config.app_generators.orm = :active_record

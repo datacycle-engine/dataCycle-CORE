@@ -6,16 +6,13 @@ module DataCycleCore
     load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
     after_action :check_final, :set_publication_attributes, only: :update
 
-    def index
-    end
-
     def show
       @content = DataCycleCore::CreativeWork.find_by(id: params[:id])
 
       redirect_back(fallback_location: root_path) && return if @content.nil?
 
       I18n.with_locale(@content.first_available_locale) do
-        if @content.is_content_type?('container')
+        if DataCycleCore::Feature::Container.enabled? && @content.is_content_type?('container')
           @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
           @filters.push(
             {
@@ -27,11 +24,11 @@ module DataCycleCore
 
           @entities = DataCycleCore::CreativeWork.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
           @entities = @entities.where('template_name NOT IN(?)', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects)
-          @entities = @entities.where(template_name: @content.schema&.dig('features', 'container', 'allowed')) if @content.schema&.dig('features', 'container', 'allowed')
-          @entities = @entities.where.not(template_name: @content.schema&.dig('features', 'container', 'excluded')) if @content.schema&.dig('features', 'container', 'excluded')
+          @entities = DataCycleCore::Feature::Container.apply_allowed_contents(@content, @entities)
+          @entities = DataCycleCore::Feature::Container.apply_excluded_contents(@content, @entities)
         end
 
-        @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if @content.schema['releasable'] && !@content.release_id.nil?
+        @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if DataCycleCore::Feature::Releasable.allowed?(@content) && !@content.release_id.nil?
         @dataSchema = @content.get_data_hash
 
         respond_to do |format|
@@ -96,7 +93,7 @@ module DataCycleCore
       end
 
       I18n.with_locale(@creativeWork.first_available_locale) do
-        unless @creativeWork.read_write?
+        unless can?(:edit, @creativeWork)
           redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end
@@ -136,7 +133,7 @@ module DataCycleCore
       end
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
-        unless @content.read_write?
+        unless can?(:edit, @content)
           redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end
@@ -287,7 +284,7 @@ module DataCycleCore
     end
 
     def set_publication_attributes
-      if DataCycleCore.features.dig(:publication_schedule, :classification_keys).present? && @creativeWork.respond_to?('publication_schedule')
+      if DataCycleCore.features.dig(:publication_schedule, :classification_keys).present? && DataCycleCore::Feature::PublicationSchedule.available?(@creativeWork) && @creativeWork.respond_to?('publication_schedule')
         I18n.with_locale(@creativeWork.first_available_locale) do
           datahash_params = creative_work_params('creative_works', @creativeWork.template_name)
           datahash = DataCycleCore::DataHashService.flatten_datahash_value(datahash_params[:datahash], @creativeWork.schema, false)

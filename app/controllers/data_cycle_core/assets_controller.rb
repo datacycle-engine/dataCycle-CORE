@@ -40,7 +40,6 @@ module DataCycleCore
 
     def new_asset_object
       object_type = DataCycleCore.asset_objects.find { |object| object == additional_params[:definition]['type_name'] }
-
       @asset = object_type.constantize.new(asset_params).set_content_type.set_file_size
       @asset.creator_id = current_user.try(:id)
 

@@ -1,9 +1,5 @@
 module DataCycleCore
   module ContentHelpers
-    def read_write?
-      schema['permissions']['read_write']
-    end
-
     def title
       raise NotImplementedError
     end

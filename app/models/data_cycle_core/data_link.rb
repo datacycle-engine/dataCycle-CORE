@@ -48,6 +48,8 @@ module DataCycleCore
             content.update(release_id: release_id) if content.try(:schema)&.dig('releasable') && content.release_id != release_id
           end
         end
+      I18n.with_locale(item.first_available_locale) do
+        item.update(release_id: DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner])&.id) if DataCycleCore::Feature::Releasable.allowed?(item) && DataCycleCore.release_codes.present? && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner]).present?
       end
     end
   end
