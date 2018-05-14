@@ -19,7 +19,8 @@ DataCycleCore.setup do |config|
 
   if ENV['RAILS_ENV'] == 'test'
     config.default_template_paths = [
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'gitlab_ci')
+      # Rails.root.join('..', '..', 'config', 'data_definitions', 'gitlab_ci')
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'basic')
     ].freeze
     config.excluded_new_item_objects = ['Event', 'Person', 'Örtlichkeit', 'Bild', 'Organization', 'Zeitleiste', 'Linktipps', 'Datei', 'Tour', 'Video', 'Unterkunft']
   else

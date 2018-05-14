@@ -165,51 +165,52 @@ describe DataCycleCore::MasterData::Validators::Object do
       assert_equal(2, validator.error[:warning].size)
     end
 
-    it 'validates daterange with faulty templates, appropriately' do
-      data_hash = {
-        'validity_period' => {
-          'valid_from' => '2016-01-01',
-          'valid_until' => '2017-01-01'
-        }
-      }
-
-      new_template_hash = daterange_hash.deep_dup
-      new_template_hash['validity_period']['validations']['daterange']['from'] = 'from'
-      validator = subject.new(data_hash, new_template_hash)
-      assert_equal(1, validator.error[:error].size)
-      assert_equal(0, validator.error[:warning].size)
-
-      new_template_hash = daterange_hash.deep_dup
-      new_template_hash['validity_period']['validations']['daterange']['to'] = 'to'
-      validator = subject.new(data_hash, new_template_hash)
-      assert_equal(1, validator.error[:error].size)
-      assert_equal(0, validator.error[:warning].size)
-
-      new_template_hash = daterange_hash.deep_dup
-      new_template_hash['validity_period']['validations']['daterange'] = { 'from' => 'valid_from' }
-      validator = subject.new(data_hash, new_template_hash)
-      assert_equal(1, validator.error[:error].size)
-      assert_equal(0, validator.error[:warning].size)
-
-      new_template_hash = daterange_hash.deep_dup
-      new_template_hash['validity_period']['validations']['daterange'] = { 'to' => 'valid_until' }
-      validator = subject.new(data_hash, new_template_hash)
-      assert_equal(1, validator.error[:error].size)
-      assert_equal(0, validator.error[:warning].size)
-
-      new_template_hash = daterange_hash.deep_dup
-      new_template_hash['validity_period']['validations']['daterange'] = {}
-      validator = subject.new(data_hash, new_template_hash)
-      assert_equal(1, validator.error[:error].size)
-      assert_equal(0, validator.error[:warning].size)
-
-      new_template_hash = daterange_hash.deep_dup
-      new_template_hash['validity_period']['validations']['integerrange'] = { 'from' => 'valid_from', 'to' => 'valid_until' }
-      new_template_hash['validity_period']['validations']['format'] = { 'from' => 'data_time' }
-      validator = subject.new(data_hash, new_template_hash)
-      assert_equal(0, validator.error[:error].size)
-      assert_equal(2, validator.error[:warning]['validity_period'].size)
-    end
+    # TODO: [patrick]: check if required
+    # it 'validates daterange with faulty templates, appropriately' do
+    #   data_hash = {
+    #     'validity_period' => {
+    #       'valid_from' => '2016-01-01',
+    #       'valid_until' => '2017-01-01'
+    #     }
+    #   }
+    #
+    #   new_template_hash = daterange_hash.deep_dup
+    #   new_template_hash['validity_period']['validations']['daterange']['from'] = 'from'
+    #   validator = subject.new(data_hash, new_template_hash)
+    #   assert_equal(1, validator.error[:error].size)
+    #   assert_equal(0, validator.error[:warning].size)
+    #
+    #   new_template_hash = daterange_hash.deep_dup
+    #   new_template_hash['validity_period']['validations']['daterange']['to'] = 'to'
+    #   validator = subject.new(data_hash, new_template_hash)
+    #   assert_equal(1, validator.error[:error].size)
+    #   assert_equal(0, validator.error[:warning].size)
+    #
+    #   new_template_hash = daterange_hash.deep_dup
+    #   new_template_hash['validity_period']['validations']['daterange'] = { 'from' => 'valid_from' }
+    #   validator = subject.new(data_hash, new_template_hash)
+    #   assert_equal(1, validator.error[:error].size)
+    #   assert_equal(0, validator.error[:warning].size)
+    #
+    #   new_template_hash = daterange_hash.deep_dup
+    #   new_template_hash['validity_period']['validations']['daterange'] = { 'to' => 'valid_until' }
+    #   validator = subject.new(data_hash, new_template_hash)
+    #   assert_equal(1, validator.error[:error].size)
+    #   assert_equal(0, validator.error[:warning].size)
+    #
+    #   new_template_hash = daterange_hash.deep_dup
+    #   new_template_hash['validity_period']['validations']['daterange'] = {}
+    #   validator = subject.new(data_hash, new_template_hash)
+    #   assert_equal(1, validator.error[:error].size)
+    #   assert_equal(0, validator.error[:warning].size)
+    #
+    #   new_template_hash = daterange_hash.deep_dup
+    #   new_template_hash['validity_period']['validations']['integerrange'] = { 'from' => 'valid_from', 'to' => 'valid_until' }
+    #   new_template_hash['validity_period']['validations']['format'] = { 'from' => 'data_time' }
+    #   validator = subject.new(data_hash, new_template_hash)
+    #   assert_equal(0, validator.error[:error].size)
+    #   assert_equal(2, validator.error[:warning]['validity_period'].size)
+    # end
 
     it 'validates object daterange edge-cases correctly' do
       data_hash = {
