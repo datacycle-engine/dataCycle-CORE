@@ -1,12 +1,12 @@
 ---
-name: Feratel
+name: Feratel Kärnten
 credentials:
-  pos_code: XXXXXX
-  company_code: XXXXXXX
-  range_code: XX
-  range_id: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
-  sales_channel_id: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
-  db_code: XXX
+  pos_code: KAERNTEN
+  company_code: PI78XE567L
+  range_code: RG
+  range_id: 4dac9143-899b-4938-ae23-53941e7c76ad
+  sales_channel_id: BB556229-E7B1-4F21-9C6A-2BEA7120BF5A
+  db_code: KTN
 config:
   download: DataCycleCore::Generic::BatchDownload
   download_config:

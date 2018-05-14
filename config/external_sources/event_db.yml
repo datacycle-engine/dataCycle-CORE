@@ -1,7 +1,7 @@
 ---
 name: Veranstaltungsdatenbank
 credentials:
-  action: /endpoints/58de77772158b76b42001b83
+  action: /endpoints/557ea81f6d6564769e010000
   end_point: /api/v2
   host: http://veranstaltungen.kaernten.at
 config:
@@ -39,9 +39,26 @@ config:
     events:
       sorting: 3
       source_type: events
-      import_strategy: DataCycleCore::Generic::EventDatabase::ImportEvents
+      import_strategy: DataCycleCore::Generic::EventDatabaseV2::ImportEvents
       data_template: Event
       image_template: Bild
-      place_template: Veranstaltungsort      
+      place_template: Örtlichkeit
+      default_values:
+        event:
+          data_type:
+            tree_label: Inhaltstypen
+            value: Veranstaltung
+        subevent:
+          data_type:
+            tree_label: Inhaltstypen
+            value: Veranstaltungstermin
+        place:
+          data_type:
+            tree_label: Inhaltstypen
+            value: Ort
+        image:
+          data_type:
+            tree_label: Inhaltstypen
+            value: Bild
       target_type: DataCycleCore::Event
       logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")

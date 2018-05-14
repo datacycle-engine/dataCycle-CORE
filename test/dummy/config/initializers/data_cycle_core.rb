@@ -1,6 +1,6 @@
 DataCycleCore.setup do |config|
   # general settings
-  # I18n.available_locales = [:de, :en]
+  I18n.available_locales = [:de, :en]
 
   # only required for DataCycleCore dummy app
   Rails.application.config.assets.precompile += ['logo.svg', 'logo.png']
@@ -26,11 +26,9 @@ DataCycleCore.setup do |config|
   else
     config.default_template_paths = [
       Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
-      # Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
-      # Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive')
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive')
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'container')
-      # Rails.root.join('..', '..', 'config', 'data_definitions', 'test')
-      # Rails.root.join('..', '..', 'config', 'data_definitions', 'test_refactored')
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'gitlab_ci')
     ].freeze
   end
