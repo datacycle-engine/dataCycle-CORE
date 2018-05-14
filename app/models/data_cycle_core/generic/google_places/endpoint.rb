@@ -46,6 +46,15 @@ module DataCycleCore
                 next if @border.present? && position.buffer(radius).distance(@border).positive?
                 # puts "load_tile (x: #{x_pos.round(6).to_s.rjust(10)}, y: #{y_pos.round(6).to_s.rjust(10)}, r: #{radius})"
                 load_tile(x: x_pos, y: y_pos, r: radius, i: raster).each do |record|
+                  lat = record.dig('geometry', 'location', 'lat')
+                  lng = record.dig('geometry', 'location', 'lng')
+                  position = nil
+                  position = @factory.parse_wkt("POINT (#{lng} #{lat})") if lat.present? && lng.present?
+                  # puts "pos: (#{record.dig('geometry', 'location', 'lng')}/#{record.dig('geometry', 'location', 'lat')})"
+                  # puts "name: #{record.dig('name')}"
+                  # puts "land: #{record.dig('address_component')&.select { |item| item['types'].include?('country') }&.first&.dig('long_name')}"
+                  # puts "skip: #{@border.present? && position.present? && position.distance(@border).positive?}"
+                  next if @border.present? && position.present? && position.distance(@border).positive?
                   yielder << record
                 end
               end
@@ -57,11 +66,6 @@ module DataCycleCore
           Enumerator.new do |yielder|
             DataCycleCore::Generic::Collection2.with(@read_type) do |mongo_item|
               mongo_item.all.no_timeout.max_time_ms(FIXNUM_MAX).each do |item|
-                lat = item.dig('dump', lang, 'geometry', 'location', 'lat')
-                lng = item.dig('dump', lang, 'geometry', 'location', 'lng')
-                position = nil
-                position = @factory.parse_wkt("POINT (#{lng} #{lat})") if lat.present? && lng.present?
-                next if @border.present? && position.present? && position.distance(@border).positive?
                 yielder << load_detail(item.external_id)['result']
               end
             end
@@ -107,7 +111,7 @@ module DataCycleCore
           loop do
             temp = load_data(location_x: x, location_y: y, radius: r, next_page: next_page_token)
             data_pool += temp['results']
-            # puts "loadedXXXX(#{x}, #{y}, #{r}, #{next_page_token.present?}) /// items: #{temp['results'].size}/// paging: #{page_no}"
+            # puts "loaded    (#{x}, #{y}, #{r}, #{next_page_token.present?}) /// items: #{temp['results'].size}/// paging: #{page_no}"
             # got 60 datapoints within one query --> expect more to be present ==> zoom
             if page_no == 3 && temp['results'].size == 20
               new_tiles = zoom(x, y, r, i)

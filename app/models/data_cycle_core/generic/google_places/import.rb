@@ -4,7 +4,7 @@ module DataCycleCore
       module Import
         def import_data(**options)
           @data_template = options.dig(:import, :data_template) || 'Örtlichkeit'
-          @data_type = load_data_type_id(options.dig(:import, :data_type) || 'GooglePlaces')
+          @data_type = load_data_type_id(options.dig(:import, :data_type) || 'Örtlichkeit')
           @poi_transformation = DataCycleCore::Generic::Transformations::Transformations.google_places_to_poi
           # @source_filter = options.dig(:import, :source_filter) || {}
 
