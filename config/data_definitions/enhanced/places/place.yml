@@ -9,34 +9,21 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :name:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
         :search: true
         :validations:
-          :minLength: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
-      # overlay mixin
+          :min: 1
       :overlay:
         :label: Overlay
-        :type: object
-        :storage_location: creative_works
-        :delete: true
-        :name: PlaceOverlay
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: PlaceOverlay
         :validations:
-          :maxLength: 1
-        :editor:
-          :type: embeddedObject
+          :max: 1
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -49,47 +36,35 @@
       :description:
         :label: Beschreibung
         :type: string
-        :storage_type: string
         :storage_location: column
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: basic
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :text:
         :label: Text
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: basic
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :primary_image:
         :label: Hauptbild
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
         :validations:
           :max: 1
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: media
-            :data-type: image
       :image:
         :label: Bilder
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: string
-        :storage_location: metadata
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: media
-            :data-type: image
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
       :outdoor_active:
         :type: mixin
         :name: outdoor_active
@@ -104,9 +79,8 @@
         :name: xamoom
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Örtlichkeit"
       :content_classifications:
         :type: mixin
