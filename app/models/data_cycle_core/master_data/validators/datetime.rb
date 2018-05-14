@@ -39,7 +39,6 @@ module DataCycleCore
         def min(data, value)
           (@error[:error][@template_key] ||= []) << I18n.t(:min, scope: [:validation, :errors], data: data, min: value.to_i, length: data.length, locale: DataCycleCore.ui_language) if data.length < value.to_i
         end
-
       end
     end
   end
