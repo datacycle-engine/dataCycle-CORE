@@ -151,7 +151,7 @@ de:
       boolean: "%{data} ist kein gültiges Boolean Format. (Nur 'true' oder 'false' erlaubt)"
       url: "%{data} ist keine gültige Url."
       string: "%{template} ist kein String, sondern %{label}."
-      geo: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ."
+      geo: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ, oder einen WKT formatierten String."
       number: "%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data})."
       no_data: "Keine Daten angegeben."
       no_validation: "Keine Validierguns-Daten angegeben."
