@@ -129,6 +129,15 @@ module DataCycleCore
         enabled: false,
         exluded: [],
         allowed: []
+      },
+      main_filter: {
+        enabled: true,
+        classification_alias_ids: ['Inhaltstypen']
+      },
+      advanced_filter: {
+        enabled: true,
+        classification_alias_ids: 'all',
+        external_source: true
       }
     }
 
@@ -151,13 +160,6 @@ module DataCycleCore
 
     # location of import/download configs
     mattr_accessor :external_sources_path
-
-    # available filter
-    mattr_accessor :available_filters
-    self.available_filters = {
-      main: ['Inhaltstypen'],
-      advanced: {}
-    }
 
     # obsolete: remove after projects initializer update
     mattr_accessor :allowed_content_api_classifications
