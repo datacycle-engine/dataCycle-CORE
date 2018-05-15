@@ -4,10 +4,10 @@ module DataCycleCore
       class << self
         def available_filters
           filters = []
-          DataCycleCore.features.dig(name.demodulize.underscore.to_sym)&.except(:enabled).each do |key, value|
+          DataCycleCore.features.dig(name.demodulize.underscore.to_sym)&.except(:enabled)&.each do |key, value|
             filters.concat(try(key.to_sym, value) || [])
           end
-          return filters
+          filters
         end
 
         def classification_alias_ids(value)
