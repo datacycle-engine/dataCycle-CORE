@@ -1,7 +1,7 @@
 module DataCycleCore
   class EventsController < ContentsController
     before_action :authenticate_user! # from devise (authenticate)
-    load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
+    load_and_authorize_resource except: [:validate_single_data, :compare, :load_more_linked_objects] # from cancancan (authorize)
 
     def show
       @content = DataCycleCore::Event.find_by(id: params[:id])

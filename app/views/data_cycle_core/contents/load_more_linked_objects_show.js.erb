@@ -1,6 +1,6 @@
 var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(params[:key]) %>').parent('.clear-both');
 
-<% if params[:definition][:type] == 'embeddedLinkArray' %>
+<% if params[:definition][:type] == 'linked' %>
   <% content_for :rendered_items do %>
     <% @linked_objects.each do |content| %>
       <li class="<%= [
@@ -11,11 +11,11 @@ var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(params
                       ].join(' ') %>" data-id="<%= [content.id] %>">
 
           <%= render_first_existing_partial [
-                                                "data_cycle_core/contents/viewers/linked/#{content.class.name.demodulize.underscore}_#{content.template_name.underscore}_tile",
-                                                "data_cycle_core/contents/viewers/linked/#{content.class.name.demodulize.underscore}_tile",
-                                                'data_cycle_core/contents/viewers/linked/content_tile'
+                                                  "data_cycle_core/contents/viewers/tiles/#{content.class.name.demodulize.underscore}_#{content.template_name.underscore}",
+                                                  "data_cycle_core/contents/viewers/tiles/#{content.class.name.demodulize.underscore}",
+                                                  'data_cycle_core/contents/viewers/tiles/default'
                                             ], {
-                                                content: content
+                                                content: content,
                                             } %>
       </li>
     <% end %>
@@ -27,7 +27,7 @@ var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(params
 
   $('<%= j yield :rendered_items %>').insertAfter(load_more_button).trigger('contents-added', { editor: 'object_browser', single: true }).foundation();
 <% else %>
-  $('<%= j render_attribute_viewer key: params[:key], definition: params[:definition], value: @linked_objects, parameters: { options: params[:options].presence || {}, content: @object } %>').insertAfter(load_more_button).trigger('contents-added', { editor: 'embedded_object', single: false }).foundation();
+  $('<%= j render_attribute_viewer key: params[:key], definition: params[:definition], value: @linked_objects, parameters: { options: params[:options].presence || {} }, content: @object %>').insertAfter(load_more_button).trigger('contents-added', { editor: 'embedded_object', single: false }).foundation();
 <% end %>
 
 load_more_button.remove();

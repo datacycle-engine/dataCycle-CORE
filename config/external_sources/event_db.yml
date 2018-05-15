@@ -55,7 +55,7 @@ config:
         place:
           data_type:
             tree_label: Inhaltstypen
-            value: Ort
+            value: Örtlichkeit
         image:
           data_type:
             tree_label: Inhaltstypen
