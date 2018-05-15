@@ -11,21 +11,11 @@
                    content: content do %>
 
             <span class="detail-label">
-                    <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %><strong><%= definition['label'].titleize %> <%= content_tag(:span, (params.fetch(:page, 1).to_i - 1) * DataCycleCore.linked_objects_page_size + index + 1) if value.try(:total_count)&.>(1) || value.try(:total_pages)&.>(1) %></strong>
-                </span>
+                <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %><strong><%= definition['label'].titleize %> <%= content_tag(:span, (params.fetch(:page, 1).to_i - 1) * DataCycleCore.linked_objects_page_size + index + 1) if value.try(:total_count)&.>(1) || value.try(:total_pages)&.>(1) %></strong>
+            </span>
 
             <div class="buttons">
-                <% if (DataCycleCore.translatable_types & [object.class.name, object.template_name]).present? && I18n.available_locales&.size&.>(1) %>
-                    <span data-tooltip data-allow-html="true" title="<%= object.translated_locales.map{ |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }.join("<br>") %>"><i class="fa fa-language" aria-hidden="true"></i></span>
-                <% end %>
-
-                <%= link_to contents_gpx_path(id: object.id, type: object.class.table_name), class: '', data: { tooltip: '' }, title: t('common.download_gpx', locale: DataCycleCore.ui_language) do %>
-                    <i class="fa fa-location-arrow" aria-hidden="true"></i>
-                <% end if object.respond_to?(:create_gpx) && object.geo_properties.present? %>
-
-                <%= link_to edit_polymorphic_path(object, locale: I18n.locale), data: {tooltip: ''}, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "edit-link" do %>
-                    <i class="fa fa-pencil" aria-hidden="true"></i>
-                <% end if definition['type'] == "linked" && @historySource.nil? && can?(:crud, object) %>
+                <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns %>
             </div>
 
             <% if object.schema.present? %>

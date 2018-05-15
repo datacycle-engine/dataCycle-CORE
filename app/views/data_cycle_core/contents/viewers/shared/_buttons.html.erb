@@ -1,0 +1,11 @@
+<% if (DataCycleCore.translatable_types & [content.class.name, content.template_name]).present? && I18n.available_locales&.size&.>(1) %>
+    <span data-tooltip data-allow-html="true" title="<%= content.translated_locales.map{ |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }.join("<br>") %>"><i class="fa fa-language" aria-hidden="true"></i></span>
+<% end %>
+
+<%= link_to contents_gpx_path(id: content.id, type: content.class.table_name), class: '', data: { tooltip: '' }, title: t('common.download_gpx', locale: DataCycleCore.ui_language) do %>
+    <i class="fa fa-location-arrow" aria-hidden="true"></i>
+<% end if content.respond_to?(:create_gpx) && content.geo_properties.present? %>
+
+<%= link_to edit_polymorphic_path(content, locale: I18n.locale), data: {tooltip: ''}, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "edit-link" do %>
+    <i class="fa fa-pencil" aria-hidden="true"></i>
+<% end if local_assigns[:definition] && definition['type'] == "linked" && @historySource.nil? && can?(:crud, content) %>
