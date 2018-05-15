@@ -97,7 +97,7 @@ module DataCycleCore
         definition.try(:[], 'ui').try(:[], 'history').try(:[], 'type').try(:underscore).to_s,
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
         definition['type'].underscore.to_s
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/history_viewers/#{p}_history_viewer" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/history/#{p}" }
       begin
         render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
       rescue StandardError
@@ -113,6 +113,18 @@ module DataCycleCore
         definition.try(:[], 'linked_table').try(:singularize).try(:underscore).to_s,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/linked/#{p}" }
+
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
+    end
+
+    def render_linked_history_viewer(key:, definition:, value:, parameters: {}, content: nil)
+      partials = [
+        key.underscore.to_s,
+        definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore).to_s,
+        "#{definition.try(:[], 'linked_table').try(:singularize).try(:underscore)}_#{definition.try(:[], 'template_name').try(:parameterize).try(:underscore)}",
+        definition.try(:[], 'linked_table').try(:singularize).try(:underscore).to_s,
+        'default'
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/history/linked/#{p}" }
 
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
