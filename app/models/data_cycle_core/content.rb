@@ -15,6 +15,7 @@ module DataCycleCore
     extend Common::ArelBuilder
     extend ContentFilters
 
+    include MasterData::DataConverter
     include ContentRelations
     include Subscribable
     include Releasable
@@ -265,23 +266,10 @@ module DataCycleCore
     end
 
     def load_json_attribute(property_name, property_definition)
-      convert_data_type(
+      convert_to_type(
         property_definition['type'],
         send(NEW_STORAGE_LOCATION[property_definition['storage_location']]).try(:[], property_name.to_s)
       )
-    end
-
-    def convert_data_type(type, data)
-      case type
-      when 'key', 'string', 'number'
-        data
-      when 'datetime'
-        DataCycleCore::MasterData::DataConverter.string_to_datetime(data)
-      when 'boolean'
-        DataCycleCore::MasterData::DataConverter.string_to_boolean(data)
-      when 'geographic'
-        DataCycleCore::MasterData::DataConverter.string_to_geographic(data)
-      end
     end
 
     def load_included_data(property_name, property_definition)
@@ -301,7 +289,7 @@ module DataCycleCore
         if item['type'] == 'object' && item['storage_location'] == storage_location
           { key => OpenStructHash.new(load_subproperty_hash(item['properties'], storage_location, sub_properties_data.try(:[], key.to_s))).freeze }
         elsif item['storage_location'] == storage_location
-          { key => convert_data_type(item['type'], sub_properties_data.try(:[], key.to_s)) }
+          { key => convert_to_type(item['type'], sub_properties_data.try(:[], key.to_s)) }
         elsif item['storage_location'] == 'column'
           { key => send(key) }
         else

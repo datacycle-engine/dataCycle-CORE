@@ -434,7 +434,7 @@ module DataCycleCore
     def save_values(key, value, properties)
       case properties['storage_location']
       when 'column'
-        method("#{key}=").call(value)
+        send("#{key}=", value)
       when 'value'
         save_to_jsonb(key, value, properties, 'metadata')
       when 'translated_value'
@@ -450,10 +450,10 @@ module DataCycleCore
       return if key == 'creator' && data.nil?
 
       # set to json field (could be empty)
-      if method(location.to_s).call.blank?
-        method("#{location}=").call({ key => data })
+      if send(location.to_s).blank?
+        send("#{location}=", { key => data })
       else
-        method(location.to_s).call.method('[]=').call(key, data)
+        send(location.to_s).method('[]=').call(key, convert_to_string(properties['type'], data))
       end
     end
 
@@ -464,7 +464,7 @@ module DataCycleCore
         if data_definitions[key]['type'] == 'object'
           data_hash[key] = set_data_tree_hash(data[key], data_definitions[key]['properties'], location)
         elsif (data_definitions[key]['storage_location'] == 'value' && location == 'metadata') || (data_definitions[key]['storage_location'] == 'translated_value' && location == 'content')
-          data_hash[key] = data[key] # TODO: if necessary make data casts here!!
+          data_hash[key] = convert_to_string(data_definitions[key]['type'], data[key]) # TODO: if necessary make data casts here!!
         elsif data_definitions[key]['storage_location'] == 'column'
           method("#{key}=").call(data[key])
         end

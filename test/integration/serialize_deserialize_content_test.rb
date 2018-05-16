@@ -61,5 +61,27 @@ module DataCycleCore
       assert_equal('TrueClass', data.data_trans.bool_trans.class.to_s)
       assert_equal('RGeo::Geographic::SphericalPointImpl', data.data_trans.geo_trans.class.to_s)
     end
+
+    test 'write untranslatable data to a jsonb field' do
+      data_template = DataCycleCore::CreativeWork.find_by(template_name: 'SimpleJsonTest', template: true)
+      data = DataCycleCore::CreativeWork.new(
+        schema: data_template.schema,
+        template_name: data_template.template_name
+      )
+      data.save
+      data_hash = {
+        'headline' => 'Test Data',
+        'datum' => Time.zone.now,
+        'bool' => true,
+        'geo' => RGeo::Geographic.spherical_factory(srid: 4326).point(12.3, 40.344)
+      }
+      data.set_data_hash(data_hash: data_hash)
+      data.save
+
+      assert_equal(::String, data.headline.class)
+      assert_equal('ActiveSupport::TimeWithZone', data.datum.class.to_s)
+      assert_equal('TrueClass', data.bool.class.to_s)
+      assert_equal('RGeo::Geographic::SphericalPointImpl', data.geo.class.to_s)
+    end
   end
 end

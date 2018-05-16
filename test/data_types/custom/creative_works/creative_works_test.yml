@@ -220,7 +220,7 @@
     :name: SimpleJsonTest
     :type: object
     :properties:
-      :headine:
+      :headline:
         :label: Titel
         :type: string
         :storage_location: column
@@ -253,7 +253,7 @@
     :name: ComplexJsonTest
     :type: object
     :properties:
-      :headine:
+      :headline:
         :label: Titel
         :type: string
         :storage_location: column

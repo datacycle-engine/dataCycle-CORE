@@ -1,6 +1,32 @@
 module DataCycleCore
   module MasterData
     module DataConverter
+      def convert_to_type(type, data)
+        case type
+        when 'key', 'string', 'number'
+          data
+        when 'datetime'
+          DataCycleCore::MasterData::DataConverter.string_to_datetime(data)
+        when 'boolean'
+          DataCycleCore::MasterData::DataConverter.string_to_boolean(data)
+        when 'geographic'
+          DataCycleCore::MasterData::DataConverter.string_to_geographic(data)
+        end
+      end
+
+      def convert_to_string(type, data)
+        case type
+        when 'key', 'string', 'number'
+          data
+        when 'datetime'
+          DataCycleCore::MasterData::DataConverter.datetime_to_string(data)
+        when 'boolean'
+          DataCycleCore::MasterData::DataConverter.boolean_to_string(data)
+        when 'geographic'
+          DataCycleCore::MasterData::DataConverter.geographic_to_string(data)
+        end
+      end
+
       def self.geographic_to_string(value)
         return nil if value.nil?
         return value if value.is_a?(::String) && string_to_geographic(value).methods.include?(:geometry_type)
