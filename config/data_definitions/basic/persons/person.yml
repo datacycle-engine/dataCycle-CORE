@@ -45,6 +45,9 @@
         :label: Geschlecht
         :type: classification
         :tree_label: Geschlecht
+        :ui:
+          :show:
+            :content_area: header
       :data_type:
         :label: Inhaltstype
         :type: classification

@@ -10,13 +10,9 @@
       :id:
         :label: id
         :type: key
-      :name:
-        :label: Titel
-        :type: string
-        :storage_location: column
-        :search: true
-        :validations:
-          :min: 1
+      :title:
+        :type: mixin
+        :name: title
       :overlay:
         :label: Overlay
         :type: embedded

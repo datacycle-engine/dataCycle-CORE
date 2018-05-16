@@ -7,3 +7,6 @@
         :label: Rechte/Einsatzgebiet
         :type: classification
         :tree_label: Rechte
+        :ui:
+          :show:
+            :content_area: header

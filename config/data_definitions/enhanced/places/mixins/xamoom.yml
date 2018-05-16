@@ -7,3 +7,6 @@
         :label: Xamoom - Tags
         :type: classification
         :tree_label: Xamoom - Tags
+        :ui:
+          :show:
+            :content_area: header

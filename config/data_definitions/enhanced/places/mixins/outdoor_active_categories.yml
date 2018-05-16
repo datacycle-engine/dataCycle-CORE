@@ -7,19 +7,34 @@
         :label: Frontend-Typ
         :type: classification
         :tree_label: OutdoorActive - FrontendTypes
+        :ui:
+          :show:
+            :content_area: header
       :categories:
         :label: Kategorien
         :type: classification
         :tree_label: OutdoorActive - Kategorien
+        :ui:
+          :show:
+            :content_area: header
       :outdoor_active_tags:
         :label: OutdoorActive - Tags
         :type: classification
         :tree_label: OutdoorActive - Tags
+        :ui:
+          :show:
+            :content_area: header
       :regions:
         :label: Regionen
         :type: classification
         :tree_label: OutdoorActive - Regionen
+        :ui:
+          :show:
+            :content_area: header
       :source:
         :label: Quelle
         :type: classification
         :tree_label: OutdoorActive - Quellen
+        :ui:
+          :show:
+            :content_area: header

@@ -7,9 +7,11 @@
       :id:
         :label: id
         :type: key
-      :title:
-        :type: mixin
-        :name: title
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
       :event_period:
         :label: Veranstaltungszeitraum
         :type: object

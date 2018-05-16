@@ -34,6 +34,8 @@
         :ui:
           :edit:
             :type: daterange
+          :show:
+            :content_area: header
         :properties:
           :start_date:
             :label: Startzeitpunkt
