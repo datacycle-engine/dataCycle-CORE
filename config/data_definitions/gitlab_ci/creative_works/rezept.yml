@@ -3,121 +3,91 @@
     :name: Rezept
     :type: object
     :content_type: entity
+    :boost: 100.0
     :features:
       :releasable: true
-    :boost: 100.0
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
-      :headline:
-        :label: Titel
-        :type: string
-        :storage_type: string
-        :storage_location: column
-        :search: true
-        :validations:
-          :minLength: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
       :validity_period:
         :type: mixin
         :name: validity_period
       :description:
         :label: Teasertext
         :type: string
-        :storage_type: text
         :storage_location: column
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: basic
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :name:
         :label: Linktitel
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :image:
         :label: Bilder
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: media
-            :data-type: image
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
       :recipe_instructions:
         :label: Fließtext
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: full
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
       :recipe_yield:
         :label: Portionen
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :total_time:
         :label: Kochzeit
         :type: number
-        :storage_type: number
-        :storage_location: content
+        :storage_location: value
         :validations:
           :format: integer
           :max: 300
-        :editor:
-          :type: duration
-          :options:
-            :data-type: duration
-            :data-validate: integer
-            :data-unit: min
+        :ui:
+          :edit:
+            :type: duration
+            :options:
+              :data-unit: min
+          :show:
+            :options:
+              :data-unit: min
       :recipe_course:
         :label: 'Gang'
-        :type: classificationTreeLabel
-        :type_name: 'Rezept-Gänge'
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
+        :type: classification
+        :tree_label: 'Rezept-Gänge'
       :recipe_category:
         :label: 'Kategorie'
-        :type: classificationTreeLabel
-        :type_name: 'Rezept-Kategorien'
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
+        :type: classification
+        :tree_label: 'Rezept-Kategorien'
       :recipe_ingredient:
         :label: Zutaten
         :type: string
-        :storage_type: text
-        :storage_location: content
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: full
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Rezept"
       :content_classifications:
         :type: mixin

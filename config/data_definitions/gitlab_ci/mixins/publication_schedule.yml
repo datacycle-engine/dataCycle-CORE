@@ -5,11 +5,11 @@
     :properties:
       :publication_schedule:
         :label: Geplante Publikation
-        :type: object
-        :storage_location: creative_works
-        :delete: true
-        :name: Publikations-Plan
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: Publikations-Plan
         :validations:
           :classifications: no_conflicts
-        :editor:
-          :type: embeddedObject
+        :ui:
+          :show:
+            :content_area: header

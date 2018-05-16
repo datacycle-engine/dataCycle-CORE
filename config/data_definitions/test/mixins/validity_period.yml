@@ -6,38 +6,36 @@
       :validity_period:
         :label: Gültigkeitszeitraum
         :type: object
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :daterange:
             :from: valid_from
             :to: valid_until
-        :editor:
-          :options:
-            :class: daterange
+        :ui:
+          :edit:
+            :type: daterange
         :properties:
           :valid_from:
             :label: Gültigkeit
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
+            :type: datetime
+            :storage_location: value
             :validations:
               :format: date_time
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: tt.mm.jjjj
+            :ui:
+              :edit:
+                :type: date
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
           :valid_until:
             :label: bis
-            :type: string
-            :storage_type: string
-            :storage_location: metadata
+            :type: datetime
+            :storage_location: value
             :validations:
               :format: date_time
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: tt.mm.jjjj
+            :ui:
+              :edit:
+                :type: date
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj

@@ -9,137 +9,87 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :overlay:
         :label: TestOverlay
-        :type: object
-        :storage_location: creative_works
-        :delete: true
-        :name: TestOverlay
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: TestOverlay
         :validations:
-          :maxLength: 1
-        :editor:
-          :type: embeddedObject
+          :max: 1
       :headline:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
         :search: true
         :validations:
-          :minLength: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
+          :min: 1
       :description:
         :label: Teasertext
         :type: string
-        :storage_type: text
         :storage_location: column
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: basic
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :text:
         :label: Fließtext
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: full
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
       :number_test:
         :label: Number-Test
         :type: number
-        :storage_type: number
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: integer
-        :editor:
-          :type: input
       :url:
         :label: Inhalt URL
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :format: url
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
       :primary_image:
         :label: Hauptbild
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
         :validations:
           :max: 1
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: media
-            :data-type: image
       :image:
         :label: Bilder
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: media
-            :data-type: image
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
       :content_location:
         :label: Ort
-        :type: object
-        :storage_location: places
-        :name: Örtlichkeit
-        :delete: false
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: object
-            :data-type: place
+        :type: linked
+        :linked_table: places
+        :template_name: Örtlichkeit
       :quotation:
         :label: Zitat
-        :type: object
-        :storage_location: creative_works
-        :delete: true
-        :name: Zitat
-        :editor:
-          :type: embeddedObject
-          :options:
-            :data-validate: text
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: Zitat
       :asset_image:
-        :label: Bild
+        :label: Image-Asset
         :type: asset
-        :type_name: DataCycleCore::Image
-        :storage_location: asset_relation
-        :editor:
-          :type: imageAsset
+        :asset_type: image
       :asset:
         :label: File-Asset
         :type: asset
-        :type_name: DataCycleCore::Asset
-        :storage_location: asset_relation
-        :editor:
-          :type: fileAsset
+        :asset_type: asset
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Test-Template"
       :contact_info:
         :type: mixin

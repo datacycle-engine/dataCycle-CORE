@@ -3,17 +3,11 @@
     :name: content_classifications
     :type: mixin
     :properties:
-      :tags:
-        :label: Tags
-        :type: classificationTreeLabel
-        :type_name: Tags
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
+      :topic:
+        :label: Themenbereiche
+        :type: classification
+        :tree_label: Themenbereiche
       :output_channel:
         :label: Ausgabekanal
-        :type: classificationTreeLabel
-        :type_name: Ausgabekanäle
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
+        :type: classification
+        :tree_label: Ausgabekanäle
