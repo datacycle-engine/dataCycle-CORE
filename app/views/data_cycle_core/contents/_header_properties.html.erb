@@ -1,0 +1,9 @@
+<% ordered_validation_properties(validation: content.schema, content_area: 'header').each do |key, prop| %>
+
+    <% next if prop['type'] == 'classification' %>
+    <% value = content.try(key.to_sym) %>
+    <% value = value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if value.is_a?(ActiveRecord::Relation) %>
+
+    <%= render_attribute_viewer key: key, definition: prop, value: value, parameters: {options: {}}, content: content %>
+
+<% end %>

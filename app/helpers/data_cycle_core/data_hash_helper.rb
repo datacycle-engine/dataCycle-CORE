@@ -9,12 +9,13 @@ module DataCycleCore
       object_type.constantize.find_by("template = true AND schema ->> 'content_type' = ? AND template_name =?", 'entity', template_name)
     end
 
-    def ordered_validation_properties(validation)
+    def ordered_validation_properties(validation:, type: nil, content_area: nil )
       return nil if validation.nil? || validation['properties'].blank?
 
       ordered_properties = ActiveSupport::OrderedHash.new
-
       validation['properties'].each do |prop|
+        next if type.present? && prop[1]['type'] != type
+        next if content_area.present? && prop[1].dig('ui', 'show', 'content_area') != content_area
         if prop[1]['sorting'].present? && !INTERNAL_PROPERTIES.include?(prop[0])
           ordered_properties[prop[1]['sorting'].to_i] = prop
         end

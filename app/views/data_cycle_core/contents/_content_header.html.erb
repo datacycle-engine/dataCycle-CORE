@@ -5,12 +5,18 @@
 
         <% content_title = yield %>
         <% if content_title.blank? %>
-        <div class="title">
-            <%= content.title %>
-        </div>
+            <div class="title">
+                <%= content.title %>
+            </div>
         <% else %>
             <%= content_title %>
         <% end %>
+
+        <%= render 'tags' ,content: content%>
+
+        <%= render 'header_properties' ,content: content%>
+
+        <%= render 'validity_period', dataCycleObject: content %>
 
         <%= render_content_partial 'header_bottom', content: content %>
     </div>

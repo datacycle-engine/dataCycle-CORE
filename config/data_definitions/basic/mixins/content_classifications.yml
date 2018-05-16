@@ -7,7 +7,13 @@
         :label: Tags
         :type: classification
         :tree_label: Tags
+        :ui:
+          :show:
+            :content_area: header
       :output_channel:
         :label: Ausgabekanal
         :type: classification
         :tree_label: Ausgabekanäle
+        :ui:
+          :show:
+            :content_area: header

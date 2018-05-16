@@ -24,23 +24,6 @@
   <% end if can? :destroy, content %>
 </div>
 
-<div class="tags">
-    <% content.classification_tree_definitions.each do |definition| %>
-        <% if content.send(definition[:key]).size.positive? %>
-            <div class="tag-group-wrapper">
-                <span class="icon <%= definition['label'] %>"><i class="fa" aria-hidden="true"></i></span>
-                <span class="tag-group-header"><%= definition['label'] %>: </span>
-
-                <% content.send(definition[:key]).each do |classification| %>
-                    <span class="tag"><%= classification.name %></span>
-                <% end %>
-            </div>
-        <% end %>
-    <% end %>
-</div>
-
-<%= render 'validity_period', dataCycleObject: content %>
-
 <%= render 'release_status', dataCycleObject: content, status: @release_status %>
 
 <%= render 'life_cycle_buttons', local_assigns if content.is_content_type?(['container', 'entity']) && content.schema&.dig('features', 'life_cycle') %>

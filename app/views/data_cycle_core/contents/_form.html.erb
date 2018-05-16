@@ -48,7 +48,7 @@
 
                 <% if content.schema.present? %>
 
-                    <% validation_properties = ordered_validation_properties(content.schema) %>
+                    <% validation_properties = ordered_validation_properties(validation: content.schema) %>
 
                     <%= render 'data_cycle_core/contents/editors/metadata/releasable',
                                value: {'release_id' => content.release_id, 'release_comment' => content.release_comment},

@@ -5,7 +5,7 @@
         <!-- TODO: [patrick]: add icon to data_definition -->
         <span class="embedded-header"><span class="icon"><i class="fa fa-folder-open" aria-hidden="true"></i></span> <%= definition['label'] %></span>
 
-        <% ordered_validation_properties(definition).each do |o_key, o_definition| %>
+        <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
           <%= render_attribute_editor key: "#{key}[#{o_key}]", definition: o_definition, value: value.try(:[], o_key), parameters: { options: {} } , content: content %>
         <% end %>
 

@@ -79,7 +79,7 @@ module DataCycleCore
     end
 
     def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil)
-      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content), :show)
+      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, :show))
       partials = [
         key.underscore.to_s,
         "#{definition['type'].underscore}_#{definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore)}",

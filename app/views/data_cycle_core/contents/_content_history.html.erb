@@ -4,7 +4,7 @@
 
         <% unless content.schema.nil? %>
 
-            <% validation_properties = ordered_validation_properties(content.schema) %>
+            <% validation_properties = ordered_validation_properties(validation: content.schema) %>
 
             <% if validation_properties.present? %>
 

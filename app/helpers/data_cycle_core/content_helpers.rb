@@ -28,17 +28,6 @@ module DataCycleCore
       end
     end
 
-    def classification_tree_definitions
-      schema['properties'].select { |name, definition|
-        definition['type'] == 'classification' && !DataCycleCore.internal_data_attributes.include?(name)
-      }.map { |key, definition|
-        definition['editor'] ||= { 'sorting' => 0 }
-        { key: key }.merge(definition)
-      }.sort do |d1, d2|
-        d1['editor']['sorting'] <=> d2['editor']['sorting']
-      end
-    end
-
     def is_valid
       if try(:validity_period)
         valid_from, valid_to = get_validity_values(validity_period.to_h)
