@@ -22,7 +22,7 @@ module.exports.initialize = function () {
 
       $(this).select2({
         allowClear: true,
-        minimumInputLength: 0,
+        minimumInputLength: 2,
         dropdownParent: $(that).parent(),
         escapeMarkup: function (m) {
           return m;
