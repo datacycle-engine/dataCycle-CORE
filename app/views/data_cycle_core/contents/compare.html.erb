@@ -36,7 +36,7 @@
                                        definition: {'type' => 'releasable'},
                                        options:{compare: true, force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@source) %>
 
-                            <%= render_content_partial 'history', content: @source, options: {compare: true} %>
+                            <%= render_content_partial 'history', content: @source, options: {compare: true, force_render: true} %>
 
                         </div>
                     </div>
@@ -58,7 +58,7 @@
                                        definition: {'type' => 'releasable'},
                                        options:{force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@content) %>
 
-                            <%= render_content_partial 'history', content: @content, options: {} %>
+                            <%= render_content_partial 'history', content: @content, options: {force_render: true} %>
 
                         </div>
 
