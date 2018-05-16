@@ -12,18 +12,8 @@
         <div class="top-bar-right" id="main-menu">
             <ul class="menu">
                 <li>
-                  <%= link_to subscriptions_path, class: 'user-subscriptions-link' do %>
-                    <%= DataCycleCore::Subscription.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>
-                  <% end if user_signed_in? && current_user.role&.rank&.positive? %>
-                </li>
-                <li>
                     <% if can?(:manage, DataCycleCore::WatchList) %>
                         <%= render 'watch_lists' %>
-                    <% end %>
-                </li>
-                <li>
-                    <% if DataCycleCore::Feature::PublicationSchedule.enabled? && can?(:show_publications, DataCycleCore::Content) %>
-                        <%= link_to t('data_cycle_core.publications_calendar', locale: DataCycleCore.ui_language), publications_path, class: 'publications-link' %>
                     <% end %>
                 </li>
                 <li>

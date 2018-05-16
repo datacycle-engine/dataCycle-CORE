@@ -333,6 +333,7 @@ de:
     administration: 'Administration'
     user_settings: Benutzeraktionen
     user_details: Benutzerdetails
+    user_links: Benutzerlinks
     classifications: 'Klassifizierungen'
     this_classification: Dieser Klassifizierung
     this_classification_tree: Diesem Klassifizierungsbaum
