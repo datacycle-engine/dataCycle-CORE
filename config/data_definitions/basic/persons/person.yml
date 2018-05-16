@@ -8,20 +8,9 @@
       :id:
         :label: id
         :type: key
-      :given_name:
-        :label: Vorname
-        :type: string
-        :storage_location: column
-        :search: true
-        :validations:
-          :min: 1
-      :family_name:
-        :label: Nachname
-        :type: string
-        :storage_location: column
-        :search: true
-        :validations:
-          :min: 1
+      :title:
+        :type: mixin
+        :name: title
       :honorific_prefix:
         :label: "Anrede / Titel"
         :type: string

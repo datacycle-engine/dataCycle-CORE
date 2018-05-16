@@ -26,8 +26,8 @@ DataCycleCore.setup do |config|
   else
     config.default_template_paths = [
       Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive')
+      # Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
+      # Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive')
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'container')
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'gitlab_ci')
     ].freeze
@@ -48,7 +48,7 @@ DataCycleCore.setup do |config|
         classification_keys: ['output_channel']
       },
       overlay: {
-        enabled: true
+        enabled: false
       },
       releasable: {
         enabled: true

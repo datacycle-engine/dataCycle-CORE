@@ -17,13 +17,9 @@
         :template_name: EventOverlay
         :validations:
           :max: 1
-      :name:
-        :label: Titel
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :validations:
-          :min: 1
+      :title:
+        :type: mixin
+        :name: title
       :validity_period:
         :type: mixin
         :name: validity_period

@@ -11,13 +11,9 @@
       :id:
         :label: id
         :type: key
-      :headline:
-        :label: Titel
-        :type: string
-        :storage_location: column
-        :search: true
-        :validations:
-          :min: 1
+      :title:
+        :type: mixin
+        :name: title
       :validity_period:
         :type: mixin
         :name: validity_period

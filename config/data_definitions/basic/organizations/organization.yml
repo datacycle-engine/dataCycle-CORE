@@ -8,13 +8,9 @@
       :id:
         :label: id
         :type: key
-      :legal_name:
-        :label: Firmenname
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :validations:
-          :min: 1
+      :title:
+        :type: mixin
+        :name: title
       :contact_info:
         :type: mixin
         :name: contact_info

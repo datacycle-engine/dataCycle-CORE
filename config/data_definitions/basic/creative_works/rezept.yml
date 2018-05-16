@@ -10,16 +10,9 @@
       :id:
         :label: id
         :type: key
-      :headline:
-        :label: Titel
-        :type: string
-        :storage_location: column
-        :search: true
-        :validations:
-          :min: 1
-        :ui:
-          :show:
-            :disabled: true
+      :title:
+        :type: mixin
+        :name: title
       :validity_period:
         :type: mixin
         :name: validity_period
@@ -33,8 +26,6 @@
             :type: text_editor
             :options:
               :data-size: basic
-          :show:
-            :content_area: header
       :name:
         :label: Linktitel
         :type: string
