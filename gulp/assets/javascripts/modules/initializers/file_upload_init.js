@@ -3,6 +3,13 @@ var progress_helper = require('./../helpers/progress_helper');
 var AjaxQueue = require('./../components/ajax_queue');
 
 module.exports.initialize = function () {
+  let reset_form = function (form, disabled_state = false) {
+    var submitButton = form.find(':submit').first();
+
+    form.find('.warning').remove();
+    form.prop('action', form.data('action')).find('input:hidden[name="_method"]').remove();
+    submitButton.html(submitButton.data('create')).attr('disabled', disabled_state).removeData('confirm');
+  }
 
   if ($('#data-link-file-upload-overlay').length) {
     $('#data-link-file-upload-overlay form').attr('data-action', $('#data-link-file-upload-overlay form').prop('action'));
@@ -79,13 +86,5 @@ module.exports.initialize = function () {
         submitButton.attr('disabled', false);
       });
     });
-  }
-
-  function reset_form(form, disabled_state = false) {
-    var submitButton = form.find(':submit').first();
-
-    form.find('.warning').remove();
-    form.prop('action', form.data('action')).find('input:hidden[name="_method"]').remove();
-    submitButton.html(submitButton.data('create')).attr('disabled', disabled_state).removeData('confirm');
   }
 };
