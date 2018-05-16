@@ -15,10 +15,10 @@ module.exports.initialize = function () {
 
       $('.grid .grid-loading').removeClass("show");
 
-      $.each($('.grid-item'), function (i, el) {
+      $('.grid-item').each((index, element) => {
         setTimeout(function () {
-          $(el).addClass("show");
-        }, 50 + (i * 20));
+          $(element).addClass("show");
+        }, 50 + (index * 20));
       });
 
       $(document).on('lazyloaded', function () {
