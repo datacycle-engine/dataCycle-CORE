@@ -10,6 +10,6 @@
         :template_name: Publikations-Plan
         :validations:
           :classifications: no_conflicts
-        :ui:
-          :show:
-            :content_area: header
+#        :ui:
+#          :show:
+#            :content_area: header
