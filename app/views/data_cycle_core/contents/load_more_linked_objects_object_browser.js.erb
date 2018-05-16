@@ -3,7 +3,7 @@ var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(params
 <% content_for :rendered_items, flush: true do %>
   <% I18n.with_locale(params[:language] || I18n.locale) do %>
     <% @linked_objects.each do |content| %>
-      <%= render_object_browser_partial(key: params[:complete_key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: { object: content, options: params[:options], objects: params[:objects], editable: params[:editable] }) %>
+      <%= render_object_browser_partial(key: params[:complete_key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: { object: content, options: params[:options], objects: params[:objects], editable: params[:editable] }, content: @object) %>
     <% end %>
   <% end %>
 <% end %>

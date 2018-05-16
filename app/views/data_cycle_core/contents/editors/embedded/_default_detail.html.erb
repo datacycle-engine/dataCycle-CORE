@@ -12,7 +12,7 @@
                   <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %> <%= definition['label'] %>
                 </span>
 
-                <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, object, :edit)) %>
+                <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
                   <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
                 <% end %>
 
@@ -21,8 +21,7 @@
                 <% validation_properties.each do |o_key, o_prop| %>
 
                     <% value = object.try(o_key.to_sym) %>
-
-                    <%= render_attribute_editor key: "#{key}[#{index}][#{o_key}]", definition: o_prop, value: value, parameters: { options: (o_prop.dig('editor', 'options') || {}), new_content: new_content }, content: object %>
+                    <%= render_attribute_editor key: "#{key}[#{index}][#{o_key}]", definition: o_prop, value: value, parameters: { options: (o_prop.dig('ui', 'edit', 'options') || {}), new_content: new_content }, content: content %>
                 <% end %>
             </div>
 

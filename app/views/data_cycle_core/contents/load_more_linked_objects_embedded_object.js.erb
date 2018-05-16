@@ -1,11 +1,10 @@
 var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(params[:complete_key]) %>');
 
 <% active_index_multiplier = params.fetch(:page, 1).to_i - 1 %>
-
 <% content_for :rendered_items, flush: true do %>
   <% I18n.with_locale(params[:language] || I18n.locale) do %>
     <% @linked_objects.each_with_index do |content, index| %>
-      <%= render_embedded_object_partial(key: params[:complete_key], definition: params[:definition], parameters: { object: content, index: active_index_multiplier * DataCycleCore.linked_objects_page_size + index, options: params[:options], new_content: false }) %>
+      <%= render_embedded_object_partial(key: params[:complete_key], definition: params[:definition], parameters: { object: content, index: active_index_multiplier * DataCycleCore.linked_objects_page_size + index, options: params[:options], new_content: false}, content: @object ) %>
     <% end %>
   <% end %>
 <% end %>
