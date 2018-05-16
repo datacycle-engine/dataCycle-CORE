@@ -222,7 +222,10 @@ module DataCycleCore
         # plain properties (e.g. string,text, ... )
         # non-structured properties of this content-data_set
       elsif PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
-        send(NEW_STORAGE_LOCATION[property_definition['storage_location']]).try(:[], property_name.to_s)
+        load_json_attribute(
+          property_name,
+          property_definition
+        )
 
         # included subobjects
         # properties stored in this content-data_set directly
@@ -261,6 +264,52 @@ module DataCycleCore
       self.class.table_name == storage_location || history
     end
 
+    def load_json_attribute(property_name, property_definition)
+      convert_data_type(
+        property_definition['type'],
+        send(NEW_STORAGE_LOCATION[property_definition['storage_location']]).try(:[], property_name.to_s)
+      )
+    end
+
+    def convert_data_type(type, data)
+      case type
+      when 'key', 'string', 'number'
+        data
+      when 'datetime'
+        DataCycleCore::MasterData::DataConverter.string_to_datetime(data)
+      when 'boolean'
+        DataCycleCore::MasterData::DataConverter.string_to_boolean(data)
+      when 'geographic'
+        DataCycleCore::MasterData::DataConverter.string_to_geographic(data)
+      end
+    end
+
+    def load_included_data(property_name, property_definition)
+      sub_property_definitions = property_definition.try(:[], 'properties')
+      raise StandardError, "Template for included data #{property_name} has no Subproperties defined." if sub_property_definitions.blank?
+      OpenStructHash.new(
+        load_subproperty_hash(
+          sub_property_definitions,
+          property_definition['storage_location'],
+          send(NEW_STORAGE_LOCATION[property_definition['storage_location']]).try(:[], property_name)
+        )
+      ).freeze
+    end
+
+    def load_subproperty_hash(sub_properties, storage_location, sub_properties_data)
+      sub_properties.map { |key, item|
+        if item['type'] == 'object' && item['storage_location'] == storage_location
+          { key => OpenStructHash.new(load_subproperty_hash(item['properties'], storage_location, sub_properties_data.try(:[], key.to_s))).freeze }
+        elsif item['storage_location'] == storage_location
+          { key => convert_data_type(item['type'], sub_properties_data.try(:[], key.to_s)) }
+        elsif item['storage_location'] == 'column'
+          { key => send(key) }
+        else
+          raise StandardError, "Template includes wrong definitions for included sub_property #{key}, given: #{item}!"
+        end
+      }.inject(&:merge)
+    end
+
     def load_embedded_objects(target_name, relation_name, linked = false)
       target_class = is_history? ? "DataCycleCore::#{target_name.classify}::History" : "DataCycleCore::#{target_name.classify}"
       target_class = "DataCycleCore::#{target_name.classify}" if linked
@@ -290,32 +339,6 @@ module DataCycleCore
         query = query.where(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["#{relation_table}.#{key} = ?", value]))
       end
       query.order(order_string)
-    end
-
-    def load_included_data(property_name, property_definition)
-      sub_property_definitions = property_definition.try(:[], 'properties')
-      raise StandardError, "Template for included data #{property_name} has no Subproperties defined." if sub_property_definitions.blank?
-      OpenStructHash.new(
-        load_subproperty_hash(
-          sub_property_definitions,
-          property_definition['storage_location'],
-          send(NEW_STORAGE_LOCATION[property_definition['storage_location']]).try(:[], property_name)
-        )
-      ).freeze
-    end
-
-    def load_subproperty_hash(sub_properties, storage_location, sub_properties_data)
-      sub_properties.map { |key, item|
-        if item['type'] == 'object' && item['storage_location'] == storage_location
-          { key => OpenStructHash.new(load_subproperty_hash(item['properties'], storage_location, sub_properties_data.try(:[], key.to_s))).freeze }
-        elsif item['storage_location'] == storage_location
-          { key => sub_properties_data.try(:[], key.to_s) }
-        elsif item['storage_location'] == 'column'
-          { key => send(key) }
-        else
-          raise StandardError, "Template includes wrong definitions for included sub_property #{key}, given: #{item}!"
-        end
-      }.inject(&:merge)
     end
 
     def load_relation_ids(relation_name)

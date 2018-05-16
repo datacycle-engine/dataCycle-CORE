@@ -217,6 +217,82 @@
                 :storage_location: value
 
 - :data:
+    :name: SimpleJsonTest
+    :type: object
+    :properties:
+      :headine:
+        :label: Titel
+        :type: string
+        :storage_location: column
+      :datum:
+        :label: Datum
+        :type: datetime
+        :storage_location: value
+      :bool:
+        :label: Boolean
+        :type: boolean
+        :storage_location: value
+      :geo:
+        :label: Geographic
+        :type: geographic
+        :storage_location: value
+      :datum2:
+        :label: Datum
+        :type: datetime
+        :storage_location: translated_value
+      :bool2:
+        :label: Boolean
+        :type: boolean
+        :storage_location: translated_value
+      :geo2:
+        :label: Geographic
+        :type: geographic
+        :storage_location: translated_value
+
+- :data:
+    :name: ComplexJsonTest
+    :type: object
+    :properties:
+      :headine:
+        :label: Titel
+        :type: string
+        :storage_location: column
+      :data_untrans:
+        :label: Untranslatable
+        :type: object
+        :storage_location: value
+        :properties:
+          :datum_untrans:
+            :label: Datum
+            :type: datetime
+            :storage_location: value
+          :bool_untrans:
+            :label: Boolean
+            :type: boolean
+            :storage_location: value
+          :geo_untrans:
+            :label: Geographic
+            :type: geographic
+            :storage_location: value
+      :data_trans:
+        :label: Translatable
+        :type: object
+        :storage_location: translated_value
+        :properties:
+          :datum_trans:
+            :label: Datum
+            :type: datetime
+            :storage_location: translated_value
+          :bool_trans:
+            :label: Boolean
+            :type: boolean
+            :storage_location: translated_value
+          :geo_trans:
+            :label: Geographic
+            :type: geographic
+            :storage_location: translated_value
+
+- :data:
     :name: ThemaTest
     :type: object
     :properties:

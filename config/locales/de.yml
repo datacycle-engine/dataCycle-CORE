@@ -142,6 +142,7 @@ de:
       max: "%{data} zu lang, sollte maximal %{max} lang sein, ist aber %{length} lang."
       min_number: "%{data} zu klein, sollte %{value} sein, ist aber nur %{data}."
       max_number: "%{data} zu hoch, sollte %{value} sein, ist aber %{data}."
+      min_datetime: "Zeitpunkt %{data} sollte nach %{min} liegen."
       match: "%{data} stimmt nicht mit %{expression} überein."
       format: "Format-String %{format_string} für %{data} unbekannt."
       uuid: "Erwarte uuid für %{data}. Format: 12345678-9abc-def0-1234-56789abcdef0"

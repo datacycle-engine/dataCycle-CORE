@@ -1,6 +1,16 @@
 module DataCycleCore
   module MasterData
     module DataConverter
+      def self.geographic_to_string(value)
+        return nil if value.nil?
+        return value if value.is_a?(::String) && string_to_geographic(value).methods.include?(:geometry_type)
+        if value.methods.include?(:geometry_type)
+          value.to_s
+        else
+          raise RGeo::Error::ParseError, 'expected a geographic object of some sorts'
+        end
+      end
+
       def self.string_to_geographic(value)
         return nil if value.blank?
         return value if value.methods.include?(:geometry_type)
@@ -17,16 +27,6 @@ module DataCycleCore
           exception = e
         end
         raise e
-      end
-
-      def self.geographic_to_string(value)
-        return nil if value.nil?
-        return value if value.is_a?(::String) && string_to_geographic(value).methods.include?(:geometry_type)
-        if value.methods.include?(:geometry_type)
-          value.to_s
-        else
-          raise RGeo::Error::ParseError, 'expected a geographic object of some sorts'
-        end
       end
 
       def self.boolean_to_string(value)
@@ -50,6 +50,29 @@ module DataCycleCore
         else
           raise ArgumentError, 'can not convert to a boolean'
         end
+      end
+
+      def self.datetime_to_string(value)
+        return nil if value.nil?
+        if value.is_a?(::String)
+          if value.in_time_zone.acts_like?(:time)
+            return value.squish
+          else
+            raise ArgumentError, 'expected a datetime of some sorts'
+          end
+        end
+        if value.acts_like?(:time)
+          value.to_s
+        else
+          raise ArgumentError, 'expected a datetime of some sorts'
+        end
+      end
+
+      def self.string_to_datetime(value)
+        return nil if value.nil?
+        return value if value.acts_like?(:time)
+        raise ArgumentError, 'can not convert to a datetime' unless value.is_a?(::String)
+        value.in_time_zone.presence || raise(ArgumentError, 'can not convert to a datetime')
       end
     end
   end

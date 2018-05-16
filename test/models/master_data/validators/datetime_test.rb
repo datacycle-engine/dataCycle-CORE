@@ -16,6 +16,17 @@ describe DataCycleCore::MasterData::Validators::Datetime do
       }
     end
 
+    let(:template_hash2) do
+      {
+        'label' => 'Test',
+        'type' => 'datetime',
+        'storage_location' => 'translated_value',
+        'validations' => {
+          'min' => '01.01.2018'
+        }
+      }
+    end
+
     let(:no_error_hash) do
       { error: {}, warning: {} }
     end
@@ -48,14 +59,30 @@ describe DataCycleCore::MasterData::Validators::Datetime do
         Time.now,
         Time.zone.now,
         '01.01.2000'.to_datetime,
-        '01.01.2000'.to_date,
         '2020-01-01'.to_datetime,
-        Date.new(2000).in_time_zone,
         Time.utc(2000).in_time_zone
       ]
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash)
         assert_equal(0, validator.error[:error].size)
+        assert_equal(0, validator.error[:warning].size)
+      end
+    end
+
+    it 'accepts datetimes after specified min datetime' do
+      test_cases = [Time.now, Time.zone.now, '01.01.2019']
+      test_cases.each do |test_case|
+        validator = subject.new(test_case, template_hash2)
+        assert_equal(0, validator.error[:error].size)
+        assert_equal(0, validator.error[:warning].size)
+      end
+    end
+
+    it 'rejects datetimes before specified min datetime' do
+      test_cases = ['01.01.2017'.to_datetime, '01.01.2017'.to_datetime.in_time_zone, '01.01.2017']
+      test_cases.each do |test_case|
+        validator = subject.new(test_case, template_hash2)
+        assert_equal(1, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end
     end
