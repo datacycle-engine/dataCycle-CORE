@@ -1,4 +1,4 @@
-<% breadcrumb :show_history, @creativeWork, @watch_list %>
+<% breadcrumb :show_history, @content, @watch_list %>
 
 <% content_for :top_content do %>
 
@@ -9,12 +9,12 @@
                 <div class="row expanded">
                   <div class="column edit-header-functions">
                     <div class="edit-headline">
-                        <i class="fa fa-history" aria-hidden="true"></i> <%= @creativeWork.template_name %> <%= t('common.compare', locale: DataCycleCore.ui_language) %>
+                        <i class="fa fa-history" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: DataCycleCore.ui_language) %>
                     </div>
                     <ul>
                       <li class="has-dropdown">
                         <a id="show-history-link" data-toggle="show-history"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= t('common.version', locale: DataCycleCore.ui_language) %></a>
-                        <%= render 'histories', content: @creativeWork, additional_classes: 'align-right' %>
+                        <%= render 'histories', content: @content, additional_classes: 'align-right' %>
                       </li>
                       <li class="buttons"></li>
                     </ul>
@@ -32,11 +32,11 @@
                                 <%= render 'history_meta_data', content: @historySource %>
                             </div>
 
-                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable', value: @historySource.get_releasable_hash, key: 'creative_work', definition: {'type' => 'releasable'}, options:{compare: true, force_render: true} %>
+                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable', value: @historySource.get_releasable_hash, key: 'creative_work', definition: {'type' => 'releasable'}, options:{compare: true} %>
 
                         </div>
                     </div>
-                    <%= render_content_partial 'history', content: @historySource, schema: @historySchema, options: {force_render: true, compare: true} %>
+                    <%= render_content_partial 'history', content: @historySource, options: {compare: true} %>
 
                 <% end %>
 

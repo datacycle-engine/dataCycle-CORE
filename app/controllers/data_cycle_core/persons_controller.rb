@@ -9,7 +9,6 @@ module DataCycleCore
       redirect_back(fallback_location: root_path) && return if @content.nil?
 
       I18n.with_locale(@content.first_available_locale) do
-        @dataSchema = @content.get_data_hash
 
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: 'persons', id: params[:id]) }
@@ -59,7 +58,6 @@ module DataCycleCore
           return
         end
 
-        @dataSchema = @content.get_data_hash
         render 'edit'
       end
     end

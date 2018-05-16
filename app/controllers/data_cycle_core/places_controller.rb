@@ -9,9 +9,6 @@ module DataCycleCore
       redirect_back(fallback_location: root_path) && return if @content.nil?
 
       I18n.with_locale(@content.first_available_locale) do
-        @dataSchema = @content.get_data_hash
-        # do something if no german version exists
-        @dataSchema = I18n.with_locale(@content.translated_locales.first) { @content.get_data_hash } if @dataSchema.nil?
 
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: 'places', id: params[:id]) }
@@ -60,7 +57,7 @@ module DataCycleCore
           redirect_to place_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end
-        @dataSchema = @content.get_data_hash
+
         render 'edit'
       end
     end

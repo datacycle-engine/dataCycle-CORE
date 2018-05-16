@@ -22,7 +22,6 @@ module DataCycleCore
         end
 
         @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if DataCycleCore::Feature::Releasable.allowed?(@content) && !@content.release_id.nil?
-        @dataSchema = @content.get_data_hash
 
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: 'creative_works', id: params[:id]) }
@@ -55,15 +54,15 @@ module DataCycleCore
     end
 
     def compare
-      @creativeWork = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
+      @content = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
       authorize! :show, @creativeWork
 
       redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if source_params.blank?
 
       @source = source_params[:source_type].constantize.find(source_params[:source_id]) unless source_params.blank?
 
-      I18n.with_locale(@creativeWork.first_available_locale) do
-        @dataSchema = @creativeWork.get_data_hash.merge(@creativeWork.get_releasable_hash)
+      I18n.with_locale(@content.first_available_locale) do
+        @dataSchema = @content.get_data_hash.merge(@content.get_releasable_hash)
       end
 
       I18n.with_locale(@source.first_available_locale) do
@@ -74,10 +73,10 @@ module DataCycleCore
     end
 
     def history
-      @creativeWork = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
+      @content = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
 
       # get show data for split view
-      @historySource = @creativeWork.histories.find(params[:history_id]) unless params[:history_id].nil?
+      @historySource = @content.histories.find(params[:history_id]) unless params[:history_id].nil?
 
       unless @historySource.nil?
         I18n.with_locale(@historySource.first_available_locale) do
@@ -85,17 +84,14 @@ module DataCycleCore
         end
       end
 
-      I18n.with_locale(@creativeWork.first_available_locale) do
-        unless can?(:edit, @creativeWork)
-          redirect_to creative_work_path(@creativeWork), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
+      I18n.with_locale(@content.first_available_locale) do
+        unless can?(:edit, @content)
+          redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end
 
-        @place = DataCycleCore::Place.new
-        @person = DataCycleCore::Person.new
-        @organization = DataCycleCore::Organization.new
-        @dataSchema = @creativeWork.get_data_hash
-        @diffSchema = helpers.get_diff(@historySchema.merge(@historySource.get_releasable_hash), @dataSchema.merge(@creativeWork.get_releasable_hash))
+        @dataSchema = @content.get_data_hash
+        @diffSchema = helpers.get_diff(@historySchema.merge(@historySource.get_releasable_hash), @dataSchema.merge(@content.get_releasable_hash))
       end
     end
 
@@ -131,10 +127,6 @@ module DataCycleCore
           return
         end
 
-        # @place = DataCycleCore::Place.new
-        # @person = DataCycleCore::Person.new
-        # @organization = DataCycleCore::Organization.new
-        # @dataSchema = @content.get_data_hash
         render 'edit'
       end
     end

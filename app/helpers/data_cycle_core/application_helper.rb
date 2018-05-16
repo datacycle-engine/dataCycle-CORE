@@ -63,8 +63,8 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters)
     end
 
-    def render_attribute_editor(key:, definition:, value:, parameters: {}, content: nil)
-      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, :edit))
+    def render_attribute_editor(key:, definition:, value:, parameters: {}, content: nil, scope: :edit)
+      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope))
       partials = [
         attribute_name_from_key(key).underscore.to_s,
         "#{definition['type'].underscore}_#{definition.try(:[], 'ui').try(:[], 'edit').try(:[], 'type').try(:underscore)}",
@@ -72,14 +72,14 @@ module DataCycleCore
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/#{p}" }
 
       # TODO: check if required ? refactor readonly
-      parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, :edit))
+      parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope))
 
-      parameters[:options] = add_attribute_options(parameters[:options], definition, :edit)
+      parameters[:options] = add_attribute_options(parameters[:options], definition, scope)
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
 
-    def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil)
-      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, :show))
+    def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil, scope: :show)
+      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope))
       partials = [
         key.underscore.to_s,
         "#{definition['type'].underscore}_#{definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore)}",
@@ -87,7 +87,7 @@ module DataCycleCore
         definition['type'].underscore.to_s
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/#{p}" }
 
-      parameters[:options] = add_attribute_options(parameters[:options], definition, :show)
+      parameters[:options] = add_attribute_options(parameters[:options], definition, scope)
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
 
@@ -101,7 +101,7 @@ module DataCycleCore
       begin
         render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
       rescue StandardError
-        render_attribute_viewer key: key, definition: definition, value: value, parameters: parameters, content: content
+        render_attribute_viewer key: key, definition: definition, value: value, parameters: parameters, content: content, scope: :history
       end
     end
 

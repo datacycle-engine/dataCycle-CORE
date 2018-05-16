@@ -2,27 +2,17 @@
 
     <div class="row align-center">
 
-        <% unless content.schema.nil? %>
+        <div class="type properties">
 
-            <% validation_properties = ordered_validation_properties(validation: content.schema) %>
+            <% ordered_validation_properties(validation: content.schema).each do |key, prop| %>
 
-            <% if validation_properties.present? %>
+                <% value = content.try(key.to_sym) %>
 
-                <div class="type properties">
-
-                    <% validation_properties.each do |key, prop| %>
-
-                        <% value = content.try(key.to_sym) %>
-
-                        <%= render_attribute_history_viewer key: key, definition: prop, value: value, parameters: { options: options ||= {} }, content: content %>
-
-                    <% end %>
-
-                </div>
+                <%= render_attribute_history_viewer key: key, definition: prop, value: value, parameters: { options: options }, content: content %>
 
             <% end %>
 
-        <% end %>
+        </div>
 
         <%= render 'translations', language: nil, dataCycleObject: content %>
 

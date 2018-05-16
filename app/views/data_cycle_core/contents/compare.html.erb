@@ -1,4 +1,4 @@
-<% breadcrumb :show_compare, @creativeWork, @watch_list %>
+<% breadcrumb :show_compare, @content, @watch_list %>
 
 <% content_for :top_content do %>
 
@@ -9,11 +9,11 @@
                 <div class="row expanded">
                     <div class="column edit-header-functions">
                       <div class="edit-headline">
-                          <i class="fa fa-columns" aria-hidden="true"></i> <%= @creativeWork.template_name %> <%= t('common.compare', locale: DataCycleCore.ui_language) %>
+                          <i class="fa fa-columns" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: DataCycleCore.ui_language) %>
                       </div>
                       <ul>
                         <li class="has-dropdown right">
-                          <%= render 'split_sources', contents: @creativeWork.siblings.select{|s| s.template_name == @creativeWork.template_name }, selected: @source, url: compare_creative_work_path(@creativeWork), title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
+                          <%= render 'split_sources', contents: @content.siblings.select{|s| s.template_name == @content.template_name }, selected: @source, url: compare_creative_work_path(@content), title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
                         </li>
                         <li class="buttons"></li>
                       </ul>
@@ -36,29 +36,29 @@
                                        definition: {'type' => 'releasable'},
                                        options:{compare: true, force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@source) %>
 
-                            <%= render_content_partial 'history', content: @source, schema: @sourceSchema, options: {force_render: true, compare: true} %>
+                            <%= render_content_partial 'history', content: @source, options: {compare: true} %>
 
                         </div>
                     </div>
 
                 <% end %>
 
-                <% I18n.with_locale(@creativeWork.first_available_locale) do %>
+                <% I18n.with_locale(@content.first_available_locale) do %>
 
                     <div class="row split-content detail-content">
 
                         <div class="show-content">
                             <div class="detail-header-info">
-                              <%= render 'meta_data', content: @creativeWork %>
+                              <%= render 'meta_data', content: @content %>
                             </div>
 
                             <%= render 'data_cycle_core/contents/viewers/metadata/releasable',
-                                       value: @creativeWork.get_releasable_hash,
+                                       value: @content.get_releasable_hash,
                                        key: 'creative_work',
                                        definition: {'type' => 'releasable'},
-                                       options:{force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@creativeWork) %>
+                                       options:{force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@content) %>
 
-                            <%= render_content_partial 'details', content: @creativeWork, options: {force_render: true} %>
+                            <%= render_content_partial 'history', content: @content, options: {} %>
 
                         </div>
 

@@ -1,4 +1,4 @@
-<% breadcrumb :show_history, @creativeWork, @watch_list %>
+<% breadcrumb :show_history, @content, @watch_list %>
 
 <% content_for :top_content do %>
 
@@ -9,12 +9,12 @@
                 <div class="row expanded">
                   <div class="column edit-header-functions">
                     <div class="edit-headline">
-                        <i class="fa fa-history" aria-hidden="true"></i> <%= @creativeWork.template_name %> <%= t('common.compare', locale: DataCycleCore.ui_language) %>
+                        <i class="fa fa-history" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: DataCycleCore.ui_language) %>
                     </div>
                     <ul>
                       <li class="has-dropdown">
                         <a id="show-history-link" data-toggle="show-history"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= t('common.version', locale: DataCycleCore.ui_language) %></a>
-                        <%= render 'histories', content: @creativeWork, additional_classes: 'align-right' %>
+                        <%= render 'histories', content: @content, additional_classes: 'align-right' %>
                       </li>
                       <li class="buttons"></li>
                     </ul>
@@ -32,7 +32,7 @@
                         </span>
                         <%= render 'history_meta_data', content: @historySource %>
                         <span class="show-history-link">
-                          <%= link_to polymorphic_url([:history_detail, @creativeWork], history_id: @historySource.id, watch_list_id: @watch_list) do  %>
+                          <%= link_to polymorphic_url([:history_detail, @content], history_id: @historySource.id, watch_list_id: @watch_list) do  %>
                             <i class="fa fa-eye" aria-hidden="true"></i>
                           <% end %>
                         </span>
@@ -49,20 +49,20 @@
                                        definition: {'type' => 'releasable'},
                                        options:{compare: true, force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@historySource) %>
 
-                            <%= render_content_partial 'history', content: @historySource, schema: @historySchema, options: {force_render: true, compare: true} %>
+                            <%= render_content_partial 'history', content: @historySource, options: {compare: true} %>
 
                         </div>
                     </div>
 
                 <% end %>
 
-                <% I18n.with_locale(@creativeWork.first_available_locale) do %>
+                <% I18n.with_locale(@content.first_available_locale) do %>
 
                     <div class="detail-header-info no-transparency fixed right">
-                      <span class="type <%= @creativeWork.template_name.downcase %>">
+                      <span class="type <%= @content.template_name.downcase %>">
                         <%= t('history.active_version', locale: DataCycleCore.ui_language) %>:
                       </span>
-                      <%= render 'history_meta_data', content: @creativeWork %>
+                      <%= render 'history_meta_data', content: @content %>
                     </div>
 
                     <div class="row split-content detail-content">
@@ -71,12 +71,12 @@
                             </div>
 
                             <%= render 'data_cycle_core/contents/viewers/metadata/releasable',
-                                       value: @creativeWork.get_releasable_hash,
+                                       value: @content.get_releasable_hash,
                                        key: 'creative_work',
                                        definition: {'type' => 'releasable'},
-                                       options:{force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@creativeWork) %>
+                                       options:{force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@content) %>
 
-                            <%= render_content_partial 'history_details', content: @creativeWork, schema: @dataSchema, options: {force_render: true} %>
+                            <%= render_content_partial 'history', content: @content, options: {} %>
 
                         </div>
 
