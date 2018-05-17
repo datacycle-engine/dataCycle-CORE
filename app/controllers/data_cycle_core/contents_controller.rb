@@ -1,7 +1,7 @@
 module DataCycleCore
   class ContentsController < ApplicationController
     before_action :authenticate_user!, :set_watch_list
-    load_and_authorize_resource except: [:validate_single_data, :compare, :load_more_linked_objects] # from cancancan (authorize)
+    load_and_authorize_resource except: [:validate_single_data, :compare, :load_more_linked_objects, :gpx] # from cancancan (authorize)
 
     def index
       redirect_back(fallback_location: root_path)
@@ -117,29 +117,45 @@ module DataCycleCore
       redirect_to root_path
     end
 
+    def history
+      @content = data_cycle_object(controller_name).includes(:classifications).find(params[:id])
+
+      @historySource = @content.histories.find(params[:history_id]) unless params[:history_id].nil?
+
+      unless @historySource.nil?
+        I18n.with_locale(@historySource.first_available_locale) do
+          @historySchema = @historySource.get_data_hash
+        end
+      end
+
+      I18n.with_locale(@content.first_available_locale) do
+
+        @dataSchema = @content.get_data_hash
+        @diffSchema = helpers.get_diff(@historySchema.merge(@historySource.get_releasable_hash), @dataSchema.merge(@content.get_releasable_hash))
+      end
+    end
+
+    def history_detail
+      history
+    end
+
     def new_embedded_object
-      object_type = DataCycleCore.content_tables.find { |object| object == params[:definition]['linked_table'] }
-      @object = @objects = ('DataCycleCore::' + object_type.singularize.classify).constantize
+      @object = @objects = data_cycle_object(params[:definition]['linked_table'])
       respond_to(:js)
     end
 
     def render_embedded_object
-      object_type = DataCycleCore.content_tables.find { |object| object == params[:definition]['linked_table'] }
-      @objects = ('DataCycleCore::' + object_type.singularize.classify).constantize.where(id: params[:id]).includes(:translations)
-
+      @objects = data_cycle_object(params[:definition]['linked_table']).where(id: params[:id]).includes(:translations)
       respond_to(:js)
     end
 
     def gpx
-      object_type = DataCycleCore.content_tables.find { |object| object == params[:type] }
-      @object = ('DataCycleCore::' + object_type.singularize.classify).constantize.find_by(id: params[:id])
-
+      @object = data_cycle_object(controller_name).find_by(id: params[:id])
       send_data @object.create_gpx, filename: "#{@object.title.blank? ? 'unnamed_place' : @object.title.underscore.parameterize(separator: '_')}.gpx", type: 'gpx/xml'
     end
 
     def set_life_cycle
-      object_type = DataCycleCore.content_tables.find { |object| object == controller_name }
-      @object = ('DataCycleCore::' + object_type.singularize.classify).constantize.find_by(id: params[:id])
+      @object = data_cycle_object(controller_name).find_by(id: params[:id])
 
       # Create idea_collection if it doesn't exist and active life_cycle_stage is correct
       if DataCycleCore::Feature::Container.enabled? && @object.is_content_type?('container') && helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id) == life_cycle_params[:id] && !@object.children.where(template_name: DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage)).exists?
@@ -155,10 +171,10 @@ module DataCycleCore
     end
 
     def validate
-      @object = ('DataCycleCore::' + controller_name.singularize.classify).constantize.find_by(id: params[:id])
+      @object = data_cycle_object(controller_name).find_by(id: params[:id])
 
       if @object.blank? && params[:template].present?
-        @object = ('DataCycleCore::' + controller_name.singularize.classify).constantize.find_by(template: true, template_name: params[:template])
+        @object = data_cycle_object(controller_name).find_by(template: true, template_name: params[:template])
       end
 
       render json: { warning: { content: ['content/template not found'] } } && return if @object.blank?
@@ -170,7 +186,7 @@ module DataCycleCore
     end
 
     def load_more_linked_objects
-      @object = ('DataCycleCore::' + controller_name.singularize.classify).constantize.find(linked_object_params[:id])
+      @object = data_cycle_object(controller_name).find(linked_object_params[:id])
       authorize! :show, @object
 
       @page = linked_object_params.fetch(:page, 1)

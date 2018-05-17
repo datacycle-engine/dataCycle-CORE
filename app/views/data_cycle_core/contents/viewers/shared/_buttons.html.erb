@@ -2,7 +2,7 @@
     <span data-tooltip data-allow-html="true" title="<%= content.translated_locales.map{ |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }.join("<br>") %>"><i class="fa fa-language" aria-hidden="true"></i></span>
 <% end %>
 
-<%= link_to contents_gpx_path(id: content.id, type: content.class.table_name), class: '', data: { tooltip: '' }, title: t('common.download_gpx', locale: DataCycleCore.ui_language) do %>
+<%= link_to polymorphic_path([:gpx, content]), class: '', data: { tooltip: '' }, title: t('common.download_gpx', locale: DataCycleCore.ui_language) do %>
     <i class="fa fa-location-arrow" aria-hidden="true"></i>
 <% end if content.respond_to?(:create_gpx) && content.geo_properties.present? %>
 

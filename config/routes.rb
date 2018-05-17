@@ -31,6 +31,7 @@ DataCycleCore::Engine.routes.draw do
 
   resources(*DataCycleCore.content_tables.map(&:to_sym)) do
     get :load_more_linked_objects, on: :member
+    get :gpx, on: :member
     post :validate, on: :member
     post :validate, on: :collection
     patch :set_life_cycle, on: :member
@@ -115,7 +116,6 @@ DataCycleCore::Engine.routes.draw do
 
   post 'contents/new_embedded_object', to: 'contents#new_embedded_object'
   post 'contents/render_embedded_object', to: 'contents#render_embedded_object'
-  get 'contents/gpx', to: 'contents#gpx'
 
   resources :publications, only: :index
 end

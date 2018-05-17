@@ -11,7 +11,7 @@
       <%= render 'new_content_from_template', content: content %>
   <% end %>
 
-  <%= link_to contents_gpx_path(id: content.id, type: content.class.table_name), class: 'button-prime small gpx-content-link', data: { tooltip: '' }, title: t('common.download_gpx', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
+  <%= link_to polymorphic_path([:gpx, content]), class: 'button-prime small gpx-content-link', data: { tooltip: '' }, title: t('common.download_gpx', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
     <i class="fa fa-location-arrow" aria-hidden="true"></i>
   <% end if content.respond_to?(:create_gpx) && content.geo_properties.present? %>
 

@@ -15,15 +15,13 @@
             <% if can?(:history, content) && item != @historySource %>
                 <span class="history-link">
                   <i>
-                      <% if item.class.class_name == 'CreativeWorkHistory' %>
-                          <% if action_name == 'history_detail' %>
-                              <%= link_to polymorphic_url([:history_detail, content], history_id: item.id, watch_list_id: @watch_list) do %>
-                                  <i class="fa fa-history" aria-hidden="true"></i>
-                              <% end %>
-                          <% else %>
-                              <%= link_to polymorphic_url([:history, content], history_id: item.id, watch_list_id: @watch_list) do %>
-                                  <i class="fa fa-history" aria-hidden="true"></i>
-                              <% end %>
+                      <% if action_name == 'history_detail' %>
+                          <%= link_to polymorphic_url([:history_detail, content], history_id: item.id, watch_list_id: @watch_list) do %>
+                              <i class="fa fa-history" aria-hidden="true"></i>
+                          <% end %>
+                      <% else %>
+                          <%= link_to polymorphic_url([:history, content], history_id: item.id, watch_list_id: @watch_list) do %>
+                              <i class="fa fa-history" aria-hidden="true"></i>
                           <% end %>
                       <% end %>
                   </i>

@@ -72,33 +72,6 @@ module DataCycleCore
       @diffSchema = helpers.get_diff(@sourceSchema, @dataSchema)
     end
 
-    def history
-      @content = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
-
-      # get show data for split view
-      @historySource = @content.histories.find(params[:history_id]) unless params[:history_id].nil?
-
-      unless @historySource.nil?
-        I18n.with_locale(@historySource.first_available_locale) do
-          @historySchema = @historySource.get_data_hash
-        end
-      end
-
-      I18n.with_locale(@content.first_available_locale) do
-        unless can?(:edit, @content)
-          redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
-          return
-        end
-
-        @dataSchema = @content.get_data_hash
-        @diffSchema = helpers.get_diff(@historySchema.merge(@historySource.get_releasable_hash), @dataSchema.merge(@content.get_releasable_hash))
-      end
-    end
-
-    def history_detail
-      history
-    end
-
     def edit
       @content = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
 
