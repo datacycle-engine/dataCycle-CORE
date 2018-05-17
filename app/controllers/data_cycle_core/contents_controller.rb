@@ -1,7 +1,7 @@
 module DataCycleCore
   class ContentsController < ApplicationController
     before_action :authenticate_user!, :set_watch_list
-    authorize_resource only: [:index, :show, :edit, :update, :create, :destroy, :history]
+    load_and_authorize_resource only: [:index, :show, :edit, :update, :create, :destroy, :history]
 
     def index
       redirect_back(fallback_location: root_path)
