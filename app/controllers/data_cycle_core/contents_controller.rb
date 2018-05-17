@@ -21,7 +21,8 @@ module DataCycleCore
     end
 
     def create
-      I18n.with_locale(params[:locale] || I18n.locale) do
+      locale = I18n.available_locales.include?(params[:locale].try(:to_sym)) ? params[:locale].try(:to_sym) : I18n.locale
+      I18n.with_locale(locale) do
         object_params = content_params(controller_name, params[:template])
         @content = DataCycleCore::DataHashService.create_internal_object(controller_name, params[:template], object_params, current_user)
 
@@ -33,6 +34,7 @@ module DataCycleCore
         respond_to do |format|
           # validate ?
           if !@content.nil? && @content.save
+            execute_after_create_webhooks @content
             format.html do
               flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
               redirect_to edit_polymorphic_path @content
@@ -93,6 +95,8 @@ module DataCycleCore
         end
 
         if @content.save
+          execute_after_update_webhooks @content
+
           flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
           if Rails.env.development?
@@ -111,6 +115,8 @@ module DataCycleCore
       @content = data_cycle_object(controller_name).find(params[:id])
       @content.destroy_content
       @content.destroy
+
+      execute_after_destroy_webhooks @content
 
       flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
@@ -217,6 +223,15 @@ module DataCycleCore
       ('DataCycleCore::' + object_type.singularize.classify).constantize
     end
 
+    def execute_after_update_webhooks(data)
+    end
+
+    def execute_after_create_webhooks(data)
+    end
+
+    def execute_after_destroy_webhooks(data)
+    end
+
     def set_watch_list
       watch_list = DataCycleCore::WatchList.find(params[:watch_list_id]) if params[:watch_list_id]
       @watch_list = watch_list if can?(:manage, watch_list)
@@ -232,7 +247,7 @@ module DataCycleCore
 
     def content_params(storage_location, template_name)
       datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name)
-      params.require(controller_name.singularize.to_sym).permit(datahash: datahash)
+      params.require(controller_name.singularize.to_sym).permit(:release_id, :release_comment, datahash: datahash)
     end
   end
 end
