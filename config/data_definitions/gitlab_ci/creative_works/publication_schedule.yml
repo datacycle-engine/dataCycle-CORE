@@ -14,7 +14,6 @@
         :storage_location: value
         :validations:
           :format: date_time
-          :min: 1
         :ui:
           :edit:
             :type: date
