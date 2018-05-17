@@ -78,12 +78,6 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/classifications', to: 'dash_board#classifications'
   # mount RailsDb::Engine => '/db', :as => 'db'
 
-  # backend validation endpoints
-  match '/validatecreativework(/:id)', to: 'creative_works#validate_single_data', via: [:patch, :post]
-  match '/validateperson(/:id)', to: 'persons#validate_single_data', via: [:patch, :post]
-  match '/validateorganization(/:id)', to: 'organizations#validate_single_data', via: [:patch, :post]
-  match '/validateplace(/:id)', to: 'places#validate_single_data', via: [:patch, :post]
-
   defaults format: :json do
     namespace :api do
       namespace :v1 do

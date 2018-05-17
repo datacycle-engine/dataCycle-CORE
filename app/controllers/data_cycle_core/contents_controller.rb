@@ -1,9 +1,120 @@
 module DataCycleCore
   class ContentsController < ApplicationController
-    before_action :set_watch_list
+    before_action :authenticate_user!, :set_watch_list
+    load_and_authorize_resource except: [:validate_single_data, :compare, :load_more_linked_objects] # from cancancan (authorize)
 
     def index
       redirect_back(fallback_location: root_path)
+    end
+
+    def show
+      @content = data_cycle_object(controller_name).find_by(id: params[:id])
+
+      redirect_back(fallback_location: root_path) && return if @content.nil?
+
+      I18n.with_locale(@content.first_available_locale) do
+        respond_to do |format|
+          format.json { redirect_to api_v1_content_path(type: controller_name, id: params[:id]) }
+          format.html { render 'show' }
+        end
+      end
+    end
+
+    def create
+      I18n.with_locale(params[:locale] || I18n.locale) do
+        object_params = content_params(controller_name, params[:template])
+        @content = DataCycleCore::DataHashService.create_internal_object(controller_name, params[:template], object_params, current_user)
+
+        if @content.nil?
+          redirect_back(fallback_location: root_path)
+          return
+        end
+
+        respond_to do |format|
+          # validate ?
+          if !@content.nil? && @content.save
+            format.html do
+              flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
+              redirect_to edit_polymorphic_path @content
+            end
+            format.js
+          else
+            redirect_back(fallback_location: root_path)
+            return
+          end
+        end
+      end
+    end
+
+    def edit
+      @content = data_cycle_object(controller_name).find_by(id: params[:id])
+
+      if params[:locale] && !@content.translated_locales.include?(params[:locale]) && I18n.available_locales.include?(params[:locale]&.to_sym) && (DataCycleCore.translatable_types & [@content.class.name, @content.template_name]).present?
+        I18n.with_locale(params[:locale]) do
+          @content.save
+        end
+      end
+
+      I18n.with_locale(@content.first_available_locale(params[:locale])) do
+        render 'edit'
+      end
+    end
+
+    def update
+      @content = data_cycle_object(controller_name).find(params[:id])
+      I18n.with_locale(@content.first_available_locale(params[:locale])) do
+        object_params = content_params(controller_name, @content.template_name)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
+
+        # TODO: implement preprocessor
+        datahash = set_location(datahash) if controller_name == 'places'
+
+        data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
+          datahash.merge({ 'id' => @content.id }),
+          @content.get_data_hash
+        )
+
+        unless data_hash_has_changes
+          flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @content.template_name, locale: DataCycleCore.ui_language
+          if (Rails.env.development? || params[:splitview]) && !params[:finalize]
+            redirect_back(fallback_location: root_path)
+          else
+            redirect_to polymorphic_path(@content, watch_list_id: @watch_list)
+          end
+          return
+        end
+
+        valid = @content.set_data_hash(data_hash: datahash, current_user: current_user)
+
+        if valid.key?(:error) && !valid[:error].empty?
+          flash[:error] = valid[:error]
+          redirect_to edit_polymorphic_path(@content)
+          return
+        end
+
+        if @content.save
+          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
+
+          if Rails.env.development?
+            redirect_back(fallback_location: root_path)
+          else
+            redirect_to polymorphic_path(@content, watch_list_id: @watch_list)
+          end
+
+        else
+          render 'edit'
+        end
+      end
+    end
+
+    def destroy
+      @content = data_cycle_object(controller_name).find(params[:id])
+      @content.destroy_content
+      @content.destroy
+
+      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
+
+      redirect_to root_path
     end
 
     def new_embedded_object
@@ -84,6 +195,11 @@ module DataCycleCore
     end
 
     private
+
+    def data_cycle_object(object_string)
+      object_type = DataCycleCore.content_tables.find { |object| object == object_string }
+      ('DataCycleCore::' + object_type.singularize.classify).constantize
+    end
 
     def set_watch_list
       watch_list = DataCycleCore::WatchList.find(params[:watch_list_id]) if params[:watch_list_id]

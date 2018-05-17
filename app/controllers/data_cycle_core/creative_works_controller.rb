@@ -2,8 +2,8 @@ module DataCycleCore
   class CreativeWorksController < ContentsController
     include DataCycleCore::Filter
 
-    before_action :authenticate_user! # from devise (authenticate)
-    load_and_authorize_resource except: [:validate_single_data, :compare, :load_more_linked_objects] # from cancancan (authorize)
+    # before_action :authenticate_user! # from devise (authenticate)
+    # load_and_authorize_resource except: [:validate_single_data, :compare, :load_more_linked_objects] # from cancancan (authorize)
     after_action :check_final, :set_publication_attributes, only: :update
 
     def show
@@ -198,13 +198,13 @@ module DataCycleCore
       end
     end
 
-    def validate_single_data
-      @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
-      object_params = creative_work_params('creative_works', @creativeWork.template_name)
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.schema)
-      valid = @creativeWork.validate(datahash)
-      render json: valid.to_json
-    end
+    # def validate_single_data
+    #   @creativeWork = DataCycleCore::CreativeWork.find(params[:id])
+    #   object_params = creative_work_params('creative_works', @creativeWork.template_name)
+    #   datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @creativeWork.schema)
+    #   valid = @creativeWork.validate(datahash)
+    #   render json: valid.to_json
+    # end
 
     def after_create(content, current_user)
       object_params = creative_work_params('creative_works', params[:template])
