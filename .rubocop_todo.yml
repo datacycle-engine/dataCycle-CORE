@@ -62,6 +62,7 @@ Naming/VariableName:
     - 'app/controllers/concerns/data_cycle_core/filter.rb'
     - 'app/controllers/data_cycle_core/backend_controller.rb'
     - 'app/controllers/data_cycle_core/creative_works_controller.rb'
+    - 'app/controllers/data_cycle_core/contents_controller.rb'
     - 'app/controllers/data_cycle_core/dash_board_controller.rb'
     - 'app/controllers/data_cycle_core/events_controller.rb'
     - 'app/controllers/data_cycle_core/persons_controller.rb'
