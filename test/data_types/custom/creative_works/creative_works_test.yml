@@ -258,6 +258,32 @@
         :storage_location: translated_value
 
 - :data:
+    :type: object
+    :name: BoolJsonTest
+    :properties:
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_location: column
+      :data:
+        :label: Untranslatable
+        :type: object
+        :storage_location: value
+        :properties:
+          :flag1:
+            :label: flag1
+            :type: boolean
+            :storage_location: value
+          :flag2:
+            :label: flag2
+            :type: boolean
+            :storage_location: value
+          :flag3:
+            :label: flag3
+            :type: boolean
+            :storage_location: value
+
+- :data:
     :name: ComplexJsonTest
     :type: object
     :properties:
@@ -306,7 +332,7 @@
           :text_trans:
             :label: Text
             :type: string
-            :storage_location: translated_value            
+            :storage_location: translated_value
 
 - :data:
     :name: ThemaTest

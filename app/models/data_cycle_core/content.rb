@@ -116,7 +116,6 @@ module DataCycleCore
     end
 
     def to_h(timestamp = Time.zone.now)
-      # byebug
       property_names.map { |property_name|
         property_value =
           if property_name == 'id' && is_history?

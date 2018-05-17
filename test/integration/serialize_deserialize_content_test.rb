@@ -170,5 +170,32 @@ module DataCycleCore
       assert_equal('RGeo::Geographic::SphericalPointImpl', data.data_trans.geo_trans.class.to_s)
       assert_equal('String', data.data_trans.text_trans.class.to_s)
     end
+
+    test 'serializer/deserializer can handle false, nil, not specified properties properly for bool' do
+      data_template = DataCycleCore::CreativeWork.find_by(template_name: 'BoolJsonTest', template: true)
+      data = DataCycleCore::CreativeWork.new(
+        schema: data_template.schema,
+        template_name: data_template.template_name
+      )
+      data.save
+      data_hash = {
+        'headline' => 'Test Data',
+        'data' => {
+          'flag1' => false,
+          'flag2' => nil
+        }
+      }
+      data.set_data_hash(data_hash: data_hash)
+      data.save
+
+      assert_equal(false, data.data.flag1)
+      assert_nil(data.data.flag2)
+      assert_nil(data.data.flag3)
+
+      test_data = DataCycleCore::CreativeWork.find(data.id)
+      assert_equal(false, test_data.data.flag1)
+      assert_nil(test_data.data.flag2)
+      assert_nil(test_data.data.flag3)
+    end
   end
 end

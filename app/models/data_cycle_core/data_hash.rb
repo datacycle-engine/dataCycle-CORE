@@ -414,8 +414,6 @@ module DataCycleCore
       when 'linked'
         set_linked_data_type(key, value, properties['linked_table'], properties['template_name'], false, save_time, current_user)
       when 'embedded'
-        # delete = false
-        # delete = true if properties.key?('delete') && properties['delete'] == true
         set_linked_data_type(key, value, properties['linked_table'], properties['template_name'], true, save_time, current_user)
       when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
         save_values(key, value, properties)
@@ -443,18 +441,17 @@ module DataCycleCore
     end
 
     def save_to_jsonb(key, data, properties, location)
-      # parse tree in json, to only set data specified in the data definitions
-      data = set_data_tree_hash(data, properties['properties'], location) if properties['type'] == 'object' && data.is_a?(::Hash) # object with potentially relevant data
-
-      data = convert_to_string(properties['type'], data) if PLAIN_PROPERTY_TYPES.include?(properties['type'])
+      save_data = data.deep_dup
+      save_data = set_data_tree_hash(save_data, properties['properties'], location) if properties['type'] == 'object' && data.is_a?(::Hash)
+      save_data = convert_to_string(properties['type'], save_data) if PLAIN_PROPERTY_TYPES.include?(properties['type'])
       # dont overwrite creator with empty values
       return if key == 'creator' && data.nil?
 
       # set to json field (could be empty)
       if send(location.to_s).blank?
-        send("#{location}=", { key => data })
+        send("#{location}=", { key => save_data })
       else
-        send(location.to_s).method('[]=').call(key, data)
+        send(location.to_s).method('[]=').call(key, save_data)
       end
     end
 
@@ -488,7 +485,6 @@ module DataCycleCore
         }
       end
     end
-    ############################################################################
 
     def set_linked_data_type(field_name, input_data, table, name, delete, save_time, current_user)
       updated_item_keys = []
