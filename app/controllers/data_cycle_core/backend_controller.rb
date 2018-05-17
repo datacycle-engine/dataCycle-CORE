@@ -19,7 +19,6 @@ module DataCycleCore
         @total = @paginateObject.total_count
         @contents = @paginateObject.map(&:content_data)
       end
-      # TODO: remove creativeWork variable
       @content = CreativeWork.new
     end
 

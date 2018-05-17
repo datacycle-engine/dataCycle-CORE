@@ -1,7 +1,7 @@
 module DataCycleCore
   class ContentsController < ApplicationController
     before_action :authenticate_user!, :set_watch_list
-    load_and_authorize_resource except: [:validate_single_data, :compare, :load_more_linked_objects, :gpx] # from cancancan (authorize)
+    authorize_resource only: [:index, :show, :edit, :update, :create, :destroy, :history]
 
     def index
       redirect_back(fallback_location: root_path)
@@ -145,21 +145,26 @@ module DataCycleCore
 
     def new_embedded_object
       @object = @objects = data_cycle_object(params[:definition]['linked_table'])
+      authorize! :edit, @object
       respond_to(:js)
     end
 
     def render_embedded_object
-      @objects = data_cycle_object(params[:definition]['linked_table']).where(id: params[:id]).includes(:translations)
+      @object = data_cycle_object(params[:definition]['linked_table'])
+      authorize! :edit, @object
+      @objects = @object.where(id: params[:id]).includes(:translations)
       respond_to(:js)
     end
 
     def gpx
       @object = data_cycle_object(controller_name).find_by(id: params[:id])
+      authorize! :show, @object
       send_data @object.create_gpx, filename: "#{@object.title.blank? ? 'unnamed_place' : @object.title.underscore.parameterize(separator: '_')}.gpx", type: 'gpx/xml'
     end
 
     def set_life_cycle
       @object = data_cycle_object(controller_name).find_by(id: params[:id])
+      authorize! :edit, @object
 
       # Create idea_collection if it doesn't exist and active life_cycle_stage is correct
       if DataCycleCore::Feature::Container.enabled? && @object.is_content_type?('container') && helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id) == life_cycle_params[:id] && !@object.children.where(template_name: DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage)).exists?
@@ -176,6 +181,7 @@ module DataCycleCore
 
     def validate
       @object = data_cycle_object(controller_name).find_by(id: params[:id])
+      authorize! :show, @object
 
       if @object.blank? && params[:template].present?
         @object = data_cycle_object(controller_name).find_by(template: true, template_name: params[:template])

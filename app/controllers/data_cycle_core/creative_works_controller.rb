@@ -172,6 +172,8 @@ module DataCycleCore
       end
     end
 
+    private
+
     def after_create(content, current_user)
       object_params = content_params(controller_name, params[:template])
       if content.schema['content_type'] != 'container' && params[:template] != 'Video-Serie'
@@ -204,8 +206,6 @@ module DataCycleCore
         end
       end
     end
-
-    private
 
     def source_params
       if params[:source]
