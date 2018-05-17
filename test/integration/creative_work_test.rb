@@ -887,8 +887,8 @@ module DataCycleCore
       expected_hash = {
         'headline' => 'Dies ist ein Test!',
         'validity_period' => {
-          'valid_from' => '2017-05-01',
-          'valid_until' => '2017-06-01'
+          'valid_from' => '2017-05-01'.in_time_zone,
+          'valid_until' => '2017-06-01'.in_time_zone
         },
         'tags' => [],
         'state' => [],
@@ -912,8 +912,8 @@ module DataCycleCore
       expected_hash = {
         'headline' => 'Dies ist ein Test!',
         'validity_period' => {
-          'valid_from' => '2017-05-01',
-          'valid_until' => '2017-06-01'
+          'valid_from' => '2017-05-01'.in_time_zone,
+          'valid_until' => '2017-06-01'.in_time_zone
         },
         'tags' => [],
         'state' => [],
@@ -940,8 +940,8 @@ module DataCycleCore
       expected_hash = {
         'headline' => 'Dies ist ein Test!',
         'validity_period' => {
-          'valid_from' => '2017-05-01',
-          'valid_until' => '2017-06-01'
+          'valid_from' => '2017-05-01'.in_time_zone,
+          'valid_until' => '2017-06-01'.in_time_zone
         },
         'tags' => [],
         'state' => [],
@@ -964,8 +964,8 @@ module DataCycleCore
       assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator'))
       expected_data_hash = {
         'validity_period' => {
-          'valid_from' => '2017-05-01',
-          'valid_until' => '2017-06-01'
+          'valid_from' => '2017-05-01'.in_time_zone,
+          'valid_until' => '2017-06-01'.in_time_zone
         }
       }
       assert_equal(expected_data_hash, data_set.metadata.except('validation').compact)

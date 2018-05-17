@@ -240,7 +240,6 @@ describe DataCycleCore::Content do
     end
 
     it 'provides names of embedded properties' do
-      # ap subject.embedded_property_names
       subject.embedded_property_names.must_equal(['existing_locations', 'nested_creative_works'])
     end
   end
@@ -458,6 +457,77 @@ describe DataCycleCore::Content do
                                   }
                                 }
                               })
+    end
+  end
+
+  describe 'with included properties, different types' do
+    subject do
+      DataCycleCore::CreativeWork.new(
+        schema: {
+          properties: {
+            id: {
+              label: 'id',
+              type: 'key'
+            },
+            description: {
+              label: 'description',
+              type: 'string',
+              storage_location: 'column'
+            },
+            included_object: {
+              label: 'Nested Data',
+              type: 'object',
+              storage_location: 'value',
+              properties: {
+                property1: {
+                  label: 'property_name a',
+                  type: 'string',
+                  storage_location: 'value'
+                },
+                property2: {
+                  label: 'property_name b',
+                  type: 'string',
+                  storage_location: 'value'
+                }
+              }
+            }
+          }
+        },
+        metadata: {
+          'included_object' => {
+            'property1' => 'data property1',
+            'property2' => 'data property2'
+          }
+        },
+        description: 'dies ist ein Test'
+      )
+    end
+
+    it 'returns an hash for included property' do
+      subject.included_object.to_h.must_equal(
+        {
+          'property1' => 'data property1',
+          'property2' => 'data property2'
+        }
+      )
+    end
+
+    it 'returns values for included sub_properties' do
+      subject.included_object.property1.must_equal('data property1')
+      subject.included_object.property2.must_equal('data property2')
+    end
+
+    it 'returns all data :to_h ' do
+      subject.to_h.must_equal(
+        {
+          'id' => nil,
+          'description' => 'dies ist ein Test',
+          'included_object' => {
+            'property1' => 'data property1',
+            'property2' => 'data property2'
+          }
+        }
+      )
     end
   end
 end

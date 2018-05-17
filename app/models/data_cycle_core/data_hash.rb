@@ -414,8 +414,6 @@ module DataCycleCore
       when 'linked'
         set_linked_data_type(key, value, properties['linked_table'], properties['template_name'], false, save_time, current_user)
       when 'embedded'
-        # delete = false
-        # delete = true if properties.key?('delete') && properties['delete'] == true
         set_linked_data_type(key, value, properties['linked_table'], properties['template_name'], true, save_time, current_user)
       when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
         save_values(key, value, properties)
@@ -434,7 +432,7 @@ module DataCycleCore
     def save_values(key, value, properties)
       case properties['storage_location']
       when 'column'
-        method("#{key}=").call(value)
+        send("#{key}=", value)
       when 'value'
         save_to_jsonb(key, value, properties, 'metadata')
       when 'translated_value'
@@ -443,17 +441,17 @@ module DataCycleCore
     end
 
     def save_to_jsonb(key, data, properties, location)
-      # parse tree in json, to only set data specified in the data definitions
-      data = set_data_tree_hash(data, properties['properties'], location) if properties['type'] == 'object' && data.is_a?(::Hash) # object with potentially relevant data
-
+      save_data = data.deep_dup
+      save_data = set_data_tree_hash(save_data, properties['properties'], location) if properties['type'] == 'object' && data.is_a?(::Hash)
+      save_data = convert_to_string(properties['type'], save_data) if PLAIN_PROPERTY_TYPES.include?(properties['type'])
       # dont overwrite creator with empty values
       return if key == 'creator' && data.nil?
 
       # set to json field (could be empty)
-      if method(location.to_s).call.blank?
-        method("#{location}=").call({ key => data })
+      if send(location.to_s).blank?
+        send("#{location}=", { key => save_data })
       else
-        method(location.to_s).call.method('[]=').call(key, data)
+        send(location.to_s).method('[]=').call(key, save_data)
       end
     end
 
@@ -464,9 +462,9 @@ module DataCycleCore
         if data_definitions[key]['type'] == 'object'
           data_hash[key] = set_data_tree_hash(data[key], data_definitions[key]['properties'], location)
         elsif (data_definitions[key]['storage_location'] == 'value' && location == 'metadata') || (data_definitions[key]['storage_location'] == 'translated_value' && location == 'content')
-          data_hash[key] = data[key] # TODO: if necessary make data casts here!!
+          data_hash[key] = convert_to_string(data_definitions[key]['type'], data[key])
         elsif data_definitions[key]['storage_location'] == 'column'
-          method("#{key}=").call(data[key])
+          send("#{key}=", data[key])
         end
       end
       data_hash
@@ -487,7 +485,6 @@ module DataCycleCore
         }
       end
     end
-    ############################################################################
 
     def set_linked_data_type(field_name, input_data, table, name, delete, save_time, current_user)
       updated_item_keys = []
