@@ -272,11 +272,9 @@ ul.backend-treeview-list {
           margin-left: 2rem;
           background-color: white;
           padding: 1rem;
+          border-left: 1px solid white;
           &:not(:last-child) {
             border-left: 1px solid $medium-gray;
-          }
-          &:hover {
-            background-color: lighten($light-gray, 5%);
           }
           &:not(.button-row)::before {
             content: '';
