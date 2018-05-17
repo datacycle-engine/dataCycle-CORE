@@ -1,6 +1,6 @@
 <% breadcrumb :'data_cycle_core/users' %>
 
-<%= render 'results', contents: @paginateObject %>
+<%= render 'results', contents: @paginate_object %>
 
 <% if can? :create, DataCycleCore::User %>
   <% content_for :new_button do %>

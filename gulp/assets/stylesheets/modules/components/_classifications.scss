@@ -255,28 +255,39 @@ ul.backend-treeview-list {
             padding: 0;
           }
         }
+        &.has-contents {
+          >li:last-child {
+            border-left: 1px solid $medium-gray;
+          }
+        }
       }
       ul.contents {
         display: none;
         position: relative;
-        padding: 1rem 0px 1rem 1rem;
         >li.content-row {
+          transition: background-color 0.1s;
           position: relative;
-          width: 100%;
+          width: calc(100% - 2rem);
           display: flex;
-          border-bottom: 1px solid $medium-gray;
+          margin-left: 2rem;
           background-color: white;
           padding: 1rem;
-          &:before {
+          &:not(:last-child) {
+            border-left: 1px solid $medium-gray;
+          }
+          &:hover {
+            background-color: lighten($light-gray, 5%);
+          }
+          &:not(.button-row)::before {
             content: '';
             position: absolute;
-            display: block;
-            left: 0;
-            right: 0;
             top: 0;
-            bottom: 0;
-            z-index: -1;
-            box-shadow: 0 1px 3px $dark-gray;
+            left: -1px;
+            height: 1.75rem;
+            width: 0.75em;
+            border: 1px solid $medium-gray;
+            border-top: 0 none transparent;
+            border-right: 0 none transparent;
           }
           >div {
             position: relative;

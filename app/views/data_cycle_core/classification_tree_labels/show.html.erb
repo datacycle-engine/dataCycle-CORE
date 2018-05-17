@@ -1,5 +1,9 @@
 <% breadcrumb :classification_tree_label, @classification_tree_label %>
 
+<% content_for :top_content do %>
+  <%= render 'filter', filter: { language: true, language_all: true, classification_trees: ['Inhaltstypen', 'Märkte'] } if user_signed_in? %>
+<% end %>
+
 <div id="classification-tree-label-list" class="row">
   <div class="small-12 columns">
     <ul class="backend-treeview-list">
