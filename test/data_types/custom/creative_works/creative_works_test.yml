@@ -236,6 +236,10 @@
         :label: Geographic
         :type: geographic
         :storage_location: value
+      :text:
+        :label: Text
+        :type: string
+        :storage_location: value
       :datum2:
         :label: Datum
         :type: datetime
@@ -247,6 +251,10 @@
       :geo2:
         :label: Geographic
         :type: geographic
+        :storage_location: translated_value
+      :text2:
+        :label: Text2
+        :type: string
         :storage_location: translated_value
 
 - :data:
@@ -274,6 +282,10 @@
             :label: Geographic
             :type: geographic
             :storage_location: value
+          :text_untrans:
+            :label: Text
+            :type: string
+            :storage_location: value
       :data_trans:
         :label: Translatable
         :type: object
@@ -291,6 +303,10 @@
             :label: Geographic
             :type: geographic
             :storage_location: translated_value
+          :text_trans:
+            :label: Text
+            :type: string
+            :storage_location: translated_value            
 
 - :data:
     :name: ThemaTest

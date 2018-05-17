@@ -446,6 +446,7 @@ module DataCycleCore
       # parse tree in json, to only set data specified in the data definitions
       data = set_data_tree_hash(data, properties['properties'], location) if properties['type'] == 'object' && data.is_a?(::Hash) # object with potentially relevant data
 
+      data = convert_to_string(properties['type'], data) if PLAIN_PROPERTY_TYPES.include?(properties['type'])
       # dont overwrite creator with empty values
       return if key == 'creator' && data.nil?
 
@@ -453,7 +454,7 @@ module DataCycleCore
       if send(location.to_s).blank?
         send("#{location}=", { key => data })
       else
-        send(location.to_s).method('[]=').call(key, convert_to_string(properties['type'], data))
+        send(location.to_s).method('[]=').call(key, data)
       end
     end
 
@@ -464,9 +465,9 @@ module DataCycleCore
         if data_definitions[key]['type'] == 'object'
           data_hash[key] = set_data_tree_hash(data[key], data_definitions[key]['properties'], location)
         elsif (data_definitions[key]['storage_location'] == 'value' && location == 'metadata') || (data_definitions[key]['storage_location'] == 'translated_value' && location == 'content')
-          data_hash[key] = convert_to_string(data_definitions[key]['type'], data[key]) # TODO: if necessary make data casts here!!
+          data_hash[key] = convert_to_string(data_definitions[key]['type'], data[key])
         elsif data_definitions[key]['storage_location'] == 'column'
-          method("#{key}=").call(data[key])
+          send("#{key}=", data[key])
         end
       end
       data_hash
