@@ -68,8 +68,7 @@ module DataCycleCore
         object_params = content_params(controller_name, @content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
 
-        # TODO: implement preprocessor
-        datahash = set_location(datahash) if controller_name == 'places'
+        datahash = before_set_data_hash(datahash)
 
         data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
           datahash.merge({ 'id' => @content.id }),
@@ -230,6 +229,10 @@ module DataCycleCore
     end
 
     def execute_after_destroy_webhooks(data)
+    end
+
+    def before_set_data_hash(datahash)
+      datahash
     end
 
     def set_watch_list
