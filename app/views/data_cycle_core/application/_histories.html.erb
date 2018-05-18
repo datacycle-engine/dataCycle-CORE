@@ -3,6 +3,7 @@
   <ul class="list-items">
     <% content.histories.each do |item|%>
         <li class="<%= item == @historySource ? 'active' : '' %>">
+            <!-- # TODO: refactor last_updated_by -->
             <% if item.metadata.try(:[], 'last_updated_by') %>
                 <% person = get_user_for_id(item.metadata['last_updated_by']) %>
                 <%= "<a class='email-link' href='mailto:#{person.email}'>#{person.full_name}</a>".html_safe %>

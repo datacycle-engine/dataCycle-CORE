@@ -1,22 +1,8 @@
-<% historyObject ||= nil %>
 <div id="show-history-link" data-toggle="show-history" class="link"><i class="fa fa-clock-o" aria-hidden="true"></i>
-    <% unless historyObject.nil? %>
-        erstellt am <%= Time.zone.at(I18n.with_locale(historyObject.first_available_locale){historyObject.history_valid&.first})&.to_s(:german_datetime_format) %>
+    bearbeitet am <%= Time.zone.at(dataCycleObject.updated_at).to_s(:german_datetime_format) %>
+    <% person = dataCycleObject.try(:creator)&.first %>
 
-        <% if historyObject.metadata.try(:[], 'last_updated_by') %>
-            <% person = get_user_for_id(historyObject.metadata['last_updated_by']) %>
-        <% end %>
-
-    <% else %>
-        bearbeitet am <%= Time.zone.at(dataCycleObject.updated_at).to_s(:german_datetime_format) %>
-
-        <% if !dataCycleObject.metadata.nil? && !dataCycleObject.creator.blank? %>
-            <% person = dataCycleObject.creator.first %>
-        <% end %>
-
-    <% end %>
-
-    <% if person.kind_of?(Object) && person.nil? == false %>
+    <% if person.kind_of?(Object) && !person.nil? %>
         <span> von </span>
         <span><strong><a class="email-link" href="mailto:<%= "#{person.email}" %>"><%= "#{person.full_name}" %></a></strong></span>
     <% else %>
@@ -24,15 +10,8 @@
         <span><strong>Unbekannt</strong></span>
     <% end %>
 
-    <% if history ||= false %>
-      <span class="history-metadata">
-        <%= link_to polymorphic_url([:history_detail, dataCycleObject], history_id: historyObject.id, watch_list_id: @watch_list) do  %>
-          <i class="fa fa-eye" aria-hidden="true"></i>
-        <% end %>
-      </span>
-    <% end %>
 </div>
 
 <% if dataCycleObject.histories.size > 0 %>
-  <%= render 'histories', content: dataCycleObject %>
+    <%= render 'histories', content: dataCycleObject %>
 <% end %>

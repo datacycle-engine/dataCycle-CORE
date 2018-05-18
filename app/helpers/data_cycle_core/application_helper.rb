@@ -146,7 +146,6 @@ module DataCycleCore
     end
 
     def render_content_tile(item:, parameters: {})
-      # TODO: [patrick]: add dashboard ability
       partials = [
         "#{item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_')}_#{item.try(:template_name)&.underscore&.parameterize(separator: '_')}",
         item.try(:template_name)&.underscore&.parameterize(separator: '_'),

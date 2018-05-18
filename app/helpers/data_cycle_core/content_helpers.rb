@@ -17,10 +17,6 @@ module DataCycleCore
       { 'release_id' => release_id, 'release_comment' => release_comment }
     end
 
-    # def creator
-    #   DataCycleCore::User.find(metadata['creator']) if metadata && metadata['creator']
-    # end
-
     def first_available_locale(locale = nil)
       if translated_locales.include?(locale.try(:to_sym)) then locale.try(:to_sym)
       elsif translated_locales.include?(I18n.locale) then I18n.locale
