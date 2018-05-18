@@ -6,7 +6,7 @@
             <dd><%= object.title %></dd>
         </dl>
     <% end %>
-    <% unless object.metadata.nil? %>
+    <% unless object.schema.nil? %>
         <dl>
             <% unless object.try(:thumbnail_url).nil? %>
                 <dt class="block-flex"></dt>

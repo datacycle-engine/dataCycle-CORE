@@ -13,8 +13,7 @@
     <div data-label="<%= definition['label'] %>" class="detail-type <%= [
                 key.split('[').count > 1 ? key.split('[').last[0...-1].underscore : key.underscore,
                 definition.dig('type').try(:underscore),
-                definition.dig('ui', 'edit', 'type').try(:underscore),
-                # definition.dig('ui', 'edit', 'options', 'class').try(:underscore),
+                definition.dig('ui', 'show', 'type').try(:underscore),
                 item_diff.blank? == false ? "has-changes #{mode}" : "",
                 options.try(:[], 'class'),
             ].reject(&:blank?).join(' ') %>"

@@ -1,6 +1,4 @@
-<% if content.external_source %>
-  <%= render 'external_source', local_assigns %>
-<% end %>
+<%= render 'external_source', local_assigns if content.external_source %>
 
 <div class="edit">
   <%= yield :buttons %>

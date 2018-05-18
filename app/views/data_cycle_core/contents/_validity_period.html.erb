@@ -1,31 +1,20 @@
-<% if !dataCycleObject.metadata.nil? &&
-      !dataCycleObject.metadata['validity_period'].nil? &&
-      !dataCycleObject.metadata['validity_period'].empty? %>
-
-    <%
-      valid_from = dataCycleObject.metadata['validity_period']['valid_from'] ||
-                   dataCycleObject.metadata['validity_period']['date_published']
-      valid_from = valid_from.blank? ? 1_000_000.years.ago.to_date : Date.parse(valid_from)
-
-      valid_until = dataCycleObject.metadata['validity_period']['valid_until'] ||
-                    dataCycleObject.metadata['validity_period']['expires']
-      valid_until = valid_until.blank? ? 1_000_000.years.from_now : Date.parse(valid_until)
-
-      validity_period = (valid_from..valid_until)
-    %>
+<% unless dataCycleObject.validity_period.nil?  %>
 
     <div class="validity_period">
-      <i class="fa fa-clock-o" aria-hidden="true"></i>
-      <%= t('terms.valid', locale: DataCycleCore.ui_language) %>
+        <i class="fa fa-clock-o" aria-hidden="true"></i>
+        <%= t('terms.valid', locale: DataCycleCore.ui_language) %>
 
-      <% if validity_period.begin > 1_000.years.ago %>
-        <%= t('terms.from', locale: DataCycleCore.ui_language) %>
-        <span class="date"><%= l(validity_period.begin, locale: DataCycleCore.ui_language) %></span>
-      <% end %>
+        <% unless dataCycleObject.validity_period.try(:valid_from).nil? %>
+            <%= t('terms.from', locale: DataCycleCore.ui_language) %>
+            <span class="date">
+            <%= l(dataCycleObject.validity_period.valid_from.to_date, locale: DataCycleCore.ui_language) %>
+        </span>
+        <% end %>
 
-      <% if validity_period.end < 1_000.years.from_now %>
-        <%= t('terms.until', locale: DataCycleCore.ui_language) %>
-        <span class="date"><%= l(validity_period.end, locale: DataCycleCore.ui_language) %></span>
-      <% end %>
+        <% unless dataCycleObject.validity_period.try(:valid_until).nil? %>
+            <%= t('terms.until', locale: DataCycleCore.ui_language) %>
+            <span class="date"><%= l(dataCycleObject.validity_period.valid_until.to_date, locale: DataCycleCore.ui_language) %></span>
+        <% end %>
     </div>
+
 <% end %>

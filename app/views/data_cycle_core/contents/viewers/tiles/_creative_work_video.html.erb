@@ -1,5 +1,5 @@
 <a data-open="media-reveal-<%= content.id %>">
-    <div class="thumbnail" style="background-image: url(<%= content.metadata['image'] %>)">
+    <div class="thumbnail" style="background-image: url(<%= content.image %>)">
         <% unless content.is_valid %>
           <span class="expired-item-overlay"><%= t('common.expired_content', locale: DataCycleCore.ui_language) %></span>
         <% end %>
@@ -12,7 +12,7 @@
 
         <% if content.try(:restrictions).try(:include?, 'gesperrt') %>
             <span data-tooltip aria-haspopup="true" class="has-tip warning" data-disable-hover="false" tabindex="1"
-                  title="Einschränkungen: <%= content.metadata['restrictions'] %>">
+                  title="Einschränkungen: <%= content.restrictions %>">
                 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
             </span>
         <% end %>
@@ -33,19 +33,19 @@
     <div class="description">
 
         <!-- todo: check only for empty string -->
-        <% if !content.metadata['restrictions'].nil? && !content.metadata['restrictions'].blank? && content.metadata['restrictions'] != 'Keine Einschränkung;' %>
+        <% if !content.restrictions.nil? && !content.restrictions.blank? && content.restrictions != 'Keine Einschränkung;' %>
             <strong>Einschränkungen: </strong>
             <% if content.try(:restrictions).try(:include?, 'gesperrt') %>
               <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
             <% end %>
-            <%= content.metadata['restrictions'].html_safe %><br /><br />
+            <%= content.restrictions.try(:html_safe) %><br /><br />
         <% end %>
 
         <%= link_to content, target: '_blank' do %>
             zur Detailansicht
         <% end %> |
-        <% unless content.metadata['url'].nil? && content.metadata['url'].blank? %>
-            <a href="<%= content.metadata['url'] %>" target="_blank">im Medienarchiv öffnen</a>
+        <% unless content.url.nil? && content.url.blank? %>
+            <a href="<%= content.url %>" target="_blank">im Medienarchiv öffnen</a>
         <% end %>
     </div>
 </div>
