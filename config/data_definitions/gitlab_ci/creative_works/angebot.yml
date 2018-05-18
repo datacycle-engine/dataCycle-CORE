@@ -126,6 +126,8 @@
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
+              :show:
+                :type: date
           :valid_until:
             :label: "bis"
             :type: datetime
@@ -138,6 +140,8 @@
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
+              :show:
+                :type: date
       :data_type:
         :label: Inhaltstype
         :type: classification

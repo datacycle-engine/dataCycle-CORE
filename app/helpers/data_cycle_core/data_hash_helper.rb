@@ -51,11 +51,5 @@ module DataCycleCore
 
       html_tag.html_safe
     end
-
-    # TODO: move to mixins
-    def normalize_value(value = nil)
-      value = value.reject(&:blank?) if value.is_a?(Array)
-      value
-    end
   end
 end

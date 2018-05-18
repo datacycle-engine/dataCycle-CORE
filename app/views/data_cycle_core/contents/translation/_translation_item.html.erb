@@ -7,7 +7,7 @@
             <% unless translated_content.nil? %>
                 <%= render_attribute_viewer key: translated_key,
                                             definition: dataCycleObject.schema['properties'][translated_key],
-                                            value: normalize_value(translated_content),
+                                            value: translated_content,
                                             parameters: { options: {} },
                                             content: dataCycleObject %>
             <% end %>
@@ -15,22 +15,5 @@
         <% end %>
 
     <% end %>
-
-    <!-- # TODO: check if properties are obsolete -->
-    <%# unless translation.properties.nil? %>
-
-        <%# translation.properties.each do | translated_key, translated_property | %>
-
-            <%# unless translated_content.nil? %>
-                <%#= render_attribute_viewer key: translated_key,
-                                            definition: dataCycleObject.schema['properties'][translated_key],
-                                            value: normalize_value(translated_property),
-                                            parameters: { options: {} },
-                                            content: dataCycleObject %>
-            <%# end %>
-
-        <%# end %>
-
-    <%# end %>
 
 <% end %>

@@ -1,4 +1,4 @@
-<% unless dataCycleObject.validity_period.nil?  %>
+<% unless dataCycleObject.try(:validity_period).nil?  %>
 
     <div class="validity_period">
         <i class="fa fa-clock-o" aria-hidden="true"></i>
