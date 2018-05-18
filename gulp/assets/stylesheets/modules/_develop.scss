@@ -1085,3 +1085,54 @@ select:-moz-focusring {
 .copy-to-clipboard {
   cursor: pointer;
 }
+
+// textblocks
+.edit-content-form {
+  .embedded_object {
+    .content-object-item.textblock {
+      padding: 0.5rem;
+      .removeContentObject {
+        z-index: 13;
+        top: 0.5rem;
+        right: 0.5rem;
+      }
+      .embedded-header {
+        z-index: 13;
+        width: 50%;
+        .draggable-handle {
+          display: inline-block;
+          float: none;
+        }
+        input[name*='name'] {
+          display: inline-block;
+          background: transparent;
+          color: $dark-gray;
+          width: 85%;
+          &.fixed-toolbar {
+            position: fixed;
+            top: 59px;
+            width: 50%;
+          }
+          &.fixed-split-toolbar {
+            position: fixed;
+            top: 185px;
+            width: 25%;
+          }
+        }
+        .counter,
+        label {
+          display: none !important;
+        }
+      }
+      .quill_editor {
+        margin-bottom: 0;
+        label {
+          display: none;
+        }
+        .ql-toolbar {
+          right: 3rem;
+        }
+      }
+    }
+  }
+}

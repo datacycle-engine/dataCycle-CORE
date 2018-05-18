@@ -1,0 +1,32 @@
+---
+- :data:
+    :name: Textblock
+    :type: object
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Label
+        :type: string
+        :storage_location: translated_value
+        :validations:
+          :min: 1
+      :text:
+        :label: text
+        :type: string
+        :storage_location: translated_value
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Textblock"
+      :meta_data:
+        :type: mixin
+        :name: meta_data

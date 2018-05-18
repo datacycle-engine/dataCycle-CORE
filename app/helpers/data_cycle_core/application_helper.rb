@@ -168,7 +168,7 @@ module DataCycleCore
 
     def render_embedded_object_partial(partial: 'detail', key:, definition:, parameters: {}, content: nil)
       partials = [
-        definition.try(:[], 'name').to_s.underscore.parameterize(separator: '_'),
+        attribute_name_from_key(key).underscore.to_s,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/embedded/#{p}_#{partial}" }
 

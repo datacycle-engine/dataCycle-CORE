@@ -96,24 +96,34 @@ module.exports.initialize = function () {
     });
   }
 
+  let position_editor_toolbar = function (element, fixed_class = '') {
+    var right = $(window).width() - ($(element).offset().left + $(element).width());
+    var rest_width = right + $(element).offset().left;
+    $(element).find('.ql-toolbar').css({
+      right: right,
+      width: "calc(100% - " + rest_width + "px)"
+    });
+    $(element).siblings('label').css('left', $(element).offset().left + 10);
+    $(element).find('.ql-toolbar').addClass(fixed_class);
+    $(element).siblings('label').addClass(fixed_class);
+    if ($(element).siblings('label[for*="textblock"]').length) $(element).parents('.content-object-item.textblock').find('> .embedded-header > input').addClass(fixed_class).css('left', $(element).offset().left + 10);
+  };
+
+  let reset_editor_toolbar = function (element, fixed_class = '') {
+    $(element).find('.ql-toolbar').removeClass(fixed_class).removeAttr('style');
+    $(element).siblings('label').removeClass(fixed_class).removeAttr('style');
+    if ($(element).siblings('label[for*="textblock"]').length) $(element).parents('.content-object-item.textblock').find('> .embedded-header > input').removeClass(fixed_class).removeAttr('style');
+  };
+
   if ($('.editor-block').length > 0) {
     if ($('.split-content').length > 0) {
       $('.split-content.edit-content').on('scroll', function (ev) {
         $('.editor-block').each(function () {
           var pos = $(this).offset().top - $(window).scrollTop();
           if (pos < 182 && pos > -$(this).height() + 230) {
-            var right = $(window).width() - ($(this).offset().left + $(this).width());
-            var rest_width = right + $(this).offset().left;
-            $(this).find('.ql-toolbar').css({
-              right: right,
-              width: "calc(100% - " + rest_width + "px)"
-            });
-            $(this).siblings('label').css('left', $(this).offset().left + 10);
-            $(this).find('.ql-toolbar').addClass('fixed-split-toolbar');
-            $(this).siblings('label').addClass('fixed-split-toolbar');
+            position_editor_toolbar(this, 'fixed-split-toolbar');
           } else {
-            $(this).find('.ql-toolbar').removeClass('fixed-split-toolbar').removeAttr('style');
-            $(this).siblings('label').removeClass('fixed-split-toolbar').removeAttr('style');
+            reset_editor_toolbar(this, 'fixed-split-toolbar');
           }
         });
       });
@@ -122,18 +132,9 @@ module.exports.initialize = function () {
         $('.editor-block').each(function () {
           var pos = $(this).offset().top - $(window).scrollTop();
           if (pos < 55 && pos > -$(this).height() + 130) {
-            var right = $(window).width() - ($(this).offset().left + $(this).width());
-            var rest_width = right + $(this).offset().left;
-            $(this).find('.ql-toolbar').css({
-              right: right,
-              width: "calc(100% - " + rest_width + "px)"
-            });
-            $(this).siblings('label').css('left', $(this).offset().left + 10);
-            $(this).find('.ql-toolbar').addClass('fixed-toolbar');
-            $(this).siblings('label').addClass('fixed-toolbar');
+            position_editor_toolbar(this, 'fixed-toolbar');
           } else {
-            $(this).find('.ql-toolbar').removeClass('fixed-toolbar').removeAttr('style');
-            $(this).siblings('label').removeClass('fixed-toolbar').removeAttr('style');
+            reset_editor_toolbar(this, 'fixed-toolbar');
           }
         });
       });

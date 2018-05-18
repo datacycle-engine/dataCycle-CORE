@@ -47,6 +47,11 @@
             :type: text_editor
             :options:
               :data-size: full
+      :textblock:
+        :label: Textblock
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: Textblock
       :image:
         :label: Bilder
         :type: linked
