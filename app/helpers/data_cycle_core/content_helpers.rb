@@ -9,7 +9,7 @@ module DataCycleCore
     end
 
     def as_json(options = {})
-      return super(methods: :is_valid) if options.blank? == false && options['add_validity'] == true
+      return super(methods: :is_valid?) if options.blank? == false && options['add_validity'] == true
       super
     end
 
@@ -24,7 +24,7 @@ module DataCycleCore
       end
     end
 
-    def is_valid
+    def is_valid?
       if try(:validity_period)
         valid_from, valid_to = get_validity_values(validity_period.to_h)
         return Time.zone.today.between?(valid_from.to_date, valid_to.to_date) if valid_from.blank? == false && valid_to.blank? == false

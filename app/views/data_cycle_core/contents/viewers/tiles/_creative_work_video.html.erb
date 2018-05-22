@@ -1,6 +1,6 @@
 <a data-open="media-reveal-<%= content.id %>">
     <div class="thumbnail" style="background-image: url(<%= content.image %>)">
-        <% unless content.is_valid %>
+        <% unless content.is_valid? %>
           <span class="expired-item-overlay"><%= t('common.expired_content', locale: DataCycleCore.ui_language) %></span>
         <% end %>
 
