@@ -1,8 +1,7 @@
 module DataCycleCore
   class PersonsController < ContentsController
     before_action :authenticate_user! # from devise (authenticate)
-    load_and_authorize_resource except: [:add_subscribers_by_market] # from cancancan (authorize)
-    load_and_authorize_resource except: [:validate_single_data, :compare] # from cancancan (authorize)
+    load_and_authorize_resource except: [:add_subscribers_by_market, :validate_single_data, :compare] # from cancancan (authorize)
 
     def show
       @content = DataCycleCore::Person.find_by(id: params[:id])

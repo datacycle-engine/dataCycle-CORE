@@ -111,7 +111,7 @@ ObjectBrowser.prototype.setup = function () {
     if (new_items.length > 0 && ((this.chosen.length + new_items.length) <= this.max || this.max == 0)) {
       let json_data = {
         type: this.type,
-        language: this.language,
+        locale: this.locale,
         object_browser_id: '#' + this.id,
         key: this.key,
         definition: this.definition,
