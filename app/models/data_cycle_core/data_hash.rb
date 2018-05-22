@@ -201,6 +201,7 @@ module DataCycleCore
       classification_string = display_classification_aliases.pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''")
       classification_string = '' if classification_string.nil?
       all_text = [headline, classification_string, full_text].join(' ')
+      # TODO: remove hardcoded metadata
       validity_hash = metadata.nil? ? nil : metadata['validity_period']
       validity_string = get_validity(validity_hash)
       boost = schema['boost'] || 1.0
@@ -612,10 +613,11 @@ module DataCycleCore
     end
 
     def get_validity_values(validity_hash)
+      # TODO: check for expires and publish_at usage
       from = nil
       to = nil
-      from = validity_hash['date_published'] || validity_hash['valid_from'] if validity_hash && (validity_hash['date_published'] || validity_hash['valid_from'])
-      to = validity_hash['expires'] || validity_hash['valid_until'] if validity_hash && (validity_hash['expires'] || validity_hash['valid_until'])
+      from = validity_hash['valid_from'] if validity_hash && validity_hash['valid_from']
+      to = validity_hash['valid_until'] if validity_hash && validity_hash['valid_until']
 
       from = from.blank? ? nil : from.to_datetime
       from = nil if !from.blank? && from < DateTime.new(1980, 1, 1, 0, 0)

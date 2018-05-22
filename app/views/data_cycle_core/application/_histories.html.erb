@@ -11,7 +11,7 @@
                 <%= "Unbekannt".html_safe %>
             <% end %>
 
-            <i><%= Time.zone.at(I18n.with_locale(item.first_available_locale){item.history_valid&.first})&.to_s(:german_datetime_format) %></i>
+            <i><%= l(Time.zone.at(I18n.with_locale(item.first_available_locale){item.history_valid&.first}), locale: DataCycleCore.ui_language) %></i>
 
             <% if can?(:history, content) && item != @historySource %>
                 <span class="history-link">

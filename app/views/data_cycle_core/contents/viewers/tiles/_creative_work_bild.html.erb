@@ -47,7 +47,7 @@
             zur Detailansicht
         <% end %> |
         <%= link_to 'in voller Größe öffnen', content.content_url, target: '_blank' %> |
-        <%# raise content.inspect %>
+
         <% unless content.url.nil? && content.url.blank? %>
             <a href="<%= content.url %>" target="_blank">im Medienarchiv öffnen</a>
         <% end %>

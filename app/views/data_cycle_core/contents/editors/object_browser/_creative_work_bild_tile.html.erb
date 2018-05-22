@@ -31,9 +31,8 @@
             <img class="lazyload" data-src="<%= object.try(:thumbnail_url) %>" />
         </div>
         <div class="description">
-            <% unless object.formatted_validity_period['date_published'].blank? && object.formatted_validity_period['expires'].blank? %>
-                <strong>Gültigkeit</strong> <%= object.formatted_validity_period['date_published'] %> <strong>bis</strong> <%= object.formatted_validity_period['expires'] %><br /><br />
-            <% end %>
+
+            <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: object} %>
 
             <% unless object.try(:restrictions).blank? %>
                 <strong>Einschränkungen:</strong> <%== '<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>' if object.try(:restrictions).try(:include?, 'gesperrt') %> <%= object.try(:restrictions) %> <br /><br />

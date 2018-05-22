@@ -45,18 +45,16 @@
 
             <% unless object.try(:date_created).nil? %>
                 <dt>Erstellt: </dt>
-                <dd><%= object.date_created.to_datetime.to_s(:german_date_format) %></dd>
+                <dd><%= l(object.date_created.to_datetime, locale: DataCycleCore.ui_language) %></dd>
             <% end %>
 
             <% unless object.try(:date_modified).nil? %>
                 <dt>Bearbeitet: </dt>
-                <dd><%= object.date_modified.to_datetime.to_s(:german_date_format) %></dd>
+                <dd><%= l(object.date_modified.to_datetime, locale: DataCycleCore.ui_language) %></dd>
             <% end %>
 
-            <% unless object.try(:formatted_validity_period).blank? %>
-                <dt>Gültigkeit: </dt>
-                <dd><strong>von </strong><%= object.formatted_validity_period['date_published'] %> <%== "<strong>bis</strong> #{object.formatted_validity_period['expires']}" unless object.formatted_validity_period['expires'].blank? %></dd>
-            <% end %>
+            <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: object} %>
+
         </dl>
     <% end %>
 </div>

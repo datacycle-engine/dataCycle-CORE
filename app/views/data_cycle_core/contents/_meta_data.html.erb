@@ -1,16 +1,17 @@
 <div class="metadata">
-  <span class="type <%= content.template_name.downcase %>">
-    <%= render_content_partial 'icon', content: content %>
-      <%= t("content_type.#{content.template_name.downcase}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) %> (<%= I18n.locale %>)
-  </span>
+
+    <span class="type <%= content.template_name.downcase %>">
+        <%= render_content_partial 'icon', content: content %>
+        <%= t("content_type.#{content.template_name.downcase}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) %> (<%= I18n.locale %>)
+    </span>
 
     <span class="created-at">
-    <%= t('history.created_at', locale: DataCycleCore.ui_language) %>
-        <strong><%= Time.at(content.created_at).to_s(:german_datetime_format) %></strong>
+        <%= t('history.created_at', locale: DataCycleCore.ui_language) %>
+        <strong><%= l(Time.at(content.created_at), locale: DataCycleCore.ui_language) %></strong>
         <% if content.creator.present? %>
-      <% creator = content.creator.first %>
+            <% creator = content.creator.first %>
             <%= t('terms.from', locale: DataCycleCore.ui_language) %> <strong><a href="mailto:<%= "#{creator.email}" %>"><%= "#{creator.full_name}" %></a></strong>
-    <% end %>
-  </span>
+        <% end %>
+    </span>
 
 </div>

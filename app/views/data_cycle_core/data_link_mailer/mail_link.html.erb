@@ -23,8 +23,8 @@
       <% if @data_link.valid_from.nil? && @data_link.valid_until.nil? %>
         unbeschränkt
       <% else %>
-        <%= "von: #{@data_link.valid_from.to_datetime.to_s(:german_datetime_format)} " unless @data_link.valid_from.nil? %>
-        <%= "bis: #{@data_link.valid_until.to_datetime.to_s(:german_datetime_format)} " unless @data_link.valid_until.nil? %>
+        <%= "von: #{l(@data_link.valid_from.to_datetime, locale: DataCycleCore.ui_language)} " unless @data_link.valid_from.nil? %>
+        <%= "bis: #{l(@data_link.valid_until.to_datetime, locale: DataCycleCore.ui_language)} " unless @data_link.valid_until.nil? %>
       <% end %>
     </p>
   </body>

@@ -1,5 +1,5 @@
 <div id="show-history-link" data-toggle="show-history" class="link"><i class="fa fa-clock-o" aria-hidden="true"></i>
-    bearbeitet am <%= Time.zone.at(dataCycleObject.updated_at).to_s(:german_datetime_format) %>
+    bearbeitet am <%= l(Time.zone.at(Time.zone.at(dataCycleObject.updated_at)), locale: DataCycleCore.ui_language) %>
     <% person = dataCycleObject.try(:creator)&.first %>
 
     <% if person.kind_of?(Object) && !person.nil? %>

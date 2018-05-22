@@ -1,20 +1,24 @@
 <% unless dataCycleObject.try(:validity_period).nil?  %>
 
-    <div class="validity_period">
-        <i class="fa fa-clock-o" aria-hidden="true"></i>
-        <%= t('terms.valid', locale: DataCycleCore.ui_language) %>
+    <% if !dataCycleObject.validity_period.try(:valid_from).nil? || !dataCycleObject.validity_period.try(:valid_until).nil? %>
 
-        <% unless dataCycleObject.validity_period.try(:valid_from).nil? %>
-            <%= t('terms.from', locale: DataCycleCore.ui_language) %>
-            <span class="date">
-            <%= l(dataCycleObject.validity_period.valid_from.to_date, locale: DataCycleCore.ui_language) %>
-        </span>
-        <% end %>
+        <div class="validity_period">
+            <i class="fa fa-clock-o" aria-hidden="true"></i>
+            <%= t('terms.valid', locale: DataCycleCore.ui_language) %>
 
-        <% unless dataCycleObject.validity_period.try(:valid_until).nil? %>
-            <%= t('terms.until', locale: DataCycleCore.ui_language) %>
-            <span class="date"><%= l(dataCycleObject.validity_period.valid_until.to_date, locale: DataCycleCore.ui_language) %></span>
-        <% end %>
-    </div>
+            <% unless dataCycleObject.validity_period.try(:valid_from).nil? %>
+                <%= t('terms.from', locale: DataCycleCore.ui_language) %>
+                <span class="date">
+                <%= l(dataCycleObject.validity_period.valid_from.to_date, locale: DataCycleCore.ui_language) %>
+            </span>
+            <% end %>
+
+            <% unless dataCycleObject.validity_period.try(:valid_until).nil? %>
+                <%= t('terms.until', locale: DataCycleCore.ui_language) %>
+                <span class="date"><%= l(dataCycleObject.validity_period.valid_until.to_date, locale: DataCycleCore.ui_language) %></span>
+            <% end %>
+        </div>
+
+    <% end %>
 
 <% end %>
