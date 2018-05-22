@@ -57,6 +57,10 @@
         :type: linked
         :linked_table: creative_works
         :template_name: Bild
+      :poi_category:
+        :label: Kategorie
+        :type: classification
+        :tree_label: "POI - Kategorien"
       :data_type:
         :label: Inhaltstype
         :type: classification
