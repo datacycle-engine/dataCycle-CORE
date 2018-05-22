@@ -27,7 +27,7 @@ module DataCycleCore
         end
 
         if user.has_rank?(1)
-          can [:read, :settings, :store_filter], :backend
+          can [:read, :settings, :store_filter, :advanced_filter], :backend
           can :modify, DataCycleCore::User, id: user.id
           can :manage, DataCycleCore::WatchList, user_id: user.id
           can [:read, :create, :update, :destroy, :show_history], DataCycleCore::StoredFilter, user_id: user.id

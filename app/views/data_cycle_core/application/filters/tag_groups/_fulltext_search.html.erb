@@ -8,7 +8,9 @@
   <% if buttons %>
     <span class="tag-buttons">
       <a class="focus-advanced-filter advanced-filter-link" data-target="<%= sanitize_to_id(key) %>_<%= index %>"><i aria-hidden="true" class="fa fa-cog"></i></a>
-      <a class="remove-advanced-filter advanced-filter-link" data-target="<%= sanitize_to_id(key) %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+      <% if can?(:advanced_filter, :backend) %>
+        <a class="remove-advanced-filter advanced-filter-link" data-target="<%= sanitize_to_id(key) %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+      <% end %>
     </span>
   <% end %>
 </span>
