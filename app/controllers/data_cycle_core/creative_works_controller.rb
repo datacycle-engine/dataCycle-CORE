@@ -304,7 +304,7 @@ module DataCycleCore
         @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').update(permissions: 'read') if @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').present?
 
         I18n.with_locale(@creativeWork.first_available_locale) do
-          @creativeWork.update_attribute(:release_id, DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:review]).id) if @creativeWork.try(:schema)&.dig('releasable') && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:review]).present?
+          @creativeWork.update_attribute(:release_id, DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:review]).id) if DataCycleCore::Feature::Releasable.enabled? && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:review]).present?
         end
       end
     end
