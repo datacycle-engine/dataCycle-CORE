@@ -48,9 +48,11 @@
                           <%= yield :advanced_filters %>
 
                           <% if filter[:advanced].present? %>
-                            <div class="add-advanced-filter-container">
-                              <%= select_tag :add_advanced_filter, options_for_select(filter[:advanced].presence&.sort), prompt: t("filter.add", locale: DataCycleCore.ui_language), class: 'single-select', data: { url: add_filter_path, index: index + @advanced_filters.size, allow_clear: false } %>
-                            </div>
+                            <% if can?(:advanced_filter, :backend) %>
+                              <div class="add-advanced-filter-container">
+                                <%= select_tag :add_advanced_filter, options_for_select(filter[:advanced].presence&.sort), prompt: t("filter.add", locale: DataCycleCore.ui_language), class: 'single-select', data: { url: add_filter_path, index: index + @advanced_filters.size, allow_clear: false } %>
+                              </div>
+                            <% end %>
                             <% @advanced_filters.presence&.each_with_index do |filter, idx| %>
                               <%= render_first_existing_partial(["data_cycle_core/application/filters/new/#{filter['t']}"], { filter_name: filter['n'], filter_method: filter['m'], value: filter['v'], index: idx + index }) %>
                             <% end %>
