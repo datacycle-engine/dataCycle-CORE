@@ -83,6 +83,13 @@
           :options:
             :data-validate: media
             :data-type: image
+      :poi_category:
+        :label: Kategorie
+        :type: classificationTreeLabel
+        :type_name: "POI - Kategorien"
+        :storage_location: classification_relation
+        :editor:
+          :type: classificationSelector
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel

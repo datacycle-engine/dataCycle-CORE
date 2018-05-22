@@ -17,5 +17,9 @@
     <%= select_tag("f[#{index}][v]", options_for_select(DataCycleCore::ExternalSource.select(:id, :name).map { |e| [e.name, e.id] }, value), { multiple: true, class: 'multi-select', data: { placeholder: '' } }) %>
   </div>
 
-  <a class="remove-advanced-filter button alert" data-target="<%= sanitize_to_id(filter_name) %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+  <% if can?(:advanced_filter, :backend) %>
+    <div class="buttons">
+      <a class="remove-advanced-filter button alert" data-target="<%= sanitize_to_id(filter_name) %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+    </div>
+  <% end %>
 </div>

@@ -53,9 +53,4 @@ DataCycleCore.setup do |config|
       }
     }
   ).freeze
-
-  config.available_filters = {
-    main: ['Inhaltstypen'],
-    advanced: {}
-  }
 end
