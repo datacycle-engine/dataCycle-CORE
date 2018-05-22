@@ -1,6 +1,7 @@
 module DataCycleCore
   class Content < ApplicationRecord
     NESTED_STORAGE_LOCATIONS = ['metadata', 'content']
+    # TODO: remove after final refactor_data_definition migration
     NEW_STORAGE_LOCATION = {
       'value' => 'metadata',
       'translated_value' => 'content',

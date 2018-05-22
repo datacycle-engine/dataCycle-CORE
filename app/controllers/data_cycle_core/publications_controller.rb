@@ -24,13 +24,16 @@ module DataCycleCore
 
       query2 = DataCycleCore::CreativeWork.joins(:content_content_b).where(template: false, template_name: 'Publikations-Plan', content_contents: { content_a_id: query.pluck(:content_data_id) })
 
+      # TODO: remove after final refactor_data_definition migration
+      value_storage_location = DataCycleCore::Content::NEW_STORAGE_LOCATION.fetch('value','value')
+
       if params[:publications_from].present?
-        query2 = query2.where("(metadata ->> 'publish_at')::timestamptz >= ?", params[:publications_from])
+        query2 = query2.where("(#{value_storage_location} ->> 'publish_at')::timestamptz >= ?", params[:publications_from])
       else
-        query2 = query2.where("(metadata ->> 'publish_at')::timestamptz >= ?", Date.current)
+        query2 = query2.where("(#{value_storage_location} ->> 'publish_at')::timestamptz >= ?", Date.current)
       end
 
-      query2 = query2.where("(metadata ->> 'publish_at')::timestamptz <= ?", params[:publications_until]) if params[:publications_until].present?
+      query2 = query2.where("(#{value_storage_location} ->> 'publish_at')::timestamptz <= ?", params[:publications_until]) if params[:publications_until].present?
 
       @publication_classification_alias_ids = @with_classification_alias_ids&.select { |k, _| @publication_classifications.values&.include?(k) }
 
@@ -46,7 +49,7 @@ module DataCycleCore
         query2 = query2.where(id: content_ids)
       end
 
-      @contents = query2.order("(metadata ->> 'publish_at')::timestamptz ASC").page(params[:page]).per(10).includes(:classifications, content_content_b: [content_a: :translations])
+      @contents = query2.order("(#{value_storage_location} ->> 'publish_at')::timestamptz ASC").page(params[:page]).per(10).includes(:classifications, content_content_b: [content_a: :translations])
 
       @total = @contents.map(&:content_content_b).map { |c| c.first.content_a_id }.uniq.size
 
