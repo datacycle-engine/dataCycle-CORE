@@ -33,9 +33,4 @@ module.exports.initialize = function () {
 
   init();
 
-  $(document).on('results-loaded', '.search-results', event => {
-    console.log('test');
-    init();
-  });
-
 };
