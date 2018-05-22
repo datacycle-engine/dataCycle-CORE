@@ -1,23 +1,23 @@
 <% I18n.with_locale(object.first_available_locale) do %>
-  <% new_content ||= false %>
-  <% if object.schema.present? %>
+    <% new_content ||= false %>
+    <% if object.schema.present? %>
 
-    <% validation_properties = ordered_validation_properties(validation: object.schema) %>
-    <div class="content-object-item textblock" id="<%= sanitize_to_id(key) %>_item_<%= index %>" data-id="<%= object.id %>">
+        <% validation_properties = ordered_validation_properties(validation: object.schema) %>
+        <div class="content-object-item textblock" id="<%= sanitize_to_id(key) %>_item_<%= index %>" data-id="<%= object.id %>">
 
-      <%= hidden_field_tag("#{key}[#{index}][id]", object.id) unless new_content %>
+            <%= hidden_field_tag("#{key}[#{index}][id]", object.id) unless new_content %>
 
-      <span class="embedded-header form-element validation-container">
-        <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
-        <%= label_tag "#{key}[#{index}][name]", validation_properties.dig('name', 'label') %>
-        <%= text_field_tag "#{key}[#{index}][name]", object.try(:name), options.merge({ class: 'form-control', placeholder: validation_properties.dig('name', 'label') }) %>
-      </span>
+            <span class="embedded-header form-element validation-container">
+            <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
+                <%= label_tag "#{key}[#{index}][name]", validation_properties.dig('name', 'label') %>
+                <%= text_field_tag "#{key}[#{index}][name]", object.try(:name), class: 'form-control', placeholder: validation_properties.dig('name', 'label'), readonly: (options['readonly'].to_s == 'true') || !can?(:edit, DataCycleCore::DataAttribute.new("#{key}[#{index}][name]", definition, options, object, :edit)) %>
+            </span>
 
-      <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, object, :edit)) %>
-        <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
-      <% end %>
+            <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, object, :edit)) %>
+                <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
+            <% end %>
 
-      <%= render_attribute_editor key: "#{key}[#{index}][text]", definition: validation_properties['text'], value: object.try(:text), parameters: { options: (validation_properties['text'].presence&.dig('editor', 'options') || {}), new_content: new_content }, content: object %>
-    </div>
-  <% end %>
+            <%= render_attribute_editor key: "#{key}[#{index}][text]", definition: validation_properties['text'], value: object.try(:text), parameters: { options: (validation_properties['text'].presence&.dig('editor', 'options') || {}), new_content: new_content }, content: object %>
+        </div>
+    <% end %>
 <% end %>
