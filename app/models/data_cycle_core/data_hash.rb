@@ -22,14 +22,15 @@ module DataCycleCore
         ActiveRecord::Base.transaction do
           to_history(save_time: save_time) if id.nil? == false && prevent_history == false
           data_hash, release_hash = extract_release(data_hash, false) if is_a?(DataCycleCore::Releasable) # strip release data only from this object
+          data_hash = data_hash.merge({ 'last_updated_by' => [current_user.try(:id)] })
           set_template_data_hash(data_hash, property_definitions, save_time, current_user)
           if is_a?(DataCycleCore::Releasable)
             self.release = release_hash
             self.release_id = set_global_release(global_release_hash)
           end
           self.updated_at = save_time
-          updated_by = { 'last_updated_by' => current_user.try(:id) }
-          metadata.nil? ? self.metadata = updated_by : metadata.merge!(updated_by)
+          # updated_by = { 'last_updated_by' => [current_user.try(:id)] }
+          # metadata.nil? ? self.metadata = updated_by : metadata.merge!(updated_by)
           if id.nil?
             self.created_at = save_time
             self.updated_at = save_time
