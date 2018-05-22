@@ -3,10 +3,10 @@
     :name: SocialMediaPosting
     :type: object
     :content_type: entity
-    :releasable: true
-    :permissions:
-      :read_write: true
     :boost: 100.0
+    :features:
+      :publication_schedule: ['publication_schedule']
+      :releasable: true
     :properties:
       :id:
         :label: id
@@ -51,17 +51,6 @@
           :options:
             :data-validate: media
             :data-type: image
-#      :video:
-#        :label: Videos
-#        :type: embeddedLinkArray
-#        :type_name: creative_works
-#        :storage_type: array
-#        :storage_location: metadata
-#        :releasable: true
-#        :editor:
-#          :options:
-#            :data-validate: media
-#            :data-type: video
       :url:
         :label: Link
         :type: string
@@ -92,16 +81,12 @@
       :content_classifications:
         :type: mixin
         :name: content_classifications
+      :publication_schedule:
+        :type: mixin
+        :name: publication_schedule
       :meta_data:
         :type: mixin
         :name: meta_data
-      :publication_schedule:
-        :label: Geplante Publikation
-        :type: object
-        :storage_location: creative_works
-        :delete: true
-        :name: Publikations-Plan
-        :validations:
-          :classifications: no_conflicts
-        :editor:
-          :type: embeddedObject
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

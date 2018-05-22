@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.5
--- Dumped by pg_dump version 10.1
+-- Dumped from database version 9.6.1
+-- Dumped by pg_dump version 9.6.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -84,6 +84,70 @@ CREATE TABLE classification_aliases (
 
 
 --
+-- Name: classification_tree_labels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE classification_tree_labels (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    name character varying,
+    external_source_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    internal boolean DEFAULT false,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: classification_trees; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE classification_trees (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    external_source_id uuid,
+    parent_classification_alias_id uuid,
+    classification_alias_id uuid,
+    relationship_label character varying,
+    classification_tree_label_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: classification_alias_paths; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW classification_alias_paths AS
+ WITH RECURSIVE classification_alias_paths(id, ancestor_ids, full_path_ids, full_path_names) AS (
+         SELECT classification_aliases.id,
+            ARRAY[]::uuid[] AS ancestor_ids,
+            ARRAY[classification_aliases.id] AS full_path_ids,
+            ARRAY[classification_aliases.name, classification_tree_labels.name] AS full_path_names
+           FROM ((classification_trees
+             JOIN classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
+             JOIN classification_tree_labels ON ((classification_tree_labels.id = classification_trees.classification_tree_label_id)))
+          WHERE (classification_trees.parent_classification_alias_id IS NULL)
+        UNION ALL
+         SELECT classification_aliases.id,
+            (classification_alias_paths_1.id || classification_alias_paths_1.ancestor_ids) AS ancestor_ids,
+            (classification_aliases.id || classification_alias_paths_1.full_path_ids) AS full_path_ids,
+            (classification_aliases.name || classification_alias_paths_1.full_path_names) AS full_path_names
+           FROM ((classification_trees
+             JOIN classification_alias_paths classification_alias_paths_1 ON ((classification_alias_paths_1.id = classification_trees.parent_classification_alias_id)))
+             JOIN classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
+        )
+ SELECT classification_alias_paths.id,
+    classification_alias_paths.ancestor_ids,
+    classification_alias_paths.full_path_ids,
+    classification_alias_paths.full_path_names
+   FROM classification_alias_paths;
+
+
+--
 -- Name: classification_content_histories; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -138,40 +202,6 @@ CREATE TABLE classification_groups (
 
 
 --
--- Name: classification_tree_labels; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE classification_tree_labels (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    name character varying,
-    external_source_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    internal boolean DEFAULT false,
-    deleted_at timestamp without time zone
-);
-
-
---
--- Name: classification_trees; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE classification_trees (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    external_source_id uuid,
-    parent_classification_alias_id uuid,
-    classification_alias_id uuid,
-    relationship_label character varying,
-    classification_tree_label_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    deleted_at timestamp without time zone
-);
-
-
---
 -- Name: classifications; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -204,10 +234,11 @@ CREATE TABLE content_content_histories (
     content_b_history_id uuid,
     content_b_history_type character varying,
     relation_b character varying,
-    external_source_id uuid,
     history_valid tstzrange,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    order_a integer,
+    order_b integer
 );
 
 
@@ -223,10 +254,171 @@ CREATE TABLE content_contents (
     content_b_id uuid,
     content_b_type character varying,
     relation_b character varying,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    order_a integer,
+    order_b integer
+);
+
+
+--
+-- Name: creative_works; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE creative_works (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    "position" integer DEFAULT 0,
+    is_part_of uuid,
+    metadata jsonb,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     external_source_id uuid,
+    template boolean DEFAULT false NOT NULL,
+    external_key character varying,
+    template_name character varying,
+    schema jsonb
+);
+
+
+--
+-- Name: events; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE events (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    start_date timestamp without time zone,
+    end_date timestamp without time zone,
+    metadata jsonb,
+    template boolean DEFAULT false NOT NULL,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    external_source_id uuid,
+    external_key character varying,
+    template_name character varying,
+    schema jsonb
+);
+
+
+--
+-- Name: organizations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE organizations (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    metadata jsonb,
+    template boolean DEFAULT false NOT NULL,
+    seen_at timestamp without time zone,
+    template_name character varying,
+    schema jsonb,
+    external_source_id uuid,
+    external_key character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
+
+
+--
+-- Name: persons; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE persons (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    given_name character varying,
+    family_name character varying,
+    metadata jsonb,
+    template boolean DEFAULT false NOT NULL,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    external_source_id uuid,
+    external_key character varying,
+    template_name character varying,
+    schema jsonb
+);
+
+
+--
+-- Name: places; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE places (
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
+    external_source_id uuid,
+    external_key character varying,
+    longitude double precision,
+    latitude double precision,
+    elevation double precision,
+    location geometry(Point,4326),
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    photo uuid,
+    line geography(LineStringZ,4326),
+    metadata jsonb,
+    template boolean DEFAULT false,
+    address_locality character varying,
+    street_address character varying,
+    postal_code character varying,
+    address_country character varying,
+    fax_number character varying,
+    telephone character varying,
+    email character varying,
+    template_name character varying,
+    schema jsonb
+);
+
+
+--
+-- Name: content_meta_items; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW content_meta_items AS
+ SELECT creative_works.id,
+    'DataCycleCore::CreativeWork'::text AS content_type,
+    creative_works.template_name,
+    creative_works.schema,
+    creative_works.external_source_id,
+    creative_works.external_key
+   FROM creative_works
+  WHERE (creative_works.template IS FALSE)
+UNION
+ SELECT events.id,
+    'DataCycleCore::Event'::text AS content_type,
+    events.template_name,
+    events.schema,
+    events.external_source_id,
+    events.external_key
+   FROM events
+  WHERE (events.template IS FALSE)
+UNION
+ SELECT persons.id,
+    'DataCycleCore::Person'::text AS content_type,
+    persons.template_name,
+    persons.schema,
+    persons.external_source_id,
+    persons.external_key
+   FROM persons
+  WHERE (persons.template IS FALSE)
+UNION
+ SELECT organizations.id,
+    'DataCycleCore::Organization'::text AS content_type,
+    organizations.template_name,
+    organizations.schema,
+    organizations.external_source_id,
+    organizations.external_key
+   FROM organizations
+  WHERE (organizations.template IS FALSE)
+UNION
+ SELECT places.id,
+    'DataCycleCore::Place'::text AS content_type,
+    places.template_name,
+    places.schema,
+    places.external_source_id,
+    places.external_key
+   FROM places
+  WHERE (places.template IS FALSE);
 
 
 --
@@ -328,26 +520,6 @@ CREATE SEQUENCE creative_work_translations_id_seq
 --
 
 ALTER SEQUENCE creative_work_translations_id_seq OWNED BY creative_work_translations.id;
-
-
---
--- Name: creative_works; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE creative_works (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    "position" integer DEFAULT 0,
-    is_part_of uuid,
-    metadata jsonb,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
-    template boolean DEFAULT false NOT NULL,
-    external_key character varying,
-    template_name character varying,
-    schema jsonb
-);
 
 
 --
@@ -513,26 +685,6 @@ ALTER SEQUENCE event_translations_id_seq OWNED BY event_translations.id;
 
 
 --
--- Name: events; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE events (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    start_date timestamp without time zone,
-    end_date timestamp without time zone,
-    metadata jsonb,
-    template boolean DEFAULT false NOT NULL,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
-    external_key character varying,
-    template_name character varying,
-    schema jsonb
-);
-
-
---
 -- Name: external_sources; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -602,24 +754,6 @@ CREATE TABLE organization_translations (
     release jsonb,
     release_id uuid,
     release_comment text,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: organizations; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE organizations (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    metadata jsonb,
-    template boolean DEFAULT false NOT NULL,
-    seen_at timestamp without time zone,
-    template_name character varying,
-    schema jsonb,
-    external_source_id uuid,
-    external_key character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -755,26 +889,6 @@ ALTER SEQUENCE person_translations_id_seq OWNED BY person_translations.id;
 
 
 --
--- Name: persons; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE persons (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    given_name character varying,
-    family_name character varying,
-    metadata jsonb,
-    template boolean DEFAULT false NOT NULL,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
-    external_key character varying,
-    template_name character varying,
-    schema jsonb
-);
-
-
---
 -- Name: place_histories; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -891,37 +1005,6 @@ CREATE SEQUENCE place_translations_id_seq
 --
 
 ALTER SEQUENCE place_translations_id_seq OWNED BY place_translations.id;
-
-
---
--- Name: places; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE places (
-    id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    external_source_id uuid,
-    external_key character varying,
-    longitude double precision,
-    latitude double precision,
-    elevation double precision,
-    location geometry(Point,4326),
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    photo uuid,
-    line geography(LineStringZ,4326),
-    metadata jsonb,
-    template boolean DEFAULT false,
-    address_locality character varying,
-    street_address character varying,
-    postal_code character varying,
-    address_country character varying,
-    fax_number character varying,
-    telephone character varying,
-    email character varying,
-    template_name character varying,
-    schema jsonb
-);
 
 
 --
@@ -2417,6 +2500,11 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180328122539'),
 ('20180329064133'),
 ('20180330063016'),
-('20180410220414');
+('20180410220414'),
+('20180417130441'),
+('20180421162723'),
+('20180425110943'),
+('20180430064709'),
+('20180507073804');
 
 

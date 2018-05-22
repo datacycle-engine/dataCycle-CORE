@@ -1,10 +1,15 @@
-<li class="filter <%= 'subtree' if classification_tree&.any? { |d| d.sub_classification_trees.present? } %>" data-tree-label="<%= tree_label.downcase %>">
+<li class="filter <%= 'subtree' if classification_tree&.any? { |d| d.sub_classification_trees.present? } %>" data-tree-label="<%= tree_label %>" data-index="<%= index %>">
     <% excluded_types ||= [] %>
+    <%= hidden_field_tag "f[#{index}][c]", 'd' %>
+    <%= hidden_field_tag "f[#{index}][t]", :classification_alias_ids %>
+    <%= hidden_field_tag "f[#{index}][n]", tree_label %>
+    <%= hidden_field_tag "f[#{index}][m]", 'i' %>
+
     <%= render 'data_cycle_core/shared/icon', icon_type: tree_label.downcase %>
     <span class="title"><%= display_label %></span>
     <div>
         <ul class="clearfix <%= 'split-list' unless classification_tree&.any? { |d| d.sub_classification_trees.present? } %>">
-            <%= render partial: 'data_cycle_core/application/filters/classification_items', collection: classification_tree.sort{|a,b| a.name <=> b.name}, as: :item, locals: {excluded_types: excluded_types} if classification_tree.present? %>
+            <%= render partial: 'data_cycle_core/application/filters/classification_items', collection: classification_tree.sort{|a,b| a.name <=> b.name}, as: :item, locals: { excluded_types: excluded_types, tree_label: tree_label, index: index } if classification_tree.present? %>
         </ul>
     </div>
 </li>

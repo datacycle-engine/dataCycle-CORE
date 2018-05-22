@@ -4,17 +4,12 @@ module DataCycleCore
     belongs_to :user
 
     def apply
-      query = DataCycleCore::Filter::Search.new(language || 'de')
-      parameters.each do |key, value|
-        raise "function #{key} is not defined for class #{query.class}" unless query.respond_to?(key)
-        if value.is_a?(Hash)
-          value.each_value do |item|
-            query = query.send(key, item)
-          end
-        else
-          query = query.send(key, value)
-        end
+      query = DataCycleCore::Filter::Search.new(language || DataCycleCore.ui_language)
+
+      parameters.presence&.each do |filter|
+        query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
       end
+
       query
     end
   end

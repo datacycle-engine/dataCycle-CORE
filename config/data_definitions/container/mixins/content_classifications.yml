@@ -3,10 +3,10 @@
     :name: content_classifications
     :type: mixin
     :properties:
-      :topic:
-        :label: Themenbereiche
+      :tags:
+        :label: Tags
         :type: classificationTreeLabel
-        :type_name: Themenbereiche
+        :type_name: Tags
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector

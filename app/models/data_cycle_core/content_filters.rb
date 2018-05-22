@@ -36,7 +36,7 @@ module DataCycleCore
       translation_table = "DataCycleCore::#{table_name.classify}::Translation".constantize.arel_table
       joins(:translations)
         .where.not(
-          tranlation_table[:release_id].eq(id)
+          translation_table[:release_id].eq(id)
           .or(translation_table[:release_id].eq(nil))
         )
     end

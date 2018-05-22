@@ -4,7 +4,7 @@
     - $$Tour
 # embedded
   - $$Öffnungszeit
-  - $$Örtlichkeit - Overlay
+  - $$Overlay
 
 - Geschlecht:
   - Männlich
@@ -13,3 +13,5 @@
 - Themenbereiche:
 
 - Ausgabekanäle:
+
+- POI - Kategorien:

@@ -3,8 +3,6 @@
     :name: Bild
     :type: object
     :content_type: entity
-    :permissions:
-      :read_write: true
     :boost: 10.0
     :properties:
       :id:
@@ -163,3 +161,6 @@
       :meta_data:
         :type: mixin
         :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

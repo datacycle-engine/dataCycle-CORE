@@ -19,7 +19,7 @@ module DataCycleCore
 
           begin
             @source_object.with(@source_type) do |mongo_item|
-              items = endpoint.send(type.collection_name.to_s, lang: locale)
+              items = endpoint.send(options.dig(:download, :endpoint_method) || type.collection_name.to_s, lang: locale)
 
               max_string = ''
               max_string += (options[:max_count]).to_s if options[:max_count]
@@ -38,7 +38,6 @@ module DataCycleCore
                   item.dump ||= {}
                   item.dump[locale] = item_data
                   item.save!
-
                   @logging.item_processed(item_name, item_id, item_count, max_string)
                 rescue StandardError => e
                   @logging.error(item_name, item_id, item_data, e)

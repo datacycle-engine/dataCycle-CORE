@@ -9,7 +9,7 @@
 
     <div class="object-browser" id="<%= sanitize_to_id(key) %>"
       data-type="<%= definition.dig('editor', 'options', 'data-type').try(:downcase) %>"
-      data-language="<%= I18n.locale.to_s %>"
+      data-locale="<%= I18n.locale.to_s %>"
       data-key="<%= key %>"
       data-definition="<%= definition.to_json %>"
       data-options="<%= options.to_json %>"

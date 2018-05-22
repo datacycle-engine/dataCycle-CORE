@@ -1,0 +1,158 @@
+---
+- :data:
+    :name: Test-Template
+    :type: object
+    :content_type: entity
+    :boost: 100.0
+    :features:
+      :releasable: true
+    :properties:
+      :id:
+        :label: id
+        :type: string
+        :storage_type: string
+        :storage_location: key
+        :validations:
+          :format: uuid
+      :overlay:
+        :label: TestOverlay
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: TestOverlay
+        :validations:
+          :maxLength: 1
+        :editor:
+          :type: embeddedObject
+      :headline:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :minLength: 1
+        :editor:
+          :type: input
+          :options:
+            :data-validate: text
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_type: text
+        :storage_location: column
+        :search: true
+        :editor:
+          :type: quillEditor
+          :options:
+            :data-size: basic
+      :text:
+        :label: Fließtext
+        :type: string
+        :storage_type: text
+        :storage_location: content
+        :search: true
+        :editor:
+          :type: quillEditor
+          :options:
+            :data-size: full
+      :number_test:
+        :label: Number-Test
+        :type: number
+        :storage_type: number
+        :storage_location: metadata
+        :validations:
+          :format: integer
+        :editor:
+          :type: input
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :format: url
+        :editor:
+          :type: input
+          :options:
+            :data-validate: text
+      :primary_image:
+        :label: Hauptbild
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: string
+        :storage_location: metadata
+        :validations:
+          :max: 1
+        :editor:
+          :type: objectBrowser
+          :options:
+            :data-validate: media
+            :data-type: image
+      :image:
+        :label: Bilder
+        :type: embeddedLinkArray
+        :type_name: creative_works
+        :storage_type: array
+        :storage_location: metadata
+        :editor:
+          :type: objectBrowser
+          :options:
+            :data-validate: media
+            :data-type: image
+      :content_location:
+        :label: Ort
+        :type: object
+        :storage_location: places
+        :name: Örtlichkeit
+        :delete: false
+        :editor:
+          :type: objectBrowser
+          :options:
+            :data-validate: object
+            :data-type: place
+      :quotation:
+        :label: Zitat
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: Zitat
+        :editor:
+          :type: embeddedObject
+          :options:
+            :data-validate: text
+      :asset_image:
+        :label: Bild
+        :type: asset
+        :type_name: DataCycleCore::Image
+        :storage_location: asset_relation
+        :editor:
+          :type: imageAsset
+      :asset:
+        :label: File-Asset
+        :type: asset
+        :type_name: DataCycleCore::Asset
+        :storage_location: asset_relation
+        :editor:
+          :type: fileAsset
+      :data_type:
+        :label: Inhaltstype
+        :type: classificationTreeLabel
+        :type_name: Inhaltstypen
+        :storage_location: classification_relation
+        :default_value: "Test-Template"
+      :contact_info:
+        :type: mixin
+        :name: contact_info
+      :postal_address:
+        :type: mixin
+        :name: postal_address
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data

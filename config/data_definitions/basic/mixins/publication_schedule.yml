@@ -1,0 +1,15 @@
+---
+- :data:
+    :name: publication_schedule
+    :type: mixin
+    :properties:
+      :publication_schedule:
+        :label: Geplante Publikation
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: Publikations-Plan
+        :validations:
+          :classifications: no_conflicts
+        :editor:
+          :type: embeddedObject

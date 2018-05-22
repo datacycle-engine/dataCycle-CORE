@@ -43,42 +43,26 @@ module DataCycleCore
     def search
       permitted_params = params.permit(:q, :max, :tree_label)
 
-      classifications = DataCycleCore::Classification
-        .includes(:classification_groups, :classification_aliases)
-        .joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-        .where('classification_tree_labels.name ILIKE ?', params[:tree_label].presence || '%')
-        .where('classifications.name ILIKE ?', "%#{params[:q]}%")
+      query = if params[:tree_label].present?
+                DataCycleCore::ClassificationAlias.for_tree(params[:tree_label]).where.not(name: DataCycleCore.excluded_filter_classifications)
+              else
+                DataCycleCore::ClassificationAlias.all
+              end
+      query = query.search(params[:q])
+      query = query.order_by_similarity(params[:q])
+      query = query.limit(params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
+      query = query.preload(:classifications, :classification_alias_path)
 
-      if classifications.count < (params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
-        classifications = (classifications + classifications.map(&:descendants).flatten).uniq
-      end
-
-      classifications.sample(5).each do |c|
-        Rails.cache.delete("#{c.cache_key}/ancestors")
-      end
-
-      render json: classifications
-        .map { |c|
-          {
-            id: c.id,
-            name: c.name,
-            title: c.ancestors.reverse.map(&:name).join(' > '),
-            disabled: !c.primary_classification_alias.try(:assignable)
-          }
-        }.select { |c|
-          c[:title].starts_with?(params[:tree_label].presence || '')
-        }.map { |c|
-          c.merge(
-            sorting: [
-              -1 * c[:name].scan(/#{params[:q]}/i).count,
-              c[:name].scan(/#{params[:q]}/i).count.positive? ? c[:name].length : FIXNUM_MAX,
-              -1 * c[:title].scan(/#{params[:q]}/i).count,
-              c[:title][(c[:title].rindex(/#{params[:q]}/i) || 0)..-1].scan(' > ').count
-            ]
-          )
-        }.uniq.sort_by { |c|
-          c[:sorting] + c[:title].split('').map(&:ord)
-        }.first(params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
+      # FIXME: Jbuilder Bug: tries to render jbuilder partial
+      render plain: query.map { |a|
+        {
+          classification_id: a.primary_classification.id,
+          classification_alias_id: a.id,
+          name: a.name,
+          title: a.full_path,
+          disabled: !a.assignable
+        }
+      }.to_json, content_type: 'application/json'
     end
 
     def create

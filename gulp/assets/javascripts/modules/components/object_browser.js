@@ -9,7 +9,7 @@ var ObjectBrowser = function (selector) {
   this.label = $('[for=' + this.id + ']').text();
   this.per = 25;
   this.type = selector.data('type');
-  this.language = selector.data('language');
+  this.locale = selector.data('locale');
   this.key = selector.data('key');
   this.definition = selector.data('definition');
   this.options = selector.data('options');
@@ -24,6 +24,7 @@ var ObjectBrowser = function (selector) {
   this.total = 0;
   this.chosen = selector.data('objects');
   this.selected = '';
+  this.excluded = [];
   this.setup();
 };
 
@@ -139,6 +140,8 @@ ObjectBrowser.prototype.setup = function () {
   }.bind(this));
 
   this.overlay.on('import-complete', function (event, data) {
+    if (this.excluded.indexOf(data.id) === -1) this.excluded.push(data.id);
+
     this.overlay.children('.items').find('[data-id=' + data.id + ']').get(0).scrollIntoView({
       behavior: "smooth"
     });
@@ -154,7 +157,7 @@ ObjectBrowser.prototype.setup = function () {
       var form_data = $(this).serializeJSON();
       $.extend(form_data, {
         type: self.type,
-        language: self.language,
+        locale: self.locale,
         overlay_id: '#object_browser_' + self.id,
         key: self.key,
         definition: self.definition,
@@ -191,10 +194,12 @@ ObjectBrowser.prototype.addObject = function (id, element, event) {
   if (this.max != 0 && this.chosen.length >= this.max) {
     var confirmationModal = new ConfirmationModal("Maximalanzahl: " + this.max);
   } else {
-    this.chosen.push(id);
-    this.overlay.find('.chosen-items-container').append(element);
-    this.overlay.children(".items").find('.item[data-id=' + id + ']').addClass('active');
-    this.updateChosenCounter();
+    if (this.chosen.indexOf(id) === -1) {
+      this.chosen.push(id);
+      this.overlay.find('.chosen-items-container').append(element);
+      this.overlay.children(".items").find('.item[data-id=' + id + ']').addClass('active');
+      this.updateChosenCounter();
+    }
   }
 };
 
@@ -224,7 +229,7 @@ ObjectBrowser.prototype.loadDetails = function (id) {
     method: 'POST',
     data: JSON.stringify({
       type: this.type,
-      language: this.language,
+      locale: this.locale,
       overlay_id: '#object_browser_' + this.id,
       key: this.key,
       definition: this.definition,
@@ -241,6 +246,7 @@ ObjectBrowser.prototype.resetOverlay = function () {
   this.overlay.find('.chosen-items-container .item').remove();
   this.chosen = this.element.data('objects');
   this.search = "";
+  this.excluded = [];
   this.page = 1;
 };
 
@@ -304,7 +310,7 @@ ObjectBrowser.prototype.import = function (event) {
         authenticity_token: AUTH_TOKEN,
         type: this.type + "_object",
         data: event.originalEvent.data.data,
-        language: this.language,
+        locale: this.locale,
         overlay_id: '#object_browser_' + this.id,
         key: this.key,
         editable: this.editable,
@@ -323,6 +329,7 @@ ObjectBrowser.prototype.import = function (event) {
 
 ObjectBrowser.prototype.loadObjects = function (append = true) {
   if (!append) {
+    this.excluded = [];
     this.overlay.children('.items').scrollTop(0);
     this.overlay.children('.items').html('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
   }
@@ -335,7 +342,7 @@ ObjectBrowser.prototype.loadObjects = function (append = true) {
       page: this.page,
       per: this.per,
       type: this.type,
-      language: this.language,
+      locale: this.locale,
       overlay_id: '#object_browser_' + this.id,
       key: this.key,
       definition: this.definition,
@@ -343,6 +350,7 @@ ObjectBrowser.prototype.loadObjects = function (append = true) {
       search: this.search,
       objects: this.chosen,
       editable: this.editable,
+      excluded: this.excluded,
       append: append
     }),
     contentType: 'application/json'

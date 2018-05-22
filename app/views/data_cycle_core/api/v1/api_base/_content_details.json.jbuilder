@@ -1,10 +1,12 @@
 default_options = {
-  hidden_attributes: DataCycleCore.special_data_attributes + ['external_source_id', 'external_key']
+  hidden_attributes: DataCycleCore.special_data_attributes + ['external_source_id', 'external_key'] + DataCycleCore::Feature::OverlayAttributeService.call(content)
 }
 
 options = default_options.merge(defined?(options) ? options || {} : {})
 
 json.content_partial! 'header', content: content, options: options
+
+json.partial! 'container_parent_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present?
 
 json.partial! 'untranslated_properties', content: content, locale: content.translations.first.locale, options: options
 
@@ -26,3 +28,7 @@ json.partial! 'linked_properties', content: content, options: options
 json.partial! 'embedded_properties', content: content, options: options
 
 json.partial! 'asset_properties', content: content, options: options
+
+json.partial! 'overlay_properties', content: content, options: options
+
+json.partial! 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.is_content_type?('container')
