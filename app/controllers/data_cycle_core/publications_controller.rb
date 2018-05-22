@@ -25,7 +25,7 @@ module DataCycleCore
       query2 = DataCycleCore::CreativeWork.joins(:content_content_b).where(template: false, template_name: 'Publikations-Plan', content_contents: { content_a_id: query.pluck(:content_data_id) })
 
       # TODO: remove after final refactor_data_definition migration
-      value_storage_location = DataCycleCore::Content::NEW_STORAGE_LOCATION.fetch('value','value')
+      value_storage_location = DataCycleCore::Content::NEW_STORAGE_LOCATION.fetch('value', 'value')
 
       if params[:publications_from].present?
         query2 = query2.where("(#{value_storage_location} ->> 'publish_at')::timestamptz >= ?", params[:publications_from])
