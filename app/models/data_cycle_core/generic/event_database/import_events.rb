@@ -48,8 +48,8 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
 
       sub_events = raw_data.dig('subEvents').nil? ? {} : extract_sub_event_data(raw_data['subEvents'])
 
-      event_default_values = {}
-      event_default_values = load_default_values(@options.dig(:import, :default_values, :event)) if @options.dig(:import, :default_values, :event).present?
+      # event_default_values = {}
+      # event_default_values = load_default_values(@options.dig(:import, :default_values, :event)) if @options.dig(:import, :default_values, :event).present?
       event_data = merge_default_values(:event, extract_event_data(raw_data)).with_indifferent_access
 
       event_data['content_location'] = [{ 'id' => content_location.try(:id) }] if content_location.present?
@@ -66,7 +66,7 @@ module DataCycleCore::Generic::EventDatabase::ImportEvents
   end
 
   def extract_sub_event_data(raw_data)
-    sub_events = raw_data.collect do |sub_event|
+    raw_data.collect do |sub_event|
       unless sub_event.dig('location').nil?
         content_location = create_or_update_content(
           DataCycleCore::Place,

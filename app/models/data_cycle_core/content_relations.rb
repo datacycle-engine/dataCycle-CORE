@@ -9,8 +9,8 @@ module DataCycleCore
 
         belongs_to :external_source
 
-        table_full = table_given.to_s.singularize
-        table_full += "_#{postfix}" unless postfix.nil?
+        # table_full = table_given.to_s.singularize
+        # table_full += "_#{postfix}" unless postfix.nil?
 
         classification_content_table = 'classification_content'
         classification_content_table += "_#{postfix}" unless postfix.nil?

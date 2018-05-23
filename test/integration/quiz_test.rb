@@ -76,7 +76,7 @@ module DataCycleCore
 
       new_data_hash = returned_data_hash # .except("output_channels")
       new_data_hash['question'] = []
-      error = data_set.set_data_hash(data_hash: new_data_hash)
+      data_set.set_data_hash(data_hash: new_data_hash)
       data_set.save
 
       # check consistency of data in DB
@@ -153,7 +153,7 @@ module DataCycleCore
       # leave one question alone, delete the second one incl. all related answers and classification_relations
       new_data_hash = returned_data_hash.except('question')
       new_data_hash['question'] = [{ 'id' => returned_data_hash['question'][0]['id'] }]
-      error = data_set.set_data_hash(data_hash: new_data_hash)
+      data_set.set_data_hash(data_hash: new_data_hash)
       data_set.save
 
       # check consistency of data in DB

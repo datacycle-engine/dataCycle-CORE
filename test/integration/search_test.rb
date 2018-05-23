@@ -3,9 +3,6 @@ require 'test_helper'
 module DataCycleCore
   class SearchTest < ActiveSupport::TestCase
     test 'test search utility functions' do
-      template_cw_count = DataCycleCore::CreativeWork.count
-      template_cwt_count = DataCycleCore::CreativeWork::Translation.count
-
       template_data = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Bild2')
       data_set = DataCycleCore::CreativeWork.new
       data_set.schema = template_data.schema

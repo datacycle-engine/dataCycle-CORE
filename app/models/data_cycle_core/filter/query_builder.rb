@@ -93,7 +93,7 @@ module DataCycleCore
           .project(children[:classification_alias_id])
 
         query2 = join_classification_alias2
-        manager2 = query2.where(classification_alias[:id].in(manager)
+        query2.where(classification_alias[:id].in(manager)
                                   .or(classification_alias[:id].in(ids)))
       end
 

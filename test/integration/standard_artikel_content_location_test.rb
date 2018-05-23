@@ -165,7 +165,7 @@ module DataCycleCore
       # update the whole data_set to see if it is properly moved to history
       new_hash = data_set.get_data_hash
       new_hash['headline'] = 'updated Test'
-      error = data_set.set_data_hash(data_hash: new_hash)
+      data_set.set_data_hash(data_hash: new_hash)
 
       assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
       assert_equal(3, DataCycleCore::ContentContent.count)

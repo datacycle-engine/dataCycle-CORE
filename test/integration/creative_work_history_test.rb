@@ -157,7 +157,6 @@ module DataCycleCore
       assert_equal(data_hash, returned_data_hash)
       assert_equal(0, error[:error].count)
 
-      expected_hash = data_set.get_data_hash
       returned_data_hash = data_set.get_data_hash(save_time + 3.seconds)
 
       # check consistency of data in DB

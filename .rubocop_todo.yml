@@ -14,7 +14,6 @@
 #######################################################
 ########## Lint
 
-# Offense count: 3
 Lint/NestedMethodDefinition:
   Exclude:
     - 'app/models/data_cycle_core/master_data/import_templates.rb'
@@ -43,8 +42,8 @@ Lint/UnusedMethodArgument:
     - 'app/models/data_cycle_core/content_relations.rb'
 
 # Offense count: 64
-Lint/UselessAssignment:
-  Enabled: false
+#Lint/UselessAssignment:
+#  Enabled: false
 
 #######################################################
 ########## Naming
@@ -70,13 +69,11 @@ Performance/RedundantBlockCall:
 #######################################################
 ########## Rails
 
-## Offense count: 3
 Rails/OutputSafety:
   Exclude:
     - 'app/helpers/data_cycle_core/application_helper.rb'
     - 'app/helpers/data_cycle_core/data_hash_helper.rb'
 
-# Offense count: 8
 Rails/HasManyOrHasOneDependent:
   Exclude:
     - 'app/models/data_cycle_core/classification.rb'
@@ -88,7 +85,6 @@ Rails/HasManyOrHasOneDependent:
     - 'app/models/data_cycle_core/watch_list.rb'
     - 'app/models/data_cycle_core/search.rb'
 
-# Offense count: 29
 Rails/InverseOf:
   Exclude:
     - 'app/models/data_cycle_core/classification.rb'
@@ -106,7 +102,6 @@ Rails/InverseOf:
     - 'app/models/data_cycle_core/watch_list.rb'
     - 'app/models/data_cycle_core/search.rb'
 
-# Offense count: 26
 Rails/Output:
   Exclude:
     - 'app/controllers/data_cycle_core/dash_board_controller.rb'
@@ -120,7 +115,6 @@ Rails/Output:
     - 'app/models/data_cycle_core/master_data/validate_data.rb'
     - 'app/models/data_cycle_core/update/base.rb'
 
-# Offense count: 4
 Rails/SkipsModelValidations:
   Exclude:
     - 'app/controllers/data_cycle_core/data_links_controller.rb'
@@ -135,18 +129,15 @@ Rails/TimeZone:
 #######################################################
 ########## Style
 
-# Offense count: 69
 Style/ClassAndModuleChildren:
   Enabled: false
 
 Style/FrozenStringLiteralComment:
   Enabled: false
 
-# Offense count: 49
 Style/GuardClause:
   Enabled: false
 
-# Offense count: 2
 Style/MethodMissing:
   Exclude:
     - 'app/models/data_cycle_core/callbacks.rb'
@@ -155,29 +146,23 @@ Style/MethodMissing:
 #######################################################
 ########## Transproc
 
-# Offense count: 1
 Layout/AlignParameters:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 
-# Offense count: 4
 Style/Lambda:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 
-# Offense count: 1
 Layout/MultilineHashBraceLayout:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
 Style/RescueModifier:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
     - 'app/models/data_cycle_core/master_data/import_external_sources.rb'
 
-# Offense count: 39
 Style/StabbyLambdaParentheses:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'

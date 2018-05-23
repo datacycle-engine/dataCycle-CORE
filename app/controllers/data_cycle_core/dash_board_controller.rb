@@ -29,8 +29,6 @@ module DataCycleCore
     def import_templates
       @errors = nil
       @duplicates = nil
-      error = nil
-      duplicates = nil
       errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
       if errors.blank? && duplicates.blank?
         flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'data types', locale: DataCycleCore.ui_language

@@ -41,16 +41,15 @@ module DataCycleCore
         return nil if value.blank?
         return value if value.methods.include?(:geometry_type)
         raise RGeo::Error::ParseError, 'expected a string containing geographic data of some sorts' unless value.is_a?(::String)
-        exception = nil
         begin
           return RGeo::Geographic.spherical_factory(srid: 4326).parse_wkt(value)
         rescue RGeo::Error::ParseError => e
-          exception = e
+          e
         end
         begin
           return RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true).parse_wkt(value)
-        rescue RGeo::Error::ParseError
-          exception = e
+        rescue RGeo::Error::ParseError => e
+          e
         end
         raise e
       end

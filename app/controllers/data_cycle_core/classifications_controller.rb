@@ -41,7 +41,7 @@ module DataCycleCore
     end
 
     def search
-      permitted_params = params.permit(:q, :max, :tree_label)
+      params.permit(:q, :max, :tree_label)
 
       query = if params[:tree_label].present?
                 DataCycleCore::ClassificationAlias.for_tree(params[:tree_label])

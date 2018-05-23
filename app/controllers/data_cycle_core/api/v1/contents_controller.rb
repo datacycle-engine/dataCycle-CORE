@@ -12,7 +12,6 @@ module DataCycleCore
 
     def update
       object_type = DataCycleCore.content_tables.find { |object| object == permitted_params[:type] }
-      content = permitted_params[:content]
 
       @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
         .includes({ classifications: [], translations: [] })

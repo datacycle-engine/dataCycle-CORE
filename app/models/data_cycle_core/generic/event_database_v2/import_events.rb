@@ -65,7 +65,7 @@ module DataCycleCore::Generic::EventDatabaseV2::ImportEvents
   end
 
   def extract_sub_event_data(raw_data)
-    sub_events = raw_data.collect do |sub_event|
+    raw_data.collect do |sub_event|
       unless sub_event.dig('location').nil?
         content_location = create_or_update_content(
           DataCycleCore::Place,

@@ -42,12 +42,12 @@ module DataCycleCore
                                                   external_source: attributes[:external_source],
                                                   external_key: attributes[:external_key])
 
-          classification_group = ClassificationGroup.create!(classification: classification,
-                                                             classification_alias: classification_alias)
+          ClassificationGroup.create!(classification: classification,
+                                      classification_alias: classification_alias)
 
-          classification_tree = ClassificationTree.create!(classification_tree_label: self,
-                                                           parent_classification_alias: parent_classification_alias,
-                                                           sub_classification_alias: classification_alias)
+          ClassificationTree.create!(classification_tree_label: self,
+                                     parent_classification_alias: parent_classification_alias,
+                                     sub_classification_alias: classification_alias)
         end
 
         parent_classification_alias = classification_alias

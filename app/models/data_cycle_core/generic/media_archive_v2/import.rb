@@ -59,7 +59,7 @@ module DataCycleCore::Generic::MediaArchiveV2::Import
       data.merge!(default_values) if default_values.present?
 
       unless data.nil?
-        content = create_or_update_content(
+        create_or_update_content(
           @target_type,
           template,
           data

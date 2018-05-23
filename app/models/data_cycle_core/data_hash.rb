@@ -501,7 +501,7 @@ module DataCycleCore
       end
 
       unless is_blank?(data)
-        old_relations = get_relation(field_name, table)
+        # old_relations = get_relation(field_name, table)
         data.each_index do |index|
           item = data[index]
           if item.key?('id') && item['id'].present?

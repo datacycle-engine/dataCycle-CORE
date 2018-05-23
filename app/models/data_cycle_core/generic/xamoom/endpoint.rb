@@ -16,7 +16,7 @@ module DataCycleCore
           max_pages = total_items.fdiv(@per).ceil
           Enumerator.new do |yielder|
             (1..max_pages).each do |page|
-              page = load_data(page - 1, lang)['data'].each do |image_record|
+              load_data(page - 1, lang)['data'].each do |image_record|
                 yielder << image_record
               end
             end

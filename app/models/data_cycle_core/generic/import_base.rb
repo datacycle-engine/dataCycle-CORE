@@ -70,7 +70,7 @@ module DataCycleCore
             name: classification_data[:name]
           )
 
-          classification_group = DataCycleCore::ClassificationGroup.create!(
+          DataCycleCore::ClassificationGroup.create!(
             classification: classification,
             classification_alias: classification_alias,
             external_source_id: external_source.id
@@ -81,7 +81,7 @@ module DataCycleCore
             name: classification_data[:tree_name]
           )
 
-          classification_tree = DataCycleCore::ClassificationTree.create!(
+          DataCycleCore::ClassificationTree.create!(
             {
               classification_tree_label: tree_label,
               parent_classification_alias: parent_classification_alias,

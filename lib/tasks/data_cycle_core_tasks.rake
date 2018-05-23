@@ -362,7 +362,6 @@ namespace :data_cycle_core do
       puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
 
       # update content / content_history
-      index = 0
       DataCycleCore.content_tables.each do |content_table|
         [content_table, content_table.singularize + '_histories'].each do |table_name|
           content_class = "DataCycleCore::#{content_table.classify}"

@@ -3,11 +3,11 @@ module DataCycleCore
     extend ActiveSupport::Concern
 
     def merge_release(data_hash, release_hash)
-      data_hash = data_iterator_merge(data_hash, release_hash)
+      data_iterator_merge(data_hash, release_hash)
     end
 
     def extract_release(data_hash, full)
-      content_hash, release_hash = data_iterator_split(data_hash, full)
+      data_iterator_split(data_hash, full)
     end
 
     def data_iterator_merge(data_hash, release_hash)

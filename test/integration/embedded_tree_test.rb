@@ -371,7 +371,6 @@ module DataCycleCore
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
-      parent_id = data_set.id
 
       assert_equal(0, error[:error].count)
       assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('quotation', 'id', 'data_type', 'data_pool'))

@@ -42,13 +42,13 @@ module DataCycleCore
     end
 
     def get_custom_select_values(classification_alias)
-      res = walk_classification_tree(classification_alias)
+      walk_classification_tree(classification_alias)
     end
 
     def life_cycle_items
       if DataCycleCore.features.dig(:life_cycle)
         Rails.cache.fetch('life_cycle', expires_in: 10.minutes) do
-          life_cycle_items = DataCycleCore::Classification.where(name: DataCycleCore.features.dig(:life_cycle, :ordered)).sort_by { |c| DataCycleCore.features.dig(:life_cycle, :ordered)&.index c.name }.map { |c| [c.name, { id: c.id, alias: c.primary_classification_alias }] }.to_h
+          DataCycleCore::Classification.where(name: DataCycleCore.features.dig(:life_cycle, :ordered)).sort_by { |c| DataCycleCore.features.dig(:life_cycle, :ordered)&.index c.name }.map { |c| [c.name, { id: c.id, alias: c.primary_classification_alias }] }.to_h
         end
       else
         {}

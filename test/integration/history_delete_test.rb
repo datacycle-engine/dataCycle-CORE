@@ -80,7 +80,7 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
 
-      error = data_set.set_data_hash(data_hash: data_hash.merge({ 'headline' => 'changed Quiz!' }))
+      data_set.set_data_hash(data_hash: data_hash.merge({ 'headline' => 'changed Quiz!' }))
       data_set.save
 
       assert_equal(13, DataCycleCore::CreativeWork.count - cw_temp)
@@ -159,7 +159,7 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
 
-      error = data_set.set_data_hash(data_hash: data_hash.merge({ 'headline' => 'changed Quiz!' }))
+      data_set.set_data_hash(data_hash: data_hash.merge({ 'headline' => 'changed Quiz!' }))
       data_set.save
 
       assert_equal(2, DataCycleCore::CreativeWork.count - cw_temp)

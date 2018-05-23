@@ -13,7 +13,7 @@ module DataCycleCore
         'description' => 'description',
         'description2' => 'description2'
       }
-      error = data_set.set_data_hash(data_hash: data_hash)
+      data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       assert_equal(data_hash, data_set.get_data_hash.compact)
     end
@@ -36,7 +36,7 @@ module DataCycleCore
         },
         'description2' => 'description2'
       }
-      error = data_set.set_data_hash(data_hash: data_hash)
+      data_set.set_data_hash(data_hash: data_hash)
       data_set.save
 
       assert_equal(data_hash, data_set.get_data_hash)
@@ -98,7 +98,7 @@ module DataCycleCore
 
       set_hash = data_hash.deep_dup
 
-      error = data_set.set_data_hash(data_hash: set_hash)
+      data_set.set_data_hash(data_hash: set_hash)
       data_set.save
 
       expected_data_hash = data_hash.deep_dup

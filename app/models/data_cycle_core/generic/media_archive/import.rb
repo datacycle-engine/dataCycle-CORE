@@ -41,7 +41,7 @@ module DataCycleCore::Generic::MediaArchive::Import
       end
 
       unless data.nil?
-        content = create_or_update_content(
+        create_or_update_content(
           @target_type,
           template,
           data
