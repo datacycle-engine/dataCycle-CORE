@@ -5,6 +5,7 @@ module DataCycleCore
         SCALE = 112_000.0 # ~ km/1° longitude
         FIXNUM_MAX = (2**(0.size * 4 - 2) - 1)
 
+        attr_reader :border, :bbox
         def initialize(host: nil, end_point: nil, key: nil, bbox: nil, **options)
           @host = host
           @end_point = end_point
@@ -26,12 +27,12 @@ module DataCycleCore
         end
 
         def places(lang: :de)
-          scale = 50
+          raster_scale = 50
 
-          radius = SCALE / scale
-          raster = 1.0 / scale
+          radius = SCALE / raster_scale
+          raster = 1.0 / raster_scale
 
-          lines, columns = calculate_grid(@bbox, radius)
+          lines, columns = calculate_grid(@bbox, raster)
           lat_start = @bbox.min_y + 0.5 * raster
           long_start = @bbox.min_x
 
@@ -73,11 +74,11 @@ module DataCycleCore
         end
 
         # calculate hex-grid
-        def calculate_grid(bbox, radius)
-          a = radius * (3**0.5)
-          scale = a / SCALE
-          columns = (bbox.max_x - bbox.min_x) / scale
-          lines = (bbox.max_y - bbox.min_y) / scale
+        def calculate_grid(bbox, raster)
+          scale_y = raster * 1.5
+          scale_x = raster * 3**0.5
+          columns = (bbox.max_x - bbox.min_x) / scale_x
+          lines = (bbox.max_y - bbox.min_y) / scale_y
           return lines.ceil, columns.ceil
         end
 
