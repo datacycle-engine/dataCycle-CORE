@@ -1,5 +1,5 @@
 <%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: value, options: options do |item_diff| %>
-    <% added_objects, removed_objects = getRelationObjectChanges item_diff %>
+    <% added_objects, removed_objects = get_relation_object_changes item_diff %>
     <div class="detail-type classification">
         <span class="detail-content tags">
             <% DataCycleCore::Classification.where(id: value).each do |a| %>

@@ -27,16 +27,6 @@ module DataCycleCore
       nil
     end
 
-    # TODO: refactor
-    def get_classificationAliases_for_classificationIDs(uids)
-      result = []
-      unless uids.nil?
-        DataCycleCore::Classification.where(id: uids).each do |classification|
-          result.push(classification.classification_aliases[0])
-        end
-      end
-    end
-
     def get_selected_values_for_classification(options, value)
       return nil if value.nil?
 

@@ -34,10 +34,6 @@ Lint/UselessAssignment:
 # Offense count: 10
 Naming/MethodName:
   Exclude:
-    - 'app/controllers/data_cycle_core/watch_lists_controller.rb'
-    - 'app/helpers/data_cycle_core/classification_helper.rb'
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
-    - 'app/helpers/data_cycle_core/history_helper.rb'
     - 'app/helpers/data_cycle_core/conversions.rb'
 
 # Offense count: 11

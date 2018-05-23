@@ -77,7 +77,7 @@ module DataCycleCore
     end
 
     # TODO: refactor
-    def getRelationObjectChanges(diff)
+    def get_relation_object_changes(diff)
       added_objects = []
       removed_objects = []
 
