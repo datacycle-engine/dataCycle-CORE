@@ -26,7 +26,7 @@ module DataCycleCore
           set_template_data_hash(data_hash, property_definitions, save_time, current_user)
           if is_a?(DataCycleCore::Releasable)
             self.release = release_hash
-            self.release_id = set_global_release(global_release_hash)
+            self.release_id = global_release(global_release_hash)
           end
           self.updated_at = save_time
           # updated_by = { 'last_updated_by' => [current_user.try(:id)] }

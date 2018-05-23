@@ -13,7 +13,7 @@ module DataCycleCore
       super
     end
 
-    def get_releasable_hash
+    def releasable_hash
       { 'release_id' => release_id, 'release_comment' => release_comment }
     end
 

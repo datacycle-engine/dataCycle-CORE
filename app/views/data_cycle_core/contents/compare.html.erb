@@ -31,7 +31,7 @@
                             </div>
 
                             <%= render 'data_cycle_core/contents/viewers/metadata/releasable',
-                                       value: @source.get_releasable_hash,
+                                       value: @source.releasable_hash,
                                        key: 'creative_work',
                                        definition: {'type' => 'releasable'},
                                        options:{compare: true, force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@source) %>
@@ -53,7 +53,7 @@
                             </div>
 
                             <%= render 'data_cycle_core/contents/viewers/metadata/releasable',
-                                       value: @content.get_releasable_hash,
+                                       value: @content.releasable_hash,
                                        key: 'creative_work',
                                        definition: {'type' => 'releasable'},
                                        options:{force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@content) %>

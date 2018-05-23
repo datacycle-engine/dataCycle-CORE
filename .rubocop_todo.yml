@@ -31,9 +31,6 @@ Lint/UselessAssignment:
 #######################################################
 ########## Naming
 
-Naming/AccessorMethodName:
-  Enabled: false
-
 # Offense count: 10
 Naming/MethodName:
   Exclude:

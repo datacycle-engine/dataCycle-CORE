@@ -70,7 +70,7 @@ module DataCycleCore
       end
     end
 
-    def set_global_release(global_release_hash)
+    def global_release(global_release_hash)
       ids = []
       flat_hash = flatten_hash(global_release_hash)
       flat_hash.map { |key, value| ids.push(value) if key[/release_id\z/] }

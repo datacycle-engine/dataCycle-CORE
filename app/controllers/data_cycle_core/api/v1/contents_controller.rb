@@ -46,7 +46,7 @@ module DataCycleCore
       @contents = apply_paging(query).map(&:content_data)
     end
 
-    def get_deleted
+    def deleted
       deleted_contents = DataCycleCore::CreativeWork::History.where(
         DataCycleCore::CreativeWork::History.arel_table[:deleted_at].not_eq(nil)
       )

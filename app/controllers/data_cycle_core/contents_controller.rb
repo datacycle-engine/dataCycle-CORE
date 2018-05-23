@@ -135,7 +135,7 @@ module DataCycleCore
 
       I18n.with_locale(@content.first_available_locale) do
         @dataSchema = @content.get_data_hash
-        @diffSchema = helpers.get_diff(@historySchema.merge(@historySource.get_releasable_hash), @dataSchema.merge(@content.get_releasable_hash))
+        @diffSchema = helpers.get_diff(@historySchema.merge(@historySource.releasable_hash), @dataSchema.merge(@content.releasable_hash))
       end
     end
 

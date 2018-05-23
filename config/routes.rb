@@ -97,7 +97,7 @@ DataCycleCore::Engine.routes.draw do
         end
 
         get 'contents/search', to: 'contents#search'
-        get 'contents/get_deleted', to: 'contents#get_deleted'
+        get 'contents/deleted', to: 'contents#deleted'
 
         resources :external_sources, only: [] do
           post ':external_source_id/:type/:external_key', to: 'external_sources#create', on: :collection

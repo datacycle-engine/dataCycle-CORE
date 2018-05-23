@@ -1,7 +1,7 @@
 module DataCycleCore
   class Api::V1::ExternalSourcesController < Api::V1::ApiBaseController
     def update
-      api_strategy = get_api_strategy
+      api_strategy = api_strategy
       content = content_params.as_json
 
       updated = api_strategy.update content
@@ -25,7 +25,7 @@ module DataCycleCore
     end
 
     def create
-      api_strategy = get_api_strategy
+      api_strategy = api_strategy
       content = content_params.as_json
 
       created = api_strategy.create content
@@ -37,7 +37,7 @@ module DataCycleCore
     end
 
     def destroy
-      api_strategy = get_api_strategy
+      api_strategy = api_strategy
       content = content_params.as_json
 
       deleted = api_strategy.delete content
@@ -58,7 +58,7 @@ module DataCycleCore
       super + [:external_source_id, :type, :external_key, :webhook_source]
     end
 
-    def get_api_strategy
+    def api_strategy
       external_source = DataCycleCore::ExternalSource.find(permitted_params[:external_source_id])
       api_strategy = DataCycleCore.allowed_api_strategies.find { |object| object == external_source.config['api_strategy'] }
 

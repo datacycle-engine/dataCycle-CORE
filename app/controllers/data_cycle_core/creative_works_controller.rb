@@ -62,11 +62,11 @@ module DataCycleCore
       @source = source_params[:source_type].constantize.find(source_params[:source_id]) unless source_params.blank?
 
       I18n.with_locale(@content.first_available_locale) do
-        @dataSchema = @content.get_data_hash.merge(@content.get_releasable_hash)
+        @dataSchema = @content.get_data_hash.merge(@content.releasable_hash)
       end
 
       I18n.with_locale(@source.first_available_locale) do
-        @sourceSchema = @source.get_data_hash.merge(@source.get_releasable_hash)
+        @sourceSchema = @source.get_data_hash.merge(@source.releasable_hash)
       end
 
       @diffSchema = helpers.get_diff(@sourceSchema, @dataSchema)

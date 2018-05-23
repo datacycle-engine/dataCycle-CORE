@@ -32,7 +32,7 @@
                                 <%= render 'history_meta_data', content: @historySource %>
                             </div>
 
-                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable', value: @historySource.get_releasable_hash, key: 'creative_work', definition: {'type' => 'releasable'}, options:{compare: true, force_render: true} %>
+                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable', value: @historySource.releasable_hash, key: 'creative_work', definition: {'type' => 'releasable'}, options:{compare: true, force_render: true} %>
 
                         </div>
                     </div>
