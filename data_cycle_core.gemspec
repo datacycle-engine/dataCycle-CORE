@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.email       = ['office@datacycle.at']
   s.homepage    = 'http://git.pixelpoint.biz/data-cycle/data-cycle-core'
   s.summary     = 'dataCycle-Core. Rails engine for dataCycle'
-  s.license     = "Copyright 2016-#{DateTime.now.year} datacycle.at. All rights reserved."
+  s.license     = "Copyright 2016-#{Time.now.year} datacycle.at. All rights reserved."
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.md']
 
