@@ -8,7 +8,7 @@ module DataCycleCore
       attr_reader :query
       def_delegators :@query, :to_a, :to_sql, :each, :page, :includes, :all, :select, :map
       TERMINAL_METHODS = [:count, :pluck,
-                          :first, :second, :third, :fourth, :fifth, :forty_two, :last]
+                          :first, :second, :third, :fourth, :fifth, :forty_two, :last].freeze
       def_delegators :@query, *TERMINAL_METHODS
 
       def initialize(locale = 'de', query = nil)

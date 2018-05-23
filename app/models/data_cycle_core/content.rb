@@ -1,13 +1,13 @@
 module DataCycleCore
   class Content < ApplicationRecord
-    NESTED_STORAGE_LOCATIONS = ['metadata', 'content']
+    NESTED_STORAGE_LOCATIONS = ['metadata', 'content'].freeze
     # TODO: remove after final refactor_data_definition migration
     NEW_STORAGE_LOCATION = {
       'value' => 'metadata',
       'translated_value' => 'content',
       'column' => 'column'
-    }
-    PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'datetime', 'boolean', 'geographic']
+    }.freeze
+    PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'datetime', 'boolean', 'geographic'].freeze
 
     self.abstract_class = true
 

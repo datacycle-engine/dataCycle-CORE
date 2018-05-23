@@ -2,9 +2,9 @@ module DataCycleCore
   module HistoryHelper
     require 'hashdiff'
 
-    REMOVED_INDICATOR = '-'
-    ADDED_INDICATOR = '+'
-    CHANGED_INDICATOR = '~'
+    REMOVED_INDICATOR = '-'.freeze
+    ADDED_INDICATOR = '+'.freeze
+    CHANGED_INDICATOR = '~'.freeze
 
     # OK
     def get_diff(version, orig)

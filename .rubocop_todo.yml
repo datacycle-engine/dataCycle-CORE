@@ -149,14 +149,14 @@ Style/MethodMissing:
     - 'app/models/data_cycle_core/content.rb'
 
 # Offense count: 9
-Style/MutableConstant:
-  Exclude:
-    - 'app/helpers/data_cycle_core/application_helper.rb'
-    - 'app/helpers/data_cycle_core/history_helper.rb'
-    - 'app/models/data_cycle_core/content.rb'
-    - 'app/models/data_cycle_core/filter/query_builder.rb'
-    - 'app/models/data_cycle_core/filter/search.rb'
-    - 'lib/data_cycle_core/version.rb'
+#Style/MutableConstant:
+#  Exclude:
+#    - 'app/helpers/data_cycle_core/application_helper.rb'
+#    - 'app/helpers/data_cycle_core/history_helper.rb'
+#    - 'app/models/data_cycle_core/content.rb'
+#    - 'app/models/data_cycle_core/filter/query_builder.rb'
+#    - 'app/models/data_cycle_core/filter/search.rb'
+#    - 'lib/data_cycle_core/version.rb'
 
 #######################################################
 ########## Transproc
