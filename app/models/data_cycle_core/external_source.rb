@@ -17,21 +17,62 @@ module DataCycleCore
     end
 
     def download(options = {}, &block)
-      full_options = options.merge({ download: config['download_config'].symbolize_keys })
-      if config['download'].starts_with?('::') || config['download'].starts_with?('DataCycleCore::')
-        config['download'].constantize.new(id).download(full_options, &block)
-      else
-        "DataCycleCore::#{config['download']}".constantize.new(id).download(full_options, &block)
-      end
+      return if config.dig('download').nil?
+      full_options = options.merge({ download: download_config.symbolize_keys })
+      elementary_downloader(full_options, &block)
     end
 
-    def import(options = {}, &bock)
-      full_options = options.merge({ import: config['import_config'].symbolize_keys })
-      if config['import'].starts_with?('::') || config['import'].starts_with?('DataCycleCore::')
-        config['import'].constantize.new(id).import(full_options, &bock)
-      else
-        "DataCycleCore::#{config['import']}".constantize.new(id).import(full_options, &bock)
-      end
+    def download_single(name, options = {}, &block)
+      return if download_config&.dig(name).nil?
+      full_options = options.merge({ download: { name => download_config.dig(name).symbolize_keys } })
+      elementary_downloader(full_options, &block)
+    end
+
+    def elementary_downloader(options, &block)
+      config['download'].constantize.new(id).download(options, &block)
+    end
+
+    def download_config
+      config.dig('download_config')
+    end
+
+    def download_list
+      download_config.keys
+    end
+
+    def import(options = {}, &block)
+      return if config.dig('import').nil?
+      full_options = options.merge({ import: import_config.symbolize_keys })
+      elementary_importer(full_options, &block)
+    end
+
+    def import_single(name, options = {}, &block)
+      return if import_config&.dig(name).nil?
+      full_options = options.merge({ import: { name => import_config.dig(name).symbolize_keys } })
+      elementary_importer(full_options, &block)
+    end
+
+    def elementary_importer(options, &block)
+      config['import'].constantize.new(id).import(options, &block)
+    end
+
+    def import_config
+      config.dig('import_config')
+    end
+
+    def import_list
+      import_config.keys
+    end
+
+    def collections
+      mongo_database = "#{Generic::Collection.database_name}_#{id}"
+      Mongoid.override_database(mongo_database)
+      Mongoid.clients[id] = {
+        'database' => mongo_database,
+        'hosts' => Mongoid.default_client.cluster.servers.map(&:address).map { |adr| "#{adr.host}:#{adr.port}" },
+        'options' => nil
+      }
+      OpenStruct.new(Hash[Mongoid.client(id).collections.map { |item| [item.name, item] }])
     end
   end
 end
