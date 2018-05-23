@@ -10,10 +10,10 @@ module DataCycleCore
     end
 
     # TODO: refactor
-    def get_classifications_for_id(uids, treeLabel = nil)
+    def get_classifications_for_id(uids, tree_label = nil)
       unless uids.nil?
-        if !treeLabel.nil?
-          allowed_classifications = get_classifications_for_name(treeLabel)
+        if !tree_label.nil?
+          allowed_classifications = get_classifications_for_name(tree_label)
             .classification_trees
             .map { |classification| classification.sub_classification_alias.id }
           allowed_uids = uids.select { |uid| allowed_classifications.include?(uid) }

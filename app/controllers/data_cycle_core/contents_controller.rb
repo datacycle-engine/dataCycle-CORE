@@ -125,17 +125,17 @@ module DataCycleCore
     def history
       @content = data_cycle_object(controller_name).includes(:classifications).find(params[:id])
 
-      @historySource = @content.histories.find(params[:history_id]) unless params[:history_id].nil?
+      @history_source = @content.histories.find(params[:history_id]) unless params[:history_id].nil?
 
-      unless @historySource.nil?
-        I18n.with_locale(@historySource.first_available_locale) do
-          @historySchema = @historySource.get_data_hash
+      unless @history_source.nil?
+        I18n.with_locale(@history_source.first_available_locale) do
+          @history_schema = @history_source.get_data_hash
         end
       end
 
       I18n.with_locale(@content.first_available_locale) do
-        @dataSchema = @content.get_data_hash
-        @diffSchema = helpers.get_diff(@historySchema.merge(@historySource.releasable_hash), @dataSchema.merge(@content.releasable_hash))
+        @data_schema = @content.get_data_hash
+        @diff_schema = helpers.get_diff(@history_schema.merge(@history_source.releasable_hash), @data_schema.merge(@content.releasable_hash))
       end
     end
 

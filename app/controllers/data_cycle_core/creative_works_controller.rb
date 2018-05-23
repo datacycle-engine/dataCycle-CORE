@@ -62,14 +62,14 @@ module DataCycleCore
       @source = source_params[:source_type].constantize.find(source_params[:source_id]) unless source_params.blank?
 
       I18n.with_locale(@content.first_available_locale) do
-        @dataSchema = @content.get_data_hash.merge(@content.releasable_hash)
+        @data_schema = @content.get_data_hash.merge(@content.releasable_hash)
       end
 
       I18n.with_locale(@source.first_available_locale) do
-        @sourceSchema = @source.get_data_hash.merge(@source.releasable_hash)
+        @source_schema = @source.get_data_hash.merge(@source.releasable_hash)
       end
 
-      @diffSchema = helpers.get_diff(@sourceSchema, @dataSchema)
+      @diff_schema = helpers.get_diff(@source_schema, @data_schema)
     end
 
     def edit
@@ -77,13 +77,13 @@ module DataCycleCore
 
       # get show data for split view
       unless source_params.blank?
-        @splitType = source_params[:source_type].constantize
-        @splitSource = @splitType.find(source_params[:source_id])
-        @splitSchema = []
+        @split_type = source_params[:source_type].constantize
+        @split_source = @split_type.find(source_params[:source_id])
+        @split_schema = []
 
-        unless @splitSource.nil?
-          I18n.with_locale(@splitSource.first_available_locale) do
-            @splitSchema = @splitSource.get_data_hash
+        unless @split_source.nil?
+          I18n.with_locale(@split_source.first_available_locale) do
+            @split_schema = @split_source.get_data_hash
           end
         end
       end

@@ -2,7 +2,7 @@
   <h5><%= t('history.latest_edits', locale: DataCycleCore.ui_language) %>:</h5>
   <ul class="list-items">
     <% content.histories.each do |item|%>
-        <li class="<%= item == @historySource ? 'active' : '' %>">
+        <li class="<%= item == @history_source ? 'active' : '' %>">
             <!-- # TODO: refactor last_updated_by -->
             <% if item.try(:last_updated_by).is_a?(ActiveRecord::Relation) && item.try(:last_updated_by).present? %>
                 <% person = item.last_updated_by.first %>
@@ -16,7 +16,7 @@
 
             <i><%= l(Time.zone.at(I18n.with_locale(item.first_available_locale){item.history_valid&.first}), locale: DataCycleCore.ui_language) %></i>
 
-            <% if can?(:history, content) && item != @historySource %>
+            <% if can?(:history, content) && item != @history_source %>
                 <span class="history-link">
                   <i>
                       <% if action_name == 'history_detail' %>

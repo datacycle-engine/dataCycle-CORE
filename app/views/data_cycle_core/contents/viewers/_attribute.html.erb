@@ -3,7 +3,7 @@
     <% if options.dig(:compare) && options.dig(:item_diff).nil? == false %>
         <% item_diff = options[:item_diff] %>
     <% elsif options.dig(:compare) && options.dig(:original_objects).nil? %>
-        <% item_diff = get_item_has_changed @diffSchema, key, value, definition %>
+        <% item_diff = get_item_has_changed @diff_schema, key, value, definition %>
     <% else %>
         <% item_diff = nil %>
     <% end %>

@@ -34,7 +34,7 @@
             <%= render 'pg_total_stats' %>
         </div>
         <div class="small-9 columns">
-            <%= render 'job_queue_stats' unless @statJobQueue.count == 0 %>
+            <%= render 'job_queue_stats' unless @stat_job_queue.count == 0 %>
             <%= 'Duplicates:' unless @duplicates.blank? %>
             <%= ap(@duplicates).html_safe unless @duplicates.blank? %>
             <%= 'Errors:' unless @errors.blank? %>
@@ -51,7 +51,7 @@
         </div>
     </div>
     <div class="row dashboard-cards">
-        <% @statOutdoorActive.import_modules.each do |import_modules| %>
+        <% @stat_outdoor_active.import_modules.each do |import_modules| %>
             <div class="columns small-3">
                 <%= render 'import_modules', locals: {import_data: import_modules} %>
             </div>

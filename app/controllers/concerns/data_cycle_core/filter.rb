@@ -44,11 +44,11 @@ module DataCycleCore
         end
       end
 
-      @paginateObject = query.includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
+      @paginate_object = query.includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
 
-      @total = @paginateObject.total_count
+      @total = @paginate_object.total_count
 
-      @paginateObject.map(&:content_data)
+      @paginate_object.map(&:content_data)
     end
 
     def apply_filter(filter_id:, api_only: false)

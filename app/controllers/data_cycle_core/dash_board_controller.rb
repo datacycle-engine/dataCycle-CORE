@@ -6,8 +6,8 @@ module DataCycleCore
     def home
       @errors = nil
       @duplicates = nil
-      @statOutdoorActive = StatsDatabase.new(current_user.id)
-      @statJobQueue = StatsJobQueue.new.update
+      @stat_outdoor_active = StatsDatabase.new(current_user.id)
+      @stat_job_queue = StatsJobQueue.new.update
     end
 
     def download

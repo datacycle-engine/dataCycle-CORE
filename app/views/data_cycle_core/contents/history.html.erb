@@ -24,15 +24,15 @@
 
             <div class="flex-box detail-header-fixed">
 
-                <% I18n.with_locale(@historySource.first_available_locale) do %>
+                <% I18n.with_locale(@history_source.first_available_locale) do %>
 
                     <div class="detail-header-info no-transparency fixed metadata has-history-link">
-                        <span class="type <%= @historySource.template_name.downcase %>">
+                        <span class="type <%= @history_source.template_name.downcase %>">
                           <%= t('history.differences_to_version', locale: DataCycleCore.ui_language) %>:
                         </span>
-                        <%= render 'history_meta_data', content: @historySource %>
+                        <%= render 'history_meta_data', content: @history_source %>
                         <span class="show-history-link">
-                          <%= link_to polymorphic_url([:history_detail, @content], history_id: @historySource.id, watch_list_id: @watch_list) do  %>
+                          <%= link_to polymorphic_url([:history_detail, @content], history_id: @history_source.id, watch_list_id: @watch_list) do  %>
                             <i class="fa fa-eye" aria-hidden="true"></i>
                           <% end %>
                         </span>
@@ -44,12 +44,12 @@
                             </div>
 
                             <%= render 'data_cycle_core/contents/viewers/metadata/releasable',
-                                       value: @historySource.releasable_hash,
+                                       value: @history_source.releasable_hash,
                                        key: 'creative_work',
                                        definition: {'type' => 'releasable'},
-                                       options:{compare: true, force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@historySource) %>
+                                       options:{compare: true, force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@history_source) %>
 
-                            <%= render_content_partial 'history', content: @historySource, options: {compare: true, force_render: true} %>
+                            <%= render_content_partial 'history', content: @history_source, options: {compare: true, force_render: true} %>
 
                         </div>
                     </div>

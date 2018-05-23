@@ -5,7 +5,7 @@ module DataCycleCore
     load_and_authorize_resource         # from cancancan (authorize)
 
     def index
-      @paginateObject = current_user.watch_lists.page(params[:page])
+      @paginate_object = current_user.watch_lists.page(params[:page])
     end
 
     def show

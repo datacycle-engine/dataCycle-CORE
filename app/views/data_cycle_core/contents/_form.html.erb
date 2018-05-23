@@ -6,31 +6,31 @@
     <%= hidden_field_tag "#{content.class.name.demodulize.underscore}[datahash][creator][]", content.try(:creator).try(:first).try(:id) %>
     <%= hidden_field_tag 'locale', I18n.locale %>
 
-    <% unless @splitSource.nil? %>
-        <% I18n.with_locale(@splitSource.first_available_locale) do %>
+    <% unless @split_source.nil? %>
+        <% I18n.with_locale(@split_source.first_available_locale) do %>
             <div class="flex-box">
                 <div class="row split-content detail-content">
                     <%= hidden_field_tag 'splitview', true %>
-                    <% if can?(:subscribe, @splitSource) && @splitSource.subscriptions.by_user(current_user).size == 0 %>
-                        <div class="subscribe-parent notice"><p>Sie sollten diesen Inhalt (<%=@splitSource.template_name%>) abonnieren, um Ihren neu erstellten Inhalt (<%=content.template_name%>) aktuell halten zu können.</p>
-                            <%= link_to "Abonnieren", subscriptions_path(subscribable_id: @splitSource.id, subscribable_type: @splitSource.class.name), method: :post %>
+                    <% if can?(:subscribe, @split_source) && @split_source.subscriptions.by_user(current_user).size == 0 %>
+                        <div class="subscribe-parent notice"><p>Sie sollten diesen Inhalt (<%= @split_source.template_name%>) abonnieren, um Ihren neu erstellten Inhalt (<%= content.template_name%>) aktuell halten zu können.</p>
+                            <%= link_to "Abonnieren", subscriptions_path(subscribable_id: @split_source.id, subscribable_type: @split_source.class.name), method: :post %>
 
                             <button name="button" type="button" class="close-subscribe-notice" data-close="" aria-label="Dismiss Notice"><span aria-hidden="true">×</span></button>
                         </div>
                     <% end %>
                     <div class="show-content">
                         <div class="detail-header-info">
-                            <%= render 'meta_data', content: @splitSource %>
+                            <%= render 'meta_data', content: @split_source %>
                         </div>
 
-                        <%= render_content_partial 'details', content: @splitSource, options: {force_render: true} %>
+                        <%= render_content_partial 'details', content: @split_source, options: {force_render: true} %>
 
                     </div>
                 </div>
         <% end %>
     <% end %>
 
-    <div class="row<%= ' split-content edit-content' unless @splitSource.nil? %>">
+    <div class="row<%= ' split-content edit-content' unless @split_source.nil? %>">
         <div class="column">
             <div class="detail-header editor">
 
@@ -76,7 +76,7 @@
         </div>
     </div>
 
-    <% unless @splitSource.nil? %>
+    <% unless @split_source.nil? %>
         </div>
     <% end %>
 
