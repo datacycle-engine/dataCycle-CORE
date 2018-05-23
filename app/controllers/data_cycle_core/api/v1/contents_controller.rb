@@ -51,7 +51,7 @@ module DataCycleCore
         DataCycleCore::CreativeWork::History.arel_table[:deleted_at].not_eq(nil)
       )
 
-      @language = permitted_params[:language] unless permitted_params[:language].blank?
+      @language = permitted_params[:language] if permitted_params[:language].present?
       @language ||= 'de'
 
       if permitted_params[:deleted_since]

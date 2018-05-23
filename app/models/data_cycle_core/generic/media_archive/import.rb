@@ -28,7 +28,7 @@ module DataCycleCore::Generic::MediaArchive::Import
           .merge({ 'external_key' => raw_data['url'] }).with_indifferent_access
       )
 
-      raw_data['content_location'] = [{ 'id' => content_location.try(:id) }] unless content_location.blank?
+      raw_data['content_location'] = [{ 'id' => content_location.try(:id) }] if content_location.present?
 
       case raw_data['contentType']
       when 'Bild'

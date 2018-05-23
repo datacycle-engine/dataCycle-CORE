@@ -50,11 +50,11 @@ module DataCycleCore::Generic::EventDatabaseV2::ImportEvents
 
       event_data = merge_default_values(:event, extract_event_data(raw_data)).with_indifferent_access
 
-      event_data['location'] = [content_location.try(:id)] unless content_location.blank?
+      event_data['location'] = [content_location.try(:id)] if content_location.present?
 
-      event_data['event_category'] = categories.map(&:id) unless categories.blank?
-      event_data['image'] = [image.try(:id)] unless image.blank?
-      event_data['sub_event'] = sub_events unless sub_events.blank?
+      event_data['event_category'] = categories.map(&:id) if categories.present?
+      event_data['image'] = [image.try(:id)] if image.present?
+      event_data['sub_event'] = sub_events if sub_events.present?
 
       create_or_update_content(
         @target_type,
@@ -74,7 +74,7 @@ module DataCycleCore::Generic::EventDatabaseV2::ImportEvents
         )
       end
       item = merge_default_values(:subevent, @sub_event_transformation.call(sub_event))
-      item.merge!({ 'location' => [content_location.try(:id)] }) unless content_location.blank?
+      item.merge!({ 'location' => [content_location.try(:id)] }) if content_location.present?
     end
   end
 

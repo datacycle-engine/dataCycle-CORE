@@ -31,17 +31,17 @@ module DataCycleCore
 
     def to_html_string(title, text = '')
       html_title = ''
-      unless title.blank?
+      if title.present?
         html_title += '<i>'
         html_title += title
 
-        html_title += ':' unless text.blank?
+        html_title += ':' if text.present?
 
         html_title += '</i>'
       end
 
       html_text = ''
-      unless text.blank?
+      if text.present?
         html_text += '<b> '
         html_text += text
         html_text += '</b>'

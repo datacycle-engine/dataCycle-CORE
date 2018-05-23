@@ -10,7 +10,7 @@ module DataCycleCore
       protected
 
       def get_object_template_name(object)
-        return object.try(:[], 'contentType') unless object.try(:[], 'contentType').blank?
+        return object.try(:[], 'contentType') if object.try(:[], 'contentType').present?
 
         import_config = @external_source.config['import_config'].symbolize_keys
         import_config[:data_template]

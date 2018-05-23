@@ -9,7 +9,7 @@ class DataCycleCore::Generic::Feratel::Endpoint
   end
 
   def load_range_ids(range_code = 'RG')
-    if @load_range_ids && !@load_range_ids.call(range_code).blank?
+    if @load_range_ids&.call(range_code).present?
       @load_range_ids.call(range_code)
     elsif range_code == @primary_range_code
       [@primary_range_id]

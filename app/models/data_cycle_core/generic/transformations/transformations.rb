@@ -162,7 +162,7 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:location)
     .>> t(:add_field, 'address_locality', ->s { s['address'].try(:[], 'town') })
     .>> t(:add_field, 'street_address', ->s {
-      [s['address'].try(:[], 'street').try(:strip), s['address'].try(:[], 'housenumber').try(:strip)].join(' ') unless s['address'].try(:[], 'street').try(:strip).blank?
+      [s['address'].try(:[], 'street').try(:strip), s['address'].try(:[], 'housenumber').try(:strip)].join(' ') if s['address'].try(:[], 'street').try(:strip).present?
     })
     .>> t(:add_field, 'postal_code', ->s { s['address'].try(:[], 'zipcode') })
     .>> t(:add_field, 'author', ->s { s['meta'].try(:[], 'author') })
@@ -192,7 +192,7 @@ module DataCycleCore::Generic::Transformations::Transformations
     .>> t(:location)
     .>> t(:add_field, 'address_locality', ->s { s['address'].try(:[], 'town') })
     .>> t(:add_field, 'street_address', ->s {
-      [s['address'].try(:[], 'street').try(:strip), s['address'].try(:[], 'housenumber').try(:strip)].join(' ') unless s['address'].try(:[], 'street').try(:strip).blank?
+      [s['address'].try(:[], 'street').try(:strip), s['address'].try(:[], 'housenumber').try(:strip)].join(' ') if s['address'].try(:[], 'street').try(:strip).present?
     })
     .>> t(:add_field, 'postal_code', ->s { s['address'].try(:[], 'zipcode') })
     .>> t(:add_field, 'author', ->s { s['meta'].try(:[], 'author') })
@@ -252,7 +252,7 @@ module DataCycleCore::Generic::Transformations::Transformations
     t(:stringify_keys)
     .>> t(:add_field, 'content_url', ->s { "http://img.oastatic.com/img/#{s['id']}/.jpg" })
     .>> t(:add_field, 'thumbnail_url', ->s { "http://img.oastatic.com/img/400/400/fit/#{s['id']}/.jpg" })
-    .>> t(:map_value, 'license', ->s { s.to_s unless s.blank? })
+    .>> t(:map_value, 'license', ->s { s.to_s if s.present? })
     .>> t(:rename_keys, {
             'id' => 'external_key',
             'title' => 'headline' })

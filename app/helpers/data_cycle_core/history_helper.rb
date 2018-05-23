@@ -81,7 +81,7 @@ module DataCycleCore
       added_objects = []
       removed_objects = []
 
-      unless diff.blank?
+      if diff.present?
         diff.each_value do |v|
           v.each do |val|
             indicator = val[0]
@@ -113,7 +113,7 @@ module DataCycleCore
           hash_value = k[hash_key]
           (h[hash_value] ||= []) << k unless hash_value.nil?
         end
-        return hash unless hash.blank?
+        return hash if hash.present?
       end
       array
     end

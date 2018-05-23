@@ -75,7 +75,7 @@ module DataCycleCore
             data_set.schema = template[:data]
             data_set.save
           else
-            errors[template[:data][:name]] = error unless error.blank?
+            errors[template[:data][:name]] = error if error.present?
           end
         end
         errors
@@ -135,9 +135,9 @@ module DataCycleCore
         result_header = validate_header.call(template)
         errors = {}
         error = result_header.errors
-        errors[:head] = error unless error.blank?
+        errors[:head] = error if error.present?
         error = validate_properties(template[:data])
-        errors[:properties] = error unless error.blank?
+        errors[:properties] = error if error.present?
         errors
       end
 
@@ -147,7 +147,7 @@ module DataCycleCore
           result_property = validate_property.call(property_definition)
           error = result_property.errors(full: true)
           error.merge!(validate_properties(property_definition)) if property_definition.key?(:properties)
-          errors[property_name] = error unless error.blank?
+          errors[property_name] = error if error.present?
         end
         errors
       end

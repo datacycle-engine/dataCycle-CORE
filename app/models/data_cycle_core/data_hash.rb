@@ -165,7 +165,7 @@ module DataCycleCore
           }.flatten
             .zip(relation_name < self.class.table_name ? content_one_data + content_two_data : content_two_data + content_one_data).to_h
           relations = relation_class.where(where_hash)
-          relations.destroy_all unless relations.blank?
+          relations.destroy_all if relations.present?
         end
       end
 
@@ -173,7 +173,7 @@ module DataCycleCore
       if delete_relation
         classification_property_names.each do |classification_name|
           content_relation = get_classification_relation(classification_name)
-          content_relation.destroy_all unless content_relation.blank?
+          content_relation.destroy_all if content_relation.present?
         end
       end
     end
@@ -251,7 +251,7 @@ module DataCycleCore
             xml.name title
             xml.desc ActionView::Base.full_sanitizer.sanitize(send('description')) if respond_to?('description')
             xml.time updated_at
-            unless creator&.first&.name.blank?
+            if creator&.first&.name.present?
               xml.author do
                 xml.name creator&.first&.name
               end
@@ -330,7 +330,7 @@ module DataCycleCore
     def set_relation_ids(ids, relation_name, tree_label, default_value)
       if is_blank?(ids)
         begin
-          if !default_value.blank? && ids.nil? && get_classification_relation(relation_name).count.zero?
+          if default_value.present? && ids.nil? && get_classification_relation(relation_name).count.zero?
             classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
               .where('classification_tree_labels.name = ?', tree_label)
               .where('classification_aliases.name = ?', default_value).first!.id
@@ -342,7 +342,7 @@ module DataCycleCore
                 relation: relation_name
               )
             ids = [classification_id]
-          elsif !default_value.blank? && ids.nil?
+          elsif default_value.present? && ids.nil?
             ids = get_classification_relation(relation_name).pluck(:classification_id)
           end
         rescue ActiveRecord::RecordNotFound => e
@@ -378,7 +378,7 @@ module DataCycleCore
     end
 
     def set_asset_id(id, relation_name, asset_type)
-      unless id.blank?
+      if id.present?
         DataCycleCore::AssetContent
           .find_or_create_by(
             'content_data_id' => self.id,
@@ -496,7 +496,7 @@ module DataCycleCore
 
       data = data.ids if data.is_a?(ActiveRecord::Relation)
       # for embeddedLinkArray transform data
-      if data.is_a?(::Array) && !data.blank? && data.first.is_a?(::String)
+      if data.is_a?(::Array) && data.present? && data.first.is_a?(::String)
         data.map! { |item| { 'id' => item } }
       end
 
@@ -621,9 +621,9 @@ module DataCycleCore
       to = validity_hash['valid_until'] if validity_hash && validity_hash['valid_until']
 
       from = from.blank? ? nil : from.to_datetime
-      from = nil if !from.blank? && from < DateTime.new(1980, 1, 1, 0, 0)
+      from = nil if from.present? && from < DateTime.new(1980, 1, 1, 0, 0)
       to = to.blank? ? nil : to.to_datetime
-      to = nil if !to.blank? && to > DateTime.new(9999, 1, 1, 0, 0)
+      to = nil if to.present? && to > DateTime.new(9999, 1, 1, 0, 0)
 
       [from, to]
     end

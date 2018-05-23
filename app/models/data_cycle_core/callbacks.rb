@@ -7,7 +7,7 @@ module DataCycleCore
     def method_missing(callback, *args, &block)
       super
     rescue NoMethodError
-      raise "wrong number of arguments (#{args.size} for 0)" unless args.blank?
+      raise "wrong number of arguments (#{args.size} for 0)" if args.present?
 
       callbacks[callback] = (callbacks[callback] || []) + [block] if block
 

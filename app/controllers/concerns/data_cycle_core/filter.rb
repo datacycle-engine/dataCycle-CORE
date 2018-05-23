@@ -32,10 +32,10 @@ module DataCycleCore
       query = DataCycleCore::Filter::Search.new(@language)
 
       # optional querymethods
-      query = query.send(method_name, parameters) unless method_name.blank?
+      query = query.send(method_name, parameters) if method_name.present?
 
       query = query.order(@order_string)
-      query = query.fulltext_search(params[:search]) unless params[:search].blank?
+      query = query.fulltext_search(params[:search]) if params[:search].present?
 
       if @classification_array.present?
         @with_classification_alias_ids = parse_classifications(@classification_array)
@@ -60,11 +60,11 @@ module DataCycleCore
       params[:language] = filter.language
       @language = filter.language
 
-      unless filter.parameters['fulltext_search'].blank?
+      if filter.parameters['fulltext_search'].present?
         params[:search] = filter.parameters['fulltext_search']
       end
 
-      unless filter.parameters['with_classification_alias_ids'].blank?
+      if filter.parameters['with_classification_alias_ids'].present?
         @classification_array = filter.parameters['with_classification_alias_ids'].map { |_, value| value }.flatten
       end
 

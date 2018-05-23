@@ -6,8 +6,8 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 
 json.content_partial! 'header', content: content, options: options
 
-json.set! 'startDate', content.start_date unless content.start_date.blank?
-json.set! 'endDate', content.end_date unless content.end_date.blank?
+json.set! 'startDate', content.start_date if content.start_date.present?
+json.set! 'endDate', content.end_date if content.end_date.present?
 
 json.partial! 'untranslated_properties', content: content, locale: content.translations.first.locale, options: options
 

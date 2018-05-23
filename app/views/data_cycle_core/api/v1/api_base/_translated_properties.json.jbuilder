@@ -6,6 +6,6 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 
 I18n.with_locale(locale) do
   ((content.translatable_property_names & content.plain_property_names) - options[:hidden_attributes]).each do |key|
-    json.set! key.camelize(:lower), content.send(key) unless content.send(key).blank?
+    json.set! key.camelize(:lower), content.send(key) if content.send(key).present?
   end
 end

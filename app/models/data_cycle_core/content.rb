@@ -133,7 +133,7 @@ module DataCycleCore
             embedded_hash.presence
           elsif embedded_property_names.include?(property_name)
             embedded_array = send(property_name)
-            embedded_array = embedded_array.map { |item| item.get_data_hash(timestamp) } unless embedded_array.blank?
+            embedded_array = embedded_array.map { |item| item.get_data_hash(timestamp) } if embedded_array.present?
             embedded_array.blank? ? [] : embedded_array.compact
           elsif asset_property_names.include?(property_name)
             send(property_name)

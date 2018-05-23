@@ -5,7 +5,7 @@ module DataCycleCore
     def show
       authorize! :show, :object_browser
       I18n.with_locale(params[:locale] || I18n.locale) do
-        @language = params[:locale] unless params[:locale].blank?
+        @language = params[:locale] if params[:locale].present?
         @language ||= 'de'
 
         @@default_per = 50
@@ -24,13 +24,13 @@ module DataCycleCore
 
         query = query.order(order_string)
 
-        @per = params[:per] unless params[:per].blank?
+        @per = params[:per] if params[:per].present?
         @per ||= @@default_per
 
         @total = query.count
         @pages = @total.fdiv(@per.to_i).ceil
 
-        unless params[:page].blank?
+        if params[:page].present?
           @page = params[:page]
           @page = @pages if params[:page].to_i > @pages
         end

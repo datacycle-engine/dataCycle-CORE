@@ -74,7 +74,7 @@ describe DataCycleCore::MasterData::ImportExternalSources do
     end
 
     it 'fails if no name is given' do
-      assert !subject.validate(external_source_config.except('name')).blank?
+      assert subject.validate(external_source_config.except('name')).present?
     end
 
     it 'produces an appropriate error message if no name is given' do
@@ -82,7 +82,7 @@ describe DataCycleCore::MasterData::ImportExternalSources do
     end
 
     it 'fails if no credentials are given' do
-      assert !subject.validate(external_source_config.except('credentials')).blank?
+      assert subject.validate(external_source_config.except('credentials')).present?
     end
 
     it 'produces an appropriate error message if no credentials are given' do
@@ -90,7 +90,7 @@ describe DataCycleCore::MasterData::ImportExternalSources do
     end
 
     it 'fails if no config hash is given' do
-      assert !subject.validate(external_source_config.except('config')).blank?
+      assert subject.validate(external_source_config.except('config')).present?
     end
 
     it 'produces an appropriate error message if no config hash given' do
@@ -100,7 +100,7 @@ describe DataCycleCore::MasterData::ImportExternalSources do
     it 'fails if no download program is given' do
       test_hash = external_source_config.deep_dup
       test_hash['config'] = test_hash['config'].except('download')
-      assert !subject.validate(test_hash).blank?
+      assert subject.validate(test_hash).present?
     end
 
     it 'produces an appropriate error message if no download program is given' do
@@ -118,7 +118,7 @@ describe DataCycleCore::MasterData::ImportExternalSources do
     it 'fails if no download_config is given' do
       test_hash = external_source_config.deep_dup
       test_hash['config'] = test_hash['config'].except('download_config')
-      assert !subject.validate(test_hash).blank?
+      assert subject.validate(test_hash).present?
     end
 
     it 'produces an appropriate error message if no download_config is given' do
@@ -130,7 +130,7 @@ describe DataCycleCore::MasterData::ImportExternalSources do
     it 'fails if no import program is given' do
       test_hash = external_source_config.deep_dup
       test_hash['config'] = test_hash['config'].except('import')
-      assert !subject.validate(test_hash).blank?
+      assert subject.validate(test_hash).present?
     end
 
     it 'produces an appropriate error message if no import program is given' do
@@ -148,7 +148,7 @@ describe DataCycleCore::MasterData::ImportExternalSources do
     it 'fails if no import_config is given' do
       test_hash = external_source_config.deep_dup
       test_hash['config'] = test_hash['config'].except('import_config')
-      assert !subject.validate(test_hash).blank?
+      assert subject.validate(test_hash).present?
     end
 
     it 'produces an appropriate error message if no import_config is given' do
@@ -170,7 +170,7 @@ describe DataCycleCore::MasterData::ImportExternalSources do
 
     it 'fails if download_item has no source_type specified' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
-      assert !subject.validate_download_item.call(test_hash.except(:source_type)).blank?
+      assert subject.validate_download_item.call(test_hash.except(:source_type)).present?
     end
 
     it 'produces an appropriate error if no source_type is specified' do
@@ -180,7 +180,7 @@ describe DataCycleCore::MasterData::ImportExternalSources do
 
     it 'fails if download_item has no endpoint specified' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
-      assert !subject.validate_download_item.call(test_hash.except(:source_type)).blank?
+      assert subject.validate_download_item.call(test_hash.except(:source_type)).present?
     end
 
     it 'produces an appropriate error if no endpoint is specified' do
@@ -196,7 +196,7 @@ describe DataCycleCore::MasterData::ImportExternalSources do
 
     it 'fails if download_item has no download_strategy specified' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
-      assert !subject.validate_download_item.call(test_hash.except(:download_strategy)).blank?
+      assert subject.validate_download_item.call(test_hash.except(:download_strategy)).present?
     end
 
     it 'produces an appropriate error if no download_strategy is specified' do
@@ -212,7 +212,7 @@ describe DataCycleCore::MasterData::ImportExternalSources do
 
     it 'fails if download_item has no logging_strategy specified' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
-      assert !subject.validate_download_item.call(test_hash.except(:logging_strategy)).blank?
+      assert subject.validate_download_item.call(test_hash.except(:logging_strategy)).present?
     end
 
     it 'produces an appropriate error if no logging_strategy is specified' do
@@ -234,7 +234,7 @@ describe DataCycleCore::MasterData::ImportExternalSources do
 
     it 'fails if import_item has no source_type specified' do
       test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      assert !subject.validate_import_item.call(test_hash.except(:source_type)).blank?
+      assert subject.validate_import_item.call(test_hash.except(:source_type)).present?
     end
 
     it 'produces an appropriate error if no source_type is specified for an import_item' do
@@ -244,7 +244,7 @@ describe DataCycleCore::MasterData::ImportExternalSources do
 
     it 'fails if import_item has no import_strategy specified' do
       test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      assert !subject.validate_import_item.call(test_hash.except(:import_strategy)).blank?
+      assert subject.validate_import_item.call(test_hash.except(:import_strategy)).present?
     end
 
     it 'produces an appropriate error if no import_strategy is specified' do
@@ -260,7 +260,7 @@ describe DataCycleCore::MasterData::ImportExternalSources do
 
     it 'fails if import_item has no data_template specified' do
       test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      assert !subject.validate_import_item.call(test_hash.except(:data_template)).blank?
+      assert subject.validate_import_item.call(test_hash.except(:data_template)).present?
     end
 
     it 'check that data_template is optional' do
@@ -270,7 +270,7 @@ describe DataCycleCore::MasterData::ImportExternalSources do
 
     it 'fails if import_item has no target_type specified' do
       test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      assert !subject.validate_import_item.call(test_hash.except(:target_type)).blank?
+      assert subject.validate_import_item.call(test_hash.except(:target_type)).present?
     end
 
     it 'produces an appropriate error if no target_type is specified for an import_item' do
@@ -286,7 +286,7 @@ describe DataCycleCore::MasterData::ImportExternalSources do
 
     it 'fails if import_item has no logging_strategy specified' do
       test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      assert !subject.validate_import_item.call(test_hash.except(:logging_strategy)).blank?
+      assert subject.validate_import_item.call(test_hash.except(:logging_strategy)).present?
     end
 
     it 'produces an appropriate error if no logging_strategy is specified for an import_item' do

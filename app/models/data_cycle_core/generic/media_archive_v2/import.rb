@@ -42,9 +42,9 @@ module DataCycleCore::Generic::MediaArchiveV2::Import
           .merge({ 'external_key' => "Kamera: #{raw_data['url'].split('/').last}" }).with_indifferent_access
       )
 
-      raw_data['content_location'] = [{ 'id' => content_location.try(:id) }] unless content_location.blank?
-      raw_data['director'] = [{ 'id' => director.try(:id) }] unless director.blank?
-      raw_data['contributor'] = [{ 'id' => contributor.try(:id) }] unless contributor.blank?
+      raw_data['content_location'] = [{ 'id' => content_location.try(:id) }] if content_location.present?
+      raw_data['director'] = [{ 'id' => director.try(:id) }] if director.present?
+      raw_data['contributor'] = [{ 'id' => contributor.try(:id) }] if contributor.present?
 
       case raw_data['contentType']
       when 'Bild'

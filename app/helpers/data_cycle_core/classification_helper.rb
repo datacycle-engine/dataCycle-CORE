@@ -2,7 +2,7 @@ module DataCycleCore
   module ClassificationHelper
     # TODO: refactor
     def get_classifications_for_name(name)
-      if !name.nil? && !name.blank?
+      if !name.nil? && name.present?
         DataCycleCore::ClassificationTreeLabel
           .includes(classification_trees: [:classification_tree_label, :sub_classification_alias])
           .find_by(name: name)

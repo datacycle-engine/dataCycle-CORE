@@ -7,7 +7,7 @@ module DataCycleCore
     end
 
     def geo_location(datahash)
-      datahash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(datahash['longitude'].to_f, datahash['latitude'].to_f) if !datahash['longitude'].nil? && !datahash['longitude'].blank? && !datahash['latitude'].nil? && !datahash['latitude'].blank?
+      datahash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(datahash['longitude'].to_f, datahash['latitude'].to_f) if !datahash['longitude'].nil? && datahash['longitude'].present? && !datahash['latitude'].nil? && datahash['latitude'].present?
       datahash
     end
   end

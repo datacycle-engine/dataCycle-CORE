@@ -31,7 +31,7 @@ module DataCycleCore
     def create
       locale = I18n.available_locales.include?(params[:locale].try(:to_sym)) ? params[:locale].try(:to_sym) : I18n.locale
       I18n.with_locale(locale) do
-        source = Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }] unless params[:source].blank?
+        source = Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }] if params[:source].present?
         object_params = content_params(controller_name, params[:template])
 
         @content = DataCycleCore::DataHashService.create_internal_object(controller_name, params[:template], object_params, current_user)
@@ -59,7 +59,7 @@ module DataCycleCore
 
       redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if source_params.blank?
 
-      @source = source_params[:source_type].constantize.find(source_params[:source_id]) unless source_params.blank?
+      @source = source_params[:source_type].constantize.find(source_params[:source_id]) if source_params.present?
 
       I18n.with_locale(@content.first_available_locale) do
         @data_schema = @content.get_data_hash.merge(@content.releasable_hash)
@@ -76,7 +76,7 @@ module DataCycleCore
       @content = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
 
       # get show data for split view
-      unless source_params.blank?
+      if source_params.present?
         @split_type = source_params[:source_type].constantize
         @split_source = @split_type.find(source_params[:source_id])
         @split_schema = []
@@ -237,7 +237,7 @@ module DataCycleCore
         @content.data_links.where(receiver_id: current_user.id, permissions: 'write').first.update_attribute(:permissions, 'read')
 
         I18n.with_locale(@content.first_available_locale) do
-          @content.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id)) unless DataCycleCore.release_codes.blank?
+          @content.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id)) if DataCycleCore.release_codes.present?
         end
       end
     end

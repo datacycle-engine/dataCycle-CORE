@@ -4,8 +4,8 @@ default_options = {
 
 options = default_options.merge(defined?(options) ? options || {} : {})
 
-json.set! 'startDate', content.start_date unless content.try(:start_date).blank?
-json.set! 'endDate', content.end_date unless content.try(:end_date).blank?
+json.set! 'startDate', content.start_date if content.try(:start_date).present?
+json.set! 'endDate', content.end_date if content.try(:end_date).present?
 
 json.partial! 'untranslated_properties', content: content, locale: content.translations.first.locale, options: options
 

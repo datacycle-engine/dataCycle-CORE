@@ -56,7 +56,7 @@ module DataCycleCore
         end
 
         def url(data)
-          unless data.blank?
+          if data.present?
             begin
               uri = URI.parse data
               (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless uri.is_a? URI::HTTP

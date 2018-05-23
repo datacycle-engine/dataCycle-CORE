@@ -176,11 +176,11 @@ namespace :data_cycle_core do
     task import_templates: [:environment] do
       puts 'importing new template definitions'
       errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
-      unless duplicates.blank?
+      if duplicates.present?
         puts 'INFO: the following templates had multiple definitions:'
         ap duplicates
       end
-      unless errors.blank?
+      if errors.present?
         puts 'the following errors were encountered during import:'
         ap errors
       end
@@ -241,7 +241,7 @@ namespace :data_cycle_core do
           template_name = template_object.template_name
           boost = template_object.schema['boost']
 
-          unless boost.blank?
+          if boost.present?
             search_entries = DataCycleCore::Search.where(content_data_type: data_object.to_s, data_type: template_name).count
 
             connection = ActiveRecord::Base.connection

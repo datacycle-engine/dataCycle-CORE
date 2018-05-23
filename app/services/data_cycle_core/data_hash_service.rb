@@ -13,16 +13,16 @@ module DataCycleCore
     end
 
     def self.data_hash_is_dirty?(data_hash, orig_data_hash)
-      !HashDiff.diff(normalize_data_hash(data_hash), normalize_data_hash(orig_data_hash), array_path: true).blank?
+      HashDiff.diff(normalize_data_hash(data_hash), normalize_data_hash(orig_data_hash), array_path: true).present?
     end
 
     def self.get_internal_data(storage_location, value)
       internal_objects = []
-      if !value.blank? && value.count.positive?
+      if value.present? && value.count.positive?
         value.each do |object|
           internal_object = ('DataCycleCore::' + storage_location.classify).constantize
             .find_by(id: object['id'])
-          internal_objects.push(internal_object) unless internal_object.blank?
+          internal_objects.push(internal_object) if internal_object.present?
         end
       else
         return nil

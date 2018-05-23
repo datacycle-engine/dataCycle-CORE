@@ -9,7 +9,7 @@ module DataCycleCore
       updated.each do |item|
         item.available_locales.each do |locale|
           I18n.with_locale(locale) do
-            item.update(webhook_source: permitted_params[:webhook_source]) unless permitted_params[:webhook_source].blank?
+            item.update(webhook_source: permitted_params[:webhook_source]) if permitted_params[:webhook_source].present?
           end
         end
       end
