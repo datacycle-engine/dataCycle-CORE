@@ -15,7 +15,7 @@ module.exports.initialize = function () {
 
   // check if data changed and confirm leaving the page
 
-  if ($('.edit-content-form').length > 0) {
+  if ($('.validation-form.edit-content-form').length > 0) {
     var form_data = "";
     setTimeout(function () {
       form_data = $('.edit-content-form').serialize();
