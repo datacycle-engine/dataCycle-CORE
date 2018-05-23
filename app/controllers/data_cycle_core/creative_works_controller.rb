@@ -10,7 +10,7 @@ module DataCycleCore
       redirect_back(fallback_location: root_path) && return if @content.nil?
 
       I18n.with_locale(@content.first_available_locale) do
-        if DataCycleCore::Feature::Container.enabled? && @content.is_content_type?('container')
+        if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container')
           @contents = get_filtered_results(method_name: 'part_of', parameters: @content.id) if @content.children.exists?
 
           @entities = DataCycleCore::CreativeWork.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)

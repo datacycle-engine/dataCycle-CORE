@@ -31,4 +31,4 @@ json.partial! 'asset_properties', content: content, options: options
 
 json.partial! 'overlay_properties', content: content, options: options
 
-json.partial! 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.is_content_type?('container')
+json.partial! 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.content_type?('container')

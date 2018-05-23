@@ -119,7 +119,7 @@ module DataCycleCore
     def to_h(timestamp = Time.zone.now)
       property_names.map { |property_name|
         property_value =
-          if property_name == 'id' && is_history?
+          if property_name == 'id' && history?
             send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
           elsif plain_property_names.include?(property_name)
             send(property_name)
@@ -154,11 +154,11 @@ module DataCycleCore
       self
     end
 
-    def is_history?
+    def history?
       respond_to? 'history_valid'
     end
 
-    def is_content_type?(types)
+    def content_type?(types)
       if types.is_a?(Array)
         types.include?(schema&.dig('content_type'))
       else
@@ -168,7 +168,7 @@ module DataCycleCore
 
     def as_of(timestamp)
       return self if updated_at.blank? || timestamp.blank? || timestamp >= updated_at
-      return self if is_history?
+      return self if history?
 
       base_content_class = self.class.to_s
       history_table = "#{base_content_class}::History".safe_constantize.arel_table
@@ -299,13 +299,13 @@ module DataCycleCore
     end
 
     def load_embedded_objects(target_name, relation_name, linked = false)
-      target_class = is_history? ? "DataCycleCore::#{target_name.classify}::History" : "DataCycleCore::#{target_name.classify}"
+      target_class = history? ? "DataCycleCore::#{target_name.classify}::History" : "DataCycleCore::#{target_name.classify}"
       target_class = "DataCycleCore::#{target_name.classify}" if linked
       selector = target_name < self.class.table_name
       content_one_data = [nil, target_class, '']
       content_two_data = [id, self.class.to_s, relation_name]
       where_hash = ['a', 'b'].map { |abselector|
-        if is_history?
+        if history?
           ["content_#{abselector}_history_id".to_sym,
            "content_#{abselector}_history_type".to_sym,
            "relation_#{abselector}".to_sym]
@@ -316,11 +316,11 @@ module DataCycleCore
         end
       }.flatten
         .zip(selector ? content_one_data + content_two_data : content_two_data + content_one_data).to_h.compact
-      relation_table = is_history? ? :content_content_histories : :content_contents
-      join_table = selector ? :content_content_a_history : :content_content_b_history if is_history?
-      join_table = selector ? :content_content_a : :content_content_b unless is_history?
+      relation_table = history? ? :content_content_histories : :content_contents
+      join_table = selector ? :content_content_a_history : :content_content_b_history if history?
+      join_table = selector ? :content_content_a : :content_content_b unless history?
       order_string = selector ? 'content_contents.order_b ASC' : 'content_contents.order_a ASC'
-      order_string = selector ? 'content_content_histories.order_b ASC' : 'content_content_histories.order_a ASC' if is_history?
+      order_string = selector ? 'content_content_histories.order_b ASC' : 'content_content_histories.order_a ASC' if history?
 
       query = target_class.constantize.joins(join_table)
       where_hash.each do |key, value|
@@ -330,7 +330,7 @@ module DataCycleCore
     end
 
     def load_relation_ids(relation_name)
-      if is_history?
+      if history?
         join_relation = :classification_content_histories
         class_id = :content_data_history_id
         class_type = :content_data_history_type

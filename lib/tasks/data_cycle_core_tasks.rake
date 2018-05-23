@@ -410,7 +410,7 @@ namespace :data_cycle_core do
         puts "Users for interval (#{args.frequency}): #{DataCycleCore::User.where(notification_frequency: args.frequency).size}"
 
         DataCycleCore::User.where(notification_frequency: args.frequency).each do |user|
-          subcribed_with_changes = user.subscriptions.map(&:subscribable).reject { |c| c.as_of(1.send(args.frequency).ago).try(:is_history?) == false }
+          subcribed_with_changes = user.subscriptions.map(&:subscribable).reject { |c| c.as_of(1.send(args.frequency).ago).try(:history?) == false }
 
           puts "Subscriptions with changes: #{subcribed_with_changes.size}"
 

@@ -43,7 +43,7 @@ module DataCycleCore
     end
 
     def destroy_content
-      to_history(save_time: Time.zone.now, delete: true) unless is_history?
+      to_history(save_time: Time.zone.now, delete: true) unless history?
       delete_childs(true)
     end
 
@@ -139,7 +139,7 @@ module DataCycleCore
 
         delete = false
         # delete = definition['delete'] unless definition['delete'].blank?
-        delete = true if is_history? || definition['type'] == 'embedded'
+        delete = true if history? || definition['type'] == 'embedded'
 
         relation_name = definition['linked_table']
         if delete
@@ -148,12 +148,12 @@ module DataCycleCore
             item.destroy
           end
         else
-          relation_class = is_history? ? DataCycleCore::ContentContent::History : DataCycleCore::ContentContent
-          target_class = is_history? ? "DataCycleCore::#{relation_name.classify}::History" : "DataCycleCore::#{relation_name.classify}"
+          relation_class = history? ? DataCycleCore::ContentContent::History : DataCycleCore::ContentContent
+          target_class = history? ? "DataCycleCore::#{relation_name.classify}::History" : "DataCycleCore::#{relation_name.classify}"
           content_one_data = [method(relation_name).call.ids, target_class, '']
           content_two_data = [id, self.class.to_s, name]
           where_hash = ['a', 'b'].map { |selector|
-            if is_history?
+            if history?
               ["content_#{selector}_history_id".to_sym,
                "content_#{selector}_history_type".to_sym,
                "relation_#{selector}".to_sym]
@@ -311,7 +311,7 @@ module DataCycleCore
     private
 
     def get_classification_relation(relation_name)
-      if is_history?
+      if history?
         classification_object = DataCycleCore::ClassificationContent::History
         where_hash = { 'content_data_history_id' => id, 'content_data_history_type' => self.class.to_s, 'relation' => relation_name }
       else

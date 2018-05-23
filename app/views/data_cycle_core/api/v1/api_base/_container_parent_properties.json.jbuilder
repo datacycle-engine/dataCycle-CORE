@@ -1,4 +1,4 @@
-if content&.parent && content&.parent&.is_content_type?('container')
+if content&.parent && content&.parent&.content_type?('container')
   json.set! 'isPartOf' do
     json.content_partial! 'header', content: content.parent, options: options
 

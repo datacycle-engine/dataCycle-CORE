@@ -63,13 +63,13 @@ module DataCycleCore
       item_path_array = key.split('[').collect { |v| v.delete(']') }
 
       begin
-        has_valid_changes diff.dig(*item_path_array)
+        valid_changes diff.dig(*item_path_array)
       rescue StandardError
         return false
       end
     end
 
-    def has_valid_changes(item)
+    def valid_changes(item)
       if item.is_a?(Array)
         return false if item[0][0] == CHANGED_INDICATOR && item[0][1].blank? && item[0][2].blank?
       end
