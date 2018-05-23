@@ -26,7 +26,6 @@
           :type: input
           :options:
             :data-validate: text
-      # overlay mixin
       :overlay:
         :label: Overlay
         :type: object
@@ -35,6 +34,14 @@
         :name: PlaceOverlay
         :validations:
           :maxLength: 1
+        :editor:
+          :type: embeddedObject
+      :opening_hours_specification:
+        :label: Öffnungszeit
+        :type: object
+        :storage_location: creative_works
+        :delete: true
+        :name: Öffnungszeit
         :editor:
           :type: embeddedObject
       :postal_address:
