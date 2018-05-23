@@ -20,6 +20,11 @@
         :template_name: PlaceOverlay
         :validations:
           :max: 1
+      :opening_hours_specification:
+        :label: Öffnungszeit
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: Öffnungszeit
       :postal_address:
         :type: mixin
         :name: postal_address
