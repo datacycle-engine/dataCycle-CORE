@@ -12,9 +12,9 @@
                             <li><%= render 'data_links', content: @watch_list %></li>
                         <% end %>
                         <li class="buttons">
-                          <% if current_user.role&.rank&.positive? %>
-                            <a href="<%= breadcrumbs[-2].url %>" class="hascontent close-show-button"><i aria-hidden="true" class="fa fa-times"></i></a>
-                          <% end %>
+                            <%= link_to previous_authorized_crumb.url, class: 'hascontent close-show-button' do %>
+                              <i aria-hidden="true" class="fa fa-times"></i>
+                            <% end if previous_authorized_crumb.present? %>
                         </li>
                     </ul>
                 </div>
