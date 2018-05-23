@@ -121,19 +121,19 @@ Rails/TimeZone:
 Style/ClassAndModuleChildren:
   Enabled: false
 
-# Offense count: 14
-Style/ClassVars:
-  Exclude:
-    - 'app/controllers/data_cycle_core/api/v1/classification_controller.rb'
-    - 'app/controllers/data_cycle_core/api/v1/contents_controller.rb'
-    - 'app/controllers/data_cycle_core/object_browser_controller.rb'
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
-    - 'app/models/data_cycle_core/master_data/validators/classification_tree_label.rb'
-    - 'app/models/data_cycle_core/master_data/validators/embedded_link_array.rb'
-    - 'app/models/data_cycle_core/master_data/validators/number.rb'
-    - 'app/models/data_cycle_core/master_data/validators/object.rb'
-    - 'app/models/data_cycle_core/master_data/validators/string.rb'
-    - 'app/models/data_cycle_core/master_data/validators/asset.rb'
+## Offense count: 14
+#Style/ClassVars:
+#  Exclude:
+#    - 'app/controllers/data_cycle_core/api/v1/classification_controller.rb'
+#    - 'app/controllers/data_cycle_core/api/v1/contents_controller.rb'
+#    - 'app/controllers/data_cycle_core/object_browser_controller.rb'
+#    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
+#    - 'app/models/data_cycle_core/master_data/validators/classification_tree_label.rb'
+#    - 'app/models/data_cycle_core/master_data/validators/embedded_link_array.rb'
+#    - 'app/models/data_cycle_core/master_data/validators/number.rb'
+#    - 'app/models/data_cycle_core/master_data/validators/object.rb'
+#    - 'app/models/data_cycle_core/master_data/validators/string.rb'
+#    - 'app/models/data_cycle_core/master_data/validators/asset.rb'
 
 Style/FrozenStringLiteralComment:
   Enabled: false
@@ -147,16 +147,6 @@ Style/MethodMissing:
   Exclude:
     - 'app/models/data_cycle_core/callbacks.rb'
     - 'app/models/data_cycle_core/content.rb'
-
-# Offense count: 9
-#Style/MutableConstant:
-#  Exclude:
-#    - 'app/helpers/data_cycle_core/application_helper.rb'
-#    - 'app/helpers/data_cycle_core/history_helper.rb'
-#    - 'app/models/data_cycle_core/content.rb'
-#    - 'app/models/data_cycle_core/filter/query_builder.rb'
-#    - 'app/models/data_cycle_core/filter/search.rb'
-#    - 'lib/data_cycle_core/version.rb'
 
 #######################################################
 ########## Transproc

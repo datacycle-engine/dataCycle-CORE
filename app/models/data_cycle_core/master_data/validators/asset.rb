@@ -2,7 +2,9 @@ module DataCycleCore
   module MasterData
     module Validators
       class Asset < BasicValidator
-        @@keywords = ['min', 'max']
+        def asset_keywords
+          ['min', 'max']
+        end
 
         def validate(data, template)
           if data.is_a?(::Array)
@@ -21,7 +23,7 @@ module DataCycleCore
           # check given validations
           if template.key?('validations')
             template['validations'].each_key do |key|
-              if @@keywords.include?(key)
+              if asset_keywords.include?(key)
                 method(key).call(data, template['validations'][key])
               else
                 (@error[:warning][key] ||= []) << I18n.t(:keyword, scope: [:validation, :warning], data: key, type: 'Asset reference List', locale: DataCycleCore.ui_language)

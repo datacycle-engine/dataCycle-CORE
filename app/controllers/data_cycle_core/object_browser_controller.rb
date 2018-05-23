@@ -2,13 +2,13 @@ module DataCycleCore
   class ObjectBrowserController < ApplicationController
     before_action :authenticate_user! # from devise (authenticate)
 
+    DEFAULT_PER = 50
+
     def show
       authorize! :show, :object_browser
       I18n.with_locale(params[:locale] || I18n.locale) do
         @language = params[:locale] if params[:locale].present?
         @language ||= 'de'
-
-        @@default_per = 50
 
         @definition = params.fetch(:definition, nil)
 
@@ -25,7 +25,7 @@ module DataCycleCore
         query = query.order(order_string)
 
         @per = params[:per] if params[:per].present?
-        @per ||= @@default_per
+        @per ||= DEFAULT_PER
 
         @total = query.count
         @pages = @total.fdiv(@per.to_i).ceil
