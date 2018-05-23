@@ -59,7 +59,7 @@ module DataCycleCore
       get_item_has_changed(object_has_changed, key, object_value, definition)
     end
 
-    def get_item_has_changed(diff, key, value, definition)
+    def get_item_has_changed(diff, key, _value, _definition)
       item_path_array = key.split('[').collect { |v| v.delete(']') }
 
       begin
@@ -106,7 +106,7 @@ module DataCycleCore
     end
 
     # refactor
-    def transform_object_array_to_hash(array, options: {})
+    def transform_object_array_to_hash(array, _options: {})
       if array.is_a?(Array)
         hash = array.each_with_object({}) do |(k, _), h|
           hash_key = 'id'

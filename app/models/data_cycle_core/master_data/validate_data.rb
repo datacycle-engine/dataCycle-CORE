@@ -8,7 +8,7 @@ module DataCycleCore
       end
 
       # keys of the data-hash defined as keys in the template
-      def validate(data, validation_hash, strict = false, verbose = false)
+      def validate(data, validation_hash, _strict = false, verbose = false)
         if data.blank?
           (@error[:error][validation_hash['name']&.parameterize(separator: '_')] ||= []) << I18n.t(:no_data, scope: [:validation, :errors], locale: DataCycleCore.ui_language)
           return @error

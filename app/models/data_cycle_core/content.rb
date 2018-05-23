@@ -210,7 +210,7 @@ module DataCycleCore
 
     # private
 
-    def get_property_value(property_name, property_definition, timestamp = Time.zone.now)
+    def get_property_value(property_name, property_definition, _timestamp = Time.zone.now)
       # linked data via embeddedLink/embeddedLinkArray
       # handled like embedded_objects with delete=false
       if linked_property_names.include?(property_name)

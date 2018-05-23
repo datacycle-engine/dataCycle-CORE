@@ -13,7 +13,7 @@ module DataCycleCore
       end
     end
 
-    def setup_credentials(credentials)
+    def setup_credentials(_credentials)
       # dummy implementation, if no credentials are required
       true
     end

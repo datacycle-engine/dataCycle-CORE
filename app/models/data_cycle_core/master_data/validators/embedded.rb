@@ -64,7 +64,7 @@ module DataCycleCore
           merge_errors(validator_object.validate(data, template.schema))
         end
 
-        def classifications(data_hash, template_hash)
+        def classifications(data_hash, _template_hash)
           if data_hash.present? && DataCycleCore.features.dig(:publication_schedule, :classification_keys).present?
             (@error[:error][@template_key] ||= []) << I18n.t(:classification_conflict, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if data_hash.each { |d| d['id'] = SecureRandom.uuid if d['id'].blank? }.map { |x| data_hash.select { |y| (x != y) && DataCycleCore.features.dig(:publication_schedule, :classification_keys).map { |z| x[z].present? && y[z].present? ? (x[z] & y[z]) : [] }.all?(&:present?) } }.flatten.present?
           end

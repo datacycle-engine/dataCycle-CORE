@@ -3,11 +3,12 @@ module DataCycleCore
     module ImportMixins
       def self.import_all(validation: true)
         template_paths = [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
-        mixin_list, duplicates = import_all_mixins(template_paths)
+        mixin_list, duplicates = import_all_mixins(template_paths: template_paths, _validation: validation)
         return mixin_list, duplicates
       end
 
-      def self.import_all_mixins(template_paths)
+      # TODO: add validations + errors + warnings
+      def self.import_all_mixins(template_paths:, _validation: true)
         mixins_folder = 'mixins'
         collisions = {}
         mixin_list = {}
