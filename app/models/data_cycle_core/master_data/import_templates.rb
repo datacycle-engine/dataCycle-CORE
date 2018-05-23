@@ -74,8 +74,8 @@ module DataCycleCore
             data_set.seen_at = Time.zone.now
             data_set.schema = template[:data]
             data_set.save
-          else
-            errors[template[:data][:name]] = error if error.present?
+          elsif error.present?
+            errors[template[:data][:name]] = error
           end
         end
         errors
