@@ -10,7 +10,7 @@ module DataCycleCore
     scope :session_edit_links, ->(ids) { where(permissions: 'write', id: ids) }
 
     def is_valid?
-      (valid_from.nil? || DateTime.now > valid_from) && (valid_until.nil? || DateTime.now < valid_until)
+      (valid_from.nil? || Time.zone.now > valid_from) && (valid_until.nil? || Time.zone.now < valid_until)
     end
 
     private

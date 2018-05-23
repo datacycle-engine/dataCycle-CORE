@@ -56,7 +56,7 @@ describe DataCycleCore::MasterData::Validators::Datetime do
 
     it 'accepts different Date, DateTime objects' do
       test_cases = [
-        Time.now,
+        Time.now.getlocal,
         Time.zone.now,
         '01.01.2000'.to_datetime,
         '2020-01-01'.to_datetime,
@@ -70,7 +70,7 @@ describe DataCycleCore::MasterData::Validators::Datetime do
     end
 
     it 'accepts datetimes after specified min datetime' do
-      test_cases = [Time.now, Time.zone.now, '01.01.2019']
+      test_cases = [Time.now.getlocal, Time.zone.now, '01.01.2019']
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash2)
         assert_equal(0, validator.error[:error].size)

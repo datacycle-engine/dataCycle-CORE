@@ -621,9 +621,9 @@ module DataCycleCore
       to = validity_hash['valid_until'] if validity_hash && validity_hash['valid_until']
 
       from = from.blank? ? nil : from.to_datetime
-      from = nil if from.present? && from < DateTime.new(1980, 1, 1, 0, 0)
+      from = nil if from.present? && from < Time.zone.local(1980, 1, 1, 0, 0)
       to = to.blank? ? nil : to.to_datetime
-      to = nil if to.present? && to > DateTime.new(9999, 1, 1, 0, 0)
+      to = nil if to.present? && to > Time.zone.local(9999, 1, 1, 0, 0)
 
       [from, to]
     end

@@ -56,7 +56,7 @@ module DataCycleCore
 
       if permitted_params[:deleted_since]
         deleted_contents = deleted_contents.where(
-          DataCycleCore::CreativeWork::History.arel_table[:deleted_at].gteq(DateTime.parse(permitted_params[:deleted_since]))
+          DataCycleCore::CreativeWork::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params[:deleted_since]))
         )
       end
 

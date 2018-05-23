@@ -11,7 +11,7 @@ module DataCycleCore
       session[:can_edit_ids] << link.id unless session[:can_edit_ids].include?(link.id)
 
       sign_in(link.receiver)
-      link.update_attribute(:seen_at, DateTime.now)
+      link.update_attribute(:seen_at, Time.zone.now)
 
       if link.permissions != 'write'
         redirect_to polymorphic_path(link.item)
@@ -49,7 +49,7 @@ module DataCycleCore
 
     def destroy
       @data_link = DataCycleCore::DataLink.find(params[:id])
-      @data_link.update_attribute(:valid_until, DateTime.now)
+      @data_link.update_attribute(:valid_until, Time.zone.now)
 
       redirect_back(fallback_location: root_path, notice: (I18n.t :invalidated, scope: [:controllers, :success], locale: DataCycleCore.ui_language))
     end

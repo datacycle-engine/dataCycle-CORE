@@ -143,7 +143,7 @@ describe DataCycleCore::MasterData::DataConverter do
     end
 
     it 'converts string to datetime objects' do
-      test_cases = [Time.now, Time.zone.now, Time.now.to_s, Time.zone.now.to_s, '01.01.2018', '01.01.2018 10:30']
+      test_cases = [Time.now.getlocal, Time.zone.now, Time.now.getlocal.to_s, Time.zone.now.to_s, '01.01.2018', '01.01.2018 10:30']
       test_cases.each do |test_case|
         converted_data = subject.string_to_datetime(test_case)
         assert(converted_data.acts_like?(:time))
@@ -152,7 +152,7 @@ describe DataCycleCore::MasterData::DataConverter do
     end
 
     it 'converts datetime data to strings' do
-      test_cases = [Time.now, Time.zone.now, Time.now.to_s, Time.zone.now.to_s, '01.01.2018', '01.01.2018 10:30']
+      test_cases = [Time.now.getlocal, Time.zone.now, Time.now.getlocal.to_s, Time.zone.now.to_s, '01.01.2018', '01.01.2018 10:30']
       test_cases.each do |test_case|
         converted_data = subject.datetime_to_string(test_case)
         assert_equal(test_case.to_s, converted_data)
@@ -182,14 +182,14 @@ describe DataCycleCore::MasterData::DataConverter do
     end
 
     it 'string_to_datetime can be called again and gives the same result' do
-      test_cases = [Time.now, Time.zone.now, Time.now.to_s, Time.zone.now.to_s, '01.01.2018', '01.01.2018 10:30']
+      test_cases = [Time.now.getlocal, Time.zone.now, Time.now.getlocal.to_s, Time.zone.now.to_s, '01.01.2018', '01.01.2018 10:30']
       test_cases.each do |test_case|
         assert_equal(subject.string_to_datetime(test_case), subject.string_to_datetime(subject.string_to_datetime(test_case)))
       end
     end
 
     it 'datetime_to_string can be called again and gives the same result' do
-      test_cases = [Time.now, Time.zone.now, Time.now.to_s, Time.zone.now.to_s, '01.01.2018', '01.01.2018 10:30']
+      test_cases = [Time.now.getlocal, Time.zone.now, Time.now.getlocal.to_s, Time.zone.now.to_s, '01.01.2018', '01.01.2018 10:30']
       test_cases.each do |test_case|
         assert_equal(subject.datetime_to_string(test_case), subject.datetime_to_string(subject.datetime_to_string(test_case)))
       end

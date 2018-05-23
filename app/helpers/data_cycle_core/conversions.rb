@@ -3,9 +3,9 @@ module DataCycleCore::Conversions
     if time.is_a?(DateTime)
       time
     elsif time.is_a?(Time)
-      DateTime.parse(time.to_s)
+      Time.zone.parse(time.to_s)
     elsif time.is_a?(String)
-      DateTime.parse(time)
+      Time.zone.parse(time)
     else
       raise TypeError("no conversion of #{time.class_name} to DateTime")
     end

@@ -22,7 +22,7 @@ module DataCycleCore
       data = DataCycleCore::CreativeWork.new(
         schema: data_template.schema,
         template_name: data_template.template_name,
-        content: { 'datum2' => Time.now.to_s, 'bool2' => 'true', 'geo2' => 'POINT (10.0 47.0)', 'text2' => 'test' },
+        content: { 'datum2' => Time.zone.now.to_s, 'bool2' => 'true', 'geo2' => 'POINT (10.0 47.0)', 'text2' => 'test' },
         headline: 'Test Data'
       )
       data.save
