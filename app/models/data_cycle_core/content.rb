@@ -11,7 +11,6 @@ module DataCycleCore
     extend ContentFilters
 
     include ContentRelations
-    include Subscribable
     include Releasable
 
     def property_definitions

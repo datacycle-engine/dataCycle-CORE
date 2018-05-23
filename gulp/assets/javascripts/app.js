@@ -72,7 +72,6 @@ $(function () {
             let contents = JSON.parse($(data).filter('#cdb-item-definition').first().html());
 
             if (contents.title != undefined) {
-              console.log($('[data-label="Meta-Titel"] > input[type=text]'));
               $('[data-label="Meta-Titel"] > input[type=text]').trigger('import-data', {
                 label: 'Meta-Titel',
                 value: contents.title
@@ -97,6 +96,7 @@ $(function () {
                   markets: markets
                 }
               }).done((data) => {
+                $('.edit-content-form').prepend('<input type="hidden" name="cms_import_url" value="' + url + '">');
                 callout_helpers.show('Abos erfolgreich erstellt.', 'success');
               }).fail(() => {
                 callout_helpers.show('Fehler beim Erstellen der Abos.', 'alert');

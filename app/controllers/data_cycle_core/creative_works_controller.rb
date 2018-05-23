@@ -4,7 +4,7 @@ module DataCycleCore
 
     before_action :authenticate_user! # from devise (authenticate)
     load_and_authorize_resource except: [:validate_single_data, :compare, :add_subscribers_by_market] # from cancancan (authorize)
-    after_action :check_final, :set_publication_attributes, only: :update
+    after_action :check_final, :set_publication_attributes, :notify_subscribers, only: :update
 
     def show
       @content = DataCycleCore::CreativeWork.find_by(id: params[:id])
@@ -303,6 +303,12 @@ module DataCycleCore
         I18n.with_locale(@creativeWork.first_available_locale) do
           @creativeWork.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id)) unless DataCycleCore.release_codes.blank?
         end
+      end
+    end
+
+    def notify_subscribers
+      @creativeWork.subscriptions.except_user(current_user).to_notify.presence&.each do |subscription|
+        DataCycleCore::SubscriptionMailer.notify(subscription.user, [@creativeWork]).deliver_later
       end
     end
   end
