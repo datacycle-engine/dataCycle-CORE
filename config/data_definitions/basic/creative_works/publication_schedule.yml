@@ -19,10 +19,8 @@
         :storage_location: metadata
         :validations:
           :format: date_time
-          :minLength: 1
         :editor:
           :type: date
-          :sorting: 1
           :options:
             :data-type: datepicker
             :data-validate: daterange
@@ -34,7 +32,6 @@
         :storage_location: classification_relation
         :editor:
           :type: classificationSelector
-          :sorting: 23
       :data_type:
         :label: Inhaltstype
         :type: classificationTreeLabel
