@@ -118,6 +118,11 @@ Rails/TimeZone:
   Exclude:
     - 'data_cycle_core.gemspec'
 
+Rails/AssertNot:
+  Exclude:
+    - 'test/models/master_data/data_definition_test.rb'
+    - 'test/models/master_data/import_external_sources_test.rb'
+
 #######################################################
 ########## Style
 
