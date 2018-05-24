@@ -45,6 +45,7 @@ Lint/UnusedMethodArgument:
 #######################################################
 ########## Naming
 
+# TODO: check after develop merge
 Naming/PredicateName:
   Exclude:
     - 'app/helpers/data_cycle_core/content_helpers.rb'
@@ -120,13 +121,10 @@ Style/GuardClause:
   Exclude:
     - 'app/models/data_cycle_core/ability.rb'
 
-#Style/FrozenStringLiteralComment:
-#  Enabled: false
-
-Style/MethodMissing:
-  Exclude:
-    - 'app/models/data_cycle_core/callbacks.rb'
-    - 'app/models/data_cycle_core/content.rb'
+#Style/MethodMissing:
+#  Exclude:
+#    - 'app/models/data_cycle_core/callbacks.rb'
+#    - 'app/models/data_cycle_core/content.rb'
 
 #######################################################
 ########## Transproc
@@ -151,3 +149,34 @@ Style/RescueModifier:
 Style/StabbyLambdaParentheses:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
+
+
+#####################################################
+######### new
+
+Rails/AssertNot:
+  Enabled: false
+
+Style/ExpandPathArguments:
+  Enabled: false
+
+Performance/UnneededSort:
+  Enabled: false
+
+Style/RedundantReturn:
+  Enabled: false
+
+Naming/UncommunicativeMethodParamName:
+  Enabled: false
+
+Style/MissingRespondToMissing:
+  Enabled: false
+
+Lint/SplatKeywordArguments:
+  Enabled: false
+
+Security/Open:
+  Enabled: false
+
+Rails/ActiveRecordAliases:
+  Enabled: false

@@ -71,7 +71,7 @@ module DataCycleCore
                        create_classification_alias_recursion(
                          DataCycleCore::ClassificationAlias.for_tree(tree_name).with_name(aliases).pluck(:id)
                        )
-        ))
+                     ))
       end
 
       private

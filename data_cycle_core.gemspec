@@ -112,5 +112,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'bullet'
   s.add_development_dependency 'bundler-audit'
   s.add_development_dependency 'gemsurance'
-  s.add_development_dependency 'rubocop', '~> 0.52.1'
+  s.add_development_dependency 'rubocop', '~> 0.56.0'
 end
