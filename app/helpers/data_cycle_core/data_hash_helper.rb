@@ -32,26 +32,15 @@ module DataCycleCore
     end
 
     def to_html_string(title, text = '')
-      html_title = ''
-      if title.present?
-        html_title += '<i>'
-        html_title += title
+      html_title = title.presence || ''
+      html_title += ':' if text.present?
 
-        html_title += ':' if text.present?
+      html_text = text.presence || ''
 
-        html_title += '</i>'
-      end
-
-      html_text = ''
-      if text.present?
-        html_text += '<b> '
-        html_text += text
-        html_text += '</b>'
-      end
-
-      html_tag = html_title + html_text
-
-      html_tag.html_safe
+      out = []
+      out << content_tag(:i, html_title.html_safe)
+      out << content_tag(:b, html_text.html_safe)
+      safe_join(out)
     end
   end
 end
