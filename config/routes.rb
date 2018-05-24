@@ -89,11 +89,15 @@ DataCycleCore::Engine.routes.draw do
 
         resources :collections, only: [:index, :show], controller: :watch_lists
 
+        # TODO: refactor with new API implementation
+        resources :events, only: [:index, :show]
+
         type_regexp = Regexp.new(*DataCycleCore.content_tables.map(&:to_sym).join('|'))
         resources :contents, path: ':type', constraints: { type: type_regexp }, only: [:show] do
           get :search, on: :collection
           patch :update, on: :member
         end
+
 
         get 'contents/search', to: 'contents#search'
         get 'contents/deleted', to: 'contents#deleted'
