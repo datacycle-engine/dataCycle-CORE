@@ -21,7 +21,7 @@ module DataCycleCore
             errors[data['name']] = error
           end
         end
-        return errors
+        errors
       rescue StandardError => e
         puts "could not access the YML File #{file_name}"
         puts e.message

@@ -13,7 +13,7 @@ module DataCycleCore
 
       callbacks[callback] = (callbacks[callback] || []) + [block] if block
 
-      return self
+      self
     end
 
     def execute_callback(callback, *args)

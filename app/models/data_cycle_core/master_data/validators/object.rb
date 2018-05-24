@@ -114,7 +114,7 @@ module DataCycleCore
           data.to_datetime
         rescue StandardError
           (@error[:warning][@template_key] ||= []) << I18n.t(:convert, scope: [:validation, :warning], data: data, locale: DataCycleCore.ui_language)
-          return nil
+          nil
         end
       end
     end
