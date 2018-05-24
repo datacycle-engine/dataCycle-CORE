@@ -48,14 +48,6 @@
         :storage_location: column
         :search: true
         :editor:
-          :type: input
-      :text:
-        :label: Text
-        :type: string
-        :storage_type: text
-        :storage_location: content
-        :search: true
-        :editor:
           :type: quillEditor
           :options:
             :data-size: basic
