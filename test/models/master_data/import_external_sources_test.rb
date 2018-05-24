@@ -64,11 +64,11 @@ describe DataCycleCore::MasterData::ImportExternalSources do
     end
 
     it 'has a config path defined' do
-      assert !DataCycleCore.external_sources_path.empty?
+      assert_not DataCycleCore.external_sources_path.empty?
     end
 
     it 'has yml-files in the config path' do
-      assert !Dir[DataCycleCore.external_sources_path + '*.yml'].count.zero?
+      assert_not Dir[DataCycleCore.external_sources_path + '*.yml'].count.zero?
     end
 
     it 'successfully validates the test config' do

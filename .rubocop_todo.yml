@@ -121,10 +121,10 @@ Style/GuardClause:
   Exclude:
     - 'app/models/data_cycle_core/ability.rb'
 
-#Style/MethodMissing:
-#  Exclude:
-#    - 'app/models/data_cycle_core/callbacks.rb'
-#    - 'app/models/data_cycle_core/content.rb'
+Style/MissingRespondToMissing:
+  Exclude:
+    - 'app/models/data_cycle_core/callbacks.rb'
+    - 'app/models/data_cycle_core/content.rb'
 
 #######################################################
 ########## Transproc
@@ -154,22 +154,13 @@ Style/StabbyLambdaParentheses:
 #####################################################
 ######### new
 
-Rails/AssertNot:
-  Enabled: false
-
 Style/ExpandPathArguments:
   Enabled: false
 
 Performance/UnneededSort:
   Enabled: false
 
-Style/RedundantReturn:
-  Enabled: false
-
 Naming/UncommunicativeMethodParamName:
-  Enabled: false
-
-Style/MissingRespondToMissing:
   Enabled: false
 
 Lint/SplatKeywordArguments:

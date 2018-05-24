@@ -315,59 +315,59 @@ describe DataCycleCore::MasterData::ImportTemplates do
     it 'checks for valid value of name attribute in header' do
       test_hash = header_hash
       test_hash[:data][:name] = nil
-      assert !subject.validate_header.call(test_hash).success?
+      assert_not subject.validate_header.call(test_hash).success?
     end
 
     it 'checks for presence of name attribute in header' do
       test_hash = {}
       test_hash[:data] = header_hash[:data].except(:name)
-      assert !subject.validate_header.call(test_hash).success?
+      assert_not subject.validate_header.call(test_hash).success?
     end
 
     it 'checks for valid value of type in header' do
       test_hash = header_hash
       test_hash[:data][:type] = nil
-      assert !subject.validate_header.call(test_hash).success?
+      assert_not subject.validate_header.call(test_hash).success?
     end
 
     it 'checks for wrong string value of type in header' do
       test_hash = header_hash
       test_hash[:data][:type] = 'string'
-      assert !subject.validate_header.call(test_hash).success?
+      assert_not subject.validate_header.call(test_hash).success?
     end
 
     it 'checks for presence of type attribute in header' do
       test_hash = {}
       test_hash[:data] = header_hash[:data].except(:type)
-      assert !subject.validate_header.call(test_hash).success?
+      assert_not subject.validate_header.call(test_hash).success?
     end
 
     it 'checks properties for presence of label' do
       test_hash = simple_property_hash.except(:label)
-      assert !subject.validate_property.call(test_hash).success?
+      assert_not subject.validate_property.call(test_hash).success?
     end
 
     it 'checks properties for label is a string' do
       test_hash = simple_property_hash
       test_hash[:label] = nil
-      assert !subject.validate_property.call(test_hash).success?
+      assert_not subject.validate_property.call(test_hash).success?
     end
 
     it 'checks properties for presence of type' do
       test_hash = simple_property_hash.except(:type)
-      assert !subject.validate_property.call(test_hash).success?
+      assert_not subject.validate_property.call(test_hash).success?
     end
 
     it 'checks properties for type is a string' do
       test_hash = simple_property_hash
       test_hash[:type] = nil
-      assert !subject.validate_property.call(test_hash).success?
+      assert_not subject.validate_property.call(test_hash).success?
     end
 
     it 'checks properties for type is a wrong string' do
       test_hash = simple_property_hash
       test_hash[:type] = 'long'
-      assert !subject.validate_property.call(test_hash).success?
+      assert_not subject.validate_property.call(test_hash).success?
     end
 
     it 'checks properties for valid types' do
@@ -382,13 +382,13 @@ describe DataCycleCore::MasterData::ImportTemplates do
     it 'checks properties for storage_location is a string' do
       test_hash = simple_property_hash
       test_hash[:storage_location] = nil
-      assert !subject.validate_property.call(test_hash).success?
+      assert_not subject.validate_property.call(test_hash).success?
     end
 
     it 'checks properties for storage_location is a wrong string' do
       test_hash = simple_property_hash
       test_hash[:storage_location] = 'long'
-      assert !subject.validate_property.call(test_hash).success?
+      assert_not subject.validate_property.call(test_hash).success?
     end
 
     it 'checks properties for valid storage_location' do
@@ -423,14 +423,14 @@ describe DataCycleCore::MasterData::ImportTemplates do
     it 'checks included_object_hash for wrong type' do
       test_hash = included_object_hash
       test_hash[:type] = 'string'
-      assert !subject.validate_property.call(test_hash).success?
+      assert_not subject.validate_property.call(test_hash).success?
     end
 
     it 'checks included_object_hash for wrong storage_locations' do
       test_hash = included_object_hash
       (['key', 'column', 'classification_relation'] + DataCycleCore.content_tables).each do |location|
         test_hash[:storage_location] = location
-        assert !subject.validate_property.call(test_hash).success?
+        assert_not subject.validate_property.call(test_hash).success?
       end
     end
   end
