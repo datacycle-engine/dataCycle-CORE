@@ -154,9 +154,6 @@ Style/StabbyLambdaParentheses:
 #####################################################
 ######### new
 
-Performance/UnneededSort:
-  Enabled: false
-
 Naming/UncommunicativeMethodParamName:
   Enabled: false
 

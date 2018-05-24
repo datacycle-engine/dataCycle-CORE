@@ -825,7 +825,7 @@ module DataCycleCore
       en_ids = I18n.with_locale(:en) { data_set.get_data_hash.compact['content_location'].map { |item| item['id'] } }
       assert_equal(2, de_ids.size)
       assert_equal(2, en_ids.size)
-      assert_equal(de_ids.sort[0], en_ids.sort[0])
+      assert_equal(de_ids.min, en_ids.min)
       assert_equal(de_ids.sort[1], en_ids.sort[1])
 
       # check consistency of data in DB

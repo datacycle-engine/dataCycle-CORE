@@ -72,7 +72,7 @@ module DataCycleCore
     end
 
     def primary_classification
-      classifications.sort_by { |c| (created_at - c.created_at).abs }.first
+      classifications.min_by { |c| (created_at - c.created_at).abs }
     end
 
     def linked_contents
