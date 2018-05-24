@@ -35,16 +35,6 @@
             :type: text_editor
             :options:
               :data-size: basic
-      :text:
-        :label: Text
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: basic
       :primary_image:
         :label: Hauptbild
         :type: linked

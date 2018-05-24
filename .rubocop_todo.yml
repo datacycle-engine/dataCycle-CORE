@@ -19,6 +19,7 @@ Lint/NestedMethodDefinition:
     - 'app/models/data_cycle_core/master_data/import_templates.rb'
     - 'app/models/data_cycle_core/master_data/import_external_sources.rb'
 
+# TODO: check after import refactoring
 Lint/UnusedMethodArgument:
   Exclude:
     - 'app/models/data_cycle_core/generic/batch_download.rb'
@@ -40,10 +41,6 @@ Lint/UnusedMethodArgument:
     - 'app/models/data_cycle_core/generic/outdoor_active/import_pois.rb'
     - 'app/models/data_cycle_core/generic/media_archive/import_keywords.rb'
     - 'app/models/data_cycle_core/content_relations.rb'
-
-# Offense count: 64
-#Lint/UselessAssignment:
-#  Enabled: false
 
 #######################################################
 ########## Naming
@@ -128,9 +125,6 @@ Rails/TimeZone:
 
 #######################################################
 ########## Style
-
-Style/ClassAndModuleChildren:
-  Enabled: false
 
 Style/FrozenStringLiteralComment:
   Enabled: false

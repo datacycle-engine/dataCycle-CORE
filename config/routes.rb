@@ -38,7 +38,6 @@ DataCycleCore::Engine.routes.draw do
   end
 
   resources :subscriptions, only: [:index, :create, :destroy]
-  # resources :events, only: [:index, :show, :create, :edit, :update, :destroy]
   resources :stored_filters, only: [:index, :create, :update, :destroy], path: :search_history do
     get :search, on: :collection
   end
