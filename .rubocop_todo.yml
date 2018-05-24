@@ -53,13 +53,6 @@ Naming/PredicateName:
     - 'app/models/data_cycle_core/user.rb'
 
 #######################################################
-########## Performance
-
-Performance/RedundantBlockCall:
-  Exclude:
-    - 'app/services/data_cycle_core/normalize_service.rb'
-
-#######################################################
 ########## Rails
 
 Rails/OutputSafety:
