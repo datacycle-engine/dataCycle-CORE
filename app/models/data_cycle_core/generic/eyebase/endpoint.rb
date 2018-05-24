@@ -22,7 +22,7 @@ module DataCycleCore
                 full_image_path = File.join(Rails.public_path, 'eyebase', 'media_assets', 'files', raw_asset_data['quality_1']['filename'])
                 FileUtils.mkdir_p(File.dirname(full_image_path))
                 File.open(full_image_path, 'wb') do |local_file|
-                  open(raw_asset_data['quality_1']['url'], 'rb') do |remote_file|
+                  File.open(raw_asset_data['quality_1']['url'], 'rb') do |remote_file|
                     local_file.write(remote_file.read)
                   end
                 end
@@ -31,7 +31,7 @@ module DataCycleCore
                 thumbnail_path = File.join(Rails.public_path, 'eyebase', 'media_assets', 'files', raw_asset_data['quality_512']['filename'])
                 FileUtils.mkdir_p(File.dirname(thumbnail_path))
                 File.open(thumbnail_path, 'wb') do |local_file|
-                  open(raw_asset_data['quality_512']['url'], 'rb') do |remote_file|
+                  File.open(raw_asset_data['quality_512']['url'], 'rb') do |remote_file|
                     local_file.write(remote_file.read)
                   end
                 end
@@ -66,7 +66,7 @@ module DataCycleCore
             token: @token
           }
 
-          Nokogiri::XML(open("#{File.join(@host, @end_point)}?#{default_parameters.merge(parameters).to_query}"))
+          Nokogiri::XML(File.open("#{File.join(@host, @end_point)}?#{default_parameters.merge(parameters).to_query}"))
         end
       end
     end
