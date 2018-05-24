@@ -103,6 +103,9 @@ Metrics/PerceivedComplexity:
 Naming/HeredocDelimiterNaming:
   Enabled: false
 
+Naming/UncommunicativeMethodParamName:
+  MinNameLength: 1
+#  Enabled: false
 
 #######################################################
 ########## Security
