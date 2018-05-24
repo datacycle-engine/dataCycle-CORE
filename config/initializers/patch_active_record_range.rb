@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # add dateformat with fractional seconds
 Time::DATE_FORMATS[:long_usec] = '%Y-%m-%d %H:%M:%S.%N %z'
 

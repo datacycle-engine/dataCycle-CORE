@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class DownloadJob < ApplicationJob
     # there is a bug in ActiveJob in combination with DelayedJob that prevents

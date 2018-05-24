@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class DataLinkMailer < ApplicationMailer
     def mail_link(data_link, url)

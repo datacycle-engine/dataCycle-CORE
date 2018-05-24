@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module DataHashHelper
     INTERNAL_PROPERTIES = DataCycleCore.internal_data_attributes + ['id']

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 JbuilderTemplate.class_eval do
   def content_partial!(partial, parameters)
     partials = [

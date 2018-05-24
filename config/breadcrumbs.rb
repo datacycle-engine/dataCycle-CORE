@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Root crumb
 crumb :root do
   link to_html_string("<i class='fa fa-folder-open-o' aria-hidden='true'></i>#{DataCycleCore.breadcrumb_root_name}"), root_path

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class ExternalSource < ApplicationRecord
     has_many :use_cases

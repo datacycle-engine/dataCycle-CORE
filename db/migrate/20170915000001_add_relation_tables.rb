@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddRelationTables < ActiveRecord::Migration[5.0]
   def change
     create_table :event_persons, id: :uuid do |t|

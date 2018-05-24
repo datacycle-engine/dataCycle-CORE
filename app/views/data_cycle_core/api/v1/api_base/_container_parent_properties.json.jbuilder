@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 if content&.parent && content&.parent&.content_type?('container')
   json.set! 'isPartOf' do
     json.content_partial! 'header', content: content.parent, options: options

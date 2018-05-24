@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # config/initializers/dj_rails5_patches.rb
 # RAILS 5 patches for delayed_job
 # TODO: REMOVE WHEN upstream is updated

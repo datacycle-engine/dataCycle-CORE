@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class RestClient
     def initialize(base_url, credentials, verbose = false)

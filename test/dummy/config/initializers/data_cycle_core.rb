@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 DataCycleCore.setup do |config|
   # general settings
   I18n.available_locales = [:de, :en]

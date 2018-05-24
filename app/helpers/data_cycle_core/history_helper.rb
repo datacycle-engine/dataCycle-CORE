@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module HistoryHelper
     require 'hashdiff'
 
-    REMOVED_INDICATOR = '-'.freeze
-    ADDED_INDICATOR = '+'.freeze
-    CHANGED_INDICATOR = '~'.freeze
+    REMOVED_INDICATOR = '-'
+    ADDED_INDICATOR = '+'
+    CHANGED_INDICATOR = '~'
 
     # OK
     def get_diff(version, orig)

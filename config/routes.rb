@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 DataCycleCore::Engine.routes.draw do
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise
 

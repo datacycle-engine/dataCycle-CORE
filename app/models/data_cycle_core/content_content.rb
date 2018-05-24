@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class ContentContent < ApplicationRecord
     belongs_to :content_a, polymorphic: true

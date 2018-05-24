@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateSearch < ActiveRecord::Migration[5.0]
   def up
     create_table :searches, id: :uuid do |t|

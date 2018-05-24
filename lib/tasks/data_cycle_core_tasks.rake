@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FIXNUM_MAX = (2**(0.size * 8 - 2) - 1)
 
 delete_classifications = <<-EOS

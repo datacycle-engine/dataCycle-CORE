@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class StatsJobQueue
     attr_accessor :job_list

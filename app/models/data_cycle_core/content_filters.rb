@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module ContentFilters
     def with_classification_alias_names(*names)

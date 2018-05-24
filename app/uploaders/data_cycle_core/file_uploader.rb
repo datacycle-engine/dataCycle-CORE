@@ -1,5 +1,7 @@
 
 
+# frozen_string_literal: true
+
 module DataCycleCore
   class FileUploader < CarrierWave::Uploader::Base
     # Include RMagick or MiniMagick support:

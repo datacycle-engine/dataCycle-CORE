@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class Content < ApplicationRecord
     NESTED_STORAGE_LOCATIONS = ['metadata', 'content'].freeze

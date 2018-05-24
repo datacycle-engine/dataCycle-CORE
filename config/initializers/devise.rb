@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Devise.setup do |config|
   config.router_name = :data_cycle_core # "DataCycleCore::User"
   config.parent_controller = 'DataCycleCore::ApplicationController'

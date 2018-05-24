@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module ApplicationHelper
     DEFAULT_KEY_MATCHING = {

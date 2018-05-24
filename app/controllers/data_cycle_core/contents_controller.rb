@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class ContentsController < ApplicationController
     before_action :authenticate_user!, :set_watch_list

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 DataCycleCore::Feature::OverlayAttributeService.call(content).each do |property|
   data = content.try(:send, property).includes(:translations, :classifications)
 

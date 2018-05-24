@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class Place < DataHash
     class Translation < Globalize::ActiveRecord::Translation

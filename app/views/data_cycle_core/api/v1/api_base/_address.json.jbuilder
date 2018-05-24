@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 json.set! '@type', 'PostalAddress'
 json.set! 'streetAddress', addressData.street_address if addressData.street_address.present?
 json.set! 'postalCode', addressData.postal_code if addressData.postal_code.present?

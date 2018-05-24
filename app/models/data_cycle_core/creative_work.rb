@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class CreativeWork < DataHash
     extend ActsAsTree::TreeView

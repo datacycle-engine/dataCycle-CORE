@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class Subscription < ApplicationRecord
     belongs_to :user

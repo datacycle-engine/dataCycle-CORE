@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class UsersController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)

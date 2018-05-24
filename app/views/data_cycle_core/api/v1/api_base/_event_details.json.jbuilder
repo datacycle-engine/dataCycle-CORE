@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 default_options = {
   hidden_attributes: DataCycleCore.special_data_attributes + ['external_source_id', 'external_key'] + DataCycleCore::Feature::OverlayAttributeService.call(content)
 }

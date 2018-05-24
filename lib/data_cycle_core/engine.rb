@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # rails essentials
 require 'rails'
 require 'sass-rails'

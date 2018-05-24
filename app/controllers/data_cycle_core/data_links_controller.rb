@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class DataLinksController < ApplicationController
     load_and_authorize_resource except: [:show] # from cancancan (authorize)

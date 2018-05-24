@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Nokogiri::XML::Node.class_eval do
   def to_hash
     attributes_hash = attributes.map { |_, attribute|

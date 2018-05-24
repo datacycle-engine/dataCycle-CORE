@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddIndexToClassificationContentHistories < ActiveRecord::Migration[5.0]
   def up
     add_index :classification_content_histories, :classification_id unless index_exists?(:classification_content_histories, :classification_id)

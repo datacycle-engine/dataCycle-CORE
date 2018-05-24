@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddOrderToContentContentsTable < ActiveRecord::Migration[5.0]
   def up
     add_column :content_contents, :order_a, :integer

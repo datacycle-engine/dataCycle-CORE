@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'date'
 
 $LOAD_PATH.push File.expand_path('../lib', __FILE__)

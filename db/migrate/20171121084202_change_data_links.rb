@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ChangeDataLinks < ActiveRecord::Migration[5.0]
   def up
     execute 'DELETE FROM data_links'

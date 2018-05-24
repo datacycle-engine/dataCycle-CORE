@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class DataLink < ApplicationRecord
     after_commit :set_release_status, on: [:create, :update], if: -> { permissions == 'write' }
