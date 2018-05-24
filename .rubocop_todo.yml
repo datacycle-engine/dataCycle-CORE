@@ -154,10 +154,3 @@ Style/RescueModifier:
 Style/StabbyLambdaParentheses:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
-
-
-#####################################################
-######### new
-
-Lint/SplatKeywordArguments:
-  Enabled: false
