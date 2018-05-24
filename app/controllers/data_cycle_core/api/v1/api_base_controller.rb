@@ -30,10 +30,6 @@ module DataCycleCore
           query.page(permitted_params.fetch(:page, 1).to_i).per(permitted_params.fetch(:per, DEFAULT_PAGE_SIZE).to_i)
         end
 
-        def tokens
-          DataCycleCore.access_tokens
-        end
-
         private
 
         def authenticate
