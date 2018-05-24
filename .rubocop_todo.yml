@@ -154,9 +154,6 @@ Style/StabbyLambdaParentheses:
 #####################################################
 ######### new
 
-Style/ExpandPathArguments:
-  Enabled: false
-
 Performance/UnneededSort:
   Enabled: false
 
