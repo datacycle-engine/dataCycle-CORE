@@ -115,8 +115,13 @@ Rails/TimeZone:
 #######################################################
 ########## Style
 
-Style/FrozenStringLiteralComment:
-  Enabled: false
+# TODO: Resolve after develop merge
+Style/GuardClause:
+  Exclude:
+    - 'app/models/data_cycle_core/ability.rb'
+
+#Style/FrozenStringLiteralComment:
+#  Enabled: false
 
 Style/MethodMissing:
   Exclude:
