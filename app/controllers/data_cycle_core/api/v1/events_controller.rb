@@ -9,13 +9,13 @@ module DataCycleCore
           end
 
           if permitted_params&.dig(:filter, :from)
-            query = query.from_time(DateTime(permitted_params&.dig(:filter, :from)))
+            query = query.from_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)))
           else
             query = query.from_time(Time.zone.now)
           end
 
           if permitted_params&.dig(:filter, :to)
-            query = query.to_time(DateTime(permitted_params&.dig(:filter, :to)))
+            query = query.to_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to)))
           end
 
           if permitted_params&.dig(:filter, :classifications)
@@ -27,7 +27,6 @@ module DataCycleCore
           end
 
           query = query.with_translations(permitted_params.fetch(:language, DataCycleCore.ui_language))
-
           @contents = apply_paging(query).sort_by_proximity
         end
 

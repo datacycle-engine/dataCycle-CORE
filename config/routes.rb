@@ -98,7 +98,6 @@ DataCycleCore::Engine.routes.draw do
           patch :update, on: :member
         end
 
-
         get 'contents/search', to: 'contents#search'
         get 'contents/deleted', to: 'contents#deleted'
 

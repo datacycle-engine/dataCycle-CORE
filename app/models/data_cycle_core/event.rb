@@ -34,19 +34,17 @@ module DataCycleCore
     # callbacks
     before_destroy :destroy_translations, prepend: true
 
-    extend DataCycleCore::Conversions
-
     include ContentHelpers
     include EventHelpers
 
     def self.from_time(time)
-      time = DateTime(time)
+      time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
 
       where(Event.arel_table[:end_date].gteq(Arel::Nodes.build_quoted(time.iso8601)))
     end
 
     def self.to_time(time)
-      time = DateTime(time)
+      time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
 
       where(Event.arel_table[:start_date].lteq(Arel::Nodes.build_quoted(time.iso8601)))
     end

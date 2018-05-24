@@ -45,10 +45,6 @@ Lint/UnusedMethodArgument:
 #######################################################
 ########## Naming
 
-Naming/MethodName:
-  Exclude:
-    - 'app/helpers/data_cycle_core/conversions.rb'
-
 Naming/PredicateName:
   Exclude:
     - 'app/helpers/data_cycle_core/content_helpers.rb'
