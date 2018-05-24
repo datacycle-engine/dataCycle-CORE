@@ -80,9 +80,9 @@ module DataCycleCore
         # end
 
         def uuid(data)
-          data.downcase!
+          data_uuid = data.downcase
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
-          check_uuid = data.length == 36 && !(data =~ uuid).nil?
+          check_uuid = data.length == 36 && !(data_uuid =~ uuid).nil?
           (@error[:error][@template_key] ||= []) << I18n.t(:uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless check_uuid
         end
       end
