@@ -49,12 +49,11 @@ module DataCycleCore
     # end
 
     def filename
-      if original_filename
-        if model && model&.read_attribute(mounted_as).present?
-          model.read_attribute(mounted_as)
-        else
-          "#{secure_token}.#{file.extension}"
-        end
+      return unless original_filename
+      if model && model&.read_attribute(mounted_as).present?
+        model.read_attribute(mounted_as)
+      else
+        "#{secure_token}.#{file.extension}"
       end
     end
 

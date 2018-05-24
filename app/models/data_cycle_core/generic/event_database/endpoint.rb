@@ -54,11 +54,8 @@ module DataCycleCore
             }
           end
 
-          if response.success?
-            JSON.parse(response.body)
-          else
-            raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point + action} / page:#{page} / per:#{per} / lang:#{lang}" << response.body
-          end
+          raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point + action} / page:#{page} / per:#{per} / lang:#{lang}" << response.body unless response.success?
+          JSON.parse(response.body)
         end
       end
     end

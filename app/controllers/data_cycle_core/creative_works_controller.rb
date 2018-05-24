@@ -176,34 +176,34 @@ module DataCycleCore
 
     def after_create(content, current_user)
       object_params = content_params(controller_name, params[:template])
-      if content.schema['content_type'] != 'container' && params[:template] != 'Video-Serie'
-        if params[:parent].blank? && params[:template] == DataCycleCore.features.dig(:life_cycle, :idea_collection, :template)
-          parent = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:parent_template], object_params, current_user)
+
+      return if content.schema['content_type'] == 'container' || params[:template] == 'Video-Serie'
+      if params[:parent].blank? && params[:template] == DataCycleCore.features.dig(:life_cycle, :idea_collection, :template)
+        parent = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:parent_template], object_params, current_user)
+        life_cycle_id = helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id)
+        parent.set_data_hash_attribute(DataCycleCore.features.dig(:life_cycle, :attribute_key), [life_cycle_id], current_user)
+        content.is_part_of = parent.id
+      elsif params[:parent].present?
+        content.is_part_of = params[:parent]
+        # set_life_cycle to recherche for both
+        if params[:template] == DataCycleCore.features.dig(:life_cycle, :idea_collection, :template)
           life_cycle_id = helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id)
-          parent.set_data_hash_attribute(DataCycleCore.features.dig(:life_cycle, :attribute_key), [life_cycle_id], current_user)
-          content.is_part_of = parent.id
-        elsif params[:parent].present?
-          content.is_part_of = params[:parent]
-          # set_life_cycle to recherche for both
-          if params[:template] == DataCycleCore.features.dig(:life_cycle, :idea_collection, :template)
-            life_cycle_id = helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id)
-            parent = DataCycleCore::CreativeWork.find_by(id: content.is_part_of)
-            parent.set_classification_with_children(DataCycleCore.features.dig(:life_cycle, :attribute_key), life_cycle_id, current_user)
-          end
-          # get inherit attributes
-          source = Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }] if params[:source].present?
-          split_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == source['source_type'].classify } if source&.dig('source_type').present?
-          split_source = split_type.constantize.find(source['source_id']) if source&.dig('source_id').present? && split_type.present?
-          if split_source.present?
-            inherit_datahash = content.get_inherit_datahash(split_source)
-          else
-            inherit_datahash = content.get_inherit_datahash(content.parent)
-          end
-
-          redirect_back(fallback_location: root_path, alert: I18n.t(:invalid_parent_attr, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if inherit_datahash.nil?
-
-          content.set_data_hash(data_hash: inherit_datahash, current_user: current_user, prevent_history: true)
+          parent = DataCycleCore::CreativeWork.find_by(id: content.is_part_of)
+          parent.set_classification_with_children(DataCycleCore.features.dig(:life_cycle, :attribute_key), life_cycle_id, current_user)
         end
+        # get inherit attributes
+        source = Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }] if params[:source].present?
+        split_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == source['source_type'].classify } if source&.dig('source_type').present?
+        split_source = split_type.constantize.find(source['source_id']) if source&.dig('source_id').present? && split_type.present?
+        if split_source.present?
+          inherit_datahash = content.get_inherit_datahash(split_source)
+        else
+          inherit_datahash = content.get_inherit_datahash(content.parent)
+        end
+
+        redirect_back(fallback_location: root_path, alert: I18n.t(:invalid_parent_attr, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if inherit_datahash.nil?
+
+        content.set_data_hash(data_hash: inherit_datahash, current_user: current_user, prevent_history: true)
       end
     end
 
@@ -220,25 +220,23 @@ module DataCycleCore
     end
 
     def set_publication_attributes
-      if DataCycleCore.features.dig(:publication_schedule, :classification_keys).present? && DataCycleCore::Feature::PublicationSchedule.available?(@content) && @content.respond_to?('publication_schedule')
-        I18n.with_locale(@content.first_available_locale) do
-          datahash_params = content_params('creative_works', @content.template_name)
-          datahash = DataCycleCore::DataHashService.flatten_datahash_value(datahash_params[:datahash], @content.schema, false)
+      return if DataCycleCore.features.dig(:publication_schedule, :classification_keys).blank? || !DataCycleCore::Feature::PublicationSchedule.available?(@content) || !@content.respond_to?('publication_schedule')
+      I18n.with_locale(@content.first_available_locale) do
+        datahash_params = content_params('creative_works', @content.template_name)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(datahash_params[:datahash], @content.schema, false)
 
-          DataCycleCore.features.dig(:publication_schedule, :classification_keys).each do |tree_label|
-            @content.set_data_hash_attribute(tree_label, datahash.dig('publication_schedule')&.map { |p| p[tree_label] }&.flatten&.uniq, current_user)
-          end
+        DataCycleCore.features.dig(:publication_schedule, :classification_keys).each do |tree_label|
+          @content.set_data_hash_attribute(tree_label, datahash.dig('publication_schedule')&.map { |p| p[tree_label] }&.flatten&.uniq, current_user)
         end
       end
     end
 
     def check_final
-      if params[:finalize] && @content.data_links.where(receiver_id: current_user.id, permissions: 'write').size.positive?
-        @content.data_links.where(receiver_id: current_user.id, permissions: 'write').first.update_attribute(:permissions, 'read')
+      return if params[:finalize].blank? || @content.data_links.where(receiver_id: current_user.id, permissions: 'write').blank?
+      @content.data_links.where(receiver_id: current_user.id, permissions: 'write').first.update_attribute(:permissions, 'read')
 
-        I18n.with_locale(@content.first_available_locale) do
-          @content.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id)) if DataCycleCore.release_codes.present?
-        end
+      I18n.with_locale(@content.first_available_locale) do
+        @content.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id)) if DataCycleCore.release_codes.present?
       end
     end
   end

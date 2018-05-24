@@ -349,12 +349,9 @@ module DataCycleCore
     end
 
     def set_property_value(property_name, property_definition, value)
-      if PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
-        send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
-             (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value }))
-      else
-        raise NotImplementedError
-      end
+      raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
+      send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
+           (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value }))
     end
   end
 end

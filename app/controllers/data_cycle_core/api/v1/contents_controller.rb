@@ -5,11 +5,10 @@ module DataCycleCore
         def show
           object_type = DataCycleCore.content_tables.find { |object| object == permitted_params[:type] }
 
-          unless object_type.nil?
-            @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
-              .includes({ classifications: [], translations: [] })
-              .find(permitted_params[:id])
-          end
+          return if object_type.nil?
+          @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
+            .includes({ classifications: [], translations: [] })
+            .find(permitted_params[:id])
         end
 
         def update

@@ -18,14 +18,12 @@ module DataCycleCore
 
     def self.get_internal_data(storage_location, value)
       internal_objects = []
-      if value.present? && value.count.positive?
-        value.each do |object|
-          internal_object = ('DataCycleCore::' + storage_location.classify).constantize
-            .find_by(id: object['id'])
-          internal_objects.push(internal_object) if internal_object.present?
-        end
-      else
-        return nil
+      return nil if value.blank? || value.count.zero?
+
+      value.each do |object|
+        internal_object = ('DataCycleCore::' + storage_location.classify).constantize
+          .find_by(id: object['id'])
+        internal_objects.push(internal_object) if internal_object.present?
       end
 
       internal_objects
@@ -54,24 +52,18 @@ module DataCycleCore
       object.template_name = template.template_name
       object.save
 
-      if !object_params[:datahash].nil?
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], object.schema)
-        datahash['creator'] = [current_user[:id]]
-        datahash['headline_external'] = datahash['headline']
-      else
-        return nil
-      end
+      return nil if object_params[:datahash].nil?
+
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], object.schema)
+      datahash['creator'] = [current_user[:id]]
+      datahash['headline_external'] = datahash['headline']
 
       datahash['permitted_creator'] = current_user.try(:role).try(:rank) == 3 ? [DataCycleCore::Classification.find_by(name: 'Markt Office').try(:id)] : [DataCycleCore::Classification.find_by(name: 'Team CM').try(:id)]
 
       object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true)
 
-      # validate ?
-      if object.save
-        return object
-      else
-        return nil
-      end
+      return nil unless object.save
+      object
     end
 
     class << self

@@ -56,13 +56,12 @@ module DataCycleCore
         end
 
         def url(data)
-          if data.present?
-            begin
-              uri = URI.parse data
-              (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless uri.is_a? URI::HTTP
-            rescue URI::InvalidURIError
-              (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language)
-            end
+          return if data.blank?
+          begin
+            uri = URI.parse data
+            (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless uri.is_a? URI::HTTP
+          rescue URI::InvalidURIError
+            (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language)
           end
         end
 

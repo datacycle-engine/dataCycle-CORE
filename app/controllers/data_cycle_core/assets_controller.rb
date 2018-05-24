@@ -12,10 +12,9 @@ module DataCycleCore
       @asset = object_type.constantize.new(asset_params).set_content_type.set_file_size
       @asset.creator_id = current_user.try(:id)
 
-      if @asset.save
-        @object = [@asset]
-        respond_to(:js)
-      end
+      return unless @asset.save
+      @object = [@asset]
+      respond_to(:js)
     end
 
     def remove_asset_object

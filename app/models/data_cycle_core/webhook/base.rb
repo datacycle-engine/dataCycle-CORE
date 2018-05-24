@@ -14,13 +14,12 @@ module DataCycleCore
 
       def self.validate_webhook(webhook, data)
         return webhook if webhook.is_a?(Class)
+        return unless webhook.is_a?(Hash)
 
-        if webhook.is_a?(Hash)
-          webhook_class = webhook.keys.first
-          filter = webhook[webhook_class].fetch(:filter) { raise KeyError, 'Filter must be supplied for webhook' }
+        webhook_class = webhook.keys.first
+        filter = webhook[webhook_class].fetch(:filter) { raise KeyError, 'Filter must be supplied for webhook' }
 
-          return webhook_class if filter.call(data)
-        end
+        return webhook_class if filter.call(data)
       end
     end
   end

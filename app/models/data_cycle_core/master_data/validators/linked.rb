@@ -51,10 +51,9 @@ module DataCycleCore
         end
 
         def check_reference(key, template)
-          if uuid?(key)
-            data_set = "DataCycleCore::#{template['linked_table'].classify}".constantize.where(id: key)
-            (@error[:error][@template_key] ||= []) << I18n.t(:not_found, scope: [:validation, :errors], key: key, template: template['label'], table: template['linked_table'], locale: DataCycleCore.ui_language) if data_set.count < 1
-          end
+          return unless uuid?(key)
+          data_set = "DataCycleCore::#{template['linked_table'].classify}".constantize.where(id: key)
+          (@error[:error][@template_key] ||= []) << I18n.t(:not_found, scope: [:validation, :errors], key: key, template: template['label'], table: template['linked_table'], locale: DataCycleCore.ui_language) if data_set.count < 1
         end
 
         # validate nil,"",[],[nil],[""] as blank.

@@ -5,11 +5,10 @@ module DataCycleCore
     # get data as specified in the data template
     # data hash with keys named as in schema.org
     def get_data_hash(timestamp = Time.zone.now)
-      if translated_locales.include?(I18n.locale) || changes.count.positive? # for new data-sets with pending data in it
-        data_hash = as_of(timestamp).try(:to_h, timestamp)
-        data_hash = merge_release(data_hash, release) if is_a?(DataCycleCore::Releasable)
-        data_hash
-      end
+      return if !translated_locales.include?(I18n.locale) && changes.count.zero? # for new data-sets with pending data in it
+      data_hash = as_of(timestamp).try(:to_h, timestamp)
+      data_hash = merge_release(data_hash, release) if is_a?(DataCycleCore::Releasable)
+      data_hash
     end
 
     # set data as specified in the data template
@@ -49,10 +48,9 @@ module DataCycleCore
 
     def set_data_hash_attribute(key, value, current_user, save_time = Time.zone.now)
       key_hash = schema.dig('properties', key)
-      unless key_hash.nil?
-        ActiveRecord::Base.transaction do
-          storage_cases_set(key, value, key_hash, save_time, current_user)
-        end
+      return if key_hash.nil?
+      ActiveRecord::Base.transaction do
+        storage_cases_set(key, value, key_hash, save_time, current_user)
       end
     end
 
@@ -170,11 +168,10 @@ module DataCycleCore
       end
 
       # cleanup classification_relation (only if present item can be deleted)
-      if delete_relation
-        classification_property_names.each do |classification_name|
-          content_relation = get_classification_relation(classification_name)
-          content_relation.destroy_all if content_relation.present?
-        end
+      return unless delete_relation
+      classification_property_names.each do |classification_name|
+        content_relation = get_classification_relation(classification_name)
+        content_relation.destroy_all if content_relation.present?
       end
     end
 
@@ -366,15 +363,14 @@ module DataCycleCore
       # delete missing ids
       found_ids = get_classification_relation(relation_name).pluck(:classification_id)
       to_delete = found_ids - ids
-      unless to_delete.empty?
-        DataCycleCore::ClassificationContent
-          .where(
-            'content_data_id' => id,
-            'content_data_type' => self.class.to_s,
-            classification_id: to_delete,
-            relation: relation_name
-          ).destroy_all
-      end
+      return if to_delete.empty?
+      DataCycleCore::ClassificationContent
+        .where(
+          'content_data_id' => id,
+          'content_data_type' => self.class.to_s,
+          classification_id: to_delete,
+          relation: relation_name
+        ).destroy_all
     end
 
     def set_asset_id(id, relation_name, asset_type)
@@ -393,16 +389,15 @@ module DataCycleCore
       found_ids = get_asset_relation(relation_name).pluck(:asset_id)
       to_delete = found_ids - [id]
 
-      unless to_delete.empty?
-        DataCycleCore::AssetContent
-          .where(
-            'content_data_id' => self.id,
-            'content_data_type' => self.class.to_s,
-            asset_id: to_delete,
-            asset_type: asset_type,
-            relation: relation_name
-          ).destroy_all
-      end
+      return if to_delete.empty?
+      DataCycleCore::AssetContent
+        .where(
+          'content_data_id' => self.id,
+          'content_data_type' => self.class.to_s,
+          asset_id: to_delete,
+          asset_type: asset_type,
+          relation: relation_name
+        ).destroy_all
     end
 
     def set_template_data_hash(data_hash, properties, save_time, current_user)

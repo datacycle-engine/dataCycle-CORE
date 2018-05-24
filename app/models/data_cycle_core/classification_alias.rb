@@ -96,11 +96,10 @@ module DataCycleCore
     private
 
     def update_primary_classification
-      if changed.include?('name')
-        primary_classification.tap do |c|
-          c.name = name
-          c.save!
-        end
+      return unless changed.include?('name')
+      primary_classification.tap do |c|
+        c.name = name
+        c.save!
       end
     end
   end

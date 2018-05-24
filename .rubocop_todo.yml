@@ -125,9 +125,6 @@ Rails/TimeZone:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
-Style/GuardClause:
-  Enabled: false
-
 Style/MethodMissing:
   Exclude:
     - 'app/models/data_cycle_core/callbacks.rb'

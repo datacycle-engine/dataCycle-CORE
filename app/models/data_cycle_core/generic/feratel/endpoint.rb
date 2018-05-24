@@ -117,11 +117,7 @@ module DataCycleCore
           data = Nokogiri::XML(envelop.children.first.content)
           data.remove_namespaces!
 
-          if data.xpath('//@Status').first.value != '0'
-            raise data.xpath('//@Message').first.value
-          else
-            data
-          end
+          raise data.xpath('//@Message').first.value if data.xpath('//@Status').first.value != '0'
         end
 
         def create_categories_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])

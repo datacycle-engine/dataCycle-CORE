@@ -30,41 +30,32 @@ module DataCycleCore
 
     def merge_data(data_value, release_data)
       return data_value if release_data.blank?
-      if data_value.is_a?(::Hash) # --> embedded data
-        return data_iterator_merge(data_value, release_data)
-      elsif data_value.is_a?(::Array)
-        if data_value.first.is_a?(::Hash) # --> embeddedObjects
-          return_data = []
-          data_value.each_index do |index|
-            return_data.push(data_iterator_merge(data_value[index], release_data[index]))
-          end
-          return return_data
-        else
-          return release_data.merge({ 'value' => data_value }) # --> Array of values
-        end
-      else
-        return release_data.merge({ 'value' => data_value }) # --> single value
+      return data_iterator_merge(data_value, release_data) if data_value.is_a?(::Hash) # --> embedded data
+      return release_data.merge({ 'value' => data_value }) unless data_value.is_a?(::Array) # --> single value
+      return release_data.merge({ 'value' => data_value }) unless data_value.first.is_a?(::Hash) # --> Array of values
+
+      return_data = []
+      data_value.each_index do |index|
+        return_data.push(data_iterator_merge(data_value[index], release_data[index]))
       end
+      return_data
     end
 
     def split_data(original, full)
-      if release_data?(original)
-        return original['value'], { 'release_id' => original.try(:[], 'release_id'), 'release_comment' => original.try(:[], 'release_comment') }
-      elsif original.is_a?(::Hash) # --> embedded data
+      return original['value'], { 'release_id' => original.try(:[], 'release_id'), 'release_comment' => original.try(:[], 'release_comment') } if release_data?(original)
+
+      if original.is_a?(::Hash) # --> embedded data
         data_iterator_split(original, full)
       elsif original.is_a?(::Array)
-        if original.first.is_a?(::Hash) && full # --> embeddedObjects
-          return_data = []
-          return_release = []
-          original.each do |item|
-            data_item, release_item = data_iterator_split(item, full)
-            return_data.push(data_item)
-            return_release.push(release_item)
-          end
-          return return_data, return_release
-        else
-          return original, nil # --> Array of values
+        return original, nil if !original.first.is_a?(::Hash) || !full # --> Array of values
+        return_data = []
+        return_release = []
+        original.each do |item|
+          data_item, release_item = data_iterator_split(item, full)
+          return_data.push(data_item)
+          return_release.push(release_item)
         end
+        return return_data, return_release
       else
         return original, nil # --> single value
       end

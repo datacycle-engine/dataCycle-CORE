@@ -42,10 +42,9 @@ module DataCycleCore
         end
 
         def check_reference(key)
-          if uuid?(key)
-            find_asset = DataCycleCore::Asset.find(key)
-            (@error[:warning][key] ||= []) << I18n.t(:asset_upload, scope: [:validation, :warning], locale: DataCycleCore.ui_language) if find_asset.nil?
-          end
+          return unless uuid?(key)
+          find_asset = DataCycleCore::Asset.find(key)
+          (@error[:warning][key] ||= []) << I18n.t(:asset_upload, scope: [:validation, :warning], locale: DataCycleCore.ui_language) if find_asset.nil?
         end
 
         def uuid?(data)

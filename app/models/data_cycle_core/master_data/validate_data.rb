@@ -28,11 +28,8 @@ module DataCycleCore
       # keys of the data-hash defined as keys in the template
       def valid?(data, validation_hash, strict = false, verbose = false)
         validate(data, validation_hash, strict, verbose)
-        if strict
-          return (@error[:error].length + @error[:warning].length).zero?
-        else
-          return @error[:error].empty?
-        end
+        return (@error[:error].length + @error[:warning].length).zero? if strict
+        @error[:error].empty?
       end
     end
   end

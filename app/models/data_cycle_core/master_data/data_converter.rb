@@ -30,11 +30,8 @@ module DataCycleCore
       def self.geographic_to_string(value)
         return nil if value.nil?
         return value if value.is_a?(::String) && string_to_geographic(value).methods.include?(:geometry_type)
-        if value.methods.include?(:geometry_type)
-          value.to_s
-        else
-          raise RGeo::Error::ParseError, 'expected a geographic object of some sorts'
-        end
+        raise RGeo::Error::ParseError, 'expected a geographic object of some sorts' unless value.methods.include?(:geometry_type)
+        value.to_s
       end
 
       def self.string_to_geographic(value)
@@ -80,17 +77,11 @@ module DataCycleCore
       def self.datetime_to_string(value)
         return nil if value.nil?
         if value.is_a?(::String)
-          if value.in_time_zone.acts_like?(:time)
-            return value.squish
-          else
-            raise ArgumentError, 'expected a datetime of some sorts'
-          end
+          raise ArgumentError, 'expected a datetime of some sorts' unless value.in_time_zone.acts_like?(:time)
+          return value.squish
         end
-        if value.acts_like?(:time)
-          value.to_s
-        else
-          raise ArgumentError, 'expected a datetime of some sorts'
-        end
+        raise ArgumentError, 'expected a datetime of some sorts' unless value.acts_like?(:time)
+        value.to_s
       end
 
       def self.string_to_datetime(value)
