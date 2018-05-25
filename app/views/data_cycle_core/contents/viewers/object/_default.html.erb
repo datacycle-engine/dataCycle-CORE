@@ -31,7 +31,7 @@
 
                   <%= link_to edit_polymorphic_path(object, locale: I18n.locale), data: { tooltip: '' }, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "edit-link" do %>
                     <i class="fa fa-pencil" aria-hidden="true"></i>
-                  <% end if definition['editor']['type'] == "objectBrowser" && @historySource.nil? && can?(:crud, object) %>
+                  <% end if definition['editor']['type'] == "objectBrowser" && @historySource.nil? && can?(:edit, object) %>
                 </div>
 
                 <% if object.schema.present? %>
