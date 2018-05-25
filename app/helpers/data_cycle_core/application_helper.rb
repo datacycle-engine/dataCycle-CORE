@@ -44,6 +44,10 @@ module DataCycleCore
       end
     end
 
+    def previous_authorized_crumb
+      breadcrumbs[0..-2].reverse.find(&:authorized)
+    end
+
     def render_content_partial(partial, parameters)
       partials = [
         "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].template_name.underscore}_#{partial}",

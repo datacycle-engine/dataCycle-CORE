@@ -3,23 +3,6 @@ var ConfirmationModal = require('./../components/confirmation_modal');
 // Datalist
 module.exports.initialize = function () {
 
-  $('.ajax-datalist').each((idx, element) => {
-    let list = $(element).prop('list');
-    let list_id = $(element).attr('list');
-    $(list).html('');
-
-    $(element).on('input', (event) => {
-      event.preventDefault();
-      $.get('/' + list_id + '/search', {
-        q: $(event.currentTarget).val()
-      }, data => {
-        if (eval('typeof ' + list_id + ' === "function"')) {
-          eval(list_id)(element, list, data);
-        } else default_success(element, list, data);
-      });
-    });
-  });
-
   let default_success = function (input_field, list, data) {
     $(list).html('');
 
@@ -88,5 +71,22 @@ module.exports.initialize = function () {
     $(form).append('<input type="hidden" name="stored_filter[system]" value="' + $(event.currentTarget).find('#stored_filter_system').is(':checked') + '">');
     form.submit();
   }
+
+  $('.ajax-datalist').each((idx, element) => {
+    let list = $(element).prop('list');
+    let list_id = $(element).attr('list');
+    $(list).html('');
+
+    $(element).on('input', (event) => {
+      event.preventDefault();
+      $.get('/' + list_id + '/search', {
+        q: $(event.currentTarget).val()
+      }, data => {
+        if (eval('typeof ' + list_id + ' === "function"')) {
+          eval(list_id)(element, list, data);
+        } else default_success(element, list, data);
+      });
+    });
+  });
 
 };

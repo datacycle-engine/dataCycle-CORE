@@ -138,6 +138,7 @@ de:
     copy_to_clipboard: In die Zwischenablage kopieren
     save: Speichern
     update: Aktualisieren
+    upload: hochladen
 
 
   validation:
@@ -177,6 +178,8 @@ de:
       classification_conflict: Es gibt Konflikte bei den Publikationsdaten.
       not_deleted: "Beim Löschen von %{data} ist ein Fehler aufgetreten."
       not_saved: "Beim Speichern von %{data} ist ein Fehler aufgetreten."
+      file_too_large: "Datei zu groß (max. %{max})."
+      wrong_content_type: "%{content_type} Dateien sind nicht erlaubt."
     warning:
       string: "%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}"
       no_data: "Keine Daten angegeben für %{data}"
@@ -278,6 +281,9 @@ de:
       data_cycle_core/external_source:
         one: Externe Quelle
         other: Externe Quellen
+      data_cycle_core/asset:
+        one: Asset
+        other: Assets
     attributes:
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
@@ -321,11 +327,15 @@ de:
         valid_until: bis
         permissions_read: "Lesen"
         permissions_write: "Bearbeiten"
+        text_file: "Weitere Infos (PDF)"
       data_cycle_core/stored_filter:
         system: Für alle Benutzer sichtbar
         api: Über API abrufbar
         api_users: Für API zugelassene Benutzer
         name: Name
+      data_cycle_core/asset:
+        name: Name
+        file: Datei
   unauthorized:
     manage:
       all: "Keine Zugriffsberechtigung!"
@@ -358,8 +368,8 @@ de:
       show_search_history: Gesammten Verlauf ansehen
       save: Suche speichern
       history: Suchverlauf
-
-
+    watch_list:
+      locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
 
   date:
     abbr_day_names:

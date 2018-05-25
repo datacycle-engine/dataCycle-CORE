@@ -297,11 +297,14 @@ module DataCycleCore
     end
 
     def check_final
-      if params[:finalize] && @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').size.positive?
-        @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').first.update_attribute(:permissions, 'read')
+      if params[:finalize] && (
+        @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').present? ||
+        @creativeWork.watch_lists.includes(:data_links).where(data_links: { receiver_id: current_user.id }).exists?
+      )
+        @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').update(permissions: 'read') if @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').present?
 
         I18n.with_locale(@creativeWork.first_available_locale) do
-          @creativeWork.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id)) unless DataCycleCore.release_codes.blank?
+          @creativeWork.update_attribute(:release_id, DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:review]).id) if DataCycleCore::Feature::Releasable.enabled? && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:review]).present?
         end
       end
     end
