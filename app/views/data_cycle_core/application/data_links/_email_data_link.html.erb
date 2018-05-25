@@ -40,12 +40,25 @@
     <%= f.label :permissions, DataCycleCore::DataLink.human_attribute_name("permissions", locale: DataCycleCore.ui_language) %>
     <%= f.radio_button(:permissions, 'read', checked: true, label: false) %>
     <%= f.label :permissions_read, DataCycleCore::DataLink.human_attribute_name(:permissions_read, locale: DataCycleCore.ui_language) %>
-    <% if can?(:edit, content) && !content.is_a?(DataCycleCore::WatchList) %>
+    <% if can?(:edit, content) && content.try(:watch_list_data_hashes)&.includes(:hashable)&.all? { |data_hash| can?(:edit, data_hash.hashable) } %>
       <%= f.radio_button(:permissions, 'write', label: false) %>
       <%= f.label :permissions_write, DataCycleCore::DataLink.human_attribute_name(:permissions_write, locale: DataCycleCore.ui_language) %>
     <% end %>
+
+    <%= f.label :text_file, DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language) %>
+    <div class="form-element">
+      <div class="v-select white with-upload">
+        <%= f.collection_select :asset_id, DataCycleCore::TextFile.accessible_by(current_ability).where(content_type: 'application/pdf'), :id, :name, { label: false, prompt: true }, { class: 'single-select select', data: { placeholder: '' }, include_blank: true } %>
+
+        <% if can?(:edit, DataCycleCore::TextFile) %>
+          <a class="button upload-button" title="<%= "#{DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language)} #{t('actions.upload')}" %>" data-open="data-link-file-upload-overlay"><i class="fa fa-upload" aria-hidden="true"></i></a>
+        <% end %>
+      </div>
+    </div>
+
     <%= f.label :comment, DataCycleCore::DataLink.human_attribute_name("comment", locale: DataCycleCore.ui_language) %>
     <%= f.text_area :comment, class: "large-textfield", label: false %>
+
     <%= f.button t('actions.save_and_send', locale: DataCycleCore.ui_language), class: "button submit-button", data: { disable_with: t('common.loading', locale: DataCycleCore.ui_language) } %>
   <% end %>
 </div>

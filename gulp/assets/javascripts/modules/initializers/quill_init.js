@@ -6,24 +6,7 @@ var quill_helpers = require('./../helpers/quill_helpers');
 // Quill Config
 module.exports.initialize = function () {
 
-  quill.register('modules/counter', Counter);
-
-  $(document).on('clone-added', '.content-object-item', function () {
-
-    if ($(this).find('.quill-editor').html() != undefined) {
-      $(this).find('.quill-editor').each(function () {
-        init(this);
-      });
-    }
-  });
-
-  if ($('.quill-editor').html() != undefined) {
-    $('.quill-editor').each(function () {
-      init(this);
-    });
-  }
-
-  function init(node) {
+  let init = function (node) {
     var Delta = quill.import('delta');
 
     // set edit mode
@@ -93,6 +76,23 @@ module.exports.initialize = function () {
       } else {
         editor.clipboard.dangerouslyPasteHTML(data.value);
       }
+    });
+  }
+
+  quill.register('modules/counter', Counter);
+
+  $(document).on('clone-added', '.content-object-item', function () {
+
+    if ($(this).find('.quill-editor').html() != undefined) {
+      $(this).find('.quill-editor').each(function () {
+        init(this);
+      });
+    }
+  });
+
+  if ($('.quill-editor').html() != undefined) {
+    $('.quill-editor').each(function () {
+      init(this);
     });
   }
 

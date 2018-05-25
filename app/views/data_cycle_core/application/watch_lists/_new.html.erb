@@ -1,4 +1,4 @@
-<% if can? :create, DataCycleCore::WatchList %>
+<% if can?(:create, DataCycleCore::WatchList) %>
     <div class="<%= content.nil? ? 'add-watchlist-to-menu' : 'add-watchlist' %>">
         <% @new_watch_list ||= DataCycleCore::WatchList.new %>
 

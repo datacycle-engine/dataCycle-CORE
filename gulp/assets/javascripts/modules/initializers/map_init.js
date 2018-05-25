@@ -29,11 +29,9 @@ module.exports.initialize = function () {
   if ($('.geographic-map').length) {
     $('.geographic-map').each(function (idx, item) {
       var map_id = $(item).attr('id');
-
       var data = window[map_id];
-
-
       var feature;
+
       if (data.type == 'Point') {
         feature = new ol.Feature({
           geometry: new ol.geom.Point(data.points[0])
