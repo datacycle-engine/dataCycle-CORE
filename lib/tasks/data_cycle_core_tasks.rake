@@ -354,6 +354,54 @@ namespace :data_cycle_core do
       end
       puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
     end
+
+    desc 'update schema for all histories'
+    task update_all_history_schema: [:environment] do
+
+      DataCycleCore.content_tables.each do |content_table|
+
+        data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
+        history_object = "DataCycleCore::#{content_table.classify}::History".safe_constantize
+
+        data_object.where(template: true).each do |template_object|
+          template_name = template_object.template_name
+
+          history_data_count = history_object.where(template: false).where("metadata #>> '{validation, name}' = ? OR template_name = ?", template_name, template_name).count
+          puts "#{content_table.ljust(25)} | #{template_name.ljust(25)} | #{(history_data_count || 0).to_s.rjust(10)}"
+
+          strategy = DataCycleCore::Update::UpdateTemplate
+          DataCycleCore::Update::Update.new(type: history_object, template: template_object, strategy: strategy, transformation: nil)
+        end
+
+      end
+
+    end
+
+    desc 'update history schema for a given content_table_name/template_name'
+    task :update_history_schema, [:content_table_name, :template_name] => [:environment] do |_, args|
+      unless DataCycleCore.content_tables.include?(args[:content_table_name])
+        puts 'ERROR: only the following content_table_names are known to the system:'
+        puts DataCycleCore.content_tables.to_s
+        exit(-1)
+      end
+
+      data_object = "DataCycleCore::#{args[:content_table_name].classify}".safe_constantize
+      history_object = "DataCycleCore::#{args[:content_table_name].classify}::History".safe_constantize
+      template = data_object.find_by(template_name: args[:template_name], template: true)
+
+      if template.nil?
+        puts "ERROR: template not found. For the given #{args[:content_table_name]} table only the following templates are available:"
+        puts data_object.where(template: true).map(&:template_name)
+        exit(-1)
+      end
+
+      type = history_object
+      strategy = DataCycleCore::Update::UpdateTemplate
+      transformation = nil
+
+      DataCycleCore::Update::Update.new(type: type, template: template, strategy: strategy, transformation: transformation)
+    end
+
   end
 
   namespace :data_update do
