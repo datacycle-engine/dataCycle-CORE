@@ -25,7 +25,11 @@ module DataCycleCore
     end
 
     def self.valid
-      where('(valid_from IS NULL OR valid_from <= :d) AND (valid_until IS NULL OR valid_until >= :d)', d: Time.now.round)
+      where('(data_links.valid_from IS NULL OR data_links.valid_from <= :d) AND (data_links.valid_until IS NULL OR data_links.valid_until >= :d)', d: Time.zone.now.round)
+    end
+
+    def self.writable
+      where(permissions: 'write')
     end
 
     def is_valid?

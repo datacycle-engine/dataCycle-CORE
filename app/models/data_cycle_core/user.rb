@@ -41,7 +41,7 @@ module DataCycleCore
     end
 
     def sibling_ids
-      [id].concat(user_groups.map { |ug| ug.users.ids }.flatten).uniq
+      user_groups.map { |ug| ug.users.ids }.flatten.uniq << id
     end
 
     def send_notification(contents)

@@ -42,7 +42,7 @@
           <div class="v-select">
             <%= f.label :user_ids %>
             <%= hidden_field_tag 'user_group[user_ids][]', nil, id: 'hidden_user_group_user_ids' %>
-            <%= select_tag('user_group[user_ids][]', options_for_select(DataCycleCore::User.all.map { |c| [c.full_name, c.id] }, content.users.map(&:id)), {multiple: true, class: 'multi-select'}) %>
+            <%= select_tag('user_group[user_ids][]', options_for_select(DataCycleCore::User.all.map { |c| [c.full_name, c.id, { title: c.email }] }, content.users.map(&:id)), { multiple: true, class: 'multi-select' }) %>
           </div>
 
 				</div>
