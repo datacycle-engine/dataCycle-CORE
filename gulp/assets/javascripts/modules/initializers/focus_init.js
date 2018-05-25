@@ -8,6 +8,7 @@ module.exports.initialize = function () {
       }
     }.bind(this), 50);
   });
+
   $(document).on('focusin', '.form-element', function (ev) {
     $(this).addClass('focus');
   });

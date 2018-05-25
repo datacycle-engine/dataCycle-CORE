@@ -127,23 +127,3 @@
     }
   }
 }
-
-#settings-off-canvas {
-  .settings-row {
-    &.watchlists {
-      a {
-        margin: 0;
-      }
-      .add-watch-list {
-        float: right;
-      }
-      .item {
-        padding: 0.5rem;
-      }
-      span.icon {
-        display: inline-block;
-        width: 2rem;
-      }
-    }
-  }
-}

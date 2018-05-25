@@ -13,7 +13,7 @@ module DataCycleCore
         end
 
         def attribute_keys(content)
-          content&.schema&.dig('features', name.demodulize.underscore)
+          content.try(:schema)&.dig('features', name.demodulize.underscore)
         end
 
         def available?(content)

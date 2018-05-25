@@ -6,13 +6,7 @@ var select2_helpers = require('./../helpers/select2_helpers');
 
 module.exports.initialize = function () {
 
-  $(document).on('clone-added', '.content-object-item, .advanced-filter', function () {
-    init(this);
-  });
-
-  init(document);
-
-  function init(element) {
+  let init = function (element) {
     $(element).find('.async-select').each(function () {
       var query = {};
       var tree_label = $(this).data('tree-label');
@@ -100,4 +94,11 @@ module.exports.initialize = function () {
       });
     });
   };
+
+  $(document).on('clone-added', '.content-object-item, .advanced-filter', function () {
+    init(this);
+  });
+
+  init(document);
+
 };

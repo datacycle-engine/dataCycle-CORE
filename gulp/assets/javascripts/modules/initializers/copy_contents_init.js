@@ -3,6 +3,30 @@ var ConfirmationModal = require('./../components/confirmation_modal');
 // Split View Inhalte kopieren
 module.exports.initialize = function () {
 
+  let copy_contents = function (values, label) {
+    var target_container = $('.flex-box .edit-content [data-label="' + label + '"]');
+    target_container.children('.object-browser, .embedded-object').trigger('import-data', {
+      label: label,
+      ids: values
+    });
+
+    target_container.children('input[type=text]').trigger('import-data', {
+      label: label,
+      value: values
+    });
+
+    target_container.find('> .editor-block > .quill-editor').trigger('import-data', {
+      label: label,
+      value: values
+    });
+
+    var first_error_offset = target_container.first().offset().top - target_container.offsetParent().offset().top;
+
+    $('.flex-box .edit-content').animate({
+      scrollTop: first_error_offset - 50
+    }, 500);
+  }
+
   $('.flex-box .detail-content .properties > div[data-editor=object_browser]').each(function () {
     var label = $(this).data('label');
     var ids = $(this).data('id');
@@ -53,30 +77,6 @@ module.exports.initialize = function () {
     copy_contents(id, label);
   });
 
-  function copy_contents(values, label) {
-    var target_container = $('.flex-box .edit-content [data-label="' + label + '"]');
-    target_container.children('.object-browser, .embedded-object').trigger('import-data', {
-      label: label,
-      ids: values
-    });
-
-    target_container.children('input[type=text]').trigger('import-data', {
-      label: label,
-      value: values
-    });
-
-    target_container.find('> .editor-block > .quill-editor').trigger('import-data', {
-      label: label,
-      value: values
-    });
-
-    var first_error_offset = target_container.first().offset().top - target_container.offsetParent().offset().top;
-
-    $('.flex-box .edit-content').animate({
-      scrollTop: first_error_offset - 50
-    }, 500);
-  }
-
   $('.flex-box .edit-content .form-element.input').on('import-data', function (event, data) {
     if ($(this).find('input[type=text]').val().length === 0) {
       $(this).find('input[type=text]').val(data.value).trigger('input');
@@ -86,7 +86,6 @@ module.exports.initialize = function () {
       }.bind(this));
     }
   });
-
 
   // SPLIT CONTENT
   if ($(".split-content").length) {

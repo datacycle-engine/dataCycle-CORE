@@ -1,19 +1,15 @@
 // Filter
 module.exports.initialize = function () {
 
-  // submit searchform on blur
-  if ($('#search-form').length > 0) {
-    $('#search-form input.fulltext-search-field').change(function () {
-      $(this).closest('#search-form').submit();
-    });
+  let remove_filter = function (elem) {
+    if (elem.siblings('label:visible').length == 0) {
+      elem.parent().hide();
+    }
+    elem.hide();
+    if ($('.activefilter').find('.tag-group.tags:visible').length == 0) $('.activefilter').hide();
   }
 
-  if ($('#primary_nav_wrap').length > 0) {
-    split_setup();
-    setup();
-  }
-
-  function split_setup() {
+  let split_setup = function () {
     // Configure Split List
     var num_cols = 4,
       container = $('.split-list'),
@@ -44,10 +40,10 @@ module.exports.initialize = function () {
     });
   }
 
-  function setup() {
+  let setup = function () {
     // remove tag-group tags on click
     $(document).on('click', '.filters .tag-group.tags:not(.advanced-tags) label', function (e) {
-      removeFilter($(this));
+      remove_filter($(this));
     });
 
     $(document).on('click', '.filters .sprache ul label', function (e) {
@@ -60,7 +56,7 @@ module.exports.initialize = function () {
       var tree_label = $(this).parents('.filter').data('tree-label');
 
       if ($(this).siblings('input[type=checkbox]').first().is(':checked')) {
-        removeFilter($('.filters .tag-group.tags:not(.advanced-tags).' + tree_label).find('label[for=' + id + ']'));
+        remove_filter($('.filters .tag-group.tags:not(.advanced-tags).' + tree_label).find('label[for=' + id + ']'));
       } else {
         if (!$('.filters .tag-group.tags:not(.advanced-tags).' + tree_label).length) {
           $('.filters .filtertags .filter-groups').append('<span class="tag-group tags ' + tree_label + '"><i class="tag-group-label"><i class="fa fa-tags" aria-hidden="true"></i> ' + tree_label + ':</i> <span class="tags-container"></span></span>');
@@ -144,12 +140,15 @@ module.exports.initialize = function () {
     });
   }
 
-  function removeFilter(elem) {
-    if (elem.siblings('label:visible').length == 0) {
-      elem.parent().hide();
-    }
-    elem.hide();
-    if ($('.activefilter').find('.tag-group.tags:visible').length == 0) $('.activefilter').hide();
+  // submit searchform on blur
+  if ($('#search-form').length > 0) {
+    $('#search-form input.fulltext-search-field').change(function () {
+      $(this).closest('#search-form').submit();
+    });
   }
 
+  if ($('#primary_nav_wrap').length > 0) {
+    split_setup();
+    setup();
+  }
 };
