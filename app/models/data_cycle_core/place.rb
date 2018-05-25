@@ -10,7 +10,7 @@ module DataCycleCore
     class History < DataHash
       # handle translations with gem Globalize
       translates :name, :headline, :description, :url, :hours_available, :content,
-                 :properties, :release, :release_id, :release_comment, :history_valid
+                 :release, :release_id, :release_comment, :history_valid
 
       content_relations table_name: 'places', postfix: 'history'
 
@@ -28,7 +28,7 @@ module DataCycleCore
 
     # handle translations with gem Globalize
     translates :name, :headline, :description, :url, :hours_available, :content,
-               :properties, :release, :release_id, :release_comment
+               :release, :release_id, :release_comment
 
     # include content specific relations
     content_relations table_name: table_name
