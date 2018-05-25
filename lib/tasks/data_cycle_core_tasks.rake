@@ -357,9 +357,7 @@ namespace :data_cycle_core do
 
     desc 'update schema for all histories'
     task update_all_history_schema: [:environment] do
-
       DataCycleCore.content_tables.each do |content_table|
-
         data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
         history_object = "DataCycleCore::#{content_table.classify}::History".safe_constantize
 
@@ -372,9 +370,7 @@ namespace :data_cycle_core do
           strategy = DataCycleCore::Update::UpdateTemplate
           DataCycleCore::Update::Update.new(type: history_object, template: template_object, strategy: strategy, transformation: nil)
         end
-
       end
-
     end
 
     desc 'update history schema for a given content_table_name/template_name'
@@ -401,7 +397,6 @@ namespace :data_cycle_core do
 
       DataCycleCore::Update::Update.new(type: type, template: template, strategy: strategy, transformation: transformation)
     end
-
   end
 
   namespace :data_update do
@@ -645,6 +640,56 @@ namespace :data_cycle_core do
       end
 
       puts "Cleaning up #{duplicated_content_relations_count} content relations ... [DONE]"
+    end
+  end
+
+  namespace :refactor do
+    desc 'executes last_updated_by migrations'
+    task last_updated_by: :environment do
+      temp = Time.zone.now
+      DataCycleCore.content_tables.each do |content_table|
+        [content_table, content_table.singularize + '_histories'].each do |table_name|
+          content_class = "DataCycleCore::#{content_table.classify}"
+          content_class += '::History' if table_name.end_with?('_histories')
+          data_object = content_class.safe_constantize
+
+          where_string = "metadata #> '{last_updated_by}' IS NOT NULL AND metadata #> '{last_updated_by}' <> 'null'"
+          ap data_object.to_s + ' | ' + data_object.where(where_string).count.to_s
+          data_object.where(where_string).each do |item|
+            user_id = item.metadata['last_updated_by']
+            if table_name.end_with?('_histories')
+              DataCycleCore::ContentContent.create!(
+                content_a_id: item.id,
+                content_a_type: data_object.to_s,
+                relation_a: 'last_updated_by',
+                content_b_id: user_id,
+                content_b_type: 'DataCycleCore::User',
+                relation_b: ''
+              )
+            else
+              DataCycleCore::ContentContent::History.create!(
+                content_a_history_id: item.id,
+                content_a_history_type: data_object.to_s,
+                relation_a: 'last_updated_by',
+                content_b_history_id: user_id,
+                content_b_history_type: 'DataCycleCore::User',
+                relation_b: ''
+              )
+            end
+
+            # remove last_updated_by from metadata
+            update_sql = <<-EOS
+              UPDATE #{table_name}
+              SET metadata = metadata - 'last_updated_by'
+              WHERE id = '#{item.id}'
+            EOS
+            ActiveRecord::Base.connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, update_sql))
+          end
+        end
+      end
+
+      puts 'END'
+      puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
     end
   end
 end
