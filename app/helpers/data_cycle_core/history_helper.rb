@@ -13,12 +13,12 @@ module DataCycleCore
       diff_array = HashDiff.diff(version, orig, array_path: true, use_lcs: true).collect { |item| transform_history_item item }
       transform_history_array_to_hash diff_array
     end
-
-    def get_object_changes(history, original)
-      history_objects = transform_object_array_to_hash(history.try(:get_data_hash))
-      original_objects = original.nil? ? {} : transform_object_array_to_hash(original.try(:get_data_hash))
-      get_diff(history_objects, original_objects)
-    end
+    # TODO: see old history implementations
+    # def get_object_changes(history, original)
+    #   history_objects = transform_object_array_to_hash(history.try(:get_data_hash))
+    #   original_objects = original.nil? ? {} : transform_object_array_to_hash(original.try(:get_data_hash))
+    #   get_diff(history_objects, original_objects)
+    # end
 
     def find_original_object(original_object, id)
       original_object.each do |object|
@@ -34,32 +34,35 @@ module DataCycleCore
       nil
     end
 
-    def get_new_objects(history, original)
-      return original if history.blank?
-      history_objects = transform_object_array_to_hash(history.collect(&:get_data_hash))
-      original_objects = transform_object_array_to_hash(original.collect(&:get_data_hash))
-      original_objects.delete_if { |k, _| history_objects.key?(k) }.collect { |k, _| find_original_object(original, k) }
-    end
+    # TODO: see old history implementations
+    # def get_new_objects(history, original)
+    #   return original if history.blank?
+    #   history_objects = transform_object_array_to_hash(history.collect(&:get_data_hash))
+    #   original_objects = transform_object_array_to_hash(original.collect(&:get_data_hash))
+    #   original_objects.delete_if { |k, _| history_objects.key?(k) }.collect { |k, _| find_original_object(original, k) }
+    # end
+    #
+    # TODO: see old history implementations
+    # def get_removed_objects(history, original)
+    #   return history if original.blank?
+    #   history_objects = transform_object_array_to_hash(history.collect(&:get_data_hash))
+    #   original_objects = transform_object_array_to_hash(original.collect(&:get_data_hash))
+    #   history_objects.delete_if { |k, _| original_objects.key?(k) }.collect { |k, _| find_history_object(history, k) }
+    # end
+    #
+    # TODO: see old history implementations
+    # def get_edited_objects(history, removed)
+    #   return history if removed.blank?
+    #   history_objects = transform_object_array_to_hash(history.collect(&:get_data_hash))
+    #   removed_objects = transform_object_array_to_hash(removed.collect(&:get_data_hash))
+    #   history_objects.delete_if { |k, _| removed_objects.key?(k) }.collect { |k, _| find_history_object(history, k) }
+    # end
 
-    def get_removed_objects(history, original)
-      return history if original.blank?
-      history_objects = transform_object_array_to_hash(history.collect(&:get_data_hash))
-      original_objects = transform_object_array_to_hash(original.collect(&:get_data_hash))
-      history_objects.delete_if { |k, _| original_objects.key?(k) }.collect { |k, _| find_history_object(history, k) }
-    end
-
-    def get_edited_objects(history, removed)
-      return history if removed.blank?
-      history_objects = transform_object_array_to_hash(history.collect(&:get_data_hash))
-      removed_objects = transform_object_array_to_hash(removed.collect(&:get_data_hash))
-      history_objects.delete_if { |k, _| removed_objects.key?(k) }.collect { |k, _| find_history_object(history, k) }
-    end
-
-    def get_object_item_has_changed(key, definition, object_value, object_has_changed, parent_definition)
-      return false if parent_definition.dig('type') == 'object' && (parent_definition.try(:[], 'editor').try(:[], 'type') == 'objectBrowser')
-
-      get_item_has_changed(object_has_changed, key, object_value, definition)
-    end
+    # def get_object_item_has_changed(key, definition, object_value, object_has_changed, parent_definition)
+    #   return false if parent_definition.dig('type') == 'object' && (parent_definition.try(:[], 'editor').try(:[], 'type') == 'objectBrowser')
+    #
+    #   get_item_has_changed(object_has_changed, key, object_value, definition)
+    # end
 
     def get_item_has_changed(diff, key, _value, _definition)
       item_path_array = key.split('[').collect { |v| v.delete(']') }
@@ -107,18 +110,19 @@ module DataCycleCore
       item[1].reverse.inject([item[0], item[2], item[3]]) { |hash, key| { key => hash } }
     end
 
+    # TODO: see old history implementations
     # refactor
-    def transform_object_array_to_hash(array, _options: {})
-      if array.is_a?(Array)
-        hash = array.each_with_object({}) do |(k, _), h|
-          hash_key = 'id'
-          hash_value = k[hash_key]
-          (h[hash_value] ||= []) << k unless hash_value.nil?
-        end
-        return hash if hash.present?
-      end
-      array
-    end
+    # def transform_object_array_to_hash(array, _options: {})
+    #   if array.is_a?(Array)
+    #     hash = array.each_with_object({}) do |(k, _), h|
+    #       hash_key = 'id'
+    #       hash_value = k[hash_key]
+    #       (h[hash_value] ||= []) << k unless hash_value.nil?
+    #     end
+    #     return hash if hash.present?
+    #   end
+    #   array
+    # end
 
     def transform_history_array_to_hash(array)
       array.each_with_object({}) do |(k, _), h|

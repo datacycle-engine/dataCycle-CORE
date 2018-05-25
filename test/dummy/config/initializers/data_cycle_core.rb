@@ -12,11 +12,6 @@ DataCycleCore.setup do |config|
   Rails.application.config.active_record.belongs_to_required_by_default = true
   Rails.application.config.session_store :cookie_store, key: '_dummy_session'
 
-  # DataCycleCore settings
-  config.access_tokens = [
-    'd48a84faseei512hjkl159ggg9a72adf'
-  ]
-
   config.template_path = Rails.root.join('config', 'data_definitions').freeze
 
   if ENV['RAILS_ENV'] == 'test'

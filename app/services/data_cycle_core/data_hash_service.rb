@@ -18,18 +18,19 @@ module DataCycleCore
       HashDiff.diff(normalize_data_hash(data_hash), normalize_data_hash(orig_data_hash), array_path: true).present?
     end
 
-    def self.get_internal_data(storage_location, value)
-      internal_objects = []
-      return nil if value.blank? || value.count.zero?
-
-      value.each do |object|
-        internal_object = ('DataCycleCore::' + storage_location.classify).constantize
-          .find_by(id: object['id'])
-        internal_objects.push(internal_object) if internal_object.present?
-      end
-
-      internal_objects
-    end
+    # TODO: see old embedded-editor
+    # def self.get_internal_data(storage_location, value)
+    #   internal_objects = []
+    #   return nil if value.blank? || value.count.zero?
+    #
+    #   value.each do |object|
+    #     internal_object = ('DataCycleCore::' + storage_location.classify).constantize
+    #       .find_by(id: object['id'])
+    #     internal_objects.push(internal_object) if internal_object.present?
+    #   end
+    #
+    #   internal_objects
+    # end
 
     def self.get_internal_template(storage_location, name)
       internal_template = ('DataCycleCore::' + storage_location.classify).constantize
