@@ -24,7 +24,7 @@ module DataCycleCore
       # Do something before perform
       block.call
       # Do something after perform
-      
+
       uuid = @arguments.first
       external_source = ExternalSource.find(uuid)
       job_record_id = external_source.config['last_download_job_id']
