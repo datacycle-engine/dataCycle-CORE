@@ -16,7 +16,8 @@ module DataCycleCore
     end
 
     def load_watch_lists
-      @accessible_watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
+      @watch_list = DataCycleCore::WatchList.find_by(id: params[:watch_list_id]) if params[:watch_list_id]
+      @accessible_watch_lists = DataCycleCore::WatchList.accessible_by(current_ability).includes(:valid_write_links)
     end
 
     def load_stored_filters
@@ -25,6 +26,14 @@ module DataCycleCore
 
     def current_ability
       @current_ability ||= ::Ability.new(current_user, session)
+    end
+
+    def add_filter
+      respond_to(:js)
+    end
+
+    def add_tag_group
+      respond_to(:js)
     end
 
     rescue_from CanCan::AccessDenied do |exception|

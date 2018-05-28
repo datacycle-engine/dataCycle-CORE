@@ -12,8 +12,15 @@ module DataCycleCore
       redirect_back(fallback_location: root_path) && return if @content.nil?
 
       I18n.with_locale(@content.first_available_locale) do
-        if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container')
-          @contents = get_filtered_results(method_name: 'part_of', parameters: @content.id) if @content.children.exists?
+        if DataCycleCore::Feature::Container.enabled? && @content.is_content_type?('container')
+          @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
+          @filters.push(
+            {
+              't' => 'part_of',
+              'v' => @content.id
+            }
+          )
+          @contents = get_filtered_results if @content.children.present?
 
           @entities = DataCycleCore::CreativeWork.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
           @entities = @entities.where('template_name NOT IN(?)', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects)
@@ -234,11 +241,15 @@ module DataCycleCore
     end
 
     def check_final
-      return if params[:finalize].blank? || @content.data_links.where(receiver_id: current_user.id, permissions: 'write').blank?
-      @content.data_links.where(receiver_id: current_user.id, permissions: 'write').first.update_attribute(:permissions, 'read')
+      if params[:finalize] && (
+        @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').present? ||
+        @creativeWork.watch_lists.includes(:data_links).where(data_links: { receiver_id: current_user.id }).exists?
+      )
+        @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').update(permissions: 'read') if @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').present?
 
-      I18n.with_locale(@content.first_available_locale) do
-        @content.update_attribute(:release_id, DataCycleCore::Release.where(release_code: DataCycleCore.release_codes[:review]).try(:first).try(:id)) if DataCycleCore.release_codes.present?
+        I18n.with_locale(@creativeWork.first_available_locale) do
+          @creativeWork.update_attribute(:release_id, DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:review]).id) if DataCycleCore::Feature::Releasable.enabled? && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:review]).present?
+        end
       end
     end
   end

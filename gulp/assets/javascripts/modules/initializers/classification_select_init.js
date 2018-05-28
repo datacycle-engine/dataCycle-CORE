@@ -6,22 +6,17 @@ var select2_helpers = require('./../helpers/select2_helpers');
 
 module.exports.initialize = function () {
 
-  $(document).on('clone-added', '.content-object-item', function () {
-    init(this);
-  });
-
-  init(document);
-
-  function init(element) {
+  let init = function (element) {
     $(element).find('.async-select').each(function () {
       var query = {};
       var tree_label = $(this).data('tree-label');
+      var alias_ids = $(this).data('alias-ids') || false;
       var max = $(this).data('max');
       var that = this;
 
       $(this).select2({
         allowClear: true,
-        minimumInputLength: 0,
+        minimumInputLength: 2,
         dropdownParent: $(that).parent(),
         escapeMarkup: function (m) {
           return m;
@@ -33,12 +28,16 @@ module.exports.initialize = function () {
 
           var term = query.term || '';
           var result = data.title ? select2_helpers.markMatch(data.title, term) : null;
+          select2_helpers.removeTreeLabel(result, tree_label);
           select2_helpers.decorateResult(result);
 
           return result;
         },
         templateSelection: function (data) {
-          return data.name || data.text;
+          data.selected = true;
+          data.text = data.name || data.text;
+          $(data.element).text(data.text);
+          return data.text;
         },
         ajax: {
           url: '/classifications/search',
@@ -55,7 +54,11 @@ module.exports.initialize = function () {
           processResults: function (data) {
             $(that).data('select2').$container.removeClass('select2-loading');
             return {
-              results: data
+              results: data.map(value => {
+                if (alias_ids && value.classification_alias_id != undefined) value.id = value.classification_alias_id;
+                else if (value.classification_id != undefined) value.id = value.classification_id;
+                return value;
+              })
             };
           }
         }
@@ -91,4 +94,11 @@ module.exports.initialize = function () {
       });
     });
   };
+
+  $(document).on('clone-added', '.content-object-item, .advanced-filter', function () {
+    init(this);
+  });
+
+  init(document);
+
 };

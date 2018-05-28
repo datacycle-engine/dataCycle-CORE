@@ -2,16 +2,15 @@
 
 module DataCycleCore
   class UsersController < ApplicationController
-    before_action :authenticate_user!   # from devise (authenticate)
-    load_and_authorize_resource         # from cancancan (authorize)
+    before_action :authenticate_user! # from devise (authenticate)
+    load_and_authorize_resource except: :search # from cancancan (authorize)
     before_action :set_user, only: [:edit, :update, :destroy, :unlock]
 
     def index
-      authorize! :crud, DataCycleCore::User
-      if current_user.is_rank?(10)
-        @paginate_object = DataCycleCore::User.includes(:role).page(params[:page])
+      if current_user.has_rank?(10)
+        @paginateObject = DataCycleCore::User.includes(:role, :user_groups).order(:email).page(params[:page])
       else
-        @paginate_object = DataCycleCore::User.where(locked_at: nil).includes(:role).page(params[:page])
+        @paginateObject = DataCycleCore::User.where(locked_at: nil).includes(:role).order(:email).page(params[:page])
       end
     end
 
@@ -50,7 +49,7 @@ module DataCycleCore
           redirect_to(settings_path, notice: I18n.t(:updated_multiple, scope: [:controllers, :success], data: 'Benutzereinstellungen', locale: DataCycleCore.ui_language))
         elsif Rails.env.development?
           redirect_to edit_user_path(@user)
-        elsif can? :crud, DataCycleCore::User
+        elsif can? :index, DataCycleCore::User
           redirect_to users_path
         else
           redirect_to root_path
@@ -76,6 +75,7 @@ module DataCycleCore
     end
 
     def search
+      authorize! :show, DataCycleCore::User
       users = DataCycleCore::User.where('email ILIKE :q', q: "%#{params[:q]}%").limit(20)
 
       render json: users

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module DataCycleCore
+    before_action :prepare_url_parameters, only: :index
   module Api
     module V1
       class ContentsController < Api::V1::ApiBaseController

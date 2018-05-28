@@ -10,7 +10,7 @@ describe('CreativeWork - Artikel', function () {
   let id = undefined;
 
   it('create', function () {
-    cy.visit('/?search=' + name).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden');
+    cy.visit('/?f%5Bs%5D%5Bn%5D=Suchbegriff&f%5Bs%5D%5Bt%5D=fulltext_search&f%5Bs%5D%5Bv%5D==' + name).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden');
     cy.get('#new-object-circle').click();
     cy.get('#new-object .option[data-open="' + option_name + '"]').then(function ($elem) {
       cy.expect($elem).to.be.visible;
@@ -33,7 +33,7 @@ describe('CreativeWork - Artikel', function () {
       cy.get('.detail-header-wrapper').should(($elem) => {
         expect($elem.first()).to.contain(name);
       })
-      cy.visit('/?search=' + name).get('.search-results .grid-item:contains(' + name + ')').should('have.length', 1);
+      cy.visit('/?f%5Bs%5D%5Bn%5D=Suchbegriff&f%5Bs%5D%5Bt%5D=fulltext_search&f%5Bs%5D%5Bv%5D==' + name).get('.search-results .grid-item:contains(' + name + ')').should('have.length', 1);
     })
   })
 
@@ -72,6 +72,6 @@ describe('CreativeWork - Artikel', function () {
     cy.get('.confirmation-modal').should('be.visible').find('.confirmation-confirm').click();
     cy.location('pathname').should('eq', '/');
 
-    cy.visit('/?search=' + updated_name).get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 0);
+    cy.visit('/?f%5Bs%5D%5Bn%5D=Suchbegriff&f%5Bs%5D%5Bt%5D=fulltext_search&f%5Bs%5D%5Bv%5D==' + updated_name).get('.search-results .grid-item:contains(' + updated_name + ')').should('have.length', 0);
   })
 })

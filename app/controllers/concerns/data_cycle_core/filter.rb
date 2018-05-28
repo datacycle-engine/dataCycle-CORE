@@ -4,53 +4,41 @@ module DataCycleCore
   module Filter
     extend ActiveSupport::Concern
 
-    def parse_classifications(class_array)
-      grouping_class = {}
-      class_array.each do |class_id|
-        name = DataCycleCore::ClassificationAlias.find(class_id).classification_tree_label.name
-        grouping_class[name] ||= []
-        grouping_class[name].push(class_id)
-      end
-      grouping_class
-    end
+    def get_filtered_results(query = nil)
+      @filters ||= params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
+      @language ||= params.fetch(:language, DataCycleCore.ui_language)
 
-    def get_filtered_results(method_name: nil, parameters: nil)
-      @classification_array ||= []
-
-      @classification_array.push(*params[:classification]&.map { |c| c[:selected] }&.flatten)
-
-      @language = params.fetch(:language, 'de')
-
-      if params[:search].blank?
-        # @order_by = !params[:order].nil? && params[:order].split('_').first == 'udpated' ? 'updated_at' : 'updated_at'
-        @order_by = 'updated_at'
-        @order = !params[:order].nil? && params[:order].split('_').last == 'asc' ? 'ASC' : 'DESC'
-        @order_string = 'boost DESC, ' + @order_by + ' ' + @order
+      if @filters.any? { |f| f['t'] == 'fulltext_search' }
+        @order_string = DataCycleCore::Filter::Search.get_order_by_query_string(@filters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'))
       else
-        # order by ranking
-        @order_string = DataCycleCore::Filter::Search.get_order_by_query_string(params[:search])
+        @order_string = 'boost DESC, updated_at DESC'
       end
 
-      query = DataCycleCore::Filter::Search.new(@language)
-
-      # optional querymethods
-      query = query.send(method_name, parameters) if method_name.present?
-
-      query = query.order(@order_string)
-      query = query.fulltext_search(params[:search]) if params[:search].present?
-
-      if @classification_array.present?
-        @with_classification_alias_ids = parse_classifications(@classification_array)
-        @with_classification_alias_ids.each_value do |class_array|
-          query = query.with_classification_alias_ids(class_array)
-        end
+      if @filters.none? { |f| f['t'] == 'order' }
+        @filters.push(
+          {
+            't' => 'order',
+            'v' => @order_string
+          }
+        )
       end
 
-      @paginate_object = query.includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
+      query ||= DataCycleCore::Filter::Search.new(@language)
 
-      @total = @paginate_object.total_count
+      @filters.presence&.each do |filter|
+        query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
+      end
 
-      @paginate_object.map(&:content_data)
+      @filters.concat(@stored_filters) if @stored_filters.present?
+
+      @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
+      @advanced_filters = @filters.select { |f| f['c'] == 'a' }
+      @selected_classifications = @default_filters.map { |c| c['v'] }.flatten.compact.uniq
+      @selected_classification_aliases = DataCycleCore::ClassificationAlias.select(:id, :name).where(id: @filters.select { |f| f['t'] == 'classification_alias_ids' }.map { |f| f['v'] }.flatten.compact.uniq).map { |c| [c.id, c.name] }.to_h
+
+      @paginateObject = query.includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
+      @total = @paginateObject.total_count
+      @paginateObject.map(&:content_data)
     end
 
     def apply_filter(filter_id:, api_only: false)
@@ -59,38 +47,44 @@ module DataCycleCore
 
       filter.update(updated_at: Time.zone.now)
 
-      params[:language] = filter.language
       @language = filter.language
-
-      if filter.parameters['fulltext_search'].present?
-        params[:search] = filter.parameters['fulltext_search']
-      end
-
-      if filter.parameters['with_classification_alias_ids'].present?
-        @classification_array = filter.parameters['with_classification_alias_ids'].map { |_, value| value }.flatten
-      end
-
-      query = filter.apply
-      query
+      @stored_filters = filter.parameters || []
+      filter.apply
     end
 
-    def save_filter(method_name: nil, parameters: nil, new_filter: nil)
+    def save_filter(new_filter: nil)
       new_filter ||= DataCycleCore::StoredFilter.new
       new_filter.user_id = current_user.id
       new_filter.language = @language
       new_filter.name = filter_params[:name] if params[:stored_filter].present? && filter_params[:name].present? && new_filter.id.nil?
       new_filter.system = filter_params[:system] if params[:stored_filter].present? && filter_params[:system].present?
-      new_filter.parameters = {}
-      # new_filter.parameters[:in_validity_period] = Time.zone.now
-      new_filter.parameters[:order] = @order_string if @order_string.present?
-      new_filter.parameters[:fulltext_search] = params[:search] if params[:search].present?
-      new_filter.parameters[:with_classification_alias_ids] = @with_classification_alias_ids if @with_classification_alias_ids.present?
-      new_filter.parameters[method_name.to_sym] = parameters if parameters.present?
+      new_filter.parameters = @filters if @filters.present?
       new_filter.save
       new_filter
     end
 
     private
+
+    def set_default_filter
+      @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
+
+      if DataCycleCore.features&.dig(:life_cycle, :tree_label).present? &&
+         DataCycleCore.features&.dig(:life_cycle, :default_filter).present? &&
+         helpers.life_cycle_items.present? &&
+         @filters.none? { |f| f['n'] == DataCycleCore.features&.dig(:life_cycle, :tree_label) && f['v'].present? } &&
+         params[:stored_filter].blank?
+
+        @filters.push(
+          {
+            'c' => 'a',
+            't' => 'classification_alias_ids',
+            'n' => DataCycleCore.features&.dig(:life_cycle, :tree_label),
+            'm' => 'i',
+            'v' => [helpers.life_cycle_items&.dig(DataCycleCore.features&.dig(:life_cycle, :default_filter), :alias)&.id]
+          }
+        )
+      end
+    end
 
     def filter_params
       params.require(:stored_filter).permit(:id, :name, :system)

@@ -37,7 +37,12 @@ module DataCycleCore
     end
 
     def perform(uuid)
-      ExternalSource.find(uuid).import
+      pid = Process.fork do
+        ExternalSource.find(uuid).import
+      end
+      Process.waitpid(pid)
+
+      ActiveRecord::Base.establish_connection
     end
   end
 end

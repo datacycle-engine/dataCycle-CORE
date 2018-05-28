@@ -1,0 +1,23 @@
+<span class="tag-group tags" data-id="<%= "#{sanitize_to_id(key)}_#{index}" if buttons ||= false %>">
+  <i class="tag-group-label">
+    <i class="fa fa-tags" aria-hidden="true"></i>
+    <%= key %>:
+  </i>
+
+  <% selected_classification_aliases = DataCycleCore::ClassificationAlias.select(:id, :name).where(id: value).map { |c| [c.id, c.name] }.to_h %>
+
+  <span class="tags-container">
+    <% value.each do |classification_alias_id| %>
+      <span class="tag"><%= selected_classification_aliases[classification_alias_id] %></span>
+    <% end %>
+  </span>
+
+  <% if buttons %>
+    <span class="tag-buttons">
+      <a class="focus-advanced-filter advanced-filter-link" data-target="<%= sanitize_to_id(key) %>_<%= index %>"><i aria-hidden="true" class="fa fa-cog"></i></a>
+      <% if can?(:advanced_filter, :backend) %>
+        <a class="remove-advanced-filter advanced-filter-link" data-target="<%= sanitize_to_id(key) %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+      <% end %>
+    </span>
+  <% end %>
+</span>

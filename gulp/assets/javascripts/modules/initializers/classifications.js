@@ -4,6 +4,55 @@ $.fn.select2.defaults.set('language', $.fn.select2.amd.require("select2/i18n/de"
 var select2_helpers = require('./../helpers/select2_helpers');
 
 module.exports.initialize = function () {
+
+  let load_sub_classifications = function (location_array, index) {
+    if (location_array != undefined && index < location_array.length) {
+      let id = location_array[index];
+      let link = $('#' + id + ' > .inner-item > .tree-link');
+
+      if (!link.length) {
+        let prev_id = '';
+        if (index == 0) {
+          prev_id = $('ul.backend-treeview-list > li').first().prop('id');
+        } else {
+          prev_id = location_array[index - 1];
+        }
+
+        let more_link = $('#' + prev_id + ' > .children > .load-more-link > .inner-item > a').last();
+
+        more_link.on('ajax:complete', (event, xhr, options) => {
+          more_link.off('ajax:complete');
+          if ($('#' + id + ' > .inner-item > .tree-link').length) {
+            document.getElementById(id).scrollIntoView({
+              behavior: 'smooth'
+            });
+          } else {
+            $('#' + prev_id + ' > .children > li').last().get(0).scrollIntoView({
+              behavior: 'smooth'
+            });
+          }
+          load_sub_classifications(location_array, index);
+        });
+
+        more_link.click();
+      } else {
+        link.on('ajax:complete', (event, xhr, options) => {
+          link.off('ajax:complete');
+          document.getElementById(id).scrollIntoView({
+            behavior: 'smooth'
+          });
+
+          if (location_array != undefined && index < location_array.length) {
+            load_sub_classifications(location_array, index + 1);
+          }
+        });
+
+        link.click();
+      }
+    }
+  };
+
+
   if ($('#classification-administration').length) {
     $('#classification-administration').on('ajax:beforeSend', 'a:not(.destroy)', function (event, xhr, options) {
       var childrenContainer = $(event.target).closest('li').children('ul:not(.classifications)');
@@ -61,7 +110,10 @@ module.exports.initialize = function () {
           processResults: function (data) {
             select.data('select2').$container.removeClass('select2-loading');
             return {
-              results: data
+              results: data.map(value => {
+                if (value.classification_id != undefined) value.id = value.classification_id;
+                return value;
+              })
             };
           }
         }
@@ -95,51 +147,5 @@ module.exports.initialize = function () {
     let location_array = location.hash.substr(1).split('+').filter(Boolean);
     load_sub_classifications(location_array, 0);
   }
+
 }
-
-function load_sub_classifications(location_array, index) {
-  if (location_array != undefined && index < location_array.length) {
-    let id = location_array[index];
-    let link = $('#' + id + ' > .inner-item > .tree-link');
-
-    if (!link.length) {
-      let prev_id = '';
-      if (index == 0) {
-        prev_id = $('ul.backend-treeview-list > li').first().prop('id');
-      } else {
-        prev_id = location_array[index - 1];
-      }
-
-      let more_link = $('#' + prev_id + ' > .children > .load-more-link > .inner-item > a').last();
-
-      more_link.on('ajax:complete', (event, xhr, options) => {
-        more_link.off('ajax:complete');
-        if ($('#' + id + ' > .inner-item > .tree-link').length) {
-          document.getElementById(id).scrollIntoView({
-            behavior: 'smooth'
-          });
-        } else {
-          $('#' + prev_id + ' > .children > li').last().get(0).scrollIntoView({
-            behavior: 'smooth'
-          });
-        }
-        load_sub_classifications(location_array, index);
-      });
-
-      more_link.click();
-    } else {
-      link.on('ajax:complete', (event, xhr, options) => {
-        link.off('ajax:complete');
-        document.getElementById(id).scrollIntoView({
-          behavior: 'smooth'
-        });
-
-        if (location_array != undefined && index < location_array.length) {
-          load_sub_classifications(location_array, index + 1);
-        }
-      });
-
-      link.click();
-    }
-  }
-};

@@ -11,6 +11,7 @@ require 'pg'
 require 'activerecord-postgis-adapter'
 require 'acts_as_tree'
 require 'rgeo'
+require 'rgeo-geojson'
 require 'mongoid'
 
 # authentication
@@ -75,7 +76,7 @@ module DataCycleCore
     self.internal_data_attributes = ['date_created', 'date_modified', 'creator', 'data_type', 'data_pool', 'is_part_of', 'last_updated_by']
 
     mattr_accessor :asset_objects
-    self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image']
+    self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::TextFile']
 
     mattr_accessor :content_tables
     self.content_tables = ['creative_works', 'events', 'persons', 'organizations', 'places']
@@ -127,6 +128,15 @@ module DataCycleCore
         enabled: false,
         exluded: [],
         allowed: []
+      },
+      main_filter: {
+        enabled: true,
+        classification_alias_ids: ['Inhaltstypen']
+      },
+      advanced_filter: {
+        enabled: true,
+        classification_alias_ids: 'all',
+        external_source: true
       }
     }
 
@@ -153,13 +163,6 @@ module DataCycleCore
 
     # location of import/download configs
     mattr_accessor :external_sources_path
-
-    # available filter
-    mattr_accessor :available_filters
-    self.available_filters = {
-      main: ['Inhaltstypen'],
-      advanced: []
-    }
 
     # obsolete: remove after projects initializer update
     mattr_accessor :allowed_content_api_classifications

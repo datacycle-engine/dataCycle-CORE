@@ -37,6 +37,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'acts_as_tree'
   s.add_dependency 'pg', '~> 0.21'
   s.add_dependency 'rgeo'
+  s.add_dependency 'rgeo-geojson'
   # mongoDB driver
   s.add_dependency 'mongoid'
   # s.add_dependency 'arel-helpers'

@@ -10,5 +10,5 @@ json.partial! 'pagination_links',
               objects: @contents,
               object_url: (lambda do |paging_params|
                 File.join(request.protocol + request.host + ':' + request.port.to_s, request.path) + '?' +
-                  params.reject { |k, _| k == 'format' }.merge(paging_params).to_query
+                  @url_parameters.merge(paging_params).to_query
               end)

@@ -1,10 +1,10 @@
-<% breadcrumb @content, @watch_list %>
+<% breadcrumb :content, @content, @watch_list %>
 
 <% content_for :top_content do %>
     <%= render_content_partial 'header', content: @content %>
 <% end %>
 
-<% if @content.content_type?('container') %>
+<% if DataCycleCore::Feature::Container.enabled? && @content.is_content_type?('container') %>
   <ul class="accordion container-details" data-accordion data-allow-all-closed="true">
     <li class="accordion-item is-active" data-accordion-item>
       <div class="accordion-content" data-tab-content>
@@ -14,7 +14,7 @@
     </li>
   </ul>
 
-  <%= render 'filter_minimal', filter: { search: true, language: true } %>
+  <%= render 'filter', filter: { classification_trees: ['Inhaltstypen'], search: true, language: true, collapse: true } %>
   <%= render 'results', contents: @contents %>
 
   <% content_for :new_button do %>

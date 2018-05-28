@@ -5,7 +5,8 @@ module DataCycleCore
     before_action :authenticate_user! # from devise (authenticate)
 
     def index
-      @paginate_object = current_user.subscriptions.includes(:subscribable).order(updated_at: :desc).page(params[:page])
+      authorize! :index, DataCycleCore::Subscription
+      @paginateObject = current_user.subscriptions.includes(:subscribable).order(updated_at: :desc).page(params[:page])
     end
 
     def create

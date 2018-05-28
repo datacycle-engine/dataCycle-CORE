@@ -7,8 +7,7 @@ module DataCycleCore
     before_action :set_user_group, only: [:edit, :update, :destroy]
 
     def index
-      authorize! :crud, DataCycleCore::UserGroup
-      @paginate_object = DataCycleCore::UserGroup.all.page(params[:page])
+      @paginateObject = DataCycleCore::UserGroup.all.includes(:users).order(:name).page(params[:page])
     end
 
     def create

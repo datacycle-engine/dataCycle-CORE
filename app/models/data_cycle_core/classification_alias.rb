@@ -77,7 +77,7 @@ module DataCycleCore
 
     def linked_contents
       classifications.includes(:classification_contents).map(&:classification_contents).flatten + sub_classification_alias.includes(classifications: :classification_contents).with_descendants.map { |c|
-        c.classifications.map(&:classification_contents)
+        c.classifications.includes(:classification_contents).map(&:classification_contents)
       }.flatten
     end
 

@@ -9,7 +9,7 @@ module DataCycleCore
     def index
       respond_to do |format|
         format.html do
-          authorize! :read, DataCycleCore::ClassificationTreeLabel
+          authorize! :index, DataCycleCore::ClassificationTreeLabel
 
           @classification_tree_labels = DataCycleCore::ClassificationTreeLabel.accessible_by(current_ability)
             .order(:created_at)
@@ -17,7 +17,7 @@ module DataCycleCore
         end
 
         format.js do
-          authorize! :read, DataCycleCore::ClassificationTree
+          authorize! :index, DataCycleCore::ClassificationTree
 
           permitted_params = params.permit(:classification_tree_label_id, :classification_tree_id)
 
@@ -46,7 +46,7 @@ module DataCycleCore
       params.permit(:q, :max, :tree_label)
 
       query = if params[:tree_label].present?
-                DataCycleCore::ClassificationAlias.for_tree(params[:tree_label])
+                DataCycleCore::ClassificationAlias.for_tree(params[:tree_label]).where.not(name: DataCycleCore.excluded_filter_classifications)
               else
                 DataCycleCore::ClassificationAlias.all
               end
@@ -58,7 +58,6 @@ module DataCycleCore
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
       render plain: query.map { |a|
         {
-          id: a.primary_classification.id, # TODO: remove this property after all references have been removed
           classification_id: a.primary_classification.id,
           classification_alias_id: a.id,
           name: a.name,

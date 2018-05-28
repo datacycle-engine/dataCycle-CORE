@@ -1,4 +1,4 @@
-<% breadcrumb @watch_list %>
+<% breadcrumb :show, @watch_list, :headline %>
 
 <% content_for :top_content do %>
 
@@ -8,10 +8,14 @@
 
                 <div class="detail-header-functions">
                     <ul class="no-bullet">
-                        <% if can? :manage, @data_link %>
+                        <% if can?(:index, DataCycleCore::DataLink) %>
                             <li><%= render 'data_links', content: @watch_list %></li>
                         <% end %>
-                        <li class="buttons"><a href="<%= breadcrumbs[-2].url %>" class="hascontent close-show-button"><i aria-hidden="true" class="fa fa-times"></i></a></li>
+                        <li class="buttons">
+                            <%= link_to previous_authorized_crumb.url, class: 'hascontent close-show-button' do %>
+                              <i aria-hidden="true" class="fa fa-times"></i>
+                            <% end if previous_authorized_crumb.present? %>
+                        </li>
                     </ul>
                 </div>
 
@@ -19,6 +23,9 @@
                 <div class="type watchlist">
                     <%= render 'data_cycle_core/shared/icon', icon_type: 'merkliste' %>
                     <span class="title">Merkliste</span>
+                    <% if can?(:edit, @watch_list) && !can?(:remove_item, @watch_list) %>
+                      <i class="fa fa-exclamation-circle" data-tooltip title="<%= t('data_cycle_core.watch_list.locked_by_data_link', locale: DataCycleCore.ui_language) %>" aria-hidden="true"></i>
+                    <% end %>
                 </div>
             </div>
 
@@ -52,8 +59,7 @@
 <div class="detail-content watchlist">
 
     <div class="row">
-
-        <%= render 'filter_minimal', filter: { search: true, language: true } %>
+        <%= render 'filter', filter: { classification_trees: ['Inhaltstypen'], search: true, language: true, collapse: true } %>
 
         <%= render 'results', contents: @contents unless @contents.nil? %>
 

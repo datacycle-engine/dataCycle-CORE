@@ -1,0 +1,16 @@
+<span class="tag-group tags search-term" data-id="<%= "#{sanitize_to_id(key)}_#{index}" if buttons ||= false %>">
+  <i class="tag-group-label">
+    <i class="fa fa-search" aria-hidden="true"></i>
+    <%= t('common.searchterm', locale: DataCycleCore.ui_language) %>:
+  </i>
+  <span class="tag"><%= value %></span>
+
+  <% if buttons %>
+    <span class="tag-buttons">
+      <a class="focus-advanced-filter advanced-filter-link" data-target="<%= sanitize_to_id(key) %>_<%= index %>"><i aria-hidden="true" class="fa fa-cog"></i></a>
+      <% if can?(:advanced_filter, :backend) %>
+        <a class="remove-advanced-filter advanced-filter-link" data-target="<%= sanitize_to_id(key) %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+      <% end %>
+    </span>
+  <% end %>
+</span>

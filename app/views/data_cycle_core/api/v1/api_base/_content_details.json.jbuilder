@@ -8,7 +8,7 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 
 json.content_partial! 'header', content: content, options: options
 
-json.partial! 'container_parent_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled?
+json.partial! 'container_parent_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present?
 
 json.partial! 'untranslated_properties', content: content, locale: content.translations.first.locale, options: options
 

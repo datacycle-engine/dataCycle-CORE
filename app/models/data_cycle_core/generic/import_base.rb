@@ -114,13 +114,22 @@ module DataCycleCore
           begin
             @logging.phase_started("#{phase_name}_#{locale}")
 
+            durations = []
+
             @source_object.with(source_type) do |mongo_item|
               load_contents.call(mongo_item, locale).all.no_timeout.max_time_ms(fixnum_max).each do |content|
-                item_count += 1
+                durations << Benchmark.realtime do
+                  item_count += 1
 
-                process_content.call(content[:dump][locale], load_template(target_type, @data_template), locale)
+                  process_content.call(content[:dump][locale], load_template(target_type, @data_template), locale)
 
-                break if options[:max_count] && item_count >= options[:max_count]
+                  break if options[:max_count] && item_count >= options[:max_count]
+
+                  next unless (item_count % 10).zero?
+
+                  GC.start
+                  @logging.info("Imported #{item_count} items in #{durations.sum} seconds", nil)
+                end
               end
             end
           ensure

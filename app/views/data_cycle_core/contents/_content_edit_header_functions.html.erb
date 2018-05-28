@@ -5,11 +5,11 @@
         <i class="fa fa-pencil" aria-hidden="true"></i> <%= t("content_type.#{content.template_name.downcase}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) + ' ' + t('actions.edit', locale: DataCycleCore.ui_language) %>
       </div>
       <ul>
-        <% if current_user.try(:role).try(:rank).nil? || current_user.try(:role).try(:rank).zero? %>
+        <% if current_user.is_rank?(0) %>
           <%= render 'agbs' %>
         <% end %>
 
-        <% if content.respond_to?(:siblings) && content.respond_to?(:parent) && !content.parent.nil? && !content.siblings.try(:size).nil? && !content.siblings.try(:size).zero? %>
+        <% if can?(:index, content) && content.respond_to?(:siblings) && content.respond_to?(:parent) && !content.parent.nil? && !content.siblings.try(:size).nil? && !content.siblings.try(:size).zero? %>
           <li class="has-dropdown right">
             <%= render 'split_sources', contents: content.siblings, selected: @split_source, url: '', title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
           </li>
@@ -19,14 +19,14 @@
           <%= render 'edit_locale_links', local_assigns.merge({ locales: available_locales_with_names }) %>
         <% end %>
 
-        <% if can? :manage, DataCycleCore::DataLink %>
+        <% if can? :index, DataCycleCore::DataLink %>
           <li class="has-dropdown right"><%= render 'data_links', content: content %></li>
         <% end %>
 
         <li class="buttons">
-          <%= link_to breadcrumbs[-2].url do %>
+          <%= link_to previous_authorized_crumb.url do %>
             <button type="button" class="button discard top" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
-          <% end %>
+          <% end if previous_authorized_crumb.present? %>
           <button class="button-prime submit submit-edit-form" data-tooltip aria-haspopup="true" data-disable-hover="false" title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
         </li>
       </ul>

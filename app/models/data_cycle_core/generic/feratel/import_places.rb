@@ -50,6 +50,10 @@ module DataCycleCore
               DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: c['Id'].downcase)
             }.reject(&:nil?)
 
+      owners = [raw_data.dig('Details', 'DataOwner')].flatten.reject(&:nil?).map { |s|
+        DataCycleCore::Classification.find_by(external_source_id: external_source.id,
+                                              external_key: "OWNER:#{Digest::MD5.hexdigest(s.is_a?(String) ? s : s['text'])}")
+      }.reject(&:nil?)
             stars = [raw_data.dig('Details', 'Stars')].flatten.reject(&:nil?).map { |s|
               DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: s['Id'].downcase)
             }.reject(&:nil?)
@@ -76,6 +80,14 @@ module DataCycleCore
             )
           end
         end
+  def extract_image_data(raw_data)
+    {
+      external_key: raw_data['Id'],
+      headline: raw_data.dig('Names', 'Translation', 'text'),
+      thumbnail_url: raw_data.dig('URL').is_a?(String) ? raw_data.dig('URL') : raw_data.dig('URL', 'text'),
+      content_url: raw_data.dig('URL').is_a?(String) ? raw_data.dig('URL') : raw_data.dig('URL', 'text')
+    }
+  end
 
         def extract_image_data(raw_data)
           {

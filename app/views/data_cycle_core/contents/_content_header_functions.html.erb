@@ -1,17 +1,13 @@
 <div class="detail-header-functions">
     <ul class="no-bullet">
-        <li class="has-dropdown">
-            <%= render 'history_links', dataCycleObject: content %>
-        </li>
-        <% if content.respond_to?(:siblings) && content.respond_to?(:parent) && !content.parent.nil? && !content.siblings.try(:size).nil? && !content.siblings.try(:size).zero? %>
-            <li class="has-dropdown">
-                <%= render 'split_sources', contents: content.siblings.select{|s| s.template_name == content.template_name }, selected: @split_source, url: compare_creative_work_path(content), title_text: t('common.compare_contents', locale: DataCycleCore.ui_language) %>
-            </li>
+        <li class="has-dropdown"><%= render 'history_links', dataCycleObject: content %></li>
+        <% if can?(:index, content) && content.respond_to?(:siblings) && content.respond_to?(:parent) && !content.parent.nil? && !content.siblings.try(:size).nil? && !content.siblings.try(:size).zero? %>
+          <li class="has-dropdown">
+            <%= render 'split_sources', contents: content.siblings.select{|s| s.template_name == content.template_name }, selected: @splitSource, url: compare_creative_work_path(content), title_text: t('common.compare_contents', locale: DataCycleCore.ui_language) %>
+          </li>
         <% end %>
-        <% if can?(:manage, DataCycleCore::DataLink) %>
-            <li class="has-dropdown">
-                <%= render 'data_links', content: content %>
-            </li>
+        <% if can?(:index, DataCycleCore::DataLink) %>
+            <li class="has-dropdown"><%= render 'data_links', content: content %></li>
         <% end %>
         <% if can? :subscribe, content %>
             <li class="has-dropdown">
@@ -22,20 +18,18 @@
                 </div>
             </li>
         <% end %>
-        <% if can? :manage, DataCycleCore::WatchList %>
-            <li class="has-dropdown">
-                <%= render 'watch_lists', content: content %>
-            </li>
+        <% if can?(:index, DataCycleCore::WatchList) %>
+            <li class="has-dropdown"><%= render 'watch_lists', content: content %></li>
         <% end %>
-        <% if can? :print, content %>
-            <li class="buttons">
-                <button class="link" onclick="window.print();"><i aria-hidden="true" class="fa fa-print"></i></button>
-            </li>
+        <% if can?(:print, content) %>
+          <li class="buttons">
+            <button class="link" onclick="window.print();"><i aria-hidden="true" class="fa fa-print"></i></button>
+          </li>
         <% end %>
         <li class="buttons">
-            <% unless current_user.role&.rank == 0 %>
-                <a href="<%= breadcrumbs[-2].url %>" class="hascontent close-show-button"><i aria-hidden="true" class="fa fa-times"></i></a>
-            <% end %>
+          <%= link_to previous_authorized_crumb.url, class: 'hascontent close-show-button' do %>
+            <i aria-hidden="true" class="fa fa-times"></i>
+          <% end if previous_authorized_crumb.present? %>
         </li>
     </ul>
 </div>
