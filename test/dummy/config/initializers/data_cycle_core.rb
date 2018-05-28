@@ -32,11 +32,6 @@ DataCycleCore.setup do |config|
   config.external_sources_path = Rails.root.join('config', 'external_sources').freeze
   # config.excluded_new_item_objects = ['Event', 'Person', 'Örtlichkeit', 'Bild', 'Organization', 'Zeitleiste', 'Linktipps', 'Datei', 'Tour', 'Video', 'Unterkunft']
 
-  config.available_filters = {
-    main: ['Inhaltstypen', 'Ausgabekanäle'],
-    advanced: []
-  }
-
   config.features = config.features.merge(
     {
       publication_schedule: {

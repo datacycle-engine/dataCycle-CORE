@@ -61,7 +61,8 @@ CREATE TABLE public.assets (
     creator_id uuid,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    seen_at timestamp without time zone
+    seen_at timestamp without time zone,
+    name character varying
 );
 
 
@@ -258,6 +259,65 @@ CREATE TABLE public.content_contents (
     order_a integer,
     order_b integer
 );
+
+
+--
+-- Name: data_links; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.data_links (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    item_id uuid,
+    item_type character varying,
+    creator_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    permissions character varying,
+    receiver_id uuid,
+    comment text,
+    valid_from timestamp without time zone,
+    valid_until timestamp without time zone,
+    asset_id uuid
+);
+
+
+--
+-- Name: watch_list_data_hashes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.watch_list_data_hashes (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    watch_list_id uuid,
+    hashable_id uuid,
+    hashable_type character varying,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: content_items; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.content_items AS
+ SELECT data_links.id AS data_link_id,
+    watch_list_data_hashes.hashable_type AS content_type,
+    watch_list_data_hashes.hashable_id AS content_id,
+    data_links.creator_id,
+    data_links.receiver_id
+   FROM (public.data_links
+     JOIN public.watch_list_data_hashes ON ((watch_list_data_hashes.watch_list_id = data_links.item_id)))
+  WHERE ((data_links.item_type)::text = 'DataCycleCore::WatchList'::text)
+UNION
+ SELECT data_links.id AS data_link_id,
+    data_links.item_type AS content_type,
+    data_links.item_id AS content_id,
+    data_links.creator_id,
+    data_links.receiver_id
+   FROM public.data_links
+  WHERE ((data_links.item_type)::text <> 'DataCycleCore::WatchList'::text);
 
 
 --
@@ -517,26 +577,6 @@ CREATE SEQUENCE public.creative_work_translations_id_seq
 --
 
 ALTER SEQUENCE public.creative_work_translations_id_seq OWNED BY public.creative_work_translations.id;
-
-
---
--- Name: data_links; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.data_links (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    item_id uuid,
-    item_type character varying,
-    creator_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    permissions character varying,
-    receiver_id uuid,
-    comment text,
-    valid_from timestamp without time zone,
-    valid_until timestamp without time zone
-);
 
 
 --
@@ -1123,21 +1163,6 @@ CREATE TABLE public.users (
     access_token character varying,
     type character varying,
     name character varying
-);
-
-
---
--- Name: watch_list_data_hashes; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.watch_list_data_hashes (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    watch_list_id uuid,
-    hashable_id uuid,
-    hashable_type character varying,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -1973,6 +1998,13 @@ CREATE INDEX index_creative_works_on_metadata_validation_name ON public.creative
 
 
 --
+-- Name: index_data_links_on_asset_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_data_links_on_asset_id ON public.data_links USING btree (asset_id);
+
+
+--
 -- Name: index_data_links_on_item_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2394,7 +2426,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180421162723'),
 ('20180425110943'),
 ('20180430064709'),
+('20180503125925'),
 ('20180507073804'),
+('20180509130533'),
 ('20180525083121'),
 ('20180525084148');
 

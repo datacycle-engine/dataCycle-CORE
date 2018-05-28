@@ -36,9 +36,9 @@ module DataCycleCore
       @selected_classifications = @default_filters.map { |c| c['v'] }.flatten.compact.uniq
       @selected_classification_aliases = DataCycleCore::ClassificationAlias.select(:id, :name).where(id: @filters.select { |f| f['t'] == 'classification_alias_ids' }.map { |f| f['v'] }.flatten.compact.uniq).map { |c| [c.id, c.name] }.to_h
 
-      @paginateObject = query.includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
-      @total = @paginateObject.total_count
-      @paginateObject.map(&:content_data)
+      @paginate_object = query.includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
+      @total = @paginate_object.total_count
+      @paginate_object.map(&:content_data)
     end
 
     def apply_filter(filter_id:, api_only: false)
