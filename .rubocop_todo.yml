@@ -164,13 +164,9 @@ Style/StabbyLambdaParentheses:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
 
 
-##################################### TRALALA
-
-
+#######################################################
+########## Check
 
 Naming/AccessorMethodName:
-  Enabled: false
-
-Style/GuardClause:
   Enabled: false
 
