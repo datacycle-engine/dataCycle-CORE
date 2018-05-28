@@ -65,7 +65,7 @@ module DataCycleCore
         def places_detail(lang: :de)
           Enumerator.new do |yielder|
             DataCycleCore::Generic::Collection2.with(@read_type) do |mongo_item|
-              mongo_item.all.no_timeout.max_time_ms(FIXNUM_MAX).each do |item|
+              mongo_item.no_timeout.max_time_ms(FIXNUM_MAX).each do |item|
                 yielder << load_detail(item.external_id)['result']
               end
             end
