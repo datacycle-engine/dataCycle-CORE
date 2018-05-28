@@ -50,17 +50,13 @@ module DataCycleCore
               DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: c['Id'].downcase)
             }.reject(&:nil?)
 
-      owners = [raw_data.dig('Details', 'DataOwner')].flatten.reject(&:nil?).map { |s|
-        DataCycleCore::Classification.find_by(external_source_id: external_source.id,
-                                              external_key: "OWNER:#{Digest::MD5.hexdigest(s.is_a?(String) ? s : s['text'])}")
-      }.reject(&:nil?)
             stars = [raw_data.dig('Details', 'Stars')].flatten.reject(&:nil?).map { |s|
               DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: s['Id'].downcase)
             }.reject(&:nil?)
 
             owners = [raw_data.dig('Details', 'DataOwner')].flatten.reject(&:nil?).map { |s|
               DataCycleCore::Classification.find_by(external_source_id: external_source.id,
-                                                    external_key: "OWNER:#{Digest::MD5.hexdigest(s['text'])}")
+                                                    external_key: "OWNER:#{Digest::MD5.hexdigest(s.is_a?(String) ? s : s['text'])}")
             }.reject(&:nil?)
 
             create_or_update_content(
@@ -80,21 +76,13 @@ module DataCycleCore
             )
           end
         end
-  def extract_image_data(raw_data)
-    {
-      external_key: raw_data['Id'],
-      headline: raw_data.dig('Names', 'Translation', 'text'),
-      thumbnail_url: raw_data.dig('URL').is_a?(String) ? raw_data.dig('URL') : raw_data.dig('URL', 'text'),
-      content_url: raw_data.dig('URL').is_a?(String) ? raw_data.dig('URL') : raw_data.dig('URL', 'text')
-    }
-  end
 
         def extract_image_data(raw_data)
           {
             external_key: raw_data['Id'],
             headline: raw_data.dig('Names', 'Translation', 'text'),
-            thumbnail_url: raw_data.dig('URL', 'text'),
-            content_url: raw_data.dig('URL', 'text')
+            thumbnail_url: raw_data.dig('URL').is_a?(String) ? raw_data.dig('URL') : raw_data.dig('URL', 'text'),
+            content_url: raw_data.dig('URL').is_a?(String) ? raw_data.dig('URL') : raw_data.dig('URL', 'text')
           }
         end
 
@@ -107,34 +95,34 @@ module DataCycleCore
         def place_transformation
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
             .>> t(:flatten_translations)
-                  .>> t(:flatten_texts)
-                        .>> t(:unwrap, 'Details')
-                              .>> t(:rename_keys,
-                                    'Id' => 'external_key',
-                                    'Names' => 'name')
-                                    .>> t(:unwrap, 'Position')
-                                          .>> t(:rename_keys,
-                                                'Latitude' => 'latitude',
-                                                'Longitude' => 'longitude')
-                                                .>> t(:map_value, 'latitude', ->(v) { v.to_f })
-                                                      .>> t(:map_value, 'longitude', ->(v) { v.to_f })
-                                                            .>> t(:location)
-                                                                  .>> t(:unwrap_description, 'ServiceProviderDescription')
-                                                                        .>> t(:rename_keys, 'ServiceProviderDescription' => 'description')
-                                                                              .>> t(:reject_keys, ['Town'])
-                                                                                    .>> t(:unwrap_address, 'Object')
-                                                                                          .>> t(:unwrap, 'Address')
-                                                                                                .>> t(:rename_keys,
-                                                                                                      'AddressLine1' => 'street_address',
-                                                                                                      'Town' => 'address_locality',
-                                                                                                      'ZipCode' => 'postal_code',
-                                                                                                      'Country' => 'address_country',
-                                                                                                      'Fax' => 'fax_number',
-                                                                                                      'Phone' => 'telephone',
-                                                                                                      'Email' => 'email',
-                                                                                                      'URL' => 'url')
-                                                                                                      .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
-                                                                                                            .>> t(:nest, 'contact_info', ['email', 'fax_number', 'telephone', 'url'])
+            .>> t(:flatten_texts)
+            .>> t(:unwrap, 'Details')
+            .>> t(:rename_keys,
+                  'Id' => 'external_key',
+                  'Names' => 'name')
+            .>> t(:unwrap, 'Position')
+            .>> t(:rename_keys,
+                  'Latitude' => 'latitude',
+                  'Longitude' => 'longitude')
+            .>> t(:map_value, 'latitude', ->(v) { v.to_f })
+            .>> t(:map_value, 'longitude', ->(v) { v.to_f })
+            .>> t(:location)
+            .>> t(:unwrap_description, 'ServiceProviderDescription')
+            .>> t(:rename_keys, 'ServiceProviderDescription' => 'description')
+            .>> t(:reject_keys, ['Town'])
+            .>> t(:unwrap_address, 'Object')
+            .>> t(:unwrap, 'Address')
+            .>> t(:rename_keys,
+                  'AddressLine1' => 'street_address',
+                  'Town' => 'address_locality',
+                  'ZipCode' => 'postal_code',
+                  'Country' => 'address_country',
+                  'Fax' => 'fax_number',
+                  'Phone' => 'telephone',
+                  'Email' => 'email',
+                  'URL' => 'url')
+            .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
+            .>> t(:nest, 'contact_info', ['email', 'fax_number', 'telephone', 'url'])
         end
 
         # def extract_place_data(raw_data)

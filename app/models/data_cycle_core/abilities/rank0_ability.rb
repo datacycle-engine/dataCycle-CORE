@@ -27,7 +27,7 @@ module DataCycleCore
         end
 
         can :show_attribute, DataCycleCore::DataAttribute do |_attribute|
-          true
+          !attribute.definition.dig('ui', attribute.scope.to_s, 'disabled') == true
         end
 
         DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|

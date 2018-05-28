@@ -30,6 +30,8 @@ Lint/UnusedMethodArgument:
     - 'app/models/data_cycle_core/generic/eyebase/import_keywords.rb'
     - 'app/models/data_cycle_core/generic/eyebase/endpoint.rb'
     - 'app/models/data_cycle_core/generic/eyebase/import.rb'
+    - 'app/models/data_cycle_core/generic/google_places/endpoint.rb'
+    - 'app/models/data_cycle_core/generic/google_places/import.rb'
     - 'app/models/data_cycle_core/generic/xamoom/import_tags.rb'
     - 'app/models/data_cycle_core/generic/xamoom/import_spots.rb'
     - 'app/models/data_cycle_core/generic/feratel/import_facilities.rb'
@@ -160,3 +162,17 @@ Style/RescueModifier:
 Style/StabbyLambdaParentheses:
   Exclude:
     - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
+
+
+##################################### TRALALA
+
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Naming/AccessorMethodName:
+  Enabled: false
+
+Style/GuardClause:
+  Enabled: false
+

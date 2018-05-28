@@ -35,7 +35,7 @@ module DataCycleCore
     end
 
     def is_valid?
-      !valid_from.presence&.>(Time.now.round) && !valid_until.presence&.<(Time.now.round)
+      !valid_from.presence&.>(Time.zone.now.round) && !valid_until.presence&.<(Time.zone.now.round)
     end
 
     private

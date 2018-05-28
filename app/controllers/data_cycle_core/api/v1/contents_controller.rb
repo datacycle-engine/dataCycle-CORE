@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-    before_action :prepare_url_parameters, only: :index
   module Api
     module V1
       class ContentsController < Api::V1::ApiBaseController
+        before_action :prepare_url_parameters, only: :index
+
+        def index
+        end
+
         def show
           object_type = DataCycleCore.content_tables.find { |object| object == permitted_params[:type] }
 
@@ -75,6 +79,10 @@ module DataCycleCore
         def build_search_query
           query = DataCycleCore::Filter::Search.new(permitted_params.fetch(:language, 'de'))
           query
+        end
+
+        def prepare_url_parameters
+          @url_parameters = permitted_params.reject { |k, _| k == 'format' }
         end
 
         def content_data_type
