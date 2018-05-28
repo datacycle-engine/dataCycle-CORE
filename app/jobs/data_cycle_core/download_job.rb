@@ -24,6 +24,7 @@ module DataCycleCore
       # Do something before perform
       block.call
       # Do something after perform
+
       uuid = @arguments.first
       external_source = ExternalSource.find(uuid)
       job_record_id = external_source.config['last_download_job_id']
@@ -35,7 +36,12 @@ module DataCycleCore
     end
 
     def perform(uuid)
-      ExternalSource.find(uuid).download
+      pid = Process.fork do
+        ExternalSource.find(uuid).download
+      end
+      Process.waitpid(pid)
+
+      ActiveRecord::Base.establish_connection
     end
   end
 end
