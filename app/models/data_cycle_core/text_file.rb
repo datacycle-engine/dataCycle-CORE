@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class TextFile < DataCycleCore::Asset
     mount_uploader :file, TextUploader

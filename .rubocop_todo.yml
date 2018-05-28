@@ -167,8 +167,6 @@ Style/StabbyLambdaParentheses:
 ##################################### TRALALA
 
 
-Style/FrozenStringLiteralComment:
-  Enabled: false
 
 Naming/AccessorMethodName:
   Enabled: false
