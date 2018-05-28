@@ -3,12 +3,8 @@
   <ul class="list-items">
     <% content.histories.each do |item|%>
         <li class="<%= item == @history_source ? 'active' : '' %>">
-            <!-- # TODO: refactor last_updated_by -->
             <% if item.try(:last_updated_by).is_a?(ActiveRecord::Relation) && item.try(:last_updated_by).present? %>
                 <% person = item.last_updated_by.first %>
-                <%= "<a class='email-link' href='mailto:#{person.email}'>is_a(Relation)#{person.full_name}</a>".html_safe %>
-            <% elsif item.metadata.try(:[], 'last_updated_by') %>
-                <% person = get_user_for_id(item.metadata['last_updated_by']) %>
                 <%= "<a class='email-link' href='mailto:#{person.email}'>#{person.full_name}</a>".html_safe %>
             <% else %>
                 <%= "Unbekannt".html_safe %>

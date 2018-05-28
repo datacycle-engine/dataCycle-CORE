@@ -969,6 +969,7 @@ module DataCycleCore
           'valid_until' => '2017-06-01'.in_time_zone('UTC')
         }
       }
+      # TODO: remove hardcoded metadata
       assert_equal(expected_data_hash, data_set.metadata.except('validation').compact)
     end
 

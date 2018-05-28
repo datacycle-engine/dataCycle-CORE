@@ -30,8 +30,6 @@ module DataCycleCore
             self.release_id = global_release(global_release_hash)
           end
           self.updated_at = save_time
-          # updated_by = { 'last_updated_by' => [current_user.try(:id)] }
-          # metadata.nil? ? self.metadata = updated_by : metadata.merge!(updated_by)
           if id.nil?
             self.created_at = save_time
             self.updated_at = save_time

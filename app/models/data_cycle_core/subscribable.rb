@@ -12,7 +12,7 @@ module DataCycleCore
 
     def notify_subscribers
       subscriptions.each do |subscription|
-        unless metadata['last_updated_by'] == subscription.user.id || subscription.user.notification_frequency != DataCycleCore.notification_frequencies[0]
+        unless try(:last_updated_by) == subscription.user.id || subscription.user.notification_frequency != DataCycleCore.notification_frequencies[0]
           SubscriptionMailer.notify(subscription.user, [self]).deliver_later
         end
       end

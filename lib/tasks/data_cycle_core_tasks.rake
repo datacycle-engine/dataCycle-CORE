@@ -657,22 +657,23 @@ namespace :data_cycle_core do
           ap data_object.to_s + ' | ' + data_object.where(where_string).count.to_s
           data_object.where(where_string).each do |item|
             user_id = item.metadata['last_updated_by']
+
             if table_name.end_with?('_histories')
-              DataCycleCore::ContentContent.create!(
-                content_a_id: item.id,
-                content_a_type: data_object.to_s,
-                relation_a: 'last_updated_by',
-                content_b_id: user_id,
-                content_b_type: 'DataCycleCore::User',
-                relation_b: ''
-              )
-            else
               DataCycleCore::ContentContent::History.create!(
                 content_a_history_id: item.id,
                 content_a_history_type: data_object.to_s,
                 relation_a: 'last_updated_by',
                 content_b_history_id: user_id,
                 content_b_history_type: 'DataCycleCore::User',
+                relation_b: ''
+              )
+            else
+              DataCycleCore::ContentContent.create!(
+                content_a_id: item.id,
+                content_a_type: data_object.to_s,
+                relation_a: 'last_updated_by',
+                content_b_id: user_id,
+                content_b_type: 'DataCycleCore::User',
                 relation_b: ''
               )
             end
