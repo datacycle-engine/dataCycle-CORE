@@ -134,11 +134,6 @@ Rails/AssertNot:
 #######################################################
 ########## Style
 
-# TODO: Resolve after develop merge
-Style/GuardClause:
-  Exclude:
-    - 'app/models/data_cycle_core/ability.rb'
-
 Style/MissingRespondToMissing:
   Exclude:
     - 'app/models/data_cycle_core/callbacks.rb'
