@@ -31,6 +31,7 @@ var ObjectBrowser = function (selector) {
   this.ids = selector.data('objects') || [];
   this.chosen = this.ids.slice(0);
   this.selected = '';
+  this.excluded = [];
   this.sortable;
 
   this.setup();
@@ -301,6 +302,7 @@ ObjectBrowser.prototype.resetOverlay = function () {
   this.overlay.find('.chosen-items-container .item').remove();
   this.chosen = this.element.data('objects');
   this.search = "";
+  this.excluded = [];
   this.page = 1;
 };
 
@@ -387,6 +389,7 @@ ObjectBrowser.prototype.import = function (event) {
 
 ObjectBrowser.prototype.loadObjects = function (append = true) {
   if (!append) {
+    this.excluded = [];
     this.overlay.children('.items').scrollTop(0);
     this.overlay.children('.items').html('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
   }
@@ -407,6 +410,7 @@ ObjectBrowser.prototype.loadObjects = function (append = true) {
       search: this.search,
       objects: this.chosen,
       editable: this.editable,
+      excluded: this.excluded,
       append: append
     }),
     contentType: 'application/json'
