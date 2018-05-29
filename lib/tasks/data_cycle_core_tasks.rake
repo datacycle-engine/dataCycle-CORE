@@ -33,10 +33,6 @@ delete_contents = <<-EOS
 
   DELETE FROM classification_contents;
   DELETE FROM searches;
-
-  DELETE FROM overlays;
-  DELETE FROM tags;
-  DELETE FROM overlay_place_tags;
 EOS
 
 delete_content_histories = <<-EOS
