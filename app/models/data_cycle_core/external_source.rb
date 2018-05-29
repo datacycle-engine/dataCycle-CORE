@@ -20,7 +20,7 @@ module DataCycleCore
 
     def download(options = {}, &block)
       raise ArgumentError, 'expected a valid download config' if config.dig('download').nil?
-      full_options = options.with_indifferent_access.merge({ download: download_config.symbolize_keys })
+      full_options = options.symbolize_keys.merge({ download: download_config.symbolize_keys })
       elementary_downloader(full_options, &block)
     end
 
