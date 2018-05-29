@@ -30,10 +30,10 @@ module DataCycleCore
 
         cannot :show, DataCycleCore::DataAttribute do |attribute|
           attribute.definition.dig('ui', attribute.scope.to_s, 'disabled') == true ||
-          (
-            !DataCycleCore::Feature::Overlay.allowed?(attribute.content) &&
-            DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
-          )
+            (
+              !DataCycleCore::Feature::Overlay.allowed?(attribute.content) &&
+              DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
+            )
         end
 
         DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
