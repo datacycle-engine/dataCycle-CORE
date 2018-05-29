@@ -8,4 +8,4 @@
 
 <%= link_to edit_polymorphic_path(content, locale: I18n.locale), data: {tooltip: ''}, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "edit-link" do %>
     <i class="fa fa-pencil" aria-hidden="true"></i>
-<% end if local_assigns[:definition] && definition['type'] == "linked" && @history_source.nil? && can?(:crud, content) %>
+<% end if local_assigns[:definition] && definition['type'] == "linked" && @history_source.nil? && can?(:update, content) %>

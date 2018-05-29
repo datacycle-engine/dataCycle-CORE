@@ -3,7 +3,7 @@
 module DataCycleCore
   module OrganizationHelpers
     def title
-      content['legal_name']
+      content.presence&.dig('legal_name')
     end
 
     def desc

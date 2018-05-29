@@ -4,7 +4,8 @@ module DataCycleCore
   class CreativeWorksController < ContentsController
     include DataCycleCore::Filter
 
-    after_action :check_final, :set_publication_attributes, only: :update
+    after_action :check_final, only: :update
+    after_action :set_publication_attributes, only: :update, if: -> { DataCycleCore::Feature::PublicationSchedule.enabled? }
 
     def show
       @content = DataCycleCore::CreativeWork.find_by(id: params[:id])
@@ -12,7 +13,7 @@ module DataCycleCore
       redirect_back(fallback_location: root_path) && return if @content.nil?
 
       I18n.with_locale(@content.first_available_locale) do
-        if DataCycleCore::Feature::Container.enabled? && @content.is_content_type?('container')
+        if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container')
           @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
           @filters.push(
             {
