@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Generic
-    class Import < DataCycleCore::Generic::ImportBase
+    class Import < ImportBase
       def import(**options, &block)
         if options.try(:[], :import).try(:[], :logging_strategy).blank?
           @logging = DataCycleCore::Generic::Logger::Console.new('import')

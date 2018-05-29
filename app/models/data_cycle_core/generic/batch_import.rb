@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Generic
-    class BatchImport < DataCycleCore::Generic::Base
+    class BatchImport < Base
       def import(**options, &block)
         options[:import].sort { |d1, d2|
           d1.second['sorting'] <=> d2.second['sorting']

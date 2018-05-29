@@ -6,7 +6,7 @@ module DataCycleCore
       class LogFile
         def initialize(kind)
           @kind = kind
-          @log = Logger.new("./log/#{kind}.log")
+          @log = ::Logger.new("./log/#{kind}.log")
         end
 
         def preparing_phase(label)
