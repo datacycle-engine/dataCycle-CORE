@@ -18,13 +18,13 @@ module DataCycleCore
 
     def download(options = {}, &block)
       raise ArgumentError, 'expected a valid download config' if config.dig('download').nil?
-      full_options = options.with_indifferent_access.merge({ download: download_config.symbolize_keys })
+      full_options = (default_options || {}).symbolize_keys.merge({ download: download_config.symbolize_keys }).merge(options.symbolize_keys)
       elementary_downloader(full_options, &block)
     end
 
     def download_single(name, options = {}, &block)
       raise ArgumentError, 'expected name to have a valid download config' if download_config&.with_indifferent_access&.dig(name).nil?
-      full_options = options.symbolize_keys.merge({ download: { name => download_config.dig(name).symbolize_keys } })
+      full_options = (default_options || {}).symbolize_keys.merge({ download: { name => download_config.dig(name).symbolize_keys } }).merge(options.symbolize_keys)
       elementary_downloader(full_options, &block)
     end
 
@@ -42,13 +42,13 @@ module DataCycleCore
 
     def import(options = {}, &block)
       raise ArgumentError, 'expected a valid import config' if config&.with_indifferent_access&.dig('import').nil?
-      full_options = options.symbolize_keys.merge({ import: import_config.symbolize_keys })
+      full_options = (default_options || {}).symbolize_keys.merge({ import: import_config.symbolize_keys }).merge(options.symbolize_keys)
       elementary_importer(full_options, &block)
     end
 
     def import_single(name, options = {}, &block)
       raise ArgumentError, 'expected name to have a valid import config' if import_config&.with_indifferent_access&.dig(name).nil?
-      full_options = options.symbolize_keys.merge({ import: { name => import_config.dig(name).symbolize_keys } })
+      full_options = (default_options || {}).symbolize_keys.merge({ import: { name => import_config.dig(name).symbolize_keys } }).merge(options.symbolize_keys)
       elementary_importer(full_options, &block)
       nil
     end
