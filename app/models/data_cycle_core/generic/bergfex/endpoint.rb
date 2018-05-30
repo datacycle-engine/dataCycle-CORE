@@ -26,7 +26,7 @@ module DataCycleCore
             req.params['partner'] = @partner
           end
 
-          raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point} / partner:#{@partner}" << response.body unless response.success?
+          raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point} / partner:#{@partner}" + response.body unless response.success?
           Nokogiri::XML(response.body).xpath('//lakes').first.to_hash['lake']
         end
       end
