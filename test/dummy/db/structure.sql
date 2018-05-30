@@ -234,11 +234,10 @@ CREATE TABLE public.content_content_histories (
     content_b_history_id uuid,
     content_b_history_type character varying,
     relation_b character varying,
+    external_source_id uuid,
     history_valid tstzrange,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    order_a integer,
-    order_b integer
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -254,10 +253,9 @@ CREATE TABLE public.content_contents (
     content_b_id uuid,
     content_b_type character varying,
     relation_b character varying,
+    external_source_id uuid,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    order_a integer,
-    order_b integer
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -729,7 +727,8 @@ CREATE TABLE public.external_sources (
     credentials jsonb,
     config jsonb,
     last_download timestamp without time zone,
-    last_import timestamp without time zone
+    last_import timestamp without time zone,
+    default_options jsonb
 );
 
 
@@ -2422,7 +2421,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180329064133'),
 ('20180330063016'),
 ('20180410220414'),
-('20180417130441'),
 ('20180421162723'),
 ('20180425110943'),
 ('20180430064709'),
