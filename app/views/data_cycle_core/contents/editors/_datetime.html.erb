@@ -6,7 +6,11 @@
             <i aria-hidden="true" class="fa fa-clock-o"></i> <%= definition['label'] %>
         </span>
       <% end %>
-      <%= datetime_field_tag key, value, options %>
+      <% if options.dig('readonly').presence&.to_s  == 'true' %>
+          <%= text_field_tag key, value.blank? ? value : l(value.to_datetime, format: :edit), options.merge({ class: '' }) %>
+      <% else %>
+          <%= datetime_field_tag key, value, options %>
+      <% end %>
   </div>
 
 <% end %>
