@@ -120,6 +120,7 @@ module DataCycleCore
           data.remove_namespaces!
 
           raise data.xpath('//@Message').first.value if data.xpath('//@Status').first.value != '0'
+          data
         end
 
         def create_categories_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
