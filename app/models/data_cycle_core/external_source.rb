@@ -19,19 +19,16 @@ module DataCycleCore
     end
 
     def download(options = {}, &block)
-      raise ArgumentError, 'expected a valid download config' if config.dig('download').nil?
-      full_options = (default_options || {}).symbolize_keys.merge({ download: download_config.symbolize_keys }).merge(options.symbolize_keys)
-      elementary_downloader(full_options, &block)
+      download_config.sort { |d1, d2|
+        d1.second['sorting'] <=> d2.second['sorting']
+      }.each do |(name, _)|
+        download_single(name, options, &block)
+      end
     end
 
     def download_single(name, options = {}, &block)
-      raise ArgumentError, 'expected name to have a valid download config' if download_config&.with_indifferent_access&.dig(name).nil?
-      full_options = (default_options || {}).symbolize_keys.merge({ download: { name => download_config.dig(name).symbolize_keys } }).merge(options.symbolize_keys)
-      elementary_downloader(full_options, &block)
-    end
-
-    def elementary_downloader(options, &block)
-      config['download'].constantize.new(id).download(options, &block)
+      full_options = (default_options || {}).symbolize_keys.merge({ download: download_config.dig(name).symbolize_keys.except(:sorting) }).merge(options.symbolize_keys)
+      DataCycleCore::Generic::Download.new(id).download(full_options, &block)
     end
 
     def download_config
@@ -43,20 +40,16 @@ module DataCycleCore
     end
 
     def import(options = {}, &block)
-      raise ArgumentError, 'expected a valid import config' if config&.with_indifferent_access&.dig('import').nil?
-      full_options = (default_options || {}).symbolize_keys.merge({ import: import_config.symbolize_keys }).merge(options.symbolize_keys)
-      elementary_importer(full_options, &block)
+      import_config.sort { |d1, d2|
+        d1.second['sorting'] <=> d2.second['sorting']
+      }.each do |(name, _)|
+        import_single(name, options, &block)
+      end
     end
 
     def import_single(name, options = {}, &block)
-      raise ArgumentError, 'expected name to have a valid import config' if import_config&.with_indifferent_access&.dig(name).nil?
-      full_options = (default_options || {}).symbolize_keys.merge({ import: { name => import_config.dig(name).symbolize_keys } }).merge(options.symbolize_keys)
-      elementary_importer(full_options, &block)
-      nil
-    end
-
-    def elementary_importer(options, &block)
-      config['import'].constantize.new(id).import(options, &block)
+      full_options = (default_options || {}).symbolize_keys.merge({ import: import_config.dig(name).symbolize_keys.except(:sorting) }).merge(options.symbolize_keys)
+      DataCycleCore::Generic::Import.new(id).import(full_options, &block)
     end
 
     def import_config

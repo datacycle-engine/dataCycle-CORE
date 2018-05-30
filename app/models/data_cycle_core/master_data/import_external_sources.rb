@@ -47,29 +47,18 @@ module DataCycleCore
         errors[:import_config] = {}
         errors[:download_config] = {}
 
-        # check for single importer or batch-mode
-        if data_hash.dig(:config, :import) == 'DataCycleCore::Generic::Import'
-          error = validate_import_item.call(data_hash.dig(:config, :import_config)).errors
-          errors[:import_config] = error if error.present?
-        else
-          import_config = data_hash.dig(:config, :import_config) || {}
-          import_config.each do |key, value|
-            error = validate_import_item.call(value.deep_symbolize_keys).errors
-            errors[:import_config][key] = error if error.present?
-          end
+        import_config = data_hash.dig(:config, :import_config) || {}
+        import_config.each do |key, value|
+          error = validate_import_item.call(value.deep_symbolize_keys).errors
+          errors[:import_config][key] = error if error.present?
         end
 
-        # check for single downloader of batch-mode
-        if data_hash.dig(:config, :download) == 'DataCycleCore::Generic::Download'
-          error = validate_download_item.call(data_hash.dig(:config, :download_config)).errors
-          errors['download_config'] = error if error.present?
-        else
-          download_config = data_hash.dig(:config, :download_config) || {}
-          download_config.each do |key, value|
-            error = validate_download_item.call(value.deep_symbolize_keys).errors
-            errors[:download_config][key] = error if error.present?
-          end
+        download_config = data_hash.dig(:config, :download_config) || {}
+        download_config.each do |key, value|
+          error = validate_download_item.call(value.deep_symbolize_keys).errors
+          errors[:download_config][key] = error if error.present?
         end
+
         errors.reject { |_, v| v.blank? }
       end
 
@@ -99,9 +88,9 @@ module DataCycleCore
           required(:credentials) { hash? }
           optional(:api_strategy) { str? & class? }
           required(:config).schema do
-            required(:download) { str? & class? }
+            # optional(:download) { str? & class? }
             required(:download_config) { hash? }
-            required(:import) { str? & class? }
+            # optional(:import) { str? & class? }
             required(:import_config) { hash? }
           end
         end
@@ -140,7 +129,7 @@ module DataCycleCore
           required(:source_type) { str? }
           required(:endpoint) { str? & class? }
           required(:download_strategy) { str? & module? }
-          required(:logging_strategy) { str? & logger? }
+          optional(:logging_strategy) { str? & logger? }
         end
       end
 
@@ -178,7 +167,7 @@ module DataCycleCore
           required(:import_strategy) { str? & module? }
           optional(:data_template).maybe(:str?)
           required(:target_type) { str? & class? }
-          required(:logging_strategy) { str? & logger? }
+          optional(:logging_strategy) { str? & logger? }
         end
       end
     end

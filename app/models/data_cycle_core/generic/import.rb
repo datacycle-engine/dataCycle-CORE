@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     class Import < ImportBase
       def import(**options, &block)
-        if options.try(:[], :import).try(:[], :logging_strategy).blank?
+        if options.dig(:import, :logging_strategy).blank?
           @logging = DataCycleCore::Generic::Logger::Console.new('import')
         else
           @logging = instance_eval(options[:import][:logging_strategy])
