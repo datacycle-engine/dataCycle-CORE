@@ -24,6 +24,7 @@ Lint/UnusedMethodArgument:
   Exclude:
     - 'app/models/data_cycle_core/generic/batch_download.rb'
     - 'app/models/data_cycle_core/generic/batch_import.rb'
+    - 'app/models/data_cycle_core/generic/bergfex/endpoint.rb'
     - 'app/models/data_cycle_core/generic/download.rb'
     - 'app/models/data_cycle_core/generic/import.rb'
     - 'app/models/data_cycle_core/generic/event_database/import_keywords.rb'
