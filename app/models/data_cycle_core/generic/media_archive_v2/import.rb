@@ -47,9 +47,9 @@ module DataCycleCore
                 .merge({ 'external_key' => "Kamera: #{raw_data['url'].split('/').last}" }).with_indifferent_access
             )
 
-            raw_data['content_location'] = [{ 'id' => content_location.try(:id) }] if content_location.present?
-            raw_data['director'] = [{ 'id' => director.try(:id) }] if director.present?
-            raw_data['contributor'] = [{ 'id' => contributor.try(:id) }] if contributor.present?
+            raw_data['content_location'] = [content_location.try(:id)] if content_location.present?
+            raw_data['director'] = [director.try(:id)] if director.present?
+            raw_data['contributor'] = [contributor.try(:id)] if contributor.present?
 
             case raw_data['contentType']
             when 'Bild'
