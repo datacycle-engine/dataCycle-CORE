@@ -51,8 +51,8 @@ module DataCycleCore
             req.params['page'] = page
             req.params['pagesize'] = per
             req.params['filter'] = {
-              'from' => l(Time.zone.today.at_beginning_of_month, locale: DataCycleCore.ui_language),
-              'to' => l(Time.zone.today.at_end_of_month.next_year, locale: DataCycleCore.ui_language)
+              'from' => Time.zone.today.at_beginning_of_month.to_s('%d.%m.%Y'),
+              'to' => Time.zone.today.at_end_of_month.next_year.to_s('%d.%m.%Y')
             }
           end
 
