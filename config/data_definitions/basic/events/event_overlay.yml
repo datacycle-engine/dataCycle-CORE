@@ -53,7 +53,6 @@
         :label: Teasertext
         :type: string
         :storage_location: column
-        :search: true
         :ui:
           :edit:
             :type: text_editor

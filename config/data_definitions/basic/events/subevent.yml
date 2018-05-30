@@ -11,7 +11,6 @@
         :label: Titel
         :type: string
         :storage_location: translated_value
-        :search: true
       :event_period:
         :label: Veranstaltungszeitraum
         :type: object
@@ -52,7 +51,6 @@
         :label: Beschreibung
         :type: string
         :storage_location: column
-        :search: true
         :ui:
           :edit:
             :type: text_editor
