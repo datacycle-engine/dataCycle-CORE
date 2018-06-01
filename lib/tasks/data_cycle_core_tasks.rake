@@ -688,5 +688,22 @@ namespace :data_cycle_core do
       puts 'END'
       puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
     end
+
+    desc 'executes all migration tasks'
+    task migrate_all_templates: :environment do
+      temp = Time.zone.now
+
+      Rake::Task['db:migrate'].invoke
+      Rake::Task['data_cycle_core:update:import_classifications'].invoke
+      Rake::Task['data_cycle_core:update:import_templates'].invoke
+      Rake::Task['data_cycle_core:update:import_external_source_configs'].invoke
+      Rake::Task['data_cycle_core:update:update_template'].invoke('places', 'Örtlichkeit')
+      Rake::Task['data_cycle_core:update:update_all_templates'].invoke
+      Rake::Task['data_cycle_core:update:update_all_history_schema'].invoke
+      Rake::Task['data_cycle_core:refactor:last_updated_by'].invoke
+
+      puts 'END'
+      puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
+    end
   end
 end
