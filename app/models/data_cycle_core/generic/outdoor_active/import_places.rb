@@ -7,8 +7,8 @@ module DataCycleCore
         def import_data(**options)
           @image_template = options[:import][:image_template] || 'Bild'
 
-          @poi_transformation = DataCycleCore::Generic::Transformations::Transformations.outdoor_active_to_place
-          @poi_image_transformation = DataCycleCore::Generic::Transformations::Transformations.outdoor_active_to_image
+          @poi_transformation = DataCycleCore::Generic::Common::Transformations.outdoor_active_to_place
+          @poi_image_transformation = DataCycleCore::Generic::Common::Transformations.outdoor_active_to_image
 
           import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)
         end

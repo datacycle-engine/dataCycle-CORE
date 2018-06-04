@@ -24,7 +24,7 @@ module DataCycleCore
         end
 
         def extract_data(raw_data)
-          raw_data.nil? ? {} : DataCycleCore::Generic::Transformations::Transformations.bergfex_to_see.call(raw_data)
+          raw_data.nil? ? {} : DataCycleCore::Generic::Common::Transformations.bergfex_to_see.call(raw_data)
         end
       end
     end

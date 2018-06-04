@@ -12,9 +12,9 @@ module DataCycleCore
         end
 
         def load_transformations
-          @image_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_bild(external_source.id)
-          @video_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_video(external_source.id)
-          @content_location_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_content_location
+          @image_transformation = DataCycleCore::Generic::Common::Transformations.media_archive_to_bild(external_source.id)
+          @video_transformation = DataCycleCore::Generic::Common::Transformations.media_archive_to_video(external_source.id)
+          @content_location_transformation = DataCycleCore::Generic::Common::Transformations.media_archive_to_content_location
         end
 
         protected

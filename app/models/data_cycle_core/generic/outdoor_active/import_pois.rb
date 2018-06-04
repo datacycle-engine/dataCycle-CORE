@@ -9,8 +9,8 @@ module DataCycleCore
           @data_template = options.dig(:import, :data_template) || 'Örtlichkeit'
           @data_type = load_data_type_id(options.dig(:import, :data_type) || 'POI')
 
-          @poi_transformation = DataCycleCore::Generic::Transformations::Transformations.outdoor_active_to_poi
-          @poi_image_transformation = DataCycleCore::Generic::Transformations::Transformations.outdoor_active_to_image
+          @poi_transformation = DataCycleCore::Generic::Common::Transformations.outdoor_active_to_poi
+          @poi_image_transformation = DataCycleCore::Generic::Common::Transformations.outdoor_active_to_image
 
           @source_filter = options.dig(:import, :source_filter) || {}
 

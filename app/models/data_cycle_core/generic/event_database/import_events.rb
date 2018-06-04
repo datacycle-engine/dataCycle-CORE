@@ -18,9 +18,9 @@ module DataCycleCore
         end
 
         def load_transformations
-          @event_transformation = DataCycleCore::Generic::Transformations::Transformations.event_database_item_to_event(external_source.id)
-          @sub_event_transformation = DataCycleCore::Generic::Transformations::Transformations.event_database_sub_item_to_sub_event
-          @event_location_transformation = DataCycleCore::Generic::Transformations::Transformations.event_database_location_to_content_location
+          @event_transformation = DataCycleCore::Generic::Common::Transformations.event_database_item_to_event(external_source.id)
+          @sub_event_transformation = DataCycleCore::Generic::Common::Transformations.event_database_sub_item_to_sub_event
+          @event_location_transformation = DataCycleCore::Generic::Common::Transformations.event_database_location_to_content_location
         end
 
         def load_contents(mongo_item, locale)

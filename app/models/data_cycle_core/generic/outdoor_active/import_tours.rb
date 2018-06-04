@@ -7,8 +7,8 @@ module DataCycleCore
         def import_data(**options)
           @image_template = options[:import][:image_template] || 'Bild'
 
-          @tour_transformation = DataCycleCore::Generic::Transformations::Transformations.outdoor_active_to_tour
-          @tour_image_transformation = DataCycleCore::Generic::Transformations::Transformations.outdoor_active_to_image
+          @tour_transformation = DataCycleCore::Generic::Common::Transformations.outdoor_active_to_tour
+          @tour_image_transformation = DataCycleCore::Generic::Common::Transformations.outdoor_active_to_image
 
           @source_filter = options.dig(:import, :source_filter) || {}
 
