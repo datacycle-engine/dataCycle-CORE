@@ -8,7 +8,7 @@
             <%= hidden_field_tag 'source', "source_id=>"+content.id+", source_type=>"+content.class.name %>
             <%= hidden_field_tag 'parent', content.parent.id %>
 
-            <%= select_tag 'locale', options_for_select(available_locales_with_names.invert) %>
+            <%= select_tag 'locale', options_for_select(available_locales_with_names.except(:all).invert) %>
 
             <div class="validation-container form-element">
                 <%= label_tag 'creative_work[datahash][headline]', 'Titel' %>
