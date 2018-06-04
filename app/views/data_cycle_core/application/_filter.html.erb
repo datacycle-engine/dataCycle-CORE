@@ -36,7 +36,7 @@
                           <%= render 'data_cycle_core/application/filters/classification_tree', tree_label: tree_label, display_label: t("filter.#{tree_label}", default: tree_label, locale: DataCycleCore.ui_language), excluded_types: excluded_types, classification_tree: classification_trees[tree_label], index: idx if classification_trees[tree_label].present? %>
                         <% end %>
 
-                        <%= render 'data_cycle_core/application/filters/sprache' if filter[:language] %>
+                        <%= render 'data_cycle_core/application/filters/sprache', show_all: filter[:language_all] if filter[:language] %>
                       </ul>
                     </nav>
                   </div>
@@ -49,9 +49,9 @@
 
                           <% if filter[:advanced].present? %>
                             <% if can?(:advanced_filter, :backend) %>
-                              <div class="add-advanced-filter-container">
-                                <%= select_tag :add_advanced_filter, options_for_select(filter[:advanced].presence&.sort), prompt: t("filter.add", locale: DataCycleCore.ui_language), class: 'single-select', data: { url: add_filter_path, index: index + @advanced_filters.size, allow_clear: false } %>
-                              </div>
+                            <div class="add-advanced-filter-container">
+                              <%= select_tag :add_advanced_filter, options_for_select(filter[:advanced].presence&.sort), prompt: t("filter.add", locale: DataCycleCore.ui_language), class: 'single-select', data: { url: add_filter_path, index: index + (@advanced_filters.presence&.size || 0), allow_clear: false } %>
+                            </div>
                             <% end %>
                             <% @advanced_filters.presence&.each_with_index do |filter, idx| %>
                               <%= render_first_existing_partial(["data_cycle_core/application/filters/new/#{filter['t']}"], { filter_name: filter['n'], filter_method: filter['m'], value: filter['v'], index: idx + index }) %>
@@ -70,7 +70,6 @@
                         <span class="result-count">(<strong><%= @total %></strong> <%= t('common.contents', count: @total, locale: DataCycleCore.ui_language) %>)</span>
                       <% end %>
                       <strong>:</strong> </span>
-
                       <span class="filter-groups">
                         <span class="tag-group tags sprache">
                           <i class="tag-group-label"><i class="fa fa-language" aria-hidden="true"></i> <%= t('common.language', locale: DataCycleCore.ui_language) %>:</i>

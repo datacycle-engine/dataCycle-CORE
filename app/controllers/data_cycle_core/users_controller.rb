@@ -5,10 +5,10 @@ module DataCycleCore
     before_action :set_user, only: [:edit, :update, :destroy, :unlock]
 
     def index
-      if current_user.has_rank?(10)
-        @paginateObject = DataCycleCore::User.includes(:role, :user_groups).order(:email).page(params[:page])
+      if current_user.is_rank?(10)
+        @paginate_object = DataCycleCore::User.includes(:role, :user_groups).order(:email).page(params[:page])
       else
-        @paginateObject = DataCycleCore::User.where(locked_at: nil).includes(:role).order(:email).page(params[:page])
+        @paginate_object = DataCycleCore::User.where(locked_at: nil).includes(:role).order(:email).page(params[:page])
       end
     end
 
