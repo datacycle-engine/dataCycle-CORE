@@ -5,13 +5,7 @@ module DataCycleCore
     module Eyebase
       module Download
         def download_content(**options)
-          download_data(@source_type, ->(data) { data['item_id'] }, ->(data) { data['titel'] }, options)
-        end
-
-        protected
-
-        def endpoint
-          @end_point_object.new(credentials.symbolize_keys)
+          download_data(->(data) { data['item_id'] }, ->(data) { data['titel'] }, options)
         end
       end
     end

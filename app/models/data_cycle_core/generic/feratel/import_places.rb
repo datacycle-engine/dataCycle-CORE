@@ -7,11 +7,11 @@ module DataCycleCore
         def import_data(**options)
           @image_template = options[:import][:image_template] || 'Bild'
 
-          import_contents(@source_type,
-                          @target_type,
-                          method(:load_contents).to_proc,
-                          method(:process_content).to_proc,
-                          **options)
+          import_contents(
+            method(:load_contents).to_proc,
+            method(:process_content).to_proc,
+            **options
+          )
         end
 
         def load_contents(mongo_item, locale)

@@ -12,14 +12,15 @@ module DataCycleCore
             options.dig(:download, :location_range_codes)
           )
 
-          download_data(@source_type,
-                        ->(data) { data['Id'] },
-                        ->(data) { data['Name'] },
-                        options)
+          download_data(
+            ->(data) { data['Id'] },
+            ->(data) { data['Name'] },
+            options
+          )
         end
 
         def endpoint
-          @end_point_object.new(credentials.symbolize_keys) do |range_code|
+          end_point_object.new(credentials.symbolize_keys) do |range_code|
             @range_ids[range_code]
           end
         end

@@ -24,6 +24,10 @@ module DataCycleCore
       ensure
         logging.close if logging.respond_to?(:close)
       end
+
+      def endpoint
+        end_point_object.new(credentials.symbolize_keys)
+      end
     end
   end
 end

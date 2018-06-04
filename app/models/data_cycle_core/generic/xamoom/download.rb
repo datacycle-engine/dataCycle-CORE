@@ -7,12 +7,6 @@ module DataCycleCore
         def download_content(**options)
           download_data(->(data) { data['id'] }, ->(data) { data['attributes']['name'] }, options)
         end
-
-        protected
-
-        def endpoint
-          end_point_object.new(credentials.symbolize_keys)
-        end
       end
     end
   end
