@@ -5,12 +5,7 @@ module DataCycleCore
     module Xamoom
       module ImportSpots
         def import_data(**options)
-          @image_template = options[:import][:image_template] || 'Bild'
-
-          @spot_transformation = DataCycleCore::Generic::Transformations::Transformations.xamoom_to_poi(external_source.id)
-          @spot_image_transformation = DataCycleCore::Generic::Transformations::Transformations.xamoom_to_image
-
-          import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)
+          import_contents(method(:load_contents).to_proc, method(:process_content).to_proc, **options)
         end
 
         protected
@@ -19,39 +14,51 @@ module DataCycleCore
           mongo_item.all
         end
 
-        def process_content(raw_data, template, locale)
+        def process_content(raw_data, locale)
           I18n.with_locale(locale) do
-            image_default_values = {}
-            image_default_values = load_default_values(@options.dig(:import, :default_values, :image)) if @options.dig(:import, :default_values, :image).present?
-            if raw_data.dig('attributes', 'image').present?
-              image = create_or_update_content(
-                DataCycleCore::CreativeWork,
-                load_template(DataCycleCore::CreativeWork, @image_template),
-                image_default_values.merge(extract_image_data(raw_data['attributes']).merge(external_key: "Xamoom - #{raw_data['id']}")).with_indifferent_access
-              )
-            end
-
-            spot_default_values = {}
-            spot_default_values = load_default_values(@options.dig(:import, :default_values, :spot)) if @options.dig(:import, :default_values, :spot).present?
-            create_or_update_content(
-              @target_type,
-              load_template(@target_type, @data_template),
-              spot_default_values.merge(
-                extract_spot_data(raw_data['attributes']).merge(
-                  image: [image&.id],
-                  external_key: "Xamoom - #{raw_data['id']}"
-                )
-              ).with_indifferent_access
-            )
+            process_image(raw_data, options.dig(:import, :transformations, :image))
+            process_spot(raw_data, options.dig(:import, :transformations, :spot))
           end
         end
 
-        def extract_image_data(raw_data)
-          raw_data.nil? ? {} : @spot_image_transformation.call(raw_data)
+        def process_image(raw_data, config)
+          raise "Missing configuration for #{self.class} when calling 'process_image', options given: #{config}" if config.blank?
+
+          type = config.dig('content_type').constantize || DataCycleCore::CreativeWork
+          template = config.dig(:template) || 'Bild'
+          default_values = {}
+          default_values = load_default_values(config.dig(:default_values)) if config.dig(:default_values).present?
+
+          create_or_update_content(
+            type,
+            load_template(type, template),
+            default_values.merge(
+              DataCycleCore::Generic::Xamoom::Transformations
+              .xamoom_to_image
+              .call(raw_data['attributes'])
+              .merge(external_key: "Xamoom - #{raw_data['id']}")
+            ).with_indifferent_access
+          )
         end
 
-        def extract_spot_data(raw_data)
-          raw_data.nil? ? {} : @spot_transformation.call(raw_data)
+        def process_spot(raw_data, config)
+          raise "Missing configuration for #{self.class} when calling 'process_spot', options given: #{config}" if config.blank?
+
+          type = config.dig('content_type').constantize || DataCycleCore::Place
+          data_template = config.dig('template') || 'Örtlichkeit'
+          default_values = {}
+          default_values = load_default_values(config.dig(:default_values)) if config.dig(:default_values).present?
+
+          create_or_update_content(
+            type,
+            load_template(type, data_template),
+            default_values.merge(
+              DataCycleCore::Generic::Xamoom::Transformations
+              .xamoom_to_poi(external_source.id)
+              .call(raw_data['attributes'])
+              .merge(external_key: "Xamoom - #{raw_data['id']}")
+            ).with_indifferent_access
+          )
         end
       end
     end

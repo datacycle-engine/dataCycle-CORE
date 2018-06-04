@@ -10,7 +10,6 @@ module DataCycleCore
           data = YAML.safe_load(File.open(file_name))
           error = validation ? validate(data.deep_symbolize_keys) : nil
           if error.blank?
-            # import_data
             external_source = DataCycleCore::ExternalSource.find_or_initialize_by(name: data['name'])
             external_source.credentials = data['credentials']
             external_source.config = data['config']
@@ -88,9 +87,7 @@ module DataCycleCore
           required(:credentials) { hash? }
           optional(:api_strategy) { str? & class? }
           required(:config).schema do
-            # optional(:download) { str? & class? }
             required(:download_config) { hash? }
-            # optional(:import) { str? & class? }
             required(:import_config) { hash? }
           end
         end
@@ -166,7 +163,7 @@ module DataCycleCore
           required(:source_type) { str? }
           required(:import_strategy) { str? & module? }
           optional(:data_template).maybe(:str?)
-          required(:target_type) { str? & class? }
+          # required(:target_type) { str? & class? }
           optional(:logging_strategy) { str? & logger? }
         end
       end

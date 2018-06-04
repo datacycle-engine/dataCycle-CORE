@@ -15,9 +15,9 @@ module DataCycleCore
           item_count = 0
 
           begin
-            @logging.phase_started("#{phase_name}_#{locale}")
+            logging.phase_started("#{phase_name}_#{locale}")
 
-            @source_object.with(type) do |mongo_item|
+            source_object.with(type) do |mongo_item|
               raw_classification_data_stack = load_root_classifications.call(mongo_item, locale).to_a
 
               while (raw_classification_data = raw_classification_data_stack.pop.try(:[], 'dump').try(:[], locale))
@@ -31,7 +31,7 @@ module DataCycleCore
                 )
                 raw_classification_data_stack += load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
 
-                @logging.item_processed(
+                logging.item_processed(
                   extracted_classification_data[:name],
                   extracted_classification_data[:id],
                   item_count,
@@ -42,7 +42,7 @@ module DataCycleCore
               end
             end
           ensure
-            @logging.phase_finished("#{phase_name}_#{locale}", item_count)
+            logging.phase_finished("#{phase_name}_#{locale}", item_count)
           end
         end
       end
@@ -105,34 +105,34 @@ module DataCycleCore
         classification_alias
       end
 
-      def import_contents(source_type, target_type, load_contents, process_content, **options)
+      def import_contents(load_contents, process_content, **options)
         around_import(source_type, **options) do |locale|
           phase_name = source_type.collection_name
 
           item_count = 0
           fixnum_max = (2**(0.size * 4 - 2) - 1)
           begin
-            @logging.phase_started("#{phase_name}_#{locale}")
+            logging.phase_started("#{phase_name}_#{locale}")
 
             durations = []
 
-            @source_object.with(source_type) do |mongo_item|
+            source_object.with(source_type) do |mongo_item|
               load_contents.call(mongo_item, locale).all.no_timeout.max_time_ms(fixnum_max).each do |content|
                 durations << Benchmark.realtime do
                   item_count += 1
 
-                  process_content.call(content[:dump][locale], load_template(target_type, @data_template), locale)
+                  process_content.call(content[:dump][locale], locale)
 
                   next unless (item_count % 10).zero?
 
                   GC.start
-                  @logging.info("Imported #{item_count} items in #{durations.sum} seconds", nil)
+                  logging.info("Imported #{item_count} items in #{durations.sum} seconds", nil)
                 end
                 break if options[:max_count].present? && item_count >= options[:max_count]
               end
             end
           ensure
-            @logging.phase_finished("#{phase_name}_#{locale}", item_count)
+            logging.phase_finished("#{phase_name}_#{locale}", item_count)
           end
         end
       end
@@ -151,8 +151,8 @@ module DataCycleCore
 
         error = content.set_data_hash(data_hash: (content.get_data_hash || {}).merge(data), prevent_history: true)
 
-        if @logging && error[:error].present?
-          @logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))
+        if logging && error[:error].present?
+          logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))
         elsif error[:error].present?
           raise error[:error].first
         end

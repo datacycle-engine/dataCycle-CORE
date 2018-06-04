@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Generic
-    module Transformations
+    module Common
       module Functions
         extend Transproc::Registry
         import Transproc::HashTransformations

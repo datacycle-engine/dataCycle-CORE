@@ -5,40 +5,41 @@ module DataCycleCore
     module Transformations
       module Transformations
         def self.t(*args)
-          DataCycleCore::Generic::Transformations::Functions[*args]
+          DataCycleCore::Generic::Common::Functions[*args]
         end
 
         def self.bergfex_to_see
           t(:stringify_keys)
           .>> t(:reject_keys, ['region'])
-          .>> t(:rename_keys,
-            'id' => 'external_key',
-            'name' => 'name_old',
-            'area' => 'area_old',
-            'depth' => 'depth_old',
-            'temperature' => 'temperature_old')
-          .>> t(:add_field, 'name', ->s { s.dig('name_old', 'text') })
-          .>> t(:add_field, 'latitude', ->s { s.dig('lat', 'text')&.to_f })
-          .>> t(:add_field, 'longitude', ->s { s.dig('lng', 'text')&.to_f })
-          .>> t(:add_field, 'location', ->s {
+          .>> t(:rename_keys, {
+                  'id' => 'external_key',
+                  'name' => 'name_old',
+                  'area' => 'area_old',
+                  'depth' => 'depth_old',
+                  'temperature' => 'temperature_old'
+                })
+          .>> t(:add_field, 'name', ->(s) { s.dig('name_old', 'text') })
+          .>> t(:add_field, 'latitude', ->(s) { s.dig('lat', 'text')&.to_f })
+          .>> t(:add_field, 'longitude', ->(s) { s.dig('lng', 'text')&.to_f })
+          .>> t(:add_field, 'location', lambda(s) {
             RGeo::Geographic.spherical_factory(srid: 4326).point(s['longitude'], s['latitude']) if s['longitude'] && s['latitude']
           })
-          .>> t(:add_field, 'temperature', ->s { s.dig('temperature_old', 'text')&.to_f })
-          .>> t(:add_field, 'temp_at', ->s { s.dig('temperature_old', 't') })
-          .>> t(:add_field, 'quality', ->s { s.dig('quality', 'text') })
+          .>> t(:add_field, 'temperature', ->(s) { s.dig('temperature_old', 'text')&.to_f })
+          .>> t(:add_field, 'temp_at', ->(s) { s.dig('temperature_old', 't') })
+          .>> t(:add_field, 'quality', ->(s) { s.dig('quality', 'text') })
           .>> t(:nest, 'water_temp', ['temperature', 'temp_at', 'quality'])
-          .>> t(:add_field, 'area', ->s { s.dig('area_old', 'text')&.to_f })
-          .>> t(:add_field, 'depth', ->s { s.dig('depth_old', 'text')&.to_f })
+          .>> t(:add_field, 'area', ->(s) { s.dig('area_old', 'text')&.to_f })
+          .>> t(:add_field, 'depth', ->(s) { s.dig('depth_old', 'text')&.to_f })
           .>> t(:reject_keys, ['name_old', 'lat', 'lng', 'temperature_old', 'area_old', 'depth_old'])
-          .>> t(:add_field, 'valid_from', ->s { s.dig('season', 'start', 'text') })
-          .>> t(:add_field, 'valid_through', ->s { s.dig('season', 'end', 'text') })
+          .>> t(:add_field, 'valid_from', ->(s) { s.dig('season', 'start', 'text') })
+          .>> t(:add_field, 'valid_through', ->(s) { s.dig('season', 'end', 'text') })
           .>> t(:reject_keys, ['season'])
-          .>> t(:add_field, 'opens', ->s { s.dig('openinghours', 'from', 'text') })
-          .>> t(:add_field, 'closes', ->s { s.dig('openinghours', 'to', 'text') })
+          .>> t(:add_field, 'opens', ->(s) { s.dig('openinghours', 'from', 'text') })
+          .>> t(:add_field, 'closes', ->(s) { s.dig('openinghours', 'to', 'text') })
           .>> t(:nest, 'season', ['valid_from', 'valid_through'])
           .>> t(:nest, 'opening_data', ['season', 'opens', 'closes'])
-          .>> t(:add_field, 'opening_hours_specification', ->s { [s.dig('opening_data')] })
-          .>> t(:add_field, 'url', ->s { s.dig('link', 'text') })
+          .>> t(:add_field, 'opening_hours_specification', ->(s) { [s.dig('opening_data')] })
+          .>> t(:add_field, 'url', ->(s) { s.dig('link', 'text') })
           .>> t(:reject_keys, ['season', 'link'])
           .>> t(:strip_all)
         end
@@ -49,18 +50,18 @@ module DataCycleCore
           .>> t(:rename_keys,
                 'website' => 'url',
                 'place_id' => 'external_key')
-          .>> t(:add_field, 'telephone', ->s { s.dig('formatted_phone_number') || s.dig('international_phone_number') })
-          .>> t(:add_field, 'latitude', ->s { s['geometry'].try(:[], 'location').try(:[], 'lat').try(:to_f) })
-          .>> t(:add_field, 'longitude', ->s { s['geometry'].try(:[], 'location').try(:[], 'lng').try(:to_f) })
-          .>> t(:add_field, 'location', ->s {
+          .>> t(:add_field, 'telephone', ->(s) { s.dig('formatted_phone_number') || s.dig('international_phone_number') })
+          .>> t(:add_field, 'latitude', ->(s) { s['geometry'].try(:[], 'location').try(:[], 'lat').try(:to_f) })
+          .>> t(:add_field, 'longitude', ->(s) { s['geometry'].try(:[], 'location').try(:[], 'lng').try(:to_f) })
+          .>> t(:add_field, 'location', lambda(s) {
             RGeo::Geographic.spherical_factory(srid: 4326).point(s['longitude'], s['latitude']) if s['longitude'] && s['latitude']
           })
-          .>> t(:add_field, 'street_number', ->s { s['address_components'].select { |item| item['types'].include?('street_number') }&.first.try(:[], 'long_name') })
-          .>> t(:add_field, 'street_name', ->s { s['address_components'].select { |item| item['types'].include?('route') }&.first.try(:[], 'long_name') })
-          .>> t(:add_field, 'street_address', ->s { [s['street_name'], s['street_number']].join(' ') })
-          .>> t(:add_field, 'address_locality', ->s { s['address_components'].select { |item| item['types'].include?('locality') }&.first.try(:[], 'long_name') })
-          .>> t(:add_field, 'postal_code', ->s { s['address_components'].select { |item| item['types'].include?('postal_code') }&.first.try(:[], 'long_name') })
-          .>> t(:add_field, 'address_country', ->s { s['address_components'].select { |item| item['types'].include?('country') }&.first.try(:[], 'long_name') })
+          .>> t(:add_field, 'street_number', ->(s) { s['address_components'].select { |item| item['types'].include?('street_number') }&.first.try(:[], 'long_name') })
+          .>> t(:add_field, 'street_name', ->(s) { s['address_components'].select { |item| item['types'].include?('route') }&.first.try(:[], 'long_name') })
+          .>> t(:add_field, 'street_address', ->(s) { [s['street_name'], s['street_number']].join(' ') })
+          .>> t(:add_field, 'address_locality', ->(s) { s['address_components'].select { |item| item['types'].include?('locality') }&.first.try(:[], 'long_name') })
+          .>> t(:add_field, 'postal_code', ->(s) { s['address_components'].select { |item| item['types'].include?('postal_code') }&.first.try(:[], 'long_name') })
+          .>> t(:add_field, 'address_country', ->(s) { s['address_components'].select { |item| item['types'].include?('country') }&.first.try(:[], 'long_name') })
           .>> t(:nest, 'address', ['street_address', 'address_locality', 'address_country', 'postal_code'])
           .>> t(:nest, 'contact_info', ['telephone', 'url'])
           .>> t(:reject_keys, ['geometry', 'address_components'])
@@ -73,7 +74,7 @@ module DataCycleCore
           .>> t(:underscore_keys)
           .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
           .>> t(:copy_keys, 'url' => 'external_key')
-          .>> t(:map_value, 'external_key', ->s { s.split('/').last })
+          .>> t(:map_value, 'external_key', ->(s) { s.split('/').last })
           .>> t(:strip_all)
         end
 
@@ -83,7 +84,7 @@ module DataCycleCore
           .>> t(:underscore_keys)
           .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
           .>> t(:copy_keys, 'url' => 'external_key')
-          .>> t(:map_value, 'external_key', ->s { s.split('/').last })
+          .>> t(:map_value, 'external_key', ->(s) { s.split('/').last })
           .>> t(:strip_all)
         end
 
@@ -92,7 +93,7 @@ module DataCycleCore
           .>> t(:underscore_keys)
           .>> t(:unwrap, 'geo', ['longitude', 'latitude'])
           .>> t(:rename_keys, 'address' => 'street_address')
-          .>> t(:map_value, 'name', ->s { s.try :[], I18n.locale.to_s })
+          .>> t(:map_value, 'name', ->(s) { s.try :[], I18n.locale.to_s })
           .>> t(:location)
           .>> t(:compact)
           .>> t(:strip_all)
@@ -104,7 +105,7 @@ module DataCycleCore
           .>> t(:underscore_keys)
           .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
           .>> t(:copy_keys, 'url' => 'external_key')
-          .>> t(:map_value, 'external_key', ->s { s.split('/').last })
+          .>> t(:map_value, 'external_key', ->(s) { s.split('/').last })
           .>> t(:unwrap, 'validity_period', ['date_published', 'expires'])
           .>> t(:rename_keys,
                 'date_published' => 'valid_from',
@@ -120,7 +121,7 @@ module DataCycleCore
             .>> t(:underscore_keys)
             .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
             .>> t(:copy_keys, 'url' => 'external_key')
-            .>> t(:map_value, 'external_key', ->s { s.split('/').last })
+            .>> t(:map_value, 'external_key', ->(s) { s.split('/').last })
             .>> t(:unwrap, 'validity_period', ['date_published', 'expires'])
             .>> t(:rename_keys,
                   'date_published' => 'valid_from',
@@ -136,7 +137,7 @@ module DataCycleCore
           .>> t(:unwrap, 'geo', ['longitude', 'latitude'])
           .>> t(:rename_keys, 'address' => 'street_address')
           .>> t(:nest, 'address', ['street_address'])
-          .>> t(:map_value, 'name', ->s { s.try :[], I18n.locale.to_s })
+          .>> t(:map_value, 'name', ->(s) { s.try :[], I18n.locale.to_s })
           .>> t(:location)
           .>> t(:compact)
           .>> t(:strip_all)
@@ -145,8 +146,8 @@ module DataCycleCore
         def self.media_archive_to_person
           t(:stringify_keys)
           .>> t(:underscore_keys)
-          .>> t(:map_value, 'given_name', ->s { (s.empty? ? ' ' : s) })
-          .>> t(:map_value, 'family_name', ->s { (s.empty? ? ' ' : s) })
+          .>> t(:map_value, 'given_name', ->(s) { (s.empty? ? ' ' : s) })
+          .>> t(:map_value, 'family_name', ->(s) { (s.empty? ? ' ' : s) })
           .>> t(:compact)
         end
 
@@ -162,16 +163,38 @@ module DataCycleCore
                   'field_216' => 'restrictions',
                   'resolution_x' => 'width',
                   'resolution_y' => 'height',
-                  'size_mb' => 'content_size' })
-          .>> t(:map_value, 'content_size', ->s { (s.try(:gsub, ',', '.').try(:to_f) * 1024 * 1024).to_i })
-          .>> t(:map_value, 'width', ->s { s.to_i })
-          .>> t(:map_value, 'height', ->s { s.to_i })
-          .>> t(:add_field, 'content_url',
-            ->s { File.join("#{(ActionMailer::Base.default_url_options[:protocol] + '://') if ActionMailer::Base.default_url_options[:protocol].present?}#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', s['quality_1']['filename']) rescue nil })
-          .>> t(:add_field, 'thumbnail_url',
-            ->s { File.join("#{(ActionMailer::Base.default_url_options[:protocol] + '://') if ActionMailer::Base.default_url_options[:protocol].present?}#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', s['quality_512']['filename']) rescue nil })
-          .>> t(:add_field, 'keywords_eyebase',
-            ->s { [s['field_204'].try(:split, ','), s['field_215'].try(:split, ',')].flatten.reject(&:nil?).map(&:strip).uniq || [] })
+                  'size_mb' => 'content_size'
+                })
+          .>> t(:map_value, 'content_size', ->(s) { (s.try(:gsub, ',', '.').try(:to_f) * 1024 * 1024).to_i })
+          .>> t(:map_value, 'width', ->(s) { s.to_i })
+          .>> t(:map_value, 'height', ->(s) { s.to_i })
+          .>> t(
+            :add_field,
+            'content_url',
+            lambda(s) {
+              begin
+                File.join("#{(ActionMailer::Base.default_url_options[:protocol] + '://') if ActionMailer::Base.default_url_options[:protocol].present?}#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', s['quality_1']['filename'])
+              rescue StandardError
+                nil
+              end
+            }
+          )
+          .>> t(
+            :add_field,
+            'thumbnail_url',
+            lambda(s) {
+              begin
+                File.join("#{(ActionMailer::Base.default_url_options[:protocol] + '://') if ActionMailer::Base.default_url_options[:protocol].present?}#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', s['quality_512']['filename'])
+              rescue StandardError
+                nil
+              end
+            }
+          )
+          .>> t(
+            :add_field,
+            'keywords_eyebase',
+            ->(s) { [s['field_204'].try(:split, ','), s['field_215'].try(:split, ',')].flatten.reject(&:nil?).map(&:strip).uniq || [] }
+          )
           .>> t(:tags_to_ids, 'keywords_eyebase', external_source_id, 'Eyebase - Tag - ')
           .>> t(:reject_keys, ['quality_1', 'quality_512'])
           .>> t(:compact)
@@ -180,14 +203,14 @@ module DataCycleCore
 
         def self.eyebase_get_keywords
           t(:add_field, 'keywords',
-            ->s { [s['field_204'].try(:split, ','), s['field_215'].try(:split, ',')].flatten.reject(&:nil?).map(&:strip).uniq || [] })
+            ->(s) { [s['field_204'].try(:split, ','), s['field_215'].try(:split, ',')].flatten.reject(&:nil?).map(&:strip).uniq || [] })
         end
 
         def self.xamoom_to_poi(external_source_id)
           t(:stringify_keys)
           .>> t(:rename_keys, { 'position-latitude' => 'latitude', 'position-longitude' => 'longitude' })
-          .>> t(:map_value, 'latitude', ->s { s.to_f })
-          .>> t(:map_value, 'longitude', ->s { s.to_f })
+          .>> t(:map_value, 'latitude', ->(s) { s.to_f })
+          .>> t(:map_value, 'longitude', ->(s) { s.to_f })
           .>> t(:location)
           .>> t(:tags_to_ids, 'tags', external_source_id, 'Xamoom - tag - ')
           .>> t(:rename_keys, { 'tags' => 'xamoom_tags' })
@@ -220,57 +243,56 @@ module DataCycleCore
               'gettingThere' => 'directions'
             }
           )
-          .>> t(:map_value, 'elevation', ->s { s.to_f })
-          .>> t(:add_field, 'latitude', ->s { s['geometry'].try(:split, /[, ]/, 3).try(:[], 1).try(:to_f) })
-          .>> t(:add_field, 'longitude', ->s { s['geometry'].try(:split, /[, ]/, 3).try(:[], 0).try(:to_f) })
+          .>> t(:map_value, 'elevation', ->(s) { s.to_f })
+          .>> t(:add_field, 'latitude', ->(s) { s['geometry'].try(:split, /[, ]/, 3).try(:[], 1).try(:to_f) })
+          .>> t(:add_field, 'longitude', ->(s) { s['geometry'].try(:split, /[, ]/, 3).try(:[], 0).try(:to_f) })
           .>> t(:location)
-          .>> t(:add_field, 'address_locality', ->s { s['address'].try(:[], 'town') })
-          .>> t(:add_field, 'street_address', ->s {
+          .>> t(:add_field, 'address_locality', ->(s) { s['address'].try(:[], 'town') })
+          .>> t(:add_field, 'street_address', lambda(s) {
             [s['address'].try(:[], 'street').try(:strip), s['address'].try(:[], 'housenumber').try(:strip)].join(' ') if s['address'].try(:[], 'street').try(:strip).present?
           })
-          .>> t(:add_field, 'postal_code', ->s { s['address'].try(:[], 'zipcode') })
-          .>> t(:add_field, 'author', ->s { s['meta'].try(:[], 'author') })
+          .>> t(:add_field, 'postal_code', ->(s) { s['address'].try(:[], 'zipcode') })
+          .>> t(:add_field, 'author', ->(s) { s['meta'].try(:[], 'author') })
           .>> t(:reject_keys, ['address', 'category', 'primaryImage', 'images', 'regions', 'meta'])
           .>> t(:strip_all)
         end
 
         def self.outdoor_active_to_place
           t(:stringify_keys)
-          .>> t(:rename_keys,
-            {
-              'id' => 'external_key',
-              'title' => 'name',
-              'shortText' => 'description',
-              'longText' => 'text',
-              'altitude' => 'elevation',
-              'countryCode' => 'address_country',
-              'fax' => 'fax_number',
-              'phone' => 'telephone',
-              'homepage' => 'url',
-              'businessHours' => 'hours_available',
-              'gettingThere' => 'directions'
-            })
-          .>> t(:map_value, 'elevation', ->s { s.to_f })
-          .>> t(:add_field, 'latitude', ->s { s['geometry'].try(:split, /[, ]/, 3).try(:[], 1).try(:to_f) })
-          .>> t(:add_field, 'longitude', ->s { s['geometry'].try(:split, /[, ]/, 3).try(:[], 0).try(:to_f) })
+          .>> t(:rename_keys, {
+                  'id' => 'external_key',
+                  'title' => 'name',
+                  'shortText' => 'description',
+                  'longText' => 'text',
+                  'altitude' => 'elevation',
+                  'countryCode' => 'address_country',
+                  'fax' => 'fax_number',
+                  'phone' => 'telephone',
+                  'homepage' => 'url',
+                  'businessHours' => 'hours_available',
+                  'gettingThere' => 'directions'
+                })
+          .>> t(:map_value, 'elevation', ->(s) { s.to_f })
+          .>> t(:add_field, 'latitude', ->(s) { s['geometry'].try(:split, /[, ]/, 3).try(:[], 1).try(:to_f) })
+          .>> t(:add_field, 'longitude', ->(s) { s['geometry'].try(:split, /[, ]/, 3).try(:[], 0).try(:to_f) })
           .>> t(:location)
-          .>> t(:add_field, 'address_locality', ->s { s['address'].try(:[], 'town') })
-          .>> t(:add_field, 'street_address', ->s {
+          .>> t(:add_field, 'address_locality', ->(s) { s['address'].try(:[], 'town') })
+          .>> t(:add_field, 'street_address', lambda(s) {
             [s['address'].try(:[], 'street').try(:strip), s['address'].try(:[], 'housenumber').try(:strip)].join(' ') if s['address'].try(:[], 'street').try(:strip).present?
           })
-          .>> t(:add_field, 'postal_code', ->s { s['address'].try(:[], 'zipcode') })
-          .>> t(:add_field, 'author', ->s { s['meta'].try(:[], 'author') })
+          .>> t(:add_field, 'postal_code', ->(s) { s['address'].try(:[], 'zipcode') })
+          .>> t(:add_field, 'author', ->(s) { s['meta'].try(:[], 'author') })
           .>> t(:strip_all)
         end
 
         def self.outdoor_active_to_tour
           t(:stringify_keys)
-          .>> t(:add_field, 'latitude', ->s { s['startingPoint'].try(:[], 'lon').try(:to_f) })
-          .>> t(:add_field, 'longitude', ->s { s['startingPoint'].try(:[], 'lat').try(:to_f) })
-          .>> t(:add_field, 'start_location', ->s {
+          .>> t(:add_field, 'latitude', ->(s) { s['startingPoint'].try(:[], 'lon').try(:to_f) })
+          .>> t(:add_field, 'longitude', ->(s) { s['startingPoint'].try(:[], 'lat').try(:to_f) })
+          .>> t(:add_field, 'start_location', lambda(s) {
             RGeo::Geographic.spherical_factory(srid: 4326).point(s['latitude'], s['longitude']) if s['longitude'] && s['latitude']
           })
-          .>> t(:add_field, 'tour', ->s {
+          .>> t(:add_field, 'tour', lambda(s) {
             factory = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
             factory.line_string(
               s['geometry'].try(:split, ' ')
@@ -281,7 +303,7 @@ module DataCycleCore
           .>> t(:unwrap, 'elevation', ['ascent', 'descent', 'minAltitude', 'maxAltitude'])
           .>> t(:unwrap, 'time', ['min'])
           .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'experience', 'landscape'])
-          .>> t(:add_field, 'author', ->s { s['meta'].try(:[], 'author') })
+          .>> t(:add_field, 'author', ->(s) { s['meta'].try(:[], 'author') })
           .>> t(:rename_keys, {
                   'id' => 'external_key',
                   'title' => 'name',
@@ -302,24 +324,25 @@ module DataCycleCore
                   'tip' => 'suggestion',
                   'additionalInformation' => 'additional_information'
                 })
-          .>> t(:map_value, 'elevation', ->s { s.to_f })
-          .>> t(:map_value, 'length', ->s { s.to_f })
-          .>> t(:map_value, 'duration', ->s { s.to_i })
-          .>> t(:map_value, 'condition_rating', ->s { s.to_i })
-          .>> t(:map_value, 'difficulty_rating', ->s { s.to_i })
-          .>> t(:map_value, 'experience_rating', ->s { s.to_i })
-          .>> t(:map_value, 'landscape_rating', ->s { s.to_i })
+          .>> t(:map_value, 'elevation', ->(s) { s.to_f })
+          .>> t(:map_value, 'length', ->(s) { s.to_f })
+          .>> t(:map_value, 'duration', ->(s) { s.to_i })
+          .>> t(:map_value, 'condition_rating', ->(s) { s.to_i })
+          .>> t(:map_value, 'difficulty_rating', ->(s) { s.to_i })
+          .>> t(:map_value, 'experience_rating', ->(s) { s.to_i })
+          .>> t(:map_value, 'landscape_rating', ->(s) { s.to_i })
           .>> t(:strip_all)
         end
 
         def self.outdoor_active_to_image
           t(:stringify_keys)
-          .>> t(:add_field, 'content_url', ->s { "http://img.oastatic.com/img/#{s['id']}/.jpg" })
-          .>> t(:add_field, 'thumbnail_url', ->s { "http://img.oastatic.com/img/400/400/fit/#{s['id']}/.jpg" })
-          .>> t(:map_value, 'license', ->s { s.to_s if s.present? })
+          .>> t(:add_field, 'content_url', ->(s) { "http://img.oastatic.com/img/#{s['id']}/.jpg" })
+          .>> t(:add_field, 'thumbnail_url', ->(s) { "http://img.oastatic.com/img/400/400/fit/#{s['id']}/.jpg" })
+          .>> t(:map_value, 'license', ->(s) { s.to_s if s.present? })
           .>> t(:rename_keys, {
                   'id' => 'external_key',
-                  'title' => 'headline' })
+                  'title' => 'headline'
+                })
           .>> t(:reject_keys, ['meta', 'primary', 'gallery'])
           .>> t(:strip_all)
         end
@@ -329,9 +352,10 @@ module DataCycleCore
           .>> t(:reject_keys, ['@context', '@type', 'image', 'subEvents', 'allDay', 'location', 'categories'])
           .>> t(:underscore_keys).
           # >> t(:map_value, 'infos', -> s {s.try(:join, ', ')}).
-          >> t(:rename_keys,
-            'id' => 'external_key',
-            'tags' => 'event_tag')
+          >> t(:rename_keys, {
+                 'id' => 'external_key',
+                 'tags' => 'event_tag'
+               })
           .>> t(:nest, 'event_period', ['start_date', 'end_date'])
           .>> t(:tags_to_ids, 'event_tag', external_source_id, 'Veranstaltungsdatenbank - tags - ')
           .>> t(:compact)
