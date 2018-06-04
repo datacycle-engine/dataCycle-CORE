@@ -55,7 +55,7 @@
         <% end %>
       </div>
     <% end %>
-    <% if DataCycleCore::Feature::PublicationSchedule.enabled? && can?(:show_publications, DataCycleCore::Content) %>
+    <% if DataCycleCore::Feature::PublicationSchedule.enabled? && can?(:index, :publication) %>
       <div class="row columns">
           <%= link_to publications_path, class: 'publications-link' do %>
             <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
@@ -63,6 +63,16 @@
           <% end %>
         </div>
     <% end %>
+    <% if user_signed_in? && current_user.role&.rank&.positive? && DataCycleCore::ClassificationTreeLabel.find_by(name: 'Themenbereiche').present? %>
+      <div class="row columns">
+        <%= link_to classification_tree_label_path(DataCycleCore::ClassificationTreeLabel.find_by(name: 'Themenbereiche')), class: 'themenbereiche-contents-list-link' do %>
+          <span class="icon"><i class="fa fa-list-ul" aria-hidden="true"></i></span>
+          <span class="title"><%= t('data_cycle_core.classification_tree_label', locale: DataCycleCore.ui_language) %></span>
+        <% end %>
+      </div>
+    <% end %>
+
+
   </div>
 
   <% if can?(:index, DataCycleCore::Classification) || can?(:index, DataCycleCore::User) || can?(:index, DataCycleCore::UserGroup) %>

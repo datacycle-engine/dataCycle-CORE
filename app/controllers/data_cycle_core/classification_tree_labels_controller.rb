@@ -8,7 +8,6 @@ module DataCycleCore
         format.html do
           @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:id])
           @classification_trees = @classification_tree_label.classification_trees
-            .accessible_by(current_ability)
             .where(parent_classification_alias: nil)
             .where.not(classification_aliases: { name: DataCycleCore.excluded_filter_classifications })
             .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
@@ -35,7 +34,6 @@ module DataCycleCore
           if permitted_params[:classification_tree_id].present?
             @classification_tree = DataCycleCore::ClassificationTree.find(permitted_params[:classification_tree_id])
             @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees
-              .accessible_by(current_ability)
               .where.not(classification_aliases: { name: DataCycleCore.excluded_filter_classifications })
               .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
               .order('classification_aliases.name')
@@ -53,7 +51,6 @@ module DataCycleCore
             @contents = @contents.map(&:content_data)
           else
             @classification_trees = @classification_tree_label.classification_trees
-              .accessible_by(current_ability)
               .where(parent_classification_alias: nil)
               .where.not(classification_aliases: { name: DataCycleCore.excluded_filter_classifications })
               .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
