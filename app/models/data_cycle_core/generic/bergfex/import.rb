@@ -5,26 +5,34 @@ module DataCycleCore
     module Bergfex
       module Import
         def import_data(**options)
-          @data_template = options[:import][:data_template] || 'See'
-          import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)
+          import_contents(method(:load_contents).to_proc, method(:process_content).to_proc, **options)
         end
 
         def load_contents(mongo_item, locale)
           mongo_item.where("dump.#{locale}": { '$exists' => true })
         end
 
-        def process_content(raw_data, _template, locale)
+        def process_content(raw_data, locale)
           I18n.with_locale(locale) do
-            create_or_update_content(
-              DataCycleCore::Place,
-              load_template(DataCycleCore::Place, @data_template),
-              extract_data(raw_data).with_indifferent_access
-            )
+            process_lakes(raw_data, options.dig(:import, :transformations, :lake))
           end
         end
 
-        def extract_data(raw_data)
-          raw_data.nil? ? {} : DataCycleCore::Generic::Common::Transformations.bergfex_to_see.call(raw_data)
+        def process_lakes(raw_data, config)
+          type = config.dig('content_type').constantize || DataCycleCore::Place
+          template = config.dig(:template) || 'See'
+          default_values = {}
+          default_values = load_default_values(config.dig(:default_values)) if config.dig(:default_values).present?
+
+          create_or_update_content(
+            type,
+            load_template(type, template),
+            default_values.merge(
+              DataCycleCore::Generic::Bergfex::Transformations
+              .bergfex_to_see
+              .call(raw_data)
+            ).with_indifferent_access
+          )
         end
       end
     end

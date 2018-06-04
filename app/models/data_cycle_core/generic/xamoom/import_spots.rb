@@ -8,8 +8,6 @@ module DataCycleCore
           import_contents(method(:load_contents).to_proc, method(:process_content).to_proc, **options)
         end
 
-        protected
-
         def load_contents(mongo_item, locale)
           mongo_item.all
         end
@@ -22,8 +20,6 @@ module DataCycleCore
         end
 
         def process_image(raw_data, config)
-          raise "Missing configuration for #{self.class} when calling 'process_image', options given: #{config}" if config.blank?
-
           type = config.dig('content_type').constantize || DataCycleCore::CreativeWork
           template = config.dig(:template) || 'Bild'
           default_values = {}
@@ -42,8 +38,6 @@ module DataCycleCore
         end
 
         def process_spot(raw_data, config)
-          raise "Missing configuration for #{self.class} when calling 'process_spot', options given: #{config}" if config.blank?
-
           type = config.dig('content_type').constantize || DataCycleCore::Place
           data_template = config.dig('template') || 'Örtlichkeit'
           default_values = {}

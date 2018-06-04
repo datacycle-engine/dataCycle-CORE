@@ -5,11 +5,6 @@ module DataCycleCore
     module Xamoom
       module ImportTags
         def import_data(**options)
-          # @tree_label = options.dig(:import, :tree_label) || 'Xamoom - Tags'
-
-          # dummy variables to please the import machinery ... not used in this strategy
-          # @target_type = DataCycleCore::Place
-
           import_contents(method(:load_contents).to_proc, method(:process_content).to_proc, **options)
         end
 

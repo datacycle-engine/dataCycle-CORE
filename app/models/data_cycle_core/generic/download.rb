@@ -3,6 +3,7 @@
 module DataCycleCore
   module Generic
     class Download < DownloadBase
+      attr_reader :end_point_object, :logging, :source_object, :source_type
       def download(**options, &block)
         if options.try(:[], :download).try(:[], :logging_strategy).blank?
           @logging = DataCycleCore::Generic::Logger::Console.new('download')
@@ -20,8 +21,8 @@ module DataCycleCore
         @end_point_object = options[:download][:endpoint].constantize
 
         download_content(**options)
-
-        @logging.close if @logging.respond_to?(:close)
+      ensure
+        logging.close if logging.respond_to?(:close)
       end
     end
   end
