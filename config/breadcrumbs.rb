@@ -21,7 +21,7 @@ crumb :classifications do
 end
 
 crumb :classification_tree_label do |label|
-  link to_html_string(label.name), '#'
+  link to_html_string(t("tree_view.#{label.name}")), '#'
 end
 
 # User
