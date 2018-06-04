@@ -15,12 +15,12 @@ end
 
 crumb :classifications do
   link to_html_string(t('data_cycle_core.classifications', locale: DataCycleCore.ui_language)), classifications_path, authorized: can?(:manage, DataCycleCore::Classification)
-  parent :admin
+  parent :admin if can?(:manage, :dash_board)
 end
 
 crumb :classification_tree_label do |label|
-  link to_html_string(label.name), nil, authorized: can?(:manage, DataCycleCore::Classification)
-  parent :admin
+  link to_html_string(t("tree_view.#{label.name}")), nil, authorized: can?(:manage, DataCycleCore::Classification)
+  parent :admin if can?(:manage, :dash_board)
 end
 
 # Default Index Crumb
