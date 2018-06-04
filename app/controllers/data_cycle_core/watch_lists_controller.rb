@@ -5,7 +5,7 @@ module DataCycleCore
     load_and_authorize_resource         # from cancancan (authorize)
 
     def index
-      @paginateObject = current_user.watch_lists.page(params[:page])
+      @paginate_object = current_user.watch_lists.page(params[:page])
     end
 
     def show
@@ -20,7 +20,9 @@ module DataCycleCore
           'v' => @watch_list.id
         }
       )
-      @contents = get_filtered_results
+
+      @paginate_object = get_filtered_results.content_includes.page(params[:page])
+      @contents = @paginate_object.map(&:content_data)
 
       respond_to do |format|
         format.html

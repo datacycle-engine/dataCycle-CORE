@@ -21,6 +21,7 @@ end
 crumb :classification_tree_label do |label|
   link to_html_string(label.name), nil, authorized: can?(:manage, DataCycleCore::Classification)
   parent :admin
+  link to_html_string(t("tree_view.#{label.name}")), '#'
 end
 
 # Default Index Crumb

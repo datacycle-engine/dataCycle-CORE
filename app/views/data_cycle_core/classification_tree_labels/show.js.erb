@@ -9,6 +9,9 @@
   var contents = $('<%= escape_javascript(render 'contents', contents: @contents, classification_tree_label: @classification_tree_label, classification_tree: @classification_tree) %>');
 
   contents.appendTo('#<%= @classification_tree.id %> > ul.contents');
+  <% if @contents.present? %>
+      $('#<%= @classification_tree.id %> > ul.children').addClass('has-contents');
+  <% end %>
   $('#<%= @classification_tree.id %> > ul.children, #<%= @classification_tree.id %> > ul.contents').addClass('loaded').show();
 <% elsif @classification_tree.present? %>
   $('#<%= @classification_tree.id %> > ul.children').append('<%= escape_javascript(render 'classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees, content_counts: @content_count) %>');
@@ -16,6 +19,9 @@
   var contents = $('<%= escape_javascript(render 'contents', contents: @contents, classification_tree_label: @classification_tree_label, classification_tree: @classification_tree) %>');
 
   contents.appendTo('#<%= @classification_tree.id %> > ul.contents');
+  <% if @contents.present? %>
+      $('#<%= @classification_tree.id %> > ul.children').addClass('has-contents');
+  <% end %>
   $('#<%= @classification_tree.id %> > ul.children, #<%= @classification_tree.id %> > ul.contents').addClass('loaded').show();
 <% end %>
 

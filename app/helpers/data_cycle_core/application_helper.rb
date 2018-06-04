@@ -12,7 +12,9 @@ module DataCycleCore
     }
 
     def available_locales_with_names
-      Hash[I18n.available_locales.collect { |l| [l, I18n.t('locales.' + l.to_s, locale: DataCycleCore.ui_language).try(:capitalize)] }]
+      locales = Hash[I18n.available_locales.collect { |l| [l, I18n.t('locales.' + l.to_s, locale: DataCycleCore.ui_language).try(:capitalize)] }]
+      locales[:all] = t('common.all', locale: DataCycleCore.ui_language)
+      locales.sort.to_h
     end
 
     def display_flash_messages_new(closable: true)

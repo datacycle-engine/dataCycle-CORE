@@ -1,5 +1,6 @@
 module DataCycleCore
   class ClassificationTreeLabelsController < ApplicationController
+    include DataCycleCore::Filter
     before_action :authenticate_user! # from devise (authenticate)
 
     def show
@@ -17,13 +18,13 @@ module DataCycleCore
           @tree_page = @classification_trees.current_page
           @tree_total_pages = @classification_trees.total_pages
 
+          content_query = get_filtered_results
           @content_count = @classification_trees.map { |c|
             [
               c.id,
-              DataCycleCore::Filter::Search.new(nil, DataCycleCore::Search.distinct)
+              content_query
                 .with_classification_alias_ids_without_recursion(c.sub_classification_alias.id)
-                .pluck(:content_data_id)
-                .size
+                .count(:content_data_id)
             ]
           }.to_h
         end
@@ -40,11 +41,10 @@ module DataCycleCore
               .order('classification_aliases.name')
               .page(params[:tree_page])
 
-            @contents = DataCycleCore::Filter::Search.new(nil, DataCycleCore::Search)
-              .unique_by_column(:content_data_id)
+            @order_string = { boost: :desc, data_type: :asc, headline: :asc }
+            @contents = get_filtered_results
               .with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
-              .includes(content_data: [:display_classification_aliases, :translations])
-              .order(boost: :desc, data_type: :asc, headline: :asc)
+              .content_includes
               .page(params[:page])
 
             @page = @contents.current_page
@@ -64,13 +64,13 @@ module DataCycleCore
           @tree_page = @classification_trees.current_page
           @tree_total_pages = @classification_trees.total_pages
 
+          content_query = get_filtered_results
           @content_count = @classification_trees.map { |c|
             [
               c.id,
-              DataCycleCore::Filter::Search.new(nil, DataCycleCore::Search.distinct)
+              content_query
                 .with_classification_alias_ids_without_recursion(c.sub_classification_alias.id)
-                .pluck(:content_data_id)
-                .size
+                .count(:content_data_id)
             ]
           }.to_h
         end

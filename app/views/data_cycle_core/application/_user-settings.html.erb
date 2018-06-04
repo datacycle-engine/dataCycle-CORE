@@ -43,6 +43,28 @@
     <% end %>
   </div>
 
+  <div class="settings-row">
+    <div class="row columns">
+      <h5><%= t('data_cycle_core.user_links', locale: DataCycleCore.ui_language) %></h5>
+    </div>
+    <% if user_signed_in? && current_user.role&.rank&.positive? %>
+      <div class="row columns">
+        <%= link_to subscriptions_path, class: 'user-subscriptions-link' do %>
+          <span class="icon"><i class="fa fa-bell" aria-hidden="true"></i></span>
+          <span class="title"><%= DataCycleCore::Subscription.model_name.human(count: 2, locale: DataCycleCore.ui_language) %></span>
+        <% end %>
+      </div>
+    <% end %>
+    <% if DataCycleCore::Feature::PublicationSchedule.enabled? && can?(:show_publications, DataCycleCore::Content) %>
+      <div class="row columns">
+          <%= link_to publications_path, class: 'publications-link' do %>
+            <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+            <span class="title"><%= t('data_cycle_core.publications_calendar', locale: DataCycleCore.ui_language) %></span>
+          <% end %>
+        </div>
+    <% end %>
+  </div>
+
   <% if can?(:index, DataCycleCore::Classification) || can?(:index, DataCycleCore::User) || can?(:index, DataCycleCore::UserGroup) %>
     <div class="settings-row">
       <div class="row columns">
@@ -78,7 +100,7 @@
     </div>
   <% end %>
 
-  <% if can?(:read, DataCycleCore::StoredFilter) %>
+  <% if can?(:read, DataCycleCore::StoredFilter) && @accessible_stored_filters.where.not(name: nil).present? %>
     <div class="settings-row">
       <div class="row columns">
         <h5><%= t('data_cycle_core.stored_searches.my_saved', locale: DataCycleCore.ui_language) %></h5>
