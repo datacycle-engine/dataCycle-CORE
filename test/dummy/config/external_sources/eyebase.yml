@@ -3,7 +3,7 @@ name: Eyebase
 credentials:
   host: https://vorarlberg.eyebase.com/
   end_point: api/1/webmill.php
-  token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  token: '766d856ef1a6b02f93d894415e6bfa0e'
 default_options:
   locales: [de]  
 config:

@@ -4,6 +4,7 @@ module DataCycleCore
   module Generic
     class Download < DownloadBase
       attr_reader :end_point_object, :logging, :source_object, :source_type
+
       def download(**options, &block)
         if options.try(:[], :download).try(:[], :logging_strategy).blank?
           @logging = DataCycleCore::Generic::Logger::Console.new('download')
@@ -17,7 +18,7 @@ module DataCycleCore
 
         extend(options[:download][:download_strategy].constantize)
         @source_object = DataCycleCore::Generic::Collection
-        @source_type = Mongoid::PersistenceContext.new(@source_object, collection: options[:download][:source_type])
+        @source_type = Mongoid::PersistenceContext.new(source_object, collection: options[:download][:source_type])
         @end_point_object = options[:download][:endpoint].constantize
 
         download_content(**options)

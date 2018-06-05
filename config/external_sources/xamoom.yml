@@ -5,30 +5,36 @@ credentials:
   end_point: _api/v2/integration/spots
   key: xxxxx-xxxx-xxxx-xxxx-xxx
 config:
-  download: DataCycleCore::Generic::BatchDownload
   download_config:
     spots:
       sorting: 1
       source_type: spots
       endpoint: DataCycleCore::Generic::Xamoom::Endpoint
       download_strategy: DataCycleCore::Generic::Xamoom::Download
-      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
-  import: DataCycleCore::Generic::BatchImport
   import_config:
     tags:
       sorting: 1
       source_type: spots
       import_strategy: DataCycleCore::Generic::Xamoom::ImportTags
-      data_template:
-      target_type: DataCycleCore::Classification
-      tree_label: Xamoom - Tags
-      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+      transformations:
+        tags:
+          tree_label: Xamoom - Tags
     spots:
       sorting: 2
       source_type: spots
       import_strategy: DataCycleCore::Generic::Xamoom::ImportSpots
-      data_template: Örtlichkeit
-      data_type: spot
-      image_template: Bild
-      target_type: DataCycleCore::Place
-      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+      transformations:
+        image:
+          content_type: DataCycleCore::CreativeWork
+          template: Bild
+          default_values:
+            data_type:
+              tree_label: Inhaltstypen
+              value: Bild
+        spot:
+          content_type: DataCycleCore::Place
+          template: Örtlichkeit
+          default_values:
+            data_type:
+              tree_label: Inhaltstypen
+              value: Örtlichkeit

@@ -8,8 +8,6 @@ module DataCycleCore
           import_contents(method(:load_contents).to_proc, method(:process_content).to_proc, **options)
         end
 
-        protected
-
         def load_contents(mongo_item, locale)
           mongo_item.where("dump.#{locale}": { '$exists' => true })
         end
