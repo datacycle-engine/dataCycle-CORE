@@ -71,8 +71,15 @@
         <% end %>
       </div>
     <% end %>
-
-
+    <% if can?(:upload, :content) %>
+      <div class="row columns">
+        <%= link_to '#', class: 'content-upload-link', data: { open: 'content-upload-reveal' } do %>
+          <span class="icon"><i class="fa fa-upload" aria-hidden="true"></i></span>
+          <span class="title"><%= t('data_cycle_core.upload', locale: DataCycleCore.ui_language) %></span>
+          <%= render 'upload' %>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 
   <% if can?(:index, DataCycleCore::Classification) || can?(:index, DataCycleCore::User) || can?(:index, DataCycleCore::UserGroup) %>

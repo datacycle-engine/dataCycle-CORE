@@ -15,7 +15,7 @@ module.exports.initialize = function () {
   }
 
   let catch_promises = function (form, submit) {
-    $.when(...promises).then(function () {
+    $.when.apply(undefined, promises).then(function () {
       var isValid = true;
       if (Array.isArray(arguments[0])) {
         for (var i = 0; i < arguments.length; i++) {

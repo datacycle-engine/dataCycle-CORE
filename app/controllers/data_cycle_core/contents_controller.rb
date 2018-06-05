@@ -55,11 +55,37 @@ module DataCycleCore
       render json: valid.to_json
     end
 
+    def upload
+      if asset_params[:file].present?
+        object_type = DataCycleCore.asset_objects.find { |object| object.downcase.include?(asset_params[:file].content_type&.split('/')&.first&.downcase) }
+
+        if object_type.blank?
+          render json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) } and return
+        end
+
+        authorize! :create, object_type.constantize
+
+        @asset = object_type.constantize.new(asset_params).set_content_type.set_file_size
+        @asset.name = asset_params[:file].original_filename if asset_params[:name].blank?
+        @asset.creator_id = current_user.try(:id)
+        @asset.save
+
+        errors = MediaArchive::Webhooks::Create.new.execute(@asset)
+        render json: { error: JSON.parse(errors)['errors'] } and return if errors.present? && JSON.parse(errors).has_key?('errors')
+
+        render json: @asset
+      end
+    end
+
     private
 
     def set_watch_list
       watch_list = DataCycleCore::WatchList.find(params[:watch_list_id]) if params[:watch_list_id]
       @watch_list = watch_list if can?(:manage, watch_list)
+    end
+
+    def asset_params
+      params.permit(:file)
     end
 
     def life_cycle_params

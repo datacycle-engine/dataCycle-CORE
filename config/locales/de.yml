@@ -197,6 +197,7 @@ de:
       invalid: "%{data} konnte nicht erstellt werden."
       email_exists: "Für diese E-Mail existiert bereits ein Link"
       no_source: "Keine gültige Vorlage angegeben"
+      wrong_content_type: Nicht unterstützter Datei-Typ
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."
@@ -372,6 +373,7 @@ de:
       history: Suchverlauf
     watch_list:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
+    upload: Medien hochladen
 
   date:
     abbr_day_names:
