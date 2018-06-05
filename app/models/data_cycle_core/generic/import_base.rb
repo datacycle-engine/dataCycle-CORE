@@ -123,13 +123,12 @@ module DataCycleCore
 
                   process_content.call(content[:dump][locale], load_template(target_type, @data_template), locale)
 
-                  break if options[:max_count] && item_count >= options[:max_count]
-
                   next unless (item_count % 10).zero?
 
                   GC.start
                   @logging.info("Imported #{item_count} items in #{durations.sum} seconds", nil)
                 end
+                break if options[:max_count] && item_count >= options[:max_count]
               end
             end
           ensure
