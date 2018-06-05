@@ -67,42 +67,13 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
-        def self.media_archive_to_video(external_source_id)
-          t(:stringify_keys)
-          .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
-          .>> t(:underscore_keys)
-          .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
-          .>> t(:copy_keys, 'url' => 'external_key')
-          .>> t(:map_value, 'external_key', ->s { s.split('/').last })
-          .>> t(:strip_all)
-        end
-
         def self.media_archive_to_bild(external_source_id)
           t(:stringify_keys)
           .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
           .>> t(:underscore_keys)
           .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
-          .>> t(:copy_keys, 'url' => 'external_key')
-          .>> t(:map_value, 'external_key', ->s { s.split('/').last })
-          .>> t(:strip_all)
-        end
-
-        def self.media_archive_to_content_location
-          t(:stringify_keys)
-          .>> t(:underscore_keys)
-          .>> t(:unwrap, 'geo', ['longitude', 'latitude'])
-          .>> t(:rename_keys, 'address' => 'street_address')
-          .>> t(:map_value, 'name', ->s { s.try :[], I18n.locale.to_s })
-          .>> t(:location)
-          .>> t(:compact)
-          .>> t(:strip_all)
-        end
-
-        def self.media_archive_v2_to_bild(external_source_id)
-          t(:stringify_keys)
-          .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
-          .>> t(:underscore_keys)
-          .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
+          .>> t(:tags_to_ids, 'types_of_use', external_source_id, 'MedienArchive - Verwendungsart - ')
+          .>> t(:tags_to_ids, 'audiences', external_source_id, 'MedienArchive - Zielgruppe - ')
           .>> t(:copy_keys, 'url' => 'external_key')
           .>> t(:map_value, 'external_key', ->s { s.split('/').last })
           .>> t(:unwrap, 'validity_period', ['date_published', 'expires'])
@@ -114,11 +85,13 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
-        def self.media_archive_v2_to_video(external_source_id)
+        def self.media_archive_to_video(external_source_id)
           t(:stringify_keys)
             .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
             .>> t(:underscore_keys)
             .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
+            .>> t(:tags_to_ids, 'typesOfUse', external_source_id, 'MedienArchive - Verwendungsart - ')
+            .>> t(:tags_to_ids, 'audiences', external_source_id, 'MedienArchive - Zielgruppe - ')
             .>> t(:copy_keys, 'url' => 'external_key')
             .>> t(:map_value, 'external_key', ->s { s.split('/').last })
             .>> t(:unwrap, 'validity_period', ['date_published', 'expires'])
@@ -130,7 +103,7 @@ module DataCycleCore
             .>> t(:strip_all)
         end
 
-        def self.media_archive_v2_to_content_location
+        def self.media_archive_to_content_location
           t(:stringify_keys)
           .>> t(:underscore_keys)
           .>> t(:unwrap, 'geo', ['longitude', 'latitude'])

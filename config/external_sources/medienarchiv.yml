@@ -37,7 +37,7 @@ config:
     images:
       sorting: 5
       source_type: images
-      import_strategy: DataCycleCore::Generic::MediaArchiveV2::Import
+      import_strategy: DataCycleCore::Generic::MediaArchive::Import
       data_template: Bild
       place_template: Örtlichkeit
       target_type: DataCycleCore::CreativeWork
@@ -49,7 +49,7 @@ config:
     videos:
       sorting: 6
       source_type: videos
-      import_strategy: DataCycleCore::Generic::MediaArchiveV2::Import
+      import_strategy: DataCycleCore::Generic::MediaArchive::Import
       data_template: Video
       place_template: Örtlichkeit
       target_type: DataCycleCore::CreativeWork
