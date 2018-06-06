@@ -34,7 +34,7 @@ module.exports.initialize = function () {
     }
   };
 
-  let validate_format = function (validations, the_file, media_file) {
+  let validate_format = function (validations, the_file, media_params) {
     var valid = validations.indexOf(the_file.type.split('/').pop()) !== -1;
 
     return {
@@ -43,22 +43,27 @@ module.exports.initialize = function () {
     };
   };
 
-  let validate_dimensions = function (validations, the_file, media_file) {
-    var valid = true;
+  let validate_dimensions = function (validations, the_file, media_params) {
+    if (validations.min !== undefined && media_params !== undefined && (media_params.width < validations.min.width || media_params.height < validations.min.height)) {
+      return {
+        valid: false,
+        message: 'Bild zu klein (' + media_params.width + 'x' + media_params.height + '), sollte mindestens ' + validations.min.width + 'x' + validations.min.height + ' sein'
+      };
+    }
+
     return {
-      valid: valid,
-      message: valid ? undefined : 'Fehler'
+      valid: true,
+      message: undefined
     };
   };
 
-  let validate = function (validations, the_file, media_file) {
+  let validate = function (validations, the_file, media_params) {
     var valid = true;
     var messages = [];
 
     for (var key in validations) {
-      console.log(key);
       if (eval("typeof validate_" + key + " === 'function'")) {
-        validation_value = eval('validate_' + key)(validations[key], the_file, media_file);
+        validation_value = eval('validate_' + key)(validations[key], the_file, media_params);
         valid &= validation_value.valid;
         if (validation_value.message !== undefined) messages.push(validation_value.message);
       }
@@ -70,8 +75,8 @@ module.exports.initialize = function () {
     };
   };
 
-  let validate_and_render = function (files, validations, the_file, the_media, target, html) {
-    var valid = validate(validations, the_file, the_media);
+  let validate_and_render = function (files, validations, the_file, media_params, target, html) {
+    var valid = validate(validations, the_file, media_params);
 
     if (validations !== undefined && !valid.valid) {
       html += '<span class="error"><b>Fehler:</b> ' + valid.messages.join(', ') + '</span>';
@@ -123,7 +128,10 @@ module.exports.initialize = function () {
                 var the_image = new Image();
                 the_image.onload = function () {
                   media_html += ', <dt>Abmessungen:</dt><dd>' + the_image.naturalWidth + 'x' + the_image.naturalHeight + '</dt></dl>';
-                  files = validate_and_render(files, image_validations, the_file, the_image, event.currentTarget, prepend_html + media_html + append_html);
+                  files = validate_and_render(files, image_validations, the_file, {
+                    width: the_image.naturalWidth,
+                    height: the_image.naturalHeight
+                  }, event.currentTarget, prepend_html + media_html + append_html);
                 };
                 the_image.onerror = function () {
                   media_html += '</dl>';
@@ -136,7 +144,10 @@ module.exports.initialize = function () {
                   window.URL.revokeObjectURL(this.src);
                   media_html += ', <dt>Abmessungen:</dt><dd>' + the_video.videoWidth + 'x' + the_video.videoHeight +
                     '</dd>, <dt>Dauer:</dt><dd>' + duration_helpers.seconds_to_human_time(the_video.duration) + '</dd></dl>';
-                  files = validate_and_render(files, video_validations, the_file, the_video, event.currentTarget, prepend_html + media_html + append_html);
+                  files = validate_and_render(files, video_validations, the_file, {
+                    width: the_video.videoWidth,
+                    height: the_video.videoHeight
+                  }, event.currentTarget, prepend_html + media_html + append_html);
                 };
                 the_video.onerror = function () {
                   media_html += '</dl>';
@@ -173,6 +184,8 @@ module.exports.initialize = function () {
           var data = new FormData();
           data.append('file', element);
 
+          var startTime = (new Date()).getTime();
+
           ajax_requests.push($.ajax({
             url: $(event.currentTarget).attr('action'),
             type: "POST",
@@ -187,8 +200,11 @@ module.exports.initialize = function () {
               if (myXhr.upload) {
                 myXhr.upload.addEventListener('progress', function (e) {
                   if (e.lengthComputable) {
+                    var elapsedtime = ((new Date()).getTime() - startTime) / 1000;
+                    var eta = Math.round(((e.total / e.loaded) * elapsedtime) - elapsedtime);
+
                     file_element.find('.upload-progress-bar').css('width', (e.loaded / e.total * 100) + '%');
-                    file_element.find('.upload-number').text(Math.round(e.loaded / e.total * 100) + '%');
+                    file_element.find('.upload-number').html(Math.round(e.loaded / e.total * 100) + '%<br><span class="eta">' + duration_helpers.seconds_to_human_time(eta) + '</span>');
                     if (e.loaded == e.total) {
                       file_element.find('.upload-number').html('<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
                     }
@@ -202,6 +218,7 @@ module.exports.initialize = function () {
               reset_file_field(file_element);
               file_element.addClass('error').append('<span class="error"><b>Fehler:</b> ' + data.error + '</span>');
             } else {
+              console.log(file_element);
               file_element.removeClass('uploading').addClass('finished');
               file_element.find('.remove-file').remove();
               file_element.find('.upload-number').html('<i class="fa fa-check" aria-hidden="true"></i>');
@@ -220,6 +237,11 @@ module.exports.initialize = function () {
           $('#content-upload-form .button, #content-upload-form #files').attr('disabled', false);
         });
       }
+    });
+
+    // prevent leaving Site while uploading!
+    $(window).on('beforeunload', event => {
+      if ($('.file-for-upload.uploading').length) return 'Es gibt noch laufende Uploads!';
     });
   }
 
