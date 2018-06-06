@@ -5,6 +5,7 @@ var jqueryujs = require('jquery-ujs');
 var foundation = require('foundation-sites');
 var lazysizes = require('lazysizes');
 var lazysizes_unveilhooks = require('lazysizes/plugins/unveilhooks/ls.unveilhooks.min.js');
+var number_helpers = require('./modules/helpers/number_helpers');
 
 var initializers = [];
 initializers.push(require('./modules/initializers/masonry_init'));
