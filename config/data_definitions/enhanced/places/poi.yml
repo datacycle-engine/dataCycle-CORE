@@ -51,6 +51,9 @@
         :label: Kategorie
         :type: classification
         :tree_label: "POI - Kategorien"
+        :ui:
+          :show:
+            :content_area: header
       :data_type:
         :label: Inhaltstype
         :type: classification
