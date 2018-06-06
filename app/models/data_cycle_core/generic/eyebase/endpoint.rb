@@ -58,6 +58,7 @@ module DataCycleCore
           response = Faraday.new.get do |req|
             req.url source
           end
+          raise DataCycleCore::Generic::RecoverableError, "error loading data from url: #{source}" unless response.success?
 
           FileUtils.mkdir_p(File.dirname(dest))
           File.open(dest, 'wb') do |local_file|

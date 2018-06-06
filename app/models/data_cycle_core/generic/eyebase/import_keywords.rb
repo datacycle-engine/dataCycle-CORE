@@ -14,10 +14,16 @@ module DataCycleCore
 
         def process_content(raw_data, locale)
           I18n.with_locale(locale) do
-            tree_label = options.dig(:import, :transformations, :keywords, :tree_label)
+            tree_label = options.dig(:import, :transformations, :keyword, :tree_label)
             keywords = DataCycleCore::Generic::Eyebase::Transformations.eyebase_get_keywords.call(raw_data).dig('keywords') || []
             keywords.each do |item|
-              import_classification({ name: item, external_id: "Eyebase - Tag - #{item}", tree_name: tree_label })
+              import_classification(
+                {
+                  name: item,
+                  external_id: "Eyebase - Tag - #{item}",
+                  tree_name: tree_label
+                }
+              )
             end
           end
         end

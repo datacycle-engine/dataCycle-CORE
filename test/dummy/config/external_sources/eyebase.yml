@@ -5,7 +5,7 @@ credentials:
   end_point: api/1/webmill.php
   token: '766d856ef1a6b02f93d894415e6bfa0e'
 default_options:
-  locales: [de]  
+  locales: [de]
 config:
   download_config:
     images:
@@ -19,7 +19,7 @@ config:
       source_type: media_assets
       import_strategy: DataCycleCore::Generic::Eyebase::ImportKeywords
       transformations:
-        keywords:
+        keyword:
           tree_label: Eyebase - Tags
     images:
       sorting: 2

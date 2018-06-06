@@ -32,7 +32,6 @@ module DataCycleCore
               DataCycleCore::Generic::Xamoom::Transformations
               .xamoom_to_image
               .call(raw_data['attributes'])
-              .merge(external_key: "Xamoom - #{raw_data['id']}")
             ).with_indifferent_access
           )
         end
@@ -50,7 +49,6 @@ module DataCycleCore
               DataCycleCore::Generic::Xamoom::Transformations
               .xamoom_to_poi(external_source.id)
               .call(raw_data['attributes'])
-              .merge(external_key: "Xamoom - #{raw_data['id']}")
             ).with_indifferent_access
           )
         end

@@ -121,6 +121,7 @@ module DataCycleCore
                   'Phone' => 'telephone',
                   'Email' => 'email',
                   'URL' => 'url')
+            .>> t(:map_value, 'url', ->(s) { s.nil? ? '' : (!s.starts_with?('http://') && !s.starts_with?('https://') ? "http://#{s}" : s) })
             .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
             .>> t(:nest, 'contact_info', ['email', 'fax_number', 'telephone', 'url'])
         end
