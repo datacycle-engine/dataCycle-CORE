@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module Generic
     module Bergfex
@@ -11,7 +13,7 @@ module DataCycleCore
           mongo_item.where("dump.#{locale}": { '$exists' => true })
         end
 
-        def process_content(raw_data, template, locale)
+        def process_content(raw_data, _template, locale)
           I18n.with_locale(locale) do
             create_or_update_content(
               DataCycleCore::Place,

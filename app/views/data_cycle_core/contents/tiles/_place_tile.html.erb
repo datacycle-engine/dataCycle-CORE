@@ -1,9 +1,0 @@
-<% content_for :media_thumbs do %>
-  <div class="grid-thumbnails">
-    <img data-src="<%= item.primary_image.first.thumbnail_url %>" alt="<%= item.primary_image.first.headline %>" class="lazyload grid-item-thumbnail" />
-  </div>
-<% end if item.try(:primary_image).present? %>
-
-<%= render 'data_cycle_core/contents/tiles/default_tile', local_assigns do %>
-  <%= render 'data_cycle_core/contents/tiles/attributes/address', local_assigns %>
-<% end %>

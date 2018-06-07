@@ -1,212 +1,46 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module DataHashHelper
-    @@partials_path = 'data_cycle_core/creative_works/partials/edit/datatype/'
-    @@key_prefix = 'creative_work[datahash]'
+    INTERNAL_PROPERTIES = DataCycleCore.internal_data_attributes + ['id']
 
-    class DataCycleFormBuilder < ActionView::Helpers::FormBuilder
-      # def text_field(attribute, options={})
-      #   label(attribute) + super
-      # end
+    def object_from_definition(definition)
+      return nil if definition.blank? || definition.dig('linked_table').nil? || definition.dig('template_name').nil?
+      object_type = 'DataCycleCore::' + definition['linked_table'].classify
+      template_name = definition['template_name']
+      object_type.constantize.find_by("template = true AND schema ->> 'content_type' = ? AND template_name =?", 'entity', template_name)
     end
 
-    def set_key_prefix(prefix)
-      @@key_prefix = prefix
-    end
+    def ordered_validation_properties(validation:, type: nil, content_area: nil)
+      return nil if validation.nil? || validation['properties'].blank?
 
-    # def is_writable(permissions)
-    #   return true if !permissions['read_write'].nil? && permissions['read_write'] == true
-    #   false
-    # end
-
-    def get_ordered_validation_properties(validation)
       ordered_properties = ActiveSupport::OrderedHash.new
-      unordered_properties = []
-
-      if !validation.nil? && !validation['properties'].blank?
-
-        validation['properties'].each do |prop|
-          unless prop[1]['editor'].nil?
-
-            if !prop[1]['editor']['sorting'].nil?
-              ordered_properties[prop[1]['editor']['sorting'].to_i] = prop
-            else
-              unordered_properties.push(prop)
-            end
-
-          end
+      validation['properties'].each do |prop|
+        next if type.present? && prop[1]['type'] != type
+        if content_area.present? && content_area == 'content'
+          next if prop[1].dig('ui', 'show', 'content_area').present?
+        elsif content_area.present?
+          next if prop[1].dig('ui', 'show', 'content_area') != content_area
         end
 
+        if prop[1]['sorting'].present? && !INTERNAL_PROPERTIES.include?(prop[0])
+          ordered_properties[prop[1]['sorting'].to_i] = prop
+        end
       end
 
-      properties = Hash[ordered_properties.sort.map { |_, v| v }]
-      properties.merge(Hash[unordered_properties]).nil? ? [] : properties.merge(Hash[unordered_properties])
+      Hash[ordered_properties.sort.map { |_, v| v }]
     end
-
-    # TODO: delete after testing
-    # def data_cycle_hidden_field(key, value = nil, parent_object_keys = [])
-    #   object_key = get_object_key(key, parent_object_keys)
-    #   hidden_field_tag(object_key, value)
-    # end
-    #
-    # def data_cycle_field(key, prop, value = nil, options = {}, parent_object_keys = [])
-    #   unless prop['editor'] || prop['type'] == 'object'
-    #     # return "No properties for editor set"
-    #     return
-    #   end
-    #
-    #   object_key = get_object_key(key, parent_object_keys)
-    #
-    #   object_key = key if prop['type'] == 'object'
-    #
-    #   data_type = prop['type']
-    #
-    #   options.merge!(prop['editor']['options']) unless prop['editor']['options'].nil?
-    #
-    #   if respond_to?('render_' + data_type + '_field')
-    #     if prop['releasable']
-    #       render partial: "#{@@partials_path}releasable", locals: { key: object_key, prop: prop, value: normalize_value(value), options: options, parent_object_keys: parent_object_keys }
-    #     else
-    #       send('render_' + data_type + '_field', object_key, prop, normalize_value(value), options, parent_object_keys)
-    #     end
-    #   else
-    #     "Unknown data_type: #{prop['type']}"
-    #   end
-    # end
-
-    # def render_classificationTreeLabel_field(key, prop, value = nil, options = {}, parent_object_keys = [])
-    #   render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys } if !prop['editor'].nil? && !prop['editor']['type'].nil?
-    # end
-    #
-    # def render_embeddedLinkArray_field(key, prop, value = nil, options = {}, parent_object_keys = [])
-    #   render partial: "#{@@partials_path}#{prop['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys } if !prop.blank? && !prop['type_name'].blank?
-    # end
-    #
-    # def render_geographic_field(key, prop, value = nil, options = {}, parent_object_keys = [])
-    #   render partial: "#{@@partials_path}#{prop['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys } if !prop.blank? && !prop['type'].blank?
-    # end
-    #
-    # def render_objectBrowser_field(key, prop, value = nil, options = {}, parent_object_keys = [])
-    #   render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: { key: key, prop: prop, value: value, options: options, parent_object_keys: parent_object_keys } if !prop.blank? && !prop['editor']['type'].nil?
-    # end
-    #
-    # def render_embeddedObject_field(key, prop, value = nil, options = {}, parent_object_keys = [])
-    #   if !prop.blank? && !prop['editor']['type'].nil?
-    #     internal_template = DataCycleCore::DataHashService.get_internal_template(prop['storage_location'], prop['name'])
-    #     internal_objects = DataCycleCore::DataHashService.get_internal_data(prop['storage_location'], value)
-    #     render partial: "#{@@partials_path}#{prop['editor']['type']}", locals: { key: key, prop: prop, value: value, options: options, internal_objects: internal_objects, internal_template: internal_template, parent_object_keys: parent_object_keys }
-    #   end
-    # end
-
-    # def render_object_field(key, prop, value = nil, options = {}, parent_object_keys = [])
-    #   if !prop['properties'].nil?
-    #     output = []
-    #
-    #     prop['properties'].each do |object_key, object_property|
-    #       output.push(data_cycle_field(object_key, object_property, value, options, [key]))
-    #     end
-    #
-    #     output.join('').html_safe
-    #   elsif !prop['name'].nil? && !prop['description'].nil? && !prop['editor']['type'].nil?
-    #
-    #     case prop['editor']['type']
-    #     when 'embeddedObject'
-    #       render_embeddedObject_field(key, prop, value, options, parent_object_keys)
-    #     when 'objectBrowser'
-    #       key = get_object_key(key, parent_object_keys)
-    #       render_objectBrowser_field(key, prop, value, options)
-    #     end
-    #
-    #   end
-    # end
-
-    # def render_string_field(key, prop, value = nil, options = {}, parent_object_keys = [])
-    #   if !prop['editor'].nil? && !prop['editor']['type'].nil?
-    #     case prop['editor']['type']
-    #     when 'input'
-    #       render_input_text_field(key, prop, value, prop['label'], options, parent_object_keys)
-    #     when 'date'
-    #       render_date_input_text_field(key, prop, value, prop['label'], options, parent_object_keys)
-    #     when 'datetime'
-    #       render_datetime_input_text_field(key, prop, value, prop['label'], options, parent_object_keys)
-    #     when 'quillEditor'
-    #       render_fe_editor(key, prop, value, prop['label'], options, parent_object_keys)
-    #     end
-    #   else
-    #     render_input_text_field(key, prop, value, prop['label'], options, parent_object_keys)
-    #   end
-    # end
-
-    # def render_number_field(key, prop, value = nil, options = {}, parent_object_keys = [])
-    #   if !prop['editor'].nil? && !prop['editor']['type'].nil?
-    #     case prop['editor']['type']
-    #     when 'duration'
-    #       render_input_duration_field(key, prop, value, prop['label'], options, parent_object_keys)
-    #     end
-    #   else
-    #     render_input_text_field(key, prop, value, prop['label'], options, parent_object_keys)
-    #   end
-    # end
-
-    # def render_fe_editor(key, prop, value = nil, label = nil, options = {}, parent_object_keys = [])
-    #   render partial: "#{@@partials_path}feEditor", locals: { key: key, value: value, label: label, prop: prop, options: options, parent_object_keys: parent_object_keys }
-    # end
-    #
-    # def render_input_text_field(key, prop, value = nil, label = nil, options = {}, parent_object_keys = [])
-    #   render partial: "#{@@partials_path}input", locals: { key: key, value: value, label: label, prop: prop, options: options, parent_object_keys: parent_object_keys }
-    # end
-    #
-    # def render_date_input_text_field(key, prop, value = nil, label = nil, options = {}, parent_object_keys = [])
-    #   render partial: "#{@@partials_path}dateInput", locals: { key: key, value: value, label: label, prop: prop, options: options, parent_object_keys: parent_object_keys }
-    # end
-    #
-    # def render_datetime_input_text_field(key, prop, value = nil, label = nil, options = {}, parent_object_keys = [])
-    #   render partial: "#{@@partials_path}dateTimeInput", locals: { key: key, value: value, label: label, prop: prop, options: options, parent_object_keys: parent_object_keys }
-    # end
-    #
-    # def render_input_duration_field(key, prop, value = nil, label = nil, options = {}, parent_object_keys = [])
-    #   render partial: "#{@@partials_path}duration", locals: { key: key, value: value, label: label, prop: prop, options: options, parent_object_keys: parent_object_keys }
-    # end
 
     def to_html_string(title, text = '')
-      html_title = ''
-      unless title.blank?
-        html_title += '<i>'
-        html_title += title
+      html_title = title.presence || ''
+      html_title += ':' if text.present?
 
-        html_title += ':' unless text.blank?
+      html_text = text.presence || ''
 
-        html_title += '</i>'
-      end
-
-      html_text = ''
-      unless text.blank?
-        html_text += '<b> '
-        html_text += text
-        html_text += '</b>'
-      end
-
-      html_tag = html_title + html_text
-
-      html_tag.html_safe
+      out = []
+      out << content_tag(:i, html_title.html_safe)
+      out << content_tag(:b, html_text.html_safe)
+      safe_join(out)
     end
-
-    # # Show action
-    # def get_object_data_for_show_action(storage_location, value)
-    #   DataCycleCore::DataHashService.get_internal_data(storage_location, value)
-    # end
-
-    # TODO: move to mixins
-    def normalize_value(value = nil)
-      value = value.reject(&:blank?) if value.is_a?(Array)
-      value
-    end
-
-    # private
-
-    # def get_object_key(key, parent_object_keys = [])
-    #   parent_object_keys_string = ''
-    #   parent_object_keys_string = parent_object_keys.map { |parent| "[#{parent}]" }.join('') unless parent_object_keys.empty?
-    #   object_key = "#{@@key_prefix}#{parent_object_keys_string}[#{key}]"
-    # end
   end
 end

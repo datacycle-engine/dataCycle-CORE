@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddHistoryToRelations < ActiveRecord::Migration[5.0]
   def up
     create_table :creative_work_event_histories, id: :uuid do |t|

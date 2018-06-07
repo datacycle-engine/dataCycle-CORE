@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 json.meta do
   json.total objects.total_count
 end

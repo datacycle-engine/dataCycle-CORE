@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateSearch < ActiveRecord::Migration[5.0]
   def up
     create_table :searches, id: :uuid do |t|
@@ -52,7 +54,7 @@ class CreateSearch < ActiveRecord::Migration[5.0]
           external_source_id
         FROM classification_#{item[:name]}s;
       EOS
-      result = @connection.exec_query(sql_query)
+      @connection.exec_query(sql_query)
       drop_table "classification_#{item[:name]}s".to_sym
 
       sql_query = <<-EOS
@@ -66,7 +68,7 @@ class CreateSearch < ActiveRecord::Migration[5.0]
           external_source_id
         FROM classification_#{item[:name]}_histories;
       EOS
-      result = @connection.exec_query(sql_query)
+      @connection.exec_query(sql_query)
       drop_table "classification_#{item[:name]}_histories".to_sym
     end
   end
@@ -113,7 +115,7 @@ class CreateSearch < ActiveRecord::Migration[5.0]
         FROM classification_contents
         WHERE content_type = '#{item[:content_type]}';
       EOS
-      result = @connection.exec_query(sql_query)
+      @connection.exec_query(sql_query)
 
       sql_query = <<-EOS
         INSERT INTO classification_#{item[:name]}_histories
@@ -126,7 +128,7 @@ class CreateSearch < ActiveRecord::Migration[5.0]
         FROM classification_content_histories
         WHERE content_history_type = '#{item[:content_type]}::History';
       EOS
-      result = @connection.exec_query(sql_query)
+      @connection.exec_query(sql_query)
     end
 
     drop_table :classification_content_histories

@@ -7,54 +7,30 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :publish_at:
         :label: Publikationsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :type: datetime
+        :storage_location: value
         :validations:
           :format: date_time
-        :editor:
-          :type: date
-          :options:
-            :data-type: datepicker
-            :data-validate: daterange
-            :placeholder: tt.mm.jjjj
+        :ui:
+          :edit:
+            :type: date
+            :options:
+              :placeholder: tt.mm.jjjj
+          :show:
+            :type: date
       :output_channel:
+        :tree_label: Themenbereiche
         :label: Ausgabekanäle
-        :type: classificationTreeLabel
-        :type_name: Ausgabekanäle
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
+        :type: classification
+        :tree_label: Ausgabekanäle
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Publikations-Plan"
-      :creator:
-        :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
-      :date_created:
-        :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
-      :date_modified:
-        :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+      :meta_data:
+        :type: mixin
+        :name: meta_data

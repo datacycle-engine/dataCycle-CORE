@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 CarrierWave.configure do |config|
   # These permissions will make dir and files available only to the user running
   # the servers

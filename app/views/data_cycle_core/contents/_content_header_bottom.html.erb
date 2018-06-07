@@ -1,6 +1,4 @@
-<% if content.external_source %>
-  <%= render 'external_source', local_assigns %>
-<% end %>
+<%= render 'external_source', local_assigns if content.external_source %>
 
 <div class="edit">
   <%= yield :buttons %>
@@ -11,7 +9,7 @@
       <%= render 'new_content_from_template', content: content %>
   <% end %>
 
-  <%= link_to contents_gpx_path(id: content.id, type: content.class.table_name), class: 'button-prime small gpx-content-link', data: { tooltip: '' }, title: t('common.download_gpx', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
+  <%= link_to polymorphic_path([:gpx, content]), class: 'button-prime small gpx-content-link', data: { tooltip: '' }, title: t('common.download_gpx', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
     <i class="fa fa-location-arrow" aria-hidden="true"></i>
   <% end if content.respond_to?(:create_gpx) && content.geo_properties.present? %>
 
@@ -24,23 +22,6 @@
   <% end if can? :destroy, content %>
 </div>
 
-<div class="tags">
-    <% content.classification_tree_definitions.each do |definition| %>
-        <% if content.send(definition[:key]).size.positive? %>
-            <div class="tag-group-wrapper">
-                <span class="icon <%= definition['label'] %>"><i class="fa" aria-hidden="true"></i></span>
-                <span class="tag-group-header"><%= definition['label'] %>: </span>
-
-                <% content.send(definition[:key]).each do |classification| %>
-                    <span class="tag"><%= classification.name %></span>
-                <% end %>
-            </div>
-        <% end %>
-    <% end %>
-</div>
-
-<%= render 'validity_period', dataCycleObject: content %>
-
 <%= render 'release_status', dataCycleObject: content, status: @release_status %>
 
-<%= render 'life_cycle_buttons', local_assigns if content.is_content_type?(['container', 'entity']) && content.schema&.dig('features', 'life_cycle') %>
+<%= render 'life_cycle_buttons', local_assigns if content.content_type?(['container', 'entity']) && content.schema&.dig('features', 'life_cycle') %>

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class WatchListsController < ApplicationController
     include DataCycleCore::Filter
@@ -50,10 +52,9 @@ module DataCycleCore
     def edit
       @watch_list = DataCycleCore::WatchList.find(params[:id])
 
-      unless params[:data_id].nil?
-        add_remove_data params
-        redirect_back(fallback_location: root_path)
-      end
+      return if params[:data_id].blank?
+      add_remove_data params
+      redirect_back(fallback_location: root_path)
     end
 
     def update

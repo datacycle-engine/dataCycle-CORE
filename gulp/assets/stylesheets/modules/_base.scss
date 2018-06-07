@@ -373,6 +373,9 @@ button,
         opacity: 1;
         color: rgba($dark-gray, 50%);
       }
+      [type='checkbox'] + label[for], [type='radio'] + label[for]{
+        margin-left: 20px;
+      }
       &:hover {
         >label {
           color: $primary-color;
@@ -479,6 +482,7 @@ span.single_error,
   -webkit-transition: all 0.4s ease;
   line-height: 1.5;
   text-align: left;
+  font-size: 1rem;
 }
 
 span.single_error:before,

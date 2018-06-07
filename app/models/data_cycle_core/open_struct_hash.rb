@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class OpenStructHash < OpenStruct
     def to_h

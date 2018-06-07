@@ -7,210 +7,136 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
-      :name:
-        :label: Titel
-        :type: string
-        :storage_type: string
-        :storage_location: column
-        :search: true
-        :validations:
-          :minLength: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
       :description:
-        :label: Kurzbeschreibung
-        :type: string
-        :storage_type: string
-        :storage_location: column
-        :search: true
-        :editor:
-          :type: input
-      :text:
         :label: Beschreibung
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: column
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: basic
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :text:
+        :label: Text
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :primary_image:
         :label: Hauptbild
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
         :validations:
           :max: 1
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: media
-            :data-type: image
       :image:
         :label: Bilder
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: string
-        :storage_location: metadata
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: media
-            :data-type: image
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
       :outdoor_active:
         :type: mixin
         :name: outdoor_active
       :outdoor_active_categories:
         :type: mixin
         :name: outdoor_active_categories
-      :start_location:
-        :label: Startkoordinaten
+      :location:
+        :label: GPS-Startkoordinaten
         :type: geographic
-        :storage_type: geographic
-        :storage_location: metadata
-        :editor:
-          :options:
-            :disabled: disabled
+        :storage_location: value
+        :ui:
+          :edit:
+            :disabled: true
       :tour:
         :label: Route
         :type: geographic
-        :storage_type: geographic
-        :storage_location: metadata
-        :editor:
-          :options:
-            :disabled: disabled
+        :storage_location: value
+        :ui:
+          :edit:
+            :disabled: true
       :directions_public_transport:
         :label: Anfahrt mit öffentlichen Verkehrsmitteln
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :instructions:
         :label: Wegbeschreibung
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :safety_instructions:
         :label: Sicherheitshinweis
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :equipment:
         :label: Ausrüstung
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :suggestion:
         :label: Tipps
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :additional_information:
         :label: Zusatzinformation
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :ascent:
         :label: Aufstieg (m)
         :type: number
-        :storage_type: number
-        :storage_location: metadata
-        :editor:
-          :type: input
+        :storage_location: value
       :descent:
         :label: Abstieg (m)
         :type: number
-        :storage_type: number
-        :storage_location: metadata
-        :editor:
-          :type: input
+        :storage_location: value
       :min_altitude:
         :label: Minimale Seehöhe (m)
         :type: number
-        :storage_type: number
-        :storage_location: metadata
-        :editor:
-          :type: input
+        :storage_location: value
       :max_altitude:
         :label: Maximale Seehöhe (m)
         :type: number
-        :storage_type: number
-        :storage_location: metadata
-        :editor:
-          :type: input
+        :storage_location: value
       :length:
         :label: Länge (m)
         :type: number
-        :storage_type: number
-        :storage_location: metadata
-        :editor:
-          :type: input
+        :storage_location: value
       :duration:
         :label: Dauer (min)
         :type: number
-        :storage_type: number
-        :storage_location: metadata
-        :editor:
-          :type: input
+        :storage_location: value
       :condition_rating:
         :label: Bewertung - Kondition
         :type: number
-        :storage_type: number
-        :storage_location: metadata
-        :editor:
-          :type: input
+        :storage_location: value
       :difficulty_rating:
         :label: Bewertung - Schwierigkeit
         :type: number
-        :storage_type: number
-        :storage_location: metadata
-        :editor:
-          :type: input
+        :storage_location: value
       :experience_rating:
         :label: Bewertung - Erlebnis
         :type: number
-        :storage_type: number
-        :storage_location: metadata
-        :editor:
-          :type: input
+        :storage_location: value
       :landscape_rating:
         :label: Bewertung - Landschaft
         :type: number
-        :storage_type: number
-        :storage_location: metadata
-        :editor:
-          :type: input
+        :storage_location: value
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Tour"
       :content_classifications:
         :type: mixin

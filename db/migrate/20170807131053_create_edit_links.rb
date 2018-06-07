@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateEditLinks < ActiveRecord::Migration[5.0]
   def up
     create_table :edit_links, id: :uuid do |t|

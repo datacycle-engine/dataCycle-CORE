@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module MasterData
     module ImportExternalSources
@@ -20,7 +22,7 @@ module DataCycleCore
             errors[data['name']] = error
           end
         end
-        return errors
+        errors
       rescue StandardError => e
         puts "could not access the YML File #{file_name}"
         puts e.message
@@ -48,24 +50,24 @@ module DataCycleCore
         # check for single importer or batch-mode
         if data_hash.dig(:config, :import) == 'DataCycleCore::Generic::Import'
           error = validate_import_item.call(data_hash.dig(:config, :import_config)).errors
-          errors[:import_config] = error unless error.blank?
+          errors[:import_config] = error if error.present?
         else
           import_config = data_hash.dig(:config, :import_config) || {}
           import_config.each do |key, value|
             error = validate_import_item.call(value.deep_symbolize_keys).errors
-            errors[:import_config][key] = error unless error.blank?
+            errors[:import_config][key] = error if error.present?
           end
         end
 
         # check for single downloader of batch-mode
         if data_hash.dig(:config, :download) == 'DataCycleCore::Generic::Download'
           error = validate_download_item.call(data_hash.dig(:config, :download_config)).errors
-          errors['download_config'] = error unless error.blank?
+          errors['download_config'] = error if error.present?
         else
           download_config = data_hash.dig(:config, :download_config) || {}
           download_config.each do |key, value|
             error = validate_download_item.call(value.deep_symbolize_keys).errors
-            errors[:download_config][key] = error unless error.blank?
+            errors[:download_config][key] = error if error.present?
           end
         end
         errors.reject { |_, v| v.blank? }

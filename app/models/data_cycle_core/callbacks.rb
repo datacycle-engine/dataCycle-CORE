@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class Callbacks
     def initialize(block = nil)
@@ -7,11 +9,11 @@ module DataCycleCore
     def method_missing(callback, *args, &block)
       super
     rescue NoMethodError
-      raise "wrong number of arguments (#{args.size} for 0)" unless args.blank?
+      raise "wrong number of arguments (#{args.size} for 0)" if args.present?
 
       callbacks[callback] = (callbacks[callback] || []) + [block] if block
 
-      return self
+      self
     end
 
     def execute_callback(callback, *args)

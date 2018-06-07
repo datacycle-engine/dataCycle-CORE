@@ -1,0 +1,6 @@
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
+
+  <%= label_tag(key, definition['label']) %>
+  <%= text_field_tag key, value, options.merge({ class: 'form-control' }) %>
+
+<% end %>

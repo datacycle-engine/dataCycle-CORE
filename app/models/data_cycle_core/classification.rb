@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class Classification < ApplicationRecord
     belongs_to :external_source

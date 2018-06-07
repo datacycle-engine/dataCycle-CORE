@@ -49,7 +49,7 @@ describe('Embedded Object', function () {
     cy.visit('/creative_works/' + id + '/edit').get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
     cy.location('pathname').should('match', /\/creative_works\/.*\/edit/)
 
-    cy.get('.embedded-object[data-key="creative_work[datahash][quotation]"]').should('be.visible').find('.content-object-item').should('be.visible').find('.object-browser[data-type="person"]').should('be.visible').find('.button#show').should('be.visible').click()
+    cy.get('.embedded-object[data-key="creative_work[datahash][quotation]"]').should('be.visible').find('.content-object-item').should('be.visible').find('.object-browser[data-type="Person"]').should('be.visible').find('.button.show-objectbrowser').should('be.visible').click()
     cy.get('.object-browser-overlay:visible').should('be.visible').find('.new-item-button').should('be.visible').click()
     cy.get('.new-item:visible').should('be.visible').find('#person_datahash_given_name').should('be.visible').type(person.given_name)
     cy.get('.new-item:visible').should('be.visible').find('#person_datahash_family_name').should('be.visible').type(person.family_name + '{enter}')
@@ -58,7 +58,7 @@ describe('Embedded Object', function () {
     cy.get('.items:not(.chosen-items):visible').contains(person.given_name + ' ' + person.family_name).should('have.length', 1)
 
     cy.get('.save-object-browser:visible').should('be.visible').click()
-    cy.get('.embedded-object[data-key="creative_work[datahash][quotation]"]').should('be.visible').find('.content-object-item').should('be.visible').find('.object-browser[data-type="person"]').contains(person.given_name + ' ' + person.family_name).should('have.length', 1)
+    cy.get('.embedded-object[data-key="creative_work[datahash][quotation]"]').should('be.visible').find('.content-object-item').should('be.visible').find('.object-browser[data-type="Person"]').contains(person.given_name + ' ' + person.family_name).should('have.length', 1)
 
     cy.get('.submit-edit-form').should('be.visible').click()
     cy.location('pathname').should('match', /\/creative_works/).should('not.contain', '/edit')

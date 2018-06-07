@@ -1,4 +1,6 @@
 
+# frozen_string_literal: true
+
 if defined?(BetterErrors)
   BetterErrors::Middleware.allow_ip! '10.0.0.0/8'
   BetterErrors::Middleware.allow_ip! '172.16.0.0/12'
@@ -44,6 +46,10 @@ Rails.application.configure do
 
   # Raise an error on page load if there are pending migrations.
   config.active_record.migration_error = :page_load
+
+  # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
+  # the I18n.default_locale when a translation cannot be found).
+  config.i18n.fallbacks = false
 
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large

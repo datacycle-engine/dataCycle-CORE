@@ -5,26 +5,36 @@
     :properties:
       :frontend_type:
         :label: Frontend-Typ
-        :type: classificationTreeLabel
-        :type_name: OutdoorActive - FrontendTypes
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: OutdoorActive - FrontendTypes
+        :ui:
+          :show:
+            :content_area: header
       :categories:
         :label: Kategorien
-        :type: classificationTreeLabel
-        :type_name: OutdoorActive - Kategorien
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: OutdoorActive - Kategorien
+        :ui:
+          :show:
+            :content_area: header
       :outdoor_active_tags:
         :label: OutdoorActive - Tags
-        :type: classificationTreeLabel
-        :type_name: OutdoorActive - Tags
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: OutdoorActive - Tags
+        :ui:
+          :show:
+            :content_area: header
       :regions:
         :label: Regionen
-        :type: classificationTreeLabel
-        :type_name: OutdoorActive - Regionen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: OutdoorActive - Regionen
+        :ui:
+          :show:
+            :content_area: header
       :source:
         :label: Quelle
-        :type: classificationTreeLabel
-        :type_name: OutdoorActive - Quellen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: OutdoorActive - Quellen
+        :ui:
+          :show:
+            :content_area: header

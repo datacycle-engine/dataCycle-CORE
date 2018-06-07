@@ -1,10 +1,16 @@
 <div class="media person item <%= 'active' if (objects ||= []).include?(object.id) %>" data-id="<%= object.id %>">
-  <%= hidden_field_tag key, object.id %>
+    <%= hidden_field_tag key, object.id %>
 
-  <% if editable ||= false %>
-    <span class="delete-thumbnail"><i aria-hidden="true" class="fa fa-times"></i></span>
-  <% end %>
+    <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
 
-  <i class="fa fa-question" aria-hidden="true"></i>
-  <span class="name"><%= object.try(:title) %></span>
+    <% if editable ||= false %>
+        <span class="delete-thumbnail"><i aria-hidden="true" class="fa fa-times"></i></span>
+    <% end %>
+
+    <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.parameterize(separator: '_') %>
+    <% if object.try(:title) %>
+        <span class="name"><%= object.try(:title) %></span>
+    <% else %>
+        <span class="name">Keine Übersetzung vorhanden</span>
+    <% end %>
 </div>

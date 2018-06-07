@@ -1,23 +1,26 @@
 - Inhaltstypen:
-  - $$Text:
-    - $$Artikel
-    - $$Angebot
-    - $$Biografie
-    - $$Interview
-    - $$Social Media Posting
   - $$Asset:
     - $$Bild
     - $$Datei
     - $$Video
-  - $$Linktipps
   - $$Person
-  - $$Organisation
-  - $$Ort:
-    - $$Örtlichkeit
-  - $$Quiz
+  - $$Tour
+  - $$POI
+  - $$Unterkunft
   - $$Veranstaltung
+  - $$Text:
+    - $$Linktipps
+    - $$Quiz
+    - $$Angebot
+    - $$Artikel
+    - $$Biografie
+    - $$Interview
+    - $$Social Media Posting
+    - $$Rezept
+# hidden
+  - $$Organisation
   - $$Zeitleiste
-  - $$Rezept
+  - $$Örtlichkeit
 # embedded
   - $$Angebotszeitraum
   - $$Website
@@ -26,17 +29,27 @@
   - $$Frage
   - $$Antwort
   - $$Veranstaltungstermin
+  - $$Öffnungszeit
   - $$Overlay
+  - $$Publikations-Plan
 
 - Geschlecht:
   - Männlich
   - Weiblich
 
-- Ausgabekanäle:
-  - Web
-  - Social Media
-  - Print
-
-- Themenbereiche:
+- Wochentage:
+  - Montag
+  - Dienstag
+  - Mittwoch
+  - Donnerstag
+  - Freitag
+  - Samstag
+  - Sonntag
 
 - Tags:
+
+- Ausgabekanäle:
+
+- Rezept-Gänge:
+
+- Rezept-Kategorien:

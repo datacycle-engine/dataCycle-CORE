@@ -1,0 +1,18 @@
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
+
+    <%= label_tag(key, definition['label']) %>
+
+    <div class="asset-object" id="<%= sanitize_to_id(key) %>"
+         data-language="<%= I18n.locale.to_s %>"
+         data-key="<%= key %>"
+         data-label="<%= definition['label'] %>"
+         data-definition="<%= definition.to_json %>"
+         data-options="<%= options.to_json %>"
+         data-max="1"
+         data-write="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>">
+
+        <%= render_asset_editor(key: key, value: value, definition: definition, parameters: {options: options}, content: content) %>
+
+    </div>
+
+<% end %>

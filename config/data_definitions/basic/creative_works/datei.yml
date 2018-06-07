@@ -7,71 +7,46 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
-      :headline:
-        :label: Titel
-        :type: string
-        :storage_type: string
-        :storage_location: column
-        :search: true
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
       :validity_period:
         :type: mixin
         :name: validity_period
       :description:
-        :label: Beschreibung
+        :label: Teasertext
         :type: string
-        :storage_type: text
         :storage_location: column
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: basic
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :caption:
         :label: Alt-Label
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :asset:
         :label: File-Asset
         :type: asset
-        :type_name: DataCycleCore::Asset
-        :storage_location: asset_relation
-        :editor:
-          :type: fileAsset
-      :content_size:
-        :label: Dateigröße
-        :type: number
-        :storage_type: number
-        :storage_location: metadata
-        :validations:
-          :format: integer
-        :editor:
-          :type: input
+        :asset_type: asset
       :file_format:
         :label: Dateiformat
         :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :editor:
-          :type: input
-      #meta attributes
+        :storage_location: value
+      :content_size:
+        :label: Dateigröße
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: integer
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Datei"
       :content_classifications:
         :type: mixin

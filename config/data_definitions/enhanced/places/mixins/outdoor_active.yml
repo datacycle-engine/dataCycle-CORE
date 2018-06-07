@@ -6,37 +6,22 @@
       :author:
         :label: Autor
         :type: string
-        :storage_type: string
-        :storage_location: content
-        :editor:
-          :type: input
+        :storage_location: translated_value
       :price:
         :label: Preis
         :type: string
-        :storage_type: string
-        :storage_location: content
-        :editor:
-          :type: input
+        :storage_location: translated_value
       :directions:
         :label: Anfahrtsbeschreibung
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :parking:
         :label: Parkmöglichkeit
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :hours_available:
         :label: Service-Zeiten
         :type: string
-        :storage_type: string
-        :storage_location: content
-        :editor:
-          :type: input
+        :storage_location: translated_value

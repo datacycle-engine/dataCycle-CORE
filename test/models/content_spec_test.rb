@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
@@ -10,13 +12,11 @@ module SharedExamplesForContent
           property: {
             label: 'property',
             type: 'string',
-            storage_type: 'string',
             storage_location: storage_location
           },
           existing_property: {
             label: 'existing property',
             type: 'string',
-            storage_type: 'string',
             storage_location: storage_location
           }
         }
@@ -25,8 +25,11 @@ module SharedExamplesForContent
       property_value = data_provider.call
 
       subject do
-        DataCycleCore::CreativeWork.new(schema: data_definition,
-                                        storage_location => { 'existing_property' => property_value })
+        convert_storage_location = { 'value' => 'metadata', 'translated_value' => 'content' }
+        DataCycleCore::CreativeWork.new(
+          schema: data_definition,
+          convert_storage_location[storage_location] => { 'existing_property' => property_value }
+        )
       end
 
       it 'provides names of plain properties' do
@@ -59,7 +62,6 @@ module SharedExamplesForContent
           property: {
             label: 'property',
             type: 'string',
-            storage_type: 'string',
             storage_location: storage_location
           }
         }
@@ -83,13 +85,10 @@ module SharedExamplesForContent
 end
 
 describe DataCycleCore::Content do
-  SharedExamplesForContent.for_properties('metadata') { SecureRandom.hex }
+  SharedExamplesForContent.for_properties('value') { SecureRandom.hex }
 
-  SharedExamplesForContent.for_properties_with_no_content_yet('content')
-  SharedExamplesForContent.for_properties('content') { SecureRandom.hex }
-
-  SharedExamplesForContent.for_properties_with_no_content_yet('properties')
-  SharedExamplesForContent.for_properties('properties') { SecureRandom.hex }
+  SharedExamplesForContent.for_properties_with_no_content_yet('translated_value')
+  SharedExamplesForContent.for_properties('translated_value') { SecureRandom.hex }
 
   describe 'with translatable and untranslatable properties' do
     subject do
@@ -98,39 +97,27 @@ describe DataCycleCore::Content do
           properties: {
             id: {
               label: 'id',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'key'
+              type: 'key'
             },
             headline: {
               label: 'headline',
               type: 'string',
-              storage_type: 'string',
               storage_location: 'column'
             },
             '1' => {
               label: '1',
               type: 'string',
-              storage_type: 'string',
-              storage_location: 'metadata'
+              storage_location: 'value'
             },
             '2' => {
               label: '2',
               type: 'string',
-              storage_type: 'string',
-              storage_location: 'metadata'
+              storage_location: 'value'
             },
             '3' => {
               label: '3',
               type: 'string',
-              storage_type: 'string',
-              storage_location: 'content'
-            },
-            '4' => {
-              label: '4',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'properties'
+              storage_location: 'translated_value'
             }
           }
         }
@@ -138,18 +125,18 @@ describe DataCycleCore::Content do
     end
 
     it 'provides names of plain properties' do
-      subject.plain_property_names.must_equal(['id', 'headline', '1', '2', '3', '4'])
+      subject.plain_property_names.must_equal(['id', 'headline', '1', '2', '3'])
     end
 
     it 'provides methods for all property names as string' do
-      ['id', 'headline', '1', '2', '3', '4'].each do |item|
+      ['id', 'headline', '1', '2', '3'].each do |item|
         subject.must_respond_to item
         subject.must_respond_to "#{item}="
       end
     end
 
     it 'provides methods for all property names as symbol' do
-      ['id', 'headline', '1', '2', '3', '4'].each do |item|
+      ['id', 'headline', '1', '2', '3'].each do |item|
         subject.must_respond_to item.to_sym
         subject.must_respond_to "#{item}=".to_sym
       end
@@ -176,7 +163,7 @@ describe DataCycleCore::Content do
     end
 
     it 'provides list of translatable properties' do
-      subject.translatable_property_names.must_equal(['headline', '3', '4'])
+      subject.translatable_property_names.must_equal(['headline', '3'])
     end
   end
 
@@ -187,23 +174,17 @@ describe DataCycleCore::Content do
           properties: {
             id: {
               label: 'id',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'key'
+              type: 'key'
             },
             existing_locations: {
               label: 'Location',
-              type: 'embeddedLinkArray',
-              type_name: 'places',
-              storage_type: 'array',
-              storage_location: 'metadata'
+              type: 'linked',
+              linked_table: 'places'
             },
             existing_main_location: {
               label: 'Main Location',
-              type: 'embeddedLink',
-              type_name: 'places',
-              storage_type: 'number',
-              storage_location: 'metadata'
+              type: 'linked',
+              linked_table: 'places'
             }
           },
           metadata: {
@@ -243,19 +224,17 @@ describe DataCycleCore::Content do
           properties: {
             id: {
               label: 'id',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'key'
+              type: 'key'
             },
             existing_locations: {
               label: 'Location',
-              type: 'object',
-              storage_location: 'places'
+              type: 'embedded',
+              linked_table: 'places'
             },
             nested_creative_works: {
               label: 'Nested Data',
-              type: 'object',
-              storage_location: 'creative_works'
+              type: 'embedded',
+              linked_table: 'creative_works'
             }
           }
         }
@@ -263,7 +242,6 @@ describe DataCycleCore::Content do
     end
 
     it 'provides names of embedded properties' do
-      # ap subject.embedded_property_names
       subject.embedded_property_names.must_equal(['existing_locations', 'nested_creative_works'])
     end
   end
@@ -275,32 +253,27 @@ describe DataCycleCore::Content do
           properties: {
             id: {
               label: 'id',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'key'
+              type: 'key'
             },
             description: {
               label: 'description',
               type: 'string',
-              storage_type: 'string',
               storage_location: 'column'
             },
             included_object: {
               label: 'Nested Data',
               type: 'object',
-              storage_location: 'metadata',
+              storage_location: 'value',
               properties: {
                 property1: {
                   label: 'property_name a',
                   type: 'string',
-                  storage_type: 'string',
-                  storage_location: 'metadata'
+                  storage_location: 'value'
                 },
                 property2: {
                   label: 'property_name b',
                   type: 'string',
-                  storage_type: 'string',
-                  storage_location: 'metadata'
+                  storage_location: 'value'
                 }
               }
             }
@@ -342,14 +315,16 @@ describe DataCycleCore::Content do
     end
 
     it 'return a proper hash with :to_h' do
-      subject.to_h.must_equal({
-                                'id' => nil,
-                                'description' => 'dies ist ein Test',
-                                'included_object' => {
-                                  'property1' => 'data property1',
-                                  'property2' => 'data property2'
-                                }
-                              })
+      subject.to_h.must_equal(
+        {
+          'id' => nil,
+          'description' => 'dies ist ein Test',
+          'included_object' => {
+            'property1' => 'data property1',
+            'property2' => 'data property2'
+          }
+        }
+      )
     end
   end
 
@@ -360,60 +335,52 @@ describe DataCycleCore::Content do
           properties: {
             id: {
               label: 'id',
-              type: 'string',
-              storage_type: 'string',
-              storage_location: 'key'
+              type: 'key'
             },
             description: {
               label: 'description',
               type: 'string',
-              storage_type: 'string',
               storage_location: 'column'
             },
             included_object: {
               label: 'Nested Data',
               type: 'object',
-              storage_location: 'metadata',
+              storage_location: 'value',
               properties: {
                 property1: {
                   label: 'property_name a',
                   type: 'string',
-                  storage_type: 'string',
-                  storage_location: 'metadata'
+                  storage_location: 'value'
                 },
                 property2: {
                   label: 'property_name b',
                   type: 'string',
-                  storage_type: 'string',
-                  storage_location: 'metadata'
+                  storage_location: 'value'
                 },
                 deep_included_object: {
                   label: 'Nested Data',
                   type: 'object',
-                  storage_location: 'metadata',
+                  storage_location: 'value',
                   properties: {
                     property_deep1: {
                       label: 'deep_property_name a',
                       type: 'string',
-                      storage_type: 'string',
-                      storage_location: 'metadata'
+                      storage_location: 'value'
                     },
                     property_deep2: {
                       label: 'deep_property_name b',
                       type: 'string',
-                      storage_type: 'string',
-                      storage_location: 'metadata'
+                      storage_location: 'value'
                     },
                     deeper_object: {
                       label: 'deeper Data',
                       type: 'object',
-                      storage_location: 'metadata',
+                      storage_location: 'value',
                       properties: {
                         property_deeper: {
                           label: 'deeper_property_name ',
                           type: 'string',
-                          storage_type: 'string',
-                          storage_location: 'metadata'
+                          storage_location: 'value'
                         }
                       }
                     }
@@ -492,6 +459,77 @@ describe DataCycleCore::Content do
                                   }
                                 }
                               })
+    end
+  end
+
+  describe 'with included properties, different types' do
+    subject do
+      DataCycleCore::CreativeWork.new(
+        schema: {
+          properties: {
+            id: {
+              label: 'id',
+              type: 'key'
+            },
+            description: {
+              label: 'description',
+              type: 'string',
+              storage_location: 'column'
+            },
+            included_object: {
+              label: 'Nested Data',
+              type: 'object',
+              storage_location: 'value',
+              properties: {
+                property1: {
+                  label: 'property_name a',
+                  type: 'string',
+                  storage_location: 'value'
+                },
+                property2: {
+                  label: 'property_name b',
+                  type: 'string',
+                  storage_location: 'value'
+                }
+              }
+            }
+          }
+        },
+        metadata: {
+          'included_object' => {
+            'property1' => 'data property1',
+            'property2' => 'data property2'
+          }
+        },
+        description: 'dies ist ein Test'
+      )
+    end
+
+    it 'returns an hash for included property' do
+      subject.included_object.to_h.must_equal(
+        {
+          'property1' => 'data property1',
+          'property2' => 'data property2'
+        }
+      )
+    end
+
+    it 'returns values for included sub_properties' do
+      subject.included_object.property1.must_equal('data property1')
+      subject.included_object.property2.must_equal('data property2')
+    end
+
+    it 'returns all data :to_h ' do
+      subject.to_h.must_equal(
+        {
+          'id' => nil,
+          'description' => 'dies ist ein Test',
+          'included_object' => {
+            'property1' => 'data property1',
+            'property2' => 'data property2'
+          }
+        }
+      )
     end
   end
 end

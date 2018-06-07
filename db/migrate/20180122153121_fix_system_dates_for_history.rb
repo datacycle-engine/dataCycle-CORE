@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class FixSystemDatesForHistory < ActiveRecord::Migration[5.0]
   def up
     @connection = ActiveRecord::Base.connection

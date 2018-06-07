@@ -2,67 +2,28 @@
 - :data:
     :name: Event
     :type: object
-    :permissions:
-      :read_write: true
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
-#      :start_date:
-#        :label: Startzeitpunkt
-#        :type: string
-#        :storage_type: string
-#        :storage_location: column
-#        :validations:
-#          :format: date
-#        :editor:
-#          :type: datetime
-#          :sorting: 1
-#          :options:
-#            :data-type: datepicker
-#            :data-validate: daterange
-#            :placeholder: "tt.mm.jjjj --:--"
-#      :end_date:
-#        :label: Endzeitpunkt
-#        :type: string
-#        :storage_type: string
-#        :storage_location: column
-#        :validations:
-#          :format: date
-#        :editor:
-#          :type: datetime
-#          :sorting: 2
-#          :options:
-#            :data-type: datepicker
-#            :data-validate: daterange
-#            :placeholder: "tt.mm.jjjj --:--"
+        :type: key
       :event_period:
         :label: Gültigkeitszeitraum
         :type: object
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :daterange:
             :from: start_date
             :to: end_date
         :editor:
-          :sorting: 2
           :options:
             :class: daterange validation-container
             :tabindex: -1
         :properties:
           :start_date:
             :label: Gültigkeit
-            :type: string
-            :storage_type: string
+            :type: datetime
             :storage_location: column
-            :validations:
-              :format: date_time
             :editor:
-              :sorting: 1
               :type: date
               :options:
                 :data-type: datepicker
@@ -70,13 +31,9 @@
                 :placeholder: tt.mm.jjjj
           :end_date:
             :label: bis
-            :type: string
-            :storage_type: string
+            :type: datetime
             :storage_location: column
-            :validations:
-              :format: date_time
             :editor:
-              :sorting: 2
               :type: date
               :options:
                 :data-type: datepicker
@@ -85,41 +42,20 @@
       :url:
         :label: Link
         :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :storage_location: value
         :editor:
           :type: input
-          :sorting: 3
-#      :data_type:
-#        :label: Inhaltstype
-#        :type: classificationTreeLabel
-#        :type_name: Inhaltstypen
-#        :storage_location: classification_relation
-#        :default_value: "Event"
-#      :is_part_of:
-#        :label: parent
-#        :type: string
-#        :storage_type: string
-#        :storage_location: column
-#        :validations:
-#          :format: uuid
       :creator:
         :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: users
+        :validations:
+          :max: 1
       :date_created:
         :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
       :date_modified:
         :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value

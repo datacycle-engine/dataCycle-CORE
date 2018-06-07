@@ -8,7 +8,7 @@
 
 	<% unless contents.nil? %>
 		<% contents.each do |content| %>
-        <div class="grid-item data-cycle-object <%= 'expired-item' if content.try(:is_valid) == false %>">
+        <div class="grid-item data-cycle-object <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %>">
           <div class="buttons">
             <%= render 'data_cycle_core/contents/tiles/attributes/external', item: content if content.try(:external_source) %>
 

@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 DataCycleCore.setup do |config|
   # general settings
-  I18n.available_locales = [:de]
+  I18n.available_locales = [:de, :en]
+
   # only required for DataCycleCore dummy app
   Rails.application.config.assets.precompile += ['logo.svg', 'logo.png']
   # Configure sensitive parameters which will be filtered from the log file.
@@ -8,11 +11,6 @@ DataCycleCore.setup do |config|
   # Require `belongs_to` associations by default. Previous versions had false.
   Rails.application.config.active_record.belongs_to_required_by_default = true
   Rails.application.config.session_store :cookie_store, key: '_dummy_session'
-
-  # DataCycleCore settings
-  config.access_tokens = [
-    'd48a84faseei512hjkl159ggg9a72adf'
-  ]
 
   config.template_path = Rails.root.join('config', 'data_definitions').freeze
 
@@ -25,9 +23,8 @@ DataCycleCore.setup do |config|
     config.default_template_paths = [
       Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive')
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive'),
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'container')
-      # Rails.root.join('..', '..', 'config', 'data_definitions', 'test')
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'gitlab_ci')
     ].freeze
   end
@@ -48,9 +45,9 @@ DataCycleCore.setup do |config|
         enabled: true
       },
       container: {
-        enabled: true,
+        enabled: false,
         excluded: ['Bild', 'Video']
       }
     }
-  ).freeze
+  )
 end
