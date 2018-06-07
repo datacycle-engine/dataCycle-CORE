@@ -53,11 +53,10 @@ module DataCycleCore
 
             sub_events = raw_data.dig('subEvents').nil? ? {} : extract_sub_event_data(raw_data['subEvents'])
 
-            # event_default_values = {}
-            # event_default_values = load_default_values(@options.dig(:import, :default_values, :event)) if @options.dig(:import, :default_values, :event).present?
             event_data = merge_default_values(:event, extract_event_data(raw_data)).with_indifferent_access
 
-            event_data['content_location'] = [{ 'id' => content_location.try(:id) }] if content_location.present?
+            event_data['location'] = [content_location.try(:id)] if content_location.present?
+
             event_data['event_category'] = categories.map(&:id) if categories.present?
             event_data['image'] = [image.try(:id)] if image.present?
             event_data['sub_event'] = sub_events if sub_events.present?
@@ -80,7 +79,7 @@ module DataCycleCore
               )
             end
             item = merge_default_values(:subevent, @sub_event_transformation.call(sub_event))
-            item.merge!({ 'content_location' => [{ 'id' => content_location.try(:id) }] }) if content_location.present?
+            item.merge!({ 'location' => [content_location.try(:id)] }) if content_location.present?
           end
         end
 

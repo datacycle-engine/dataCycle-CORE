@@ -39,7 +39,7 @@ config:
     events:
       sorting: 3
       source_type: events
-      import_strategy: DataCycleCore::Generic::EventDatabaseV2::ImportEvents
+      import_strategy: DataCycleCore::Generic::EventDatabase::ImportEvents
       data_template: Event
       image_template: Bild
       place_template: Örtlichkeit
