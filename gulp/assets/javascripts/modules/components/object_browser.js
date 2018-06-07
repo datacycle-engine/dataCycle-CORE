@@ -151,7 +151,8 @@ ObjectBrowser.prototype.setup = function () {
         options: self.options,
         class: self.class,
         objects: self.chosen,
-        new_overlay_id: '#new_' + self.id
+        new_overlay_id: '#new_' + self.id,
+        source: 'object_browser'
       });
 
       $.ajax({

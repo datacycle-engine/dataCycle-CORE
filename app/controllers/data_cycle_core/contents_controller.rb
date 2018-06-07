@@ -3,7 +3,7 @@
 module DataCycleCore
   class ContentsController < ApplicationController
     before_action :authenticate_user!, :set_watch_list
-    load_and_authorize_resource only: [:index, :show, :edit, :update, :create, :destroy, :history]
+    load_and_authorize_resource only: [:index, :show, :edit, :update, :destroy, :history]
 
     def index
       redirect_back(fallback_location: root_path)
@@ -23,6 +23,12 @@ module DataCycleCore
     end
 
     def create
+      if params[:source] == 'object_browser'
+        authorize!(:create_in_objectbrowser, data_cycle_object(controller_name))
+      else
+        authorize!(:create, data_cycle_object(controller_name))
+      end
+
       locale = I18n.available_locales.include?(params[:locale].try(:to_sym)) ? params[:locale].try(:to_sym) : I18n.locale
       I18n.with_locale(locale) do
         object_params = content_params(controller_name, params[:template])
