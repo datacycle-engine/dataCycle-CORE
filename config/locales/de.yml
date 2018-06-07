@@ -50,6 +50,7 @@ de:
     load_more: ... weitere Einträge laden
     are_you_sure: 'Sind Sie sicher?'
     language: "Sprache"
+    all: Alle
     choose_language: "Sprache wählen"
     searchterm: "Suchbegriff"
     active_filters: "Aktuelle Suche"
@@ -346,6 +347,7 @@ de:
     administration: 'Administration'
     user_settings: Benutzeraktionen
     user_details: Benutzerdetails
+    user_links: Benutzerlinks
     classifications: 'Klassifizierungen'
     this_classification: Dieser Klassifizierung
     this_classification_tree: Diesem Klassifizierungsbaum

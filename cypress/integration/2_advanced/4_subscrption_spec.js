@@ -17,7 +17,8 @@ describe('Subscription', function () {
       cy.get('.detail-header-functions [data-toggle="subscribe"]').click()
       cy.get('#subscribe').should('be.visible').find('a').click()
 
-      cy.get('.user-subscriptions-link').click()
+      cy.get('.show-sidebar').click()
+      cy.get('.user-subscriptions-link').should('be.visible').click()
       cy.get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1)
     })
   })
@@ -29,9 +30,10 @@ describe('Subscription', function () {
     cy.get('.detail-header-functions [data-toggle="subscribe"]').click()
     cy.get('#subscribe').should('be.visible').find('a[data-method="delete"]').click()
 
-    cy.get('.user-subscriptions-link').click()
-    cy.location('pathname').should('match', /\/subscriptions/)
+    cy.get('.show-sidebar').click()
+    cy.get('.user-subscriptions-link').should('be.visible').click()
 
+    cy.location('pathname').should('match', /\/subscriptions/)
     cy.get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 0)
   })
 })

@@ -1,6 +1,7 @@
 // offcanvas
 #settings-off-canvas {
   top: 72px;
+  height: calc(100% - 72px);
   .settings-row {
     padding: 1rem;
     margin: 0 0.1rem;

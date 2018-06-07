@@ -21,7 +21,11 @@ module DataCycleCore
               'v' => @content.id
             }
           )
-          @contents = get_filtered_results if @content.children.present?
+
+          if @content.children.present?
+            @paginate_object = get_filtered_results.content_includes.page(params[:page])
+            @contents = @paginate_object.map(&:content_data)
+          end
 
           @entities = DataCycleCore::CreativeWork.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
           @entities = @entities.where('template_name NOT IN(?)', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects)
