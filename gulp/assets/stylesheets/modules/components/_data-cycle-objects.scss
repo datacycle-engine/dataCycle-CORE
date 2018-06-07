@@ -564,6 +564,16 @@
     .fa-exclamation-triangle {
       color: $warning-color;
     }
+    .detail-type {
+      display: flex;
+      .detail-label {
+        font-weight: bold;
+      }
+      .detail-label,
+      .detail-content {
+        flex: 1;
+      }
+    }
     dl {
       margin: 0;
       display: flex;

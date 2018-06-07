@@ -5,10 +5,10 @@ module DataCycleCore
     module V1
       class ExternalSourcesController < Api::V1::ApiBaseController
         def update
-          api_strategy = api_strategy
+          strategy = api_strategy
           content = content_params.as_json
 
-          updated = api_strategy.update content
+          updated = strategy.update content
 
           updated.each do |item|
             item.available_locales.each do |locale|
@@ -29,10 +29,10 @@ module DataCycleCore
         end
 
         def create
-          api_strategy = api_strategy
+          strategy = api_strategy
           content = content_params.as_json
 
-          created = api_strategy.create content
+          created = strategy.create content
 
           execute_after_create_webhooks created.first if created.is_a?(Array)
 
@@ -41,10 +41,10 @@ module DataCycleCore
         end
 
         def destroy
-          api_strategy = api_strategy
+          strategy = api_strategy
           content = content_params.as_json
 
-          deleted = api_strategy.delete content
+          deleted = strategy.delete content
 
           execute_after_delete_webhooks deleted
 
