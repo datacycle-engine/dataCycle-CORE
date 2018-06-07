@@ -14,7 +14,7 @@
             <% end %>
 
             <div class="publication-row">
-                <span class="publication-attribute publication-date"><%= l(publication.publish_at&.to_date, format: :long, locale: DataCycleCore.ui_language) %></span>
+                <span class="publication-attribute publication-date"><%= l(publication.publish_at&.to_date, format: :long, locale: DataCycleCore.ui_language) if publication.publish_at.present? %></span>
                 <% classification_attributes.presence&.each_key do |c_attribute| %>
           <span class="publication-attribute">
             <%= publication.send(c_attribute).presence&.map(&:name)&.join(', ') %>

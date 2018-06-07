@@ -45,12 +45,12 @@
 
             <% unless object.try(:date_created).nil? %>
                 <dt>Erstellt: </dt>
-                <dd><%= l(object.date_created.to_datetime, locale: DataCycleCore.ui_language) %></dd>
+                <dd><%= l(object.date_created.to_datetime, locale: DataCycleCore.ui_language) if object.date_created.present? %></dd>
             <% end %>
 
             <% unless object.try(:date_modified).nil? %>
                 <dt>Bearbeitet: </dt>
-                <dd><%= l(object.date_modified.to_datetime, locale: DataCycleCore.ui_language) %></dd>
+                <dd><%= l(object.date_modified.to_datetime, locale: DataCycleCore.ui_language) if object.date_modified.present? %></dd>
             <% end %>
 
             <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: object} %>
