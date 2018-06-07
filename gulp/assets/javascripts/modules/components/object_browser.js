@@ -276,6 +276,10 @@ ObjectBrowser.prototype.loadMore = function (loaded_ids) {
       load_more_except: loaded_ids
     },
     contentType: 'application/json'
+  }).done(() => {
+    this.chosen = this.chosen.concat(this.ids.diff(this.chosen));
+    this.updateChosenCounter();
+    this.ids = [];
   });
 };
 
@@ -301,7 +305,7 @@ ObjectBrowser.prototype.loadDetails = function (id) {
 ObjectBrowser.prototype.resetOverlay = function () {
   this.overlay.find('.object-browser-search').val('');
   this.overlay.find('.chosen-items-container .item').remove();
-  this.chosen = this.element.data('objects');
+  this.chosen = [];
   this.search = "";
   this.excluded = [];
   this.page = 1;
@@ -309,6 +313,7 @@ ObjectBrowser.prototype.resetOverlay = function () {
 
 ObjectBrowser.prototype.setPreselected = function () {
   this.overlay.find('.chosen-items-container').html(this.element.find('> .media-thumbs > .object-thumbs > .item').clone(true));
+
   this.chosen = $.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id'));
 }
 

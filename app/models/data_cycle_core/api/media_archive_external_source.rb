@@ -5,6 +5,7 @@ module DataCycleCore
     class MediaArchiveExternalSource < DataCycleCore::Api::ExternalSource
       def update(data)
         extend(DataCycleCore::Generic::MediaArchive::Import)
+        default_options
         load_transformations
         processed_items = []
         data.each do |key, object|

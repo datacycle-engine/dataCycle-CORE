@@ -5,10 +5,14 @@ module DataCycleCore
     module MediaArchive
       module Import
         def import_data(**options)
-          @place_template = options[:import][:place_template] || 'Örtlichkeit'
-          @person_template = options[:import][:person_template] || 'Person'
+          default_options(options)
           load_transformations
           import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)
+        end
+
+        def default_options(**options)
+          @place_template = options.presence&.dig(:import, :place_template) || DataCycleCore.default_place_type || 'Örtlichkeit'
+          @person_template = options.presence&.dig(:import, :person_template) || DataCycleCore.default_templates.dig(:persons) || 'Person'
         end
 
         def load_transformations
@@ -60,7 +64,7 @@ module DataCycleCore
               data = nil
               ap "Unkown contentType #{raw_data}"
             end
-            default_values = load_default_values(@options.dig(:import, :default_values)) if @options.dig(:import, :default_values).present?
+            default_values = load_default_values(@options.dig(:import, :default_values)) if @options.presence&.dig(:import, :default_values).present?
             data.merge!(default_values) if default_values.present?
 
             unless data.nil?
