@@ -24,16 +24,15 @@ module DataCycleCore
         end
 
         def process_image(raw_data, config)
-          type = config.dig('content_type').constantize || DataCycleCore::CreativeWork
-          template = config.dig(:template) || 'Bild'
-          place_template = config.dig(:place_template) || 'Örtlichkeit'
-          default_values = {}
-          default_values = load_default_values(config.dig(:default_values)) if config.dig(:default_values).present?
+          type = config&.dig(:content_type)&.constantize || DataCycleCore::CreativeWork
+          template = config&.dig(:template) || 'Bild'
+          place_template = config&.dig(:place_template) || 'Örtlichkeit'
 
           create_or_update_content(
             type,
             load_template(type, template),
-            default_values.merge(
+            merge_default_values(
+              config,
               DataCycleCore::Generic::MediaArchive::Transformations
                 .media_archive_to_bild(external_source.id, place_template)
                 .call(raw_data)
@@ -42,16 +41,15 @@ module DataCycleCore
         end
 
         def process_video(raw_data, config)
-          type = config.dig('content_type').constantize || DataCycleCore::CreativeWork
-          template = config.dig(:template) || 'Video'
+          type = config&.dig(:content_type)&.constantize || DataCycleCore::CreativeWork
+          template = config&.dig(:template) || 'Video'
           place_template = config.dig(:place_template) || 'Örtlichkeit'
-          default_values = {}
-          default_values = load_default_values(config.dig(:default_values)) if config.dig(:default_values).present?
 
           create_or_update_content(
             type,
             load_template(type, template),
-            default_values.merge(
+            merge_default_values(
+              config,
               DataCycleCore::Generic::MediaArchive::Transformations
                 .media_archive_to_bild(external_source.id, place_template)
                 .call(raw_data)
@@ -60,24 +58,25 @@ module DataCycleCore
         end
 
         def process_contributor(raw_data, config)
-          process_person(raw_data['contributor'], "Kamera: #{raw_data['url'].split('/').last}", config)
+          process_person(raw_data[:contributor], "Kamera: #{raw_data[:url].split('/').last}", config)
         end
 
         def process_director(raw_data, config)
-          process_person(raw_data['director'], "Regie: #{raw_data['url'].split('/').last}", config)
+          process_person(raw_data[:director], "Regie: #{raw_data[:url].split('/').last}", config)
         end
+
+        private
 
         def process_person(raw_data, external_key, config)
           return nil if raw_data.blank?
-          type = config.dig('content_type').constantize || DataCycleCore::Person
-          template = config.dig(:template) || 'Person'
-          default_values = {}
-          default_values = load_default_values(config.dig(:default_values)) if config.dig(:default_values).present?
+          type = config&.dig(:content_type)&.constantize || DataCycleCore::Person
+          template = config&.dig(:template) || 'Person'
 
           create_or_update_content(
             type,
             load_template(type, template),
-            default_values.merge(
+            merge_default_values(
+              config,
               DataCycleCore::Generic::MediaArchive::Transformations
                 .media_archive_to_person
                 .call(raw_data)

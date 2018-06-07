@@ -28,6 +28,12 @@ module DataCycleCore
               .where(classification_tree_labels: { name: tree_label }, classifications: { name: value })&.first&.id
           ].reject(&:nil?)
         end
+
+        def merge_default_values(config, data_hash)
+          new_hash = {}
+          new_hash = load_default_values(config.dig(:default_values)) if config.dig(:default_values).present?
+          new_hash.merge(data_hash)
+        end
       end
     end
   end

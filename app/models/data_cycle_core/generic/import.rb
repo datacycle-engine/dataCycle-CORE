@@ -3,6 +3,7 @@
 module DataCycleCore
   module Generic
     class Import < ImportBase
+      include DataCycleCore::Generic::Common::UtilityFunctions
       attr_reader :options, :logging, :source_type, :source_object
 
       def import(**options, &block)

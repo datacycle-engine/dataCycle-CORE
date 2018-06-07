@@ -5,7 +5,6 @@ module DataCycleCore
     module MediaArchive
       module ImportVideos
         include DataCycleCore::Generic::MediaArchive::Processing
-        include DataCycleCore::Generic::Common::UtilityFunctions
 
         def import_data(**options)
           import_contents(method(:load_contents).to_proc, method(:process_content).to_proc, **options)

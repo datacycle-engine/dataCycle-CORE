@@ -46,6 +46,34 @@ module DataCycleCore
           data_hash
         end
 
+        def self.category_key_to_ids(data_hash, attribute, external_source_id, external_prefix, key)
+          if data_hash[attribute].blank?
+            data_hash[attribute] = []
+          else
+            data_hash[attribute] = data_hash[attribute].map { |item_data|
+              DataCycleCore::Classification.where(
+                name: item_data.dig('name'),
+                external_source_id: external_source_id,
+                external_key: external_prefix + item_data.dig(key)
+              ).try(:first).try(:id)
+            }.reject(&:nil?) || []
+          end
+          data_hash
+        end
+
+        def self.add_link(data_hash, attribute, content_type, external_source_id, key_function)
+          data_hash.merge(
+            {
+              attribute => [
+                content_type.find_by(
+                  external_source_id: external_source_id,
+                  external_key: key_function.call(data_hash)
+                )&.id
+              ].compact.presence
+            }
+          )
+        end
+
         def self.local_image(data_hash, attribute)
           return data_hash if data_hash[attribute].blank?
 
