@@ -62,6 +62,7 @@ EmbeddedObject.prototype.renderEmbeddedObjects = function (type, ids = []) {
       options: this.options,
       id: ids
     }),
+    dataType: 'script',
     contentType: 'application/json'
   }).done(data => {
     this.index++;
