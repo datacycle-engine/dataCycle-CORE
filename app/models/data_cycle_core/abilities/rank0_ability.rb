@@ -29,7 +29,7 @@ module DataCycleCore
         end
 
         cannot :show, DataCycleCore::DataAttribute do |attribute|
-          attribute.definition.dig('ui', attribute.scope.to_s, 'disabled') == true ||
+          (attribute.definition.dig('ui', attribute.scope.to_s, 'disabled') == true && attribute.options.presence&.dig(:force_render).blank?) ||
             (
               !DataCycleCore::Feature::Overlay.allowed?(attribute.content) &&
               DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)

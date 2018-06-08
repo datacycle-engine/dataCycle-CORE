@@ -51,7 +51,7 @@ module.exports.initialize = function () {
       add_buttons(elem, $(elem).data('label'), $(elem).data('id'), 'data-id');
     });
 
-    $(container).children('div[data-editor=input], div[data-editor=quill_editor]').each((idx, elem) => {
+    $(container).children('div[data-editor=string], div[data-editor=text_editor]').each((idx, elem) => {
       add_buttons(elem, $(elem).data('label'), $(elem).find('.detail-content').html(), 'html');
     });
   }
@@ -80,7 +80,7 @@ module.exports.initialize = function () {
     }, 500);
   }
 
-  $('.flex-box .edit-content .form-element.input').on('import-data', function (event, data) {
+  $('.flex-box .edit-content .form-element.string:not(.text_editor)').on('import-data', function (event, data) {
     if ($(this).find('input[type=text]').val().length === 0) {
       $(this).find('input[type=text]').val(data.value).trigger('input');
     } else {
