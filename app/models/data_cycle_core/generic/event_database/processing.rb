@@ -43,15 +43,13 @@ module DataCycleCore
           template = config&.dig(:template) || 'Event'
 
           sub_event_ids = loop_collect(raw_data, 'subEvents') do |item_data|
-            process_sub_event(item_data, config.dig(:embedded, :sub_event))
+            transform_sub_event(item_data, config.dig(:embedded, :sub_event))
           end
 
           event_data = DataCycleCore::Generic::EventDatabase::Transformations
             .event_database_item_to_event(external_source.id)
             .call(raw_data)
           event_data['sub_event'] = sub_event_ids if sub_event_ids.present?
-
-          byebug
 
           create_or_update_content(
             type,
@@ -66,30 +64,21 @@ module DataCycleCore
         private
 
         def loop_collect(raw_data, data_name)
-          byebug
           return if raw_data&.dig(data_name).nil?
           raw_data&.dig(data_name)&.map do |data|
-            id = yield(data)
-            id.blank? ? nil : { id: id }
+            yield(data).presence
           end
         end
 
-        def process_sub_event(raw_data, config)
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::Event
-          template = config&.dig(:template) || 'SubEvent'
-
+        def transform_sub_event(raw_data, config)
           process_place(raw_data&.dig('location'), options&.dig(:import, :transformations, :place))
 
-          create_or_update_content(
-            type,
-            load_template(type, template),
-            merge_default_values(
-              config,
-              DataCycleCore::Generic::EventDatabase::Transformations
-              .event_database_sub_item_to_sub_event(external_source.id)
-              .call(raw_data)
-            ).with_indifferent_access
-          )&.id
+          merge_default_values(
+            config,
+            DataCycleCore::Generic::EventDatabase::Transformations
+            .event_database_sub_item_to_sub_event(external_source.id)
+            .call(raw_data)
+          ).with_indifferent_access
         end
       end
     end
