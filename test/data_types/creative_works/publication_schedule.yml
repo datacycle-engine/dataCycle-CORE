@@ -3,24 +3,17 @@
     :name: Publikations-Plan
     :type: object
     :content_type: embedded
-    :permissions:
-      :read_write: true
     :boost: 1.0
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :publish_at:
         :label: Publikationsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
+        :type: datetime
+        :storage_location: value
         :validations:
-          :format: date_time
+          :minLength: 1
         :editor:
           :type: date
           :options:
@@ -29,41 +22,36 @@
             :placeholder: tt.mm.jjjj
       :markets:
         :label: Zielmarkt
-        :type: classificationTreeLabel
-        :type_name: Märkte
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Märkte
         :editor:
           :type: classificationSelector
-      :output_channels:
+          :options:
+            :tabindex: -1
+      :output_channel:
         :label: Ausgabekanäle
-        :type: classificationTreeLabel
-        :type_name: Ausgabekanäle
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Ausgabekanäle
         :editor:
           :type: classificationSelector
+          :options:
+            :tabindex: -1
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Publikations-Plan"
       :creator:
         :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: users
+        :validations:
+          :max: 1
       :date_created:
         :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
       :date_modified:
         :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value

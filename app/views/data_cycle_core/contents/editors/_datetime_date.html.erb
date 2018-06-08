@@ -1,0 +1,16 @@
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
+
+  <div class="form-element <%= attribute_name_from_key(key) %>">
+      <%= label_tag key do %>
+        <span class="icon <%= attribute_name_from_key(key) %>">
+            <i aria-hidden="true" class="fa fa-calendar"></i> <%= definition['label'] %>
+        </span>
+      <% end %>
+      <% if options.dig('readonly').presence&.to_s  == 'true' %>
+          <%= text_field_tag key, value.blank? ? value : l(value.to_date), options.merge({ class: '' }) %>
+      <% else %>
+          <%= date_field_tag key, value, options.merge('data-type' => 'datepicker') %>
+      <% end %>
+  </div>
+
+<% end %>

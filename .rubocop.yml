@@ -18,6 +18,9 @@ Rails:
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 
+Lint/SplatKeywordArguments:
+  Enabled: false
+
 #######################################################
 ########## Style
 
@@ -103,6 +106,14 @@ Metrics/PerceivedComplexity:
 Naming/HeredocDelimiterNaming:
   Enabled: false
 
+Naming/UncommunicativeMethodParamName:
+  MinNameLength: 1
+
+#######################################################
+########## Rails
+
+Rails/CreateTableWithTimestamps:
+  Enabled: false
 
 #######################################################
 ########## Security
@@ -113,9 +124,3 @@ Security/YAMLLoad:
     - 'app/models/data_cycle_core/master_data/import_templates.rb'
     - 'app/models/data_cycle_core/master_data/import_external_sources.rb'
     - 'app/models/data_cycle_core/master_data/import_mixins.rb'
-
-#######################################################
-########## Rails
-
-Rails/CreateTableWithTimestamps:
-  Enabled: false

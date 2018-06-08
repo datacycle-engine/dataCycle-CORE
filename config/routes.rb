@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 DataCycleCore::Engine.routes.draw do
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise
 
@@ -30,13 +32,14 @@ DataCycleCore::Engine.routes.draw do
   end
 
   resources(*DataCycleCore.content_tables.map(&:to_sym)) do
+    get :load_more_linked_objects, on: :member
+    get :gpx, on: :member
     post :validate, on: :member
     post :validate, on: :collection
     patch :set_life_cycle, on: :member
   end
 
   resources :subscriptions, only: [:index, :create, :destroy]
-  # resources :events, only: [:index, :show, :create, :edit, :update, :destroy]
   resources :stored_filters, only: [:index, :create, :update, :destroy], path: :search_history do
     get :search, on: :collection
   end
@@ -80,12 +83,6 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/classifications', to: 'dash_board#classifications'
   # mount RailsDb::Engine => '/db', :as => 'db'
 
-  # backend validation endpoints
-  match '/validatecreativework(/:id)', to: 'creative_works#validate_single_data', via: [:patch, :post]
-  match '/validateperson(/:id)', to: 'persons#validate_single_data', via: [:patch, :post]
-  match '/validateorganization(/:id)', to: 'organizations#validate_single_data', via: [:patch, :post]
-  match '/validateplace(/:id)', to: 'places#validate_single_data', via: [:patch, :post]
-
   defaults format: :json do
     namespace :api do
       namespace :v1 do
@@ -107,7 +104,7 @@ DataCycleCore::Engine.routes.draw do
         end
 
         get 'contents/search', to: 'contents#search'
-        get 'contents/get_deleted', to: 'contents#get_deleted'
+        get 'contents/deleted', to: 'contents#deleted'
 
         resources :external_sources, only: [] do
           post ':external_source_id/:type/:external_key', to: 'external_sources#create', on: :collection
@@ -126,7 +123,6 @@ DataCycleCore::Engine.routes.draw do
 
   post 'contents/new_embedded_object', to: 'contents#new_embedded_object'
   post 'contents/render_embedded_object', to: 'contents#render_embedded_object'
-  get 'contents/gpx', to: 'contents#gpx'
   post 'contents/upload', to: 'contents#upload'
 
   resources :publications, only: :index

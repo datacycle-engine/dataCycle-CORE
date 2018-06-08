@@ -1,13 +1,15 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module MasterData
     module Validators
       class Asset < BasicValidator
-        @@keywords = ['min', 'max']
+        def asset_keywords
+          ['min', 'max']
+        end
 
         def validate(data, template)
-          if data.blank?
-            (@error[:error][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warning], data: template['label'], locale: DataCycleCore.ui_language)
-          elsif data.is_a?(::Array)
+          if data.is_a?(::Array)
             check_reference_array(data, template)
           elsif data.is_a?(::String)
             check_reference_array([data], template)
@@ -23,7 +25,7 @@ module DataCycleCore
           # check given validations
           if template.key?('validations')
             template['validations'].each_key do |key|
-              if @@keywords.include?(key)
+              if asset_keywords.include?(key)
                 method(key).call(data, template['validations'][key])
               else
                 (@error[:warning][key] ||= []) << I18n.t(:keyword, scope: [:validation, :warning], data: key, type: 'Asset reference List', locale: DataCycleCore.ui_language)
@@ -42,17 +44,16 @@ module DataCycleCore
         end
 
         def check_reference(key)
-          if uuid?(key)
-            find_asset = DataCycleCore::Asset.find(key)
-            (@error[:warning][key] ||= []) << I18n.t(:asset_upload, scope: [:validation, :warning], locale: DataCycleCore.ui_language) if find_asset.nil?
-          end
+          return unless uuid?(key)
+          find_asset = DataCycleCore::Asset.find(key)
+          (@error[:warning][key] ||= []) << I18n.t(:asset_upload, scope: [:validation, :warning], locale: DataCycleCore.ui_language) if find_asset.nil?
         end
 
         def uuid?(data)
-          data.downcase!
+          data_uuid = data.downcase
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
-          check_uuid = data.length == 36 && !(data =~ uuid).nil?
-          (@error[:warning][key] ||= []) << I18n.t(:uuid, scope: [:validation, :warning], data: data, locale: DataCycleCore.ui_language) unless check_uuid
+          check_uuid = data.length == 36 && !(data_uuid =~ uuid).nil?
+          (@error[:warning][@template_key] ||= []) << I18n.t(:uuid, scope: [:validation, :warning], data: data, locale: DataCycleCore.ui_language) unless check_uuid
           check_uuid
         end
 

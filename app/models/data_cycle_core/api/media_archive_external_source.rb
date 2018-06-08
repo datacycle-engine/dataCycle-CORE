@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module Api
     class MediaArchiveExternalSource < DataCycleCore::Api::ExternalSource
       def update(data)
         extend(DataCycleCore::Generic::MediaArchive::Import)
+        default_options
         load_transformations
         processed_items = []
         data.each do |key, object|
@@ -35,7 +38,7 @@ module DataCycleCore
         DataCycleCore::ContentContent.where(content_b_id: contents.map(&:id)).map(&:content_a).each do |linked_content|
           I18n.with_locale(linked_content.available_locales.first) do
             linked_content.set_data_hash(data_hash: linked_content.get_data_hash)
-            linked_content.update(created_at: DateTime.now)
+            linked_content.update(created_at: Time.zone.now)
           end
         end
 

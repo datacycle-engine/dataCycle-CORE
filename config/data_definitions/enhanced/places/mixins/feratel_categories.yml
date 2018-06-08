@@ -5,26 +5,36 @@
     :properties:
       :holiday_themes:
         :label: Feratel - Urlaubsthemen
-        :type: classificationTreeLabel
-        :type_name: Feratel - Urlaubsthemen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Feratel - Urlaubsthemen
+        :ui:
+          :show:
+            :content_area: header
       :accommodation_categories:
         :label: Feratel - Unterkunftsarten
-        :type: classificationTreeLabel
-        :type_name: Feratel - Unterkunftsarten
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Feratel - Unterkunftsarten
+        :ui:
+          :show:
+            :content_area: header
       :feratel_classifications:
         :label: Feratel - Unterkunftsklassifizierungen
-        :type: classificationTreeLabel
-        :type_name: Feratel - Unterkunftsklassifizierungen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Feratel - Unterkunftsklassifizierungen
+        :ui:
+          :show:
+            :content_area: header
       :stars:
         :label: Feratel - Sterne
-        :type: classificationTreeLabel
-        :type_name: Feratel - Sterne
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Feratel - Sterne
+        :ui:
+          :show:
+            :content_area: header
       :feratel_owners:
         :label: Feratel - Inhaber
-        :type: classificationTreeLabel
-        :type_name: Feratel - Inhaber
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Feratel - Inhaber
+        :ui:
+          :show:
+            :content_area: header

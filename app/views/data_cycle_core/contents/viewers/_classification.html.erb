@@ -1,0 +1,9 @@
+<%= render 'data_cycle_core/contents/viewers/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
+    <div class="detail-type classification">
+        <span class="detail-content tags">
+            <% value.presence&.map(&:primary_classification_alias)&.each do |a| %>
+                <span class="tag"><%= a.name %></span>
+            <% end %>
+        </span>
+    </div>
+<% end %>

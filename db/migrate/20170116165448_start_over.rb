@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class StartOver < ActiveRecord::Migration[5.0]
   def change
     enable_extension 'postgis' unless extension_enabled?('postgis')

@@ -1,30 +1,24 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module Filter
     class ObjectBrowserQueryBuilder < Search
-      def initialize(locale = 'de', type = 'image', query = nil)
+      def initialize(locale = 'de', definition = nil, query = nil)
         @locale = locale
-        @type = type
-        @query = query
-        if @query.nil?
-          @query = super locale, query
-          if @type == 'image'
-            @query = @query.where(content_data_type: DataCycleCore::CreativeWork)
-          elsif @type == 'video'
-            @query = @query.where(content_data_type: DataCycleCore::CreativeWork)
-          elsif @type == 'person'
-            @query = @query.where(content_data_type: DataCycleCore::Person)
-          elsif @type == 'organization'
-            @query = @query.where(content_data_type: DataCycleCore::Organization)
-          elsif @type == 'place'
-            @query = @query.where(content_data_type: DataCycleCore::Place)
-          end
-        end
+        @query = query || super(locale, query)
+
+        return if definition.blank? || definition.fetch(:linked_table, nil).blank? || definition.fetch(:template_name, nil).blank?
+
+        @definition = definition
+        content_data_type = ('DataCycleCore::' + (@definition[:linked_table]).to_s.classify).constantize
+        data_type = @definition[:template_name]
+        @query = @query.where('content_data_type = ? AND data_type = ? ', content_data_type, data_type)
       end
 
       private
 
       def reflect(query)
-        self.class.new(@locale, @type, query)
+        self.class.new(@locale, @definition, query)
       end
     end
   end

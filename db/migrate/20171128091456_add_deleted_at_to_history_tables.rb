@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddDeletedAtToHistoryTables < ActiveRecord::Migration[5.0]
   def up
     add_column :creative_work_histories, :deleted_at, :datetime

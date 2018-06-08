@@ -31,6 +31,7 @@ function update_core_submodule {
     cd vendor/gems/data-cycle-core
     git status
     git checkout origin/$BRANCH_NAME
+    git pull origin $BRANCH_NAME
 }
 
 BRANCH_NAME=$1
@@ -66,4 +67,5 @@ for project in "${PROJECTS[@]}"
     git commit -a -m "$ts: updated datacyclecore"
     git push origin $BRANCH_NAME
     cd "$dir"
+    rm -Rf "$dir/$project_dir"
 done

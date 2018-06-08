@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class SubscriptionMailer < ApplicationMailer
     def notify(user, contents)

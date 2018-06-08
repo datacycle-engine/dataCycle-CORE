@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class DataHashService
     # TODO: refactor: class => module
@@ -13,23 +15,22 @@ module DataCycleCore
     end
 
     def self.data_hash_is_dirty?(data_hash, orig_data_hash)
-      !HashDiff.diff(normalize_data_hash(data_hash), normalize_data_hash(orig_data_hash), array_path: true).blank?
+      HashDiff.diff(normalize_data_hash(data_hash), normalize_data_hash(orig_data_hash), array_path: true).present?
     end
 
-    def self.get_internal_data(storage_location, value)
-      internal_objects = []
-      if !value.blank? && value.count.positive?
-        value.each do |object|
-          internal_object = ('DataCycleCore::' + storage_location.classify).constantize
-            .find_by(id: object['id'])
-          internal_objects.push(internal_object) unless internal_object.blank?
-        end
-      else
-        return nil
-      end
-
-      internal_objects
-    end
+    # TODO: see old embedded-editor
+    # def self.get_internal_data(storage_location, value)
+    #   internal_objects = []
+    #   return nil if value.blank? || value.count.zero?
+    #
+    #   value.each do |object|
+    #     internal_object = ('DataCycleCore::' + storage_location.classify).constantize
+    #       .find_by(id: object['id'])
+    #     internal_objects.push(internal_object) if internal_object.present?
+    #   end
+    #
+    #   internal_objects
+    # end
 
     def self.get_internal_template(storage_location, name)
       internal_template = ('DataCycleCore::' + storage_location.classify).constantize
@@ -54,24 +55,18 @@ module DataCycleCore
       object.template_name = template.template_name
       object.save
 
-      if !object_params[:datahash].nil?
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], object.schema)
-        datahash['creator'] = current_user[:id]
-        datahash['headline_external'] = datahash['headline']
-      else
-        return nil
-      end
+      return nil if object_params[:datahash].nil?
+
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], object.schema)
+      datahash['creator'] = [current_user[:id]]
+      datahash['headline_external'] = datahash['headline']
 
       datahash['permitted_creator'] = current_user.try(:role).try(:rank) == 3 ? [DataCycleCore::Classification.find_by(name: 'Markt Office').try(:id)] : [DataCycleCore::Classification.find_by(name: 'Team CM').try(:id)]
 
       object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true)
 
-      # validate ?
-      if object.save
-        return object
-      else
-        return nil
-      end
+      return nil unless object.save
+      object
     end
 
     class << self
@@ -84,12 +79,12 @@ module DataCycleCore
           orig_key = key
           key = 'value' if value['releasable']
 
-          if value['type'] == 'object' && !value.dig('editor', 'type').nil?
-            object_properties = get_internal_template(value['storage_location'], value['name'])
+          if value['type'] == 'embedded'
+            object_properties = get_internal_template(value['linked_table'], value['template_name'])
             key = { key.to_sym => get_params_from_hash(object_properties.schema) }
           elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
             key = { key.to_sym => get_params_from_hash(value) }
-          elsif value['type'] == 'classificationTreeLabel' || value['type'] == 'embeddedLinkArray'
+          elsif value['type'] == 'classification' || value['type'] == 'linked'
             key = { key.to_sym => [] }
           else
             key = key.to_sym
@@ -111,8 +106,8 @@ module DataCycleCore
 
           if value.is_a?(::Hash)
 
-            if properties['type'] == 'object' && !properties.dig('editor', 'type').nil? && properties.dig('editor', 'type') == 'embeddedObject'
-              object_properties = get_internal_template(properties['storage_location'], properties['name'])
+            if properties['type'] == 'embedded'
+              object_properties = get_internal_template(properties['linked_table'], properties['template_name'])
               temp_value = []
 
               value.each_value do |object_value|
@@ -122,11 +117,11 @@ module DataCycleCore
               value = temp_value
 
             elsif value['value'].is_a?(::Array)
-              value['value'] = value['value'].reject(&:empty?)
+              value['value'] = value['value'].reject(&:blank?)
             end
           elsif value.is_a?(::Array)
-            value = value.reject(&:empty?)
-          elsif properties['type'] == 'number' && !properties['validations'].nil? && !properties['validations']['format'].nil? && properties['validations']['format'] == 'float'
+            value = value.reject(&:blank?).uniq
+          elsif properties['type'] == 'number' && properties.dig('validations', 'format') == 'float'
             value = value.to_f
           elsif properties['type'] == 'number'
             value = value.to_i

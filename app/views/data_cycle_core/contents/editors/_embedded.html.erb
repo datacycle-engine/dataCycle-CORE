@@ -1,0 +1,41 @@
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge('class' => 'object embedded_object'), content: content do %>
+
+    <%= label_tag(key, definition['label']) if DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(content, key) %>
+    <% objects = value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
+
+    <div class="embedded-object" id="<%= sanitize_to_id(key) %>"
+         data-language="<%= I18n.locale.to_s %>"
+         data-key="<%= key %>"
+         data-label="<%= definition['label'] %>"
+         data-definition="<%= definition.to_json %>"
+         data-options="<%= options.to_json %>"
+         data-total="<%= value.presence&.size %>"
+         data-ids="<%= value.presence&.ids %>"
+         data-per="<%= DataCycleCore.linked_objects_page_size %>"
+         data-max="<%= definition.dig('validations', 'max') || 0 %>"
+         data-min="<%= definition.dig('validations', 'min') || 0 %>"
+         data-write="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>">
+
+        <% if objects.present? %>
+            <% objects.each_with_index do |object, index| %>
+                <%= render_embedded_object_partial(key: key, definition: definition, parameters: {object: object, index: index, options: options, new_content: new_content ||= false}, content: content) %>
+            <% end %>
+
+            <% value.presence&.ids&.reject {|v| objects.presence&.ids&.include?(v)}&.each_with_index do |id, index| %>
+                <%= hidden_field_tag "#{key}[#{index + objects.size}][id]", id %>
+            <% end %>
+        <% else %>
+            <%= hidden_field_tag key + '[]', nil, id: "#{sanitize_to_id(key)}_default" %>
+        <% end %>
+
+        <div class="buttons">
+            <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path([:load_more_linked_objects, content], key: key.split('[').last[0...-1], complete_key: key, definition: definition, options: options, page: params.fetch(:page, 1).to_i + 1, load_more_action: :embedded_object, editable: can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit))), remote: true, id: "load_more_#{content&.id}_#{sanitize_to_id(key)}", class: 'load-more-linked-contents button', data: {disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.load_more', locale: DataCycleCore.ui_language)}..."} if objects.try(:total_pages)&.positive? && !objects&.last_page? %>
+
+            <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
+                <button id="add_<%= sanitize_to_id(key) %>" type="button" class="button addContentObject" style="display: none;"><%= definition['label'] %>
+                    hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
+            <% end %>
+        </div>
+    </div>
+
+<% end unless (DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(content, key) && !DataCycleCore::Feature::PublicationSchedule.enabled?) %>

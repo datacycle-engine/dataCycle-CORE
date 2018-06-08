@@ -214,6 +214,6 @@ config:
       source_type: accommodations
       import_strategy: DataCycleCore::Generic::Feratel::ImportPlaces
       image_template: Bild
-      data_template: Örtlichkeit
+      data_template: Unterkunft
       target_type: DataCycleCore::Place
       logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")

@@ -14,6 +14,12 @@ module.exports.initialize = function () {
     } else return true;
   }
 
+  let update_editors = function () {
+    $('.quill-editor').each((index, elem) => {
+      quill_helpers.update_value(elem);
+    });
+  };
+
   let catch_promises = function (form, submit) {
     $.when.apply(undefined, promises).then(function () {
       var isValid = true;
@@ -152,9 +158,7 @@ module.exports.initialize = function () {
   }
 
   let submit_creative_work_form = function (form) {
-    $('.quill-editor').each((index, elem) => {
-      quill_helpers.update_value(elem);
-    });
+    update_editors();
 
     $('#validation_errors').html('');
 
@@ -206,14 +210,16 @@ module.exports.initialize = function () {
   // check if data changed and confirm leaving the page
 
   if ($('.edit-content-form').length > 0) {
-    var form_data = "";
+    var form_data = [];
     setTimeout(function () {
-      form_data = $('.edit-content-form').serialize();
+      form_data = $('.edit-content-form').serializeArray();
     }, 1000);
 
     $(window).on("beforeunload", function () {
-      var new_form_data = $('.edit-content-form').serialize();
-      if (form_data != new_form_data && form_data != "") return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
+      update_editors();
+      var new_form_data = $('.edit-content-form').serializeArray();
+
+      if (!form_data.equal_to(new_form_data) && form_data.length !== 0) return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
     });
   }
 

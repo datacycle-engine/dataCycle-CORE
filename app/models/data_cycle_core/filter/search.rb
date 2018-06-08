@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module Filter
     class Search < QueryBuilder
@@ -80,7 +82,7 @@ module DataCycleCore
       def modified_since(date = Time.zone.now)
         reflect(
           @query.where(
-            search[:updated_at].gteq(DateTime.parse(date))
+            search[:updated_at].gteq(Time.zone.parse(date))
           )
         )
       end
@@ -88,7 +90,7 @@ module DataCycleCore
       def created_since(date = Time.zone.now)
         reflect(
           @query.where(
-            search[:created_at].gteq(DateTime.parse(date))
+            search[:created_at].gteq(Time.zone.parse(date))
           )
         )
       end

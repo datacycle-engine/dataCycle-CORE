@@ -4,96 +4,66 @@
     :type: object
     :content_type: entity
     :releasable: true
-    :permissions:
-      :read_write: true
     :boost: 10000.0
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :headline:
         :label: Arbeitstitel
         :type: string
-        :storage_type: string
         :storage_location: column
         :search: true
         :validations:
-          :minLength: 1
+          :min: 1
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
       :text:
         :label: Recherchedaten
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
         :editor:
           :type: quillEditor
-          :sorting: 3
           :options:
             :data-size: full
             :tabindex: -1
       :image:
         :label: Bilder
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
+        :type: linked
+        :linked_table: creative_works
         :editor:
-          :sorting: 4
           :type: objectBrowser
           :options:
             :data-validate: media
             :data-type: image
       :video:
         :label: Videos
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
+        :type: linked
+        :linked_table: creative_works
         :editor:
-          :sorting: 5
           :type: objectBrowser
           :options:
             :data-validate: media
             :data-type: video
-      #meta attributes
       :data_pool:
         :label: Inhaltspool
-        :type: classificationTreeLabel
-        :type_name: Inhaltspools
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltspools
         :default_value: "Recherche"
-#      :data_type:
-#        :label: Inhaltstype
-#        :type: classificationTreeLabel
-#        :type_name: Inhaltstypen
-#        :storage_location: classification_relation
-#        :default_value: "Aktuelle Inhalte"
       :creator:
         :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: users
+        :validations:
+          :max: 1
       :date_created:
         :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
       :date_modified:
         :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value

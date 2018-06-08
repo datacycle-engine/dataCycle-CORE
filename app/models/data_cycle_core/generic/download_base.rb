@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module Generic
     class DownloadBase < Base
@@ -28,8 +30,8 @@ module DataCycleCore
               durations = []
 
               items.each do |item_data|
+                break if options[:max_count] && item_count >= options[:max_count]
                 durations << Benchmark.realtime do
-                  break if options[:max_count] && item_count >= options[:max_count]
                   item_count += 1
                   next if item_data.nil?
 

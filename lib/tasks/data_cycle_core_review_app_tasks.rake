@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :data_cycle_core do
   namespace :review_app do
     desc 'init review app files'

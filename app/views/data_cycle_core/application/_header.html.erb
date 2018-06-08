@@ -1,9 +1,6 @@
 <header>
     <div class="top-bar">
         <div class="top-bar-title">
-            <!-- <span data-responsive-toggle="main-menu" data-hide-for="medium">
-              <button class="menu-icon dark" type="button" data-toggle></button>
-            </span> -->
             <%= link_to '/' do %>
               <%= render 'logo' %>
               <%= yield :menu_title %>
@@ -28,11 +25,6 @@
                         </button>
                     </li>
                 <% else %>
-                    <!--<li>
-                        <%= link_to '#' do %>
-                            <span>Registrieren</span><i class="fa fa-cogs icon-right" aria-hidden="true"></i>
-                        <% end %>
-                    </li>-->
                     <li>
                         <%= link_to data_cycle_core.new_user_session_path do %>
                             <span>Login</span><i class="fa fa-smile-o icon-right" aria-hidden="true"></i>

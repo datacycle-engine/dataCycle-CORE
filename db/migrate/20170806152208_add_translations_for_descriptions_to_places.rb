@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddTranslationsForDescriptionsToPlaces < ActiveRecord::Migration[5.0]
   def up
     add_column :place_translations, :description, :text

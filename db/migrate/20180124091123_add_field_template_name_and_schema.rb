@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddFieldTemplateNameAndSchema < ActiveRecord::Migration[5.0]
   def up
     DataCycleCore.content_tables.each do |table_name|

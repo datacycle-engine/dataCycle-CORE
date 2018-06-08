@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class Event < DataHash
     class Translation < Globalize::ActiveRecord::Translation
@@ -7,7 +9,7 @@ module DataCycleCore
 
     class History < DataHash
       # handle translations with gem Globalize
-      translates :headline, :description, :content, :properties, :release,
+      translates :headline, :description, :content, :release,
                  :release_id, :release_comment, :history_valid
 
       content_relations table_name: 'events', postfix: 'history'
@@ -25,7 +27,7 @@ module DataCycleCore
     has_many :histories, -> { order(created_at: :desc) }, class_name: 'DataCycleCore::Event::History', foreign_key: :event_id
 
     # handle translations with gem Globalize
-    translates :headline, :description, :content, :properties, :release,
+    translates :headline, :description, :content, :release,
                :release_id, :release_comment
 
     # include content specific relations
@@ -34,19 +36,17 @@ module DataCycleCore
     # callbacks
     before_destroy :destroy_translations, prepend: true
 
-    extend DataCycleCore::Conversions
-
     include ContentHelpers
     include EventHelpers
 
     def self.from_time(time)
-      time = DateTime(time)
+      time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
 
       where(Event.arel_table[:end_date].gteq(Arel::Nodes.build_quoted(time.iso8601)))
     end
 
     def self.to_time(time)
-      time = DateTime(time)
+      time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
 
       where(Event.arel_table[:start_date].lteq(Arel::Nodes.build_quoted(time.iso8601)))
     end
