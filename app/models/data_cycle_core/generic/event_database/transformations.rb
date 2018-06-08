@@ -11,12 +11,8 @@ module DataCycleCore
         def self.event_database_item_to_event(external_source_id)
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
           .>> t(:reject_keys, ['@context', '@type', 'allDay'])
-          .>> t(:underscore_keys).
-          # >> t(:map_value, 'infos', -> s {s.try(:join, ', ')}).
-          >> t(:rename_keys, {
-                 'id' => 'external_key',
-                 'tags' => 'event_tag'
-               })
+          .>> t(:underscore_keys)
+          .>> t(:rename_keys, { 'id' => 'external_key', 'tags' => 'event_tag' })
           .>> t(:nest, 'event_period', ['start_date', 'end_date'])
           .>> t(:tags_to_ids, 'event_tag', external_source_id, 'Veranstaltungsdatenbank - tags - ')
           .>> t(:category_key_to_ids, 'categories', external_source_id, 'CATEGORY:', 'id')

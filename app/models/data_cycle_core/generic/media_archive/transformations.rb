@@ -23,18 +23,7 @@ module DataCycleCore
                 'expires' => 'valid_until',
                 'keywords' => 'keywords_medienarchive')
           .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
-          .>> t(
-            :add_field,
-            'content_location',
-            lambda do |s|
-              [
-                DataCycleCore::Place.find_by(
-                  external_source_id: external_source_id,
-                  external_key: "#{s['contentType']}-#{place_template}: #{s['url'].split('/').last}"
-                )&.id
-              ].compact.presence
-            end
-          )
+          .>> t(:add_link, 'location_location', DataCycleCore::Place, external_source_id, ->(s) { "#{s['contentType']}-#{place_template}: #{s['url'].split('/').last}" })
           .>> t(:strip_all)
         end
 
@@ -52,30 +41,8 @@ module DataCycleCore
                   'date_published' => 'valid_from',
                   'expires' => 'valid_until',
                   'keywords' => 'keywords_medienarchive')
-            .>> t(
-              :add_field,
-              'director',
-              lambda do |s|
-                [
-                  DataCycleCore::Person.find_by(
-                    external_source_id: external_source_id,
-                    external_key: "Regie: #{s['url'].split('/').last}"
-                  )&.id
-                ].compact.presence
-              end
-            )
-            .>> t(
-              :add_field,
-              'contributor',
-              lambda do |s|
-                [
-                  DataCycleCore::Person.find_by(
-                    external_source_id: external_source_id,
-                    external_key: "Kamera: #{s['url'].split('/').last}"
-                  )&.id
-                ].compact.presence
-              end
-            )
+            .>> t(:add_link, 'director', DataCycleCore::Person, external_source_id, ->(s) { "Regie: #{s['url'].split('/').last}" })
+            .>> t(:add_link, 'contributor', DataCycleCore::Person, external_source_id, ->(s) { "Kamera: #{s['url'].split('/').last}" })
             .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
             .>> t(:strip_all)
         end
