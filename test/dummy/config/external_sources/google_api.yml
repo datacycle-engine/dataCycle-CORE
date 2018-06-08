@@ -1,0 +1,43 @@
+---
+name: GoogleApi
+credentials:
+  host: https://maps.googleapis.com/
+  end_point: maps/api/place/
+  key: 'AIzaSyC_JR0tq6Rea-daM5jnK2Ls3chxodsgJcQ'
+#  bbox: 'MULTIPOINT ((9.56 47.64), (10.2 46.83))'
+  geojson: 'config/external_sources/geo/vorarlberg.geojson'
+default_options:
+  locales: [de]
+config:
+  download_config:
+    places:
+      sorting: 1
+      source_type: places
+      endpoint: DataCycleCore::Generic::GooglePlaces::Endpoint
+      download_strategy: DataCycleCore::Generic::GooglePlaces::Download
+    places_detail:
+      sorting: 2
+      source_type: places_detail
+      read_type: places
+      endpoint: DataCycleCore::Generic::GooglePlaces::Endpoint
+      download_strategy: DataCycleCore::Generic::GooglePlaces::DownloadDetail
+  import_config:
+    keywords:
+      sorting: 1
+      source_type: places
+      import_strategy: DataCycleCore::Generic::GooglePlaces::Keywords
+      translations:
+        keyword:
+          tree_label: GooglePlaces - Tags
+    places:
+      sorting: 2
+      source_type: places_detail
+      import_strategy: DataCycleCore::Generic::GooglePlaces::Import
+      transformations:
+        place:
+          content_type: DataCycleCore::Place
+          template: Örtlichkeit
+          default_values:
+            data_type:
+              tree_label: Inhaltstypen
+              value: Örtlichkeit

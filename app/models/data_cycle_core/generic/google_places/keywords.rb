@@ -6,8 +6,8 @@ module DataCycleCore
       module Keywords
         def import_data(**options)
           import_classifications(
-            @source_type,
-            options.dig(:import, :tree_label),
+            source_type,
+            options.with_indifferent_access.dig(:import, :translations, :keyword, :tree_label),
             method(:load_root_classifications).to_proc,
             ->(_, _, _) { [] },
             ->(_) { nil },

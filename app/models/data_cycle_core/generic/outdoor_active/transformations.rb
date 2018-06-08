@@ -2,34 +2,10 @@
 
 module DataCycleCore
   module Generic
-    module Common
+    module OutdoorActive
       module Transformations
         def self.t(*args)
           DataCycleCore::Generic::Common::Functions[*args]
-        end
-
-        def self.google_places_to_poi
-          t(:stringify_keys)
-          .>> t(:reject_keys, ['id', 'photos', 'adr_address', 'reviews', 'url'])
-          .>> t(:rename_keys,
-                'website' => 'url',
-                'place_id' => 'external_key')
-          .>> t(:add_field, 'telephone', ->(s) { s.dig('formatted_phone_number') || s.dig('international_phone_number') })
-          .>> t(:add_field, 'latitude', ->(s) { s['geometry'].try(:[], 'location').try(:[], 'lat').try(:to_f) })
-          .>> t(:add_field, 'longitude', ->(s) { s['geometry'].try(:[], 'location').try(:[], 'lng').try(:to_f) })
-          .>> t(:add_field, 'location', lambda(s) {
-            RGeo::Geographic.spherical_factory(srid: 4326).point(s['longitude'], s['latitude']) if s['longitude'] && s['latitude']
-          })
-          .>> t(:add_field, 'street_number', ->(s) { s['address_components'].select { |item| item['types'].include?('street_number') }&.first.try(:[], 'long_name') })
-          .>> t(:add_field, 'street_name', ->(s) { s['address_components'].select { |item| item['types'].include?('route') }&.first.try(:[], 'long_name') })
-          .>> t(:add_field, 'street_address', ->(s) { [s['street_name'], s['street_number']].join(' ') })
-          .>> t(:add_field, 'address_locality', ->(s) { s['address_components'].select { |item| item['types'].include?('locality') }&.first.try(:[], 'long_name') })
-          .>> t(:add_field, 'postal_code', ->(s) { s['address_components'].select { |item| item['types'].include?('postal_code') }&.first.try(:[], 'long_name') })
-          .>> t(:add_field, 'address_country', ->(s) { s['address_components'].select { |item| item['types'].include?('country') }&.first.try(:[], 'long_name') })
-          .>> t(:nest, 'address', ['street_address', 'address_locality', 'address_country', 'postal_code'])
-          .>> t(:nest, 'contact_info', ['telephone', 'url'])
-          .>> t(:reject_keys, ['geometry', 'address_components'])
-          .>> t(:strip_all)
         end
 
         def self.outdoor_active_to_poi
