@@ -1,3 +1,5 @@
+DataCycleBase;git@git.pixelpoint.biz:data-cycle/data-cycle-base.git
+DataCycleKaerntenWerbung;git@git.pixelpoint.biz:data-cycle/data-cycle-kw.git
 DataCycleKlagenfurt;git@git.pixelpoint.biz:data-cycle/data-cycle-klagenfurt.git
 DataCycleNLW;git@git.pixelpoint.biz:data-cycle/data-cycle-nlw.git
 DataCyclePorcia;git@git.pixelpoint.biz:data-cycle/data-cycle-porcia.git

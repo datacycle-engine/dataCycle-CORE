@@ -21,4 +21,3 @@ test/dummy/public/assets
 test/dummy/db/backups
 rdoc/
 package-lock.json
-bash/**/*
