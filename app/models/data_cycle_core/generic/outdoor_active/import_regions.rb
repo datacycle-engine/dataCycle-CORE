@@ -6,7 +6,7 @@ module DataCycleCore
       module ImportRegions
         def import_data(**options)
           import_classifications(
-            @source_type,
+            source_type,
             options.dig(:import, :tree_label) || 'OutdoorActive - Regionen',
             method(:load_root_classifications).to_proc,
             method(:load_child_classifications).to_proc,

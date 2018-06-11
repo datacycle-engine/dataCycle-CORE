@@ -46,22 +46,39 @@ module DataCycleCore
           data_hash
         end
 
-        def self.category_key_to_ids(data_hash, attribute, external_source_id, external_prefix, key)
-          if data_hash[attribute].blank?
-            data_hash[attribute] = []
-          else
-            data_hash[attribute] = data_hash[attribute].map { |item_data|
-              DataCycleCore::Classification.where(
-                name: item_data.dig('name'),
-                external_source_id: external_source_id,
-                external_key: external_prefix + item_data.dig(key)
-              ).try(:first).try(:id)
-            }.reject(&:nil?) || []
-          end
-          data_hash
+        def self.category_key_to_ids(data_hash, attribute, data_list, name, external_source_id, external_prefix, key)
+          return if data_hash.blank? || data_list.blank?
+          data_hash.merge(
+            {
+              attribute =>
+                data_list.call(data_hash)&.map do |item_data|
+                  DataCycleCore::Classification.find_by(
+                    name: item_data.dig(name),
+                    external_source_id: external_source_id,
+                    external_key: external_prefix + item_data.dig(key)
+                  )&.id
+                end&.reject(&:nil?) || []
+            }
+          )
+        end
+
+        def self.load_category(data_hash, attribute, name, external_source_id, external_key)
+          return if external_key.call(data_hash).blank? || name.call(data_hash).blank?
+          data_hash.merge(
+            {
+              attribute => [
+                DataCycleCore::Classification.find_by(
+                  name: name.call(data_hash),
+                  external_source_id: external_source_id,
+                  external_key: external_key.call(data_hash)
+                )&.id
+              ].compact.presence
+            }
+          )
         end
 
         def self.add_link(data_hash, attribute, content_type, external_source_id, key_function)
+          return if key_function.call(data_hash).blank?
           data_hash.merge(
             {
               attribute => [
@@ -70,6 +87,19 @@ module DataCycleCore
                   external_key: key_function.call(data_hash)
                 )&.id
               ].compact.presence
+            }
+          )
+        end
+
+        def self.add_links(data_hash, attribute, content_type, external_source_id, key_function)
+          return if key_function.call(data_hash).blank?
+          data_hash.merge(
+            {
+              attribute =>
+                content_type.where(
+                  external_source_id: external_source_id,
+                  external_key: key_function.call(data_hash)
+                )&.ids&.compact&.presence
             }
           )
         end

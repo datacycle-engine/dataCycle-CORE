@@ -10,7 +10,7 @@ module DataCycleCore
           raise 'Missing configuration attribute "tag_name_path"' if options.dig(:import, :tag_name_path).blank?
 
           import_classifications(
-            @source_type,
+            source_type,
             options.dig(:import, :tree_label),
             method(:load_root_classifications).to_proc,
             ->(_, _, _) { [] },
@@ -23,8 +23,8 @@ module DataCycleCore
         protected
 
         def load_root_classifications(mongo_item, locale)
-          common_tag_path = @options.dig(:import, :tag_id_path).split('.')
-            .zip(@options.dig(:import, :tag_name_path).split('.'))
+          common_tag_path = options.dig(:import, :tag_id_path).split('.')
+            .zip(options.dig(:import, :tag_name_path).split('.'))
             .take_while { |id_component, name_component| id_component == name_component }
             .map(&:first)
             .join('.')
@@ -33,8 +33,8 @@ module DataCycleCore
             .unwind(
               "dump.#{locale}.#{common_tag_path}"
             ).project(
-              "dump.#{locale}.id": "$dump.#{locale}.#{@options.dig(:import, :tag_id_path)}",
-              "dump.#{locale}.tag": "$dump.#{locale}.#{@options.dig(:import, :tag_name_path)}"
+              "dump.#{locale}.id": "$dump.#{locale}.#{options.dig(:import, :tag_id_path)}",
+              "dump.#{locale}.tag": "$dump.#{locale}.#{options.dig(:import, :tag_name_path)}"
             ).group(
               _id: "$dump.#{locale}.id",
               :dump.first => '$dump'
@@ -42,15 +42,16 @@ module DataCycleCore
         end
 
         def extract_data(raw_data)
-          external_id = case @options.dig(:import, :external_id_hash_method)
-                        when 'MD5'
-                          Digest::MD5.new.update(raw_data['id']).hexdigest
-                        else
-                          raw_data['id']
-                        end
+          external_id =
+            case options.dig(:import, :external_id_hash_method)
+            when 'MD5'
+              Digest::MD5.new.update(raw_data['id']).hexdigest
+            else
+              raw_data['id']
+            end
 
           {
-            external_id: "#{@options.dig(:import, :external_id_prefix)}#{external_id}",
+            external_id: "#{options.dig(:import, :external_id_prefix)}#{external_id}",
             name: raw_data['tag']
           }
         end

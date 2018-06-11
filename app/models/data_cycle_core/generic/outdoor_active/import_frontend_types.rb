@@ -6,7 +6,7 @@ module DataCycleCore
       module ImportFrontendTypes
         def import_data(**options)
           import_classifications(
-            @source_type,
+            source_type,
             options.dig(:import, :tree_label) || 'OutdoorActive - FrontendTypes',
             method(:load_root_classifications).to_proc,
             ->(_, _, _) { [] },

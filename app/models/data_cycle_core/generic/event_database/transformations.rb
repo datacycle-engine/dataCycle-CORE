@@ -15,7 +15,7 @@ module DataCycleCore
           .>> t(:rename_keys, { 'id' => 'external_key', 'tags' => 'event_tag' })
           .>> t(:nest, 'event_period', ['start_date', 'end_date'])
           .>> t(:tags_to_ids, 'event_tag', external_source_id, 'Veranstaltungsdatenbank - tags - ')
-          .>> t(:category_key_to_ids, 'categories', external_source_id, 'CATEGORY:', 'id')
+          .>> t(:category_key_to_ids, 'categories', ->(s) { s.dig('categories') }, 'name', external_source_id, 'CATEGORY:', 'id')
           .>> t(:rename_keys, 'categories' => 'event_category')
           .>> t(:add_link, 'location', DataCycleCore::Place, external_source_id, ->(s) { "PLACE:#{s.dig('event_location', 'id')}" })
           .>> t(:add_link, 'image', DataCycleCore::CreativeWork, external_source_id, ->(s) { "IMAGE:#{s.dig('image', 'id')}" })
