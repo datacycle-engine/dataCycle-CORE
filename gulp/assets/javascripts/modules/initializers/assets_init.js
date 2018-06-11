@@ -218,7 +218,6 @@ module.exports.initialize = function () {
               reset_file_field(file_element);
               file_element.addClass('error').append('<span class="error"><b>Fehler:</b> ' + data.error + '</span>');
             } else {
-              console.log(file_element);
               file_element.removeClass('uploading').addClass('finished');
               file_element.find('.remove-file').remove();
               file_element.find('.upload-number').html('<i class="fa fa-check" aria-hidden="true"></i>');
