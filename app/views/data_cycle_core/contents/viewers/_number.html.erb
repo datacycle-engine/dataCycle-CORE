@@ -1,0 +1,8 @@
+<%= render 'data_cycle_core/contents/viewers/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
+
+    <span class="detail-content">
+      <%= definition&.dig('validations', 'format') == 'float' ? value.to_f : value.to_i %>
+      <%= definition&.dig('ui', 'show', 'options', 'data-unit').presence&.html_safe %>
+    </span>
+
+<% end %>

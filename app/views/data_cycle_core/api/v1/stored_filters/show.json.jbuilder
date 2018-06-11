@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 json.set! 'total', @total
 
 json.contents @contents do |item|

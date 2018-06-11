@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'boot'
 
 require 'rails/all'
@@ -18,5 +20,7 @@ module Dummy
     config.assets.paths << Rails.root.join('..', '..', 'lib', 'assets', 'stylesheets')
     config.assets.paths << Rails.root.join('..', '..', 'lib', 'assets', 'javascripts')
     config.assets.paths << Rails.root.join('..', '..', 'lib', 'assets', 'fonts')
+
+    config.time_zone = 'Vienna'
   end
 end

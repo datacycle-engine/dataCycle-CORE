@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class DashBoardController < ApplicationController
     before_action :authenticate_user! # from devise (authenticate)
@@ -6,8 +8,8 @@ module DataCycleCore
     def home
       @errors = nil
       @duplicates = nil
-      @statOutdoorActive = StatsDatabase.new(current_user.id)
-      @statJobQueue = StatsJobQueue.new.update
+      @stat_outdoor_active = StatsDatabase.new(current_user.id)
+      @stat_job_queue = StatsJobQueue.new.update
     end
 
     def download
@@ -29,8 +31,6 @@ module DataCycleCore
     def import_templates
       @errors = nil
       @duplicates = nil
-      error = nil
-      duplicates = nil
       errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
       if errors.blank? && duplicates.blank?
         flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'data types', locale: DataCycleCore.ui_language

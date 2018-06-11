@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class UserGroupsController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
@@ -5,7 +7,7 @@ module DataCycleCore
     before_action :set_user_group, only: [:edit, :update, :destroy]
 
     def index
-      @paginateObject = DataCycleCore::UserGroup.all.includes(:users).order(:name).page(params[:page])
+      @paginate_object = DataCycleCore::UserGroup.all.includes(:users).order(:name).page(params[:page])
     end
 
     def create

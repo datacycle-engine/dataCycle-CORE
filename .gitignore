@@ -18,6 +18,6 @@ gemsurance_report.html
 /.idea
 test/dummy/public/uploads
 test/dummy/public/assets
+test/dummy/db/backups
 rdoc/
 package-lock.json
-bash/**/*

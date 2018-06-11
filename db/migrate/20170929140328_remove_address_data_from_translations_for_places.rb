@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class RemoveAddressDataFromTranslationsForPlaces < ActiveRecord::Migration[5.0]
   def change
     remove_column :place_translations, :addressLocality, :string

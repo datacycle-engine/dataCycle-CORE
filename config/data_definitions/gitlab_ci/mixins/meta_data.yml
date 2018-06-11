@@ -5,21 +5,21 @@
     :properties:
       :creator:
         :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: users
+        :validations:
+          :max: 1
+      :last_updated_by:
+        :label: "Zuletzt bearbeitet von"
+        :type: linked
+        :linked_table: users
+        :validations:
+          :max: 1
       :date_created:
         :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
       :date_modified:
         :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateContentMetaItemView < ActiveRecord::Migration[5.0]
   def up
     query = 'CREATE VIEW content_meta_items AS ' +

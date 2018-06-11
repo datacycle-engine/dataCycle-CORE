@@ -1,64 +1,99 @@
-module DataCycleCore::Generic::MediaArchive::Import
-  def import_data(**options)
-    @place_template = options[:import][:place_template] || 'contentLocation'
-    load_transformations
-    @place_template = options&.dig(:import, :place_template) || 'contentLocation'
-    import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)
-  end
+# frozen_string_literal: true
 
-  def load_transformations
-    @image_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_bild(external_source.id)
-    @video_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_video(external_source.id)
-    @content_location_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_content_location
-  end
+module DataCycleCore
+  module Generic
+    module MediaArchive
+      module Import
+        def import_data(**options)
+          default_options(options)
+          load_transformations
+          import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)
+        end
 
-  protected
+        def default_options(**options)
+          @place_template = options.presence&.dig(:import, :place_template) || DataCycleCore.default_place_type || 'Örtlichkeit'
+          @person_template = options.presence&.dig(:import, :person_template) || DataCycleCore.default_templates.dig(:persons) || 'Person'
+        end
 
-  def load_contents(mongo_item, locale)
-    mongo_item.where("dump.#{locale}": { '$exists' => true })
-  end
+        def load_transformations
+          @image_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_bild(external_source.id)
+          @video_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_video(external_source.id)
+          @content_location_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_content_location
+          @person_transformation = DataCycleCore::Generic::Transformations::Transformations.media_archive_to_person
+        end
 
-  def process_content(raw_data, template, locale)
-    @place_template ||= DataCycleCore.try(:default_place_type)
-    I18n.with_locale(locale) do
-      content_location = create_or_update_content(
-        DataCycleCore::Place,
-        load_template(DataCycleCore::Place, @place_template),
-        extract_content_location_data(raw_data['contentLocation'])
-          .merge({ 'external_key' => raw_data['url'] }).with_indifferent_access
-      )
+        protected
 
-      raw_data['content_location'] = [{ 'id' => content_location.try(:id) }] unless content_location.blank?
+        def load_contents(mongo_item, locale)
+          mongo_item.where("dump.#{locale}": { '$exists' => true })
+        end
 
-      case raw_data['contentType']
-      when 'Bild'
-        data = extract_image_data(raw_data).with_indifferent_access
-      when 'Video'
-        data = extract_video_data(raw_data).with_indifferent_access
-      else
-        data = nil
-        ap "Unkown contentType #{raw_data}"
-      end
+        def process_content(raw_data, template, locale)
+          I18n.with_locale(locale) do
+            content_location = create_or_update_content(
+              DataCycleCore::Place,
+              load_template(DataCycleCore::Place, @place_template),
+              extract_content_location_data(raw_data['contentLocation'])
+                .merge({ 'external_key' => "#{raw_data['contentType']}-#{@place_template}: #{raw_data['url'].split('/').last}" }).with_indifferent_access
+            )
 
-      unless data.nil?
-        content = create_or_update_content(
-          @target_type,
-          template,
-          data
-        )
+            director = create_or_update_content(
+              DataCycleCore::Person,
+              load_template(DataCycleCore::Person, @person_template),
+              extract_person_data(raw_data['director'])
+                .merge({ 'external_key' => "Person: #{raw_data['url'].split('/').last}" }).with_indifferent_access
+            )
+
+            contributor = create_or_update_content(
+              DataCycleCore::Person,
+              load_template(DataCycleCore::Person, @person_template),
+              extract_person_data(raw_data['contributor'])
+                .merge({ 'external_key' => "Person: #{raw_data['url'].split('/').last}" }).with_indifferent_access
+            )
+
+            raw_data['content_location'] = [content_location.try(:id)] if content_location.present?
+            raw_data['director'] = [director.try(:id)] if director.present?
+            raw_data['contributor'] = [contributor.try(:id)] if contributor.present?
+
+            case raw_data['contentType']
+            when 'Bild'
+              data = extract_image_data(raw_data).with_indifferent_access
+            when 'Video'
+              data = extract_video_data(raw_data).with_indifferent_access
+            else
+              data = nil
+              ap "Unkown contentType #{raw_data}"
+            end
+            default_values = load_default_values(@options.dig(:import, :default_values)) if @options.presence&.dig(:import, :default_values).present?
+            data.merge!(default_values) if default_values.present?
+
+            unless data.nil?
+              create_or_update_content(
+                @target_type,
+                template,
+                data
+              )
+            end
+          end
+        end
+
+        def extract_image_data(raw_data)
+          raw_data.nil? ? {} : @image_transformation.call(raw_data)
+        end
+
+        def extract_video_data(raw_data)
+          raw_data.nil? ? {} : @video_transformation.call(raw_data)
+        end
+
+        def extract_content_location_data(raw_data)
+          return {} if raw_data.nil? || (raw_data['address'].blank? && (raw_data['geo'].blank? || (raw_data['geo']['latitude'] == 0.0 && raw_data['geo']['longitude'] == 0.0)))
+          @content_location_transformation.call(raw_data)
+        end
+
+        def extract_person_data(raw_data)
+          raw_data.nil? ? {} : @person_transformation.call(raw_data)
+        end
       end
     end
-  end
-
-  def extract_image_data(raw_data)
-    raw_data.nil? ? {} : @image_transformation.call(raw_data)
-  end
-
-  def extract_video_data(raw_data)
-    raw_data.nil? ? {} : @video_transformation.call(raw_data)
-  end
-
-  def extract_content_location_data(raw_data)
-    raw_data.nil? ? {} : @content_location_transformation.call(raw_data)
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module Filter
     class QueryBuilder
@@ -8,7 +10,7 @@ module DataCycleCore
       attr_reader :query
       def_delegators :@query, :to_a, :to_sql, :each, :page, :includes, :all, :select, :map
       TERMINAL_METHODS = [:count, :pluck,
-                          :first, :second, :third, :fourth, :fifth, :forty_two, :last]
+                          :first, :second, :third, :fourth, :fifth, :forty_two, :last].freeze
       def_delegators :@query, *TERMINAL_METHODS
 
       def initialize(locale = 'de', query = nil)
@@ -69,7 +71,7 @@ module DataCycleCore
                        create_classification_alias_recursion(
                          DataCycleCore::ClassificationAlias.for_tree(tree_name).with_name(aliases).pluck(:id)
                        )
-        ))
+                     ))
       end
 
       private
@@ -93,7 +95,7 @@ module DataCycleCore
           .project(children[:classification_alias_id])
 
         query2 = join_classification_alias2
-        manager2 = query2.where(classification_alias[:id].in(manager)
+        query2.where(classification_alias[:id].in(manager)
                                   .or(classification_alias[:id].in(ids)))
       end
 

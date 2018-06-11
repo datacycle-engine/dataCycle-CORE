@@ -3,9 +3,9 @@
     <span class="title"><%= t('common.language', locale: DataCycleCore.ui_language) %></span>
     <div>
         <ul class="split-list clearfix">
-            <% available_locales_with_names.each do |key,value| %>
+            <% available_locales_with_names.except((show_all ||= false) ? nil : :all).each do |key,value| %>
                 <li>
-                    <input type="radio" name="language" value="<%= key.to_s %>" id="<%= key.to_s %>" <%= "checked" if key.to_s == "de" || key.to_s == @language %> />
+                    <input type="radio" name="language" value="<%= key.to_s %>" id="<%= key.to_s %>" <%= "checked" if key.to_s == @language %> />
                     <label for="<%= key.to_s %>">
                         <span class="title">
                             <%= value %>

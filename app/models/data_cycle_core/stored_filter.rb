@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class StoredFilter < ApplicationRecord
     scope :by_user, ->(user) { where user: user }

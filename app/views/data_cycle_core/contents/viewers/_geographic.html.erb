@@ -1,0 +1,32 @@
+<%= render 'data_cycle_core/contents/viewers/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
+
+    <% if value.try(:geometry_type) == RGeo::Feature::Point %> <%# only show points for now, not the lines %>
+        <div class="detail-type geographic">
+
+            <% map_id = "map_#{SecureRandom.hex(16)}" %>
+            <script>
+                var <%= map_id %> = {
+                    type: "<%= value.geometry_type.to_s %>",
+                        points: [<%= "[#{value.x}, #{value.y}]" %>]
+                };
+            </script>
+
+            <div id="<%= map_id %>" class="geographic-map" style="max-width: 600px; max-height: 450px;">
+            </div>
+        </div>
+    <% elsif value.try(:geometry_type) == RGeo::Feature::LineString %> <%# only show points for now, not the lines %>
+        <div class="detail-type geographic">
+
+            <% map_id = "map_#{SecureRandom.hex(16)}" %>
+            <script>
+                var <%= map_id %> = {
+                    type: "<%= value.geometry_type.to_s %>",
+                        points: [<%= value.points.map { |p| "[#{p.x}, #{p.y}]" }.join(",") %>]
+                };
+            </script>
+
+            <div id="<%= map_id %>" class="geographic-map" style="max-width: 600px; max-height: 450px;">
+            </div>
+        </div>
+    <% end %>
+<% end %>

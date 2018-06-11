@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module Abilities
     class Rank0Ability
@@ -26,8 +28,12 @@ module DataCycleCore
           end
         end
 
-        can :show_attribute, DataCycleCore::DataAttribute do |_attribute|
-          true
+        cannot :show, DataCycleCore::DataAttribute do |attribute|
+          (attribute.definition.dig('ui', attribute.scope.to_s, 'disabled') == true && attribute.options.presence&.dig(:force_render).blank?) ||
+            (
+              !DataCycleCore::Feature::Overlay.allowed?(attribute.content) &&
+              DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
+            )
         end
 
         DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class Organization < DataHash
     class Translation < Globalize::ActiveRecord::Translation
@@ -6,7 +8,7 @@ module DataCycleCore
 
     class History < DataHash
       # handle translations with gem Globalize
-      translates :headline, :description, :content, :properties, :release,
+      translates :headline, :description, :content, :release,
                  :release_id, :release_comment, :history_valid
 
       content_relations table_name: 'organizations', postfix: 'history'
@@ -24,7 +26,7 @@ module DataCycleCore
     has_many :histories, -> { order(created_at: :desc) }, class_name: 'DataCycleCore::Organization::History', foreign_key: :organization_id
 
     # handle translations with gem Globalize
-    translates :headline, :description, :content, :properties, :release,
+    translates :headline, :description, :content, :release,
                :release_id, :release_comment
 
     # include content specific relations

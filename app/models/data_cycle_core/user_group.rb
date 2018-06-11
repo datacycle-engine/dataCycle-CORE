@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class UserGroup < ApplicationRecord
     validates :name, presence: true

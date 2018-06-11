@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 json.set! '@type', 'PostalAddress'
-json.set! 'streetAddress', addressData.street_address unless addressData.street_address.blank?
-json.set! 'postalCode', addressData.postal_code unless addressData.postal_code.blank?
-json.set! 'addressLocality', addressData.address_locality unless addressData.address_locality.blank?
-json.set! 'addressCountry', addressData.address_country unless addressData.address_country.blank?
+json.set! 'streetAddress', addressData.street_address if addressData.street_address.present?
+json.set! 'postalCode', addressData.postal_code if addressData.postal_code.present?
+json.set! 'addressLocality', addressData.address_locality if addressData.address_locality.present?
+json.set! 'addressCountry', addressData.address_country if addressData.address_country.present?

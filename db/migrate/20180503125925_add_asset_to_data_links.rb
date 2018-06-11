@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddAssetToDataLinks < ActiveRecord::Migration[5.0]
   def change
     add_column :assets, :name, :string

@@ -3,72 +3,54 @@
     :name: MobileApplication
     :type: object
     :content_type: embedded
-    :permissions:
-      :read_write: true
     :boost: 1.0
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :url:
         :label: URL
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :validations:
-          :minLength: 1
+          :min: 1
           :format: url
         :editor:
           :type: input
-          :sorting: 1
           :options:
             :data-validate: text
       :operating_system:
         :label: Plattform
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :validations:
-          :minLength: 1
+          :min: 1
         :editor:
           :type: input
-          :sorting: 2
           :options:
             :data-validate: text
       :is_part_of:
         :label: parent
         :type: string
-        :storage_type: string
         :storage_location: column
         :validations:
           :format: uuid
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "MobileApplication"
       :creator:
         :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: users
+        :validations:
+          :max: 1
       :date_created:
         :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
       :date_modified:
         :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value

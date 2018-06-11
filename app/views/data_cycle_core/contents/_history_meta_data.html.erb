@@ -1,13 +1,13 @@
 <span class="created-at">
-  <% if content.is_history? %>
-    <%= t('history.updated_at', locale: DataCycleCore.ui_language) %>
-    <strong><%= Time.zone.at(I18n.with_locale(content.first_available_locale){content.history_valid&.first})&.to_s(:german_datetime_format)%></strong>
-  <% else %>
-    <%= t('history.valid_since', locale: DataCycleCore.ui_language) %>
-    <strong><%= Time.zone.at(content.updated_at).to_s(:german_datetime_format)%></strong>
-  <% end %>
-  <% unless content.metadata.nil? || content.metadata['last_updated_by'].blank? %>
-    <% updater = get_user_for_id(content.metadata['last_updated_by']) %>
-    <%= t('terms.from', locale: DataCycleCore.ui_language) %> <strong><a href="mailto:<%= updater.email %>"><%= updater.full_name %></a></strong>
-  <% end %>
+    <% if content.history? %>
+        <%= t('history.updated_at', locale: DataCycleCore.ui_language) %>
+        <strong><%= l(Time.zone.at(I18n.with_locale(content.first_available_locale){content.history_valid&.first}), locale: DataCycleCore.ui_language) %></strong>
+    <% else %>
+        <%= t('history.valid_since', locale: DataCycleCore.ui_language) %>
+        <strong><%= l(Time.zone.at(content.updated_at), locale: DataCycleCore.ui_language) if content.updated_at.present? %></strong>
+    <% end %>
+    <% if content.try(:last_updated_by).is_a?(ActiveRecord::Relation) && content.try(:last_updated_by).present? %>
+        <% person = content.last_updated_by.first %>
+        <%= t('terms.from', locale: DataCycleCore.ui_language) %> <strong><a href="mailto:<%= person.email %>"><%= person.full_name %></a></strong>
+    <% end %>
 </span>

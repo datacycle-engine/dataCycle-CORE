@@ -1,26 +1,16 @@
-<% unless dataCycleObject.schema.nil? %>
-
-    <% validation_properties = get_ordered_validation_properties(dataCycleObject.schema) %>
-
-    <% if !validation_properties.nil? %>
-
-        <!-- todo: make this more generic ? -->
-        <% exludedProperties = @splitSource.nil? && @historySource.nil? ? ['headline','validity_period'] : []  %>
+<% unless content.schema.nil? %>
 
         <div class="type properties">
 
-            <% validation_properties.each do |key, prop| %>
+            <% ordered_validation_properties(validation: content.schema, content_area: options.presence&.dig(:force_render).try(:to_s) == 'true' ? '' : 'content').each do |key, prop| %>
 
-                <% value = prop.dig('type') == "object" ? dataCycleObject.try(key.to_sym) : dataCycleObjectSchema[key] %>
+                <% value = content.try(key.to_sym) %>
+                <% value = value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if value.is_a?(ActiveRecord::Relation) %>
 
-                <% if !exludedProperties.include?(key) %>
-                    <%= render_attribute_viewer key: key, definition: prop, value: normalize_value(value), parameters: { options: options } %>
-                <% end %>
+                <%= render_attribute_viewer key: key, definition: prop, value: value, parameters: { options: options }, content: content %>
 
             <% end %>
 
         </div>
-
-    <% end %>
 
 <% end %>

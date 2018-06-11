@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FIXNUM_MAX = (2**(0.size * 8 - 2) - 1)
 
 delete_classifications = <<-EOS
@@ -31,10 +33,6 @@ delete_contents = <<-EOS
 
   DELETE FROM classification_contents;
   DELETE FROM searches;
-
-  DELETE FROM overlays;
-  DELETE FROM tags;
-  DELETE FROM overlay_place_tags;
 EOS
 
 delete_content_histories = <<-EOS
@@ -176,11 +174,11 @@ namespace :data_cycle_core do
     task import_templates: [:environment] do
       puts 'importing new template definitions'
       errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
-      unless duplicates.blank?
+      if duplicates.present?
         puts 'INFO: the following templates had multiple definitions:'
         ap duplicates
       end
-      unless errors.blank?
+      if errors.present?
         puts 'the following errors were encountered during import:'
         ap errors
       end
@@ -241,7 +239,7 @@ namespace :data_cycle_core do
           template_name = template_object.template_name
           boost = template_object.schema['boost']
 
-          unless boost.blank?
+          if boost.present?
             search_entries = DataCycleCore::Search.where(content_data_type: data_object.to_s, data_type: template_name).count
 
             connection = ActiveRecord::Base.connection
@@ -352,6 +350,68 @@ namespace :data_cycle_core do
       end
       puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
     end
+
+    desc '[NEW] replace the data-definitions of all data-types in the Database with the templates in the Database'
+    task :update_all_templates_sql, [:history] => [:environment] do |_, args|
+      temp = Time.zone.now
+      DataCycleCore.content_tables.each do |content_table|
+        data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
+        data_object.where(template: true).each do |template_object|
+          Rake::Task['data_cycle_core:update:update_template_sql'].invoke(content_table, template_object.template_name, args.fetch(:history, false))
+          Rake::Task['data_cycle_core:update:update_template_sql'].reenable
+        end
+      end
+      puts "total time: #{((Time.zone.now - temp).to_s + ' sec').rjust(20)} \r"
+    end
+
+    desc '[NEW] replace a given data-definition with its recent template for a content_table'
+    task :update_template_sql, [:content_table_name, :template_name, :history] => [:environment] do |_, args|
+      unless DataCycleCore.content_tables.include?(args[:content_table_name])
+        puts 'ERROR: only the following content_table_names are known to the system:'
+        puts DataCycleCore.content_tables.to_s
+        exit(-1)
+      end
+
+      data_object = "DataCycleCore::#{args[:content_table_name].classify}".safe_constantize
+      template = data_object.find_by(template_name: args[:template_name], template: true)
+      total_items = data_object.where(template_name: args[:template_name], template: false).count
+
+      if template.nil?
+        puts "ERROR: template not found. For the given #{args[:content_table_name]} table only the following templates are available:"
+        puts data_object.where(template: true).map(&:template_name)
+        exit(-1)
+      end
+
+      temp = Time.zone.now
+
+      update_sql = <<-EOS
+        UPDATE #{args[:content_table_name]}
+        SET schema = '#{template.schema.to_json}'
+        WHERE template_name='#{args[:template_name]}' and template=false
+      EOS
+
+      affected_items = ActiveRecord::Base.connection.update(ActiveRecord::Base.send(:sanitize_sql_for_conditions, update_sql))
+
+      puts "#{args[:content_table_name].ljust(25)} | #{args[:template_name].ljust(25)} | #{((affected_items || 0).to_s + ' / ' + (total_items || 0).to_s).ljust(25)} | #{((Time.zone.now - temp).to_s + ' sec').rjust(20)} \r"
+
+      next unless args.fetch(:history, false).to_s == 'true'
+
+      # history update
+      history_object = "DataCycleCore::#{args[:content_table_name].classify}::History".safe_constantize
+      total_history_items = history_object.where(template_name: args[:template_name], template: false).count
+
+      temp = Time.zone.now
+
+      update_history_sql = <<-EOS
+        UPDATE #{history_object.table_name}
+        SET schema = '#{template.schema.to_json}'
+        WHERE template_name='#{args[:template_name]}' and template=false
+      EOS
+
+      affected_history_items = ActiveRecord::Base.connection.update(ActiveRecord::Base.send(:sanitize_sql_for_conditions, update_history_sql))
+
+      puts "#{history_object.table_name.ljust(25)} | #{args[:template_name].ljust(25)} | #{((affected_history_items || 0).to_s + ' / ' + (total_history_items || 0).to_s).ljust(25)} | #{((Time.zone.now - temp).to_s + ' sec').rjust(20)} \r"
+    end
   end
 
   namespace :data_update do
@@ -362,7 +422,6 @@ namespace :data_cycle_core do
       puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
 
       # update content / content_history
-      index = 0
       DataCycleCore.content_tables.each do |content_table|
         [content_table, content_table.singularize + '_histories'].each do |table_name|
           content_class = "DataCycleCore::#{content_table.classify}"
@@ -410,7 +469,7 @@ namespace :data_cycle_core do
         puts "Users for interval (#{args.frequency}): #{DataCycleCore::User.where(notification_frequency: args.frequency).size}"
 
         DataCycleCore::User.where(notification_frequency: args.frequency).each do |user|
-          subcribed_with_changes = user.subscriptions.map(&:subscribable).reject { |c| c.as_of(1.send(args.frequency).ago).try(:is_history?) == false }
+          subcribed_with_changes = user.subscriptions.map(&:subscribable).reject { |c| c.as_of(1.send(args.frequency).ago).try(:history?) == false }
 
           puts "Subscriptions with changes: #{subcribed_with_changes.size}"
 
@@ -596,6 +655,73 @@ namespace :data_cycle_core do
       end
 
       puts "Cleaning up #{duplicated_content_relations_count} content relations ... [DONE]"
+    end
+  end
+
+  namespace :refactor do
+    desc 'executes last_updated_by migrations'
+    task last_updated_by: :environment do
+      temp = Time.zone.now
+      DataCycleCore.content_tables.each do |content_table|
+        [content_table, content_table.singularize + '_histories'].each do |table_name|
+          content_class = "DataCycleCore::#{content_table.classify}"
+          content_class += '::History' if table_name.end_with?('_histories')
+          data_object = content_class.safe_constantize
+
+          where_string = "metadata #> '{last_updated_by}' IS NOT NULL AND metadata #> '{last_updated_by}' <> 'null'"
+          ap data_object.to_s + ' | ' + data_object.where(where_string).count.to_s
+          data_object.where(where_string).each do |item|
+            user_id = item.metadata['last_updated_by']
+
+            if table_name.end_with?('_histories')
+              DataCycleCore::ContentContent::History.create!(
+                content_a_history_id: item.id,
+                content_a_history_type: data_object.to_s,
+                relation_a: 'last_updated_by',
+                content_b_history_id: user_id,
+                content_b_history_type: 'DataCycleCore::User',
+                relation_b: ''
+              )
+            else
+              DataCycleCore::ContentContent.create!(
+                content_a_id: item.id,
+                content_a_type: data_object.to_s,
+                relation_a: 'last_updated_by',
+                content_b_id: user_id,
+                content_b_type: 'DataCycleCore::User',
+                relation_b: ''
+              )
+            end
+
+            # remove last_updated_by from metadata
+            update_sql = <<-EOS
+              UPDATE #{table_name}
+              SET metadata = metadata - 'last_updated_by'
+              WHERE id = '#{item.id}'
+            EOS
+            ActiveRecord::Base.connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, update_sql))
+          end
+        end
+      end
+
+      puts 'END'
+      puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
+    end
+
+    desc 'executes all migration tasks'
+    task migrate_all_templates: :environment do
+      temp = Time.zone.now
+
+      Rake::Task['db:migrate'].invoke
+      Rake::Task['data_cycle_core:update:import_classifications'].invoke
+      Rake::Task['data_cycle_core:update:import_templates'].invoke
+      Rake::Task['data_cycle_core:update:import_external_source_configs'].invoke
+      # Rake::Task['data_cycle_core:update:update_template_sql'].invoke('places', 'Örtlichkeit')
+      Rake::Task['data_cycle_core:update:update_all_templates_sql'].invoke(true)
+      Rake::Task['data_cycle_core:refactor:last_updated_by'].invoke
+
+      puts 'END'
+      puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
     end
   end
 end

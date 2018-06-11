@@ -1,0 +1,16 @@
+// sortable items
+.sortable-ghost {
+  opacity: 0.1;
+}
+
+.draggable-handle {
+  position: relative;
+  float: left;
+  padding: 0 0.5rem;
+  color: $black;
+  cursor: pointer;
+  &:hover,
+  &:focus {
+    color: lighten($black, 30%);
+  }
+}

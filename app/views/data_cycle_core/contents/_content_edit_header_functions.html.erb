@@ -11,12 +11,12 @@
 
         <% if can?(:index, content) && content.respond_to?(:siblings) && content.respond_to?(:parent) && !content.parent.nil? && !content.siblings.try(:size).nil? && !content.siblings.try(:size).zero? %>
           <li class="has-dropdown right">
-            <%= render 'split_sources', contents: content.siblings, selected: @splitSource, url: '', title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
+            <%= render 'split_sources', contents: content.siblings, selected: @split_source, url: '', title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
           </li>
         <% end %>
 
         <% if (DataCycleCore.translatable_types & [content.class.name, content.template_name]).present? && I18n.available_locales&.size&.>(1) %>
-          <%= render 'edit_locale_links', local_assigns.merge({ locales: available_locales_with_names }) %>
+          <%= render 'edit_locale_links', local_assigns.merge({ locales: available_locales_with_names.except(:all) }) %>
         <% end %>
 
         <% if can? :index, DataCycleCore::DataLink %>

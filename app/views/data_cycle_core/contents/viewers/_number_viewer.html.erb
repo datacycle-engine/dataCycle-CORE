@@ -1,8 +1,0 @@
-<%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: value, options: options do %>
-
-    <span class="detail-content">
-        <%= !definition.nil? && definition.has_key?('validations') && definition['validations'].has_key?('format') && definition['validations']['format'] == 'float' ? value.to_f : value.to_i %>
-        <% if !definition.nil? && !definition['editor'].nil? && !definition['editor']['options'].nil? && !definition['editor']['options']['data-unit'].nil? %><%= definition['editor']['options']['data-unit'].html_safe %><% end %>
-    </span>
-
-<% end %>

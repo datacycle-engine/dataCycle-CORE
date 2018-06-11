@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class DownloadJob < ApplicationJob
     # there is a bug in ActiveJob in combination with DelayedJob that prevents
@@ -9,14 +11,14 @@ module DataCycleCore
     after_enqueue do |_|
       job_record = Delayed::Job.find(@provider_job_id)
       job_record.delayed_reference_id = @arguments.first
-      store_job_id_to_externalSource = ExternalSource.find(job_record.delayed_reference_id)
-      if store_job_id_to_externalSource.config.nil?
-        store_job_id_to_externalSource.config = { 'last_download_job_id' => @provider_job_id }
+      store_job_id_to_external_source = ExternalSource.find(job_record.delayed_reference_id)
+      if store_job_id_to_external_source.config.nil?
+        store_job_id_to_external_source.config = { 'last_download_job_id' => @provider_job_id }
       else
-        store_job_id_to_externalSource.config['last_download_job_id'] = @provider_job_id
+        store_job_id_to_external_source.config['last_download_job_id'] = @provider_job_id
       end
-      store_job_id_to_externalSource.save
-      job_record.delayed_reference_type = store_job_id_to_externalSource.config['download']
+      store_job_id_to_external_source.save
+      job_record.delayed_reference_type = store_job_id_to_external_source.config['download']
       job_record.save!
     end
 
@@ -24,6 +26,7 @@ module DataCycleCore
       # Do something before perform
       block.call
       # Do something after perform
+
       uuid = @arguments.first
       external_source = ExternalSource.find(uuid)
       job_record_id = external_source.config['last_download_job_id']
@@ -35,7 +38,12 @@ module DataCycleCore
     end
 
     def perform(uuid)
-      ExternalSource.find(uuid).download
+      pid = Process.fork do
+        ExternalSource.find(uuid).download
+      end
+      Process.waitpid(pid)
+
+      ActiveRecord::Base.establish_connection
     end
   end
 end

@@ -1,49 +1,46 @@
 <li id="<%= tree_label.id %>">
-<span class="inner-item">
-  <%= link_to tree_label.name,
-              classifications_path(classification_tree_label_id: tree_label.id),
-              data: {remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"} %>
+    <span class="inner-item">
+        <%= link_to tree_label.name,
+            classifications_path(classification_tree_label_id: tree_label.id),
+            data: {remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"} %>
 
-  <% if can?(:update, tree_label) %>
-    <a href="#" class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+        <% if can?(:update, tree_label) %>
+            <a href="#" class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+        <% end %>
+
+        <% if can?(:destroy, tree_label) %>
+            <% confirmation_text = "#{t('common.are_you_sure', locale: DataCycleCore.ui_language)}" %>
+            <% confirmation_text += "<span class='warning'>
+            <i class='fa fa-exclamation-triangle' aria-hidden='true'></i> #{t('data_cycle_core.classification_tree_relations', locale: DataCycleCore.ui_language)}</span>" if tree_label.classification_aliases.any? { |ca| ca.classifications.includes(:classification_contents).any? { |c| c.classification_contents.exists? } } %>
+
+            <% confirmation_text += "<span class='warning'>
+            <i class='fa fa-exclamation-triangle' aria-hidden='true'></i> #{t('data_cycle_core.child_classification_relations', count: tree_label.classification_aliases.size, data: t('data_cycle_core.this_classification_tree', locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language)}</span>" if tree_label.classification_aliases.size.positive? %>
+
+            <%= link_to classifications_path(classification_tree_label_id: tree_label.id), class: 'destroy',
+                data: {remote: true, method: :delete,
+                confirm: confirmation_text,
+                disable_with: '<i class="fa fa-spinner fa-spin"></i>'} do %>
+                <i class="fa fa-trash-o" aria-hidden="true"></i>
+            <% end %>
+        <% end %>
+
+  <% if can?(:download, tree_label) %>
+    <%= link_to download_classifications_path(classification_tree_label_id: tree_label.id, format: :csv),
+                class: 'download' do %>
+      <i class="fa fa-download" aria-hidden="true"></i>
+    <% end %>
   <% end %>
 
-  <% if can?(:destroy, tree_label) %>
-    <% confirmation_text = "#{t('common.are_you_sure', locale: DataCycleCore.ui_language)}" %>
-    <% confirmation_text += "<span class='warning'>
-      <i class='fa fa-exclamation-triangle' aria-hidden='true'></i> #{t('data_cycle_core.classification_tree_relations', locale: DataCycleCore.ui_language)}</span>" if tree_label.classification_aliases.any? { |ca| ca.classifications.includes(:classification_contents).any? { |c| c.classification_contents.exists? } } %>
-
-    <% confirmation_text += "<span class='warning'>
-      <i class='fa fa-exclamation-triangle' aria-hidden='true'></i> #{t('data_cycle_core.child_classification_relations', count: tree_label.classification_aliases.size, data: t('data_cycle_core.this_classification_tree', locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language)}</span>" if tree_label.classification_aliases.size.positive? %>
-
-    <%= link_to classifications_path(classification_tree_label_id: tree_label.id), class: 'destroy',
-                data: {remote: true, method: :delete,
-                       confirm: confirmation_text,
-                       disable_with: '<i class="fa fa-spinner fa-spin"></i>'} do %>
-      <i class="fa fa-trash-o" aria-hidden="true"></i>
-    <% end %>
- <% end %>
-
- <% if can?(:download, tree_label) %>
-   <%= link_to download_classifications_path(classification_tree_label_id: tree_label.id, format: :csv),
-               class: 'download' do %>
-     <i class="fa fa-download" aria-hidden="true"></i>
-   <% end %>
- <% end %>
-<%
-=begin
-%>
   <%= link_to classification_tree_label_path(tree_label), class: 'contents-list', target: :_blank, title: t('data_cycle_core.show_contents_for_tree_label', data: tree_label.name, locale: DataCycleCore.ui_language) do %>
     <i class="fa fa-list" aria-hidden="true"></i>
   <% end %>
-<%
-=end
-%>
-</span>
-   <% if can?(:update, tree_label) %>
-    <%= render 'classification_tree_label_form', classification_tree_label: tree_label %>
-  <% end %>
 
-  <ul class="children">
-  </ul>
+</span>
+
+    <% if can?(:update, tree_label) %>
+        <%= render 'classification_tree_label_form', classification_tree_label: tree_label %>
+    <% end %>
+
+    <ul class="children">
+    </ul>
 </li>

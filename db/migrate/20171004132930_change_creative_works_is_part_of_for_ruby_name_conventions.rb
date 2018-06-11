@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ChangeCreativeWorksIsPartOfForRubyNameConventions < ActiveRecord::Migration[5.0]
   def change
     rename_column :creative_works, :isPartOf, :is_part_of

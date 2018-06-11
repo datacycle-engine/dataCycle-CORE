@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module Generic
     module GooglePlaces
@@ -66,7 +68,7 @@ module DataCycleCore
         def places_detail(lang: :de)
           Enumerator.new do |yielder|
             DataCycleCore::Generic::Collection2.with(@read_type) do |mongo_item|
-              mongo_item.all.no_timeout.max_time_ms(FIXNUM_MAX).each do |item|
+              mongo_item.no_timeout.max_time_ms(FIXNUM_MAX).each do |item|
                 yielder << load_detail(item.external_id)['result']
               end
             end
@@ -156,11 +158,8 @@ module DataCycleCore
               req.params['language'] = 'de'
             end
           end
-          if response.success?
-            JSON.parse(response.body)
-          else
-            raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point + 'nearbysearch/json'} / x:#{location_x} / y:#{location_y} / r:#{radius}" << response.body
-          end
+          raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point + 'nearbysearch/json'} / x:#{location_x} / y:#{location_y} / r:#{radius}" + response.body unless response.success?
+          JSON.parse(response.body)
         end
 
         def load_detail(place_id)
@@ -171,11 +170,8 @@ module DataCycleCore
             req.params['language'] = 'de'
             req.params['placeid'] = place_id
           end
-          if response.success?
-            JSON.parse(response.body)
-          else
-            raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point + 'details/json'} / place_id: #{place_id}" << response.body
-          end
+          raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point + 'details/json'} / place_id: #{place_id}" + response.body unless response.success?
+          JSON.parse(response.body)
         end
       end
     end
