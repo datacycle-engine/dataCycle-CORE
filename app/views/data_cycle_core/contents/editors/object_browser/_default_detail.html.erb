@@ -1,9 +1,13 @@
 <div class="padding-bottom-10">
-  <h5>Details</h5>
-  <% unless object.title.blank? %>
-    <dl>
-      <dt>Name: </dt>
-      <dd><%= object.title %></dd>
-    </dl>
-  <% end %>
+    <h5>Details</h5>
+    <% if can?(:edit, object) %>
+        <%= link_to edit_polymorphic_path(object), class: 'edit-link', target: :_blank do %>
+            <i class="fa fa-pencil" aria-hidden="true"></i>
+        <% end %>
+    <% end %>
+
+    <% object.object_browser_fields.each_with_index do |attribute| %>
+        <%= render_attribute_viewer key: attribute, definition: object.schema['properties'][attribute], value: object.try(attribute.to_sym), parameters: {options: {}}, content: object %>
+    <% end %>
+
 </div>

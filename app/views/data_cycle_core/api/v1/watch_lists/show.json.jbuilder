@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 json.collection do
   json.set! 'id', @watch_list.id
   json.set! 'name', @watch_list.headline

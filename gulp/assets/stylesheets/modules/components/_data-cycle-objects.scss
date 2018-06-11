@@ -124,6 +124,23 @@
   margin: 0;
   margin-bottom: 1rem;
   list-style-type: none;
+  .content {
+    .buttons {
+      position: relative;
+      display: inline-block;
+      top: 0;
+      right: 0;
+      margin-left: 1rem;
+      a {
+        padding: 0 5px;
+        &.copy {
+          position: relative;
+          top: 0;
+          right: 0;
+        }
+      }
+    }
+  }
   .copy-single {
     position: relative;
     .copy-single-button {
@@ -316,6 +333,9 @@
   margin: 7.9rem 0 0 0 !important;
   outline: none;
   padding: 0;
+  .draggable-handle {
+    display: none;
+  }
   .object-browser-header {
     h4 {
       display: none;
@@ -443,6 +463,21 @@
       }
     }
   }
+  >.items {
+    .media.item {
+      &.active {
+        border-color: $primary-color;
+        background-color: $primary-color;
+        box-shadow: 0 0 0 1px rgba($primary-color, 1);
+        .person {
+          color: white;
+        }
+        .warning {
+          opacity: 1;
+        }
+      }
+    }
+  }
   .items {
     &.margin-bottom-10::after {
       content: '';
@@ -487,17 +522,6 @@
         position: relative;
       }
       &.item {
-        &.active {
-          border-color: $primary-color;
-          background-color: $primary-color;
-          box-shadow: 0 0 0 1px rgba($primary-color, 1);
-          .person {
-            color: white;
-          }
-          .warning {
-            opacity: 1;
-          }
-        }
         display: block;
         float: left;
         margin: 0 1rem 1rem 0;
@@ -539,6 +563,16 @@
     }
     .fa-exclamation-triangle {
       color: $warning-color;
+    }
+    .detail-type {
+      display: flex;
+      .detail-label {
+        font-weight: bold;
+      }
+      .detail-label,
+      .detail-content {
+        flex: 1;
+      }
     }
     dl {
       margin: 0;
@@ -632,9 +666,6 @@ span.single_error.object-browser-error {
 
 .detail-header {
   .addContentObject {
-    display: block;
-    margin: 0 auto;
-    transition: all ease-in-out 0.2s;
     .fa {
       padding: 0;
       margin-left: 0.5rem;
@@ -659,6 +690,20 @@ span.single_error.object-browser-error {
       .icon {
         .fa {
           font-size: inherit;
+        }
+      }
+    }
+    >.embedded-object>.buttons {
+      text-align: center;
+      button {
+        margin: 0;
+        transition: all ease-in-out 0.2s;
+        .fa {
+          padding: 0;
+          margin-left: 0.5rem;
+          display: none;
+          font-size: 0.9rem;
+          vertical-align: bottom;
         }
       }
     }

@@ -5,65 +5,49 @@
     :content_type: entity
     :boost: 100.0
     :features:
+      :publication_schedule: ['publication_schedule']
       :releasable: true
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
-      :headline:
-        :label: Titel
-        :type: string
-        :storage_type: string
-        :storage_location: column
-        :search: true
-        :validations:
-          :minLength: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
       :validity_period:
         :type: mixin
         :name: validity_period
       :alternative_headline:
         :label: Subüberschrift
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :description:
         :label: Teasertext
         :type: string
-        :storage_type: text
         :storage_location: column
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: full
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :question:
         :label: Frage
-        :type: object
-        :storage_location: creative_works
-        :delete: true
-        :name: Frage
-        :editor:
-          :type: embeddedObject
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: Frage
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Quiz"
       :content_classifications:
         :type: mixin
         :name: content_classifications
+      :publication_schedule:
+        :type: mixin
+        :name: publication_schedule
       :meta_data:
         :type: mixin
         :name: meta_data
@@ -78,67 +62,45 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :headline:
-        :label: Frage
+        :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
         :validations:
-          :minLength: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
+          :min: 1
       :text:
-        :label: Hinweis
+        :label: Fließtext
         :type: string
-        :storage_type: text
-        :storage_location: content
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: basic
+        :storage_location: translated_value
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :image:
-        :label: Bild
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
+        :label: Bilder
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
         :validations:
           :max: 1
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: media
-            :data-type: image
       :accepted_answer:
         :label: Richtige Antwort
-        :type: object
-        :storage_location: creative_works
-        :delete: true
-        :name: Antwort
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: Antwort
         :validations:
-          :maxLength: 1
-        :editor:
-          :type: embeddedObject
+          :max: 1
       :suggested_answer:
         :label: Falsche Antwort
-        :type: object
-        :storage_location: creative_works
-        :delete: true
-        :name: Antwort
-        :editor:
-          :type: embeddedObject
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: Antwort
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Frage"
       :meta_data:
         :type: mixin
@@ -151,41 +113,29 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :text:
         :label: Antwort
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: translated_value
         :validations:
-          :minLength: 1
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: basic
-            :data-validate: text
+          :min: 1
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :image:
-        :label: Bild
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
+        :label: Bilder
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
         :validations:
           :max: 1
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: media
-            :data-type: image
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Antwort"
       :meta_data:
         :type: mixin

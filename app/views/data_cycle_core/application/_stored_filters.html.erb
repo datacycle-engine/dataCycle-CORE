@@ -26,7 +26,7 @@
         <li>
           <%= link_to root_path(stored_filter: stored_filter.id) do %>
             <span class="title <%= 'global' if stored_filter.system %>"><i class="fa fa-bookmark" aria-hidden="true"></i> <%= stored_filter.name %></span>
-            <span class="stored-date right"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= stored_filter.created_at.to_datetime.to_s(:german_datetime_format) %></span>
+            <span class="stored-date right"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= l(Time.zone.at(stored_filter.created_at.to_datetime), locale: DataCycleCore.ui_language) %></span>
           <% end %>
         </li>
     <% end %>

@@ -1,1 +1,26 @@
-<% raise NotImplemented %>
+<% content_for :forms do %>
+    <div class="reveal new-item" id="new_<%= new_overlay_key ||= '' %>" data-reveal data-multiple-opened="true" data-overlay="false" data-reset-on-close="true">
+
+        <% temp_object = object_from_definition(definition) %>
+        <h3><%= t('actions.new', data: temp_object.template_name.titleize, locale: DataCycleCore.ui_language) %></h3>
+
+        <%= form_for(temp_object.class.new, html: {class: 'validation-form'} ) do |f| %>
+            <%= hidden_field_tag 'template', temp_object.template_name %>
+            <%= hidden_field_tag "#{temp_object.class.name.demodulize.underscore}[datahash][#{DataCycleCore.features.dig(:life_cycle, :attribute_key)}][]", life_cycle_items.dig(life_cycle_name, :id) if DataCycleCore.features.dig(:life_cycle) && local_assigns.has_key?(:life_cycle_name) %>
+            <%= hidden_field_tag 'parent_template', parent_template if local_assigns.has_key?(:parent_template) %>
+            <%= hidden_field_tag 'table', "#{temp_object.class.table_name}" %>
+
+            <% temp_object.new_content_fields.each_with_index do |attribute, index| %>
+                <div class="validation-container form-element">
+                    <%= label_tag "#{temp_object.class.name.demodulize.underscore}[datahash][#{attribute}]", "#{temp_object.schema['properties'][attribute]['label']}" %>
+                    <%= text_field_tag "#{temp_object.class.name.demodulize.underscore}[datahash][#{attribute}]", '', class: 'form-control', value: '' %>
+                </div>
+            <% end %>
+            <%= f.submit t(:submit, locale: DataCycleCore.ui_language), class: "button primary" %>
+        <% end %>
+
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+<% end %>

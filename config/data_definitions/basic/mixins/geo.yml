@@ -6,39 +6,25 @@
       :longitude:
         :label: Longitude
         :type: number
-        :storage_type: number
         :storage_location: column
         :validations:
           :format: float
-        :editor:
-          :options:
-            :data-type: input
-            :data-validate: text
       :latitude:
         :label: Latitude
         :type: number
-        :storage_type: number
         :storage_location: column
         :validations:
           :format: float
-        :editor:
-          :options:
-            :data-type: input
-            :data-validate: text
       :elevation:
-        :label: Meereshöhe
+        :label: Meereshöhe (m)
         :type: number
-        :storage_type: number
         :storage_location: column
         :validations:
           :format: float
-        :editor:
-          :type: input
       :location:
         :label: GPS-Koordinaten
         :type: geographic
-        :storage_type: geographic
         :storage_location: column
-        :editor:
-          :options:
-            :disabled: disabled
+        :ui:
+          :edit:
+            :disabled: true

@@ -6,13 +6,24 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :name:
         :label: Name
         :type: string
-        :storage_type: string
         :storage_location: column
+
+- :data:
+    :name: testPlaceLink
+    :type: object
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :headline:
+        :label: Name
+        :type: string
+        :storage_location: column
+      :testArray:
+        :label: Verlinkt
+        :type: linked
+        :linked_table: creative_works

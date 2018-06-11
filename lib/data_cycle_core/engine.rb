@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # rails essentials
 require 'rails'
 require 'sass-rails'
@@ -68,13 +70,10 @@ module DataCycleCore
 
     # special data attributes are ignored by the standard json serializes and must be handled by the application itself
     mattr_accessor :special_data_attributes
-    self.special_data_attributes = ['id', 'validity_period', 'creator']
+    self.special_data_attributes = ['id', 'validity_period', 'creator', 'last_updated_by']
 
     mattr_accessor :internal_data_attributes
-    self.internal_data_attributes = ['creator', 'data_type', 'data_pool', 'is_part_of']
-
-    mattr_accessor :access_tokens
-    self.access_tokens = []
+    self.internal_data_attributes = ['date_created', 'date_modified', 'creator', 'data_type', 'data_pool', 'is_part_of', 'last_updated_by']
 
     mattr_accessor :asset_objects
     self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::TextFile']
@@ -89,7 +88,7 @@ module DataCycleCore
     self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource']
 
     mattr_accessor :excluded_filter_classifications
-    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Overlay', 'Publikations-Plan']
+    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Overlay', 'Publikations-Plan', 'Textblock']
 
     mattr_accessor :excluded_new_item_objects
     self.excluded_new_item_objects = []
@@ -145,6 +144,10 @@ module DataCycleCore
     mattr_accessor :inheritable_attributes
     self.inheritable_attributes = ['validity_period']
 
+    # embedded_objects in show
+    mattr_accessor :linked_objects_page_size
+    self.linked_objects_page_size = 5
+
     # webhooks
     mattr_accessor :webhooks
     self.webhooks = {
@@ -186,26 +189,6 @@ module DataCycleCore
     yield self
   end
 
-  module OutdoorActive
-    mattr_accessor :content_template
-
-    mattr_accessor :image_template
-
-    def self.setup
-      yield self
-    end
-  end
-
-  module Jsonld
-    mattr_accessor :content_template
-
-    mattr_accessor :image_template
-
-    def self.setup
-      yield self
-    end
-  end
-
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
 
@@ -232,6 +215,7 @@ module DataCycleCore
     # use active_record as orm (!not mongoid)
     config.app_generators.orm = :active_record
     config.active_record.schema_format = :sql
+    config.active_record.default_timezone = :utc # Or :local
 
     # backend for active_job is delayed_job
     config.active_job.queue_adapter = :delayed_job
@@ -253,19 +237,6 @@ module DataCycleCore
       end
     end
 
-    # load db-viewer only in development environment
-    # if Rails.env == "development"
-    #
-    #   require 'rails_db'
-    #   if Object.const_defined?('RailsDb')
-    #     RailsDb.setup do |config|
-    #       config.black_list_tables = ['spatial_ref_sys', 'ar_internal_metadata']
-    #       #config.verify_access_proc = proc { |controller| controller.current_user.admin? }
-    #     end
-    #   end
-    #
-    # end
-
     # include rake_tasks
     rake_tasks do
       Dir[File.join(File.dirname(__FILE__), 'tasks/*.rake')].each { |f| load f }
@@ -274,98 +245,6 @@ module DataCycleCore
     config.to_prepare do
       Dir.glob(Rails.root + 'app/decorators/**/*_decorator*.rb').each do |c|
         require_dependency(c)
-      end
-    end
-  end
-end
-
-JbuilderTemplate.class_eval do
-  def content_partial!(partial, parameters)
-    partials = [
-      "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].template_name.underscore}_#{partial}",
-      "#{parameters[:content].class.class_name.underscore}_#{partial}",
-      "content_#{partial}"
-    ]
-
-    partials.each_with_index do |partial_file, idx|
-      begin
-        return partial!(partial_file, parameters)
-      rescue ActionView::MissingTemplate => e
-        raise e if idx == partials.size - 1
-      end
-    end
-  end
-end
-
-# add dateformat with fractional seconds
-Time::DATE_FORMATS[:long_usec] = '%Y-%m-%d %H:%M:%S.%N %z'
-
-Nokogiri::XML::Node.class_eval do
-  def to_hash
-    attributes_hash = attributes.map { |_, attribute|
-      { attribute.name => attribute.value }
-    }.reduce({}, &:merge).reject do |_, v|
-      v.blank?
-    end
-
-    children_hash = children.map { |child|
-      { child.name => child.to_hash }
-    }.reject { |h|
-      h.values.first.blank?
-    }.group_by { |h|
-      h.keys.first
-    }.map { |k, v|
-      Hash[k, v.size == 1 ? v.map(&:values).flatten.first : v.map(&:values).flatten]
-    }.reduce({}, &:merge)
-
-    if !attributes.empty? && children.empty?
-      attributes_hash
-    elsif attributes.empty? && !children.empty?
-      children_hash
-    elsif !attributes.empty? && !children.empty?
-      if (attributes_hash.keys & children_hash.keys).empty?
-        attributes_hash.merge(children_hash)
-      else
-        {
-          'attributes' => attributes_hash,
-          'children' => children_hash
-        }
-      end
-    elsif is_a? Nokogiri::XML::Text
-      text.strip
-    elsif is_a? Nokogiri::XML::Element
-      nil
-    else
-      raise 'NotImplemented'
-    end
-  rescue StandardError => e
-    raise e
-  end
-end
-
-# patch for ActiveRecord, to allow fractional seconds to be saved for PostgreSQL tstzrange datatype
-# TODO: remove if updated upstream
-module ActiveRecord
-  module ConnectionAdapters
-    module PostgreSQL
-      module OID
-        class Range < Type::Value
-          def serialize(value)
-            if value.is_a?(::Range)
-              from = type_cast_single_for_database(value.begin)
-              to = type_cast_single_for_database(value.end)
-              [
-                '[',
-                from.is_a?(Time) ? from.to_s(:long_usec) : from,
-                ',',
-                to.is_a?(Time) ? to.to_s(:long_usec) : to,
-                value.exclude_end? ? ')' : ']'
-              ].join('')
-            else
-              super
-            end
-          end
-        end
       end
     end
   end

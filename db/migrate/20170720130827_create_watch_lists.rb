@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateWatchLists < ActiveRecord::Migration[5.0]
   def up
     create_table :watch_lists, id: :uuid do |t|

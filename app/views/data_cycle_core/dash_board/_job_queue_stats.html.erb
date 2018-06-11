@@ -4,7 +4,7 @@
     </div>
     <div class="card-section">
         <ul>
-            <% @statJobQueue.each do |job| %>
+            <% @stat_job_queue.each do |job| %>
                 <%= content_tag(:li, "#{job['status']}<br/> #{job['job']}-#{truncate(job['ref_id'],  length: 12)} <br/> #{job['created_at']}".html_safe)%>
             <% end %>
         </ul>

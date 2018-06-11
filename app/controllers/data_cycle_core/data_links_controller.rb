@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class DataLinksController < ApplicationController
     before_action :authenticate_user!, except: [:show, :find, :get_text_file] # from devise (authenticate)
@@ -12,7 +14,7 @@ module DataCycleCore
       session[:can_edit_ids] << link.id unless session[:can_edit_ids].include?(link.id)
 
       sign_in(link.receiver)
-      link.update_attribute(:seen_at, DateTime.now)
+      link.update_attribute(:seen_at, Time.zone.now)
 
       if link.permissions == 'write' && DataCycleCore.content_tables.include?(link.item.class.table_name)
         redirect_to edit_polymorphic_path(link.item, split_params)
@@ -52,7 +54,7 @@ module DataCycleCore
 
     def destroy
       @data_link = DataCycleCore::DataLink.find(params[:id])
-      @data_link.update_attribute(:valid_until, DateTime.now)
+      @data_link.update_attribute(:valid_until, Time.zone.now)
 
       redirect_back(fallback_location: root_path, notice: (I18n.t :invalidated, scope: [:controllers, :success], locale: DataCycleCore.ui_language))
     end

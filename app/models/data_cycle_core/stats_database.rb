@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class StatsDatabase
     attr_accessor(
@@ -42,7 +44,7 @@ module DataCycleCore
       end
 
       @pg_content_content = DataCycleCore::ContentContent.count
-      @pg_overlays = Overlay.count
+      # @pg_overlays = Overlay.count
     end
 
     def load_mongo_data(user_id)

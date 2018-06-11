@@ -6,7 +6,7 @@
 
             <%= select_tag 'template', options_for_select(@entities.map{ |c| [c&.template_name&.underscore&.titleize, c&.template_name] }.to_h) %>
 
-            <%= select_tag 'locale', options_for_select(available_locales_with_names.except(:all).invert) %>
+            <%= select_tag 'locale', options_for_select(available_locales_with_names.except(:all).invert, DataCycleCore.ui_language) %>
 
             <% sources = [] %>
             <% @content.children.each do |child| %>

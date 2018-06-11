@@ -1,4 +1,6 @@
 
+# frozen_string_literal: true
+
 if defined?(BetterErrors)
   BetterErrors::Middleware.allow_ip! '10.0.0.0/8'
   BetterErrors::Middleware.allow_ip! '172.16.0.0/12'
@@ -45,6 +47,10 @@ Rails.application.configure do
   # Raise an error on page load if there are pending migrations.
   config.active_record.migration_error = :page_load
 
+  # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
+  # the I18n.default_locale when a translation cannot be found).
+  config.i18n.fallbacks = false
+
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
@@ -62,7 +68,12 @@ Rails.application.configure do
 
   config.web_console.whiny_requests = false
 
-  config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST') { 'localhost:3003' }, protocol: ENV.fetch('APP_PROTOCOL') { 'http' } }
+  # config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST') { 'localhost:3003' }, protocol: ENV.fetch('APP_PROTOCOL') { 'http' } }
+
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.default_options = { from: "noreply@#{ENV.fetch('APP_HOST', 'localhost')}" }
+  config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3000'), protocol: ENV.fetch('APP_PROTOCOL', 'http') }
+  config.action_mailer.smtp_settings = { address: ENV.fetch('MAILHOG_HOST', 'localhost'), port: 1025 }
 
   # Bullet configuration
   config.after_initialize do

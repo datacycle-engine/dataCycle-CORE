@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module Generic
     module Xamoom
@@ -21,7 +23,7 @@ module DataCycleCore
           I18n.with_locale(locale) do
             image_default_values = {}
             image_default_values = load_default_values(@options.dig(:import, :default_values, :image)) if @options.dig(:import, :default_values, :image).present?
-            unless raw_data.dig('attributes', 'image').blank?
+            if raw_data.dig('attributes', 'image').present?
               image = create_or_update_content(
                 DataCycleCore::CreativeWork,
                 load_template(DataCycleCore::CreativeWork, @image_template),

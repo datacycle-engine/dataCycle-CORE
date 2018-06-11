@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class BackendController < ApplicationController
     include DataCycleCore::Filter
@@ -25,8 +27,7 @@ module DataCycleCore
       @total = @paginate_object.total_count
       @contents = @paginate_object.map(&:content_data)
 
-      # TODO: remove creativeWork variable
-      @creativeWork = CreativeWork.new
+      @content = CreativeWork.new
     end
 
     def settings

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class ApplicationController < ActionController::Base
     protect_from_forgery with: :exception
@@ -5,7 +7,7 @@ module DataCycleCore
     before_action :load_stored_filters
     before_action :better_errors_hack, if: -> { Rails.env.development? }
 
-    def after_sign_in_path_for(resource)
+    def after_sign_in_path_for(_resource)
       if current_user&.is_rank?(0)
         session['user_return_to'] || info_path
       else

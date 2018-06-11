@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class AssetsController < ApplicationController
     before_action :authenticate_user! # from devise (authenticate)
@@ -39,14 +41,13 @@ module DataCycleCore
     end
 
     def new_asset_object
-      object_type = DataCycleCore.asset_objects.find { |object| object == additional_params[:definition]['type_name'] }
+      object_type = DataCycleCore.asset_objects.find { |object| object == "DataCycleCore::#{additional_params[:definition]['asset_type'].to_s.try(:camelcase)}" }
       @asset = object_type.constantize.new(asset_params).set_content_type.set_file_size
       @asset.creator_id = current_user.try(:id)
 
-      if @asset.save
-        @object = [@asset]
-        respond_to(:js)
-      end
+      return unless @asset.save
+      @object = [@asset]
+      respond_to(:js)
     end
 
     def remove_asset_object

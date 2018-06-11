@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddDeletedAtToClassificationClasses < ActiveRecord::Migration[5.0]
   def change
     add_column :classifications, :deleted_at, :datetime

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module CreativeWorkHelpers
     def title
@@ -9,6 +11,10 @@ module DataCycleCore
     end
 
     def new_content_fields
+      ['headline']
+    end
+
+    def object_browser_fields
       ['headline']
     end
   end

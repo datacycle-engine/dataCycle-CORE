@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module MasterData
     class ValidateData
@@ -8,7 +10,7 @@ module DataCycleCore
       end
 
       # keys of the data-hash defined as keys in the template
-      def validate(data, validation_hash, strict = false, verbose = false)
+      def validate(data, validation_hash, _strict = false, verbose = false)
         if data.blank?
           (@error[:error][validation_hash['name']&.parameterize(separator: '_')] ||= []) << I18n.t(:no_data, scope: [:validation, :errors], locale: DataCycleCore.ui_language)
           return @error
@@ -28,11 +30,8 @@ module DataCycleCore
       # keys of the data-hash defined as keys in the template
       def valid?(data, validation_hash, strict = false, verbose = false)
         validate(data, validation_hash, strict, verbose)
-        if strict
-          return (@error[:error].length + @error[:warning].length).zero?
-        else
-          return @error[:error].empty?
-        end
+        return (@error[:error].length + @error[:warning].length).zero? if strict
+        @error[:error].empty?
       end
     end
   end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class FixTranslationsForContents < ActiveRecord::Migration[5.0]
   def up
     add_column :creative_work_translations, :headline, :text

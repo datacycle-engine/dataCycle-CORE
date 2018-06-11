@@ -1,0 +1,65 @@
+<div class="padding-bottom-10">
+    <h5>Details</h5>
+    <% if can?(:edit, object) %>
+        <%= link_to edit_polymorphic_path(object), class: 'edit-link', target: :_blank do %>
+            <i class="fa fa-pencil" aria-hidden="true"></i>
+        <% end %>
+    <% end %>
+    <% unless object.title.blank? %>
+        <dl>
+            <dt>Name: </dt>
+            <dd><%= object.title %></dd>
+        </dl>
+    <% end %>
+    <% unless object.schema.nil? %>
+        <dl>
+            <% unless object.try(:thumbnail_url).nil? %>
+                <dt class="block-flex"></dt>
+                <dd class="block-flex"><img class="lazyload" data-src="<%= object.try(:thumbnail_url) %>" /></dd>
+            <% end %>
+
+            <% unless object.try(:url).nil? %>
+                <dt>Datei Url: </dt>
+                <dd><%= link_to object.try(:url), object.try(:url), target: :_blank %></dd>
+            <% end %>
+
+            <% unless object.try(:file_format).nil? %>
+                <dt>Format: </dt>
+                <dd><%= object.try(:file_format) %></dd>
+            <% end %>
+
+            <% unless object.try(:width).nil? || object.try(:height).nil? %>
+                <dt>Abmessungen: </dt>
+                <dd><%= "#{object.try(:width)} x #{object.try(:height)}" %></dd>
+            <% end %>
+
+            <% unless object.try(:content_size).nil? %>
+                <dt>Dateigröße: </dt>
+                <dd><%= number_to_human_size(object.try(:content_size)) %></dd>
+            <% end %>
+
+            <% unless object.try(:license).nil? %>
+                <dt>Lizenz: </dt>
+                <dd><%= object.try(:license) %></dd>
+            <% end %>
+
+            <% unless object.try(:restrictions).nil? %>
+                <dt>Einschränkungen: </dt>
+                <dd><%= object.try(:restrictions) %></dd>
+            <% end %>
+
+            <% unless object.try(:date_created).nil? %>
+                <dt>Erstellt: </dt>
+                <dd><%= l(object.date_created.to_datetime, locale: DataCycleCore.ui_language) if object.date_created.present? %></dd>
+            <% end %>
+
+            <% unless object.try(:date_modified).nil? %>
+                <dt>Bearbeitet: </dt>
+                <dd><%= l(object.date_modified.to_datetime, locale: DataCycleCore.ui_language) if object.date_modified.present? %></dd>
+            <% end %>
+
+            <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: object} %>
+
+        </dl>
+    <% end %>
+</div>

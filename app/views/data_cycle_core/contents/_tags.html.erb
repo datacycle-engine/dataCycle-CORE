@@ -1,0 +1,14 @@
+<div class="tags">
+    <% ordered_validation_properties(validation: content.schema, type: 'classification', content_area: 'header').each do |key, prop| %>
+        <% if content.send(key).size.positive? %>
+            <div class="tag-group-wrapper">
+                <span class="icon <%= prop['label'] %>"><i class="fa" aria-hidden="true"></i></span>
+                <span class="tag-group-header"><%= prop['label'] %>: </span>
+
+                <% content.send(key).each do |classification| %>
+                    <span class="tag"><%= classification.name %></span>
+                <% end %>
+            </div>
+        <% end %>
+    <% end %>
+</div>

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Ability < DataCycleCore::Ability
   def initialize(user, _session = {})
     super

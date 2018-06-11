@@ -1,0 +1,8 @@
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
+
+    <% value ||= false %>
+    <%= hidden_field_tag key, value if options.presence&.dig('readonly') %>
+    <%= check_box_tag key, true, value, disabled: options.presence&.dig('readonly') %>
+    <%= label_tag(key, definition['label']) %>
+
+<% end %>

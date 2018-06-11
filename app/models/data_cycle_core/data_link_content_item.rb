@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class DataLinkContentItem < ApplicationRecord
     self.table_name = 'content_items'

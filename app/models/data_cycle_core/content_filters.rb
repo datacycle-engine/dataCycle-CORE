@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module ContentFilters
     def with_classification_alias_names(*names)
@@ -42,11 +44,10 @@ module DataCycleCore
     end
 
     def expired_not_life_cycle_id(id)
-      if DataCycleCore.features.dig(:life_cycle, :attribute_key).present?
-        joins(:classifications)
-          .where('classification_contents.relation = ?', DataCycleCore.features.dig(:life_cycle, :attribute_key))
-          .where.not('classification_contents.classification_id = ?', id)
-      end
+      return if DataCycleCore.features.dig(:life_cycle, :attribute_key).blank?
+      joins(:classifications)
+        .where('classification_contents.relation = ?', DataCycleCore.features.dig(:life_cycle, :attribute_key))
+        .where.not('classification_contents.classification_id = ?', id)
     end
   end
 end

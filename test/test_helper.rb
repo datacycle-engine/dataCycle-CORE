@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Configure Rails Environment
 ENV['RAILS_ENV'] = 'test'
 
@@ -5,7 +7,7 @@ Bundler.require(*Rails.groups)
 
 Dotenv::Railtie.load
 
-require File.expand_path('../../test/dummy/config/environment.rb', __FILE__)
+require File.expand_path('../test/dummy/config/environment.rb', __dir__)
 # ActiveRecord::Migrator.migrations_paths = [File.expand_path("../../test/dummy/db/migrate", __FILE__)]
 # ActiveRecord::Migrator.migrations_paths << File.expand_path('../../db/migrate', __FILE__)
 # ActiveRecord::Migration.maintain_test_schema!
@@ -24,12 +26,20 @@ Minitest.backtrace_filter = Minitest::BacktraceFilter.new
 # end
 
 # load template, classifications for all tests
-template_paths = [Rails.root.join('..', 'data_types'), Rails.root.join('..', 'data_types', 'custom')]
-import_hash, duplicates = DataCycleCore::MasterData::ImportTemplates.check_for_duplicates(template_paths)
-DataCycleCore::MasterData::ImportTemplates.import_all_templates(template_hash: import_hash, validation: true)
-
 classification_yaml = Rails.root.join('..', 'data_types', 'classifications.yml')
 DataCycleCore::MasterData::ImportClassifications.import(classification_yaml)
+
+template_paths = [Rails.root.join('..', 'data_types'), Rails.root.join('..', 'data_types', 'custom')]
+import_hash, _duplicates = DataCycleCore::MasterData::ImportTemplates.check_for_duplicates(template_paths)
+errors = DataCycleCore::MasterData::ImportTemplates.import_all_templates(template_hash: import_hash, validation: true)
+
+puts 'template import error summary:'
+ap errors
+
+# DataCycleCore.content_tables.each do |item|
+#   puts "Templates for #{item}"
+#   ap "DataCycleCore::#{item.classify}".constantize.where(template: true).pluck(:template_name)
+# end
 
 # seed release table
 if DataCycleCore::Release.count.zero?

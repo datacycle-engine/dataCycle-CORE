@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class RenameEditLinksToDataLinks < ActiveRecord::Migration[5.0]
   def up
     remove_column :edit_links, :read_only

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :review do
   task :create_db do
     on roles(:db) do

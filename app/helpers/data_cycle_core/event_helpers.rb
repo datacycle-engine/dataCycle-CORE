@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module EventHelpers
     def title
@@ -11,6 +13,10 @@ module DataCycleCore
     end
 
     def new_content_fields
+      ['name']
+    end
+
+    def object_browser_fields
       ['name']
     end
   end
