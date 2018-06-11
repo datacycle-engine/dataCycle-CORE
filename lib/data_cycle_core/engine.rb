@@ -2,9 +2,9 @@
 
 # rails essentials
 require 'rails'
-require 'sass-rails'
-require 'turbolinks'
-require 'jquery-rails'
+# require 'sass-rails'
+# require 'turbolinks'
+# require 'jquery-rails'
 
 # Databases
 require 'pg'
@@ -21,11 +21,12 @@ require 'devise'
 require 'cancancan'
 
 # foundation helper
-require 'foundation-rails'
-require 'foundation_rails_helper'
-require 'devise-foundation-views'
+# require 'foundation-rails'
+# require 'foundation_rails_helper'
+# require 'devise-foundation-views'
 
 # google material icons wrapper
+# TODO: remove
 require 'material_icons'
 # pagination
 require 'kaminari'
