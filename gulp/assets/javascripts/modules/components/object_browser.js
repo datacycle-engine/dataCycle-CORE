@@ -11,7 +11,7 @@ var ObjectBrowser = function (selector) {
   this.overlay_per = 25;
   this.per = selector.data('per') || 5;
   this.type = selector.data('type');
-  this.language = selector.data('language');
+  this.locale = selector.data('locale');
   this.key = selector.data('key');
   this.object_id = selector.data('object-id');
   this.object_key = selector.data('object-key');
@@ -118,15 +118,8 @@ ObjectBrowser.prototype.setup = function () {
 
   this.element.on('update-chosen', (event, data) => {
     this.chosen = this.chosen.concat(data.chosen.diff(this.chosen));
-    this.ids = this.ids.diff(data.chosen);
 
-    if (this.ids.length == 0) {
-      this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).remove();
-    } else {
-      this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('disabled', false).html(this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('title'));
-    }
-
-    $($.map(ids, id => this.element.children('input:hidden[value="' + id + '"]'))).each((index, elem) => $(elem).remove());
+    $($.map(data.chosen, id => this.element.children('input:hidden[value="' + id + '"]'))).each((index, elem) => $(elem).remove());
 
     this.updateChosenCounter();
     this.overlay.find('.items .item .reveal.media-preview').each(function () {
@@ -138,7 +131,7 @@ ObjectBrowser.prototype.setup = function () {
     });
   });
 
-  this.element.on('import-data', function (event, data) {
+  this.element.on('import-data', (event, data) => {
     let new_items = [];
     if (data.external_ids != undefined) new_items = data.external_ids;
     else if (data.ids != undefined) new_items = data.ids.diff($.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id')));
@@ -148,7 +141,7 @@ ObjectBrowser.prototype.setup = function () {
     } else if (this.max != 0 && (this.chosen.length + new_items.length) > this.max) {
       var confirmationModal = new ConfirmationModal("Maximalanzahl: " + self.max);
     }
-  }.bind(this));
+  });
 
   this.overlay.on('import-complete', function (event, data) {
     if (this.excluded.indexOf(data.id) === -1) this.excluded.push(data.id);
@@ -168,7 +161,7 @@ ObjectBrowser.prototype.setup = function () {
       var form_data = $(this).serializeJSON();
       $.extend(form_data, {
         type: self.type,
-        language: self.language,
+        locale: self.locale,
         overlay_id: '#object_browser_' + self.id,
         key: self.key,
         definition: self.definition,
@@ -200,14 +193,13 @@ ObjectBrowser.prototype.renderHiddenField = function () {
 };
 
 ObjectBrowser.prototype.findObjects = function (ids, external) {
-  this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('disabled', true).html(this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).data('loading-text'));
   $.ajax({
     url: this.url + '/find',
     method: 'POST',
     dataType: 'script',
     data: JSON.stringify({
       type: this.type,
-      language: this.language,
+      locale: this.locale,
       key: this.key,
       definition: this.definition,
       options: this.options,
@@ -272,7 +264,7 @@ ObjectBrowser.prototype.loadMore = function (loaded_ids) {
     data: {
       key: this.object_key,
       complete_key: this.key,
-      language: this.language,
+      locale: this.locale,
       definition: this.definition,
       options: this.options,
       class: this.class,
@@ -297,7 +289,7 @@ ObjectBrowser.prototype.loadDetails = function (id) {
     dataType: 'script',
     data: JSON.stringify({
       type: this.type,
-      language: this.language,
+      locale: this.locale,
       key: this.key,
       definition: this.definition,
       options: this.options,
@@ -382,7 +374,7 @@ ObjectBrowser.prototype.import = function (event) {
         authenticity_token: AUTH_TOKEN,
         type: this.type + "_object",
         data: event.originalEvent.data.data,
-        language: this.language,
+        locale: this.locale,
         key: this.key,
         editable: this.editable,
         definition: this.definition,
@@ -415,7 +407,7 @@ ObjectBrowser.prototype.loadObjects = function (append = true) {
       page: this.page,
       per: this.overlay_per,
       type: this.type,
-      language: this.language,
+      locale: this.locale,
       key: this.key,
       definition: this.definition,
       options: this.options,
