@@ -5,6 +5,8 @@ module DataCycleCore
     before_action :authenticate_user!, :set_watch_list
     load_and_authorize_resource only: [:index, :show, :edit, :update, :destroy, :history]
 
+    after_action :notify_subscribers, only: :update
+
     def index
       redirect_back(fallback_location: root_path)
     end
@@ -264,6 +266,12 @@ module DataCycleCore
     def content_params(storage_location, template_name)
       datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name)
       params.require(controller_name.singularize.to_sym).permit(:release_id, :release_comment, datahash: datahash)
+    end
+
+    def notify_subscribers
+      @content.subscriptions.except_user(current_user).to_notify.presence&.each do |subscription|
+        DataCycleCore::SubscriptionMailer.notify(subscription.user, [@content]).deliver_later
+      end
     end
   end
 end

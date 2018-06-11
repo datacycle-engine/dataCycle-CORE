@@ -124,37 +124,11 @@ ObjectBrowser.prototype.setup = function () {
 
   this.element.on('import-data', function (event, data) {
     let new_items = [];
-    if (data.external_ids != undefined) new_items = this.getDelta(this.chosen, data.external_ids);
-    else if (data.ids != undefined) new_items = this.getDelta(this.chosen, data.ids);
+    if (data.external_ids != undefined) new_items = data.external_ids;
+    else if (data.ids != undefined) new_items = data.ids.diff($.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id')));
 
-    var new_items = data.ids.diff($.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id')));
     if (new_items.length > 0 && ((this.chosen.length + new_items.length) <= this.max || this.max == 0)) {
-      let json_data = {
-        type: this.type,
-        locale: this.locale,
-        object_browser_id: '#' + this.id,
-        key: this.key,
-        definition: this.definition,
-        options: this.options,
-        ids: new_items,
-        editable: this.editable,
-        class: this.class,
-        objects: this.chosen
-      };
-      if (data.external_ids != undefined) json_data.external = true;
-
-      $.ajax({
-        url: this.url + '/find',
-        method: 'POST',
-        data: JSON.stringify(json_data),
-        contentType: 'application/json'
-      }).done(function (return_data) {
-        this.element.find('.object-thumbs .item .reveal.media-preview').each(function () {
-          $(this).foundation();
-        });
-
-      }.bind(this));
-      this.findObjects(new_items);
+      this.findObjects(new_items, (data.external_ids != undefined));
     } else if (this.max != 0 && (this.chosen.length + new_items.length) > this.max) {
       var confirmationModal = new ConfirmationModal("Maximalanzahl: " + self.max);
     }
@@ -209,7 +183,7 @@ ObjectBrowser.prototype.renderHiddenField = function () {
   this.element.find('> .media-thumbs > .object-thumbs').html('<input type="hidden" id="' + this.key.replace(/\[/g, '_').replace(/\]/g, '') + '_default" name="' + this.key + '[]">');
 };
 
-ObjectBrowser.prototype.findObjects = function (ids) {
+ObjectBrowser.prototype.findObjects = function (ids, external) {
   this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('disabled', true).html(this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).data('loading-text'));
   $.ajax({
     url: this.url + '/find',
@@ -224,7 +198,8 @@ ObjectBrowser.prototype.findObjects = function (ids) {
       ids: ids,
       editable: this.editable,
       class: this.class,
-      objects: this.chosen
+      objects: this.chosen,
+      external: external
     }),
     contentType: 'application/json'
   }).done(return_data => {

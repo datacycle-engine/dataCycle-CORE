@@ -110,9 +110,9 @@ $(function () {
 
             if (contents != undefined && contents.images.length > 0) {
               let image_ids = contents.images.map(i => i.external_key);
-              let label = $('.object_browser[data-label="Bilder"]').first().data('label');
+              let label = $('.linked[data-label="Bilder"]').first().data('label');
 
-              $('.object_browser[data-label="Bilder"]').children('.object-browser').trigger('import-data', {
+              $('.linked[data-label="Bilder"]').children('.object-browser').trigger('import-data', {
                 label: label,
                 external_ids: image_ids
               });
