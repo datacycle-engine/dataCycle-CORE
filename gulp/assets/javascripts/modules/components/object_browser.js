@@ -117,9 +117,25 @@ ObjectBrowser.prototype.setup = function () {
   }.bind(this));
 
   this.element.on('update-chosen', (event, data) => {
-    this.chosen = this.chosen.concat(data.chosen.filter(function (elem) {
-      return this.chosen.indexOf(elem) === -1;
-    }.bind(this)));
+    this.chosen = this.chosen.concat(data.chosen.diff(this.chosen));
+    this.ids = this.ids.diff(data.chosen);
+
+    if (this.ids.length == 0) {
+      this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).remove();
+    } else {
+      this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('disabled', false).html(this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('title'));
+    }
+
+    $($.map(ids, id => this.element.children('input:hidden[value="' + id + '"]'))).each((index, elem) => $(elem).remove());
+
+    this.updateChosenCounter();
+    this.overlay.find('.items .item .reveal.media-preview').each(function () {
+      if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
+    });
+
+    this.element.find('.object-thumbs .item .reveal.media-preview').each((index, element) => {
+      $(element).foundation();
+    });
   });
 
   this.element.on('import-data', function (event, data) {
@@ -202,26 +218,6 @@ ObjectBrowser.prototype.findObjects = function (ids, external) {
       external: external
     }),
     contentType: 'application/json'
-  }).done(return_data => {
-    this.chosen = this.chosen.concat(ids.diff(this.chosen));
-    this.ids = this.ids.diff(ids);
-
-    $($.map(ids, id => this.element.children('input:hidden[value="' + id + '"]'))).each((index, elem) => $(elem).remove());
-
-    if (this.ids.length == 0) {
-      this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).remove();
-    } else {
-      this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('disabled', false).html(this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('title'));
-    }
-
-    this.updateChosenCounter();
-    this.overlay.find('.items .item .reveal.media-preview').each(function () {
-      if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
-    });
-
-    this.element.find('.object-thumbs .item .reveal.media-preview').each((index, element) => {
-      $(element).foundation();
-    });
   });
 };
 
