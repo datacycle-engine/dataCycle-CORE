@@ -9,6 +9,5 @@ CarrierWave.configure do |config|
   # This avoids uploaded files from saving to public/ and so
   # they will not be available for public (non-authenticated) downloading
   # config.root = Rails.root.join("private")
-  # config.asset_host = ActionController::Base.asset_host
-  config.asset_host = ENV.fetch('APP_PROTOCOL', 'http') + '://' + ENV.fetch('APP_HOST', 'localhost:3000')
+  config.asset_host = ActionController::Base.asset_host
 end
