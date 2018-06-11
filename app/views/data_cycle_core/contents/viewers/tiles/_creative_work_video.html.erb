@@ -33,7 +33,7 @@
     <div class="description">
 
         <!-- todo: check only for empty string -->
-        <% if !content.restrictions.nil? && !content.restrictions.blank? && content.restrictions != 'Keine Einschränkung;' %>
+        <% if !content.try(:restrictions).nil? && !content.restrictions.blank? && content.restrictions != 'Keine Einschränkung;' %>
             <strong>Einschränkungen: </strong>
             <% if content.try(:restrictions).try(:include?, 'gesperrt') %>
               <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
