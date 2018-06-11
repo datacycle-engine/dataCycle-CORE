@@ -12,9 +12,9 @@ module DataCycleCore
     end
 
     def self.to_notify
-      if DataCycleCore.notification_frequencies[0].present?
-        includes(:user).where(users: { notification_frequency: DataCycleCore.notification_frequencies[0] })
-      end
+      return if DataCycleCore.notification_frequencies[0].blank?
+
+      includes(:user).where(users: { notification_frequency: DataCycleCore.notification_frequencies[0] })
     end
   end
 end

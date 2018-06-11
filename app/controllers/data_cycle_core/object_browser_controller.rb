@@ -48,15 +48,15 @@ module DataCycleCore
       authorize! :show, :object_browser
       return if params[:class].blank? || params[:ids].blank?
 
-        I18n.with_locale(params[:locale] || I18n.locale) do
-          # TODO: FIXME if breaks
-          object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == params[:class].classify }
-          if params[:external]
-            @objects = object_type.constantize.where(external_key: params[:ids])
-          else
-            @objects = object_type.constantize.where(id: params[:ids])
-          end
+      I18n.with_locale(params[:locale] || I18n.locale) do
+        # TODO: FIXME if breaks
+        object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == params[:class].classify }
+        if params[:external]
+          @objects = object_type.constantize.where(external_key: params[:ids])
+        else
+          @objects = object_type.constantize.where(id: params[:ids])
         end
+      end
 
       respond_to(:js)
     end
