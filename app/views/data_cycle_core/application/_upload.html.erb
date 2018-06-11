@@ -7,7 +7,7 @@
     </button>
   </div>
 
-  <%= form_tag('contents/upload', multipart: true, id: 'content-upload-form') do %>
+  <%= form_tag('/contents/upload', multipart: true, id: 'content-upload-form') do %>
     <%= file_field_tag 'files', multiple: true, accept: 'image/*,video/*', class: 'upload-file' %>
     <%= label_tag 'files', content_tag(:i, nil, class: 'fa fa-plus'), class: 'button' %>
     <%= button_tag t('actions.upload'), class: 'button' %>
