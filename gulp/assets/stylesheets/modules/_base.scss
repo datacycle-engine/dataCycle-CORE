@@ -382,6 +382,9 @@ button,
         opacity: 1;
         color: rgba($dark-gray, 50%);
       }
+      [type='checkbox'] + label[for], [type='radio'] + label[for]{
+        margin-left: 20px;
+      }
       &:focus,
       &:hover {
         >label {
@@ -489,6 +492,7 @@ span.single_error,
   -webkit-transition: all 0.4s ease;
   line-height: 1.5;
   text-align: left;
+  font-size: 1rem;
 }
 
 span.single_error:before,
@@ -941,5 +945,24 @@ a[data-toggle] {
       bottom: -17px;
       transform: scaleX(3) rotate(180deg);
     }
+  }
+}
+
+.button.progress-button {
+  position: relative;
+  .progresstitle {
+    position: relative;
+    display: block;
+    z-index: 2;
+  }
+  .progressbar-meter {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    height: 100%;
+    width: 0;
+    background: darken($primary-color, 20%);
+    z-index: 1;
   }
 }

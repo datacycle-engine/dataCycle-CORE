@@ -6,114 +6,82 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :name:
         :label: Titel
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :validations:
-          :minLength: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
+          :min: 1
       :event_period:
         :label: Veranstaltungszeitraum
         :type: object
-        :storage_location: metadata
+        :storage_location: value
         :validations:
           :daterange:
             :from: start_date
             :to: end_date
-        :editor:
-          :options:
-            :class: daterange
+        :ui:
+          :edit:
+            :type: daterange
         :properties:
           :start_date:
             :label: Startzeitpunkt
-            :type: string
-            :storage_type: string
+            :type: datetime
             :storage_location: column
             :validations:
               :format: date_time
-            :editor:
-              :type: datetime
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: "tt.mm.jjjj --:--"
+            :ui:
+              :edit:
+                :type: datetime
+                :options:
+                  :data-validate: daterange
+                  :placeholder: "tt.mm.jjjj --:--"
           :end_date:
             :label: Endzeitpunkt
-            :type: string
-            :storage_type: string
+            :type: datetime
             :storage_location: column
             :validations:
               :format: date_time
-            :editor:
-              :type: datetime
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: "tt.mm.jjjj --:--"
+            :ui:
+              :edit:
+                :type: datetime
+                :options:
+                  :data-validate: daterange
+                  :placeholder: "tt.mm.jjjj --:--"
       :description:
-        :label: Beschreibung
+        :label: Teasertext
         :type: string
-        :storage_type: text
         :storage_location: column
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: basic
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :image:
         :label: Bilder
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: media
-            :data-type: image
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
       :url:
         :label: URL
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :validations:
           :format: url
-        :editor:
-          :type: input
       :location:
         :label: Veranstaltungsort
-        :type: object
-        :storage_location: places
-        :name: Örtlichkeit
-        :delete: false
+        :type: linked
+        :linked_table: places
+        :template_name: Örtlichkeit
         :validations:
           :max: 1
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: object
-            :data-type: place
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Overlay"
       :meta_data:
         :type: mixin
         :name: meta_data
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
-      :event_db:
-        :type: mixin
-        :name: event_db

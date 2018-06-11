@@ -5,15 +5,15 @@
     :properties:
       :tags:
         :label: Tags
-        :type: classificationTreeLabel
-        :type_name: Tags
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
+        :type: classification
+        :tree_label: Tags
+        :ui:
+          :show:
+            :content_area: header
       :output_channel:
         :label: Ausgabekanal
-        :type: classificationTreeLabel
-        :type_name: Ausgabekanäle
-        :storage_location: classification_relation
-        :editor:
-          :type: classificationSelector
+        :type: classification
+        :tree_label: Ausgabekanäle
+        :ui:
+          :show:
+            :content_area: header

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 related_objects = DataCycleCore::CreativeWork
   .where(is_part_of: content.id)
   .includes({ classifications: { classification_aliases: { classification_tree: [:classification_tree_label] } }, translations: [] })

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module Generic
     module GooglePlaces
@@ -5,6 +7,7 @@ module DataCycleCore
         SCALE = 112_000.0 # ~ km/1° longitude
         FIXNUM_MAX = (2**(0.size * 4 - 2) - 1)
 
+        attr_reader :border, :bbox
         def initialize(host: nil, end_point: nil, key: nil, bbox: nil, **options)
           @host = host
           @end_point = end_point
@@ -26,12 +29,12 @@ module DataCycleCore
         end
 
         def places(lang: :de)
-          scale = 50
+          raster_scale = 50
 
-          radius = SCALE / scale
-          raster = 1.0 / scale
+          radius = SCALE / raster_scale
+          raster = 1.0 / raster_scale
 
-          lines, columns = calculate_grid(@bbox, radius)
+          lines, columns = calculate_grid(@bbox, raster)
           lat_start = @bbox.min_y + 0.5 * raster
           long_start = @bbox.min_x
 
@@ -65,7 +68,7 @@ module DataCycleCore
         def places_detail(lang: :de)
           Enumerator.new do |yielder|
             DataCycleCore::Generic::Collection2.with(@read_type) do |mongo_item|
-              mongo_item.all.no_timeout.max_time_ms(FIXNUM_MAX).each do |item|
+              mongo_item.no_timeout.max_time_ms(FIXNUM_MAX).each do |item|
                 yielder << load_detail(item.external_id)['result']
               end
             end
@@ -73,11 +76,11 @@ module DataCycleCore
         end
 
         # calculate hex-grid
-        def calculate_grid(bbox, radius)
-          a = radius * (3**0.5)
-          scale = a / SCALE
-          columns = (bbox.max_x - bbox.min_x) / scale
-          lines = (bbox.max_y - bbox.min_y) / scale
+        def calculate_grid(bbox, raster)
+          scale_y = raster * 1.5
+          scale_x = raster * 3**0.5
+          columns = (bbox.max_x - bbox.min_x) / scale_x
+          lines = (bbox.max_y - bbox.min_y) / scale_y
           return lines.ceil, columns.ceil
         end
 
@@ -155,11 +158,8 @@ module DataCycleCore
               req.params['language'] = 'de'
             end
           end
-          if response.success?
-            JSON.parse(response.body)
-          else
-            raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point + 'nearbysearch/json'} / x:#{location_x} / y:#{location_y} / r:#{radius}" << response.body
-          end
+          raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point + 'nearbysearch/json'} / x:#{location_x} / y:#{location_y} / r:#{radius}" + response.body unless response.success?
+          JSON.parse(response.body)
         end
 
         def load_detail(place_id)
@@ -170,11 +170,8 @@ module DataCycleCore
             req.params['language'] = 'de'
             req.params['placeid'] = place_id
           end
-          if response.success?
-            JSON.parse(response.body)
-          else
-            raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point + 'details/json'} / place_id: #{place_id}" << response.body
-          end
+          raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point + 'details/json'} / place_id: #{place_id}" + response.body unless response.success?
+          JSON.parse(response.body)
         end
       end
     end

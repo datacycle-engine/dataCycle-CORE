@@ -3,46 +3,36 @@ var masonry = require('masonry-layout');
 // Masonry Config
 module.exports.initialize = function () {
 
-  function init() {
+  let animation_complete = false;
+
+  let show_animated = function (index, grid) {
+    setTimeout(() => {
+      if (index == 0) $('.grid .grid-loading').removeClass("show");
+      $('.grid-item').eq(index).addClass("show");
+      if ($('.grid-item').eq(index + 1).length) show_animated(index + 1, grid);
+      else animation_complete = true;
+      grid.layout();
+    }, 20);
+  };
+
+  let init = function () {
     if ($('.grid').html() != undefined) {
       var grid = new masonry('.grid', {
-        // var $grid = $('.grid').masonry({
-        // options
-        // set itemSelector so .grid-sizer is not used in layout
         itemSelector: '.grid-item',
-        // use element for option
         columnWidth: '.grid-sizer',
         gutter: '.gutter-sizer',
         percentPosition: true,
         transitionDuration: 0
       });
-      $('.grid .grid-loading').removeClass("show");
-      $.each($('.grid-item'), function (i, el) {
-        setTimeout(function () {
-          $(el).addClass("show");
-        }, 50 + (i * 20));
-      });
-      $(document).on('lazyloaded', function () {
-        grid.layout();
-      });
 
+      show_animated(0, grid);
+
+      $(document).on('lazyloaded', function () {
+        if (animation_complete) grid.layout();
+      });
     }
   }
 
-
-  // realign masonry after all images are loaded
-  var chkReadyState = setInterval(function () {
-
-    if ($('.grid').html() != undefined) {
-      $('.grid .grid-loading').addClass("show");
-    }
-
-    if (document.readyState == "complete") {
-
-      clearInterval(chkReadyState);
-      init();
-      // finally your page is loaded.
-    }
-  }, 100);
+  init();
 
 };

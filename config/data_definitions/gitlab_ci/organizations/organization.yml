@@ -7,23 +7,10 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
-      :legal_name:
-        :label: Firmenname
-        :type: string
-        :storage_type: string
-        :storage_location: content
-        :search: true
-        :validations:
-          :minLength: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
       :contact_info:
         :type: mixin
         :name: contact_info
@@ -33,29 +20,22 @@
       :description:
         :label: Text
         :type: string
-        :storage_type: text
         :storage_location: column
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: full
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
       :image:
-        :label: Bild
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: media
-            :data-type: image
+        :label: Bilder
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Organisation"
       :content_classifications:
         :type: mixin

@@ -26,6 +26,21 @@
         left: initial;
       }
     }
+    .data-link-text-files {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      >ul {
+        display: inline-block;
+        >li {
+          display: inline;
+          &:not(:last-child) {
+            &::after {
+              content: ', ';
+            }
+          }
+        }
+      }
+    }
     &.headline,
     &.headline_external {
       input {
@@ -799,6 +814,19 @@ a.email-link {
   button[type=submit].button {
     padding: 0.85rem 1rem;
   }
+  .selected-file {
+    position: relative;
+    display: block;
+    padding: 0.5rem 3rem 0.5rem 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    .remove-file {
+      position: absolute;
+      right: 0;
+      padding: 0 0.5rem;
+      cursor: pointer;
+    }
+  }
 }
 
 ul.translated-locales {
@@ -906,6 +934,25 @@ ul.translated-locales {
       &:focus,
       &:hover {
         background-color: rgba(map-get($foundation-palette, alert), 0.5);
+      }
+    }
+    &.with-upload {
+      display: flex;
+      .upload-button {
+        margin: 0 0 0 1rem;
+        padding: 0.5rem 0.6rem;
+      }
+      label {
+        display: inline-block;
+        position: relative;
+        top: 0;
+        left: 0;
+        padding: 0.5rem 0.6rem;
+        margin: 0 0 0 1rem;
+        color: white;
+      }
+      input[type="file"] {
+        display: none;
       }
     }
     &.white {
@@ -1054,11 +1101,103 @@ select:-moz-focusring {
         i::before {
           content: '\f077';
         }
-      } // display: none;
+      }
+    }
+  }
+}
+
+.clear-both {
+  clear: both;
+}
+
+.object-browser>.media-thumbs>.buttons,
+.embedded-object>.buttons {
+  .fa {
+    font-size: 0.9rem;
+  }
+}
+
+.buttons>.load-more-linked-contents,
+.buttons>.button {
+  margin: 0;
+}
+
+.load-more-linked-contents {
+  display: inline-block;
+  &.small {
+    .fa {
+      font-size: 0.8rem;
     }
   }
 }
 
 .copy-to-clipboard {
   cursor: pointer;
+}
+
+// textblocks
+.edit-content-form {
+  .embedded_object {
+    .content-object-item.textblock {
+      padding: 0.5rem;
+      .removeContentObject {
+        z-index: 13;
+        top: 0.5rem;
+        right: 0.5rem;
+      }
+      .embedded-header {
+        z-index: 13;
+        width: 50%;
+        .draggable-handle {
+          display: inline-block;
+          float: none;
+        }
+        input[name*='name'] {
+          display: inline-block;
+          background: transparent;
+          color: $dark-gray;
+          width: 85%;
+          &.fixed-toolbar {
+            position: fixed;
+            top: 59px;
+            width: 50%;
+          }
+          &.fixed-split-toolbar {
+            position: fixed;
+            top: 185px;
+            width: 25%;
+          }
+        }
+        .counter,
+        label {
+          display: none !important;
+        }
+      }
+      .text_editor {
+        margin-bottom: 0;
+        label {
+          display: none;
+        }
+        .ql-toolbar {
+          right: 3rem;
+        }
+      }
+    }
+  }
+}
+
+.reveal {
+  button[type="submit"].button {
+    padding: 0.85rem 1rem;
+    margin: 0;
+  }
+}
+
+select {
+  &.async-select,
+  &.single-select,
+  &.multi-select {
+    visibility: hidden;
+    max-height: 1rem;
+  }
 }

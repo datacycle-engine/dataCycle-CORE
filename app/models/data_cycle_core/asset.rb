@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class Asset < ApplicationRecord
     # acts_as_paranoid

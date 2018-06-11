@@ -1,12 +1,30 @@
 <a id="send-link-link" data-toggle="send-link"><i class="fa fa-share" aria-hidden="true"></i><i class="fa <%= content.data_links.size.zero? ? "fa-user-o" : "fa-user" %>" aria-hidden="true"></i></a>
 <div class="dropdown-pane align-right no-bullet bottom data-links" id="send-link" data-dropdown data-hover="true" data-hover-pane="true">
-  <h5><%= DataCycleCore::DataLink.model_name.human(count: 2, locale: DataCycleCore.ui_language).titleize %> <%= t('actions.send', locale: DataCycleCore.ui_language) %></h5>
+    <h5><%= DataCycleCore::DataLink.model_name.human(count: 2, locale: DataCycleCore.ui_language).titleize %> <%= t('actions.send', locale: DataCycleCore.ui_language) %></h5>
 
-  <ul class="list-items">
-    <% content.data_links.each do |data_link| %>
-      <%= render 'data_cycle_core/application/data_links/email_data_link', content: content, data_link: data_link %>
-    <% end %>
-  </ul>
+    <ul class="list-items">
+        <% content.data_links.each do |data_link| %>
+            <%= render 'data_cycle_core/application/data_links/email_data_link', content: content, data_link: data_link %>
+        <% end %>
+    </ul>
 
-  <%= render 'data_cycle_core/application/data_links/email_data_link', content: content, data_link: DataCycleCore::DataLink.new %>
+    <%= render 'data_cycle_core/application/data_links/email_data_link', content: content, data_link: DataCycleCore::DataLink.new %>
+</div>
+
+<div class="reveal file-upload-reveal" id="data-link-file-upload-overlay" data-reveal data-multiple-opened="true" data-reset-on-close="true">
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <p class="lead"><%= DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language) %> <%= t('actions.upload') %></p>
+
+  <%= form_for(DataCycleCore::Asset.new) do |a| %>
+    <%= hidden_field_tag :type, 'DataCycleCore::TextFile' %>
+    <%= a.label :name, DataCycleCore::Asset.human_attribute_name("name", locale: DataCycleCore.ui_language) %>
+    <%= a.text_field :name, label: false, required: true, class: 'validate-uniqueness' %>
+
+    <%= a.label :file, DataCycleCore::Asset.human_attribute_name("file", locale: DataCycleCore.ui_language) %>
+    <%= a.file_field :file, accept: 'application/pdf', label: false, data: { max_file_size: 5000000, file_types: 'application/pdf' } %>
+
+    <%= a.button t('actions.upload', locale: DataCycleCore.ui_language), class: "button submit-button progress-button", data: { create: t('actions.upload', locale: DataCycleCore.ui_language), update: t('actions.update', locale: DataCycleCore.ui_language) } %>
+  <% end %>
 </div>

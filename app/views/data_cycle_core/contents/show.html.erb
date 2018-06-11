@@ -1,14 +1,14 @@
-<% breadcrumb @content, @watch_list %>
+<% breadcrumb :content, @content, @watch_list %>
 
 <% content_for :top_content do %>
     <%= render_content_partial 'header', content: @content %>
 <% end %>
 
-<% if @content.is_content_type?('container') %>
+<% if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container') %>
   <ul class="accordion container-details" data-accordion data-allow-all-closed="true">
     <li class="accordion-item is-active" data-accordion-item>
       <div class="accordion-content" data-tab-content>
-        <%= render_content_partial 'details', content: @content, schema: @dataSchema %>
+        <%= render_content_partial 'details', content: @content %>
       </div>
       <a href="#" class="accordion-title"><span><i class="fa fa-chevron-down" aria-hidden="true"></i><span class="closed"><%= t('common.details.show') %></span><span class="open"><%= t('common.details.hide') %></span> </span></a>
     </li>
@@ -21,6 +21,6 @@
     <%= render 'new_content_links' if can?(:create, DataCycleCore::CreativeWork) %>
   <% end %>
 <% else %>
-  <%= render_content_partial 'details', content: @content, schema: @dataSchema %>
+  <%= render_content_partial 'details', content: @content %>
 <% end %>
 

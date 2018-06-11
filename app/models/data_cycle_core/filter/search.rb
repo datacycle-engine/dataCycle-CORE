@@ -1,9 +1,22 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module Filter
     class Search < QueryBuilder
       def initialize(locale = 'de', query = nil)
         @locale = locale
         @query = query || DataCycleCore::Search.where(search[:locale].eq(quoted(@locale)))
+      end
+
+      def content_includes
+        includes(
+          content_data: [
+            :display_classification_aliases,
+            :translations,
+            :watch_lists,
+            :external_source
+          ]
+        )
       end
 
       def fulltext_search(name)
@@ -69,7 +82,7 @@ module DataCycleCore
       def modified_since(date = Time.zone.now)
         reflect(
           @query.where(
-            search[:updated_at].gteq(DateTime.parse(date))
+            search[:updated_at].gteq(Time.zone.parse(date))
           )
         )
       end
@@ -77,7 +90,7 @@ module DataCycleCore
       def created_since(date = Time.zone.now)
         reflect(
           @query.where(
-            search[:created_at].gteq(DateTime.parse(date))
+            search[:created_at].gteq(Time.zone.parse(date))
           )
         )
       end

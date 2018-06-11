@@ -1,0 +1,7 @@
+<%= render 'data_cycle_core/contents/tiles/default', local_assigns do %>
+  <% if item.try(:image).present? %>
+    <div class="video-thumbnail">
+      <img data-src="<%= item.try(:image) %>" alt="<%= item.try(:title) %>" class="lazyload" />
+    </div>
+  <% end %>
+<% end %>

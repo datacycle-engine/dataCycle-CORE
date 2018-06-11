@@ -3,54 +3,42 @@
     :name: Zitat
     :type: object
     :content_type: embedded
-    :permissions:
-      :read_write: true
     :boost: 1.0
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
+        :type: key
       :text:
         :label: text
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
         :validations:
-          :minLength: 1
+          :min: 1
         :editor:
           :type: quillEditor
-          :sorting: 1
           :options:
             :data-size: basic
             :data-validate: text
             :tabindex: -1
       :image:
         :label: Bild
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
         :validations:
           :max: 1
         :editor:
-          :sorting: 2
           :type: objectBrowser
           :options:
             :data-validate: media
             :data-type: image
       :author:
         :label: "Zitat von"
-        :type: object
-        :storage_location: persons
-        :name: Person
-        :delete: false
+        :type: linked
+        :linked_table: persons
+        :template_name: Person
         :editor:
-          :sorting: 3
           :type: objectBrowser
           :options:
             :data-validate: object
@@ -58,33 +46,25 @@
       :is_part_of:
         :label: parent
         :type: string
-        :storage_type: string
         :storage_location: column
         :validations:
           :format: uuid
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Zitat"
       :creator:
         :label: Ersteller
-        :type: embeddedLink
-        :type_name: users
-        :storage_type: string
-        :storage_location: metadata
+        :type: linked
+        :linked_table: users
+        :validations:
+          :max: 1
       :date_created:
         :label: Erstellungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value
       :date_modified:
         :label: Änderungsdatum
-        :type: string
-        :storage_type: string
-        :storage_location: metadata
-        :validations:
-          :format: date_time
+        :type: datetime
+        :storage_location: value

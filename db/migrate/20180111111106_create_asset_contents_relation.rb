@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateAssetContentsRelation < ActiveRecord::Migration[5.0]
   def up
     create_table :asset_contents, id: :uuid do |t|

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddHistoryTables < ActiveRecord::Migration[5.0]
   def up
     # creative_works

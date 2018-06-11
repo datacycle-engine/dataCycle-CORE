@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module Generic
     module OutdoorActive
@@ -102,11 +104,8 @@ module DataCycleCore
             req.params['fallback'] = false
           end
 
-          if response.success?
-            JSON.parse(response.body)
-          else
-            raise DataCycleCore::Generic::RecoverableError, "error loading data from #{File.join([@host, @end_point, @project] + url_path)}"
-          end
+          raise DataCycleCore::Generic::RecoverableError, "error loading data from #{File.join([@host, @end_point, @project] + url_path)}" unless response.success?
+          JSON.parse(response.body)
         end
       end
     end

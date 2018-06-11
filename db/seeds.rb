@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 if DataCycleCore::Role.count.zero?
   DataCycleCore::Role.create!(
     rank: 0,

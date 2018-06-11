@@ -1,9 +1,9 @@
 ---
-name: Medienarchiv
+name: JSON-LD KW-Medienarchiv
 credentials:
   end_point: /api/v1/media.json
-  host: https://views2.austria.info
-  token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  host: http://media.kaernten.at
+  token: 0PwwV8Z4PyF1lYBtGopUANWrZFGR38my
 config:
   download: DataCycleCore::Generic::BatchDownload
   download_config:
@@ -39,16 +39,24 @@ config:
       source_type: images
       import_strategy: DataCycleCore::Generic::MediaArchive::Import
       data_template: Bild
-      place_template: contentLocation
+      place_template: Örtlichkeit
       target_type: DataCycleCore::CreativeWork
+      default_values:
+        output_channel:
+          tree_label: Ausgabekanäle
+          value: Medienarchiv
       logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     videos:
       sorting: 6
       source_type: videos
       import_strategy: DataCycleCore::Generic::MediaArchive::Import
       data_template: Video
-      place_template: contentLocation      
+      place_template: Örtlichkeit
       target_type: DataCycleCore::CreativeWork
+      default_values:
+        output_channel:
+          tree_label: Ausgabekanäle
+          value: Medienarchiv
       logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
     # documents:
     #   sorting: 7

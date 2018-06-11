@@ -32,11 +32,13 @@
                   <div class="main-filters">
                     <nav id="primary_nav_wrap">
                       <ul>
-                        <% filter[:classification_trees].presence&.each_with_index do |tree_label, idx| %>
-                          <%= render 'data_cycle_core/application/filters/classification_tree', tree_label: tree_label, display_label: t("filter.#{tree_label}", default: tree_label, locale: DataCycleCore.ui_language), excluded_types: excluded_types, classification_tree: classification_trees[tree_label], index: idx if classification_trees[tree_label].present? %>
+                        <% if classification_trees.present? %>
+                          <% filter[:classification_trees].presence&.each_with_index do |tree_label, idx| %>
+                            <%= render 'data_cycle_core/application/filters/classification_tree', tree_label: tree_label, display_label: t("filter.#{tree_label}", default: tree_label, locale: DataCycleCore.ui_language), excluded_types: excluded_types, classification_tree: classification_trees[tree_label], index: idx if classification_trees[tree_label].present? %>
+                          <% end %>
                         <% end %>
 
-                        <%= render 'data_cycle_core/application/filters/sprache' if filter[:language] %>
+                        <%= render 'data_cycle_core/application/filters/sprache', show_all: filter[:language_all] if filter[:language] %>
                       </ul>
                     </nav>
                   </div>
@@ -44,14 +46,14 @@
                   <% if content_for?(:advanced_filters) || filter[:advanced].present? %>
                     <div class="advanced-filters accordion" data-responsive-accordion-tabs="accordion medium-tabs large-accordion" data-allow-all-closed="true">
                       <div class="accordion-item <%= 'is-active' if @advanced_filters.present? %>" data-accordion-item>
-                        <div class="accordion-content" data-tab-content>
+                        <div class="accordion-content" data-tab-content style="<%= 'display: block;' if @advanced_filters.present? %>">
                           <%= yield :advanced_filters %>
 
                           <% if filter[:advanced].present? %>
                             <% if can?(:advanced_filter, :backend) %>
-                              <div class="add-advanced-filter-container">
-                                <%= select_tag :add_advanced_filter, options_for_select(filter[:advanced].presence&.sort), prompt: t("filter.add", locale: DataCycleCore.ui_language), class: 'single-select', data: { url: add_filter_path, index: index + @advanced_filters.size, allow_clear: false } %>
-                              </div>
+                            <div class="add-advanced-filter-container">
+                              <%= select_tag :add_advanced_filter, options_for_select(filter[:advanced].presence&.sort), prompt: t("filter.add", locale: DataCycleCore.ui_language), class: 'single-select', data: { url: add_filter_path, index: index + (@advanced_filters.presence&.size || 0), allow_clear: false } %>
+                            </div>
                             <% end %>
                             <% @advanced_filters.presence&.each_with_index do |filter, idx| %>
                               <%= render_first_existing_partial(["data_cycle_core/application/filters/new/#{filter['t']}"], { filter_name: filter['n'], filter_method: filter['m'], value: filter['v'], index: idx + index }) %>
@@ -70,7 +72,6 @@
                         <span class="result-count">(<strong><%= @total %></strong> <%= t('common.contents', count: @total, locale: DataCycleCore.ui_language) %>)</span>
                       <% end %>
                       <strong>:</strong> </span>
-
                       <span class="filter-groups">
                         <span class="tag-group tags sprache">
                           <i class="tag-group-label"><i class="fa fa-language" aria-hidden="true"></i> <%= t('common.language', locale: DataCycleCore.ui_language) %>:</i>

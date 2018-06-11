@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class SubscriptionsController < ApplicationController
     before_action :authenticate_user! # from devise (authenticate)
 
     def index
-      @paginateObject = current_user.subscriptions.includes(:subscribable).order(updated_at: :desc).page(params[:page])
+      authorize! :index, DataCycleCore::Subscription
+      @paginate_object = current_user.subscriptions.includes(:subscribable).order(updated_at: :desc).page(params[:page])
     end
 
     def create

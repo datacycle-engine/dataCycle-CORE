@@ -1,11 +1,19 @@
-module DataCycleCore::Generic::Eyebase::Download
-  def download_content(**options)
-    download_data(@source_type, ->(data) { data['item_id'] }, ->(data) { data['titel'] }, options)
-  end
+# frozen_string_literal: true
 
-  protected
+module DataCycleCore
+  module Generic
+    module Eyebase
+      module Download
+        def download_content(**options)
+          download_data(@source_type, ->(data) { data['item_id'] }, ->(data) { data['titel'] }, options)
+        end
 
-  def endpoint
-    @end_point_object.new(credentials.symbolize_keys)
+        protected
+
+        def endpoint
+          @end_point_object.new(credentials.symbolize_keys)
+        end
+      end
+    end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module NormalizeService
     INTERNAL_PROPERTIES = DataCycleCore.internal_data_attributes
@@ -18,7 +20,7 @@ module DataCycleCore
             deep_reject!(val, &blk) if val.is_a?(Hash)
           end
         end
-        hash.delete(k) if blk.call(k, v)
+        hash.delete(k) if yield(k, v)
       end
     end
   end

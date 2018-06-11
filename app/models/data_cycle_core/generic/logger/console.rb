@@ -1,39 +1,47 @@
-class DataCycleCore::Generic::Logger::Console
-  def initialize(kind)
-    @kind = kind
-  end
+# frozen_string_literal: true
 
-  def preparing_phase(label)
-    puts "Preparing  #{label.to_s.tr('/_/', ' ')} ..."
-  end
+module DataCycleCore
+  module Generic
+    module Logger
+      class Console
+        def initialize(kind)
+          @kind = kind
+        end
 
-  def phase_started(label, total = nil)
-    puts "#{@kind.capitalize}   #{label.to_s.tr('/_/', ' ')} ..." if total.nil?
-    puts "#{@kind.capitalize}   #{label.to_s.tr('/_/', ' ')} (#{total} items) ..." if total
-  end
+        def preparing_phase(label)
+          puts "Preparing  #{label.to_s.tr('/_/', ' ')} ..."
+        end
 
-  def item_processed(title, id, num, total)
-    # puts " -> \"#{title} (\##{id})\" #{@kind}ed (#{num} of #{total || '?'})"
-  end
+        def phase_started(label, total = nil)
+          puts "#{@kind.capitalize}   #{label.to_s.tr('/_/', ' ')} ..." if total.nil?
+          puts "#{@kind.capitalize}   #{label.to_s.tr('/_/', ' ')} (#{total} items) ..." if total
+        end
 
-  def error(title, id, data, error)
-    if title && id
-      puts "Error #{@kind}ing \"#{title} (\##{id})\": #{error}"
-    elsif title
-      puts "Error #{@kind}ing \"#{title}\": #{error}"
-    elsif id
-      puts "Error #{@kind}ing \"\##{id}\": #{error}"
-    else
-      puts "Error: #{error}"
+        def item_processed(title, id, num, total)
+          # puts " -> \"#{title} (\##{id})\" #{@kind}ed (#{num} of #{total || '?'})"
+        end
+
+        def error(title, id, data, error)
+          if title && id
+            puts "Error #{@kind}ing \"#{title} (\##{id})\": #{error}"
+          elsif title
+            puts "Error #{@kind}ing \"#{title}\": #{error}"
+          elsif id
+            puts "Error #{@kind}ing \"\##{id}\": #{error}"
+          else
+            puts "Error: #{error}"
+          end
+          puts "  DATA: #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}" if data
+        end
+
+        def info(title, id)
+          puts "INFO: #{title} | #{id}"
+        end
+
+        def phase_finished(label, total)
+          puts "#{@kind.capitalize}ed #{label.to_s.tr('/_/', ' ')} (#{total} items) ... [DONE]"
+        end
+      end
     end
-    puts "  DATA: #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}" if data
-  end
-
-  def info(title, id)
-    puts "INFO: #{title} | #{id}"
-  end
-
-  def phase_finished(label, total)
-    puts "#{@kind.capitalize}ed #{label.to_s.tr('/_/', ' ')} (#{total} items) ... [DONE]"
   end
 end

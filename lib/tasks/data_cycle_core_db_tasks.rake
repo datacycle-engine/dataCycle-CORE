@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :data_cycle_core do
   namespace :db do
     desc 'Dumps the database to backups'

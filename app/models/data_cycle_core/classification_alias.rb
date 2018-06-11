@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class ClassificationAlias < ApplicationRecord
     class Path < ApplicationRecord
@@ -70,7 +72,7 @@ module DataCycleCore
     end
 
     def primary_classification
-      classifications.sort_by { |c| (created_at - c.created_at).abs }.first
+      classifications.min_by { |c| (created_at - c.created_at).abs }
     end
 
     def linked_contents
@@ -96,11 +98,10 @@ module DataCycleCore
     private
 
     def update_primary_classification
-      if changed.include?('name')
-        primary_classification.tap do |c|
-          c.name = name
-          c.save!
-        end
+      return unless changed.include?('name')
+      primary_classification.tap do |c|
+        c.name = name
+        c.save!
       end
     end
   end

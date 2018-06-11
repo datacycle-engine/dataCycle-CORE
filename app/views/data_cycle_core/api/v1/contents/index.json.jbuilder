@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 json.contents @contents do |item|
   json.cache!(item, expires_in: 24.hours + Random.rand(12.hours)) do
     json.content_partial! 'details', content: item

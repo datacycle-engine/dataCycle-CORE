@@ -1,19 +1,28 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module MasterData
     module Validators
       class Object < BasicValidator
-        @@basic_types = {
-          'object' => Validators::Object,
-          'string' => Validators::String,
-          'number' => Validators::Number,
-          'geographic' => Validators::Geographic,
-          'embeddedLink' => Validators::EmbeddedLink,             # only one or zero links allowed
-          'embeddedLinkArray' => Validators::EmbeddedLinkArray,   # arbitray number of links to the same table allowed
-          'classificationTreeLabel' => Validators::ClassificationTreeLabel,
-          'asset' => Validators::Asset
-        }
+        def basic_types
+          {
+            'object' => Validators::Object,
+            'key' => Validators::Key,
+            'string' => Validators::String,
+            'number' => Validators::Number,
+            'datetime' => Validators::Datetime,
+            'boolean' => Validators::Boolean,
+            'geographic' => Validators::Geographic,
+            'linked' => Validators::Linked,
+            'embedded' => Validators::Embedded,
+            'classification' => Validators::Classification,
+            'asset' => Validators::Asset
+          }
+        end
 
-        @@object_validations = ['daterange', 'classifications']
+        def object_validations
+          ['daterange']
+        end
 
         # validate data as specified in the keys of the data template
         # data hash with key names as specified in the schema
@@ -27,21 +36,21 @@ module DataCycleCore
               next
             end
 
-            unless @@basic_types.include?(key_item['type'])
+            unless basic_types.include?(key_item['type'])
               (@error[:error][key] ||= []) << I18n.t(:object_type, scope: [:validation, :errors], data: key_item, type: key_item['type'], locale: DataCycleCore.ui_language)
               next
             end
 
             unless key_item['type'] == 'object'
-              # puts "call #{@@basic_types[key_item['type']]}.constantize.new(#{data[key]}, #{key_item})"
-              validator_object = (@@basic_types[key_item['type']]).to_s.constantize.new(data[key], key_item, key)
+              # puts "validate(#{key}/#{key_item['type']}) -> #{data[key]} // #{key_item}"
+              validator_object = basic_types[key_item['type']].new(data[key], key_item, key)
               merge_errors(validator_object.error) unless validator_object.nil?
               next
             end
 
             if key_item.key?('validations') # validations for a particular object
               key_item['validations'].each do |val_key, val_item|
-                if @@object_validations.include?(val_key)
+                if object_validations.include?(val_key)
                   method(val_key).call(data[key], val_item)
                 else
                   (@error[:warning][key] ||= []) << I18n.t(:keyword, scope: [:validation, :warning], key: val_key, type: 'Object', locale: DataCycleCore.ui_language)
@@ -50,13 +59,8 @@ module DataCycleCore
             end
 
             if key_item.key?('properties')
-              # puts "call #{@@basic_types[key_item['type']]}.constantize.new(#{data[key]}, #{key_item['properties']},#{@schema})"
-              validator_object = (@@basic_types[key_item['type']]).to_s.constantize.new(data[key], key_item['properties'], key)
+              validator_object = basic_types[key_item['type']].new(data[key], key_item['properties'])
               merge_errors(validator_object.error) unless validator_object.nil?
-              next
-            elsif key_item.key?('name') && key_item.key?('storage_location')
-              # check if it is a linked data_type
-              verify_embedded_object(data[key], key_item['storage_location'], key_item['name'])
             else
               (@error[:error][key] ||= []) << I18n.t(:wrong_object_type, scope: [:validation, :errors], data: key_item['label'], locale: DataCycleCore.ui_language)
             end
@@ -83,12 +87,8 @@ module DataCycleCore
 
         def daterange(data_hash, template_hash)
           data_hash = {} if data_hash.nil?
-          # ap data_hash
-          # ap template_hash
           if template_hash.blank? || template_hash['from'].blank? || template_hash['to'].blank?
             (@error[:error][@template_key] ||= []) << I18n.t(:no_fields, scope: [:validation, :errors], locale: DataCycleCore.ui_language)
-            # elsif !data_hash.has_key?(template_hash['from']) || !data_hash.has_key?(template_hash['to'])  # if we want an error when not all data are given
-            #   @error[:error].push 'Fields specified in the validations are not available in the given data.'
           else
             if data_hash[template_hash['from']].blank?
               (@error[:warning][template_hash['from']] ||= []) << I18n.t(:start_date, scope: [:validation, :warning], locale: DataCycleCore.ui_language)
@@ -110,17 +110,11 @@ module DataCycleCore
           end
         end
 
-        def classifications(data_hash, template_hash)
-          if data_hash.present? && DataCycleCore.features.dig(:publication_schedule, :classification_keys).present?
-            (@error[:error][@template_key] ||= []) << I18n.t(:classification_conflict, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if data_hash.each { |d| d['id'] = SecureRandom.uuid if d['id'].blank? }.map { |x| data_hash.select { |y| (x != y) && DataCycleCore.features.dig(:publication_schedule, :classification_keys).map { |z| x[z].present? && y[z].present? ? (x[z] & y[z]) : [] }.all?(&:present?) } }.flatten.present?
-          end
-        end
-
         def date_time(data)
           data.to_datetime
         rescue StandardError
           (@error[:warning][@template_key] ||= []) << I18n.t(:convert, scope: [:validation, :warning], data: data, locale: DataCycleCore.ui_language)
-          return nil
+          nil
         end
       end
     end

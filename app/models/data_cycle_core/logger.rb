@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class Logger
     def initialize(filename, log_to_disk = true)

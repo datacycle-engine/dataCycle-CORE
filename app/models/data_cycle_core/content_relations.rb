@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module ContentRelations
     extend ActiveSupport::Concern
@@ -9,8 +11,8 @@ module DataCycleCore
 
         belongs_to :external_source
 
-        table_full = table_given.to_s.singularize
-        table_full += "_#{postfix}" unless postfix.nil?
+        # table_full = table_given.to_s.singularize
+        # table_full += "_#{postfix}" unless postfix.nil?
 
         classification_content_table = 'classification_content'
         classification_content_table += "_#{postfix}" unless postfix.nil?
@@ -55,8 +57,9 @@ module DataCycleCore
         has_many :watch_lists, through: :watch_list_data_hashes
 
         has_many :subscriptions, as: :subscribable, dependent: :destroy
-
-        has_many :data_links, as: :item
+        has_many :data_link_content_items, as: :content, dependent: :destroy
+        has_many :indirect_data_links, through: :data_link_content_items, dependent: :destroy
+        has_many :data_links, as: :item, dependent: :destroy
       end
     end
   end

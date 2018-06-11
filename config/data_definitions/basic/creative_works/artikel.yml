@@ -10,99 +10,67 @@
     :properties:
       :id:
         :label: id
-        :type: string
-        :storage_type: string
-        :storage_location: key
-        :validations:
-          :format: uuid
-      :headline:
-        :label: Titel
-        :type: string
-        :storage_type: string
-        :storage_location: column
-        :search: true
-        :validations:
-          :minLength: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
       :validity_period:
         :type: mixin
         :name: validity_period
       :alternative_headline:
         :label: Subüberschrift
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :description:
         :label: Teasertext
         :type: string
-        :storage_type: text
         :storage_location: column
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: basic
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :name:
         :label: Linktitel
         :type: string
-        :storage_type: string
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: input
       :text:
         :label: Fließtext
         :type: string
-        :storage_type: text
-        :storage_location: content
+        :storage_location: translated_value
         :search: true
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: full
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+      :textblock:
+        :label: Textblock
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: Textblock
       :image:
         :label: Bilder
-        :type: embeddedLinkArray
-        :type_name: creative_works
-        :storage_type: array
-        :storage_location: metadata
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: media
-            :data-type: image
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
       :content_location:
         :label: Ort
-        :type: object
-        :storage_location: places
-        :name: Örtlichkeit
-        :delete: false
-        :editor:
-          :type: objectBrowser
-          :options:
-            :data-validate: object
-            :data-type: place
+        :type: linked
+        :linked_table: places
+        :template_name: Örtlichkeit
       :quotation:
         :label: Zitat
-        :type: object
-        :storage_location: creative_works
-        :delete: true
-        :name: Zitat
-        :editor:
-          :type: embeddedObject
-          :options:
-            :data-validate: text
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: Zitat
       :data_type:
         :label: Inhaltstype
-        :type: classificationTreeLabel
-        :type_name: Inhaltstypen
-        :storage_location: classification_relation
+        :type: classification
+        :tree_label: Inhaltstypen
         :default_value: "Artikel"
       :content_classifications:
         :type: mixin

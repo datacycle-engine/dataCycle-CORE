@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateCreativeWorks < ActiveRecord::Migration[5.0]
   def up
     create_table :place_translations do |t|

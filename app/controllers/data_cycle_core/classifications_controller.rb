@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class ClassificationsController < ApplicationController
     FIXNUM_MAX = (2**(0.size * 8 - 2) - 1)
@@ -7,7 +9,7 @@ module DataCycleCore
     def index
       respond_to do |format|
         format.html do
-          authorize! :read, DataCycleCore::ClassificationTreeLabel
+          authorize! :index, DataCycleCore::ClassificationTreeLabel
 
           @classification_tree_labels = DataCycleCore::ClassificationTreeLabel.accessible_by(current_ability)
             .order(:created_at)
@@ -15,7 +17,7 @@ module DataCycleCore
         end
 
         format.js do
-          authorize! :read, DataCycleCore::ClassificationTree
+          authorize! :index, DataCycleCore::ClassificationTree
 
           permitted_params = params.permit(:classification_tree_label_id, :classification_tree_id)
 
@@ -41,7 +43,7 @@ module DataCycleCore
     end
 
     def search
-      permitted_params = params.permit(:q, :max, :tree_label)
+      params.permit(:q, :max, :tree_label)
 
       query = if params[:tree_label].present?
                 DataCycleCore::ClassificationAlias.for_tree(params[:tree_label]).where.not(name: DataCycleCore.excluded_filter_classifications)

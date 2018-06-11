@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 default_options = {
   hidden_attributes: DataCycleCore.special_data_attributes + ['external_source_id', 'external_key'] + DataCycleCore::Feature::OverlayAttributeService.call(content)
 }
@@ -31,4 +33,4 @@ json.partial! 'asset_properties', content: content, options: options
 
 json.partial! 'overlay_properties', content: content, options: options
 
-json.partial! 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.is_content_type?('container')
+json.partial! 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.content_type?('container')

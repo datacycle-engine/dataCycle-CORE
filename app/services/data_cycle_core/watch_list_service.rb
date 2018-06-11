@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class WatchListService
     def self.get_objects_with_types(watch_list_data_hash)

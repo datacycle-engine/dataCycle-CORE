@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'date'
 
-$LOAD_PATH.push File.expand_path('../lib', __FILE__)
+$LOAD_PATH.push File.expand_path('lib', __dir__)
 
 # allows bundler to use the gemspec for dependencies
 # lib = File.expand_path('../lib', __FILE__)
@@ -17,7 +19,7 @@ Gem::Specification.new do |s|
   s.email       = ['office@datacycle.at']
   s.homepage    = 'http://git.pixelpoint.biz/data-cycle/data-cycle-core'
   s.summary     = 'dataCycle-Core. Rails engine for dataCycle'
-  s.license     = "Copyright 2016-#{DateTime.now.year} datacycle.at. All rights reserved."
+  s.license     = "Copyright 2016-#{Time.now.year} datacycle.at. All rights reserved."
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.md']
 
@@ -111,5 +113,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'bullet'
   s.add_development_dependency 'bundler-audit'
   s.add_development_dependency 'gemsurance'
-  s.add_development_dependency 'rubocop', '~> 0.52.1'
+  s.add_development_dependency 'rubocop', '~> 0.56.0'
 end

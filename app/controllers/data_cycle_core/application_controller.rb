@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class ApplicationController < ActionController::Base
     protect_from_forgery with: :exception
@@ -5,7 +7,7 @@ module DataCycleCore
     before_action :load_stored_filters
     before_action :better_errors_hack, if: -> { Rails.env.development? }
 
-    def after_sign_in_path_for(resource)
+    def after_sign_in_path_for(_resource)
       if current_user&.is_rank?(0)
         session['user_return_to'] || info_path
       else
@@ -14,7 +16,8 @@ module DataCycleCore
     end
 
     def load_watch_lists
-      @accessible_watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
+      @watch_list = DataCycleCore::WatchList.find_by(id: params[:watch_list_id]) if params[:watch_list_id]
+      @accessible_watch_lists = DataCycleCore::WatchList.accessible_by(current_ability).includes(:valid_write_links)
     end
 
     def load_stored_filters

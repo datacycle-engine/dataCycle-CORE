@@ -1,15 +1,17 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module Filter
     extend ActiveSupport::Concern
 
     def get_filtered_results(query = nil)
       @filters ||= params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
-      @language ||= params.fetch(:language, DataCycleCore.ui_language)
+      @language ||= params.fetch(:language, DataCycleCore.ui_language.to_s)
 
       if @filters.any? { |f| f['t'] == 'fulltext_search' }
-        @order_string = DataCycleCore::Filter::Search.get_order_by_query_string(@filters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'))
+        @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@filters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'))
       else
-        @order_string = 'boost DESC, updated_at DESC'
+        @order_string ||= { boost: :desc, updated_at: :desc }
       end
 
       if @filters.none? { |f| f['t'] == 'order' }
@@ -21,7 +23,9 @@ module DataCycleCore
         )
       end
 
-      query ||= DataCycleCore::Filter::Search.new(@language)
+      query_params = params[:language] == 'all' ? [nil, DataCycleCore::Search.all] : [@language]
+      query ||= DataCycleCore::Filter::Search.new(*query_params)
+      query = query.unique_by_column(:content_data_id) if params[:language] == 'all'
 
       @filters.presence&.each do |filter|
         query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
@@ -32,11 +36,19 @@ module DataCycleCore
       @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
       @advanced_filters = @filters.select { |f| f['c'] == 'a' }
       @selected_classifications = @default_filters.map { |c| c['v'] }.flatten.compact.uniq
-      @selected_classification_aliases = DataCycleCore::ClassificationAlias.select(:id, :name).where(id: @filters.select { |f| f['t'] == 'classification_alias_ids' }.map { |f| f['v'] }.flatten.compact.uniq).map { |c| [c.id, c.name] }.to_h
+      @selected_classification_aliases = DataCycleCore::ClassificationAlias
+        .select(:id, :name)
+        .where(
+          id: @filters
+            .select { |f| f['t'] == 'classification_alias_ids' }
+            .map { |f| f['v'] }
+            .flatten
+            .compact
+            .uniq
+        )
+        .map { |c| [c.id, c.name] }.to_h
 
-      @paginateObject = query.includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
-      @total = @paginateObject.total_count
-      @paginateObject.map(&:content_data)
+      query
     end
 
     def apply_filter(filter_id:, api_only: false)

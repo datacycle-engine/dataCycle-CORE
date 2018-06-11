@@ -1,4 +1,4 @@
-<% breadcrumb :edit_resource, @content, @watch_list %>
+<% breadcrumb :edit_content, @content, @watch_list %>
 
 <% content_for :top_content do %>
 
@@ -6,7 +6,7 @@
 
     <div id="edit-form">
 
-        <%= render 'form', keyPrefix: "#{@content.class.name.demodulize.underscore}[datahash]", content: @content, dataSchema: @dataSchema %>
+        <%= render 'form', keyPrefix: "#{@content.class.name.demodulize.underscore}[datahash]", content: @content %>
 
     </div>
 

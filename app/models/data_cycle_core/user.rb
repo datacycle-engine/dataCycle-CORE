@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class User < ApplicationRecord
     devise :database_authenticatable, :registerable,
@@ -17,6 +19,9 @@ module DataCycleCore
     has_many :user_group_users, dependent: :destroy
     has_many :user_groups, through: :user_group_users
 
+    has_many :received_data_links, class_name: :DataLink, foreign_key: :receiver_id, dependent: :destroy
+    has_many :created_data_links, class_name: :DataLink, foreign_key: :creator_id, dependent: :destroy
+
     before_create :set_default_role
 
     include UserHelpers
@@ -35,6 +40,10 @@ module DataCycleCore
 
     def has_user_group?(group_name)
       self&.user_groups&.map(&:name)&.include?(group_name)
+    end
+
+    def sibling_ids
+      user_groups.map { |ug| ug.users.ids }.flatten.uniq << id
     end
 
     def send_notification(contents)

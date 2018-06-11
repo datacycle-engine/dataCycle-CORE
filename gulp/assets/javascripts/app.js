@@ -6,6 +6,7 @@ var foundation = require('foundation-sites');
 var lazysizes = require('lazysizes');
 var lazysizes_unveilhooks = require('lazysizes/plugins/unveilhooks/ls.unveilhooks.min.js');
 var callout_helpers = require('./modules/helpers/callout_helpers');
+var array_helpers = require('./modules/helpers/array_helpers');
 
 var initializers = [];
 initializers.push(require('./modules/initializers/masonry_init'));
@@ -19,7 +20,7 @@ initializers.push(require('./modules/initializers/validation_init'));
 initializers.push(require('./modules/initializers/counter_init'));
 initializers.push(require('./modules/initializers/date_picker_init'));
 initializers.push(require('./modules/initializers/slider_init'));
-initializers.push(require('./modules/initializers/copy_contents_init'));
+initializers.push(require('./modules/initializers/split_contents_init'));
 initializers.push(require('./modules/initializers/map_init'));
 initializers.push(require('./modules/initializers/classifications'));
 initializers.push(require('./modules/initializers/classification_select_init'));
@@ -33,6 +34,7 @@ initializers.push(require('./modules/initializers/rails_confirmation_init'));
 initializers.push(require('./modules/initializers/publication_init'));
 initializers.push(require('./modules/initializers/stored_filters_init'));
 initializers.push(require('./modules/initializers/dropdown_pane_init'));
+initializers.push(require('./modules/initializers/file_upload_init'));
 
 
 $(function () {

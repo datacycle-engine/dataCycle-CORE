@@ -102,3 +102,7 @@ en:
         address: Address
         longitude: Longitude
         latitude: Latitude
+
+  date:
+    formats:
+      default: "%Y-%m-%d"

@@ -1,8 +1,9 @@
 // offcanvas
 #settings-off-canvas {
   top: 72px;
+  height: calc(100% - 72px);
   .settings-row {
-    padding: 2rem;
+    padding: 1rem;
     margin: 0 0.1rem;
     color: $black;
     border-bottom: 1px solid $medium-gray;
@@ -12,8 +13,11 @@
       outline-width: 0;
     }
     .row {
+      &:not(:first-child) {
+        padding-left: 2rem;
+      }
       position: relative;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
       &.access-token {
         white-space: nowrap;
         .title {
@@ -43,7 +47,7 @@
     span {
       display: inline-block;
       &.icon {
-        width: 2rem;
+        width: 1.8rem;
         i {
           margin-right: 0.3rem;
         }
