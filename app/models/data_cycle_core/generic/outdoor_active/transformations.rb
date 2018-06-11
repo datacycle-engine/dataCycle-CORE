@@ -73,7 +73,7 @@ module DataCycleCore
           .>> t(:add_field, 'latitude', ->(s) { s.dig('startingPoint', 'lon')&.to_f })
           .>> t(:add_field, 'longitude', ->(s) { s.dig('startingPoint', 'lat')&.to_f })
           .>> t(:add_field, 'start_location', ->(s) { RGeo::Geographic.spherical_factory(srid: 4326).point(s['latitude'], s['longitude']) if s['longitude'] && s['latitude'] })
-          .>> t(:add_field, 'tour', ->(s) { tour(s.dig('geometry')) })
+          .>> t(:add_field, 'tour', ->(s) { tour(s&.dig('geometry')) })
           .>> t(:unwrap, 'elevation', ['ascent', 'descent', 'minAltitude', 'maxAltitude'])
           .>> t(:unwrap, 'time', ['min'])
           .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'experience', 'landscape'])
@@ -101,13 +101,13 @@ module DataCycleCore
               'additionalInformation' => 'additional_information'
             }
           )
-          .>> t(:map_value, 'elevation', ->(s) { s.to_f })
-          .>> t(:map_value, 'length', ->(s) { s.to_f })
-          .>> t(:map_value, 'duration', ->(s) { s.to_i })
-          .>> t(:map_value, 'condition_rating', ->(s) { s.to_i })
-          .>> t(:map_value, 'difficulty_rating', ->(s) { s.to_i })
-          .>> t(:map_value, 'experience_rating', ->(s) { s.to_i })
-          .>> t(:map_value, 'landscape_rating', ->(s) { s.to_i })
+          .>> t(:map_value, 'elevation', ->(s) { s&.to_f })
+          .>> t(:map_value, 'length', ->(s) { s&.to_f })
+          .>> t(:map_value, 'duration', ->(s) { s&.to_i })
+          .>> t(:map_value, 'condition_rating', ->(s) { s&.to_i })
+          .>> t(:map_value, 'difficulty_rating', ->(s) { s&.to_i })
+          .>> t(:map_value, 'experience_rating', ->(s) { s&.to_i })
+          .>> t(:map_value, 'landscape_rating', ->(s) { s&.to_i })
           .>> t(:add_links, 'image', DataCycleCore::CreativeWork, external_source_id, ->(s) { s&.dig('images', 'image')&.map { |item| item&.dig('id') } || [] })
           .>> t(:load_category, 'categories', ->(s) { s&.dig('category', 'name').presence }, external_source_id, ->(s) { s&.dig('category', 'name').present? ? "CATEGORY:#{s&.dig('category', 'id')}" : nil })
           .>> t(:category_key_to_ids, 'outdoor_active_tags', ->(s) { s&.dig('properties', 'property') }, 'text', external_source_id, 'TAG:', 'tag')
@@ -127,6 +127,7 @@ module DataCycleCore
         end
 
         def self.tour(geometry)
+          return nil if geometry.blank?
           factory = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
           factory.line_string(
             geometry&.split(' ')
