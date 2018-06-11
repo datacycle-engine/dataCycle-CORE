@@ -185,20 +185,10 @@ module DataCycleCore
     }
 
     mattr_accessor :image_validations
-    self.image_validations = {
-      format: ['jpeg', 'gif', 'png', 'tif', 'tiff'],
-      dimensions: {
-        min: {
-          width: 1600,
-          height: 860
-        }
-      }
-    }
+    self.image_validations = {}
 
     mattr_accessor :video_validations
-    self.video_validations = {
-      format: ['mp4']
-    }
+    self.video_validations = {}
   end
 
   def self.setup

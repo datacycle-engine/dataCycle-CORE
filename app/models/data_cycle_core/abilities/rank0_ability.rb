@@ -8,7 +8,6 @@ module DataCycleCore
 
       def initialize(_user, session = {})
         can [:show, :find], :object_browser
-        can :upload, :content
 
         can :edit, DataCycleCore::DataAttribute do |attribute|
           if DataCycleCore::Feature::PublicationSchedule.allowed?(attribute.content)
