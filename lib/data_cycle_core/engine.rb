@@ -76,7 +76,7 @@ module DataCycleCore
     self.internal_data_attributes = ['date_created', 'date_modified', 'creator', 'data_type', 'data_pool', 'is_part_of', 'last_updated_by']
 
     mattr_accessor :asset_objects
-    self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::TextFile']
+    self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile']
 
     mattr_accessor :content_tables
     self.content_tables = ['creative_works', 'events', 'persons', 'organizations', 'places']
@@ -182,6 +182,22 @@ module DataCycleCore
       events: 'Event',
       persons: 'Person',
       organizations: 'Organization'
+    }
+
+    mattr_accessor :image_validations
+    self.image_validations = {
+      format: ['jpeg', 'gif', 'png', 'tif', 'tiff'],
+      dimensions: {
+        min: {
+          width: 1600,
+          height: 860
+        }
+      }
+    }
+
+    mattr_accessor :video_validations
+    self.video_validations = {
+      format: ['mp4']
     }
   end
 

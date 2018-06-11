@@ -200,6 +200,7 @@ de:
       invalid: "%{data} konnte nicht erstellt werden."
       email_exists: "Für diese E-Mail existiert bereits ein Link"
       no_source: "Keine gültige Vorlage angegeben"
+      wrong_content_type: Nicht unterstützter Datei-Typ
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."
@@ -375,6 +376,24 @@ de:
       history: Suchverlauf
     watch_list:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
+    upload: Medien hochladen
+
+  media_archive:
+    allowed_html: '<h4>Einschränkungen</h4>
+                  <ul class="no-bullet">
+                    <li><b>Bild:</b>
+                      <ul>
+                        <li>Formate: %{image_types}</li>
+                        <li>Mindest-Abmessungen: %{image_min_dimensions}</li>
+                      </ul>
+                    </li>
+                    <li><b>Video:</b>
+                      <ul>
+                        <li>Formate: %{video_types}</li>
+                        <li>Codecs: h264 (audio: mp3/aac)</li>
+                      </ul>
+                    </li>
+                  </ul>'
 
   date:
     abbr_day_names:
