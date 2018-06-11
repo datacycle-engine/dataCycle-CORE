@@ -1,4 +1,4 @@
-
+# frozen_string_literal: true
 
 module DataCycleCore
   class VideoUploader < CarrierWave::Uploader::Base
@@ -50,7 +50,7 @@ module DataCycleCore
     # end
 
     version :thumb_preview do
-      process :create_thumb => [300, 300]
+      process create_thumb: [300, 300]
 
       def full_filename(for_file)
         basename = File.basename(for_file, File.extname(for_file))
@@ -59,12 +59,11 @@ module DataCycleCore
     end
 
     def filename
-      if original_filename
-        if model && model&.read_attribute(mounted_as).present?
-          model.read_attribute(mounted_as)
-        else
-          "#{secure_token}.#{file.extension}"
-        end
+      return unless original_filename
+      if model && model&.read_attribute(mounted_as).present?
+        model.read_attribute(mounted_as)
+      else
+        "#{secure_token}.#{file.extension}"
       end
     end
 
@@ -77,7 +76,7 @@ module DataCycleCore
       movie = FFMPEG::Movie.new(current_path)
       dirname = File.dirname(current_path)
       thumb_path = "#{File.join(dirname, File.basename(path, File.extname(path)))}.png"
-      movie.screenshot(thumb_path, :seek_time => 5)
+      movie.screenshot(thumb_path, seek_time: 5)
       sc = ::Magick::Image.read(thumb_path).first
       sc.crop_resized!(width, height)
       sc.write(thumb_path)
