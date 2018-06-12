@@ -11,7 +11,7 @@ var ObjectBrowser = function (selector) {
   this.overlay_per = 25;
   this.per = selector.data('per') || 5;
   this.type = selector.data('type');
-  this.language = selector.data('language');
+  this.locale = selector.data('locale');
   this.key = selector.data('key');
   this.object_id = selector.data('object-id');
   this.object_key = selector.data('object-key');
@@ -116,14 +116,32 @@ ObjectBrowser.prototype.setup = function () {
     this.overlay.foundation("close");
   }.bind(this));
 
-  this.element.on('import-data', function (event, data) {
-    var new_items = data.ids.diff($.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id')));
+  this.element.on('update-chosen', (event, data) => {
+    this.chosen = this.chosen.concat(data.chosen.diff(this.chosen));
+
+    $($.map(data.chosen, id => this.element.children('input:hidden[value="' + id + '"]'))).each((index, elem) => $(elem).remove());
+
+    this.updateChosenCounter();
+    this.overlay.find('.items .item .reveal.media-preview').each(function () {
+      if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
+    });
+
+    this.element.find('.object-thumbs .item .reveal.media-preview').each((index, element) => {
+      $(element).foundation();
+    });
+  });
+
+  this.element.on('import-data', (event, data) => {
+    let new_items = [];
+    if (data.external_ids != undefined) new_items = data.external_ids;
+    else if (data.ids != undefined) new_items = data.ids.diff($.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id')));
+
     if (new_items.length > 0 && ((this.chosen.length + new_items.length) <= this.max || this.max == 0)) {
-      this.findObjects(new_items);
+      this.findObjects(new_items, (data.external_ids != undefined));
     } else if (this.max != 0 && (this.chosen.length + new_items.length) > this.max) {
       var confirmationModal = new ConfirmationModal("Maximalanzahl: " + self.max);
     }
-  }.bind(this));
+  });
 
   this.overlay.on('import-complete', function (event, data) {
     if (this.excluded.indexOf(data.id) === -1) this.excluded.push(data.id);
@@ -143,7 +161,7 @@ ObjectBrowser.prototype.setup = function () {
       var form_data = $(this).serializeJSON();
       $.extend(form_data, {
         type: self.type,
-        language: self.language,
+        locale: self.locale,
         overlay_id: '#object_browser_' + self.id,
         key: self.key,
         definition: self.definition,
@@ -174,44 +192,24 @@ ObjectBrowser.prototype.renderHiddenField = function () {
   this.element.find('> .media-thumbs > .object-thumbs').html('<input type="hidden" id="' + this.key.replace(/\[/g, '_').replace(/\]/g, '') + '_default" name="' + this.key + '[]">');
 };
 
-ObjectBrowser.prototype.findObjects = function (ids) {
-  this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('disabled', true).html(this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).data('loading-text'));
+ObjectBrowser.prototype.findObjects = function (ids, external) {
   $.ajax({
     url: this.url + '/find',
     method: 'POST',
     dataType: 'script',
     data: JSON.stringify({
       type: this.type,
-      language: this.language,
+      locale: this.locale,
       key: this.key,
       definition: this.definition,
       options: this.options,
       ids: ids,
       editable: this.editable,
       class: this.class,
-      objects: this.chosen
+      objects: this.chosen,
+      external: external
     }),
     contentType: 'application/json'
-  }).done(return_data => {
-    this.chosen = this.chosen.concat(ids.diff(this.chosen));
-    this.ids = this.ids.diff(ids);
-
-    $($.map(ids, id => this.element.children('input:hidden[value="' + id + '"]'))).each((index, elem) => $(elem).remove());
-
-    if (this.ids.length == 0) {
-      this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).remove();
-    } else {
-      this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('disabled', false).html(this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).prop('title'));
-    }
-
-    this.updateChosenCounter();
-    this.overlay.find('.items .item .reveal.media-preview').each(function () {
-      if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
-    });
-
-    this.element.find('.object-thumbs .item .reveal.media-preview').each((index, element) => {
-      $(element).foundation();
-    });
   });
 };
 
@@ -266,7 +264,7 @@ ObjectBrowser.prototype.loadMore = function (loaded_ids) {
     data: {
       key: this.object_key,
       complete_key: this.key,
-      language: this.language,
+      locale: this.locale,
       definition: this.definition,
       options: this.options,
       class: this.class,
@@ -291,7 +289,7 @@ ObjectBrowser.prototype.loadDetails = function (id) {
     dataType: 'script',
     data: JSON.stringify({
       type: this.type,
-      language: this.language,
+      locale: this.locale,
       key: this.key,
       definition: this.definition,
       options: this.options,
@@ -376,7 +374,7 @@ ObjectBrowser.prototype.import = function (event) {
         authenticity_token: AUTH_TOKEN,
         type: this.type + "_object",
         data: event.originalEvent.data.data,
-        language: this.language,
+        locale: this.locale,
         key: this.key,
         editable: this.editable,
         definition: this.definition,
@@ -409,7 +407,7 @@ ObjectBrowser.prototype.loadObjects = function (append = true) {
       page: this.page,
       per: this.overlay_per,
       type: this.type,
-      language: this.language,
+      locale: this.locale,
       key: this.key,
       definition: this.definition,
       options: this.options,

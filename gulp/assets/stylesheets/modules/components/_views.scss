@@ -1,30 +1,32 @@
-
 /* Views */
-.views{
-  > div{
+
+.views {
+  >div {
     padding-top: 1rem;
     padding-bottom: 1rem;
   }
-  .view-heading{
+  .view-heading {
     font-size: 1.5rem;
     font-weight: 200;
   }
 }
-.view-icons{
-  .view-icon{
-    a{
-      border:1px solid $dark-gray;
+
+.view-icons {
+  .view-icon {
+    a {
+      border: 1px solid $dark-gray;
       display: inline-block;
       margin-left: 0.6rem;
-      color:$black;
-      &:hover, &.active{
+      color: $black;
+      &:focus,
+      &:hover,
+      &.active {
         color: map-get($foundation-palette, primary);
         border-color: map-get($foundation-palette, primary);
       }
-      i{
+      i {
         font-size: 2rem;
       }
     }
   }
 }
-

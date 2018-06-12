@@ -29,7 +29,6 @@ textarea {
   font-size: 1.2rem;
 }
 
-
 /* Header */
 
 header {
@@ -77,6 +76,7 @@ header {
           margin-left: 0.75rem;
           margin-right: 0;
         }
+        &:focus,
         &:hover {
           color: $light-gray;
         }
@@ -88,6 +88,7 @@ header {
           outline: none;
           background: map-get($foundation-palette, primary);
         }
+        &:focus,
         &:hover {
           background: linear-gradient(to bottom, $black 0%, $black 50%, lighten($black, 10%) 100%);
           box-shadow: inset 0 0 3px 0 rgba(0, 0, 0, 0.7);
@@ -104,7 +105,6 @@ header {
     }
   }
 }
-
 
 /* new object element */
 
@@ -163,6 +163,7 @@ header {
         @include css-triangle(1.5rem, $primary-color, 'down');
       }
     }
+    &:focus,
     &:hover {
       background: $primary-color;
       color: white;
@@ -184,12 +185,14 @@ button.button-prime {
   height: 5rem;
   &.alert {
     background-color: map-get($foundation-palette, alert);
+    &:focus,
     &:hover {
       background-color: lighten(map-get($foundation-palette, alert), 10%);
     }
   }
   &.success {
     background-color: map-get($foundation-palette, success);
+    &:focus,
     &:hover {
       background-color: lighten(map-get($foundation-palette, success), 10%);
     }
@@ -201,6 +204,7 @@ button.button-prime {
     line-height: 5rem;
     font-size: 3rem;
   }
+  &:focus,
   &:hover {
     background-color: lighten($primary-color, 10%);
   }
@@ -217,7 +221,6 @@ button.button-prime {
     }
   }
 }
-
 
 /* Home */
 
