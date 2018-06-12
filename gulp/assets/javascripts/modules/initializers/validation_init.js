@@ -223,10 +223,10 @@ module.exports.initialize = function () {
 
   if ($('.edit-content-form').length > 0) {
     var form_data = [];
-    setTimeout(function () {
+    $(window).on('load', event => {
       update_editors();
       form_data = $('.edit-content-form').serializeArray();
-    }, 1000);
+    });
 
     $(window).on("beforeunload", function () {
       update_editors();
