@@ -27,7 +27,7 @@ require 'cancancan'
 
 # google material icons wrapper
 # TODO: remove
-require 'material_icons'
+# require 'material_icons'
 # pagination
 require 'kaminari'
 # print formatting for e.g. hashes

@@ -59,7 +59,7 @@ Gem::Specification.new do |s|
   # s.add_dependency 'foundation-rails', '~> 6.2.4' # 23.2.17 -> bug in  6.3.0 (prevents precompile the SCSS asset)
   # s.add_dependency 'foundation_rails_helper', '>= 3.0.0.rc2', '< 4.0'
   # google material icons wrapper
-  s.add_dependency 'material_icons'
+  # s.add_dependency 'material_icons'
   # pagination
   s.add_dependency 'kaminari'
   # print formatting for e.g. hashes
