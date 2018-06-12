@@ -14,7 +14,6 @@ module DataCycleCore
 
         raise "Missing source_type for #{self.class}, options given: #{options}"       if options&.dig(:download, :source_type).blank?
         raise "Missing endpoint for #{self.class}, options given: #{options}"          if options&.dig(:download, :endpoint).blank?
-        raise "Missing download_strategy for #{self.class}, options given: #{options}" if options&.dig(:download, :download_strategy).blank?
         raise "Missing external_source for #{self.class}, options given: #{options}"   if options&.dig(:external_source).blank?
 
         @external_source = options[:external_source]

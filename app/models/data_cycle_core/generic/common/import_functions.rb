@@ -119,6 +119,63 @@ module DataCycleCore
           new_hash = load_default_values(config.dig(:default_values)) if config&.dig(:default_values).present?
           new_hash.merge(data_hash)
         end
+
+        def self.import_classification(utility_object, classification_data, parent_classification_alias = nil)
+          if classification_data[:external_id].blank?
+            classification = DataCycleCore::Classification
+              .find_or_initialize_by(
+                external_source_id: utility_object.external_source.id,
+                name: classification_data[:name]
+              )
+          else
+            classification = DataCycleCore::Classification
+              .find_or_initialize_by(
+                external_source_id: utility_object.external_source.id,
+                external_key: classification_data[:external_id]
+              )
+          end
+
+          classification.name = classification_data[:name]
+          classification.external_key = classification_data[:external_id]
+
+          if classification.new_record?
+            classification_alias = DataCycleCore::ClassificationAlias.create!(
+              external_source_id: utility_object.external_source.id,
+              name: classification_data[:name]
+            )
+
+            DataCycleCore::ClassificationGroup.create!(
+              classification: classification,
+              classification_alias: classification_alias,
+              external_source_id: utility_object.external_source.id
+            )
+
+            tree_label = DataCycleCore::ClassificationTreeLabel.find_or_create_by(
+              external_source_id: utility_object.external_source.id,
+              name: classification_data[:tree_name]
+            )
+
+            DataCycleCore::ClassificationTree.create!(
+              {
+                classification_tree_label: tree_label,
+                parent_classification_alias: parent_classification_alias,
+                sub_classification_alias: classification_alias
+              }
+            )
+          else
+            primary_classification_alias = classification.primary_classification_alias
+            primary_classification_alias.name = classification_data[:name]
+            primary_classification_alias.save!
+
+            classification_tree = primary_classification_alias.classification_tree
+            classification_tree.parent_classification_alias = parent_classification_alias
+            classification_tree.save!
+
+            classification_alias = primary_classification_alias
+          end
+          classification.save!
+          classification_alias
+        end
       end
     end
   end
