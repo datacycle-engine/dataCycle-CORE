@@ -121,7 +121,7 @@ module DataCycleCore
                 durations << Benchmark.realtime do
                   item_count += 1
 
-                  process_content.call(content[:dump][locale], locale)
+                  process_content.call(content[:dump][locale], locale, options)
 
                   next unless (item_count % 10).zero?
 

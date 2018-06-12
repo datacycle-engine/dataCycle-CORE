@@ -26,9 +26,12 @@ module DataCycleCore
       end
     end
 
-    def download_single(name, options = {}, &block)
+    def download_single(name, options = {})
       full_options = (default_options || {}).symbolize_keys.merge({ download: download_config.dig(name).symbolize_keys.except(:sorting) }).merge(options.symbolize_keys)
-      DataCycleCore::Generic::Download.new(id).download(full_options, &block)
+      locales = full_options.dig(:locales) || full_options.dig(:download, :locales) || I18n.available_locales
+      utility_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: self, locales: locales))
+      raise "Missing download_strategy for #{name}, options given: #{options}" if full_options.dig(:download, :download_strategy).blank?
+      full_options.dig(:download, :download_strategy).constantize.download_content(utility_object: utility_object, options: full_options)
     end
 
     def download_config
@@ -47,9 +50,12 @@ module DataCycleCore
       end
     end
 
-    def import_single(name, options = {}, &block)
+    def import_single(name, options = {})
       full_options = (default_options || {}).symbolize_keys.merge({ import: import_config.dig(name).symbolize_keys.except(:sorting) }).merge(options.symbolize_keys)
-      DataCycleCore::Generic::Import.new(id).import(full_options, &block)
+      locales = full_options[:locales] || full_options[:import][:locales] || I18n.available_locales
+      utility_object = DataCycleCore::Generic::ImportObject.new(full_options.merge(external_source: self, locales: locales))
+      raise "Missing import_strategy for #{name}, options given: #{options}" if full_options.dig(:import, :import_strategy).blank?
+      full_options.dig(:import, :import_strategy).constantize.import_data(utility_object: utility_object, options: full_options)
     end
 
     def import_config

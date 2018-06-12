@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module Xamoom
       module ImportTags
-        def import_data(**options)
+        def self.import_data(import_object, **options)
           import_contents(method(:load_contents).to_proc, method(:process_content).to_proc, **options)
         end
 
@@ -12,7 +12,7 @@ module DataCycleCore
           mongo_item.where("dump.#{locale}": { '$exists' => true })
         end
 
-        def process_content(raw_data, locale)
+        def process_content(raw_data, locale, options)
           I18n.with_locale(locale) do
             tree_label = options.dig(:import, :transformations, :tags, :tree_label)
             keywords = raw_data.dig('attributes', 'tags') || []

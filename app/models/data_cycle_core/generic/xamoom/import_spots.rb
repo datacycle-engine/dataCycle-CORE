@@ -4,20 +4,37 @@ module DataCycleCore
   module Generic
     module Xamoom
       module ImportSpots
-        include DataCycleCore::Generic::Xamoom::Processing
-
-        def import_data(**options)
-          import_contents(method(:load_contents).to_proc, method(:process_content).to_proc, **options)
+        def self.import_data(utility_object:, options:)
+          DataCycleCore::Generic::Common::ImportFunctions.import_contents(
+            utility_object: utility_object,
+            iterator: method(:load_contents).to_proc,
+            data_processor: method(:process_content).to_proc,
+            options: options
+          )
         end
 
-        def load_contents(mongo_item, locale)
+        def self.load_contents(mongo_item, locale)
           mongo_item.all
         end
 
-        def process_content(raw_data, locale)
+        def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            process_image(raw_data, options.dig(:import, :transformations, :image))
-            process_spot(raw_data, options.dig(:import, :transformations, :spot))
+            if raw_data&.dig('attributes', 'image').present?
+              DataCycleCore::Generic::Common::ImportFunctions.process_step(
+                utility_object: utility_object,
+                raw_data: raw_data,
+                transformation: DataCycleCore::Generic::Xamoom::Transformations.xamoom_to_image,
+                default: { content_type: DataCycleCore::CreativeWork, template: 'Bild' },
+                config: options.dig(:import, :transformations, :image)
+              )
+            end
+            DataCycleCore::Generic::Common::ImportFunctions.process_step(
+              utility_object: utility_object,
+              raw_data: raw_data,
+              transformation: DataCycleCore::Generic::Xamoom::Transformations.xamoom_to_poi(utility_object.external_source.id),
+              default: { content_type: DataCycleCore::Place, template: 'Örtlichkeit' },
+              config: options.dig(:import, :transformations, :spot)
+            )
           end
         end
       end
