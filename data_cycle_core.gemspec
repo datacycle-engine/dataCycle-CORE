@@ -26,12 +26,9 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '~> 2.4.3'
 
   # rails
-  s.add_dependency 'jquery-rails'
+  # s.add_dependency 'jquery-rails'
   s.add_dependency 'rails', '~> 5.1.6'
   s.add_dependency 'rake'
-  # s.add_dependency 'sass-rails', '~> 5.0'
-  # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
-  # s.add_dependency 'turbolinks', '~> 5'
   # database
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'
@@ -54,12 +51,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'devise'
   # authorization
   s.add_dependency 'cancancan'
-  # foundation helper
-  # s.add_dependency 'devise-foundation-views'
-  # s.add_dependency 'foundation-rails', '~> 6.2.4' # 23.2.17 -> bug in  6.3.0 (prevents precompile the SCSS asset)
-  # s.add_dependency 'foundation_rails_helper', '>= 3.0.0.rc2', '< 4.0'
-  # google material icons wrapper
-  # s.add_dependency 'material_icons'
   # pagination
   s.add_dependency 'kaminari'
   # print formatting for e.g. hashes

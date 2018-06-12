@@ -2,9 +2,6 @@
 
 # rails essentials
 require 'rails'
-# require 'sass-rails'
-# require 'turbolinks'
-# require 'jquery-rails'
 
 # Databases
 require 'pg'
@@ -20,14 +17,6 @@ require 'devise'
 # authorization
 require 'cancancan'
 
-# foundation helper
-# require 'foundation-rails'
-# require 'foundation_rails_helper'
-# require 'devise-foundation-views'
-
-# google material icons wrapper
-# TODO: remove
-# require 'material_icons'
 # pagination
 require 'kaminari'
 # print formatting for e.g. hashes
@@ -212,8 +201,6 @@ module DataCycleCore
     # Make Ruby 2.4 preserve the timezone of the receiver when calling `to_time`.
     # Previous versions had false.
     ActiveSupport.to_time_preserves_timezone = true
-    # Do not halt callback chains when a callback returns false. Previous versions had true.
-    #ActiveSupport.halt_callback_chains_on_return_false = false
     # Enable parameter wrapping for JSON. You can disable this by setting :format to an empty array.
     ActiveSupport.on_load(:action_controller) do
       wrap_parameters format: [:json]
