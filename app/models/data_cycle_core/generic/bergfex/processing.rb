@@ -4,19 +4,13 @@ module DataCycleCore
   module Generic
     module Bergfex
       module Processing
-        def process_lakes(raw_data, config)
-          type = config.dig(:content_type).constantize || DataCycleCore::Place
-          template = config.dig(:template) || 'See'
-
-          create_or_update_content(
-            type,
-            load_template(type, template),
-            merge_default_values(
-              config,
-              DataCycleCore::Generic::Bergfex::Transformations
-              .bergfex_to_see
-              .call(raw_data)
-            ).with_indifferent_access
+        def self.process_lake(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Bergfex::Transformations.bergfex_to_see,
+            default: { content_type: DataCycleCore::Place, template: 'See' },
+            config: config
           )
         end
       end

@@ -19,21 +19,15 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            if raw_data&.dig('attributes', 'image').present?
-              DataCycleCore::Generic::Common::ImportFunctions.process_step(
-                utility_object: utility_object,
-                raw_data: raw_data,
-                transformation: DataCycleCore::Generic::Xamoom::Transformations.xamoom_to_image,
-                default: { content_type: DataCycleCore::CreativeWork, template: 'Bild' },
-                config: options.dig(:import, :transformations, :image)
-              )
-            end
-            DataCycleCore::Generic::Common::ImportFunctions.process_step(
-              utility_object: utility_object,
-              raw_data: raw_data,
-              transformation: DataCycleCore::Generic::Xamoom::Transformations.xamoom_to_poi(utility_object.external_source.id),
-              default: { content_type: DataCycleCore::Place, template: 'Örtlichkeit' },
-              config: options.dig(:import, :transformations, :spot)
+            DataCycleCore::Generic::Xamoom::Processing.process_image(
+              utility_object,
+              raw_data,
+              options.dig(:import, :transformations, :image)
+            )
+            DataCycleCore::Generic::Xamoom::Processing.process_spot(
+              utility_object,
+              raw_data,
+              options.dig(:import, :transformations, :spot)
             )
           end
         end

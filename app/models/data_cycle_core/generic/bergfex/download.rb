@@ -4,8 +4,13 @@ module DataCycleCore
   module Generic
     module Bergfex
       module Download
-        def download_content(**options)
-          download_data(->(data) { data['id'] }, ->(data) { data['name'] }, options)
+        def self.download_content(utility_object:, options:)
+          DataCycleCore::Generic::Common::DownloadFunctions.download_data(
+            download_object: utility_object,
+            data_id: ->(data) { data['id'] },
+            data_name: ->(data) { data['name'] },
+            options: options
+          )
         end
       end
     end

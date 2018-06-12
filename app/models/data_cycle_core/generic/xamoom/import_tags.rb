@@ -22,7 +22,11 @@ module DataCycleCore
             tree_label = options.dig(:import, :transformations, :tags, :tree_label)
             keywords = raw_data.dig('attributes', 'tags') || []
             keywords.each do |item|
-              DataCycleCore::Generic::Common::ImportFunctions.import_classification(utility_object, { name: item, external_id: "Xamoom - tag - #{item}", tree_name: tree_label })
+              DataCycleCore::Generic::Common::ImportFunctions.import_classification(
+                utility_object: utility_object,
+                classification_data: { name: item, external_key: "Xamoom - tag - #{item}", tree_name: tree_label },
+                parent_classification_alias: nil
+              )
             end
           end
         end

@@ -13,7 +13,8 @@ module DataCycleCore
           .>> t(:reject_keys, ['quality_256', 'quality_1024', 'picturepins', 'ordnerstruktur'])
           .>> t(:unwrap, 'quality_1', ['resolution_x', 'resolution_y', 'size_mb'])
           .>> t(:add_field, 'external_key', ->(s) { s.dig('item_id', 'text') })
-          .>> t(:add_field, 'headline', ->(s) { s.dig('headline', '#cdata-section') })
+          .>> t(:add_field, 'description', ->(s) { s.dig('beschreibung', '#cdata-section') })
+          .>> t(:add_field, 'headline', ->(s) { s.dig('titel', '#cdata-section') })
           .>> t(:add_field, 'photographer', ->(s) { s.dig('field_202', '#cdata-section') })
           .>> t(:add_field, 'license', ->(s) { s.dig('copyright', '#cdata-section') })
           .>> t(:add_field, 'restrictions', ->(s) { s.dig('field_216', '#cdata-section') })
@@ -55,7 +56,7 @@ module DataCycleCore
         end
 
         def self.parse_keywords(s)
-          [s.dig('field_204', 'text')&.split(','), s.dig('field_215', 'text')&.split(',')].flatten.reject(&:nil?).map(&:strip).uniq || []
+          [s.dig('field_204', '#cdata-section')&.split(','), s.dig('field_215', '#cdata-section')&.split(',')].flatten.reject(&:nil?).map(&:strip).uniq || []
         end
       end
     end

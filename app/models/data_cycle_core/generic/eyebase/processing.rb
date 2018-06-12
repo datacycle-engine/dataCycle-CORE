@@ -4,19 +4,13 @@ module DataCycleCore
   module Generic
     module Eyebase
       module Processing
-        def process_media_asset(raw_data, config)
-          type = config.dig('content_type').constantize || DataCycleCore::CreativeWork
-          template = config.dig(:template) || 'Bild'
-
-          create_or_update_content(
-            type,
-            load_template(type, template),
-            merge_default_values(
-              config,
-              DataCycleCore::Generic::Eyebase::Transformations
-              .eyebase_to_bild(external_source.id)
-              .call(raw_data)
-            ).with_indifferent_access
+        def self.process_media_asset(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Eyebase::Transformations.eyebase_to_bild(utility_object.external_source.id),
+            default: { content_type: DataCycleCore::CreativeWork, template: 'Bild' },
+            config: config
           )
         end
       end
