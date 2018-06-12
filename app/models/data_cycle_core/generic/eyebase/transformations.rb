@@ -23,8 +23,7 @@ module DataCycleCore
           .>> t(:add_field, 'content_size', ->(s) { s.dig('size_mb', 'text')&.gsub(',', '.')&.to_f&.*(1024)&.*(1024).to_i })
           .>> t(:reject_keys, ['item_id', 'titel', 'field_202', 'copyright', 'field_216', 'resolution_x', 'resolution_y', 'size_mb'])
           .>> t(
-            :add_field,
-            'content_url',
+            :add_field, 'content_url',
             lambda do |s|
               begin
                 File.join("#{(ActionMailer::Base.default_url_options[:protocol] + '://') if ActionMailer::Base.default_url_options[:protocol].present?}#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', s.dig('quality_1', 'filename', 'text'))
@@ -34,8 +33,7 @@ module DataCycleCore
             end
           )
           .>> t(
-            :add_field,
-            'thumbnail_url',
+            :add_field, 'thumbnail_url',
             lambda do |s|
               begin
                 File.join("#{(ActionMailer::Base.default_url_options[:protocol] + '://') if ActionMailer::Base.default_url_options[:protocol].present?}#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', s.dig('quality_512', 'filename', 'text'))
