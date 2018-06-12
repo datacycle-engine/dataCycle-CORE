@@ -20,7 +20,7 @@ gemspec
 gem 'dotenv-rails'
 
 group :development, :test, :review do
-  gem 'listen', '~> 3.0.5'
+  gem 'listen'
   gem 'spring'
 
   gem 'byebug'

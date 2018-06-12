@@ -98,7 +98,7 @@ module DataCycleCore
     private
 
     def update_primary_classification
-      return unless changed.include?('name')
+      return unless saved_change_to_attribute?('name')
       primary_classification.tap do |c|
         c.name = name
         c.save!

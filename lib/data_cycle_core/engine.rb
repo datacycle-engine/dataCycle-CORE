@@ -213,7 +213,7 @@ module DataCycleCore
     # Previous versions had false.
     ActiveSupport.to_time_preserves_timezone = true
     # Do not halt callback chains when a callback returns false. Previous versions had true.
-    ActiveSupport.halt_callback_chains_on_return_false = false
+    #ActiveSupport.halt_callback_chains_on_return_false = false
     # Enable parameter wrapping for JSON. You can disable this by setting :format to an empty array.
     ActiveSupport.on_load(:action_controller) do
       wrap_parameters format: [:json]
