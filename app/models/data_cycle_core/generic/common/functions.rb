@@ -92,14 +92,13 @@ module DataCycleCore
         end
 
         def self.add_links(data_hash, attribute, content_type, external_source_id, key_function)
-          return if key_function.call(data_hash).blank?
           data_hash.merge(
             {
               attribute =>
                 content_type.where(
                   external_source_id: external_source_id,
                   external_key: key_function.call(data_hash)
-                )&.ids&.compact&.presence
+                )&.ids&.compact&.presence || []
             }
           )
         end
