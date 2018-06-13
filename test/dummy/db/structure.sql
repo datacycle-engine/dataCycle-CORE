@@ -29,7 +29,7 @@ CREATE TABLE public.ar_internal_metadata (
 --
 
 CREATE TABLE public.asset_contents (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     content_data_id uuid,
     content_data_type character varying,
     asset_id uuid,
@@ -46,7 +46,7 @@ CREATE TABLE public.asset_contents (
 --
 
 CREATE TABLE public.assets (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     file character varying,
     type character varying,
     content_type character varying,
@@ -64,7 +64,7 @@ CREATE TABLE public.assets (
 --
 
 CREATE TABLE public.classification_aliases (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
@@ -81,7 +81,7 @@ CREATE TABLE public.classification_aliases (
 --
 
 CREATE TABLE public.classification_tree_labels (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name character varying,
     external_source_id uuid,
     seen_at timestamp without time zone,
@@ -97,7 +97,7 @@ CREATE TABLE public.classification_tree_labels (
 --
 
 CREATE TABLE public.classification_trees (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     external_source_id uuid,
     parent_classification_alias_id uuid,
     classification_alias_id uuid,
@@ -145,7 +145,7 @@ CREATE VIEW public.classification_alias_paths AS
 --
 
 CREATE TABLE public.classification_content_histories (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     content_data_history_id uuid,
     content_data_history_type character varying,
     classification_id uuid,
@@ -164,7 +164,7 @@ CREATE TABLE public.classification_content_histories (
 --
 
 CREATE TABLE public.classification_contents (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     content_data_id uuid,
     content_data_type character varying,
     classification_id uuid,
@@ -183,7 +183,7 @@ CREATE TABLE public.classification_contents (
 --
 
 CREATE TABLE public.classification_groups (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     classification_id uuid,
     classification_alias_id uuid,
     external_source_id uuid,
@@ -199,7 +199,7 @@ CREATE TABLE public.classification_groups (
 --
 
 CREATE TABLE public.classifications (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name character varying,
     external_source_id uuid,
     external_key character varying,
@@ -220,7 +220,7 @@ CREATE TABLE public.classifications (
 --
 
 CREATE TABLE public.content_content_histories (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     content_a_history_id uuid,
     content_a_history_type character varying,
     relation_a character varying,
@@ -240,7 +240,7 @@ CREATE TABLE public.content_content_histories (
 --
 
 CREATE TABLE public.content_contents (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     content_a_id uuid,
     content_a_type character varying,
     relation_a character varying,
@@ -259,7 +259,7 @@ CREATE TABLE public.content_contents (
 --
 
 CREATE TABLE public.data_links (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     item_id uuid,
     item_type character varying,
     creator_id uuid,
@@ -280,7 +280,7 @@ CREATE TABLE public.data_links (
 --
 
 CREATE TABLE public.watch_list_data_hashes (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     watch_list_id uuid,
     hashable_id uuid,
     hashable_type character varying,
@@ -318,7 +318,7 @@ UNION
 --
 
 CREATE TABLE public.creative_works (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     "position" integer DEFAULT 0,
     is_part_of uuid,
     metadata jsonb,
@@ -338,7 +338,7 @@ CREATE TABLE public.creative_works (
 --
 
 CREATE TABLE public.events (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     start_date timestamp without time zone,
     end_date timestamp without time zone,
     metadata jsonb,
@@ -358,7 +358,7 @@ CREATE TABLE public.events (
 --
 
 CREATE TABLE public.organizations (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     metadata jsonb,
     template boolean DEFAULT false NOT NULL,
     seen_at timestamp without time zone,
@@ -376,7 +376,7 @@ CREATE TABLE public.organizations (
 --
 
 CREATE TABLE public.persons (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     given_name character varying,
     family_name character varying,
     metadata jsonb,
@@ -396,7 +396,7 @@ CREATE TABLE public.persons (
 --
 
 CREATE TABLE public.places (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     external_source_id uuid,
     external_key character varying,
     longitude double precision,
@@ -478,7 +478,7 @@ UNION
 --
 
 CREATE TABLE public.creative_work_histories (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     creative_work_id uuid,
     "position" integer,
     is_part_of uuid,
@@ -618,7 +618,7 @@ ALTER SEQUENCE public.delayed_jobs_id_seq OWNED BY public.delayed_jobs.id;
 --
 
 CREATE TABLE public.event_histories (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     event_id uuid,
     start_date timestamp without time zone,
     end_date timestamp without time zone,
@@ -717,7 +717,7 @@ ALTER SEQUENCE public.event_translations_id_seq OWNED BY public.event_translatio
 --
 
 CREATE TABLE public.external_sources (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name character varying,
     credentials jsonb,
     config jsonb,
@@ -732,7 +732,7 @@ CREATE TABLE public.external_sources (
 --
 
 CREATE TABLE public.organization_histories (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     organization_id uuid NOT NULL,
     metadata jsonb,
     template boolean DEFAULT false NOT NULL,
@@ -752,7 +752,7 @@ CREATE TABLE public.organization_histories (
 --
 
 CREATE TABLE public.organization_history_translations (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     organization_history_id uuid NOT NULL,
     locale character varying NOT NULL,
     content jsonb,
@@ -772,7 +772,7 @@ CREATE TABLE public.organization_history_translations (
 --
 
 CREATE TABLE public.organization_translations (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     organization_id uuid NOT NULL,
     locale character varying NOT NULL,
     content jsonb,
@@ -791,7 +791,7 @@ CREATE TABLE public.organization_translations (
 --
 
 CREATE TABLE public.person_histories (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     person_id uuid,
     given_name character varying,
     family_name character varying,
@@ -890,7 +890,7 @@ ALTER SEQUENCE public.person_translations_id_seq OWNED BY public.person_translat
 --
 
 CREATE TABLE public.place_histories (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     place_id uuid,
     external_key character varying,
     longitude double precision,
@@ -1007,7 +1007,7 @@ ALTER SEQUENCE public.place_translations_id_seq OWNED BY public.place_translatio
 --
 
 CREATE TABLE public.releases (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     release_code integer,
     release_text character varying
 );
@@ -1018,7 +1018,7 @@ CREATE TABLE public.releases (
 --
 
 CREATE TABLE public.roles (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name character varying,
     rank integer,
     created_at timestamp without time zone NOT NULL,
@@ -1040,7 +1040,7 @@ CREATE TABLE public.schema_migrations (
 --
 
 CREATE TABLE public.searches (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     content_data_id uuid,
     content_data_type character varying,
     locale character varying,
@@ -1062,7 +1062,7 @@ CREATE TABLE public.searches (
 --
 
 CREATE TABLE public.stored_filters (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name character varying,
     user_id uuid,
     language character varying,
@@ -1080,7 +1080,7 @@ CREATE TABLE public.stored_filters (
 --
 
 CREATE TABLE public.subscriptions (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     user_id uuid,
     subscribable_id uuid,
     subscribable_type character varying,
@@ -1094,7 +1094,7 @@ CREATE TABLE public.subscriptions (
 --
 
 CREATE TABLE public.use_cases (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     user_id uuid,
     external_source_id uuid,
     created_at timestamp without time zone NOT NULL,
@@ -1107,7 +1107,7 @@ CREATE TABLE public.use_cases (
 --
 
 CREATE TABLE public.user_group_users (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     user_group_id uuid,
     user_id uuid,
     seen_at timestamp without time zone,
@@ -1121,7 +1121,7 @@ CREATE TABLE public.user_group_users (
 --
 
 CREATE TABLE public.user_groups (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
@@ -1134,7 +1134,7 @@ CREATE TABLE public.user_groups (
 --
 
 CREATE TABLE public.users (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     given_name character varying DEFAULT ''::character varying NOT NULL,
     admin boolean DEFAULT false NOT NULL,
     email character varying DEFAULT ''::character varying NOT NULL,
@@ -1165,7 +1165,7 @@ CREATE TABLE public.users (
 --
 
 CREATE TABLE public.watch_lists (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     headline character varying,
     user_id uuid,
     seen_at timestamp without time zone,
