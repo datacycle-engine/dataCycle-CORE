@@ -342,7 +342,7 @@ ObjectBrowser.prototype.openOverlay = function (ev) {
     this.overlay.foundation("close");
   });
 
-  $(window).on('message onmessage', this.import.bind(this));
+  $(window).on('message.object_browser onmessage.object_browser', this.import.bind(this));
 
   let loaded = $.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id'));
 
@@ -359,7 +359,7 @@ ObjectBrowser.prototype.closeOverlay = function (ev) {
   var text = $(".breadcrumb ul li:last-child a.close-object-browser").html();
   $(".breadcrumb ul li:last-child").html(text);
   $(".breadcrumb ul li").off("click");
-  $(window).off('message onmessage', this.import.bind(this));
+  $(window).off('message.object_browser onmessage.object_browser');
 };
 
 ObjectBrowser.prototype.import = function (event) {
