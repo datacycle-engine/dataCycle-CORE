@@ -35,33 +35,40 @@
 
         <% if @user.is_a?(DataCycleCore::UserOrganization) %>
           <div class="form-element input">
+              <%= f.label :name %>
               <%= f.text_field :name, readonly: @user.external %>
           </div>
         <% else %>
           <div class="form-element input">
+              <%= f.label :given_name %>
               <%= f.text_field :given_name, readonly: @user.external %>
           </div>
 
           <div class="form-element input">
+              <%= f.label :family_name %>
               <%= f.text_field :family_name, readonly: @user.external %>
           </div>
         <% end %>
 
         <div class="form-element input">
+            <%= f.label :email %>
             <%= f.email_field :email, required: true, readonly: @user.external %>
         </div>
 
         <% unless @user.external %>
           <div class="form-element input">
+              <%= f.label :password %>
               <%= f.password_field :password, autocomplete: 'off' %>
           </div>
 
           <div class="form-element input">
+              <%= f.label :password_confirmation %>
               <%= f.password_field :password_confirmation, autocomplete: 'off' %>
           </div>
 
           <% if current_user == @user %>
             <div class="form-element input">
+                <%= f.label :current_password %>
                 <%= f.password_field :current_password %>
             </div>
           <% end %>
@@ -76,6 +83,7 @@
 
         <% if can? :set_role, @user %>
           <div class="form-element">
+              <%= f.label :role_id %>
               <%= f.select :role_id, DataCycleCore::Role.where('rank <= ?', current_user.role.try(:rank)).collect{|r| [t('roles.'+r.name, locale: DataCycleCore.ui_language), r.id]}, {}, class: "with-label" %>
           </div>
         <% end %>

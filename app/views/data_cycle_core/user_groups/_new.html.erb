@@ -6,6 +6,7 @@
     <%= form_for @user_group do |f| %>
 
       <div class="form-element validation-container">
+          <%= f.label :name %>
           <%= f.text_field :name, required: true %>
       </div>
 

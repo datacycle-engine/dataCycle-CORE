@@ -46,13 +46,15 @@
                       <%= form_for(stored_search, namespace: stored_search.id) do |f| %>
                         <div class="form-element">
                           <%= f.check_box :api %>
+                            <%= f.label :api %>
                         </div>
                         <div class="form-element">
                           <div class="v-select">
+                            <%= f.label :api_users %>
                             <%= f.collection_select(:api_users, DataCycleCore::User.all, :id, :email, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
                           </div>
                         </div>
-                        <%= f.submit t('actions.save', locale: DataCycleCore.ui_language), data: { disable_with: t('actions.save', locale: DataCycleCore.ui_language) } %>
+                        <%= f.submit t('actions.save', locale: DataCycleCore.ui_language), data: { disable_with: t('actions.save', locale: DataCycleCore.ui_language) }, class: "success button" %>
                       <% end %>
                       <button class="close-button" data-close aria-label="Close modal" type="button">
                         <span aria-hidden="true">&times;</span>
