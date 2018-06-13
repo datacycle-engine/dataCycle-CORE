@@ -81,7 +81,7 @@
         <h5><%= t('data_cycle_core.administration', locale: DataCycleCore.ui_language) %></h5>
       </div>
 
-      <% if can? :manage, DataCycleCore::Classification %>
+      <% if can? :index, DataCycleCore::Classification %>
         <div class="row columns">
           <%= link_to classifications_path, class: 'classifications-link' do %>
             <span class="icon"><i class="fa fa-sitemap" aria-hidden="true"></i></span>
