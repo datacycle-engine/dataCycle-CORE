@@ -335,6 +335,7 @@
   margin: 7.9rem 0 0 0 !important;
   outline: none;
   padding: 0;
+  z-index: initial;
   .draggable-handle {
     display: none;
   }
@@ -560,8 +561,8 @@
     }
     .edit-link {
       position: absolute;
-      right: 1rem;
-      top: 3.5rem;
+      right: 1.5rem;
+      top: 1.5rem;
     }
     .fa-exclamation-triangle {
       color: $warning-color;

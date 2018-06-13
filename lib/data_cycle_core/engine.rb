@@ -138,6 +138,9 @@ module DataCycleCore
     mattr_accessor :linked_objects_page_size
     self.linked_objects_page_size = 5
 
+    mattr_accessor :max_asynch_classification_items
+    self.max_asynch_classification_items = 50
+
     # webhooks
     mattr_accessor :webhooks
     self.webhooks = {
