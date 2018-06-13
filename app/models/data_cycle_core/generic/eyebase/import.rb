@@ -19,6 +19,13 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
+            DataCycleCore::Generic::Eyebase::ImportKeywords.process_content(
+              utility_object: utility_object,
+              raw_data: raw_data,
+              locale: locale,
+              options: utility_object.external_source.config.dig('import_config', 'keywords')
+            )
+
             DataCycleCore::Generic::Eyebase::Processing.process_media_asset(
               utility_object,
               raw_data,

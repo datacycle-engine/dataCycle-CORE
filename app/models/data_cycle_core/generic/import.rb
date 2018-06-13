@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# TODO: delete after refactor !!
 module DataCycleCore
   module Generic
     class Import < ImportBase
