@@ -13,8 +13,8 @@ module DataCycleCore
           )
         end
 
-        def self.load_contents(mongo_item, locale)
-          mongo_item.all
+        def self.load_contents(mongo_item, locale, source_filter)
+          mongo_item.where(source_filter).all
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
@@ -24,7 +24,7 @@ module DataCycleCore
               utility_object: utility_object,
               raw_data: raw_data,
               locale: locale,
-              options: utility_object.external_source.config.dig('import_config', 'tags')
+              options: { import: utility_object.external_source.config.dig('import_config', 'tags').deep_symbolize_keys }
             )
 
             DataCycleCore::Generic::Xamoom::Processing.process_image(

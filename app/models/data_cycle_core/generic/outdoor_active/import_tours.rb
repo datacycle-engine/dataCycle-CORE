@@ -4,23 +4,52 @@ module DataCycleCore
   module Generic
     module OutdoorActive
       module ImportTours
-        include DataCycleCore::Generic::OutdoorActive::Processing
-
-        def import_data(**options)
-          @source_filter = options.dig(:import, :source_filter) || {}
-          import_contents(method(:load_contents).to_proc, method(:process_content).to_proc, **options)
+        def self.import_data(utility_object:, options:)
+          DataCycleCore::Generic::Common::ImportFunctions.import_contents(
+            utility_object: utility_object,
+            iterator: method(:load_contents).to_proc,
+            data_processor: method(:process_content).to_proc,
+            options: options
+          )
         end
 
-        protected
-
-        def load_contents(mongo_item, locale)
-          mongo_item.where(@source_filter.merge("dump.#{locale}.frontendtype" => 'tour'))
+        def self.load_contents(mongo_item, locale, source_filter)
+          mongo_item.where(source_filter.merge("dump.#{locale}.frontendtype" => 'tour'))
         end
 
-        def process_content(raw_data, locale)
+        def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            process_image(raw_data, options.dig(:import, :transformations, :image))
-            process_tour(raw_data, options.dig(:import, :transformations, :tour))
+            DataCycleCore::Generic::Common::ImportTags.process_content(
+              utility_object: utility_object,
+              raw_data: raw_data,
+              locale: locale,
+              options: { import: utility_object.external_source.config.dig('import_config', 'source_tours').deep_symbolize_keys }
+            )
+
+            DataCycleCore::Generic::Common::ImportTags.process_content(
+              utility_object: utility_object,
+              raw_data: raw_data,
+              locale: locale,
+              options: { import: utility_object.external_source.config.dig('import_config', 'frontendtype_tours').deep_symbolize_keys }
+            )
+
+            DataCycleCore::Generic::Common::ImportTags.process_content(
+              utility_object: utility_object,
+              raw_data: raw_data,
+              locale: locale,
+              options: { import: utility_object.external_source.config.dig('import_config', 'tag_tours').deep_symbolize_keys }
+            )
+
+            DataCycleCore::Generic::OutdoorActive::Processing.process_image(
+              utility_object,
+              raw_data,
+              options.dig(:import, :transformations, :image)
+            )
+            DataCycleCore::Generic::OutdoorActive::Processing.process_tour(
+              utility_object,
+              raw_data,
+              options.dig(:import, :transformations, :tour)
+            )
           end
         end
       end

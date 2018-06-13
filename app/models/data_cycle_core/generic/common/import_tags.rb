@@ -4,34 +4,26 @@ module DataCycleCore
   module Generic
     module Common
       module ImportTags
-        def import_data(**options)
+        def self.import_data(utility_object:, options:)
           raise 'Missing configuration attribute "tree_label"' if options.dig(:import, :tree_label).blank?
           raise 'Missing configuration attribute "tag_id_path"' if options.dig(:import, :tag_id_path).blank?
           raise 'Missing configuration attribute "tag_name_path"' if options.dig(:import, :tag_name_path).blank?
 
-          import_classifications(
-            source_type,
+          DataCycleCore::Generic::Common::ImportFunctions.import_classifications(
+            utility_object,
             options.dig(:import, :tree_label),
             method(:load_root_classifications).to_proc,
             ->(_, _, _) { [] },
             ->(_) { nil },
             method(:extract_data).to_proc,
-            **options
+            options
           )
         end
 
-        protected
-
-        def load_root_classifications(mongo_item, locale)
-          common_tag_path = options.dig(:import, :tag_id_path).split('.')
-            .zip(options.dig(:import, :tag_name_path).split('.'))
-            .take_while { |id_component, name_component| id_component == name_component }
-            .map(&:first)
-            .join('.')
-
+        def self.load_root_classifications(mongo_item, locale, options)
           mongo_item.collection.aggregate(mongo_item.where(:_id.ne => nil)
             .unwind(
-              "dump.#{locale}.#{common_tag_path}"
+              "dump.#{locale}.#{parse_common_tag_path(options).join('.')}"
             ).project(
               "dump.#{locale}.id": "$dump.#{locale}.#{options.dig(:import, :tag_id_path)}",
               "dump.#{locale}.tag": "$dump.#{locale}.#{options.dig(:import, :tag_name_path)}"
@@ -41,7 +33,7 @@ module DataCycleCore
             ).pipeline)
         end
 
-        def extract_data(raw_data)
+        def self.extract_data(options, raw_data)
           external_id =
             case options.dig(:import, :external_id_hash_method)
             when 'MD5'
@@ -51,9 +43,50 @@ module DataCycleCore
             end
 
           {
-            external_id: "#{options.dig(:import, :external_id_prefix)}#{external_id}",
+            external_key: "#{options.dig(:import, :external_id_prefix)}#{external_id}",
             name: raw_data['tag']
           }
+        end
+
+        def self.process_content(utility_object:, raw_data:, locale:, options:)
+          I18n.with_locale(locale) do
+            tree_label = options.dig(:import, :tree_label)
+            common_path = parse_common_tag_path(options)
+
+            tag_id_path = options.dig(:import, :tag_id_path).split('.')
+            tag_name_path = options.dig(:import, :tag_name_path).split('.')
+            if options.dig(:import, :tag_name_path) == options.dig(:import, :tag_id_path) || common_path.size == options.dig(:import, :tag_id_path).split('.').size
+              keywords = [raw_data]
+            else
+              keywords = raw_data&.dig(*common_path)
+              keywords = [keywords] unless keywords.is_a?(::Array)
+              tag_id_path -= common_path
+              tag_name_path -= common_path
+            end
+            return if keywords.compact.empty?
+
+            keywords.each do |keyword_hash|
+              classification_data = extract_data(
+                options,
+                {
+                  'id' => keyword_hash.dig(*tag_id_path),
+                  'tag' => keyword_hash.dig(*tag_name_path)
+                }
+              ).merge(tree_name: tree_label)
+              DataCycleCore::Generic::Common::ImportFunctions.import_classification(
+                utility_object: utility_object,
+                classification_data: classification_data,
+                parent_classification_alias: nil
+              )
+            end
+          end
+        end
+
+        def self.parse_common_tag_path(options)
+          options.dig(:import, :tag_id_path).split('.')
+            .zip(options.dig(:import, :tag_name_path).split('.'))
+            .take_while { |id_component, name_component| id_component == name_component }
+            .map(&:first)
         end
       end
     end

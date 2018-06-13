@@ -13,8 +13,8 @@ module DataCycleCore
           )
         end
 
-        def self.load_contents(mongo_item, locale)
-          mongo_item.where("dump.#{locale}": { '$exists' => true })
+        def self.load_contents(mongo_item, locale, source_filter)
+          mongo_item.where(source_filter.merge("dump.#{locale}": { '$exists' => true }))
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)

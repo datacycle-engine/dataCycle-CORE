@@ -13,11 +13,12 @@ module DataCycleCore
             fixnum_max = (2**(0.size * 4 - 2) - 1)
             begin
               utility_object.logging.phase_started("#{phase_name}_#{locale}")
+              source_filter = options&.dig(:import, :source_filter) || {}
 
               durations = []
 
               utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                iterator.call(mongo_item, locale).all.no_timeout.max_time_ms(fixnum_max).each do |content|
+                iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max).each do |content|
                   durations << Benchmark.realtime do
                     item_count += 1
 
@@ -120,8 +121,8 @@ module DataCycleCore
           new_hash.merge(data_hash)
         end
 
-        def import_classifications(utility_object, tree_name, load_root_classifications, load_child_classifications,
-                                   load_parent_classification_alias, extract_data, options)
+        def self.import_classifications(utility_object, tree_name, load_root_classifications, load_child_classifications,
+                                        load_parent_classification_alias, extract_data, options)
           raise ArgumentError('tree_name cannot be blank') if tree_name.blank?
 
           around_import(utility_object, **options) do |locale|
@@ -133,7 +134,7 @@ module DataCycleCore
               utility_object.logging.phase_started("#{phase_name}_#{locale}")
 
               utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                raw_classification_data_stack = load_root_classifications.call(mongo_item, locale).to_a
+                raw_classification_data_stack = load_root_classifications.call(mongo_item, locale, options).to_a
 
                 while (raw_classification_data = raw_classification_data_stack.pop&.dig('dump', locale))
                   item_count += 1

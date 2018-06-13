@@ -4,15 +4,16 @@ module DataCycleCore
   module Generic
     module OutdoorActive
       module Processing
-        def process_image(raw_data, config)
+        def self.process_image(utility_object, raw_data, config)
           type = config&.dig(:content_type)&.constantize || DataCycleCore::CreativeWork
           template = config&.dig(:template) || 'Bild'
 
           (raw_data.dig('images', 'image') || []).each do |image_hash|
-            create_or_update_content(
-              type,
-              load_template(type, template),
-              merge_default_values(
+            DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
+              utility_object: utility_object,
+              class_type: type,
+              template: DataCycleCore::Generic::Common::ImportFunctions.load_template(type, template),
+              data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
                 config,
                 DataCycleCore::Generic::OutdoorActive::Transformations
                 .outdoor_active_to_image
@@ -22,19 +23,23 @@ module DataCycleCore
           end
         end
 
-        def process_tour(raw_data, config)
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::Place
-          template = config&.dig(:template) || 'Tour'
+        def self.process_tour(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::OutdoorActive::Transformations.outdoor_active_to_tour(utility_object.external_source.id),
+            default: { content_type: DataCycleCore::Place, template: 'Tour' },
+            config: config
+          )
+        end
 
-          create_or_update_content(
-            type,
-            load_template(type, template),
-            merge_default_values(
-              config,
-              DataCycleCore::Generic::OutdoorActive::Transformations
-              .outdoor_active_to_tour(external_source.id)
-              .call(raw_data)
-            ).with_indifferent_access
+        def self.process_place(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::OutdoorActive::Transformations.outdoor_active_to_place(utility_object.external_source.id),
+            default: { content_type: DataCycleCore::Place, template: 'Örtlichkeit' },
+            config: config
           )
         end
       end
