@@ -1,7 +1,7 @@
 // Configure Iframe Events
 module.exports.initialize = function () {
 
-  $(window).on('message onmessage', function (event) {
+  $(window).on('message onmessage', event => {
     if ($('#new_image_iframe:visible iframe, #new_video_iframe:visible iframe').length > 0) {
       $('iframe:visible').closest('.reveal').foundation('close');
 
@@ -19,5 +19,10 @@ module.exports.initialize = function () {
         });
       }
     }
+
+    if ($('#content-upload-reveal').length && event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'open-upload-form') {
+      $('#content-upload-reveal').foundation('open');
+    }
   });
+
 };
