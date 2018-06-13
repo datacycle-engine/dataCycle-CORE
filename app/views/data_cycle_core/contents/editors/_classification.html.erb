@@ -1,13 +1,14 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
-    
+
   <%= label_tag(key, definition['label']) %>
 
   <div class="v-select">
-      <% classification_items = DataCycleCore::ClassificationTreeLabel.find_by(name: definition['tree_label'])&.classification_trees&.includes(:sub_classification_alias)&.where(parent_classification_alias: nil) %>
+      <% classification_items = DataCycleCore::ClassificationTreeLabel.find_by(name: definition['tree_label'])&.classification_trees&.includes(:parent_classification_alias, sub_classification_alias: [:classifications, sub_classification_alias: [:classifications, sub_classification_alias: [:classifications, :sub_classification_alias]]]) %>
+      <%= classification_items.size.inspect %>
       <% if classification_items.size > DataCycleCore.max_asynch_classification_items %>
           <%= select_tag(key, value.blank? ? nil : options_for_select(value.map {|c| [c.try(:name), c.id]}, value.map(&:id)), {multiple: true, disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)), class: 'async-select', data: {tree_label: definition['tree_label'], max: 20, placeholder: ''}}) %>
       <% else %>
-          <% available_items = classification_items&.map(&:sub_classification_alias).map{|c| [c.try(:name), c&.primary_classification.try(:id)]} %>
+          <% available_items = classification_items&.map{ |c| [c.sub_classification_alias.try(:name), c.sub_classification_alias&.primary_classification.try(:id)] } %>
           <%= select_tag(key, options_for_select(available_items, value&.map(&:id)), {multiple: true, disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)), class: 'multi-select', data: {tree_label: definition['tree_label'], max: 20, placeholder: ''}}) %>
       <% end %>
 
