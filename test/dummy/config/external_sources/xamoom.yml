@@ -12,13 +12,21 @@ config:
       endpoint: DataCycleCore::Generic::Xamoom::Endpoint
       download_strategy: DataCycleCore::Generic::Xamoom::Download
   import_config:
+    # tags:
+    #   sorting: 1
+    #   source_type: spots
+    #   import_strategy: DataCycleCore::Generic::Xamoom::ImportTags
+    #   transformations:
+    #     tags:
+    #       tree_label: Xamoom - Tags
     tags:
       sorting: 1
       source_type: spots
-      import_strategy: DataCycleCore::Generic::Xamoom::ImportTags
-      transformations:
-        tags:
-          tree_label: Xamoom - Tags
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: 'Xamoom - Tags'
+      tag_id_path: 'attributes.tags'
+      tag_name_path: 'attributes.tags'
+      external_id_prefix: 'Xamoom - tag - '
     spots:
       sorting: 2
       source_type: spots

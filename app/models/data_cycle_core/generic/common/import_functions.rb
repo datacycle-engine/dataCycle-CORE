@@ -125,7 +125,8 @@ module DataCycleCore
                                         load_parent_classification_alias, extract_data, options)
           raise ArgumentError('tree_name cannot be blank') if tree_name.blank?
 
-          around_import(utility_object, **options) do |locale|
+          external_source_id = utility_object.external_source.id
+          around_import(utility_object) do |locale|
             phase_name = utility_object.source_type.collection_name
 
             item_count = 0
@@ -136,14 +137,15 @@ module DataCycleCore
               utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                 raw_classification_data_stack = load_root_classifications.call(mongo_item, locale, options).to_a
 
-                while (raw_classification_data = raw_classification_data_stack.pop&.dig('dump', locale))
+                while (raw_classification_data = raw_classification_data_stack.pop.try(:[], 'dump')&.dig(locale))
                   item_count += 1
 
                   extracted_classification_data = extract_data.call(options, raw_classification_data)
 
                   import_classification(
-                    extracted_classification_data.merge({ tree_name: tree_name }),
-                    load_parent_classification_alias.call(raw_classification_data)
+                    utility_object: utility_object,
+                    classification_data: extracted_classification_data.merge({ tree_name: tree_name }),
+                    parent_classification_alias: load_parent_classification_alias.call(raw_classification_data, external_source_id)
                   )
                   raw_classification_data_stack += load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
 
