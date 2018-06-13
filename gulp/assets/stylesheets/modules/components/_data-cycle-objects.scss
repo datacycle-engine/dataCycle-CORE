@@ -258,6 +258,7 @@
         position: absolute;
         float: none;
       }
+      &:focus,
       &:hover {
         .description {
           opacity: 1;
@@ -304,6 +305,7 @@
   position: absolute;
   right: 0;
   top: 0;
+  &:focus,
   &:hover {
     color: map-get($foundation-palette, alert) !important;
   }
@@ -639,6 +641,7 @@ span.single_error.object-browser-error {
   display: block;
   border-bottom: 0;
   opacity: 0.5;
+  &:focus,
   &:hover {
     opacity: 1;
   }

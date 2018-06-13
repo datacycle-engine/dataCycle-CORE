@@ -20,7 +20,6 @@ module DataCycleCore
 
     include MasterData::DataConverter
     include ContentRelations
-    include Subscribable
     include Releasable
 
     def property_definitions

@@ -3,6 +3,7 @@ var quill_helpers = require('./../helpers/quill_helpers');
 
 // Add Validation to Form Elements
 module.exports.initialize = function () {
+  var promises = [];
 
   let check_agbs_accepted = function () {
     if ($('#accept_agbs').length > 0 && $('#accept_agbs').is(':checked')) {
@@ -22,6 +23,8 @@ module.exports.initialize = function () {
 
   let catch_promises = function (form, submit) {
     $.when.apply(undefined, promises).then(function () {
+      promises = [];
+
       var isValid = true;
       if (Array.isArray(arguments[0])) {
         for (var i = 0; i < arguments.length; i++) {
@@ -31,7 +34,6 @@ module.exports.initialize = function () {
         }
       } else if (arguments[0] != undefined && arguments[0].error != undefined && Object.keys(arguments[0].error).length > 0) isValid = false;
 
-      promises = [];
       if (isValid && submit) {
         if ($(form).parent('.reveal.in-object-browser').length) {
           $(form).trigger('submit_without_redirect');
@@ -41,6 +43,8 @@ module.exports.initialize = function () {
         }
       } else if (submit) {
         $(form).find('input[type=submit]').removeAttr('disabled');
+        $('.submit-edit-form').html('<i class="fa fa-check" aria-hidden="true"></i>').prop('disabled', false);
+
         var first_error_offset, container;
         if ($(form).hasClass('edit-content-form')) {
           var error_container = $('.single_error').first();
@@ -58,6 +62,12 @@ module.exports.initialize = function () {
           }, 500);
         }
       }
+    }).fail(data => {
+      var button_text = '<span id="button_server_error" class="tooltip-error">' +
+        '<strong>Fehler:</strong><br>' + data.statusText + '<br></span>';
+
+      $('.submit-edit-form').html('<i class="fa fa-check" aria-hidden="true"></i>').prop('disabled', false).addClass('alert');
+      $('#' + $('.submit-edit-form').data('toggle')).append(button_text);
     });
   }
 
@@ -163,6 +173,7 @@ module.exports.initialize = function () {
     $('#validation_errors').html('');
 
     var items = [];
+    promises = [];
 
     $(form).find('.validation-container').each((index, elem) => {
       validate_item(form, elem);
@@ -174,6 +185,7 @@ module.exports.initialize = function () {
   let init_event_handlers = function (container) {
     $(container).find('.validation-form').each((index, element) => {
       $(element).on('change', '.validation-container', event => {
+        promises = [];
         validate_item(element, event.currentTarget);
         catch_promises(element, false);
       });
@@ -211,9 +223,10 @@ module.exports.initialize = function () {
 
   if ($('.edit-content-form').length > 0) {
     var form_data = [];
-    setTimeout(function () {
+    $(window).on('load', event => {
+      update_editors();
       form_data = $('.edit-content-form').serializeArray();
-    }, 1000);
+    });
 
     $(window).on("beforeunload", function () {
       update_editors();
@@ -227,17 +240,19 @@ module.exports.initialize = function () {
 
   if ($('.validation-form').length > 0) {
     // disable button if agbs not accepted
-    $('button.submit-edit-form').prop('disabled', !check_agbs_accepted());
+    $('button.submit-edit-form').toggleClass('alert', !check_agbs_accepted());
 
     if ($('#accept_agbs').length > 0) {
       $('#accept_agbs').on('change', function (event) {
-        $('button.submit-edit-form').prop('disabled', !check_agbs_accepted());
+        $('button.submit-edit-form').toggleClass('alert', !check_agbs_accepted());
       });
     }
 
     var form = document.querySelector('.edit-content-form');
     $('button.submit-edit-form').on('click', function (ev) {
       ev.preventDefault();
+      remove_submit_button_errors();
+      $(ev.currentTarget).html('<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>').prop('disabled', true);
 
       if ($(form).find('input#finalize:checked').length > 0) {
         var confirmationModal = new ConfirmationModal('Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.', 'success', true, function () {
@@ -247,7 +262,6 @@ module.exports.initialize = function () {
         $(form).trigger('submit');
       }
     });
-    var promises = [];
 
     // validate on value change
     init_event_handlers('body');

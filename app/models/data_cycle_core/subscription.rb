@@ -6,5 +6,15 @@ module DataCycleCore
     belongs_to :subscribable, polymorphic: true
 
     scope :by_user, ->(user) { where(user_id: user.id) }
+
+    def self.except_user(user)
+      where.not(user_id: user.id)
+    end
+
+    def self.to_notify
+      return if DataCycleCore.notification_frequencies[0].blank?
+
+      includes(:user).where(users: { notification_frequency: DataCycleCore.notification_frequencies[0] })
+    end
   end
 end
