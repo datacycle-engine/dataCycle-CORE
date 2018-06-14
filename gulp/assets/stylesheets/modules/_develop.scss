@@ -201,6 +201,36 @@
     float: right;
     margin-left: 0.5rem;
   }
+  .token {
+    position: relative;
+    font-size: 0.8rem;
+    .fa {
+      font-size: 1rem;
+    }
+  }
+}
+
+.copy-to-clipboard {
+  position: relative;
+  padding: 2px 5px;
+  border-radius: 5px;
+  box-shadow: 0 0 3px $medium-gray inset;
+  &::after {
+    content: "\f0ea";
+    font-family: FontAwesome;
+    position: absolute;
+    display: none;
+    right: 0;
+    top: 0;
+    padding: 2px 5px;
+    background-color: white;
+  }
+  &:hover,
+  &:focus {
+    &::after {
+      display: block;
+    }
+  }
 }
 
 .edit-link-url {
