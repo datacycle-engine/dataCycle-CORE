@@ -21,9 +21,9 @@ module DataCycleCore
     has_one :classification_tree, dependent: :destroy
     has_one :parent_classification_alias, through: :classification_tree
 
+    has_one :classification_tree_with_deleted, -> { with_deleted }, class_name: 'ClassificationTree', foreign_key: 'classification_alias_id'
     has_one :classification_tree_label, through: :classification_tree_with_deleted
 
-    has_one :classification_tree_with_deleted, -> { with_deleted }, class_name: 'ClassificationTree', foreign_key: 'classification_alias_id'
     has_one :parent_classification_alias_with_deleted, through: :classification_tree_with_deleted, source: :parent_classification_alias
 
     has_many :sub_classification_trees, class_name: 'ClassificationTree', foreign_key: 'parent_classification_alias_id', dependent: :destroy
