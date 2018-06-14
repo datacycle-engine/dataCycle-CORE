@@ -63,11 +63,10 @@ module DataCycleCore
       max_cardinality = Path.all.pluck('MAX(CARDINALITY(full_path_names))').max
 
       joins(:classification_alias_path).order(
-        ActiveRecord::Base.sanitize_sql_for_order(
-          (1..max_cardinality).map { |c|
-            "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> #{term})), 0)"
-          }.join(' + ') + ' DESC'
-        )
+        ActiveRecord::Base.send(:sanitize_sql_for_order,
+                                (1..max_cardinality).map { |c|
+                                  "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> #{term})), 0)"
+                                }.join(' + ') + ' DESC')
       )
     end
 
@@ -98,7 +97,7 @@ module DataCycleCore
     private
 
     def update_primary_classification
-      return unless changed.include?('name')
+      return unless saved_change_to_attribute?('name')
       primary_classification.tap do |c|
         c.name = name
         c.save!

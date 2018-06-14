@@ -26,12 +26,9 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '~> 2.4.3'
 
   # rails
-  s.add_dependency 'jquery-rails'
-  s.add_dependency 'rails', '~> 5.0.0', '>= 5.0.0.1'
-  s.add_dependency 'rake', '~> 12.1.0'
-  s.add_dependency 'sass-rails', '~> 5.0'
-  # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
-  s.add_dependency 'turbolinks', '~> 5'
+  # s.add_dependency 'jquery-rails'
+  s.add_dependency 'rails', '~> 5.1.6'
+  s.add_dependency 'rake'
   # database
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'
@@ -54,12 +51,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'devise'
   # authorization
   s.add_dependency 'cancancan'
-  # foundation helper
-  s.add_dependency 'devise-foundation-views'
-  s.add_dependency 'foundation-rails', '~> 6.2.4' # 23.2.17 -> bug in  6.3.0 (prevents precompile the SCSS asset)
-  s.add_dependency 'foundation_rails_helper', '>= 3.0.0.rc2', '< 4.0'
-  # google material icons wrapper
-  s.add_dependency 'material_icons'
   # pagination
   s.add_dependency 'kaminari'
   # print formatting for e.g. hashes
@@ -80,7 +71,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'jbuilder'
 
-  s.add_dependency 'acts_as_paranoid', '~> 0.5.0'
+  s.add_dependency 'acts_as_paranoid', '~> 0.6.0'
   s.add_dependency 'dry-validation', '~> 0.11'
   s.add_dependency 'hashdiff'
   s.add_dependency 'transproc', '~> 1.0'
@@ -99,9 +90,9 @@ Gem::Specification.new do |s|
   # development gems
   s.add_development_dependency 'better_errors'
   s.add_development_dependency 'binding_of_caller'
-  s.add_development_dependency 'listen', '~> 3.0.5'
+  s.add_development_dependency 'listen'
   s.add_development_dependency 'spring'
-  s.add_development_dependency 'spring-watcher-listen', '~> 2.0.0'
+  s.add_development_dependency 'spring-watcher-listen'
   s.add_development_dependency 'web-console'
 
   s.add_dependency 'dotenv-rails'
@@ -109,8 +100,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'puma_worker_killer'
 
   # validation gems
-  s.add_development_dependency 'brakeman'
-  s.add_development_dependency 'bullet'
+  s.add_development_dependency 'brakeman', '~> 4.3.0'
+  # s.add_development_dependency 'bullet'
   s.add_development_dependency 'bundler-audit'
   s.add_development_dependency 'gemsurance'
   s.add_development_dependency 'rubocop', '~> 0.56.0'
