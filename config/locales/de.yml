@@ -228,7 +228,7 @@ de:
         data_cycle_core/watch_list:
           attributes:
             headline:
-              blank: "Headline: Darf nicht leer sein."
+              blank: "Name: Darf nicht leer sein."
         data_cycle_core/user:
           attributes:
             password:
@@ -242,6 +242,7 @@ de:
             email:
               blank: "E-Mail darf nicht leer sein."
               taken: "Für diese E-Mail existiert schon ein Benutzer."
+              invalid: "Keine gültige E-Mail."
         data_cycle_core/user_group:
           attributes:
             name:
@@ -290,6 +291,8 @@ de:
         one: Asset
         other: Assets
     attributes:
+      data_cycle_core/watch_list:
+        headline: Name
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
       data_cycle_core/user_group:

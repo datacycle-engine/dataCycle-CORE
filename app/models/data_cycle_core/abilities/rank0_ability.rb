@@ -38,7 +38,7 @@ module DataCycleCore
 
         DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
           if link.is_valid? && link.item_type == 'DataCycleCore::WatchList'
-            can [:update, :validate, :import], CONTENT_MODELS do |content|
+            can [:update, :import], CONTENT_MODELS do |content|
               if DataCycleCore::Feature::Releasable.allowed?(content) && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner]).present?
                 link.item.watch_list_data_hashes.pluck(:hashable_id).include?(content.id) && content.release_id == DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner])&.id
               else
@@ -46,7 +46,7 @@ module DataCycleCore
               end
             end
           elsif link.is_valid?
-            can [:update, :validate, :import], link.item_type.constantize, id: link.item_id
+            can [:update, :import], link.item_type.constantize, id: link.item_id
           end
         end
 
