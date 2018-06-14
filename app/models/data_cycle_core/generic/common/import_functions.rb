@@ -4,6 +4,45 @@ module DataCycleCore
   module Generic
     module Common
       module ImportFunctions
+        def self.process_step(utility_object:, raw_data:, transformation:, default:, config:)
+          type = config&.dig(:content_type)&.constantize || default.dig(:content_type)
+          template = config&.dig(:template) || default.dig(:template)
+
+          create_or_update_content(
+            utility_object: utility_object,
+            class_type: type,
+            template: load_template(type, template),
+            data: merge_default_values(
+              config,
+              transformation.call(raw_data)
+            ).with_indifferent_access
+          )
+        end
+
+        def self.create_or_update_content(utility_object:, class_type:, template:, data:)
+          return nil if data.except('external_key', 'locale').blank?
+
+          content = class_type.find_or_initialize_by(
+            external_source_id: utility_object.external_source.id,
+            external_key: data['external_key']
+          )
+          content.metadata ||= {}
+          content.schema = template.schema
+          content.template_name = template.template_name
+          content.save!
+
+          # (MO) still convinced that (content.get_data_hash || {}).merge(data) <-- is in some circumstances wrong!!
+          error = content.set_data_hash(data_hash: (content.get_data_hash || {}).merge(data), prevent_history: true)
+
+          if utility_object.logging && error[:error].present?
+            utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))
+          elsif error[:error].present?
+            raise error[:error].first
+          end
+
+          content.tap(&:save!)
+        end
+
         # TODO: refactor!!
         def self.import_contents(utility_object:, iterator:, data_processor:, options:)
           around_import(utility_object) do |locale|
@@ -50,44 +89,6 @@ module DataCycleCore
           end
         ensure
           Mongoid.override_database(nil)
-        end
-
-        def self.create_or_update_content(utility_object:, class_type:, template:, data:)
-          return nil if data.except('external_key', 'locale').blank?
-
-          content = class_type.find_or_initialize_by(
-            external_source_id: utility_object.external_source.id,
-            external_key: data['external_key']
-          )
-          content.metadata ||= {}
-          content.schema = template.schema
-          content.template_name = template.template_name
-          content.save!
-
-          error = content.set_data_hash(data_hash: (content.get_data_hash || {}).merge(data), prevent_history: true)
-
-          if utility_object.logging && error[:error].present?
-            utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))
-          elsif error[:error].present?
-            raise error[:error].first
-          end
-
-          content.tap(&:save!)
-        end
-
-        def self.process_step(utility_object:, raw_data:, transformation:, default:, config:)
-          type = config&.dig(:content_type)&.constantize || default.dig(:content_type)
-          template = config&.dig(:template) || default.dig(:template)
-
-          create_or_update_content(
-            utility_object: utility_object,
-            class_type: type,
-            template: load_template(type, template),
-            data: merge_default_values(
-              config,
-              transformation.call(raw_data)
-            ).with_indifferent_access
-          )
         end
 
         def self.load_default_values(data_hash)

@@ -27,10 +27,11 @@ config:
     keywords:
       sorting: 2
       source_type: events
-      import_strategy: DataCycleCore::Generic::EventDatabase::ImportKeywords
-      transformations:
-        keyword:
-          tree_label: Veranstaltungsdatenbank - Tag
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: Veranstaltungsdatenbank - Tag
+      tag_id_path: 'tags'
+      tag_name_path: 'tags'
+      external_id_prefix: 'Veranstaltungsdatenbank - tags - '
     events:
       sorting: 3
       source_type: events
