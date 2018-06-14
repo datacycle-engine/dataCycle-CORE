@@ -190,13 +190,14 @@ module DataCycleCore
 
     def validate
       @object = data_cycle_object(controller_name).find_by(id: params[:id])
-      authorize! :show, @object
 
       if @object.blank? && params[:template].present?
         @object = data_cycle_object(controller_name).find_by(template: true, template_name: params[:template])
       end
 
       render json: { warning: { content: ['content/template not found'] } } && return if @object.blank?
+
+      authorize! :show, @object
 
       object_params = content_params(controller_name, @object.template_name)
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @object.schema)
