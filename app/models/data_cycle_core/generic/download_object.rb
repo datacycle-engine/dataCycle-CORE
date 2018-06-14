@@ -19,7 +19,13 @@ module DataCycleCore
         @external_source = options[:external_source]
         @source_object = DataCycleCore::Generic::Collection
         @source_type = Mongoid::PersistenceContext.new(source_object, collection: options.dig(:download, :source_type))
-        @endpoint = options.dig(:download, :endpoint).constantize.new(options[:external_source].credentials.symbolize_keys)
+
+        if options&.dig(:download, :read_type).present?
+          read_type = { read_type: Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type]) }
+        else
+          read_type = {}
+        end
+        @endpoint = options.dig(:download, :endpoint).constantize.new(options[:external_source].credentials.symbolize_keys.merge(read_type))
       ensure
         logging.close if logging.respond_to?(:close)
       end

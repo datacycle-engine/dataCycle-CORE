@@ -4,19 +4,13 @@ module DataCycleCore
   module Generic
     module GooglePlaces
       module Processing
-        def process_place(raw_data, config)
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::Place
-          template = config&.dig(:template) || 'Örtlichkeit'
-
-          create_or_update_content(
-            type,
-            load_template(type, template),
-            merge_default_values(
-              config,
-              DataCycleCore::Generic::GooglePlaces::Transformations
-              .google_places_to_poi(external_source.id)
-              .call(raw_data)
-            ).with_indifferent_access
+        def self.process_place(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::GooglePlaces::Transformations.google_places_to_poi(utility_object.external_source.id),
+            default: { content_type: DataCycleCore::Place, template: 'Örtlichkeit' },
+            config: config
           )
         end
       end
