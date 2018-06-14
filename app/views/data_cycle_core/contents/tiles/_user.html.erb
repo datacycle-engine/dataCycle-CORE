@@ -40,6 +40,12 @@
     </div>
 
     <div class="item-links">
+      <% if can? :become, item %>
+        <%= link_to user_become_path(item), class: 'button-prime small become-link', title: t('actions.become', data: item.email, locale: DataCycleCore.ui_language).capitalize do %>
+          <i class="fa fa-sign-in" aria-hidden="true"></i>
+        <% end %>
+      <% end %>
+
       <% if can? :edit, item %>
         <%= link_to edit_user_path(item, watch_list_id: @watch_list), class: 'button-prime small edit-link', title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, data: { tooltip: "", 'disable-hover': false }, 'aria-haspopup': "true" do %>
           <i class="fa fa-pencil" aria-hidden="true"></i>

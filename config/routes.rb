@@ -15,6 +15,7 @@ DataCycleCore::Engine.routes.draw do
     post :unlock, on: :member
     post :create_user, on: :collection
     get :search, on: :collection
+    get :become
   end
   resources :user_organizations do
     post :create_user, on: :collection

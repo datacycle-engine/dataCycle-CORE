@@ -20,7 +20,10 @@ module DataCycleCore
       end
 
       # special admin privileges
-      can :manage, :dash_board if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)
+      if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)
+        can :manage, :dash_board
+        can :become, DataCycleCore::User
+      end
     end
   end
 end

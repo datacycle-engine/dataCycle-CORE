@@ -140,6 +140,7 @@ de:
     save: Speichern
     update: Aktualisieren
     upload: hochladen
+    become: 'Als %{data} einloggen'
 
 
   validation:
@@ -217,6 +218,7 @@ de:
       invalidated: "Externer Link wurde deaktiviert."
       updated_multiple: "%{data} wurden aktualisiert."
       moved_to: "Inhalt in %{data} verschoben"
+      become_user: 'Eingeloggt als %{data}.'
     info:
       not_modified: "%{data} wurde nicht geändert."
     job:
