@@ -397,6 +397,10 @@ de:
                       </ul>
                     </li>
                   </ul>'
+    close_warning_html: '<h4>Achtung!</h4>
+                          <p>Während dem Upload muss dieses Fenster geöffnet bleiben!<br>
+                          Es kann aber parallel in einem neuen Tab weitergearbeitet werden.</p>'
+    continue_in_new_tab: In neuem Tab weiterarbeiten
 
   date:
     abbr_day_names:

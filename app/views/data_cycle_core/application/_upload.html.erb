@@ -1,7 +1,19 @@
 <div class="reveal" id="content-upload-reveal" data-reveal data-image-validations="<%= DataCycleCore.image_validations.to_json %>" data-video-validations="<%= DataCycleCore.video_validations.to_json %>">
   <h2><%= t('data_cycle_core.upload') %></h2>
+
+  <div class="callout alert" data-closable>
+    <%= t('media_archive.close_warning_html', locale: DataCycleCore.ui_language) %>
+    <%= link_to nil, target: :_blank do %>
+      <i class="fa fa-external-link" aria-hidden="true"></i>
+      <%= t('media_archive.continue_in_new_tab') %>
+    <% end %>
+    <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
   <div class="callout primary" data-closable>
-    <%= t('media_archive.allowed_html', image_types: DataCycleCore.image_validations.dig(:format)&.join(', '), video_types: DataCycleCore.video_validations.dig(:format)&.join(', '), image_min_dimensions: "#{DataCycleCore.image_validations.dig(:dimensions, :min, :width)}x#{DataCycleCore.image_validations.dig(:dimensions, :min, :height)}") %>
+    <%= t('media_archive.allowed_html', image_types: DataCycleCore.image_validations.dig(:format)&.join(', '), video_types: DataCycleCore.video_validations.dig(:format)&.join(', '), image_min_dimensions: "#{DataCycleCore.image_validations.dig(:dimensions, :min, :width)}x#{DataCycleCore.image_validations.dig(:dimensions, :min, :height)}", locale: DataCycleCore.ui_language) %>
     <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
       <span aria-hidden="true">&times;</span>
     </button>
