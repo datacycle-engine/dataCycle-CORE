@@ -82,7 +82,7 @@ module DataCycleCore
     end
 
     def become
-      @user =  User.find(params[:user_id])
+      @user = User.find(params[:user_id])
       sign_in(:user, @user, { bypass: true })
 
       flash[:success] = I18n.t :become_user, scope: [:controllers, :success], data: @user.email, locale: DataCycleCore.ui_language
