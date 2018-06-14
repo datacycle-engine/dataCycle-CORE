@@ -99,6 +99,12 @@ module DataCycleCore
       }.keys
     end
 
+    def included_object_property_names
+      property_definitions.select { |_, definition|
+        definition['type'] == 'object'
+      }.keys
+    end
+
     def classification_property_names
       property_definitions.select { |_, definition|
         definition['type'] == 'classification'

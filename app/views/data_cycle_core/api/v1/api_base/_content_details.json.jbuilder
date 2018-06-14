@@ -25,6 +25,8 @@ else
   end
 end
 
+json.partial! 'included_properties', content: content, options: options
+
 json.partial! 'linked_properties', content: content, options: options
 
 json.partial! 'embedded_properties', content: content, options: options
