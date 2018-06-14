@@ -20,7 +20,7 @@ module DataCycleCore
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
             # for explizit keyword import:
-            DataCycleCore::Generic::Xamoom::ImportTags.process_content(
+            DataCycleCore::Generic::Common::ImportTags.process_content(
               utility_object: utility_object,
               raw_data: raw_data,
               locale: locale,

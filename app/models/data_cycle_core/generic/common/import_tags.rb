@@ -51,28 +51,16 @@ module DataCycleCore
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
             tree_label = options.dig(:import, :tree_label)
-            common_path = parse_common_tag_path(options)
-
-            tag_id_path = options.dig(:import, :tag_id_path).split('.')
-            tag_name_path = options.dig(:import, :tag_name_path).split('.')
-            if options.dig(:import, :tag_name_path) == options.dig(:import, :tag_id_path) || common_path.size == options.dig(:import, :tag_id_path).split('.').size
-              keywords = [raw_data]
-            else
-              keywords = raw_data&.dig(*common_path)
-              keywords = [keywords] unless keywords.is_a?(::Array)
-              tag_id_path -= common_path
-              tag_name_path -= common_path
-            end
-            return if keywords.compact.empty?
+            keywords = unwind_project_data(
+              raw_data,
+              parse_common_tag_path(options),
+              options.dig(:import, :tag_id_path).split('.'),
+              options.dig(:import, :tag_name_path).split('.')
+            )
+            return if keywords&.compact.blank?
 
             keywords.each do |keyword_hash|
-              classification_data = extract_data(
-                options,
-                {
-                  'id' => keyword_hash.dig(*tag_id_path),
-                  'tag' => keyword_hash.dig(*tag_name_path)
-                }
-              ).merge(tree_name: tree_label)
+              classification_data = extract_data(options, keyword_hash).merge(tree_name: tree_label)
               DataCycleCore::Generic::Common::ImportFunctions.import_classification(
                 utility_object: utility_object,
                 classification_data: classification_data,
@@ -87,6 +75,19 @@ module DataCycleCore
             .zip(options.dig(:import, :tag_name_path).split('.'))
             .take_while { |id_component, name_component| id_component == name_component }
             .map(&:first)
+        end
+
+        def self.unwind_project_data(raw_data, common_path, id_path, name_path)
+          return nil if raw_data&.dig(*common_path).blank?
+          if raw_data&.dig(*common_path).is_a?(::Array)
+            raw_data.dig(*common_path).map do |item|
+              id_value = (id_path - common_path).blank? ? item : item.dig(*(id_path - common_path))
+              name_value = (id_path - common_path).blank? ? item : item.dig(*(name_path - common_path))
+              { 'id' => id_value, 'tag' => name_value }
+            end
+          else
+            [{ 'id' => raw_data.dig(*id_path), 'tag' => raw_data.dig(*name_path) }]
+          end
         end
       end
     end
