@@ -19,13 +19,14 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            # for explizit keyword import:
-            DataCycleCore::Generic::Common::ImportTags.process_content(
-              utility_object: utility_object,
-              raw_data: raw_data,
-              locale: locale,
-              options: { import: utility_object.external_source.config.dig('import_config', 'tags').deep_symbolize_keys }
-            )
+            ['tags'].each do |tag_name|
+              DataCycleCore::Generic::Common::ImportTags.process_content(
+                utility_object: utility_object,
+                raw_data: raw_data,
+                locale: locale,
+                options: { import: utility_object.external_source.config.dig('import_config', tag_name).deep_symbolize_keys }
+              )
+            end
 
             DataCycleCore::Generic::Xamoom::Processing.process_image(
               utility_object,

@@ -19,12 +19,14 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            DataCycleCore::Generic::Common::ImportTags.process_content(
-              utility_object: utility_object,
-              raw_data: raw_data,
-              locale: locale,
-              options: { import: utility_object.external_source.config.dig('import_config', 'keywords').deep_symbolize_keys }
-            )
+            ['keywords'].each do |tag_name|
+              DataCycleCore::Generic::Common::ImportTags.process_content(
+                utility_object: utility_object,
+                raw_data: raw_data,
+                locale: locale,
+                options: { import: utility_object.external_source.config.dig('import_config', tag_name).deep_symbolize_keys }
+              )
+            end
 
             DataCycleCore::Generic::EventDatabase::Processing.process_image(
               utility_object,

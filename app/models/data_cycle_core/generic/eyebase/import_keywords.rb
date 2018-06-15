@@ -20,7 +20,7 @@ module DataCycleCore
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
             tree_label = options.dig(:import, :transformations, :keyword, :tree_label)
-            keywords = DataCycleCore::Generic::Eyebase::Transformations.eyebase_get_keywords.call(raw_data).dig('keywords') || []
+            keywords = DataCycleCore::Generic::Eyebase::Transformations.eyebase_get_keywords.call(raw_data)&.dig('keywords') || []
             keywords.each do |item|
               DataCycleCore::Generic::Common::ImportFunctions.import_classification(
                 utility_object: utility_object,

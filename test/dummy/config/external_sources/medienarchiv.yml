@@ -1,9 +1,11 @@
 ---
-name: JSON-LD KW-Medienarchiv
+name: Medienarchiv
 credentials:
   end_point: /api/v1/media.json
   host: https://media.kaernten.at
   token: 0PwwV8Z4PyF1lYBtGopUANWrZFGR38my
+default_options:
+  locales: ['de', 'en']
 config:
   download_config:
     images:
@@ -22,13 +24,29 @@ config:
     #   endpoint: DataCycleCore::Generic::MediaArchive::Endpoint
     #   download_strategy: DataCycleCore::Generic::MediaArchive::Download
   import_config:
-    keywords:
+#    tags_images:
+#      sorting: 1
+#      source_type: images
+#      import_strategy: DataCycleCore::Generic::MediaArchive::ImportKeywords
+#      transformations:
+#        keyword:
+#          tree_label: MediaArchive - Tags
+    tags_images:
       sorting: 1
       source_type: images
-      import_strategy: DataCycleCore::Generic::MediaArchive::ImportKeywords
-      transformations:
-        keyword:
-          tree_label: MediaArchive - Tags
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: MediaArchive - Tags
+      tag_id_path: 'keywords'
+      tag_name_path: 'keywords'
+      external_id_prefix: 'MedienArchive - keyword - '
+#    tags_videos:
+#      sorting: 2
+#      source_type: videos
+#      import_strategy: DataCycleCore::Generic::Common::ImportTags
+#      tree_label: MediaArchive - Tags
+#      tag_id_path: 'keywords'
+#      tag_name_path: 'keywords'
+#      external_id_prefix: 'MedienArchive - keyword - '
     images:
       sorting: 5
       source_type: images

@@ -6,7 +6,7 @@ credentials:
   host: http://www.outdooractive.com
   end_point: api/project
 default_options:
-  locales: [de]
+  locales: ['de']
 config:
   download_config:
     categories:

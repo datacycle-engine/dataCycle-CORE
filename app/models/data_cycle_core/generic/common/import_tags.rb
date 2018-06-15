@@ -49,6 +49,7 @@ module DataCycleCore
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
+          return if options&.blank? || options.dig(:import).blank?
           I18n.with_locale(locale) do
             tree_label = options.dig(:import, :tree_label)
             keywords = unwind_project_data(

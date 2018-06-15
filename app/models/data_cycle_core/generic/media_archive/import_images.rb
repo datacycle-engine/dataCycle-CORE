@@ -4,20 +4,40 @@ module DataCycleCore
   module Generic
     module MediaArchive
       module ImportImages
-        include DataCycleCore::Generic::MediaArchive::Processing
-
-        def import_data(**options)
-          import_contents(method(:load_contents).to_proc, method(:process_content).to_proc, **options)
+        def self.import_data(utility_object:, options:)
+          DataCycleCore::Generic::Common::ImportFunctions.import_contents(
+            utility_object: utility_object,
+            iterator: method(:load_contents).to_proc,
+            data_processor: method(:process_content).to_proc,
+            options: options
+          )
         end
 
-        def load_contents(mongo_item, locale)
-          mongo_item.where("dump.#{locale}": { '$exists' => true }, "dump.#{locale}.contentType": 'Bild')
+        def self.load_contents(mongo_item, locale, source_filter)
+          mongo_item.where(source_filter. merge("dump.#{locale}": { '$exists' => true }, "dump.#{locale}.contentType": 'Bild'))
         end
 
-        def process_content(raw_data, locale)
+        def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            process_place(raw_data, options.dig(:import, :transformations, :place))
-            process_image(raw_data, options.dig(:import, :transformations, :image))
+            ['tags_images', 'types_of_use_images', 'audiences_images'].each do |tag_name|
+              DataCycleCore::Generic::Common::ImportTags.process_content(
+                utility_object: utility_object,
+                raw_data: raw_data,
+                locale: locale,
+                options: { import: utility_object.external_source.config.dig('import_config', tag_name)&.deep_symbolize_keys }
+              )
+            end
+
+            DataCycleCore::Generic::MediaArchive::Processing.process_place(
+              utility_object,
+              raw_data,
+              options.dig(:import, :transformations, :place)
+            )
+            DataCycleCore::Generic::MediaArchive::Processing.process_image(
+              utility_object,
+              raw_data,
+              options.dig(:import, :transformations, :image)
+            )
           end
         end
       end

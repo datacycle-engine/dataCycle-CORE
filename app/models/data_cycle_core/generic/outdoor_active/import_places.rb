@@ -19,26 +19,14 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            DataCycleCore::Generic::Common::ImportTags.process_content(
-              utility_object: utility_object,
-              raw_data: raw_data,
-              locale: locale,
-              options: { import: utility_object.external_source.config.dig('import_config', 'source_places').deep_symbolize_keys }
-            )
-
-            DataCycleCore::Generic::Common::ImportTags.process_content(
-              utility_object: utility_object,
-              raw_data: raw_data,
-              locale: locale,
-              options: { import: utility_object.external_source.config.dig('import_config', 'frontendtype_places').deep_symbolize_keys }
-            )
-
-            DataCycleCore::Generic::Common::ImportTags.process_content(
-              utility_object: utility_object,
-              raw_data: raw_data,
-              locale: locale,
-              options: { import: utility_object.external_source.config.dig('import_config', 'tag_places').deep_symbolize_keys }
-            )
+            ['source_places', 'frontendtype_places', 'tag_places'].each do |name_tag|
+              DataCycleCore::Generic::Common::ImportTags.process_content(
+                utility_object: utility_object,
+                raw_data: raw_data,
+                locale: locale,
+                options: { import: utility_object.external_source.config.dig('import_config', name_tag).deep_symbolize_keys }
+              )
+            end
 
             DataCycleCore::Generic::OutdoorActive::Processing.process_image(
               utility_object,
