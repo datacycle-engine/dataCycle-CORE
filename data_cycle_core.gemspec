@@ -86,6 +86,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'rails-html-sanitizer', '>= 1.0.4'
   # cron jobs gem
   s.add_dependency 'whenever'
+  # redis
+  s.add_dependency 'redis-rails'
 
   # development gems
   s.add_development_dependency 'better_errors'
