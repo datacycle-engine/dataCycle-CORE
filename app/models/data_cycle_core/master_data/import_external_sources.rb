@@ -86,6 +86,9 @@ module DataCycleCore
           required(:name) { str? }
           required(:credentials) { hash? }
           optional(:api_strategy) { str? & class? }
+          optional(:default_options).schema do
+            optional(:locales).each { str? }
+          end
           required(:config).schema do
             required(:download_config) { hash? }
             required(:import_config) { hash? }
@@ -161,10 +164,14 @@ module DataCycleCore
 
           optional(:sorting) { int? & gt?(0) }
           required(:source_type) { str? }
+          optional(:read_type) { str? }
           required(:import_strategy) { str? & module? }
-          optional(:data_template).maybe(:str?)
-          # required(:target_type) { str? & class? }
+          optional(:tree_label) { str? }
+          optional(:tag_id_path) { str? }
+          optional(:tag_name_path) { str? }
+          optional(:external_id_prefix) { str? }
           optional(:logging_strategy) { str? & logger? }
+          optional(:transformations) { hash? }
         end
       end
     end

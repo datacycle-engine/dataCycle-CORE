@@ -27,6 +27,7 @@ module DataCycleCore
     end
 
     def download_single(name, options = {})
+      raise "unknown downloader name: #{name}" if download_config.dig(name).blank?
       full_options = (default_options || {}).symbolize_keys.merge({ download: download_config.dig(name).symbolize_keys.except(:sorting) }).merge(options.symbolize_keys)
       locales = full_options.dig(:locales) || full_options.dig(:download, :locales) || I18n.available_locales
       utility_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: self, locales: locales))
@@ -51,6 +52,7 @@ module DataCycleCore
     end
 
     def import_single(name, options = {})
+      raise "unknown importer name: #{name}" if import_config.dig(name).blank?
       full_options = (default_options || {}).symbolize_keys.merge({ import: import_config.dig(name).symbolize_keys.except(:sorting) }).merge(options.symbolize_keys)
       locales = full_options[:locales] || full_options[:import][:locales] || I18n.available_locales
       utility_object = DataCycleCore::Generic::ImportObject.new(full_options.merge(external_source: self, locales: locales))

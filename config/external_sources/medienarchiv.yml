@@ -22,13 +22,14 @@ config:
     #   endpoint: DataCycleCore::Generic::MediaArchive::Endpoint
     #   download_strategy: DataCycleCore::Generic::MediaArchive::Download
   import_config:
-    keywords:
+    tags_images:
       sorting: 1
       source_type: images
-      import_strategy: DataCycleCore::Generic::MediaArchive::ImportKeywords
-      transformations:
-        keyword:
-          tree_label: MediaArchive - Tags
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: MediaArchive - Tags
+      tag_id_path: 'keywords'
+      tag_name_path: 'keywords'
+      external_id_prefix: 'MedienArchive - keyword - '
     images:
       sorting: 5
       source_type: images
