@@ -350,6 +350,10 @@ ObjectBrowser.prototype.openOverlay = function (ev) {
 
   this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).remove();
   this.loadObjects(false);
+
+  $('#content-upload-reveal').on('closed.zf.reveal', event => {
+    $("body").addClass("is-reveal-open");
+  });
 };
 
 ObjectBrowser.prototype.closeOverlay = function (ev) {
@@ -360,11 +364,12 @@ ObjectBrowser.prototype.closeOverlay = function (ev) {
   $(".breadcrumb ul li:last-child").html(text);
   $(".breadcrumb ul li").off("click");
   $(window).off('message.object_browser onmessage.object_browser');
+  $('#content-upload-reveal').off('closed.zf.reveal');
 };
 
 ObjectBrowser.prototype.import = function (event) {
-  $('#new_' + this.id).foundation('close');
   if (event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'import') {
+    $('#new_' + this.id).foundation('close');
     var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
     $.ajax({
       type: 'POST',

@@ -1234,6 +1234,7 @@ select {
 
 // File Upload Reveal
 #content-upload-reveal {
+  z-index: 1008;
   #files {
     display: none;
   }
@@ -1332,4 +1333,8 @@ select {
       height: auto;
     }
   }
+}
+
+.reveal-overlay.content-reveal-overlay {
+  z-index: 1007;
 }

@@ -91,6 +91,9 @@ module.exports.initialize = function () {
   };
 
   if ($('#content-upload-reveal').length) {
+    $('#content-upload-reveal').on('open.zf.reveal', event => {
+      $(event.currentTarget).parent('.reveal-overlay').addClass('content-reveal-overlay');
+    });
     var files = [];
     var image_validations = $('#content-upload-reveal').data('image-validations');
     var video_validations = $('#content-upload-reveal').data('video-validations');
@@ -102,14 +105,16 @@ module.exports.initialize = function () {
         for (var i = 0; i < new_files.length; i++) {
           var reader = new FileReader();
 
-          reader.onloadstart = function (e) {
-            if (files.filter(f => f.name == new_files[i].name).length == 0) {
-              files.push(new_files[i]);
-              $(event.currentTarget).before('<span class="file-for-upload" data-file="' + new_files[i].name + '"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></span>');
-            } else {
-              reader.abort();
-            }
-          };
+          reader.onloadstart = (function (the_file) {
+            return function (e) {
+              if (files.filter(f => f.name == the_file.name).length == 0) {
+                files.push(the_file);
+                $(event.currentTarget).before('<span class="file-for-upload" data-file="' + the_file.name + '"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></span>');
+              } else {
+                reader.abort();
+              }
+            };
+          })(new_files[i]);
 
           reader.onload = (function (the_file) {
             return function (e) {
