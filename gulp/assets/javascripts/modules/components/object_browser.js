@@ -182,10 +182,6 @@ ObjectBrowser.prototype.setup = function () {
       });
     });
   });
-
-  $('#new_' + this.id).on('closed.zf.reveal', function (event) {
-    $("body").addClass("is-reveal-open");
-  });
 };
 
 ObjectBrowser.prototype.renderHiddenField = function () {
@@ -350,10 +346,6 @@ ObjectBrowser.prototype.openOverlay = function (ev) {
 
   this.element.find('> .media-thumbs > .buttons > #load_more_' + this.object_id + '_' + this.id).remove();
   this.loadObjects(false);
-
-  $('#content-upload-reveal').on('closed.zf.reveal', event => {
-    $("body").addClass("is-reveal-open");
-  });
 };
 
 ObjectBrowser.prototype.closeOverlay = function (ev) {
