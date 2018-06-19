@@ -9,7 +9,7 @@ module DataCycleCore
             utility_object: utility_object,
             iterator: method(:load_contents).to_proc,
             data_processor: method(:process_content).to_proc,
-            options: options
+            options: options.merge(iteration_strategy: :import_sequential)
           )
         end
 

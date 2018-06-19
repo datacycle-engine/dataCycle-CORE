@@ -43,52 +43,79 @@ module DataCycleCore
           content.tap(&:save!)
         end
 
-        # TODO: refactor!!
         def self.import_contents(utility_object:, iterator:, data_processor:, options:)
-          around_import(utility_object) do |locale|
-            phase_name = utility_object.source_type.collection_name
+          if options&.dig(:iteration_strategy).blank?
+            import_sequential(utility_object: utility_object, iterator: iterator, data_processor: data_processor, options: options)
+          else
+            send(options.dig(:iteration_strategy), utility_object: utility_object, iterator: iterator, data_processor: data_processor, options: options)
+          end
+        end
 
-            item_count = 0
-            fixnum_max = (2**(0.size * 4 - 2) - 1)
-            begin
-              utility_object.logging.phase_started("#{phase_name}_#{locale}")
-              source_filter = options&.dig(:import, :source_filter) || {}
+        def self.import_sequential(utility_object:, iterator:, data_processor:, options:)
+          delta = 100
+          init_logging(options) do |logging|
+            init_mongo_db(utility_object) do
+              each_locale(utility_object.locales) do |locale|
+                phase_name = utility_object.source_type.collection_name
 
-              durations = []
+                item_count = 0
+                fixnum_max = (2**(0.size * 4 - 2) - 1)
+                begin
+                  logging.phase_started("#{phase_name}_#{locale}")
+                  source_filter = options&.dig(:import, :source_filter) || {}
 
-              utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max).each do |content|
-                  durations << Benchmark.realtime do
-                    item_count += 1
+                  durations = []
 
-                    data_processor.call(
-                      utility_object: utility_object,
-                      raw_data: content[:dump][locale],
-                      locale: locale,
-                      options: options
-                    )
+                  utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                    iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max).each do |content|
+                      durations << Benchmark.realtime do
+                        item_count += 1
 
-                    next unless (item_count % 10).zero?
+                        data_processor.call(
+                          utility_object: utility_object,
+                          raw_data: content[:dump][locale],
+                          locale: locale,
+                          options: options
+                        )
 
-                    GC.start
-                    utility_object.logging.info("Imported #{item_count} items in #{durations.sum} seconds", nil)
+                        next unless (item_count % delta).zero?
+
+                        GC.start
+                        logging.info("Imported #{item_count} items in #{durations.sum.round(6)} seconds", "ðt: #{durations[-(delta + 1)..-1]&.sum&.round(6)}")
+                      end
+                      break if options[:max_count].present? && item_count >= options[:max_count]
+                    end
                   end
-                  break if options[:max_count].present? && item_count >= options[:max_count]
+                ensure
+                  logging.phase_finished("#{phase_name}_#{locale}", item_count)
                 end
               end
-            ensure
-              utility_object.logging.phase_finished("#{phase_name}_#{locale}", item_count)
             end
           end
         end
 
-        def self.around_import(utility_object)
+        def self.init_mongo_db(utility_object)
           Mongoid.override_database("#{utility_object.source_type.database_name}_#{utility_object.external_source.id}")
-          utility_object.locales.each do |locale|
-            yield(locale.to_sym)
-          end
+          yield
         ensure
           Mongoid.override_database(nil)
+        end
+
+        def self.each_locale(locales)
+          locales.each do |locale|
+            yield(locale.to_sym)
+          end
+        end
+
+        def self.init_logging(options)
+          if options&.dig(:import, :logging_strategy).blank?
+            logging = DataCycleCore::Generic::Logger::LogFile.new('import')
+          else
+            logging = instance_eval(options.dig(:import, :logging_strategy))
+          end
+          yield(logging)
+        ensure
+          logging.close if logging.respond_to?(:close)
         end
 
         def self.load_default_values(data_hash)
@@ -127,41 +154,45 @@ module DataCycleCore
           raise ArgumentError('tree_name cannot be blank') if tree_name.blank?
 
           external_source_id = utility_object.external_source.id
-          around_import(utility_object) do |locale|
-            phase_name = utility_object.source_type.collection_name
+          init_logging(options) do |logging|
+            init_mongo_db(utility_object) do
+              each_locale(utility_object.locales) do |locale|
+                phase_name = utility_object.source_type.collection_name
 
-            item_count = 0
+                item_count = 0
 
-            begin
-              utility_object.logging.phase_started("#{phase_name}_#{locale}")
+                begin
+                  logging.phase_started("#{phase_name}_#{locale}")
 
-              utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                raw_classification_data_stack = load_root_classifications.call(mongo_item, locale, options).to_a
+                  utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                    raw_classification_data_stack = load_root_classifications.call(mongo_item, locale, options).to_a
 
-                while (raw_classification_data = raw_classification_data_stack.pop.try(:[], 'dump')&.dig(locale))
-                  item_count += 1
+                    while (raw_classification_data = raw_classification_data_stack.pop.try(:[], 'dump')&.dig(locale))
+                      item_count += 1
 
-                  extracted_classification_data = extract_data.call(options, raw_classification_data)
+                      extracted_classification_data = extract_data.call(options, raw_classification_data)
 
-                  import_classification(
-                    utility_object: utility_object,
-                    classification_data: extracted_classification_data.merge({ tree_name: tree_name }),
-                    parent_classification_alias: load_parent_classification_alias.call(raw_classification_data, external_source_id)
-                  )
-                  raw_classification_data_stack += load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
+                      import_classification(
+                        utility_object: utility_object,
+                        classification_data: extracted_classification_data.merge({ tree_name: tree_name }),
+                        parent_classification_alias: load_parent_classification_alias.call(raw_classification_data, external_source_id)
+                      )
+                      raw_classification_data_stack += load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
 
-                  utility_object.logging.item_processed(
-                    extracted_classification_data[:name],
-                    extracted_classification_data[:id],
-                    item_count,
-                    nil
-                  )
+                      logging.item_processed(
+                        extracted_classification_data[:name],
+                        extracted_classification_data[:id],
+                        item_count,
+                        nil
+                      )
 
-                  break if options[:max_count] && item_count >= options[:max_count]
+                      break if options[:max_count] && item_count >= options[:max_count]
+                    end
+                  end
+                ensure
+                  logging.phase_finished("#{phase_name}_#{locale}", item_count)
                 end
               end
-            ensure
-              utility_object.logging.phase_finished("#{phase_name}_#{locale}", item_count)
             end
           end
         end

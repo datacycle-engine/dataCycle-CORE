@@ -6,12 +6,6 @@ module DataCycleCore
       attr_reader :external_source, :options, :locales, :logging, :source_type, :source_object
 
       def initialize(**options)
-        if options.dig(:import, :logging_strategy).blank?
-          @logging = DataCycleCore::Generic::Logger::Console.new('import')
-        else
-          @logging = instance_eval(options[:import][:logging_strategy])
-        end
-
         raise "Missing external_source for #{self.class}, options given: #{options}" if options[:external_source].blank?
         raise "Missing source_type for #{self.class}, options given: #{options}"     if options[:import][:source_type].nil?
 
@@ -20,8 +14,6 @@ module DataCycleCore
         @source_object = DataCycleCore::Generic::Collection
         @source_type = Mongoid::PersistenceContext.new(@source_object, collection: options[:import][:source_type])
         @locales = options[:locales]
-      ensure
-        logging.close if logging.respond_to?(:close)
       end
     end
   end

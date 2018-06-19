@@ -9,7 +9,7 @@ module DataCycleCore
             download_object: utility_object,
             data_id: ->(data) { data['url'] },
             data_name: ->(data) { data['headline'] },
-            options: options
+            options: options.merge(iteration_strategy: :download_parallel)
           )
         end
       end

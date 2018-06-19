@@ -3,15 +3,9 @@
 module DataCycleCore
   module Generic
     class DownloadObject
-      attr_reader :external_source, :endpoint, :logging, :source_object, :source_type
+      attr_reader :external_source, :endpoint, :source_object, :source_type
 
       def initialize(**options)
-        if options&.dig(:download, :logging_strategy).blank?
-          @logging = DataCycleCore::Generic::Logger::Console.new('download')
-        else
-          @logging = instance_eval(options.dig(:download, :logging_strategy))
-        end
-
         raise "Missing source_type for #{self.class}, options given: #{options}"       if options&.dig(:download, :source_type).blank?
         raise "Missing endpoint for #{self.class}, options given: #{options}"          if options&.dig(:download, :endpoint).blank?
         raise "Missing external_source for #{self.class}, options given: #{options}"   if options&.dig(:external_source).blank?
@@ -26,8 +20,6 @@ module DataCycleCore
           read_type = {}
         end
         @endpoint = options.dig(:download, :endpoint).constantize.new(options[:external_source].credentials.symbolize_keys.merge(read_type))
-      ensure
-        logging.close if logging.respond_to?(:close)
       end
     end
   end
