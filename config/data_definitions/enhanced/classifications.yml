@@ -1,17 +1,159 @@
 - Inhaltstypen:
-  - $$Ort:
-    - $$Örtlichkeit
-    - $$Tour
+  - $$Asset:
+    - $$Bild
+    - $$Datei
+    - $$Video
+  - $$Person
+  - $$Tour
+  - $$POI
+  - $$Unterkunft
+  - $$Veranstaltung
+  - $$Text:
+    - $$Linktipps
+    - $$Quiz
+    - $$Angebot
+    - $$Artikel
+    - $$Biografie
+    - $$Interview
+    - $$Social Media Posting
+    - $$Rezept
+# hidden
+  - $$Organisation
+  - $$Zeitleiste
+  - $$Örtlichkeit
 # embedded
+  - $$Angebotszeitraum
+  - $$Website
+  - $$Zeitleiste-Eintrag
+  - $$Zitat
+  - $$Frage
+  - $$Antwort
+  - $$Veranstaltungstermin
   - $$Öffnungszeit
   - $$Overlay
+  - $$Publikations-Plan
+  - $$Textblock
 
 - Geschlecht:
   - Männlich
   - Weiblich
 
-- Themenbereiche:
+- Wochentage:
+  - Montag
+  - Dienstag
+  - Mittwoch
+  - Donnerstag
+  - Freitag
+  - Samstag
+  - Sonntag
+
+- Tags:
 
 - Ausgabekanäle:
 
+- Rezept-Gänge:
+
+- Rezept-Kategorien:
+
 - POI - Kategorien:
+
+- Unterkünfte:
+  - Art-Hotel
+  - Berghütte
+  - Boutique-Hotel
+  - Budget-Hotel
+  - Campingplatz
+  - Ferienhaus
+  - Ferienhaus
+  - Ferienort, Ferienanlage, Feriendorf
+  - Ferienranch (Bauernhof)
+  - Ferienwohnung
+  - Flughafenhotel
+  - Gasthof
+  - Gästehaus
+  - Gästeunterkunft
+  - Hafenhotel
+  - Hotel
+  - Hotel Garni
+  - Jugendherberge/Herberge
+  - Klinik
+  - Konferenzhotel
+  - Kurklinik
+  - Landhotel
+  - Langzeithotel
+  - Luxushotel
+  - Motel
+  - Pension
+  - Privatzimmer
+  - Schlosshotel
+  - Sporthotel
+  - Studentenheim
+  - Unterkunft für Selbstversorger
+  - Wellnesshotel
+  - Wohnwagen-Parkplatz
+
+- Veranstaltungen:
+  - Business Veranstaltung
+  - Kinder Veranstaltung
+  - Comedy Veranstaltung
+  - Tanzveranstaltung
+  - Lehrveranstaltung
+  - Messe Veranstaltung
+  - Festival
+  - Veranstaltung Essen & Trinken
+  - Literarische Veranstaltung
+  - Musikveranstaltung
+  - Verkaufsveranstaltung
+  - Karitative Veranstaltung
+  - Sportveranstaltung
+  - Theater Veranstaltung
+  - Kunstveranstaltung
+  - Veranstaltungsreihe
+
+- Touren:
+  - Wandern:
+    - Wanderung
+    - Fernwanderweg
+    - Pilgerweg
+    - Themenweg
+  - Rad:
+    - Radtour
+    - Mountainbike
+    - Mountainbike Transalp
+    - Rennrad
+    - Fernradweg
+    - E-Bike
+  - Laufen und Skaten:
+    - Nordic Walking
+    - Jogging
+    - Trailrunning
+    - Inline Skating
+  - Bergsteigen:
+    - Klettersteig
+    - Bergtour
+    - Hochtour
+    - Alpinklettern
+  - Wintertouren:
+    - Winterwandern
+    - Rodeln
+    - Skitour
+    - Schneeschuh
+    - Langlauf
+    - Ski Freeride
+    - Eisklettern
+    - Eistour
+    - Skidurchquerung
+  - Stadttouren:
+    - Stadtrundgang
+  - Wassertouren:
+    - Canyoning
+    - Kanu
+    - Kajak
+  - Pferdetouren:
+    - Kutschfahrt
+    - Reiten
+    - Pferdeschlitten
+    - Skijöring
+  - Motorisierte Touren:
+    - Motorrad
+    - Auto

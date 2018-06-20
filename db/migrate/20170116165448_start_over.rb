@@ -4,6 +4,7 @@ class StartOver < ActiveRecord::Migration[5.0]
   def change
     enable_extension 'postgis' unless extension_enabled?('postgis')
     enable_extension 'uuid-ossp' unless extension_enabled?('uuid-ossp')
+    enable_extension 'pgcrypto' unless extension_enabled?('pgcrypto')
 
     create_table :tags, id: :uuid do |t|
       t.string   :name

@@ -2,9 +2,6 @@
 
 # rails essentials
 require 'rails'
-require 'sass-rails'
-require 'turbolinks'
-require 'jquery-rails'
 
 # Databases
 require 'pg'
@@ -20,13 +17,6 @@ require 'devise'
 # authorization
 require 'cancancan'
 
-# foundation helper
-require 'foundation-rails'
-require 'foundation_rails_helper'
-require 'devise-foundation-views'
-
-# google material icons wrapper
-require 'material_icons'
 # pagination
 require 'kaminari'
 # print formatting for e.g. hashes
@@ -76,7 +66,7 @@ module DataCycleCore
     self.internal_data_attributes = ['date_created', 'date_modified', 'creator', 'data_type', 'data_pool', 'is_part_of', 'last_updated_by']
 
     mattr_accessor :asset_objects
-    self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::TextFile']
+    self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile']
 
     mattr_accessor :content_tables
     self.content_tables = ['creative_works', 'events', 'persons', 'organizations', 'places']
@@ -148,6 +138,9 @@ module DataCycleCore
     mattr_accessor :linked_objects_page_size
     self.linked_objects_page_size = 5
 
+    mattr_accessor :max_asynch_classification_items
+    self.max_asynch_classification_items = 50
+
     # webhooks
     mattr_accessor :webhooks
     self.webhooks = {
@@ -183,6 +176,12 @@ module DataCycleCore
       persons: 'Person',
       organizations: 'Organization'
     }
+
+    mattr_accessor :image_validations
+    self.image_validations = {}
+
+    mattr_accessor :video_validations
+    self.video_validations = {}
   end
 
   def self.setup
@@ -205,8 +204,6 @@ module DataCycleCore
     # Make Ruby 2.4 preserve the timezone of the receiver when calling `to_time`.
     # Previous versions had false.
     ActiveSupport.to_time_preserves_timezone = true
-    # Do not halt callback chains when a callback returns false. Previous versions had true.
-    ActiveSupport.halt_callback_chains_on_return_false = false
     # Enable parameter wrapping for JSON. You can disable this by setting :format to an empty array.
     ActiveSupport.on_load(:action_controller) do
       wrap_parameters format: [:json]

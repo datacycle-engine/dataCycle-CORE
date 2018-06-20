@@ -2,13 +2,23 @@
   <%= hidden_field(nil, :classification_tree_label_id, value: classification_tree_label.id) %>
   <%= hidden_field(nil, :classification_tree_id, value: classification_tree.id) if classification_tree %>
   <%= f.hidden_field :id %>
-  <%= f.text_field :name, disabled: !can?(:update, classification_alias) %>
+    <%= f.label :name %>
+    <%= f.text_field :name, disabled: classification_alias&.id.present? ? !can?(:update, classification_alias) : !can?(:create, DataCycleCore::ClassificationAlias) %>
   <button class="button-prime small success update"><i aria-hidden="true" class="fa fa-check"></i></button>
   <button class="button-prime small discard"><i aria-hidden="true" class="fa fa-times"></i></button>
-  <%= f.check_box :internal, disabled: !can?(:update, classification_alias) %>
-  <%= f.check_box :assignable, disabled: !can?(:update, classification_alias) %>
+    
+
+    <%= f.label :internal do |l| %>
+        <%= f.check_box :internal, disabled: classification_alias&.id.present? ? !can?(:update, classification_alias) : !can?(:create, DataCycleCore::ClassificationAlias) %>
+        <%= l.translation %>
+    <% end %>
+    <%= f.label :assignable do |l| %>
+        <%= f.check_box :assignable, disabled: classification_alias&.id.present? ? !can?(:update, classification_alias) : !can?(:create, DataCycleCore::ClassificationAlias) %>
+        <%= l.translation %>
+    <% end %>
   <% if classification_alias.persisted? && can?(:map_classifications, classification_alias) %>
     <div class="v-select">
+        <%= f.label :classification_ids %>
     <%= f.select(:classification_ids,
                  options_for_select(classification_alias.classifications.map { |c| [c.name, c.id, { title: c.ancestors.reverse.map(&:name).join(' > ') }] },
                                     classification_alias.classifications.map(&:id)),
@@ -16,5 +26,5 @@
                  {multiple: true}) %>
     </div>
   <% end %>
-  <%= f.submit %>
+  <%= f.submit class: 'success button' %>
 <% end %>

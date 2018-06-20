@@ -140,6 +140,7 @@ de:
     save: Speichern
     update: Aktualisieren
     upload: hochladen
+    become: 'Als %{data} einloggen'
 
 
   validation:
@@ -200,6 +201,7 @@ de:
       invalid: "%{data} konnte nicht erstellt werden."
       email_exists: "Für diese E-Mail existiert bereits ein Link"
       no_source: "Keine gültige Vorlage angegeben"
+      wrong_content_type: Nicht unterstützter Datei-Typ
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."
@@ -216,6 +218,7 @@ de:
       invalidated: "Externer Link wurde deaktiviert."
       updated_multiple: "%{data} wurden aktualisiert."
       moved_to: "Inhalt in %{data} verschoben"
+      become_user: 'Eingeloggt als %{data}.'
     info:
       not_modified: "%{data} wurde nicht geändert."
     job:
@@ -227,7 +230,7 @@ de:
         data_cycle_core/watch_list:
           attributes:
             headline:
-              blank: "Headline: Darf nicht leer sein."
+              blank: "Name: Darf nicht leer sein."
         data_cycle_core/user:
           attributes:
             password:
@@ -241,6 +244,7 @@ de:
             email:
               blank: "E-Mail darf nicht leer sein."
               taken: "Für diese E-Mail existiert schon ein Benutzer."
+              invalid: "Keine gültige E-Mail."
         data_cycle_core/user_group:
           attributes:
             name:
@@ -289,6 +293,8 @@ de:
         one: Asset
         other: Assets
     attributes:
+      data_cycle_core/watch_list:
+        headline: Name
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
       data_cycle_core/user_group:
@@ -375,6 +381,28 @@ de:
       history: Suchverlauf
     watch_list:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
+    upload: Medien hochladen
+
+  media_archive:
+    allowed_html: '<h4>Einschränkungen</h4>
+                  <ul class="no-bullet">
+                    <li><b>Bild:</b>
+                      <ul>
+                        <li>Formate: %{image_types}</li>
+                        <li>Mindest-Abmessungen: %{image_min_dimensions}</li>
+                      </ul>
+                    </li>
+                    <li><b>Video:</b>
+                      <ul>
+                        <li>Formate: %{video_types}</li>
+                        <li>Codecs: h264 (audio: mp3/aac)</li>
+                      </ul>
+                    </li>
+                  </ul>'
+    close_warning_html: '<h4>Achtung!</h4>
+                          <p>Während dem Upload muss dieses Fenster geöffnet bleiben!<br>
+                          Es kann aber parallel in einem neuen Tab weitergearbeitet werden.</p>'
+    continue_in_new_tab: In neuem Tab weiterarbeiten
 
   date:
     abbr_day_names:

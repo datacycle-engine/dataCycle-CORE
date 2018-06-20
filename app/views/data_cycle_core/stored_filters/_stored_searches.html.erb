@@ -18,14 +18,16 @@
             <h5><%= t('data_cycle_core.stored_searches.save', locale: DataCycleCore.ui_language) %></h5>
             <%= form_for(stored_search, namespace: stored_search.id) do |f| %>
               <div class="validation-container form-element">
+                <%= f.label :name %>
                 <%= f.text_field :name, placeholder: DataCycleCore::StoredFilter.human_attribute_name('name', locale: DataCycleCore.ui_language), required: true, label: false %>
               </div>
               <% if can?(:create_global, DataCycleCore::StoredFilter) %>
                 <div class="form-element">
+                <%= f.label :system %>
                   <%= f.check_box :system %>
                 </div>
               <% end %>
-              <%= f.submit t('actions.save', locale: DataCycleCore.ui_language), data: { disable_with: t('actions.save', locale: DataCycleCore.ui_language) } %>
+              <%= f.submit t('actions.save', locale: DataCycleCore.ui_language), data: { disable_with: t('actions.save', locale: DataCycleCore.ui_language) }, class: "success button" %>
             <% end %>
           </div>
         <% elsif can?(:update, stored_search) %>

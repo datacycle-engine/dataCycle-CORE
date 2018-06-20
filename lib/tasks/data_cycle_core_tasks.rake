@@ -538,7 +538,7 @@ namespace :data_cycle_core do
             .where(id: ids)
             .where('classification_contents.relation = ?', DataCycleCore.features.dig(:life_cycle, :attribute_key))
             .expired_not_life_cycle_id(archive_life_cycle_id)
-            .with_content_type('entity').uniq
+            .with_content_type('entity').distinct
 
           contents = contents.where(is_part_of: nil) if ActiveRecord::Base.connection.column_exists?(table_name, 'is_part_of')
 

@@ -56,8 +56,9 @@ module DataCycleCore
         has_many :watch_list_data_hashes, as: :hashable, dependent: :destroy
         has_many :watch_lists, through: :watch_list_data_hashes
 
-        has_many :data_link_content_items, as: :content, dependent: :destroy
-        has_many :indirect_data_links, through: :data_link_content_items, dependent: :destroy
+        has_many :subscriptions, as: :subscribable, dependent: :destroy
+        has_many :data_link_content_items, as: :content
+        has_many :indirect_data_links, through: :data_link_content_items
         has_many :data_links, as: :item, dependent: :destroy
       end
     end

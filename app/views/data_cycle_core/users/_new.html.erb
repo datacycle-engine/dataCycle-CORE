@@ -6,32 +6,39 @@
       <%= f.hidden_field :external, value: false %>
 
       <div class="form-element validation-container">
+          <%= f.label :email %>
           <%= f.email_field :email, required: true, autofocus: true %>
       </div>
 
       <% if type == DataCycleCore::UserOrganization %>
         <div class="form-element">
+            <%= f.label :name %>
             <%= f.text_field :name %>
         </div>
       <% else %>
         <div class="form-element">
+            <%= f.label :given_name %>
             <%= f.text_field :given_name %>
         </div>
 
         <div class="form-element">
+            <%= f.label :family_name %>
             <%= f.text_field :family_name %>
         </div>
       <% end %>
 
       <div class="form-element validation-container">
+          <%= f.label :password %>
           <%= f.password_field :password, required: true %>
       </div>
 
       <div class="form-element validation-container">
+          <%= f.label :password_confirmation %>
           <%= f.password_field :password_confirmation, required: true %>
       </div>
 
       <div class="form-element validation-container">
+          <%= f.label :role_id %>
           <%= f.select :role_id, DataCycleCore::Role.where('rank <= ?', current_user.role.try(:rank)).collect{|r| [t('roles.'+r.name, locale: DataCycleCore.ui_language), r.id]}, {}, class: 'no-margin' %>
       </div>
 

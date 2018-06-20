@@ -2,7 +2,7 @@
 name: JSON-LD KW-Medienarchiv
 credentials:
   end_point: /api/v1/media.json
-  host: http://media.kaernten.at
+  host: https://media.kaernten.at
   token: 0PwwV8Z4PyF1lYBtGopUANWrZFGR38my
 config:
   download: DataCycleCore::Generic::BatchDownload

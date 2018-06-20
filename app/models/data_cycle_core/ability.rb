@@ -18,9 +18,6 @@ module DataCycleCore
           nil
         end
       end
-
-      # special admin privileges
-      can :manage, :dash_board if user.has_rank?(10) && (user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/)
     end
   end
 end

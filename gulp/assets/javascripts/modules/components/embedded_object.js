@@ -6,7 +6,7 @@ var EmbeddedObject = function (selector) {
   this.element = selector;
   this.page = 1;
   this.id = this.element.prop('id');
-  this.language = this.element.data('language') || 'de';
+  this.locale = this.element.data('locale') || 'de';
   this.key = this.element.data('key');
   this.label = this.element.data('label');
   this.definition = this.element.data('definition');
@@ -56,7 +56,7 @@ EmbeddedObject.prototype.renderEmbeddedObjects = function (type, ids = []) {
     method: 'POST',
     data: JSON.stringify({
       index: this.index,
-      language: this.language,
+      locale: this.locale,
       key: this.key,
       definition: this.definition,
       options: this.options,

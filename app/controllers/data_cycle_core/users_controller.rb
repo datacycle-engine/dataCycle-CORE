@@ -81,6 +81,18 @@ module DataCycleCore
       render json: users
     end
 
+    def become
+      @user = User.find(params[:user_id])
+      sign_in(:user, @user, { bypass: true })
+
+      flash[:success] = I18n.t :become_user, scope: [:controllers, :success], data: @user.email, locale: DataCycleCore.ui_language
+      if @user.is_rank?(0)
+        redirect_to info_path
+      else
+        redirect_to root_path
+      end
+    end
+
     private
 
     def permitted_params
