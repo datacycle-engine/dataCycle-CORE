@@ -10,17 +10,23 @@ module.exports.initialize = function () {
     });
   }
 
-  $('.reveal').on('open.zf.reveal', function () {
+  var scroll_top = [];
+
+  $(document).on('open.zf.reveal', '.reveal', event => {
     $('.reveal-blur').addClass("show");
-    window.scrollTo(0, 0);
+    if ($(event.currentTarget).data('overlay') === false) {
+      scroll_top.push($(window).scrollTop());
+      window.scrollTo(0, 0);
+    }
   });
 
-  $('.reveal').on('closed.zf.reveal', event => {
+  $(document).on('closed.zf.reveal', '.reveal', event => {
     if ($('.reveal:visible').not(event.currentTarget).length) {
       $('body').addClass('is-reveal-open');
     } else {
       $('.reveal-blur').removeClass("show");
     }
+    if ($(event.currentTarget).data('overlay') === false) window.scrollTo(0, scroll_top.pop());
   });
 
 };
