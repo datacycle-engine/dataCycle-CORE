@@ -193,6 +193,25 @@ module DataCycleCore
       end
     end
 
+    def import
+      content = params[:data].as_json
+      external_source = DataCycleCore::ExternalSource.find(content['source_key'])
+      api_strategy_class = external_source.config['api_strategy'].safe_constantize
+      api_strategy = api_strategy_class.new(external_source, 'creative_work', content.values.first['url'].split('/').last)
+
+      @content = api_strategy.create(content.except('source_key'))
+      @content = @content.try(:first)
+
+      respond_to do |format|
+        format.js do
+          if params[:render_html]
+            flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
+            render js: "document.location = '#{polymorphic_path(@content)}'"
+          end
+        end
+      end
+    end
+
     private
 
     def after_create(content, current_user)
