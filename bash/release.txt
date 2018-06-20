@@ -5,3 +5,4 @@ DataCycleRamsau;git@git.pixelpoint.biz:data-cycle/data-cycle-ramsau.git
 DataCycleRegionVillach;git@git.pixelpoint.biz:data-cycle/data-cycle-region-villach.git
 DataCycleRegionWoerthersee;git@git.pixelpoint.biz:data-cycle/data-cycle-region-woerthersee.git
 DataCycleVTG;git@git.pixelpoint.biz:data-cycle/data-cycle-vtg.git
+DataCycleThermostar;git@git.pixelpoint.biz:data-cycle/data-cycle-thermostar.git
