@@ -4,16 +4,19 @@ module DataCycleCore
   module Api
     module V2
       class ContentsController < Api::V2::ApiBaseController
-        before_action :prepare_url_parameters, only: :index
+        before_action :prepare_url_parameters
 
         def index
           query = build_search_query
-          query = query.where(content_data_type: content_data_type.to_s)
+          query = query.where(content_data_type: content_data_type.to_s) if content_data_type
+          query = query.modified_since(permitted_params[:modified_since]) if permitted_params[:modified_since]
+          query = query.created_since(permitted_params[:created_since]) if permitted_params[:created_since]
+          query = query.in_validity_period if permitted_params[:modified_since] && permitted_params[:created_since]
+          query = query.fulltext_search(permitted_params[:search]) if permitted_params[:search]
           query = apply_ordering(query)
 
-          @total = query.count
-
-          @contents = apply_paging(query).map(&:content_data)
+          @pagination_contents = apply_paging(query)
+          @contents = @pagination_contents.map(&:content_data)
         end
 
         def show
@@ -46,17 +49,7 @@ module DataCycleCore
         # end
 
         def search
-          query = build_search_query
-          query = query.where(content_data_type: content_data_type.to_s) if content_data_type
-          query = query.modified_since(permitted_params[:modified_since]) if permitted_params[:modified_since]
-          query = query.created_since(permitted_params[:created_since]) if permitted_params[:created_since]
-          query = query.in_validity_period if permitted_params[:modified_since] && permitted_params[:created_since]
-          query = query.fulltext_search(permitted_params[:search]) if permitted_params[:search]
-          query = apply_ordering(query)
-
-          @total = query.count
-
-          @contents = apply_paging(query).map(&:content_data)
+          index
         end
 
         # TODO: refactor
