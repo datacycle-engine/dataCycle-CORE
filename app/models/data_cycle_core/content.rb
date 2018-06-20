@@ -20,7 +20,6 @@ module DataCycleCore
 
     include MasterData::DataConverter
     include ContentRelations
-    include Subscribable
     include Releasable
 
     def property_definitions
@@ -97,6 +96,12 @@ module DataCycleCore
     def included_property_names
       property_definitions.select { |_, definition|
         definition['type'] == 'object' || NESTED_STORAGE_LOCATIONS.include?(NEW_STORAGE_LOCATION[definition['storage_location']])
+      }.keys
+    end
+
+    def included_object_property_names
+      property_definitions.select { |_, definition|
+        definition['type'] == 'object'
       }.keys
     end
 

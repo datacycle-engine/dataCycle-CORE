@@ -207,7 +207,7 @@ module DataCycleCore
     end
 
     def alert_box(value, alert_class, closable)
-      options = { class: "flash callout #{alert_class}" }
+      options = { class: "flash flash-notification callout #{alert_class}" }
       options[:data] = { closable: '' } if closable
       content_tag(:div, options) do
         if value.is_a?(String)

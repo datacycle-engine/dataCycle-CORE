@@ -12,7 +12,7 @@ module.exports.initialize = function () {
       if ($('.grid-item').eq(index + 1).length) show_animated(index + 1, grid);
       else animation_complete = true;
       grid.layout();
-    }, 20);
+    }, 10);
   };
 
   let init = function () {

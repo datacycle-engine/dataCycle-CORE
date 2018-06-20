@@ -15,6 +15,7 @@ DataCycleCore::Engine.routes.draw do
     post :unlock, on: :member
     post :create_user, on: :collection
     get :search, on: :collection
+    get :become
   end
   resources :user_organizations do
     post :create_user, on: :collection
@@ -123,6 +124,7 @@ DataCycleCore::Engine.routes.draw do
 
   post 'contents/new_embedded_object', to: 'contents#new_embedded_object'
   post 'contents/render_embedded_object', to: 'contents#render_embedded_object'
+  post 'contents/upload', to: 'contents#upload'
 
   resources :publications, only: :index
 

@@ -5,6 +5,7 @@ module DataCycleCore
     # acts_as_paranoid
 
     # belongs_to :medium
+    belongs_to :creator, class_name: 'DataCycleCore::User'
     mount_uploader :file, FileUploader
     process_in_background :file
 

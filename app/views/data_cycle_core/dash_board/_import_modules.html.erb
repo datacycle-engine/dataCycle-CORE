@@ -1,6 +1,6 @@
 <div class="card" style="width: 300px; background-color:white;">
     <div class="card-divider">
-        <h5><%= "<i class='material-icons'>public</i> #{locals[:import_data][:name]}".html_safe %></h5>
+        <h5><%= locals[:import_data][:name] %></h5>
     </div>
     <div class="card-section">
         <%= truncate(locals[:import_data][:database], length: 35)%>

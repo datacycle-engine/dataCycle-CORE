@@ -8,6 +8,15 @@
         </div>
         <div class="top-bar-right" id="main-menu">
             <ul class="menu">
+                <% if can?(:upload, :content) %>
+                  <li>
+                    <%= link_to '#', class: 'content-upload-link', data: { open: 'content-upload-reveal' } do %>
+                      <i class="fa fa-upload" aria-hidden="true"></i>
+                      <%= t('data_cycle_core.upload', locale: DataCycleCore.ui_language) %>
+                    <% end %>
+                    <%= render 'upload' %>
+                  </li>
+                <% end %>
                 <li>
                     <% if can?(:read, DataCycleCore::WatchList) %>
                         <%= render 'watch_lists' %>

@@ -41,7 +41,7 @@ module DataCycleCore
     private
 
     def set_release_status
-      creator.subscriptions.find_or_create_by(subscribable_id: item.id, subscribable_type: item.class) if item.is_a?(DataCycleCore::Content)
+      creator.subscriptions.find_or_create_by(subscribable_id: item.id, subscribable_type: item.class.name) if item.is_a?(DataCycleCore::Content)
 
       release_id = DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner])&.id if DataCycleCore.release_codes.present?
 
