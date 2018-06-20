@@ -5,7 +5,6 @@ module DataCycleCore
     module V2
       class EventsController < DataCycleCore::Api::V2::ContentsController
         def index
-
           query = Event.includes(:translations, :classifications).with_content_type('entity')
           if permitted_params&.dig(:q)
             query = query.search(permitted_params&.dig(:q), permitted_params.fetch(:language, DataCycleCore.ui_language))

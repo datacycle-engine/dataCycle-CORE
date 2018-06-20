@@ -134,8 +134,7 @@ DataCycleCore::Engine.routes.draw do
         #   patch :update, on: :member
         # end
 
-        resources *DataCycleCore.content_tables.map(&:to_sym), only: [:index, :show] do
-
+        resources(*DataCycleCore.content_tables.map(&:to_sym), only: [:index, :show]) do
         end
 
         get 'contents/search', to: 'contents#search'

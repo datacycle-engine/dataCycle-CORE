@@ -27,10 +27,10 @@ Rails.application.configure do
 
     # config.cache_store = :memory_store
     config.cache_store = :redis_store, {
-      host: "redis",
+      host: 'redis',
       port: 6379,
       db: 0,
-      namespace: "cache"
+      namespace: 'cache'
     }
     config.public_file_server.headers = {
       'Cache-Control' => 'public, max-age=172800'
