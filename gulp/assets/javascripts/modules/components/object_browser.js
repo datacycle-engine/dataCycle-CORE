@@ -316,10 +316,6 @@ ObjectBrowser.prototype.openOverlay = function (ev) {
   this.setPreselected();
   this.updateChosenCounter();
 
-  this.scrollTop = $(window).scrollTop();
-  window.scrollTo(0, 0);
-  $(".reveal-blur").addClass("show");
-
   // set breadcrumb link + text
   var text = $(".breadcrumb ul li:last-child").html();
   $(".breadcrumb ul li:last-child").html(
@@ -349,8 +345,6 @@ ObjectBrowser.prototype.openOverlay = function (ev) {
 };
 
 ObjectBrowser.prototype.closeOverlay = function (ev) {
-  $(window).scrollTop(this.scrollTop);
-  $(".reveal-blur").removeClass("show");
   $(".breadcrumb ul li:last-child").remove();
   var text = $(".breadcrumb ul li:last-child a.close-object-browser").html();
   $(".breadcrumb ul li:last-child").html(text);
