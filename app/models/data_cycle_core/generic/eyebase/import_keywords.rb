@@ -20,6 +20,7 @@ module DataCycleCore
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
             tree_label = options.dig(:import, :transformations, :keyword, :tree_label)
+            # MO: no general Tag Importer because keywords are parsed from different attributes in the source!!
             keywords = DataCycleCore::Generic::Eyebase::Transformations.eyebase_get_keywords.call(raw_data)&.dig('keywords') || []
             keywords.each do |item|
               DataCycleCore::Generic::Common::ImportFunctions.import_classification(
