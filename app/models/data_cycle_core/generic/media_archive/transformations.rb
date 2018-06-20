@@ -24,7 +24,7 @@ module DataCycleCore
                 'keywords' => 'keywords_medienarchive',
                 'typesOfUse' => 'types_of_use')
           .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
-          .>> t(:add_link, 'location_location', DataCycleCore::Place, external_source_id, ->(s) { "#{s['contentType']}-#{place_template}: #{s['url'].split('/').last}" })
+          .>> t(:add_link, 'content_location', DataCycleCore::Place, external_source_id, ->(s) { "#{s['contentType']}-#{place_template}: #{s['url'].split('/').last}" })
           .>> t(:strip_all)
         end
 

@@ -5,7 +5,7 @@ module DataCycleCore
     module Common
       module DownloadFunctions
         def self.download_data(download_object:, data_id:, data_name:, options:)
-          if options.dig(:iteration_strategy).empty?
+          if options.dig(:iteration_strategy).blank?
             download_sequential(download_object: download_object, data_id: data_id, data_name: data_name, options: options)
           else
             send(options.dig(:iteration_strategy), download_object: download_object, data_id: data_id, data_name: data_name, options: options)
@@ -18,23 +18,21 @@ module DataCycleCore
 
           if options[:locales].size != 1
             options[:locales].each do |language|
-              download_data(download_object: download_object, data_id: data_id, data_name: data_name, options: options.except(:locales).merge({ locales: [language] }))
+              download_sequential(download_object: download_object, data_id: data_id, data_name: data_name, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             init_mongo_db(download_object) do
               init_logging(options) do |logging|
                 locale = options[:locales].first
-                logging.preparing_phase("#{download_object.source_type.collection_name}_#{locale}")
+                logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
 
                 begin
                   download_object.source_object.with(download_object.source_type) do |mongo_item|
                     items = download_object.endpoint.send(options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s)
 
-                    max_string = ''
-                    max_string += (options[:max_count]).to_s if options[:max_count]
+                    max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
                     logging.phase_started("#{download_object.source_type.collection_name}_#{locale}", max_string)
-
                     durations = []
 
                     items.each do |item_data|
@@ -80,17 +78,15 @@ module DataCycleCore
           init_mongo_db(download_object) do
             init_logging(options) do |logging|
               locales = options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales
-              logging.preparing_phase(download_object.source_type.collection_name.to_s)
+              logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name}")
               item_count = 0
 
               begin
                 download_object.source_object.with(download_object.source_type) do |mongo_item|
                   items = download_object.endpoint.send(options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s)
 
-                  max_string = ''
-                  max_string += (options[:max_count]).to_s if options[:max_count]
+                  max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
                   logging.phase_started(download_object.source_type.collection_name.to_s, max_string)
-
                   durations = []
 
                   items.each do |item_data|

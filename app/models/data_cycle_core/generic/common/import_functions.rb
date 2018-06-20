@@ -55,15 +55,14 @@ module DataCycleCore
           delta = 100
           init_logging(options) do |logging|
             init_mongo_db(utility_object) do
+              phase_name = utility_object.source_type.collection_name
+              logging.preparing_phase("#{utility_object.external_source.name} #{phase_name}")
               each_locale(utility_object.locales) do |locale|
-                phase_name = utility_object.source_type.collection_name
-
                 item_count = 0
                 fixnum_max = (2**(0.size * 4 - 2) - 1)
                 begin
-                  logging.phase_started("#{phase_name}_#{locale}")
+                  logging.phase_started("#{phase_name} #{locale}")
                   source_filter = options&.dig(:import, :source_filter) || {}
-
                   durations = []
 
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|

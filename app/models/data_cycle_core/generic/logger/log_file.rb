@@ -10,7 +10,7 @@ module DataCycleCore
         end
 
         def preparing_phase(label)
-          @log.info "Preparing  #{label.to_s.tr('/_/', ' ')} ..."
+          @log.info "Preparing  #{label} ..."
         end
 
         def phase_started(label, total = nil)
