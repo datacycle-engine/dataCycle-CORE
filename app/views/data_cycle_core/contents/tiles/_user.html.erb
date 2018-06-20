@@ -17,6 +17,17 @@
           <%= item.email %>
         </div>
 
+        <% if can? :generate_access_token, item %>
+          <div class="token">
+            <% if item.access_token.present? %>
+              <%= content_tag :span, class: 'copy-to-clipboard', title: DataCycleCore::User.human_attribute_name(:access_token, locale: DataCycleCore.ui_language), data: { value: item.access_token } do %>
+                <i class="fa fa-key" aria-hidden="true"></i>
+                <%= item.access_token %>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+
         <div class="tags">
           <% if item.role %>
             <span class="tag"><%= t('roles.'+item.role.name, locale: DataCycleCore.ui_language) %></span>
@@ -29,6 +40,12 @@
     </div>
 
     <div class="item-links">
+      <% if can? :become, item %>
+        <%= link_to user_become_path(item), class: 'button-prime small become-link', title: t('actions.become', data: item.email, locale: DataCycleCore.ui_language).capitalize do %>
+          <i class="fa fa-sign-in" aria-hidden="true"></i>
+        <% end %>
+      <% end %>
+
       <% if can? :edit, item %>
         <%= link_to edit_user_path(item, watch_list_id: @watch_list), class: 'button-prime small edit-link', title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, data: { tooltip: "", 'disable-hover': false }, 'aria-haspopup': "true" do %>
           <i class="fa fa-pencil" aria-hidden="true"></i>

@@ -3,6 +3,18 @@ var masonry = require('masonry-layout');
 // Masonry Config
 module.exports.initialize = function () {
 
+  let animation_complete = false;
+
+  let show_animated = function (index, grid) {
+    setTimeout(() => {
+      if (index == 0) $('.grid .grid-loading').removeClass("show");
+      $('.grid-item').eq(index).addClass("show");
+      if ($('.grid-item').eq(index + 1).length) show_animated(index + 1, grid);
+      else animation_complete = true;
+      grid.layout();
+    }, 10);
+  };
+
   let init = function () {
     if ($('.grid').html() != undefined) {
       var grid = new masonry('.grid', {
@@ -13,20 +25,10 @@ module.exports.initialize = function () {
         transitionDuration: 0
       });
 
-      $('.grid .grid-loading').removeClass("show");
-
-      $('.grid-item').each((index, element) => {
-        setTimeout(function () {
-          $(element).addClass("show");
-        }, 50 + (index * 20));
-      });
+      show_animated(0, grid);
 
       $(document).on('lazyloaded', function () {
-        grid.layout();
-      });
-
-      $(window).on('load', event => {
-        grid.layout();
+        if (animation_complete) grid.layout();
       });
     }
   }

@@ -3,7 +3,7 @@
 
       <% validation_properties = ordered_validation_properties(validation: object.schema) %>
       <% validation_properties['text']['label'] = object.try(:name) if object.try(:name).present? %>
-      <%= render_attribute_viewer key: 'text', definition: validation_properties['text'], value: object.try(:text), parameters: { options: options}, content: object %>
+      <%= render_attribute_viewer key: 'text', definition: validation_properties['text'], value: object.try(:text), parameters: { options: options }, content: object %>
 
     <% end %>
 <% end %>

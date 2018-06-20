@@ -124,6 +124,23 @@
   margin: 0;
   margin-bottom: 1rem;
   list-style-type: none;
+  .content {
+    .buttons {
+      position: relative;
+      display: inline-block;
+      top: 0;
+      right: 0;
+      margin-left: 1rem;
+      a {
+        padding: 0 5px;
+        &.copy {
+          position: relative;
+          top: 0;
+          right: 0;
+        }
+      }
+    }
+  }
   .copy-single {
     position: relative;
     .copy-single-button {
@@ -241,6 +258,7 @@
         position: absolute;
         float: none;
       }
+      &:focus,
       &:hover {
         .description {
           opacity: 1;
@@ -287,6 +305,7 @@
   position: absolute;
   right: 0;
   top: 0;
+  &:focus,
   &:hover {
     color: map-get($foundation-palette, alert) !important;
   }
@@ -316,6 +335,7 @@
   margin: 7.9rem 0 0 0 !important;
   outline: none;
   padding: 0;
+  z-index: initial;
   .draggable-handle {
     display: none;
   }
@@ -541,11 +561,21 @@
     }
     .edit-link {
       position: absolute;
-      right: 1rem;
-      top: 3.5rem;
+      right: 1.5rem;
+      top: 1.5rem;
     }
     .fa-exclamation-triangle {
       color: $warning-color;
+    }
+    .detail-type {
+      display: flex;
+      .detail-label {
+        font-weight: bold;
+      }
+      .detail-label,
+      .detail-content {
+        flex: 1;
+      }
     }
     dl {
       margin: 0;
@@ -611,6 +641,7 @@ span.single_error.object-browser-error {
   display: block;
   border-bottom: 0;
   opacity: 0.5;
+  &:focus,
   &:hover {
     opacity: 1;
   }

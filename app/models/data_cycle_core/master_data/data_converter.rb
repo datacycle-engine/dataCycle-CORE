@@ -87,7 +87,7 @@ module DataCycleCore
       end
 
       def self.string_to_datetime(value)
-        return nil if value.nil?
+        return nil if value.blank?
         return value if value.acts_like?(:time)
         raise ArgumentError, 'can not convert to a datetime' unless value.is_a?(::String)
         value.in_time_zone.presence || raise(ArgumentError, 'can not convert to a datetime')

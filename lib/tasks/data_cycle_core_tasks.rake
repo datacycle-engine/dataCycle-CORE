@@ -351,26 +351,21 @@ namespace :data_cycle_core do
       puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
     end
 
-    desc 'update schema for all histories'
-    task update_all_history_schema: [:environment] do
+    desc '[NEW] replace the data-definitions of all data-types in the Database with the templates in the Database'
+    task :update_all_templates_sql, [:history] => [:environment] do |_, args|
+      temp = Time.zone.now
       DataCycleCore.content_tables.each do |content_table|
         data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
-        history_object = "DataCycleCore::#{content_table.classify}::History".safe_constantize
-
         data_object.where(template: true).each do |template_object|
-          template_name = template_object.template_name
-
-          history_data_count = history_object.where(template: false).where("metadata #>> '{validation, name}' = ? OR template_name = ?", template_name, template_name).count
-          puts "#{content_table.ljust(25)} | #{template_name.ljust(25)} | #{(history_data_count || 0).to_s.rjust(10)}"
-
-          strategy = DataCycleCore::Update::UpdateTemplate
-          DataCycleCore::Update::Update.new(type: history_object, template: template_object, strategy: strategy, transformation: nil)
+          Rake::Task['data_cycle_core:update:update_template_sql'].invoke(content_table, template_object.template_name, args.fetch(:history, false))
+          Rake::Task['data_cycle_core:update:update_template_sql'].reenable
         end
       end
+      puts "total time: #{((Time.zone.now - temp).to_s + ' sec').rjust(20)} \r"
     end
 
-    desc 'update history schema for a given content_table_name/template_name'
-    task :update_history_schema, [:content_table_name, :template_name] => [:environment] do |_, args|
+    desc '[NEW] replace a given data-definition with its recent template for a content_table'
+    task :update_template_sql, [:content_table_name, :template_name, :history] => [:environment] do |_, args|
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
         puts 'ERROR: only the following content_table_names are known to the system:'
         puts DataCycleCore.content_tables.to_s
@@ -378,8 +373,8 @@ namespace :data_cycle_core do
       end
 
       data_object = "DataCycleCore::#{args[:content_table_name].classify}".safe_constantize
-      history_object = "DataCycleCore::#{args[:content_table_name].classify}::History".safe_constantize
       template = data_object.find_by(template_name: args[:template_name], template: true)
+      total_items = data_object.where(template_name: args[:template_name], template: false).count
 
       if template.nil?
         puts "ERROR: template not found. For the given #{args[:content_table_name]} table only the following templates are available:"
@@ -387,11 +382,35 @@ namespace :data_cycle_core do
         exit(-1)
       end
 
-      type = history_object
-      strategy = DataCycleCore::Update::UpdateTemplate
-      transformation = nil
+      temp = Time.zone.now
 
-      DataCycleCore::Update::Update.new(type: type, template: template, strategy: strategy, transformation: transformation)
+      update_sql = <<-EOS
+        UPDATE #{args[:content_table_name]}
+        SET schema = '#{template.schema.to_json}'
+        WHERE template_name='#{args[:template_name]}' and template=false
+      EOS
+
+      affected_items = ActiveRecord::Base.connection.update(ActiveRecord::Base.send(:sanitize_sql_for_conditions, update_sql))
+
+      puts "#{args[:content_table_name].ljust(25)} | #{args[:template_name].ljust(25)} | #{((affected_items || 0).to_s + ' / ' + (total_items || 0).to_s).ljust(25)} | #{((Time.zone.now - temp).to_s + ' sec').rjust(20)} \r"
+
+      next unless args.fetch(:history, false).to_s == 'true'
+
+      # history update
+      history_object = "DataCycleCore::#{args[:content_table_name].classify}::History".safe_constantize
+      total_history_items = history_object.where(template_name: args[:template_name], template: false).count
+
+      temp = Time.zone.now
+
+      update_history_sql = <<-EOS
+        UPDATE #{history_object.table_name}
+        SET schema = '#{template.schema.to_json}'
+        WHERE template_name='#{args[:template_name]}' and template=false
+      EOS
+
+      affected_history_items = ActiveRecord::Base.connection.update(ActiveRecord::Base.send(:sanitize_sql_for_conditions, update_history_sql))
+
+      puts "#{history_object.table_name.ljust(25)} | #{args[:template_name].ljust(25)} | #{((affected_history_items || 0).to_s + ' / ' + (total_history_items || 0).to_s).ljust(25)} | #{((Time.zone.now - temp).to_s + ' sec').rjust(20)} \r"
     end
   end
 
@@ -519,7 +538,7 @@ namespace :data_cycle_core do
             .where(id: ids)
             .where('classification_contents.relation = ?', DataCycleCore.features.dig(:life_cycle, :attribute_key))
             .expired_not_life_cycle_id(archive_life_cycle_id)
-            .with_content_type('entity').uniq
+            .with_content_type('entity').distinct
 
           contents = contents.where(is_part_of: nil) if ActiveRecord::Base.connection.column_exists?(table_name, 'is_part_of')
 
@@ -684,6 +703,22 @@ namespace :data_cycle_core do
           end
         end
       end
+
+      puts 'END'
+      puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
+    end
+
+    desc 'executes all migration tasks'
+    task migrate_all_templates: :environment do
+      temp = Time.zone.now
+
+      Rake::Task['db:migrate'].invoke
+      Rake::Task['data_cycle_core:update:import_classifications'].invoke
+      Rake::Task['data_cycle_core:update:import_templates'].invoke
+      Rake::Task['data_cycle_core:update:import_external_source_configs'].invoke
+      # Rake::Task['data_cycle_core:update:update_template_sql'].invoke('places', 'Örtlichkeit')
+      Rake::Task['data_cycle_core:update:update_all_templates_sql'].invoke(true)
+      Rake::Task['data_cycle_core:refactor:last_updated_by'].invoke
 
       puts 'END'
       puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"

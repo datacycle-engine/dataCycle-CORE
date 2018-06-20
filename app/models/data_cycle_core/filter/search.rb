@@ -8,6 +8,17 @@ module DataCycleCore
         @query = query || DataCycleCore::Search.where(search[:locale].eq(quoted(@locale)))
       end
 
+      def content_includes
+        includes(
+          content_data: [
+            :display_classification_aliases,
+            :translations,
+            :watch_lists,
+            :external_source
+          ]
+        )
+      end
+
       def fulltext_search(name)
         reflect(
           @query.where(

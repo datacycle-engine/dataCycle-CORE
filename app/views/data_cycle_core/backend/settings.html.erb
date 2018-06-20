@@ -8,7 +8,7 @@
 
       <div id="edit-form">
 
-        <%= form_for current_user, html: {class: 'edit-content-form'} do |f| %>
+        <%= form_for current_user do |f| %>
           <%= hidden_field_tag 'uuid', current_user.id %>
           <%= hidden_field_tag 'user_settings', true %>
 
@@ -23,7 +23,7 @@
                     <%= link_to previous_authorized_crumb.url do %>
                       <button type="button" class="button discard top" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
                     <% end if previous_authorized_crumb.present? %>
-                    <button class="button-prime submit submit-edit-form" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
+                    <button class="button-prime submit submit-edit-form" data-tooltip aria-haspopup="true" data-disable-hover="false" data-disable-with="<i class='fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i>" title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
                   </li>
                 </ul>
               </div>
@@ -44,6 +44,7 @@
                 </div>
 
                 <div class="form-element validation-container">
+                    <%= f.label :notification_frequency %>
                   <%= f.select :notification_frequency, DataCycleCore.notification_frequencies.map{ |f| [t("notification.frequency.#{f}", locale: DataCycleCore.ui_language), f] }, {}, class: 'with-label' %>
                 </div>
 

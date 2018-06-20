@@ -86,13 +86,13 @@ module DataCycleCore
           if external_source.last_import.nil?
             last_import = 'never'
           else
-            last_import = external_source.last_import.to_s + "<i class='material-icons green'>done</i>"
+            last_import = external_source.last_import.to_s
           end
 
           if external_source.last_download.nil?
             last_download = 'never'
           else
-            last_download = external_source.last_download.to_s + "<i class='material-icons green'>done</i>"
+            last_download = external_source.last_download.to_s
           end
 
           @import_modules.push(

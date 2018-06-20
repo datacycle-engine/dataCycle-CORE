@@ -7,7 +7,7 @@
                 <% person = item.last_updated_by.first %>
                 <%= "<a class='email-link' href='mailto:#{person.email}'>#{person.full_name}</a>".html_safe %>
             <% else %>
-                <%= "Unbekannt".html_safe %>
+                System
             <% end %>
 
             <i><%= l(Time.zone.at(I18n.with_locale(item.first_available_locale){item.history_valid&.first}), locale: DataCycleCore.ui_language) %></i>

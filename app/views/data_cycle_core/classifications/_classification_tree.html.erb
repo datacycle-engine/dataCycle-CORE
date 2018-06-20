@@ -38,6 +38,11 @@
             classification_tree: classification_tree,
             classification_alias: classification_tree.sub_classification_alias %>
     <% end %>
+
+  <%= link_to classification_tree_label_path(classification_tree_label, anchor: "#{(ancestors.join('+') + '+') if ancestors.present? }#{classification_tree.id}"), class: 'contents-list', target: :_blank, title: t('data_cycle_core.show_contents_for_tree_label', data: classification_tree.sub_classification_alias.try(:name), locale: DataCycleCore.ui_language) do %>
+    <i class="fa fa-list" aria-hidden="true"></i>
+  <% end %>
+
     <ul class="classifications">
         <% classification_tree.sub_classification_alias.classifications.each do |classification| %>
             <li><%= classification.name %></li>

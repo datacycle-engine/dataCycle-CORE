@@ -22,7 +22,10 @@ module DataCycleCore
           'v' => @watch_list.id
         }
       )
-      @contents = get_filtered_results
+
+      @paginate_object = get_filtered_results.content_includes.page(params[:page])
+      @total = @paginate_object.total_count
+      @contents = @paginate_object.map(&:content_data)
 
       respond_to do |format|
         format.html

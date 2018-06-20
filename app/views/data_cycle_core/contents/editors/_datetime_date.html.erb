@@ -7,7 +7,7 @@
         </span>
       <% end %>
       <% if options.dig('readonly').presence&.to_s  == 'true' %>
-          <%= text_field_tag key, value.blank? ? value : l(value.to_date), options.merge({ class: '' }) %>
+          <%= text_field_tag key, value.blank? ? value : l(value.to_date, locale: DataCycleCore.ui_language), options.merge({ class: '' }) %>
       <% else %>
           <%= date_field_tag key, value, options.merge('data-type' => 'datepicker') %>
       <% end %>

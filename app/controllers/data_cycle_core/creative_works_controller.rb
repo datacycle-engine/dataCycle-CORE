@@ -21,7 +21,12 @@ module DataCycleCore
               'v' => @content.id
             }
           )
-          @contents = get_filtered_results if @content.children.present?
+
+          if @content.children.present?
+            @paginate_object = get_filtered_results.content_includes.page(params[:page])
+            @total = @paginate_object.total_count
+            @contents = @paginate_object.map(&:content_data)
+          end
 
           @entities = DataCycleCore::CreativeWork.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
           @entities = @entities.where('template_name NOT IN(?)', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects)
@@ -39,6 +44,12 @@ module DataCycleCore
     end
 
     def create
+      if params[:source] == 'object_browser'
+        authorize!(:create_in_objectbrowser, data_cycle_object(controller_name))
+      else
+        authorize!(:create, data_cycle_object(controller_name))
+      end
+
       locale = I18n.available_locales.include?(params[:locale].try(:to_sym)) ? params[:locale].try(:to_sym) : I18n.locale
       I18n.with_locale(locale) do
         source = Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }] if params[:source].present?
@@ -243,13 +254,13 @@ module DataCycleCore
 
     def check_final
       if params[:finalize] && (
-        @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').present? ||
-        @creativeWork.watch_lists.includes(:data_links).where(data_links: { receiver_id: current_user.id }).exists?
+        @content.data_links.where(receiver_id: current_user.id, permissions: 'write').present? ||
+        @content.watch_lists.includes(:data_links).where(data_links: { receiver_id: current_user.id }).exists?
       )
-        @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').update(permissions: 'read') if @creativeWork.data_links.where(receiver_id: current_user.id, permissions: 'write').present?
+        @content.data_links.where(receiver_id: current_user.id, permissions: 'write').update(permissions: 'read') if @content.data_links.where(receiver_id: current_user.id, permissions: 'write').present?
 
-        I18n.with_locale(@creativeWork.first_available_locale) do
-          @creativeWork.update_attribute(:release_id, DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:review]).id) if DataCycleCore::Feature::Releasable.enabled? && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:review]).present?
+        I18n.with_locale(@content.first_available_locale) do
+          @content.update_attribute(:release_id, DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:review]).id) if DataCycleCore::Feature::Releasable.enabled? && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:review]).present?
         end
       end
     end

@@ -24,13 +24,18 @@
             <% end %>
         <% end %>
 
-        <% if can?(:download, tree_label) %>
-            <%= link_to download_classifications_path(classification_tree_label_id: tree_label.id, format: :csv),
-            class: 'download' do %>
-                <i class="fa fa-download" aria-hidden="true"></i>
-            <% end %>
-        <% end %>
-    </span>
+  <% if can?(:download, tree_label) %>
+    <%= link_to download_classifications_path(classification_tree_label_id: tree_label.id, format: :csv),
+                class: 'download' do %>
+      <i class="fa fa-download" aria-hidden="true"></i>
+    <% end %>
+  <% end %>
+
+  <%= link_to classification_tree_label_path(tree_label), class: 'contents-list', target: :_blank, title: t('data_cycle_core.show_contents_for_tree_label', data: tree_label.name, locale: DataCycleCore.ui_language) do %>
+    <i class="fa fa-list" aria-hidden="true"></i>
+  <% end %>
+
+</span>
 
     <% if can?(:update, tree_label) %>
         <%= render 'classification_tree_label_form', classification_tree_label: tree_label %>

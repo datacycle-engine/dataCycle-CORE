@@ -29,13 +29,15 @@ module.exports.initialize = function () {
 
   function add_buttons(element, label, value, copy_attr, single = false) {
     if (single && $(element).hasClass('copy-single') && $('.flex-box .edit-content [data-label="' + label + '"]').length > 0 && value.length > 0) {
-      $(element).append('<a class="button-prime small copy copy-single-button" data-copy-attribute="single-data-id"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>');
+      if ($(element).children('.buttons').length) $(element).children('.buttons').append('<a class="button-prime small copy copy-single-button" data-copy-attribute="single-data-id" title="Übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>');
+      else $(element).append('<a class="button-prime small copy copy-single-button" data-copy-attribute="single-data-id" title="Übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>');
     } else if (single && $('.flex-box .edit-content [data-label="' + label + '"]').length > 0 && value.length > 0) {
-      $(element).find('.copy-single').append('<a class="button-prime small copy copy-single-button" data-copy-attribute="single-data-id"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>');
+      if ($(element).find('.copy-single').children('.buttons').length) $(element).find('.copy-single').children('.buttons').append('<a class="button-prime small copy copy-single-button" data-copy-attribute="single-data-id" title="Übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>');
+      else $(element).find('.copy-single').append('<a class="button-prime small copy copy-single-button" data-copy-attribute="single-data-id" title="Übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>');
     } else if ($('.flex-box .edit-content [data-label="' + label + '"]').length > 0 && value.length > 0 && $(element).children('.buttons').length > 0) {
-      $(element).children('.buttons').append('<a class="button-prime small copy" data-copy-attribute="' + copy_attr + '"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>');
+      $(element).children('.buttons').append('<a class="button-prime small copy" data-copy-attribute="' + copy_attr + '" title="Übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>');
     } else if ($('.flex-box .edit-content [data-label="' + label + '"]').length > 0 && value.length > 0) {
-      $(element).append('<div class="buttons"><a class="button-prime small copy" data-copy-attribute="' + copy_attr + '"><i class="fa fa-arrow-right" aria-hidden="true"></i></a></div>');
+      $(element).append('<div class="buttons"><a class="button-prime small copy" data-copy-attribute="' + copy_attr + '" title="Übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a></div>');
     }
   }
 
@@ -49,7 +51,7 @@ module.exports.initialize = function () {
       add_buttons(elem, $(elem).data('label'), $(elem).data('id'), 'data-id');
     });
 
-    $(container).children('div[data-editor=input], div[data-editor=quill_editor]').each((idx, elem) => {
+    $(container).children('div[data-editor=string], div[data-editor=text_editor]').each((idx, elem) => {
       add_buttons(elem, $(elem).data('label'), $(elem).find('.detail-content').html(), 'html');
     });
   }
@@ -78,7 +80,7 @@ module.exports.initialize = function () {
     }, 500);
   }
 
-  $('.flex-box .edit-content .form-element.input').on('import-data', function (event, data) {
+  $('.edit-content-form .form-element.string:not(.text_editor)').on('import-data', function (event, data) {
     if ($(this).find('input[type=text]').val().length === 0) {
       $(this).find('input[type=text]').val(data.value).trigger('input');
     } else {

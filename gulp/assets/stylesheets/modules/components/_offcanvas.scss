@@ -1,6 +1,7 @@
 // offcanvas
 #settings-off-canvas {
   top: 72px;
+  height: calc(100% - 72px);
   .settings-row {
     padding: 1rem;
     margin: 0 0.1rem;
@@ -19,28 +20,6 @@
       margin-bottom: 1rem;
       &.access-token {
         white-space: nowrap;
-        .title {
-          position: relative;
-          padding: 2px 5px;
-          border-radius: 5px;
-          box-shadow: 0 0 3px $medium-gray inset;
-          &.copy-to-clipboard::after {
-            content: "\f0ea";
-            font-family: FontAwesome;
-            position: absolute;
-            display: none;
-            right: 0;
-            top: 0;
-            padding: 2px 5px;
-            background-color: white;
-          }
-          &.copy-to-clipboard:hover,
-          &.copy-to-clipboard:focus {
-            &::after {
-              display: block;
-            }
-          }
-        }
       }
     }
     span {

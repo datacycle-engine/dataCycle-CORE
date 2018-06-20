@@ -11,8 +11,8 @@ var ConfirmationModal = function (text = '', buttonClass = '', cancelable = fals
 };
 
 ConfirmationModal.prototype.setup = function () {
-  $('.confirmation-modal-overlay').remove();
-  this.html = '<div id="' + this.id + '" class="confirmation-modal-overlay"><div class="confirmation-modal">';
+  // $('.confirmation-modal-overlay').remove();
+  this.html = '<div id="' + this.id + '" class="confirmation-modal-overlay" tabindex="-1"><div class="confirmation-modal">';
   this.html += '<div class="confirmation-text">' + this.text + '</div>';
   this.html += '<div class="confirmation-buttons">';
   if (this.cancelable) this.html += '<a class="confirmation-cancel button" href="#" aria-label="Cancel" >Abbrechen</a>';
@@ -21,7 +21,7 @@ ConfirmationModal.prototype.setup = function () {
   this.html += '</div></div>';
 
   $('body').addClass('no-overflow');
-  $(this.html).appendTo('body').focus().addClass('visible');
+  $(this.html).appendTo('body').focus().addClass('visible').one("webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend", event => $(event.currentTarget).focus());
   this.addEvents();
 };
 
@@ -34,12 +34,13 @@ ConfirmationModal.prototype.addEvents = function () {
   $('#' + this.id + ' .close-button, #' + this.id + ' .confirmation-cancel').on('click', this.cancel.bind(this));
 
   $('#' + this.id + ' .confirmation-confirm').on('click', this.confirm.bind(this));
-  $(document).on('keydown', function (event) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    if (event.which == 13) self.confirm();
-    else if (event.which == 27) self.cancel();
-  });
+  // TODO: refactor for multiple overlays
+  // $(document).on('keydown', function (event) {
+  //   event.preventDefault();
+  //   event.stopImmediatePropagation();
+  //   if (event.which == 13) self.confirm();
+  //   else if (event.which == 27) self.cancel();
+  // });
 };
 
 ConfirmationModal.prototype.cancel = function () {
@@ -54,11 +55,14 @@ ConfirmationModal.prototype.confirm = function () {
 
 ConfirmationModal.prototype.close = function () {
   $('#' + this.id + ', #' + this.id + '.close-button, #' + this.id + '.confirmation-cancel, #' + this.id + '.confirmation-confirm').off('click');
-  $(document).off('keydown');
+  // $(document).off('keydown');
 
-  $('#' + this.id).removeClass('visible').one("webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend", function (event) {
-    $(this).remove();
-    $('body').removeClass('no-overflow');
+  $('#' + this.id).removeClass('visible').one("webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend", event => {
+    $(event.currentTarget).remove();
+
+    if (!$('.confirmation-modal-overlay').length) {
+      $('body').removeClass('no-overflow');
+    }
   });
 };
 

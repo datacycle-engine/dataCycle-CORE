@@ -3,7 +3,7 @@ name: 'OutdoorActive Kärnten'
 credentials:
   project: 'ar-kaernten'
   key: '71bf10dbf6f38ce14b94019c729e355'
-  host: http://www.outdooractive.com
+  host: https://www.outdooractive.com
   end_point: api/project
 default_options:
   locales: [de]

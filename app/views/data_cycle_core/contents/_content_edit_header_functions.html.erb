@@ -16,7 +16,7 @@
         <% end %>
 
         <% if (DataCycleCore.translatable_types & [content.class.name, content.template_name]).present? && I18n.available_locales&.size&.>(1) %>
-          <%= render 'edit_locale_links', local_assigns.merge({ locales: available_locales_with_names }) %>
+          <%= render 'edit_locale_links', local_assigns.merge({ locales: available_locales_with_names.except(:all) }) %>
         <% end %>
 
         <% if can? :index, DataCycleCore::DataLink %>

@@ -1,5 +1,5 @@
 <div id="show-history-link" data-toggle="show-history" class="link"><i class="fa fa-clock-o" aria-hidden="true"></i>
-    bearbeitet am <%= l(Time.zone.at(Time.zone.at(dataCycleObject.updated_at)), locale: DataCycleCore.ui_language) %>
+    bearbeitet am <%= l(Time.zone.at(Time.zone.at(dataCycleObject.updated_at)), locale: DataCycleCore.ui_language) if dataCycleObject.updated_at.present? %>
     <% person = dataCycleObject.try(:creator)&.first %>
 
     <% if person.kind_of?(Object) && !person.nil? %>
@@ -7,7 +7,7 @@
         <span><strong><a class="email-link" href="mailto:<%= "#{person.email}" %>"><%= "#{person.full_name}" %></a></strong></span>
     <% else %>
         <span> von </span>
-        <span><strong>Unbekannt</strong></span>
+        <span><strong>System</strong></span>
     <% end %>
 
 </div>

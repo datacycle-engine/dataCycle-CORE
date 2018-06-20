@@ -7,7 +7,7 @@
 
     <span class="created-at">
         <%= t('history.created_at', locale: DataCycleCore.ui_language) %>
-        <strong><%= l(Time.at(content.created_at), locale: DataCycleCore.ui_language) %></strong>
+        <strong><%= l(Time.at(content.created_at), locale: DataCycleCore.ui_language) if content.created_at.present? %></strong>
         <% if content.creator.present? %>
             <% creator = content.creator.first %>
             <%= t('terms.from', locale: DataCycleCore.ui_language) %> <strong><a href="mailto:<%= "#{creator.email}" %>"><%= "#{creator.full_name}" %></a></strong>

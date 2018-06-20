@@ -22,7 +22,7 @@ module DataCycleCore
         # Contents
         can [:update_release_status, :set_life_cycle], CONTENT_MODELS
 
-        can [:read, :create, :import, :update, :validate, :validate_single_data], CONTENT_MODELS do |content|
+        can [:read, :create, :import, :update], CONTENT_MODELS do |content|
           content.try(:external_key).blank? || DataCycleCore::Feature::Overlay.allowed?(content)
         end
         can :destroy, CONTENT_MODELS do |content|
@@ -32,7 +32,7 @@ module DataCycleCore
         # Classifications
         can :manage, [DataCycleCore::Classification, DataCycleCore::ClassificationTree], external_source_id: nil
         can [:read, :download], DataCycleCore::ClassificationTreeLabel
-        can [:update, :download], [DataCycleCore::ClassificationTreeLabel, DataCycleCore::ClassificationAlias], external_source_id: nil, internal: false
+        can [:create, :update, :download], [DataCycleCore::ClassificationTreeLabel, DataCycleCore::ClassificationAlias], external_source_id: nil, internal: false
 
         can :map_classifications, DataCycleCore::ClassificationAlias
         can :destroy, DataCycleCore::ClassificationTreeLabel do |c|
@@ -41,6 +41,11 @@ module DataCycleCore
         can :destroy, DataCycleCore::ClassificationAlias do |c|
           c.external_source_id.nil? && !c.internal && !c.sub_classification_alias&.any?(&:internal) && !c.sub_classification_alias&.any?(&:external_source_id)
         end
+
+        # special admin privileges
+        return unless user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/
+        can :manage, :dash_board
+        can :become, DataCycleCore::User
       end
     end
   end

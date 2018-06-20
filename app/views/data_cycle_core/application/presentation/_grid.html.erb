@@ -1,14 +1,14 @@
 <div class="grid <%= @mode %>">
 	<div class="grid-sizer"></div>
 	<div class="gutter-sizer"></div>
-	<div class="grid-loading">
+	<div class="grid-loading show">
 		<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
 		<span class="sr-only">Loading...</span>
 	</div>
 
 	<% unless contents.nil? %>
 		<% contents.each do |content| %>
-        <div class="grid-item data-cycle-object <%= 'expired-item' unless content.try(:is_valid?) %>">
+        <div class="grid-item data-cycle-object <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %>">
           <div class="buttons">
             <%= render 'data_cycle_core/contents/tiles/attributes/external', item: content if content.try(:external_source) %>
 

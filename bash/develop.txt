@@ -1,0 +1,9 @@
+DataCycleBase;git@git.pixelpoint.biz:data-cycle/data-cycle-base.git
+DataCycleKaerntenWerbung;git@git.pixelpoint.biz:data-cycle/data-cycle-kw.git
+DataCycleKlagenfurt;git@git.pixelpoint.biz:data-cycle/data-cycle-klagenfurt.git
+DataCycleNLW;git@git.pixelpoint.biz:data-cycle/data-cycle-nlw.git
+DataCyclePorcia;git@git.pixelpoint.biz:data-cycle/data-cycle-porcia.git
+DataCycleRamsau;git@git.pixelpoint.biz:data-cycle/data-cycle-ramsau.git
+DataCycleRegionVillach;git@git.pixelpoint.biz:data-cycle/data-cycle-region-villach.git
+DataCycleThermostar;git@git.pixelpoint.biz:data-cycle/data-cycle-thermostar.git
+DataCycleVTG;git@git.pixelpoint.biz:data-cycle/data-cycle-vtg.git

@@ -1,6 +1,6 @@
 <div class="card" style="width: 300px; background-color: white;">
     <div class="card-divider">
-        <%=content_tag(:h5, "<i class='material-icons'>all_inclusive</i> #{@stat_outdoor_active.pg_name}".html_safe)%>
+        <h5><%= @stat_outdoor_active.pg_name %></h5>
     </div>
     <div class="card-section">
         Total-size<%="&nbsp;&#8614&nbsp;#{number_to_human_size(@stat_outdoor_active.pg_size)}".html_safe %>

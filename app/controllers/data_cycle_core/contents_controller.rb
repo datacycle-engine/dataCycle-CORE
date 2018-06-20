@@ -3,7 +3,9 @@
 module DataCycleCore
   class ContentsController < ApplicationController
     before_action :authenticate_user!, :set_watch_list
-    load_and_authorize_resource only: [:index, :show, :edit, :update, :create, :destroy, :history]
+    load_and_authorize_resource only: [:index, :show, :edit, :update, :destroy, :history]
+
+    after_action :notify_subscribers, only: :update
 
     def index
       redirect_back(fallback_location: root_path)
@@ -23,6 +25,12 @@ module DataCycleCore
     end
 
     def create
+      if params[:source] == 'object_browser'
+        authorize!(:create_in_objectbrowser, data_cycle_object(controller_name))
+      else
+        authorize!(:create, data_cycle_object(controller_name))
+      end
+
       locale = I18n.available_locales.include?(params[:locale].try(:to_sym)) ? params[:locale].try(:to_sym) : I18n.locale
       I18n.with_locale(locale) do
         object_params = content_params(controller_name, params[:template])
@@ -126,13 +134,12 @@ module DataCycleCore
 
     def history
       @content = data_cycle_object(controller_name).includes(:classifications).find(params[:id])
-
       @history_source = @content.histories.find(params[:history_id]) unless params[:history_id].nil?
 
-      unless @history_source.nil?
-        I18n.with_locale(@history_source.first_available_locale) do
-          @history_schema = @history_source.get_data_hash
-        end
+      return redirect_back(fallback_location: root_path) if @history_source.nil? || @content.nil?
+
+      I18n.with_locale(@history_source.first_available_locale) do
+        @history_schema = @history_source.get_data_hash
       end
 
       I18n.with_locale(@content.first_available_locale) do
@@ -171,7 +178,7 @@ module DataCycleCore
       # Create idea_collection if it doesn't exist and active life_cycle_stage is correct
       if DataCycleCore::Feature::Container.enabled? && @object.content_type?('container') && helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id) == life_cycle_params[:id] && !@object.children.where(template_name: DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage)).exists?
         idea_collection_params = ActionController::Parameters.new({ datahash: { headline: @object.headline } }).permit!
-        idea_collection = DataCycleCore::DataHashService.create_internal_object(object_type, DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), idea_collection_params, current_user)
+        idea_collection = DataCycleCore::DataHashService.create_internal_object(controller_name, DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), idea_collection_params, current_user)
         idea_collection.is_part_of = @object.id unless @object.nil?
         idea_collection.save
       end
@@ -183,13 +190,14 @@ module DataCycleCore
 
     def validate
       @object = data_cycle_object(controller_name).find_by(id: params[:id])
-      authorize! :show, @object
 
       if @object.blank? && params[:template].present?
         @object = data_cycle_object(controller_name).find_by(template: true, template_name: params[:template])
       end
 
       render json: { warning: { content: ['content/template not found'] } } && return if @object.blank?
+
+      authorize! :show, @object
 
       object_params = content_params(controller_name, @object.template_name)
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @object.schema)
@@ -222,6 +230,25 @@ module DataCycleCore
       end
     end
 
+    def upload
+      return if asset_params[:file].blank?
+      object_type = DataCycleCore.asset_objects.find { |object| object.downcase.include?(asset_params[:file].content_type&.split('/')&.first&.downcase) }
+
+      render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) }) && return if object_type.blank?
+
+      authorize! :create, object_type.constantize
+
+      @asset = object_type.constantize.new(asset_params).set_content_type.set_file_size
+      @asset.name = asset_params[:file].original_filename if asset_params[:name].blank?
+      @asset.creator_id = current_user.try(:id)
+      @asset.save
+
+      errors = MediaArchive::Webhooks::Create.new.execute(@asset)
+      render(json: { error: JSON.parse(errors)['errors'] }) && return if errors.present? && JSON.parse(errors).key?('errors')
+
+      render json: @asset
+    end
+
     private
 
     def data_cycle_object(object_string)
@@ -247,6 +274,10 @@ module DataCycleCore
       @watch_list = watch_list if can?(:manage, watch_list)
     end
 
+    def asset_params
+      params.permit(:file)
+    end
+
     def linked_object_params
       params.permit(:id, :key, :page, :load_more_action, :load_more_type, load_more_except: [])
     end
@@ -258,6 +289,12 @@ module DataCycleCore
     def content_params(storage_location, template_name)
       datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name)
       params.require(controller_name.singularize.to_sym).permit(:release_id, :release_comment, datahash: datahash)
+    end
+
+    def notify_subscribers
+      @content.subscriptions.except_user(current_user).to_notify.presence&.each do |subscription|
+        DataCycleCore::SubscriptionMailer.notify(subscription.user, [@content]).deliver_later
+      end
     end
   end
 end
