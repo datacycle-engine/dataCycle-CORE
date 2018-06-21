@@ -9,7 +9,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
           json.content_partial! 'context', content: object
           ordered_validation_properties(validation: object.schema).each do |key, prop|
             object_value = object.try(key.to_sym)
-            object_value = object_value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) if object_value.is_a?(ActiveRecord::Relation) && prop['type'] == 'object'
+            object_value = object_value.presence&.includes(:translations) if object_value.is_a?(ActiveRecord::Relation) && prop['type'] == 'object'
 
             json.render_attribute! key: key, definition: prop, value: object_value, parameters: { options: options }, content: object
           end
