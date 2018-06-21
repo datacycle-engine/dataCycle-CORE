@@ -26,20 +26,9 @@ else
   #   end
   # end
 end
-#
-# json.partial! 'asset_properties', content: content, options: options
-#
+
 json.partial! 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.content_type?('container')
 
-unless content.schema.nil?
-
-  ordered_validation_properties(validation: content.schema).each do |key, prop|
-    next if options[:hidden_attributes].include?(key)
-    value = content.try(key.to_sym)
-
-    json.render_attribute! key: key, definition: prop, value: value, parameters: { options: options }, content: content
-  end
-
-end
+json.content_partial! 'properties', content: content, options: options
 
 json.partial! 'overlay_properties', content: content, options: options
