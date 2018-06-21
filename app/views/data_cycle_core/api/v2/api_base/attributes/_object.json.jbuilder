@@ -1,0 +1,21 @@
+# frozen_string_literal: true
+
+render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: definition, value: value, options: options, content: content do
+  json.set! key.camelize(:lower) do
+    if content.translations.size > 1 && content.translatable_property_names.include?(key)
+      ordered_validation_properties(validation: definition).each do |o_key, _|
+        json.set! o_key.camelize(:lower) do
+          content.translations.each do |translation|
+            I18n.with_locale(translation.locale) do
+              json.set! translation.locale, content.try(key)&.try(o_key)
+            end
+          end
+        end
+      end
+    else
+      ordered_validation_properties(validation: definition).each do |o_key, o_definition|
+        json.render_attribute! key: o_key, definition: o_definition, value: value.try(o_key), parameters: { options: options }, content: content
+      end
+    end
+  end
+end

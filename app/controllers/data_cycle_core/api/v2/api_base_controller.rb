@@ -7,6 +7,7 @@ module DataCycleCore
         include ActionController::Caching
         include ActionView::Rendering
         include CanCan::ControllerAdditions
+        helper DataCycleCore::ApiHelper
 
         unless Rails.env.development?
           include ActiveSupport::Rescuable
