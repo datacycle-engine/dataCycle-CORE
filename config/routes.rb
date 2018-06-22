@@ -128,12 +128,6 @@ DataCycleCore::Engine.routes.draw do
           delete ':external_source_id/:type/:external_key', to: 'external_sources#destroy', on: :collection
         end
 
-        # type_regexp = Regexp.new(*DataCycleCore.content_tables.map(&:to_sym).join('|'))
-        # resources :contents, path: ':type', constraints: { type: type_regexp } do
-        #   get :search, on: :collection
-        #   patch :update, on: :member
-        # end
-
         resources(*DataCycleCore.content_tables.map(&:to_sym), only: [:index, :show]) do
         end
 

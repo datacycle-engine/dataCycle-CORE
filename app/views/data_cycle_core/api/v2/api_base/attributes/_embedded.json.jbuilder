@@ -9,7 +9,8 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
           ordered_validation_properties(validation: object.schema).each do |key, prop|
             object_value = object.try(key.to_sym)
 
-            json.render_attribute! key: key, definition: prop, value: object_value, parameters: { options: options }, content: object
+            # json.render_attribute! key: key, definition: prop, value: object_value, parameters: { options: options }, content: object
+            json.partial!(*(render_api_attribute key: key, definition: prop, value: object_value, parameters: { options: options }, content: object))
           end
         end
       end

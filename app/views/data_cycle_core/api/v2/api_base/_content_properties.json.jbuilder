@@ -6,7 +6,8 @@ unless content.schema.nil?
     next if options[:hidden_attributes].include?(key)
     value = content.try(key.to_sym)
 
-    json.render_attribute! key: key, definition: prop, value: value, parameters: { options: options }, content: content
+    # json.render_attribute! key: key, definition: prop, value: value, parameters: { options: options }, content: content
+    json.partial!(*(render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content))
   end
 
 end
