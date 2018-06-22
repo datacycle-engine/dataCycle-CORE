@@ -386,7 +386,9 @@ namespace :data_cycle_core do
 
       update_sql = <<-EOS
         UPDATE #{args[:content_table_name]}
-        SET schema = '#{template.schema.to_json}'
+        SET
+          schema = '#{template.schema.to_json}',
+          updated_at = updated_at + INTERVAL '1 sec'
         WHERE template_name='#{args[:template_name]}' and template=false
       EOS
 
@@ -716,9 +718,7 @@ namespace :data_cycle_core do
       Rake::Task['data_cycle_core:update:import_classifications'].invoke
       Rake::Task['data_cycle_core:update:import_templates'].invoke
       Rake::Task['data_cycle_core:update:import_external_source_configs'].invoke
-      # Rake::Task['data_cycle_core:update:update_template_sql'].invoke('places', 'Örtlichkeit')
       Rake::Task['data_cycle_core:update:update_all_templates_sql'].invoke(true)
-      Rake::Task['data_cycle_core:refactor:last_updated_by'].invoke
 
       puts 'END'
       puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
