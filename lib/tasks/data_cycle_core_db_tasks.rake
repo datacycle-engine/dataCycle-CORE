@@ -128,8 +128,9 @@ namespace :data_cycle_core do
     end
 
     desc 'import dev db'
-    task :import_dev_db do
+    task :import_live_db, [:rails_env] => [:environment] do |_, args|
       sh 'cap production review:download_dev_db[full]'
+      sh "mv tmp/dev_db.sql db/backups/#{args.fetch(:rails_env, 'staging')}/dev_db.sql"
 
       Rake::Task['data_cycle_core:db:clear_connections'].invoke
       Rake::Task['data_cycle_core:db:restore'].invoke('dev_db.sql')
