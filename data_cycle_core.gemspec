@@ -96,6 +96,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'spring'
   s.add_development_dependency 'spring-watcher-listen'
   s.add_development_dependency 'web-console'
+  # rails panel (test)
+  s.add_development_dependency 'meta_request'
 
   s.add_dependency 'dotenv-rails'
   s.add_dependency 'puma', '~> 3.10.0'
