@@ -20,7 +20,7 @@
         <% if can? :generate_access_token, item %>
           <div class="token">
             <% if item.access_token.present? %>
-              <%= content_tag :span, class: 'copy-to-clipboard', title: DataCycleCore::User.human_attribute_name(:access_token, locale: DataCycleCore.ui_language), data: { value: item.access_token } do %>
+              <%= content_tag :span, class: 'copy-to-clipboard with-shadow', title: DataCycleCore::User.human_attribute_name(:access_token, locale: DataCycleCore.ui_language), data: { value: item.access_token } do %>
                 <i class="fa fa-key" aria-hidden="true"></i>
                 <%= item.access_token %>
               <% end %>

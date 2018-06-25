@@ -196,9 +196,8 @@ module DataCycleCore
     def import
       content = params[:data].as_json
       external_source = DataCycleCore::ExternalSource.find(content['source_key'])
-      api_strategy_class = external_source.config['api_strategy'].safe_constantize
-      api_strategy = api_strategy_class.new(external_source, 'creative_work', content.values.first['url'].split('/').last)
-
+      api_strategy_class = DataCycleCore.allowed_api_strategies.find { |object| object == external_source.config['api_strategy'] }
+      api_strategy = api_strategy_class&.constantize&.new(external_source, 'creative_work', content.values.first['url'].split('/').last)
       @content = api_strategy.create(content.except('source_key'))
       @content = @content.try(:first)
 
