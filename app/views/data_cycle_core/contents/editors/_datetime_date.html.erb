@@ -3,7 +3,9 @@
   <div class="form-element <%= attribute_name_from_key(key) %>">
       <%= label_tag key do %>
         <span class="icon <%= attribute_name_from_key(key) %>">
-            <i aria-hidden="true" class="fa fa-calendar"></i> <%= definition['label'] %>
+            <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
+            <i aria-hidden="true" class="fa fa-calendar"></i>
+            <%= definition['label'] %>
         </span>
       <% end %>
       <% if options.dig('readonly').presence&.to_s  == 'true' %>
