@@ -10,7 +10,7 @@ module DataCycleCore
           @primary_range_code = range_code
           @primary_range_id = range_id
 
-          @load_range_ids = block
+          @load_range_ids = options.dig(:location_range_codes)
         end
 
         def load_range_ids(range_code = 'RG')

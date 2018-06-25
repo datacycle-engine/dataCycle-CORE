@@ -19,7 +19,7 @@ module DataCycleCore
         else
           read_type = {}
         end
-        @endpoint = options.dig(:download, :endpoint).constantize.new(options[:external_source].credentials.symbolize_keys.merge(read_type))
+        @endpoint = options.dig(:download, :endpoint).constantize.new(options[:external_source].credentials.symbolize_keys.merge(read_type).merge(options: options.dig(:download)))
       end
     end
   end

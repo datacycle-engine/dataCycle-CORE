@@ -23,7 +23,7 @@ module DataCycleCore
         def self.load_root_classifications(mongo_item, locale, options)
           mongo_item.collection.aggregate(mongo_item.where(:_id.ne => nil)
             .unwind(
-              "dump.#{locale}.#{parse_common_tag_path(options).join('.')}"
+              ['dump', locale.to_s, parse_common_tag_path(options)].flatten.join('.')
             ).project(
               "dump.#{locale}.id": "$dump.#{locale}.#{options.dig(:import, :tag_id_path)}",
               "dump.#{locale}.tag": "$dump.#{locale}.#{options.dig(:import, :tag_name_path)}"
@@ -79,6 +79,7 @@ module DataCycleCore
         end
 
         def self.unwind_project_data(raw_data, common_path, id_path, name_path)
+          return [{ 'id' => raw_data.dig(*id_path), 'tag' => raw_data.dig(*name_path) }] if common_path.blank?
           return nil if raw_data&.dig(*common_path).blank?
           if raw_data&.dig(*common_path).is_a?(::Array)
             raw_data.dig(*common_path).map do |item|

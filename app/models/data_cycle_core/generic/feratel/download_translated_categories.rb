@@ -4,25 +4,13 @@ module DataCycleCore
   module Generic
     module Feratel
       module DownloadTranslatedCategories
-        include DataCycleCore::Generic::Feratel::DownloadBase
-
-        def download_content(**options)
-          @range_ids = load_location_range_ids(
-            options.dig(:download, :location_collection),
-            options.dig(:download, :location_range_codes)
+        def self.download_content(utility_object:, options:)
+          DataCycleCore::Generic::Common::DownloadFunctions.download_data(
+            download_object: utility_object,
+            data_id: ->(data) { data['Id'] },
+            data_name: ->(data) { [data['Name']['Translation']].flatten.first.try(:[], 'text') },
+            options: options
           )
-
-          download_data(
-            ->(data) { data['Id'] },
-            ->(data) { [data['Name']['Translation']].flatten.first.try(:[], 'text') },
-            options
-          )
-        end
-
-        def endpoint
-          end_point_object.new(credentials.symbolize_keys) do |range_code|
-            @range_ids[range_code]
-          end
         end
       end
     end
