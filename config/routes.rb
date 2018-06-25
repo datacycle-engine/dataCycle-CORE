@@ -29,6 +29,7 @@ DataCycleCore::Engine.routes.draw do
       get 'history', on: :member
       get 'history_detail', on: :member
       get 'compare', on: :member
+      get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
     end
   end
 
