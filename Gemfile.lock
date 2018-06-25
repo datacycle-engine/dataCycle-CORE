@@ -25,7 +25,7 @@ PATH
       logging
       loofah (~> 2.2.2)
       mini_magick
-      mongoid (>= 4.0.0, < 7.0.0)
+      mongoid
       multi_json
       nokogiri (~> 1.8.2)
       pg (~> 0.21)
@@ -107,14 +107,10 @@ GEM
     brakeman (4.3.0)
     bson (4.3.0)
     builder (3.2.3)
-    bullet (5.7.5)
-      activesupport (>= 3.0.0)
-      uniform_notifier (~> 1.11.0)
     bundler-audit (0.6.0)
       bundler (~> 1.2)
       thor (~> 0.18)
     byebug (10.0.2)
-    callsite (0.0.11)
     cancancan (2.2.0)
     capistrano (3.11.0)
       airbrussh (>= 1.0.0)
@@ -246,10 +242,6 @@ GEM
       nokogiri (>= 1.5.9)
     mail (2.7.0)
       mini_mime (>= 0.1.1)
-    meta_request (0.6.0)
-      callsite (~> 0.0, >= 0.0.11)
-      rack-contrib (>= 1.1, < 3)
-      railties (>= 3.0.0, < 6)
     method_source (0.9.0)
     mime-types (3.1)
       mime-types-data (~> 3.2015)
@@ -261,7 +253,7 @@ GEM
     minitest (5.11.3)
     mongo (2.5.3)
       bson (>= 4.3.0, < 5.0.0)
-    mongoid (6.4.1)
+    mongoid (7.0.1)
       activemodel (>= 5.1, < 6.0.0)
       mongo (>= 2.5.1, < 3.0.0)
     multi_json (1.13.1)
@@ -287,8 +279,6 @@ GEM
       get_process_mem (~> 0.2)
       puma (>= 2.7, < 4)
     rack (2.0.5)
-    rack-contrib (2.0.1)
-      rack (~> 2.0)
     rack-test (1.0.0)
       rack (>= 1.0, < 3)
     rails (5.1.6)
@@ -380,7 +370,6 @@ GEM
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
     unicode-display_width (1.4.0)
-    uniform_notifier (1.11.0)
     warden (1.2.7)
       rack (>= 1.0)
     web-console (3.6.2)
@@ -401,7 +390,6 @@ DEPENDENCIES
   better_errors
   binding_of_caller
   brakeman (~> 4.3.0)
-  bullet
   bundler-audit
   byebug
   capistrano-rails
@@ -412,7 +400,6 @@ DEPENDENCIES
   dotenv-rails
   gemsurance
   listen
-  meta_request
   pry
   rubocop (~> 0.56.0)
   spring
