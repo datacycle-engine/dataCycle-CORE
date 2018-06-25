@@ -127,13 +127,20 @@ namespace :data_cycle_core do
       ActiveRecord::Base.connection.select_all "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE datname='#{ActiveRecord::Base.connection_config[:database]}' AND pid <> pg_backend_pid();"
     end
 
-    desc 'import dev db'
+    desc 'import live db'
     task :import_live_db, [:rails_env] => [:environment] do |_, args|
-      sh 'cap production review:download_dev_db[full]'
-      sh "mv tmp/dev_db.sql db/backups/#{args.fetch(:rails_env, 'staging')}/dev_db.sql"
+      logger = Logger.new('log/import_live_db.log')
+      logger.info('Started Importing Live DB...')
 
-      Rake::Task['data_cycle_core:db:clear_connections'].invoke
-      Rake::Task['data_cycle_core:db:restore'].invoke('dev_db.sql')
+      begin
+        sh 'cap production review:download_dev_db[full]'
+        sh "mv tmp/dev_db.sql db/backups/#{args.fetch(:rails_env, 'staging')}/dev_db.sql"
+
+        Rake::Task['data_cycle_core:db:clear_connections'].invoke
+        Rake::Task['data_cycle_core:db:restore'].invoke('dev_db.sql')
+      rescue StandardError => e
+        logger.warn e
+      end
     end
 
     private
