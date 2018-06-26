@@ -4,9 +4,9 @@ require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
 
-describe DataCycleCore::Generic::Feratel::ImportPlaces do
+describe DataCycleCore::Generic::Feratel::ImportAccommodations do
   subject do
-    Object.new.tap { |o| o.extend(DataCycleCore::Generic::Feratel::ImportPlaces) }
+    Object.new.tap { |o| o.extend(DataCycleCore::Generic::Feratel::ImportAccommodations) }
   end
 
   describe 'data extraction for accommodations' do
@@ -265,40 +265,44 @@ describe DataCycleCore::Generic::Feratel::ImportPlaces do
       ]
     end
 
+    def transformed_accommodation
+      DataCycleCore::Generic::Feratel::Transformations.feratel_to_accommodation('external_source_id').call(raw_data)
+    end
+
     it 'extracts external key' do
-      subject.extract_place_data(raw_data)['external_key'].must_equal '79a6d015-e646-4393-8595-0010c02554e1'
+      transformed_accommodation['external_key'].must_equal '79a6d015-e646-4393-8595-0010c02554e1'
     end
 
     it 'extracts name' do
-      subject.extract_place_data(raw_data)['name'].must_equal 'All inclusive Familienhotel Burgstallerhof'
+      transformed_accommodation['name'].must_equal 'All inclusive Familienhotel Burgstallerhof'
     end
 
     it 'extracts latitude' do
-      subject.extract_place_data(raw_data)['latitude'].must_equal 46.7766325823042
+      transformed_accommodation['latitude'].must_equal 46.7766325823042
     end
 
     it 'extracts longitude' do
-      subject.extract_place_data(raw_data)['longitude'].must_equal 13.7460246786503
+      transformed_accommodation['longitude'].must_equal 13.7460246786503
     end
 
     it 'extracts location' do
-      subject.extract_place_data(raw_data)['location'].must_equal(
+      transformed_accommodation['location'].must_equal(
         RGeo::Geographic.spherical_factory(srid: 4326).point(13.7460246786503, 46.7766325823042)
       )
     end
 
     it 'extracts short description' do
-      subject.extract_place_data(raw_data)['description'].must_equal '... Beschreibungstext 1 ...'
+      transformed_accommodation['description'].must_equal '... Beschreibungstext 1 ...'
     end
 
     it 'extracts address' do
-      subject.extract_place_data(raw_data)['address']['street_address'].must_equal 'Dorfstraße 10'
-      subject.extract_place_data(raw_data)['address']['address_locality'].must_equal 'Feld am See'
-      subject.extract_place_data(raw_data)['address']['postal_code'].must_equal '9544'
-      subject.extract_place_data(raw_data)['contact_info']['telephone'].must_equal '+43 4246 2297'
-      subject.extract_place_data(raw_data)['contact_info']['fax_number'].must_equal '+43 4246 3952'
-      subject.extract_place_data(raw_data)['contact_info']['email'].must_equal 'hotel@burgstallerhof.at'
-      subject.extract_place_data(raw_data)['contact_info']['url'].must_equal 'http://www.burgstallerhof.at'
+      transformed_accommodation['address']['street_address'].must_equal 'Dorfstraße 10'
+      transformed_accommodation['address']['address_locality'].must_equal 'Feld am See'
+      transformed_accommodation['address']['postal_code'].must_equal '9544'
+      transformed_accommodation['contact_info']['telephone'].must_equal '+43 4246 2297'
+      transformed_accommodation['contact_info']['fax_number'].must_equal '+43 4246 3952'
+      transformed_accommodation['contact_info']['email'].must_equal 'hotel@burgstallerhof.at'
+      transformed_accommodation['contact_info']['url'].must_equal 'http://www.burgstallerhof.at'
     end
   end
 end
