@@ -14,12 +14,12 @@ module DataCycleCore
             .>> t(:flatten_texts)
             .>> t(:unwrap, 'Details')
             .>> t(:rename_keys,
-              'Id' => 'external_key',
-              'Names' => 'name')
+                  'Id' => 'external_key',
+                  'Names' => 'name')
             .>> t(:unwrap, 'Position')
             .>> t(:rename_keys,
-              'Latitude' => 'latitude',
-              'Longitude' => 'longitude')
+                  'Latitude' => 'latitude',
+                  'Longitude' => 'longitude')
             .>> t(:map_value, 'latitude', ->(v) { v.to_f })
             .>> t(:map_value, 'longitude', ->(v) { v.to_f })
             .>> t(:location)
@@ -29,19 +29,20 @@ module DataCycleCore
             .>> t(:unwrap_address, 'Object')
             .>> t(:unwrap, 'Address')
             .>> t(:rename_keys,
-              'AddressLine1' => 'street_address',
-              'Town' => 'address_locality',
-              'ZipCode' => 'postal_code',
-              'Country' => 'address_country',
-              'Fax' => 'fax_number',
-              'Phone' => 'telephone',
-              'Email' => 'email',
-              'URL' => 'url')
-            .>> t(:add_links, 'image', DataCycleCore::CreativeWork, external_source_id, ->(s) { s&.dig('Documents', 'Document')&.flatten&.reject(&:nil?)&.select{ |d| d['Class'] == 'Image'}&.map { |item| item&.dig('id') } || [] })
-            .>> t(:add_links, 'holiday_themes', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'HolidayThemes', 'Item')&.flatten&.reject(&:nil?)&.map { |item| item&.dig('id') } || [] })
-            .>> t(:add_links, 'accommodation_categories', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Categories', 'Item')&.flatten&.reject(&:nil?)&.map { |item| item&.dig('id') } || [] })
-            .>> t(:add_links, 'feratel_classifications', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Classifications', 'Item')&.flatten&.reject(&:nil?)&.map { |item| item&.dig('id') } || [] })
-            .>> t(:add_links, 'stars', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Stars')&.flatten&.reject(&:nil?)&.map { |item| item&.dig('id') } || [] })
+                  'AddressLine1' => 'street_address',
+                  'Town' => 'address_locality',
+                  'ZipCode' => 'postal_code',
+                  'Country' => 'address_country',
+                  'Fax' => 'fax_number',
+                  'Phone' => 'telephone',
+                  'Email' => 'email',
+                  'URL' => 'url')
+            .>> t(:add_links, 'image', DataCycleCore::CreativeWork, external_source_id, ->(s) { s&.dig('Documents', 'Document')&.select { |d| d['Class'] == 'Image' }&.map { |item| item&.dig('Id') } || [] })
+            .>> t(:add_links, 'holiday_themes', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('HolidayThemes', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
+            .>> t(:add_links, 'accommodation_categories', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Categories', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
+            .>> t(:add_links, 'feratel_classifications', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Classifications', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
+            .>> t(:add_links, 'stars', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Stars')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
+            .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('DataOwner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('DataOwner')).hexdigest}"] : [] })
             .>> t(:map_value, 'url', ->(s) { s.nil? ? '' : (!s.starts_with?('http://') && !s.starts_with?('https://') ? "http://#{s}" : s) })
             .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
             .>> t(:nest, 'contact_info', ['email', 'fax_number', 'telephone', 'url'])

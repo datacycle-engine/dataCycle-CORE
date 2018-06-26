@@ -7,7 +7,6 @@ module DataCycleCore
         def self.process_step(utility_object:, raw_data:, transformation:, default:, config:)
           type = config&.dig(:content_type)&.constantize || default.dig(:content_type)
           template = config&.dig(:template) || default.dig(:template)
-
           create_or_update_content(
             utility_object: utility_object,
             class_type: type,

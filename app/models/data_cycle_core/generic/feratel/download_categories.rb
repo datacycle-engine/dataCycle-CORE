@@ -4,7 +4,6 @@ module DataCycleCore
   module Generic
     module Feratel
       module DownloadCategories
-
         def self.download_content(utility_object:, options:)
           DataCycleCore::Generic::Common::DownloadFunctions.download_data(
             download_object: utility_object,

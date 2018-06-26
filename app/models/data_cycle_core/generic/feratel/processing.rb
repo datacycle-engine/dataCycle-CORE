@@ -11,7 +11,6 @@ module DataCycleCore
           ([raw_data.dig('Documents', 'Document')].flatten.reject(&:nil?).select { |d|
             d['Class'] == 'Image'
           }.each do |image_hash|
-            ap image_hash
             DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
               utility_object: utility_object,
               class_type: type,
