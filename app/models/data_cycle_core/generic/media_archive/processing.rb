@@ -5,13 +5,16 @@ module DataCycleCore
     module MediaArchive
       module Processing
         def self.process_place(utility_object, raw_data, config)
-          return if raw_data.nil? || (raw_data['address'].blank? && (raw_data['geo'].blank? || (raw_data['geo']['latitude'] == 0.0 && raw_data['geo']['longitude'] == 0.0)))
+          return if raw_data.nil? || raw_data['contentLocation'].blank?
+          raw_place_data = raw_data['contentLocation']
+          return if raw_place_data['address'].blank? && (raw_place_data['geo'].blank? || (raw_place_data['geo']['latitude'] == 0.0 && raw_place_data['geo']['longitude'] == 0.0))
+          raw_place_data['url'] = raw_data['url']
 
           template = config.dig(:template) || 'Örtlichkeit'
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
-            raw_data: raw_data['contentLocation'],
-            transformation: DataCycleCore::Generic::OutdoorActive::Transformations.media_archive_to_content_location(template),
+            raw_data: raw_place_data,
+            transformation: DataCycleCore::Generic::MediaArchive::Transformations.media_archive_to_content_location(template),
             default: { content_type: DataCycleCore::Place, template: 'Örtlichkeit' },
             config: config
           )
@@ -52,7 +55,7 @@ module DataCycleCore
           template = config&.dig(:template) || 'Person'
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
-            utlity_object: utility_object,
+            utility_object: utility_object,
             class_type: type,
             template: DataCycleCore::Generic::Common::ImportFunctions.load_template(type, template),
             data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
