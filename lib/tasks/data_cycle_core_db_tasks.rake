@@ -136,8 +136,11 @@ namespace :data_cycle_core do
         sh 'cap production review:download_dev_db[full]'
         sh "mv tmp/dev_db.sql db/backups/#{args.fetch(:rails_env, 'staging')}/dev_db.sql"
 
+        ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
+
         Rake::Task['data_cycle_core:db:clear_connections'].invoke
         Rake::Task['data_cycle_core:db:restore'].invoke('dev_db.sql')
+        logger.info('Imported Live DB successfully')
       rescue StandardError => e
         logger.warn e
       end

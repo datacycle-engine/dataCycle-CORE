@@ -226,6 +226,8 @@ module DataCycleCore
         @linked_objects = @object.try(linked_object_params[:key])&.includes(:translations)&.page(@page)&.per(DataCycleCore.linked_objects_page_size)
       end
 
+      @params = linked_object_params.to_h
+
       respond_to do |format|
         format.js do
           if linked_object_params[:load_more_action] == 'object_browser'
@@ -288,7 +290,7 @@ module DataCycleCore
     end
 
     def linked_object_params
-      params.permit(:id, :key, :page, :load_more_action, :load_more_type, load_more_except: [])
+      params.permit(:id, :key, :page, :load_more_action, :locale, :load_more_type, :complete_key, :editable, definition: {}, load_more_except: [], options: {})
     end
 
     def life_cycle_params
