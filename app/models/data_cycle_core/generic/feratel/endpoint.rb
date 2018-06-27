@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module Feratel
       class Endpoint
-        def initialize(pos_code: nil, company_code: nil, range_code: nil, range_id: nil, **options, &block)
+        def initialize(pos_code: nil, company_code: nil, range_code: nil, range_id: nil, **options)
           @pos_code = pos_code
           @company_code = company_code
           @primary_range_code = range_code
