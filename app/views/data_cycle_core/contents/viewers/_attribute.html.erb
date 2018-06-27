@@ -10,7 +10,7 @@
 
     <% mode = options.dig(:mode) ? options.dig(:mode) : 'edit' %>
 
-    <div data-label="<%= definition['label'] %>" class="detail-type <%= [
+    <div data-label="<%= data_label ||= definition['label'] %>" class="detail-type <%= [
                 key.split('[').count > 1 ? key.split('[').last[0...-1].underscore : key.underscore,
                 definition.dig('type').try(:underscore),
                 definition.dig('ui', 'show', 'type').try(:underscore),
