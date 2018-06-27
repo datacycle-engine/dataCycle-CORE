@@ -31,14 +31,12 @@ module DataCycleCore
           range_codes ||= []
 
           DataCycleCore::Generic::Collection2.with(@read_type) do |mongo|
-
             range_codes.map(&:to_s).uniq.map { |code|
               {
                 code => mongo.where({ 'dump.de._Type' => range_type(code) }).map { |r| r.dump['de']['Id'] }
               }
             }.reduce({}, &:merge)
           end
-
         end
 
         def range_type(range_code)

@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Generic
-    class ImportObject
+    class ImportObject < GenericObject
       attr_reader :external_source, :options, :locales, :logging, :source_type, :source_object
 
       def initialize(**options)
@@ -14,6 +14,7 @@ module DataCycleCore
         @source_object = DataCycleCore::Generic::Collection
         @source_type = Mongoid::PersistenceContext.new(@source_object, collection: options[:import][:source_type])
         @locales = options[:locales]
+        @logging = init_logging(:import)
       end
     end
   end

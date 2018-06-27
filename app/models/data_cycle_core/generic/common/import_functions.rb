@@ -40,8 +40,7 @@ module DataCycleCore
           if utility_object.logging && error[:error].present?
             utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))
           elsif error[:error].present?
-            ap error
-            #raise error[:error].first
+            raise error[:error].first
           end
 
           content.tap(&:save!)
@@ -57,7 +56,7 @@ module DataCycleCore
 
         def self.import_sequential(utility_object:, iterator:, data_processor:, options:)
           delta = 100
-          init_logging(options) do |logging|
+          init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
               phase_name = utility_object.source_type.collection_name
               logging.preparing_phase("#{utility_object.external_source.name} #{phase_name}")
@@ -110,12 +109,8 @@ module DataCycleCore
           end
         end
 
-        def self.init_logging(options)
-          if options&.dig(:import, :logging_strategy).blank?
-            logging = DataCycleCore::Generic::Logger::LogFile.new('import')
-          else
-            logging = instance_eval(options.dig(:import, :logging_strategy))
-          end
+        def self.init_logging(utility_object)
+          logging = utility_object.logging
           yield(logging)
         ensure
           logging.close if logging.respond_to?(:close)
@@ -157,7 +152,7 @@ module DataCycleCore
           raise ArgumentError('tree_name cannot be blank') if tree_name.blank?
 
           external_source_id = utility_object.external_source.id
-          init_logging(options) do |logging|
+          init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
               each_locale(utility_object.locales) do |locale|
                 phase_name = utility_object.source_type.collection_name

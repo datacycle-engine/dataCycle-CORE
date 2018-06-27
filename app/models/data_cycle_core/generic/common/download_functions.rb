@@ -22,7 +22,7 @@ module DataCycleCore
             end
           else
             init_mongo_db(download_object) do
-              init_logging(options) do |logging|
+              init_logging(download_object) do |logging|
                 locale = options[:locales].first
                 logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
@@ -76,7 +76,7 @@ module DataCycleCore
           delta = 100
 
           init_mongo_db(download_object) do
-            init_logging(options) do |logging|
+            init_logging(download_object) do |logging|
               locales = options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales
               logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name}")
               item_count = 0
@@ -126,12 +126,8 @@ module DataCycleCore
           end
         end
 
-        def self.init_logging(options)
-          if options&.dig(:download, :logging_strategy).blank?
-            logging = DataCycleCore::Generic::Logger::LogFile.new('download')
-          else
-            logging = instance_eval(options.dig(:download, :logging_strategy))
-          end
+        def self.init_logging(download_object)
+          logging = download_object.logging
           yield(logging)
         ensure
           logging.close if logging.respond_to?(:close)
