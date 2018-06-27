@@ -110,7 +110,7 @@ module DataCycleCore
         end
 
         def self.init_logging(utility_object)
-          logging = utility_object.logging
+          logging = utility_object.init_logging(:import)
           yield(logging)
         ensure
           logging.close if logging.respond_to?(:close)

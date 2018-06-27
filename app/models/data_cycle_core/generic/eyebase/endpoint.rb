@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module Eyebase
       class Endpoint
-        def initialize(host: nil, end_point: nil, token: nil)
+        def initialize(host: nil, end_point: nil, token: nil, **options)
           @host = host
           @end_point = end_point
           @token = token

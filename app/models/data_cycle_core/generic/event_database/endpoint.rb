@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module EventDatabase
       class Endpoint
-        def initialize(host: nil, end_point: nil, action: nil)
+        def initialize(host: nil, end_point: nil, action: nil, **_options)
           @host = host
           @end_point = end_point
           @action = action

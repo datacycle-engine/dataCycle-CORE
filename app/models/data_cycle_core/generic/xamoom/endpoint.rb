@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module Xamoom
       class Endpoint
-        def initialize(host: nil, end_point: nil, key: nil)
+        def initialize(host: nil, end_point: nil, key: nil, **_options)
           @host = host
           @end_point = end_point
           @key = key

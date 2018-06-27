@@ -5,7 +5,7 @@ credentials:
   host: https://media.kaernten.at
   token: 0PwwV8Z4PyF1lYBtGopUANWrZFGR38my
 default_options:
-  locales: ['de', 'en']
+  locales: [de, en]
 config:
   download_config:
     images:

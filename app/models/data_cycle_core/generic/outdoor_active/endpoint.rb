@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module OutdoorActive
       class Endpoint
-        def initialize(host: nil, end_point: nil, project: nil, key: nil)
+        def initialize(host: nil, end_point: nil, project: nil, key: nil, **_options)
           @host = host
           @end_point = end_point
           @project = project
