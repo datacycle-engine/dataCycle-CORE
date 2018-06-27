@@ -40,7 +40,8 @@ module DataCycleCore
           if utility_object.logging && error[:error].present?
             utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))
           elsif error[:error].present?
-            raise error[:error].first
+            ap error
+            #raise error[:error].first
           end
 
           content.tap(&:save!)
