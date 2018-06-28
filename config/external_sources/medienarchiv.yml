@@ -1,9 +1,11 @@
 ---
-name: JSON-LD KW-Medienarchiv
+name: Medienarchiv
 credentials:
   end_point: /api/v1/media.json
   host: https://media.kaernten.at
   token: 0PwwV8Z4PyF1lYBtGopUANWrZFGR38my
+default_options:
+  locales: [de, en]
 config:
   download_config:
     images:
@@ -22,6 +24,13 @@ config:
     #   endpoint: DataCycleCore::Generic::MediaArchive::Endpoint
     #   download_strategy: DataCycleCore::Generic::MediaArchive::Download
   import_config:
+#    tags_images:
+#      sorting: 1
+#      source_type: images
+#      import_strategy: DataCycleCore::Generic::MediaArchive::ImportKeywords
+#      transformations:
+#        keyword:
+#          tree_label: MediaArchive - Tags
     tags_images:
       sorting: 1
       source_type: images
@@ -30,6 +39,14 @@ config:
       tag_id_path: 'keywords'
       tag_name_path: 'keywords'
       external_id_prefix: 'MedienArchive - keyword - '
+#    tags_videos:
+#      sorting: 2
+#      source_type: videos
+#      import_strategy: DataCycleCore::Generic::Common::ImportTags
+#      tree_label: MediaArchive - Tags
+#      tag_id_path: 'keywords'
+#      tag_name_path: 'keywords'
+#      external_id_prefix: 'MedienArchive - keyword - '
     images:
       sorting: 5
       source_type: images
@@ -54,8 +71,14 @@ config:
         place:
           content_type: DataCycleCore::Place
           template: Örtlichkeit
+        director:
+          content_type: DataCycleCore::Person
+          template: Person
+        contributor:
+          content_type: DataCycleCore::Person
+          template: Person
         video:
-          content_type: DataCyclecore::CreativeWork
+          content_type: DataCycleCore::CreativeWork
           template: Video
           place_template: Örtlichkeit
           default_values:

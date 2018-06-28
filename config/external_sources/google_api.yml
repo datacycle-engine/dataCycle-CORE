@@ -20,7 +20,7 @@ config:
       source_type: places_detail
       read_type: places
       endpoint: DataCycleCore::Generic::GooglePlaces::Endpoint
-      download_strategy: DataCycleCore::Generic::GooglePlaces::DownloadDetail
+      download_strategy: DataCycleCore::Generic::GooglePlaces::Download
   import_config:
     keywords:
       sorting: 1
