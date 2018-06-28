@@ -32,21 +32,22 @@ module DataCycleCore
         end
 
         def self.process_video(utility_object, raw_data, config)
+          place_template = config&.dig(:place_template) || 'Örtlichkeit'
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
-            transformation: DataCycleCore::Generic::MediaArchive::Transformations.media_archive_to_video(utility_object.external_source.id),
+            transformation: DataCycleCore::Generic::MediaArchive::Transformations.media_archive_to_video(utility_object.external_source.id, place_template),
             default: { content_type: DataCycleCore::CreativeWork, template: 'Video' },
             config: config
           )
         end
 
         def self.process_contributor(utility_object, raw_data, config)
-          process_person(utility_object, raw_data[:contributor], "Kamera: #{raw_data[:url].split('/').last}", config)
+          process_person(utility_object, raw_data['contributor'], "Kamera: #{raw_data['url'].split('/').last}", config)
         end
 
         def self.process_director(utility_object, raw_data, config)
-          process_person(utility_object, raw_data[:director], "Regie: #{raw_data[:url].split('/').last}", config)
+          process_person(utility_object, raw_data['director'], "Regie: #{raw_data['url'].split('/').last}", config)
         end
 
         def self.process_person(utility_object, raw_data, external_key, config)

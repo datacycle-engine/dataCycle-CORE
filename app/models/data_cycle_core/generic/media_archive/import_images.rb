@@ -27,7 +27,6 @@ module DataCycleCore
                 options: { import: utility_object.external_source.config.dig('import_config', tag_name)&.deep_symbolize_keys }
               )
             end
-
             DataCycleCore::Generic::MediaArchive::Processing.process_place(
               utility_object,
               raw_data,

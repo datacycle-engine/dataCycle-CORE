@@ -28,7 +28,7 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
-        def self.media_archive_to_video(external_source_id)
+        def self.media_archive_to_video(external_source_id, place_template)
           t(:stringify_keys)
           .>> t(:reject_keys, ['@context', 'contentType', 'visibility', 'contentLocation'])
           .>> t(:underscore_keys)
@@ -46,6 +46,7 @@ module DataCycleCore
           .>> t(:add_link, 'director', DataCycleCore::Person, external_source_id, ->(s) { "Regie: #{s['url'].split('/').last}" })
           .>> t(:add_link, 'contributor', DataCycleCore::Person, external_source_id, ->(s) { "Kamera: #{s['url'].split('/').last}" })
           .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
+          .>> t(:add_link, 'content_location', DataCycleCore::Place, external_source_id, ->(s) { "#{s['contentType']}-#{place_template}: #{s['url'].split('/').last}" })
           .>> t(:strip_all)
         end
 
