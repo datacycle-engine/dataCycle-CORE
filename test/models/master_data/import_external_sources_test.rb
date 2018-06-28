@@ -22,40 +22,56 @@ describe DataCycleCore::MasterData::ImportExternalSources do
           'host' => 'https://views2.austria.info',
           'token' => 'NySHyubtwJNYcXWa38wVNvWwG8KWzLbq'
         },
+        'default_options' => {
+          'locales' => ['de']
+        },
         'config' =>  {
-          'download' => 'DataCycleCore::Generic::BatchDownload',
           'download_config' => {
             'images' => {
               'sorting' => 1,
               'source_type' => 'images',
               'endpoint' => 'DataCycleCore::Generic::MediaArchive::Endpoint',
-              'download_strategy' => 'DataCycleCore::Generic::MediaArchive::Download',
-              'logging_strategy' => 'DataCycleCore::Generic::Logger::Console.new(\'download\')'
+              'download_strategy' => 'DataCycleCore::Generic::MediaArchive::Download'
             },
             'videos' => {
               'sorting' => 2,
               'source_type' => 'videos',
               'endpoint' => 'DataCycleCore::Generic::MediaArchive::Endpoint',
-              'download_strategy' => 'DataCycleCore::Generic::MediaArchive::Download',
-              'logging_strategy' => 'DataCycleCore::Generic::Logger::Console.new(\'download\')'
+              'download_strategy' => 'DataCycleCore::Generic::MediaArchive::Download'
             }
           },
-          'import' => 'DataCycleCore::Generic::BatchImport',
           'import_config' => {
             'images' => {
-              'sorting' => 1,
+              'sorting' => 2,
               'source_type' => 'images',
-              'import_strategy' => 'DataCycleCore::Generic::MediaArchive::Import',
-              'data_template' => 'Bild',
-              'target_type' => 'DataCycleCore::CreativeWork',
-              'logging_strategy' => 'DataCycleCore::Generic::Logger::Console.new(\'import\')'
+              'import_strategy' => 'DataCycleCore::Generic::MediaArchive::ImportImages',
+              'transformations' => {
+                'place' => {
+                  'content_type' => 'DataCycleCore::Place',
+                  'template' => 'Örtlichkeit'
+                },
+                'image' => {
+                  'content_type' => 'DataCycleCore::CreativeWork',
+                  'template' => 'Bild',
+                  'place_template' => 'Örtlichkeit'
+                }
+              }
             },
             'videos' => {
-              'sorting' => 2,
+              'sorting' => 3,
               'source_type' => 'videos',
-              'import_strategy' => 'DataCycleCore::Generic::MediaArchive::Import',
-              'data_template' => 'Video', 'target_type' => 'DataCycleCore::CreativeWork',
-              'logging_strategy' => 'DataCycleCore::Generic::Logger::Console.new(\'import\')'
+              'import_strategy' => 'DataCycleCore::Generic::MediaArchive::ImportVideos',
+              'transformations' => {
+                'place' => {
+                  'content_type' => 'DataCycleCore::Place',
+                  'template' => 'Örtlichkeit'
+                },
+                'image' => {
+                  'content_type' => 'DataCycleCore::CreativeWork',
+                  'template' => 'Video',
+                  'place_template' => 'Örtlichkeit'
+                }
+              }
             }
           },
           'api_strategy' => 'DataCycleCore::Api::MediaArchiveExternalSource'
@@ -99,24 +115,6 @@ describe DataCycleCore::MasterData::ImportExternalSources do
       subject.validate(external_source_config.except('config')).must_equal({ config: ['is missing'] })
     end
 
-    it 'fails if no download program is given' do
-      test_hash = external_source_config.deep_dup
-      test_hash['config'] = test_hash['config'].except('download')
-      assert subject.validate(test_hash).present?
-    end
-
-    it 'produces an appropriate error message if no download program is given' do
-      test_hash = external_source_config.deep_dup
-      test_hash['config'] = test_hash['config'].except('download')
-      subject.validate(test_hash).must_equal({ config: { download: ['is missing'] } })
-    end
-
-    it 'produces an appropriate error message if the download program does not specify a valid ruby class' do
-      test_hash = external_source_config.deep_dup
-      test_hash['config']['download'] = 'DataCycleCore::XXX'
-      subject.validate(test_hash).must_equal({ config: { download: ['the string given does not specify a valid ruby class.'] } })
-    end
-
     it 'fails if no download_config is given' do
       test_hash = external_source_config.deep_dup
       test_hash['config'] = test_hash['config'].except('download_config')
@@ -127,24 +125,6 @@ describe DataCycleCore::MasterData::ImportExternalSources do
       test_hash = external_source_config.deep_dup
       test_hash['config'] = test_hash['config'].except('download_config')
       subject.validate(test_hash).must_equal({ config: { download_config: ['is missing'] } })
-    end
-
-    it 'fails if no import program is given' do
-      test_hash = external_source_config.deep_dup
-      test_hash['config'] = test_hash['config'].except('import')
-      assert subject.validate(test_hash).present?
-    end
-
-    it 'produces an appropriate error message if no import program is given' do
-      test_hash = external_source_config.deep_dup
-      test_hash['config'] = test_hash['config'].except('import')
-      subject.validate(test_hash).must_equal({ config: { import: ['is missing'] } })
-    end
-
-    it 'produces an appropriate error message if the import program does not specify a vaild ruby class' do
-      test_hash = external_source_config.deep_dup
-      test_hash['config']['import'] = 'DataCycleCore::XXX'
-      subject.validate(test_hash).must_equal({ config: { import: ['the string given does not specify a valid ruby class.'] } })
     end
 
     it 'fails if no import_config is given' do
@@ -212,16 +192,6 @@ describe DataCycleCore::MasterData::ImportExternalSources do
       subject.validate_download_item.call(test_hash).errors.must_equal({ download_strategy: ['the string given does not specify a valid ruby module.'] })
     end
 
-    it 'fails if download_item has no logging_strategy specified' do
-      test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
-      assert subject.validate_download_item.call(test_hash.except(:logging_strategy)).present?
-    end
-
-    it 'produces an appropriate error if no logging_strategy is specified' do
-      test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
-      subject.validate_download_item.call(test_hash.except(:logging_strategy)).errors.must_equal({ logging_strategy: ['is missing'] })
-    end
-
     it 'produces an appropriate error if logging_strategy is not a module' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
       test_hash[:logging_strategy] = 'DataCycleCore::XXX'
@@ -268,38 +238,6 @@ describe DataCycleCore::MasterData::ImportExternalSources do
     it 'check that data_template is optional' do
       test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
       subject.validate_import_item.call(test_hash.except(:data_template)).errors.must_equal({})
-    end
-
-    it 'fails if import_item has no target_type specified' do
-      test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      assert subject.validate_import_item.call(test_hash.except(:target_type)).present?
-    end
-
-    it 'produces an appropriate error if no target_type is specified for an import_item' do
-      test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      subject.validate_import_item.call(test_hash.except(:target_type)).errors.must_equal({ target_type: ['is missing'] })
-    end
-
-    it 'produces an appropriate error if target_type is not a class for an import_item' do
-      test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      test_hash[:target_type] = 'DataCycleCore::XXX'
-      subject.validate_import_item.call(test_hash).errors.must_equal({ target_type: ['the string given does not specify a valid ruby class.'] })
-    end
-
-    it 'fails if import_item has no logging_strategy specified' do
-      test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      assert subject.validate_import_item.call(test_hash.except(:logging_strategy)).present?
-    end
-
-    it 'produces an appropriate error if no logging_strategy is specified for an import_item' do
-      test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      subject.validate_import_item.call(test_hash.except(:logging_strategy)).errors.must_equal({ logging_strategy: ['is missing'] })
-    end
-
-    it 'produces an appropriate error if logging_strategy is not a module for an import_item' do
-      test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      test_hash[:logging_strategy] = 'DataCycleCore::XXX'
-      subject.validate_import_item.call(test_hash).errors.must_equal({ logging_strategy: ['the string given can not be evaluated.'] })
     end
   end
 end

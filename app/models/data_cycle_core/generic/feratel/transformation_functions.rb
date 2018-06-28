@@ -8,7 +8,7 @@ module DataCycleCore
         import Transproc::HashTransformations
         import Transproc::Conditional
         import Transproc::Recursion
-        import DataCycleCore::Generic::Transformations::Functions
+        import DataCycleCore::Generic::Common::Functions
 
         def self.flatten_translations(data)
           raise ArgumentError unless data.is_a?(Array) || data.is_a?(Hash)
