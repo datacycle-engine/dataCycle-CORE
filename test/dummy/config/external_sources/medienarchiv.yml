@@ -1,68 +1,96 @@
 ---
-name: JSON-LD KW-Medienarchiv
+name: Medienarchiv
 credentials:
   end_point: /api/v1/media.json
   host: https://media.kaernten.at
   token: 0PwwV8Z4PyF1lYBtGopUANWrZFGR38my
+default_options:
+  locales: [de, en]
 config:
-  download: DataCycleCore::Generic::BatchDownload
   download_config:
     images:
       sorting: 1
       source_type: images
       endpoint: DataCycleCore::Generic::MediaArchive::Endpoint
       download_strategy: DataCycleCore::Generic::MediaArchive::Download
-      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
     videos:
       sorting: 2
       source_type: videos
       endpoint: DataCycleCore::Generic::MediaArchive::Endpoint
       download_strategy: DataCycleCore::Generic::MediaArchive::Download
-      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
     # documents:
     #   sorting: 3
     #   source_type: documents
     #   endpoint: DataCycleCore::Generic::MediaArchive::Endpoint
     #   download_strategy: DataCycleCore::Generic::MediaArchive::Download
-    #   logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
-  import: DataCycleCore::Generic::BatchImport
   import_config:
-    tags:
+#    tags_images:
+#      sorting: 1
+#      source_type: images
+#      import_strategy: DataCycleCore::Generic::MediaArchive::ImportKeywords
+#      transformations:
+#        keyword:
+#          tree_label: MediaArchive - Tags
+    tags_images:
       sorting: 1
       source_type: images
-      import_strategy: DataCycleCore::Generic::MediaArchive::ImportKeywords
-      target_type: DataCycleCore::Classification
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
       tree_label: MediaArchive - Tags
-      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+      tag_id_path: 'keywords'
+      tag_name_path: 'keywords'
+      external_id_prefix: 'MedienArchive - keyword - '
+#    tags_videos:
+#      sorting: 2
+#      source_type: videos
+#      import_strategy: DataCycleCore::Generic::Common::ImportTags
+#      tree_label: MediaArchive - Tags
+#      tag_id_path: 'keywords'
+#      tag_name_path: 'keywords'
+#      external_id_prefix: 'MedienArchive - keyword - '
     images:
       sorting: 5
       source_type: images
-      import_strategy: DataCycleCore::Generic::MediaArchive::Import
-      data_template: Bild
-      place_template: Örtlichkeit
-      target_type: DataCycleCore::CreativeWork
-      default_values:
-        output_channel:
-          tree_label: Ausgabekanäle
-          value: Medienarchiv
-      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+      import_strategy: DataCycleCore::Generic::MediaArchive::ImportImages
+      transformations:
+        place:
+          content_type: DataCycleCore::Place
+          template: Örtlichkeit
+        image:
+          content_type: DataCycleCore::CreativeWork
+          template: Bild
+          place_template: Örtlichkeit
+          default_values:
+            output_channel:
+              tree_label: Ausgabekanäle
+              value: Medienarchiv
     videos:
       sorting: 6
       source_type: videos
-      import_strategy: DataCycleCore::Generic::MediaArchive::Import
-      data_template: Video
-      place_template: Örtlichkeit
-      target_type: DataCycleCore::CreativeWork
-      default_values:
-        output_channel:
-          tree_label: Ausgabekanäle
-          value: Medienarchiv
-      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+      import_strategy: DataCycleCore::Generic::MediaArchive::ImportVideos
+      transformations:
+        place:
+          content_type: DataCycleCore::Place
+          template: Örtlichkeit
+        director:
+          content_type: DataCycleCore::Person
+          template: Person
+        contributor:
+          content_type: DataCycleCore::Person
+          template: Person
+        video:
+          content_type: DataCycleCore::CreativeWork
+          template: Video
+          place_template: Örtlichkeit
+          default_values:
+            output_channel:
+              tree_label: Ausgabekanäle
+              value: Medienarchiv
     # documents:
     #   sorting: 7
     #   source_type: documents
-    #   import_strategy: DataCycleCore::Generic::MediaArchive::Import
-    #   data_template: Document
-    #   target_type: DataCycleCore::CreativeWork
-    #   logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+    #   import_strategy: DataCycleCore::Generic::MediaArchive::ImportDocument
+    #   transformations:
+    #     document
+    #       template: Document
+    #       content_type: DataCycleCore::CreativeWork
   api_strategy: DataCycleCore::Api::MediaArchiveExternalSource

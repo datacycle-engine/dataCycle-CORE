@@ -830,5 +830,19 @@ namespace :data_cycle_core do
       puts 'END'
       puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
     end
+
+    desc 'dev mode'
+    task restore_dev_mode: :environment do
+      temp = Time.zone.now
+
+      Rake::Task['app:data_cycle_core:clear:all'].invoke
+      Rake::Task['app:data_cycle_core:update:import_classifications'].invoke
+      Rake::Task['app:data_cycle_core:update:import_templates'].invoke
+      Rake::Task['app:data_cycle_core:update:import_external_source_configs'].invoke
+      Rake::Task['app:data_cycle_core:import:list'].invoke
+
+      puts 'END'
+      puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
+    end
   end
 end

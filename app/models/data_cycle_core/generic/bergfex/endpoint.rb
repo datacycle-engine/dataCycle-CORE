@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module Bergfex
       class Endpoint
-        def initialize(host: nil, end_point: nil, partner: nil)
+        def initialize(host: nil, end_point: nil, partner: nil, **options)
           @host = host
           @end_point = end_point
           @partner = partner
