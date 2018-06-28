@@ -14,9 +14,8 @@
         <div class="description"><%= object.try(:title) %></div>
     <% end %>
 
-    <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
-
     <% if editable ||= false %>
+        <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
         <span class="delete-thumbnail"><i aria-hidden="true" class="fa fa-times"></i></span>
     <% end %>
 
