@@ -4,6 +4,17 @@ module DataCycleCore
   module Generic
     module OutdoorActive
       module Processing
+        def self.process_main_image(utility_object, raw_data, config)
+          return if raw_data&.dig('primaryImage').nil?
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data.dig('primaryImage'),
+            transformation: DataCycleCore::Generic::OutdoorActive::Transformations.outdoor_active_to_image,
+            default: { content_type: DataCycleCore::CreativeWork, template: 'Bild' },
+            config: config
+          )
+        end
+
         def self.process_image(utility_object, raw_data, config)
           type = config&.dig(:content_type)&.constantize || DataCycleCore::CreativeWork
           template = config&.dig(:template) || 'Bild'
