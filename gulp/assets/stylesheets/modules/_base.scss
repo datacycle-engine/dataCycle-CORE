@@ -382,7 +382,8 @@ button,
         opacity: 1;
         color: rgba($dark-gray, 50%);
       }
-      [type='checkbox'] + label[for], [type='radio'] + label[for]{
+      [type='checkbox']+label[for],
+      [type='radio']+label[for] {
         margin-left: 20px;
       }
       &:focus,

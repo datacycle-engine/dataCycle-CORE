@@ -13,18 +13,18 @@
 
     </div>
 
-    <div class="item-links">
-      <% if can? :edit, item %>
-        <%= link_to edit_user_group_path(item, watch_list_id: @watch_list), class: 'button-prime small edit-link', title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, data: { tooltip: "", 'disable-hover': false }, 'aria-haspopup': "true" do %>
-          <i class="fa fa-pencil" aria-hidden="true"></i>
-        <% end %>
-      <% end %>
+<% end %>
 
-      <% if can? :destroy, item %>
-        <%= link_to item, method: :delete, class:'button-prime small alert delete-link', data: { confirm: "#{item.model_name.human(locale: DataCycleCore.ui_language)} #{t('actions.delete', locale: DataCycleCore.ui_language)}?", tooltip: "", 'disable-hover': false}, title: t('actions.delete', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': "true" do %>
-            <i class="fa fa-trash-o" aria-hidden="true"></i>
-        <% end %>
-      <% end %>
-    </div>
+<% content_for :media_buttons do %>
+  <% if can? :edit, item %>
+    <%= link_to edit_user_group_path(item, watch_list_id: @watch_list), class: 'button-prime small edit-link', title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, data: { tooltip: "", 'disable-hover': false }, 'aria-haspopup': "true" do %>
+      <i class="fa fa-pencil" aria-hidden="true"></i>
+    <% end %>
+  <% end %>
 
+  <% if can? :destroy, item %>
+    <%= link_to item, method: :delete, class:'button-prime small alert delete-link', data: { confirm: "#{item.model_name.human(locale: DataCycleCore.ui_language)} #{t('actions.delete', locale: DataCycleCore.ui_language)}?", tooltip: "", 'disable-hover': false}, title: t('actions.delete', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': "true" do %>
+        <i class="fa fa-trash-o" aria-hidden="true"></i>
+    <% end %>
+  <% end %>
 <% end %>

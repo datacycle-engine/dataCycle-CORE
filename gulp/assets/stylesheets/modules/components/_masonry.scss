@@ -32,7 +32,6 @@
       z-index: 1;
       line-height: 1;
       >a {
-        padding-left: 0.2rem;
         line-height: inherit;
       }
       .external-source {
@@ -40,6 +39,22 @@
         line-height: inherit;
         &.has-tip {
           border: none;
+        }
+      }
+      >a.button-prime.small,
+      >button.button-prime.small {
+        display: inline-block;
+        height: 2rem;
+        width: 2rem;
+        &.has-tip {
+          &:hover,
+          &:focus {
+            cursor: pointer;
+          }
+        }
+        .fa {
+          line-height: 2rem;
+          font-size: 1rem;
         }
       }
     }

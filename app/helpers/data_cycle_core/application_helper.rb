@@ -153,7 +153,7 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
 
-    def render_content_tile(item:, parameters: {})
+    def content_tile(item:, parameters: {})
       partials = [
         "#{item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_')}_#{item.try(:template_name)&.underscore&.parameterize(separator: '_')}",
         item.try(:template_name)&.underscore&.parameterize(separator: '_'),
@@ -161,7 +161,8 @@ module DataCycleCore
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}" }
 
-      render_first_existing_partial(partials, parameters.merge({ item: item }))
+      return first_existing_partial(partials), parameters.merge({ item: item })
+      # render_first_existing_partial(partials, parameters.merge({ item: item }))
     end
 
     def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {}, content: nil)
@@ -229,6 +230,17 @@ module DataCycleCore
         aria: { label: 'Dismiss alert' }
       ) do
         content_tag(:span, '&times;'.html_safe, aria: { hidden: true })
+      end
+    end
+
+    def yield_content!(content_key)
+      view_flow.content.delete(content_key)
+    end
+
+    def first_existing_partial(partials)
+      partials.each_with_index do |partial, _idx|
+        next unless lookup_context.exists?(partial, [], true)
+        return partial
       end
     end
   end
