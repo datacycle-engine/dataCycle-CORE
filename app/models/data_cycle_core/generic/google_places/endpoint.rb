@@ -158,7 +158,7 @@ module DataCycleCore
               req.params['language'] = 'de'
             end
           end
-          raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point + 'nearbysearch/json'} / x:#{location_x} / y:#{location_y} / r:#{radius}" + response.body unless response.success?
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point + 'nearbysearch/json'} / x:#{location_x} / y:#{location_y} / r:#{radius}", response) unless response.success?
           JSON.parse(response.body)
         end
 

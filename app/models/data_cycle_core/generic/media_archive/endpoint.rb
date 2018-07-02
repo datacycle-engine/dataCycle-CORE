@@ -51,7 +51,7 @@ module DataCycleCore
             req.params['type'] = type
           end
 
-          raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point} / page:#{page} / per:#{per} / type:#{type}" + response.body unless response.success?
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point} / page:#{page} / per:#{per} / type:#{type}", response) unless response.success?
           JSON.parse(response.body)
         end
       end
