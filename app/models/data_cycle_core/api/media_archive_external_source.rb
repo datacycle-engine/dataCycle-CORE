@@ -4,15 +4,29 @@ module DataCycleCore
   module Api
     class MediaArchiveExternalSource < DataCycleCore::Api::ExternalSource
       def update(data)
-        extend(DataCycleCore::Generic::MediaArchive::Import)
-        default_options
-        load_transformations
+        import_config = external_source.config&.dig('import_config')&.symbolize_keys
+
         processed_items = []
-        data.each do |key, object|
-          template_name = get_object_template_name object
-          processed_items << process_content(object, load_template(@target_type, template_name), key)
+        data.each do |language, object|
+          case object['contentType']
+          when 'Bild'
+            import_name = :images
+          when 'Video'
+            import_name = :videos
+          else
+            next
+          end
+          processed_items << import_content(import_config: import_config, import_name: import_name, data: object, locale: language)
         end
         processed_items
+      end
+
+      def import_content(import_config:, import_name:, data:, locale:)
+        return if import_config.blank? || import_name.blank? || data.blank? || locale.blank?
+        full_options = (external_source.default_options || {}).symbolize_keys.merge({ import: import_config.dig(import_name).symbolize_keys.except(:sorting) })
+        locales = full_options[:locales] || full_options[:import][:locales] || I18n.available_locales
+        utility_object = DataCycleCore::Generic::ImportObject.new(full_options.merge(external_source: external_source, locales: locales))
+        full_options.dig(:import, :import_strategy).constantize.process_content(utility_object: utility_object, raw_data: data, locale: locale, options: full_options.deep_symbolize_keys)
       end
 
       def create(data)

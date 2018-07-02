@@ -60,21 +60,25 @@ namespace :review do
   desc 'init dev db'
   task :init_dev_db do
     run_locally do
-      `cap development review:download_dev_db`
+      `cap production review:download_dev_db`
     end
     invoke 'review:upload_dev_db'
   end
 
   desc 'download dev db'
-  task :download_dev_db do
+  task :download_dev_db, [:history] do |_, args|
     on roles(:db) do
       within release_path do
         with rails_env: fetch(:rails_env) do
-          execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:dump[dev_db,sql,review]"
+          if args[:history] == 'true'
+            execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:dump[dev_db,sql,full]"
+          else
+            execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:dump[dev_db,sql,review]"
+          end
         end
       end
       within shared_path do
-        download! "#{fetch(:application_root_path, '')}db/backups/staging/dev_db.sql", "#{fetch(:application_root_path, '')}tmp/dev_db.sql"
+        download! "#{fetch(:application_root_path, '')}db/backups/production/dev_db.sql", "#{fetch(:application_root_path, '')}tmp/dev_db.sql"
       end
       print_message 'dev database: download complete'
     end

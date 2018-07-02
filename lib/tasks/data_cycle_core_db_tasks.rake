@@ -17,8 +17,11 @@ namespace :data_cycle_core do
           full_path = "#{backup_dir}/#{args[:backup_name]}.#{dump_sfx}"
         end
 
-        if args[:mode] == 'review'
+        case args[:mode]
+        when 'review'
           cmd = "PGCLUSTER=9.6/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions' --exclude-table-data='*histories'"
+        when 'full'
+          cmd = "PGCLUSTER=9.6/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions'"
         else
           cmd = "PGCLUSTER=9.6/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}'"
         end
@@ -122,6 +125,25 @@ namespace :data_cycle_core do
     task clear_connections: :environment do
       ActiveRecord::Base.establish_connection
       ActiveRecord::Base.connection.select_all "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE datname='#{ActiveRecord::Base.connection_config[:database]}' AND pid <> pg_backend_pid();"
+    end
+
+    desc 'import live db'
+    task :import_live_db, [:rails_env] => [:environment] do |_, args|
+      logger = Logger.new('log/import_live_db.log')
+      logger.info('Started Importing Live DB...')
+
+      begin
+        sh 'cap production review:download_dev_db[full]'
+        sh "mv tmp/dev_db.sql db/backups/#{args.fetch(:rails_env, 'staging')}/dev_db.sql"
+
+        ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
+
+        Rake::Task['data_cycle_core:db:clear_connections'].invoke
+        Rake::Task['data_cycle_core:db:restore'].invoke('dev_db.sql')
+        logger.info('Imported Live DB successfully')
+      rescue StandardError => e
+        logger.warn e
+      end
     end
 
     private

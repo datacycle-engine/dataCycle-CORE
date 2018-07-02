@@ -19,19 +19,20 @@ module DataCycleCore
     end
 
     def download(options = {}, &block)
-      raise ArgumentError, 'expected a valid download config' if config.dig('download').nil?
-      full_options = (default_options || {}).symbolize_keys.merge({ download: download_config.symbolize_keys }).merge(options.symbolize_keys)
-      elementary_downloader(full_options, &block)
+      download_config.sort { |d1, d2|
+        d1.second['sorting'] <=> d2.second['sorting']
+      }.each do |(name, _)|
+        download_single(name, options, &block)
+      end
     end
 
-    def download_single(name, options = {}, &block)
-      raise ArgumentError, 'expected name to have a valid download config' if download_config&.with_indifferent_access&.dig(name).nil?
-      full_options = (default_options || {}).symbolize_keys.merge({ download: { name => download_config.dig(name).symbolize_keys } }).merge(options.symbolize_keys)
-      elementary_downloader(full_options, &block)
-    end
-
-    def elementary_downloader(options, &block)
-      config['download'].constantize.new(id).download(options, &block)
+    def download_single(name, options = {})
+      raise "unknown downloader name: #{name}" if download_config.dig(name).blank?
+      full_options = (default_options || {}).symbolize_keys.merge({ download: download_config.dig(name).symbolize_keys.except(:sorting) }).merge(options.symbolize_keys)
+      locales = full_options.dig(:locales) || full_options.dig(:download, :locales) || I18n.available_locales
+      utility_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: self, locales: locales))
+      raise "Missing download_strategy for #{name}, options given: #{options}" if full_options.dig(:download, :download_strategy).blank?
+      full_options.dig(:download, :download_strategy).constantize.download_content(utility_object: utility_object, options: full_options.deep_symbolize_keys)
     end
 
     def download_config
@@ -43,20 +44,20 @@ module DataCycleCore
     end
 
     def import(options = {}, &block)
-      raise ArgumentError, 'expected a valid import config' if config&.with_indifferent_access&.dig('import').nil?
-      full_options = (default_options || {}).symbolize_keys.merge({ import: import_config.symbolize_keys }).merge(options.symbolize_keys)
-      elementary_importer(full_options, &block)
+      import_config.sort { |d1, d2|
+        d1.second['sorting'] <=> d2.second['sorting']
+      }.each do |(name, _)|
+        import_single(name, options, &block)
+      end
     end
 
-    def import_single(name, options = {}, &block)
-      raise ArgumentError, 'expected name to have a valid import config' if import_config&.with_indifferent_access&.dig(name).nil?
-      full_options = (default_options || {}).symbolize_keys.merge({ import: { name => import_config.dig(name).symbolize_keys } }).merge(options.symbolize_keys)
-      elementary_importer(full_options, &block)
-      nil
-    end
-
-    def elementary_importer(options, &block)
-      config['import'].constantize.new(id).import(options, &block)
+    def import_single(name, options = {})
+      raise "unknown importer name: #{name}" if import_config.dig(name).blank?
+      full_options = (default_options || {}).symbolize_keys.merge({ import: import_config.dig(name).symbolize_keys.except(:sorting) }).merge(options.symbolize_keys)
+      locales = full_options[:locales] || full_options[:import][:locales] || I18n.available_locales
+      utility_object = DataCycleCore::Generic::ImportObject.new(full_options.merge(external_source: self, locales: locales))
+      raise "Missing import_strategy for #{name}, options given: #{options}" if full_options.dig(:import, :import_strategy).blank?
+      full_options.dig(:import, :import_strategy).constantize.import_data(utility_object: utility_object, options: full_options.deep_symbolize_keys)
     end
 
     def import_config

@@ -79,7 +79,7 @@
             <%= f.label :access_token, nil, class: 'margin-left' do %>
               <%= DataCycleCore::User.human_attribute_name(:access_token, locale: DataCycleCore.ui_language) %>
 
-              <%= content_tag :span, "(#{content.access_token})", class: 'copy-to-clipboard', title: DataCycleCore::User.human_attribute_name(:access_token, locale: DataCycleCore.ui_language), data: { value: content.access_token } if content.access_token.present? %>
+              <%= content_tag :span, "(#{content.access_token})", class: 'copy-to-clipboard with-shadow', title: DataCycleCore::User.human_attribute_name(:access_token, locale: DataCycleCore.ui_language), data: { value: content.access_token } if content.access_token.present? %>
             <% end %>
             <%= f.check_box :access_token, label: false, checked: content.access_token.present? %>
           </div>

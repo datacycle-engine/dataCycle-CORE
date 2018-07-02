@@ -10,7 +10,6 @@ module DataCycleCore
           data = YAML.safe_load(File.open(file_name))
           error = validation ? validate(data.deep_symbolize_keys) : nil
           if error.blank?
-            # import_data
             external_source = DataCycleCore::ExternalSource.find_or_initialize_by(name: data['name'])
             external_source.credentials = data['credentials']
             external_source.config = data['config']
@@ -47,29 +46,18 @@ module DataCycleCore
         errors[:import_config] = {}
         errors[:download_config] = {}
 
-        # check for single importer or batch-mode
-        if data_hash.dig(:config, :import) == 'DataCycleCore::Generic::Import'
-          error = validate_import_item.call(data_hash.dig(:config, :import_config)).errors
-          errors[:import_config] = error if error.present?
-        else
-          import_config = data_hash.dig(:config, :import_config) || {}
-          import_config.each do |key, value|
-            error = validate_import_item.call(value.deep_symbolize_keys).errors
-            errors[:import_config][key] = error if error.present?
-          end
+        import_config = data_hash.dig(:config, :import_config) || {}
+        import_config.each do |key, value|
+          error = validate_import_item.call(value.deep_symbolize_keys).errors
+          errors[:import_config][key] = error if error.present?
         end
 
-        # check for single downloader of batch-mode
-        if data_hash.dig(:config, :download) == 'DataCycleCore::Generic::Download'
-          error = validate_download_item.call(data_hash.dig(:config, :download_config)).errors
-          errors['download_config'] = error if error.present?
-        else
-          download_config = data_hash.dig(:config, :download_config) || {}
-          download_config.each do |key, value|
-            error = validate_download_item.call(value.deep_symbolize_keys).errors
-            errors[:download_config][key] = error if error.present?
-          end
+        download_config = data_hash.dig(:config, :download_config) || {}
+        download_config.each do |key, value|
+          error = validate_download_item.call(value.deep_symbolize_keys).errors
+          errors[:download_config][key] = error if error.present?
         end
+
         errors.reject { |_, v| v.blank? }
       end
 
@@ -98,10 +86,11 @@ module DataCycleCore
           required(:name) { str? }
           required(:credentials) { hash? }
           optional(:api_strategy) { str? & class? }
+          optional(:default_options).schema do
+            optional(:locales).each { str? }
+          end
           required(:config).schema do
-            required(:download) { str? & class? }
             required(:download_config) { hash? }
-            required(:import) { str? & class? }
             required(:import_config) { hash? }
           end
         end
@@ -140,7 +129,7 @@ module DataCycleCore
           required(:source_type) { str? }
           required(:endpoint) { str? & class? }
           required(:download_strategy) { str? & module? }
-          required(:logging_strategy) { str? & logger? }
+          optional(:logging_strategy) { str? & logger? }
         end
       end
 
@@ -175,10 +164,14 @@ module DataCycleCore
 
           optional(:sorting) { int? & gt?(0) }
           required(:source_type) { str? }
+          optional(:read_type) { str? }
           required(:import_strategy) { str? & module? }
-          optional(:data_template).maybe(:str?)
-          required(:target_type) { str? & class? }
-          required(:logging_strategy) { str? & logger? }
+          optional(:tree_label) { str? }
+          optional(:tag_id_path) { str? }
+          optional(:tag_name_path) { str? }
+          optional(:external_id_prefix) { str? }
+          optional(:logging_strategy) { str? & logger? }
+          optional(:transformations) { hash? }
         end
       end
     end

@@ -82,6 +82,12 @@
         :storage_location: translated_value
         :validations:
           :format: url
+      :same_as:
+        :label: Link
+        :type: string
+        :storage_location: translated_value
+        :validations:
+          :format: url
       :location:
         :label: Veranstaltungsort
         :type: linked
@@ -108,6 +114,9 @@
       :event_db:
         :type: mixin
         :name: event_db
+      :v_ticket:
+        :type: mixin
+        :name: v_ticket
       :additional_properties:
         :type: mixin
         :name: additional_properties

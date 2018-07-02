@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module OutdoorActive
       class Endpoint
-        def initialize(host: nil, end_point: nil, project: nil, key: nil)
+        def initialize(host: nil, end_point: nil, project: nil, key: nil, **_options)
           @host = host
           @end_point = end_point
           @project = project
@@ -103,8 +103,7 @@ module DataCycleCore
             req.params['lang'] = lang
             req.params['fallback'] = false
           end
-
-          raise DataCycleCore::Generic::RecoverableError, "error loading data from #{File.join([@host, @end_point, @project] + url_path)}" unless response.success?
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point, @project] + url_path)} / lang:#{lang}", response) unless response.success?
           JSON.parse(response.body)
         end
       end
