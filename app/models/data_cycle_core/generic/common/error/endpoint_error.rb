@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module Common
       module Error
-        class EndpointError < StandardError
+        class EndpointError < GenericError
           def initialize(msg, response)
             super(msg + "| #{response.status}: #{response.reason_phrase} | #{response.body}")
           end
