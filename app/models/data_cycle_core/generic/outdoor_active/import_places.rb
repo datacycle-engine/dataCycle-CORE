@@ -4,71 +4,45 @@ module DataCycleCore
   module Generic
     module OutdoorActive
       module ImportPlaces
-        def import_data(**options)
-          @image_template = options[:import][:image_template] || 'Bild'
-
-          @poi_transformation = DataCycleCore::Generic::Transformations::Transformations.outdoor_active_to_place
-          @poi_image_transformation = DataCycleCore::Generic::Transformations::Transformations.outdoor_active_to_image
-
-          import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)
+        def self.import_data(utility_object:, options:)
+          DataCycleCore::Generic::Common::ImportFunctions.import_contents(
+            utility_object: utility_object,
+            iterator: method(:load_contents).to_proc,
+            data_processor: method(:process_content).to_proc,
+            options: options
+          )
         end
 
-        protected
-
-        def load_contents(mongo_item, locale)
-          mongo_item.all # frontendtype: ["poi", "hut", "lodging", "skiresort", "offerer"]
+        def self.load_contents(mongo_item, locale, source_filter)
+          mongo_item.where({ "dump.#{locale}.frontendtype" => 'poi' }.merge(source_filter))
         end
 
-        def process_content(raw_data, template, locale)
+        def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            images = (raw_data.try(:[], 'images').try(:[], 'image') || []).map do |raw_image_data|
-              create_or_update_content(
-                DataCycleCore::CreativeWork,
-                load_template(DataCycleCore::CreativeWork, @image_template),
-                extract_image_data(raw_image_data).with_indifferent_access
+            ['source_places', 'frontendtype_places', 'tag_places'].each do |name_tag|
+              DataCycleCore::Generic::Common::ImportTags.process_content(
+                utility_object: utility_object,
+                raw_data: raw_data,
+                locale: locale,
+                options: { import: utility_object.external_source.config.dig('import_config', name_tag).deep_symbolize_keys }
               )
             end
-
-            categories = [raw_data.dig('category', 'id')].reject(&:blank?).map { |id|
-              DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "CATEGORY:#{id}")
-            }.reject(&:nil?)
-
-            regions = (raw_data.dig('regions', 'region') || []).map { |r| r['id'] }.reject(&:blank?).map { |id|
-              DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "REGION:#{id}")
-            }.reject(&:nil?)
-
-            sources = [raw_data.dig('meta', 'source', 'id')].reject(&:blank?).map do |id|
-              DataCycleCore::Classification.find_by(external_source_id: external_source.id, external_key: "SOURCE:#{id}")
-            end
-            sources_hash = sources.compact.blank? ? [] : sources.map(&:id).take(1)
-
-            frontendtype = DataCycleCore::Classification.find_by(
-              external_source_id: external_source.id,
-              external_key: "FRONTENDTYPE:#{Digest::MD5.new.update(raw_data['frontendtype']).hexdigest}"
-            ).try(:id)
-            frontendtype = frontendtype.blank? ? [] : [frontendtype]
-
-            create_or_update_content(
-              @target_type,
-              load_template(@target_type, @data_template),
-              extract_poi_data(raw_data).merge(
-                data_type: nil,
-                image: images.map(&:id),
-                categories: categories.map(&:id),
-                regions: regions.map(&:id),
-                source: sources_hash,
-                frontend_type: frontendtype
-              ).with_indifferent_access
+            DataCycleCore::Generic::OutdoorActive::Processing.process_main_image(
+              utility_object,
+              raw_data,
+              options.dig(:import, :transformations, :image)
+            )
+            DataCycleCore::Generic::OutdoorActive::Processing.process_image(
+              utility_object,
+              raw_data,
+              options.dig(:import, :transformations, :image)
+            )
+            DataCycleCore::Generic::OutdoorActive::Processing.process_place(
+              utility_object,
+              raw_data,
+              options.dig(:import, :transformations, :place)
             )
           end
-        end
-
-        def extract_image_data(raw_data)
-          raw_data.nil? ? {} : @poi_image_transformation.call(raw_data)
-        end
-
-        def extract_poi_data(raw_data)
-          raw_data.nil? ? {} : @poi_transformation.call(raw_data)
         end
       end
     end

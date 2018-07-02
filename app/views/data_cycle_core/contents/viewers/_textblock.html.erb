@@ -3,8 +3,10 @@
 
       <% validation_properties = ordered_validation_properties(validation: object.schema) %>
       <% validation_properties['text']['label'] = object.try(:name) if object.try(:name).present? %>
-      <%= render_attribute_viewer key: 'text', definition: validation_properties['text'], value: object.try(:text), parameters: { options: options }, content: object %>
 
+      <%= render 'data_cycle_core/contents/viewers/attribute', key: 'text', definition: validation_properties['text'], value: object.try(:text), options: options, content: content, data_attributes: { editor: 'embedded_object', id: [object.id] }, data_label: 'Textblock' do %>
+          <span class="detail-content"><%= object.try(:text).try(:html_safe) %></span>
+      <% end %>
     <% end %>
 <% end %>
 

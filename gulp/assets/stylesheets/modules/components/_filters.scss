@@ -230,10 +230,6 @@
         &.current-menu-item {
           background: #ddd;
         }
-        &:hover {
-          background: white;
-          box-shadow: 0 5px 3px rgba(0, 0, 0, 0.3);
-        }
         >div {
           display: none;
           z-index: 2;
@@ -323,7 +319,7 @@
           }
         }
       }
-      li:hover> {
+      ul>li:hover> {
         div,
         ul,
         div>ul {
@@ -535,8 +531,7 @@
           white-space: nowrap;
           padding-right: 5px;
         }
-        &:hover,
-        &:focus {
+        &.active {
           background-color: white;
           box-shadow: 0 5px 3px rgba($black, 0.3);
           color: $black;
@@ -798,5 +793,26 @@
   overflow-y: visible;
   .form-element {
     margin-bottom: 1rem;
+  }
+}
+
+.clickable-menu {
+  margin: 0;
+  >li.active {
+    >div,
+    >ul,
+    >div>ul {
+      display: block !important;
+    }
+  }
+  >li {
+    transition: background 0.4s ease;
+    &:hover {
+      background: lighten($light-gray, 5%);
+    }
+    &.active {
+      background: white;
+      box-shadow: 0 5px 3px rgba(0, 0, 0, 0.3);
+    }
   }
 }

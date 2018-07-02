@@ -4,22 +4,46 @@ module DataCycleCore
   module Generic
     module Feratel
       class Endpoint
-        def initialize(pos_code: nil, company_code: nil, range_code: nil, range_id: nil, **options, &block)
+        def initialize(pos_code: nil, company_code: nil, range_code: nil, range_id: nil, **options)
           @pos_code = pos_code
           @company_code = company_code
           @primary_range_code = range_code
           @primary_range_id = range_id
-
-          @load_range_ids = block
+          @options = options
+          @read_type = options[:read_type] if options[:read_type].present?
         end
 
         def load_range_ids(range_code = 'RG')
-          if @load_range_ids&.call(range_code).present?
-            @load_range_ids.call(range_code)
+          range_ids = load_location_range_ids(
+            @options.dig(:options, :location_range_codes)
+          )
+          if range_ids.include?(range_code)
+            range_ids[range_code]
           elsif range_code == @primary_range_code
             [@primary_range_id]
           else
             []
+          end
+        end
+
+        def load_location_range_ids(range_codes)
+          raise ArgumentError, 'missing read_type for loading location ranges' if @read_type.nil?
+          range_codes ||= []
+
+          DataCycleCore::Generic::Collection2.with(@read_type) do |mongo|
+            range_codes.map(&:to_s).uniq.map { |code|
+              {
+                code => mongo.where({ 'dump.de._Type' => range_type(code) }).map { |r| r.dump['de']['Id'] }
+              }
+            }.reduce({}, &:merge)
+          end
+        end
+
+        def range_type(range_code)
+          case range_code
+          when 'RG' then 'Region'
+          when 'DI' then 'District'
+          when 'TO' then 'Town'
           end
         end
 
@@ -86,7 +110,6 @@ module DataCycleCore
         def enumerate_items(type, xpath, lang: :de)
           Enumerator.new do |yielder|
             item_ids = []
-
             ['RG', 'DI', 'TO'].each do |range_code|
               load_range_ids(range_code).each do |range_id|
                 load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|

@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module Eyebase
       class Endpoint
-        def initialize(host: nil, end_point: nil, token: nil)
+        def initialize(host: nil, end_point: nil, token: nil, **options)
           @host = host
           @end_point = end_point
           @token = token
@@ -14,27 +14,16 @@ module DataCycleCore
           Enumerator.new do |yielder|
             load_folders.xpath('//folder/id').map(&:text).map(&:to_i).sort.reverse.each do |folder_id|
               doc = load_assets(folder_id)
-
               doc.xpath('//mediaasset').map(&:to_hash).each do |raw_asset_data|
-                next if raw_asset_data['mediaassettype'] != '501'
+                next if raw_asset_data['mediaassettype']['text'] != '501'
 
-                raise 'Missing image file' if raw_asset_data['quality_1'].nil?
-                full_image_path = File.join(Rails.public_path, 'eyebase', 'media_assets', 'files', raw_asset_data['quality_1']['filename'])
-                FileUtils.mkdir_p(File.dirname(full_image_path))
-                File.open(full_image_path, 'wb') do |local_file|
-                  File.open(raw_asset_data['quality_1']['url'], 'rb') do |remote_file|
-                    local_file.write(remote_file.read)
-                  end
-                end
+                raise 'Missing image file' if raw_asset_data.dig('quality_1').blank?
+                full_image_path = File.join(Rails.public_path, 'eyebase', 'media_assets', 'files', raw_asset_data.dig('quality_1', 'filename', 'text'))
+                load_file(full_image_path, raw_asset_data.dig('quality_1', 'url', '#cdata-section'))
 
-                raise 'Missing thumbnail file' if raw_asset_data['quality_512'].nil?
-                thumbnail_path = File.join(Rails.public_path, 'eyebase', 'media_assets', 'files', raw_asset_data['quality_512']['filename'])
-                FileUtils.mkdir_p(File.dirname(thumbnail_path))
-                File.open(thumbnail_path, 'wb') do |local_file|
-                  File.open(raw_asset_data['quality_512']['url'], 'rb') do |remote_file|
-                    local_file.write(remote_file.read)
-                  end
-                end
+                raise 'Missing thumbnail file' if raw_asset_data.dig('quality_512').blank?
+                thumbnail_path = File.join(Rails.public_path, 'eyebase', 'media_assets', 'files', raw_asset_data.dig('quality_512', 'filename', 'text'))
+                load_file(thumbnail_path, raw_asset_data.dig('quality_512', 'url', '#cdata-section'))
 
                 yielder << raw_asset_data
               end
@@ -48,25 +37,34 @@ module DataCycleCore
           load(qt: 'ftree')
         end
 
-        def load_languages
-          load(qt: 'lang')
-        end
-
-        def load_asset_types
-          load(qt: 'mat')
-        end
-
         def load_assets(folder_id)
           load(qt: 'r', keyfolder: folder_id)
         end
 
         def load(**parameters)
-          default_parameters = {
-            fx: 'api',
-            token: @token
-          }
+          response = Faraday.new.get do |req|
+            req.url File.join([@host, @end_point])
+            req.params['fx'] = 'api'
+            req.params['token'] = @token
+            req.params['qt'] = parameters.dig(:qt) if parameters.dig(:qt).present?
+            req.params['keyfolder'] = parameters.dig(:keyfolder) if parameters.dig(:keyfolder).present?
+          end
 
-          Nokogiri::XML(File.open("#{File.join(@host, @end_point)}?#{default_parameters.merge(parameters).to_query}"))
+          raise DataCycleCore::Generic::RecoverableError, "error loading data from #{File.join([@host, @end_point])} with params: 'fx': api, 'token': #{@token}, 'qt': #{parameters.dig(:qt)}, 'keyfolder': #{parameters.dig(:keyfolder)}" unless response.success?
+          Nokogiri::XML(response.body)
+        end
+
+        def load_file(dest, source)
+          response = Faraday.new.get do |req|
+            req.url source
+          end
+
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from url: #{source}", response) unless response.success?
+
+          FileUtils.mkdir_p(File.dirname(dest))
+          File.open(dest, 'wb') do |local_file|
+            local_file.write(response.body)
+          end
         end
       end
     end

@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module Bergfex
       class Endpoint
-        def initialize(host: nil, end_point: nil, partner: nil)
+        def initialize(host: nil, end_point: nil, partner: nil, **options)
           @host = host
           @end_point = end_point
           @partner = partner
@@ -26,7 +26,7 @@ module DataCycleCore
             req.params['partner'] = @partner
           end
 
-          raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point} / partner:#{@partner}" + response.body unless response.success?
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point} / partner:#{@partner}", response) unless response.success?
           Nokogiri::XML(response.body).xpath('//lakes').first.to_hash['lake']
         end
       end

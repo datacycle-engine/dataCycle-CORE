@@ -5,60 +5,64 @@ credentials:
   end_point: /api/v2
   host: https://veranstaltungen.kaernten.at
 config:
-  download: DataCycleCore::Generic::BatchDownload
   download_config:
     categories:
       sorting: 1
       source_type: categories
       endpoint: DataCycleCore::Generic::EventDatabase::Endpoint
       download_strategy: DataCycleCore::Generic::EventDatabase::DownloadCategories
-      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
     events:
       sorting: 2
       source_type: events
       endpoint: DataCycleCore::Generic::EventDatabase::Endpoint
       download_strategy: DataCycleCore::Generic::EventDatabase::Download
-      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("download")
-  import: DataCycleCore::Generic::BatchImport
   import_config:
     categories:
       sorting: 1
       source_type: categories
       import_strategy: DataCycleCore::Generic::EventDatabase::ImportCategories
-      data_template: ''
-      tree_label: Veranstaltungsdatenbank - Kategorien
-      target_type: DataCycleCore::Classification
-      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
-    tags:
+      transformations:
+        category:
+          tree_label: Veranstaltungsdatenbank - Kategorien
+    keywords:
       sorting: 2
       source_type: events
-      import_strategy: DataCycleCore::Generic::EventDatabase::ImportKeywords
-      target_type: DataCycleCore::Classification
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
       tree_label: Veranstaltungsdatenbank - Tag
-      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+      tag_id_path: 'tags'
+      tag_name_path: 'tags'
+      external_id_prefix: 'Veranstaltungsdatenbank - tags - '
     events:
       sorting: 3
       source_type: events
       import_strategy: DataCycleCore::Generic::EventDatabase::ImportEvents
-      data_template: Event
-      image_template: Bild
-      place_template: Örtlichkeit
-      default_values:
-        event:
-          data_type:
-            tree_label: Inhaltstypen
-            value: Veranstaltung
-        subevent:
-          data_type:
-            tree_label: Inhaltstypen
-            value: Veranstaltungstermin
-        place:
-          data_type:
-            tree_label: Inhaltstypen
-            value: Örtlichkeit
+      transformations:
         image:
-          data_type:
-            tree_label: Inhaltstypen
-            value: Bild
-      target_type: DataCycleCore::Event
-      logging_strategy: DataCycleCore::Generic::Logger::LogFile.new("import")
+          content_type: DataCycleCore::CreativeWork
+          template: Bild
+          default_values:
+            data_type:
+              tree_label: Inhaltstypen
+              value: Bild
+        place:
+          content_type: DataCycleCore::Place
+          template: Örtlichkeit
+          default_values:
+            data_type:
+              tree_label: Inhaltstypen
+              value: Örtlichkeit
+        event:
+          content_type: DataCycleCore::Event
+          template: Event
+          embedded:
+            sub_event:
+              content_type: DataCycleCore::Event
+              template: SubEvent
+              default_values:
+                data_type:
+                  tree_label: Inhaltstypen
+                  value: Veranstaltungstermin
+          default_values:
+            data_type:
+              tree_label: Inhaltstypen
+              value: Veranstaltung

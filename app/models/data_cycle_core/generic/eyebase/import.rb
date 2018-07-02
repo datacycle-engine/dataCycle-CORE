@@ -4,30 +4,34 @@ module DataCycleCore
   module Generic
     module Eyebase
       module Import
-        def import_data(**options)
-          @eyebase_transformation = DataCycleCore::Generic::Transformations::Transformations.eyebase_to_bild(external_source.id)
-
-          import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)
+        def self.import_data(utility_object:, options:)
+          DataCycleCore::Generic::Common::ImportFunctions.import_contents(
+            utility_object: utility_object,
+            iterator: method(:load_contents).to_proc,
+            data_processor: method(:process_content).to_proc,
+            options: options
+          )
         end
 
-        protected
-
-        def load_contents(mongo_item, locale)
-          mongo_item.where("dump.#{locale.to_s}.mediaassettype": '501')
+        def self.load_contents(mongo_item, locale, source_filter)
+          mongo_item.where(source_filter.merge("dump.#{locale.to_s}.mediaassettype.text": '501'))
         end
 
-        def process_content(raw_data, template, locale = 'de')
+        def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            create_or_update_content(
-              @target_type,
-              load_template(@target_type, @data_template),
-              extract_image_data(raw_data).with_indifferent_access
+            DataCycleCore::Generic::Eyebase::ImportKeywords.process_content(
+              utility_object: utility_object,
+              raw_data: raw_data,
+              locale: locale,
+              options: utility_object.external_source.config.dig('import_config', 'keywords')
+            )
+
+            DataCycleCore::Generic::Eyebase::Processing.process_media_asset(
+              utility_object,
+              raw_data,
+              options.dig(:import, :transformations, :media_asset)
             )
           end
-        end
-
-        def extract_image_data(raw_data)
-          raw_data.nil? ? {} : @eyebase_transformation.call(raw_data)
         end
       end
     end

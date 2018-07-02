@@ -3,7 +3,7 @@ module.exports.initialize = function () {
 
   let remove_filter = function (elem) {
     if (elem.siblings('label:visible').length == 0) {
-      elem.parent().hide();
+      elem.parents('.tag-group').hide();
     }
     elem.hide();
     if ($('.activefilter').find('.tag-group.tags:visible').length == 0) $('.activefilter').hide();
@@ -75,17 +75,18 @@ module.exports.initialize = function () {
     });
 
     var category_filter_heights = [];
-    $('#primary_nav_wrap ul li').hover(function () {
-      category_filter_heights.push($(this).find('ul').height() || 0);
+    $('#primary_nav_wrap .clickable-menu').on('mouseenter', 'li.active, li.active li', event => {
+      category_filter_heights.push($(event.currentTarget).find('ul').height() || 0);
       var height = Math.max.apply(null, category_filter_heights);
-      $(this).parentsUntil('#primary_nav_wrap').find('ul:visible').each(function () {
-        $(this).css('min-height', height);
+      $(event.currentTarget).parentsUntil('#primary_nav_wrap').find('ul:visible').each((index, elem) => {
+        $(elem).css('min-height', height);
       });
-    }, function () {
+    });
+    $('.clickable-menu').on('mouseleave', 'li.active, li.active li', event => {
       category_filter_heights.pop();
       var height = Math.max.apply(null, category_filter_heights);
-      $(this).parentsUntil('#primary_nav_wrap').find('ul:visible').each(function () {
-        $(this).css('min-height', height);
+      $(event.currentTarget).parentsUntil('#primary_nav_wrap').find('ul:visible').each((index, elem) => {
+        $(elem).css('min-height', height);
       });
     });
 
@@ -150,5 +151,26 @@ module.exports.initialize = function () {
   if ($('#primary_nav_wrap').length > 0) {
     split_setup();
     setup();
+  }
+
+
+  // clickable menu setup
+  if ($('.clickable-menu').length) {
+    $('.clickable-menu').on('click', '>li', event => {
+      if ($(event.currentTarget).hasClass('active') && !$(event.target).parentsUntil('.clickable-menu').filter('ul').length) {
+        $(event.currentTarget).trigger('mouseleave');
+      } else if (!$(event.currentTarget).hasClass('active')) {
+        $('.clickable-menu .active').removeClass('active');
+        $(event.currentTarget).addClass('active').trigger('mouseenter');
+      }
+    });
+
+    $('.clickable-menu').on('mouseleave', '>li.active', event => {
+      $(event.currentTarget).removeClass('active');
+    });
+
+    $('.clickable-menu input').on('click', event => {
+      event.stopPropagation();
+    });
   }
 };

@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module EventDatabase
       class Endpoint
-        def initialize(host: nil, end_point: nil, action: nil)
+        def initialize(host: nil, end_point: nil, action: nil, **_options)
           @host = host
           @end_point = end_point
           @action = action
@@ -56,7 +56,7 @@ module DataCycleCore
             }
           end
 
-          raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point + action} / page:#{page} / per:#{per} / lang:#{lang}" + response.body unless response.success?
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point + action} / page:#{page} / per:#{per} / lang:#{lang}", response) unless response.success?
           JSON.parse(response.body)
         end
       end

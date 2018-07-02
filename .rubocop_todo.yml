@@ -22,8 +22,6 @@ Lint/NestedMethodDefinition:
 # TODO: check after import refactoring
 Lint/UnusedMethodArgument:
   Exclude:
-    - 'app/models/data_cycle_core/generic/batch_download.rb'
-    - 'app/models/data_cycle_core/generic/batch_import.rb'
     - 'app/models/data_cycle_core/generic/bergfex/endpoint.rb'
     - 'app/models/data_cycle_core/generic/download.rb'
     - 'app/models/data_cycle_core/generic/import.rb'
@@ -143,23 +141,6 @@ Style/MissingRespondToMissing:
 #######################################################
 ########## Transproc
 
-Layout/AlignParameters:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
-
-Style/Lambda:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
-
-Layout/MultilineHashBraceLayout:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
-
 Style/RescueModifier:
   Exclude:
-    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
     - 'app/models/data_cycle_core/master_data/import_external_sources.rb'
-
-Style/StabbyLambdaParentheses:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/transformations/transformations.rb'
