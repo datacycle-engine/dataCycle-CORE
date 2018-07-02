@@ -10,7 +10,7 @@ module DataCycleCore
         end
 
         def preparing_phase(label)
-          @log.info "Preparing  #{label.to_s.tr('/_/', ' ')} ..."
+          @log.info "Preparing  #{label} ..."
         end
 
         def phase_started(label, total = nil)
@@ -36,7 +36,7 @@ module DataCycleCore
         end
 
         def info(title, id)
-          @log.info "INFO: #{title} | #{id}"
+          id.blank? ? @log.info("INFO: #{title}") : @log.info("INFO: #{title} | #{id}")
         end
 
         def phase_finished(label, total)

@@ -519,12 +519,10 @@ namespace :data_cycle_core do
             end
             index += 1
 
-            content.translated_locales.each do |locale|
-              I18n.with_locale(content.first_available_locale(locale)) do
-                content.set_data_hash(data_hash: content.get_data_hash, current_user: current_user)
-                content.update(release_id: archive_release_id, release_comment: I18n.t('common.archived', locale: DataCycleCore.ui_language))
-                logger.info("Archived - release_status (#{table_name}): #{content.id} (#{locale})")
-              end
+            I18n.with_locale(content.first_available_locale) do
+              content.set_data_hash(data_hash: content.get_data_hash, current_user: current_user)
+              content.translations.update_all(release_id: archive_release_id, release_comment: I18n.t('common.archived', locale: DataCycleCore.ui_language))
+              logger.info("Archived (release_status): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
             end
           end
 
@@ -565,7 +563,7 @@ namespace :data_cycle_core do
               data_hash = content.get_data_hash
               data_hash[DataCycleCore.features.dig(:life_cycle, :attribute_key)] = [archive_life_cycle_id]
               content.set_data_hash(data_hash: data_hash, current_user: current_user)
-              logger.info("Archived - life_cycle (#{table_name}): #{content.id}")
+              logger.info("Archived (life_cycle): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
             end
           end
 
@@ -577,6 +575,114 @@ namespace :data_cycle_core do
       puts 'END'
       puts "--> ARCHIVING time: #{((Time.zone.now - temp) / 60).to_i} min"
       logger.info("Finished Archiving after #{((Time.zone.now - temp) / 60).to_i} min")
+    end
+  end
+
+  namespace :unarchive do
+    desc 'unarchive valid images/videos'
+    task valid: :environment do
+      logger = Logger.new('log/unarchive.log')
+      logger.info('Started Unarchiving...')
+      temp = Time.zone.now
+      archive_life_cycle_id = DataCycleCore::Classification.find_by(name: DataCycleCore.features.dig(:life_cycle, :ordered)&.last)&.id
+      valid_life_cycle_id = DataCycleCore::Classification.find_by(name: 'Aktuelle Inhalte')&.id
+      archive_release_id = DataCycleCore::Release.order(release_code: :desc)&.first&.id
+      valid_release_id = DataCycleCore::Release.order(release_code: :desc)&.last&.id
+      current_user = DataCycleCore::User.find_by('email ILIKE ?', 'admin%')&.id
+
+      DataCycleCore.content_tables.each do |table_name|
+        if archive_release_id.present?
+          contents = ('DataCycleCore::' + table_name.singularize.classify).constantize.includes(:translations)
+            .where(release_id: archive_release_id, template_name: ['Bild', 'Video'])
+            .where("metadata ->> 'validity_period' IS NULL OR ((metadata -> 'validity_period' ->> 'valid_from' IS NULL OR metadata -> 'validity_period' ->> 'valid_from' < :today) AND (metadata -> 'validity_period' ->> 'valid_until' IS NULL OR metadata -> 'validity_period' ->> 'valid_until' > :today))", today: Date.current)
+            .with_content_type('entity').distinct
+
+          contents = contents.where(is_part_of: nil) if ActiveRecord::Base.connection.column_exists?(table_name, 'is_part_of')
+
+          index = 0
+          items_count = contents.size
+          puts "UNARCHIVING (release_status) ==> #{table_name} (#{items_count})"
+
+          contents.find_each do |content|
+            # progress bar
+            if items_count > 49
+              if (index % (items_count / 100.0).round(0)).zero?
+                fraction = (index / (items_count / 100.0)).round(0)
+                fraction = 100 if fraction > 100
+                print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
+              end
+            else
+              fraction = (((index * 1.0) / items_count) * 100.0).round(0)
+              fraction = 100 if fraction > 100
+              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
+            end
+            index += 1
+
+            I18n.with_locale(content.first_available_locale) do
+              content.set_data_hash(data_hash: content.get_data_hash, current_user: current_user)
+              content.translations.update_all(release_id: valid_release_id, release_comment: I18n.t('common.unarchived', locale: DataCycleCore.ui_language))
+              logger.info("Unarchived (release_status): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
+            end
+          end
+
+          puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
+        else
+          logger.warn('No Release found.')
+        end
+
+        if DataCycleCore.features.dig(:life_cycle, :attribute_key).present? && archive_life_cycle_id.present?
+          contents = ('DataCycleCore::' + table_name.singularize.classify).constantize.joins(:classifications)
+            .where(template_name: ['Bild', 'Video'], classifications: { id: archive_life_cycle_id })
+            .where("metadata ->> 'validity_period' IS NULL OR ((metadata -> 'validity_period' ->> 'valid_from' IS NULL OR metadata -> 'validity_period' ->> 'valid_from' < :today) AND (metadata -> 'validity_period' ->> 'valid_until' IS NULL OR metadata -> 'validity_period' ->> 'valid_until' > :today))", today: Date.current)
+            .with_content_type('entity').distinct
+
+          contents = contents.where(is_part_of: nil) if ActiveRecord::Base.connection.column_exists?(table_name, 'is_part_of')
+
+          # raise contents.to_sql.inspect
+
+          index = 0
+          items_count = contents.size
+          puts "UNARCHIVING (life_cycle) ==> #{table_name} (#{items_count})"
+
+          contents.find_each do |content|
+            # progress bar
+            if items_count > 49
+              if (index % (items_count / 100.0).round(0)).zero?
+                fraction = (index / (items_count / 100.0)).round(0)
+                fraction = 100 if fraction > 100
+                print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
+              end
+            else
+              fraction = (((index * 1.0) / items_count) * 100.0).round(0)
+              fraction = 100 if fraction > 100
+              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
+            end
+            index += 1
+
+            begin
+              I18n.with_locale(content.first_available_locale) do
+                data_hash = content.get_data_hash
+                data_hash[DataCycleCore.features.dig(:life_cycle, :attribute_key)] = [valid_life_cycle_id]
+                errors = content.set_data_hash(data_hash: data_hash, current_user: current_user)
+                if errors[:error].present?
+                  logger.warn("Fehler (#{content.id}): #{errors[:error]}")
+                else
+                  logger.info("Unarchived (life_cycle): #{content.id} (#{table_name}/#{content.template_name})")
+                end
+              end
+            rescue StandardError => e
+              logger.warn e
+            end
+          end
+
+          puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
+        else
+          logger.warn('Life_cycle configuration missing.')
+        end
+      end
+      puts 'END'
+      puts "--> UNARCHIVING time: #{((Time.zone.now - temp) / 60).to_i} min"
+      logger.info("Finished Unarchiving after #{((Time.zone.now - temp) / 60).to_i} min")
     end
   end
 
@@ -719,6 +825,20 @@ namespace :data_cycle_core do
       # Rake::Task['data_cycle_core:update:update_template_sql'].invoke('places', 'Örtlichkeit')
       Rake::Task['data_cycle_core:update:update_all_templates_sql'].invoke(true)
       Rake::Task['data_cycle_core:refactor:last_updated_by'].invoke
+
+      puts 'END'
+      puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
+    end
+
+    desc 'dev mode'
+    task restore_dev_mode: :environment do
+      temp = Time.zone.now
+
+      Rake::Task['app:data_cycle_core:clear:all'].invoke
+      Rake::Task['app:data_cycle_core:update:import_classifications'].invoke
+      Rake::Task['app:data_cycle_core:update:import_templates'].invoke
+      Rake::Task['app:data_cycle_core:update:import_external_source_configs'].invoke
+      Rake::Task['app:data_cycle_core:import:list'].invoke
 
       puts 'END'
       puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"

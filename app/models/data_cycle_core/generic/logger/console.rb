@@ -35,7 +35,7 @@ module DataCycleCore
         end
 
         def info(title, id)
-          puts "INFO: #{title} | #{id}"
+          id.blank? ? @log.info("INFO: #{title}") : @log.info("INFO: #{title} | #{id}")
         end
 
         def phase_finished(label, total)

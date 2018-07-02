@@ -31,6 +31,7 @@ de:
     tr: "türkisch"
     uk: "ukrainisch"
     'de-CH': "schweizer-deutsch"
+    'nl-BE': "flämisch"
 
   roles:
     admin: Administrator
@@ -85,6 +86,7 @@ de:
     show_less: Weniger anzeigen
     expired_content: Gültigkeitszeitraum überschritten!
     archived: Automatisch archiviert.
+    unarchived: Automatisch reaktiviert.
     entries: Einträge
     is: ist
     is_not: ist nicht
