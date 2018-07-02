@@ -47,7 +47,7 @@ module DataCycleCore
         end
 
         def self.category_key_to_ids(data_hash, attribute, data_list, name, external_source_id, external_prefix, key)
-          return if data_hash.blank? || data_list.blank?
+          return data_hash if data_hash.blank? || data_list.blank?
           data_hash.merge(
             {
               attribute =>
@@ -63,7 +63,7 @@ module DataCycleCore
         end
 
         def self.load_category(data_hash, attribute, name, external_source_id, external_key)
-          return if external_key.call(data_hash).blank? || name.call(data_hash).blank?
+          return data_hash if external_key.call(data_hash).blank? || name.call(data_hash).blank?
           data_hash.merge(
             {
               attribute => [
@@ -78,7 +78,7 @@ module DataCycleCore
         end
 
         def self.add_link(data_hash, attribute, content_type, external_source_id, key_function)
-          return if key_function.call(data_hash).blank?
+          return data_hash if key_function.call(data_hash).blank?
           data_hash.merge(
             {
               attribute => [

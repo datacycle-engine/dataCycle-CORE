@@ -37,7 +37,7 @@ module DataCycleCore
             req.params['page[cursor]'] = page
           end
 
-          raise DataCycleCore::Generic::RecoverableError, "error loading data from #{File.join([@host, @end_point, @project] + url_path)}" unless response.success?
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point])}", response) unless response.success?
           JSON.parse(response.body)
         end
       end

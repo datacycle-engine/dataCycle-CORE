@@ -40,7 +40,7 @@ module DataCycleCore
             }
             req.params['include'] = 'booking_urls,links,categories,tags,location,location.address,media,promoter,promoter.address'
           end
-          raise "error loading data from #{@host + @end_point + action} / page:#{page} / per:#{per} / lang:#{lang}" + response.body unless response.success?
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point + action} / page:#{page} / per:#{per} / lang:#{lang}", response) unless response.success?
           JSON.parse(response.body)
         end
       end

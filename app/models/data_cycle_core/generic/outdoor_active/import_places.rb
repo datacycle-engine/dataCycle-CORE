@@ -27,7 +27,11 @@ module DataCycleCore
                 options: { import: utility_object.external_source.config.dig('import_config', name_tag).deep_symbolize_keys }
               )
             end
-
+            DataCycleCore::Generic::OutdoorActive::Processing.process_main_image(
+              utility_object,
+              raw_data,
+              options.dig(:import, :transformations, :image)
+            )
             DataCycleCore::Generic::OutdoorActive::Processing.process_image(
               utility_object,
               raw_data,

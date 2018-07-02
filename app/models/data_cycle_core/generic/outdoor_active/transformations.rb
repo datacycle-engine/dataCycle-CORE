@@ -18,7 +18,6 @@ module DataCycleCore
               'shortText' => 'description',
               'longText' => 'text',
               'altitude' => 'elevation',
-              'countryCode' => 'address_country',
               'fax' => 'fax_number',
               'phone' => 'telephone',
               'homepage' => 'url',
@@ -27,21 +26,26 @@ module DataCycleCore
               'gettingThere' => 'directions'
             }
           )
-          .>> t(:map_value, 'elevation', ->(s) { s.to_f })
+          .>> t(:map_value, 'elevation', ->(s) { s.try(:to_f) })
           .>> t(:add_field, 'latitude', ->(s) { s['geometry'].try(:split, /[, ]/, 3).try(:[], 1).try(:to_f) })
           .>> t(:add_field, 'longitude', ->(s) { s['geometry'].try(:split, /[, ]/, 3).try(:[], 0).try(:to_f) })
           .>> t(:location)
           .>> t(:add_field, 'address_locality', ->(s) { s.dig('address', 'town') })
           .>> t(:add_field, 'street_address', ->(s) { [s.dig('address', 'street')&.strip, s.dig('address', 'housenumber')&.strip].join(' ') if s.dig('address', 'street')&.strip.present? })
           .>> t(:add_field, 'postal_code', ->(s) { s.dig('address', 'zipcode') })
+          .>> t(:add_field, 'address_country', ->(s) { s.dig('address', 'countryname') })
+          .>> t(:reject_keys, ['address'])
+          .>> t(:nest, 'address', ['street_address', 'postal_code', 'address_country', 'address_locality'])
+          .>> t(:nest, 'contact_info', ['telephone', 'fax_number', 'url', 'email'])
           .>> t(:add_field, 'author', ->(s) { s.dig('meta', 'author') })
           .>> t(:add_links, 'image', DataCycleCore::CreativeWork, external_source_id, ->(s) { s&.dig('images', 'image')&.map { |item| item&.dig('id') } || [] })
+          .>> t(:add_links, 'primary_image', DataCycleCore::CreativeWork, external_source_id, ->(s) { s&.dig('primaryImage')&.dig('id') })
+          .>> t(:add_links, 'regions', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('regions', 'region')&.map { |item| "REGION:#{item&.dig('id')}" } || [] })
+          .>> t(:add_links, 'source', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('meta', 'source', 'id').present? ? ["SOURCE:#{s&.dig('meta', 'source', 'id')}"] : [] })
           .>> t(:load_category, 'categories', ->(s) { s&.dig('category', 'name').presence }, external_source_id, ->(s) { s&.dig('category', 'name').present? ? "CATEGORY:#{s&.dig('category', 'id')}" : nil })
           .>> t(:load_category, 'frontend_type', ->(s) { s&.dig('frontendtype').presence }, external_source_id, ->(s) { s&.dig('frontendtype').present? ? "FRONTENDTYPE:#{Digest::MD5.new.update(s.dig('frontendtype')).hexdigest}" : nil })
           .>> t(:category_key_to_ids, 'outdoor_active_tags', ->(s) { s&.dig('properties', 'property') }, 'text', external_source_id, 'TAG:', 'tag')
-          .>> t(:add_links, 'regions', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('regions', 'region')&.map { |item| "REGION:#{item&.dig('id')}" } || [] })
-          .>> t(:add_links, 'source', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('meta', 'source', 'id').present? ? ["SOURCE:#{s&.dig('meta', 'source', 'id')}"] : nil })
-          .>> t(:reject_keys, ['address', 'category', 'primaryImage', 'images', 'regions', 'meta'])
+          .>> t(:reject_keys, ['category', 'primaryImage', 'images', 'regions', 'meta'])
           .>> t(:strip_all)
         end
 
