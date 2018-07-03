@@ -30,7 +30,6 @@ module DataCycleCore
           content.template_name = template.template_name
           content.save!
 
-          # TODO: (MO) still convinced that (content.get_data_hash || {}).merge(data) <-- is in some circumstances wrong!!
           overlays = {}
           DataCycleCore::Feature::OverlayAttributeService.call(content).each do |attribute|
             overlays[attribute] = [content.send(attribute).first&.get_data_hash] if content.respond_to?(attribute)

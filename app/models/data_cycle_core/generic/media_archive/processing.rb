@@ -10,7 +10,7 @@ module DataCycleCore
           return if raw_place_data['address'].blank? && (raw_place_data['geo'].blank? || (raw_place_data['geo']['latitude'] == 0.0 && raw_place_data['geo']['longitude'] == 0.0))
           raw_place_data['url'] = raw_data['url']
 
-          template = config.dig(:template) || 'Örtlichkeit'
+          template = config&.dig(:template) || 'Örtlichkeit'
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_place_data,

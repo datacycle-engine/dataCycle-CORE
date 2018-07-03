@@ -40,7 +40,8 @@ module DataCycleCore
         end
 
         def max(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:max, scope: [:validation, :errors], data: data, max: value.to_i, length: data.length, locale: DataCycleCore.ui_language) if data.length > value.to_i
+          max_length = ActionView::Base.full_sanitizer.sanitize(data).presence&.length
+          (@error[:error][@template_key] ||= []) << I18n.t(:max, scope: [:validation, :errors], data: nil, max: value.to_i, length: max_length, locale: DataCycleCore.ui_language) if max_length.to_i > value.to_i
         end
 
         def pattern(data, expression)
