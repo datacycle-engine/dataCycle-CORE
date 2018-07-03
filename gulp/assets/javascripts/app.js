@@ -92,23 +92,16 @@ $(function () {
               let markets = [];
               if (contents.language_relations !== undefined && contents.language_relations.length > 0) markets = contents.language_relations.map(x => Object.keys(x)[0]);
 
-              if (contents.portal !== undefined && markets.indexOf(contents.portal) === -1) markets.push(contents.portal);
-
               if (markets.length > 0) {
-                $.ajax({
-                  url: $(event.currentTarget).prop('action'),
-                  method: 'POST',
-                  dataType: 'json',
-                  data: {
-                    markets: markets
-                  }
-                }).done((data) => {
-                  $('.edit-content-form').prepend('<input type="hidden" name="cms_import_url" value="' + url + '">');
-                  callout_helpers.show('Abos erfolgreich erstellt.', 'success');
-                }).fail(() => {
-                  callout_helpers.show('Fehler beim Erstellen der Abos.', 'alert');
-                });
+                $('.edit-content-form input.six-cms-markets').remove();
+                $('.edit-content-form').append('<input type="hidden" name="cms_import_url" value="' + url + '">');
+                var markets_html = '';
 
+                markets.forEach(element => {
+                  markets_html += '<input type="hidden" class="six-cms-markets" name="six_cms_markets[]" value="' + element + '">';
+                });
+                $('.edit-content-form').append(markets_html);
+                callout_helpers.show('Abos werden beim Speichern erstellt.', 'success');
               } else {
                 callout_helpers.show('Keine Märkte gefunden.', 'alert');
               }
