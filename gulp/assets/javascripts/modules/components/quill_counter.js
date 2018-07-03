@@ -33,10 +33,9 @@ Counter.prototype.calculate = function () {
   if (this.options.unit === "wörter") length = this.countWords(text);
   else if (this.options.unit === "zeichen") length = this.countChars(text);
 
-  if (this.max > 0 && length > this.max) {
-    $(this.container).addClass('max-reached');
-    this.quill.deleteText(this.quill.getLength() - 2, 1);
-  } else if (this.max > 0 && length == this.max) $(this.container).addClass('max-reached');
+  if (this.max > 0 && length > this.max) $(this.container).addClass('max-reached');
+  // this.quill.deleteText(this.quill.getLength() - 2, 1);
+  // } else if (this.max > 0 && length == this.max) $(this.container).addClass('max-reached');
   else $(this.container).removeClass('max-reached');
 
   text = this.quill.getText();
@@ -57,6 +56,12 @@ Counter.prototype.update = function () {
   if (length.chars == 0) $(this.container).fadeOut('fast');
   else $(this.container).fadeIn('fast');
 
-  this.container.innerHTML = words + ' ' + word_label + ' / ' + chars + ' ' + char_label;
+  var counter_string = words + ' ' + word_label + ' / ' + chars + ' ' + char_label;
+  if (this.max !== 0) {
+    var rest = this.max - chars;
+    counter_string += ' (noch max. ' + (this.max - chars) + ' ' + char_label + ')';
+  }
+
+  this.container.innerHTML = counter_string;
 };
 module.exports = Counter;
