@@ -18,10 +18,10 @@ Counter.prototype.setContainer = function () {
   return this.wrapper_elem.find('.counter')[0];
 };
 Counter.prototype.countWords = function (text) {
-  return text.trim().length > 0 ? text.trim().split(/\s+/).length : 0;
+  return text.trim().replace(/\n/g, '').length > 0 ? text.trim().replace(/\n/g, '').split(/\s+/).length : 0;
 };
 Counter.prototype.countChars = function (text) {
-  return text.length > 0 ? text.length : 0;
+  return text.trim().replace(/\n/g, '').length > 0 ? text.trim().replace(/\n/g, '').length : 0;
 };
 
 Counter.prototype.calculate = function () {
@@ -50,7 +50,7 @@ Counter.prototype.update = function () {
   var counter_string = words + ' ' + word_label + ' / ' + chars + ' ' + char_label;
   if (this.max !== undefined) {
     var rest = this.max - chars;
-    counter_string += ' (noch max. ' + (this.max - chars) + ' ' + char_label + ')';
+    counter_string += ' (noch max. ' + (rest > 0 ? rest : 0) + ' ' + char_label + ')';
   }
 
   $(this.container).html(counter_string);
