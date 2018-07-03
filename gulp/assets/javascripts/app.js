@@ -74,55 +74,62 @@ $(function () {
             $(event.currentTarget).find('input#cms_url').val('');
             let contents = JSON.parse($(data).filter('#cdb-item-definition').first().html());
 
-            if (contents.title != undefined) {
-              $('[data-label="Meta-Titel"] > input[type=text]').trigger('import-data', {
-                label: 'Meta-Titel',
-                value: contents.title
-              });
-            }
+            if (contents !== undefined) {
+              if (contents.title !== undefined) {
+                $('[data-label="Meta-Titel"] > input[type=text]').trigger('import-data', {
+                  label: 'Meta-Titel',
+                  value: contents.title
+                });
+              }
 
-            if (contents.description != undefined) {
-              $('[data-label="Meta-Description"] > .editor-block > .quill-editor').trigger('import-data', {
-                label: 'Meta-Description',
-                value: contents.description
-              });
-            }
+              if (contents.description !== undefined) {
+                $('[data-label="Meta-Description"] > .editor-block > .quill-editor').trigger('import-data', {
+                  label: 'Meta-Description',
+                  value: contents.description
+                });
+              }
 
-            if (contents != undefined && contents.language_relations.length > 0) {
-              let markets = contents.language_relations.map(x => Object.keys(x)[0]);
+              let markets = [];
+              if (contents.language_relations !== undefined && contents.language_relations.length > 0) markets = contents.language_relations.map(x => Object.keys(x)[0]);
 
-              $.ajax({
-                url: $(event.currentTarget).prop('action'),
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                  markets: markets
-                }
-              }).done((data) => {
-                $('.edit-content-form').prepend('<input type="hidden" name="cms_import_url" value="' + url + '">');
-                callout_helpers.show('Abos erfolgreich erstellt.', 'success');
-              }).fail(() => {
-                callout_helpers.show('Fehler beim Erstellen der Abos.', 'alert');
-              });
+              if (contents.portal !== undefined && markets.indexOf(contents.portal) === -1) markets.push(contents.portal);
 
+              if (markets.length > 0) {
+                $.ajax({
+                  url: $(event.currentTarget).prop('action'),
+                  method: 'POST',
+                  dataType: 'json',
+                  data: {
+                    markets: markets
+                  }
+                }).done((data) => {
+                  $('.edit-content-form').prepend('<input type="hidden" name="cms_import_url" value="' + url + '">');
+                  callout_helpers.show('Abos erfolgreich erstellt.', 'success');
+                }).fail(() => {
+                  callout_helpers.show('Fehler beim Erstellen der Abos.', 'alert');
+                });
+
+              } else {
+                callout_helpers.show('Keine Märkte gefunden.', 'alert');
+              }
+
+              if (contents.images !== undefined && contents.images.length > 0) {
+                let image_ids = contents.images.map(i => i.external_key);
+                let label = $('.linked[data-label="Bilder"]').first().data('label');
+
+                $('.linked[data-label="Bilder"]').children('.object-browser').trigger('import-data', {
+                  label: label,
+                  external_ids: image_ids
+                });
+                callout_helpers.show('Bilder importiert.', 'success');
+              } else {
+                callout_helpers.show('Keine Bilder gefunden.', 'alert');
+              }
             } else {
-              callout_helpers.show('Keine Märkte gefunden.', 'alert');
-            }
-
-            if (contents != undefined && contents.images.length > 0) {
-              let image_ids = contents.images.map(i => i.external_key);
-              let label = $('.linked[data-label="Bilder"]').first().data('label');
-
-              $('.linked[data-label="Bilder"]').children('.object-browser').trigger('import-data', {
-                label: label,
-                external_ids: image_ids
-              });
-              callout_helpers.show('Bilder importiert.', 'success');
-            } else {
-              callout_helpers.show('Keine Bilder gefunden.', 'alert');
+              callout_helpers.show('Keine Daten gefunden.', 'alert');
             }
           } else {
-            callout_helpers.show('Keine Bilder gefunden.', 'alert');
+            callout_helpers.show('Keine Daten gefunden.', 'alert');
           }
         }).fail(() => {
           $(event.currentTarget).siblings('.loading').fadeOut(100);
