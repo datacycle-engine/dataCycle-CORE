@@ -67,6 +67,7 @@ module.exports.initialize = function () {
 
     $(element).find('.single-select, .multi-select').each(function () {
       var query = {};
+      var tree_label = $(this).data('tree-label');
       var that = this;
 
       $(this).select2({
@@ -79,7 +80,9 @@ module.exports.initialize = function () {
           }
 
           var term = query.term || '';
-          var result = data.text ? select2_helpers.markMatch(data.text, term) : null;
+          var text_value = data.title || data.text;
+          var result = text_value ? select2_helpers.markMatch(text_value, term) : null;
+          select2_helpers.removeTreeLabel(result, tree_label);
           select2_helpers.decorateResult(result);
 
           return result;
