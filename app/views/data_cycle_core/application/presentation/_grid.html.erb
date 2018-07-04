@@ -1,13 +1,13 @@
-<div class="grid <%= @mode %>">
-	<div class="grid-sizer"></div>
-	<div class="gutter-sizer"></div>
-	<div class="grid-loading show">
+<ul class="grid no-bullet no-format <%= @mode %>">
+	<li class="grid-sizer"></li>
+	<li class="gutter-sizer"></li>
+	<li class="grid-loading show">
 		<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
 		<span class="sr-only">Loading...</span>
-	</div>
+	</li>
 
   <% contents.presence&.each do |content| %>
-      <div class="grid-item data-cycle-object <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %>">
+      <li class="grid-item data-cycle-object <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %>">
         <% if no_cache ||= false %>
           <%= render(*(content_tile item: content)) %>
         <% else %>
@@ -25,6 +25,6 @@
 
           <%= yield_content!(:media_buttons) %>
         </div>
-      </div>
+      </li>
   <% end %>
-</div>
+</ul>

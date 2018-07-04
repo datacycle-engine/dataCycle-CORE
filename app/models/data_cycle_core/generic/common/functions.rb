@@ -106,10 +106,15 @@ module DataCycleCore
         def self.local_image(data_hash, attribute)
           return data_hash if data_hash[attribute].blank?
 
-          asset = DataCycleCore::Image.new(remote_file_url: data_hash[attribute]).set_content_type.set_file_size
-          asset.save!
-
-          data_hash[attribute] = asset.try(:id)
+          begin
+            asset = DataCycleCore::Image.new(remote_file_url: data_hash[attribute]).set_content_type.set_file_size
+            asset.save!
+            data_hash[attribute] = asset.try(:id)
+          rescue StandardError => error
+            logger = DataCycleCore::Generic::Logger::LogFile.new('carrierwave')
+            logger.info(error, data_hash[attribute])
+            logger.close
+          end
           data_hash
         end
 

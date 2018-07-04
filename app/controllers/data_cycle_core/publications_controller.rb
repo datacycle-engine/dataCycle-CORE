@@ -17,7 +17,7 @@ module DataCycleCore
         }
       )
 
-      @language ||= params.fetch(:language, DataCycleCore.ui_language)
+      @language ||= params.fetch(:language, current_user.default_locale)
       query = DataCycleCore::Filter::Search.new(@language)
 
       query = query.fulltext_search(params[:search]) if params[:search].present?

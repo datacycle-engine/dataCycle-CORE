@@ -16,7 +16,7 @@
   <%= render 'filter', filter: { classification_trees: ['Inhaltstypen'] + @publication_classifications.values, language: true } %>
 <% end %>
 
-<section class="publications-list" data-pages="<%= @pages %>">
+<section class="search-results publications-list" data-pages="<%= @pages %>">
   <div class="row">
     <% if @contents&.size&.zero? %>
       <div class="small-12">

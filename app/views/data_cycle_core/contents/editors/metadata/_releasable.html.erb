@@ -26,7 +26,7 @@
     <hr />
     <div class="finalize-button-container">
       <%= check_box_tag 'finalize' %>
-      <%= label_tag 'finalize', t('actions.finalize', locale: DataCycleCore.ui_language), data: { tooltip: true, 'disable-hover': false }, title: t('common.content_not_editable', locale: DataCycleCore.ui_language) %>
+      <%= label_tag 'finalize', t('actions.finalize', locale: DataCycleCore.ui_language), data: { tooltip: true, click_open: false }, title: t('common.content_not_editable', locale: DataCycleCore.ui_language) %>
     </div>
 
     <% if @content.indirect_data_links.by_receiver(current_user).valid.map(&:text_file).compact.present? %>
