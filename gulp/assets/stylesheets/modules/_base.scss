@@ -382,7 +382,8 @@ button,
         opacity: 1;
         color: rgba($dark-gray, 50%);
       }
-      [type='checkbox'] + label[for], [type='radio'] + label[for]{
+      [type='checkbox']+label[for],
+      [type='radio']+label[for] {
         margin-left: 20px;
       }
       &:focus,
@@ -644,7 +645,7 @@ body .v-select {
     font-size: 0.8rem;
     color: $white;
     padding: 0 0.3rem;
-    margin: 0.1rem;
+    margin: 0.1rem 0;
     line-height: 1.2rem;
     border-radius: $object-border-radius;
     i {
@@ -687,7 +688,7 @@ body .v-select {
   .selected-tag:hover {
     background-color: rgba(map-get($foundation-palette, alert), 0.5);
   }
-  span.tag {
+  .tag {
     background-color: rgba($dark-gray, 0.8);
     &.has-changed {
       &.removed {
@@ -965,4 +966,9 @@ a[data-toggle] {
     background: darken($primary-color, 20%);
     z-index: 1;
   }
+}
+
+ul.no-format {
+  margin: 0;
+  line-height: initial;
 }

@@ -124,7 +124,7 @@
               <% end %>
               <span class="buttons">
                 <% if stored_filter.api && can?(:create_api, DataCycleCore::StoredFilter) %>
-                  <%= link_to api_v1_stored_filter_path(stored_filter), class: 'copy-to-clipboard', data: { value: api_v1_stored_filter_url(stored_filter) }, title: t('actions.copy_to_clipboard') do %>
+                  <%= link_to api_v1_stored_filter_path(stored_filter), class: 'copy-to-clipboard left', data: { value: api_v1_stored_filter_url(stored_filter) } do %>
                     <i class="fa fa-clipboard" aria-hidden="true"></i>
                   <% end %>
                 <% end %>
