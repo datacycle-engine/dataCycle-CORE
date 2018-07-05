@@ -36,16 +36,33 @@ module DataCycleCore
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
           .>> t(:reject_keys, ['slug', 'promoter'])
           .>> t(:underscore_keys)
-          .>> t(:rename_keys, { 'id' => 'external_key', 'start' => 'start_date', 'end' => 'end_date', 'location' => 'event_location', 'categories' => 'v_ticket_categories', 'tags' => 'v_ticket_tags' })
+          .>> t(:rename_keys, { 'id' => 'external_key', 'location' => 'event_location', 'categories' => 'v_ticket_categories', 'tags' => 'v_ticket_tags' })
           .>> t(:add_field, 'name', ->(s) { s.dig('title') + (s.dig('subtitle').present? ? " - #{s.dig('subtitle')}" : '') })
           .>> t(:add_field, 'url', ->(s) { s&.dig('meta', 'permalink') })
           .>> t(:add_field, 'same_as', ->(s) { s&.try(:[], 'links')&.first&.try(:[], 'url') })
-          .>> t(:nest, 'event_period', ['start_date', 'end_date'])
           .>> t(:add_links, 'image', DataCycleCore::CreativeWork, external_source_id, ->(s) { s&.dig('images')&.map { |item| item.dig('original')&.split('/')&.fetch(-3) if item.dig('original')&.split('/')&.count == 7 } || [] })
           .>> t(:add_link, 'location', DataCycleCore::Place, external_source_id, ->(s) { s.dig('event_location', 'id') })
           .>> t(:tags_to_ids, 'v_ticket_categories', external_source_id, 'VTicket - Categories - ')
           .>> t(:tags_to_ids, 'v_ticket_tags', external_source_id, 'VTicket - Tags - ')
-          .>> t(:reject_keys, ['title', 'event_location'])
+          .>> t(:reject_keys, ['title', 'event_location', 'sub_event', 'end', 'start'])
+          .>> t(:strip_all)
+        end
+
+        def self.vticket_subevent_to_subevent
+          t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
+          .>> t(:reject_keys, ['slug', 'promoter', 'categories', 'tags', 'description'])
+          .>> t(:underscore_keys)
+          .>> t(:rename_keys, { 'id' => 'external_key', 'start' => 'start_date', 'end' => 'end_date', 'location' => 'event_location' })
+          .>> t(:add_field, 'url', ->(s) { s&.dig('meta', 'permalink') })
+          .>> t(:nest, 'event_period', ['start_date', 'end_date'])
+          .>> t(:reject_keys, ['title', 'location', 'sub_event', 'end', 'start'])
+          .>> t(:strip_all)
+        end
+
+        def self.add_place_to_subevent(external_source_id)
+          t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
+          .>> t(:add_link, 'location', DataCycleCore::Place, external_source_id, ->(s) { s.dig('event_location', 'id') })
+          .>> t(:reject_keys, ['event_location'])
           .>> t(:strip_all)
         end
       end

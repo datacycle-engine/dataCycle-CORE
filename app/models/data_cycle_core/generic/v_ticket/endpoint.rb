@@ -10,16 +10,22 @@ module DataCycleCore
           @action = action
           @token = token
           @per = 30
+          @conn = Faraday.new(@host)
+          @conn.authorization :Bearer, @token
         end
 
         def events(lang: :de)
           first_page = load_data(page: 1)
           total_items = first_page['meta']['total'].to_i
           max_pages = total_items.fdiv(@per).ceil
+          processed_items = []
           Enumerator.new do |yielder|
             next unless lang == :de
             (1..max_pages).each do |page|
               load_data(page: page, per: @per, lang: lang)['data'].each do |event_record|
+                next if event_record['id'].blank? || processed_items.include?(event_record['id'])
+                processed_items << event_record['id']
+                event_record['subEvent'] = get_all_event_data(event_record['id'])
                 yielder << event_record
               end
             end
@@ -28,20 +34,43 @@ module DataCycleCore
 
         protected
 
-        def load_data(page: 1, per: 1, lang: :de, action: @action)
-          conn = Faraday.new(@host)
-          conn.authorization :Bearer, @token
-          response = conn.get do |req|
+        def get_all_event_data(id)
+          first_page = load_data(page: 1, detail_id: id)
+          total_items = first_page['meta']['total'].to_i
+          max_pages = total_items.fdiv(@per).ceil
+          result = []
+          (1..max_pages).each do |page|
+            load_data(page: page, per: @per, detail_id: id)['data'].each do |event_detail|
+              result << event_detail
+            end
+          end
+          result
+        end
+
+        def load_data(page: 1, per: 1, lang: :de, action: @action, detail_id: nil, retry_count: 0)
+          response = @conn.get do |req|
             req.url(@host + @end_point + action)
 
             req.params['page'] = {
               'number' => page,
               'size' => per
             }
+            if detail_id.present?
+              req.params['filter'] = {
+                'id' => detail_id
+              }
+            end
             req.params['include'] = 'booking_urls,links,categories,tags,location,location.address,media,promoter,promoter.address'
           end
-          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point + action} / page:#{page} / per:#{per} / lang:#{lang}", response) unless response.success?
-          JSON.parse(response.body)
+
+          if response.success?
+            JSON.parse(response.body)
+          elsif response.status.to_i == 429 && retry_count < 3
+            sleep 20
+            load_data(page: page, per: per, lang: lang, action: action, detail_id: detail_id, retry_count: (retry_count + 1))
+          else
+            raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point + action} / page:#{page} / per:#{per} / lang:#{lang}", response)
+          end
         end
       end
     end
