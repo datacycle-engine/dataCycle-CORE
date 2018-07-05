@@ -352,13 +352,14 @@ namespace :data_cycle_core do
     end
 
     desc '[NEW] replace the data-definitions of all data-types in the Database with the templates in the Database'
-    task :update_all_templates_sql, [:history] => [:environment] do |_, args|
+    task :update_all_templates_sql, [:history, :prefix] => [:environment] do |_, args|
+      args[:prefix] ||= ''
       temp = Time.zone.now
       DataCycleCore.content_tables.each do |content_table|
         data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
         data_object.where(template: true).each do |template_object|
-          Rake::Task['data_cycle_core:update:update_template_sql'].invoke(content_table, template_object.template_name, args.fetch(:history, false))
-          Rake::Task['data_cycle_core:update:update_template_sql'].reenable
+          Rake::Task["#{args[:prefix]}data_cycle_core:update:update_template_sql"].invoke(content_table, template_object.template_name, args.fetch(:history, false))
+          Rake::Task["#{args[:prefix]}data_cycle_core:update:update_template_sql"].reenable
         end
       end
       puts "total time: #{((Time.zone.now - temp).to_s + ' sec').rjust(20)} \r"
@@ -839,6 +840,18 @@ namespace :data_cycle_core do
       Rake::Task['app:data_cycle_core:update:import_templates'].invoke
       Rake::Task['app:data_cycle_core:update:import_external_source_configs'].invoke
       Rake::Task['app:data_cycle_core:import:list'].invoke
+
+      puts 'END'
+      puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
+    end
+
+    desc 'import and update all templates'
+    task :import_update_all_templates, [:prefix] => [:environment] do |_, args|
+      temp = Time.zone.now
+      args[:prefix] ||= ''
+
+      Rake::Task["#{args[:prefix]}data_cycle_core:update:import_templates"].invoke
+      Rake::Task["#{args[:prefix]}data_cycle_core:update:update_all_templates_sql"].invoke(false, 'app:')
 
       puts 'END'
       puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
