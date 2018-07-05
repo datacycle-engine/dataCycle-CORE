@@ -211,6 +211,23 @@ module DataCycleCore
       end
     end
 
+    def set_parent
+      @content = DataCycleCore::CreativeWork.find(params[:id])
+      authorize! :edit, @content
+
+      redirect_back(fallback_location: root_path, alert: I18n.t(:invalid_parent, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if parent_params[:parent_id].blank?
+
+      @parent = DataCycleCore::CreativeWork.find(parent_params[:parent_id])
+
+      I18n.with_locale(@content.first_available_locale) do
+        if @content.update(is_part_of: @parent.id)
+          redirect_back(fallback_location: root_path, notice: I18n.t(:moved_to, scope: [:controllers, :success], locale: DataCycleCore.ui_language, data: @parent.title))
+        else
+          redirect_back(fallback_location: root_path, alert: @content.errors.full_messages)
+        end
+      end
+    end
+
     private
 
     def after_create(content, current_user)
@@ -252,6 +269,10 @@ module DataCycleCore
       elsif params[:source_id] && params[:source_type]
         params.permit(:source_id, :source_type)
       end
+    end
+
+    def parent_params
+      params.permit(:parent_id)
     end
 
     def execute_after_update_webhooks(data)

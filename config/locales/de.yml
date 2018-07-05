@@ -143,6 +143,9 @@ de:
     update: Aktualisieren
     upload: hochladen
     become: 'Als %{data} einloggen'
+    create_from_existing: 'Inhalt anhand dieser Vorlage erstellen'
+    move_to_container: 'Inhalt verschieben'
+    move: verschieben
 
 
   validation:
