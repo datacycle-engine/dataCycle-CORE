@@ -1156,7 +1156,8 @@ CREATE TABLE public.users (
     notification_frequency character varying DEFAULT 'always'::character varying,
     access_token character varying,
     type character varying,
-    name character varying
+    name character varying,
+    default_locale character varying DEFAULT 'de'::character varying
 );
 
 
@@ -2425,6 +2426,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180509130533'),
 ('20180525083121'),
 ('20180525084148'),
-('20180529105933');
+('20180529105933'),
+('20180703135948');
 
 
