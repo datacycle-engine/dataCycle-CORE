@@ -9,8 +9,7 @@ module DataCycleCore
     def show
       authorize! :show, :object_browser
       I18n.with_locale(params[:locale] || I18n.locale) do
-        @language = params[:locale] if params[:locale].present?
-        @language ||= 'de'
+        @language = params.fetch(:locale, current_user.default_locale)
 
         @definition = params.fetch(:definition, nil)
 

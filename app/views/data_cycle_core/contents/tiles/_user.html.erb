@@ -20,7 +20,7 @@
         <% if can? :generate_access_token, item %>
           <div class="token">
             <% if item.access_token.present? %>
-              <%= content_tag :span, class: 'copy-to-clipboard with-shadow', title: DataCycleCore::User.human_attribute_name(:access_token, locale: DataCycleCore.ui_language), data: { value: item.access_token } do %>
+              <%= content_tag :span, class: 'copy-to-clipboard with-shadow', data: { value: item.access_token } do %>
                 <i class="fa fa-key" aria-hidden="true"></i>
                 <%= item.access_token %>
               <% end %>
@@ -47,17 +47,17 @@
       <% end %>
 
       <% if can? :edit, item %>
-        <%= link_to edit_user_path(item, watch_list_id: @watch_list), class: 'button-prime small edit-link', title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, data: { tooltip: "", 'disable-hover': false }, 'aria-haspopup': "true" do %>
+        <%= link_to edit_user_path(item, watch_list_id: @watch_list), class: 'button-prime small edit-link' do %>
           <i class="fa fa-pencil" aria-hidden="true"></i>
         <% end %>
       <% end %>
 
       <% if can?(:destroy, item) && !item.access_locked? %>
-        <%= link_to item, method: :delete, class:'button-prime small alert lock-link', data: { confirm: "#{item.model_name.human(locale: DataCycleCore.ui_language)} #{t('actions.lock', locale: DataCycleCore.ui_language)}?", tooltip: "", 'disable-hover': false}, title: t('actions.lock', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': "true" do %>
+        <%= link_to item, method: :delete, class:'button-prime small alert lock-link', data: { confirm: "#{item.model_name.human(locale: DataCycleCore.ui_language)} #{t('actions.lock', locale: DataCycleCore.ui_language)}?" } do %>
             <i class="fa fa-lock" aria-hidden="true"></i>
         <% end %>
       <% elsif can?(:destroy, item) %>
-        <%= link_to unlock_user_path(item), method: :post, class:'button-prime small alert unlock-link', data: { tooltip: "", 'disable-hover': false}, title: t('actions.unlock', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': "true" do %>
+        <%= link_to unlock_user_path(item), method: :post, class:'button-prime small alert unlock-link' do %>
             <i class="fa fa-unlock" aria-hidden="true"></i>
         <% end %>
       <% end %>
