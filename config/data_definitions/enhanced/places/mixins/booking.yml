@@ -1,0 +1,19 @@
+---
+- :data:
+    :name: booking
+    :type: mixin
+    :properties:
+      :booking_hotel_types:
+        :label: Booking.com - HotelTypes
+        :type: classification
+        :tree_label: Booking.com - HotelTypes
+        :ui:
+          :show:
+            :content_area: header
+      :booking_hotel_facility_types:
+        :label: Booking.com - HotelFacilityTypes
+        :type: classification
+        :tree_label: Booking.com - HotelFacilityTypes
+        :ui:
+          :show:
+            :content_area: header
