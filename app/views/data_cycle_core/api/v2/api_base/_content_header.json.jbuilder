@@ -9,8 +9,8 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 
 json.content_partial! 'context', content: content
 
-json.set! '@id', content.id
-json.set! 'identifier', send("#{content.class.class_name.tableize.singularize}_url", content)
+json.set! '@id', send("api_v2_#{content.class.class_name.tableize.singularize}_url", content)
+json.set! 'identifier', content.id
 
 if options[:header_type] == :full
   json.set! 'dateCreated', content.created_at
@@ -21,5 +21,5 @@ if options[:header_type] == :full
 
   json.set! 'url', send("#{content.class.class_name.tableize.singularize}_url", content)
 
-  json.partial! 'classifications', classification_aliases: content.classifications.includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
+  # json.partial! 'classifications', classification_aliases: content.classifications.includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
 end

@@ -2,7 +2,7 @@
 
 render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: definition, value: value, options: options, content: content do
   json.set! key.camelize(:lower) do
-    if content.translations.size > 1 && content.translatable_property_names.include?(key)
+    if content.translations.size > 1 && content.translatable_property_names.include?(key) && params.dig(:include) == 'translations'
       ordered_validation_properties(validation: definition).each do |o_key, _|
         json.set! o_key.camelize(:lower) do
           content.translations.each do |translation|

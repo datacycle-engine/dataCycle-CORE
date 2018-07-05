@@ -25,6 +25,10 @@ module DataCycleCore
           @content = object_type
             .includes({ classifications: [], translations: [] })
             .find(permitted_params[:id])
+
+          I18n.with_locale(@content.first_available_locale(params.fetch(:language, :de).to_sym)) do
+            render 'show'
+          end
         end
 
         # def update
@@ -71,7 +75,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :format, :type, :language, :search, :modified_since, :created_since, :deleted_since]
+          super + [:id, :format, :type, :language, :search, :modified_since, :created_since, :deleted_since, :include]
         end
 
         private
