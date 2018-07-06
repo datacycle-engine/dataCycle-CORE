@@ -7,6 +7,8 @@
         :label: Adresse
         :type: object
         :storage_location: value
+        :api:
+          :type: PostalAddress
         :properties:
           :street_address:
             :label: Straße

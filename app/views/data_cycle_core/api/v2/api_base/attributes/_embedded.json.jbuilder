@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: definition, value: value, options: options, content: content do
-  json.set! key.pluralize.camelize(:lower) do
+  key_new = definition.dig('api', 'name') || key.camelize(:lower)
+  json.set! key_new do
     json.array!(value.presence&.includes(:translations, :classifications)) do |object|
       I18n.with_locale(object.first_available_locale) do
         if object.schema.present?
