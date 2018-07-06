@@ -15,7 +15,12 @@ module DataCycleCore
           rescue_from ActiveRecord::RecordNotFound, with: :not_found
         end
 
-        DEFAULT_PAGE_SIZE = 25
+        DEFAULT_PAGE_SETTINGS = {
+          size: 25,
+          number: 1,
+          limit: 0,
+          offset: 0
+        }.freeze
 
         before_action :authenticate, :set_default_response_format
 
@@ -24,11 +29,12 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:format, :page, :per, :token]
+          [:format, :token, { page: [:size, :number, :offset, :limit] }]
         end
 
         def apply_paging(query)
-          query.page(permitted_params.fetch(:page, 1).to_i).per(permitted_params.fetch(:per, DEFAULT_PAGE_SIZE).to_i)
+          page_params = permitted_params.fetch(:page, DEFAULT_PAGE_SETTINGS)
+          query.page(page_params[:number].to_i).per(page_params[:size].to_i)
         end
 
         private

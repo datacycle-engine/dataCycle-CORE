@@ -32,12 +32,8 @@ module DataCycleCore
           @contents = apply_paging(query).sort_by_proximity
         end
 
-        def show
-          @content = Event.includes(:classifications, :translations).find(permitted_params[:id])
-        end
-
         def permitted_parameter_keys
-          super + [:id, :q, { filter: [:from, :to, { classifications: [] }] }]
+          super + [:q, { filter: [:from, :to, { classifications: [] }] }]
         end
       end
     end

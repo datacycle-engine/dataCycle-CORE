@@ -12,7 +12,7 @@ module DataCycleCore
           query = query.modified_since(permitted_params[:modified_since]) if permitted_params[:modified_since]
           query = query.created_since(permitted_params[:created_since]) if permitted_params[:created_since]
           query = query.in_validity_period if permitted_params[:modified_since] && permitted_params[:created_since]
-          query = query.fulltext_search(permitted_params[:search]) if permitted_params[:search]
+          query = query.fulltext_search(permitted_params[:q]) if permitted_params[:q]
           query = apply_ordering(query)
 
           @pagination_contents = apply_paging(query)
@@ -75,7 +75,8 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :format, :type, :language, :search, :modified_since, :created_since, :deleted_since, :include]
+          # json-api: fields, sort
+          super + [:id, :format, :type, :language, :q, :modified_since, :created_since, :deleted_since, :include]
         end
 
         private
@@ -98,10 +99,10 @@ module DataCycleCore
         end
 
         def apply_ordering(query)
-          if permitted_params[:search].blank?
+          if permitted_params[:q].blank?
             query
           else
-            query.order(DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(permitted_params[:search]))
+            query.order(DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(permitted_params[:q]))
           end
         end
       end
