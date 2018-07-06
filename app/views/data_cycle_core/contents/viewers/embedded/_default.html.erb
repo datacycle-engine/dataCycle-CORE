@@ -14,9 +14,7 @@
                 <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %><strong><%= definition['label'].titleize %> <%= content_tag(:span, (params.fetch(:page, 1).to_i - 1) * DataCycleCore.linked_objects_page_size + index + 1) if value.try(:total_count)&.>(1) || value.try(:total_pages)&.>(1) %></strong>
             </span>
 
-            <div class="buttons">
-                <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns %>
-            </div>
+            <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns %>
 
             <% if object.schema.present? %>
 
