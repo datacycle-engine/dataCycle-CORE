@@ -3,7 +3,7 @@
 render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: definition, value: value, options: options, content: content do
   if definition.dig('api', 'transformation', 'method') == 'unwrap'
 
-    if content.translations.size > 1 && content.translatable_property_names.include?(key) && params.dig(:include) == 'translations'
+    if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations')
       ordered_validation_properties(validation: definition).each do |o_key, o_definition|
         o_key_name = o_definition.dig('api', 'name') || o_key
         json.set! o_key_name.camelize(:lower) do
@@ -25,7 +25,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
 
     json.set! key.camelize(:lower) do
       json.set! '@type', definition.dig('api', 'type') if definition.dig('api', 'type').present?
-      if content.translations.size > 1 && content.translatable_property_names.include?(key) && params.dig(:include) == 'translations'
+      if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations')
         ordered_validation_properties(validation: definition).each do |o_key, o_definition|
           o_key_name = o_definition.dig('api', 'name') || o_key
           json.set! o_key_name.camelize(:lower) do

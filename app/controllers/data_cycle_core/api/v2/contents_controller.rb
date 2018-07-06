@@ -87,6 +87,7 @@ module DataCycleCore
 
         def prepare_url_parameters
           @url_parameters = permitted_params.reject { |k, _| k == 'format' }
+          @include_parameters = permitted_params.dig(:include)&.split(',') || []
         end
 
         def content_data_type

@@ -5,7 +5,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
   if definition.dig('api', 'transformation', 'method') == 'nest' && definition.dig('api', 'transformation', 'method').present?
     json.set! definition.dig('api', 'transformation', 'name') do
       json.set! '@type', definition.dig('api', 'transformation', 'type')
-      if content.translations.size > 1 && content.translatable_property_names.include?(key) && params.dig(:include) == 'translations'
+      if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations')
         json.set! key_new.camelize(:lower) do
           content.translations.each do |translation|
             I18n.with_locale(translation.locale) do
@@ -17,7 +17,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
         json.set! key_new.camelize(:lower), value
       end
     end
-  elsif content.translations.size > 1 && content.translatable_property_names.include?(key) && params.dig(:include) == 'translations'
+  elsif content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations')
     json.set! key_new.camelize(:lower) do
       content.translations.each do |translation|
         I18n.with_locale(translation.locale) do

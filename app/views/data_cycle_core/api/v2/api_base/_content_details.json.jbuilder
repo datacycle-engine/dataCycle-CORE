@@ -9,7 +9,7 @@ json.content_partial! 'header', content: content, options: options
 
 # json.partial! 'container_parent_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present?
 
-if content.translations.size > 1 && params.dig(:include) == 'translations'
+if content.translations.size > 1 && @include_parameters.include?('translations')
   json.set! 'inLanguage', content.translations.map(&:locale)
 else
   json.set! 'inLanguage', content.translations.first.locale
