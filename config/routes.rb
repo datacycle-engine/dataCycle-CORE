@@ -26,9 +26,11 @@ DataCycleCore::Engine.routes.draw do
     resources(*DataCycleCore.content_tables.map(&:to_sym), only: [:index, :show, :create, :edit, :update, :history, :history_detail, :destroy]) do
       # resources :creative_works, only: [:index, :show, :create, :edit, :update, :history, :history_detail, :destroy] do
       post :import, on: :collection
+      post :set_parent, on: :member
       get 'history', on: :member
       get 'history_detail', on: :member
       get 'compare', on: :member
+      get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
     end
   end
 

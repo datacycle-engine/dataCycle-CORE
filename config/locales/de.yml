@@ -143,6 +143,9 @@ de:
     update: Aktualisieren
     upload: hochladen
     become: 'Als %{data} einloggen'
+    create_from_existing: 'Inhalt anhand dieser Vorlage erstellen'
+    move_to_container: 'Inhalt verschieben'
+    move: verschieben
 
 
   validation:
@@ -316,6 +319,7 @@ de:
         external: SSO
         notification_frequency: Benachrichtigung von Abos
         access_token: API Token
+        default_locale: 'Default Sprache für Suchen'
       data_cycle_core/person:
         given_name: Vorname
         family_name: Familienname

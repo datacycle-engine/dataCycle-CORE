@@ -25,9 +25,9 @@
 
         <li class="buttons">
           <%= link_to previous_authorized_crumb.url do %>
-            <button type="button" class="button discard top" data-tooltip aria-haspopup="true" data-disable-hover="false"  title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
+            <button type="button" class="button discard top" data-tooltip aria-haspopup="true" data-click-open="false" title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
           <% end if previous_authorized_crumb.present? %>
-          <button class="button-prime submit submit-edit-form" data-tooltip aria-haspopup="true" data-disable-hover="false" title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
+          <button class="button-prime submit submit-edit-form" data-tooltip aria-haspopup="true" data-click-open="false" title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
         </li>
       </ul>
     </div>

@@ -1,0 +1,21 @@
+<div class="reveal new-item" id="move-to-container-overlay" data-reveal>
+    <h3><%= t('actions.move_to_container', locale: DataCycleCore.ui_language) %></h3>
+
+    <%= form_for :creative_work, :url => set_parent_creative_work_path(content), html: { class: 'validation-form' } do |f| %>
+        <div class="form-element">
+          <%= label_tag 'parent_id', 'Thema' %>
+
+          <div class="v-select white">
+            <% I18n.with_locale(DataCycleCore.ui_language) do %>
+              <%= select_tag('parent_id', options_for_select(@parents.reject { |_k, v| v === content.try(:parent)&.id }), { class: 'single-select select', data: { allow_clear: false } }) %>
+            <% end %>
+          </div>
+        </div>
+
+        <%= submit_tag t('actions.move', locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: t('actions.move', locale: DataCycleCore.ui_language) } %>
+    <% end %>
+
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>

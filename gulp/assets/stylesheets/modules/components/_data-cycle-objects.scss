@@ -127,12 +127,13 @@
   .content {
     .buttons {
       position: relative;
-      display: inline-block;
       top: 0;
       right: 0;
       margin-left: 1rem;
-      a {
-        padding: 0 5px;
+      float: right;
+      >a,
+      >span {
+        padding: 0 3px;
         &.copy {
           position: relative;
           top: 0;
