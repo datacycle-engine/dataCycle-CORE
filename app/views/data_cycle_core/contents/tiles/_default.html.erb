@@ -13,9 +13,7 @@
       <%= render 'data_cycle_core/contents/tiles/attributes/tags', local_assigns if item.try(:display_classification_aliases).present? %>
 
       <% if content_for?(:media_thumbs) %>
-        <%= yield(:media_thumbs) %>
-        <!-- # TODO: check if required -->
-        <% @view_flow&.content&.delete(:media_thumbs) %>
+        <%= yield_content!(:media_thumbs) %>
       <% else %>
         <%= render 'data_cycle_core/contents/tiles/attributes/images', local_assigns if item.try(:image).is_a?(ActiveRecord::Relation) && item.try(:image).present? %>
       <% end %>

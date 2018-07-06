@@ -6,21 +6,25 @@
 		<span class="sr-only">Loading...</span>
 	</li>
 
-	<% unless contents.nil? %>
-		<% contents.each do |content| %>
-        <li class="grid-item data-cycle-object <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %>">
-          <div class="buttons">
-            <%= render 'data_cycle_core/contents/tiles/attributes/external', item: content if content.try(:external_source) %>
-
-            <% if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && content.class != DataCycleCore::WatchList %>
-              <%= render 'watch_lists', content: content %>
-            <% end %>
-          </div>
-
+  <% contents.presence&.each do |content| %>
+      <li class="grid-item data-cycle-object <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %>">
+        <% if no_cache ||= false %>
+          <%= render(*(content_tile item: content)) %>
+        <% else %>
           <% cache([content, params.fetch(:language, 'de'), content.respond_to?('schema') ? Digest::MD5.hexdigest(content.schema&.to_s) : nil, @watch_list], expires_in: 24.hours + Random.rand(12.hours)) do %>
-            <%= render_content_tile item: content %>
+            <%= render(*(content_tile item: content)) %>
           <% end %>
-        </li>
-    <% end %>
+        <% end %>
+
+        <div class="buttons">
+          <%= render 'data_cycle_core/contents/tiles/attributes/external', item: content if content.try(:external_source) %>
+
+          <% if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && content.class != DataCycleCore::WatchList %>
+            <%= render 'watch_lists', content: content %>
+          <% end %>
+
+          <%= yield_content!(:media_buttons) %>
+        </div>
+      </li>
   <% end %>
 </ul>

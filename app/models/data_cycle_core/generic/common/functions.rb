@@ -91,6 +91,19 @@ module DataCycleCore
           )
         end
 
+        def self.add_user_link(data_hash, attribute, content_type, key_function)
+          return data_hash if key_function.call(data_hash).blank?
+          data_hash.merge(
+            {
+              attribute => [
+                content_type.find_by(
+                  email: key_function.call(data_hash)
+                )&.id
+              ].compact.presence
+            }
+          )
+        end
+
         def self.add_links(data_hash, attribute, content_type, external_source_id, key_function)
           data_hash.merge(
             {

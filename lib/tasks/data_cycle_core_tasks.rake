@@ -671,6 +671,7 @@ namespace :data_cycle_core do
                 end
               end
             rescue StandardError => e
+              logger.warn "Error at #{content.id} (#{table_name}/#{content.template_name})"
               logger.warn e
             end
           end
