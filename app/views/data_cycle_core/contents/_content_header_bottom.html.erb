@@ -2,14 +2,14 @@
 
 <div class="edit">
   <%= yield :buttons %>
-  <% if I18n.available_locales&.size > 1 && can?(:create, content.class) && !content.try(:parent).nil? %>
+  <% if I18n.available_locales&.size > 1 && can?(:create, content.class) %>
       <%= link_to "#", class:'button-prime small', data: { tooltip: true, open: 'newContent', click_open: false }, title: t('actions.create_from_existing', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
           <i class="fa fa-plus" aria-hidden="true"></i>
       <% end %>
       <%= render 'new_content_from_template', content: content %>
   <% end %>
 
-  <% if can?(:edit, content) && content.content_type?('entity') && content.is_a?(DataCycleCore::CreativeWork) && !['Bild', 'Video'].include?(content.template_name) %>
+  <% if can?(:edit, content) && @parents.present? %>
       <%= link_to "#", class:'button-prime small', data: { tooltip: true, open: 'move-to-container-overlay', click_open: false }, title: t('actions.move_to_container', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
           <i class="fa fa-folder" aria-hidden="true"></i>
       <% end %>

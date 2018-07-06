@@ -21,7 +21,7 @@
               </div>
             </div>
 
-            <%= hidden_field_tag 'parent', @content.id %>
+            <%= hidden_field_tag 'parent_id', @content.id %>
             <div class="validation-container form-element" data-key="creative_work[datahash][headline]">
                 <%= label_tag 'creative_work[datahash][headline]', 'Titel' %>
                 <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value:'' %>
@@ -41,7 +41,7 @@
           <%= form_for :creative_work, :url => {:action => "create"} do |f| %>
               <%= hidden_field_tag :type, :creative_works %>
               <%= hidden_field_tag 'template', DataCycleCore.features.dig(:life_cycle, :idea_collection, :template) %>
-              <%= hidden_field_tag 'parent', @content.id %>
+              <%= hidden_field_tag 'parent_id', @content.id %>
               <div class="validation-container form-element">
                   <%= label_tag 'creative_work[datahash][headline]', 'Titel' %>
                   <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value:'', required: true %>

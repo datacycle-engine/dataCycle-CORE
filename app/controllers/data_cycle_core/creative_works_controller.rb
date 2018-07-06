@@ -12,6 +12,12 @@ module DataCycleCore
 
       redirect_back(fallback_location: root_path) && return if @content.nil?
 
+      if DataCycleCore::Feature::Container.enabled? && @content.content_type?('entity') && !['Bild', 'Video'].include?(@content.template_name)
+        I18n.with_locale(DataCycleCore.ui_language) do
+          @parents = DataCycleCore::CreativeWork.where("schema ->> 'content_type' = 'container' AND template = FALSE").includes(:translations).map { |c| [c.title, c.id] }.presence&.to_h
+        end
+      end
+
       I18n.with_locale(@content.first_available_locale) do
         if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container')
           @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
@@ -189,7 +195,7 @@ module DataCycleCore
       if @content.parent.nil?
         redirect_to root_path
       else
-        redirect_to polymorphic_path(@content .parent, watch_list_id: @watch_list)
+        redirect_to polymorphic_path(@content.parent, watch_list_id: @watch_list)
       end
     end
 
@@ -220,7 +226,7 @@ module DataCycleCore
       @parent = DataCycleCore::CreativeWork.find(parent_params[:parent_id])
 
       I18n.with_locale(@content.first_available_locale) do
-        if @content.update(is_part_of: @parent.id)
+        if @content.update_column(:is_part_of, @parent.id)
           redirect_back(fallback_location: root_path, notice: I18n.t(:moved_to, scope: [:controllers, :success], locale: DataCycleCore.ui_language, data: @parent.title))
         else
           redirect_back(fallback_location: root_path, alert: @content.errors.full_messages)
@@ -234,13 +240,13 @@ module DataCycleCore
       object_params = content_params(controller_name, params[:template])
 
       return if content.schema['content_type'] == 'container' || params[:template] == 'Video-Serie'
-      if params[:parent].blank? && params[:template] == DataCycleCore.features.dig(:life_cycle, :idea_collection, :template)
+      if params[:parent_id].blank? && params[:template] == DataCycleCore.features.dig(:life_cycle, :idea_collection, :template)
         parent = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:parent_template], object_params, current_user)
         life_cycle_id = helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id)
         parent.set_data_hash_attribute(DataCycleCore.features.dig(:life_cycle, :attribute_key), [life_cycle_id], current_user)
         content.is_part_of = parent.id
-      elsif params[:parent].present?
-        content.is_part_of = params[:parent]
+      elsif params[:parent_id].present?
+        content.is_part_of = params[:parent_id]
         # set_life_cycle to recherche for both
         if params[:template] == DataCycleCore.features.dig(:life_cycle, :idea_collection, :template)
           life_cycle_id = helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id)
