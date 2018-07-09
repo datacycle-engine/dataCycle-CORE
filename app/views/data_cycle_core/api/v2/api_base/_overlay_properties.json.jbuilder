@@ -6,7 +6,7 @@ DataCycleCore::Feature::OverlayAttributeService.call(content).each do |property|
   next if data.blank?
   data.each do |item|
     json.cache!(item, expires_in: 24.hours + Random.rand(12.hours)) do
-      json.content_partial! 'details', content: item
+      json.content_partial! 'details', content: item, options: options.merge({ header_type: :overlay })
     end
   end
 end

@@ -4,7 +4,8 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
   data = content.send(key).includes(:translations, :classifications)
   next if data.empty?
 
-  json.set! key.camelize(:lower) do
+  key_new = definition.dig('api', 'name') || key.camelize(:lower)
+  json.set! key_new do
     json.array!(data) do |item|
       if @include_parameters.include?('linked')
         json.cache!("#{item.class}_#{item.id}_#{item.updated_at}", expires_in: 24.hours + Random.rand(12.hours)) do
