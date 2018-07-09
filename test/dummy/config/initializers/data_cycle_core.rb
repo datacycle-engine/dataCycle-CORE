@@ -35,7 +35,7 @@ DataCycleCore.setup do |config|
   config.features = config.features.merge(
     {
       publication_schedule: {
-        enabled: false,
+        enabled: true,
         classification_keys: ['output_channel']
       },
       overlay: {
@@ -45,7 +45,7 @@ DataCycleCore.setup do |config|
         enabled: true
       },
       container: {
-        enabled: true,
+        enabled: false,
         excluded: ['Bild', 'Video']
       }
     }
