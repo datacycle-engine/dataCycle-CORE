@@ -3,7 +3,7 @@
 module DataCycleCore
   module Api
     module V2
-      class StoredFiltersController < Api::V2::ApiBaseController
+      class StoredFiltersController < Api::V2::ContentsController
         include DataCycleCore::Filter
 
         def show
@@ -11,15 +11,23 @@ module DataCycleCore
 
           raise ActiveRecord::RecordNotFound unless @stored_filter.api_users.include?(current_user.id)
 
-          query = apply_filter(filter_id: permitted_params[:id], api_only: true).page(permitted_params[:page]).includes(content_data: [:classifications, :translations, :watch_lists])
-          @contents = query.map(&:content_data)
-          @total = query.total_count
-        end
+          query = apply_filter(filter_id: permitted_params[:id], api_only: true)
+          query = query.fulltext_search(permitted_params[:q]) if permitted_params[:q]
 
-        private
+          if permitted_params&.dig(:filter, :classifications)
+            permitted_params.dig(:filter, :classifications).map { |classifications|
+              classifications.split(',').map(&:strip).reject(&:blank?)
+            }.reject(&:empty?).each do |classifications|
+              query = query.classification_alias_ids(classifications)
+            end
+          end
 
-        def permitted_parameter_keys
-          super + [:id]
+          query = query.includes(content_data: [:classifications, :translations, :watch_lists])
+
+          query = apply_ordering(query)
+
+          @pagination_contents = apply_paging(query)
+          @contents = @pagination_contents.map(&:content_data)
         end
       end
     end

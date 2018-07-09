@@ -13,10 +13,21 @@ module DataCycleCore
           query = query.created_since(permitted_params[:created_since]) if permitted_params[:created_since]
           query = query.in_validity_period if permitted_params[:modified_since] && permitted_params[:created_since]
           query = query.fulltext_search(permitted_params[:q]) if permitted_params[:q]
+
+          if permitted_params&.dig(:filter, :classifications)
+            permitted_params.dig(:filter, :classifications).map { |classifications|
+              classifications.split(',').map(&:strip).reject(&:blank?)
+            }.reject(&:empty?).each do |classifications|
+              query = query.classification_alias_ids(classifications)
+            end
+          end
+
           query = apply_ordering(query)
 
           @pagination_contents = apply_paging(query)
           @contents = @pagination_contents.map(&:content_data)
+
+          render 'index'
         end
 
         def show
@@ -25,10 +36,6 @@ module DataCycleCore
           @content = object_type
             .includes({ classifications: [], translations: [] })
             .find(permitted_params[:id])
-
-          I18n.with_locale(@content.first_available_locale(params.fetch(:language, :de).to_sym)) do
-            render 'show'
-          end
         end
 
         # def update
@@ -62,9 +69,6 @@ module DataCycleCore
             DataCycleCore::CreativeWork::History.arel_table[:deleted_at].not_eq(nil)
           )
 
-          @language = permitted_params[:language] if permitted_params[:language].present?
-          @language ||= 'de'
-
           if permitted_params[:deleted_since]
             deleted_contents = deleted_contents.where(
               DataCycleCore::CreativeWork::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params[:deleted_since]))
@@ -76,19 +80,20 @@ module DataCycleCore
 
         def permitted_parameter_keys
           # json-api: fields, sort
-          super + [:id, :format, :type, :language, :q, :modified_since, :created_since, :deleted_since, :include]
+          super + [:id, :format, :type, :language, :q, :modified_since, :created_since, :deleted_since, :include, { filter: [{ classifications: [] }] }]
         end
 
         private
 
         def build_search_query
-          query = DataCycleCore::Filter::Search.new(permitted_params.fetch(:language, 'de'))
+          query = DataCycleCore::Filter::Search.new(@language)
           query
         end
 
         def prepare_url_parameters
           @url_parameters = permitted_params.reject { |k, _| k == 'format' }
           @include_parameters = permitted_params.dig(:include)&.split(',') || []
+          @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s
         end
 
         def content_data_type

@@ -52,6 +52,8 @@
         :storage_location: value
         :validations:
           :format: url
+        :api:
+          :name: sameAs
       :asset:
         :label: Datei
         :type: asset

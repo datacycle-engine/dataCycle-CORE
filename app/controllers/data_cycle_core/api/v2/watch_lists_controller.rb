@@ -3,7 +3,7 @@
 module DataCycleCore
   module Api
     module V2
-      class WatchListsController < Api::V2::ApiBaseController
+      class WatchListsController < Api::V2::ContentsController
         def index
           if permitted_params[:user_email].present?
             @watch_lists = DataCycleCore::WatchList

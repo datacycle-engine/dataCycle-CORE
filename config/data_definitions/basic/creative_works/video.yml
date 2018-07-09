@@ -50,6 +50,8 @@
         :storage_location: value
         :validations:
           :format: url
+        :api:
+          :name: sameAs
       :image:
         :label: Teaserbild
         :type: string
