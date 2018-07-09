@@ -13,7 +13,7 @@ module DataCycleCore
           .>> t(:reject_keys, ['region'])
           .>> t(:rename_keys, { 'hotel_id' => 'external_key' })
           .>> t(:unwrap, 'hotel_data', ['name', 'hotel_description', 'hotel_important_information'])
-          .>> t(:rename_keys, { 'name' => 'title', 'hotel_description' => 'description', 'hotel_important_information' => 'text' })
+          .>> t(:rename_keys, { 'hotel_description' => 'description', 'hotel_important_information' => 'text' })
           .>> t(:unwrap, 'hotel_data', ['address', 'city', 'zip', 'country'])
           .>> t(:rename_keys, { 'address' => 'street_address', 'zip' => 'postal_code', 'city' => 'address_locality', 'country' => 'address_country' })
           .>> t(:map_value, 'address_country', ->(s) { s&.upcase })

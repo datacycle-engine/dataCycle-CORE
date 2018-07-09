@@ -19,6 +19,15 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
+            ['hotel_facility_types'].each do |tag_name|
+              DataCycleCore::Generic::Common::ImportTags.process_content(
+                utility_object: utility_object,
+                raw_data: raw_data,
+                locale: locale,
+                options: { import: utility_object.external_source.config.dig('import_config', tag_name).deep_symbolize_keys }
+              )
+            end
+
             DataCycleCore::Generic::Booking::Processing.process_hotel(
               utility_object,
               raw_data,

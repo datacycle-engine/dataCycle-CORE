@@ -5,7 +5,6 @@ module DataCycleCore
     module Booking
       module Processing
         def self.process_hotel(utility_object, raw_data, config)
-          byebug
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
