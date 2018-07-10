@@ -84,6 +84,9 @@
       :xamoom:
         :type: mixin
         :name: xamoom
+      :booking:
+        :type: mixin
+        :name: booking
       :data_type:
         :label: Inhaltstype
         :type: classification

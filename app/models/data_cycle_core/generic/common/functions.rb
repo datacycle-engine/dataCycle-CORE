@@ -77,6 +77,19 @@ module DataCycleCore
           )
         end
 
+        def self.load_category_key(data_hash, attribute, external_source_id, external_key)
+          data_hash.merge(
+            {
+              attribute => [
+                DataCycleCore::Classification.find_by(
+                  external_source_id: external_source_id,
+                  external_key: external_key.call(data_hash)
+                )&.id
+              ].compact.presence
+            }
+          )
+        end
+
         def self.add_link(data_hash, attribute, content_type, external_source_id, key_function)
           return data_hash if key_function.call(data_hash).blank?
           data_hash.merge(
@@ -85,6 +98,19 @@ module DataCycleCore
                 content_type.find_by(
                   external_source_id: external_source_id,
                   external_key: key_function.call(data_hash)
+                )&.id
+              ].compact.presence
+            }
+          )
+        end
+
+        def self.add_user_link(data_hash, attribute, content_type, key_function)
+          return data_hash if key_function.call(data_hash).blank?
+          data_hash.merge(
+            {
+              attribute => [
+                content_type.find_by(
+                  email: key_function.call(data_hash)
                 )&.id
               ].compact.presence
             }

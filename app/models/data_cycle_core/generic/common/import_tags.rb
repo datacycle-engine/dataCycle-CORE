@@ -41,10 +41,11 @@ module DataCycleCore
             else
               raw_data['id']
             end
-
+          name = raw_data['tag'].is_a?(::Array) ? raw_data['tag'].join(', ') : raw_data['tag']
+          name ||= 'unknown'
           {
             external_key: "#{options.dig(:import, :external_id_prefix)}#{external_id}",
-            name: raw_data['tag']
+            name: name
           }
         end
 

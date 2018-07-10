@@ -2,11 +2,18 @@
 
 <div class="edit">
   <%= yield :buttons %>
-  <% if I18n.available_locales&.size > 1 && can?(:create, content.class) && !content.try(:parent).nil? %>
-      <%= link_to "#", class:'button-prime small', data: { tooltip: true, open: 'newContent', click_open: false }, title: 'Inhalt anhand dieser Vorlage erstellen', 'aria-haspopup': true do %>
+  <% if I18n.available_locales&.size > 1 && can?(:create, content.class) && content.content_type?('entity') && !['Bild', 'Video'].include?(content.template_name) %>
+      <%= link_to "#", class:'button-prime small', data: { tooltip: true, open: 'newContent', click_open: false }, title: t('actions.create_from_existing', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
           <i class="fa fa-plus" aria-hidden="true"></i>
       <% end %>
       <%= render 'new_content_from_template', content: content %>
+  <% end %>
+
+  <% if can?(:edit, content) && @parents.present? %>
+      <%= link_to "#", class:'button-prime small', data: { tooltip: true, open: 'move-to-container-overlay', click_open: false }, title: t('actions.move_to_container', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
+          <i class="fa fa-folder" aria-hidden="true"></i>
+      <% end %>
+      <%= render 'move_to_container_overlay', content: content %>
   <% end %>
 
   <%= link_to polymorphic_path([:gpx, content]), class: 'button-prime small gpx-content-link', data: { tooltip: true, click_open: false }, title: t('common.download_gpx', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
