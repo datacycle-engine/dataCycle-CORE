@@ -58,15 +58,16 @@ module DataCycleCore
     mattr_accessor :breadcrumb_root_name
     self.breadcrumb_root_name = 'Dashboard'
 
+    # :special_data_attributes: @deprecated: remove after APIv2 migrations
     # special data attributes are ignored by the standard json serializes and must be handled by the application itself
     mattr_accessor :special_data_attributes
     self.special_data_attributes = ['id', 'validity_period', 'creator', 'last_updated_by']
 
-    mattr_accessor :internal_data_attributes
-    self.internal_data_attributes = ['date_created', 'date_modified', 'creator', 'data_type', 'data_pool', 'is_part_of', 'last_updated_by']
-
     mattr_accessor :internal_classification_attributes
     self.internal_classification_attributes = ['data_type', 'data_pool']
+
+    mattr_accessor :internal_data_attributes
+    self.internal_data_attributes = ['date_created', 'date_modified', 'creator', 'is_part_of', 'last_updated_by'] + internal_classification_attributes
 
     mattr_accessor :asset_objects
     self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile']

@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 default_options = {
-  header_type: :full,
-  classifications: true
+  header_type: :full
 }
 
 options = default_options.merge(defined?(options) ? options || {} : {})
