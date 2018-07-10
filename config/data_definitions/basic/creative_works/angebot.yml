@@ -71,6 +71,8 @@
         :type: embedded
         :linked_table: creative_works
         :template_name: Angebotszeitraum
+        :api:
+          :name: offers
       :image:
         :label: Bilder
         :type: linked
@@ -103,6 +105,8 @@
     :name: Angebotszeitraum
     :type: object
     :content_type: embedded
+    :api:
+      :type: Offer
     :properties:
       :id:
         :label: id
@@ -118,6 +122,9 @@
         :ui:
           :edit:
             :type: daterange
+        :api:
+          :transformation:
+            :method: unwrap
         :properties:
           :valid_from:
             :label: "Zeitraum von"
@@ -147,6 +154,8 @@
                   :placeholder: tt.mm.jjjj
               :show:
                 :type: date
+            :api:
+              :name: validThrough
       :data_type:
         :label: Inhaltstype
         :type: classification
