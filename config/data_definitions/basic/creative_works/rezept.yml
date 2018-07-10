@@ -69,6 +69,11 @@
           :show:
             :options:
               :data-unit: min
+        :api:
+          :partial: duration
+          :format:
+            :append: M
+            :prepend: PT
       :recipe_course:
         :label: 'Gang'
         :type: classification

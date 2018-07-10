@@ -7,7 +7,7 @@ module DataCycleCore
     def render_api_attribute(key:, definition:, value:, parameters: {}, content: nil, _scope: :api)
       partials = [
         key.underscore.to_s,
-        "#{definition['type'].underscore}_#{definition.try(:[], 'ui').try(:[], 'api').try(:[], 'type').try(:underscore)}",
+        "#{definition['type'].underscore}_#{definition.try(:[], 'api').try(:[], 'partial').try(:underscore)}",
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
         definition['type'].underscore.to_s,
         'default'
