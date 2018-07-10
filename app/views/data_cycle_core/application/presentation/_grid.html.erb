@@ -11,7 +11,7 @@
         <% if no_cache ||= false %>
           <%= render(*(content_tile item: content)) %>
         <% else %>
-          <% cache([content, params.fetch(:language, 'de'), content.respond_to?('schema') ? Digest::MD5.hexdigest(content.schema&.to_s) : nil, @watch_list], expires_in: 24.hours + Random.rand(12.hours)) do %>
+          <% cache(["#{content.class}_#{content.id}_#{content.updated_at}", params.fetch(:language, 'de'), @watch_list], expires_in: 24.hours + Random.rand(12.hours)) do %>
             <%= render(*(content_tile item: content)) %>
           <% end %>
         <% end %>
