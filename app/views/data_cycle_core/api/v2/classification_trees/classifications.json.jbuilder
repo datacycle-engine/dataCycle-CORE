@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-json.partial! 'classifications', classification_aliases: @classification_aliases
+json.partial! 'classifications', classification_aliases: @classification_aliases, key: 'classifications'
 
 json.partial! 'pagination_links',
               objects: @classification_aliases,

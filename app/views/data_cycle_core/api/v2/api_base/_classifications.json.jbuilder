@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-json.classifications do
+json.set! key do
   json.array!(classification_aliases) do |classification_alias|
     json.cache!(classification_alias, expires_in: 10.minutes) do
       json.id classification_alias.id
