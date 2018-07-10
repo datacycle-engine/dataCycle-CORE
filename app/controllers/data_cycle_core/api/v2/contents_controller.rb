@@ -6,6 +6,8 @@ module DataCycleCore
       class ContentsController < Api::V2::ApiBaseController
         before_action :prepare_url_parameters
 
+        ALLOWED_INCLUDE_PARAMETERS = ['linked', 'translations'].freeze
+
         def index
           query = build_search_query
           query = query.where(content_data_type: content_data_type.to_s) if content_data_type
@@ -92,7 +94,7 @@ module DataCycleCore
 
         def prepare_url_parameters
           @url_parameters = permitted_params.reject { |k, _| k == 'format' }
-          @include_parameters = permitted_params.dig(:include)&.split(',') || []
+          @include_parameters = (permitted_params.dig(:include)&.split(',') || []).select { |v| ALLOWED_INCLUDE_PARAMETERS.include?(v) }.sort
           @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s
         end
 
