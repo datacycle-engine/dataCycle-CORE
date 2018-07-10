@@ -1,0 +1,36 @@
+<div class="reveal new-content" id="newContent" data-reveal>
+    <h3>Neuen Inhalt auf Basis dieser Vorlage erstellen</h3>
+
+    <%= form_for content.class.new, :url => {:action => "create"}, html: { class: 'validation-form' } do |f| %>
+        <%= hidden_field_tag :table, content.class.table_name %>
+        <%= hidden_field_tag 'template', content.template_name %>
+        <%= hidden_field_tag 'source', "source_id=>"+content.id+", source_type=>"+content.class.name %>
+
+        <%= select_tag 'locale', options_for_select(available_locales_with_names.except(:all).invert, DataCycleCore.ui_language) %>
+
+        <% if @parents.present? %>
+          <div class="form-element">
+            <%= label_tag 'parent_id', 'Thema' %>
+
+            <div class="v-select white">
+              <% I18n.with_locale(DataCycleCore.ui_language) do %>
+                <%= select_tag('parent_id', options_for_select(@parents, content.try(:parent)&.id), { class: 'single-select select', data: { allow_clear: false } }) %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <% content.new_content_fields.each_with_index do |attribute, _index| %>
+            <div class="validation-container form-element">
+                <%= label_tag "#{content.class.name.demodulize.underscore}[datahash][#{attribute}]", "#{content.schema['properties'][attribute]['label']}" %>
+                <%= text_field_tag "#{content.class.name.demodulize.underscore}[datahash][#{attribute}]", '', class: 'form-control', value: '' %>
+            </div>
+        <% end %>
+
+        <%= submit_tag t(:submit, locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: t(:submit, locale: DataCycleCore.ui_language) } %>
+    <% end %>
+
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
