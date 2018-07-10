@@ -24,7 +24,7 @@ if options[:header_type] == :full
 
   json.set! 'url', send("#{content.class.class_name.tableize.singularize}_url", content)
 
-  internal_classifications = ['data_type', 'data_pool'].map { |internal_classification|
+  internal_classifications = DataCycleCore.internal_classification_attributes.map { |internal_classification|
     content.send(internal_classification)&.includes(:classification_aliases)&.map(&:classification_aliases)&.flatten&.uniq if content.respond_to?(internal_classification)
   }.compact.flatten
   json.partial! 'classifications', classification_aliases: internal_classifications, key: 'classifications'
