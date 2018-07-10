@@ -1958,6 +1958,13 @@ CREATE UNIQUE INDEX index_classifications_on_id ON public.classifications USING 
 
 
 --
+-- Name: index_creative_works_on_content_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_creative_works_on_content_type ON public.creative_works USING btree (((schema ->> 'content_type'::text)));
+
+
+--
 -- Name: index_creative_works_on_external_key; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2427,6 +2434,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180525083121'),
 ('20180525084148'),
 ('20180529105933'),
-('20180703135948');
+('20180703135948'),
+('20180705133931');
 
 
