@@ -37,6 +37,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'rgeo-geojson'
   # mongoDB driver
   s.add_dependency 'mongoid'
+  # change mongoid version if bullet gem is used
+  # s.add_dependency 'mongoid', '>= 4.0.0', '< 7.0.0'
   # s.add_dependency 'arel-helpers'
   # REST Client
   s.add_dependency 'faraday'
@@ -86,6 +88,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'rails-html-sanitizer', '>= 1.0.4'
   # cron jobs gem
   s.add_dependency 'whenever'
+  # redis
+  s.add_dependency 'redis-rails'
 
   # development gems
   s.add_development_dependency 'better_errors'
@@ -101,8 +105,12 @@ Gem::Specification.new do |s|
 
   # validation gems
   s.add_development_dependency 'brakeman', '~> 4.3.0'
-  # s.add_development_dependency 'bullet'
   s.add_development_dependency 'bundler-audit'
   s.add_development_dependency 'gemsurance'
   s.add_development_dependency 'rubocop', '~> 0.56.0'
+
+  # only activate if required for local testing
+  # s.add_development_dependency 'bullet'
+  # # rails panel (test)
+  # s.add_development_dependency 'meta_request'
 end

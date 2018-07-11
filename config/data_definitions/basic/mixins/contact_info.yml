@@ -7,6 +7,9 @@
         :label: Kontakt
         :type: object
         :storage_location: translated_value
+        :api:
+          :transformation:
+            :method: unwrap
         :properties:
           :telephone:
             :label: Telefonnummer
@@ -26,5 +29,7 @@
             :label: Web
             :type: string
             :storage_location: translated_value
+            :api:
+              :name: website
 #            :validations:
 #              :format: url

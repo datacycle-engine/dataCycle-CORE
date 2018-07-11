@@ -25,7 +25,13 @@ Rails.application.configure do
   if Rails.root.join('tmp', 'caching-dev.txt').exist?
     config.action_controller.perform_caching = true
 
-    config.cache_store = :memory_store
+    # config.cache_store = :memory_store
+    config.cache_store = :redis_store, {
+      host: 'redis',
+      port: 6379,
+      db: 0,
+      namespace: 'cache'
+    }
     config.public_file_server.headers = {
       'Cache-Control' => 'public, max-age=172800'
     }
@@ -74,9 +80,10 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3000'), protocol: ENV.fetch('APP_PROTOCOL', 'http') }
   config.action_mailer.smtp_settings = { address: ENV.fetch('MAILHOG_HOST', 'localhost'), port: 1025 }
 
-  # Bullet configuration
+  # Bullet configuration:
+  # only activate if required for local testing
   # config.after_initialize do
-  #   Bullet.enable = false
+  #   Bullet.enable = true
   #   Bullet.bullet_logger = true
   #   Bullet.console = true
   #   Bullet.rails_logger = true

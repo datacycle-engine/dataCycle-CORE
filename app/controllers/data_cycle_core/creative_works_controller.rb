@@ -185,8 +185,8 @@ module DataCycleCore
 
     def destroy
       @content = DataCycleCore::CreativeWork.find(params[:id])
-      @content .destroy_content
-      @content .destroy
+      @content.destroy_content
+      @content.destroy
 
       execute_after_destroy_webhooks @content
 

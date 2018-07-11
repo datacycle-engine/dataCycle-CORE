@@ -115,6 +115,27 @@ DataCycleCore::Engine.routes.draw do
           delete ':external_source_id/:type/:external_key', to: 'external_sources#destroy', on: :collection
         end
       end
+      namespace :v2 do
+        resources :stored_filters, only: [:show], path: :endpoints
+
+        resources :classification_trees, only: [:index, :show] do
+          get :classifications, on: :member
+        end
+
+        resources :collections, only: [:index, :show], controller: :watch_lists
+
+        resources :external_sources, only: [] do
+          post ':external_source_id/:type/:external_key', to: 'external_sources#create', on: :collection
+          patch ':external_source_id/:type/:external_key', to: 'external_sources#update', on: :collection
+          delete ':external_source_id/:type/:external_key', to: 'external_sources#destroy', on: :collection
+        end
+
+        resources(*DataCycleCore.content_tables.map(&:to_sym), only: [:index, :show]) do
+        end
+
+        get 'contents/search', to: 'contents#search'
+        get 'contents/deleted', to: 'contents#deleted'
+      end
     end
   end
 

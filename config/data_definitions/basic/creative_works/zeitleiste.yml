@@ -76,6 +76,9 @@
         :ui:
           :edit:
             :type: daterange
+        :api:
+          :transformation:
+            :method: unwrap
         :properties:
           :valid_from:
             :label: Zeitraum
@@ -89,6 +92,8 @@
                 :options:
                   :data-validate: daterange
                   :placeholder: "tt.mm.jjjj --:--"
+            :api:
+              :name: datePublished
           :valid_until:
             :label: bis
             :type: datetime
@@ -101,6 +106,8 @@
                 :options:
                   :data-validate: daterange
                   :placeholder: "tt.mm.jjjj --:--"
+            :api:
+              :name: expires
       :description:
         :label: Teasertext
         :type: string

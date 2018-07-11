@@ -59,6 +59,8 @@
     :name: Frage
     :type: object
     :content_type: embedded
+    :api:
+      :type: Question
     :properties:
       :id:
         :label: id
@@ -110,6 +112,8 @@
     :name: Antwort
     :type: object
     :content_type: embedded
+    :api:
+      :type: Answer
     :properties:
       :id:
         :label: id
