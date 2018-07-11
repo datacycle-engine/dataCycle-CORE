@@ -4,26 +4,14 @@ module DataCycleCore
   module Api
     module V2
       class ContentsController < Api::V2::ApiBaseController
+        include DataCycleCore::Api::V2::Filter
         before_action :prepare_url_parameters
 
         ALLOWED_INCLUDE_PARAMETERS = ['linked', 'translations'].freeze
 
         def index
           query = build_search_query
-          query = query.where(content_data_type: content_data_type.to_s) if content_data_type
-          query = query.modified_since(permitted_params[:modified_since]) if permitted_params[:modified_since]
-          query = query.created_since(permitted_params[:created_since]) if permitted_params[:created_since]
-          query = query.in_validity_period if permitted_params[:modified_since] && permitted_params[:created_since]
-          query = query.fulltext_search(permitted_params[:q]) if permitted_params[:q]
-
-          if permitted_params&.dig(:filter, :classifications)
-            permitted_params.dig(:filter, :classifications).map { |classifications|
-              classifications.split(',').map(&:strip).reject(&:blank?)
-            }.reject(&:empty?).each do |classifications|
-              query = query.classification_alias_ids(classifications)
-            end
-          end
-
+          query = filter_query(query)
           query = apply_ordering(query)
 
           @pagination_contents = apply_paging(query)
@@ -105,13 +93,6 @@ module DataCycleCore
           ('DataCycleCore::' + object_type.singularize.classify).constantize
         end
 
-        def apply_ordering(query)
-          if permitted_params[:q].blank?
-            query
-          else
-            query.order(DataCycleCore::Filter::ObjectBrowserQueryBuilder.get_order_by_query_string(permitted_params[:q]))
-          end
-        end
       end
     end
   end
