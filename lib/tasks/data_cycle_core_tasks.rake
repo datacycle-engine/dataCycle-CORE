@@ -852,7 +852,7 @@ namespace :data_cycle_core do
       args[:prefix] ||= ''
 
       Rake::Task["#{args[:prefix]}data_cycle_core:update:import_templates"].invoke
-      Rake::Task["#{args[:prefix]}data_cycle_core:update:update_all_templates_sql"].invoke(false, 'app:')
+      Rake::Task["#{args[:prefix]}data_cycle_core:update:update_all_templates_sql"].invoke(false, args[:prefix])
 
       puts 'END'
       puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
