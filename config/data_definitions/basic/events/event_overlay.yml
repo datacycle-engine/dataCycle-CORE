@@ -69,6 +69,8 @@
         :storage_location: translated_value
         :validations:
           :format: url
+        :api:
+          :name: sameAs
       :location:
         :label: Veranstaltungsort
         :type: linked

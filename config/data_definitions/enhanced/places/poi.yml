@@ -4,6 +4,8 @@
     :type: object
     :content_type: entity
     :boost: 10.0
+    :api:
+      :type: TouristAttraction
     :properties:
       :id:
         :label: id
@@ -42,11 +44,15 @@
         :template_name: Bild
         :validations:
           :max: 1
+        :api:
+          :name: image
       :image:
         :label: Bilder
         :type: linked
         :linked_table: creative_works
         :template_name: Bild
+        :api:
+          :name: photo
       :poi_category:
         :label: Kategorie
         :type: classification

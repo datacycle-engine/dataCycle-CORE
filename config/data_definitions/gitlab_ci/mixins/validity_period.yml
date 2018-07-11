@@ -16,6 +16,8 @@
             :type: daterange
           :show:
             :disabled: true
+        :api:
+          :disabled: true
         :properties:
           :valid_from:
             :label: Gültigkeit

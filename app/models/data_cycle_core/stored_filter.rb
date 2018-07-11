@@ -11,7 +11,6 @@ module DataCycleCore
       parameters.presence&.each do |filter|
         query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
       end
-
       query
     end
   end

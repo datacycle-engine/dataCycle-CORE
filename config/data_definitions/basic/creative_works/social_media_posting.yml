@@ -7,6 +7,8 @@
     :features:
       :publication_schedule: ['publication_schedule']
       :releasable: true
+    :api:
+      :type: SocialMediaPosting
     :properties:
       :id:
         :label: id
@@ -39,6 +41,8 @@
         :search: true
         :validations:
           :format: url
+        :api:
+          :name: sameAs
       :content_location:
         :label: Ort
         :type: linked

@@ -4,6 +4,8 @@
     :type: object
     :content_type: entity
     :boost: 10.0
+    :api:
+      :type: ImageObject
     :properties:
       :id:
         :label: id
@@ -50,6 +52,8 @@
         :storage_location: value
         :validations:
           :format: url
+        :api:
+          :name: sameAs
       :asset:
         :label: Datei
         :type: asset
