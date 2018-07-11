@@ -28,7 +28,7 @@
     "babel-preset-stage-2": "6.24.1",
     "babelify": "7.3.0",
     "browser": "0.2.6",
-    "browser-sync": "^2.24.5",
+    "browser-sync": "2.18.12",
     "browserify": "14.4.0",
     "browserify-shim": "3.8.14",
     "coffeeify": "2.1.0",
@@ -62,7 +62,7 @@
     "jquery-ujs": "1.2.2",
     "jshint": "2.9.5",
     "lazysizes": "4.0.1-beta1",
-    "lodash": "^4.17.10",
+    "lodash": "4.17.4",
     "masonry-layout": "4.2.0",
     "merge-stream": "1.0.1",
     "ol": "4.3.1",
@@ -73,8 +73,8 @@
     "sortablejs": "1.7.0",
     "turbolinks": "5.0.3",
     "vinyl-source-stream": "1.1.0",
-    "watchify": "^3.11.0",
-    "yarn": "^1.7.0"
+    "watchify": "3.9.0",
+    "yarn": "^1.5.1"
   },
   "devDependencies": {
     "cypress": "2.1.0"
