@@ -30,4 +30,13 @@ group :development, :test, :review do
   gem 'capistrano-rvm'
   gem 'capistrano3-delayed-job'
   gem 'capistrano3-puma'
+
+  # activate for performance profiling
+  # performance profiling
+  # gem 'rack-mini-profiler'
+  # For memory profiling
+  # gem 'memory_profiler'
+  # For call-stack profiling flamegraphs
+  # gem 'flamegraph'
+  # gem 'stackprof'
 end
