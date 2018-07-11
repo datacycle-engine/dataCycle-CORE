@@ -13,6 +13,15 @@ module DataCycleCore
           @password = password
         end
 
+        def regions(lang: :de)
+          end_point = '/regions'
+          Enumerator.new do |yielder|
+            load_data(end_point, lang, nil, nil, nil, 'at').each do |region|
+              yielder << region
+            end
+          end
+        end
+
         def hotel_types(lang: :de)
           end_point = '/hotelTypes'
           Enumerator.new do |yielder|
@@ -40,13 +49,14 @@ module DataCycleCore
 
         protected
 
-        def load_data(end_point, lang, region_id = nil, extras = nil, offset = nil)
+        def load_data(end_point, lang, region_id = nil, extras = nil, offset = nil, countries = nil)
           conn = Faraday.new(url: @host + end_point)
           conn.basic_auth(@user, @password)
           response = conn.get do |req|
             req.params['region_ids'] = region_id if region_id.present?
             req.params['language'] = lang if region_id.present?
-            req.params['languages'] = lang if region_id.blank?
+            req.params['languages'] = lang if region_id.blank? || countries
+            req.params['countries'] = countries if countries.present?
             req.params['extras'] = extras.join(',') if extras.present?
             if offset.present?
               req.params['offset'] = offset
