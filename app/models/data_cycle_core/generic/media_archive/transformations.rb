@@ -25,7 +25,7 @@ module DataCycleCore
                 'accountable_person' => 'creator')
           .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
           .>> t(:add_link, 'content_location', DataCycleCore::Place, external_source_id, ->(s) { "#{s['contentType']}-#{place_template}: #{s['url'].split('/').last}" })
-          .>> t(:add_user_link, 'creator', DataCycleCore::User, ->(s) { s['creator']['email'] })
+          .>> t(:add_user_link, 'creator', DataCycleCore::User, ->(s) { s&.dig('creator', 'email') })
           .>> t(:strip_all)
         end
 
@@ -48,7 +48,7 @@ module DataCycleCore
           .>> t(:add_link, 'contributor', DataCycleCore::Person, external_source_id, ->(s) { "Kamera: #{s['url'].split('/').last}" })
           .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
           .>> t(:add_link, 'content_location', DataCycleCore::Place, external_source_id, ->(s) { "#{s['contentType']}-#{place_template}: #{s['url'].split('/').last}" })
-          .>> t(:add_user_link, 'creator', DataCycleCore::User, ->(s) { s['creator']['email'] })
+          .>> t(:add_user_link, 'creator', DataCycleCore::User, ->(s) { s&.dig('creator', 'email') })
           .>> t(:strip_all)
         end
 
