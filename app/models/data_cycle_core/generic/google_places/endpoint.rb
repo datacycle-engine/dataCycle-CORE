@@ -114,14 +114,14 @@ module DataCycleCore
           loop do
             temp = load_data(location_x: x, location_y: y, radius: r, next_page: next_page_token)
             data_pool += temp['results']
-            puts "loaded    (#{x}, #{y}, #{r}, #{next_page_token.present?}) /// items: #{temp['results'].size}/// paging: #{page_no}"
+            # puts "loaded    (#{x}, #{y}, #{r}, #{next_page_token.present?}) /// items: #{temp['results'].size}/// paging: #{page_no}"
             # got 60 datapoints within one query --> expect more to be present ==> zoom
             if r > 50
               if page_no == 3 && temp['results'].size == 20
                 new_tiles = zoom(x, y, r, i)
-                puts "***ZOOM***(#{x}, #{y}, #{r}, #{i})"
+                # puts "***ZOOM***(#{x}, #{y}, #{r}, #{i})"
                 new_tiles['tiles'].each do |tile|
-                  puts "load_zoom (#{tile[0]}, #{tile[1]}, #{new_tiles['r']}, #{new_tiles['i']})"
+                  # puts "load_zoom (#{tile[0]}, #{tile[1]}, #{new_tiles['r']}, #{new_tiles['i']})"
                   position = factory.parse_wkt("POINT (#{tile[0]} #{tile[1]})")
                   data_pool += load_tile(x: tile[0], y: tile[1], r: new_tiles['r'], i: new_tiles['i']) if border.present? && position.buffer(new_tiles['r']).distance(border).zero?
                 end
@@ -142,8 +142,8 @@ module DataCycleCore
         end
 
         def load_data(location_x: 0, location_y: 0, radius: 1000, next_page: nil)
-          puts "--> load: (#{next_page})" if next_page.present?
-          puts "--> load: (#{[location_x.round(6), location_y.round(6)].join(',')}) // #{radius.round(6)}"
+          # puts "--> load: (#{next_page})" if next_page.present?
+          # puts "--> load: (#{[location_x.round(6), location_y.round(6)].join(',')}) // #{radius.round(6)}"
           attempts = 1
           if next_page.nil?
             response = Faraday.new.get do |req|
@@ -166,9 +166,9 @@ module DataCycleCore
                 req.params['language'] = 'de'
               end
               data = JSON.parse(response.body)
-              items = data['results'].size
-              puts "====> #{items} <===="
-              puts data['status']
+              # items = data['results'].size
+              # puts "====> #{items} <===="
+              # puts data['status']
               break if data['status'] == 'OK' || data['status'] == 'ZERO_RESULTS' || attempts > 9
               attempts += 1
             end
