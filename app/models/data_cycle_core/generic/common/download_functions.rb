@@ -24,11 +24,10 @@ module DataCycleCore
                   raw_data.each do |language, data_hash|
                     next unless locales.include?(language.to_sym)
                     item.dump[language] = data_hash
-                    logging.item_processed(item_name, item_id, 1, '')
                   end
                   item.save!
                   GC.start
-                  logging.info("Single download item #{item_id}: #{item_name}")
+                  logging.info("Single download item: #{item_name}", item_id)
                 end
               rescue StandardError => e
                 logging.error(nil, nil, nil, e)
