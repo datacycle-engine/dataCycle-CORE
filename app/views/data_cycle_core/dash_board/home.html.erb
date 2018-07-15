@@ -18,7 +18,7 @@
             </h4>
             <%= link_to 'import data-types', admin_import_templates_path, class: 'button small' %>
             <%= link_to 'import classifications', admin_import_classifications_path, class: 'button small' %>
-            <%= link_to 'import modules-config', admin_import_config_path, class:'button small' %>            
+            <%= link_to 'import modules-config', admin_import_config_path, class:'button small' %>
         </div>
     </div>
 
@@ -51,6 +51,8 @@
         </div>
     </div>
     <div class="row dashboard-cards">
+        <% binding.pry %>
+
         <% @stat_outdoor_active.import_modules.each do |import_modules| %>
             <div class="columns small-3">
                 <%= render 'import_modules', locals: {import_data: import_modules} %>
