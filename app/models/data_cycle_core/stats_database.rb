@@ -47,7 +47,7 @@ module DataCycleCore
       # @pg_overlays = Overlay.count
     end
 
-    def load_mongo_data(user_id)
+    def load_mongo_data(_user_id)
       mongo_dbs = Generic::Collection.mongo_client.list_databases
 
       UseCase.find_each do |use_case|
