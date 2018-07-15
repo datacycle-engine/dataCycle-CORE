@@ -51,8 +51,6 @@
         </div>
     </div>
     <div class="row dashboard-cards">
-        <% binding.pry %>
-
         <% @stat_outdoor_active.import_modules.each do |import_modules| %>
             <div class="columns small-3">
                 <%= render 'import_modules', locals: {import_data: import_modules} %>
