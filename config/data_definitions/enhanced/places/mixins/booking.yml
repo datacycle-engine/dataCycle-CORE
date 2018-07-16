@@ -17,3 +17,9 @@
         :ui:
           :show:
             :content_area: header
+      :booking_url:
+        :label: Booking.com - Buchungs URL
+        :storage_location: value
+        :type: string
+        :validations:
+          :format: url

@@ -36,7 +36,7 @@ module DataCycleCore
           offset = 0
           Enumerator.new do |yielder|
             loop do
-              data = load_data(end_point, lang, @region_id, ['hotel_info', 'hotel_facilities', 'hotel_description'], offset)
+              data = load_data(end_point, lang, @region_id, ['hotel_info', 'hotel_facilities', 'hotel_description', 'hotel_photos'], offset)
               data.each do |hotel|
                 yielder << hotel
               end
