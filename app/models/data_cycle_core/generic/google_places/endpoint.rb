@@ -169,7 +169,7 @@ module DataCycleCore
               # items = data['results'].size
               # puts "====> #{items} <===="
               # puts data['status']
-              break if data['status'] == 'OK' || data['status'] == 'ZERO_RESULTS' || attempts > 9
+              break if data['status'] == 'OK' || data['status'] == 'ZERO_RESULTS' || attempts > 30
               attempts += 1
             end
           end
