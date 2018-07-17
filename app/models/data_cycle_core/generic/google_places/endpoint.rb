@@ -166,7 +166,7 @@ module DataCycleCore
                 req.params['language'] = 'de'
               end
               data = JSON.parse(response.body)
-              items = data['results'].size
+              # items = data['results'].size
               # puts "====> #{items} <===="
               # puts data['status']
               break if data['status'] == 'OK' || data['status'] == 'ZERO_RESULTS' || attempts > 9
