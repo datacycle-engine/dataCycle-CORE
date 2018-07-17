@@ -77,8 +77,22 @@ module DataCycleCore
           )
         end
 
-        def self.add_link(data_hash, attribute, content_type, external_source_id, key_function)
+        def self.load_category_key(data_hash, attribute, external_source_id, external_key)
+          data_hash.merge(
+            {
+              attribute => [
+                DataCycleCore::Classification.find_by(
+                  external_source_id: external_source_id,
+                  external_key: external_key.call(data_hash)
+                )&.id
+              ].compact.presence
+            }
+          )
+        end
+
+        def self.add_link(data_hash, attribute, content_type, external_source_id, key_function, condition_function = nil)
           return data_hash if key_function.call(data_hash).blank?
+          return data_hash if condition_function.present? && !condition_function.call(data_hash)
           data_hash.merge(
             {
               attribute => [
@@ -91,7 +105,21 @@ module DataCycleCore
           )
         end
 
-        def self.add_links(data_hash, attribute, content_type, external_source_id, key_function)
+        def self.add_user_link(data_hash, attribute, content_type, key_function)
+          return data_hash if key_function.call(data_hash).blank?
+          data_hash.merge(
+            {
+              attribute => [
+                content_type.find_by(
+                  email: key_function.call(data_hash)
+                )&.id
+              ].compact.presence
+            }
+          )
+        end
+
+        def self.add_links(data_hash, attribute, content_type, external_source_id, key_function, condition_function = nil)
+          return data_hash if condition_function.present? && !condition_function.call(data_hash)
           data_hash.merge(
             {
               attribute =>
@@ -106,10 +134,15 @@ module DataCycleCore
         def self.local_image(data_hash, attribute)
           return data_hash if data_hash[attribute].blank?
 
-          asset = DataCycleCore::Image.new(remote_file_url: data_hash[attribute]).set_content_type.set_file_size
-          asset.save!
-
-          data_hash[attribute] = asset.try(:id)
+          begin
+            asset = DataCycleCore::Image.new(remote_file_url: data_hash[attribute]).set_content_type.set_file_size
+            asset.save!
+            data_hash[attribute] = asset.try(:id)
+          rescue StandardError => error
+            logger = DataCycleCore::Generic::Logger::LogFile.new('carrierwave')
+            logger.info(error, data_hash[attribute])
+            logger.close
+          end
           data_hash
         end
 

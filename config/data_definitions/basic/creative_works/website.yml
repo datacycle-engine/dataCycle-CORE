@@ -3,6 +3,8 @@
     :name: Website
     :type: object
     :content_type: embedded
+    :api:
+      :type: Website
     :properties:
       :id:
         :label: id

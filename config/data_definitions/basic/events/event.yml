@@ -82,6 +82,8 @@
         :storage_location: translated_value
         :validations:
           :format: url
+        :api:
+          :name: sameAs
       :same_as:
         :label: Link
         :type: string

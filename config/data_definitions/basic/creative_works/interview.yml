@@ -52,6 +52,8 @@
         :type: linked
         :linked_table: persons
         :template_name: Person
+        :api:
+          :name: about
       :quotation:
         :label: Zitat
         :type: embedded

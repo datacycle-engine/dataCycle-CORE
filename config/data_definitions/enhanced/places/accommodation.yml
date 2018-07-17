@@ -6,6 +6,8 @@
     :boost: 10.0
     :features:
       :overlay: ['overlay']
+    :api:
+      :type: LodgingBusiness
     :properties:
       :id:
         :label: id
@@ -61,11 +63,15 @@
         :template_name: Bild
         :validations:
           :max: 1
+        :api:
+          :name: image
       :image:
         :label: Bilder
         :type: linked
         :linked_table: creative_works
         :template_name: Bild
+        :api:
+          :name: photo
       :outdoor_active:
         :type: mixin
         :name: outdoor_active
@@ -78,6 +84,9 @@
       :xamoom:
         :type: mixin
         :name: xamoom
+      :booking:
+        :type: mixin
+        :name: booking
       :data_type:
         :label: Inhaltstype
         :type: classification

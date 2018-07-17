@@ -18,6 +18,8 @@ module.exports.initialize = function () {
       });
     } else if ($('#content-upload-reveal').length && event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'open-upload-form') {
       $('#content-upload-reveal').foundation('open');
+    } else if (event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'close_iframe') {
+      $('iframe:visible').closest('.reveal').foundation('close');
     }
   });
 

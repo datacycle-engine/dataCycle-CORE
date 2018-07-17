@@ -64,7 +64,7 @@ module.exports.initialize = function () {
 
         var selected_label = $('.filters .tag-group.tags.' + tree_label).find('[for=' + id + ']');
         if (selected_label.length == 0) {
-          var renderedTag = '<label for="' + id + '"><a class="tag">' + title + '<i class="fa fa-times" aria-hidden="true"></i></a> </label>';
+          var renderedTag = ' <label for="' + id + '"><a class="tag">' + title + '<i class="fa fa-times" aria-hidden="true"></i></a> </label>';
           $('.filters .tag-group.tags:not(.advanced-tags).' + tree_label + ' .tags-container').append(renderedTag);
         } else {
           selected_label.show();

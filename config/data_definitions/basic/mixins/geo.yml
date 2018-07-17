@@ -9,18 +9,33 @@
         :storage_location: column
         :validations:
           :format: float
+        :api:
+          :transformation:
+            :method: nest
+            :name: geo
+            :type: GeoCoordinates
       :latitude:
         :label: Latitude
         :type: number
         :storage_location: column
         :validations:
           :format: float
+        :api:
+          :transformation:
+            :method: nest
+            :name: geo
+            :type: GeoCoordinates
       :elevation:
         :label: Meereshöhe (m)
         :type: number
         :storage_location: column
         :validations:
           :format: float
+        :api:
+          :transformation:
+            :method: nest
+            :name: geo
+            :type: GeoCoordinates
       :location:
         :label: GPS-Koordinaten
         :type: geographic
@@ -28,3 +43,5 @@
         :ui:
           :edit:
             :disabled: true
+        :api:
+          :disabled: true

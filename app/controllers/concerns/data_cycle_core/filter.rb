@@ -6,7 +6,7 @@ module DataCycleCore
 
     def get_filtered_results(query = nil)
       @filters ||= params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
-      @language ||= params.fetch(:language, DataCycleCore.ui_language.to_s)
+      @language ||= params.fetch(:language, current_user.default_locale)
 
       if @filters.any? { |f| f['t'] == 'fulltext_search' }
         @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@filters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'))
@@ -59,6 +59,7 @@ module DataCycleCore
 
       @language = filter.language
       @stored_filters = filter.parameters || []
+
       filter.apply
     end
 

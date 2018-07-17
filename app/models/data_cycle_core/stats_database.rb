@@ -47,10 +47,10 @@ module DataCycleCore
       # @pg_overlays = Overlay.count
     end
 
-    def load_mongo_data(user_id)
+    def load_mongo_data(_user_id)
       mongo_dbs = Generic::Collection.mongo_client.list_databases
 
-      UseCase.where(user_id: user_id).find_each do |use_case|
+      UseCase.find_each do |use_case|
         external_source_id = use_case.external_source_id
         external_source = ExternalSource.find_by(id: external_source_id)
         import_name = external_source.name

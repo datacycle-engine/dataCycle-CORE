@@ -1,5 +1,7 @@
 <div class="tags">
-  <% item.display_classification_aliases.each do |classification_alias| %>
-    <span class="tag"><%= classification_alias.name %></span>
-  <% end %>
+  <ul class="no-bullet no-format">
+    <% item.display_classification_aliases.each do |classification_alias| %>
+      <li class="tag"><%= classification_alias.name %></li>
+    <% end %>
+  </ul>
 </div>

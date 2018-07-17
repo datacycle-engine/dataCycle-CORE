@@ -251,6 +251,11 @@ module.exports.initialize = function () {
     var form = document.querySelector('.edit-content-form');
     $('button.submit-edit-form').on('click', function (ev) {
       ev.preventDefault();
+
+      if(!check_agbs_accepted()){
+          return false;
+      }
+
       remove_submit_button_errors();
       $(ev.currentTarget).html('<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>').prop('disabled', true);
 
