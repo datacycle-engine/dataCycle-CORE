@@ -165,8 +165,8 @@ module DataCycleCore
                 req.params['pagetoken'] = next_page
                 req.params['language'] = 'de'
               end
-              # data = JSON.parse(response.body)
-              # items = data['results'].size
+              data = JSON.parse(response.body)
+              items = data['results'].size
               # puts "====> #{items} <===="
               # puts data['status']
               break if data['status'] == 'OK' || data['status'] == 'ZERO_RESULTS' || attempts > 9
