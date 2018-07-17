@@ -3,7 +3,7 @@
 module DataCycleCore
   class ContentsController < ApplicationController
     before_action :authenticate_user!, :set_watch_list
-    load_and_authorize_resource only: [:index, :show, :edit, :update, :destroy, :history]
+    load_and_authorize_resource only: [:index, :show, :destroy, :history]
 
     after_action :notify_subscribers, only: :update
 
@@ -68,6 +68,11 @@ module DataCycleCore
       end
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
+        unless can?(:edit, @content)
+          redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
+          return
+        end
+
         render 'edit'
       end
     end
@@ -84,6 +89,11 @@ module DataCycleCore
     def update
       @content = data_cycle_object(controller_name).find(params[:id])
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
+        unless can?(:update, @content)
+          redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
+          return
+        end
+
         object_params = content_params(controller_name, @content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
 

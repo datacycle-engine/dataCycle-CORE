@@ -59,6 +59,7 @@ module DataCycleCore
 
       @language = filter.language
       @stored_filters = filter.parameters || []
+
       filter.apply
     end
 

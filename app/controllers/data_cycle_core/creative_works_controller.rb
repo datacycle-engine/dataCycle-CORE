@@ -41,7 +41,6 @@ module DataCycleCore
         end
 
         @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if DataCycleCore::Feature::Releasable.allowed?(@content) && !@content.release_id.nil?
-
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: controller_name, id: params[:id]) }
           format.html { render 'show' }
@@ -134,6 +133,11 @@ module DataCycleCore
     def update
       @content = DataCycleCore::CreativeWork.find(params[:id])
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
+        unless can?(:update, @content)
+          redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
+          return
+        end
+
         object_params = content_params(controller_name, @content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema, false)
         #
@@ -185,8 +189,8 @@ module DataCycleCore
 
     def destroy
       @content = DataCycleCore::CreativeWork.find(params[:id])
-      @content .destroy_content
-      @content .destroy
+      @content.destroy_content
+      @content.destroy
 
       execute_after_destroy_webhooks @content
 

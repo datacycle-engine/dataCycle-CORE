@@ -9,7 +9,7 @@
       <%= render 'new_content_from_template', content: content %>
   <% end %>
 
-  <% if can?(:edit, content) && @parents.present? %>
+  <% if can?(:move_content, content) && @parents.present? %>
       <%= link_to "#", class:'button-prime small', data: { tooltip: true, open: 'move-to-container-overlay', click_open: false }, title: t('actions.move_to_container', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
           <i class="fa fa-folder" aria-hidden="true"></i>
       <% end %>

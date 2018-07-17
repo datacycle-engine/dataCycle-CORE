@@ -43,5 +43,21 @@ services:
       DNSDOCK_ALIAS: localhost
     ports:
       - '1035:8025'
+  redis:
+    image: 'redis:latest'
+    command: redis-server
+    volumes:
+      - 'redis:/data'
+    ports:
+    - '6380:6379'
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    build: .
+    restart: always
+    environment:
+    - REDIS_HOSTS=local:redis:6379
+    ports:
+    - 8081:8081
 volumes:
   gems:
+  redis:

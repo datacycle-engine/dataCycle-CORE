@@ -4,6 +4,8 @@
     :type: object
     :content_type: entity
     :boost: 10.0
+    :api:
+      :type: VideoObject
     :properties:
       :id:
         :label: id
@@ -47,6 +49,8 @@
         :storage_location: value
         :validations:
           :format: url
+        :api:
+          :name: sameAs
       :image:
         :label: Teaserbild
         :type: string

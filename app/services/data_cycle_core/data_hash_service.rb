@@ -115,7 +115,14 @@ module DataCycleCore
               end
 
               value = temp_value
+            elsif properties['type'] == 'object'
+              temp_value = {}
 
+              value.each do |object_key, object_value|
+                temp_value[object_key] = flatten_recursive({ object_key => object_value }, properties)[object_key]
+              end
+
+              value = temp_value
             elsif value['value'].is_a?(::Array)
               value['value'] = value['value'].reject(&:blank?)
             end
