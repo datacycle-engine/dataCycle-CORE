@@ -20,7 +20,7 @@ module DataCycleCore
         end
 
         # Contents
-        can [:update_release_status, :set_life_cycle], CONTENT_MODELS
+        can [:update_release_status, :set_life_cycle, :move_content], CONTENT_MODELS
 
         can [:read, :create, :import, :update], CONTENT_MODELS do |content|
           content.try(:external_key).blank? || DataCycleCore::Feature::Overlay.allowed?(content)
