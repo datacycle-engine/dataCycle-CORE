@@ -6,7 +6,7 @@ module DataCycleCore
       module DownloadFunctions
         def self.download_data(download_object:, data_id:, data_name:, options:)
           iteration_strategy = options.dig(:iteration_strategy) || :download_sequential
-          raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless iteration_strategy.includes?([:download_sequential, :download_parallel])
+          raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel].include?(iteration_strategy)
           send(iteration_strategy, download_object: download_object, data_id: data_id, data_name: data_name, options: options)
         end
 
