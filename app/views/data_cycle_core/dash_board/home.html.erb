@@ -4,21 +4,12 @@
 
     <div class="row">
         <div class="small-12 columns">
-            <h2>
-                data overview:
-            </h2>
-            <%= link_to 'update dash-board', root_path, class: 'button small' %>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="small-12 columns">
             <h4>
-                <br/>master data:
+                <br/><i class='fa fa-arrow-circle-o-right' aria-hidden='true'></i>&nbsp; import configs<br/>&nbsp;
             </h4>
-            <%= link_to 'import data-types', admin_import_templates_path, class: 'button small' %>
-            <%= link_to 'import classifications', admin_import_classifications_path, class: 'button small' %>
-            <%= link_to 'import modules-config', admin_import_config_path, class:'button small' %>
+            <%= link_to 'data-types', admin_import_templates_path, class: 'button small' %>
+            <%= link_to 'classifications', admin_import_classifications_path, class: 'button small' %>
+            <%= link_to 'external_sources', admin_import_config_path, class:'button small' %>
         </div>
     </div>
 
