@@ -3,6 +3,8 @@
 module DataCycleCore
   module Filter
     class Search < QueryBuilder
+      include DataCycleCore::Filter::Type::Event
+
       def initialize(locale = 'de', query = nil)
         @locale = locale
         @query = query || DataCycleCore::Search.where(search[:locale].eq(quoted(@locale)))
