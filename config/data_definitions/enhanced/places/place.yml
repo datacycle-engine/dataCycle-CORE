@@ -78,6 +78,9 @@
       :xamoom:
         :type: mixin
         :name: xamoom
+      :google:
+        :type: mixin
+        :name: google
       :data_type:
         :label: Inhaltstype
         :type: classification
