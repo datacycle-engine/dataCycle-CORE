@@ -19,6 +19,7 @@ module DataCycleCore
           .>> t(:add_field, 'longitude', ->(s) { s['geometry'].try(:[], 'location').try(:[], 'lng').try(:to_f) })
           .>> t(:location)
           .>> t(:tags_to_ids, 'types', external_source_id, 'GooglePlaces - Tags - ')
+          .>> t(:rename_keys, { 'types' => 'google_tags' })
           .>> t(:add_field, 'street_number', ->(s) { s['address_components'].select { |item| item['types'].include?('street_number') }&.first.try(:[], 'long_name') })
           .>> t(:add_field, 'street_name', ->(s) { s['address_components'].select { |item| item['types'].include?('route') }&.first.try(:[], 'long_name') })
           .>> t(:add_field, 'street_address', ->(s) { [s['street_name'], s['street_number']].join(' ') })
