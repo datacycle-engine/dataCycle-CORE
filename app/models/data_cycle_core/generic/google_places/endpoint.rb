@@ -187,8 +187,10 @@ module DataCycleCore
             req.params['language'] = 'de'
             req.params['placeid'] = place_id
           end
-          raise DataCycleCore::Generic::RecoverableError, "error loading data from #{@host + @end_point + 'details/json'} / place_id: #{place_id}" + response.body unless response.success?
-          JSON.parse(response.body)
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point + 'details/json'} / place_id: #{place_id}", response) unless response.success?
+          data = JSON.parse(response.body)
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{data['status']}, error loading data from #{@host + @end_point + 'details/json'} / place_id: #{place_id}", response) unless data['status'] == 'OK'
+          data
         end
       end
     end
