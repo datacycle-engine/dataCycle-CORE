@@ -22,8 +22,7 @@ module DataCycleCore
           search_query = @query
           DataCycleCore::Filter::Search.new(@locale, DataCycleCore::Event)
             .where(event[:id].in(search_query.map(&:content_data_id)))
-            .order(absolute_date_diff(event[:end_date],
-                                      Arel::Nodes.build_quoted(date.iso8601)),
+            .order(absolute_date_diff(event[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
                    absolute_date_diff(event[:start_date], Arel::Nodes.build_quoted(date.iso8601)),
                    event[:start_date])
         end
