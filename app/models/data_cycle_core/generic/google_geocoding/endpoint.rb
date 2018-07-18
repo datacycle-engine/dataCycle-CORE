@@ -13,8 +13,11 @@ module DataCycleCore
 
         def geocode(address)
           return if address.blank?
+          return unless address.is_a?(::Hash) || address.is_a?(DataCycleCore::OpenStructHash)
+
           address_string = [address.dig('street_address'), [address.dig('postal_code'), address.dig('address_locality')].join(' '), address.dig('address_country')].join(', ')
           data = load_data(address: address_string)
+
           factory = RGeo::Geographic.simple_mercator_factory
           factory.point(data['results'].first.dig('geometry', 'location', 'lng'), data['results'].first.dig('geometry', 'location', 'lat'))
         end
@@ -34,7 +37,6 @@ module DataCycleCore
           address['postal_code'] = data.dig('address_components')&.select { |item| item['types'].include?('postal_code') }&.first&.dig('long_name')
           address['address_locality'] = data.dig('address_components')&.select { |item| item['types'].include?('locality') }&.first&.dig('long_name')
           address['address_country'] = data.dig('address_components')&.select { |item| item['types'].include?('country') }&.first&.dig('long_name')
-
           address
         end
 
@@ -49,9 +51,9 @@ module DataCycleCore
             req.params['language'] = 'de'
             req.params['key'] = @key
           end
-          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point + 'nearbysearch/json'} / x:#{location_x} / y:#{location_y} / r:#{radius}", response) unless response.success?
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point + 'geocode/json'} / latlng:#{latlng} / address:#{address}", response) unless response.success?
           data = JSON.parse(response.body)
-          raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{data['status']},(#{attempts}) error loading data from #{@host + @end_point + 'nearbysearch/json'} / x:#{location_x} / y:#{location_y} / r:#{radius}", response) unless data['status'] == 'OK' || data['status'] == 'ZERO_RESULTS'
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{data['status']}, error loading data from #{@host + @end_point + 'geocode/json'} / latlng:#{latlng} / address:#{address}", response) unless data['status'] == 'OK' || data['status'] == 'ZERO_RESULTS'
           data
         end
       end
