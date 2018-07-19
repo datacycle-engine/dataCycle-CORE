@@ -4,6 +4,7 @@ module DataCycleCore
   module Filter
     class Search < QueryBuilder
       include DataCycleCore::Filter::Type::Event
+      include DataCycleCore::Filter::Type::Place
 
       def initialize(locale = 'de', query = nil)
         @locale = locale
