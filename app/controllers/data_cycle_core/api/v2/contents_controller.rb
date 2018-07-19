@@ -15,7 +15,6 @@ module DataCycleCore
 
           @pagination_contents = apply_paging(query)
           @contents = @pagination_contents.map(&:content_data)
-
           render 'index'
         end
 
@@ -26,27 +25,6 @@ module DataCycleCore
             .includes({ classifications: [], translations: [] })
             .find(permitted_params[:id])
         end
-
-        # def update
-        #   object_type = DataCycleCore.content_tables.find { |object| object == permitted_params[:type] }
-        #
-        #   @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
-        #     .includes({ classifications: [], translations: [] })
-        #     .find(permitted_params[:id])
-        #
-        #   render json: @content.get_data_hash
-        # end
-        #
-        # def destroy
-        #   object_type = DataCycleCore.content_tables.find { |object| object == permitted_params[:type] }
-        #
-        #   @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
-        #     .includes({ classifications: [], translations: [] })
-        #     .find(permitted_params[:id])
-        #
-        #   # @content.destroy
-        #   # render json: {"success" => @content.destroyed?}
-        # end
 
         def search
           index
@@ -97,8 +75,9 @@ module DataCycleCore
           query = query.where(content_data_type: content_data_type.to_s) if content_data_type
           query = query.modified_since(permitted_params[:modified_since]) if permitted_params[:modified_since]
           query = query.created_since(permitted_params[:created_since]) if permitted_params[:created_since]
-          query = query.in_validity_period if permitted_params[:modified_since] && permitted_params[:created_since]
           query = query.fulltext_search(permitted_params[:q]) if permitted_params[:q]
+
+          query = query.in_validity_period
 
           if permitted_params&.dig(:filter, :classifications)
             permitted_params.dig(:filter, :classifications).map { |classifications|

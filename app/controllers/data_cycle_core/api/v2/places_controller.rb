@@ -16,7 +16,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [{ filter: [:from, :to, :box, { classifications: [] }] }]
+          super + [{ filter: [:box, { classifications: [] }] }]
         end
       end
     end
