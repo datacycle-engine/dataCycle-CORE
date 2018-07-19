@@ -8,6 +8,16 @@
 
                 <div class="detail-header-functions">
                     <ul class="no-bullet">
+                        <li>
+                            <span class="link" data-tooltip data-click-open="false" data-allow-html="true"
+                                title="<%= @watch_list
+                                    .watch_list_data_hashes.map(&:hashable)
+                                    .map(&:available_locales).flatten.uniq
+                                    .map{ |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }
+                                    .join('<br />') %>">
+                                <i class="fa fa-language" aria-hidden="true"></i>
+                            </span>
+                        </li>
                         <% if can?(:index, DataCycleCore::DataLink) %>
                             <li><%= render 'data_links', content: @watch_list %></li>
                         <% end %>
