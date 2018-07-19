@@ -11,24 +11,26 @@ module DataCycleCore
           @options = options
         end
 
-        def geocode(address)
+        def geocode(address, locale = :de)
           return if address.blank?
           return unless address.is_a?(::Hash) || address.is_a?(DataCycleCore::OpenStructHash)
 
           address_string = [address.dig('street_address'), [address.dig('postal_code'), address.dig('address_locality')].join(' '), address.dig('address_country')].join(', ')
-          data = load_data(address: address_string)
+          data = load_data(address: address_string, locale: locale)['results'].first
+          return if data.blank?
 
           factory = RGeo::Geographic.simple_mercator_factory
-          factory.point(data['results'].first.dig('geometry', 'location', 'lng'), data['results'].first.dig('geometry', 'location', 'lat'))
+          factory.point(data.dig('geometry', 'location', 'lng'), data.dig('geometry', 'location', 'lat'))
         end
 
-        def reverse_geocode(geo)
+        def reverse_geocode(geo, locale = :de)
           return if geo.blank?
           return unless geo.respond_to?(:x)
           return unless geo.respond_to?(:y)
 
           geo_string = [geo.y, geo.x].join(',')
-          data = load_data(latlng: geo_string)['results']&.first
+          data = load_data(latlng: geo_string, locale: locale)['results']&.first
+          return if data.blank?
 
           address = DataCycleCore::OpenStructHash.new
           road = data.dig('address_components')&.select { |item| item['types'].include?('route') }&.first&.dig('long_name')
@@ -42,13 +44,13 @@ module DataCycleCore
 
         private
 
-        def load_data(latlng: nil, address: nil)
+        def load_data(latlng: nil, address: nil, locale: :de)
           response = Faraday.new.get do |req|
             req.url(@host + @end_point + 'geocode/json')
             req.headers['Accept'] = 'application/json'
             req.params['latlng'] = latlng if latlng.present?
             req.params['address'] = address if address.present?
-            req.params['language'] = 'de'
+            req.params['language'] = locale.to_s
             req.params['key'] = @key
           end
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point + 'geocode/json'} / latlng:#{latlng} / address:#{address}", response) unless response.success?
