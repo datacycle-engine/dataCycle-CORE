@@ -45,8 +45,10 @@ module DataCycleCore
                 link.item.watch_list_data_hashes.pluck(:hashable_id).include?(content.id)
               end
             end
+            can :edit, DataCycleCore::DataAttribute
           elsif link.is_valid?
             can [:update, :import], link.item_type.constantize, id: link.item_id
+            can :edit, DataCycleCore::DataAttribute
           end
         end
 

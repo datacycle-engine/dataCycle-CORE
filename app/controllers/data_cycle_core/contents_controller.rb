@@ -69,7 +69,7 @@ module DataCycleCore
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
         unless can?(:edit, @content)
-          redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
+          redirect_to polymorphic_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end
 
@@ -90,7 +90,7 @@ module DataCycleCore
       @content = data_cycle_object(controller_name).find(params[:id])
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
         unless can?(:update, @content)
-          redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
+          redirect_to polymorphic_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
           return
         end
 
