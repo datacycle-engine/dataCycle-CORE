@@ -8,7 +8,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
   json.set! key_new do
     json.array!(data) do |item|
       if @include_parameters.include?('linked')
-        json.cache!("#{item.class}_#{item.id}_#{item.first_available_locale(@language.to_sym)}_#{item.updated_at}_#{@include_parameters.join('_')}", expires_in: 24.hours + Random.rand(12.hours)) do
+        json.cache!("#{item.class}_#{item.id}_#{item.first_available_locale(@language.to_sym)}_#{item.updated_at}_#{@include_parameters.join('_')}", expires_in: 1.year + Random.rand(7.days)) do
           json.content_partial! 'details', content: item
         end
       else
