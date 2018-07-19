@@ -16,11 +16,10 @@ module DataCycleCore
           return unless address.is_a?(::Hash) || address.is_a?(DataCycleCore::OpenStructHash)
 
           address_string = [address.dig('street_address'), [address.dig('postal_code'), address.dig('address_locality')].join(' '), address.dig('address_country')].join(', ')
-          data = load_data(address: address_string, locale: locale)['results'].first
+          data = load_data(address: address_string, locale: locale)['results']
           return if data.blank?
 
-          factory = RGeo::Geographic.simple_mercator_factory
-          factory.point(data.dig('geometry', 'location', 'lng'), data.dig('geometry', 'location', 'lat'))
+          parse_geo(data.first)
         end
 
         def reverse_geocode(geo, locale = :de)
@@ -29,20 +28,29 @@ module DataCycleCore
           return unless geo.respond_to?(:y)
 
           geo_string = [geo.y, geo.x].join(',')
-          data = load_data(latlng: geo_string, locale: locale)['results']&.first
+          data = load_data(latlng: geo_string, locale: locale)['results']
           return if data.blank?
 
-          address = DataCycleCore::OpenStructHash.new
-          road = data.dig('address_components')&.select { |item| item['types'].include?('route') }&.first&.dig('long_name')
-          street_number = data.dig('address_components')&.select { |item| item['types'].include?('street_number') }&.first&.dig('long_name')
-          address['street_address'] = [road, street_number].join(' ')
-          address['postal_code'] = data.dig('address_components')&.select { |item| item['types'].include?('postal_code') }&.first&.dig('long_name')
-          address['address_locality'] = data.dig('address_components')&.select { |item| item['types'].include?('locality') }&.first&.dig('long_name')
-          address['address_country'] = data.dig('address_components')&.select { |item| item['types'].include?('country') }&.first&.dig('long_name')
-          address
+          parse_address(data&.first)
         end
 
-        private
+        def parse_geo(raw_data)
+          return if raw_data.blank?
+          factory = RGeo::Geographic.simple_mercator_factory
+          factory.point(raw_data.dig('geometry', 'location', 'lng'), raw_data.dig('geometry', 'location', 'lat'))
+        end
+
+        def parse_address(raw_data)
+          return if raw_data.blank?
+          address = DataCycleCore::OpenStructHash.new
+          road = raw_data.dig('address_components')&.select { |item| item['types'].include?('route') }&.first&.dig('long_name')
+          street_number = raw_data.dig('address_components')&.select { |item| item['types'].include?('street_number') }&.first&.dig('long_name')
+          address['street_address'] = [road, street_number].join(' ')
+          address['postal_code'] = raw_data.dig('address_components')&.select { |item| item['types'].include?('postal_code') }&.first&.dig('long_name')
+          address['address_locality'] = raw_data.dig('address_components')&.select { |item| item['types'].include?('locality') }&.first&.dig('long_name')
+          address['address_country'] = raw_data.dig('address_components')&.select { |item| item['types'].include?('country') }&.first&.dig('long_name')
+          address
+        end
 
         def load_data(latlng: nil, address: nil, locale: :de)
           response = Faraday.new.get do |req|
