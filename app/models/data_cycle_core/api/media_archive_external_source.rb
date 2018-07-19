@@ -4,29 +4,46 @@ module DataCycleCore
   module Api
     class MediaArchiveExternalSource < DataCycleCore::Api::ExternalSource
       def update(data)
+        download_config = external_source.config&.dig('download_config')&.symbolize_keys
         import_config = external_source.config&.dig('import_config')&.symbolize_keys
 
         processed_items = []
+
+        external_data_type = data.first[1]['contentType']
+        case external_data_type
+        when 'Bild'
+          data_name = :images
+        when 'Video'
+          data_name = :videos
+        end
+
+        download_content(download_config: download_config, data_name: data_name, data: data)
+
         data.each do |language, object|
-          case object['contentType']
-          when 'Bild'
-            import_name = :images
-          when 'Video'
-            import_name = :videos
-          else
-            next
-          end
-          processed_items << import_content(import_config: import_config, import_name: import_name, data: object, locale: language)
+          next unless ['Bild', 'Video'].include?(object['contentType'])
+          processed_items << import_content(import_config: import_config, data_name: data_name, data: object, locale: language)
         end
         processed_items
       end
 
-      def import_content(import_config:, import_name:, data:, locale:)
-        return if import_config.blank? || import_name.blank? || data.blank? || locale.blank?
-        full_options = (external_source.default_options || {}).symbolize_keys.merge({ import: import_config.dig(import_name).symbolize_keys.except(:sorting) })
+      def download_content(download_config:, data_name:, data:)
+        return if download_config.blank? || data_name.blank? || data.blank?
+
+        full_options = (external_source.default_options || {}).symbolize_keys.merge({ download: download_config.dig(data_name).symbolize_keys.except(:sorting) })
+        locales = full_options[:locales] || full_options[:download][:locales] || I18n.available_locales
+        download_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: external_source, locales: locales))
+        id_function = full_options.dig(:download, :download_strategy).constantize.method(:data_id).to_proc
+        name_function = full_options.dig(:download, :download_strategy).constantize.method(:data_name).to_proc
+        DataCycleCore::Generic::Common::DownloadFunctions.download_single(download_object: download_object, data_id: id_function, data_name: name_function, raw_data: data, options: full_options.deep_symbolize_keys)
+      end
+
+      def import_content(import_config:, data_name:, data:, locale:)
+        return if import_config.blank? || data_name.blank? || data.blank? || locale.blank?
+
+        full_options = (external_source.default_options || {}).symbolize_keys.merge({ import: import_config.dig(data_name).symbolize_keys.except(:sorting) })
         locales = full_options[:locales] || full_options[:import][:locales] || I18n.available_locales
-        utility_object = DataCycleCore::Generic::ImportObject.new(full_options.merge(external_source: external_source, locales: locales))
-        full_options.dig(:import, :import_strategy).constantize.process_content(utility_object: utility_object, raw_data: data, locale: locale, options: full_options.deep_symbolize_keys)
+        import_object = DataCycleCore::Generic::ImportObject.new(full_options.merge(external_source: external_source, locales: locales))
+        full_options.dig(:import, :import_strategy).constantize.process_content(utility_object: import_object, raw_data: data, locale: locale, options: full_options.deep_symbolize_keys)
       end
 
       def create(data)

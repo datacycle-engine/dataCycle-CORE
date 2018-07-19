@@ -5,10 +5,34 @@ module DataCycleCore
     module Common
       module DownloadFunctions
         def self.download_data(download_object:, data_id:, data_name:, options:)
-          if options.dig(:iteration_strategy).blank?
-            download_sequential(download_object: download_object, data_id: data_id, data_name: data_name, options: options)
-          else
-            send(options.dig(:iteration_strategy), download_object: download_object, data_id: data_id, data_name: data_name, options: options)
+          iteration_strategy = options.dig(:iteration_strategy) || :download_sequential
+          raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel].include?(iteration_strategy)
+          send(iteration_strategy, download_object: download_object, data_id: data_id, data_name: data_name, options: options)
+        end
+
+        def self.download_single(download_object:, data_id:, data_name:, raw_data:, options:)
+          init_mongo_db(download_object) do
+            init_logging(download_object) do |logging|
+              locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
+              begin
+                download_object.source_object.with(download_object.source_type) do |mongo_item|
+                  item_id = data_id.call(raw_data.first[1])
+                  item_name = data_name.call(raw_data.first[1])
+                  item = mongo_item.find_or_initialize_by('external_id': item_id)
+                  item.dump ||= {}
+
+                  raw_data.each do |language, data_hash|
+                    next unless locales.include?(language.to_sym)
+                    item.dump[language] = data_hash
+                  end
+                  item.save!
+                  GC.start
+                  logging.info("Single download item: #{item_name}", item_id)
+                end
+              rescue StandardError => e
+                logging.error(nil, nil, nil, e)
+              end
+            end
           end
         end
 

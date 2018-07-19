@@ -16,10 +16,17 @@ module DataCycleCore
       sign_in(link.receiver)
       link.update_attribute(:seen_at, Time.zone.now)
 
+      if link.item.class == DataCycleCore::WatchList
+        locale = link.item.watch_list_data_hashes.map(&:hashable).map(&:available_locales).flatten
+          .group_by(&:itself).max { |a, b| a[1].length <=> b[1].length }.try(&:first)
+      end
+
       if link.permissions == 'write' && DataCycleCore.content_tables.include?(link.item.class.table_name)
-        redirect_to edit_polymorphic_path(link.item, split_params)
+        redirect_to edit_polymorphic_path(link.item, split_params, language: locale) if locale
+        redirect_to edit_polymorphic_path(link.item, split_params) unless locale
       else
-        redirect_to polymorphic_path(link.item)
+        redirect_to polymorphic_path(link.item, language: locale) if locale
+        redirect_to polymorphic_path(link.item) unless locale
       end
     end
 
