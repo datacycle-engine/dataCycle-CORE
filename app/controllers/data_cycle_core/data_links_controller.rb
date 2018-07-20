@@ -13,7 +13,8 @@ module DataCycleCore
       session[:can_edit_ids] ||= []
       session[:can_edit_ids] << link.id unless session[:can_edit_ids].include?(link.id)
 
-      sign_in(link.receiver)
+      sign_in(link.receiver) if link.creator.role.rank > link.receiver.role.rank
+
       link.update_attribute(:seen_at, Time.zone.now)
 
       if link.item.class == DataCycleCore::WatchList
