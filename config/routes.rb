@@ -116,7 +116,13 @@ DataCycleCore::Engine.routes.draw do
         end
       end
       namespace :v2 do
-        resources :stored_filters, only: [:show], path: :endpoints
+        resources :stored_filters, only: [:show], path: :endpoints do
+          resources(*DataCycleCore.content_tables.map(&:to_sym), only: [:index]) do
+          end
+        end
+
+        resources(*DataCycleCore.content_tables.map(&:to_sym), only: [:index, :show]) do
+        end
 
         resources :classification_trees, only: [:index, :show] do
           get :classifications, on: :member
@@ -128,9 +134,6 @@ DataCycleCore::Engine.routes.draw do
           post ':external_source_id/:type/:external_key', to: 'external_sources#create', on: :collection
           patch ':external_source_id/:type/:external_key', to: 'external_sources#update', on: :collection
           delete ':external_source_id/:type/:external_key', to: 'external_sources#destroy', on: :collection
-        end
-
-        resources(*DataCycleCore.content_tables.map(&:to_sym), only: [:index, :show]) do
         end
 
         get 'contents/search', to: 'contents#search'
