@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module Feratel
-      module ImportInfrastructureTypes
+      module ImportInfrastructureTopics
         def import_data(**options)
           raise NotImplementedError
         end
