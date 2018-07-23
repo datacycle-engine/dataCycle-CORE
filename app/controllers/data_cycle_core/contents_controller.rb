@@ -173,10 +173,17 @@ module DataCycleCore
 
     def new_embedded_object
       @object = @objects = data_cycle_object(params[:definition]['linked_table'])
-      authorize! :edit, @object
+
+      return if params.dig(:parent_content_type).nil? || params.dig(:parent_id).nil?
+
+      parent_object = data_cycle_object(params[:parent_content_type]).find_by(id: params[:parent_id])
+
+      return if !can?(:edit, @object) && !can?(:edit, parent_object)
+
       respond_to(:js)
     end
 
+    # only used in split-view
     def render_embedded_object
       @object = data_cycle_object(params[:definition]['linked_table'])
       authorize! :edit, @object

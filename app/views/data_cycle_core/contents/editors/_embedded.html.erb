@@ -14,6 +14,8 @@
          data-per="<%= DataCycleCore.linked_objects_page_size %>"
          data-max="<%= definition.dig('validations', 'max') || 0 %>"
          data-min="<%= definition.dig('validations', 'min') || 0 %>"
+         data-parent-id="<%= content.id %>"
+         data-parent-content-type="<%= content.class.name.demodulize.tableize %>"
          data-write="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>">
 
         <% if objects.present? %>
