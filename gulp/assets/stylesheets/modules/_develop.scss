@@ -1309,8 +1309,16 @@ select {
       background-color: lighten($success-color, 35%);
       .upload-number {
         display: block;
-        right: 2.1rem;
-        top: 0.6rem;
+        right: auto;
+        top: 0.5rem;
+        left: 0.5rem;
+        color: $success-color;
+        .fa {
+          font-size: 3rem;
+        }
+      }
+      >img {
+        opacity: 0.1;
       }
     }
     &.error {

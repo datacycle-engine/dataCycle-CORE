@@ -16,11 +16,11 @@
     <%= t('media_archive.allowed_html',
       image_types: DataCycleCore.image_validations.dig(:format)&.join(', '),
       video_types: DataCycleCore.video_validations.dig(:format)&.join(', '),
-      image_dimensions: "<ul>#{DataCycleCore.image_validations.dig(:dimensions).map{ |i_format, i_validations|
+      image_dimensions: "<ul>#{DataCycleCore.image_validations.dig(:dimensions)&.map{ |i_format, i_validations|
         "<li>#{t("common.#{i_format}", locale: DataCycleCore.ui_language)}: <ul>#{i_validations.map{ |validation_type, validations|
           "<li>#{t("common.#{validation_type}", locale: DataCycleCore.ui_language)}: #{(validations[:width].present? && validations[:height].present?) ? "#{validations[:width]}x#{validations[:height]}" : "#{t("common.#{validations.keys.first}", locale: DataCycleCore.ui_language)}: #{validations.values.first}" }</li>"
         }.join }</ul>"
-      }.join }</ul>".html_safe,
+      }&.join }</ul>".html_safe,
       locale: DataCycleCore.ui_language) %>
     <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
       <span aria-hidden="true">&times;</span>
