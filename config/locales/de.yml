@@ -91,6 +91,12 @@ de:
     is: ist
     is_not: ist nicht
     no_translation: Keine Übersetzung vorhanden
+    max: maximal
+    min: mindestens
+    landscape: Querformat
+    portrait: Hochformat
+    height: Höhe
+    width: Breite
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -395,7 +401,7 @@ de:
                     <li><b>Bild:</b>
                       <ul>
                         <li>Formate: %{image_types}</li>
-                        <li>Mindest-Abmessungen: %{image_min_dimensions}</li>
+                        <li>Abmessungen: %{image_dimensions}</li>
                       </ul>
                     </li>
                     <li><b>Video:</b>
