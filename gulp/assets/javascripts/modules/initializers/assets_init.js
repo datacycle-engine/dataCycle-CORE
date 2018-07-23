@@ -109,16 +109,11 @@ module.exports.initialize = function () {
           message: 'Bild zu groß (' + media_params.width + 'x' + media_params.height + '), sollte maximal ' + validations.portrait.max.width + 'x' + validations.portrait.max.height + ' sein'
         };
       }
-
-      return {
-        valid: true,
-        message: undefined
-      };
     }
 
     return {
-      valid: false,
-      message: 'Keine Metadaten gefunden.'
+      valid: true,
+      message: undefined
     };
   };
 
