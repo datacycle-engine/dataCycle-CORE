@@ -1229,6 +1229,7 @@ select {
     min-height: 4rem;
     border: 1px solid lighten($dark-gray, 10%);
     background-color: lighten($light-gray, 5%);
+    transition: background-color 0.25s ease-in-out;
     img {
       position: absolute;
       top: 0.9rem;
@@ -1305,8 +1306,11 @@ select {
       }
     }
     &.finished {
+      background-color: lighten($success-color, 35%);
       .upload-number {
         display: block;
+        right: 2.1rem;
+        top: 0.6rem;
       }
     }
     &.error {
