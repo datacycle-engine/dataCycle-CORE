@@ -4,6 +4,7 @@ module DataCycleCore
   class ContentsController < ApplicationController
     before_action :authenticate_user!, :set_watch_list
     load_and_authorize_resource only: [:index, :show, :destroy, :history]
+    rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
     after_action :notify_subscribers, only: :update
 
@@ -12,7 +13,7 @@ module DataCycleCore
     end
 
     def show
-      @content = data_cycle_object(controller_name).find_by(id: params[:id])
+      @content = data_cycle_object(controller_name).find(params[:id])
 
       redirect_back(fallback_location: root_path) && return if @content.nil?
 
@@ -59,7 +60,7 @@ module DataCycleCore
     end
 
     def edit
-      @content = data_cycle_object(controller_name).find_by(id: params[:id])
+      @content = data_cycle_object(controller_name).find(params[:id])
 
       if params[:locale] && !@content.translated_locales.include?(params[:locale]) && I18n.available_locales.include?(params[:locale]&.to_sym) && (DataCycleCore.translatable_types & [@content.class.name, @content.template_name]).present?
         I18n.with_locale(params[:locale]) do
@@ -275,6 +276,10 @@ module DataCycleCore
       render(json: { error: JSON.parse(errors)['errors'] }) && return if errors.present? && JSON.parse(errors).key?('errors')
 
       render json: @asset
+    end
+
+    def record_not_found
+      raise ActionController::RoutingError, 'Not Found'
     end
 
     private
