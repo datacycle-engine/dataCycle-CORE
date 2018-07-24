@@ -279,7 +279,7 @@ module DataCycleCore
     end
 
     def record_not_found
-      raise ActionController::RoutingError, 'Not Found'
+      raise DataCycleCore::Error::RecordNotFoundError, 'DataCycle Record Not Found'
     end
 
     private

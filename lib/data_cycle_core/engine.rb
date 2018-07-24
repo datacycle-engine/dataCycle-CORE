@@ -253,3 +253,5 @@ module DataCycleCore
     end
   end
 end
+
+require 'data_cycle_core/exceptions'
