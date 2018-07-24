@@ -5,6 +5,8 @@ module DataCycleCore
     class Collection2
       include Mongoid::Document
 
+      attr_accessor :data_has_changed
+
       store_in collection: 'name'
 
       field :external_id,  type: String
@@ -13,6 +15,10 @@ module DataCycleCore
       include Mongoid::Timestamps
 
       before_save ->(document) { document.seen_at = Time.zone.now }
+
+      def set_updated_at
+        super if data_has_changed
+      end
     end
   end
 end
