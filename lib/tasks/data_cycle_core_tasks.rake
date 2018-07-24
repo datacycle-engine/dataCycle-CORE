@@ -492,7 +492,6 @@ namespace :data_cycle_core do
       temp = Time.zone.now
       archive_life_cycle_id = DataCycleCore::Classification.find_by(name: DataCycleCore.features.dig(:life_cycle, :ordered)&.last)&.id
       archive_release_id = DataCycleCore::Release.order(release_code: :desc)&.first&.id
-      current_user = DataCycleCore::User.find_by('email ILIKE ?', 'admin%')&.id
 
       ids = DataCycleCore::Search.where('upper(validity_period) < ?', Date.current).map { |s| s.content_data&.id }
 
@@ -523,7 +522,7 @@ namespace :data_cycle_core do
             index += 1
 
             I18n.with_locale(content.first_available_locale) do
-              content.set_data_hash(data_hash: content.get_data_hash, current_user: current_user)
+              content.set_data_hash(data_hash: content.get_data_hash)
               content.translations.update_all(release_id: archive_release_id, release_comment: I18n.t('common.archived', locale: DataCycleCore.ui_language))
               logger.info("Archived (release_status): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
             end
@@ -565,7 +564,7 @@ namespace :data_cycle_core do
             I18n.with_locale(content.first_available_locale) do
               data_hash = content.get_data_hash
               data_hash[DataCycleCore.features.dig(:life_cycle, :attribute_key)] = [archive_life_cycle_id]
-              content.set_data_hash(data_hash: data_hash, current_user: current_user)
+              content.set_data_hash(data_hash: data_hash)
               logger.info("Archived (life_cycle): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
             end
           end
