@@ -65,6 +65,9 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "POI"
+      :feratel:
+        :type: mixin
+        :name: feratel_categories
       :content_classifications:
         :type: mixin
         :name: content_classifications
