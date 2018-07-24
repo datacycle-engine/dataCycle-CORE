@@ -9,6 +9,8 @@ DataCycleCore::Engine.routes.draw do
 
   root to: redirect('/users/sign_in')
 
+  get '/docs/*path', to: 'documentation#show'
+
   get  '/info', to: 'frontend#info'
   get  '/settings', to: 'backend#settings'
   resources :users, only: [:index, :edit, :update, :destroy] do

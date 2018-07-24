@@ -395,6 +395,10 @@ de:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
     upload: Medien hochladen
 
+    documentation:
+      root: Dokumentation
+      overview: Übersicht
+
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
                   <ul class="no-bullet">
