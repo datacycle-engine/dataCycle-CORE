@@ -202,9 +202,9 @@ module DataCycleCore
       authorize! :edit, @object
 
       # Create idea_collection if it doesn't exist and active life_cycle_stage is correct
-      if DataCycleCore::Feature::Container.enabled? && @object.content_type?('container') && helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id) == life_cycle_params[:id] && !@object.children.where(template_name: DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage)).exists?
+      if DataCycleCore::Feature::Container.enabled? && @object.content_type?('container') && helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id) == life_cycle_params[:id] && !@object.children.where(template_name: DataCycleCore.features.dig(:life_cycle, :idea_collection, :template)).exists?
         idea_collection_params = ActionController::Parameters.new({ datahash: { headline: @object.headline } }).permit!
-        idea_collection = DataCycleCore::DataHashService.create_internal_object(controller_name, DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), idea_collection_params, current_user)
+        idea_collection = DataCycleCore::DataHashService.create_internal_object(controller_name, DataCycleCore.features.dig(:life_cycle, :idea_collection, :template), idea_collection_params, current_user)
         idea_collection.is_part_of = @object.id unless @object.nil?
         idea_collection.save
       end
