@@ -76,6 +76,11 @@ module.exports.initialize = function () {
 
     var category_filter_heights = [];
     $('#primary_nav_wrap .clickable-menu').on('mouseenter', 'li.active, li.active li', event => {
+      var child_list = $(event.currentTarget).find('ul').first();
+      if (child_list.length && Math.round($('.off-canvas-wrapper').outerHeight()) < Math.round(child_list.outerHeight() + child_list.offset().top + 150)) {
+        $('.off-canvas-wrapper').css('height', child_list.outerHeight() + child_list.offset().top + 150);
+      }
+
       category_filter_heights.push($(event.currentTarget).find('ul').height() || 0);
       var height = Math.max.apply(null, category_filter_heights);
       $(event.currentTarget).parentsUntil('#primary_nav_wrap').find('ul:visible').each((index, elem) => {
