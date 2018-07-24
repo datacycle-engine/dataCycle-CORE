@@ -117,7 +117,7 @@ module DataCycleCore
               },
               opens: item.dig('TimeFrom'),
               closes: item.dig('TimeTo'),
-              day_of_week: day_keys
+              day_of_week: day_keys.compact
             }.with_indifferent_access
           end
         end
