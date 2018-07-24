@@ -329,7 +329,13 @@ module DataCycleCore
       order_string = selector ? 'content_contents.order_b ASC' : 'content_contents.order_a ASC'
       order_string = selector ? 'content_content_histories.order_b ASC' : 'content_content_histories.order_a ASC' if history?
 
-      query = target_class.constantize.joins(:translations).where("#{target_name.singularize}_translations".to_sym => { locale: I18n.locale }).joins(join_table)
+      query = target_class.constantize
+      if DataCycleCore.content_tables.include?(target_name)
+        target_table_name = history? ? "#{target_name.singularize}_history_translations".to_sym : "#{target_name.singularize}_translations".to_sym
+        target_table_name = "#{target_name.singularize}_translations".to_sym if linked
+        query = query.joins(:translations).where(target_table_name => { locale: I18n.locale })
+      end
+      query = query.joins(join_table)
       where_hash.each do |key, value|
         query = query.where(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["#{relation_table}.#{key} = ?", value]))
       end
