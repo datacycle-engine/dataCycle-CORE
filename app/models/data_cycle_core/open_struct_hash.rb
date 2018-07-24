@@ -12,5 +12,9 @@ module DataCycleCore
       end
       as_hash.compact
     end
+
+    def blank?
+      to_h.values.all?(&:blank?)
+    end
   end
 end
