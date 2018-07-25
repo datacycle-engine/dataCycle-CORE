@@ -6,7 +6,7 @@
 		<div class="row expanded">
 			<div class="column edit-header-functions">
 				<div class="edit-headline">
-					<i class="fa fa-pencil" aria-hidden="true"></i> Merkliste bearbeiten
+					<i class="fa fa-pencil" aria-hidden="true"></i> <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) %> bearbeiten
 				</div>
 				<ul>
 					<li class="buttons">
@@ -30,7 +30,7 @@
 						<span class="icon">
 								<i class="fa fa-folder-open" aria-hidden="true"></i>
 						</span>
-						<span class="title">Merkliste</span>
+						<span class="title"><%= DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) %></span>
 					</div>
 				</div>
 

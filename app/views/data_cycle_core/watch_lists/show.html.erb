@@ -32,7 +32,7 @@
             <div class="detail-header-info">
                 <div class="type watchlist">
                     <%= render 'data_cycle_core/shared/icon', icon_type: 'merkliste' %>
-                    <span class="title">Merkliste</span>
+                    <span class="title"><%= DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) %></span>
                     <% if can?(:edit, @watch_list) && !can?(:remove_item, @watch_list) %>
                       <i class="fa fa-exclamation-circle" data-tooltip data-click-open="false" title="<%= t('data_cycle_core.watch_list.locked_by_data_link', locale: DataCycleCore.ui_language) %>" aria-hidden="true"></i>
                     <% end %>
