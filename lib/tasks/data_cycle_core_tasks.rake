@@ -119,7 +119,7 @@ namespace :data_cycle_core do
     end
 
     desc 'Download and import data from given data source'
-    task :perform, [:external_source_id, :max_count] => [:environment] do |_, args|
+    task :perform, [:external_source_id, :mode, :max_count] => [:environment] do |_, args|
       options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
         if k == :max_count
           [k, v.to_i]
@@ -148,7 +148,7 @@ namespace :data_cycle_core do
     end
 
     desc 'DEBUG: Only import (without downloading) data from given data source'
-    task :import, [:external_source_id, :max_count] => [:environment] do |_, args|
+    task :import, [:external_source_id, :mode, :max_count] => [:environment] do |_, args|
       options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
         if k == :max_count
           [k, v.to_i]
