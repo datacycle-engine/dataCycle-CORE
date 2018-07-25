@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module Feratel
-      module ImportAccommodations
+      module ImportInfrastructure
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.import_contents(
             utility_object: utility_object,
@@ -19,7 +19,7 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            ['feratel_owners'].each do |name_tag|
+            ['feratel_infrastructure_owners'].each do |name_tag|
               DataCycleCore::Generic::Common::ImportTags.process_content(
                 utility_object: utility_object,
                 raw_data: raw_data,
@@ -33,7 +33,7 @@ module DataCycleCore
               raw_data,
               options.dig(:import, :transformations, :image)
             )
-            DataCycleCore::Generic::Feratel::Processing.process_accommodation(
+            DataCycleCore::Generic::Feratel::Processing.process_infrastructure(
               utility_object,
               raw_data,
               options.dig(:import, :transformations, :place)
