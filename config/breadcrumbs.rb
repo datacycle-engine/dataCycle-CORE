@@ -91,3 +91,19 @@ end
 crumb :'data_cycle_core/stored_filters' do
   link to_html_string("<i aria-hidden='true' class='fa fa-search'></i> #{t('data_cycle_core.stored_searches.my_searches', locale: DataCycleCore.ui_language)}"), stored_filters_path, authorized: can?(:index, DataCycleCore::StoredFilter)
 end
+
+# Documentation
+crumb :documentation do
+  link t('data_cycle_core.documentation.root', locale: DataCycleCore.ui_language), '#', authorized: false
+
+  path_segments = params['path'].split('/')
+  (0..path_segments.length - 1).each do |i|
+    translation_key = (['data_cycle_core', 'documentation'] + path_segments[0..i]).join('.')
+
+    if t(translation_key, locale: DataCycleCore.ui_language).is_a? Hash
+      translation_key += '.root'
+    end
+
+    link t(translation_key, locale: DataCycleCore.ui_language), '/' + (['docs'] + path_segments[0..i]).join('/'), authorized: true
+  end
+end

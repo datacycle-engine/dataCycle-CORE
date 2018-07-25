@@ -271,8 +271,8 @@ de:
         one: Abo
         other: Abos
       data_cycle_core/watch_list:
-        one: Merkliste
-        other: Merklisten
+        one: Inhaltssammlung
+        other: Inhaltssammlungen
       data_cycle_core/data_link:
         one: Externer Link
         other: Externe Links
@@ -325,7 +325,7 @@ de:
         external: SSO
         notification_frequency: Benachrichtigung von Abos
         access_token: API Token
-        default_locale: 'Default Sprache für Suchen'
+        default_locale: 'Default-Sprache für Suchen und neue Inhalte'
       data_cycle_core/person:
         given_name: Vorname
         family_name: Familienname
@@ -394,6 +394,10 @@ de:
     watch_list:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
     upload: Medien hochladen
+
+    documentation:
+      root: Dokumentation
+      overview: Übersicht
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

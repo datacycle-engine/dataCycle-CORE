@@ -8,7 +8,7 @@ module DataCycleCore
     after_action :set_publication_attributes, only: :update, if: -> { DataCycleCore::Feature::PublicationSchedule.enabled? }
 
     def show
-      @content = DataCycleCore::CreativeWork.find_by(id: params[:id])
+      @content = DataCycleCore::CreativeWork.find(params[:id])
 
       redirect_back(fallback_location: root_path) && return if @content.nil?
 

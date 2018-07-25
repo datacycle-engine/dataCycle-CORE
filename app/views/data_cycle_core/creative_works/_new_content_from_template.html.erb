@@ -6,7 +6,7 @@
         <%= hidden_field_tag 'template', content.template_name %>
         <%= hidden_field_tag 'source', "source_id=>"+content.id+", source_type=>"+content.class.name %>
 
-        <%= select_tag 'locale', options_for_select(available_locales_with_names.except(:all).invert, DataCycleCore.ui_language) %>
+        <%= select_tag 'locale', options_for_select(available_locales_with_names.except(:all).invert, current_user.default_locale) %>
 
         <% if @parents.present? %>
           <div class="form-element">

@@ -4,6 +4,7 @@ module DataCycleCore
   class ContentsController < ApplicationController
     before_action :authenticate_user!, :set_watch_list
     load_and_authorize_resource only: [:index, :show, :destroy, :history]
+    rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
     after_action :notify_subscribers, only: :update
 
@@ -12,7 +13,7 @@ module DataCycleCore
     end
 
     def show
-      @content = data_cycle_object(controller_name).find_by(id: params[:id])
+      @content = data_cycle_object(controller_name).find(params[:id])
 
       redirect_back(fallback_location: root_path) && return if @content.nil?
 
@@ -59,7 +60,7 @@ module DataCycleCore
     end
 
     def edit
-      @content = data_cycle_object(controller_name).find_by(id: params[:id])
+      @content = data_cycle_object(controller_name).find(params[:id])
 
       if params[:locale] && !@content.translated_locales.include?(params[:locale]) && I18n.available_locales.include?(params[:locale]&.to_sym) && (DataCycleCore.translatable_types & [@content.class.name, @content.template_name]).present?
         I18n.with_locale(params[:locale]) do
@@ -202,9 +203,9 @@ module DataCycleCore
       authorize! :edit, @object
 
       # Create idea_collection if it doesn't exist and active life_cycle_stage is correct
-      if DataCycleCore::Feature::Container.enabled? && @object.content_type?('container') && helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id) == life_cycle_params[:id] && !@object.children.where(template_name: DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage)).exists?
+      if DataCycleCore::Feature::Container.enabled? && @object.content_type?('container') && helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id) == life_cycle_params[:id] && !@object.children.where(template_name: DataCycleCore.features.dig(:life_cycle, :idea_collection, :template)).exists?
         idea_collection_params = ActionController::Parameters.new({ datahash: { headline: @object.headline } }).permit!
-        idea_collection = DataCycleCore::DataHashService.create_internal_object(controller_name, DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), idea_collection_params, current_user)
+        idea_collection = DataCycleCore::DataHashService.create_internal_object(controller_name, DataCycleCore.features.dig(:life_cycle, :idea_collection, :template), idea_collection_params, current_user)
         idea_collection.is_part_of = @object.id unless @object.nil?
         idea_collection.save
       end
@@ -275,6 +276,10 @@ module DataCycleCore
       render(json: { error: JSON.parse(errors)['errors'] }) && return if errors.present? && JSON.parse(errors).key?('errors')
 
       render json: @asset
+    end
+
+    def record_not_found
+      raise DataCycleCore::Error::RecordNotFoundError, 'DataCycle Record Not Found'
     end
 
     private
