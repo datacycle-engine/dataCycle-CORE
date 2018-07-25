@@ -23,6 +23,7 @@ module DataCycleCore
 
                   raw_data.each do |language, data_hash|
                     next unless locales.include?(language.to_sym)
+                    item.data_has_changed ||= DataCycleCore::DiffService.dirty?(item.dump[language].to_h, data_hash)
                     item.dump[language] = data_hash
                   end
                   item.save!
@@ -72,6 +73,7 @@ module DataCycleCore
                           item = mongo_item.find_or_initialize_by('external_id': item_id)
 
                           item.dump ||= {}
+                          item.data_has_changed ||= DataCycleCore::DiffService.dirty?(item.dump[locale].to_h, item_data)
                           item.dump[locale] = item_data
                           item.save!
                           logging.item_processed(item_name, item_id, item_count, max_string)
@@ -127,6 +129,7 @@ module DataCycleCore
 
                         item_data.each do |language, data_hash|
                           next unless locales.include?(language.to_sym)
+                          item.data_has_changed ||= DataCycleCore::DiffService.dirty?(item.dump[language].to_h, data_hash)
                           item.dump[language] = data_hash
                           logging.item_processed(item_name, item_id, item_count, max_string)
                         end
