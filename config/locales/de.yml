@@ -398,6 +398,7 @@ de:
     documentation:
       root: Dokumentation
       overview: Übersicht
+      classifications: Klassifizierungen
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
