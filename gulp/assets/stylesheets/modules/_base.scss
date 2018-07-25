@@ -401,7 +401,7 @@ button,
       display: none;
     }
     .input input,
-    .string:not(.date, .datetime, .headline, .headline_external, .quill_editor) input,
+    .string:not(.date, .datetime, .headline, .headline_external, .text_editor) input,
     .number input {
       padding: 2.5rem 1rem 2rem 1rem;
       line-height: initial;
@@ -470,6 +470,9 @@ button,
     padding-top: 3rem;
     padding-bottom: 2rem;
     font-size: 1rem;
+    p:not(:last-child) {
+      margin-bottom: 1rem;
+    }
   }
   .ql-container.ql-snow {
     border: 0;
