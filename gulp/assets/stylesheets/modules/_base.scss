@@ -325,8 +325,7 @@ button,
     transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
     min-width: 280px;
     &:hover {
-      box-shadow: 0 0 7px $primary-color;
-      z-index: 1;
+      box-shadow: 0 0 7px $primary-color; // z-index: 1;
     }
     &:focus {
       border-color: $primary-color;

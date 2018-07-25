@@ -156,7 +156,7 @@ module.exports.initialize = function () {
     });
 
     $(editor.container).on('import-data', function (event, data) {
-      if (editor.getLength() > 1) {
+      if (editor.getText().trim().length > 1) {
         var confirmationModal = new ConfirmationModal(data.label + ' wird überschrieben. <br>Fortfahren?', 'success', true, function () {
           editor.clipboard.dangerouslyPasteHTML(data.value);
         });
