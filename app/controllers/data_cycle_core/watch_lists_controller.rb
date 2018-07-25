@@ -43,7 +43,7 @@ module DataCycleCore
       respond_to do |format|
         if !@watch_list.nil? && @watch_list.save
           format.js
-          format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Merkliste', locale: DataCycleCore.ui_language)) }
+          format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language)) }
         else
           format.html { redirect_back(fallback_location: root_path) }
         end
@@ -65,7 +65,7 @@ module DataCycleCore
       @watch_list.update_attributes(update_params)
 
       if @watch_list.save
-        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Merkliste', locale: DataCycleCore.ui_language
+        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language
 
         if Rails.env.development?
           redirect_to edit_watch_list_path(@watch_list) if Rails.env.development?
@@ -82,7 +82,7 @@ module DataCycleCore
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       @watch_list.destroy
 
-      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Merkliste', locale: DataCycleCore.ui_language
+      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language
       redirect_to watch_lists_path
     end
 
