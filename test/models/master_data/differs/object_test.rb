@@ -28,8 +28,30 @@ describe DataCycleCore::MasterData::Differs::Object do
     it 'works with a simple hash' do
       a = { 'greeting' => 'Hello World!', 'anzahl' => 5 }
       b = a
-      diff_hash = subject.new(a, b, template_hash)
-      assert_equal(0, diff_hash.size)
+      diff_hash = subject.new(a, b, template_hash).diff_hash
+      assert_equal({}, diff_hash)
+    end
+
+    it 'recognizes data with semanitally the same data as equal' do
+      a = { 'greeting' => 'Hello World!', 'anzahl' => 5 }
+      b_data = [
+        { 'greeting' => 'Hello World!', 'anzahl' => '5' },
+        { 'greeting' => 'Hello World!', 'anzahl' => 5.0 },
+        { 'greeting' => 'Hello World!', 'anzahl' => '5.0' },
+        { 'greeting' => 'Hello World!', 'anzahl' => 5.0001 },
+        { 'greeting' => 'Hello World!', 'anzahl' => '5.0001' }
+      ]
+      b_data.each do |b|
+        diff_hash = subject.new(a, b, template_hash).diff_hash
+        assert_equal({}, diff_hash)
+      end
+    end
+
+    it 'recognizes if greeting is changed' do
+      a = { 'greeting' => 'Hello World!', 'anzahl' => 5 }
+      b = { 'greeting' => 'Servas olter', 'anzahl' => 5 }
+      diff_hash = subject.new(a, b, template_hash).diff_hash
+      assert_equal({ 'greeting' => ['~', 'Hello World!', 'Servas olter'] }, diff_hash)
     end
   end
 end

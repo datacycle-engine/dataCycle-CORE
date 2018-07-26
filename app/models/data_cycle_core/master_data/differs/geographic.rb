@@ -3,7 +3,7 @@
 module DataCycleCore
   module MasterData
     module Differs
-      class Geographic < BasicDiffer
+      class Geographic < Basic
         def diff(a, b, _template)
           geo_a = DataCycleCore::MasterData::DataConverter.string_to_geographic(a)
           geo_b = DataCycleCore::MasterData::DataConverter.string_to_geographic(b)

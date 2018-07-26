@@ -3,7 +3,7 @@
 module DataCycleCore
   module MasterData
     module Differs
-      class Number < BasicDiffer
+      class Number < Basic
         def number_formats
           ['integer', 'float']
         end

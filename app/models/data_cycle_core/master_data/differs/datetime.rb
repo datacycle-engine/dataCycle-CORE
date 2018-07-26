@@ -3,7 +3,7 @@
 module DataCycleCore
   module MasterData
     module Differs
-      class Datetime < BasicDiffer
+      class Datetime < Basic
         def diff(a, b, _template)
           datetime_a = DataCycleCore::MasterData::DataConverter.string_to_datetime(a)
           datetime_b = DataCycleCore::MasterData::DataConverter.string_to_datetime(b)

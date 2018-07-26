@@ -3,10 +3,7 @@
 module DataCycleCore
   module MasterData
     module Differs
-      class String < Basic
-        def diff(a, b, _template)
-          @diff_hash = basic_diff(a, b)
-        end
+      class Asset < UuidArray
       end
     end
   end

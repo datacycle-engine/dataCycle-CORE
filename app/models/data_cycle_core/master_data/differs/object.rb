@@ -2,13 +2,31 @@
 
 module DataCycleCore
   module MasterData
-    module Differ
-      class Object < BasicDiffer
+    module Differs
+      class Object < Basic
+        def basic_types
+          {
+            'object' => Differs::Object,
+            'key' => Differs::Key,
+            'string' => Differs::String,
+            'number' => Differs::Number,
+            'datetime' => Differs::Datetime,
+            'boolean' => Differs::Boolean,
+            'geographic' => Differs::Geographic,
+            'linked' => Differs::Linked,
+            # 'embedded' => Differs::Embedded,
+            'asset' => Differs::Asset,
+            'classification' => Differs::Classification
+          }
+        end
+
         def diff(a, b, template)
-          template.each do |key, value|
-            puts "#{key}: #{value}"
+          @diff_hash = {}
+          template.each do |key, key_item|
+            diff_key = basic_types[key_item['type']].new(a&.dig(key), b&.dig(key), key_item).diff_hash
+            @diff_hash[key] = diff_key if diff_key.present?
           end
-          a == b
+          diff_hash
         end
       end
     end

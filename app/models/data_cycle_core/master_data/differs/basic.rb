@@ -3,7 +3,7 @@
 module DataCycleCore
   module MasterData
     module Differs
-      class BasicDiffer
+      class Basic
         attr_reader :diff_hash
 
         def initialize(a, b, template = nil, parent_key = '')
