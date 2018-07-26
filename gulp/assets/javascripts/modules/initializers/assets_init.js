@@ -1,5 +1,6 @@
 var Asset = require('./../components/asset');
 var duration_helpers = require('./../helpers/duration_helpers');
+var object_helpers = require('./../helpers/object_helpers');
 
 // Word Counter
 module.exports.initialize = function () {
@@ -71,42 +72,37 @@ module.exports.initialize = function () {
         }
       }
 
-      if (media_params.width >= media_params.height &&
-        validations.landscape !== undefined && validations.landscape.min !== undefined &&
-        ((validations.landscape.min.width !== undefined && media_params.width < validations.landscape.min.width) ||
-          (validations.landscape.min.height !== undefined && media_params.height < validations.landscape.min.height))) {
+      if ((media_params.width >= media_params.height &&
+          ((object_helpers.get(['landscape', 'min', 'width'], validations) !== null && media_params.width < validations.landscape.min.width) ||
+            (object_helpers.get(['landscape', 'min', 'height'], validations) !== null && media_params.height < validations.landscape.min.height)
+          )) || (media_params.width < media_params.height &&
+          ((object_helpers.get(['portrait', 'min', 'width'], validations) !== null && media_params.width < validations.portrait.min.width) ||
+            (object_helpers.get(['portrait', 'min', 'height'], validations) !== null && media_params.height < validations.portrait.min.height)))) {
+        var message = 'Bild zu klein (' + media_params.width + 'x' + media_params.height + '), sollte' +
+          (object_helpers.get(['landscape', 'min'], validations) !== null ? ' für Querformat mind. ' + object_helpers.get(['landscape', 'min', 'width'], validations) + 'x' + object_helpers.get(['landscape', 'min', 'height'], validations) : '') +
+          (object_helpers.get(['landscape', 'min'], validations) !== null && object_helpers.get(['portrait', 'min'], validations) !== null ? ',' : '') +
+          (object_helpers.get(['portrait', 'min'], validations) !== null ? ' für Hochformat mind. ' + object_helpers.get(['portrait', 'min', 'width'], validations) + 'x' + object_helpers.get(['portrait', 'min', 'height'], validations) : '') +
+          ' sein.';
         return {
           valid: false,
-          message: 'Bild zu klein (' + media_params.width + 'x' + media_params.height + '), sollte mindestens ' + validations.landscape.min.width + 'x' + validations.landscape.min.height + ' sein'
-        };
-      }
-      if (media_params.width >= media_params.height &&
-        validations.landscape !== undefined && validations.landscape.max !== undefined &&
-        ((validations.landscape.max.width !== undefined && media_params.width > validations.landscape.max.width) ||
-          (validations.landscape.max.height !== undefined && media_params.height > validations.landscape.max.height))) {
-        return {
-          valid: false,
-          message: 'Bild zu groß (' + media_params.width + 'x' + media_params.height + '), sollte maximal ' + validations.landscape.max.width + 'x' + validations.landscape.max.height + ' sein'
-        };
-      }
-
-      if (media_params.width < media_params.height &&
-        validations.portrait !== undefined && validations.portrait.min !== undefined &&
-        ((validations.portrait.min.width !== undefined && media_params.width < validations.portrait.min.width) ||
-          (validations.portrait.min.height !== undefined && media_params.height < validations.portrait.min.height))) {
-        return {
-          valid: false,
-          message: 'Bild zu klein (' + media_params.width + 'x' + media_params.height + '), sollte mindestens ' + validations.portrait.min.width + 'x' + validations.portrait.min.height + ' sein'
+          message: message
         };
       }
 
-      if (media_params.width < media_params.height &&
-        validations.portrait !== undefined && validations.portrait.max !== undefined &&
-        ((validations.portrait.max.width !== undefined && media_params.width > validations.portrait.max.width) ||
-          (validations.portrait.max.height !== undefined && media_params.height > validations.portrait.max.height))) {
+      if ((media_params.width >= media_params.height &&
+          ((object_helpers.get(['landscape', 'max', 'width'], validations) !== null && media_params.width > validations.landscape.max.width) ||
+            (object_helpers.get(['landscape', 'max', 'height'], validations) !== null && media_params.height > validations.landscape.max.height))) ||
+        (media_params.width < media_params.height &&
+          ((object_helpers.get(['portrait', 'max', 'width'], validations) !== null && media_params.width > validations.portrait.max.width) ||
+            (object_helpers.get(['portrait', 'max', 'height'], validations) !== null && media_params.height > validations.portrait.max.height)))) {
+        var message = 'Bild zu groß (' + media_params.width + 'x' + media_params.height + '), sollte' +
+          (object_helpers.get(['landscape', 'max'], validations) !== null ? ' für Querformat max. ' + object_helpers.get(['landscape', 'max', 'width'], validations) + 'x' + object_helpers.get(['landscape', 'max', 'height'], validations) : '') +
+          (object_helpers.get(['landscape', 'max'], validations) !== null && object_helpers.get(['portrait', 'max'], validations) !== null ? ',' : '') +
+          (object_helpers.get(['portrait', 'max'], validations) !== null ? ' für Hochformat max. ' + object_helpers.get(['portrait', 'max', 'width'], validations) + 'x' + object_helpers.get(['portrait', 'max', 'height'], validations) : '') +
+          ' sein.';
         return {
           valid: false,
-          message: 'Bild zu groß (' + media_params.width + 'x' + media_params.height + '), sollte maximal ' + validations.portrait.max.width + 'x' + validations.portrait.max.height + ' sein'
+          message: message
         };
       }
     }
