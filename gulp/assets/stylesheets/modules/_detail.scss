@@ -28,8 +28,11 @@
     }
   }
   &:not(.imageobject) {
-    p:last-child {
-      margin: 0;
+    p {
+      margin-bottom: 0.5rem;
+      &:last-child {
+        margin: 0;
+      }
     }
     .type {
       &.properties {
