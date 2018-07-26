@@ -24,6 +24,20 @@
         :ui:
           :show:
             :content_area: header
+      :feratel_types:
+        :label: Feratel - Infrastrukturtypen
+        :type: classification
+        :tree_label: Feratel - Infrastrukturtypen
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_topics:
+        :label: Feratel - Infrastrukturklassifizierungen
+        :type: classification
+        :tree_label: Feratel - Infrastrukturklassifizierungen
+        :ui:
+          :show:
+            :content_area: header
       :stars:
         :label: Feratel - Sterne
         :type: classification

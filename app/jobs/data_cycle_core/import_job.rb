@@ -26,14 +26,14 @@ module DataCycleCore
       # Do something before perform
       block.call
       # Do something after perform
-      uuid = @arguments.first
-      external_source = ExternalSource.find(uuid)
-      job_record_id = external_source.config['last_import_job_id']
-      job_record = Delayed::Job.find(job_record_id)
-      if job_record.present? && job_record.failed_at.blank?
-        external_source.last_import = Time.zone.now
-        external_source.save
-      end
+      # uuid = @arguments.first
+      # external_source = ExternalSource.find(uuid)
+      # job_record_id = external_source.config['last_import_job_id']
+      # job_record = Delayed::Job.find(job_record_id)
+      # if job_record.present? && job_record.failed_at.blank?
+      #   external_source.last_import = Time.zone.now
+      #   external_source.save
+      # end
     end
 
     def perform(uuid)
