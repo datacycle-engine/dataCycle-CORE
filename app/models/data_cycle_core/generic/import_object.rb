@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     class ImportObject < GenericObject
-      attr_reader :external_source, :options, :locales, :logging, :source_type, :source_object
+      attr_reader :external_source, :options, :locales, :logging, :source_type, :source_object, :mode
 
       def initialize(**options)
         raise "Missing external_source for #{self.class}, options given: #{options}" if options[:external_source].blank?
@@ -15,6 +15,7 @@ module DataCycleCore
         @source_type = Mongoid::PersistenceContext.new(@source_object, collection: options[:import][:source_type])
         @locales = options[:locales]
         @logging = init_logging(:import)
+        @mode = options.dig(:mode)&.to_sym || :incremental
       end
     end
   end

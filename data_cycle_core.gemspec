@@ -91,6 +91,9 @@ Gem::Specification.new do |s|
   # redis
   s.add_dependency 'redis-rails'
 
+  # redcarpet (for rendering markdown)
+  s.add_dependency 'redcarpet'
+
   # development gems
   s.add_development_dependency 'better_errors'
   s.add_development_dependency 'binding_of_caller'

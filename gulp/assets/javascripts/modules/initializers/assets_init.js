@@ -18,6 +18,15 @@ module.exports.initialize = function () {
     });
   });
 
+  function reject(obj, keys) {
+    return Object.keys(obj)
+      .filter(k => !keys.includes(k))
+      .map(k => Object.assign({}, {
+        [k]: obj[k]
+      }))
+      .reduce((res, o) => Object.assign(res, o), {});
+  }
+
   // Upload Form
 
   let reset_file_field = function (field) {
@@ -44,11 +53,62 @@ module.exports.initialize = function () {
   };
 
   let validate_dimensions = function (validations, the_file, media_params) {
-    if (validations.min !== undefined && media_params !== undefined && (media_params.width < validations.min.width || media_params.height < validations.min.height)) {
-      return {
-        valid: false,
-        message: 'Bild zu klein (' + media_params.width + 'x' + media_params.height + '), sollte mindestens ' + validations.min.width + 'x' + validations.min.height + ' sein'
-      };
+    if (media_params !== undefined) {
+      var additional = reject(validations, ['landscape', 'portrait']);
+      for (var key in additional) {
+        if (additional[key].max !== undefined && ((additional[key].max.height !== undefined && media_params.height <= additional[key].max.height) || (additional[key].max.width !== undefined && media_params.width <= additional[key].max.width))) {
+          return {
+            valid: true,
+            message: undefined
+          };
+        }
+        if (additional[key].min !== undefined &&
+          ((additional[key].min.height !== undefined && media_params.height >= additional[key].min.height) || (additional[key].min.width !== undefined && media_params.width >= additional[key].min.width))) {
+          return {
+            valid: true,
+            message: undefined
+          };
+        }
+      }
+
+      if (media_params.width >= media_params.height &&
+        validations.landscape !== undefined && validations.landscape.min !== undefined &&
+        ((validations.landscape.min.width !== undefined && media_params.width < validations.landscape.min.width) ||
+          (validations.landscape.min.height !== undefined && media_params.height < validations.landscape.min.height))) {
+        return {
+          valid: false,
+          message: 'Bild zu klein (' + media_params.width + 'x' + media_params.height + '), sollte mindestens ' + validations.landscape.min.width + 'x' + validations.landscape.min.height + ' sein'
+        };
+      }
+      if (media_params.width >= media_params.height &&
+        validations.landscape !== undefined && validations.landscape.max !== undefined &&
+        ((validations.landscape.max.width !== undefined && media_params.width > validations.landscape.max.width) ||
+          (validations.landscape.max.height !== undefined && media_params.height > validations.landscape.max.height))) {
+        return {
+          valid: false,
+          message: 'Bild zu groß (' + media_params.width + 'x' + media_params.height + '), sollte maximal ' + validations.landscape.max.width + 'x' + validations.landscape.max.height + ' sein'
+        };
+      }
+
+      if (media_params.width < media_params.height &&
+        validations.portrait !== undefined && validations.portrait.min !== undefined &&
+        ((validations.portrait.min.width !== undefined && media_params.width < validations.portrait.min.width) ||
+          (validations.portrait.min.height !== undefined && media_params.height < validations.portrait.min.height))) {
+        return {
+          valid: false,
+          message: 'Bild zu klein (' + media_params.width + 'x' + media_params.height + '), sollte mindestens ' + validations.portrait.min.width + 'x' + validations.portrait.min.height + ' sein'
+        };
+      }
+
+      if (media_params.width < media_params.height &&
+        validations.portrait !== undefined && validations.portrait.max !== undefined &&
+        ((validations.portrait.max.width !== undefined && media_params.width > validations.portrait.max.width) ||
+          (validations.portrait.max.height !== undefined && media_params.height > validations.portrait.max.height))) {
+        return {
+          valid: false,
+          message: 'Bild zu groß (' + media_params.width + 'x' + media_params.height + '), sollte maximal ' + validations.portrait.max.width + 'x' + validations.portrait.max.height + ' sein'
+        };
+      }
     }
 
     return {
@@ -224,7 +284,6 @@ module.exports.initialize = function () {
               file_element.addClass('error').append('<span class="error"><b>Fehler:</b> ' + data.error + '</span>');
             } else {
               file_element.removeClass('uploading').addClass('finished');
-              file_element.find('.remove-file').remove();
               file_element.find('.upload-number').html('<i class="fa fa-check" aria-hidden="true"></i>');
               file_element.removeAttr('data-file');
               file_element.removeData('file');

@@ -19,11 +19,14 @@ module DataCycleCore
     end
 
     def download(options = {}, &block)
+      ts_start = Time.zone.now
       download_config.sort { |d1, d2|
         d1.second['sorting'] <=> d2.second['sorting']
       }.each do |(name, _)|
         download_single(name, options, &block)
       end
+      self.last_download = ts_start
+      save
     end
 
     def download_single(name, options = {})
@@ -44,11 +47,14 @@ module DataCycleCore
     end
 
     def import(options = {}, &block)
+      ts_start = Time.zone.now
       import_config.sort { |d1, d2|
         d1.second['sorting'] <=> d2.second['sorting']
       }.each do |(name, _)|
         import_single(name, options, &block)
       end
+      self.last_import = ts_start
+      save
     end
 
     def import_single(name, options = {})

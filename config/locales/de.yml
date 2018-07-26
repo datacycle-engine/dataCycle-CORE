@@ -91,6 +91,12 @@ de:
     is: ist
     is_not: ist nicht
     no_translation: Keine Übersetzung vorhanden
+    max: maximal
+    min: mindestens
+    landscape: Querformat
+    portrait: Hochformat
+    height: Höhe
+    width: Breite
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -265,8 +271,8 @@ de:
         one: Abo
         other: Abos
       data_cycle_core/watch_list:
-        one: Merkliste
-        other: Merklisten
+        one: Inhaltssammlung
+        other: Inhaltssammlungen
       data_cycle_core/data_link:
         one: Externer Link
         other: Externe Links
@@ -319,7 +325,7 @@ de:
         external: SSO
         notification_frequency: Benachrichtigung von Abos
         access_token: API Token
-        default_locale: 'Default Sprache für Suchen'
+        default_locale: 'Default-Sprache für Suchen und neue Inhalte'
       data_cycle_core/person:
         given_name: Vorname
         family_name: Familienname
@@ -389,13 +395,18 @@ de:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
     upload: Medien hochladen
 
+    documentation:
+      root: Dokumentation
+      overview: Übersicht
+      classifications: Klassifizierungen
+
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
                   <ul class="no-bullet">
                     <li><b>Bild:</b>
                       <ul>
                         <li>Formate: %{image_types}</li>
-                        <li>Mindest-Abmessungen: %{image_min_dimensions}</li>
+                        <li>Abmessungen: %{image_dimensions}</li>
                       </ul>
                     </li>
                     <li><b>Video:</b>

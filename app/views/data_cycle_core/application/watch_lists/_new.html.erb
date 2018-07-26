@@ -4,7 +4,7 @@
 
         <%= form_for(@new_watch_list, namespace: content.nil? ? "header-menu" : content.id, html: { class: "add-watchlist-form" }, remote: true) do |f| %>
             <div class="validation-container form-element">
-                <%= f.text_field :headline, class: 'form-control', value:'', placeholder: 'Neue Merkliste', required: true %>
+                <%= f.text_field :headline, class: 'form-control', value:'', placeholder: "Neue #{DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language)}", required: true %>
                 <%= button_tag(type: 'submit', class: "button primary") do %>
                     <i class="fa fa-plus" aria-hidden="true"></i>
                 <% end %>
