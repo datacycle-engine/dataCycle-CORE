@@ -27,7 +27,7 @@ PATH
       mini_magick
       mongoid
       multi_json
-      nokogiri (~> 1.8.2)
+      nokogiri (~> 1.8.4)
       pg (~> 0.21)
       puma (~> 3.10.0)
       puma_worker_killer
