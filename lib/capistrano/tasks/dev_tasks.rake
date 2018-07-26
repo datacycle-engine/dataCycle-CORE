@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 namespace :datacycle do
   namespace :dev do
     desc 'update project: dump database - update all templates + external sources'
