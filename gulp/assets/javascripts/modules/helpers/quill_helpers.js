@@ -2,7 +2,7 @@
 module.exports = {
   update_value: (editor) => {
     var hidden_field = $('#' + $(editor).attr('data-hidden-field-id'));
-    var text = ($(editor).find('.ql-editor').html() || '').replace("<p><br></p>", "");
+    var text = $(editor).find('.ql-editor').html();
     var changed = (hidden_field.val() != text);
 
     if (changed) {

@@ -1,7 +1,7 @@
 <span class="tag-group tags" data-id="<%= "#{sanitize_to_id(key)}_#{index}" if buttons ||= false %>">
   <i class="tag-group-label">
     <i class="fa fa-tags" aria-hidden="true"></i>
-    <%= key %>:
+    <%= t("filter.#{key}", default: key, locale: DataCycleCore.ui_language) %>:
   </i>
 
   <% value.each do |tag| %>

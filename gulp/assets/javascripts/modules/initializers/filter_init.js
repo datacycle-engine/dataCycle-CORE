@@ -54,12 +54,13 @@ module.exports.initialize = function () {
       var id = $(this).attr('for');
       var title = $(this).find('span.inner-title').first().html();
       var tree_label = $(this).parents('.filter').data('tree-label');
+      var tree_label_title = $(this).parents('.filter').find('>.title').text();
 
       if ($(this).siblings('input[type=checkbox]').first().is(':checked')) {
         remove_filter($('.filters .tag-group.tags:not(.advanced-tags).' + tree_label).find('label[for=' + id + ']'));
       } else {
         if (!$('.filters .tag-group.tags:not(.advanced-tags).' + tree_label).length) {
-          $('.filters .filtertags .filter-groups').append('<span class="tag-group tags ' + tree_label + '"><i class="tag-group-label"><i class="fa fa-tags" aria-hidden="true"></i> ' + tree_label + ':</i> <span class="tags-container"></span></span>');
+          $('.filters .filtertags .filter-groups').append('<span class="tag-group tags ' + tree_label + '"><i class="tag-group-label"><i class="fa fa-tags" aria-hidden="true"></i> ' + tree_label_title + ':</i> <span class="tags-container"></span></span>');
         }
 
         var selected_label = $('.filters .tag-group.tags.' + tree_label).find('[for=' + id + ']');
@@ -76,6 +77,11 @@ module.exports.initialize = function () {
 
     var category_filter_heights = [];
     $('#primary_nav_wrap .clickable-menu').on('mouseenter', 'li.active, li.active li', event => {
+      var child_list = $(event.currentTarget).find('ul').first();
+      if (child_list.length && Math.round($('.off-canvas-wrapper').outerHeight()) < Math.round(child_list.outerHeight() + child_list.offset().top + 150)) {
+        $('.off-canvas-wrapper').css('height', child_list.outerHeight() + child_list.offset().top + 150);
+      }
+
       category_filter_heights.push($(event.currentTarget).find('ul').height() || 0);
       var height = Math.max.apply(null, category_filter_heights);
       $(event.currentTarget).parentsUntil('#primary_nav_wrap').find('ul:visible').each((index, elem) => {

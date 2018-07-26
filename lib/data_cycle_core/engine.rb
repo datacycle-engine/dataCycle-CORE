@@ -53,6 +53,9 @@ require 'dry-validation'
 require 'carrierwave'
 require 'carrierwave_backgrounder'
 
+# redcarpet (for markdown rendering)
+require 'redcarpet'
+
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name
@@ -250,3 +253,5 @@ module DataCycleCore
     end
   end
 end
+
+require 'data_cycle_core/exceptions'

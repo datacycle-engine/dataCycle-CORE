@@ -20,6 +20,8 @@ var EmbeddedObject = function (selector) {
   this.per = this.element.data('per') || 5;
   this.url = '/contents';
   this.sortable;
+  this.parent_id = this.element.data('parent-id');
+  this.parent_content_type = this.element.data('parent-content-type');
 
   this.setup();
 };
@@ -60,6 +62,8 @@ EmbeddedObject.prototype.renderEmbeddedObjects = function (type, ids = []) {
       key: this.key,
       definition: this.definition,
       options: this.options,
+      parent_id: this.parent_id,
+      parent_content_type: this.parent_content_type,
       id: ids
     }),
     dataType: 'script',

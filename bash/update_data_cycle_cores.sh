@@ -62,6 +62,7 @@ for project in "${PROJECTS[@]}"
     init_git_repo $project_dir $git_url
     update_core_submodule $project_dir $git_url
     cd "$dir/$project_dir"
+    bundle install
     git status
     ts=$(date +%s)
     git commit -a -m "$ts: updated datacyclecore"
