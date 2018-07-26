@@ -8,6 +8,10 @@ module DataCycleCore
           ['integer', 'float']
         end
 
+        def epsilon
+          1e-3
+        end
+
         def diff(a, b, template)
           return if a.blank? && b.blank?
           format_key = template&.dig('validations', 'format')
@@ -22,18 +26,18 @@ module DataCycleCore
         private
 
         def integer(a, b)
-          return if a == b
-          return ['+', b] if a.blank?
-          return ['-', a] if b.blank?
-          ['~', a, b]
+          int_a = a.to_i
+          int_b = b.to_i
+          basic_diff(int_a, int_b)
         end
 
         def float(a, b)
-          return ['+', b] if a.blank?
-          return ['-', a] if b.blank?
-          epsilon = 1e-6
-          return if (a - b).abs < epsilon
-          ['~', a, b]
+          float_a = a&.to_f
+          float_b = b&.to_f
+          return ['+', float_b] if a.blank?
+          return ['-', float_a] if b.blank?
+          return if (float_a - float_b).abs < epsilon
+          ['~', float_a, float_b]
         end
       end
     end
