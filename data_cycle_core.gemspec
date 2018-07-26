@@ -47,7 +47,7 @@ Gem::Specification.new do |s|
   # SOAP Client
   # s.add_dependency 'savon', '~> 2.0'
   # XML Parser
-  s.add_dependency 'nokogiri', '~> 1.8.2'
+  s.add_dependency 'nokogiri', '~> 1.8.4'
   # s.add_dependency 'activemodel-serializers-xml'
   # authentication
   s.add_dependency 'devise'
