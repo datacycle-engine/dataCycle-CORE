@@ -3,7 +3,7 @@
 module DataCycleCore
   module MasterData
     module Differs
-      class Geographic < BasicDiffer
+      class Key < BasicDiffer
         def diff(a, b, _template)
           @diff_hash = basic_diff(a, b)
         end

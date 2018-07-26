@@ -19,7 +19,16 @@ describe DataCycleCore::MasterData::Differs::Boolean do
     end
 
     it 'properly diffs equal bools' do
-      [[true, true], ['true', 'true'], [true, 'true'], ['true', true]].each do |item|
+      [
+        [true, true],
+        [true, 'true'],
+        ['true', true],
+        ['true', 'true'],
+        [false, false],
+        [false, 'false'],
+        ['false', false],
+        ['false', 'false']
+      ].each do |item|
         assert_nil(subject.new(item[0], item[1], template_hash).diff_hash)
         assert_nil(subject.new(item[0], item[1]).diff_hash)
       end
