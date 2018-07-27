@@ -23,7 +23,8 @@ module DataCycleCore
         def diff(a, b, template)
           @diff_hash = {}
           template.each do |key, key_item|
-            diff_key = basic_types[key_item['type']].new(a&.dig(key), b&.dig(key), key_item).diff_hash
+            item_template = key_item['type'] == 'object' ? key_item&.dig('properties') : key_item
+            diff_key = basic_types[key_item['type']].new(a&.dig(key), b&.dig(key), item_template).diff_hash
             @diff_hash[key] = diff_key if diff_key.present?
           end
           diff_hash

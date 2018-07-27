@@ -86,5 +86,20 @@ describe DataCycleCore::MasterData::Differs::Classification do
         assert_equal(case_item[2], differ.diff_hash)
       end
     end
+
+    it 'successfully handles relation objects' do
+      uuid = DataCycleCore::Classification.find_by(name: 'Bild').id
+      uuid2 = DataCycleCore::Classification.find_by(name: 'Video').id
+      uuid3 = DataCycleCore::Classification.find_by(name: 'Audio').id
+      uuids = DataCycleCore::Classification.where(name: ['Bild', 'Video', 'Audio'])
+      data_cases = [
+        [[uuid, uuid2, uuid3], uuids],
+        [[uuid3, uuid, uuid2], uuids]
+      ]
+      data_cases.each do |case_item|
+        differ = subject.new(case_item[0], case_item[1], template_hash)
+        assert_nil(differ.diff_hash)
+      end
+    end
   end
 end
