@@ -1,0 +1,45 @@
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
+
+  <%= label_tag key do %>
+    <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
+    <%= definition['label'] %>
+  <% end %>
+
+  <%= hidden_field_tag key, value, class: 'location-data' %>
+
+  <% if value.try(:geometry_type) == RGeo::Feature::Point || value.blank? %> <%# only show points for now, not the lines %>
+      <div class="geographic">
+          <span class="map-info">
+            <span class="map-location-data">
+              <%= value.presence&.x %>, <%= value.presence&.y %>
+            </span>
+          </span>
+
+          <% map_id = "map_#{SecureRandom.hex(16)}" %>
+          <script>
+              var <%= map_id %> = {
+                  type: "<%= (value.presence&.geometry_type || RGeo::Feature::Point).to_s %>",
+                      points: [<%= value.present? ? "[#{value.presence&.x}, #{value.presence&.y}]" : '[]' %>]
+              };
+          </script>
+
+          <div id="<%= map_id %>" class="geographic-map <%= 'editable' if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>" style="max-height: 450px;">
+          </div>
+      </div>
+  <% elsif value.try(:geometry_type) == RGeo::Feature::LineString %> <%# only show points for now, not the lines %>
+      <div class="geographic">
+
+          <% map_id = "map_#{SecureRandom.hex(16)}" %>
+          <script>
+              var <%= map_id %> = {
+                  type: "<%= value.geometry_type.to_s %>",
+                      points: [<%= value.points.map { |p| "[#{p.x}, #{p.y}]" }.join(",") %>]
+              };
+          </script>
+
+          <div id="<%= map_id %>" class="geographic-map" style="max-height: 450px;">
+          </div>
+      </div>
+  <% end %>
+
+<% end %>

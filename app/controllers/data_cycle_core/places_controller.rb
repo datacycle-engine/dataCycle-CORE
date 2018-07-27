@@ -5,7 +5,8 @@ module DataCycleCore
     private
 
     def before_set_data_hash(datahash)
-      geo_location datahash
+      # geo_location datahash
+      datahash
     end
 
     def geo_location(datahash)
