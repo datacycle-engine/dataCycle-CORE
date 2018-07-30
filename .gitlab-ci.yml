@@ -17,7 +17,7 @@ stages:
   - deploy
 
 before_script:
-# uncomment for local testing
+# uncomment for local testing (via local gitlab-runner)
   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
   - eval $(ssh-agent -s)
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
