@@ -399,8 +399,10 @@ button,
     .bookmark {
       display: none;
     }
+    /* TODO: css-refactor: remove #place_datahash_water_temp_temp_at */
     .input input,
     .string:not(.date, .datetime, .headline, .headline_external, .text_editor) input,
+    #place_datahash_water_temp_temp_at,
     .number input {
       padding: 2.5rem 1rem 2rem 1rem;
       line-height: initial;
