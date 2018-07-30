@@ -40,6 +40,7 @@ cache:
   paths:
     - cache/bundler
     - node_modules
+    - cache/Cypress
 
 services:
   - name: mdillon/postgis:9.6
