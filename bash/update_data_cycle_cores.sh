@@ -37,6 +37,7 @@ function update_core_submodule {
 BRANCH_NAME=$1
 dir=$(pwd)
 PROJECTS=()
+UPDATE_GEM=$2
 
 if [[ $# -eq 0 ]] ; then
     echo 'No arguments supplied'
@@ -62,6 +63,10 @@ for project in "${PROJECTS[@]}"
     init_git_repo $project_dir $git_url
     update_core_submodule $project_dir $git_url
     cd "$dir/$project_dir"
+    if [ ! -z "$UPDATE_GEM" ] ; then
+        echo "Updating gem: ${UPDATE_GEM}"
+        bundle update $UPDATE_GEM
+    fi
     bundle install
     git status
     ts=$(date +%s)

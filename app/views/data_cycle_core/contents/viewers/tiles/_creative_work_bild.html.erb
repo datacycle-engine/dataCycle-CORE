@@ -46,7 +46,9 @@
         <%= link_to content, target: '_blank' do %>
             zur Detailansicht
         <% end %> |
+        <% if can?(:download, content) %>
         <%= link_to 'in voller Größe öffnen', content.content_url, target: '_blank' %> |
+        <% end %>
 
         <% unless content.url.nil? && content.url.blank? %>
             <a href="<%= content.url %>" target="_blank">im Medienarchiv öffnen</a>

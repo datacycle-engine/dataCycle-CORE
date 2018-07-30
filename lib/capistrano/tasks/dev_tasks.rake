@@ -15,6 +15,18 @@ namespace :datacycle do
         end
       end
     end
+    desc 'dump database'
+    task :dump_db do
+      on roles(:all) do
+        within release_path do
+          with rails_env: fetch(:rails_env) do
+            print_message 'Dump Database'
+            execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:dump"
+          end
+        end
+      end
+    end
+    # add tasks: dump:db, download:db
 
     private
 
