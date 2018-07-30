@@ -39,8 +39,8 @@ cache:
   untracked: true
   paths:
     - cache/bundler
-    - node_modules
-    - cache/Cypress
+#    - node_modules
+    - ~/.cache
 
 services:
   - name: mdillon/postgis:9.6
