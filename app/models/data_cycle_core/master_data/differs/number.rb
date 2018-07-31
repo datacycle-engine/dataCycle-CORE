@@ -26,8 +26,8 @@ module DataCycleCore
         private
 
         def integer(a, b)
-          int_a = a.to_i
-          int_b = b.to_i
+          int_a = a&.to_i
+          int_b = b&.to_i
           basic_diff(int_a, int_b)
         end
 

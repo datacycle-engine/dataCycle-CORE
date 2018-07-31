@@ -7,21 +7,21 @@ module DataCycleCore
         def diff(a, b, _template)
           class_a = parse_uuids(a)
           class_b = parse_uuids(b)
-          @diff_hash = uuid_array_diff(class_a, class_b)
+          @diff_hash = array_diff(class_a&.sort, class_b&.sort)
         end
 
         private
 
-        def uuid_array_diff(a, b)
+        def array_diff(a, b)
           return if a == b
           return [['-', a]] if b.blank?
           return [['+', b]] if a.blank?
           new_class = b - a
           del_class = a - b
           new_items = nil
-          new_items = ['+', new_class] if new_class.size.positive?
+          new_items = ['+', new_class&.sort] if new_class.size.positive?
           del_items = nil
-          del_items = ['-', del_class] if del_class.size.positive?
+          del_items = ['-', del_class&.sort] if del_class.size.positive?
           [new_items, del_items].compact.presence
         end
 
@@ -30,7 +30,7 @@ module DataCycleCore
           data = a.is_a?(::String) ? [a] : a
           data = a&.ids if data.is_a?(ActiveRecord::Relation)
           raise ArgumentError, 'expected a uuid or list of uuids' unless data.is_a?(::Array)
-          data.sort
+          data
         end
       end
     end

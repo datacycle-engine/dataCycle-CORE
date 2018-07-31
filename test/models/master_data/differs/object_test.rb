@@ -105,7 +105,6 @@ describe DataCycleCore::MasterData::Differs::Object do
       a = { 'greeting' => 'servas', 'range' => { 'von' => 1, 'bis' => 100 } }
       b = { 'greeting' => 'servas', 'range' => { 'von' => 0, 'bis' => 99 } }
       diff_hash = subject.new(a, b, template_hash_deep).diff_hash
-      ap diff_hash
       assert_equal({ 'range' => { 'von' => ['~', 1, 0], 'bis' => ['~', 100, 99] } }, diff_hash)
     end
   end

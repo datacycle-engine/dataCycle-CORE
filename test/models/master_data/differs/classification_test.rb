@@ -88,10 +88,10 @@ describe DataCycleCore::MasterData::Differs::Classification do
     end
 
     it 'successfully handles relation objects' do
-      uuid = DataCycleCore::Classification.find_by(name: 'Bild').id
-      uuid2 = DataCycleCore::Classification.find_by(name: 'Video').id
-      uuid3 = DataCycleCore::Classification.find_by(name: 'Audio').id
-      uuids = DataCycleCore::Classification.where(name: ['Bild', 'Video', 'Audio'])
+      uuid = DataCycleCore::Classification.find_by(name: 'Audio').id
+      uuid2 = DataCycleCore::Classification.find_by(name: 'Bild').id
+      uuid3 = DataCycleCore::Classification.find_by(name: 'Video').id
+      uuids = DataCycleCore::Classification.where(name: ['Audio', 'Bild', 'Video']).order(name: :asc)
       data_cases = [
         [[uuid, uuid2, uuid3], uuids],
         [[uuid3, uuid, uuid2], uuids]

@@ -12,13 +12,18 @@ module DataCycleCore
           diff(a, b, template)
         end
 
-        def diff(a, b, template)
+        def diff(a, b, _template)
+          @diff_hash = basic_diff(a, b)
         end
 
         private
 
         def basic_diff(a, b)
-          return if a == b
+          generic_diff(a, b, ->(x, y) { x == y })
+        end
+
+        def generic_diff(a, b, cmp)
+          return if cmp.call(a, b)
           return ['+', b] if a.blank? && !a.is_a?(FalseClass)
           return ['-', a] if b.blank?
           ['~', a, b]
