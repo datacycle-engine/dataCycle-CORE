@@ -399,6 +399,9 @@ de:
       root: Dokumentation
       overview: Übersicht
       classifications: Klassifizierungen
+      api:
+        root: Datenschnittstelle
+        classifications: Klassifizierungen
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

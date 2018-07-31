@@ -401,6 +401,7 @@ button,
     }
     .input input,
     .string:not(.date, .datetime, .headline, .headline_external, .text_editor) input,
+    input.single_date, .single_date input,
     .number input {
       padding: 2.5rem 1rem 2rem 1rem;
       line-height: initial;
@@ -470,7 +471,7 @@ button,
     padding-bottom: 2rem;
     font-size: 1rem;
     p:not(:last-child) {
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
     }
   }
   .ql-container.ql-snow {

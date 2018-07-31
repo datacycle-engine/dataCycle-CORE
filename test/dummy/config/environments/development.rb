@@ -25,13 +25,16 @@ Rails.application.configure do
   if Rails.root.join('tmp', 'caching-dev.txt').exist?
     config.action_controller.perform_caching = true
 
-    # config.cache_store = :memory_store
-    config.cache_store = :redis_store, {
-      host: 'redis',
-      port: 6379,
-      db: 0,
-      namespace: 'cache'
-    }
+    if Rails.application.secrets.dig(:redis_server).present?
+      config.cache_store = :redis_store, {
+        host: Rails.application.secrets.redis_server,
+        port: Rails.application.secrets.redis_port,
+        db: Rails.application.secrets.redis_cache_database,
+        namespace: Rails.application.secrets.redis_cache_namespace
+      }
+    else
+      config.cache_store = :memory_store
+    end
     config.public_file_server.headers = {
       'Cache-Control' => 'public, max-age=172800'
     }
