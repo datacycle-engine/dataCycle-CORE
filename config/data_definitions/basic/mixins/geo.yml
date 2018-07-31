@@ -14,6 +14,9 @@
             :method: nest
             :name: geo
             :type: GeoCoordinates
+        :ui:
+          :edit:
+            :disabled: true
       :latitude:
         :label: Latitude
         :type: number
@@ -25,6 +28,9 @@
             :method: nest
             :name: geo
             :type: GeoCoordinates
+        :ui:
+          :edit:
+            :disabled: true
       :elevation:
         :label: Meereshöhe (m)
         :type: number
@@ -40,8 +46,5 @@
         :label: GPS-Koordinaten
         :type: geographic
         :storage_location: column
-        :ui:
-          :edit:
-            :disabled: true
         :api:
           :disabled: true

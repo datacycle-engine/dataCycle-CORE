@@ -107,14 +107,6 @@ describe DataCycleCore::MasterData::ImportExternalSources do
       subject.validate(external_source_config.except('credentials')).must_equal({ credentials: ['is missing'] })
     end
 
-    it 'fails if no config hash is given' do
-      assert subject.validate(external_source_config.except('config')).present?
-    end
-
-    it 'produces an appropriate error message if no config hash given' do
-      subject.validate(external_source_config.except('config')).must_equal({ config: ['is missing'] })
-    end
-
     it 'fails if no download_config is given' do
       test_hash = external_source_config.deep_dup
       test_hash['config'] = test_hash['config'].except('download_config')
