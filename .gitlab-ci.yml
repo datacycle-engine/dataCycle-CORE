@@ -41,7 +41,7 @@ cache:
   paths:
     - cache/bundler
 #    - node_modules
-    - ~/.cache
+    - root/.cache/
 
 services:
   - name: mdillon/postgis:9.6
