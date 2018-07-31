@@ -9,7 +9,7 @@ variables:
   MONGODB_HOST: mongodb
   RAILS_ENV: test
   TZ: Europe/Vienna
-  CYPRESS_CACHE_FOLDER: .cache
+  CYPRESS_CACHE_FOLDER: cache/cypress
 
 stages:
   - build
@@ -42,7 +42,7 @@ cache:
   paths:
     - cache/bundler
     # - node_modules
-    - .cache
+    - cache/cypress
 
 services:
   - name: mdillon/postgis:9.6
