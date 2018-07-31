@@ -8,6 +8,7 @@ var lazysizes_unveilhooks = require('lazysizes/plugins/unveilhooks/ls.unveilhook
 var callout_helpers = require('./modules/helpers/callout_helpers');
 var array_helpers = require('./modules/helpers/array_helpers');
 var number_helpers = require('./modules/helpers/number_helpers');
+var string_helpers = require('./modules/helpers/string_helpers');
 
 var initializers = [];
 initializers.push(require('./modules/initializers/masonry_init'));

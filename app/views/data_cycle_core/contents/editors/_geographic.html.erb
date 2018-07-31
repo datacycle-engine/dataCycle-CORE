@@ -1,18 +1,21 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
 
-  <%= label_tag key do %>
+  <%= label_tag key, class: 'openlayers-style' do %>
     <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
     <%= definition['label'] %>
   <% end %>
 
   <%= hidden_field_tag key, value, class: 'location-data' %>
 
+  <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) && DataCycleCore::Feature::Geocode.enabled? %>
+    <a href="#" class="button geocode-address-button openlayers-style" title="<%= t('actions.geocode', locale: DataCycleCore.ui_language, title: content&.schema&.dig('properties', DataCycleCore::Feature::Geocode.address_source(content), 'label')) %>" data-address-key="<%= DataCycleCore::Feature::Geocode.address_source(content) %>"><%= t('actions.geocode', locale: DataCycleCore.ui_language, title: content&.schema&.dig('properties', DataCycleCore::Feature::Geocode.address_source(content), 'label')) %></a>
+  <% end %>
+
   <% if value.try(:geometry_type) == RGeo::Feature::Point || value.blank? %> <%# only show points for now, not the lines %>
-      <div class="geographic">
-          <span class="map-info">
-            <span class="map-location-data">
-              <%= value.presence&.x %>, <%= value.presence&.y %>
-            </span>
+      <div class="edit-type geographic">
+          <span class="map-info openlayers-style">
+              <%= DataCycleCore::Place.human_attribute_name(:longitude, locale: DataCycleCore.ui_language) %>: <span class="map-longitude"><%= value.presence&.x %></span><br>
+              <%= DataCycleCore::Place.human_attribute_name(:latitude, locale: DataCycleCore.ui_language) %>: <span class="map-latitude"><%= value.presence&.y %></span>
           </span>
 
           <% map_id = "map_#{SecureRandom.hex(16)}" %>
@@ -23,11 +26,11 @@
               };
           </script>
 
-          <div id="<%= map_id %>" class="geographic-map <%= 'editable' if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>" style="max-height: 450px;">
+          <div id="<%= map_id %>" class="geographic-map <%= 'editable' if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>" style="max-height: 450px;" data-default-position="<%= DataCycleCore.default_map_position.presence&.to_json %>" data-icon-path="<%= image_path('location.svg') %>">
           </div>
       </div>
   <% elsif value.try(:geometry_type) == RGeo::Feature::LineString %> <%# only show points for now, not the lines %>
-      <div class="geographic">
+      <div class="edit-type geographic">
 
           <% map_id = "map_#{SecureRandom.hex(16)}" %>
           <script>
@@ -37,7 +40,7 @@
               };
           </script>
 
-          <div id="<%= map_id %>" class="geographic-map" style="max-height: 450px;">
+          <div id="<%= map_id %>" class="geographic-map" style="max-height: 450px;" data-default-position="<%= DataCycleCore.default_map_position.presence&.to_json %>" data-icon-path="<%= image_path('location.svg') %>">
           </div>
       </div>
   <% end %>

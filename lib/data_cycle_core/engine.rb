@@ -131,6 +131,9 @@ module DataCycleCore
         enabled: true,
         classification_alias_ids: 'all',
         external_source: true
+      },
+      geocode: {
+        enabled: false
       }
     }
 
@@ -186,6 +189,13 @@ module DataCycleCore
 
     mattr_accessor :video_validations
     self.video_validations = {}
+
+    mattr_accessor :default_map_position
+    self.default_map_position = {
+      longitude: 14.128417968749998,
+      latitude: 47.41520280002081,
+      zoom: 7
+    }
   end
 
   def self.setup

@@ -374,7 +374,7 @@ button,
     .form-element {
       position: relative;
       margin-bottom: 1rem;
-      &.validation-container:last-of-type {
+      &:last-child {
         margin-bottom: 0;
       }
       label {
