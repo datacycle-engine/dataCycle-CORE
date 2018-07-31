@@ -38,7 +38,8 @@ module DataCycleCore
             self.updated_at = save_time
             save
           end
-          translated_locales.presence&.each do |locale|
+
+          translated_locales.push(I18n.locale).uniq.presence&.each do |locale|
             I18n.with_locale(locale) do
               set_search
             end
