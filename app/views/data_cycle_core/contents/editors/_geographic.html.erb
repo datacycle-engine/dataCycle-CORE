@@ -7,7 +7,7 @@
 
   <%= hidden_field_tag key, value, class: 'location-data' %>
 
-  <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) && DataCycleCore::Feature::Geocode.enabled? %>
+  <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) && DataCycleCore::Feature::Geocode.allowed?(content) %>
     <a href="#" class="button geocode-address-button openlayers-style" title="<%= t('actions.geocode', locale: DataCycleCore.ui_language, title: content&.schema&.dig('properties', DataCycleCore::Feature::Geocode.address_source(content), 'label')) %>" data-address-key="<%= DataCycleCore::Feature::Geocode.address_source(content) %>"><%= t('actions.geocode', locale: DataCycleCore.ui_language, title: content&.schema&.dig('properties', DataCycleCore::Feature::Geocode.address_source(content), 'label')) %></a>
   <% end %>
 
