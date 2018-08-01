@@ -19,34 +19,34 @@ describe DataCycleCore::MasterData::Differs::Embedded do
       }
     end
 
-    # it 'successfully recognizes these cases as equivalent' do
-    #   uuid = DataCycleCore::CreativeWork.find_by(template_name: 'Bild').id
-    #   data_cases = [
-    #     [nil, nil],
-    #     [uuid, uuid],
-    #     [uuid, [uuid]],
-    #     [[uuid], uuid],
-    #     [[uuid], [uuid]],
-    #     [[{ 'id' => uuid }], [uuid]]
-    #   ]
-    #   data_cases.each do |case_item|
-    #     differ = subject.new(case_item[0], case_item[1], template_hash)
-    #     assert_nil(differ.diff_hash)
-    #   end
-    # end
-    #
-    # it 'successfully recognizes order changes' do
-    #   uuid = DataCycleCore::CreativeWork.find_by(template_name: 'Bild').id
-    #   uuid2 = DataCycleCore::CreativeWork.find_by(template_name: 'Video').id
-    #   data_cases = [
-    #     [[{ 'id' => uuid }, { 'id' => uuid2 }], [uuid2, uuid], [['>', uuid, 0, 1], ['<', uuid2, 1, 0]]],
-    #     [[{ 'id' => uuid2 }, { 'id' => uuid }], [uuid, uuid2], [['>', uuid2, 0, 1], ['<', uuid, 1, 0]]]
-    #   ]
-    #   data_cases.each do |case_item|
-    #     differ = subject.new(case_item[0], case_item[1], template_hash)
-    #     assert_equal(case_item[2], differ.diff_hash)
-    #   end
-    # end
+    it 'successfully recognizes these cases as equivalent' do
+      uuid = DataCycleCore::CreativeWork.find_by(template_name: 'Bild').id
+      data_cases = [
+        [nil, nil],
+        [uuid, uuid],
+        [uuid, [uuid]],
+        [[uuid], uuid],
+        [[uuid], [uuid]],
+        [[{ 'id' => uuid }], [uuid]]
+      ]
+      data_cases.each do |case_item|
+        differ = subject.new(case_item[0], case_item[1], template_hash)
+        assert_nil(differ.diff_hash)
+      end
+    end
+
+    it 'successfully recognizes order changes' do
+      uuid = DataCycleCore::CreativeWork.find_by(template_name: 'Bild').id
+      uuid2 = DataCycleCore::CreativeWork.find_by(template_name: 'Video').id
+      data_cases = [
+        [[{ 'id' => uuid }, { 'id' => uuid2 }], [uuid2, uuid], [['>', uuid, 0, 1], ['<', uuid2, 1, 0]]],
+        [[{ 'id' => uuid2 }, { 'id' => uuid }], [uuid, uuid2], [['>', uuid2, 0, 1], ['<', uuid, 1, 0]]]
+      ]
+      data_cases.each do |case_item|
+        differ = subject.new(case_item[0], case_item[1], template_hash)
+        assert_equal(case_item[2], differ.diff_hash)
+      end
+    end
 
     it 'successfully recognizes changed items' do
       template = {
