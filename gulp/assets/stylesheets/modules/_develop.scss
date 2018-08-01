@@ -1331,58 +1331,58 @@ select {
   z-index: 1007;
 }
 
-.geographic {
-  .ol-zoom {
-    left: auto;
-    right: 0.5rem;
+.detail-type.geographic,
+.form-element.geographic {
+  display: flex;
+  .geographic {
+    background-color: $light-gray;
+    flex: 2;
   }
-  .ol-rotate {
-    top: 4.5rem;
+  .geographic-map {
+    max-height: 450px;
+    height: 100%;
   }
   .map-info {
-    position: absolute;
-    z-index: 1;
-    top: calc(0.5rem + 3px);
-    left: calc(50% - 9rem);
-    width: 18rem;
+    background-color: $light-gray;
+    flex: 1;
+    margin: 0 0 0 1rem;
+    position: relative;
+    .content-object-item {
+      height: 100%;
+    }
+    .geocode-address-button {
+      position: absolute;
+      bottom: 1rem;
+      margin: 0;
+      width: calc(100% - 2rem);
+    }
   }
 }
 
-.form-element .geographic {
-  background: $light-gray;
-}
-
-.geocode-address-button {
-  position: absolute;
-  z-index: 1;
-  top: calc(0.5rem + 3px);
-  right: 3rem;
-  line-height: 1.5;
-  font-size: 1rem;
+.form-element.geographic {
+  .content-object-item {
+    padding: 3rem 1rem 3.5rem 1rem;
+    input {
+      padding: 2.5rem 1rem 1rem 1rem;
+    }
+  }
+  .geographic-map {
+    padding: 0.5rem;
+  }
 }
 
 .detail-content:not(.imageobject) .type.properties .detail-type.geographic {
   padding: 0;
-}
-
-.openlayers-style {
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);
-  display: block;
-  border-radius: 2px;
-  color: $white;
-  padding: 0 0.5rem;
-  background-color: rgba(0, 60, 136, 0.5);
-}
-
-.detail-header.editor .form-element.geographic>label,
-.detail-content:not(.imageobject) .type.properties .detail-type.geographic .detail-label {
-  top: calc(0.5rem + 3px);
-  left: calc(0.5rem + 3px);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);
-  display: block;
-  border-radius: 2px;
-  color: $white;
-  padding: 0 0.5rem;
-  background-color: rgba(0, 60, 136, 0.5);
-  z-index: 1;
+  box-shadow: none;
+  >.detail-label {
+    display: none;
+  }
+  .map-info {
+    padding: 2.5rem 1rem 1rem 1rem;
+  }
+  .geographic,
+  .map-info {
+    background-color: transparent;
+    box-shadow: 0 0 1px $dark-gray;
+  }
 }

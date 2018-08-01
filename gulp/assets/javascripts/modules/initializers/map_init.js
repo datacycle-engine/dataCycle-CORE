@@ -230,8 +230,8 @@ function setNewCoordinates(container, map, feature) {
 
 function setCoordinates(container, coords) {
   var latlon = getLatLon(coords);
-  $(container).siblings('.map-info').first().find('.map-longitude').text(latlon[0]);
-  $(container).siblings('.map-info').first().find('.map-latitude').text(latlon[1]);
+  $(container).parent('.geographic').siblings('.map-info').first().find('.longitude input').val(latlon[0]);
+  $(container).parent('.geographic').siblings('.map-info').first().find('.latitude input').val(latlon[1]);
 }
 
 function setHiddenFieldValue(container, coords) {
