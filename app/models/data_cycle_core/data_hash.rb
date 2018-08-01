@@ -185,6 +185,16 @@ module DataCycleCore
       validator.valid?(data, schema, strict)
     end
 
+    def diff(data, template = nil)
+      differ = DataCycleCore::MasterData::DiffData.new
+      differ.diff(a: get_data_hash, schema_a: schema, b: data, schema_b: template).diff_hash
+    end
+
+    def diff?(data, template = nil)
+      differ = DataCycleCore::MasterData::DiffData.new
+      differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template)
+    end
+
     def set_search
       # upsert with one SQL Statement
       return if search_property_names.blank?
