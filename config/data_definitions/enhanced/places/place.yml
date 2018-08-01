@@ -6,6 +6,7 @@
     :boost: 10.0
     :features:
       :overlay: ['overlay']
+      :geocode: 'address'
     :properties:
       :id:
         :label: id

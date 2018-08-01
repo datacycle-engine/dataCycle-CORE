@@ -54,6 +54,7 @@ module DataCycleCore
         external_source_id = use_case.external_source_id
         external_source = ExternalSource.find_by(id: external_source_id)
         import_name = external_source.name
+        next if external_source.config.blank?
 
         Mongoid.override_database(nil)
         mongo_database = "#{Generic::Collection.database_name}_#{external_source_id}"

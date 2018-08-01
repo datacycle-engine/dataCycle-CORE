@@ -1330,3 +1330,59 @@ select {
 .reveal-overlay.content-reveal-overlay {
   z-index: 1007;
 }
+
+.detail-type.geographic,
+.form-element.geographic {
+  display: flex;
+  .geographic {
+    background-color: $light-gray;
+    flex: 2;
+  }
+  .geographic-map {
+    max-height: 450px;
+    height: 100%;
+  }
+  .map-info {
+    background-color: $light-gray;
+    flex: 1;
+    margin: 0 0 0 1rem;
+    position: relative;
+    .content-object-item {
+      height: 100%;
+    }
+    .geocode-address-button {
+      position: absolute;
+      bottom: 1rem;
+      margin: 0;
+      width: calc(100% - 2rem);
+    }
+  }
+}
+
+.form-element.geographic {
+  .content-object-item {
+    padding: 3rem 1rem 3.5rem 1rem;
+    input {
+      padding: 2.5rem 1rem 1rem 1rem;
+    }
+  }
+  .geographic-map {
+    padding: 0.5rem;
+  }
+}
+
+.detail-content:not(.imageobject) .type.properties .detail-type.geographic {
+  padding: 0;
+  box-shadow: none;
+  >.detail-label {
+    display: none;
+  }
+  .map-info {
+    padding: 2.5rem 1rem 1rem 1rem;
+  }
+  .geographic,
+  .map-info {
+    background-color: transparent;
+    box-shadow: 0 0 1px $dark-gray;
+  }
+}

@@ -89,7 +89,7 @@ module DataCycleCore
           optional(:default_options).schema do
             optional(:locales).each { str? }
           end
-          required(:config).schema do
+          optional(:config).schema do
             required(:download_config) { hash? }
             required(:import_config) { hash? }
           end
