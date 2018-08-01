@@ -29,7 +29,7 @@
         </div>
     <% end %>
 
-    <div class="map-info" <%= 'style="display: none;"' if value.try(:geometry_type) == RGeo::Feature::Point %>>
+    <div class="map-info" style="<%= 'display: none;' unless value.try(:geometry_type) == RGeo::Feature::Point %>">
       <span class="detail-label"><%= definition['label'] %></span>
 
       <% if (value.try(:geometry_type) == RGeo::Feature::Point) || (content.elevation.present? && content.elevation.nonzero?) %>
