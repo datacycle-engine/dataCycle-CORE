@@ -29,10 +29,10 @@
         </div>
     <% end %>
 
-    <div class="map-info">
+    <div class="map-info" <%= 'style="display: none;"' if value.try(:geometry_type) == RGeo::Feature::Point %>>
       <span class="detail-label"><%= definition['label'] %></span>
 
-      <% if value.try(:geometry_type) == RGeo::Feature::Point || value.blank? %>
+      <% if (value.try(:geometry_type) == RGeo::Feature::Point) || (content.elevation.present? && content.elevation.nonzero?) %>
         <div class="detail-type longitude number" data-label="<%= DataCycleCore::Place.human_attribute_name(:longitude, locale: DataCycleCore.ui_language) %>">
           <span class="detail-label"><%= DataCycleCore::Place.human_attribute_name(:longitude, locale: DataCycleCore.ui_language) %></span>
           <span class="detail-content"><%= value.presence&.x %></span>
@@ -44,9 +44,11 @@
         </div>
       <% end %>
 
-      <div class="detail-type elevation number" data-label="<%= DataCycleCore::Place.human_attribute_name(:elevation, locale: DataCycleCore.ui_language) %>">
-        <span class="detail-label"><%= DataCycleCore::Place.human_attribute_name(:elevation, locale: DataCycleCore.ui_language) %></span>
-        <span class="detail-content"><%= (content.elevation.blank? || content.elevation.zero?) ? nil : content.elevation %></span>
-      </div>
+      <% if content.elevation.present? && content.elevation.nonzero? %>
+        <div class="detail-type elevation number" data-label="<%= DataCycleCore::Place.human_attribute_name(:elevation, locale: DataCycleCore.ui_language) %>">
+          <span class="detail-label"><%= DataCycleCore::Place.human_attribute_name(:elevation, locale: DataCycleCore.ui_language) %></span>
+          <span class="detail-content"><%= content.elevation %></span>
+        </div>
+      <% end %>
     </div>
 <% end %>
