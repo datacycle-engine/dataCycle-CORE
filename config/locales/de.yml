@@ -152,7 +152,7 @@ de:
     create_from_existing: 'Inhalt anhand dieser Vorlage erstellen'
     move_to_container: 'Inhalt verschieben'
     move: verschieben
-
+    geocode: "Geokoordinaten von %{title} übernehmen"
 
   validation:
     errors:
@@ -341,6 +341,7 @@ de:
         address: Ort
         longitude: Längengrad
         latitude: Breitengrad
+        elevation: Meereshöhe (m)
       data_cycle_core/data_link:
         comment: Kommentar
         permissions: Berechtigungen
@@ -399,6 +400,9 @@ de:
       root: Dokumentation
       overview: Übersicht
       classifications: Klassifizierungen
+      api:
+        root: Datenschnittstelle
+        classifications: Klassifizierungen
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

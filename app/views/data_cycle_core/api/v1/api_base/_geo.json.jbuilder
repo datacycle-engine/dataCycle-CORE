@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 json.set! '@type', 'GeoCoordinates'
-json.set! 'latitude', geoData.latitude if geoData.latitude && geoData.longitude
-json.set! 'longitude', geoData.longitude if geoData.latitude && geoData.longitude
-json.set! 'elevation', geoData.elevation if geoData.elevation
+if geoData.location.try(:geometry_type) == RGeo::Feature::Point
+  json.set! 'latitude', geoData.location.presence&.y if geoData.location.try(:geometry_type) == RGeo::Feature::Point
+  json.set! 'longitude', geoData.location.presence&.x if geoData.location.try(:geometry_type) == RGeo::Feature::Point
+elsif geoData.latitude.present? && geoData.longitude.present?
+  json.set! 'latitude', geoData.try(:latitude)
+  json.set! 'longitude', geoData.try(:longitude)
+end
+json.set! 'elevation', geoData.elevation if geoData.elevation.present? && geoData.elevation.nonzero?
