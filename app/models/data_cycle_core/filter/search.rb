@@ -58,6 +58,20 @@ module DataCycleCore
         reflect(@query.where(search[:content_data_id].in(query)))
       end
 
+      def with_external_source_names(definition)
+        return self if definition.blank?
+        raise StandardError, 'Missing data definition: names' if definition.dig('names').blank?
+
+        ids = DataCycleCore::ExternalSource.where(name: definition.dig('names').flatten)&.map(&:id)
+
+        query = Arel::SelectManager.new
+          .project(content_meta_item[:id])
+          .from(content_meta_item)
+          .where(content_meta_item[:external_source_id].in(ids))
+
+        reflect(@query.where(search[:content_data_id].in(query)))
+      end
+
       def watch_list_id(id = nil)
         manager = get_watch_list_items(id)
 

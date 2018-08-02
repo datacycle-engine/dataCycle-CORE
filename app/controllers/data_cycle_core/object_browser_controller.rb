@@ -82,7 +82,6 @@ module DataCycleCore
 
     def details
       authorize! :show, :object_browser
-      raise params.inspect
       unless permitted_params[:class].blank? || permitted_params[:id].blank?
         I18n.with_locale(permitted_params[:locale] || I18n.locale) do
           # TODO: FIXME if breaks
