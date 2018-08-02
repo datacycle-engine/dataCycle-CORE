@@ -2,6 +2,7 @@
 
 module DataCycleCore
   class ApplicationController < ActionController::Base
+    include DataCycleCore::Common
     protect_from_forgery with: :exception
     before_action :load_watch_lists
     before_action :load_stored_filters

@@ -10,8 +10,8 @@ module DataCycleCore
     end
 
     def create
-      object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == subscription_params['subscribable_type'].classify }
-      authorize! :subscribe, object_type.constantize
+      object_type = data_cycle_object(subscription_params['subscribable_type'].demodulize.tableize)
+      authorize! :subscribe, object_type
       @subscription = current_user.subscriptions.build(subscription_params)
 
       respond_to do |format|
@@ -26,9 +26,9 @@ module DataCycleCore
 
     def destroy
       @subscription = DataCycleCore::Subscription.find(params[:id])
-      object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == @subscription.subscribable_type.classify }
+      object_type = data_cycle_object(@subscription.subscribable_type.demodulize.tableize)
 
-      authorize! :subscribe, object_type.constantize
+      authorize! :subscribe, object_type
       @subscription.destroy
 
       respond_to do |format|

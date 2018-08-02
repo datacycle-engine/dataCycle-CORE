@@ -97,12 +97,5 @@ module DataCycleCore
     def permitted_parameter_keys
       [:class, :per, :page, :id, :locale, :external, :ids, :search, :excluded, { definition: {} }]
     end
-
-    private
-
-    def data_cycle_object(object_string)
-      object_type = DataCycleCore.content_tables.find { |object| object == object_string }
-      ('DataCycleCore::' + object_type.singularize.classify).constantize
-    end
   end
 end
