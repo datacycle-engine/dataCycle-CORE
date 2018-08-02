@@ -20,12 +20,14 @@ module DataCycleCore
           return if a.blank? || b.blank? || template.blank?
           return if a.is_a?(::String) && b.is_a?(::String)
           return if a.is_a?(ActiveRecord::Relation) && b.is_a?(ActiveRecord::Relation)
+          history_a = false
+          history_b = false
           data_a = a
           data_b = b
           data_a = [a] if a.is_a?(::String) || a.is_a?(::Hash)
           data_b = [b] if b.is_a?(::String) || b.is_a?(::Hash)
-          data_a = get_relation_ids(a) if a.is_a?(ActiveRecord::Relation)
-          data_b = get_relation_ids(b) if b.is_a?(ActiveRecord::Relation)
+          data_a, history_a = get_relation_ids(a) if a.is_a?(ActiveRecord::Relation)
+          data_b, history_b = get_relation_ids(b) if b.is_a?(ActiveRecord::Relation)
           change = []
           data_a.each do |a_item|
             a_uuid = nil
@@ -35,8 +37,8 @@ module DataCycleCore
             b_item = find_uuid(data_b, a_uuid)
             next if b_item.nil?
             next if a_item.is_a?(::String) && b_item.is_a?(::String)
-            a_content = load_content(a_item, template)
-            b_content = load_content(b_item, template)
+            a_content = history_a ? load_content(a_item, template, a) : load_content(a_item, template, nil)
+            b_content = history_b ? load_content(b_item, template, b) : load_content(b_item, template, nil)
             changes = Differs::Object.new(a_content, b_content, load_template(template)).diff_hash
             change << a_uuid if changes.present?
           end
@@ -65,7 +67,8 @@ module DataCycleCore
             .dig('properties')
         end
 
-        def load_content(data, template)
+        def load_content(data, template, relation)
+          return relation.find_by("#{template.dig('linked_table').singularize}_id".to_sym => data).get_data_hash if relation.present?
           data_hash = data.is_a?(::String) ? { 'id' => data } : data
           return data_hash if (data_hash.keys - ['id']).size.positive?
           "DataCycleCore::#{template.dig('linked_table').classify}".constantize.find(data_hash.dig('id')).get_data_hash
@@ -78,18 +81,16 @@ module DataCycleCore
           if data.is_a?(::Array)
             data.map! { |item| item.is_a?(::Hash) ? item&.dig('id') : item }.compact || []
           end
-          data = get_relation_ids(a) if data.is_a?(ActiveRecord::Relation)
+          data, _history = get_relation_ids(a) if data.is_a?(ActiveRecord::Relation)
           raise ArgumentError, 'expected data to be converted to an array of uuids' unless data.is_a?(::Array)
           data
         end
 
         def get_relation_ids(a)
-          if a.klass.to_s.split('::').include?('History')
-            a_id_name = (a.klass.to_s.split('::') - ['DataCycleCore', 'History']).first.tableize.singularize + '_id'
-            a.pluck(a_id_name.to_sym)
-          else
-            a.ids
-          end
+          history = a.klass.to_s.split('::').include?('History')
+          return a.ids, history unless history
+          a_id_name = (a.klass.to_s.split('::') - ['DataCycleCore', 'History']).first.tableize.singularize + '_id'
+          return a.pluck(a_id_name.to_sym), history
         end
       end
     end
