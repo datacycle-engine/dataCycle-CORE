@@ -24,8 +24,8 @@ module DataCycleCore
           data_b = b
           data_a = [a] if a.is_a?(::String) || a.is_a?(::Hash)
           data_b = [b] if b.is_a?(::String) || b.is_a?(::Hash)
-          data_a = a.ids if a.is_a?(ActiveRecord::Relation)
-          data_b = b.ids if b.is_a?(ActiveRecord::Relation)
+          data_a = get_relation_ids(a) if a.is_a?(ActiveRecord::Relation)
+          data_b = get_relation_ids(b) if b.is_a?(ActiveRecord::Relation)
           change = []
           data_a.each do |a_item|
             a_uuid = nil
@@ -78,9 +78,18 @@ module DataCycleCore
           if data.is_a?(::Array)
             data.map! { |item| item.is_a?(::Hash) ? item&.dig('id') : item }.compact || []
           end
-          data = a&.ids if data.is_a?(ActiveRecord::Relation)
-          raise ArgumentError, 'expected a uuid or list of uuids' unless data.is_a?(::Array)
+          data = get_relation_ids(a) if data.is_a?(ActiveRecord::Relation)
+          raise ArgumentError, 'expected data to be converted to an array of uuids' unless data.is_a?(::Array)
           data
+        end
+
+        def get_relation_ids(a)
+          if a.klass.to_s.split('::').include?('History')
+            a_id_name = (a.klass.to_s.split('::') - ['DataCycleCore', 'History']).first.tableize.singularize + '_id'
+            a.pluck(a_id_name.to_sym)
+          else
+            a.ids
+          end
         end
       end
     end

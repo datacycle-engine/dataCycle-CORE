@@ -121,6 +121,10 @@ module DataCycleCore
 
       assert_equal(diff_hash,   history_data.diff(content_data.get_data_hash))
       assert_equal(diff_hash_t, content_data.diff(history_data.get_data_hash))
+
+      history_hash = history_data.get_data_hash
+      history_hash['content_location'] = history_data.content_location
+      assert_equal(diff_hash_t, content_data.diff(history_hash))
     end
   end
 end
