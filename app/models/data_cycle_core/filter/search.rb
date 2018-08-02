@@ -5,6 +5,7 @@ module DataCycleCore
     class Search < QueryBuilder
       include DataCycleCore::Filter::Type::Event
       include DataCycleCore::Filter::Type::Place
+      include DataCycleCore::Filter::Type::CreativeWork
 
       def initialize(locale = 'de', query = nil)
         @locale = locale
@@ -190,14 +191,6 @@ module DataCycleCore
           .on(search[:content_data_id].eq(watch_list_data_hash[:hashable_id]).and(search[:content_data_type].eq(watch_list_data_hash[:hashable_type])))
       end
 
-      def join_creative_work
-        Arel::SelectManager.new
-          .project(search[:content_data_id])
-          .from(search)
-          .join(creative_work)
-          .on(search[:content_data_id].eq(creative_work[:id]).and(search[:content_data_type].eq(quoted('DataCycleCore::CreativeWork'))))
-      end
-
       def join_content_relation
         Arel::SelectManager.new
           .project(search[:content_data_id])
@@ -209,11 +202,6 @@ module DataCycleCore
       def get_watch_list_items(id)
         query = join_watch_list
         query.where(watch_list_data_hash[:watch_list_id].eq(id))
-      end
-
-      def find_children(id)
-        query = join_creative_work
-        query.where(creative_work[:is_part_of].eq(id))
       end
 
       def find_relation(name)
@@ -231,10 +219,6 @@ module DataCycleCore
 
       def classification_content
         DataCycleCore::ClassificationContent.arel_table
-      end
-
-      def creative_work
-        DataCycleCore::CreativeWork.arel_table
       end
 
       def content_meta_item
