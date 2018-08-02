@@ -89,8 +89,8 @@ module DataCycleCore
         def get_relation_ids(a)
           history = a.klass.to_s.split('::').include?('History')
           return a.ids, history unless history
-          a_id_name = (a.klass.to_s.split('::') - ['DataCycleCore', 'History']).first.tableize.singularize + '_id'
-          return a.pluck(a_id_name.to_sym), history
+          a_id_name = ((a.klass.to_s.split('::') - ['DataCycleCore', 'History']).first.tableize.singularize + '_id').to_sym
+          return a.pluck(ActiveRecord::Base.send(:sanitize_sql_for_conditions, a_id_name)), history
         end
       end
     end
