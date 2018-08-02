@@ -6,6 +6,7 @@ module DataCycleCore
       include DataCycleCore::Filter::Type::Event
       include DataCycleCore::Filter::Type::Place
       include DataCycleCore::Filter::Type::CreativeWork
+      include DataCycleCore::Filter::Common::Configurable
 
       def initialize(locale = 'de', query = nil)
         @locale = locale
@@ -50,21 +51,6 @@ module DataCycleCore
 
       def external_source(ids = nil)
         return self if ids.blank?
-
-        query = Arel::SelectManager.new
-          .project(content_meta_item[:id])
-          .from(content_meta_item)
-          .where(content_meta_item[:external_source_id].in(ids))
-
-        reflect(@query.where(search[:content_data_id].in(query)))
-      end
-
-      def with_external_source_names(definition)
-        return self if definition.blank?
-        raise StandardError, 'Missing data definition: names' if definition.dig('names').blank?
-
-        ids = DataCycleCore::ExternalSource.where(name: definition.dig('names').flatten)&.map(&:id)
-
         query = Arel::SelectManager.new
           .project(content_meta_item[:id])
           .from(content_meta_item)
@@ -133,17 +119,6 @@ module DataCycleCore
         manager = query2.where(classification_alias[:id].in(ids))
 
         reflect(@query.where(search[:content_data_id].in(manager)))
-      end
-
-      def with_classification_aliases_and_treename(definition)
-        return self if definition.blank?
-        raise StandardError, 'Missing data definition: treeLabel' if definition.dig('treeLabel').blank?
-        raise StandardError, 'Missing data definition: aliases' if definition.dig('aliases').blank?
-        reflect(
-          @query.where(id: DataCycleCore::Search.joins(:classification_aliases).merge(
-            DataCycleCore::ClassificationAlias.for_tree(definition.dig('treeLabel')).with_name(definition.dig('aliases')).with_descendants
-          ))
-        )
       end
 
       def with_classification_aliases(tree_name, *aliases)
