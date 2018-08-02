@@ -21,13 +21,13 @@ module DataCycleCore
         stored_filter = @definition.fetch(:stored_filter, nil)
 
         if stored_filter.present?
-          stored_filter_permitted_params = stored_filter.to_a.map(&:to_h).map do |f|
+          stored_filter_params = stored_filter.to_a.map(&:to_h).map do |f|
             f.each_with_object({}) do |(k, v), hash|
               hash['t'] = k
               hash['v'] = v
             end
           end
-          filter.parameters = stored_filter_permitted_params
+          filter.parameters = stored_filter_params
           query = filter.apply
         else
           query = filter.apply
@@ -68,12 +68,10 @@ module DataCycleCore
       return if permitted_params[:class].blank? || permitted_params[:ids].blank?
 
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
-        # TODO: FIXME if breaks
-        object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == permitted_params[:class].classify }
         if permitted_params[:external]
-          @objects = object_type.constantize.where(external_key: permitted_params[:ids])
+          @objects = data_cycle_object(permitted_params[:class].demodulize.tableize).where(external_key: permitted_params[:ids])
         else
-          @objects = object_type.constantize.where(id: permitted_params[:ids])
+          @objects = data_cycle_object(permitted_params[:class].demodulize.tableize).where(id: permitted_params[:ids])
         end
       end
 
@@ -82,11 +80,10 @@ module DataCycleCore
 
     def details
       authorize! :show, :object_browser
+
       unless permitted_params[:class].blank? || permitted_params[:id].blank?
         I18n.with_locale(permitted_params[:locale] || I18n.locale) do
-          # TODO: FIXME if breaks
-          object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == permitted_params[:class].classify }
-          @object = object_type.constantize.find(permitted_params[:id])
+          @object = data_cycle_object(permitted_params[:class].demodulize.tableize).find(permitted_params[:id])
         end
       end
 
