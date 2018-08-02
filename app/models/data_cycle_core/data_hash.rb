@@ -39,7 +39,7 @@ module DataCycleCore
             save
           end
 
-          translated_locales.push(I18n.locale).uniq.presence&.each do |locale|
+          translated_locales.push(I18n.locale).uniq.each do |locale|
             I18n.with_locale(locale) do
               set_search
             end
