@@ -56,6 +56,10 @@ module DataCycleCore
       key.scan(/\[(.*?)\]/).flatten.last
     end
 
+    def schema_path_from_key(key)
+      key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
+    end
+
     def add_attribute_options(options, definition, scope)
       attribute_options = definition.try(:[], 'ui').try(:[], scope.to_s).try(:[], 'options')
       attribute_options.nil? ? options : options.merge(attribute_options)

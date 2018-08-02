@@ -6,6 +6,7 @@ var quill_helpers = require('./../helpers/quill_helpers');
 var Delta = Quill.import('delta');
 let Break = Quill.import('blots/break');
 let Embed = Quill.import('blots/embed');
+let Parchment = Quill.import('parchment');
 
 function lineBreakMatcher() {
   var newDelta = new Delta();
@@ -141,29 +142,34 @@ module.exports.initialize = function () {
       readOnly: readonly
     };
 
-    var editor = new Quill('#' + node.id, options);
+    try {
+      var editor = new Quill('#' + node.id, options);
 
-    var length = editor.getLength();
-    var text = editor.getText(length - 2, 2);
+      var length = editor.getLength();
+      var text = editor.getText(length - 2, 2);
 
-    // Remove extraneous new lines
-    if (text === '\n\n') {
-      editor.deleteText(editor.getLength() - 2, 2);
-    }
-
-    editor.on('selection-change', (range, oldRange, source) => {
-      if (range == null) quill_helpers.update_value(editor.container);
-    });
-
-    $(editor.container).on('import-data', function (event, data) {
-      if (editor.getText().trim().length > 1) {
-        var confirmationModal = new ConfirmationModal(data.label + ' wird überschrieben. <br>Fortfahren?', 'success', true, function () {
-          editor.clipboard.dangerouslyPasteHTML(data.value);
-        });
-      } else {
-        editor.clipboard.dangerouslyPasteHTML(data.value);
+      // Remove extraneous new lines
+      if (text === '\n\n') {
+        editor.deleteText(editor.getLength() - 2, 2);
       }
-    });
+
+      editor.on('selection-change', (range, oldRange, source) => {
+        if (range == null) quill_helpers.update_value(editor.container);
+      });
+
+      $(editor.container).on('import-data', function (event, data) {
+        if (editor.getText().trim().length > 1) {
+          var confirmationModal = new ConfirmationModal(data.label + ' wird überschrieben. <br>Fortfahren?', 'success', true, function () {
+            editor.clipboard.dangerouslyPasteHTML(data.value);
+          });
+        } else {
+          editor.clipboard.dangerouslyPasteHTML(data.value);
+        }
+      });
+
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   let position_editor_toolbar = function (element, fixed_class = '') {

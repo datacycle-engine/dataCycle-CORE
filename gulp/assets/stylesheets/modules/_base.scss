@@ -373,9 +373,6 @@ button,
     .form-element {
       position: relative;
       margin-bottom: 1rem;
-      &.validation-container:last-of-type {
-        margin-bottom: 0;
-      }
       label {
         padding-top: 0.5rem;
         opacity: 1;
@@ -401,7 +398,8 @@ button,
     }
     .input input,
     .string:not(.date, .datetime, .headline, .headline_external, .text_editor) input,
-    input.single_date, .single_date input,
+    input.single_date,
+    .single_date input,
     .number input {
       padding: 2.5rem 1rem 2rem 1rem;
       line-height: initial;
@@ -409,6 +407,12 @@ button,
     .headline_external input,
     .headline input {
       padding: 1rem 5rem 1.5rem 5rem;
+    }
+    .publish_at {
+      >input.date.read-only {
+        padding: 2.5rem 1rem 1rem 1rem;
+        line-height: initial;
+      }
     }
     .description {
       padding: 0;

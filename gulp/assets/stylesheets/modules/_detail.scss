@@ -81,7 +81,7 @@
           &:not(:last-child) {
             margin-bottom: 1rem;
           }
-          >div:not(.detail-type) {
+          >div:not(.detail-type, .map-info, .geographic) {
             margin-bottom: 1rem;
           }
           .detail-type {

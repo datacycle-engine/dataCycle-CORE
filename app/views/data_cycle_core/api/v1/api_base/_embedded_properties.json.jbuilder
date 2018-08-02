@@ -5,10 +5,11 @@ default_options = {
 }
 
 options = default_options.merge(defined?(options) ? options || {} : {})
-
 (content.embedded_property_names - options[:hidden_attributes]).each do |property|
-  data = content.send(property).includes(:translations, :classifications)
-
+  data = nil
+  I18n.with_locale(content.first_available_locale) do
+    data = content.send(property).includes(:translations, :classifications)
+  end
   next if data.empty?
   json.set! property.pluralize.camelize(:lower) do
     json.array!(data) do |item|
