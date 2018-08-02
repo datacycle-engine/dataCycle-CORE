@@ -120,6 +120,17 @@ module DataCycleCore
         reflect(@query.where(search[:content_data_id].in(manager)))
       end
 
+      def with_classification_aliases_and_treename(definition)
+        return self if definition.blank?
+        raise StandardError, 'Missing data definition: treeLabel' if definition.dig('treeLabel').blank?
+        raise StandardError, 'Missing data definition: aliases' if definition.dig('aliases').blank?
+        reflect(
+          @query.where(id: DataCycleCore::Search.joins(:classification_aliases).merge(
+            DataCycleCore::ClassificationAlias.for_tree(definition.dig('treeLabel')).with_name(definition.dig('aliases')).with_descendants
+          ))
+        )
+      end
+
       def with_classification_aliases(tree_name, *aliases)
         reflect(
           @query.where(id: DataCycleCore::Search.joins(:classification_aliases).merge(

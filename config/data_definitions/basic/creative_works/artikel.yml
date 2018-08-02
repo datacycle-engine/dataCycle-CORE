@@ -61,16 +61,19 @@
         :label: Ort
         :type: linked
         :linked_table: places
-        :template_name: Örtlichkeit
+        :template_name: POI
         :stored_filter:
           -
-            :classification_alias_by_name:
+            :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
-              :name:
+              :aliases:
                 - POI
+                - Örtlichkeit
           -
-            :test2:
-              :wuhu: juhu
+            :with_classification_aliases_and_treename:
+              :treeLabel: POI - Kategorien
+              :aliases:
+                - asdf
       :quotation:
         :label: Zitat
         :type: embedded
