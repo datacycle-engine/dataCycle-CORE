@@ -4,7 +4,6 @@ module DataCycleCore
   module Filter
     module Common
       module Configurable
-
         def with_classification_aliases_and_treename(definition)
           return self if definition.blank?
           raise StandardError, 'Missing data definition: treeLabel' if definition.dig('treeLabel').blank?
@@ -21,7 +20,6 @@ module DataCycleCore
 
           external_source(ids)
         end
-
       end
     end
   end
