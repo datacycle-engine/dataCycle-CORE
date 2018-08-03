@@ -3,30 +3,30 @@
 module DataCycleCore
   module MasterData
     module Differs
-      class UuidArray < Basic
+      class UuidSet < Basic
         def diff(a, b, _template)
-          class_a = parse_uuids(a)
-          class_b = parse_uuids(b)
-          @diff_hash = array_diff(class_a&.sort, class_b&.sort)
+          ids_a = parse_uuids(a)
+          ids_b = parse_uuids(b)
+          @diff_hash = set_diff(ids_a&.sort, ids_b&.sort)
         end
 
         private
 
-        def array_diff(a, b)
+        def set_diff(a, b)
           return if a == b
           return [['-', a]] if b.blank?
           return [['+', b]] if a.blank?
-          new_class = b - a
-          del_class = a - b
-          new_items = nil
-          new_items = ['+', new_class&.sort] if new_class.size.positive?
-          del_items = nil
-          del_items = ['-', del_class&.sort] if del_class.size.positive?
-          [new_items, del_items].compact.presence
+          new_items = b - a
+          del_items = a - b
+          new_record = nil
+          new_record = ['+', new_items&.sort] if new_items.size.positive?
+          del_record = nil
+          del_record = ['-', del_items&.sort] if del_items.size.positive?
+          [new_record, del_record].compact.presence
         end
 
         def parse_uuids(a)
-          return if a.blank?
+          return [] if a.blank?
           data = a.is_a?(::String) ? [a] : a
           data = a&.ids if data.is_a?(ActiveRecord::Relation)
           raise ArgumentError, 'expected a uuid or list of uuids' unless data.is_a?(::Array)

@@ -49,14 +49,12 @@ module DataCycleCore
       assert_equal(false, content_data.diff?(content_hash))
 
       diff = content_data.diff(expected_hash)
-      assert_equal(
-        {
-          'data_pool' => [['-', content_data.data_pool.ids]],
-          'data_type' => [['-', content_data.data_type.ids]]
-        },
-        diff
-      )
-      assert_equal(true, content_data.diff?(expected_hash))
+      _diff_hash_if_defaults_are_not_considered = {
+        'data_pool' => [['-', content_data.data_pool.ids]],
+        'data_type' => [['-', content_data.data_type.ids]]
+      }
+      assert_equal({}, diff)
+      assert_equal(false, content_data.diff?(expected_hash))
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)

@@ -34,7 +34,11 @@ module DataCycleCore
           DataCycleCore::Feature::OverlayAttributeService.call(content).each do |attribute|
             overlays[attribute] = [content.send(attribute).first&.get_data_hash] if content.respond_to?(attribute)
           end
-          error = content.set_data_hash(data_hash: overlays.merge(data), prevent_history: true)
+
+          # error = content.set_data_hash(data_hash: overlays.merge(data), prevent_history: true)
+
+          diff = content.diff?(overlays.merge(data))
+          error = diff ? content.set_data_hash(data_hash: overlays.merge(data)) : {}
 
           if utility_object.logging && error[:error].present?
             utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))
@@ -42,7 +46,7 @@ module DataCycleCore
             raise error[:error].first
           end
 
-          content.tap(&:save!)
+          diff ? content.tap(&:save!) : content
         end
 
         def self.import_contents(utility_object:, iterator:, data_processor:, options:)

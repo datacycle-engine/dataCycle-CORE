@@ -3,7 +3,7 @@
 module DataCycleCore
   module MasterData
     module Differs
-      class Asset < UuidArray
+      class Asset < UuidSet
       end
     end
   end

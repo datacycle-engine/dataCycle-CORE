@@ -14,6 +14,14 @@ describe DataCycleCore::MasterData::Differs::Classification do
       {
         'label' => 'Inhaltstyp',
         'type' => 'classification',
+        'tree_label' => 'Inhaltstypen'
+      }
+    end
+
+    let(:template_hash_default) do
+      {
+        'label' => 'Inhaltstyp',
+        'type' => 'classification',
         'tree_label' => 'Inhaltstypen',
         'default_value' => 'Bild'
       }
@@ -99,6 +107,33 @@ describe DataCycleCore::MasterData::Differs::Classification do
       data_cases.each do |case_item|
         differ = subject.new(case_item[0], case_item[1], template_hash)
         assert_nil(differ.diff_hash)
+      end
+    end
+
+    it 'properly takes default_values into account' do
+      uuid = DataCycleCore::Classification.find_by(name: 'Bild').id
+      data_cases = [
+        [uuid, nil],
+        [nil, uuid]
+      ]
+      data_cases.each do |case_item|
+        differ = subject.new(case_item[0], case_item[1], template_hash_default)
+        assert_nil(differ.diff_hash)
+      end
+    end
+
+    it 'generates successully also less obvious cases with default_values' do
+      uuid = DataCycleCore::Classification.find_by(name: 'Bild').id
+      uuid2 = DataCycleCore::Classification.find_by(name: 'Video').id
+      data_cases = [
+        [uuid, uuid2, [['+', [uuid2]], ['-', [uuid]]]],
+        [nil, uuid2, [['+', [uuid2]], ['-', [uuid]]]],
+        [[uuid, uuid2], nil, [['-', [uuid2]]]],
+        [uuid2, [uuid, uuid2], [['+', [uuid]]]]
+      ]
+      data_cases.each do |case_item|
+        differ = subject.new(case_item[0], case_item[1], template_hash_default)
+        assert_equal(case_item[2], differ.diff_hash)
       end
     end
   end

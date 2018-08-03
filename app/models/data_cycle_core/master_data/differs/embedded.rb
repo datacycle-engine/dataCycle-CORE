@@ -5,12 +5,12 @@ module DataCycleCore
     module Differs
       class Embedded < Linked
         def diff(a, b, template)
-          class_a = parse_uuids(a)
-          class_b = parse_uuids(b)
+          ids_a = parse_uuids(a)
+          ids_b = parse_uuids(b)
           @diff_hash = (
-            (array_diff(class_a, class_b) || []) +
+            (set_diff(ids_a, ids_b) || []) +
             (embedded_change(a, b, template) || []) +
-            (order_change(class_a, class_b) || [])
+            (order_change(ids_a, ids_b) || [])
           ).compact.presence
         end
 
@@ -75,7 +75,7 @@ module DataCycleCore
         end
 
         def parse_uuids(a)
-          return if a.blank?
+          return [] if a.blank?
           data = a.deep_dup
           data = [a] if a.is_a?(::String) || a.is_a?(::Hash)
           if data.is_a?(::Array)
