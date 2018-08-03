@@ -67,8 +67,8 @@
             :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
-                - POI
                 - Örtlichkeit
+                - Unterkunft
           -
             :with_external_source_names:
               :names:
