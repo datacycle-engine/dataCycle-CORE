@@ -296,7 +296,10 @@ module DataCycleCore
 
     def set_classification_with_children(classification_tree_label, classification_id, user)
       set_data_hash_attribute(classification_tree_label, [classification_id], user)
-      children.each do |child|
+
+      return unless respond_to?(:children)
+
+      children&.each do |child|
         child.set_data_hash_attribute(classification_tree_label, [classification_id], user)
       end
     end
