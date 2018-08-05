@@ -153,6 +153,10 @@ de:
     move_to_container: 'Inhalt verschieben'
     move: verschieben
     geocode: "Geokoordinaten von %{title} übernehmen"
+    open_asset: "Datei öffnen"
+    download_asset: "Datei herunterladen"
+    processing_asset: "Datei wird verarbeitet ..."
+    processing_image: "Bild wird verarbeitet ..."
 
   validation:
     errors:
