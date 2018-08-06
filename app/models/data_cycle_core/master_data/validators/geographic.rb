@@ -7,7 +7,7 @@ module DataCycleCore
         # TODO: dummy evaluator for now
         def validate(data, template)
           if data.blank?
-            (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warning], data: template['label'], locale: DataCycleCore.ui_language)
+            (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
           elsif data.is_a?(::String)
             convert_2d = nil
             convert_3d = nil

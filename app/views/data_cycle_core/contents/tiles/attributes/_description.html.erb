@@ -1,3 +1,3 @@
 <div class="description">
-  <%= sanitize(truncate(item.desc, length: 70, separator: " ", escape: false)) %>
+  <%= sanitize(strip_links(truncate(item.desc, length: 70, separator: " ", escape: false))) %>
 </div>

@@ -13,7 +13,7 @@ module DataCycleCore
         end
 
         def validate(data, template)
-          if data.is_a?(::String)
+          if data.is_a?(::String) && data.present?
             if template.key?('validations')
               template['validations'].each_key do |key|
                 if string_keywords.include?(key)
@@ -36,12 +36,13 @@ module DataCycleCore
         # given string validations
 
         def min(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:min, scope: [:validation, :errors], data: data, min: value.to_i, length: data.length, locale: DataCycleCore.ui_language) if data.length < value.to_i
+          text_length = ActionView::Base.full_sanitizer.sanitize(data).presence&.length
+          (@error[:error][@template_key] ||= []) << I18n.t(:min, scope: [:validation, :errors], data: nil, min: value.to_i, length: text_length, locale: DataCycleCore.ui_language) if text_length < value.to_i
         end
 
         def max(data, value)
-          max_length = ActionView::Base.full_sanitizer.sanitize(data).presence&.length
-          (@error[:error][@template_key] ||= []) << I18n.t(:max, scope: [:validation, :errors], data: nil, max: value.to_i, length: max_length, locale: DataCycleCore.ui_language) if max_length.to_i > value.to_i
+          text_length = ActionView::Base.full_sanitizer.sanitize(data).presence&.length
+          (@error[:error][@template_key] ||= []) << I18n.t(:max, scope: [:validation, :errors], data: nil, max: value.to_i, length: text_length, locale: DataCycleCore.ui_language) if text_length.to_i > value.to_i
         end
 
         def pattern(data, expression)

@@ -19,8 +19,8 @@ Asset.prototype.setup = function () {
 };
 
 Asset.prototype.addEventHandlers = function () {
-  this.element.children('#add_' + this.id).off('click').on('click', this.createAsset.bind(this));
-  this.element.children('.removeAsset').off('click').on('click', this.removeAsset.bind(this));
+  this.element.find('#add_' + this.id).off('click').on('click', this.createAsset.bind(this));
+  this.element.find('.removeAsset').off('click').on('click', this.removeAsset.bind(this));
 };
 
 Asset.prototype.createAsset = function () {

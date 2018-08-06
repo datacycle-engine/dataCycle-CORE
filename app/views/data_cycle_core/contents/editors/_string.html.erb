@@ -4,6 +4,6 @@
     <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
     <%= definition['label'] %>
   <% end %>
-  <%= text_field_tag key, value, options.merge({ class: 'form-control', data: { max: definition.dig('validations', 'max') } }) %>
+  <%= text_field_tag key, value, options.merge({ class: 'form-control', data: definition&.fetch('validations', {}) }) %>
 
 <% end %>

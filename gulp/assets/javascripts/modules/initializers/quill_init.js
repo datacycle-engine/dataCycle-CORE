@@ -67,16 +67,11 @@ module.exports.initialize = function () {
       ]
     };
 
-    var max = $(node).data('max');
-
     var readonly = $(node).attr('readonly') ? true : false;
 
     var options = {
       modules: {
-        counter: {
-          unit: 'zeichen',
-          max: max
-        },
+        counter: true,
         toolbar: toolbar[mode],
         clipboard: {
           matchers: [

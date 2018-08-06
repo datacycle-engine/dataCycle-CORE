@@ -8,7 +8,7 @@
 
       <%= hidden_field_tag key, value, options %>
 
-      <% options.merge!({ data: { hidden_field_id: sanitize_to_id(key), max: definition.dig('validations', 'max') }, class: 'quill-editor', id: "#{sanitize_to_id(key)}-editor" }) %>
+      <% options.merge!({ data: { hidden_field_id: sanitize_to_id(key) }.merge(definition&.fetch('validations', {})), class: 'quill-editor', id: "#{sanitize_to_id(key)}-editor" }) %>
 
       <%= content_tag :div, options do %>
 
