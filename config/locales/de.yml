@@ -153,6 +153,10 @@ de:
     move_to_container: 'Inhalt verschieben'
     move: verschieben
     geocode: "Geokoordinaten von %{title} übernehmen"
+    open_asset: "Datei öffnen"
+    download_asset: "Datei herunterladen"
+    processing_asset: "Datei wird verarbeitet ..."
+    processing_image: "Bild wird verarbeitet ..."
 
   validation:
     errors:
@@ -196,7 +200,7 @@ de:
       not_saved: "Beim Speichern von %{data} ist ein Fehler aufgetreten."
       file_too_large: "Datei zu groß (max. %{max})."
       wrong_content_type: "%{content_type} Dateien sind nicht erlaubt."
-    warning:
+    warnings:
       string: "%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}"
       no_data: "Keine Daten angegeben für %{data}"
       no_evaluate: "%{data} nicht bei den Evaluierungsdaten angegeben."

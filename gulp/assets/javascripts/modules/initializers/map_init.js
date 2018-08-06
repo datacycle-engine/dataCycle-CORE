@@ -182,8 +182,10 @@ module.exports.initialize = function () {
             address[elem.name.get_key()] = elem.value;
           });
 
-          $.get('/places/geocode_address/', address).done(data => {
-            if (data !== undefined && data.length == 2 && feature !== undefined) {
+          $.getJSON('/places/geocode_address/', address).done(data => {
+            if (data.error !== undefined) {
+              console.log(data.error);
+            } else if (data !== undefined && data.length == 2 && feature !== undefined) {
               feature.setGeometry(new ol.geom.Point(data).transform('EPSG:4326', 'EPSG:3857'));
               setNewCoordinates(item, map, feature);
             } else if (data !== undefined && data.length == 2 && feature === undefined) {
@@ -195,6 +197,8 @@ module.exports.initialize = function () {
               map.removeInteraction(draw);
               setNewCoordinates(item, map, feature);
             }
+          }).fail((jqxhr, textStatus, error) => {
+            console.log(textStatus + ', ' + error);
           }).always(() => {
             $(event.currentTarget).find('i.fa').remove();
           });

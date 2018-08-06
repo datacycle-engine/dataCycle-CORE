@@ -1,5 +1,5 @@
 <% if @content.present? %>
-    <div class="reveal new-item" id="<%= reveal_id %>" data-reveal>
+    <div class="reveal new-item" id="<%= reveal_id %>" data-reveal data-multiple-opened="true">
         <h3><%= reveal_title %></h3>
 
         <% if params.dig(:f, :s, :v).blank? %>

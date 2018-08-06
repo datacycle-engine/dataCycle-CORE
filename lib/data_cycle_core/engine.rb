@@ -209,7 +209,7 @@ module DataCycleCore
     isolate_namespace DataCycleCore
 
     config.assets.version = '1.0'
-    config.assets.precompile += ['data_cycle_core/*']
+    config.assets.precompile += ['data_cycle_core/*', 'location.svg']
 
     config.action_dispatch.cookies_serializer = :json
     # TODO: check: raise_on_unfiltered_parameters never worked in main application

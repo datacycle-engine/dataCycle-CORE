@@ -355,7 +355,6 @@ ObjectBrowser.prototype.closeOverlay = function (ev) {
 
 ObjectBrowser.prototype.import = function (event) {
   if (event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'import') {
-    $('#new_' + this.id).foundation('close');
     var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
     $.ajax({
       type: 'POST',
@@ -378,7 +377,9 @@ ObjectBrowser.prototype.import = function (event) {
       this.overlay.find('.items .item .reveal.media-preview').each(function () {
         if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
       });
-    }.bind(this));
+    }.bind(this)).always(() => {
+      $('#new_' + this.id).foundation('close');
+    });
   }
 };
 
