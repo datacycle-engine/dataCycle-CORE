@@ -62,17 +62,6 @@
         :type: linked
         :linked_table: places
         :template_name: POI
-        :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
-              :treeLabel: Inhaltstypen
-              :aliases:
-                - Örtlichkeit
-                - Unterkunft
-          -
-            :with_external_source_names:
-              :names:
-                - Feratel Kärnten
       :quotation:
         :label: Zitat
         :type: embedded
