@@ -113,7 +113,7 @@ module DataCycleCore
             ['RG', 'DI', 'TO'].each do |range_code|
               load_range_ids(range_code).each do |range_id|
                 load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|
-                  item = { '_Type': xml_data.parent.name.singularize }.merge(xml_data.to_hash)
+                  item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
                   unless item_ids.include?(item['Id'] || item['Order'])
                     item_ids << item['Id'] || item['Order']
                     yielder << item

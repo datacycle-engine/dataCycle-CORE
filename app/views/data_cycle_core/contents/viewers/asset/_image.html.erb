@@ -2,8 +2,6 @@
 
 <% unless image.nil? %>
     <div class="inner">
-        <span class="asset-title"><%= image.file.file.filename %></span>
-        <span class="asset-type"><%=  image.content_type %> (<%= image.file_size %> B)</span>
         <div class="thumb">
             <% if image.thumbnail_url? %>
                 <a href="<%= image.file.url %>" target="_blank">
@@ -12,9 +10,13 @@
             <% else %>
                 <div class="placeholder">
                     <i class="fa fa-picture-o" aria-hidden="true"></i>
-                    <span>Bild wird verarbeitet.</span>
+                    <span><%= t('actions.processing_asset') %></span>
                 </div>
             <% end %>
+
+            <span class="asset-type">
+                <%= image.content_type %> (<%= number_to_human_size(image.file_size) %>)
+            </span>
         </div>
     </div>
 <% end %>

@@ -24,6 +24,9 @@ module DataCycleCore
           to_history(save_time: save_time) if id.nil? == false && prevent_history == false
           data_hash, release_hash = extract_release(data_hash, false) if is_a?(DataCycleCore::Releasable) # strip release data only from this object
           data_hash = data_hash.merge({ 'last_updated_by' => [current_user.presence&.id || try(:last_updated_by).presence&.first&.id] })
+
+          data_hash = before_save_data_hash(data_hash)
+
           set_template_data_hash(data_hash, property_definitions, save_time, current_user)
           if is_a?(DataCycleCore::Releasable)
             self.release = release_hash
@@ -35,10 +38,19 @@ module DataCycleCore
             self.updated_at = save_time
             save
           end
-          set_search
+
+          translated_locales.push(I18n.locale).uniq.each do |locale|
+            I18n.with_locale(locale) do
+              set_search
+            end
+          end
         end
       end
       validate(stripped_data_hash) # return error/warnings from validation
+    end
+
+    def before_save_data_hash(data_hash)
+      data_hash
     end
 
     def destroy_content
@@ -294,7 +306,10 @@ module DataCycleCore
 
     def set_classification_with_children(classification_tree_label, classification_id, user)
       set_data_hash_attribute(classification_tree_label, [classification_id], user)
-      children.each do |child|
+
+      return unless respond_to?(:children)
+
+      children&.each do |child|
         child.set_data_hash_attribute(classification_tree_label, [classification_id], user)
       end
     end

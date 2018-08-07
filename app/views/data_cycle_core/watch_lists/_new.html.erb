@@ -1,7 +1,7 @@
 <div id="new-object-circle">
     <a data-toggle="new-object" class="button-prime"><i class="fa fa-plus" aria-hidden="true"></i></a>
     <div class="reveal" id="new-object" data-reveal data-append-to="#new-object-circle" data-v-offset="auto">
-        <a class="option last" href="#" data-open="newWatchList"><i class="fa fa-folder-open-o" aria-hidden="true"></i>Neue Merkliste erstellen</a>
+        <a class="option last" href="#" data-open="newWatchList"><i class="fa fa-folder-open-o" aria-hidden="true"></i>Neue <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) %> erstellen</a>
     </div>
 </div>
 
@@ -10,7 +10,7 @@
 <% if !@watch_list.nil? %>
 
     <div class="reveal new-item" id="newWatchList" data-reveal>
-        <h3>Neue Merkliste erstellen</h3>
+        <h3>Neue <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) %> erstellen</h3>
 
         <%= form_for :watch_list, :url => {:action => "create"} do |f| %>
 

@@ -9,6 +9,7 @@ DataCycleCore::Engine.routes.draw do
 
   root to: redirect('/users/sign_in')
 
+  get '/docs/*path/:file', to: 'documentation#image', constraints: ->(request) { request.path.match?(/\.(gif|jpg|png|svg)$/) }
   get '/docs/*path', to: 'documentation#show'
 
   get  '/info', to: 'frontend#info'
@@ -33,6 +34,7 @@ DataCycleCore::Engine.routes.draw do
       get 'history_detail', on: :member
       get 'compare', on: :member
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
+      get :geocode_address, on: :collection
     end
   end
 

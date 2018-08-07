@@ -162,9 +162,9 @@ module DataCycleCore
 
       respond_to do |format|
         format.csv do
-          send_data object.to_csv,
-                    type: 'text/csv; charset=UTF-8',
-                    disposition: "attachment; filename=#{object.name}.csv"
+          send_data "sep=,\n" + object.to_csv.encode('ISO-8859-1', invalid: :replace, undef: :replace),
+                    type: 'text/csv; charset=iso-8859-1;',
+                    filename: "#{object.name}.csv"
         end
       end
     end

@@ -1,17 +1,18 @@
 <% breadcrumb :admin %>
 
 <section>
-
-    <div class="row">
-        <div class="small-12 columns">
-            <h4>
-                <br/><i class='fa fa-arrow-circle-o-right' aria-hidden='true'></i>&nbsp; import configs<br/>&nbsp;
-            </h4>
-            <%= link_to 'data-types', admin_import_templates_path, class: 'button small' %>
-            <%= link_to 'classifications', admin_import_classifications_path, class: 'button small' %>
-            <%= link_to 'external_sources', admin_import_config_path, class:'button small' %>
+    <% if current_user.email =~ /@pixelpoint\.at/ || current_user.email =~ /@datacycle\.at/ %>
+        <div class="row">
+            <div class="small-12 columns">
+                <h4>
+                    <br/><i class='fa fa-arrow-circle-o-right' aria-hidden='true'></i>&nbsp; import configs<br/>&nbsp;
+                </h4>
+                <%= link_to 'data-types', admin_import_templates_path, class: 'button small' %>
+                <%= link_to 'classifications', admin_import_classifications_path, class: 'button small' %>
+                <%= link_to 'external_sources', admin_import_config_path, class:'button small' %>
+            </div>
         </div>
-    </div>
+    <% end %>
 
     <div class="row">
         <div class="small-12 columns">

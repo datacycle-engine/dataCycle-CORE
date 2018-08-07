@@ -15,6 +15,7 @@ module DataCycleCore
           .>> t(:underscore_keys)
           .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
           .>> t(:tags_to_ids, 'types_of_use', external_source_id, 'MedienArchive - Verwendungsart - ')
+          .>> t(:tags_to_ids, 'color_space', external_source_id, 'MedienArchive - Farbraum - ')
           .>> t(:tags_to_ids, 'audiences', external_source_id, 'MedienArchive - Zielgruppe - ')
           .>> t(:copy_keys, 'url' => 'external_key')
           .>> t(:map_value, 'external_key', ->(s) { s.split('/').last })

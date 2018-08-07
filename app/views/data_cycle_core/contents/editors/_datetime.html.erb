@@ -8,7 +8,7 @@
         </span>
       <% end %>
       <% if options.dig('readonly').presence&.to_s  == 'true' %>
-          <%= text_field_tag key, value.blank? ? value : l(value.to_datetime, format: :edit, locale: DataCycleCore.ui_language), options.merge({ class: '' }) %>
+          <%= text_field_tag key, value.blank? ? value : l(value.to_datetime, format: :edit, locale: DataCycleCore.ui_language), options.merge({ class: 'read-only date' }) %>
       <% else %>
           <%= datetime_field_tag key, value, options %>
       <% end %>

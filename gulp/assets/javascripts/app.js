@@ -8,6 +8,7 @@ var lazysizes_unveilhooks = require('lazysizes/plugins/unveilhooks/ls.unveilhook
 var callout_helpers = require('./modules/helpers/callout_helpers');
 var array_helpers = require('./modules/helpers/array_helpers');
 var number_helpers = require('./modules/helpers/number_helpers');
+var string_helpers = require('./modules/helpers/string_helpers');
 
 var initializers = [];
 initializers.push(require('./modules/initializers/masonry_init'));
@@ -41,7 +42,11 @@ initializers.push(require('./modules/initializers/file_upload_init'));
 $(function () {
 
   initializers.forEach(element => {
-    element.initialize();
+    try {
+      element.initialize();
+    } catch (err) {
+      console.log(err);
+    }
   });
 
   // Initialize Foundation
@@ -89,22 +94,22 @@ $(function () {
                 });
               }
 
-              let markets = [];
-              if (contents.language_relations !== undefined && contents.language_relations.length > 0) markets = contents.language_relations.map(x => Object.keys(x)[0]);
+              // let markets = [];
+              // if (contents.language_relations !== undefined && contents.language_relations.length > 0) markets = contents.language_relations.map(x => Object.keys(x)[0]);
 
-              if (markets.length > 0) {
-                $('.edit-content-form input.six-cms-markets').remove();
-                $('.edit-content-form').append('<input type="hidden" name="cms_import_url" value="' + url + '">');
-                var markets_html = '';
+              // if (markets.length > 0) {
+              //   $('.edit-content-form input.six-cms-markets').remove();
+              //   $('.edit-content-form').append('<input type="hidden" name="cms_import_url" value="' + url + '">');
+              //   var markets_html = '';
 
-                markets.forEach(element => {
-                  markets_html += '<input type="hidden" class="six-cms-markets" name="six_cms_markets[]" value="' + element + '">';
-                });
-                $('.edit-content-form').append(markets_html);
-                callout_helpers.show('Abos werden beim Speichern erstellt.', 'success');
-              } else {
-                callout_helpers.show('Keine Märkte gefunden.', 'alert');
-              }
+              //   markets.forEach(element => {
+              //     markets_html += '<input type="hidden" class="six-cms-markets" name="six_cms_markets[]" value="' + element + '">';
+              //   });
+              //   $('.edit-content-form').append(markets_html);
+              //   callout_helpers.show('Abos werden beim Speichern erstellt.', 'success');
+              // } else {
+              //   callout_helpers.show('Keine Märkte gefunden.', 'alert');
+              // }
 
               if (contents.images !== undefined && contents.images.length > 0) {
                 let image_ids = contents.images.map(i => i.external_key);

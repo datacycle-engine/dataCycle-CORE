@@ -37,7 +37,9 @@
                 <strong>Einschränkungen:</strong> <%== '<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>' if object.try(:restrictions).try(:include?, 'gesperrt') %> <%= object.try(:restrictions) %> <br /><br />
             <% end %>
             <%= link_to 'zur Detailansicht', polymorphic_path(object), target: :_blank %> |
-            <%= link_to 'in voller Größe öffnen', object.try(:content_url), target: :_blank %> |
+            <% if can?(:download, object) %>
+              <%= link_to 'in voller Größe öffnen', object.try(:content_url), target: :_blank %> |
+            <% end %>
             <%= link_to 'im Medienarchiv öffnen', object.try(:url), target: :_blank %>
         </div>
     </div>

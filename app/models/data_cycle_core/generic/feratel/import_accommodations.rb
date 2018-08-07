@@ -14,12 +14,12 @@ module DataCycleCore
         end
 
         def self.load_contents(mongo_item, locale, source_filter)
-          mongo_item.where("dump.#{locale}": { '$exists' => true }.merge(source_filter))
+          mongo_item.where({ "dump.#{locale}": { '$exists' => true } }.merge(source_filter))
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            ['categories', 'feratel_owners', 'holiday_themes', 'classifications', 'stars'].each do |name_tag|
+            ['feratel_owners'].each do |name_tag|
               DataCycleCore::Generic::Common::ImportTags.process_content(
                 utility_object: utility_object,
                 raw_data: raw_data,

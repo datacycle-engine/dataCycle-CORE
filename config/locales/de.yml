@@ -152,7 +152,11 @@ de:
     create_from_existing: 'Inhalt anhand dieser Vorlage erstellen'
     move_to_container: 'Inhalt verschieben'
     move: verschieben
-
+    geocode: "Geokoordinaten von %{title} übernehmen"
+    open_asset: "Datei öffnen"
+    download_asset: "Datei herunterladen"
+    processing_asset: "Datei wird verarbeitet ..."
+    processing_image: "Bild wird verarbeitet ..."
 
   validation:
     errors:
@@ -196,7 +200,7 @@ de:
       not_saved: "Beim Speichern von %{data} ist ein Fehler aufgetreten."
       file_too_large: "Datei zu groß (max. %{max})."
       wrong_content_type: "%{content_type} Dateien sind nicht erlaubt."
-    warning:
+    warnings:
       string: "%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}"
       no_data: "Keine Daten angegeben für %{data}"
       no_evaluate: "%{data} nicht bei den Evaluierungsdaten angegeben."
@@ -271,8 +275,8 @@ de:
         one: Abo
         other: Abos
       data_cycle_core/watch_list:
-        one: Merkliste
-        other: Merklisten
+        one: Inhaltssammlung
+        other: Inhaltssammlungen
       data_cycle_core/data_link:
         one: Externer Link
         other: Externe Links
@@ -341,6 +345,7 @@ de:
         address: Ort
         longitude: Längengrad
         latitude: Breitengrad
+        elevation: Meereshöhe (m)
       data_cycle_core/data_link:
         comment: Kommentar
         permissions: Berechtigungen
@@ -398,6 +403,10 @@ de:
     documentation:
       root: Dokumentation
       overview: Übersicht
+      classifications: Klassifizierungen
+      api:
+        root: Datenschnittstelle
+        classifications: Klassifizierungen
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

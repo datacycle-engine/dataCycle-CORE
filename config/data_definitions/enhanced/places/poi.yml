@@ -4,6 +4,8 @@
     :type: object
     :content_type: entity
     :boost: 10.0
+    :features:
+      :geocode: 'address'
     :api:
       :type: TouristAttraction
     :properties:
@@ -65,6 +67,9 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "POI"
+      :feratel:
+        :type: mixin
+        :name: feratel_categories
       :content_classifications:
         :type: mixin
         :name: content_classifications

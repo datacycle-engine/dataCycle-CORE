@@ -32,7 +32,7 @@ module DataCycleCore
           template_data.each do |key, key_item|
             @template_key = key
             unless data_keys.include?(key)
-              (@error[:warning][key] ||= []) << I18n.t(:no_evaluate, scope: [:validation, :warning], data: key, locale: DataCycleCore.ui_language)
+              (@error[:warning][key] ||= []) << I18n.t(:no_evaluate, scope: [:validation, :warnings], data: key, locale: DataCycleCore.ui_language)
               next
             end
 
@@ -53,7 +53,7 @@ module DataCycleCore
                 if object_validations.include?(val_key)
                   method(val_key).call(data[key], val_item)
                 else
-                  (@error[:warning][key] ||= []) << I18n.t(:keyword, scope: [:validation, :warning], key: val_key, type: 'Object', locale: DataCycleCore.ui_language)
+                  (@error[:warning][key] ||= []) << I18n.t(:keyword, scope: [:validation, :warnings], key: val_key, type: 'Object', locale: DataCycleCore.ui_language)
                 end
               end
             end
@@ -91,13 +91,13 @@ module DataCycleCore
             (@error[:error][@template_key] ||= []) << I18n.t(:no_fields, scope: [:validation, :errors], locale: DataCycleCore.ui_language)
           else
             if data_hash[template_hash['from']].blank?
-              (@error[:warning][template_hash['from']] ||= []) << I18n.t(:start_date, scope: [:validation, :warning], locale: DataCycleCore.ui_language)
+              (@error[:warning][template_hash['from']] ||= []) << I18n.t(:start_date, scope: [:validation, :warnings], locale: DataCycleCore.ui_language)
               from_date = date_time('1970-01-01')
             else
               from_date = date_time(data_hash[template_hash['from']])
             end
             if data_hash[template_hash['to']].blank?
-              (@error[:warning][template_hash['to']] ||= []) << I18n.t(:end_date, scope: [:validation, :warning], locale: DataCycleCore.ui_language)
+              (@error[:warning][template_hash['to']] ||= []) << I18n.t(:end_date, scope: [:validation, :warnings], locale: DataCycleCore.ui_language)
               to_date = date_time('9999-12-31')
             else
               to_date = date_time(data_hash[template_hash['to']])
@@ -113,7 +113,7 @@ module DataCycleCore
         def date_time(data)
           data.to_datetime
         rescue StandardError
-          (@error[:warning][@template_key] ||= []) << I18n.t(:convert, scope: [:validation, :warning], data: data, locale: DataCycleCore.ui_language)
+          (@error[:warning][@template_key] ||= []) << I18n.t(:convert, scope: [:validation, :warnings], data: data, locale: DataCycleCore.ui_language)
           nil
         end
       end

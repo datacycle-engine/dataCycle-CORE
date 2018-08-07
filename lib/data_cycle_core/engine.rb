@@ -134,6 +134,9 @@ module DataCycleCore
         enabled: true,
         classification_alias_ids: 'all',
         external_source: true
+      },
+      geocode: {
+        enabled: false
       }
     }
 
@@ -189,6 +192,13 @@ module DataCycleCore
 
     mattr_accessor :video_validations
     self.video_validations = {}
+
+    mattr_accessor :default_map_position
+    self.default_map_position = {
+      longitude: 14.128417968749998,
+      latitude: 47.41520280002081,
+      zoom: 7
+    }
   end
 
   def self.setup
@@ -199,7 +209,7 @@ module DataCycleCore
     isolate_namespace DataCycleCore
 
     config.assets.version = '1.0'
-    config.assets.precompile += ['data_cycle_core/*']
+    config.assets.precompile += ['data_cycle_core/*', 'location.svg']
 
     config.action_dispatch.cookies_serializer = :json
     # TODO: check: raise_on_unfiltered_parameters never worked in main application

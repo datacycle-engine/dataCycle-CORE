@@ -1,8 +1,7 @@
 <%= render 'data_cycle_core/contents/viewers/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
 
     <% if value.try(:geometry_type) == RGeo::Feature::Point %> <%# only show points for now, not the lines %>
-        <div class="detail-type geographic">
-
+        <div class="geographic">
             <% map_id = "map_#{SecureRandom.hex(16)}" %>
             <script>
                 var <%= map_id %> = {
@@ -11,11 +10,11 @@
                 };
             </script>
 
-            <div id="<%= map_id %>" class="geographic-map" style="max-width: 600px; max-height: 450px;">
+            <div id="<%= map_id %>" class="geographic-map" data-default-position="<%= DataCycleCore.default_map_position.presence&.to_json %>" data-icon-path="<%= image_path('location.svg') %>">
             </div>
         </div>
     <% elsif value.try(:geometry_type) == RGeo::Feature::LineString %> <%# only show points for now, not the lines %>
-        <div class="detail-type geographic">
+        <div class="geographic">
 
             <% map_id = "map_#{SecureRandom.hex(16)}" %>
             <script>
@@ -25,8 +24,31 @@
                 };
             </script>
 
-            <div id="<%= map_id %>" class="geographic-map" style="max-width: 600px; max-height: 450px;">
+            <div id="<%= map_id %>" class="geographic-map" data-default-position="<%= DataCycleCore.default_map_position.presence&.to_json %>" data-icon-path="<%= image_path('location.svg') %>">
             </div>
         </div>
     <% end %>
+
+    <div class="map-info" style="<%= 'display: none;' unless value.try(:geometry_type) == RGeo::Feature::Point %>">
+      <span class="detail-label"><%= definition['label'] %></span>
+
+      <% if (value.try(:geometry_type) == RGeo::Feature::Point) || (content.elevation.present? && content.elevation.nonzero?) %>
+        <div class="detail-type longitude number" data-label="<%= DataCycleCore::Place.human_attribute_name(:longitude, locale: DataCycleCore.ui_language) %>">
+          <span class="detail-label"><%= DataCycleCore::Place.human_attribute_name(:longitude, locale: DataCycleCore.ui_language) %></span>
+          <span class="detail-content"><%= value.presence&.x %></span>
+        </div>
+
+        <div class="detail-type latitude number" data-label="<%= DataCycleCore::Place.human_attribute_name(:latitude, locale: DataCycleCore.ui_language) %>">
+          <span class="detail-label"><%= DataCycleCore::Place.human_attribute_name(:latitude, locale: DataCycleCore.ui_language) %></span>
+          <span class="detail-content"><%= value.presence&.y %></span>
+        </div>
+      <% end %>
+
+      <% if content.elevation.present? && content.elevation.nonzero? %>
+        <div class="detail-type elevation number" data-label="<%= DataCycleCore::Place.human_attribute_name(:elevation, locale: DataCycleCore.ui_language) %>">
+          <span class="detail-label"><%= DataCycleCore::Place.human_attribute_name(:elevation, locale: DataCycleCore.ui_language) %></span>
+          <span class="detail-content"><%= content.elevation %></span>
+        </div>
+      <% end %>
+    </div>
 <% end %>
