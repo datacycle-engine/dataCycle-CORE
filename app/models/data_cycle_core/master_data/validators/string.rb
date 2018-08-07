@@ -13,7 +13,7 @@ module DataCycleCore
         end
 
         def validate(data, template)
-          if data.is_a?(::String)
+          if data.is_a?(::String) && data.present?
             if template.key?('validations')
               template['validations'].each_key do |key|
                 if string_keywords.include?(key)
