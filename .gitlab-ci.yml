@@ -224,6 +224,7 @@ deploy_review:
     - release
     - pre-release
     - develop
+    - remote-develop
   tags:
     - data-cycle-review
   environment:
@@ -267,6 +268,7 @@ stop_review:
     - release
     - pre-release
     - develop
+    - remote-develop
   tags:
     - data-cycle-review
   environment:
