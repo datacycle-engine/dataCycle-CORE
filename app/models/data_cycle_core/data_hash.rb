@@ -8,7 +8,7 @@ module DataCycleCore
     # data hash with keys named as in schema.org
     def get_data_hash(timestamp = Time.zone.now)
       return if !translated_locales.include?(I18n.locale) && changes.count.zero? # for new data-sets with pending data in it
-      data_hash = as_of(timestamp).try(:to_h, timestamp)
+      data_hash = as_of(timestamp)&.to_h(timestamp)
       data_hash = merge_release(data_hash, release) if is_a?(DataCycleCore::Releasable)
       data_hash
     end
@@ -16,16 +16,16 @@ module DataCycleCore
     # set data as specified in the data template
     # data hash with keys named as in schema.org
     def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false)
+      data_hash = before_save_data_hash(data_hash)
+
       stripped_data_hash = data_hash
       stripped_data_hash, global_release_hash = extract_release(data_hash, true) if is_a?(DataCycleCore::Releasable) # strip also release data from embeddedObjects
 
-      if validate?(stripped_data_hash)
+      if validate?(stripped_data_hash) && diff?(stripped_data_hash)
         ActiveRecord::Base.transaction do
           to_history(save_time: save_time) if id.nil? == false && prevent_history == false
           data_hash, release_hash = extract_release(data_hash, false) if is_a?(DataCycleCore::Releasable) # strip release data only from this object
           data_hash = data_hash.merge({ 'last_updated_by' => [current_user.presence&.id || try(:last_updated_by).presence&.first&.id] })
-
-          data_hash = before_save_data_hash(data_hash)
 
           set_template_data_hash(data_hash, property_definitions, save_time, current_user)
           if is_a?(DataCycleCore::Releasable)
@@ -33,24 +33,25 @@ module DataCycleCore
             self.release_id = global_release(global_release_hash)
           end
           self.updated_at = save_time
-          if id.nil?
-            self.created_at = save_time
-            self.updated_at = save_time
-            save
-          end
+          self.created_at = save_time if id.nil?
+          save # save actual content data
 
-          translated_locales.push(I18n.locale).uniq.each do |locale|
+          [translated_locales, I18n.locale].flatten.uniq.each do |locale|
             I18n.with_locale(locale) do
               set_search
             end
           end
         end
+        after_save_data_hash
       end
       validate(stripped_data_hash) # return error/warnings from validation
     end
 
     def before_save_data_hash(data_hash)
       data_hash
+    end
+
+    def after_save_data_hash
     end
 
     def destroy_content

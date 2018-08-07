@@ -7,6 +7,11 @@ module DataCycleCore
         def diff(a, b, template)
           ids_a = parse_uuids(a)
           ids_b = parse_uuids(b)
+          # puts "a: #{a} --> #{ids_a}"
+          # puts "b: #{b} --> #{ids_b}"
+          # puts "set_diff: #{set_diff(ids_a, ids_b) || []}"
+          # puts "change: #{embedded_change(a, b, template) || []}"
+          # puts "order: #{order_change(ids_a, ids_b) || []}"
           @diff_hash = (
             (set_diff(ids_a, ids_b) || []) +
             (embedded_change(a, b, template) || []) +
@@ -79,7 +84,7 @@ module DataCycleCore
           data = a.deep_dup
           data = [a] if a.is_a?(::String) || a.is_a?(::Hash)
           if data.is_a?(::Array)
-            data.map! { |item| item.is_a?(::Hash) ? item&.dig('id') : item }.compact || []
+            data.map! { |item| item.is_a?(::Hash) ? (item&.dig('id') || "new_#{item.hash}") : item }.compact! || []
           end
           data, _history = get_relation_ids(a) if data.is_a?(ActiveRecord::Relation)
           raise ArgumentError, 'expected data to be converted to an array of uuids' unless data.is_a?(::Array)
