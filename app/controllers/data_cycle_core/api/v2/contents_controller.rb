@@ -99,9 +99,7 @@ module DataCycleCore
 
         def content_data_type
           object_type_string = permitted_params[:type] || controller_name
-          object_type = DataCycleCore.content_tables.find { |object| object == object_type_string }
-          return unless object_type
-          ('DataCycleCore::' + object_type.singularize.classify).constantize
+          data_cycle_object(object_type_string)
         end
       end
     end

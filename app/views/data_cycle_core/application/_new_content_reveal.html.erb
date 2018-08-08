@@ -9,7 +9,7 @@
         <%= form_for @content, html: { class: 'validation-form' } do |f| %>
             <%= hidden_field_tag :table, :creative_works %>
             <%= hidden_field_tag 'template', reveal_template %>
-            <%= hidden_field_tag "creative_work[datahash][#{DataCycleCore.features.dig(:life_cycle, :attribute_key)}][]", life_cycle_items.dig(life_cycle_name, :id) if DataCycleCore.features.dig(:life_cycle) && local_assigns.has_key?(:life_cycle_name) %>
+            <%= hidden_field_tag "creative_work[datahash][#{DataCycleCore::Feature::LifeCycle.attribute_key}][]", DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(life_cycle_name, :id) if DataCycleCore::Feature::LifeCycle.enabled? && local_assigns.has_key?(:life_cycle_name) %>
             <%= hidden_field_tag 'parent_template', parent_template if local_assigns.has_key?(:parent_template) %>
 
             <div class="validation-container form-element">

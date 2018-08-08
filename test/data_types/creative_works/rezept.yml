@@ -235,6 +235,11 @@
         :type: classification
         :tree_label: Inhaltspools
         :default_value: "Aktuelle Inhalte"
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :disabled: true
       :data_type:
         :label: Inhaltstype
         :type: classification

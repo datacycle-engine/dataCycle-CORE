@@ -1,0 +1,20 @@
+<div class="content-pool-buttons">
+  <% active_index = DataCycleCore::Feature::LifeCycle.ordered_classifications(content).keys.index(content&.data_pool&.first&.name) || -1 %>
+  <% DataCycleCore::Feature::LifeCycle.ordered_classifications(content).values.each_with_index do |item, index| %>
+    <% if active_index == index %>
+      <span class="active content-pool"><%= item[:alias]&.name %></span>
+    <% elsif !can?(:set_life_cycle, content) %>
+      <%= content_tag(:i, nil, class: 'fa fa-arrow-right', aria_hidden: true) if active_index < index && index.positive? %>
+      <span class="hollow button content-pool disabled">
+        <%= t('actions.move_to', data: item[:alias]&.name, locale: DataCycleCore.ui_language) %>
+      </span>
+      <%= content_tag(:i, nil, class: 'fa fa-arrow-left', aria_hidden: true) if active_index > index %>
+    <% else %>
+      <%= content_tag(:i, nil, class: 'fa fa-arrow-right', aria_hidden: true) if active_index < index && index.positive? %>
+      <%= link_to polymorphic_path(content, life_cycle: { id: item[:id], name: item[:alias]&.name}, action: :update_life_cycle_stage), method: :patch, class: "hollow button content-pool" do %>
+        <%= t('actions.move_to', data: item[:alias]&.name, locale: DataCycleCore.ui_language) %>
+      <% end %>
+      <%= content_tag(:i, nil, class: 'fa fa-arrow-left', aria_hidden: true) if active_index > index %>
+    <% end %>
+  <% end %>
+</div>

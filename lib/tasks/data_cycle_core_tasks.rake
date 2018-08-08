@@ -490,7 +490,7 @@ namespace :data_cycle_core do
       logger = Logger.new('log/archive.log')
       logger.info('Started Archiving...')
       temp = Time.zone.now
-      archive_life_cycle_id = DataCycleCore::Classification.find_by(name: DataCycleCore.features.dig(:life_cycle, :ordered)&.last)&.id
+      archive_life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.values&.last&.dig(:id)
       archive_release_id = DataCycleCore::Release.order(release_code: :desc)&.first&.id
 
       ids = DataCycleCore::Search.where('upper(validity_period) < ?', Date.current).map { |s| s.content_data&.id }
@@ -533,10 +533,10 @@ namespace :data_cycle_core do
           logger.warn('No Release found.')
         end
 
-        if DataCycleCore.features.dig(:life_cycle, :attribute_key).present? && archive_life_cycle_id.present?
+        if DataCycleCore::Feature::LifeCycle.attribute_key.present? && archive_life_cycle_id.present?
           contents = ('DataCycleCore::' + table_name.singularize.classify).constantize
             .where(id: ids)
-            .where('classification_contents.relation = ?', DataCycleCore.features.dig(:life_cycle, :attribute_key))
+            .where('classification_contents.relation = ?', DataCycleCore::Feature::LifeCycle.attribute_key)
             .expired_not_life_cycle_id(archive_life_cycle_id)
             .with_content_type('entity').distinct
 
@@ -563,7 +563,7 @@ namespace :data_cycle_core do
 
             I18n.with_locale(content.first_available_locale) do
               data_hash = content.get_data_hash
-              data_hash[DataCycleCore.features.dig(:life_cycle, :attribute_key)] = [archive_life_cycle_id]
+              data_hash[DataCycleCore::Feature::LifeCycle.attribute_key] = [archive_life_cycle_id]
               content.set_data_hash(data_hash: data_hash)
               logger.info("Archived (life_cycle): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
             end
@@ -586,11 +586,10 @@ namespace :data_cycle_core do
       logger = Logger.new('log/unarchive.log')
       logger.info('Started Unarchiving...')
       temp = Time.zone.now
-      archive_life_cycle_id = DataCycleCore::Classification.find_by(name: DataCycleCore.features.dig(:life_cycle, :ordered)&.last)&.id
+      archive_life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.values&.last&.dig(:id)
       valid_life_cycle_id = DataCycleCore::Classification.find_by(name: 'Aktuelle Inhalte')&.id
       archive_release_id = DataCycleCore::Release.order(release_code: :desc)&.first&.id
       valid_release_id = DataCycleCore::Release.order(release_code: :desc)&.last&.id
-      current_user = DataCycleCore::User.find_by('email ILIKE ?', 'admin%')&.id
 
       DataCycleCore.content_tables.each do |table_name|
         if archive_release_id.present?
@@ -621,7 +620,7 @@ namespace :data_cycle_core do
             index += 1
 
             I18n.with_locale(content.first_available_locale) do
-              content.set_data_hash(data_hash: content.get_data_hash, current_user: current_user)
+              content.set_data_hash(data_hash: content.get_data_hash)
               content.translations.update_all(release_id: valid_release_id, release_comment: I18n.t('common.unarchived', locale: DataCycleCore.ui_language))
               logger.info("Unarchived (release_status): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
             end
@@ -632,7 +631,7 @@ namespace :data_cycle_core do
           logger.warn('No Release found.')
         end
 
-        if DataCycleCore.features.dig(:life_cycle, :attribute_key).present? && archive_life_cycle_id.present?
+        if DataCycleCore::Feature::LifeCycle.attribute_key.present? && archive_life_cycle_id.present?
           contents = ('DataCycleCore::' + table_name.singularize.classify).constantize.joins(:classifications)
             .where(template_name: ['Bild', 'Video'], classifications: { id: archive_life_cycle_id })
             .where("metadata ->> 'validity_period' IS NULL OR ((metadata -> 'validity_period' ->> 'valid_from' IS NULL OR metadata -> 'validity_period' ->> 'valid_from' < :today) AND (metadata -> 'validity_period' ->> 'valid_until' IS NULL OR metadata -> 'validity_period' ->> 'valid_until' > :today))", today: Date.current)
@@ -664,8 +663,8 @@ namespace :data_cycle_core do
             begin
               I18n.with_locale(content.first_available_locale) do
                 data_hash = content.get_data_hash
-                data_hash[DataCycleCore.features.dig(:life_cycle, :attribute_key)] = [valid_life_cycle_id]
-                errors = content.set_data_hash(data_hash: data_hash, current_user: current_user)
+                data_hash[DataCycleCore::Feature::LifeCycle.attribute_key] = [valid_life_cycle_id]
+                errors = content.set_data_hash(data_hash: data_hash)
                 if errors[:error].present?
                   logger.warn("Fehler (#{content.id}): #{errors[:error]}")
                 else
