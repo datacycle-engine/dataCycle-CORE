@@ -10,7 +10,7 @@ module DataCycleCore
 
         def validate(data, template)
           if data.blank?
-            (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warning], data: template['label'], locale: DataCycleCore.ui_language)
+            (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
             return @error
           end
 

@@ -21,16 +21,14 @@ module.exports.initialize = function () {
   });
 
   $(document).on('closed.zf.reveal', '.reveal', event => {
-    setTimeout(() => {
-      if ($(event.target).hasClass('reveal')) {
-        if ($('.reveal:visible').not(event.currentTarget).length) {
-          $('body').addClass('is-reveal-open');
-        } else {
-          $('.reveal-blur').removeClass("show");
-        }
-        if ($(event.currentTarget).data('overlay') === false) window.scrollTo(0, scroll_top.pop());
+    if ($(event.target).hasClass('reveal')) {
+      if ($('.reveal:visible').not(event.currentTarget).length) {
+        $('body').addClass('is-reveal-open');
+      } else {
+        $('.reveal-blur').removeClass("show");
       }
-    }, 20);
+      if ($(event.currentTarget).data('overlay') === false) window.scrollTo(0, scroll_top.pop());
+    }
   });
 
 };

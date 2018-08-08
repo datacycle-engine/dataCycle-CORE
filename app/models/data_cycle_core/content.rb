@@ -215,6 +215,26 @@ module DataCycleCore
       property_definitions.select { |_, v| v['type'] == 'geographic' }
     end
 
+    def collect_properties(definition = schema, parents = [])
+      key_paths = []
+      definition&.dig('properties')&.each do |k, v|
+        if v&.key?('properties')
+          key_paths << collect_properties(v, parents + [k, 'properties'])
+        else
+          key_paths << (parents.present? ? [parents + [k]] : [k])
+        end
+      end
+      key_paths.flatten(1)
+    end
+
+    def enabled_features
+      features = []
+      features << collect_properties.map { |k| schema&.dig('properties', *k, 'features')&.keys }
+      features << schema&.dig('features')&.keys
+      features << DataCycleCore.features.select { |_, v| v[:enabled] }.keys.map(&:to_s)
+      features.flatten.uniq.compact
+    end
+
     # private
 
     def get_property_value(property_name, property_definition, _timestamp = Time.zone.now)

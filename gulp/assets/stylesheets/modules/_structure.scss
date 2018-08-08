@@ -134,6 +134,10 @@ header {
     border: 0;
     outline: 0;
   }
+  .new-object-links {
+    max-height: 80vh;
+    overflow-y: auto;
+  }
   a.option {
     border-bottom: 1px solid $light-gray;
     padding: 0.5rem;

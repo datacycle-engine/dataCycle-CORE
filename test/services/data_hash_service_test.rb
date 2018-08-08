@@ -53,7 +53,6 @@ module DataCycleCore
         'empty_array' => [],
         'empty_string' => '',
         'empty_hash' => {},
-        'data_pool' => ['bdc1c0cb-b516-47e5-96e8-443bf7e9b82c'],
         'data_type' => ['36e31f95-eb11-4828-ba07-318148878f4d']
       }
       new_hash = {
@@ -71,7 +70,6 @@ module DataCycleCore
         'empty_array' => [],
         'empty_string' => '',
         'empty_hash' => {},
-        'data_pool' => ['bdc1c0cb-b516-47e5-96e8-443bf7e9b82c'],
         'data_type' => ['36e31f95-eb11-4828-ba07-318148878f4d'],
         'question' => [{
           'id' => 'b3b490c7-12a1-463a-8ec3-ba49c8245503',

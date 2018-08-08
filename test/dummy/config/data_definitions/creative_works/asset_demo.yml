@@ -1,0 +1,28 @@
+---
+- :data:
+    :name: Asset Demo
+    :type: object
+    :content_type: entity
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :asset:
+        :label: Beliebige Datei
+        :type: asset
+        :asset_type: asset
+      :image:
+        :label: Bilddatei
+        :type: asset
+        :asset_type: image
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: Asset Demo
+      :meta_data:
+        :type: mixin
+        :name: meta_data

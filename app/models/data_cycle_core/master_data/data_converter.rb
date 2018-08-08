@@ -77,7 +77,7 @@ module DataCycleCore
       end
 
       def self.datetime_to_string(value)
-        return nil if value.nil?
+        return nil if value.blank?
         if value.is_a?(::String)
           raise ArgumentError, 'expected a datetime of some sorts' unless value.in_time_zone.acts_like?(:time)
           return value.squish

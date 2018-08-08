@@ -246,7 +246,7 @@ module DataCycleCore
               )
           end
           optional(:tree_label) { str? }
-          optional(:stored_filter) { str? }
+          optional(:stored_filter) { array? }
 
           rule(included_object: [:type, :storage_location, :properties]) do |type, storage_location, properties|
             properties.filled? > (

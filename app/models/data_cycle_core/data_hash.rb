@@ -39,7 +39,7 @@ module DataCycleCore
             save
           end
 
-          translated_locales.push(I18n.locale).uniq.presence&.each do |locale|
+          translated_locales.push(I18n.locale).uniq.each do |locale|
             I18n.with_locale(locale) do
               set_search
             end
@@ -294,10 +294,13 @@ module DataCycleCore
       builder.to_xml
     end
 
-    def set_classification_with_children(classification_tree_label, classification_id, user)
+    def set_life_cycle_classification(classification_tree_label, classification_id, user)
       set_data_hash_attribute(classification_tree_label, [classification_id], user)
-      children.each do |child|
-        child.set_data_hash_attribute(classification_tree_label, [classification_id], user)
+
+      return unless respond_to?(:children)
+
+      children&.each do |child|
+        child.set_data_hash_attribute(classification_tree_label, [classification_id], user) if DataCycleCore::Feature::LifeCycle.ordered_classifications(child)&.values&.map { |v| v[:id] }&.include?(classification_id)
       end
     end
 
@@ -311,7 +314,7 @@ module DataCycleCore
           data_hash[attribute_key] = parent_data_hash[attribute_key] if parent_data_hash[attribute_key].present?
         end
 
-        data_hash[DataCycleCore.features.dig(:life_cycle, :attribute_key)] = parent_data_hash[DataCycleCore.features.dig(:life_cycle, :attribute_key)] if DataCycleCore.features.dig(:life_cycle)
+        data_hash[DataCycleCore::Feature::LifeCycle.attribute_key] = parent_data_hash[DataCycleCore::Feature::LifeCycle.attribute_key] if DataCycleCore::Feature::LifeCycle.enabled?
       end
 
       data_hash.compact!

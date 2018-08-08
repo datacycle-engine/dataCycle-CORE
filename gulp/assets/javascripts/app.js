@@ -42,7 +42,11 @@ initializers.push(require('./modules/initializers/file_upload_init'));
 $(function () {
 
   initializers.forEach(element => {
-    element.initialize();
+    try {
+      element.initialize();
+    } catch (err) {
+      console.log(err);
+    }
   });
 
   // Initialize Foundation
