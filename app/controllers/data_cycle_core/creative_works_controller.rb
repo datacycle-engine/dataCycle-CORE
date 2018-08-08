@@ -244,23 +244,24 @@ module DataCycleCore
       object_params = content_params(controller_name, params[:template])
 
       return if content.schema['content_type'] == 'container' || params[:template] == 'Video-Serie'
-      if params[:parent_id].blank? && params[:template] == DataCycleCore.features.dig(:life_cycle, :idea_collection, :template)
+      if params[:parent_id].blank? && params[:template] == DataCycleCore::Feature::IdeaCollection.template
         parent = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:parent_template], object_params, current_user)
-        life_cycle_id = helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id)
-        parent.set_data_hash_attribute(DataCycleCore.features.dig(:life_cycle, :attribute_key), [life_cycle_id], current_user)
+        life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::IdeaCollection.life_cycle_stage, :id)
+        parent.set_data_hash_attribute(DataCycleCore::Feature::LifeCycle.attribute_key, [life_cycle_id], current_user)
         content.is_part_of = parent.id
       elsif params[:parent_id].present?
         content.is_part_of = params[:parent_id]
         # set_life_cycle to recherche for both
-        if params[:template] == DataCycleCore.features.dig(:life_cycle, :idea_collection, :template)
-          life_cycle_id = helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id)
+        if params[:template] == DataCycleCore::Feature::IdeaCollection.template
+          life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::IdeaCollection.life_cycle_stage, :id)
           parent = DataCycleCore::CreativeWork.find_by(id: content.is_part_of)
-          parent.set_classification_with_children(DataCycleCore.features.dig(:life_cycle, :attribute_key), life_cycle_id, current_user)
+          parent.set_life_cycle_classification(DataCycleCore::Feature::LifeCycle.attribute_key, life_cycle_id, current_user)
         end
         # get inherit attributes
         source = Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }] if params[:source].present?
-        split_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == source['source_type'].classify } if source&.dig('source_type').present?
-        split_source = split_type.constantize.find(source['source_id']) if source&.dig('source_id').present? && split_type.present?
+
+        split_type = data_cycle_object(source['source_type'].demodulize.tableize) if source&.dig('source_type').present?
+        split_source = split_type.find(source['source_id']) if source&.dig('source_id').present? && split_type.present?
         if split_source.present?
           inherit_datahash = content.get_inherit_datahash(split_source)
         else

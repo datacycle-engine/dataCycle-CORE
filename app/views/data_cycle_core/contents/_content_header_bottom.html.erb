@@ -31,4 +31,4 @@
 
 <%= render 'release_status', dataCycleObject: content, status: @release_status %>
 
-<%= render 'life_cycle_buttons', local_assigns if content.content_type?(['container', 'entity']) && content.schema&.dig('features', 'life_cycle') %>
+<%#= render 'life_cycle_buttons', local_assigns if DataCycleCore::Feature::LifeCycle.allowed?(content) %>
