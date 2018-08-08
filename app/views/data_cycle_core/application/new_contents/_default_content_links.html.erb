@@ -4,10 +4,10 @@
 <div id="new-object-circle">
     <a data-toggle="new-object" class="button-prime"><i class="fa fa-plus" aria-hidden="true"></i></a>
     <div class="reveal" id="new-object" data-reveal data-append-to="#new-object-circle" data-v-offset="auto">
-        <% if DataCycleCore::Feature::Container.enabled? && containers.present? && DataCycleCore.features.dig(:life_cycle, :ordered) %>
+        <% if DataCycleCore::Feature::Container.enabled? && containers.present? && DataCycleCore::Feature::LifeCycle.enabled? %>
             <% containers.each do |container| %>
-                <% DataCycleCore.features.dig(:life_cycle, :ordered)[0..-2].each do |life_cycle_stage| %>
-                    <% if life_cycle_stage == DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage) %>
+                <% DataCycleCore::Feature::LifeCycle.ordered_classifications[0..-2].each do |life_cycle_stage| %>
+                    <% if life_cycle_stage == DataCycleCore::Feature::IdeaCollection.life_cycle_stage %>
                         <a class="option" href="#" data-open="new-<%= container.template_name&.parameterize(separator: '_') %>-<%= life_cycle_stage.parameterize(separator: '_') %>">
                             <%= render 'data_cycle_core/shared/icon', icon_type: "#{container.template_name&.parameterize(separator: '_')}_#{life_cycle_stage.parameterize(separator: '_')}" %>
                             <%= t('actions.new', data: "#{container.template_name.titleize} (#{life_cycle_stage.titleize})", locale: DataCycleCore.ui_language) %>
@@ -43,11 +43,11 @@
 </div>
 
 <%# Reveal partials for links %>
-<% if DataCycleCore::Feature::Container.enabled? && containers.present? && DataCycleCore.features.dig(:life_cycle, :ordered) %>
+<% if DataCycleCore::Feature::Container.enabled? && containers.present? && DataCycleCore::Feature::LifeCycle.enabled? %>
     <% containers.each do |container| %>
-        <% DataCycleCore.features.dig(:life_cycle, :ordered)[0..-2].each do |life_cycle_stage| %>
-            <% if life_cycle_stage == DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage) %>
-                <%= render 'new_content_reveal', reveal_id: "new-#{container.template_name&.parameterize(separator: '_')}-#{life_cycle_stage.parameterize(separator: '_')}", reveal_title: t('actions.new', data: "#{container.template_name.titleize} (#{life_cycle_stage.titleize})", locale: DataCycleCore.ui_language), reveal_template: DataCycleCore.features.dig(:life_cycle, :idea_collection, :template), parent_template: container.template_name, life_cycle_name: life_cycle_stage %>
+        <% DataCycleCore::Feature::LifeCycle.ordered_classifications[0..-2].each do |life_cycle_stage| %>
+            <% if life_cycle_stage == DataCycleCore::Feature::IdeaCollection.life_cycle_stage %>
+                <%= render 'new_content_reveal', reveal_id: "new-#{container.template_name&.parameterize(separator: '_')}-#{life_cycle_stage.parameterize(separator: '_')}", reveal_title: t('actions.new', data: "#{container.template_name.titleize} (#{life_cycle_stage.titleize})", locale: DataCycleCore.ui_language), reveal_template: DataCycleCore::Feature::IdeaCollection.template, parent_template: container.template_name, life_cycle_name: life_cycle_stage %>
             <% else %>
                 <%= render 'new_content_reveal', reveal_id: "new-#{container.template_name&.parameterize(separator: '_')}-#{life_cycle_stage.parameterize(separator: '_')}", reveal_title: t('actions.new', data: "#{container.template_name.titleize} (#{life_cycle_stage.titleize})", locale: DataCycleCore.ui_language), reveal_template: container.template_name, life_cycle_name: life_cycle_stage %>
             <% end %>
