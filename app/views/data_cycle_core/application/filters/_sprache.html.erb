@@ -5,7 +5,7 @@
         <ul class="split-list clearfix">
             <% available_locales_with_names.except((show_all ||= false) ? nil : :all).each do |key,value| %>
                 <li>
-                    <input type="checkbox" name="language[]" value="<%= key.to_s %>" id="<%= key.to_s %>" <%= "checked" if key.to_s == @language.to_s %> />
+                    <input type="checkbox" name="language[]" value="<%= key.to_s %>" id="<%= key.to_s %>" <%= "checked" if @language.include?(key.to_s) %> />
                     <label for="<%= key.to_s %>">
                         <span class="title">
                             <%= value %>
