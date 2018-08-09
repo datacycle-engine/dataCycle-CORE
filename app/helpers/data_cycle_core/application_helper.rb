@@ -84,7 +84,7 @@ module DataCycleCore
     end
 
     def render_attribute_editor(key:, definition:, value:, parameters: {}, content: nil, scope: :edit)
-      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope))
+      return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope))
 
       if definition&.dig('ui', 'edit', 'partial').present?
         partials = [definition&.dig('ui', 'edit', 'partial')]

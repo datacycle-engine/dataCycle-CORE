@@ -148,6 +148,7 @@ module DataCycleCore
         Arel::SelectManager.new
           .project(search[:content_data_id])
           .from(search)
+          .where(search[:locale].eq(@locale))
           .join(classification_content)
           .on(search[:content_data_id].eq(classification_content[:content_data_id]))
           .join(classification)
