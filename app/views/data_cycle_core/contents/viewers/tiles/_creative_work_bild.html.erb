@@ -1,5 +1,5 @@
 <a data-open="media-reveal-<%= content.id %>">
-    <div class="thumbnail" style="background-image: url(<%= content.thumbnail_url %>)">
+    <div class="thumbnail" style="<%= "background-image: url(#{content.thumbnail_url})" if content.try(:thumbnail_url).present? %>">
         <div class="show-for-print">
             <img src="<%= content.thumbnail_url %>" />
         </div>

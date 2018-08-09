@@ -43,7 +43,7 @@ module DataCycleCore
         @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if DataCycleCore::Feature::Releasable.allowed?(@content) && !@content.release_id.nil?
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: controller_name, id: params[:id]) }
-          format.html { render 'show' }
+          format.html
         end
       end
     end
