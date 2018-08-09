@@ -76,12 +76,15 @@
                         <span class="tag-group tags sprache">
                           <i class="tag-group-label"><i class="fa fa-language" aria-hidden="true"></i> <%= t('common.language', locale: DataCycleCore.ui_language) %>:</i>
                           <span class="tags-container">
-                            <a class="tag">
-                              <%= available_locales_with_names[@language&.to_sym] %>
-                            </a>
+                            <% [@language].flatten.each do |value| %>
+                              <label for="<%= value %>">
+                                <a class="tag">
+                                  <%= available_locales_with_names[value&.to_sym] %><i class "fa fa-times" aria-hidden="true"></i>
+                                </a>
+                              </label>
+                            <% end %>
                           </span>
                         </span>
-
                         <% @default_filters.presence&.each do |filter| %>
                           <span class="tag-group tags <%= filter['n'] %>">
                             <i class="tag-group-label"><i class="fa fa-tags" aria-hidden="true"></i> <%= filter['n'] %>:</i>
