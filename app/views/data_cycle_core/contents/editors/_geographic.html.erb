@@ -56,7 +56,7 @@
           <%= number_field_tag key.gsub(/location/, 'latitude'), value.presence&.y, class: 'form-control', step: :any, readonly: true %>
         </div>
 
-        <%= render_attribute_editor key: key.gsub(/location/, 'elevation'), definition: content&.schema&.dig(*schema_path_from_key(key.gsub(/location/, 'elevation'))), value: (content.elevation.blank? || content.elevation.zero?) ? nil : content.elevation, parameters: { options: { force_render: true } }, content: content %>
+        <%= render_attribute_editor key: key.gsub(/location/, 'elevation'), definition: content&.schema&.dig(*schema_path_from_key(key.gsub(/location/, 'elevation'))), value: (content.elevation.blank? || content.elevation.zero?) ? nil : content.elevation, parameters: { options: { force_render: true } }, content: content if content.collect_properties.flatten.include?('elevation') %>
 
         <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) && DataCycleCore::Feature::Geocode.allowed?(content) %>
           <a href="#" class="button geocode-address-button" title="<%= t('actions.geocode', locale: DataCycleCore.ui_language, title: content&.schema&.dig('properties', DataCycleCore::Feature::Geocode.address_source(content), 'label')) %>" data-address-key="<%= DataCycleCore::Feature::Geocode.address_source(content) %>"><%= t('actions.geocode', locale: DataCycleCore.ui_language, title: content&.schema&.dig('properties', DataCycleCore::Feature::Geocode.address_source(content), 'label')) %></a>

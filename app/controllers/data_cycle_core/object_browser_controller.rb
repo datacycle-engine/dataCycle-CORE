@@ -95,7 +95,7 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      [:class, :per, :page, :id, :locale, :external, :ids, :search, :excluded, { definition: {} }]
+      [:class, :per, :page, :id, :locale, :external, { ids: [] }, :search, :excluded, { definition: {} }]
     end
   end
 end
