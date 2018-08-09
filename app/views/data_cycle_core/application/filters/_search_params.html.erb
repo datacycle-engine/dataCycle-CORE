@@ -1,7 +1,7 @@
 <span class="tag-group">
   <i class="fa fa-language" aria-hidden="true"></i>
   <%= t('common.language', locale: DataCycleCore.ui_language) %>:
-  <span class="tag"><%= available_locales_with_names[stored_search.language.to_sym] %></span>
+  <span class="tag"><%= stored_search.language.map {|lang| available_locales_with_names[lang.to_sym]} %></span>
 </span>
 
 <% selected_classification_aliases = DataCycleCore::ClassificationAlias.select(:id, :name).where(id: stored_search.parameters.select { |f| f['t'] == 'classification_alias_ids' }.map { |f| f['v'] }.flatten.compact.uniq).map { |c| [c.id, c.name] }.to_h %>

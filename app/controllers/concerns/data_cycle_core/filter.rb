@@ -66,7 +66,7 @@ module DataCycleCore
     def save_filter(new_filter: nil)
       new_filter ||= DataCycleCore::StoredFilter.new
       new_filter.user_id = current_user.id
-      new_filter.language = @language
+      new_filter.language = [@language].flatten
       new_filter.name = filter_params[:name] if params[:stored_filter].present? && filter_params[:name].present? && new_filter.id.nil?
       new_filter.system = filter_params[:system] if params[:stored_filter].present? && filter_params[:system].present?
       new_filter.parameters = @filters if @filters.present?

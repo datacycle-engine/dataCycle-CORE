@@ -8,7 +8,7 @@ module DataCycleCore
 
       def initialize(locale = 'de', query = nil)
         @locale = locale
-        @query = query || DataCycleCore::Search.where(search[:locale].eq(quoted(@locale)))
+        @query = query || DataCycleCore::Search.where(locale: @locale)
       end
 
       def content_includes
@@ -147,6 +147,7 @@ module DataCycleCore
         Arel::SelectManager.new
           .project(search[:content_data_id])
           .from(search)
+          .where(search[:locale].in([@locale].flatten))
           .join(classification_content)
           .on(search[:content_data_id].eq(classification_content[:content_data_id]))
           .join(classification)
