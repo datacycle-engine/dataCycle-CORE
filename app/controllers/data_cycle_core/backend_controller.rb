@@ -5,7 +5,7 @@ module DataCycleCore
     include DataCycleCore::Filter
     before_action :authenticate_user! # from devise (authenticate)
     authorize_resource class: false # from cancancan (authorize)
-    before_action :set_default_filter, only: :index, if: -> { DataCycleCore.features&.dig(:life_cycle, :default_filter).present? }
+    before_action :set_default_filter, only: :index, if: -> { DataCycleCore::Feature::LifeCycle.enabled? && DataCycleCore::Feature::LifeCycle.default_filter.present? }
 
     def index
       if DataCycleCore.features&.dig(:autoload_last_filter) && params[:stored_filter].blank? && !params[:utf8] && current_user.stored_filters.size.positive?

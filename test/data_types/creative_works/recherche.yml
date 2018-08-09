@@ -53,6 +53,11 @@
         :type: classification
         :tree_label: Inhaltspools
         :default_value: "Recherche"
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :disabled: true
       :creator:
         :label: Ersteller
         :type: linked
