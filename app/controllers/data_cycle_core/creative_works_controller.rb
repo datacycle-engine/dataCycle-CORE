@@ -145,44 +145,35 @@ module DataCycleCore
         # saving without changed properites after initial create is identified as change. (nil => "")
         # adding embedded objects, save, reopen, save is identified as change (is_part_of changes from nil to parent_id)
         #
-        data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
-          datahash.merge({ 'id' => @content.id, 'release_id' => object_params[:release_id], 'release_comment' => object_params[:release_comment] }),
-          @content.get_data_hash.merge({ 'release_id' => @content.release_id, 'release_comment' => @content.release_comment })
-        )
+        # data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
+        #   datahash.merge({ 'id' => @content.id, 'release_id' => object_params[:release_id], 'release_comment' => object_params[:release_comment] }),
+        #   @content.get_data_hash.merge({ 'release_id' => @content.release_id, 'release_comment' => @content.release_comment })
+        # )
 
-        unless data_hash_has_changes
-          flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @content.template_name, locale: DataCycleCore.ui_language
-          if (Rails.env.development? || params[:splitview]) && !params[:finalize]
-            redirect_back(fallback_location: root_path)
-          else
-            redirect_to creative_work_path(@content, watch_list_id: @watch_list)
-          end
-          return
-        end
+        # unless data_hash_has_changes
+        #   flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @content.template_name, locale: DataCycleCore.ui_language
+        #   if (Rails.env.development? || params[:splitview]) && !params[:finalize]
+        #     redirect_back(fallback_location: root_path)
+        #   else
+        #     redirect_to creative_work_path(@content, watch_list_id: @watch_list)
+        #   end
+        #   return
+        # end
 
-        valid = @content.set_data_hash(data_hash: datahash, current_user: current_user)
+        valid = @content.set_data_hash(data_hash: datahash.merge(release_params), current_user: current_user)
 
-        @content.release_id = object_params[:release_id]
-        @content.release_comment = object_params[:release_comment]
+        # @content.release_id = object_params[:release_id]
+        # @content.release_comment = object_params[:release_comment]
 
-        if valid.key?(:error) && !valid[:error].empty?
-          flash[:error] = valid[:error]
-          redirect_to edit_creative_work_path(@content)
-          return
-        end
+        redirect_to(edit_creative_work_path(@content, watch_list_id: @watch_list), alert: valid[:error]) && return if valid[:error].present?
 
-        if @content.save
-          execute_after_update_webhooks @content
-          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
+        execute_after_update_webhooks @content
+        flash[:success] = I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language)
 
-          if (Rails.env.development? || params[:splitview]) && !params[:finalize]
-            redirect_back(fallback_location: root_path)
-          else
-            redirect_to polymorphic_path(@content, watch_list_id: @watch_list)
-          end
-
+        if (Rails.env.development? || params[:splitview]) && !params[:finalize]
+          redirect_back(fallback_location: root_path)
         else
-          render 'edit'
+          redirect_to polymorphic_path(@content, watch_list_id: @watch_list)
         end
       end
     end

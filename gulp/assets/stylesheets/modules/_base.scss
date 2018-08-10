@@ -183,7 +183,8 @@ button,
   }
   >.detail-type {
     text-align: left;
-    &.classification .icon {
+    &.classification .icon,
+    &.validity_period .icon.gultigkeitszeitraum {
       i:before {
         content: "\f02c";
         font-family: FontAwesome;
@@ -204,6 +205,11 @@ button,
       &.bundesland {
         i:before {
           content: "\f041";
+        }
+      }
+      &.gultigkeitszeitraum {
+        i:before {
+          content: "\f017";
         }
       }
     }
@@ -254,7 +260,7 @@ button,
   } //.tags {
   .validity_period {
     text-align: left;
-    margin: 1rem 0 0 1rem;
+    margin-top: 1rem;
     color: $dark-gray;
     .date {
       color: $black;

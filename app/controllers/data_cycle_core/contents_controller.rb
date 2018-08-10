@@ -112,44 +112,35 @@ module DataCycleCore
         object_params = content_params(controller_name, @content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
 
-        datahash = before_set_data_hash(datahash)
+        # datahash = before_set_data_hash(datahash)
 
-        data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
-          datahash.merge({ 'id' => @content.id }),
-          @content.get_data_hash
-        )
+        # data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
+        #   datahash.merge({ 'id' => @content.id }),
+        #   @content.get_data_hash
+        # )
 
-        unless data_hash_has_changes
-          flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @content.template_name, locale: DataCycleCore.ui_language
-          if (Rails.env.development? || params[:splitview]) && !params[:finalize]
-            redirect_back(fallback_location: root_path)
-          else
-            redirect_to polymorphic_path(@content, watch_list_id: @watch_list)
-          end
-          return
-        end
+        # unless data_hash_has_changes
+        #   flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @content.template_name, locale: DataCycleCore.ui_language
+        #   if (Rails.env.development? || params[:splitview]) && !params[:finalize]
+        #     redirect_back(fallback_location: root_path)
+        #   else
+        #     redirect_to polymorphic_path(@content, watch_list_id: @watch_list)
+        #   end
+        #   return
+        # end
 
-        valid = @content.set_data_hash(data_hash: datahash, current_user: current_user)
+        valid = @content.set_data_hash(data_hash: datahash.merge(release_params), current_user: current_user)
 
-        if valid.key?(:error) && !valid[:error].empty?
-          flash[:error] = valid[:error]
-          redirect_to edit_polymorphic_path(@content)
-          return
-        end
+        redirect_to(edit_creative_work_path(@content, watch_list_id: @watch_list), alert: valid[:error]) && return if valid[:error].present?
 
-        if @content.save
-          execute_after_update_webhooks @content
+        execute_after_update_webhooks @content
 
-          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
+        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
-          if Rails.env.development?
-            redirect_back(fallback_location: root_path)
-          else
-            redirect_to polymorphic_path(@content, watch_list_id: @watch_list)
-          end
-
+        if Rails.env.development?
+          redirect_back(fallback_location: root_path)
         else
-          render 'edit'
+          redirect_to polymorphic_path(@content, watch_list_id: @watch_list)
         end
       end
     end
@@ -318,10 +309,6 @@ module DataCycleCore
     def execute_after_destroy_webhooks(data)
     end
 
-    def before_set_data_hash(datahash)
-      datahash
-    end
-
     def set_watch_list
       watch_list = DataCycleCore::WatchList.find(params[:watch_list_id]) if params[:watch_list_id]
       @watch_list = watch_list if can?(:manage, watch_list)
@@ -329,6 +316,10 @@ module DataCycleCore
 
     def path_params
       params.permit(:path)
+    end
+
+    def release_params
+      params.require(controller_name.singularize.to_sym).permit(release: [:release_id, :release_comment])
     end
 
     def asset_params
@@ -345,7 +336,7 @@ module DataCycleCore
 
     def content_params(storage_location, template_name)
       datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name)
-      params.require(controller_name.singularize.to_sym).permit(:release_id, :release_comment, datahash: datahash)
+      params.require(controller_name.singularize.to_sym).permit(datahash: datahash)
     end
 
     def source_params

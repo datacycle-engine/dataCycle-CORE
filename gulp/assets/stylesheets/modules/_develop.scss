@@ -710,9 +710,11 @@ video {
     color: map-get($foundation-palette, primary);
   }
   .content-pool {
-    padding: 0.5rem 0.7rem;
+    padding: 0.5rem 0.8rem;
     vertical-align: middle;
+    font-size: 0.8rem;
     &.active {
+      font-size: 0.9rem;
       cursor: auto;
     }
   }
