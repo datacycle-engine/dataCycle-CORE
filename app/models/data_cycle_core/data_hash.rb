@@ -39,11 +39,15 @@ module DataCycleCore
             save
           end
 
-          translated_locales.push(I18n.locale).uniq.each do |locale|
-            I18n.with_locale(locale) do
-              set_search
-            end
+          I18n.with_locale(I18n.locale) do
+            set_search
           end
+
+          # translated_locales.push(I18n.locale).uniq.each do |locale|
+          #   I18n.with_locale(locale) do
+          #     set_search
+          #   end
+          # end
         end
       end
       validate(stripped_data_hash) # return error/warnings from validation
