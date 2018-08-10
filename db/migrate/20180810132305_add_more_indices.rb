@@ -10,10 +10,10 @@ class AddMoreIndices < ActiveRecord::Migration[5.1]
     add_index :classification_groups, [:deleted_at, :classification_id], name: 'deleted_at_classification_id_idx'
     add_index :classification_aliases, [:deleted_at, :id], name: 'deleted_at_id_idx'
     add_index :classification_trees, [:deleted_at, :classification_alias_id], name: 'deleted_at_classification_alias_id_idx'
-    add_index :creative_works, [:template, :template_name], name: 'template_template_name_idx'
-    add_index :events, [:template, :template_name], name: 'template_template_name_idx'
-    add_index :organizations, [:template, :template_name], name: 'template_template_name_idx'
-    add_index :persons, [:template, :template_name], name: 'template_template_name_idx'
-    add_index :places, [:template, :template_name], name: 'template_template_name_idx'
+    add_index :creative_works, [:template, :template_name], name: 'cw_template_template_name_idx'
+    add_index :events, [:template, :template_name], name: 'ev_template_template_name_idx'
+    add_index :organizations, [:template, :template_name], name: 'or_template_template_name_idx'
+    add_index :persons, [:template, :template_name], name: 'pe_template_template_name_idx'
+    add_index :places, [:template, :template_name], name: 'pl_template_template_name_idx'
   end
 end
