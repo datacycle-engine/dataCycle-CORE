@@ -65,7 +65,7 @@ module DataCycleCore
           stored_filter_id = permitted_params[:id] || permitted_params[:stored_filter_id] || nil
           if stored_filter_id.present?
             @stored_filter = DataCycleCore::StoredFilter.find(stored_filter_id)
-            raise ActiveRecord::RecordNotFound unless @stored_filter.api_users.include?(current_user.id)
+            raise ActiveRecord::RecordNotFound unless (@stored_filter.api_users + [@stored_filter.user_id]).include?(current_user.id)
           end
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
