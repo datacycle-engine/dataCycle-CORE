@@ -48,7 +48,10 @@ module DataCycleCore
 
         def permitted_parameter_keys
           # json-api: fields, sort
-          super + [:id, :stored_filter_id, :format, :type, :language, :mode, :q, :modified_since, :created_since, :deleted_since, :include, { filter: [{ classifications: [] }] }]
+          super + [
+            :id, :stored_filter_id, :format, :type, :language, :mode, :q, :include, :deleted_since,
+            { filter: [:modified_since, :created_since, :deleted_since, { classifications: [] }] }
+          ]
         end
 
         private
@@ -74,8 +77,8 @@ module DataCycleCore
           query = filter.apply
 
           query = query.where(content_data_type: content_data_type.to_s) if content_data_type
-          query = query.modified_since(permitted_params[:modified_since]) if permitted_params[:modified_since]
-          query = query.created_since(permitted_params[:created_since]) if permitted_params[:created_since]
+          query = query.modified_since(permitted_params.dig(:filter, :modified_since)) if permitted_params.dig(:filter, :modified_since)
+          query = query.created_since(permitted_params.dig(:filter, :created_since)) if permitted_params.dig(:filter, :created_since)
           query = query.fulltext_search(permitted_params[:q]) if permitted_params[:q]
 
           query = query.in_validity_period
