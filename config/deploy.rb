@@ -6,7 +6,7 @@
 set :application, 'data-cycle-core'
 set :repo_url, 'git@git.pixelpoint.biz:data-cycle/data-cycle-core.git'
 
-set :rvm_ruby_version, '2.4.4'
+set :rvm_ruby_version, '2.4.3'
 
 set :puma_rackup, -> { File.join(current_path, 'test', 'dummy', 'config.ru') }
 set :puma_workers, 1

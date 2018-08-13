@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.md']
 
-  s.required_ruby_version = '~> 2.4.4'
+  s.required_ruby_version = '~> 2.4.3'
 
   # rails
   # s.add_dependency 'jquery-rails'
