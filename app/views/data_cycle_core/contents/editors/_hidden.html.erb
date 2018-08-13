@@ -1,0 +1,7 @@
+<% if value.is_a?(ActiveRecord::Relation) %>
+  <% value.each do |v| %>
+    <%= hidden_field_tag key + '[]', v.try(:id), multiple: true %>
+  <% end %>
+<% else %>
+  <%= hidden_field_tag key, value %>
+<% end %>
