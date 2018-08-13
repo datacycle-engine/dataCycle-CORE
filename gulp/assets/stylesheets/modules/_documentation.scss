@@ -1,0 +1,24 @@
+body.documentation {
+  section.breadcrumb {
+    margin-bottom: 2rem;
+  }
+
+  pre {
+    border: 1px solid #e5e5e5;
+    background-color: #e6e6e6;
+    padding: 1rem;
+  }
+
+  p, pre {
+    margin-bottom: 1rem;
+  }
+
+  footer {
+    background-image: url("logo.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 7rem;
+    margin: 1rem;
+    opacity: .33;
+  }
+}
