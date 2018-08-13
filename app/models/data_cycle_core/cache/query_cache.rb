@@ -31,6 +31,25 @@ module DataCycleCore
             DataCycleCore::Asset.joins(join_relation).where(join_relation => { class_id_name => class_id, relation: relation_name })
           end
         end
+
+        def load_external_data(content_type, external_source_id, external_keys)
+          Rails.cache.fetch("#{content_type.table_name}/#{external_source_id}/#{[external_keys].flatten.map(&:to_s).join('_')}", expires_in: 30.seconds) do
+            content_type.where(
+              external_source_id: external_source_id,
+              external_key: external_keys
+            )
+          end
+        end
+
+        def load_classification(name, external_source_id, external_key)
+          Rails.cache.fetch("#{content_type.table_name}/#{external_source_id}/#{[external_keys].flatten.map(&:to_s).join('_')}", expires_in: 30.seconds) do
+            DataCycleCore::Classification.where(
+              name: name,
+              external_source_id: external_source_id,
+              external_key: external_key
+            )
+          end
+        end
       end
     end
   end
