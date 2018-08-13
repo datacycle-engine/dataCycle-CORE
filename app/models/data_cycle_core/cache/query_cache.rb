@@ -23,7 +23,7 @@ module DataCycleCore
         end
 
         def check_classification_id_from_tree(tree_label, id)
-          Rails.cache.fetch("classification_aliases/#{tree_label}/classification_alias/#{ids}", expires_in: STD_TIME) do
+          Rails.cache.fetch("classification_aliases/#{tree_label}/classification_alias/#{id}", expires_in: STD_TIME) do
             DataCycleCore::Classification
               .joins(classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]])
               .where(classification_tree_labels: { name: tree_label }, classifications: { id: id })
