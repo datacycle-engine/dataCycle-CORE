@@ -21,13 +21,13 @@ module DataCycleCore
         end
 
         def load_classification_relations(join_relation, class_type_name, class_type, class_id_name, class_id, relation_name)
-          Rails.cache.fetch("#{classifications}/#{class_type_name}/#{class_id}/#{relation_name}/#{join_relation}", expires_in: 30.seconds) do
+          Rails.cache.fetch("classifications/#{class_type_name}/#{class_id}/#{relation_name}/#{join_relation}", expires_in: 30.seconds) do
             DataCycleCore::Classification.joins(join_relation).where(join_relation => { class_type_name => class_type, class_id_name => class_id, relation: relation_name })
           end
         end
 
         def load_asset_relations(join_relation, class_id_name, class_id, relation_name)
-          Rails.cache.fetch("#{assets}/#{class_id}/#{relation_name}/#{join_relation}", expires_in: 30.seconds) do
+          Rails.cache.fetch("assets/#{class_id}/#{relation_name}/#{join_relation}", expires_in: 30.seconds) do
             DataCycleCore::Asset.joins(join_relation).where(join_relation => { class_id_name => class_id, relation: relation_name })
           end
         end
