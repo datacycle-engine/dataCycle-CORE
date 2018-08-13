@@ -372,13 +372,15 @@ module DataCycleCore
         class_id = :content_data_id
         class_type = :content_data_type
       end
-      DataCycleCore::Classification.joins(join_relation).where(join_relation => { class_type => self.class.to_s, class_id => id, relation: relation_name })
+      # DataCycleCore::Classification.joins(join_relation).where(join_relation => { class_type => self.class.to_s, class_id => id, relation: relation_name })
+      DataCycleCore::Cache::QueryCache.load_classification_relations(join_relation, class_type, self.class.to_s, class_id, id, relation_name)
     end
 
     def load_asset_relation_ids(relation_name)
       join_relation = :asset_contents
       class_id = :content_data_id
-      DataCycleCore::Asset.joins(join_relation).where(join_relation => { class_id => id, relation: relation_name })
+      # DataCycleCore::Asset.joins(join_relation).where(join_relation => { class_id => id, relation: relation_name })
+      DataCycleCore::Cache::QueryCache.load_asset_relations(join_relation, class_id, id, relation_name)
     end
 
     def set_property_value(property_name, property_definition, value)
