@@ -15,7 +15,7 @@ module DataCycleCore
 
     # set data as specified in the data template
     # data hash with keys named as in schema.org
-    def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false)
+    def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true)
       stripped_data_hash = data_hash
       stripped_data_hash, global_release_hash = extract_release(data_hash, true) if is_a?(DataCycleCore::Releasable) # strip also release data from embeddedObjects
 
@@ -39,15 +39,7 @@ module DataCycleCore
             save
           end
 
-          I18n.with_locale(I18n.locale) do
-            set_search
-          end
-
-          # translated_locales.push(I18n.locale).uniq.each do |locale|
-          #   I18n.with_locale(locale) do
-          #     set_search
-          #   end
-          # end
+          search_languages(update_search_all)
         end
       end
       validate(stripped_data_hash) # return error/warnings from validation
@@ -199,6 +191,20 @@ module DataCycleCore
     def validate?(data, strict = false)
       validator = DataCycleCore::MasterData::ValidateData.new
       validator.valid?(data, schema, strict)
+    end
+
+    def search_languages(all)
+      if all
+        translated_locales.push(I18n.locale).uniq.each do |locale|
+          I18n.with_locale(locale) do
+            set_search
+          end
+        end
+      else
+        I18n.with_locale(I18n.locale) do
+          set_search
+        end
+      end
     end
 
     def set_search
