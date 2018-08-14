@@ -93,10 +93,11 @@ module DataCycleCore
         end
 
         def load_user_by_email(email)
+          user_object = DataCycleCore::User
           key = "#{user_object.table_name}/#{email}"
           log(key, "load_user_by_email(#{user_object.table_name}, #{email})")
           cache(key, STD_TIME, :load_user_by_email) do
-            DataCycleCore::User.find_by(email: email)
+            user_object.find_by(email: email)
           end
         end
 
