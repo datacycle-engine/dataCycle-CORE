@@ -202,6 +202,8 @@ module DataCycleCore
       latitude: 47.41520280002081,
       zoom: 7
     }
+
+    mattr_accessor :query_cache
   end
 
   def self.setup

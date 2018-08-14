@@ -139,14 +139,17 @@ module DataCycleCore
           )
         end
 
-        def self.add_user_link(data_hash, attribute, content_type, key_function)
+        def self.add_user_link(data_hash, attribute, key_function)
           return data_hash if key_function.call(data_hash).blank?
           data_hash.merge(
             {
               attribute => [
-                content_type.find_by(
-                  email: key_function.call(data_hash)
+                DataCycleCore::Cache::QueryCache.load_user_by_email(
+                  key_function.call(data_hash)
                 )&.id
+                # DataCycleCore::User.find_by(
+                #   email: key_function.call(data_hash)
+                # )&.id
               ].compact.presence
             }
           )
