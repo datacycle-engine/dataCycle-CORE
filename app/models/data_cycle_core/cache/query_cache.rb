@@ -37,11 +37,19 @@ module DataCycleCore
           end
         end
 
-        def load_classification_relations(join_relation, class_type_name, class_type, class_id_name, class_id, relation_name)
+        def load_classification_via_relations(join_relation, class_type_name, class_type, class_id_name, class_id, relation_name)
           key = "classifications/#{class_type_name}/#{class_id}/#{relation_name}/#{join_relation}"
-          log(key, "load_classification_relations(#{join_relation}, #{class_type_name}, #{class_type}, #{class_id_name}, #{class_id}, #{relation_name})")
-          cache(key, STD_TIME, :load_classification_relations) do
+          log(key, "load_classification_via_relations(#{join_relation}, #{class_type_name}, #{class_type}, #{class_id_name}, #{class_id}, #{relation_name})")
+          cache(key, STD_TIME, :load_classification_via_relations) do
             DataCycleCore::Classification.joins(join_relation).where(join_relation => { class_type_name => class_type, class_id_name => class_id, relation: relation_name })
+          end
+        end
+
+        def load_classification_relations(classification_object, where_hash)
+          key = "classifications/#{where_hash.values.join('/')}"
+          log(key, "load_classification_relation(#{classification_object.class}, #{where_hash})")
+          cache(key, STD_TIME, :load_classification_relations) do
+            classification_object.where(where_hash)
           end
         end
 
@@ -68,7 +76,15 @@ module DataCycleCore
           end
         end
 
-        def load_asset_relations(join_relation, class_id_name, class_id, relation_name)
+        def load_asset_relations(asset_relation_object, where_hash)
+          key = "#{asset_relation_object.class_name}/#{where_hash.values.join('/')}"
+          log(key, "load_asset_relations(#{asset_relation_object.class}, #{where_hash})")
+          cache(key, STD_TIME, :load_asset_relations) do
+            asset_relation_object.where(where_hash)
+          end
+        end
+
+        def load_asset_via_relations(join_relation, class_id_name, class_id, relation_name)
           key = "assets/#{class_id}/#{relation_name}/#{join_relation}"
           log(key, "load_asset_relations(#{join_relation}, #{class_id_name}, #{class_id}, #{relation_name})")
           cache(key, STD_TIME, :load_asset_relations) do
@@ -85,7 +101,7 @@ module DataCycleCore
         end
 
         def cache(key, expires_in, method)
-          Appsignal.instrument(method) do
+          Appsignal.instrument(method.to_s) do
             DataCycleCore.query_cache.fetch(key, expires_in: expires_in) do
               yield
             end

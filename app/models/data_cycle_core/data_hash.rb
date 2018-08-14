@@ -340,13 +340,15 @@ module DataCycleCore
         classification_object = DataCycleCore::ClassificationContent
         where_hash = { 'content_data_id' => id, 'content_data_type' => self.class.to_s, 'relation' => relation_name }
       end
-      classification_object.where(where_hash)
+      DataCycleCore::Cache::QueryCache.load_classification_relations(classification_object, where_hash)
+      # classification_object.where(where_hash)
     end
 
     def get_asset_relation(relation_name)
       asset_content_object = DataCycleCore::AssetContent
       where_hash = { 'content_data_id' => id, 'content_data_type' => self.class.to_s, 'relation' => relation_name }
-      asset_content_object.where(where_hash)
+      # asset_content_object.where(where_hash)
+      DataCycleCore::Cache::QueryCache.load_asset_relations(asset_content_object, where_hash)
     end
 
     def set_relation_ids(ids, relation_name, tree_label, default_value)
