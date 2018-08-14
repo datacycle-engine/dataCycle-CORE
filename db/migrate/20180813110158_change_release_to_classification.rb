@@ -2,9 +2,9 @@
 
 class ChangeReleaseToClassification < ActiveRecord::Migration[5.1]
   def up
-    Rake::Task['data_cycle_core:update:import_classifications'].invoke
-    Rake::Task['data_cycle_core:update:import_templates'].invoke
-    Rake::Task['data_cycle_core:update:update_all_templates_sql'].invoke(true)
+    Rake::Task["#{ENV.fetch('APP_PREFIX', '')}data_cycle_core:update:import_classifications"].invoke
+    Rake::Task["#{ENV.fetch('APP_PREFIX', '')}data_cycle_core:update:import_templates"].invoke
+    Rake::Task["#{ENV.fetch('APP_PREFIX', '')}data_cycle_core:update:update_all_templates_sql"].invoke(true)
 
     ['creative_works', 'events', 'persons', 'organizations', 'places'].each do |table_name|
       execute <<-SQL

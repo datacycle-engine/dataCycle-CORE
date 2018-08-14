@@ -1,5 +1,5 @@
 <div class="status-container">
-  <span class="status">Status: <strong><%= content.release_status_id.presence&.includes(:classification_aliases).map(&:classification_aliases).flatten.first.name %></strong></span>
+  <span class="status">Status: <strong><%= content.release_status_id.presence&.includes(:classification_aliases)&.map(&:classification_aliases)&.flatten&.first&.name %></strong></span>
   <% if content.release_status_comment.present? %>
     <i class="fa fa-comment release-comment-button" aria-hidden="true" data-toggle="release-comment-<%= content.id %>"></i>
     <div class="reveal" id="release-comment-<%= content.id %>" data-reveal>

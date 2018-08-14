@@ -8,6 +8,7 @@ variables:
   POSTGRES_PORT: "5432"
   MONGODB_HOST: mongodb
   RAILS_ENV: test
+  APP_PREFIX: "app:"
   TZ: Europe/Vienna
 
 stages:
