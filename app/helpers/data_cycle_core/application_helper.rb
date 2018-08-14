@@ -68,8 +68,8 @@ module DataCycleCore
     def feature_templates(key, definition, content)
       [
         definition&.dig('features').try(:keys),
-        content&.schema&.dig('features')&.select { |_, v| v.is_a?(Hash) && v['attribute_key'] == key.parameterize(separator: '_') }&.keys,
-        DataCycleCore.features.select { |_, v| v.is_a?(Hash) && v[:attribute_key] == key.parameterize(separator: '_') }.keys
+        content&.schema&.dig('features')&.select { |_, v| v.is_a?(Hash) && v['attribute_keys'].presence&.include?(key.parameterize(separator: '_')) }&.keys,
+        DataCycleCore.features.select { |_, v| v.is_a?(Hash) && v[:attribute_keys].presence&.include?(key.parameterize(separator: '_')) }.keys
       ].reject(&:blank?).flatten
     end
 

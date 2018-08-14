@@ -13,7 +13,6 @@ module DataCycleCore
     def get_data_hash(timestamp = Time.zone.now)
       return if !translated_locales.include?(I18n.locale) && changes.count.zero? # for new data-sets with pending data in it
       data_hash = as_of(timestamp)&.to_h(timestamp)
-      data_hash = merge_release(data_hash, release) if is_a?(DataCycleCore::Releasable)
       data_hash
     end
 
@@ -25,22 +24,9 @@ module DataCycleCore
       @prevent_history = prevent_history
       run_callbacks :save_data_hash
 
-      stripped_data_hash = @data_hash
-      stripped_data_hash, global_release_hash = extract_release(@data_hash, true) if is_a?(DataCycleCore::Releasable) # strip also release data from embeddedObjects
-
-      if validate?(stripped_data_hash) && diff?(stripped_data_hash)
+      if validate?(@data_hash) && diff?(@data_hash)
         ActiveRecord::Base.transaction do
           to_history(save_time: save_time) if id.nil? == false && prevent_history == false
-          @data_hash, release_hash = extract_release(@data_hash, false) if is_a?(DataCycleCore::Releasable) # strip release data only from this object
-          # @data_hash = @data_hash.merge({ 'last_updated_by' => [current_user.presence&.id || try(:last_updated_by).presence&.first&.id] })
-
-          if is_a?(DataCycleCore::Releasable)
-            self.release_id = global_release(global_release_hash)
-            self.release_comment = global_release_hash.dig('release', 'release_comment')
-            # reactivate if releasable in attributes is needed
-            # self.release = release_hash
-            # self.release_id = global_release(global_release_hash)
-          end
 
           set_template_data_hash(@data_hash, property_definitions, save_time, current_user)
 
@@ -56,7 +42,7 @@ module DataCycleCore
         end
         run_callbacks :saved_data_hash
       end
-      validate(stripped_data_hash) # return error/warnings from validation
+      validate(@data_hash) # return error/warnings from validation
     end
 
     def set_last_updated_by
@@ -334,7 +320,7 @@ module DataCycleCore
           data_hash[attribute_key] = parent_data_hash[attribute_key] if parent_data_hash[attribute_key].present?
         end
 
-        data_hash[DataCycleCore::Feature::LifeCycle.attribute_key] = parent_data_hash[DataCycleCore::Feature::LifeCycle.attribute_key] if DataCycleCore::Feature::LifeCycle.enabled?
+        data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = parent_data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] if DataCycleCore::Feature::LifeCycle.allowed?(self)
       end
 
       data_hash.compact!

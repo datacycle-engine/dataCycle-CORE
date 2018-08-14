@@ -76,9 +76,6 @@ module DataCycleCore
         temp_params = []
 
         template_hash['properties'].each do |key, value|
-          orig_key = key
-          key = 'value' if value['releasable']
-
           if value['type'] == 'embedded'
             object_properties = get_internal_template(value['linked_table'], value['template_name'])
             key = { key.to_sym => get_params_from_hash(object_properties.schema) }
@@ -89,8 +86,6 @@ module DataCycleCore
           else
             key = key.to_sym
           end
-
-          key = { orig_key.to_sym => [key, 'release_id', 'release_comment'] } if value['releasable']
 
           temp_params.push(key)
         end

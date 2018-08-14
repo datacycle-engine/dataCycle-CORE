@@ -372,6 +372,12 @@ button,
       background: $light-gray;
     }
   }
+  .form-element.release_status_comment {
+    .ql-editor {
+      background-color: white;
+      min-height: 150px;
+    }
+  }
   .form-element.focus>.editor-block>.ql-toolbar.fixed-toolbar,
   .form-element.focus>.editor-block>.ql-toolbar.fixed-split-toolbar {
     background: white;
@@ -406,6 +412,11 @@ button,
     .form-element {
       position: relative;
       margin-bottom: 1rem;
+      &.release_status_comment {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid $light-gray;
+      }
       label {
         padding-top: 0.5rem;
         opacity: 1;

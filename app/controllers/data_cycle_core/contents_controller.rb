@@ -169,7 +169,7 @@ module DataCycleCore
 
       I18n.with_locale(@content.first_available_locale) do
         @data_schema = @content.get_data_hash
-        @diff_schema = helpers.get_diff(@history_schema.merge(@history_source.releasable_hash), @data_schema.merge(@content.releasable_hash))
+        @diff_schema = helpers.get_diff(@history_schema, @data_schema)
       end
     end
 
@@ -218,7 +218,7 @@ module DataCycleCore
         idea_collection.save
       end
 
-      @object.set_life_cycle_classification(DataCycleCore::Feature::LifeCycle.attribute_key(@object), life_cycle_params[:id], current_user)
+      @object.set_life_cycle_classification(DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(@object).presence&.first, life_cycle_params[:id], current_user)
 
       redirect_back(fallback_location: root_path, notice: (I18n.t :moved_to, scope: [:controllers, :success], data: life_cycle_params[:name], locale: DataCycleCore.ui_language))
     end

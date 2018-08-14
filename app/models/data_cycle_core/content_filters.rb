@@ -35,18 +35,16 @@ module DataCycleCore
     end
 
     def expired_not_release_id(id)
-      translation_table = "DataCycleCore::#{table_name.classify}::Translation".constantize.arel_table
-      joins(:translations)
-        .where.not(
-          translation_table[:release_id].eq(id)
-          .or(translation_table[:release_id].eq(nil))
-        )
+      return unless DataCycleCore::Feature::Releasable.enabled?
+      joins(:classifications)
+        .where('classification_contents.relation = ?', DataCycleCore::Feature::Releasable.attribute_keys.first)
+        .where.not('classification_contents.classification_id = ?', id)
     end
 
     def expired_not_life_cycle_id(id)
-      return if DataCycleCore::Feature::LifeCycle.attribute_key.blank?
+      return if DataCycleCore::Feature::LifeCycle.attribute_keys.blank?
       joins(:classifications)
-        .where('classification_contents.relation = ?', DataCycleCore::Feature::LifeCycle.attribute_key)
+        .where('classification_contents.relation = ?', DataCycleCore::Feature::LifeCycle.attribute_keys.first)
         .where.not('classification_contents.classification_id = ?', id)
     end
   end

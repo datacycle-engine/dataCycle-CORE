@@ -867,6 +867,9 @@ ul.translated-locales {
 
 .form-element {
   text-align: left;
+  &.release_status_id .v-select .select2 {
+    background-color: white;
+  }
   .v-select {
     label {
       display: block;

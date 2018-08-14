@@ -1,15 +1,13 @@
-<% unless @release_status.nil? %>
-  <div class="status-container">
-    <span class="status">Status: <strong><%= @release_status.release_text %></strong></span>
-    <% unless dataCycleObject.releasable_hash['release_comment'].blank? %>
-      <i class="fa fa-comment release-comment-button" aria-hidden="true" data-toggle="release-comment-<%= dataCycleObject.id %>"></i>
-      <div class="reveal" id="release-comment-<%= dataCycleObject.id %>" data-reveal>
-        <p class="lead">Kommentar</p>
-        <%= simple_format(dataCycleObject.releasable_hash['release_comment']) %>
-        <button class="close-button" data-close aria-label="Close reveal" type="button">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    <% end %>
-  </div>
-<% end %>
+<div class="status-container">
+  <span class="status">Status: <strong><%= content.release_status_id.presence&.includes(:classification_aliases).map(&:classification_aliases).flatten.first.name %></strong></span>
+  <% if content.release_status_comment.present? %>
+    <i class="fa fa-comment release-comment-button" aria-hidden="true" data-toggle="release-comment-<%= content.id %>"></i>
+    <div class="reveal" id="release-comment-<%= content.id %>" data-reveal>
+      <p class="lead">Kommentar</p>
+      <%= content.release_status_comment.try(:html_safe) %>
+      <button class="close-button" data-close aria-label="Close reveal" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  <% end %>
+</div>

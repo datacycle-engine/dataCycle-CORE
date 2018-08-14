@@ -491,12 +491,12 @@ namespace :data_cycle_core do
       logger.info('Started Archiving...')
       temp = Time.zone.now
       archive_life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.values&.last&.dig(:id)
-      archive_release_id = DataCycleCore::Release.order(release_code: :desc)&.first&.id
+      archive_release_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('archive'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.id
 
       ids = DataCycleCore::Search.where('upper(validity_period) < ?', Date.current).map { |s| s.content_data&.id }
 
       DataCycleCore.content_tables.each do |table_name|
-        if archive_release_id.present?
+        if DataCycleCore::Feature::Releasable.attribute_keys.present? && archive_release_id.present?
           contents = ('DataCycleCore::' + table_name.singularize.classify).constantize
             .where(id: ids)
             .expired_not_release_id(archive_release_id)
@@ -522,8 +522,10 @@ namespace :data_cycle_core do
             index += 1
 
             I18n.with_locale(content.first_available_locale) do
-              content.set_data_hash(data_hash: content.get_data_hash)
-              content.translations.update_all(release_id: archive_release_id, release_comment: I18n.t('common.archived', locale: DataCycleCore.ui_language))
+              data_hash = content.get_data_hash
+              data_hash[DataCycleCore::Feature::Releasable.attribute_keys.first] = [archive_release_id]
+              data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = I18n.t('common.archived', locale: DataCycleCore.ui_language)
+              content.set_data_hash(data_hash: data_hash)
               logger.info("Archived (release_status): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
             end
           end
@@ -533,10 +535,9 @@ namespace :data_cycle_core do
           logger.warn('No Release found.')
         end
 
-        if DataCycleCore::Feature::LifeCycle.attribute_key.present? && archive_life_cycle_id.present?
+        if DataCycleCore::Feature::LifeCycle.attribute_keys.present? && archive_life_cycle_id.present?
           contents = ('DataCycleCore::' + table_name.singularize.classify).constantize
             .where(id: ids)
-            .where('classification_contents.relation = ?', DataCycleCore::Feature::LifeCycle.attribute_key)
             .expired_not_life_cycle_id(archive_life_cycle_id)
             .with_content_type('entity').distinct
 
@@ -563,7 +564,7 @@ namespace :data_cycle_core do
 
             I18n.with_locale(content.first_available_locale) do
               data_hash = content.get_data_hash
-              data_hash[DataCycleCore::Feature::LifeCycle.attribute_key] = [archive_life_cycle_id]
+              data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = [archive_life_cycle_id]
               content.set_data_hash(data_hash: data_hash)
               logger.info("Archived (life_cycle): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
             end
@@ -588,13 +589,14 @@ namespace :data_cycle_core do
       temp = Time.zone.now
       archive_life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.values&.last&.dig(:id)
       valid_life_cycle_id = DataCycleCore::Classification.find_by(name: 'Aktuelle Inhalte')&.id
-      archive_release_id = DataCycleCore::Release.order(release_code: :desc)&.first&.id
-      valid_release_id = DataCycleCore::Release.order(release_code: :desc)&.last&.id
+
+      archive_release_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('archive'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.id
+      valid_release_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('valid'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.id
 
       DataCycleCore.content_tables.each do |table_name|
-        if archive_release_id.present?
-          contents = ('DataCycleCore::' + table_name.singularize.classify).constantize.includes(:translations)
-            .where(release_id: archive_release_id, template_name: ['Bild', 'Video'])
+        if DataCycleCore::Feature::Releasable.attribute_keys.present? && archive_release_id.present?
+          contents = ('DataCycleCore::' + table_name.singularize.classify).constantize.joins(:classifications)
+            .where(template_name: ['Bild', 'Video'], classifications: { id: archive_release_id })
             .where("metadata ->> 'validity_period' IS NULL OR ((metadata -> 'validity_period' ->> 'valid_from' IS NULL OR metadata -> 'validity_period' ->> 'valid_from' < :today) AND (metadata -> 'validity_period' ->> 'valid_until' IS NULL OR metadata -> 'validity_period' ->> 'valid_until' > :today))", today: Date.current)
             .with_content_type('entity').distinct
 
@@ -620,9 +622,15 @@ namespace :data_cycle_core do
             index += 1
 
             I18n.with_locale(content.first_available_locale) do
-              content.set_data_hash(data_hash: content.get_data_hash)
-              content.translations.update_all(release_id: valid_release_id, release_comment: I18n.t('common.unarchived', locale: DataCycleCore.ui_language))
-              logger.info("Unarchived (release_status): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
+              data_hash = content.get_data_hash
+              data_hash[DataCycleCore::Feature::Releasable.attribute_keys.first] = [valid_release_id]
+              data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = I18n.t('common.unarchived', locale: DataCycleCore.ui_language)
+              errors = content.set_data_hash(data_hash: data_hash)
+              if errors[:error].present?
+                logger.warn("Fehler (#{content.id}): #{errors[:error]}")
+              else
+                logger.info("Unarchived (release_status): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
+              end
             end
           end
 
@@ -631,15 +639,13 @@ namespace :data_cycle_core do
           logger.warn('No Release found.')
         end
 
-        if DataCycleCore::Feature::LifeCycle.attribute_key.present? && archive_life_cycle_id.present?
+        if DataCycleCore::Feature::LifeCycle.attribute_keys.present? && archive_life_cycle_id.present?
           contents = ('DataCycleCore::' + table_name.singularize.classify).constantize.joins(:classifications)
             .where(template_name: ['Bild', 'Video'], classifications: { id: archive_life_cycle_id })
             .where("metadata ->> 'validity_period' IS NULL OR ((metadata -> 'validity_period' ->> 'valid_from' IS NULL OR metadata -> 'validity_period' ->> 'valid_from' < :today) AND (metadata -> 'validity_period' ->> 'valid_until' IS NULL OR metadata -> 'validity_period' ->> 'valid_until' > :today))", today: Date.current)
             .with_content_type('entity').distinct
 
           contents = contents.where(is_part_of: nil) if ActiveRecord::Base.connection.column_exists?(table_name, 'is_part_of')
-
-          # raise contents.to_sql.inspect
 
           index = 0
           items_count = contents.size
@@ -663,7 +669,7 @@ namespace :data_cycle_core do
             begin
               I18n.with_locale(content.first_available_locale) do
                 data_hash = content.get_data_hash
-                data_hash[DataCycleCore::Feature::LifeCycle.attribute_key] = [valid_life_cycle_id]
+                data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = [valid_life_cycle_id]
                 errors = content.set_data_hash(data_hash: data_hash)
                 if errors[:error].present?
                   logger.warn("Fehler (#{content.id}): #{errors[:error]}")

@@ -40,7 +40,6 @@ module DataCycleCore
           @entities = DataCycleCore::Feature::Container.apply_excluded_contents(@content, @entities)
         end
 
-        @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if DataCycleCore::Feature::Releasable.allowed?(@content) && !@content.release_id.nil?
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: controller_name, id: params[:id]) }
           format.html
@@ -88,11 +87,11 @@ module DataCycleCore
       @source = source_params[:source_type].constantize.find(source_params[:source_id]) if source_params.present?
 
       I18n.with_locale(@content.first_available_locale) do
-        @data_schema = @content.get_data_hash.merge(@content.releasable_hash)
+        @data_schema = @content.get_data_hash
       end
 
       I18n.with_locale(@source.first_available_locale) do
-        @source_schema = @source.get_data_hash.merge(@source.releasable_hash)
+        @source_schema = @source.get_data_hash
       end
 
       @diff_schema = helpers.get_diff(@source_schema, @data_schema)
@@ -160,7 +159,7 @@ module DataCycleCore
         #   return
         # end
 
-        valid = @content.set_data_hash(data_hash: datahash.merge(release_params), current_user: current_user)
+        valid = @content.set_data_hash(data_hash: datahash, current_user: current_user)
 
         # @content.release_id = object_params[:release_id]
         # @content.release_comment = object_params[:release_comment]
@@ -238,7 +237,7 @@ module DataCycleCore
       if params[:parent_id].blank? && params[:template] == DataCycleCore::Feature::IdeaCollection.template
         parent = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:parent_template], object_params, current_user)
         life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::IdeaCollection.life_cycle_stage, :id)
-        parent.set_data_hash_attribute(DataCycleCore::Feature::LifeCycle.attribute_key, [life_cycle_id], current_user)
+        parent.set_data_hash_attribute(DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(parent).first, [life_cycle_id], current_user)
         content.is_part_of = parent.id
       elsif params[:parent_id].present?
         content.is_part_of = params[:parent_id]
@@ -246,7 +245,7 @@ module DataCycleCore
         if params[:template] == DataCycleCore::Feature::IdeaCollection.template
           life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::IdeaCollection.life_cycle_stage, :id)
           parent = DataCycleCore::CreativeWork.find_by(id: content.is_part_of)
-          parent.set_life_cycle_classification(DataCycleCore::Feature::LifeCycle.attribute_key, life_cycle_id, current_user)
+          parent.set_life_cycle_classification(DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(parent).first, life_cycle_id, current_user)
         end
         # get inherit attributes
         source = Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }] if params[:source].present?
@@ -300,8 +299,10 @@ module DataCycleCore
       )
         @content.data_links.where(receiver_id: current_user.id, permissions: 'write').update(permissions: 'read') if @content.data_links.where(receiver_id: current_user.id, permissions: 'write').present?
 
-        I18n.with_locale(@content.first_available_locale) do
-          @content.update_attribute(:release_id, DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:review]).id) if DataCycleCore::Feature::Releasable.enabled? && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:review]).present?
+        if DataCycleCore::Feature::Releasable.allowed?(@content)
+          I18n.with_locale(@content.first_available_locale) do
+            @content.set_data_hash_attribute('release_status_id', DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).where(name: DataCycleCore::Feature::Releasable.get_stage('review'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.ids, current_user)
+          end
         end
       end
     end

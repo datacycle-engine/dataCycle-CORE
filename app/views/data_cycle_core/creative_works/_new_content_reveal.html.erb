@@ -35,7 +35,7 @@
     </div>
 
     <% if DataCycleCore::Feature::IdeaCollection.enabled? &&
-          (DataCycleCore::Feature::LifeCycle.ordered_items&.index(@content.try(DataCycleCore::Feature::LifeCycle.attribute_key)&.first&.name)&.<= DataCycleCore::Feature::LifeCycle.ordered_items&.index(DataCycleCore::Feature::IdeaCollection.life_cycle_stage)) %>
+          (DataCycleCore::Feature::LifeCycle.ordered_items&.index(@content.try(DataCycleCore::Feature::LifeCycle.attribute_keys.first)&.first&.name)&.<= DataCycleCore::Feature::LifeCycle.ordered_items&.index(DataCycleCore::Feature::IdeaCollection.life_cycle_stage)) %>
       <div class="reveal new-item" id="new-idea-collection" data-reveal data-multiple-opened="true">
           <h3><%= t('actions.new', data: DataCycleCore::Feature::IdeaCollection.template, locale: DataCycleCore.ui_language) %></h3>
 

@@ -29,6 +29,6 @@
   <% end if can? :destroy, content %>
 </div>
 
-<%= render 'release_status', dataCycleObject: content, status: @release_status %>
+<%= render 'release_status', content: content if DataCycleCore::Feature::Releasable.allowed?(content) %>
 
 <%#= render 'life_cycle_buttons', local_assigns if DataCycleCore::Feature::LifeCycle.allowed?(content) %>
