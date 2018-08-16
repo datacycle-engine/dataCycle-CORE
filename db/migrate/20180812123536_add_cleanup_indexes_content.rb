@@ -42,7 +42,7 @@ class AddCleanupIndexesContent < ActiveRecord::Migration[5.1]
     remove_index :persons, name: 'index_pers_on_external_source_id_and_external_key'
     remove_index :persons, :external_source_id
     remove_index :persons, :id
-    remove_index :person_translations, name: 'by_persont_ei_locale'
+    remove_index :person_translations, name: 'by_persont_pi_locale'
 
     remove_index :organizations, name: 'index_organizations_on_content_type'
     remove_index :organizations, name: 'index_o_on_external_source_id_and_external_key'
