@@ -11,11 +11,7 @@
       <% options.merge!({ data: { hidden_field_id: sanitize_to_id(key) }.merge(definition&.fetch('validations', {})), class: 'quill-editor', id: "#{sanitize_to_id(key)}-editor" }) %>
 
       <%= content_tag :div, options do %>
-
-          <% if !value.nil? && !value.blank? %>
-              <%= value.html_safe %>
-          <% end %>
-
+          <%= value.presence&.html_safe %>
       <% end %>
 
   </div>
