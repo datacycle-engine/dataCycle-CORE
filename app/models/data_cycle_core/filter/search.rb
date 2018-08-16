@@ -125,7 +125,7 @@ module DataCycleCore
         reflect(
           @query.where(id: DataCycleCore::Search.joins(:classification_aliases).merge(
             DataCycleCore::ClassificationAlias.for_tree(tree_name).with_name(aliases).with_descendants
-          ))
+          ).where(search[:locale].eq(@locale)))
         )
       end
 
@@ -148,7 +148,6 @@ module DataCycleCore
         Arel::SelectManager.new
           .project(search[:content_data_id])
           .from(search)
-          .where(search[:locale].eq(@locale))
           .join(classification_content)
           .on(search[:content_data_id].eq(classification_content[:content_data_id]))
           .join(classification)
@@ -157,6 +156,12 @@ module DataCycleCore
           .on(classification[:id].eq(classification_group[:classification_id]))
           .join(classification_alias)
           .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .where(
+            search[:locale].eq(@locale)
+            .and(classification[:deleted_at].eq(nil))
+            .and(classification_group[:deleted_at].eq(nil))
+            .and(classification_alias[:deleted_at].eq(nil))
+          )
       end
 
       def join_watch_list
