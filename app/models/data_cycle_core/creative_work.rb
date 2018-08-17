@@ -16,6 +16,7 @@ module DataCycleCore
 
       content_relations table_name: 'creative_works', postfix: 'history'
 
+      include ContentHistoryLoader
       include ContentHelpers
       belongs_to :creative_work
 
@@ -42,6 +43,7 @@ module DataCycleCore
     belongs_to :primaryImage, class_name: 'Place', primary_key: 'id', foreign_key: 'photo'
     acts_as_tree order: 'position', foreign_key: 'is_part_of'
 
+    include ContentLoader
     include ContentHelpers
     include CreativeWorkHelpers
 

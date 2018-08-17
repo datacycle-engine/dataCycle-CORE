@@ -192,28 +192,29 @@ module DataCycleCore
       validator.validate(data, schema)
     end
 
-    def validate?(data, strict = false)
+    def validate?(data)
       validator = DataCycleCore::MasterData::ValidateData.new
-      validator.valid?(data, schema, strict)
+      validator.valid?(data, schema, false)
     end
 
     def set_search
       # upsert with one SQL Statement
       return if search_property_names.blank?
 
-      full_text = search_property_names.map { |item| send(item) }.join(' ').gsub(/[']/, "''")
-      full_text = '' if full_text.nil?
-      full_text_most = (search_property_names - ['headline']).map { |item| send(item) }.join(' ').gsub(/[']/, "''")
-      full_text_most = '' if full_text_most.nil?
-      headline = try('send', 'headline')
-      headline = headline.gsub(/[']/, "''") unless headline.nil?
-      headline = '' if headline.nil?
-      classification_string = display_classification_aliases.pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''")
-      classification_string = '' if classification_string.nil?
+      my_class = self.class
+      my_language = I18n.locale
+
+      full_text = search_property_names&.map { |item| send(item) }&.join(' ')&.gsub(/[']/, "''")
+      full_text ||= ''
+      full_text_most = (search_property_names - ['headline'])&.map { |item| send(item) }&.join(' ')&.gsub(/[']/, "''")
+      full_text_most ||= ''
+      headline = self&.headline&.gsub(/[']/, "''")
+      headline ||= ''
+      classification_string = display_classification_aliases&.pluck(:name)&.try(:join, ' ')&.try(:gsub, /[']/, "''")
+      classification_string ||= ''
       all_text = [headline, classification_string, full_text].join(' ')
       # TODO: remove hardcoded metadata
-      validity_hash = metadata.nil? ? nil : metadata['validity_period']
-      validity_string = get_validity(validity_hash)
+      validity_string = get_validity(metadata&.dig('validity_period'))
       boost = schema['boost'] || 1.0
 
       connection = ActiveRecord::Base.connection
@@ -223,8 +224,8 @@ module DataCycleCore
         VALUES
         ( DEFAULT,
           '#{id}',
-          '#{self.class}',
-          '#{I18n.locale}',
+          '#{my_class}',
+          '#{my_language}',
           to_tsvector('simple', '#{full_text}'),
           '#{full_text_most}',
           '#{created_at}',
@@ -237,7 +238,7 @@ module DataCycleCore
           #{boost}
         )
         ON CONFLICT (content_data_id, content_data_type, locale)
-        WHERE content_data_id = '#{id}' AND content_data_type = '#{self.class}' AND locale = '#{I18n.locale}'
+        WHERE content_data_id = '#{id}' AND content_data_type = '#{my_class}' AND locale = '#{my_language}'
         DO UPDATE SET
           words = EXCLUDED.words,
           full_text = EXCLUDED.full_text,
@@ -253,54 +254,13 @@ module DataCycleCore
       connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
     end
 
-    def create_gpx
-      builder = Nokogiri::XML::Builder.new do |xml|
-        xml.gpx(version: '1.1', creator: 'dataCycle', xmlns: 'http://www.topografix.com/GPX/1/1') do
-          xml.metadata do
-            xml.name title
-            xml.desc ActionView::Base.full_sanitizer.sanitize(send('description')) if respond_to?('description')
-            xml.time updated_at
-            if creator&.first&.name.present?
-              xml.author do
-                xml.name creator&.first&.name
-              end
-            end
-          end
-          geo_properties.each do |key, value|
-            geo = send(key)
-            geo = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true).parse_wkt(geo) if geo.is_a?(String)
-
-            if geo.try(:geometry_type) == RGeo::Feature::Point
-              xml.wpt(lat: geo.y, lon: geo.x) do
-                xml.name value['label']
-                xml.ele geo.z if geo.z
-              end
-            elsif geo.try(:geometry_type) == RGeo::Feature::LineString
-              xml.trk do
-                xml.name value['label']
-                xml.trkseg do
-                  geo.points.each do |l|
-                    xml.trkpt(lat: l.y, lon: l.x) do
-                      xml.ele l.z if l.z
-                    end
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-
-      builder.to_xml
-    end
-
     def set_life_cycle_classification(classification_tree_label, classification_id, user)
       set_data_hash_attribute(classification_tree_label, [classification_id], user)
 
       return unless respond_to?(:children)
 
       children&.each do |child|
-        child.set_data_hash_attribute(classification_tree_label, [classification_id], user) if DataCycleCore::Feature::LifeCycle.ordered_classifications(child)&.values&.map { |v| v[:id] }&.include?(classification_id)
+        child.set_data_hash_attribute(classification_tree_label, [classification_id], user) if DataCycleCore::Feature::LifeCycle.ordered_classifications(child)&.values&.map { |value| value[:id] }&.include?(classification_id)
       end
     end
 
@@ -311,7 +271,8 @@ module DataCycleCore
         parent_data_hash = parent.get_data_hash
 
         DataCycleCore.inheritable_attributes.each do |attribute_key|
-          data_hash[attribute_key] = parent_data_hash[attribute_key] if parent_data_hash[attribute_key].present?
+          parent_data = parent_data_hash[attribute_key]
+          data_hash[attribute_key] = parent_data if parent_data.present?
         end
 
         data_hash[DataCycleCore::Feature::LifeCycle.attribute_key] = parent_data_hash[DataCycleCore::Feature::LifeCycle.attribute_key] if DataCycleCore::Feature::LifeCycle.enabled?
@@ -322,30 +283,11 @@ module DataCycleCore
 
     private
 
-    def get_classification_relation(relation_name)
-      if history?
-        classification_object = DataCycleCore::ClassificationContent::History
-        where_hash = { 'content_data_history_id' => id, 'content_data_history_type' => self.class.to_s, 'relation' => relation_name }
-      else
-        classification_object = DataCycleCore::ClassificationContent
-        where_hash = { 'content_data_id' => id, 'content_data_type' => self.class.to_s, 'relation' => relation_name }
-      end
-      classification_object.where(where_hash)
-    end
-
-    def get_asset_relation(relation_name)
-      asset_content_object = DataCycleCore::AssetContent
-      where_hash = { 'content_data_id' => id, 'content_data_type' => self.class.to_s, 'relation' => relation_name }
-      asset_content_object.where(where_hash)
-    end
-
     def set_relation_ids(ids, relation_name, tree_label, default_value)
       if is_blank?(ids)
         begin
           if default_value.present? && ids.nil? && get_classification_relation(relation_name).count.zero?
-            classification_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-              .where('classification_tree_labels.name = ?', tree_label)
-              .where('classification_aliases.name = ?', default_value).first!.id
+            classification_id = load_default_classification(tree_label, default_value).id
             DataCycleCore::ClassificationContent
               .find_or_create_by(
                 'content_data_id' => id,
@@ -364,13 +306,7 @@ module DataCycleCore
       else
         # insert missing ids
         ids.each do |classification_id_value|
-          DataCycleCore::ClassificationContent
-            .find_or_create_by(
-              'content_data_id' => id,
-              'content_data_type' => self.class.to_s,
-              classification_id: classification_id_value,
-              relation: relation_name
-            )
+          insert_classification_content(id, self.class.to_s, relation_name, classification_id_value)
         end
       end
 
@@ -379,13 +315,7 @@ module DataCycleCore
       found_ids = get_classification_relation(relation_name).pluck(:classification_id)
       to_delete = found_ids - ids
       return if to_delete.empty?
-      DataCycleCore::ClassificationContent
-        .where(
-          'content_data_id' => id,
-          'content_data_type' => self.class.to_s,
-          classification_id: to_delete,
-          relation: relation_name
-        ).destroy_all
+      delete_classification_content(id, self.class.to_s, relation_name, to_delete)
     end
 
     def set_asset_id(id, relation_name, asset_type)
@@ -511,7 +441,6 @@ module DataCycleCore
       end
 
       unless is_blank?(data)
-        # old_relations = get_relation(field_name, table)
         data.each_index do |index|
           item = data[index]
           if item.key?('id') && item['id'].present?
@@ -528,8 +457,7 @@ module DataCycleCore
             end
             updated_item_keys.push(item['id']) # remember updated id
           else # insert new data
-            template = ('DataCycleCore::' + table.classify).constantize
-              .find_by(template: true, template_name: name)
+            template = load_template(table, name)
             insert_item = ('DataCycleCore::' + table.classify).constantize.new
             insert_item.schema = template.schema
             insert_item.template_name = template.template_name
@@ -577,14 +505,6 @@ module DataCycleCore
       method(table).call.reload # MO: force reload of the relation, otherwise cached data can obscure the next get_data_hash
     end
 
-    def get_relation(field_name, table)
-      if table < self.class.table_name
-        content_content_b.where(relation_b: field_name)
-      else
-        content_content_a.where(relation_a: field_name)
-      end
-    end
-
     def get_relation_data_hash_order(field_name, table, item_id, order)
       item_data = [item_id, "DataCycleCore::#{table.classify}", '', nil]
       self_data = [id, self.class.to_s, field_name, order]
@@ -601,41 +521,6 @@ module DataCycleCore
         ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
       }.flatten
         .zip(table < self.class.table_name ? item_data + self_data : self_data + item_data).to_h
-    end
-
-    # validate nil,"",[],{},[nil],[""] as blank.
-    def is_blank?(data)
-      return true if data.blank?
-      if data.is_a?(::Array)
-        return true if data.length == 1 && data[0].blank?
-      end
-      false
-    end
-
-    def get_validity(validity_hash)
-      from, to = get_validity_values validity_hash
-      [
-        '[',
-        from.is_a?(DateTime) ? from.to_s(:long_usec) : '',
-        ',',
-        to.is_a?(DateTime) ? to.to_s(:long_usec) : '',
-        ']'
-      ].join('')
-    end
-
-    def get_validity_values(validity_hash)
-      # TODO: check for expires and publish_at usage
-      from = nil
-      to = nil
-      from = validity_hash['valid_from'] if validity_hash && validity_hash['valid_from']
-      to = validity_hash['valid_until'] if validity_hash && validity_hash['valid_until']
-
-      from = from.blank? ? nil : from.to_datetime
-      from = nil if from.present? && from < Time.zone.local(1980, 1, 1, 0, 0)
-      to = to.blank? ? nil : to.to_datetime
-      to = nil if to.present? && to > Time.zone.local(9999, 1, 1, 0, 0)
-
-      [from, to]
     end
   end
 end

@@ -14,6 +14,7 @@ module DataCycleCore
 
       content_relations table_name: 'events', postfix: 'history'
 
+      include ContentHistoryLoader
       include ContentHelpers
       belongs_to :event
 
@@ -36,6 +37,7 @@ module DataCycleCore
     # callbacks
     before_destroy :destroy_translations, prepend: true
 
+    include ContentLoader
     include ContentHelpers
     include EventHelpers
 

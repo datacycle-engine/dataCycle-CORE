@@ -13,6 +13,7 @@ module DataCycleCore
 
       content_relations table_name: 'organizations', postfix: 'history'
 
+      include ContentHistoryLoader
       include ContentHelpers
       belongs_to :organization
 
@@ -35,6 +36,7 @@ module DataCycleCore
     # callbacks
     before_destroy :destroy_relations, prepend: true
 
+    include ContentLoader
     include ContentHelpers
     include OrganizationHelpers
 

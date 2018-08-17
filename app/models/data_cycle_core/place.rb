@@ -14,6 +14,7 @@ module DataCycleCore
 
       content_relations table_name: 'places', postfix: 'history'
 
+      include ContentHistoryLoader
       include ContentHelpers
       belongs_to :place
 
@@ -36,6 +37,7 @@ module DataCycleCore
     # callbacks
     before_destroy :destroy_relations, prepend: true
 
+    include ContentLoader
     include ContentHelpers
     include PlaceHelpers
 

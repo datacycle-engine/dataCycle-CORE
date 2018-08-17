@@ -53,6 +53,7 @@ Naming/PredicateName:
     - 'app/models/data_cycle_core/data_hash.rb'
     - 'app/models/data_cycle_core/data_link.rb'
     - 'app/models/data_cycle_core/user.rb'
+    - 'app/models/data_cycle_core/data_hash_utility.rb'
 
 # TODO: check after develop merge
 Naming/AccessorMethodName:

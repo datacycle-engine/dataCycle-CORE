@@ -21,6 +21,8 @@ module DataCycleCore
     include MasterData::DataConverter
     include ContentRelations
     include Releasable
+    include GpxConverter
+    include DataHashUtility
 
     def property_definitions
       schema['properties']
