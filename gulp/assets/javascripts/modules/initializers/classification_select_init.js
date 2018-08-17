@@ -27,7 +27,7 @@ module.exports.initialize = function () {
           }
 
           var term = query.term || '';
-          var result = data.title ? select2_helpers.markMatch(data.title, term) : null;
+          var result = data.name ? select2_helpers.markMatch(data.name, term) : null;
           select2_helpers.removeTreeLabel(result, tree_label);
           select2_helpers.decorateResult(result);
 
@@ -80,7 +80,7 @@ module.exports.initialize = function () {
           }
 
           var term = query.term || '';
-          var text_value = data.title || data.text;
+          var text_value = data.name || data.text;
           var result = text_value ? select2_helpers.markMatch(text_value, term) : null;
           select2_helpers.removeTreeLabel(result, tree_label);
           select2_helpers.decorateResult(result);

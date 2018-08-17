@@ -72,7 +72,8 @@ CREATE TABLE public.classification_aliases (
     external_source_id uuid,
     internal boolean DEFAULT false,
     deleted_at timestamp without time zone,
-    assignable boolean DEFAULT true
+    assignable boolean DEFAULT true,
+    description character varying
 );
 
 
@@ -2435,6 +2436,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180525084148'),
 ('20180529105933'),
 ('20180703135948'),
-('20180705133931');
+('20180705133931'),
+('20180811125951');
 
 
