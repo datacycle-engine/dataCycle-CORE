@@ -3,6 +3,20 @@
 # Configure Rails Environment
 ENV['RAILS_ENV'] = 'test'
 
+if ENV['TEST_COVERAGE']
+  require 'simplecov'
+  SimpleCov.start 'rails'
+  SimpleCov.at_exit do
+    puts "\n"
+
+    SimpleCov.result.format!
+
+    puts "\nCOVERAGE: " \
+      "#{(100 * SimpleCov.result.covered_lines.to_f / SimpleCov.result.total_lines.to_f).round(2)}% " \
+      "(#{SimpleCov.result.covered_lines} / #{SimpleCov.result.total_lines} LOC)"
+  end
+end
+
 Bundler.require(*Rails.groups)
 
 Dotenv::Railtie.load
