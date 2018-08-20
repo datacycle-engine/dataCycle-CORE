@@ -41,9 +41,6 @@ DataCycleCore.setup do |config|
       overlay: {
         enabled: true
       },
-      releasable: {
-        enabled: true
-      },
       container: {
         enabled: false,
         excluded: ['Bild', 'Video']
