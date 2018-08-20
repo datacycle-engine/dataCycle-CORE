@@ -18,7 +18,7 @@ module DataCycleCore
 
     # set data as specified in the data template
     # data hash with keys named as in schema.org
-    def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false)
+    def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true)
       @data_hash = data_hash
       @current_user = current_user
       @prevent_history = prevent_history
@@ -34,11 +34,7 @@ module DataCycleCore
           self.created_at = save_time if id.nil?
           save # save actual content data
 
-          [translated_locales, I18n.locale].flatten.uniq.each do |locale|
-            I18n.with_locale(locale) do
-              set_search
-            end
-          end
+          search_languages(update_search_all)
         end
         run_callbacks :saved_data_hash
       end
@@ -201,6 +197,20 @@ module DataCycleCore
     def diff?(data, template = nil)
       differ = DataCycleCore::MasterData::DiffData.new
       differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template)
+    end
+
+    def search_languages(all)
+      if all
+        translated_locales.push(I18n.locale).uniq.each do |locale|
+          I18n.with_locale(locale) do
+            set_search
+          end
+        end
+      else
+        I18n.with_locale(I18n.locale) do
+          set_search
+        end
+      end
     end
 
     def set_search

@@ -4,8 +4,8 @@ var Counter = function (selector = '') {
   this.wrapper_elem = this.parent_elem.closest('.form-element').first();
 
   this.container = this.setContainer();
-  this.min = this.parent_elem.data('min');
-  this.max = this.parent_elem.data('max');
+  this.min = this.parent_elem.data('minlength');
+  this.max = this.parent_elem.data('maxlength');
   this.setup();
   this.update();
 };

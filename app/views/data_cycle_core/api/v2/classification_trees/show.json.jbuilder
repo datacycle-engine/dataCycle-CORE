@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-json.classificationTree do
+json.data do
   json.id @classification_tree_label.id
   json.name @classification_tree_label.name
 
