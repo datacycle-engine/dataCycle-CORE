@@ -24,7 +24,6 @@ services:
     - APP_HOST=localhost:3010
     - APP_PROTOCOL=http
     - MAILHOG_HOST=mailhog
-    - APP_PREFIX='app:'
     command:
     - ./docker/setup.sh
     volumes:
