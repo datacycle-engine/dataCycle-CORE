@@ -24,7 +24,7 @@ module DataCycleCore
       @prevent_history = prevent_history
       run_callbacks :save_data_hash
 
-      if validate?(@data_hash) && diff?(@data_hash)
+      if validate?(@data_hash.deep_dup) && diff?(@data_hash.deep_dup)
         ActiveRecord::Base.transaction do
           to_history(save_time: save_time) if id.nil? == false && prevent_history == false
 

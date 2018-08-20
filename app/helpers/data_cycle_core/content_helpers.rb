@@ -15,9 +15,9 @@ module DataCycleCore
       super
     end
 
-    def releasable_hash
-      { 'release_id' => release_id, 'release_comment' => release_comment }
-    end
+    # def releasable_hash
+    #   { 'release_id' => release_id, 'release_comment' => release_comment }
+    # end
 
     def first_available_locale(locale = nil)
       if translated_locales.include?(locale.try(:to_sym)) then locale.try(:to_sym)

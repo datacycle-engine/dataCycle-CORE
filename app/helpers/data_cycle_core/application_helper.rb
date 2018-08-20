@@ -73,6 +73,14 @@ module DataCycleCore
       ].reject(&:blank?).flatten
     end
 
+    def feature_attributes(content, prefix = '')
+      DataCycleCore.features.keys.map { |f| "DataCycleCore::Feature::#{f.to_s.classify}".constantize.try("#{prefix}attribute_keys", content) }.flatten
+    end
+
+    def allowed_feature_attribute?(key, content)
+      feature_attributes(content).include?(key) ? feature_attributes(content, 'allowed_').include?(key) : true
+    end
+
     def render_content_partial(partial, parameters)
       partials = [
         "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].template_name.underscore}_#{partial}",
@@ -84,7 +92,7 @@ module DataCycleCore
     end
 
     def render_attribute_editor(key:, definition:, value:, parameters: {}, content: nil, scope: :edit)
-      return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope))
+      return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(attribute_name_from_key(key), content)
 
       if definition&.dig('ui', 'edit', 'partial').present?
         partials = [definition&.dig('ui', 'edit', 'partial')]
@@ -107,7 +115,7 @@ module DataCycleCore
     end
 
     def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil, scope: :show)
-      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope))
+      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(attribute_name_from_key(key), content)
 
       if definition&.dig('ui', 'show', 'partial').present?
         partials = [definition&.dig('ui', 'show', 'partial')]
