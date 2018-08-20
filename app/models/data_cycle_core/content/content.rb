@@ -25,6 +25,7 @@ module DataCycleCore
       include Releasable
       include GpxConverter
       include DataHashUtility
+      include Extensions::Content
 
       # get data as specified in the data template
       # data hash with keys named as in schema.org

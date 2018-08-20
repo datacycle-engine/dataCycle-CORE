@@ -6,7 +6,7 @@ module DataCycleCore
     extend ActsAsTree::TreeWalker
 
     class Translation < Globalize::ActiveRecord::Translation
-      include ContentTranslationHelpers
+      include Content::Extensions::ContentTranslation
     end
 
     class History < Content::Content
@@ -17,7 +17,6 @@ module DataCycleCore
       content_relations table_name: 'creative_works', postfix: 'history'
 
       include Content::ContentHistoryLoader
-      include ContentHelpers
       belongs_to :creative_work
 
       # callbacks
@@ -44,8 +43,7 @@ module DataCycleCore
     acts_as_tree order: 'position', foreign_key: 'is_part_of'
 
     include Content::ContentLoader
-    include ContentHelpers
-    include CreativeWorkHelpers
+    include Content::Extensions::CreativeWork
 
     # to cash also translated values (comming from gem Globalize)
     def cache_key

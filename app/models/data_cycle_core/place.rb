@@ -3,8 +3,8 @@
 module DataCycleCore
   class Place < Content::DataHash
     class Translation < Globalize::ActiveRecord::Translation
-      include ContentTranslationHelpers
-      include PlaceTranslationHelpers
+      include Content::Extensions::ContentTranslation
+      include Content::Extensions::PlaceTranslation
     end
 
     class History < Content::Content
@@ -15,7 +15,6 @@ module DataCycleCore
       content_relations table_name: 'places', postfix: 'history'
 
       include Content::ContentHistoryLoader
-      include ContentHelpers
       belongs_to :place
 
       # callbacks
@@ -38,8 +37,7 @@ module DataCycleCore
     before_destroy :destroy_relations, prepend: true
 
     include Content::ContentLoader
-    include ContentHelpers
-    include PlaceHelpers
+    include Content::Extensions::Place
 
     # associations
     has_one :primaryImage, class_name: 'CreativeWork', primary_key: 'photo', foreign_key: 'id'

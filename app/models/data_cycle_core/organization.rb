@@ -3,7 +3,7 @@
 module DataCycleCore
   class Organization < Content::DataHash
     class Translation < Globalize::ActiveRecord::Translation
-      include ContentTranslationHelpers
+      include Content::Extensions::ContentTranslation
     end
 
     class History < Content::Content
@@ -14,7 +14,6 @@ module DataCycleCore
       content_relations table_name: 'organizations', postfix: 'history'
 
       include Content::ContentHistoryLoader
-      include ContentHelpers
       belongs_to :organization
 
       # callbacks
@@ -37,8 +36,7 @@ module DataCycleCore
     before_destroy :destroy_relations, prepend: true
 
     include Content::ContentLoader
-    include ContentHelpers
-    include OrganizationHelpers
+    include Content::Extensions::Organization
 
     # to cash also translated values (comming from gem Globalize)
     def cache_key

@@ -3,8 +3,8 @@
 module DataCycleCore
   class Event < Content::DataHash
     class Translation < Globalize::ActiveRecord::Translation
-      include ContentTranslationHelpers
-      include EventHelpers
+      include Content::Extensions::ContentTranslation
+      include Content::Extensions::Event
     end
 
     class History < Content::Content
@@ -15,7 +15,6 @@ module DataCycleCore
       content_relations table_name: 'events', postfix: 'history'
 
       include Content::ContentHistoryLoader
-      include ContentHelpers
       belongs_to :event
 
       # callbacks
@@ -38,8 +37,7 @@ module DataCycleCore
     before_destroy :destroy_translations, prepend: true
 
     include Content::ContentLoader
-    include ContentHelpers
-    include EventHelpers
+    include Content::Extensions::Event
 
     # TODO: remove from_time (implemented in DataCycleCore::Filter::Search)
     def self.from_time(time)
