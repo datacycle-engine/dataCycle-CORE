@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class Organization < DataHash
+  class Organization < Content::DataHash
     class Translation < Globalize::ActiveRecord::Translation
       include ContentTranslationHelpers
     end
 
-    class History < DataHash
+    class History < Content::DataHash
       # handle translations with gem Globalize
       translates :headline, :description, :content, :release,
                  :release_id, :release_comment, :history_valid
 
       content_relations table_name: 'organizations', postfix: 'history'
 
-      include ContentHistoryLoader
+      include Content::ContentHistoryLoader
       include ContentHelpers
       belongs_to :organization
 
@@ -36,7 +36,7 @@ module DataCycleCore
     # callbacks
     before_destroy :destroy_relations, prepend: true
 
-    include ContentLoader
+    include Content::ContentLoader
     include ContentHelpers
     include OrganizationHelpers
 

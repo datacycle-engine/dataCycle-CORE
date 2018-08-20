@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class Event < DataHash
+  class Event < Content::DataHash
     class Translation < Globalize::ActiveRecord::Translation
       include ContentTranslationHelpers
       include EventHelpers
     end
 
-    class History < DataHash
+    class History < Content::DataHash
       # handle translations with gem Globalize
       translates :headline, :description, :content, :release,
                  :release_id, :release_comment, :history_valid
 
       content_relations table_name: 'events', postfix: 'history'
 
-      include ContentHistoryLoader
+      include Content::ContentHistoryLoader
       include ContentHelpers
       belongs_to :event
 
@@ -37,7 +37,7 @@ module DataCycleCore
     # callbacks
     before_destroy :destroy_translations, prepend: true
 
-    include ContentLoader
+    include Content::ContentLoader
     include ContentHelpers
     include EventHelpers
 
