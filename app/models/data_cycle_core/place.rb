@@ -7,7 +7,7 @@ module DataCycleCore
       include PlaceTranslationHelpers
     end
 
-    class History < Content::DataHash
+    class History < Content::Content
       # handle translations with gem Globalize
       translates :name, :headline, :description, :url, :hours_available, :content,
                  :release, :release_id, :release_comment, :history_valid

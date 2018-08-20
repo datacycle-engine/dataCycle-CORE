@@ -9,7 +9,7 @@ module DataCycleCore
       include ContentTranslationHelpers
     end
 
-    class History < Content::DataHash
+    class History < Content::Content
       # handle translations with gem Globalize
       translates :headline, :description, :content, :release,
                  :release_id, :release_comment, :history_valid
