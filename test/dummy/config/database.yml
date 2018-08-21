@@ -13,7 +13,7 @@ default: &default
 
 development:
   <<: *default
-  database: data_cycle_core_development
+  database: <%= ENV["POSTGRES_DATABASE"] || "data_cycle_core_development" %>
 
 review:
   <<: *default
