@@ -891,7 +891,7 @@ namespace :data_cycle_core do
           ON #{table_name}.id = #{table_name.singularize}_translations.#{table_name.singularize}_id
           INNER JOIN releases
           ON #{table_name.singularize}_translations.release_id = releases.id
-          WHERE (#{table_name}.schema -> 'features' ->> 'releasable' = 'true')
+          WHERE (#{table_name}.schema -> 'features' -> 'releasable' ->> 'allowed' = 'true')
           AND #{table_name.singularize}_translations.release_id IS NOT NULL
           ORDER BY #{table_name}.id, #{table_name.singularize}_translations.updated_at DESC
           ON CONFLICT (content_data_id, content_data_type, classification_id, relation)
@@ -907,7 +907,7 @@ namespace :data_cycle_core do
           FROM #{table_name.singularize}_translations
           WHERE #{table_name}.id = #{table_name.singularize}_translations.#{table_name.singularize}_id
           AND #{table_name.singularize}_translations.release_comment IS NOT NULL
-          AND (#{table_name}.schema -> 'features' ->> 'releasable' = 'true')
+          AND (#{table_name}.schema -> 'features' -> 'releasable' ->> 'allowed' = 'true')
           AND (#{table_name}.metadata ->> 'release_status_comment' IS NULL)
         EOS
         ActiveRecord::Base.connection.execute(comment_sql)
@@ -934,7 +934,7 @@ namespace :data_cycle_core do
           ON #{table_name.singularize}_histories.id = #{table_name.singularize}_history_translations.#{table_name.singularize}_history_id
           INNER JOIN releases
           ON #{table_name.singularize}_history_translations.release_id = releases.id
-          WHERE (#{table_name.singularize}_histories.schema -> 'features' ->> 'releasable' = 'true')
+          WHERE (#{table_name.singularize}_histories.schema -> 'features' -> 'releasable' ->> 'allowed' = 'true')
           AND #{table_name.singularize}_history_translations.release_id IS NOT NULL
           ORDER BY #{table_name.singularize}_histories.id, #{table_name.singularize}_history_translations.updated_at DESC
           ON CONFLICT (content_data_history_id, content_data_history_type, classification_id, relation)
@@ -950,7 +950,7 @@ namespace :data_cycle_core do
           FROM #{table_name.singularize}_history_translations
           WHERE #{table_name.singularize}_histories.id = #{table_name.singularize}_history_translations.#{table_name.singularize}_history_id
           AND #{table_name.singularize}_history_translations.release_comment IS NOT NULL
-          AND (#{table_name.singularize}_histories.schema -> 'features' ->> 'releasable' = 'true')
+          AND (#{table_name.singularize}_histories.schema -> 'features' -> 'releasable' ->> 'allowed' = 'true')
           AND (#{table_name.singularize}_histories.metadata ->> 'release_status_comment' IS NULL)
         EOS
         ActiveRecord::Base.connection.execute(comment_sql)
