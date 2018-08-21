@@ -19,12 +19,12 @@ module DataCycleCore
 
         if validate?(@data_hash.deep_dup) # && diff?(@data_hash.deep_dup)
           ActiveRecord::Base.transaction do
-            to_history(save_time: save_time) if id.nil? == false && prevent_history == false
+            to_history(save_time: @save_time) if id.nil? == false && prevent_history == false
 
-            set_template_data_hash(@data_hash, property_definitions, save_time, current_user)
+            set_template_data_hash(@data_hash, property_definitions)
 
-            self.updated_at = save_time
-            self.created_at = save_time if id.nil?
+            self.updated_at = @save_time
+            self.created_at = @save_time if id.nil?
             save
 
             search_languages(update_search_all)
@@ -46,10 +46,6 @@ module DataCycleCore
       def validate?(data)
         validator = DataCycleCore::MasterData::ValidateData.new
         validator.valid?(data, schema, false)
-      end
-
-      def before_save_data_hash(data_hash)
-        data_hash
       end
 
       def to_history(save_time:, parent_id: nil, delete: false)
@@ -271,18 +267,18 @@ module DataCycleCore
           .destroy_all
       end
 
-      def set_template_data_hash(data_hash, properties, save_time, current_user)
+      def set_template_data_hash(data_hash, properties)
         properties.each do |key, value|
-          storage_cases_set(key, data_hash[key], value, save_time, current_user)
+          storage_cases_set(key, data_hash[key], value)
         end
       end
 
-      def storage_cases_set(key, value, properties, save_time, current_user)
+      def storage_cases_set(key, value, properties)
         case properties['type']
         when 'linked'
-          set_linked_data_type(key, value, properties['linked_table'], properties['template_name'], false, save_time, current_user)
+          set_linked_data_type(key, value, properties['linked_table'], properties['template_name'], false)
         when 'embedded'
-          set_linked_data_type(key, value, properties['linked_table'], properties['template_name'], true, save_time, current_user)
+          set_linked_data_type(key, value, properties['linked_table'], properties['template_name'], true)
         when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
@@ -354,7 +350,7 @@ module DataCycleCore
         end
       end
 
-      def set_linked_data_type(field_name, input_data, table, name, delete, save_time, current_user)
+      def set_linked_data_type(field_name, input_data, table, name, delete)
         updated_item_keys = []
 
         selector = table < self.class.table_name
@@ -371,10 +367,10 @@ module DataCycleCore
             item = data[index]
             if item.key?('id') && item['id'].present?
               # relation update/insert
-              updated_item_keys << upsert_linked_content_relation(field_name, table, item, selector, index, current_user, save_time)
+              updated_item_keys << upsert_linked_content_relation(field_name, table, item, selector, index)
             else
               # insert new data
-              updated_item_keys << insert_linked_content_and_relation(field_name, table, name, item, selector, index, current_user, save_time)
+              updated_item_keys << insert_linked_content_and_relation(field_name, table, name, item, selector, index)
             end
           end
         end
@@ -409,7 +405,7 @@ module DataCycleCore
         method(table).call.reload # MO: force reload of the relation, otherwise cached data can obscure the next get_data_hash
       end
 
-      def upsert_linked_content_relation(field_name, table, item, selector, index, current_user, save_time)
+      def upsert_linked_content_relation(field_name, table, item, selector, index)
         upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
           get_relation_data_hash(field_name, table, item['id'])
         )
@@ -418,19 +414,19 @@ module DataCycleCore
         if item.keys.count > 1
           # update actual data
           update_item = ('DataCycleCore::' + table.classify).constantize.find_by(id: item['id'])
-          update_item.set_data_hash(data_hash: item, current_user: current_user, save_time: save_time, prevent_history: true)
+          update_item.set_data_hash(data_hash: item, current_user: @current_user, save_time: @save_time, prevent_history: true)
           update_item.save
         end
         item['id']
       end
 
-      def insert_linked_content_and_relation(field_name, table, name, item, selector, index, current_user, save_time)
+      def insert_linked_content_and_relation(field_name, table, name, item, selector, index)
         template = load_template(table, name)
         insert_item = ('DataCycleCore::' + table.classify).constantize.new
         insert_item.schema = template.schema
         insert_item.template_name = template.template_name
         insert_item.save
-        insert_item.set_data_hash(data_hash: item.merge({ 'is_part_of' => id }), current_user: current_user, save_time: save_time, prevent_history: true)
+        insert_item.set_data_hash(data_hash: item.merge({ 'is_part_of' => id }), current_user: @current_user, save_time: @save_time, prevent_history: true)
         insert_item.save
 
         # insert_relation
