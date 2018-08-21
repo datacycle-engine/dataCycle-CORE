@@ -5,36 +5,37 @@ module DataCycleCore
     class DataHash < DataCycleCore::Content::Content
       self.abstract_class = true
       include Features
-      # attr_reader :current_user, :save_time
+
+      define_model_callbacks :save_data_hash, only: :before
+      define_model_callbacks :saved_data_hash, only: :after
+      before_save_data_hash :set_last_updated_by
 
       def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true)
-        stripped_data_hash = data_hash
-        stripped_data_hash, global_release_hash = extract_release(data_hash, true) if is_a?(DataCycleCore::Content::Releasable) # strip also release data from embeddedObjects
+        @data_hash = data_hash
+        @current_user = current_user
+        @save_time = save_time
+        @prevent_history = prevent_history
+        run_callbacks :save_data_hash
 
-        if validate?(stripped_data_hash)
+        if validate?(@data_hash.deep_dup) # && diff?(@data_hash.deep_dup)
           ActiveRecord::Base.transaction do
             to_history(save_time: save_time) if id.nil? == false && prevent_history == false
-            data_hash, release_hash = extract_release(data_hash, false) if is_a?(DataCycleCore::Content::Releasable) # strip release data only from this object
-            data_hash = data_hash.merge({ 'last_updated_by' => [current_user.presence&.id || try(:last_updated_by).presence&.first&.id] })
 
-            data_hash = before_save_data_hash(data_hash)
+            set_template_data_hash(@data_hash, property_definitions, save_time, current_user)
 
-            set_template_data_hash(data_hash, property_definitions, save_time, current_user)
-            if is_a?(DataCycleCore::Content::Releasable)
-              self.release = release_hash
-              self.release_id = global_release(global_release_hash)
-            end
             self.updated_at = save_time
-            if id.nil?
-              self.created_at = save_time
-              self.updated_at = save_time
-              save
-            end
+            self.created_at = save_time if id.nil?
+            save
 
             search_languages(update_search_all)
           end
+          run_callbacks :saved_data_hash
         end
-        validate(stripped_data_hash) # return error/warnings from validation
+        validate(@data_hash)
+      end
+
+      def set_last_updated_by
+        @data_hash = @data_hash.merge({ 'last_updated_by' => [@current_user.presence&.id || (@prevent_history ? try(:last_updated_by).presence&.first&.id : nil)] })
       end
 
       def validate(data)

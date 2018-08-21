@@ -16,22 +16,19 @@ module DataCycleCore
 
       attr_accessor :datahash, :webhook_source
 
-      extend DataCycleCore::Common::ArelBuilder
-      extend ContentFilters
-
+      include DataCycleCore::Common::ArelBuilder
       include DataCycleCore::MasterData::DataConverter
-      include DestroyContent
       include ContentRelations
-      include Releasable
-      include GpxConverter
+      include ContentFilters
+      include DestroyContent
       include DataHashUtility
+
+      include GpxConverter
       include Extensions::Content
 
       def get_data_hash(timestamp = Time.zone.now)
         return if !translated_locales.include?(I18n.locale) && changes.count.zero? # for new data-sets with pending data in it
-        data_hash = as_of(timestamp).try(:to_h, timestamp)
-        data_hash = merge_release(data_hash, release) if is_a?(DataCycleCore::Content::Releasable)
-        data_hash
+        as_of(timestamp).try(:to_h, timestamp)
       end
 
       def property_definitions

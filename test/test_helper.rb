@@ -41,34 +41,6 @@ ap errors
 #   ap "DataCycleCore::#{item.classify}".constantize.where(template: true).pluck(:template_name)
 # end
 
-# seed release table
-if DataCycleCore::Release.count.zero?
-  DataCycleCore::Release.create!(
-    release_code: 0,
-    release_text: 'freigegeben'
-  )
-  DataCycleCore::Release.create!(
-    release_code: 1,
-    release_text: 'beim Partner'
-  )
-  DataCycleCore::Release.create!(
-    release_code: 2,
-    release_text: 'in Bearbeitung'
-  )
-  DataCycleCore::Release.create!(
-    release_code: 3,
-    release_text: 'in Review'
-  )
-  DataCycleCore::Release.create!(
-    release_code: 4,
-    release_text: 'Draft'
-  )
-  DataCycleCore::Release.create!(
-    release_code: 10,
-    release_text: 'gesperrt'
-  )
-end
-
 if DataCycleCore::Role.count.zero?
   DataCycleCore::Role.create!(
     rank: 0,
