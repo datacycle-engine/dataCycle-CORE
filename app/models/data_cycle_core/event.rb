@@ -29,8 +29,8 @@ module DataCycleCore
     include Content::ContentLoader
     include Content::Extensions::Event
 
-    before_destroy :destroy_translations, prepend: true
-    def destroy_translations
+    before_destroy :destroy_relations, prepend: true
+    def destroy_relations
       translations.delete_all
       content_search_all.delete_all
     end

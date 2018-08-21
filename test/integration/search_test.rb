@@ -19,7 +19,7 @@ module DataCycleCore
       }
       data_set.set_data_hash(data_hash: data_hash)
       data_set.save
-      data_set.set_search
+      data_set.update_search(I18n.locale)
       data_set.save
 
       assert(1, DataCycleCore::Search.count)
