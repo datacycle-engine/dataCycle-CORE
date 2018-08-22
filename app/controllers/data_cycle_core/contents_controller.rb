@@ -159,22 +159,17 @@ module DataCycleCore
 
     def history
       @content = data_cycle_object(controller_name).includes(:classifications).find(params[:id])
-      @history_source = @content.histories.find(params[:history_id]) unless params[:history_id].nil?
+      @diff_source = @content.histories.find(params[:history_id]) if params[:history_id].present?
 
-      return redirect_back(fallback_location: root_path) if @history_source.nil? || @content.nil?
-
-      I18n.with_locale(@history_source.first_available_locale) do
-        @history_schema = @history_source.get_data_hash
-      end
+      redirect_back(fallback_location: root_path) && return if @diff_source.nil? || @content.nil?
 
       I18n.with_locale(@content.first_available_locale) do
         @data_schema = @content.get_data_hash
-        @diff_schema = helpers.get_diff(@history_schema, @data_schema)
       end
-    end
 
-    def history_detail
-      history
+      I18n.with_locale(@diff_source.first_available_locale) do
+        @diff_schema = @diff_source.diff(@data_schema)
+      end
     end
 
     def new_embedded_object

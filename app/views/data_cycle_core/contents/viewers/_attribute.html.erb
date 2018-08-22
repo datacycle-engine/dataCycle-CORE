@@ -1,43 +1,25 @@
 <% if value.present? || options.dig(:force_render).to_s == 'true' %>
 
-    <% if options.dig(:compare) && options.dig(:item_diff).nil? == false %>
-        <% item_diff = options[:item_diff] %>
-    <% elsif options.dig(:compare) && options.dig(:original_objects).nil? %>
-        <% item_diff = get_item_has_changed @diff_schema, key, value, definition %>
-    <% else %>
-        <% item_diff = nil %>
-    <% end %>
-
-    <% mode = options.dig(:mode) ? options.dig(:mode) : 'edit' %>
+    <% mode = options.fetch(:mode, 'has-changes edit') %>
 
     <div data-label="<%= data_label ||= definition['label'] %>" class="detail-type <%= [
                 key.split('[').count > 1 ? key.split('[').last[0...-1].underscore : key.underscore,
                 definition.dig('type').try(:underscore),
                 definition.dig('ui', 'show', 'type').try(:underscore),
-                item_diff.blank? == false ? "has-changes #{mode}" : "",
-                options.try(:[], 'class'),
+                options.dig(:item_diff).present? ? "#{mode}" : "",
+                options.dig('class'),
             ].reject(&:blank?).join(' ') %>"
-         <%= data_attributes.map{|k,v| " data-#{k}='#{v.to_s}'" }.join(' ').html_safe if local_assigns.has_key? :data_attributes %>
+         <%= data_attributes.map { |k,v| " data-#{k}='#{v.to_s}'" }.join(' ').html_safe if local_assigns.has_key? :data_attributes %>
     >
 
-        <% if options.dig(:hide_label).nil? %>
+        <% if options.dig(:hide_label).blank? %>
             <span class="detail-label">
               <span class="icon <%= definition['label']&.parameterize(separator: '_') %>"><i class="fa" aria-hidden="true"></i></span>
               <%= definition['label'] %>
             </span>
         <% end %>
 
-        <% if item_diff.blank? == false  %>
-            <span class="changed">
-                <% case mode
-                    when 'new' %><i class="fa fa-plus"></i>
-                    <% when 'remove' %><i class="fa fa-trash"></i>
-                    <% else %><i class="fa fa-pencil"></i>
-                <% end %>
-            </span>
-        <% end %>
-
-        <%= yield item_diff %>
+        <%= yield %>
 
     </div>
 <% end %>

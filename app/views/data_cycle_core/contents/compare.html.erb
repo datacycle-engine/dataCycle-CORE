@@ -4,65 +4,42 @@
 
     <div class="reveal-blur">
 
-        <div id="edit-form">
-            <section class="edit-header">
-                <div class="row expanded">
-                    <div class="column edit-header-functions">
-                      <div class="edit-headline">
-                          <i class="fa fa-columns" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: DataCycleCore.ui_language) %>
-                      </div>
-                      <ul>
-                        <li class="has-dropdown right">
-                          <%= render 'split_sources', contents: @content.siblings.select{|s| s.template_name == @content.template_name }, selected: @source, url: compare_creative_work_path(@content), title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
-                        </li>
-                        <li class="buttons"></li>
-                      </ul>
-                    </div>
+        <section class="edit-header">
+            <div class="row expanded">
+                <div class="column edit-header-functions">
+                  <div class="edit-headline">
+                      <i class="fa fa-columns" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: DataCycleCore.ui_language) %>
+                  </div>
+                  <ul>
+                    <li class="has-dropdown right">
+                      <%= render 'split_sources', contents: @content.siblings.select{|s| s.template_name == @content.template_name }, selected: @diff_source, url: compare_creative_work_path(@content), title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
+                    </li>
+                    <li class="buttons"></li>
+                  </ul>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <div class="flex-box">
+        <div class="column">
 
-                <% I18n.with_locale(@source.first_available_locale) do %>
-                    <div class="row split-content detail-content">
+            <div class="detail-content detail-content-wrapper">
+
+                <% I18n.with_locale(@diff_source.first_available_locale) do %>
+
+                    <div class="detail-content row">
                         <div class="show-content">
                             <div class="detail-header-info">
-                              <%= render 'meta_data', content: @source %>
+                                <%= render 'diff_meta_data', content: @diff_source %>
+                                <span class="meta-data-splitter">
+                                  <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                                </span>
+                                <%= render 'diff_meta_data', content: @content %>
                             </div>
-
-                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable',
-                                       value: @source.releasable_hash,
-                                       key: 'creative_work',
-                                       definition: {'type' => 'releasable'},
-                                       options:{compare: true, force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@source) %>
-
-                            <%= render_content_partial 'history', content: @source, options: {compare: true, force_render: true} %>
 
                         </div>
                     </div>
 
-                <% end %>
-
-                <% I18n.with_locale(@content.first_available_locale) do %>
-
-                    <div class="row split-content detail-content">
-
-                        <div class="show-content">
-                            <div class="detail-header-info">
-                              <%= render 'meta_data', content: @content %>
-                            </div>
-
-                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable',
-                                       value: @content.releasable_hash,
-                                       key: 'creative_work',
-                                       definition: {'type' => 'releasable'},
-                                       options:{force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@content) %>
-
-                            <%= render_content_partial 'history', content: @content, options: {force_render: true} %>
-
-                        </div>
-
-                    </div>
+                    <%= render_content_partial 'history', content: @diff_source, options: { compare: true, force_render: true } %>
 
                 <% end %>
 

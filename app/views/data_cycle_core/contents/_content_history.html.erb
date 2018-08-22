@@ -8,7 +8,7 @@
 
                 <% value = content.try(key.to_sym) %>
 
-                <%= render_attribute_history_viewer key: key, definition: prop, value: value, parameters: { options: options }, content: content %>
+                <%= render_attribute_viewer key: key, definition: prop, value: value, parameters: { options: options.merge({ item_diff: attribute_changes(@diff_schema, key), mode: changes_mode(attribute_changes(@diff_schema, key)) }) }, content: content %>
 
             <% end %>
 

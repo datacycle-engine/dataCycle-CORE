@@ -299,14 +299,15 @@
   }
 }
 
-.detail-content {
+.detail-content:not(.imageobject) .type.properties .detail-type {
   .publication-list {
     .publication-row {
       display: flex;
       position: relative;
-      background-color: white;
       padding: 0.5rem;
+      margin: 0;
       border-bottom: 1px solid $medium-gray;
+      box-shadow: none;
       .publication-attribute {
         flex: 1;
       }

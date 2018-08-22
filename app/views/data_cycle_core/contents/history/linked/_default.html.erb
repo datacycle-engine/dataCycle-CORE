@@ -1,25 +1,27 @@
-<%= render 'data_cycle_core/contents/viewers/attribute', key: key, definition: definition, value: value, options: options.merge({'class' => 'embedded_link_array object_browser media'}), data_attributes: {id: (value.presence&.ids || [] ), editor: "object_browser" } do %>
+<%= render 'data_cycle_core/contents/viewers/attribute', key: key, definition: definition, value: value, options: options.merge({'class' => 'embedded_link_array object_browser media'}), data_attributes: {id: (value.presence&.ids || []), editor: "object_browser" } do |item_diff| %>
 
     <ul class="content-tiles">
         <% objects = value.presence&.includes(:translations) %>
+        <% objects = (objects.to_a || []).concat("data_cycle_core/#{definition.dig('linked_table')}".classify.constantize.where(id: item_diff.presence&.select{ |v| v[0] == '+' }&.dig(0, 1)).includes(:translations).to_a) if item_diff.presence&.select{ |v| v[0] == '+' }&.dig(0, 1).present? %>
+
         <% objects.presence&.each do |item| %>
 
             <li class="<%= [
                                'copy-single',
                                'content',
-                               item.class.name.demodulize.underscore.sub('_', '-'),
-                               item.template_name.underscore.sub('_', '-'),
+                               item.class.name.demodulize.underscore.dasherize,
+                               item.template_name.underscore.dasherize,
+                               changes_class(item_diff, item.id)
                            ].join(' ') %>" data-id="<%= [item.id] %>">
 
                 <%= render_first_existing_partial [
                                                       "data_cycle_core/contents/viewers/tiles/#{item.class.name.demodulize.underscore}_#{item.template_name.underscore}",
                                                       "data_cycle_core/contents/viewers/tiles/#{item.class.name.demodulize.underscore}",
                                                       'data_cycle_core/contents/viewers/tiles/default'
-                                                  ], local_assigns.merge({content: item})
+                                                  ], local_assigns.merge({ content: item })
                 %>
             </li>
         <% end %>
-
     </ul>
 
 <% end %>
