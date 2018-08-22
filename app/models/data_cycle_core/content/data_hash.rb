@@ -5,7 +5,7 @@ module DataCycleCore
     class DataHash < DataCycleCore::Content::Content
       self.abstract_class = true
       include CreateHistory
-      include Search
+      include UpdateSearch
       include Features
 
       define_model_callbacks :save_data_hash, only: :before
@@ -52,75 +52,6 @@ module DataCycleCore
 
       private
 
-      def set_relation_ids(ids, relation_name, tree_label, default_value)
-        if is_blank?(ids)
-          begin
-            if default_value.present? && ids.nil? && send(relation_name).count.zero?
-              classification_id = load_default_classification(tree_label, default_value).id
-              DataCycleCore::ClassificationContent
-                .find_or_create_by(
-                  'content_data_id' => id,
-                  'content_data_type' => self.class.to_s,
-                  classification_id: classification_id,
-                  relation: relation_name
-                )
-              ids = [classification_id]
-            elsif default_value.present? && ids.nil?
-              ids = send(relation_name).pluck(:classification_id)
-            end
-          rescue ActiveRecord::RecordNotFound => e
-            logger.error "Missing default value '#{default_value}' for attribute '#{relation_name}'"
-            raise e
-          end
-        else
-          # insert missing ids
-          ids.each do |classification_id_value|
-            DataCycleCore::ClassificationContent
-              .find_or_create_by(
-                'content_data_id' => id,
-                'content_data_type' => self.class.to_s,
-                classification_id: classification_id_value,
-                relation: relation_name
-              )
-          end
-        end
-
-        ids = [] if ids.blank? && default_value.blank?
-        # delete missing ids
-        found_ids = send(relation_name).pluck(:classification_id)
-        to_delete = found_ids - ids
-        return if to_delete.empty?
-        DataCycleCore::ClassificationContent
-          .for_content(id, self.class.to_s)
-          .for_classification_ids(to_delete)
-          .for_relation(relation_name)
-          .destroy_all
-      end
-
-      def set_asset_id(id, relation_name, asset_type)
-        if id.present?
-          DataCycleCore::AssetContent
-            .find_or_create_by(
-              'content_data_id' => self.id,
-              'content_data_type' => self.class.to_s,
-              asset_id: id,
-              asset_type: asset_type,
-              relation: relation_name
-            )
-        end
-
-        # delete old id
-        found_ids = load_asset_relation(relation_name).ids
-        to_delete = found_ids - [id]
-
-        return if to_delete.empty?
-        DataCycleCore::AssetContent
-          .for_content(self.id, self.class.to_s)
-          .for_assets(to_delete, asset_type)
-          .for_relation(relation_name)
-          .destroy_all
-      end
-
       def set_template_data_hash(data_hash, properties)
         properties.each do |key, value|
           storage_cases_set(key, data_hash[key], value)
@@ -136,7 +67,7 @@ module DataCycleCore
         when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
-          set_relation_ids(value, key, properties['tree_label'], properties['default_value'])
+          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'])
         when 'asset'
           set_asset_id(value, key, properties['asset_type'])
         when 'key'
@@ -162,8 +93,6 @@ module DataCycleCore
         save_data = data.deep_dup
         save_data = set_data_tree_hash(save_data, properties['properties'], location) if properties['type'] == 'object' && data.is_a?(::Hash)
         save_data = convert_to_string(properties['type'], save_data) if PLAIN_PROPERTY_TYPES.include?(properties['type'])
-        # dont overwrite creator with empty values
-        return if key == 'creator' && data.nil?
 
         # set to json field (could be empty)
         if send(location.to_s).blank?
@@ -186,22 +115,6 @@ module DataCycleCore
           end
         end
         data_hash
-      end
-
-      def get_embeddedlink_hash(field_name, table)
-        if table < self.class.table_name
-          {
-            content_b_id: id,
-            content_b_type: self.class.to_s,
-            relation_b: field_name
-          }
-        else
-          {
-            content_a_id: id,
-            content_a_type: self.class.to_s,
-            relation_a: field_name
-          }
-        end
       end
 
       def set_linked_data_type(field_name, input_data, table, name, delete)
@@ -307,6 +220,67 @@ module DataCycleCore
           ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
         }.flatten
           .zip(table < self.class.table_name ? item_data + self_data : self_data + item_data).to_h
+      end
+
+      def set_classification_relation_ids(ids, relation_name, tree_label, default_value)
+        present_relation_ids = send(relation_name).pluck(:classification_id) || []
+        ids ||= []
+        if is_blank?(ids)
+          if default_value.present?
+            classification_id = load_default_classification(tree_label, default_value).id
+            ids = [classification_id]
+            if present_relation_ids.count.zero?
+              DataCycleCore::ClassificationContent
+                .find_or_create_by(
+                  'content_data_id' => id,
+                  'content_data_type' => self.class.to_s,
+                  classification_id: classification_id,
+                  relation: relation_name
+                )
+            end
+          end
+        else
+          ids.each do |classification_id_value|
+            DataCycleCore::ClassificationContent
+              .find_or_create_by(
+                'content_data_id' => id,
+                'content_data_type' => self.class.to_s,
+                classification_id: classification_id_value,
+                relation: relation_name
+              )
+          end
+        end
+
+        to_delete = present_relation_ids - ids
+        return if to_delete.empty?
+        DataCycleCore::ClassificationContent
+          .with_content(id, self.class.to_s)
+          .with_classification_ids(to_delete)
+          .with_relation(relation_name)
+          .destroy_all
+      end
+
+      def set_asset_id(id, relation_name, asset_type)
+        if id.present?
+          DataCycleCore::AssetContent
+            .find_or_create_by(
+              'content_data_id' => self.id,
+              'content_data_type' => self.class.to_s,
+              asset_id: id,
+              asset_type: asset_type,
+              relation: relation_name
+            )
+        end
+
+        # delete old id
+        found_ids = load_asset_relation(relation_name).ids
+        to_delete = found_ids - [id]
+        return if to_delete.empty?
+        DataCycleCore::AssetContent
+          .with_content(self.id, self.class.to_s)
+          .with_assets(to_delete, asset_type)
+          .with_relation(relation_name)
+          .destroy_all
       end
     end
   end

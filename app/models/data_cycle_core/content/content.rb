@@ -39,13 +39,11 @@ module DataCycleCore
 
       def method_missing(name, *args, &block)
         property_definition = property_definitions.try(:[], name.to_s.gsub(/=$/, ''))
-        # puts "#{name.to_s.gsub(/=$/, '')} // #{property_definition} // #{args.first}"
         if property_definition && name.to_s.ends_with?('=')
           raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" unless args.size == 1
           set_property_value(name.to_s.gsub(/=$/, ''), property_definition, args.first)
         elsif property_definition
-          raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size > 1
-
+          raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
           get_property_value(name.to_s.gsub(/=$/, ''), property_definition)
         else
           super

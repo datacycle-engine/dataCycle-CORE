@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Content
-    module Search
+    module UpdateSearch
       def search_languages(all)
         if all
           translated_locales.push(I18n.locale).uniq.each do |locale|
