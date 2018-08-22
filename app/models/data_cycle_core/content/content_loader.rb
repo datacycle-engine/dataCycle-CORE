@@ -3,14 +3,6 @@
 module DataCycleCore
   module Content
     module ContentLoader
-      # def get_classification_relation(relation_name)
-      #   DataCycleCore::ClassificationContent.where(
-      #     'content_data_id' => id,
-      #     'content_data_type' => self.class.to_s,
-      #     'relation' => relation_name
-      #   )
-      # end
-
       def load_linked_objects(relation_name)
         target_name = properties_for(relation_name)&.dig('linked_table')
         target_class = "DataCycleCore::#{target_name.classify}"
