@@ -44,14 +44,9 @@ module DataCycleCore
           raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" unless args.size == 1
           set_property_value(name.to_s.gsub(/=$/, ''), property_definition, args.first)
         elsif property_definition
-          timestamp = args.try(:first)
-          raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if (args.size == 1 && timestamp.nil) || args.size > 1
+          raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size > 1
 
-          if timestamp.nil?
-            get_property_value(name.to_s.gsub(/=$/, ''), property_definition)
-          else
-            get_property_value(name.to_s.gsub(/=$/, ''), property_definition, timestamp)
-          end
+          get_property_value(name.to_s.gsub(/=$/, ''), property_definition)
         else
           super
         end
@@ -139,7 +134,7 @@ module DataCycleCore
             elsif classification_property_names.include?(property_name)
               send(property_name).try(:pluck, :id)
             elsif linked_property_names.include?(property_name)
-              linked_array = get_property_value(property_name, property_definitions[property_name], timestamp)
+              linked_array = get_property_value(property_name, property_definitions[property_name])
               linked_array.presence || []
             elsif included_property_names.include?(property_name)
               embedded_hash = send(property_name).to_h
@@ -219,7 +214,7 @@ module DataCycleCore
 
       # private
 
-      def get_property_value(property_name, property_definition, _timestamp = Time.zone.now)
+      def get_property_value(property_name, property_definition)
         if plain_property_names.include?(property_name)
           load_json_attribute(property_name, property_definition)
         elsif included_property_names.include?(property_name)
