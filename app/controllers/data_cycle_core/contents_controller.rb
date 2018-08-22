@@ -17,7 +17,7 @@ module DataCycleCore
 
       redirect_back(fallback_location: root_path) && return if @content.nil?
 
-      I18n.with_locale(@content.first_available_locale) do
+      I18n.with_locale(@content.first_available_locale(params[:locale])) do
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: controller_name, id: params[:id]) }
           format.html { render 'show' }
