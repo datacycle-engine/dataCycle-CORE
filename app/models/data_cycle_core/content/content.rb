@@ -26,17 +26,6 @@ module DataCycleCore
       include GpxConverter
       include Extensions::Content
 
-      def get_data_hash(timestamp = Time.zone.now)
-        return if !translated_locales.include?(I18n.locale) && changes.count.zero? # for new data-sets with pending data in it
-        as_of(timestamp).try(:to_h, timestamp)
-      end
-
-      def property_definitions
-        schema['properties']
-      rescue StandardError
-        {}
-      end
-
       def method_missing(name, *args, &block)
         property_definition = property_definitions.try(:[], name.to_s.gsub(/=$/, ''))
         if property_definition && name.to_s.ends_with?('=')
@@ -52,6 +41,20 @@ module DataCycleCore
 
       def respond_to?(method_name, include_private = false)
         (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym] }.flatten + linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
+      end
+
+      def content_type?(types)
+        if types.is_a?(Array)
+          types.include?(schema&.dig('content_type'))
+        else
+          types == schema&.dig('content_type')
+        end
+      end
+
+      def property_definitions
+        schema['properties']
+      rescue StandardError
+        {}
       end
 
       def property_names
@@ -122,6 +125,27 @@ module DataCycleCore
         }.keys
       end
 
+      def geo_properties
+        property_definitions.select { |_, v| v['type'] == 'geographic' }
+      end
+
+      def embedded_relations
+        embedded_property_names.map { |property_name|
+          { name: property_name, table: property_definitions[property_name]['linked_table'] }
+        }.compact.uniq
+      end
+
+      def linked_relations
+        linked_property_names.map { |property_name|
+          { name: property_name, table: property_definitions[property_name]['linked_table'] }
+        }.compact.uniq
+      end
+
+      def get_data_hash(timestamp = Time.zone.now)
+        return if !translated_locales.include?(I18n.locale) && changes.count.zero? # for new data-sets with pending data in it
+        as_of(timestamp).try(:to_h, timestamp)
+      end
+
       def to_h(timestamp = Time.zone.now)
         property_names.map { |property_name|
           property_value =
@@ -162,32 +186,8 @@ module DataCycleCore
         respond_to?('history_valid')
       end
 
-      def content_type?(types)
-        if types.is_a?(Array)
-          types.include?(schema&.dig('content_type'))
-        else
-          types == schema&.dig('content_type')
-        end
-      end
-
       def as_of(_timestamp)
         self
-      end
-
-      def embedded_relations
-        embedded_property_names.map { |property_name|
-          { name: property_name, table: property_definitions[property_name]['linked_table'] }
-        }.compact.uniq
-      end
-
-      def linked_relations
-        linked_property_names.map { |property_name|
-          { name: property_name, table: property_definitions[property_name]['linked_table'] }
-        }.compact.uniq
-      end
-
-      def geo_properties
-        property_definitions.select { |_, v| v['type'] == 'geographic' }
       end
 
       def collect_properties(definition = schema, parents = [])
@@ -264,14 +264,8 @@ module DataCycleCore
       end
 
       def load_asset_relation(relation_name)
-        DataCycleCore::Asset
-          .joins(:asset_contents)
-          .where(
-            asset_contents: {
-              content_data_id: id,
-              relation: relation_name
-            }
-          )
+        DataCycleCore::Asset.joins(:asset_contents)
+          .where(asset_contents: { content_data_id: id, relation: relation_name })
       end
 
       def set_property_value(property_name, property_definition, value)

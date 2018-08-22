@@ -56,15 +56,8 @@ module DataCycleCore
       end
 
       def load_classifications(relation_name)
-        DataCycleCore::Classification
-          .joins(:classification_contents)
-          .where(
-            classification_contents: {
-              content_data_type: self.class.to_s,
-              content_data_id: id,
-              relation: relation_name
-            }
-          )
+        DataCycleCore::Classification.joins(:classification_contents)
+          .where(classification_contents: { content_data_type: self.class.to_s, content_data_id: id, relation: relation_name })
       end
 
       def load_default_classification(tree_label, alias_name)
@@ -85,20 +78,17 @@ module DataCycleCore
         history_table_translation = "#{base_content_class}::History::Translation".safe_constantize.arel_table
         history_id = "#{base_content_class}::History".safe_constantize.table_name.singularize.foreign_key.to_sym
 
-        return_data =
-          histories
-            .joins(
-              history_table.join(history_table_translation)
-                .on(history_table[:id].eq(history_table_translation[history_id]))
-                .join_sources
-            )
-            .where(
-              Arel::Nodes::InfixOperation.new(
-                '@>',
-                history_table_translation[:history_valid],
-                Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
-              )
-            ).order(history_table_translation[:history_valid])
+        return_data = histories.joins(
+          history_table.join(history_table_translation)
+          .on(history_table[:id].eq(history_table_translation[history_id]))
+          .join_sources
+        ).where(
+          Arel::Nodes::InfixOperation.new(
+            '@>',
+            history_table_translation[:history_valid],
+            Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
+          )
+        ).order(history_table_translation[:history_valid])
         return_data.last
       end
     end

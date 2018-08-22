@@ -228,26 +228,24 @@ module DataCycleCore
         if is_blank?(ids)
           if default_value.present?
             classification_id = load_default_classification(tree_label, default_value).id
-            ids = [classification_id]
+            ids = [classification_id] # the convention is: don't delete the default_value
             if present_relation_ids.count.zero?
-              DataCycleCore::ClassificationContent
-                .find_or_create_by(
-                  'content_data_id' => id,
-                  'content_data_type' => self.class.to_s,
-                  classification_id: classification_id,
-                  relation: relation_name
-                )
+              DataCycleCore::ClassificationContent.create!(
+                'content_data_id' => id,
+                'content_data_type' => self.class.to_s,
+                classification_id: classification_id,
+                relation: relation_name
+              )
             end
           end
         else
           ids.each do |classification_id_value|
-            DataCycleCore::ClassificationContent
-              .find_or_create_by(
-                'content_data_id' => id,
-                'content_data_type' => self.class.to_s,
-                classification_id: classification_id_value,
-                relation: relation_name
-              )
+            DataCycleCore::ClassificationContent.find_or_create_by(
+              'content_data_id' => id,
+              'content_data_type' => self.class.to_s,
+              classification_id: classification_id_value,
+              relation: relation_name
+            )
           end
         end
 
@@ -262,14 +260,13 @@ module DataCycleCore
 
       def set_asset_id(id, relation_name, asset_type)
         if id.present?
-          DataCycleCore::AssetContent
-            .find_or_create_by(
-              'content_data_id' => self.id,
-              'content_data_type' => self.class.to_s,
-              asset_id: id,
-              asset_type: asset_type,
-              relation: relation_name
-            )
+          DataCycleCore::AssetContent.find_or_create_by(
+            'content_data_id' => self.id,
+            'content_data_type' => self.class.to_s,
+            asset_id: id,
+            asset_type: asset_type,
+            relation: relation_name
+          )
         end
 
         # delete old id
