@@ -42,7 +42,6 @@ module DataCycleCore
         # puts "#{name.to_s.gsub(/=$/, '')} // #{property_definition} // #{args.first}"
         if property_definition && name.to_s.ends_with?('=')
           raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" unless args.size == 1
-
           set_property_value(name.to_s.gsub(/=$/, ''), property_definition, args.first)
         elsif property_definition
           timestamp = args.try(:first)
@@ -64,6 +63,10 @@ module DataCycleCore
 
       def property_names
         property_definitions.keys
+      end
+
+      def properties_for(property_name)
+        property_definitions[property_name]
       end
 
       def translatable_property_names
@@ -103,12 +106,6 @@ module DataCycleCore
       end
 
       def included_property_names
-        property_definitions.select { |_, definition|
-          definition['type'] == 'object' || NESTED_STORAGE_LOCATIONS.include?(NEW_STORAGE_LOCATION[definition['storage_location']])
-        }.keys
-      end
-
-      def included_object_property_names
         property_definitions.select { |_, definition|
           definition['type'] == 'object'
         }.keys
@@ -163,15 +160,13 @@ module DataCycleCore
       def verify
         unless (translatable_property_names & untranslatable_property_names).empty?
           inconsistent_properties = (translatable_property_names & untranslatable_property_names)
-
           raise StandardError, "cannot determine whether some properties (#{inconsistent_properties.join(',')}) are translatable or not"
         end
-
         self
       end
 
       def history?
-        respond_to? 'history_valid'
+        respond_to?('history_valid')
       end
 
       def content_type?(types)
@@ -182,30 +177,8 @@ module DataCycleCore
         end
       end
 
-      def as_of(timestamp)
-        return self if updated_at.blank? || timestamp.blank? || timestamp >= updated_at
-        return self if history?
-
-        base_content_class = self.class.to_s
-        history_table = "#{base_content_class}::History".safe_constantize.arel_table
-        history_table_translation = "#{base_content_class}::History::Translation".safe_constantize.arel_table
-        history_id = "#{base_content_class}::History".safe_constantize.table_name.singularize.foreign_key.to_sym
-
-        return_data =
-          histories
-            .joins(
-              history_table.join(history_table_translation)
-                .on(history_table[:id].eq(history_table_translation[history_id]))
-                .join_sources
-            )
-            .where(
-              Arel::Nodes::InfixOperation.new(
-                '@>',
-                history_table_translation[:history_valid],
-                Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
-              )
-            ).order(history_table_translation[:history_valid])
-        return_data.last
+      def as_of(_timestamp)
+        self
       end
 
       def embedded_relations
@@ -247,64 +220,27 @@ module DataCycleCore
       # private
 
       def get_property_value(property_name, property_definition, _timestamp = Time.zone.now)
-        # linked data via embeddedLink/embeddedLinkArray
-        # handled like embedded_objects with delete=false
-        if linked_property_names.include?(property_name)
-          load_embedded_objects(
-            property_definition['linked_table'],
-            property_name,
-            true
-          )
-
-          # plain properties (e.g. string,text, ... )
-          # non-structured properties of this content-data_set
-        elsif PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
-          load_json_attribute(
-            property_name,
-            property_definition
-          )
-
-          # included subobjects
-          # properties stored in this content-data_set directly
+        if plain_property_names.include?(property_name)
+          load_json_attribute(property_name, property_definition)
         elsif included_property_names.include?(property_name)
-          load_included_data(
-            property_name,
-            property_definition
-          )
-
-          # embeddedObject stored via content_content(s)(_histories)
-          # all properties from the embeddedObject are handled within this content-data_set
-        elsif embedded_property_names.include?(property_name)
-          load_embedded_objects(
-            property_definition['linked_table'],
-            property_name
-          )
-
-          # for classification relations
-          # classification relations are stored in the classification_contents table
+          load_included_data(property_name, property_definition)
         elsif classification_property_names.include?(property_name)
-          load_relation_ids(property_name)
-
-          # for asset relations
-          # asset relations are stored in the asset_contents table
+          load_classifications(property_name)
+        elsif linked_property_names.include?(property_name)
+          load_linked_objects(property_name)
+        elsif embedded_property_names.include?(property_name)
+          load_embedded_objects(property_name)
         elsif asset_property_names.include?(property_name)
-          load_asset_relation_ids(property_name)
-
+          load_asset_relation(property_name)
         else
           raise NotImplementedError
         end
       end
 
-      def same_table?(storage_location)
-        history = false
-        history = self.class.table_name.split('_')[0..-2].join('_').pluralize == storage_location if self.class.table_name.ends_with?('_histories')
-        self.class.table_name == storage_location || history
-      end
-
       def load_json_attribute(property_name, property_definition)
         convert_to_type(
           property_definition['type'],
-          send(NEW_STORAGE_LOCATION[property_definition['storage_location']]).try(:[], property_name.to_s)
+          send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s)
         )
       end
 
@@ -334,60 +270,15 @@ module DataCycleCore
         }.inject(&:merge)
       end
 
-      def load_embedded_objects(target_name, relation_name, linked = false)
-        target_class = history? ? "DataCycleCore::#{target_name.classify}::History" : "DataCycleCore::#{target_name.classify}"
-        target_class = "DataCycleCore::#{target_name.classify}" if linked
-        selector = target_name < self.class.table_name
-        content_one_data = [nil, target_class, '']
-        content_two_data = [id, self.class.to_s, relation_name]
-        where_hash = ['a', 'b'].map { |abselector|
-          if history?
-            ["content_#{abselector}_history_id".to_sym,
-             "content_#{abselector}_history_type".to_sym,
-             "relation_#{abselector}".to_sym]
-          else
-            ["content_#{abselector}_id".to_sym,
-             "content_#{abselector}_type".to_sym,
-             "relation_#{abselector}".to_sym]
-          end
-        }.flatten
-          .zip(selector ? content_one_data + content_two_data : content_two_data + content_one_data).to_h.compact
-        relation_table = history? ? :content_content_histories : :content_contents
-        join_table = selector ? :content_content_a_history : :content_content_b_history if history?
-        join_table = selector ? :content_content_a : :content_content_b unless history?
-        order_string = selector ? 'content_contents.order_b ASC' : 'content_contents.order_a ASC'
-        order_string = selector ? 'content_content_histories.order_b ASC' : 'content_content_histories.order_a ASC' if history?
-
-        query = target_class.constantize
-        if DataCycleCore.content_tables.include?(target_name)
-          target_table_name = history? ? "#{target_name.singularize}_history_translations".to_sym : "#{target_name.singularize}_translations".to_sym
-          target_table_name = "#{target_name.singularize}_translations".to_sym if linked
-          query = query.joins(:translations).where(target_table_name => { locale: I18n.locale })
-        end
-        query = query.joins(join_table)
-        where_hash.each do |key, value|
-          query = query.where(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["#{relation_table}.#{key} = ?", value]))
-        end
-        query.order(order_string)
-      end
-
-      def load_relation_ids(relation_name)
-        if history?
-          join_relation = :classification_content_histories
-          class_id = :content_data_history_id
-          class_type = :content_data_history_type
-        else
-          join_relation = :classification_contents
-          class_id = :content_data_id
-          class_type = :content_data_type
-        end
-        DataCycleCore::Classification.joins(join_relation).where(join_relation => { class_type => self.class.to_s, class_id => id, relation: relation_name })
-      end
-
-      def load_asset_relation_ids(relation_name)
-        join_relation = :asset_contents
-        class_id = :content_data_id
-        DataCycleCore::Asset.joins(join_relation).where(join_relation => { class_id => id, relation: relation_name })
+      def load_asset_relation(relation_name)
+        DataCycleCore::Asset
+          .joins(:asset_contents)
+          .where(
+            asset_contents: {
+              content_data_id: id,
+              relation: relation_name
+            }
+          )
       end
 
       def set_property_value(property_name, property_definition, value)

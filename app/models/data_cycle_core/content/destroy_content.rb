@@ -16,8 +16,7 @@ module DataCycleCore
           delete = true if history? || definition['type'] == 'embedded'
           next unless delete
 
-          relation_name = definition['linked_table']
-          load_embedded_objects(relation_name, name).each do |item|
+          load_embedded_objects(name).each do |item|
             item.destroy_children
             item.destroy
           end

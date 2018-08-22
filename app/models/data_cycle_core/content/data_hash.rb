@@ -19,7 +19,8 @@ module DataCycleCore
         @prevent_history = prevent_history
         run_callbacks :save_data_hash
 
-        if validate?(@data_hash.deep_dup) # && diff?(@data_hash.deep_dup)
+        valid_hash = validate(@data_hash.deep_dup)
+        if validate?(valid_hash) # && diff?(@data_hash.deep_dup)
           ActiveRecord::Base.transaction do
             to_history(save_time: @save_time) if id.nil? == false && prevent_history == false
 
@@ -27,13 +28,13 @@ module DataCycleCore
 
             self.updated_at = @save_time
             self.created_at = @save_time if id.nil?
-            save
+            save(touch: false)
 
             search_languages(update_search_all)
           end
           run_callbacks :saved_data_hash
         end
-        validate(@data_hash)
+        valid_hash
       end
 
       def set_last_updated_by
@@ -45,9 +46,8 @@ module DataCycleCore
         validator.validate(data, schema)
       end
 
-      def validate?(data)
-        validator = DataCycleCore::MasterData::ValidateData.new
-        validator.valid?(data, schema, false)
+      def validate?(validation_hash)
+        validation_hash&.dig(:error).blank?
       end
 
       private
@@ -110,7 +110,7 @@ module DataCycleCore
         end
 
         # delete old id
-        found_ids = get_asset_relation(relation_name).pluck(:asset_id)
+        found_ids = load_asset_relation(relation_name).ids
         to_delete = found_ids - [id]
 
         return if to_delete.empty?
