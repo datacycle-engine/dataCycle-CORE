@@ -9,7 +9,7 @@ Rails.application.configure do
   config.cache_classes = true
 
   # Do not eager load code on boot.
-  config.eager_load = false
+  config.eager_load = true
 
   config.consider_all_requests_local = true
 

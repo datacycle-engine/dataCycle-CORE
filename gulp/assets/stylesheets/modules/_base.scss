@@ -183,7 +183,8 @@ button,
   }
   >.detail-type {
     text-align: left;
-    &.classification .icon {
+    &.classification .icon,
+    &.validity_period .icon.gultigkeitszeitraum {
       i:before {
         content: "\f02c";
         font-family: FontAwesome;
@@ -204,6 +205,11 @@ button,
       &.bundesland {
         i:before {
           content: "\f041";
+        }
+      }
+      &.gultigkeitszeitraum {
+        i:before {
+          content: "\f017";
         }
       }
     }
@@ -254,7 +260,7 @@ button,
   } //.tags {
   .validity_period {
     text-align: left;
-    margin: 1rem 0 0 1rem;
+    margin-top: 1rem;
     color: $dark-gray;
     .date {
       color: $black;
@@ -366,6 +372,12 @@ button,
       background: $light-gray;
     }
   }
+  .form-element.release_status_comment {
+    .ql-editor {
+      background-color: white;
+      min-height: 150px;
+    }
+  }
   .form-element.focus>.editor-block>.ql-toolbar.fixed-toolbar,
   .form-element.focus>.editor-block>.ql-toolbar.fixed-split-toolbar {
     background: white;
@@ -400,6 +412,11 @@ button,
     .form-element {
       position: relative;
       margin-bottom: 1rem;
+      &.release_status_comment {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid $light-gray;
+      }
       label {
         padding-top: 0.5rem;
         opacity: 1;
@@ -655,6 +672,7 @@ body .v-select {
     margin: 0.1rem 0;
     line-height: 1.2rem;
     border-radius: $object-border-radius;
+    font-weight: normal;
     i {
       font-size: 0.8rem;
       margin-left: 0.2rem;

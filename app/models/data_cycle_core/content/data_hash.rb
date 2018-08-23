@@ -20,7 +20,7 @@ module DataCycleCore
         run_callbacks :save_data_hash
 
         valid_hash = validate(@data_hash.deep_dup)
-        if validate?(valid_hash) # && diff?(@data_hash.deep_dup)
+        if validate?(valid_hash) && diff?(@data_hash.deep_dup)
           ActiveRecord::Base.transaction do
             to_history(save_time: @save_time) if id.nil? == false && prevent_history == false
 

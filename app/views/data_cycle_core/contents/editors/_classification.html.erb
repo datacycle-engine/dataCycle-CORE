@@ -44,7 +44,7 @@
                 max: 20,
                 placeholder: ''
               }
-            }
+            }.merge(definition.dig('ui', 'edit', 'options') || {})
           ) %>
       <% else %>
           <% available_items = classification_items&.map { |c|
@@ -72,7 +72,7 @@
                 max: 20,
                 placeholder: ''
               }
-            }
+            }.merge(definition.dig('ui', 'edit', 'options') || {})
           ) %>
       <% end %>
 
