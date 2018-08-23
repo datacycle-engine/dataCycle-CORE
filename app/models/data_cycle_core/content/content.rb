@@ -39,7 +39,7 @@ module DataCycleCore
         end
       end
 
-      def respond_to?(method_name, include_private = false)
+      def respond_to?(method_name)
         (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym] }.flatten + linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
       end
 
@@ -126,7 +126,7 @@ module DataCycleCore
       end
 
       def geo_properties
-        property_definitions.select { |_, v| v['type'] == 'geographic' }
+        property_definitions.select { |_, val| val['type'] == 'geographic' }
       end
 
       def embedded_relations
@@ -175,10 +175,8 @@ module DataCycleCore
       end
 
       def verify
-        unless (translatable_property_names & untranslatable_property_names).empty?
-          inconsistent_properties = (translatable_property_names & untranslatable_property_names)
-          raise StandardError, "cannot determine whether some properties (#{inconsistent_properties.join(',')}) are translatable or not"
-        end
+        inconsistent_properties = translatable_property_names & untranslatable_property_names
+        raise StandardError, "cannot determine whether some properties (#{inconsistent_properties.join(',')}) are translatable or not" unless inconsistent_properties.empty?
         self
       end
 
