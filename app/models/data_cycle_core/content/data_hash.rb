@@ -120,15 +120,8 @@ module DataCycleCore
       def set_linked_data_type(field_name, input_data, table, name, delete)
         updated_item_keys = []
         available_update_item_keys = send(field_name).ids
-
         selector = table < self.class.table_name
-        data = input_data.dup
-
-        data = data.ids if data.is_a?(ActiveRecord::Relation)
-        # for embeddedLinkArray transform data
-        if data.is_a?(::Array) && data.present? && data.first.is_a?(::String)
-          data.map! { |item| { 'id' => item } }
-        end
+        data = parse_linked_content(input_data)
 
         unless is_blank?(data)
           data.each_index do |index|
@@ -166,6 +159,18 @@ module DataCycleCore
             .destroy_all
         end
         # send(table).reload # MO: force reload of the relation, otherwise cached data can obscure the next get_data_hash
+      end
+
+      def parse_linked_content(input_data)
+        if input_data.is_a?(ActiveRecord::Relation)
+          input_data.ids.map { |item| { 'id' => item } }
+        elsif input_data.is_a?(::String)
+          { 'id' => input_data }
+        elsif input_data.is_a?(::Array) && input_data.present? && input_data.first.is_a?(::String)
+          input_data.map { |item| { 'id' => item } } # for embeddedLinkArray transform data
+        else
+          input_data
+        end
       end
 
       def upsert_linked_content_relation(available_update_item_keys, field_name, table, item, selector, index)
