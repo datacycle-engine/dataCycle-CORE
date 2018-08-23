@@ -119,6 +119,7 @@ module DataCycleCore
 
       def set_linked_data_type(field_name, input_data, table, name, delete)
         updated_item_keys = []
+        available_update_item_keys = send(field_name).ids
 
         selector = table < self.class.table_name
         data = input_data.dup
@@ -133,18 +134,16 @@ module DataCycleCore
           data.each_index do |index|
             item = data[index]
             if item.key?('id') && item['id'].present?
-              # relation update/insert
-              updated_item_keys << upsert_linked_content_relation(field_name, table, item, selector, index)
+              # update/insert relation + data
+              updated_item_keys << upsert_linked_content_relation(available_update_item_keys, field_name, table, item, selector, index)
             else
-              # insert new data
+              # insert new data + relation
               updated_item_keys << insert_linked_content_and_relation(field_name, table, name, item, selector, index)
             end
           end
         end
 
-        available_update_item_keys = send(field_name).ids
         potentially_delete = available_update_item_keys - updated_item_keys
-
         if delete
           # full access to embeddedObjects
           potentially_delete.each do |key|
@@ -152,8 +151,7 @@ module DataCycleCore
             translations = item.translated_locales
             if (translations - [I18n.locale]).empty?
               # destroy relationObject + additional embeddedObjects and their relations
-              to_update_item = method(table).call.find_by(id: key)
-              # check for subtrees
+              to_update_item = send(table).find_by(id: key)
               to_update_item.destroy_children
               to_update_item.destroy
             else
@@ -162,22 +160,23 @@ module DataCycleCore
             end
           end
         else
-          # only destroy relations (independend of how many translations in self/embeddedObject exist)
-          potentially_delete.each do |key|
-            DataCycleCore::ContentContent
-              .find_by(get_relation_data_hash(field_name, table, key))
-              .destroy
-          end
+          # destroy relations
+          DataCycleCore::ContentContent
+            .where(get_relation_data_hash(field_name, table, potentially_delete))
+            .destroy_all
         end
-        method(table).call.reload # MO: force reload of the relation, otherwise cached data can obscure the next get_data_hash
+        # send(table).reload # MO: force reload of the relation, otherwise cached data can obscure the next get_data_hash
       end
 
-      def upsert_linked_content_relation(field_name, table, item, selector, index)
-        upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
-          get_relation_data_hash(field_name, table, item['id'])
-        )
-        upsert_relation.send(selector ? 'order_b='.to_sym : 'order_a='.to_sym, index)
-        upsert_relation.save
+      def upsert_linked_content_relation(available_update_item_keys, field_name, table, item, selector, index)
+        if available_update_item_keys[index] != item['id']
+          # update relation
+          upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
+            get_relation_data_hash(field_name, table, item['id'])
+          )
+          upsert_relation.send(selector ? 'order_b='.to_sym : 'order_a='.to_sym, index)
+          upsert_relation.save
+        end
         if item.keys.count > 1
           # update actual data
           update_item = ('DataCycleCore::' + table.classify).constantize.find_by(id: item['id'])
@@ -202,15 +201,6 @@ module DataCycleCore
           get_relation_data_hash(field_name, table, insert_item.id).merge(order_hash)
         )
         insert_item.id
-      end
-
-      def get_relation_data_hash_order(field_name, table, item_id, order)
-        item_data = [item_id, "DataCycleCore::#{table.classify}", '', nil]
-        self_data = [id, self.class.to_s, field_name, order]
-        ['a', 'b'].map { |selector|
-          ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym, "order_#{selector}".to_sym]
-        }.flatten
-          .zip(table < self.class.table_name ? item_data + self_data : self_data + item_data).to_h
       end
 
       def get_relation_data_hash(field_name, table, item_id)
@@ -240,7 +230,8 @@ module DataCycleCore
           end
         else
           ids.each do |classification_id_value|
-            DataCycleCore::ClassificationContent.find_or_create_by(
+            next if present_relation_ids.include?(classification_id_value)
+            DataCycleCore::ClassificationContent.create!(
               'content_data_id' => id,
               'content_data_type' => self.class.to_s,
               classification_id: classification_id_value,
