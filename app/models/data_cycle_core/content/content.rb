@@ -182,6 +182,16 @@ module DataCycleCore
         self
       end
 
+      def diff(data, template = nil)
+        differ = DataCycleCore::MasterData::DiffData.new
+        differ.diff(a: get_data_hash, schema_a: schema, b: data, schema_b: template).diff_hash
+      end
+
+      def diff?(data, template = nil)
+        differ = DataCycleCore::MasterData::DiffData.new
+        differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template)
+      end
+
       def history?
         respond_to?('history_valid')
       end
