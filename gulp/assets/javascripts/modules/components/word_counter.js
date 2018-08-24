@@ -41,8 +41,8 @@ Counter.prototype.calculate = function () {
   var text = this.getText();
   var length = this.countChars(text);
 
-  if (this.warnings !== undefined && this.warnings.max !== undefined && length > this.warnings.max) $(this.container).addClass('warning');
-  else if (this.warnings !== undefined && this.warnings.min && length < this.warnings.min) $(this.container).addClass('warning');
+  if (this.warnings !== undefined && this.warnings.max !== undefined && length > 0 && length > this.warnings.max) $(this.container).addClass('warning');
+  else if (this.warnings !== undefined && this.warnings.min && length > 0 && length < this.warnings.min) $(this.container).addClass('warning');
   else $(this.container).removeClass('warning');
 
   return {
@@ -62,10 +62,10 @@ Counter.prototype.update = function () {
   else $(this.container).fadeIn('fast');
 
   var counter_string = words + ' ' + word_label + ' / ' + chars + ' ' + char_label;
-  if (this.warnings !== undefined && this.warnings.max !== undefined && chars > this.warnings.max) {
+  if (this.warnings !== undefined && this.warnings.max !== undefined && chars > 0 && chars > this.warnings.max) {
     var rest = this.warnings.max - chars;
     counter_string += ' (noch max. ' + (rest > 0 ? rest : 0) + ' ' + char_label + ')';
-  } else if (this.warnings !== undefined && this.warnings.min !== undefined && chars < this.warnings.min) {
+  } else if (this.warnings !== undefined && this.warnings.min !== undefined && chars > 0 && chars < this.warnings.min) {
     var rest = this.warnings.min - chars;
     counter_string += ' (noch min. ' + (rest > 0 ? rest : 0) + ' ' + char_label + ')';
   }

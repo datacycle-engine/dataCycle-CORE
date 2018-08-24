@@ -35,7 +35,7 @@ module.exports.initialize = function () {
       } else if (arguments[0] != undefined && arguments[0].error != undefined && Object.keys(arguments[0].error).length > 0) isValid = false;
 
       if (isValid && submit && $('.form-element .warning').length) {
-        var warnings = $('.form-element .warning').closest('.form-element').map((index, elem) => {
+        var warnings = $('.form-element .warning.counter').closest('.form-element').map((index, elem) => {
           return $(elem).data('label');
         }).get().join(', ');
         var confirmationModal = new ConfirmationModal('Es sind Warnungen vorhanden (' + warnings + ').<br>Soll der Inhalt trotzdem gespeichert werden?', 'warning', true, () => {
