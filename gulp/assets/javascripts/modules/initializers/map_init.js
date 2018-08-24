@@ -52,105 +52,97 @@ module.exports.initialize = function () {
 function init_map(idx, item) {
   var map_id = $(item).attr('id');
   var data = window[map_id];
-  var feature;
+  var feature, feature_old;
   var drawable = true;
 
-      if ($(item).data('icon-path') !== undefined) {
-        iconStyle = new ol.style.Style({
-          image: new ol.style.Icon({
-            anchor: [16, 32],
-            anchorXUnits: 'pixels',
-            anchorYUnits: 'pixels',
-            src: $(item).data('icon-path')
-          })
-        });
-      } else {
-        iconStyle = new ol.style.Style({
-          image: new ol.style.Circle({
-            radius: 7,
-            fill: new ol.style.Fill({
-              color: '#1779ba'
-            }),
-            stroke: new ol.style.Stroke({
-              color: [0, 0, 0, 0.75],
-              width: 1.5
-            })
-          }),
-          zIndex: 100000
-        });
-      }
-
-      redIconStyle = new ol.style.Style({
-        image: new ol.style.Circle({
-          radius: 7,
-          fill: new ol.style.Fill({
-            color: '#cc4b37'
-          }),
-          stroke: new ol.style.Stroke({
-            color: [0, 0, 0, 0.75],
-            width: 1.5
-          })
+  if ($(item).data('icon-path') !== undefined) {
+    iconStyle = new ol.style.Style({
+      image: new ol.style.Icon({
+        anchor: [16, 32],
+        anchorXUnits: 'pixels',
+        anchorYUnits: 'pixels',
+        src: $(item).data('icon-path')
+      })
+    });
+  } else {
+    iconStyle = new ol.style.Style({
+      image: new ol.style.Circle({
+        radius: 7,
+        fill: new ol.style.Fill({
+          color: '#1779ba'
         }),
-        zIndex: 100000
-      });
+        stroke: new ol.style.Stroke({
+          color: [0, 0, 0, 0.75],
+          width: 1.5
+        })
+      }),
+      zIndex: 100000
+    });
+  }
 
-      greenIconStyle = new ol.style.Style({
-        image: new ol.style.Circle({
-          radius: 7,
-          fill: new ol.style.Fill({
-            color: '#90c062'
-          }),
-          stroke: new ol.style.Stroke({
-            color: [0, 0, 0, 0.75],
-            width: 1.5
-          })
-        }),
-        zIndex: 100000
-      });
+  redIconStyle = new ol.style.Style({
+    image: new ol.style.Circle({
+      radius: 7,
+      fill: new ol.style.Fill({
+        color: '#cc4b37'
+      }),
+      stroke: new ol.style.Stroke({
+        color: [0, 0, 0, 0.75],
+        width: 1.5
+      })
+    }),
+    zIndex: 100000
+  });
+
+  greenIconStyle = new ol.style.Style({
+    image: new ol.style.Circle({
+      radius: 7,
+      fill: new ol.style.Fill({
+        color: '#90c062'
+      }),
+      stroke: new ol.style.Stroke({
+        color: [0, 0, 0, 0.75],
+        width: 1.5
+      })
+    }),
+    zIndex: 100000
+  });
 
 
-      if ($(item).hasClass('edit') && $(item).hasClass('point')) {
-        drawable = false;
-        feature = new ol.Feature({
-          geometry: new ol.geom.Point($(item).data('after-position'))
-        });
-        feature_old = new ol.Feature({
-          geometry: new ol.geom.Point($(item).data('before-position'))
-        });
+  if ($(item).hasClass('edit') && $(item).hasClass('point')) {
+    drawable = false;
+    feature = new ol.Feature({
+      geometry: new ol.geom.Point($(item).data('after-position'))
+    });
+    feature_old = new ol.Feature({
+      geometry: new ol.geom.Point($(item).data('before-position'))
+    });
 
-        feature.setStyle(greenIconStyle);
-        feature_old.setStyle(redIconStyle);
-      } else if (data.type == 'Point' && data.points[0].length > 0) {
-        drawable = false;
-        feature = new ol.Feature({
-          geometry: new ol.geom.Point(data.points[0])
-        });
-        if (iconStyle !== undefined) feature.setStyle(iconStyle);
-      } else if (data.type == 'LineString') {
-        feature = new ol.Feature({
-          geometry: new ol.geom.LineString(data.points)
-        });
-      }
-
-      var options = {};
-      var features = [];
-      if (feature !== undefined) features.push(feature);
-      if (feature_old !== undefined) features.push(feature_old);
-
-      if (features.length > 0) {
-        features.forEach(item => {
-          item.getGeometry().transform('EPSG:4326', 'EPSG:3857');
-        });
-        options = {
-          features: features
-        };
-      }
+    feature.setStyle(greenIconStyle);
+    feature_old.setStyle(redIconStyle);
+  } else if (data.type == 'Point' && data.points[0].length > 0) {
+    drawable = false;
+    feature = new ol.Feature({
+      geometry: new ol.geom.Point(data.points[0])
+    });
+    if (iconStyle !== undefined) feature.setStyle(iconStyle);
+  } else if (data.type == 'LineString') {
+    feature = new ol.Feature({
+      geometry: new ol.geom.LineString(data.points)
+    });
+  }
 
   var options = {};
-  if (feature !== undefined) {
-    feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+  var features = [];
+  if (feature !== undefined) features.push(feature);
+  if (feature_old !== undefined) features.push(feature_old);
+
+  if (features.length > 0) {
+    features.forEach(item => {
+      item.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+    });
     options = {
-      features: [feature]
+      features: features
     };
   }
 
