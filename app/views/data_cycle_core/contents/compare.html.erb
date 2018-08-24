@@ -29,11 +29,17 @@
                     <div class="detail-content row">
                         <div class="show-content">
                             <div class="detail-header-info">
-                                <%= render 'diff_meta_data', content: @diff_source %>
+                                <% I18n.with_locale(@diff_source.first_available_locale) do %>
+                                  <%= render 'diff_meta_data', content: @diff_source %>
+                                <% end %>
+
                                 <span class="meta-data-splitter">
                                   <i class="fa fa-arrow-right" aria-hidden="true"></i>
                                 </span>
-                                <%= render 'diff_meta_data', content: @content %>
+
+                                <% I18n.with_locale(@content.first_available_locale) do %>
+                                  <%= render 'diff_meta_data', content: @content %>
+                                <% end %>
                             </div>
 
                         </div>

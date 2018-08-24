@@ -14,7 +14,11 @@
             <% end %>
 
             <% I18n.with_locale(item.first_available_locale) do %>
-              <i title="<%= l(Time.zone.at(item.history_valid&.first), locale: DataCycleCore.ui_language) %>"><%= l(Time.zone.at(item.history_valid&.first), locale: DataCycleCore.ui_language) %></i>
+              <% if item.history_valid&.first.present? %>
+                <i title="<%= l(Time.zone.at(item.history_valid&.first), locale: DataCycleCore.ui_language) %>">
+                  <%= l(Time.zone.at(item.history_valid&.first), locale: DataCycleCore.ui_language) %>
+                </i>
+              <% end %>
             <% end %>
 
             <% if can?(:history, content) && item != @diff_source %>

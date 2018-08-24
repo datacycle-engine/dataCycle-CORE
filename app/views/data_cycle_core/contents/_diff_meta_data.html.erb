@@ -1,18 +1,22 @@
-<span class="meta-data">
+<span class="metadata">
     <span class="type <%= content.template_name.downcase %>">
-        <%= t("content_type.#{content.template_name.downcase}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) %>
+        <%= t("content_type.#{content.template_name.downcase}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) %> (<%= I18n.locale %>)
     </span>
 
-    (<%= I18n.locale %>,
-
     <% if content.history? %>
-        <%= l(Time.zone.at(I18n.with_locale(content.first_available_locale){content.history_valid&.first}), locale: DataCycleCore.ui_language) %>
-    <% else %>
-        <%= l(Time.zone.at(content.updated_at), locale: DataCycleCore.ui_language) if content.updated_at.present? %>
+      <% if content.history_valid&.first.present? %>
+        <%= t('history.updated_at', locale: DataCycleCore.ui_language) %>
+        <strong><%= l(Time.zone.at(content.history_valid&.first), locale: DataCycleCore.ui_language) %></strong>
+      <% end %>
+    <% elsif content.updated_at.present? %>
+        <%= t('history.valid_since', locale: DataCycleCore.ui_language) %>
+        <strong><%= l(Time.zone.at(content.updated_at), locale: DataCycleCore.ui_language) %></strong>
     <% end %>
-    )
+
     <% if content.try(:last_updated_by).is_a?(ActiveRecord::Relation) && content.try(:last_updated_by).present? %>
         <% person = content.last_updated_by.first %>
         <%= t('terms.from', locale: DataCycleCore.ui_language) %> <strong><a href="mailto:<%= person.email %>"><%= person.full_name %></a></strong>
+    <% else %>
+      <%= t('terms.from', locale: DataCycleCore.ui_language) %> <strong>System</strong>
     <% end %>
 </span>

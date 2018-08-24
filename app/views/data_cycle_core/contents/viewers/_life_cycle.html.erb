@@ -19,4 +19,6 @@
       <% end %>
     <% end %>
   </div>
+<% elsif DataCycleCore::Feature::LifeCycle.allowed?(content) && (@split_source.present? || @diff_source.present?) %>
+  <%= render 'data_cycle_core/contents/viewers/classification', local_assigns %>
 <% end %>

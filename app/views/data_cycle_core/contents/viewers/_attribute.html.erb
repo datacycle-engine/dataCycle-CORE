@@ -9,7 +9,7 @@
                 options.dig(:item_diff).present? ? "#{mode}" : "",
                 options.dig('class'),
             ].reject(&:blank?).join(' ') %>"
-         <%= data_attributes.map { |k,v| " data-#{k}='#{v.to_s}'" }.join(' ').html_safe if local_assigns.has_key? :data_attributes %>
+         <%= data_attributes.map { |k,v| " data-#{k}='#{v.to_s}'" if v.present? }.join(' ').html_safe if local_assigns.has_key? :data_attributes %>
     >
 
         <% if options.dig(:hide_label).blank? %>
