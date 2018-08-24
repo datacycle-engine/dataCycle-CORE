@@ -108,8 +108,10 @@ module DataCycleCore
       def classification_alias_ids(ids = nil)
         return self if ids.blank?
 
-        manager = create_classification_alias_recursion(ids)
-        reflect(@query.where(search[:content_data_id].in(manager)))
+        # manager = create_classification_alias_recursion(ids)
+        # reflect(@query.where(search[:content_data_id].in(manager)))
+
+        reflect(@query.with_classification_aliases(ids))
       end
 
       def with_classification_alias_ids_without_recursion(ids = nil)
