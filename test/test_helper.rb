@@ -121,7 +121,7 @@ module DataCycleCore
     end
 
     def self.create_user
-      return if DataCycleCore::User.where(given_name: 'Ad', family_name: 'Ministrator', email: 'admin@datacycle.at').count.positive?
+      return if DataCycleCore::User.find_by(given_name: 'Ad', family_name: 'Ministrator', email: 'admin@datacycle.at').present?
       DataCycleCore::User.create!(
         given_name:   'Ad',
         family_name:  'Ministrator',
@@ -129,6 +129,15 @@ module DataCycleCore
         admin:        true,
         password:     '3amMQf74vp7Zpfdi',
         role_id:      DataCycleCore::Role.find_by(rank: 10)&.id
+      )
+    end
+
+    def self.create_user_group
+      return if DataCycleCore::UserGroup.find_by(name: 'Administrators').present?
+      user_group = DataCycleCore::UserGroup.find_or_create_by(name: 'Administrators')
+      DataCycleCore::UserGroupUser.create!(
+        user_group_id: user_group.id,
+        user_id: DataCycleCore::User.find_by(email: 'admin@datacycle.at').id
       )
     end
   end
@@ -148,3 +157,4 @@ DataCycleCore::TestPreparations.load_templates(
 DataCycleCore::TestPreparations.load_release_statuses
 DataCycleCore::TestPreparations.load_user_roles
 DataCycleCore::TestPreparations.create_user
+DataCycleCore::TestPreparations.create_user_group
