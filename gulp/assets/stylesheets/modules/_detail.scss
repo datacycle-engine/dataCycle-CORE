@@ -64,15 +64,6 @@
             }
           }
         }
-        .detail-type.has-changes.edit {
-          .detail-content ins {
-            color: $success-color;
-            text-decoration: none;
-          }
-          .detail-content del {
-            color: $alert-color;
-          }
-        }
         .detail-type.has-changes .detail-label,
         .detail-type.selected .detail-label {
           background: none;
@@ -284,4 +275,14 @@
 
 .detail-header-info .meta-data-splitter {
   padding: 0 1rem;
+}
+
+.has-changes {
+  ins {
+    color: $success-color;
+    text-decoration: none;
+  }
+  del {
+    color: $alert-color;
+  }
 }

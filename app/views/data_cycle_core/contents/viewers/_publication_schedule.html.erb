@@ -16,8 +16,23 @@
                 </div>
             <% end %>
 
+            <% publication_changes = publication.diff(publication.try(definition.dig('linked_table').singularize)&.get_data_hash) if changes_by_value(options.dig(:item_diff), publication.try("#{definition.dig('linked_table').singularize}_id") || publication.id).present? %>
+
             <div class="publication-row detail-type embedded <%= changes_class(options.dig(:item_diff), publication.try("#{definition.dig('linked_table').singularize}_id") || publication.id) %>">
-                <span class="publication-attribute publication-date"><%= l(publication.publish_at&.to_date, format: :long, locale: DataCycleCore.ui_language) if publication.publish_at.present? %></span>
+                <% date_changes = attribute_changes(publication_changes, 'publish_at') %>
+                <span class="publication-attribute publication-date <%= changes_mode(date_changes) %>">
+                  <% case date_changes&.dig(0) %>
+                  <% when '~' %>
+                    <del><%= l(date_changes.dig(1).to_date, format: :long, locale: DataCycleCore.ui_language) %></del>
+                    <ins><%= l(date_changes.dig(2).to_date, format: :long, locale: DataCycleCore.ui_language) %></ins>
+                  <% when '+' %>
+                    <ins><%= l(date_changes.dig(1).to_date, format: :long, locale: DataCycleCore.ui_language) %></ins>
+                  <% when '-' %>
+                    <del><%= l(publication.publish_at&.to_date, format: :long, locale: DataCycleCore.ui_language) if publication.publish_at.present? %></del>
+                  <% else %>
+                    <%= l(publication.publish_at&.to_date, format: :long, locale: DataCycleCore.ui_language) if publication.publish_at.present? %>
+                  <% end %>
+                </span>
                 <% classification_attributes.presence&.each_key do |c_attribute| %>
                   <% publication_changes = [] %>
                   <% publication_changes = attribute_changes(publication.diff(publication.try(definition.dig('linked_table').singularize)&.get_data_hash), c_attribute) if changes_by_mode(changes_by_value(options.dig(:item_diff), publication.try("#{definition.dig('linked_table').singularize}_id") || publication.id), '~').present? %>
