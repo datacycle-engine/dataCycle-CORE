@@ -7,11 +7,6 @@ module DataCycleCore
         def diff(a, b, template)
           ids_a = parse_uuids(a)
           ids_b = parse_uuids(b)
-          # puts "a: #{a} --> #{ids_a}"
-          # puts "b: #{b} --> #{ids_b}"
-          # puts "set_diff: #{set_diff(ids_a, ids_b) || []}"
-          # puts "change: #{embedded_change(a, b, template) || []}"
-          # puts "order: #{order_change(ids_a, ids_b) || []}"
           @diff_hash = (
             (set_diff(ids_a, ids_b) || []) +
             (embedded_change(a, b, template) || []) +

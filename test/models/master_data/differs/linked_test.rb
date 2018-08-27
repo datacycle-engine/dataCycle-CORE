@@ -18,21 +18,6 @@ describe DataCycleCore::MasterData::Differs::Linked do
       }
     end
 
-    it 'successfully recognizes these cases as equivalent' do
-      uuid = DataCycleCore::CreativeWork.find_by(template_name: 'Bild').id
-      data_cases = [
-        [nil, nil],
-        [uuid, uuid],
-        [uuid, [uuid]],
-        [[uuid], uuid],
-        [[uuid], [uuid]]
-      ]
-      data_cases.each do |case_item|
-        differ = subject.new(case_item[0], case_item[1], template_hash)
-        assert_nil(differ.diff_hash)
-      end
-    end
-
     it 'successfully recognizes order changes' do
       uuid = DataCycleCore::CreativeWork.find_by(template_name: 'Bild').id
       uuid2 = DataCycleCore::CreativeWork.find_by(template_name: 'Video').id
