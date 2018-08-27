@@ -39,10 +39,6 @@ describe DataCycleCore::Search do
     result = content.set_data_hash(data_hash: data.stringify_keys)
     raise 'InvalidData' if result[:error].present?
     content.save!
-
-    content.set_search
-    content.save!
-
     content
   end
 

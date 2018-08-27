@@ -72,8 +72,8 @@ module DataCycleCore
           set_asset_id(value, key, properties['asset_type'])
         when 'key'
           true # do nothing
-        else
-          raise StandardError, "Template includes a wrong data_type: #{properties['type']}; data given: #{key} | #{value}"
+          # else # unreachable
+          # raise StandardError, "Template includes a wrong data_type: #{properties['type']}; data given: #{key} | #{value}"
         end
       end
 
