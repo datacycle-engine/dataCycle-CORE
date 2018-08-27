@@ -18,7 +18,7 @@ module DataCycleCore
         end
       end
 
-      I18n.with_locale(@content.first_available_locale) do
+      I18n.with_locale(@content.first_available_locale(params[:locale])) do
         if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container')
           @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
           @filters.push(
@@ -79,22 +79,22 @@ module DataCycleCore
     end
 
     def compare
-      @content = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
+      @content = data_cycle_object(controller_name).includes(:classifications).find(params[:id])
       authorize! :show, @content
 
       redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if source_params.blank?
 
-      @source = source_params[:source_type].constantize.find(source_params[:source_id]) if source_params.present?
+      @diff_source = source_params[:source_type].constantize.find(source_params[:source_id])
+
+      redirect_back(fallback_location: root_path) && return if @diff_source.nil? || @content.nil?
 
       I18n.with_locale(@content.first_available_locale) do
         @data_schema = @content.get_data_hash
       end
 
-      I18n.with_locale(@source.first_available_locale) do
-        @source_schema = @source.get_data_hash
+      I18n.with_locale(@diff_source.first_available_locale) do
+        @diff_schema = @diff_source.diff(@data_schema)
       end
-
-      @diff_schema = helpers.get_diff(@source_schema, @data_schema)
     end
 
     def edit

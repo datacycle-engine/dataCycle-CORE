@@ -83,6 +83,9 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3000'), protocol: ENV.fetch('APP_PROTOCOL', 'http') }
   config.action_mailer.smtp_settings = { address: ENV.fetch('MAILHOG_HOST', 'localhost'), port: 1025 }
 
+  config.action_controller.asset_host = ENV.fetch('APP_PROTOCOL', 'http') + '://' + ENV.fetch('APP_HOST', 'localhost:3000')
+  config.action_mailer.asset_host = config.action_controller.asset_host
+
   # Bullet configuration:
   # only activate if required for local testing
   # config.after_initialize do

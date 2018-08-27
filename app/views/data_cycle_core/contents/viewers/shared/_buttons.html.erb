@@ -9,9 +9,9 @@
 
   <%= link_to polymorphic_path(content), data: { tooltip: true, click_open: false }, title: t('actions.show', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "show-link" do %>
       <i class="fa fa-eye" aria-hidden="true"></i>
-  <% end if local_assigns[:definition] && definition['type'] == "linked" && @history_source.nil? && can?(:show, content) %>
+  <% end if local_assigns[:definition] && definition['type'] == "linked" && @diff_source.nil? && can?(:show, content) %>
 
   <%= link_to edit_polymorphic_path(content, locale: I18n.locale), data: { tooltip: true, click_open: false }, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "edit-link" do %>
       <i class="fa fa-pencil" aria-hidden="true"></i>
-  <% end if local_assigns[:definition] && definition['type'] == "linked" && @history_source.nil? && can?(:update, content) %>
+  <% end if local_assigns[:definition] && definition['type'] == "linked" && @diff_source.nil? && can?(:update, content) %>
 </div>

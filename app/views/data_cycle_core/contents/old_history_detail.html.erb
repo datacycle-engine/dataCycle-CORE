@@ -24,19 +24,18 @@
 
             <div class="flex-box full-size detail-content-wrapper">
 
-                <% I18n.with_locale(@history_source.first_available_locale) do %>
+                <% I18n.with_locale(@diff_source.first_available_locale) do %>
 
                     <div class="detail-content row">
                         <div class="show-content">
                             <div class="detail-header-info">
-                                <%= render 'history_meta_data', content: @history_source %>
+                                <%= render 'history_meta_data', content: @diff_source %>
                             </div>
-
-                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable', value: @history_source.releasable_hash, key: 'creative_work', definition: {'type' => 'releasable'}, options:{compare: true, force_render: true} %>
 
                         </div>
                     </div>
-                    <%= render_content_partial 'history', content: @history_source, options: {compare: true, force_render: true} %>
+
+                    <%= render_content_partial 'history', content: @diff_source, options: { compare: true, force_render: true } %>
 
                 <% end %>
 

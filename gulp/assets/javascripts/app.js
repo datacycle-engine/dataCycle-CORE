@@ -37,6 +37,7 @@ initializers.push(require('./modules/initializers/publication_init'));
 initializers.push(require('./modules/initializers/stored_filters_init'));
 initializers.push(require('./modules/initializers/dropdown_pane_init'));
 initializers.push(require('./modules/initializers/file_upload_init'));
+initializers.push(require('./modules/initializers/htmldiff_init'));
 
 
 $(function () {

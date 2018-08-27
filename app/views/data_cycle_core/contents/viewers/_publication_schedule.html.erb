@@ -1,8 +1,11 @@
 <%= render 'data_cycle_core/contents/viewers/attribute', key: key, definition: definition, value: value, options: options, data_attributes: { id: value.presence&.ids || [], editor: 'embedded_object' }, content: content do %>
 
+    <% objects = value.presence&.order("(metadata ->> 'publish_at')::timestamptz ASC")&.to_a || [] %>
+    <% objects = objects.concat(new_relations(options.dig(:item_diff), definition.dig('linked_table')).order("(metadata ->> 'publish_at')::timestamptz ASC").to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
+
     <div class="publication-list">
         <!-- # TODO: move to value after final refactor_data_definition migration -->
-        <% value.presence&.order("(metadata ->> 'publish_at')::timestamptz ASC")&.each_with_index do |publication, idx| %>
+        <% objects.presence&.each_with_index do |publication, idx| %>
             <% classification_attributes = publication.schema&.dig('properties')&.select { |k, v| v['type'] == 'classification' && !DataCycleCore.internal_data_attributes.include?(k) }&.map { |k, v| [k, v['label']] }.to_h %>
             <% if idx.zero? %>
                 <div class="publication-row title-row">
@@ -13,12 +16,38 @@
                 </div>
             <% end %>
 
-            <div class="publication-row">
-                <span class="publication-attribute publication-date"><%= l(publication.publish_at&.to_date, format: :long, locale: DataCycleCore.ui_language) if publication.publish_at.present? %></span>
+            <% publication_changes = publication.diff(publication.try(definition.dig('linked_table').singularize)&.get_data_hash) if changes_by_value(options.dig(:item_diff), publication.try("#{definition.dig('linked_table').singularize}_id") || publication.id).present? %>
+
+            <div class="publication-row detail-type embedded <%= changes_class(options.dig(:item_diff), publication.try("#{definition.dig('linked_table').singularize}_id") || publication.id) %>">
+                <% date_changes = attribute_changes(publication_changes, 'publish_at') %>
+                <span class="publication-attribute publication-date <%= changes_mode(date_changes) %>">
+                  <% case date_changes&.dig(0) %>
+                  <% when '~' %>
+                    <del><%= l(date_changes.dig(1).to_date, format: :long, locale: DataCycleCore.ui_language) %></del>
+                    <ins><%= l(date_changes.dig(2).to_date, format: :long, locale: DataCycleCore.ui_language) %></ins>
+                  <% when '+' %>
+                    <ins><%= l(date_changes.dig(1).to_date, format: :long, locale: DataCycleCore.ui_language) %></ins>
+                  <% when '-' %>
+                    <del><%= l(publication.publish_at&.to_date, format: :long, locale: DataCycleCore.ui_language) if publication.publish_at.present? %></del>
+                  <% else %>
+                    <%= l(publication.publish_at&.to_date, format: :long, locale: DataCycleCore.ui_language) if publication.publish_at.present? %>
+                  <% end %>
+                </span>
                 <% classification_attributes.presence&.each_key do |c_attribute| %>
-          <span class="publication-attribute">
-            <%= publication.send(c_attribute).presence&.map(&:name)&.join(', ') %>
-          </span>
+                  <% publication_changes = [] %>
+                  <% publication_changes = attribute_changes(publication.diff(publication.try(definition.dig('linked_table').singularize)&.get_data_hash), c_attribute) if changes_by_mode(changes_by_value(options.dig(:item_diff), publication.try("#{definition.dig('linked_table').singularize}_id") || publication.id), '~').present? %>
+
+                  <span class="detail-content tags publication-attribute">
+                      <% objects = publication.send(c_attribute).presence&.map(&:primary_classification_alias) || [] %>
+
+                      <% objects = objects.concat(new_relations(publication_changes, 'classifications').includes(:classification_aliases).map(&:primary_classification_alias)) if changes_by_mode(publication_changes, '+').present? %>
+
+                      <% objects.presence&.each do |a| %>
+                          <span data-tooltip data-allow-html="true" data-tooltip-class="tooltip classification" aria-haspopup="true" class="tag <%= changes_class(publication_changes, a.primary_classification.id) %>" title="<%= ["<b>#{a.full_path}</b>", a.description].reject(&:blank?).join("<br /><br />") %>">
+                              <%= a.name %>
+                          </span>
+                      <% end %>
+                  </span>
                 <% end %>
             </div>
         <% end %>

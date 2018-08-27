@@ -509,11 +509,6 @@ select {
         text-overflow: ellipsis;
         white-space: pre;
       }
-      .history-metadata {
-        position: absolute;
-        right: 1rem;
-        top: 1rem;
-      }
       .created-at {
         white-space: nowrap;
         overflow: hidden;
@@ -1377,8 +1372,7 @@ select {
 }
 
 .object-browser-overlay .detail-type.geographic {
-  >.detail-label,
-  >.geographic {
+  >.detail-label {
     display: none;
   }
   .map-info {

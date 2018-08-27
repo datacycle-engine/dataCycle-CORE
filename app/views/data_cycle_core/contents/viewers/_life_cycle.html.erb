@@ -1,4 +1,4 @@
-<% if DataCycleCore::Feature::LifeCycle.allowed?(content) && @split_source.nil? && @history_source.nil? %>
+<% if DataCycleCore::Feature::LifeCycle.allowed?(content) && @split_source.nil? && @diff_source.nil? %>
   <div class="content-pool-buttons">
     <% active_index = DataCycleCore::Feature::LifeCycle.ordered_items(content)&.index(content&.data_pool&.first&.name) || -1 %>
     <% DataCycleCore::Feature::LifeCycle.ordered_classifications(content).values.each_with_index do |item, index| %>
@@ -19,4 +19,6 @@
       <% end %>
     <% end %>
   </div>
+<% elsif DataCycleCore::Feature::LifeCycle.allowed?(content) && (@split_source.present? || @diff_source.present?) %>
+  <%= render 'data_cycle_core/contents/viewers/classification', local_assigns %>
 <% end %>
