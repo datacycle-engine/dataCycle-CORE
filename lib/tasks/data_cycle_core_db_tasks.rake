@@ -133,7 +133,7 @@ namespace :data_cycle_core do
       logger.info('Started Importing Live DB...')
 
       begin
-        sh 'cap production review:download_dev_db[full]'
+        sh 'cap production review:download_dev_db[true]'
         sh "mv tmp/dev_db.sql db/backups/#{args.fetch(:rails_env, 'staging')}/dev_db.sql"
 
         ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
