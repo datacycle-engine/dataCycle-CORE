@@ -51,13 +51,13 @@
             &.has-changes {
               &.new.bild .thumbnail,
               &.new.video .thumbnail,
-              &.new.place {
+              &.new:not(.bild, .video) {
                 background-color: rgba($success-color, 0.3) !important;
                 box-shadow: 0 0 1px darken($success-color, 20%);
               }
               &.remove.bild .thumbnail,
               &.remove.video .thumbnail,
-              &.remove.place {
+              &.remove:not(.bild, .video) {
                 background-color: rgba($alert-color, 0.2) !important;
                 box-shadow: 0 0 1px $alert-color;
               }

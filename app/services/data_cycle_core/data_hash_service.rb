@@ -63,9 +63,9 @@ module DataCycleCore
 
       datahash['permitted_creator'] = current_user.try(:role).try(:rank) == 3 ? [DataCycleCore::Classification.find_by(name: 'Markt Office').try(:id)] : [DataCycleCore::Classification.find_by(name: 'Team CM').try(:id)]
 
-      object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true)
+      valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true)
 
-      return nil unless object.save
+      return nil if valid[:error].present?
       object
     end
 

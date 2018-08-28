@@ -6,7 +6,7 @@ module DataCycleCore
     define_model_callbacks :save_data_hash, only: :before
     define_model_callbacks :saved_data_hash, only: :after
 
-    before_save_data_hash :set_last_updated_by
+    before_save_data_hash :set_last_updated_by, if: -> { schema&.dig('properties', 'last_updated_by').present? }
 
     # get data as specified in the data template
     # data hash with keys named as in schema.org
@@ -18,11 +18,11 @@ module DataCycleCore
 
     # set data as specified in the data template
     # data hash with keys named as in schema.org
-    def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true)
+    def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, callbacks: true)
       @data_hash = data_hash
       @current_user = current_user
       @prevent_history = prevent_history
-      run_callbacks :save_data_hash
+      run_callbacks :save_data_hash if callbacks
 
       if validate?(@data_hash.deep_dup) && diff?(@data_hash.deep_dup)
         ActiveRecord::Base.transaction do
@@ -36,7 +36,7 @@ module DataCycleCore
 
           search_languages(update_search_all)
         end
-        run_callbacks :saved_data_hash
+        run_callbacks :saved_data_hash if callbacks
       end
       validate(@data_hash) # return error/warnings from validation
     end
@@ -539,8 +539,8 @@ module DataCycleCore
             upsert_relation.save
             if item.keys.count > 1 # update actual data
               update_item = ('DataCycleCore::' + table.classify).constantize.find_by(id: item['id'])
-              update_item.set_data_hash(data_hash: item, current_user: current_user, save_time: save_time, prevent_history: true)
-              update_item.save
+              update_item.set_data_hash(data_hash: item, current_user: current_user, save_time: save_time, prevent_history: true, callbacks: false)
+              # update_item.save
             end
             updated_item_keys.push(item['id']) # remember updated id
           else # insert new data
@@ -550,8 +550,8 @@ module DataCycleCore
             insert_item.schema = template.schema
             insert_item.template_name = template.template_name
             insert_item.save
-            insert_item.set_data_hash(data_hash: item.merge({ 'is_part_of' => id }), current_user: current_user, save_time: save_time, prevent_history: true)
-            insert_item.save
+            insert_item.set_data_hash(data_hash: item.merge({ 'is_part_of' => id }), current_user: current_user, save_time: save_time, prevent_history: true, callbacks: false)
+            # insert_item.save
             updated_item_keys.push(insert_item.id) # remember inserted id
 
             # insert_relation
