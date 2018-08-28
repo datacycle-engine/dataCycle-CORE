@@ -53,8 +53,6 @@ module DataCycleCore
       private
 
       def set_template_data_hash(data_hash, properties)
-        puts 'set_template_data_hash'
-        ap data_hash
         properties.each do |key, value|
           storage_cases_set(key, data_hash[key], value)
         end
@@ -63,9 +61,9 @@ module DataCycleCore
       def storage_cases_set(key, value, properties)
         case properties['type']
         when 'linked'
-          set_linked_data_type(key, value, properties['linked_table'], properties['template_name'], false)
+          set_linked(key, value, properties['linked_table'])
         when 'embedded'
-          set_linked_data_type(key, value, properties['linked_table'], properties['template_name'], true)
+          set_embedded(key, value, properties['linked_table'], properties['template_name'])
         when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
@@ -74,8 +72,6 @@ module DataCycleCore
           set_asset_id(value, key, properties['asset_type'])
         when 'key'
           true # do nothing
-          # else # unreachable
-          # raise StandardError, "Template includes a wrong data_type: #{properties['type']}; data given: #{key} | #{value}"
         end
       end
 
@@ -118,97 +114,109 @@ module DataCycleCore
         data_hash
       end
 
-      def set_linked_data_type(field_name, input_data, table, name, delete)
-        updated_item_keys = []
-        available_update_item_keys = send(field_name).ids
+      def set_linked(field_name, input_data, table)
+        item_ids_before_update = send(field_name).ids
         selector = table < self.class.table_name
-        data = parse_linked_content(input_data)
+        item_ids_after_update = parse_linked_ids(input_data)
 
-        unless is_blank?(data)
-          data.each_index do |index|
-            item = data[index]
-            if item.key?('id') && item['id'].present?
-              # update/insert relation + data
-              updated_item_keys << upsert_linked_content_relation(available_update_item_keys, field_name, table, name, item, selector, index)
-            else
-              # insert new data + relation
-              updated_item_keys << insert_linked_content_and_relation(field_name, table, name, item, selector, index)
-            end
-          end
-        end
+        item_ids_after_update.each_index do |index|
+          next if item_ids_before_update[index] == item_ids_after_update[index]
 
-        potentially_delete = available_update_item_keys - updated_item_keys
-        if delete
-          # full access to embeddedObjects
-          potentially_delete.each do |key|
-            item = ('DataCycleCore::' + table.classify).constantize.find_by(id: key)
-            translations = item.translated_locales
-            if (translations - [I18n.locale]).empty?
-              # destroy relationObject + additional embeddedObjects and their relations
-              to_update_item = send(table).find_by(id: key)
-              to_update_item.destroy_children
-              to_update_item.destroy
-            else
-              # only destroy particular translation !
-              item.translation.destroy
-            end
-          end
-        elsif potentially_delete.size.positive?
-          # destroy relations
-          DataCycleCore::ContentContent
-            .where(get_relation_data_hash(field_name, table, potentially_delete))
-            .destroy_all
-        end
-        # send(table).reload # MO: force reload of the relation, otherwise cached data can obscure the next get_data_hash
-      end
-
-      def parse_linked_content(input_data)
-        if input_data.is_a?(ActiveRecord::Relation)
-          input_data.ids.map { |item| { 'id' => item } }
-        elsif input_data.is_a?(::String)
-          { 'id' => input_data }
-        elsif input_data.is_a?(::Array) && input_data.present? && input_data.first.is_a?(::String)
-          input_data.map { |item| { 'id' => item } } # for embeddedLinkArray transform data
-        else
-          input_data
-        end
-      end
-
-      def upsert_linked_content_relation(available_update_item_keys, field_name, table, name, item, selector, index)
-        if available_update_item_keys[index] != item['id']
-          # update relation
           upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
-            get_relation_data_hash(field_name, table, item['id'])
+            get_relation_data_hash(field_name, table, item_ids_after_update[index])
           )
           upsert_relation.send(selector ? 'order_b=' : 'order_a=', index)
           upsert_relation.save
         end
-        if item.keys.count > 1
-          # update actual data
-          template = load_template(table, name)
-          upsert_item = ('DataCycleCore::' + table.classify).constantize.find_or_create_by(id: item['id'])
-          upsert_item.schema = template.schema
-          upsert_item.template_name = template.template_name
-          upsert_item.save
-          upsert_item.set_data_hash(data_hash: item, current_user: @current_user, save_time: @save_time, prevent_history: true)
-        end
-        item['id']
+
+        item_ids_to_delete = item_ids_before_update - item_ids_after_update
+        return if item_ids_to_delete.size.zero?
+        # destroy relations
+        DataCycleCore::ContentContent
+          .where(get_relation_data_hash(field_name, table, item_ids_to_delete))
+          .destroy_all
       end
 
-      def insert_linked_content_and_relation(field_name, table, name, item, selector, index)
-        template = load_template(table, name)
-        insert_item = ('DataCycleCore::' + table.classify).constantize.new
-        insert_item.schema = template.schema
-        insert_item.template_name = template.template_name
-        insert_item.save
-        insert_item.set_data_hash(data_hash: item.merge({ 'is_part_of' => id }), current_user: @current_user, save_time: @save_time, prevent_history: true)
+      def parse_linked_ids(a)
+        return [] if a.blank?
+        data = a.is_a?(::String) ? [a] : a
+        data = a&.ids if data.is_a?(ActiveRecord::Relation)
+        raise ArgumentError, 'expected a uuid or list of uuids' unless data.is_a?(::Array)
+        data
+      end
 
-        # insert_relation
-        order_hash = selector ? { order_a: nil, order_b: index } : { order_a: index, order_b: nil }
-        DataCycleCore::ContentContent.create!(
-          get_relation_data_hash(field_name, table, insert_item.id).merge(order_hash)
-        )
-        insert_item.id
+      def set_embedded(field_name, input_data, table, name)
+        updated_item_keys = []
+        available_update_item_keys = send(field_name).ids
+        selector = table < self.class.table_name
+        data = parse_embedded_content(input_data) || []
+
+        data.each_index do |index|
+          item = data[index]
+          if item.key?('id') && item['id'].present?
+            upsert_content(table, name, item) if item.keys.size > 1
+
+            if available_update_item_keys[index] != item['id']
+              upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
+                get_relation_data_hash(field_name, table, item['id'])
+              )
+              upsert_relation.send(selector ? 'order_b=' : 'order_a=', index)
+              upsert_relation.save
+            end
+
+            updated_item_keys << item['id']
+          else
+            insert_item = upsert_content(table, name, item)
+
+            order_hash = selector ? { order_a: nil, order_b: index } : { order_a: index, order_b: nil }
+            DataCycleCore::ContentContent.create!(
+              get_relation_data_hash(field_name, table, insert_item.id).merge(order_hash)
+            )
+
+            updated_item_keys << insert_item.id
+          end
+        end
+
+        potentially_delete = available_update_item_keys - updated_item_keys
+        potentially_delete.each do |key|
+          item = ('DataCycleCore::' + table.classify).constantize.find_by(id: key)
+          translations = item.translated_locales
+          if (translations - [I18n.locale]).empty?
+            # destroy relationObject + additional embeddedObjects and their relations
+            to_update_item = send(table).find_by(id: key)
+            to_update_item.destroy_children
+            to_update_item.destroy
+          else
+            # only destroy particular translation !
+            item.translation.destroy
+          end
+        end
+      end
+
+      def parse_embedded_content(a)
+        if a.is_a?(ActiveRecord::Relation)
+          a.ids.map { |item| { 'id' => item } }
+        elsif a.is_a?(::String)
+          { 'id' => a }
+        elsif a.is_a?(::Array) && a.present? && a.first.is_a?(::String)
+          a.map { |item| { 'id' => item } }
+        else
+          a
+        end
+      end
+
+      def upsert_content(table, name, item)
+        template = load_template(table, name)
+        if item['id'].present?
+          upsert_item = ('DataCycleCore::' + table.classify).constantize.find_or_create_by(id: item['id'])
+        else
+          upsert_item = ('DataCycleCore::' + table.classify).constantize.new
+        end
+        upsert_item.schema = template.schema
+        upsert_item.template_name = template.template_name
+        upsert_item.save
+        upsert_item.set_data_hash(data_hash: item.merge({ 'is_part_of' => id }), current_user: @current_user, save_time: @save_time, prevent_history: true)
+        upsert_item
       end
 
       def get_relation_data_hash(field_name, table, item_id)

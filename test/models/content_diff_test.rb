@@ -26,7 +26,6 @@ module DataCycleCore
         }]
       }
       content_data.set_data_hash(data_hash: data_hash, prevent_history: true)
-      content_data.save
       content_hash = content_data.get_data_hash
 
       expected_hash = {
@@ -94,7 +93,6 @@ module DataCycleCore
       assert_equal(true, content_data.diff?(update_hash))
       assert_equal(diff_hash, content_data.diff(update_hash))
       content_data.set_data_hash(data_hash: update_hash)
-      content_data.save
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
@@ -190,7 +188,6 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::Place::History::Translation.count)
 
       content_data.set_data_hash(data_hash: content_hash)
-      content_data.save
 
       assert_equal(updated_at, content_data.updated_at.to_s(:long_usec))
       assert_equal(created_at, content_data.created_at.to_s(:long_usec))
