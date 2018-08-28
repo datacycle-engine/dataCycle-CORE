@@ -27,10 +27,8 @@ module DataCycleCore
         search_record.data_type = template_name
         search_record.classification_string = display_classification_aliases&.pluck(:name)&.try(:join, ' ')&.try(:gsub, /[']/, "''") || ''
         search_record.all_text = [search_record.headline, search_record.classification_string, search_record.full_text].join(' ')
-        if respond_to?(:validity_period)
-          validity_data = validity_period
-          search_record.validity_period = get_validity(validity_data) if validity_data.present?
-        end
+        validity_data = validity_period if respond_to?(:validity_period)
+        search_record.validity_period = get_validity(validity_data || nil)
         search_record.boost = schema['boost'] || 1.0
         search_record.save
       end
