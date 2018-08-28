@@ -15,7 +15,7 @@ module DataCycleCore
 
     # set data as specified in the data template
     # data hash with keys named as in schema.org
-    def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false)
+    def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true)
       stripped_data_hash = data_hash
       stripped_data_hash, global_release_hash = extract_release(data_hash, true) if is_a?(DataCycleCore::Releasable) # strip also release data from embeddedObjects
 
@@ -39,11 +39,7 @@ module DataCycleCore
             save
           end
 
-          translated_locales.push(I18n.locale).uniq.each do |locale|
-            I18n.with_locale(locale) do
-              set_search
-            end
-          end
+          search_languages(update_search_all)
         end
       end
       validate(stripped_data_hash) # return error/warnings from validation
@@ -197,6 +193,20 @@ module DataCycleCore
       validator.valid?(data, schema, strict)
     end
 
+    def search_languages(all)
+      if all
+        translated_locales.push(I18n.locale).uniq.each do |locale|
+          I18n.with_locale(locale) do
+            set_search
+          end
+        end
+      else
+        I18n.with_locale(I18n.locale) do
+          set_search
+        end
+      end
+    end
+
     def set_search
       # upsert with one SQL Statement
       return if search_property_names.blank?
@@ -294,13 +304,13 @@ module DataCycleCore
       builder.to_xml
     end
 
-    def set_classification_with_children(classification_tree_label, classification_id, user)
+    def set_life_cycle_classification(classification_tree_label, classification_id, user)
       set_data_hash_attribute(classification_tree_label, [classification_id], user)
 
       return unless respond_to?(:children)
 
       children&.each do |child|
-        child.set_data_hash_attribute(classification_tree_label, [classification_id], user)
+        child.set_data_hash_attribute(classification_tree_label, [classification_id], user) if DataCycleCore::Feature::LifeCycle.ordered_classifications(child)&.values&.map { |v| v[:id] }&.include?(classification_id)
       end
     end
 
@@ -314,7 +324,7 @@ module DataCycleCore
           data_hash[attribute_key] = parent_data_hash[attribute_key] if parent_data_hash[attribute_key].present?
         end
 
-        data_hash[DataCycleCore.features.dig(:life_cycle, :attribute_key)] = parent_data_hash[DataCycleCore.features.dig(:life_cycle, :attribute_key)] if DataCycleCore.features.dig(:life_cycle)
+        data_hash[DataCycleCore::Feature::LifeCycle.attribute_key] = parent_data_hash[DataCycleCore::Feature::LifeCycle.attribute_key] if DataCycleCore::Feature::LifeCycle.enabled?
       end
 
       data_hash.compact!

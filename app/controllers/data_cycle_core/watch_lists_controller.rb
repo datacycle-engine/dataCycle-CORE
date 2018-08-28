@@ -88,10 +88,10 @@ module DataCycleCore
 
     def remove_item
       @watch_list = DataCycleCore::WatchList.find(params[:id])
-      object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == params[:hashable_type].classify }
+      object_type = data_cycle_object(params[:hashable_type].demodulize.tableize)
 
       unless object_type.nil?
-        @content_object = object_type.constantize.find(params[:hashable_id])
+        @content_object = object_type.find(params[:hashable_id])
 
         @content_object.watch_lists.delete(@watch_list) unless @content_object.nil? || @watch_list.nil?
       end
@@ -104,10 +104,9 @@ module DataCycleCore
 
     def add_item
       @watch_list = DataCycleCore::WatchList.find(params[:id])
-      object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == params[:hashable_type].classify }
-
+      object_type = data_cycle_object(params[:hashable_type].demodulize.tableize)
       unless object_type.nil?
-        @content_object = object_type.constantize.find(params[:hashable_id])
+        @content_object = object_type.find(params[:hashable_id])
 
         @content_object.watch_lists << @watch_list unless @content_object.nil? || @watch_list.nil?
       end

@@ -17,7 +17,7 @@ module DataCycleCore
 
       redirect_back(fallback_location: root_path) && return if @content.nil?
 
-      I18n.with_locale(@content.first_available_locale) do
+      I18n.with_locale(@content.first_available_locale(params[:locale])) do
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: controller_name, id: params[:id]) }
           format.html { render 'show' }
@@ -212,19 +212,22 @@ module DataCycleCore
       send_data @object.create_gpx, filename: "#{@object.title.blank? ? 'unnamed_place' : @object.title.underscore.parameterize(separator: '_')}.gpx", type: 'gpx/xml'
     end
 
-    def set_life_cycle
+    def update_life_cycle_stage
       @object = data_cycle_object(controller_name).find_by(id: params[:id])
       authorize! :edit, @object
 
       # Create idea_collection if it doesn't exist and active life_cycle_stage is correct
-      if DataCycleCore::Feature::Container.enabled? && @object.content_type?('container') && helpers.life_cycle_items.dig(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage), :id) == life_cycle_params[:id] && !@object.children.where(template_name: DataCycleCore.features.dig(:life_cycle, :idea_collection, :template)).exists?
+      if DataCycleCore::Feature::IdeaCollection.enabled? &&
+         @object.content_type?('container') &&
+         DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::IdeaCollection.life_cycle_stage, :id) == life_cycle_params[:id] &&
+         !@object.children.where(template_name: DataCycleCore::Feature::IdeaCollection.template).exists?
         idea_collection_params = ActionController::Parameters.new({ datahash: { headline: @object.headline } }).permit!
-        idea_collection = DataCycleCore::DataHashService.create_internal_object(controller_name, DataCycleCore.features.dig(:life_cycle, :idea_collection, :template), idea_collection_params, current_user)
+        idea_collection = DataCycleCore::DataHashService.create_internal_object(controller_name, DataCycleCore::Feature::IdeaCollection.template, idea_collection_params, current_user)
         idea_collection.is_part_of = @object.id unless @object.nil?
         idea_collection.save
       end
 
-      @object.set_classification_with_children(DataCycleCore.features.dig(:life_cycle, :attribute_key), life_cycle_params[:id], current_user)
+      @object.set_life_cycle_classification(DataCycleCore::Feature::LifeCycle.attribute_key(@object), life_cycle_params[:id], current_user)
 
       redirect_back(fallback_location: root_path, notice: (I18n.t :moved_to, scope: [:controllers, :success], data: life_cycle_params[:name], locale: DataCycleCore.ui_language))
     end
@@ -292,16 +295,19 @@ module DataCycleCore
       render json: @asset
     end
 
+    def catch_all
+      @object = data_cycle_object(controller_name).find(params[:id])
+
+      raise(ActionController::RoutingError, 'Not Found') unless @object.enabled_features.map { |f| "data_cycle_core/feature/#{f}".classify.constantize.controller_functions.map(&:to_s) }.flatten.include?(params['path']) && respond_to?(params['path'])
+
+      send(path_params['path'])
+    end
+
     def record_not_found
       raise DataCycleCore::Error::RecordNotFoundError, 'DataCycle Record Not Found'
     end
 
     private
-
-    def data_cycle_object(object_string)
-      object_type = DataCycleCore.content_tables.find { |object| object == object_string }
-      ('DataCycleCore::' + object_type.singularize.classify).constantize
-    end
 
     def execute_after_update_webhooks(data)
     end
@@ -319,6 +325,10 @@ module DataCycleCore
     def set_watch_list
       watch_list = DataCycleCore::WatchList.find(params[:watch_list_id]) if params[:watch_list_id]
       @watch_list = watch_list if can?(:manage, watch_list)
+    end
+
+    def path_params
+      params.permit(:path)
     end
 
     def asset_params

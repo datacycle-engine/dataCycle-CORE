@@ -7,6 +7,7 @@ module DataCycleCore
         include ActionController::Caching
         include ActionView::Rendering
         include CanCan::ControllerAdditions
+        include DataCycleCore::Common
         helper DataCycleCore::ApiHelper
 
         unless Rails.env.development?
@@ -25,7 +26,7 @@ module DataCycleCore
         before_action :authenticate, :set_default_response_format
 
         def permitted_params
-          params.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
+          @permitted_params ||= params.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
         end
 
         def permitted_parameter_keys
@@ -33,7 +34,7 @@ module DataCycleCore
         end
 
         def apply_paging(query)
-          page_params = permitted_params.fetch(:page, DEFAULT_PAGE_SETTINGS)
+          page_params = DEFAULT_PAGE_SETTINGS.merge(permitted_params[:page].to_h.symbolize_keys)
           query.page(page_params[:number].to_i).per(page_params[:size].to_i)
         end
 

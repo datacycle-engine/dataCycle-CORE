@@ -31,7 +31,9 @@ module DataCycleCore
         File.file?(p)
       }.first
 
-      markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, no_intra_emphasis: true)
+      markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML,
+                                         no_intra_emphasis: true,
+                                         fenced_code_blocks: true)
 
       markdown.render(File.read(markdown_path)) if markdown_path
     end

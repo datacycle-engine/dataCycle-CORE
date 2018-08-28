@@ -5,6 +5,8 @@ module DataCycleCore
     class Search < QueryBuilder
       include DataCycleCore::Filter::Type::Event
       include DataCycleCore::Filter::Type::Place
+      include DataCycleCore::Filter::Type::CreativeWork
+      include DataCycleCore::Filter::Common::Configurable
 
       def initialize(locale = 'de', query = nil)
         @locale = locale
@@ -49,7 +51,6 @@ module DataCycleCore
 
       def external_source(ids = nil)
         return self if ids.blank?
-
         query = Arel::SelectManager.new
           .project(content_meta_item[:id])
           .from(content_meta_item)
@@ -107,8 +108,10 @@ module DataCycleCore
       def classification_alias_ids(ids = nil)
         return self if ids.blank?
 
-        manager = create_classification_alias_recursion(ids)
-        reflect(@query.where(search[:content_data_id].in(manager)))
+        # manager = create_classification_alias_recursion(ids)
+        # reflect(@query.where(search[:content_data_id].in(manager)))
+
+        reflect(@query.with_classification_aliases(ids))
       end
 
       def with_classification_alias_ids_without_recursion(ids = nil)
@@ -124,7 +127,7 @@ module DataCycleCore
         reflect(
           @query.where(id: DataCycleCore::Search.joins(:classification_aliases).merge(
             DataCycleCore::ClassificationAlias.for_tree(tree_name).with_name(aliases).with_descendants
-          ))
+          ).where(search[:locale].eq(@locale)))
         )
       end
 
@@ -156,6 +159,12 @@ module DataCycleCore
           .on(classification[:id].eq(classification_group[:classification_id]))
           .join(classification_alias)
           .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .where(
+            search[:locale].eq(@locale)
+            .and(classification[:deleted_at].eq(nil))
+            .and(classification_group[:deleted_at].eq(nil))
+            .and(classification_alias[:deleted_at].eq(nil))
+          )
       end
 
       def join_watch_list
@@ -164,14 +173,6 @@ module DataCycleCore
           .from(search)
           .join(watch_list_data_hash)
           .on(search[:content_data_id].eq(watch_list_data_hash[:hashable_id]).and(search[:content_data_type].eq(watch_list_data_hash[:hashable_type])))
-      end
-
-      def join_creative_work
-        Arel::SelectManager.new
-          .project(search[:content_data_id])
-          .from(search)
-          .join(creative_work)
-          .on(search[:content_data_id].eq(creative_work[:id]).and(search[:content_data_type].eq(quoted('DataCycleCore::CreativeWork'))))
       end
 
       def join_content_relation
@@ -185,11 +186,6 @@ module DataCycleCore
       def get_watch_list_items(id)
         query = join_watch_list
         query.where(watch_list_data_hash[:watch_list_id].eq(id))
-      end
-
-      def find_children(id)
-        query = join_creative_work
-        query.where(creative_work[:is_part_of].eq(id))
       end
 
       def find_relation(name)
@@ -207,10 +203,6 @@ module DataCycleCore
 
       def classification_content
         DataCycleCore::ClassificationContent.arel_table
-      end
-
-      def creative_work
-        DataCycleCore::CreativeWork.arel_table
       end
 
       def content_meta_item

@@ -7,7 +7,7 @@
       $('#object_browser_<%= sanitize_to_id(params[:key]) %>').find('.items .loading').before('<%= j render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: { object: @content, options: params[:options], objects: params[:objects], editable: params[:editable] }) %>');
     }
 
-    $('#object_browser_<%= sanitize_to_id(params[:key]) %>').find('.item-info').html('<%= escape_javascript(render_object_browser_partial(partial: 'detail', key: params[:key], definition: params[:definition], parameters: { object: @content, options: params[:options] })) %>');
+    $('#object_browser_<%= sanitize_to_id(params[:key]) %>').find('.item-info-scrollable').html('<%= escape_javascript(render_object_browser_partial(partial: 'detail', key: params[:key], definition: params[:definition], parameters: { object: @content, options: params[:options] })) %>');
 
     $('#object_browser_<%= sanitize_to_id(params[:key]) %>').trigger('import-complete', {id: '<%= @content.id %>'});
 

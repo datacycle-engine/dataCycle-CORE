@@ -1371,6 +1371,18 @@ select {
   }
 }
 
+.object-browser-overlay .detail-type.geographic {
+  >.detail-label {
+    display: none;
+  }
+  .map-info {
+    box-shadow: none;
+    background-color: white;
+    padding: 0;
+    margin: 0;
+  }
+}
+
 .detail-content:not(.imageobject) .type.properties .detail-type.geographic {
   padding: 0;
   box-shadow: none;

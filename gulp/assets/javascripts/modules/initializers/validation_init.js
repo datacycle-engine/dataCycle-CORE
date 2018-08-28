@@ -34,7 +34,21 @@ module.exports.initialize = function () {
         }
       } else if (arguments[0] != undefined && arguments[0].error != undefined && Object.keys(arguments[0].error).length > 0) isValid = false;
 
-      if (isValid && submit) {
+      if (isValid && submit && $('.form-element .warning').length) {
+        var warnings = $('.form-element .warning.counter').closest('.form-element').map((index, elem) => {
+          return $(elem).data('label');
+        }).get().join(', ');
+        var confirmationModal = new ConfirmationModal('Es sind Warnungen vorhanden (' + warnings + ').<br>Soll der Inhalt trotzdem gespeichert werden?', 'warning', true, () => {
+          if ($(form).parent('.reveal.in-object-browser').length) {
+            $(form).trigger('submit_without_redirect');
+          } else {
+            $(window).off("beforeunload");
+            form.submit();
+          }
+        }, () => {
+          $('.submit-edit-form').html('<i class="fa fa-check" aria-hidden="true"></i>').prop('disabled', false);
+        });
+      } else if (isValid && submit) {
         if ($(form).parent('.reveal.in-object-browser').length) {
           $(form).trigger('submit_without_redirect');
         } else {
@@ -252,8 +266,8 @@ module.exports.initialize = function () {
     $('button.submit-edit-form').on('click', function (ev) {
       ev.preventDefault();
 
-      if(!check_agbs_accepted()){
-          return false;
+      if (!check_agbs_accepted()) {
+        return false;
       }
 
       remove_submit_button_errors();

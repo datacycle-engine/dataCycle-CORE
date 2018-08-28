@@ -67,7 +67,7 @@ module DataCycleCore
     self.special_data_attributes = ['id', 'validity_period', 'creator', 'last_updated_by']
 
     mattr_accessor :internal_classification_attributes
-    self.internal_classification_attributes = ['data_type', 'data_pool']
+    self.internal_classification_attributes = ['data_type']
 
     mattr_accessor :internal_data_attributes
     self.internal_data_attributes = ['date_created', 'date_modified', 'creator', 'is_part_of', 'last_updated_by'] + internal_classification_attributes
@@ -119,6 +119,9 @@ module DataCycleCore
         enabled: false
       },
       life_cycle: {
+        enabled: false
+      },
+      idea_collection: {
         enabled: false
       },
       container: {
@@ -209,7 +212,7 @@ module DataCycleCore
     isolate_namespace DataCycleCore
 
     config.assets.version = '1.0'
-    config.assets.precompile += ['data_cycle_core/*', 'location.svg']
+    config.assets.precompile += ['data_cycle_core/*', 'location.svg', 'eml-datacycle.png', 'eml-datacycle-border.png', 'eml-logo.png', 'eml-user.jpg']
 
     config.action_dispatch.cookies_serializer = :json
     # TODO: check: raise_on_unfiltered_parameters never worked in main application

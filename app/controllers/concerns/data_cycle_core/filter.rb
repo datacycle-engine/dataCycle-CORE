@@ -79,19 +79,19 @@ module DataCycleCore
     def set_default_filter
       @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
 
-      if DataCycleCore.features&.dig(:life_cycle, :tree_label).present? &&
-         DataCycleCore.features&.dig(:life_cycle, :default_filter).present? &&
-         helpers.life_cycle_items.present? &&
-         @filters.none? { |f| f['n'] == DataCycleCore.features&.dig(:life_cycle, :tree_label) && f['v'].present? } &&
+      if DataCycleCore::Feature::LifeCycle.tree_label.present? &&
+         DataCycleCore::Feature::LifeCycle.ordered_classifications.present? &&
+         DataCycleCore::Feature::LifeCycle.default_filter.present? &&
+         @filters.none? { |f| f['n'] == DataCycleCore::Feature::LifeCycle.tree_label && f['v'].present? } &&
          params[:stored_filter].blank?
 
         @filters.push(
           {
             'c' => 'a',
             't' => 'classification_alias_ids',
-            'n' => DataCycleCore.features&.dig(:life_cycle, :tree_label),
+            'n' => DataCycleCore::Feature::LifeCycle.tree_label,
             'm' => 'i',
-            'v' => [helpers.life_cycle_items&.dig(DataCycleCore.features&.dig(:life_cycle, :default_filter), :alias)&.id]
+            'v' => [DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias)&.id]
           }
         )
       end

@@ -35,15 +35,16 @@ DataCycleCore::Engine.routes.draw do
       get 'compare', on: :member
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :geocode_address, on: :collection
+      get :load_more_linked_objects, on: :member
+      get :gpx, on: :member
+      post :validate, on: :member
+      post :validate, on: :collection
+      patch :update_life_cycle_stage, on: :member
     end
-  end
 
-  resources(*DataCycleCore.content_tables.map(&:to_sym)) do
-    get :load_more_linked_objects, on: :member
-    get :gpx, on: :member
-    post :validate, on: :member
-    post :validate, on: :collection
-    patch :set_life_cycle, on: :member
+    resources(*DataCycleCore.content_tables.map(&:to_sym)) do
+      match '*path', action: 'catch_all', on: :member, via: :all
+    end
   end
 
   resources :subscriptions, only: [:index, :create, :destroy]

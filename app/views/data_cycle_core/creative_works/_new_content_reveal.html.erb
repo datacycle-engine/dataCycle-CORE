@@ -34,13 +34,14 @@
         </button>
     </div>
 
-    <% if DataCycleCore.features.dig(:life_cycle, :idea_collection) && (life_cycle_items.keys.index(@content.try(DataCycleCore.features.dig(:life_cycle, :attribute_key))&.first&.name)&.<= life_cycle_items.keys.index(DataCycleCore.features.dig(:life_cycle, :idea_collection, :life_cycle_stage))) %>
+    <% if DataCycleCore::Feature::IdeaCollection.enabled? &&
+          (DataCycleCore::Feature::LifeCycle.ordered_items&.index(@content.try(DataCycleCore::Feature::LifeCycle.attribute_key)&.first&.name)&.<= DataCycleCore::Feature::LifeCycle.ordered_items&.index(DataCycleCore::Feature::IdeaCollection.life_cycle_stage)) %>
       <div class="reveal new-item" id="new-idea-collection" data-reveal data-multiple-opened="true">
-          <h3><%= t('actions.new', data: DataCycleCore.features.dig(:life_cycle, :idea_collection, :template), locale: DataCycleCore.ui_language) %></h3>
+          <h3><%= t('actions.new', data: DataCycleCore::Feature::IdeaCollection.template, locale: DataCycleCore.ui_language) %></h3>
 
           <%= form_for :creative_work, :url => {:action => "create"} do |f| %>
               <%= hidden_field_tag :type, :creative_works %>
-              <%= hidden_field_tag 'template', DataCycleCore.features.dig(:life_cycle, :idea_collection, :template) %>
+              <%= hidden_field_tag 'template', DataCycleCore::Feature::IdeaCollection.template %>
               <%= hidden_field_tag 'parent_id', @content.id %>
               <div class="validation-container form-element">
                   <%= label_tag 'creative_work[datahash][headline]', 'Titel' %>
