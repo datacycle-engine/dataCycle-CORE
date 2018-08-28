@@ -4,10 +4,12 @@ module DataCycleCore
   module Content
     module Features
       def set_data_hash_attribute(key, value, current_user, save_time = Time.zone.now)
+        @save_time = save_time
+        @current_user = current_user
         key_hash = schema.dig('properties', key)
         return if key_hash.nil?
         ActiveRecord::Base.transaction do
-          storage_cases_set(key, value, key_hash, save_time, current_user)
+          storage_cases_set(key, value, key_hash)
         end
       end
 
