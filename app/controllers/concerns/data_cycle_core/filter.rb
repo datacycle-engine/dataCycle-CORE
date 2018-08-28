@@ -25,11 +25,14 @@ module DataCycleCore
 
       query_params = params[:language] == 'all' ? [nil, DataCycleCore::Search.all] : [@language]
       query ||= DataCycleCore::Filter::Search.new(*query_params)
+
       query = query.unique_by_column(:content_data_id) if params[:language] == 'all'
 
       @filters.presence&.each do |filter|
         query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
       end
+
+      query = query.unique_by_column_with_order_string(:content_data_id, @order_string) if params[:language].present? && params[:language].size > 1
 
       @filters.concat(@stored_filters) if @stored_filters.present?
 

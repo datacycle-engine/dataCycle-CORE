@@ -105,6 +105,18 @@ module DataCycleCore
         reflect(@query.where(id: query))
       end
 
+      def unique_by_column_with_order_string(column = :id, order_string = nil)
+        if order_string.is_a?(String)
+          order_expression = "#{column}, #{order_string}"
+        elsif order_string.is_a?(Hash)
+          order_expression = { column => :desc }.merge(order_string)
+        else
+          return reflect(@query)
+        end
+        query = DataCycleCore::Search.select("DISTINCT ON (#{column}) id").order(order_expression)
+        reflect(@query.where(id: query))
+      end
+
       def classification_alias_ids(ids = nil)
         return self if ids.blank?
 

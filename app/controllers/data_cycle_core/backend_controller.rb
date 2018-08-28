@@ -26,7 +26,6 @@ module DataCycleCore
 
       @total = @paginate_object.total_count
       @contents = @paginate_object.map(&:content_data)
-
       @content = CreativeWork.new
     end
 
