@@ -53,6 +53,8 @@ module DataCycleCore
       private
 
       def set_template_data_hash(data_hash, properties)
+        puts 'set_template_data_hash'
+        ap data_hash
         properties.each do |key, value|
           storage_cases_set(key, data_hash[key], value)
         end
@@ -127,7 +129,7 @@ module DataCycleCore
             item = data[index]
             if item.key?('id') && item['id'].present?
               # update/insert relation + data
-              updated_item_keys << upsert_linked_content_relation(available_update_item_keys, field_name, table, item, selector, index)
+              updated_item_keys << upsert_linked_content_relation(available_update_item_keys, field_name, table, name, item, selector, index)
             else
               # insert new data + relation
               updated_item_keys << insert_linked_content_and_relation(field_name, table, name, item, selector, index)
@@ -151,7 +153,7 @@ module DataCycleCore
               item.translation.destroy
             end
           end
-        else
+        elsif potentially_delete.size.positive?
           # destroy relations
           DataCycleCore::ContentContent
             .where(get_relation_data_hash(field_name, table, potentially_delete))
@@ -172,20 +174,23 @@ module DataCycleCore
         end
       end
 
-      def upsert_linked_content_relation(available_update_item_keys, field_name, table, item, selector, index)
+      def upsert_linked_content_relation(available_update_item_keys, field_name, table, name, item, selector, index)
         if available_update_item_keys[index] != item['id']
           # update relation
           upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
             get_relation_data_hash(field_name, table, item['id'])
           )
-          upsert_relation.send(selector ? 'order_b='.to_sym : 'order_a='.to_sym, index)
+          upsert_relation.send(selector ? 'order_b=' : 'order_a=', index)
           upsert_relation.save
         end
         if item.keys.count > 1
           # update actual data
-          update_item = ('DataCycleCore::' + table.classify).constantize.find_by(id: item['id'])
-          update_item.set_data_hash(data_hash: item, current_user: @current_user, save_time: @save_time, prevent_history: true)
-          update_item.save
+          template = load_template(table, name)
+          upsert_item = ('DataCycleCore::' + table.classify).constantize.find_or_create_by(id: item['id'])
+          upsert_item.schema = template.schema
+          upsert_item.template_name = template.template_name
+          upsert_item.save
+          upsert_item.set_data_hash(data_hash: item, current_user: @current_user, save_time: @save_time, prevent_history: true)
         end
         item['id']
       end
@@ -197,7 +202,6 @@ module DataCycleCore
         insert_item.template_name = template.template_name
         insert_item.save
         insert_item.set_data_hash(data_hash: item.merge({ 'is_part_of' => id }), current_user: @current_user, save_time: @save_time, prevent_history: true)
-        insert_item.save
 
         # insert_relation
         order_hash = selector ? { order_a: nil, order_b: index } : { order_a: index, order_b: nil }
