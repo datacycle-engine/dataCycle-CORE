@@ -540,7 +540,7 @@ module DataCycleCore
             if item.keys.count > 1 # update actual data
               update_item = ('DataCycleCore::' + table.classify).constantize.find_by(id: item['id'])
               update_item.set_data_hash(data_hash: item, current_user: current_user, save_time: save_time, prevent_history: true, callbacks: false)
-              # update_item.save
+              update_item.save
             end
             updated_item_keys.push(item['id']) # remember updated id
           else # insert new data
@@ -551,7 +551,7 @@ module DataCycleCore
             insert_item.template_name = template.template_name
             insert_item.save
             insert_item.set_data_hash(data_hash: item.merge({ 'is_part_of' => id }), current_user: current_user, save_time: save_time, prevent_history: true, callbacks: false)
-            # insert_item.save
+            insert_item.save
             updated_item_keys.push(insert_item.id) # remember inserted id
 
             # insert_relation
