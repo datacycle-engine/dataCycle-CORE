@@ -14,7 +14,74 @@
   </div>
 
   <div class="advanced-filter-selector">
-    <%= select_tag("f[#{index}][v]", value.present? ? options_for_select(value.map { |v| [@selected_classification_aliases[v], v] }, value) : nil, { multiple: true, class: 'async-select', data: { tree_label: filter_name, max: 20, alias_ids: true, placeholder: '' } }) %>
+    <% classification_items = DataCycleCore::ClassificationTreeLabel
+      .find_by(name: filter_name)
+      &.classification_trees
+      &.includes(
+        :parent_classification_alias, sub_classification_alias: [
+          :classifications, sub_classification_alias: [
+            :classifications, sub_classification_alias: [
+              :classifications, :sub_classification_alias
+            ]
+          ]
+        ]
+      ) %>
+    <% if classification_items.size > DataCycleCore.max_asynch_classification_items %>
+        <%= select_tag(
+          "f[#{index}][v]",
+          value.blank? ? nil : options_for_select(
+            value.map { |c|
+              [
+                c.try(:name),
+                c.id,
+                {
+                  title: [
+                    c.primary_classification_alias.full_path,
+                    c.primary_classification_alias.description
+                  ].reject(&:blank?).join("\n\n")
+                }
+              ]
+            }, value
+          ),
+          {
+            multiple: true,
+            class: 'async-select',
+            data: {
+              tree_label: filter_name,
+              max: 20,
+              placeholder: '',
+              alias_ids: true
+            }
+          }
+        ) %>
+    <% else %>
+        <% available_items = classification_items&.map { |c|
+          [
+            c.sub_classification_alias.try(:name),
+            c.sub_classification_alias.try(:id),
+            {
+              title: [
+                c.sub_classification_alias.full_path,
+                c.sub_classification_alias.description
+              ].reject(&:blank?).join("\n\n")
+            }
+          ]
+        } %>
+
+        <%= select_tag(
+          "f[#{index}][v]",
+          options_for_select(available_items, value),
+          {
+            multiple: true,
+            class: 'multi-select',
+            data: {
+              tree_label: filter_name,
+              max: 20,
+              placeholder: ''
+            }
+          }
+        ) %>
+    <% end %>
   </div>
 
   <% if can?(:advanced_filter, :backend) %>
