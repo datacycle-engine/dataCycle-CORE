@@ -112,6 +112,8 @@ de:
   filter:
     add: Filter hinzufügen
     language: Sprache
+    external_source: Externe Quelle
+    creator: Ersteller
 
   terms:
     valid: gültig

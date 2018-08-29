@@ -367,6 +367,12 @@
       border-radius: 5px;
       padding: 2px 4px;
       margin: 0 0.5rem 0.5rem 0;
+      .tag-container {
+        font-size: 0;
+        .tag {
+          margin-right: 5px;
+        }
+      }
       .advanced-filter-link {
         .fa {
           vertical-align: text-bottom;
