@@ -16,10 +16,10 @@
                 </div>
             <% end %>
 
-            <% publication_changes = publication.diff(publication.try(definition.dig('linked_table').singularize)&.get_data_hash) if changes_by_value(options.dig(:item_diff), publication.try("#{definition.dig('linked_table').singularize}_id") || publication.id).present? %>
+            <% publication_changes = publication.diff(publication.try(definition.dig('linked_table').singularize)&.get_data_hash) if changes_by_mode(changes_by_value(options.dig(:item_diff), publication.try("#{definition.dig('linked_table').singularize}_id") || publication.id), '~').present? %>
 
             <div class="publication-row detail-type embedded <%= changes_class(options.dig(:item_diff), publication.try("#{definition.dig('linked_table').singularize}_id") || publication.id) %>">
-                <% date_changes = attribute_changes(publication_changes, 'publish_at') %>
+                <% date_changes = attribute_changes(publication_changes, 'publish_at')  if changes_by_mode(changes_by_value(options.dig(:item_diff), publication.try("#{definition.dig('linked_table').singularize}_id") || publication.id), '~').present? %>
                 <span class="publication-attribute publication-date <%= changes_mode(date_changes) %>">
                   <% case date_changes&.dig(0) %>
                   <% when '~' %>

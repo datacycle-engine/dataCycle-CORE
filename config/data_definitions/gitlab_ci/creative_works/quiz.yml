@@ -105,9 +105,6 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Frage"
-      :meta_data:
-        :type: mixin
-        :name: meta_data
 
 - :data:
     :name: Antwort
@@ -140,6 +137,3 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Antwort"
-      :meta_data:
-        :type: mixin
-        :name: meta_data

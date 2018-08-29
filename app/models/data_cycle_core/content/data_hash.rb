@@ -10,16 +10,16 @@ module DataCycleCore
 
       define_model_callbacks :save_data_hash, only: :before
       define_model_callbacks :saved_data_hash, only: :after
-      before_save_data_hash :set_last_updated_by
+      before_save_data_hash :set_last_updated_by, if: -> { schema&.dig('properties', 'last_updated_by').present? }
 
-      def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true)
+      def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, callbacks: true)
         @data_hash = data_hash
         @current_user = current_user
         @save_time = save_time
         @prevent_history = prevent_history
-        run_callbacks :save_data_hash
+        run_callbacks :save_data_hash if callbacks
 
-        valid_hash = validate(data_hash)
+        valid_hash = validate(@data_hash)
         if validate?(valid_hash) && diff?(@data_hash)
           ActiveRecord::Base.transaction do
             to_history(save_time: @save_time) if id.nil? == false && prevent_history == false
@@ -32,7 +32,7 @@ module DataCycleCore
 
             search_languages(update_search_all)
           end
-          run_callbacks :saved_data_hash
+          run_callbacks :saved_data_hash if callbacks
         end
         valid_hash
       end
@@ -215,7 +215,7 @@ module DataCycleCore
         upsert_item.schema = template.schema
         upsert_item.template_name = template.template_name
         upsert_item.save
-        upsert_item.set_data_hash(data_hash: item.merge({ 'is_part_of' => id }), current_user: @current_user, save_time: @save_time, prevent_history: true)
+        upsert_item.set_data_hash(data_hash: item.merge({ 'is_part_of' => id }), current_user: @current_user, save_time: @save_time, prevent_history: true, callbacks: false)
         upsert_item
       end
 
