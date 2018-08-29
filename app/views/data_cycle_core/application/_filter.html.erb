@@ -90,11 +90,9 @@
                             <i class="tag-group-label"><i class="fa fa-tags" aria-hidden="true"></i> <%= filter['n'] %>:</i>
                             <span class="tags-container">
                               <% filter['v'].presence&.each do |value| %>
-                                <label for="<%= value %>">
-                                  <a class="tag">
-                                    <%= @selected_classification_aliases[value] %><i class="fa fa-times" aria-hidden="true"></i>
-                                  </a>
-                                </label>
+                                <label for="<%= value %>"><a class="tag">
+                                  <%= @selected_classification_aliases[value] %><i class="fa fa-times" aria-hidden="true"></i>
+                                </a></label>
                               <% end %>
                             </span>
                           </span>

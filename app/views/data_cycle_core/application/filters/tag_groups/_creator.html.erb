@@ -1,14 +1,14 @@
 <span class="tag-group tags" data-id="<%= "#{sanitize_to_id(key)}_#{index}" if buttons ||= false %>">
   <i class="tag-group-label">
-    <i class="fa fa-external-link" aria-hidden="true"></i>
+    <i class="fa fa-user" aria-hidden="true"></i>
     <%= t("filter.#{key.parameterize(separator: '_')}", default: key, locale: DataCycleCore.ui_language) %>:
   </i>
 
-  <% external_sources = DataCycleCore::ExternalSource.select(:id, :name).where(id: value).map { |c| [c.id, c.name] }.to_h %>
+  <% creators = DataCycleCore::User.where(id: value).map { |c| [c.id, { title: c.email, text: "#{c.given_name} #{c.family_name}" }] }.to_h %>
 
   <span class="tags-container">
-    <% value.each do |external_source_id| %>
-      <span class="tag"><%= external_sources[external_source_id] %></span>
+    <% value.each do |creator_id| %>
+      <span class="tag" title="<%= creators.dig(creator_id, :title) %>"><%= creators.dig(creator_id, :text) %></span>
     <% end %>
   </span>
 

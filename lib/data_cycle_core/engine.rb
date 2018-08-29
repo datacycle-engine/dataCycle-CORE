@@ -136,7 +136,8 @@ module DataCycleCore
       advanced_filter: {
         enabled: true,
         classification_alias_ids: 'all',
-        external_source: true
+        external_source: true,
+        creator: true
       },
       geocode: {
         enabled: false

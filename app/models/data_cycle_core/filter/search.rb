@@ -59,6 +59,19 @@ module DataCycleCore
         reflect(@query.where(search[:content_data_id].in(query)))
       end
 
+      def creator(ids = nil)
+        return self if ids.blank?
+
+        joined_creators = content_content.alias('joined_creators')
+        join_query = search.join(joined_creators)
+          .on(search[:content_data_id].eq(joined_creators[:content_a_id]).and(search[:content_data_type].eq(quoted(joined_creators[:content_a_type]))).and(joined_creators[:relation_a].eq('creator'))).join_sources
+
+        @query = @query.joins(join_query)
+          .where(joined_creators[:content_b_id].in(ids))
+
+        reflect(@query)
+      end
+
       def watch_list_id(id = nil)
         manager = get_watch_list_items(id)
 
