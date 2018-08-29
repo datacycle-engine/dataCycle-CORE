@@ -16,10 +16,10 @@ module DataCycleCore
 
       attr_accessor :datahash, :webhook_source
 
-      include DataCycleCore::Common::ArelBuilder
+      extend  DataCycleCore::Common::ArelBuilder
       include DataCycleCore::MasterData::DataConverter
       include ContentRelations
-      include ContentFilters
+      extend  ContentFilters
       include DestroyContent
       include DataHashUtility
 
