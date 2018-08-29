@@ -78,7 +78,7 @@ module DataCycleCore
       def save_values(key, value, properties)
         case properties['storage_location']
         when 'column'
-          send("#{key}=", save_to_column(value, properties))
+          send("#{key}=", normalize_string(value, properties))
         when 'value'
           save_to_jsonb(key, value, properties, 'metadata')
         when 'translated_value'
@@ -86,7 +86,7 @@ module DataCycleCore
         end
       end
 
-      def save_to_column(value, properties)
+      def normalize_string(value, properties)
         return DataCycleCore::MasterData::DataConverter.string_to_string(value) if properties['type'] == 'string'
         value
       end
@@ -113,7 +113,7 @@ module DataCycleCore
           elsif (data_definitions[key]['storage_location'] == 'value' && location == 'metadata') || (data_definitions[key]['storage_location'] == 'translated_value' && location == 'content')
             data_hash[key] = convert_to_string(data_definitions[key]['type'], data[key])
           elsif data_definitions[key]['storage_location'] == 'column'
-            send("#{key}=", save_to_column(data[key], data_definitions[key]))
+            send("#{key}=", normalize_string(data[key], data_definitions[key]))
           end
         end
         data_hash
