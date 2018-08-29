@@ -4,34 +4,11 @@ module DataCycleCore
   module MasterData
     module Differs
       class String < Basic
-        # def string_splitter
-        #   /\b/
-        # end
-        #
-        # def diff(a, b, _template)
-        #   @diff_hash = diff_strings(a, b)
-        # end
-        #
-        # def diff_strings(a, b)
-        #   return if a == b
-        #   return ['+', b] if a.blank?
-        #   return ['-', a] if b.blank?
-        #
-        #   a_words = a.split(string_splitter)
-        #   b_words = b.split(string_splitter)
-        #   diff_words(a_words, b_words)
-        # end
-        #
-        # def diff_words(a, b)
-        #   del = a.shift
-        #   add = b.shift
-        #
-        #
-        #
-        #   if del == add
-        #
-        #   end
-        # end
+        def diff(a, b, _template)
+          string_a = DataCycleCore::MasterData::DataConverter.string_to_string(a)
+          string_b = DataCycleCore::MasterData::DataConverter.string_to_string(b)
+          @diff_hash = basic_diff(string_a, string_b)
+        end
       end
     end
   end
