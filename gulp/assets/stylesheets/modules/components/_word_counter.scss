@@ -1,6 +1,9 @@
 .counter {
+  &.warning {
+    color: $warning-color;
+  }
   &.error {
-    color: red;
+    color: $alert-color;
     font-weight: bold;
   }
   position: absolute;
@@ -9,4 +12,5 @@
   z-index: 1;
   text-align: right;
   font-size: 100%;
+  font-style: italic;
 }

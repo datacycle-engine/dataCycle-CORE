@@ -1,6 +1,6 @@
 <div data-id="<%= sanitize_to_id(filter_name) %>_<%= index %>" data-index="<%= index %>" class="advanced-filter" data-label="<%= filter_name %>">
   <%= hidden_field_tag "f[#{index}][c]", 'a' %>
-  <%= hidden_field_tag "f[#{index}][t]", :external_source %>
+  <%= hidden_field_tag "f[#{index}][t]", :creator %>
   <%= hidden_field_tag "f[#{index}][n]", filter_name %>
 
   <div class="advanced-filter-title">
@@ -14,7 +14,7 @@
   </div>
 
   <div class="advanced-filter-selector">
-    <%= select_tag("f[#{index}][v]", options_for_select(DataCycleCore::ExternalSource.select(:id, :name).map { |e| [e.name, e.id] }, value), { multiple: true, class: 'multi-select', data: { placeholder: '' } }) %>
+    <%= select_tag("f[#{index}][v]", options_for_select(DataCycleCore::User.all.map { |e| ["#{e.given_name} #{e.family_name} <#{e.email}>", e.id, { title: e.email }] }, value), { multiple: true, class: 'multi-select', data: { placeholder: '' } }) %>
   </div>
 
   <% if can?(:advanced_filter, :backend) %>

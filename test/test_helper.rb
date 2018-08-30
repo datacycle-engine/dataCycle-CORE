@@ -41,16 +41,14 @@ Minitest.backtrace_filter = Minitest::BacktraceFilter.new
 
 module DataCycleCore
   module TestPreparations
-    def self.load_templates
-      DataCycleCore::MasterData::ImportClassifications.import(Rails.root.join('..', 'data_types', 'classifications.yml'))
+    def self.load_classifications(paths)
+      paths.map do |path|
+        DataCycleCore::MasterData::ImportClassifications.import(path)
+      end
     end
 
-    def self.load_classifications
-      template_paths = [
-        Rails.root.join('..', 'data_types'),
-        Rails.root.join('..', 'data_types', 'custom')
-      ]
-      import_hash, _duplicates = DataCycleCore::MasterData::ImportTemplates.check_for_duplicates(template_paths)
+    def self.load_templates(paths)
+      import_hash, _duplicates = DataCycleCore::MasterData::ImportTemplates.check_for_duplicates(paths)
 
       errors = DataCycleCore::MasterData::ImportTemplates.import_all_templates(template_hash: import_hash, validation: true)
 
@@ -124,7 +122,16 @@ module DataCycleCore
   end
 end
 
-DataCycleCore::TestPreparations.load_classifications
-DataCycleCore::TestPreparations.load_templates
+DataCycleCore::TestPreparations.load_classifications(
+  [
+    Rails.root.join('..', 'data_types', 'classifications.yml')
+  ]
+)
+DataCycleCore::TestPreparations.load_templates(
+  [
+    Rails.root.join('..', 'data_types'),
+    Rails.root.join('..', 'data_types', 'custom')
+  ]
+)
 DataCycleCore::TestPreparations.load_release_statuses
 DataCycleCore::TestPreparations.load_user_roles

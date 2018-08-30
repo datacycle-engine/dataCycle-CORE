@@ -1,4 +1,6 @@
 de:
+  title: dataCycle
+  email_footer_html: ""
   hello: "Servas!"
   order:
     header: "Sortierung"
@@ -110,6 +112,8 @@ de:
   filter:
     add: Filter hinzufügen
     language: Sprache
+    external_source: Externe Quelle
+    creator: Ersteller
 
   terms:
     valid: gültig

@@ -254,7 +254,7 @@ button,
   } //.tags {
   .validity_period {
     text-align: left;
-    margin: 1rem 0 0 1rem;
+    margin: 1rem 0 0 0;
     color: $dark-gray;
     .date {
       color: $black;
@@ -640,6 +640,14 @@ span.single_error:before,
 .type {
   font-size: 1rem;
   font-weight: normal;
+}
+
+.select2-selection__choice {
+  font-size: 0.9rem;
+}
+
+.select2-selection {
+  line-height: 1.2;
 }
 
 .tags,
