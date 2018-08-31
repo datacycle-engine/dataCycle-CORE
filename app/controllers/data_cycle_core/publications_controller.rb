@@ -7,7 +7,13 @@ module DataCycleCore
     authorize_resource class: false # from cancancan (authorize)
 
     def index
-      @publication_classifications = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Publikations-Plan')&.schema&.dig('properties')&.select { |k, v| v['type'] == 'classification' && !DataCycleCore.internal_data_attributes.include?(k) }&.map { |k, v| [k, v['tree_label']] }.to_h
+      @publication_classifications = DataCycleCore::CreativeWork
+        .find_by(template: true, template_name: 'Publikations-Plan')
+        &.schema
+        &.dig('properties')
+        &.select { |k, v| v['type'] == 'classification' && !DataCycleCore.internal_data_attributes.include?(k) }
+        &.map { |k, v| [k, v['tree_label']] }
+        &.to_h || {}
 
       @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
       @filters.push(
@@ -17,19 +23,24 @@ module DataCycleCore
         }
       )
 
-      @language ||= params.fetch(:language, current_user.default_locale)
-      query = DataCycleCore::Filter::Search.new(@language)
+      @language ||= params.fetch(:language, [current_user.default_locale])
 
-      query = query.fulltext_search(params[:search]) if params[:search].present?
+      query_params = @language.include?('all') ? [nil, DataCycleCore::Search.all] : [@language]
+      query ||= DataCycleCore::Filter::Search.new(*query_params)
 
       @filters.presence&.each do |filter|
         query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
       end
 
+      query = query.unique_by_column_with_order_string(:content_data_id, @order_string) if @language&.size&.>(1) || @language.include?('all')
+
       @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
       @advanced_filters = @filters.select { |f| f['c'] == 'a' }
       @selected_classifications = @default_filters.map { |c| c['v'] }.flatten.compact.uniq
-      @selected_classification_aliases = DataCycleCore::ClassificationAlias.select(:id, :name).where(id: @filters.select { |f| f['t'] == 'classification_alias_ids' }.map { |f| f['v'] }.flatten.compact.uniq).map { |c| [c.id, c.name] }.to_h
+      @selected_classification_aliases = DataCycleCore::ClassificationAlias
+        .where(id: @filters.select { |f| f['t'] == 'classification_alias_ids' }.map { |f| f['v'] }.flatten.compact.uniq)
+        .map { |c| [c.id, c] }
+        .to_h
 
       query2 = DataCycleCore::CreativeWork.joins(:content_content_b).where(template: false, template_name: 'Publikations-Plan', content_contents: { content_a_id: query.pluck(:content_data_id) })
 

@@ -1,6 +1,7 @@
 .form-element.publication_schedule {
   padding-top: 3rem;
   text-align: left;
+
   .addContentObject {
     position: relative;
     font-size: 0;
@@ -10,6 +11,7 @@
     box-shadow: 1px 3px 5px 0px rgba(0, 1, 1, 0.38);
     overflow: hidden;
     margin-left: 1rem;
+
     &:after {
       font-family: FontAwesome;
       content: '\f067';
@@ -24,6 +26,7 @@
       background-color: $primary-color;
       transition: background ease-in-out 0.2s;
     }
+
     &:hover,
     &:focus {
       &:after {
@@ -31,33 +34,40 @@
       }
     }
   }
+
   .content-object-item {
     text-align: left;
     display: flex;
     position: relative;
     width: 100%;
     padding-right: 4rem;
+
     .embedded-header {
       display: none;
     }
+
     .removeContentObject {
       right: 0;
       z-index: 1;
       box-shadow: 1px 3px 5px 0px rgba(0, 1, 1, 0.38);
       border-radius: 50%;
     }
+
     >.form-element {
       background: $light-gray;
       display: flex;
       flex: 1;
       margin-right: 1px;
+
       &.publish_at {
         .form-element.publish_at {
           width: 100%;
           margin: 0;
+
           .flatpickr-wrapper {
             display: block;
             height: 100%;
+
             .flatpickr-input {
               padding: 2.5rem 1rem 0.5rem 1rem;
               width: 100%;
@@ -67,25 +77,31 @@
         }
       }
     }
+
     .v-select {
       width: 100%;
+
       .select2 {
         background: inherit;
         box-shadow: none;
         height: 100%;
+
         .selection {
           ul {
             line-height: 1;
           }
+
           .select2-selection {
             min-height: 0;
           }
         }
+
         &:hover {
           z-index: 1;
           box-shadow: 0 0 7px $primary-color;
           z-index: 1;
         }
+
         &.select2-container--open {
           border-color: $primary-color;
           background: white;
@@ -97,8 +113,10 @@
 
 .publications-list {
   margin-bottom: 5rem;
+
   .accordion {
     background-color: inherit;
+
     >.accordion-item {
       >.accordion-title {
         padding: 0;
@@ -106,23 +124,28 @@
         font-size: inherit;
         line-height: inherit;
         color: inherit;
+
         &::before {
           display: none;
         }
+
         &:hover,
         &:focus {
           background-color: inherit;
         }
+
         >.title>.title-container>.icon>.fa::before {
           content: '\f107';
         }
       }
+
       >.accordion-content {
         padding: 0;
         border: none;
         background-color: inherit;
         color: inherit;
       }
+
       &.is-active {
         >.accordion-title>.title>.title-container>.icon>.fa::before {
           content: '\f106';
@@ -130,18 +153,24 @@
       }
     }
   }
+
   ul {
     position: relative;
+
     >li {
       position: relative;
+
       &.publication-year {
         margin: 1rem 0;
+
         &.is-active {
           margin-bottom: 4rem;
         }
+
         >.accordion-title>.title {
           position: relative;
           display: block;
+
           h4 {
             position: relative;
             display: inline-block;
@@ -151,6 +180,7 @@
             vertical-align: middle;
             font-weight: 600;
           }
+
           &:before {
             position: absolute;
             content: "";
@@ -162,20 +192,24 @@
           }
         }
       }
+
       span {
         display: inline-block;
+
         &.title-container {
           position: relative;
           background: white;
           z-index: 1;
           margin: 0 0.5rem;
           padding: 0 0.5rem;
+
           .icon {
             margin-right: 0.5rem;
             border-radius: 30px;
             width: 30px;
             height: 30px;
             background: $light-gray;
+
             .fa {
               display: block;
               line-height: 30px;
@@ -185,30 +219,38 @@
           }
         }
       }
+
       &.publication-month {
         margin: 0.5rem 0 1rem 0;
+
         &.is-active {
           margin-bottom: 3rem;
         }
+
         >.accordion-title>.title {
           position: relative;
           display: block;
+
           >.title-container {
             font-weight: 600;
             margin-left: 1.2rem;
+
             .title {
               vertical-align: middle;
             }
+
             .icon {
               width: 20px;
               height: 20px;
               border-radius: 20px;
+
               .fa {
                 line-height: 20px;
                 font-size: 0.6rem;
               }
             }
           }
+
           &:before {
             position: absolute;
             content: "";
@@ -220,32 +262,41 @@
           }
         }
       }
+
       &.publication-day {
         margin: 0.5rem 0 2rem 0;
+
         .flex {
           display: flex;
+
           &.title-row {
             position: relative;
             padding: 0.5rem;
             font-size: 0.9rem;
+
             .fa {
               font-size: 1rem;
             }
+
             .title {
               font-weight: 600;
+
               .icon {
                 margin-right: 0.5rem;
               }
+
               .fa {
                 display: block;
                 text-align: center;
               }
             }
           }
+
           >span,
           >div {
             display: inline-block;
             flex: 1;
+
             &.title {
               width: 50%;
               min-width: 50%;
@@ -253,44 +304,55 @@
               overflow: hidden;
               text-overflow: ellipsis;
               white-space: nowrap;
+
               .title {
                 padding-left: 1rem;
               }
+
               div {
                 display: inline-block;
               }
             }
           }
         }
+
         >div.title {
           a {
             color: $dark-gray;
             transition: color 0.2s;
+
             &:hover,
             &:focus {
               color: darken($dark-gray, 30%);
             }
           }
+
           color: $dark-gray;
         }
+
         >ul {
           box-shadow: 0 1px 3px $dark-gray;
         }
       }
+
       &.publication-content {
         background-color: white;
         padding: 0.5rem;
+
         &:not(:last-child) {
           border-bottom: 1px solid $medium-gray;
         }
+
         a {
           color: $black;
           transition: color ease-in-out 0.2s;
+
           &:hover,
           &:focus {
             color: darken($dark-gray, 20%);
           }
         }
+
         .flex span.title {
           display: inline;
         }
@@ -307,12 +369,15 @@
       background-color: white;
       padding: 0.5rem;
       border-bottom: 1px solid $medium-gray;
+
       .publication-attribute {
         flex: 1;
       }
+
       &.title-row {
         font-size: 1rem;
         font-weight: 600;
+
         .fa {
           font-size: 1rem;
         }

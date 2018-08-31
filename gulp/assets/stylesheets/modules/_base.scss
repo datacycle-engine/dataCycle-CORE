@@ -4,12 +4,12 @@ body {
 }
 
 /* Headings */
-
 h2 {
   &.form-heading {
     text-align: center;
     font-size: 2rem;
     padding: 4rem 0;
+
     i {
       font-size: 2rem;
       margin-right: 0.75rem;
@@ -22,6 +22,7 @@ button,
 .button,
 .reveal {
   outline: none;
+
   &:hover,
   &:focus {
     outline: none;
@@ -33,17 +34,19 @@ h5 {
 }
 
 /* Forms */
-
 form {
   label {
     font-size: 1rem;
   }
+
   input {
     font-size: 1rem;
   }
+
   button[type="submit"] {
     &.button {
       padding: 0.2rem 4.5rem;
+
       i {
         font-size: 3rem;
       }
@@ -59,6 +62,7 @@ button,
 
 .button.success {
   color: white;
+
   &:focus,
   &:hover {
     color: white;
@@ -67,11 +71,13 @@ button,
 
 .pagination {
   border-radius: 30px; //background: lighten($light-gray, 7%);
+
   a,
   button {
     border-radius: 0;
     line-height: inherit;
     line-height: 30px;
+
     &:focus,
     &:hover {
       text-decoration: underline;
@@ -79,12 +85,14 @@ button,
       color: $primary-color;
     }
   }
+
   .current {
     border-radius: 30px;
     width: 30px;
     height: 30px;
     background: $light-gray;
     padding: 0;
+
     a {
       padding: 0;
       color: $dark-gray;
@@ -110,6 +118,7 @@ button,
   background-color: lighten($primary-color, 50%);
   height: 3.5rem;
   line-height: 3.5rem;
+
   &.fix-edit-bar {
     position: fixed;
     width: 100%;
@@ -117,20 +126,25 @@ button,
     top: 0;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1)
   }
+
   .edit-headline {
     color: $primary-color;
     position: absolute;
     left: 1.5rem;
   }
+
   .history-switcher {
     position: absolute;
     right: 2rem;
+
     a#show-history-link {
       padding-bottom: 12px;
     }
+
     ul {
       margin-top: 20px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
       &::before {
         content: '▲';
         font-size: 28px;
@@ -144,6 +158,7 @@ button,
         width: 0;
         height: 0;
       }
+
       li {
         position: relative;
         text-align: left;
@@ -162,6 +177,7 @@ button,
   text-align: center;
   padding: 4rem 1rem 1rem 1rem;
   margin: 1rem 0 0 0;
+
   >.title,
   >.headline_external input,
   >.headline input {
@@ -171,18 +187,23 @@ button,
     text-align: center;
     position: relative;
   }
+
   >.title {
     padding: 0 5rem 1rem 5rem;
   }
+
   .button-prime {
     display: inline-block;
   }
+
   .headline_external,
   .headline {
     position: relative;
   }
+
   >.detail-type {
     text-align: left;
+
     &.classification .icon {
       i:before {
         content: "\f02c";
@@ -191,16 +212,19 @@ button,
         font-weight: normal;
         text-decoration: inherit;
       }
+
       &.themenbereiche {
         i:before {
           content: "\f07c";
         }
       }
+
       &.zielmarkt {
         i:before {
           content: "\f192";
         }
       }
+
       &.bundesland {
         i:before {
           content: "\f041";
@@ -208,100 +232,126 @@ button,
       }
     }
   }
+
   >.description {
     position: relative;
     padding: 0 5rem 1rem 5rem;
   }
+
   >.status-container {
     position: relative;
     display: inline-block;
+
     .status {
       position: relative;
     }
+
     .release-comment-button {
       position: relative; //left: -48%;
       cursor: pointer;
     }
   }
+
   .detail-header-info {
     position: absolute;
     left: 1rem;
     top: 1rem;
+
     .type {
       display: inline-block;
       transition: opacity ease-in-out 0.25s;
     }
   }
+
   .bookmark {
     position: absolute;
     right: 1rem;
     top: -4px;
     color: $dark-gray;
+
     .bookmarkinfo {
       font-size: 0.8rem;
       font-style: italic;
     }
+
     &:focus,
     &:hover {
       color: $primary-color;
     }
+
     &.marked {
       color: $primary-color;
+
       i:before {
         content: "\f02e";
       }
     }
-  } //.tags {
+  }
+
+  //.tags {
   .validity_period {
     text-align: left;
     margin: 1rem 0 0 0;
     color: $dark-gray;
+
     .date {
       color: $black;
     }
   }
+
   .daterange span.bis,
   .daterange span.icon {
     color: $dark-gray;
   }
+
   .daterange span.bis {
     font-style: italic;
   }
+
   .daterange {
     padding: 1rem 1rem 0 1rem;
     text-align: left;
+
     &.validation-container {
       margin-bottom: 1rem;
     }
+
     label {
       position: relative;
       display: inline-block;
       top: initial;
       left: initial;
     }
+
     input {
       min-width: 100px;
     }
+
     &.focus {
       border-color: $primary-color;
       background: white;
+
       input {
         background: $white
       }
     }
   }
+
   .edit {
     position: absolute;
     right: 1rem;
     bottom: 1rem;
+
     a span {
       display: block;
       text-indent: -9999px;
     }
+
     .delete-content-link {
       background-color: map-get($foundation-palette, alert);
     }
   }
+
   label {
     text-align: left;
     position: absolute;
@@ -310,12 +360,14 @@ button,
     z-index: 12;
     color: rgba($dark-gray, 50%);
     transition: color ease-in-out 0.25s;
+
     &.fixed-toolbar {
       position: fixed;
       top: 55px;
       left: 2rem;
       z-index: 13;
     }
+
     &.fixed-split-toolbar {
       position: fixed;
       top: 182px;
@@ -323,16 +375,19 @@ button,
       z-index: 13;
     }
   }
+
   .focus {
     .ql-disabled {
       .ql-editor {
         background: $light-gray;
+
         &:focus {
           background: $light-gray;
         }
       }
     }
   }
+
   input,
   .ql-editor,
   .daterange,
@@ -351,64 +406,79 @@ button,
     position: relative;
     transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
     min-width: 280px;
+
     &:hover {
       box-shadow: 0 0 7px $primary-color; // z-index: 1;
     }
+
     &:focus {
       border-color: $primary-color;
       background: white;
     }
+
     &::placeholder {
       font-weight: 200;
       color: $dark-gray;
     }
+
     &[readonly] {
       background: $light-gray;
     }
   }
+
   .form-element.focus>.editor-block>.ql-toolbar.fixed-toolbar,
   .form-element.focus>.editor-block>.ql-toolbar.fixed-split-toolbar {
     background: white;
     border-right: 1px solid $primary-color;
     border-left: 1px solid $primary-color;
   }
+
   .form-element.focus>.editor-block>.quill-editor>.ql-editor {
     border-color: $primary-color;
     background: white;
   }
+
   .focus {
     label {
       z-index: 20
     }
   }
+
   .ql-editor {
     min-height: 375px;
   }
+
   &.editor {
     padding: 0 0 30rem 0;
     margin-top: 3rem;
     background: none;
+
     .translated {
       position: absolute;
       z-index: 2;
       right: 0.5rem;
       margin-top: 0.5rem;
     }
+
     .validation-container {
       position: relative;
     }
+
     .form-element {
       position: relative;
       margin-bottom: 1rem;
+
       label {
         padding-top: 0.5rem;
         opacity: 1;
         color: rgba($dark-gray, 50%);
       }
+
       [type='checkbox']+label[for],
       [type='radio']+label[for] {
         margin-left: 20px;
       }
+
       &:focus,
       &:hover {
         >label {
@@ -416,13 +486,16 @@ button,
         }
       }
     }
+
     .detail-header-info {
       top: -2rem;
       left: 0.5rem;
     }
+
     .bookmark {
       display: none;
     }
+
     .input input,
     .string:not(.date, .datetime, .headline, .headline_external, .text_editor) input,
     input.single_date,
@@ -431,32 +504,40 @@ button,
       padding: 2.5rem 1rem 2rem 1rem;
       line-height: initial;
     }
+
     .headline_external input,
     .headline input {
       padding: 1rem 5rem 1.5rem 5rem;
     }
+
     .publish_at {
       >input.date.read-only {
         padding: 2.5rem 1rem 1rem 1rem;
         line-height: initial;
       }
     }
+
     .description {
       padding: 0;
     }
+
     .daterange {
       .icon.valid_until {
         i {
           display: none;
         }
-      } //padding: 1rem;
+      }
+
+      //padding: 1rem;
       .form-element {
         display: inline-block;
+
         input {
           box-shadow: none !important;
           border: 0 !important;
           display: inline-block;
         }
+
         .single_error {
           left: 1rem;
           top: -2rem;
@@ -473,11 +554,13 @@ button,
 
 .editor-block {
   position: relative;
+
   .ql-toolbar {
     position: absolute;
     z-index: 12;
     right: 0;
     border: 0;
+
     &.fixed-toolbar,
     &.fixed-split-toolbar {
       background: $light-gray;
@@ -486,32 +569,39 @@ button,
       border-left: 1px solid $light-gray;
       box-shadow: 0 1px 0 $dark-gray;
       text-align: right;
+
       .ql-formats {
         text-align: left;
       }
     }
+
     &.fixed-toolbar {
       top: 55px;
       right: 1rem;
       width: calc(100% - 2rem);
     }
+
     &.fixed-split-toolbar {
       top: 182px;
       right: 2rem;
       width: calc(50% - 3rem);
     }
   }
+
   .ql-editor {
     padding-top: 3rem;
     padding-bottom: 2rem;
     font-size: 1rem;
+
     p:not(:last-child) {
       margin-bottom: 0.5rem;
     }
   }
+
   .ql-container.ql-snow {
     border: 0;
   }
+
   .ql-tooltip {
     z-index: 21;
   }
@@ -550,15 +640,18 @@ span.single_error:before,
 }
 
 .detail-header-wrapper {
+
   /*background: $white;
   box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);*/
   .infolist {
     margin: 0;
+
     li {
       display: inline-block;
       margin-right: 1rem;
     }
   }
+
   .row {
     margin-bottom: 1rem;
   }
@@ -572,36 +665,43 @@ span.single_error:before,
     text-align: center;
     position: relative;
     overflow: hidden;
+
     .image-container {
       position: relative;
       width: 66%;
       float: left;
       text-align: center;
+
       .overlay-icon {
         position: absolute;
         left: 50%;
         top: 50%;
         margin-left: -2.5rem;
         margin-top: -2.5rem;
+
         .fa {
           font-size: 5rem;
         }
       }
     }
   }
+
   .video video {
     max-width: 100%;
     border: solid 4px $white;
     border-radius: 0;
     box-shadow: 0 0 0 1px rgba(51, 51, 51, 0.2);
   }
+
   .stripes {
-    background: repeating-linear-gradient( 45deg, lighten($light-gray, 6%), lighten($light-gray, 6%) 10px, #fcfcfc 10px, #fcfcfc 20px);
+    background: repeating-linear-gradient(45deg, lighten($light-gray, 6%), lighten($light-gray, 6%) 10px, #fcfcfc 10px, #fcfcfc 20px);
   }
+
   .images {
     max-width: 900px;
     margin: 2rem auto;
   }
+
   .image-data {
     float: right;
     background: white;
@@ -609,6 +709,7 @@ span.single_error:before,
     text-align: left;
     width: 33%;
     padding: 0 1.5rem;
+
     dl {
       dt {
         margin: 1rem 0 0 0;
@@ -616,6 +717,7 @@ span.single_error:before,
         font-weight: 200;
       }
     }
+
     &:before {
       content: '';
       position: absolute;
@@ -628,10 +730,12 @@ span.single_error:before,
       border-width: 50px 60px 50px 0;
       border-color: transparent #ffffff transparent transparent;
     }
+
     .detail-type.object_browser {
       position: relative;
     }
   }
+
   hr {
     padding: 1rem 0;
   }
@@ -652,6 +756,7 @@ span.single_error:before,
 
 .tags,
 body .v-select {
+
   .tag,
   .selected-tag,
   .select2-selection__choice {
@@ -663,10 +768,12 @@ body .v-select {
     margin: 0.1rem 0;
     line-height: 1.2rem;
     border-radius: $object-border-radius;
+
     i {
       font-size: 0.8rem;
       margin-left: 0.2rem;
     }
+
     .close {
       font-size: 1.2rem;
       color: white;
@@ -674,6 +781,7 @@ body .v-select {
       opacity: .7;
     }
   }
+
   .selected-tag {
     float: left;
     margin-top: 5px;
@@ -682,6 +790,7 @@ body .v-select {
     height: auto;
     position: relative;
     padding-right: 20px;
+
     .close {
       width: 100%;
       position: absolute;
@@ -691,24 +800,30 @@ body .v-select {
       padding-right: 5px;
     }
   }
+
   .selected-tag {
     float: left;
     margin-top: 5px;
     font-family: $body-font-family
   }
+
   a.tag:hover,
   a.selected-tag:hover {
     background-color: rgba($primary-color, 0.8);
   }
+
   .selected-tag:hover {
     background-color: rgba(map-get($foundation-palette, alert), 0.5);
   }
+
   .tag {
     background-color: rgba($dark-gray, 0.8);
+
     &.has-changed {
       &.removed {
         background-color: rgba($alert-color, 0.8);
       }
+
       &.added {
         background-color: rgba($success-color, 0.8);
       }
@@ -740,7 +855,6 @@ body .v-select {
 }
 
 /* Sortierung, Viewtype Startseite */
-
 .view-icons,
 .view-order,
 .order-item {
@@ -756,18 +870,22 @@ body .v-select {
 
 .order-item {
   margin-right: 0.5rem;
+
   a {
     color: $black;
+
     &.active,
     &:hover,
     &:focus {
       color: $primary-color;
     }
+
     clear: both;
     float: right;
     display: block;
     line-height: 12px;
     height: 12px;
+
     .fa {
       display: block;
       line-height: 12px;
@@ -784,7 +902,6 @@ body .v-select {
 }
 
 /* Korrektur für Fehler im Neuen Eintrag erstellen reveal  */
-
 .new-item {
   .notice {
     padding: 1rem;
@@ -793,8 +910,10 @@ body .v-select {
     color: $white;
     text-align: center;
   }
+
   .validation-container {
     position: relative;
+
     span.single_error {
       top: -2rem;
     }
@@ -806,9 +925,9 @@ body.login-page {
 }
 
 /* tabs  */
-
 .tabs {
   border: 0;
+
   .tabs-title>a {
     span {
       color: $dark-gray;
@@ -823,7 +942,6 @@ body.login-page {
 }
 
 /* Animations für lazyloaded iamges */
-
 .lazyload,
 .lazyloading {
   opacity: 0;
@@ -846,6 +964,7 @@ a[data-toggle] {
   text-align: center;
   z-index: 100;
   max-width: 300px;
+
   &::before {
     content: '▲';
     font-size: 28px;
@@ -862,36 +981,46 @@ a[data-toggle] {
     text-align: center;
     overflow: hidden;
   }
+
   input {
     max-width: 100%;
     min-width: initial;
+
     &[readonly] {
       cursor: pointer !important;
     }
   }
+
   button,
   .button {
     font-weight: bold;
     margin: 1rem 0 0 0;
   }
+
   >ul {
     margin: 0;
+
     &.list-items {
       overflow-y: auto;
       position: relative;
+
       .buttons {
         float: right;
         vertical-align: middle;
+
         span,
         a {
           color: $primary-color;
           cursor: pointer;
+
           &:hover,
           &:focus {
             color: darken($primary-color, 30%);
           }
+
           &.invalidate-data-link {
             color: map-get($foundation-palette, alert);
+
             &:hover,
             &:focus {
               color: darken(map-get($foundation-palette, alert), 30%);
@@ -900,28 +1029,35 @@ a[data-toggle] {
         }
       }
     }
+
     >li {
       position: relative;
       text-align: left;
       font-size: 0.8rem;
       line-height: 1.2rem;
       padding: 0 0 0.2rem 0;
+
       i:not(.fa) {
         color: $dark-gray;
       }
     }
   }
+
   &.data-links {
     text-align: center;
+
     li {
       text-align: left;
     }
+
     .center-text {
       text-align: center;
     }
+
     .invalid {
       color: $dark-gray;
     }
+
     .email {
       white-space: nowrap;
       overflow: hidden;
@@ -931,10 +1067,12 @@ a[data-toggle] {
       vertical-align: middle;
     }
   }
+
   &.align-right {
     right: -18px !important;
     left: auto !important;
     top: 100% !important;
+
     &:before {
       content: '▲';
       font-size: 28px;
@@ -953,9 +1091,11 @@ a[data-toggle] {
       overflow: hidden;
     }
   }
+
   &.align-top {
     top: auto !important;
     bottom: calc(100% + 1rem) !important;
+
     &:before {
       top: auto;
       bottom: -17px;
@@ -966,11 +1106,13 @@ a[data-toggle] {
 
 .button.progress-button {
   position: relative;
+
   .progresstitle {
     position: relative;
     display: block;
     z-index: 2;
   }
+
   .progressbar-meter {
     position: absolute;
     top: 0;

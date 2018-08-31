@@ -6,7 +6,7 @@ module DataCycleCore
 
     def get_filtered_results(query = nil)
       @filters ||= params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
-      @language ||= params.fetch(:language, current_user.default_locale)
+      @language ||= params.fetch(:language, [current_user.default_locale])
 
       if @filters.any? { |f| f['t'] == 'fulltext_search' }
         @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@filters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'))
@@ -23,16 +23,14 @@ module DataCycleCore
         )
       end
 
-      query_params = params[:language] == 'all' ? [nil, DataCycleCore::Search.all] : [@language]
+      query_params = @language.include?('all') ? [nil, DataCycleCore::Search.all] : [@language]
       query ||= DataCycleCore::Filter::Search.new(*query_params)
-
-      query = query.unique_by_column(:content_data_id) if params[:language] == 'all'
 
       @filters.presence&.each do |filter|
         query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
       end
 
-      query = query.unique_by_column_with_order_string(:content_data_id, @order_string) if params[:language].present? && params[:language].size > 1
+      query = query.unique_by_column_with_order_string(:content_data_id, @order_string) if @language&.size&.>(1) || @language.include?('all')
 
       @filters.concat(@stored_filters) if @stored_filters.present?
 
@@ -40,7 +38,6 @@ module DataCycleCore
       @advanced_filters = @filters.select { |f| f['c'] == 'a' }
       @selected_classifications = @default_filters.map { |c| c['v'] }.flatten.compact.uniq
       @selected_classification_aliases = DataCycleCore::ClassificationAlias
-        .select(:id, :name)
         .where(
           id: @filters
             .select { |f| f['t'] == 'classification_alias_ids' }
@@ -49,7 +46,7 @@ module DataCycleCore
             .compact
             .uniq
         )
-        .map { |c| [c.id, c.name] }.to_h
+        .map { |c| [c.id, c] }.to_h
 
       query
     end

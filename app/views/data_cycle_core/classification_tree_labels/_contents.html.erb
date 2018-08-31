@@ -31,7 +31,7 @@
 <% end %>
 <% if @page < @total_pages %>
   <li class="content-row button-row">
-    <%= link_to params.permit(:language, f: [:c, :t, :n, :m, v: []]).merge({ classification_tree_id: classification_tree.id, page: (@page + 1) }), data: {remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"}, class: 'tree-link' do %>
+    <%= link_to params.permit(language: [], f: [:c, :t, :n, :m, v: []]).merge({ classification_tree_id: classification_tree.id, page: (@page + 1) }), data: {remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"}, class: 'tree-link' do %>
       <%= t('common.load_more', locale: DataCycleCore.ui_language) %>
     <% end %>
   </li>

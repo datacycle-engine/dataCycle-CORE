@@ -1,11 +1,28 @@
-<span class="tag-group">
-  <i class="fa fa-language" aria-hidden="true"></i>
-  <%= t('common.language', locale: DataCycleCore.ui_language) %>:
-  <span class="tag"><%= stored_search.language.map {|lang| available_locales_with_names[lang.to_sym]} %></span>
-</span>
+<%= render 'data_cycle_core/application/filters/tag_groups/language',
+  title: 'Sprache',
+  key: 'language',
+  target: 'language',
+  value: stored_search.language,
+  buttons: false if stored_search.language.present? %>
 
-<% selected_classification_aliases = DataCycleCore::ClassificationAlias.select(:id, :name).where(id: stored_search.parameters.select { |f| f['t'] == 'classification_alias_ids' }.map { |f| f['v'] }.flatten.compact.uniq).map { |c| [c.id, c.name] }.to_h %>
+<% selected_classification_aliases = DataCycleCore::ClassificationAlias
+  .select(:id, :name)
+  .where(id: stored_search.parameters
+    .select { |f| f['t'] == 'classification_alias_ids' }
+    .map { |f| f['v'] }
+    .flatten
+    .compact
+    .uniq
+  )
+  .map { |c| [c.id, c.name] }
+  .to_h %>
 
 <% stored_search.parameters.presence&.reject { |f| f['t'].blank? || f['t'] == 'order' }&.each do |filter| %>
-  <%= render_first_existing_partial(["data_cycle_core/application/filters/tag_groups/#{filter['t']}", "data_cycle_core/application/filters/tag_groups/default"], { key: filter['n'], value: filter['v'], selected_classification_aliases: selected_classification_aliases }) %>
+  <%= render_first_existing_partial(["data_cycle_core/application/filters/tag_groups/#{filter['t']}", "data_cycle_core/application/filters/tag_groups/default"], {
+    title: filter['n'],
+    key: filter['n'].presence&.parameterize(separator: '_'),
+    target: filter['n'].presence&.parameterize(separator: '_'),
+    value: filter['v'],
+    selected_classification_aliases: selected_classification_aliases,
+    buttons: false }) %>
 <% end %>
