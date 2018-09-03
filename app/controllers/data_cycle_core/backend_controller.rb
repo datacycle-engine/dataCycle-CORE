@@ -15,14 +15,12 @@ module DataCycleCore
         # @total = @paginate_object.total_count
         # @contents = @paginate_object.map(&:content_data)
       elsif params[:stored_filter].blank?
-        @paginate_object = get_filtered_results.content_includes.page(params[:page])
+        @paginate_object = get_filtered_results.distinct_by_content_id(@order_string).content_includes.page(params[:page])
         @stored_filter = save_filter
       else
         query = apply_filter(filter_id: params[:stored_filter])
-        @paginate_object = get_filtered_results(query).content_includes.page(params[:page])
+        @paginate_object = get_filtered_results(query).distinct_by_content_id(@order_string).content_includes.page(params[:page])
       end
-
-      @paginate_object = @paginate_object
 
       @total = @paginate_object.total_count
       @contents = @paginate_object.map(&:content_data)

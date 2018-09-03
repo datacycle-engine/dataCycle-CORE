@@ -23,7 +23,7 @@ module DataCycleCore
         }
       )
 
-      @paginate_object = get_filtered_results.content_includes.page(params[:page])
+      @paginate_object = get_filtered_results.distinct_by_content_id(@order_string).content_includes.page(params[:page])
       @total = @paginate_object.total_count
       @contents = @paginate_object.map(&:content_data)
 

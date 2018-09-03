@@ -28,7 +28,7 @@ module DataCycleCore
     end
 
     def create
-      @paginate_object = get_filtered_results.content_includes.page(params[:page])
+      @paginate_object = get_filtered_results.distinct_by_content_id(@order_string).content_includes.page(params[:page])
       @contents = @paginate_object.map(&:content_data)
 
       if stored_filter_params[:id].present?

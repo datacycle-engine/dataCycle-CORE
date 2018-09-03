@@ -32,7 +32,7 @@ module DataCycleCore
         query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
       end
 
-      query = query.unique_by_column_with_order_string(:content_data_id, @order_string) if @language&.size&.>(1) || @language.include?('all')
+      query = query.distinct_by_content_id(@order_string)
 
       @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
       @advanced_filters = @filters.select { |f| f['c'] == 'a' }

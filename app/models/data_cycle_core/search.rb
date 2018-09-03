@@ -29,17 +29,14 @@ module DataCycleCore
               SELECT *
               FROM classification_trees
               WHERE classification_trees.parent_classification_alias_id IN (#{classification_alias_ids})
-                OR (
-                  classification_trees.parent_classification_alias_id IS NULL
-                  AND classification_trees.classification_alias_id IN (#{classification_alias_ids})
-                )
+                OR classification_trees.classification_alias_id IN (#{classification_alias_ids})
               UNION ALL
               SELECT classification_trees.*
               FROM classification_trees
               INNER JOIN recursive_classification_trees
                 ON classification_trees.parent_classification_alias_id = recursive_classification_trees.classification_alias_id
             )
-            SELECT DISTINCT ON (content_data_id, content_data_type) content_data_id, content_data_type
+            SELECT DISTINCT ON (classification_contents.content_data_id, classification_contents.content_data_type, classification_contents.classification_id, classification_contents.relation) content_data_id, content_data_type
             FROM classification_contents
             JOIN classification_groups
               ON classification_contents.classification_id = classification_groups.classification_id

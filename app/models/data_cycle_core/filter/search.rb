@@ -112,30 +112,31 @@ module DataCycleCore
         )
       end
 
-      def unique_by_column(column = :id)
-        query = DataCycleCore::Search.select("DISTINCT ON (#{column}) id")
+      def distinct_by_content_id(order_string)
+        return self if @locale.presence&.size == 1
 
-        reflect(@query.where(id: query))
-      end
-
-      def unique_by_column_with_order_string(column = :id, order_string = nil)
         if order_string.is_a?(String)
-          order_expression = "#{@query.table_name}.#{column}, #{order_string}"
+          order_expression = "#{@query.table_name}.content_data_id, #{order_string}"
         elsif order_string.is_a?(Hash)
-          order_expression = { column => :asc }.merge(order_string)
+          order_expression = { content_data_id: :asc }.merge(order_string)
         else
-          order_expression = { column => :asc }
+          order_expression = { content_data_id: :asc }
         end
 
         query = @query.model
           .select(:content_data_id, :content_data_type)
           .order(order_string)
 
-        query2 = @query
-          .select("DISTINCT ON (#{@query.table_name}.#{column}) #{@query.table_name}.id")
+        query2 = select("DISTINCT ON (#{@query.table_name}.content_data_id) #{@query.table_name}.id")
           .reorder(order_expression)
 
         reflect(query.where(id: query2))
+      end
+
+      def count_distinct
+        return count if @locale.presence&.size == 1
+
+        @query.model.from(@query.except(:order, :limit, :offset)).count
       end
 
       def classification_alias_ids(ids = nil)
