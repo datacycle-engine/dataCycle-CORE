@@ -15,7 +15,7 @@ module DataCycleCore
       def modify_content(content_item)
         content_item.available_locales.each do |lang|
           I18n.with_locale(lang) do
-            content_item.set_search
+            content_item.update_search
           end
         end
       end

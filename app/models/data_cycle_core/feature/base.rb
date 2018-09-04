@@ -10,27 +10,31 @@ module DataCycleCore
       end
 
       class << self
-        def enabled?(content = nil)
-          configuration(content).dig('enabled') && dependencies_enabled?(content)
+        def enabled?
+          DataCycleCore.features.dig(name.demodulize.underscore.to_sym, :enabled) && dependencies_enabled?
         end
 
-        def dependencies_enabled?(content = nil)
-          configuration(content).dig('dependencies').present? ? configuration(content).dig('dependencies')&.all? { |d| "data_cycle_core/feature/#{d}".classify.constantize.enabled? } : true
+        def dependencies_enabled?
+          !DataCycleCore.features.dig(name.demodulize.underscore.to_sym, :dependencies)&.any? { |d| !"data_cycle_core/feature/#{d}".classify.constantize.enabled? }
         end
 
-        def attribute_keys(content)
-          content.try(:schema)&.dig('features', name.demodulize.underscore)
+        def dependencies_allowed?(content = nil)
+          dependencies_enabled? && !DataCycleCore.features.dig(name.demodulize.underscore.to_sym, :dependencies)&.any? { |d| !"data_cycle_core/feature/#{d}".classify.constantize.allowed?(content) }
         end
 
-        def available?(content)
+        def attribute_keys(content = nil)
+          configuration(content).dig('attribute_keys') || []
+        end
+
+        def available?(content = nil)
           attribute_keys(content).present?
         end
 
-        def allowed?(content)
-          enabled? && available?(content)
+        def allowed?(content = nil)
+          enabled? && configuration(content).dig('allowed')
         end
 
-        def allowed_attribute_keys(content)
+        def allowed_attribute_keys(content = nil)
           allowed?(content) ? attribute_keys(content) : []
         end
 
@@ -43,15 +47,11 @@ module DataCycleCore
           []
         end
 
-        def attribute_key(content = nil)
-          configuration(content).dig('attribute_key')
-        end
-
         def configuration(content = nil)
           config = {}
           config = config.merge(DataCycleCore.features.dig(name.demodulize.underscore.to_sym) || {})
-          config = config.merge(content&.schema&.dig('features', name.demodulize.underscore) || {})
-          config = config.merge(content&.collect_properties&.map { |k| content&.schema&.dig('properties', *k, 'features', name.demodulize.underscore).presence&.merge({ 'attribute_key': (k.is_a?(Array) ? k.last : k), 'tree_label': content&.schema&.dig('properties', *k, 'tree_label') }) }.presence&.compact&.first || {})
+          config = config.merge({ name.demodulize.underscore => content&.schema&.dig('features', name.demodulize.underscore) }.compact)
+          config = config.merge(content&.collect_properties&.map { |k| content&.schema&.dig('properties', *k, 'features', name.demodulize.underscore).presence&.merge({ 'attribute_keys': (k.is_a?(Array) ? [k.last] : [k]), 'tree_label': content&.schema&.dig('properties', *k, 'tree_label') }) }.presence&.compact&.first || {})
           config&.deep_stringify_keys
         end
       end

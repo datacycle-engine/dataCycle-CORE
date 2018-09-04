@@ -1,8 +1,7 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
 
-    <% value ||= false %>
     <%= hidden_field_tag key, value if options.presence&.dig('readonly') %>
-    <%= check_box_tag key, true, value, disabled: options.presence&.dig('readonly') %>
+    <%= check_box nil, key, { id: sanitize_to_id(key), checked: value, disabled: options.presence&.dig('readonly') }, 'true', 'false' %>
     <%= label_tag key do %>
       <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
       <%= definition['label'] %>

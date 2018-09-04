@@ -35,6 +35,12 @@ describe DataCycleCore::MasterData::Validators::Key do
       end
     end
 
+    it 'produces a warning when nil is given as key' do
+      validator = subject.new(nil, template_hash)
+      assert_equal(0, validator.error[:error].size)
+      assert_equal(1, validator.error[:warning].size)
+    end
+
     it 'accepts different boolean objects' do
       test_cases = ['00000000-0000-0000-0000-000000000000', ' 00000000-0000-0000-0000-000000000000  ']
       test_cases.each do |test_case|

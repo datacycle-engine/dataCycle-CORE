@@ -40,10 +40,9 @@ module DataCycleCore
           @entities = DataCycleCore::Feature::Container.apply_excluded_contents(@content, @entities)
         end
 
-        @release_status = DataCycleCore::Release.find_by(id: @content.release_id) if DataCycleCore::Feature::Releasable.allowed?(@content) && !@content.release_id.nil?
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: controller_name, id: params[:id]) }
-          format.html { render 'show' }
+          format.html
         end
       end
     end
@@ -80,22 +79,22 @@ module DataCycleCore
     end
 
     def compare
-      @content = DataCycleCore::CreativeWork.includes(:classifications).find(params[:id])
+      @content = data_cycle_object(controller_name).includes(:classifications).find(params[:id])
       authorize! :show, @content
 
       redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if source_params.blank?
 
-      @source = source_params[:source_type].constantize.find(source_params[:source_id]) if source_params.present?
+      @diff_source = source_params[:source_type].constantize.find(source_params[:source_id])
+
+      redirect_back(fallback_location: root_path) && return if @diff_source.nil? || @content.nil?
 
       I18n.with_locale(@content.first_available_locale) do
-        @data_schema = @content.get_data_hash.merge(@content.releasable_hash)
+        @data_schema = @content.get_data_hash
       end
 
-      I18n.with_locale(@source.first_available_locale) do
-        @source_schema = @source.get_data_hash.merge(@source.releasable_hash)
+      I18n.with_locale(@diff_source.first_available_locale) do
+        @diff_schema = @diff_source.diff(@data_schema)
       end
-
-      @diff_schema = helpers.get_diff(@source_schema, @data_schema)
     end
 
     def edit
@@ -145,44 +144,35 @@ module DataCycleCore
         # saving without changed properites after initial create is identified as change. (nil => "")
         # adding embedded objects, save, reopen, save is identified as change (is_part_of changes from nil to parent_id)
         #
-        data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
-          datahash.merge({ 'id' => @content.id, 'release_id' => object_params[:release_id], 'release_comment' => object_params[:release_comment] }),
-          @content.get_data_hash.merge({ 'release_id' => @content.release_id, 'release_comment' => @content.release_comment })
-        )
+        # data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
+        #   datahash.merge({ 'id' => @content.id, 'release_id' => object_params[:release_id], 'release_comment' => object_params[:release_comment] }),
+        #   @content.get_data_hash.merge({ 'release_id' => @content.release_id, 'release_comment' => @content.release_comment })
+        # )
 
-        unless data_hash_has_changes
-          flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @content.template_name, locale: DataCycleCore.ui_language
-          if (Rails.env.development? || params[:splitview]) && !params[:finalize]
-            redirect_back(fallback_location: root_path)
-          else
-            redirect_to creative_work_path(@content, watch_list_id: @watch_list)
-          end
-          return
-        end
+        # unless data_hash_has_changes
+        #   flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @content.template_name, locale: DataCycleCore.ui_language
+        #   if (Rails.env.development? || params[:splitview]) && !params[:finalize]
+        #     redirect_back(fallback_location: root_path)
+        #   else
+        #     redirect_to creative_work_path(@content, watch_list_id: @watch_list)
+        #   end
+        #   return
+        # end
 
         valid = @content.set_data_hash(data_hash: datahash, current_user: current_user)
 
-        @content.release_id = object_params[:release_id]
-        @content.release_comment = object_params[:release_comment]
+        # @content.release_id = object_params[:release_id]
+        # @content.release_comment = object_params[:release_comment]
 
-        if valid.key?(:error) && !valid[:error].empty?
-          flash[:error] = valid[:error]
-          redirect_to edit_creative_work_path(@content)
-          return
-        end
+        redirect_to(edit_creative_work_path(@content, watch_list_id: @watch_list), alert: valid[:error]) && return if valid[:error].present?
 
-        if @content.save
-          execute_after_update_webhooks @content
-          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
+        execute_after_update_webhooks @content
+        flash[:success] = I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language)
 
-          if (Rails.env.development? || params[:splitview]) && !params[:finalize]
-            redirect_back(fallback_location: root_path)
-          else
-            redirect_to polymorphic_path(@content, watch_list_id: @watch_list)
-          end
-
+        if (Rails.env.development? || params[:splitview]) && !params[:finalize]
+          redirect_back(fallback_location: root_path)
         else
-          render 'edit'
+          redirect_to polymorphic_path(@content, watch_list_id: @watch_list)
         end
       end
     end
@@ -247,7 +237,7 @@ module DataCycleCore
       if params[:parent_id].blank? && params[:template] == DataCycleCore::Feature::IdeaCollection.template
         parent = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:parent_template], object_params, current_user)
         life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::IdeaCollection.life_cycle_stage, :id)
-        parent.set_data_hash_attribute(DataCycleCore::Feature::LifeCycle.attribute_key, [life_cycle_id], current_user)
+        parent.set_data_hash_attribute(DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(parent).first, [life_cycle_id], current_user)
         content.is_part_of = parent.id
       elsif params[:parent_id].present?
         content.is_part_of = params[:parent_id]
@@ -255,7 +245,7 @@ module DataCycleCore
         if params[:template] == DataCycleCore::Feature::IdeaCollection.template
           life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::IdeaCollection.life_cycle_stage, :id)
           parent = DataCycleCore::CreativeWork.find_by(id: content.is_part_of)
-          parent.set_life_cycle_classification(DataCycleCore::Feature::LifeCycle.attribute_key, life_cycle_id, current_user)
+          parent.set_life_cycle_classification(DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(parent).first, life_cycle_id, current_user)
         end
         # get inherit attributes
         source = Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }] if params[:source].present?
@@ -309,8 +299,10 @@ module DataCycleCore
       )
         @content.data_links.where(receiver_id: current_user.id, permissions: 'write').update(permissions: 'read') if @content.data_links.where(receiver_id: current_user.id, permissions: 'write').present?
 
-        I18n.with_locale(@content.first_available_locale) do
-          @content.update_attribute(:release_id, DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:review]).id) if DataCycleCore::Feature::Releasable.enabled? && DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:review]).present?
+        if DataCycleCore::Feature::Releasable.allowed?(@content)
+          I18n.with_locale(@content.first_available_locale) do
+            @content.set_data_hash_attribute('release_status_id', DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).where(name: DataCycleCore::Feature::Releasable.get_stage('review'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.ids, current_user)
+          end
         end
       end
     end

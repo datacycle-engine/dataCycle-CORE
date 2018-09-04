@@ -36,22 +36,3 @@ if !Rails.env.production? && DataCycleCore::User.where(given_name: 'Test', famil
     role_id:      DataCycleCore::Role.find_by(rank: 10)&.id
   )
 end
-
-if DataCycleCore::Release.count.zero?
-  DataCycleCore::Release.create!(
-    release_code: 0,
-    release_text: 'freigegeben'
-  )
-  DataCycleCore::Release.create!(
-    release_code: 1,
-    release_text: 'beim Partner'
-  )
-  DataCycleCore::Release.create!(
-    release_code: 3,
-    release_text: 'in Review'
-  )
-  DataCycleCore::Release.create!(
-    release_code: 10,
-    release_text: 'archiviert'
-  )
-end

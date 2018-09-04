@@ -73,6 +73,13 @@ describe DataCycleCore::MasterData::Validators::String do
       assert_equal(0, validator.error[:warning].size)
     end
 
+    it 'produces a warning when an unsupported keyword is used' do
+      new_template = complex_template_hash.deep_dup.merge({ 'validations' => { 'maxi' => 3 } })
+      validator = subject.new('x', new_template)
+      assert_equal(0, validator.error[:error].size)
+      assert_equal(1, validator.error[:warning].size)
+    end
+
     it 'errors out when string does not meet the pattern restriction' do
       new_template = template_hash.deep_dup.merge({ 'validations' => { 'pattern' => '/[0-9a-f]{4}-[0-9a-f]{4}/' } })
       validator = subject.new('g111-1111', new_template)

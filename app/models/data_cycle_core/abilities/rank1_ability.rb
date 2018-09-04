@@ -12,7 +12,7 @@ module DataCycleCore
         can [:read, :create, :update, :destroy, :show_history], DataCycleCore::StoredFilter, user_id: user.id
         can :read, DataCycleCore::StoredFilter, system: true
         can :read, [DataCycleCore::Subscription, :publication]
-        can [:subscribe, :history, :history_detail], CONTENT_MODELS
+        can [:subscribe, :history], CONTENT_MODELS
 
         can [:read, :create, :update, :destroy], DataCycleCore::WatchList, user_id: user.id
         can [:add_item, :remove_item], DataCycleCore::WatchList, user_id: user.id, valid_write_links?: false

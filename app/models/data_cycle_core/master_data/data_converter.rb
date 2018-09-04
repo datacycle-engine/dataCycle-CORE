@@ -5,8 +5,10 @@ module DataCycleCore
     module DataConverter
       def convert_to_type(type, data)
         case type
-        when 'key', 'string', 'number'
+        when 'key', 'number'
           data
+        when 'string'
+          DataCycleCore::MasterData::DataConverter.string_to_string(data)
         when 'datetime'
           DataCycleCore::MasterData::DataConverter.string_to_datetime(data)
         when 'boolean'
@@ -18,8 +20,10 @@ module DataCycleCore
 
       def convert_to_string(type, data)
         case type
-        when 'key', 'string', 'number'
+        when 'key', 'number'
           data
+        when 'string'
+          DataCycleCore::MasterData::DataConverter.string_to_string(data)
         when 'datetime'
           DataCycleCore::MasterData::DataConverter.datetime_to_string(data)
         when 'boolean'
@@ -29,8 +33,12 @@ module DataCycleCore
         end
       end
 
+      def self.string_to_string(value)
+        value&.unicode_normalize(:nfkc)
+      end
+
       def self.geographic_to_string(value)
-        return nil if value.nil?
+        return nil if value.blank?
         return value if value.is_a?(::String) && string_to_geographic(value).methods.include?(:geometry_type)
         raise RGeo::Error::ParseError, 'expected a geographic object of some sorts' unless value.methods.include?(:geometry_type)
         value.to_s

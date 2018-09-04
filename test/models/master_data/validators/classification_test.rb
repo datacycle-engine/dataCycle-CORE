@@ -108,7 +108,8 @@ describe DataCycleCore::MasterData::Validators::Classification do
       data_cases = [
         'abcde',
         ['abcde'],
-        [uuid, 'abcde']
+        [uuid, 'abcde'],
+        3.14
       ]
       data_cases.each do |case_item|
         validator = subject.new(case_item, template_hash)
@@ -123,6 +124,14 @@ describe DataCycleCore::MasterData::Validators::Classification do
       validator = subject.new([uuid, 'abcde', 'asödflkjasdfölkj', uuid2, 'aöslkfjasdöflj', 3, 'asödlkfasödkfj'], template_hash)
       assert_equal(5, validator.error[:error].values[0].size)
       assert_equal(0, validator.error[:warning].size)
+    end
+
+    it 'produces a warning when an unsupported keyword is used' do
+      uuid = DataCycleCore::Classification.find_by(name: 'Bild').id
+      new_template = template_hash_length.deep_dup.merge({ 'validations' => { 'maxi' => 3 } })
+      validator = subject.new(uuid, new_template)
+      assert_equal(0, validator.error[:error].size)
+      assert_equal(1, validator.error[:warning].size)
     end
   end
 end

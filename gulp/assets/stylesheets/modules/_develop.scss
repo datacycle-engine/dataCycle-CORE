@@ -509,11 +509,6 @@ select {
         text-overflow: ellipsis;
         white-space: pre;
       }
-      .history-metadata {
-        position: absolute;
-        right: 1rem;
-        top: 1rem;
-      }
       .created-at {
         white-space: nowrap;
         overflow: hidden;
@@ -710,9 +705,11 @@ video {
     color: map-get($foundation-palette, primary);
   }
   .content-pool {
-    padding: 0.5rem 0.7rem;
+    padding: 0.5rem 0.8rem;
     vertical-align: middle;
+    font-size: 0.8rem;
     &.active {
+      font-size: 0.9rem;
       cursor: auto;
     }
   }
@@ -865,6 +862,9 @@ ul.translated-locales {
 
 .form-element {
   text-align: left;
+  &.release_status_id .v-select .select2 {
+    background-color: white;
+  }
   .v-select {
     label {
       display: block;
