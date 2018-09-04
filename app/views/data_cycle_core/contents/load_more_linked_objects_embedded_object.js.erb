@@ -4,7 +4,7 @@ var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(@param
 <% content_for :rendered_items, flush: true do %>
   <% I18n.with_locale(@params[:locale] || I18n.locale) do %>
     <% @linked_objects.each_with_index do |content, index| %>
-      <%= render_embedded_object_partial(key: @params[:complete_key], definition: @params[:definition], parameters: { object: content, index: active_index_multiplier * DataCycleCore.linked_objects_page_size + index, options: @params[:options], new_content: false}, content: @object ) %>
+      <%= render_embedded_object_partial(key: @params[:complete_key], definition: @params[:definition], parameters: { object: content, index: active_index_multiplier * DataCycleCore.linked_objects_page_size + index, options: @params[:options], new_content: false}, content: content ) %>
     <% end %>
   <% end %>
 <% end %>
