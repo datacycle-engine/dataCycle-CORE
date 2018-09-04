@@ -34,7 +34,7 @@ module DataCycleCore
             data_hash[attribute_key] = parent_data if parent_data.present?
           end
 
-          data_hash[DataCycleCore::Feature::LifeCycle.attribute_key] = parent_data_hash[DataCycleCore::Feature::LifeCycle.attribute_key] if DataCycleCore::Feature::LifeCycle.enabled?
+          data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = parent_data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] if DataCycleCore::Feature::LifeCycle.enabled?
         end
 
         data_hash.compact!
