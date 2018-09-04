@@ -1,6 +1,6 @@
 <% if @content&.id.present? %>
     <div class="reveal new-item" id="newContent" data-reveal data-multiple-opened="true">
-        <h3><%= t('actions.new', data: DataCycleCore::Content.model_name.human(locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></h3>
+        <h3><%= t('actions.new', data: DataCycleCore::Content::Content.model_name.human(locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></h3>
         <%= form_for :creative_work, :url => {:action => "create"}, html: { class: 'validation-form' } do |f| %>
             <%= hidden_field_tag :table, :creative_works %>
 

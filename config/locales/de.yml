@@ -302,7 +302,7 @@ de:
       data_cycle_core/stored_filter:
         one: Gespeicherte Suche
         other: Gespeicherte Suchen
-      data_cycle_core/content:
+      data_cycle_core/content/content:
         one: Inhalt
         other: Inhalte
       data_cycle_core/external_source:

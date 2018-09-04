@@ -41,11 +41,11 @@ module DataCycleCore
     private
 
     def set_release_status
-      creator.subscriptions.find_or_create_by(subscribable_id: item.id, subscribable_type: item.class.name) if item.is_a?(DataCycleCore::Content)
+      creator.subscriptions.find_or_create_by(subscribable_id: item.id, subscribable_type: item.class.name) if item.is_a?(DataCycleCore::Content::Content)
 
       release_partner_stage_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).where(name: DataCycleCore::Feature::Releasable.get_stage('partner'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.ids
 
-      if item.is_a?(DataCycleCore::Content) && DataCycleCore::Feature::Releasable.allowed?(item) && release_partner_stage_id.present? && !item.release_status_id.include?(release_partner_stage_id)
+      if item.is_a?(DataCycleCore::Content::Content) && DataCycleCore::Feature::Releasable.allowed?(item) && release_partner_stage_id.present? && !item.release_status_id.include?(release_partner_stage_id)
         I18n.with_locale(item.first_available_locale) do
           item.set_data_hash_attribute('release_status_id', release_partner_stage_id, nil)
         end
