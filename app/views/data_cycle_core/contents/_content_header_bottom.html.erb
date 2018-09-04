@@ -20,7 +20,7 @@
     <i class="fa fa-location-arrow" aria-hidden="true"></i>
   <% end if content.respond_to?(:create_gpx) && content.geo_properties.present? %>
 
-  <%= link_to edit_polymorphic_path(content, watch_list_id: @watch_list), class:'button-prime small edit-content-link', data: { tooltip: true, click_open: false }, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
+  <%= link_to edit_polymorphic_path(content, watch_list_id: @watch_list, locale: I18n.locale), class:'button-prime small edit-content-link', data: { tooltip: true, click_open: false }, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
     <i class="fa fa-pencil" aria-hidden="true"></i>
   <% end if can? :edit, content %>
 

@@ -42,7 +42,7 @@ module DataCycleCore
 
         respond_to do |format|
           format.json { redirect_to api_v1_content_path(type: controller_name, id: params[:id]) }
-          format.html
+          format.html { render && return }
         end
       end
     end
@@ -60,20 +60,17 @@ module DataCycleCore
         object_params = content_params(controller_name, params[:template])
 
         @content = DataCycleCore::DataHashService.create_internal_object(controller_name, params[:template], object_params, current_user)
-        if @content.nil?
-          redirect_back(fallback_location: root_path)
-          return
-        end
+
+        redirect_back(fallback_location: root_path) && return if @content.nil?
 
         after_create(@content, current_user)
 
         if !@content.nil? && @content.save
           execute_after_create_webhooks @content
           flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
-          redirect_to edit_polymorphic_path(@content, (source || {}).merge(watch_list_id: @watch_list))
+          redirect_to(edit_polymorphic_path(@content, (source || {}).merge(watch_list_id: @watch_list))) && return
         else
-          redirect_back(fallback_location: root_path)
-          return
+          redirect_back(fallback_location: root_path) && return
         end
       end
     end
@@ -120,22 +117,16 @@ module DataCycleCore
       end
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
-        unless can?(:edit, @content)
-          redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
-          return
-        end
+        redirect_to(creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
 
-        render 'edit'
+        render && return
       end
     end
 
     def update
       @content = DataCycleCore::CreativeWork.find(params[:id])
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
-        unless can?(:update, @content)
-          redirect_to creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
-          return
-        end
+        redirect_to(creative_work_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:update, @content)
 
         object_params = content_params(controller_name, @content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema, false)
@@ -170,9 +161,9 @@ module DataCycleCore
         flash[:success] = I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language)
 
         if (Rails.env.development? || params[:splitview]) && !params[:finalize]
-          redirect_back(fallback_location: root_path)
+          redirect_back(fallback_location: root_path) && return
         else
-          redirect_to polymorphic_path(@content, watch_list_id: @watch_list)
+          redirect_to(polymorphic_path(@content, watch_list_id: @watch_list)) && return
         end
       end
     end
@@ -221,9 +212,9 @@ module DataCycleCore
 
       I18n.with_locale(@content.first_available_locale) do
         if @content.update_column(:is_part_of, @parent.id)
-          redirect_back(fallback_location: root_path, notice: I18n.t(:moved_to, scope: [:controllers, :success], locale: DataCycleCore.ui_language, data: @parent.title))
+          redirect_back(fallback_location: root_path, notice: I18n.t(:moved_to, scope: [:controllers, :success], locale: DataCycleCore.ui_language, data: @parent.title)) && return
         else
-          redirect_back(fallback_location: root_path, alert: @content.errors.full_messages)
+          redirect_back(fallback_location: root_path, alert: @content.errors.full_messages) && return
         end
       end
     end
