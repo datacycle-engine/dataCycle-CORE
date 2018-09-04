@@ -72,7 +72,8 @@ CREATE TABLE public.classification_aliases (
     external_source_id uuid,
     internal boolean DEFAULT false,
     deleted_at timestamp without time zone,
-    assignable boolean DEFAULT true
+    assignable boolean DEFAULT true,
+    description character varying
 );
 
 
@@ -1643,6 +1644,27 @@ CREATE UNIQUE INDEX by_cwt_cwi_locale ON public.creative_work_translations USING
 
 
 --
+-- Name: by_et_ei_locale; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX by_et_ei_locale ON public.event_translations USING btree (event_id, locale);
+
+
+--
+-- Name: by_ot_ei_locale; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX by_ot_ei_locale ON public.organization_translations USING btree (organization_id, locale);
+
+
+--
+-- Name: by_persont_pi_locale; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX by_persont_pi_locale ON public.person_translations USING btree (person_id, locale);
+
+
+--
 -- Name: by_pt_p_locale; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1654,6 +1676,13 @@ CREATE UNIQUE INDEX by_pt_p_locale ON public.place_translations USING btree (pla
 --
 
 CREATE UNIQUE INDEX child_parent_index ON public.classification_trees USING btree (classification_alias_id, parent_classification_alias_id);
+
+
+--
+-- Name: classification_content_data_history_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX classification_content_data_history_id_idx ON public.classification_content_histories USING btree (content_data_history_id);
 
 
 --
@@ -1755,6 +1784,13 @@ CREATE INDEX creative_work_locale_idx ON public.creative_work_translations USING
 
 
 --
+-- Name: cw_template_template_name_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX cw_template_template_name_idx ON public.creative_works USING btree (template, template_name);
+
+
+--
 -- Name: delayed_jobs_delayed_reference_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1780,6 +1816,34 @@ CREATE INDEX delayed_jobs_priority ON public.delayed_jobs USING btree (priority,
 --
 
 CREATE INDEX delayed_jobs_queue ON public.delayed_jobs USING btree (queue);
+
+
+--
+-- Name: deleted_at_classification_alias_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX deleted_at_classification_alias_id_idx ON public.classification_trees USING btree (deleted_at, classification_alias_id);
+
+
+--
+-- Name: deleted_at_classification_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX deleted_at_classification_id_idx ON public.classification_groups USING btree (deleted_at, classification_id);
+
+
+--
+-- Name: deleted_at_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX deleted_at_id_idx ON public.classification_aliases USING btree (deleted_at, id);
+
+
+--
+-- Name: ev_template_template_name_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ev_template_template_name_idx ON public.events USING btree (template, template_name);
 
 
 --
@@ -1822,6 +1886,13 @@ CREATE INDEX event_id_idx ON public.event_translations USING btree (event_id);
 --
 
 CREATE INDEX event_locale_idx ON public.event_translations USING btree (locale);
+
+
+--
+-- Name: extid_extkey_del_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX extid_extkey_del_idx ON public.classifications USING btree (deleted_at, external_source_id, external_key);
 
 
 --
@@ -1871,6 +1942,13 @@ CREATE INDEX index_classification_content_histories_on_classification_id ON publ
 --
 
 CREATE INDEX index_classification_contents_on_classification_id ON public.classification_contents USING btree (classification_id);
+
+
+--
+-- Name: index_classification_contents_on_content_data_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_contents_on_content_data_id ON public.classification_contents USING btree (content_data_id);
 
 
 --
@@ -1965,13 +2043,6 @@ CREATE INDEX index_creative_works_on_content_type ON public.creative_works USING
 
 
 --
--- Name: index_creative_works_on_external_key; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_creative_works_on_external_key ON public.creative_works USING btree (((metadata ->> 'external_key'::text)), external_source_id);
-
-
---
 -- Name: index_creative_works_on_external_source_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1993,10 +2064,10 @@ CREATE INDEX index_creative_works_on_is_part_of ON public.creative_works USING b
 
 
 --
--- Name: index_creative_works_on_metadata_validation_name; Type: INDEX; Schema: public; Owner: -
+-- Name: index_cw_on_external_source_id_and_external_key; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_creative_works_on_metadata_validation_name ON public.creative_works USING btree (((metadata #>> '{validation,name}'::text[])));
+CREATE INDEX index_cw_on_external_source_id_and_external_key ON public.creative_works USING btree (external_source_id, external_key);
 
 
 --
@@ -2021,10 +2092,101 @@ CREATE INDEX index_data_links_on_item_type ON public.data_links USING btree (ite
 
 
 --
+-- Name: index_e_on_external_source_id_and_external_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_e_on_external_source_id_and_external_key ON public.events USING btree (external_source_id, external_key);
+
+
+--
+-- Name: index_events_on_content_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_events_on_content_type ON public.events USING btree (((schema ->> 'content_type'::text)));
+
+
+--
+-- Name: index_events_on_external_source_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_events_on_external_source_id ON public.events USING btree (external_source_id);
+
+
+--
+-- Name: index_events_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_events_on_id ON public.events USING btree (id);
+
+
+--
 -- Name: index_external_sources_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_external_sources_on_id ON public.external_sources USING btree (id);
+
+
+--
+-- Name: index_o_on_external_source_id_and_external_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_o_on_external_source_id_and_external_key ON public.organizations USING btree (external_source_id, external_key);
+
+
+--
+-- Name: index_organizations_on_content_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_organizations_on_content_type ON public.organizations USING btree (((schema ->> 'content_type'::text)));
+
+
+--
+-- Name: index_organizations_on_external_source_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_organizations_on_external_source_id ON public.organizations USING btree (external_source_id);
+
+
+--
+-- Name: index_organizations_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_organizations_on_id ON public.organizations USING btree (id);
+
+
+--
+-- Name: index_pers_on_external_source_id_and_external_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_pers_on_external_source_id_and_external_key ON public.persons USING btree (external_source_id, external_key);
+
+
+--
+-- Name: index_persons_on_content_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_persons_on_content_type ON public.persons USING btree (((schema ->> 'content_type'::text)));
+
+
+--
+-- Name: index_persons_on_external_source_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_persons_on_external_source_id ON public.persons USING btree (external_source_id);
+
+
+--
+-- Name: index_persons_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_persons_on_id ON public.persons USING btree (id);
+
+
+--
+-- Name: index_places_on_content_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_places_on_content_type ON public.places USING btree (((schema ->> 'content_type'::text)));
 
 
 --
@@ -2056,6 +2218,13 @@ CREATE INDEX index_places_on_location ON public.places USING gist (location);
 
 
 --
+-- Name: index_releases_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_releases_on_id ON public.releases USING btree (id);
+
+
+--
 -- Name: index_roles_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2067,6 +2236,27 @@ CREATE INDEX index_roles_on_name ON public.roles USING btree (name);
 --
 
 CREATE INDEX index_roles_on_rank ON public.roles USING btree (rank);
+
+
+--
+-- Name: index_searches_on_content_data_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_searches_on_content_data_id ON public.searches USING btree (content_data_id);
+
+
+--
+-- Name: index_searches_on_locale; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_searches_on_locale ON public.searches USING btree (locale);
+
+
+--
+-- Name: index_searches_on_locale_and_content_data_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_searches_on_locale_and_content_data_id ON public.searches USING btree (locale, content_data_id);
 
 
 --
@@ -2140,6 +2330,13 @@ CREATE INDEX index_user_group_users_on_user_id ON public.user_group_users USING 
 
 
 --
+-- Name: index_user_groups_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_user_groups_on_id ON public.user_groups USING btree (id);
+
+
+--
 -- Name: index_user_groups_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2189,10 +2386,31 @@ CREATE INDEX index_watch_list_data_hashes_on_watch_list_id ON public.watch_list_
 
 
 --
+-- Name: index_watch_lists_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_watch_lists_on_id ON public.watch_lists USING btree (id);
+
+
+--
+-- Name: index_watch_lists_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_watch_lists_on_user_id ON public.watch_lists USING btree (user_id);
+
+
+--
 -- Name: name_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX name_idx ON public.classification_aliases USING gin (name public.gin_trgm_ops);
+
+
+--
+-- Name: or_template_template_name_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX or_template_template_name_idx ON public.organizations USING btree (template, template_name);
 
 
 --
@@ -2245,6 +2463,13 @@ CREATE UNIQUE INDEX parent_child_index ON public.classification_trees USING btre
 
 
 --
+-- Name: pe_template_template_name_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX pe_template_template_name_idx ON public.persons USING btree (template, template_name);
+
+
+--
 -- Name: person_histories_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2284,6 +2509,13 @@ CREATE INDEX person_id_idx ON public.person_translations USING btree (person_id)
 --
 
 CREATE INDEX person_locale_idx ON public.person_translations USING btree (locale);
+
+
+--
+-- Name: pl_template_template_name_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX pl_template_template_name_idx ON public.places USING btree (template, template_name);
 
 
 --
@@ -2435,6 +2667,11 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180525084148'),
 ('20180529105933'),
 ('20180703135948'),
-('20180705133931');
+('20180705133931'),
+('20180811125951'),
+('20180812123536'),
+('20180813133739'),
+('20180814141924'),
+('20180815132305');
 
 

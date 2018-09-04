@@ -12,13 +12,13 @@ module DataCycleCore
 
       redirect_back(fallback_location: root_path) && return if @content.nil?
 
-      if DataCycleCore::Feature::Container.enabled? && @content.content_type?('entity') && !['Bild', 'Video'].include?(@content.template_name)
+      if DataCycleCore::Feature::Container.enabled? && @content.content_type?('entity') && !['Bild', 'Video', 'Video-Serie', 'Foto-Serie'].include?(@content.template_name)
         I18n.with_locale(DataCycleCore.ui_language) do
           @parents = DataCycleCore::CreativeWork.where("schema ->> 'content_type' = 'container' AND template = FALSE").includes(:translations).map { |c| [c.title, c.id] }.presence&.to_h
         end
       end
 
-      I18n.with_locale(@content.first_available_locale) do
+      I18n.with_locale(@content.first_available_locale(params[:locale])) do
         if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container')
           @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
           @filters.push(
@@ -243,7 +243,7 @@ module DataCycleCore
     def after_create(content, current_user)
       object_params = content_params(controller_name, params[:template])
 
-      return if content.schema['content_type'] == 'container' || params[:template] == 'Video-Serie'
+      return if content.schema['content_type'] == 'container' || ['Video-Serie', 'Foto-Serie'].include?(params[:template])
       if params[:parent_id].blank? && params[:template] == DataCycleCore::Feature::IdeaCollection.template
         parent = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:parent_template], object_params, current_user)
         life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::IdeaCollection.life_cycle_stage, :id)

@@ -10,8 +10,9 @@ module DataCycleCore
         can [:show, :find], :object_browser
 
         can :edit, DataCycleCore::DataAttribute do |attribute|
-          if DataCycleCore::Feature::PublicationSchedule.allowed?(attribute.content)
-
+          if attribute.definition.dig('ui', 'edit', 'readonly')
+            false
+          elsif DataCycleCore::Feature::PublicationSchedule.allowed?(attribute.content)
             !(
               (attribute.key =~ Regexp.union(*DataCycleCore.features.dig(:publication_schedule, :classification_keys))) &&
               !DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(attribute.content, attribute.key)
@@ -33,6 +34,11 @@ module DataCycleCore
             (
               !DataCycleCore::Feature::Overlay.allowed?(attribute.content) &&
               DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
+            ) ||
+            (
+              attribute.definition.dig('tree_label').present? &&
+              DataCycleCore::ClassificationTreeLabel.where(name: attribute.definition.dig('tree_label'))&.first&.external_source_id.present? &&
+              DataCycleCore::ClassificationTreeLabel.where(name: attribute.definition.dig('tree_label'))&.first&.external_source_id != attribute.content.try(:external_source_id)
             )
         end
 

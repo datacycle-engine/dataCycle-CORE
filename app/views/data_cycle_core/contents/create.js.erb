@@ -5,7 +5,7 @@ $('#object_browser_<%= sanitize_to_id(params[:key]) %> .items .no-results').remo
 
   $('<%= params[:overlay_id] %>').find('.items .loading').before('<%= j render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: {object: @content, options: params[:options], objects: params[:objects], editable: params[:editable]}) if !@content.nil? %>');
 
-  $('<%= params[:overlay_id] %>').find('.item-info').html('<%= escape_javascript(render_object_browser_partial(partial: 'detail', key: params[:key], definition: params[:definition], parameters: {object: @content, options: params[:options]})) %>');
+  $('<%= params[:overlay_id] %>').find('.item-info-scrollable').html('<%= escape_javascript(render_object_browser_partial(partial: 'detail', key: params[:key], definition: params[:definition], parameters: {object: @content, options: params[:options]})) %>');
 
   $('<%= params[:overlay_id] %>').trigger('import-complete', {id: '<%= @content.id %>'});
 

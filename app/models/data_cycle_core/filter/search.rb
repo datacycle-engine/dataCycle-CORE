@@ -59,6 +59,19 @@ module DataCycleCore
         reflect(@query.where(search[:content_data_id].in(query)))
       end
 
+      def creator(ids = nil)
+        return self if ids.blank?
+
+        joined_creators = content_content.alias('joined_creators')
+        join_query = search.join(joined_creators)
+          .on(search[:content_data_id].eq(joined_creators[:content_a_id]).and(search[:content_data_type].eq(quoted(joined_creators[:content_a_type]))).and(joined_creators[:relation_a].eq('creator'))).join_sources
+
+        @query = @query.joins(join_query)
+          .where(joined_creators[:content_b_id].in(ids))
+
+        reflect(@query)
+      end
+
       def watch_list_id(id = nil)
         manager = get_watch_list_items(id)
 
@@ -108,8 +121,10 @@ module DataCycleCore
       def classification_alias_ids(ids = nil)
         return self if ids.blank?
 
-        manager = create_classification_alias_recursion(ids)
-        reflect(@query.where(search[:content_data_id].in(manager)))
+        # manager = create_classification_alias_recursion(ids)
+        # reflect(@query.where(search[:content_data_id].in(manager)))
+
+        reflect(@query.with_classification_aliases(ids))
       end
 
       def with_classification_alias_ids_without_recursion(ids = nil)
@@ -125,7 +140,7 @@ module DataCycleCore
         reflect(
           @query.where(id: DataCycleCore::Search.joins(:classification_aliases).merge(
             DataCycleCore::ClassificationAlias.for_tree(tree_name).with_name(aliases).with_descendants
-          ))
+          ).where(search[:locale].eq(@locale)))
         )
       end
 
@@ -148,7 +163,6 @@ module DataCycleCore
         Arel::SelectManager.new
           .project(search[:content_data_id])
           .from(search)
-          .where(search[:locale].eq(@locale))
           .join(classification_content)
           .on(search[:content_data_id].eq(classification_content[:content_data_id]))
           .join(classification)
@@ -157,6 +171,12 @@ module DataCycleCore
           .on(classification[:id].eq(classification_group[:classification_id]))
           .join(classification_alias)
           .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .where(
+            search[:locale].eq(@locale)
+            .and(classification[:deleted_at].eq(nil))
+            .and(classification_group[:deleted_at].eq(nil))
+            .and(classification_alias[:deleted_at].eq(nil))
+          )
       end
 
       def join_watch_list
