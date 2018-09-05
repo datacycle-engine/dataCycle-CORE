@@ -99,6 +99,7 @@ de:
     portrait: Hochformat
     height: Höhe
     width: Breite
+    children_present_html: '<br><br><b>Achtung:</b> Es gibt verknüpfte Inhalte, diese werden mitgelöscht!'
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -387,7 +388,7 @@ de:
       one: 'ACHTUNG: Mit dieser Klassifizierung ist <b>1</b> Inhalt verknüpft!'
       other: 'ACHTUNG: Mit dieser Klassifizierung sind <b>%{count}</b> Inhalte verknüpft!'
     child_classification_relations:
-      one: 'ACHTUNG: %{data} ist <b>1</b> Klassifizierung zugeordnet. Dies wird mitgelöscht!'
+      one: 'ACHTUNG: %{data} ist <b>1</b> Klassifizierung zugeordnet. Diese wird mitgelöscht!'
       other: 'ACHTUNG: %{data} sind <b>%{count}</b> Klassifizierungen zugeordnet.<br>Diese werden mitgelöscht!'
     stored_searches:
       my_searches: Meine Suchen

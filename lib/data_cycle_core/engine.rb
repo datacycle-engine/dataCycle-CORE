@@ -106,7 +106,8 @@ module DataCycleCore
         enabled: false
       },
       overlay: {
-        enabled: false
+        enabled: false,
+        attribute_keys: ['overlay']
       },
       releasable: {
         enabled: false,
@@ -143,7 +144,8 @@ module DataCycleCore
         creator: true
       },
       geocode: {
-        enabled: false
+        enabled: false,
+        attributes_keys: ['address']
       }
     }
 

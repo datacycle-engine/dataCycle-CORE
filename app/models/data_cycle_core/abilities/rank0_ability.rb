@@ -22,7 +22,7 @@ module DataCycleCore
             (
               attribute.content.try(:external_key).blank? ||
               (
-                DataCycleCore::Feature::Overlay.allowed?(attribute.content) &&
+                DataCycleCore::Feature::Overlay.enabled? &&
                 DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
               )
             )
@@ -32,7 +32,7 @@ module DataCycleCore
         cannot :show, DataCycleCore::DataAttribute do |attribute|
           (attribute.definition.dig('ui', attribute.scope.to_s, 'disabled') == true && attribute.options.presence&.dig(:force_render).blank?) ||
             (
-              !DataCycleCore::Feature::Overlay.allowed?(attribute.content) &&
+              !DataCycleCore::Feature::Overlay.enabled? &&
               DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
             ) ||
             (
