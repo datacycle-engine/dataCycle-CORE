@@ -50,7 +50,7 @@ module DataCycleCore
         def configuration(content = nil)
           config = {}
           config = config.merge(DataCycleCore.features.dig(name.demodulize.underscore.to_sym) || {})
-          config = config.merge({ name.demodulize.underscore => content&.schema&.dig('features', name.demodulize.underscore) }.compact)
+          config = config.merge(content&.schema&.dig('features', name.demodulize.underscore) || {})
           config = config.merge(content&.collect_properties&.map { |k| content&.schema&.dig('properties', *k, 'features', name.demodulize.underscore).presence&.merge({ 'attribute_keys': (k.is_a?(Array) ? [k.last] : [k]), 'tree_label': content&.schema&.dig('properties', *k, 'tree_label') }) }.presence&.compact&.first || {})
           config&.deep_stringify_keys
         end
