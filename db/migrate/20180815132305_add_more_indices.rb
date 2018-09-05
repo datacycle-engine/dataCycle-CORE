@@ -5,7 +5,7 @@ class AddMoreIndices < ActiveRecord::Migration[5.1]
     add_index :watch_lists, :id unless index_exists?(:watch_lists, :id)
     add_index :watch_lists, :user_id unless index_exists?(:watch_lists, :user_id)
     add_index :user_groups, :id unless index_exists?(:user_groups, :id)
-    add_index :releases, :id unless index_exists?(releases, :id)
+    add_index :releases, :id unless index_exists?(:releases, :id)
     add_index :classifications, [:deleted_at, :external_source_id, :external_key], name: 'extid_extkey_del_idx' unless index_exists?(:classifications, [:deleted_at, :external_source_id, :external_key], name: 'extid_extkey_del_idx')
     add_index :classification_groups, [:deleted_at, :classification_id], name: 'deleted_at_classification_id_idx' unless index_exists?(:classification_groups, [:deleted_at, :classification_id], name: 'deleted_at_classification_id_idx')
     add_index :classification_aliases, [:deleted_at, :id], name: 'deleted_at_id_idx' unless index_exists?(:classification_aliases, [:deleted_at, :id], name: 'deleted_at_id_idx')
