@@ -6,13 +6,74 @@
   <% end %>
 
   <div class="v-select">
-      <% classification_items = DataCycleCore::ClassificationTreeLabel.find_by(name: definition['tree_label'])&.classification_trees&.includes(:parent_classification_alias, sub_classification_alias: [:classifications, sub_classification_alias: [:classifications, sub_classification_alias: [:classifications, :sub_classification_alias]]]) %>
+      <% classification_items = DataCycleCore::ClassificationTreeLabel
+        .find_by(name: definition['tree_label'])
+        &.classification_trees
+        &.includes(
+          :parent_classification_alias, sub_classification_alias: [
+            :classifications, sub_classification_alias: [
+              :classifications, sub_classification_alias: [
+                :classifications, :sub_classification_alias
+              ]
+            ]
+          ]
+        ) %>
       <% if classification_items.size > DataCycleCore.max_asynch_classification_items %>
-          <%= select_tag(key, value.blank? ? nil : options_for_select(value.map {|c| [c.try(:name), c.id, { title: c.primary_classification_alias.full_path }]}, value&.map(&:id)), {multiple: true, disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)), class: 'async-select', data: {tree_label: definition['tree_label'], max: 20, placeholder: ''}}) %>
+          <%= select_tag(
+            key,
+            value.blank? ? nil : options_for_select(
+              value.map { |c|
+                [
+                  c.try(:name),
+                  c.id,
+                  {
+                    title: [
+                      c.primary_classification_alias.full_path,
+                      c.primary_classification_alias.description
+                    ].reject(&:blank?).join("\n\n")
+                  }
+                ]
+              }, value&.map(&:id)
+            ),
+            {
+              multiple: true,
+              disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)),
+              class: 'async-select',
+              data: {
+                tree_label: definition['tree_label'],
+                max: 20,
+                placeholder: ''
+              }
+            }.merge(definition.dig('ui', 'edit', 'options') || {})
+          ) %>
       <% else %>
-          <% available_items = classification_items&.map{ |c| [c.sub_classification_alias.try(:name), c.sub_classification_alias&.primary_classification.try(:id), { title: c.sub_classification_alias.full_path }] } %>
+          <% available_items = classification_items&.map { |c|
+            [
+              c.sub_classification_alias.try(:name),
+              c.sub_classification_alias&.primary_classification.try(:id),
+              {
+                title: [
+                  c.sub_classification_alias.full_path,
+                  c.sub_classification_alias.description
+                ].reject(&:blank?).join("\n\n")
+              }
+            ]
+          } %>
 
-          <%= select_tag(key, options_for_select(available_items, value&.map(&:id)), { multiple: true, disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)), class: 'multi-select', data: { tree_label: definition['tree_label'], max: 20, placeholder: '' } }) %>
+          <%= select_tag(
+            key,
+            options_for_select(available_items, value&.map(&:id)),
+            {
+              multiple: true,
+              disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)),
+              class: 'multi-select',
+              data: {
+                tree_label: definition['tree_label'],
+                max: 20,
+                placeholder: ''
+              }
+            }.merge(definition.dig('ui', 'edit', 'options') || {})
+          ) %>
       <% end %>
 
     <% value.presence&.each do |c| %>

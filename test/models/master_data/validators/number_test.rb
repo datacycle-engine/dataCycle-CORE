@@ -91,5 +91,12 @@ describe DataCycleCore::MasterData::Validators::Number do
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
+
+    it 'produces a warning when an unsupported keyword is used' do
+      new_template = template_hash_val.deep_dup.merge({ 'validations' => { 'maxi' => 3 } })
+      validator = subject.new(7.999, new_template)
+      assert_equal(0, validator.error[:error].size)
+      assert_equal(1, validator.error[:warning].size)
+    end
   end
 end

@@ -24,7 +24,9 @@ module DataCycleCore
 
     before_create :set_default_role
 
-    include UserHelpers
+    def full_name
+      name || "#{given_name} #{family_name}"
+    end
 
     def admin?
       admin

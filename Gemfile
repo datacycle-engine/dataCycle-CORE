@@ -32,6 +32,8 @@ group :development, :test, :review do
   gem 'capistrano3-delayed-job'
   gem 'capistrano3-puma'
 
+  gem 'simplecov', require: false
+
   # activate for performance profiling
   # performance profiling
   # gem 'rack-mini-profiler'

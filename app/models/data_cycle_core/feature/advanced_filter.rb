@@ -7,7 +7,7 @@ module DataCycleCore
         def available_filters
           filters = []
           DataCycleCore.features.dig(name.demodulize.underscore.to_sym)&.except(:enabled)&.each do |key, value|
-            filters.concat(try(key.to_sym, value) || [])
+            filters.concat(try(key.to_sym, value) || default(key.to_s, value) || [])
           end
           filters
         end
@@ -34,13 +34,13 @@ module DataCycleCore
           end
         end
 
-        def external_source(value)
+        def default(key, value)
           if value
             [
               [
-                I18n.t('filter.Externe_Quellen', default: 'Externe Quellen', locale: DataCycleCore.ui_language),
-                'external_source',
-                data: { name: 'Externe Quellen' }
+                I18n.t("filter.#{key}", default: key.capitalize, locale: DataCycleCore.ui_language),
+                key,
+                data: { name: key.capitalize }
               ]
             ]
           else

@@ -6,7 +6,7 @@
 
         <%= form_for(temp_object.class.new, html: {class: 'validation-form'} ) do |f| %>
             <%= hidden_field_tag 'template', temp_object.template_name %>
-            <%= hidden_field_tag "#{temp_object.class.name.demodulize.underscore}[datahash][#{DataCycleCore::Feature::LifeCycle.attribute_key}][]", DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(life_cycle_name, :id) if DataCycleCore::Feature::LifeCycle.enabled? && local_assigns.has_key?(:life_cycle_name) %>
+            <%= hidden_field_tag "#{temp_object.class.name.demodulize.underscore}[datahash][#{DataCycleCore::Feature::LifeCycle.attribute_keys.first}][]", DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(life_cycle_name, :id) if DataCycleCore::Feature::LifeCycle.enabled? && local_assigns.has_key?(:life_cycle_name) %>
             <%= hidden_field_tag 'parent_template', parent_template if local_assigns.has_key?(:parent_template) %>
             <%= hidden_field_tag 'table', "#{temp_object.class.table_name}" %>
 

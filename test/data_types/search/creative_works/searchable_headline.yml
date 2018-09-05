@@ -1,0 +1,23 @@
+---
+- :data:
+    :name: Searchable Headline
+    :type: object
+    :content_type: entity
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :headline:
+        :label: Headline
+        :type: string
+        :storage_location: column
+        :search: true
+      :tag:
+        :label: Tags
+        :type: classification
+        :tree_label: Tags
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: Searchable Headline

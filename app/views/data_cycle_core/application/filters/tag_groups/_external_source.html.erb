@@ -1,14 +1,16 @@
 <span class="tag-group tags" data-id="<%= "#{sanitize_to_id(key)}_#{index}" if buttons ||= false %>">
   <i class="tag-group-label">
     <i class="fa fa-external-link" aria-hidden="true"></i>
-    <%= t("filter.#{key}", default: key, locale: DataCycleCore.ui_language) %>:
+    <%= t("filter.#{key.parameterize(separator: '_')}", default: key, locale: DataCycleCore.ui_language) %>:
   </i>
 
   <% external_sources = DataCycleCore::ExternalSource.select(:id, :name).where(id: value).map { |c| [c.id, c.name] }.to_h %>
 
-  <% value.each do |external_source_id| %>
-    <span class="tag"><%= external_sources[external_source_id] %></span>
-  <% end %>
+  <span class="tags-container">
+    <% value.each do |external_source_id| %>
+      <span class="tag"><%= external_sources[external_source_id] %></span>
+    <% end %>
+  </span>
 
   <% if buttons %>
     <span class="tag-buttons">

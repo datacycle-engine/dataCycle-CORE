@@ -1,4 +1,6 @@
 de:
+  title: dataCycle
+  email_footer_html: ""
   hello: "Servas!"
   order:
     header: "Sortierung"
@@ -110,6 +112,8 @@ de:
   filter:
     add: Filter hinzufügen
     language: Sprache
+    external_source: Externe Quelle
+    creator: Ersteller
 
   terms:
     valid: gültig
@@ -298,7 +302,7 @@ de:
       data_cycle_core/stored_filter:
         one: Gespeicherte Suche
         other: Gespeicherte Suchen
-      data_cycle_core/content:
+      data_cycle_core/content/content:
         one: Inhalt
         other: Inhalte
       data_cycle_core/external_source:

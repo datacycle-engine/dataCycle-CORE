@@ -63,9 +63,9 @@ module DataCycleCore
 
       datahash['permitted_creator'] = current_user.try(:role).try(:rank) == 3 ? [DataCycleCore::Classification.find_by(name: 'Markt Office').try(:id)] : [DataCycleCore::Classification.find_by(name: 'Team CM').try(:id)]
 
-      object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true)
+      valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true)
 
-      return nil unless object.save
+      return nil if valid[:error].present?
       object
     end
 
@@ -76,9 +76,6 @@ module DataCycleCore
         temp_params = []
 
         template_hash['properties'].each do |key, value|
-          orig_key = key
-          key = 'value' if value['releasable']
-
           if value['type'] == 'embedded'
             object_properties = get_internal_template(value['linked_table'], value['template_name'])
             key = { key.to_sym => get_params_from_hash(object_properties.schema) }
@@ -89,8 +86,6 @@ module DataCycleCore
           else
             key = key.to_sym
           end
-
-          key = { orig_key.to_sym => [key, 'release_id', 'release_comment'] } if value['releasable']
 
           temp_params.push(key)
         end

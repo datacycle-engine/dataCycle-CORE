@@ -5,7 +5,7 @@
 
   <div class="advanced-filter-title">
     <%= render 'data_cycle_core/shared/icon', icon_type: filter_name.downcase %>
-    <span><%= t("filter.#{filter_name}", default: filter_name, locale: DataCycleCore.ui_language) %></span>
+    <span><%= t("filter.#{filter_name.parameterize(separator: '_')}", default: filter_name, locale: DataCycleCore.ui_language) %></span>
   </div>
 
   <div class="advanced-filter-mode">

@@ -43,3 +43,12 @@ Die Gesamtanzahl wird innerhalb des ```meta```-Attributs mit dem Namen ```total`
 * **next**: Link zur nächsten Seite
 * **last**: Link zur letzten Seite
 
+
+## Aktualisierungen
+
+Für einige Anwendungsfälle kann es notwendig sein, herauszufinden, welche Datensätze innerhalb einer vorgegeben Zeitspanne geändert worden sind. Zu diesem Zweck können bei API-Endpunkten, über die mehrere Inhalte auf der gleichen Ebene ausgeliefert werden, also grundsätzliche alle Endpunkte, die auch Paging unterstützen, zusätzliche Filter-Parameter genutzt werden. Dadurch kann die Anzahl der Datensätze, die geladen werden müssen, erheblich reduziert werden. Außerdem muss die Prüfung, ob es seit dem letzten Update neue Änderungen gegeben hat, nicht client-seitig durchgeführt werden, wodurch die Client-Anwendung noch einmal deutlich entlastet werden kann. Die Filter die für diesen Mechanismus genutzt werden können sehen folgendermaßen aus:
+
+* **filter[created_since]**: Es werden nur Datensätzen ausgeliefert, die seit dem übergebenen Zeitpunkt erstellt worden sind
+* **filter[modified_since]**: Es werden nur Datensätzen ausgeliefert, die sich seit dem übergebenen Zeitpunkt geändert haben
+
+Der Zeitpunkt muss dabei entsprechend den Vorgaben von [RFC 3339](https://tools.ietf.org/html/rfc3339) übergeben werden. Eine Anfrage könnte beispielsweise folgendermaßen aussehen: [/api/v2/classification_trees?filter[created_since]=2018-03-28T23:57](/api/v2/classification_trees?filter[created_since]=2018-03-28T23:57).

@@ -38,8 +38,8 @@ module DataCycleCore
           # validate references
           embedded_template = ('DataCycleCore::' + template['linked_table'].classify).constantize
             .find_by(template: true, template_name: template['template_name'])
-          if template.blank?
-            (@error[:error][@template_key] ||= []) << I18n.t(:no_template, scope: [:validation, :errors], name: name, locale: DataCycleCore.ui_language)
+          if template.blank? || embedded_template.blank?
+            (@error[:error][@template_key] ||= []) << I18n.t(:no_template, scope: [:validation, :errors], name: template&.dig('linked_table'), locale: DataCycleCore.ui_language)
             return
           end
           data.each do |item|
@@ -51,19 +51,6 @@ module DataCycleCore
               (@error[:error][@template_key] ||= []) << I18n.t(:data_format_embedded, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language)
             end
           end
-        end
-
-        def verify_embedded_object(data, def_template)
-          return if data.empty?
-          template = ('DataCycleCore::' + def_template['linked_table'].classify).constantize
-            .find_by(template: true, template_name: def_template['template_name'])
-          if template.blank?
-            (@error[:error][@template_key] ||= []) << I18n.t(:no_template, scope: [:validation, :errors], name: name, locale: DataCycleCore.ui_language)
-            return
-          end
-
-          validator_object = DataCycleCore::MasterData::ValidateData.new
-          merge_errors(validator_object.validate(data, template.schema))
         end
 
         def classifications(data_hash, _template_hash)

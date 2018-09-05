@@ -7,8 +7,8 @@ var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(@param
         <li class="<%= [
                           'copy-single',
                             'content',
-                            content.class.name.demodulize.underscore.sub('_', '-'),
-                            content.template_name.underscore.sub('_', '-'),
+                            content.class.name.demodulize.underscore.dasherize,
+                            content.template_name.underscore.dasherize,
                         ].join(' ') %>" data-id="<%= [content.id] %>">
 
             <%= render_first_existing_partial [

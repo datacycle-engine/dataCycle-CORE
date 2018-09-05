@@ -31,6 +31,11 @@ module.exports.initialize = function () {
           select2_helpers.removeTreeLabel(result, tree_label);
           select2_helpers.decorateResult(result);
 
+          if (data.description !== undefined && data.description !== '') {
+            result.attr('title', data.title + '\n\n' + data.description);
+            data.title = data.title + '\n\n' + data.description;
+          }
+
           return result;
         },
         templateSelection: function (data) {
@@ -80,7 +85,7 @@ module.exports.initialize = function () {
           }
 
           var term = query.term || '';
-          var text_value = data.title || data.text;
+          var text_value = data.name || data.text;
           var result = text_value ? select2_helpers.markMatch(text_value, term) : null;
           select2_helpers.removeTreeLabel(result, tree_label);
           select2_helpers.decorateResult(result);

@@ -27,9 +27,9 @@ ConfirmationModal.prototype.setup = function () {
 
 ConfirmationModal.prototype.addEvents = function () {
   var self = this;
-  $('#' + this.id).on('click', function (event) {
-    if (event.target !== this) return;
-    self.close();
+  $('#' + this.id).on('click', event => {
+    if (event.target !== event.currentTarget) return;
+    this.cancel();
   });
   $('#' + this.id + ' .close-button, #' + this.id + ' .confirmation-cancel').on('click', this.cancel.bind(this));
 
