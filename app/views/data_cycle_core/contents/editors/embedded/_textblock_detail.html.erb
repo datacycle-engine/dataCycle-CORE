@@ -3,7 +3,7 @@
     <% if object.schema.present? %>
 
         <% validation_properties = ordered_validation_properties(validation: object.schema) %>
-        <div class="content-object-item textblock" id="<%= sanitize_to_id(key) %>_item_<%= index %>" data-id="<%= object.id %>">
+        <div class="content-object-item textblock draggable_<%= sanitize_to_id(key) %>" id="<%= sanitize_to_id(key) %>_item_<%= index %>" data-id="<%= object.id %>">
 
             <%= hidden_field_tag("#{key}[#{index}][id]", object.id) unless new_content %>
 
@@ -19,7 +19,7 @@
                 <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
             <% end %>
 
-            <%= render_attribute_editor key: "#{key}[#{index}][text]", definition: validation_properties['text'], value: object.try(:text), parameters: { options: (validation_properties['text'].presence&.dig('editor', 'options') || {}), new_content: new_content }, content: object %>
+            <%= render_attribute_editor key: "#{key}[#{index}][text]", definition: validation_properties['text'], value: object.try(:text), parameters: { options: (validation_properties['text'].presence&.dig('editor', 'options') || {}), new_content: new_content, parent: object }, content: content %>
         </div>
     <% end %>
 <% end %>
