@@ -7,8 +7,8 @@
     :features:
       :geocode:
         :allowed: true
-      :overlay: ['overlay']
-      :geocode: 'address'
+      :overlay:
+        :allowed: true
     :api:
       :type: TouristAttraction
     :properties:
