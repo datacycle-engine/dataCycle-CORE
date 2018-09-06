@@ -27,9 +27,14 @@ module.exports.initialize = function () {
           }
 
           var term = query.term || '';
-          var result = data.name ? select2_helpers.markMatch(data.name, term) : null;
+          var result = data.title ? select2_helpers.markMatch(data.title, term) : null;
           select2_helpers.removeTreeLabel(result, tree_label);
           select2_helpers.decorateResult(result);
+
+          if (data.description !== undefined && data.description !== '') {
+            result.attr('title', data.title + '\n\n' + data.description);
+            data.title = data.title + '\n\n' + data.description;
+          }
 
           return result;
         },

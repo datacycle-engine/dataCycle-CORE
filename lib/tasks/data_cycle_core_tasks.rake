@@ -491,12 +491,12 @@ namespace :data_cycle_core do
       logger.info('Started Archiving...')
       temp = Time.zone.now
       archive_life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.values&.last&.dig(:id)
-      archive_release_id = DataCycleCore::Release.order(release_code: :desc)&.first&.id
+      archive_release_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('archive'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.id
 
       ids = DataCycleCore::Search.where('upper(validity_period) < ?', Date.current).map { |s| s.content_data&.id }
 
       DataCycleCore.content_tables.each do |table_name|
-        if archive_release_id.present?
+        if DataCycleCore::Feature::Releasable.attribute_keys.present? && archive_release_id.present?
           contents = ('DataCycleCore::' + table_name.singularize.classify).constantize
             .where(id: ids)
             .expired_not_release_id(archive_release_id)
@@ -522,8 +522,10 @@ namespace :data_cycle_core do
             index += 1
 
             I18n.with_locale(content.first_available_locale) do
-              content.set_data_hash(data_hash: content.get_data_hash)
-              content.translations.update_all(release_id: archive_release_id, release_comment: I18n.t('common.archived', locale: DataCycleCore.ui_language))
+              data_hash = content.get_data_hash
+              data_hash[DataCycleCore::Feature::Releasable.attribute_keys.first] = [archive_release_id]
+              data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = I18n.t('common.archived', locale: DataCycleCore.ui_language)
+              content.set_data_hash(data_hash: data_hash)
               logger.info("Archived (release_status): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
             end
           end
@@ -533,10 +535,9 @@ namespace :data_cycle_core do
           logger.warn('No Release found.')
         end
 
-        if DataCycleCore::Feature::LifeCycle.attribute_key.present? && archive_life_cycle_id.present?
+        if DataCycleCore::Feature::LifeCycle.attribute_keys.present? && archive_life_cycle_id.present?
           contents = ('DataCycleCore::' + table_name.singularize.classify).constantize
             .where(id: ids)
-            .where('classification_contents.relation = ?', DataCycleCore::Feature::LifeCycle.attribute_key)
             .expired_not_life_cycle_id(archive_life_cycle_id)
             .with_content_type('entity').distinct
 
@@ -563,7 +564,7 @@ namespace :data_cycle_core do
 
             I18n.with_locale(content.first_available_locale) do
               data_hash = content.get_data_hash
-              data_hash[DataCycleCore::Feature::LifeCycle.attribute_key] = [archive_life_cycle_id]
+              data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = [archive_life_cycle_id]
               content.set_data_hash(data_hash: data_hash)
               logger.info("Archived (life_cycle): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
             end
@@ -588,13 +589,14 @@ namespace :data_cycle_core do
       temp = Time.zone.now
       archive_life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.values&.last&.dig(:id)
       valid_life_cycle_id = DataCycleCore::Classification.find_by(name: 'Aktuelle Inhalte')&.id
-      archive_release_id = DataCycleCore::Release.order(release_code: :desc)&.first&.id
-      valid_release_id = DataCycleCore::Release.order(release_code: :desc)&.last&.id
+
+      archive_release_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('archive'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.id
+      valid_release_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('valid'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.id
 
       DataCycleCore.content_tables.each do |table_name|
-        if archive_release_id.present?
-          contents = ('DataCycleCore::' + table_name.singularize.classify).constantize.includes(:translations)
-            .where(release_id: archive_release_id, template_name: ['Bild', 'Video'])
+        if DataCycleCore::Feature::Releasable.attribute_keys.present? && archive_release_id.present?
+          contents = ('DataCycleCore::' + table_name.singularize.classify).constantize.joins(:classifications)
+            .where(template_name: ['Bild', 'Video'], classifications: { id: archive_release_id })
             .where("metadata ->> 'validity_period' IS NULL OR ((metadata -> 'validity_period' ->> 'valid_from' IS NULL OR metadata -> 'validity_period' ->> 'valid_from' < :today) AND (metadata -> 'validity_period' ->> 'valid_until' IS NULL OR metadata -> 'validity_period' ->> 'valid_until' > :today))", today: Date.current)
             .with_content_type('entity').distinct
 
@@ -620,9 +622,15 @@ namespace :data_cycle_core do
             index += 1
 
             I18n.with_locale(content.first_available_locale) do
-              content.set_data_hash(data_hash: content.get_data_hash)
-              content.translations.update_all(release_id: valid_release_id, release_comment: I18n.t('common.unarchived', locale: DataCycleCore.ui_language))
-              logger.info("Unarchived (release_status): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
+              data_hash = content.get_data_hash
+              data_hash[DataCycleCore::Feature::Releasable.attribute_keys.first] = [valid_release_id]
+              data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = I18n.t('common.unarchived', locale: DataCycleCore.ui_language)
+              errors = content.set_data_hash(data_hash: data_hash)
+              if errors[:error].present?
+                logger.warn("Fehler (#{content.id}): #{errors[:error]}")
+              else
+                logger.info("Unarchived (release_status): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
+              end
             end
           end
 
@@ -631,15 +639,13 @@ namespace :data_cycle_core do
           logger.warn('No Release found.')
         end
 
-        if DataCycleCore::Feature::LifeCycle.attribute_key.present? && archive_life_cycle_id.present?
+        if DataCycleCore::Feature::LifeCycle.attribute_keys.present? && archive_life_cycle_id.present?
           contents = ('DataCycleCore::' + table_name.singularize.classify).constantize.joins(:classifications)
             .where(template_name: ['Bild', 'Video'], classifications: { id: archive_life_cycle_id })
             .where("metadata ->> 'validity_period' IS NULL OR ((metadata -> 'validity_period' ->> 'valid_from' IS NULL OR metadata -> 'validity_period' ->> 'valid_from' < :today) AND (metadata -> 'validity_period' ->> 'valid_until' IS NULL OR metadata -> 'validity_period' ->> 'valid_until' > :today))", today: Date.current)
             .with_content_type('entity').distinct
 
           contents = contents.where(is_part_of: nil) if ActiveRecord::Base.connection.column_exists?(table_name, 'is_part_of')
-
-          # raise contents.to_sql.inspect
 
           index = 0
           items_count = contents.size
@@ -663,7 +669,7 @@ namespace :data_cycle_core do
             begin
               I18n.with_locale(content.first_available_locale) do
                 data_hash = content.get_data_hash
-                data_hash[DataCycleCore::Feature::LifeCycle.attribute_key] = [valid_life_cycle_id]
+                data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = [valid_life_cycle_id]
                 errors = content.set_data_hash(data_hash: data_hash)
                 if errors[:error].present?
                   logger.warn("Fehler (#{content.id}): #{errors[:error]}")
@@ -854,6 +860,104 @@ namespace :data_cycle_core do
 
       puts 'END'
       puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
+    end
+
+    desc 'update Releasable to Classification'
+    task migrate_release_to_classification: :environment do
+      temp = Time.zone.now
+      puts 'MIGRATE RELEASABLE'
+      puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
+
+      DataCycleCore.content_tables.each do |table_name|
+        puts "MIGRATING ==> #{table_name}"
+        sql = <<-EOS
+          INSERT INTO classification_contents (content_data_id, content_data_type, classification_id, relation, created_at, updated_at)
+          SELECT DISTINCT ON (#{table_name}.id) #{table_name}.id AS content_data_id, 'DataCycleCore::#{table_name.singularize.classify}' AS content_data_type, (
+            SELECT classification_groups.classification_id
+            FROM classification_aliases
+            INNER JOIN classification_trees
+            ON classification_aliases.id = classification_trees.classification_alias_id
+            INNER JOIN classification_tree_labels
+            ON classification_trees.classification_tree_label_id = classification_tree_labels.id
+            INNER JOIN classification_groups
+            ON classification_aliases.id = classification_groups.classification_alias_id
+            WHERE classification_tree_labels.name = 'Release-Stati'
+            AND classification_aliases.name = releases.release_text
+            ORDER BY classification_groups.created_at DESC
+            LIMIT 1
+          ) AS classification_id, 'release_status_id' AS relation, current_timestamp AS created_at, current_timestamp AS updated_at
+          FROM #{table_name}
+          INNER JOIN #{table_name.singularize}_translations
+          ON #{table_name}.id = #{table_name.singularize}_translations.#{table_name.singularize}_id
+          INNER JOIN releases
+          ON #{table_name.singularize}_translations.release_id = releases.id
+          WHERE (#{table_name}.schema -> 'features' -> 'releasable' ->> 'allowed' = 'true')
+          AND #{table_name.singularize}_translations.release_id IS NOT NULL
+          ORDER BY #{table_name}.id, #{table_name.singularize}_translations.updated_at DESC
+          ON CONFLICT (content_data_id, content_data_type, classification_id, relation)
+          DO NOTHING
+        EOS
+        ActiveRecord::Base.connection.execute(sql)
+
+        comment_sql = <<-EOS
+          UPDATE #{table_name}
+          SET metadata = jsonb_insert(#{table_name}.metadata,
+                  '{release_status_comment}',
+                  to_jsonb(#{table_name.singularize}_translations.release_comment))
+          FROM #{table_name.singularize}_translations
+          WHERE #{table_name}.id = #{table_name.singularize}_translations.#{table_name.singularize}_id
+          AND #{table_name.singularize}_translations.release_comment IS NOT NULL
+          AND (#{table_name}.schema -> 'features' -> 'releasable' ->> 'allowed' = 'true')
+          AND (#{table_name}.metadata ->> 'release_status_comment' IS NULL)
+        EOS
+        ActiveRecord::Base.connection.execute(comment_sql)
+
+        puts "MIGRATING ==> #{table_name.singularize}_histories"
+        sql = <<-EOS
+          INSERT INTO classification_content_histories (content_data_history_id, content_data_history_type, classification_id, relation, created_at, updated_at)
+          SELECT DISTINCT ON (#{table_name.singularize}_histories.id) #{table_name.singularize}_histories.id AS content_data_history_id, 'DataCycleCore::#{table_name.singularize.classify}::History' AS content_data_history_type, (
+            SELECT classification_groups.classification_id
+            FROM classification_aliases
+            INNER JOIN classification_trees
+            ON classification_aliases.id = classification_trees.classification_alias_id
+            INNER JOIN classification_tree_labels
+            ON classification_trees.classification_tree_label_id = classification_tree_labels.id
+            INNER JOIN classification_groups
+            ON classification_aliases.id = classification_groups.classification_alias_id
+            WHERE classification_tree_labels.name = 'Release-Stati'
+            AND classification_aliases.name = releases.release_text
+            ORDER BY classification_groups.created_at DESC
+            LIMIT 1
+          ) AS classification_id, 'release_status_id' AS relation, current_timestamp AS created_at, current_timestamp AS updated_at
+          FROM #{table_name.singularize}_histories
+          INNER JOIN #{table_name.singularize}_history_translations
+          ON #{table_name.singularize}_histories.id = #{table_name.singularize}_history_translations.#{table_name.singularize}_history_id
+          INNER JOIN releases
+          ON #{table_name.singularize}_history_translations.release_id = releases.id
+          WHERE (#{table_name.singularize}_histories.schema -> 'features' -> 'releasable' ->> 'allowed' = 'true')
+          AND #{table_name.singularize}_history_translations.release_id IS NOT NULL
+          ORDER BY #{table_name.singularize}_histories.id, #{table_name.singularize}_history_translations.updated_at DESC
+          ON CONFLICT (content_data_history_id, content_data_history_type, classification_id, relation)
+          DO NOTHING
+        EOS
+        ActiveRecord::Base.connection.execute(sql)
+
+        comment_sql = <<-EOS
+          UPDATE #{table_name.singularize}_histories
+          SET metadata = jsonb_insert(#{table_name.singularize}_histories.metadata,
+                  '{release_status_comment}',
+                  to_jsonb(#{table_name.singularize}_history_translations.release_comment))
+          FROM #{table_name.singularize}_history_translations
+          WHERE #{table_name.singularize}_histories.id = #{table_name.singularize}_history_translations.#{table_name.singularize}_history_id
+          AND #{table_name.singularize}_history_translations.release_comment IS NOT NULL
+          AND (#{table_name.singularize}_histories.schema -> 'features' -> 'releasable' ->> 'allowed' = 'true')
+          AND (#{table_name.singularize}_histories.metadata ->> 'release_status_comment' IS NULL)
+        EOS
+        ActiveRecord::Base.connection.execute(comment_sql)
+      end
+
+      puts 'END'
+      puts "--> MIGRATION COMPLETE time: #{((Time.zone.now - temp) / 60).to_i} min"
     end
   end
 end

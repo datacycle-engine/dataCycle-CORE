@@ -32,7 +32,7 @@ module DataCycleCore
 
           overlays = {}
           DataCycleCore::Feature::OverlayAttributeService.call(content).each do |attribute|
-            overlays[attribute] = [content.send(attribute).first&.get_data_hash] if content.respond_to?(attribute)
+            overlays[attribute] = [content.send(attribute).first&.get_data_hash].compact.presence if content.respond_to?(attribute)
           end
           error = content.set_data_hash(data_hash: overlays.merge(data), prevent_history: true, update_search_all: false)
 

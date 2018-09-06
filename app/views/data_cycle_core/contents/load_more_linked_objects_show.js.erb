@@ -7,8 +7,8 @@ var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(@param
         <li class="<%= [
                           'copy-single',
                             'content',
-                            content.class.name.demodulize.underscore.sub('_', '-'),
-                            content.template_name.underscore.sub('_', '-'),
+                            content.class.name.demodulize.underscore.dasherize,
+                            content.template_name.underscore.dasherize,
                         ].join(' ') %>" data-id="<%= [content.id] %>">
 
             <%= render_first_existing_partial [
@@ -22,7 +22,23 @@ var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(@param
       <% end %>
     <% end %>
     <div class="clear-both">
-      <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path([:load_more_linked_objects, @object], key: @params[:key], definition: @params[:definition], options: @params[:options], page: @params.fetch(:page, 1).to_i + 1, load_more_action: :show, locale: @params[:locale] || I18n.locale), remote: true, id: "load_more_#{@object&.id}_#{sanitize_to_id(@params[:key])}", class: 'load-more-linked-contents button small secondary', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" } if @linked_objects.try(:total_pages)&.positive? && !@linked_objects&.last_page? %>
+      <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path(
+        [:load_more_linked_objects, @object],
+        key: @params[:key],
+        definition: @params[:definition],
+        options: @params[:options],
+        page: @params.fetch(:page, 1).to_i + 1,
+        load_more_action: :show,
+        locale: (@params[:locale] || I18n.locale),
+        content_id: @content.id,
+        content_type: @content.class.table_name
+      ),
+      remote: true,
+      id: "load_more_#{@object&.id}_#{sanitize_to_id(@params[:key])}",
+      class: 'load-more-linked-contents button small secondary',
+      data: {
+        disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"
+      } if @linked_objects.try(:total_pages)&.positive? && !@linked_objects&.last_page? %>
     </div>
   <% end %>
 

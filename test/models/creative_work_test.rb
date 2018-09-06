@@ -875,6 +875,7 @@ module DataCycleCore
         'kind' => []
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator'))
+      assert_equal(data_set.cache_key.to_s, "data_cycle_core/creative_works/#{data_set.id}-#{data_set.updated_at.utc.to_s(:usec)}/data_cycle_core/creative_work/translations/#{data_set.translations.first.id}-#{data_set.translations.first.updated_at.utc.to_s(:usec)}-de")
     end
 
     test 'save CreativeWork with sub-properties' do

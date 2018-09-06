@@ -127,23 +127,20 @@ namespace :data_cycle_core do
       ActiveRecord::Base.connection.select_all "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE datname='#{ActiveRecord::Base.connection_config[:database]}' AND pid <> pg_backend_pid();"
     end
 
-    desc 'import live db'
-    task :import_live_db, [:rails_env] => [:environment] do |_, args|
+    desc 'import db from [cap_environment]'
+    task :import_remote_db, [:cap_environment] => [:environment] do |_, args|
       logger = Logger.new('log/import_live_db.log')
       logger.info('Started Importing Live DB...')
 
-      begin
-        sh 'cap production review:download_dev_db[true]'
-        sh "mv tmp/dev_db.sql db/backups/#{args.fetch(:rails_env, 'staging')}/dev_db.sql"
+      sh "cap #{args.fetch(:cap_environment, 'pre_release')} review:download_dev_db[true]"
+      sh "mkdir -p db/backups/#{ENV.fetch('RAILS_ENV', 'development')}/"
+      sh "mv tmp/dev_db.sql db/backups/#{ENV.fetch('RAILS_ENV', 'development')}/dev_db.sql"
 
-        ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
+      ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
 
-        Rake::Task['data_cycle_core:db:clear_connections'].invoke
-        Rake::Task['data_cycle_core:db:restore'].invoke('dev_db.sql')
-        logger.info('Imported Live DB successfully')
-      rescue StandardError => e
-        logger.warn e
-      end
+      Rake::Task['data_cycle_core:db:clear_connections'].invoke
+      Rake::Task['data_cycle_core:db:restore'].invoke('dev_db.sql')
+      logger.info('Imported Live DB successfully')
     end
 
     private

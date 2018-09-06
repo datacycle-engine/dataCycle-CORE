@@ -29,7 +29,7 @@ module DataCycleCore
               SELECT *
               FROM classification_trees
               WHERE classification_trees.parent_classification_alias_id IN (#{classification_alias_ids})
-                OR classification_trees.classification_alias_id IN (#{classification_alias_ids})
+              OR classification_trees.classification_alias_id IN (#{classification_alias_ids})
               UNION ALL
               SELECT classification_trees.*
               FROM classification_trees

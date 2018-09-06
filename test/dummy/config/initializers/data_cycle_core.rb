@@ -32,16 +32,13 @@ DataCycleCore.setup do |config|
   config.external_sources_path = Rails.root.join('config', 'external_sources').freeze
   # config.excluded_new_item_objects = ['Event', 'Person', 'Örtlichkeit', 'Bild', 'Organization', 'Zeitleiste', 'Linktipps', 'Datei', 'Tour', 'Video', 'Unterkunft']
 
-  config.features = config.features.merge(
+  config.features = config.features.deep_merge(
     {
       publication_schedule: {
         enabled: true,
         classification_keys: ['output_channel']
       },
       overlay: {
-        enabled: true
-      },
-      releasable: {
         enabled: true
       },
       container: {

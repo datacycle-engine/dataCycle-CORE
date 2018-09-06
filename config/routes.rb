@@ -26,12 +26,11 @@ DataCycleCore::Engine.routes.draw do
   resources :user_groups
 
   scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
-    resources(*DataCycleCore.content_tables.map(&:to_sym), only: [:index, :show, :create, :edit, :update, :history, :history_detail, :destroy]) do
-      # resources :creative_works, only: [:index, :show, :create, :edit, :update, :history, :history_detail, :destroy] do
+    resources(*DataCycleCore.content_tables.map(&:to_sym), only: [:index, :show, :create, :edit, :update, :destroy]) do
+      # resources :creative_works, only: [:index, :show, :create, :edit, :update, :history, :destroy] do
       post :import, on: :collection
       post :set_parent, on: :member
-      get 'history', on: :member
-      get 'history_detail', on: :member
+      get 'history/:history_id', action: :history, on: :member, as: :history
       get 'compare', on: :member
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :geocode_address, on: :collection
@@ -40,12 +39,13 @@ DataCycleCore::Engine.routes.draw do
       post :validate, on: :member
       post :validate, on: :collection
       patch :update_life_cycle_stage, on: :member
-    end
-
-    resources(*DataCycleCore.content_tables.map(&:to_sym)) do
-      match '*path', action: 'catch_all', on: :member, via: :all
+      get :new_embedded_object, on: :member
+      get :render_embedded_object, on: :member
     end
   end
+
+  type_regexp = Regexp.new(*DataCycleCore.content_tables.map(&:to_sym).join('|'))
+  match '/:type/:id/*path', action: 'catch_all', constraints: { type: type_regexp }, via: :all
 
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :stored_filters, only: [:index, :create, :update, :destroy], path: :search_history do
@@ -153,8 +153,6 @@ DataCycleCore::Engine.routes.draw do
     post :find
   end
 
-  post 'contents/new_embedded_object', to: 'contents#new_embedded_object'
-  post 'contents/render_embedded_object', to: 'contents#render_embedded_object'
   post 'contents/upload', to: 'contents#upload'
 
   resources :publications, only: :index

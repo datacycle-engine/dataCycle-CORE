@@ -10,7 +10,7 @@ module DataCycleCore
     setup do
       @routes = Engine.routes
 
-      sign_in User.find_by(email: 'admin@datacycle.at')
+      sign_in(User.find_by(email: 'admin@datacycle.at'))
     end
 
     test 'all classification trees are displayed' do

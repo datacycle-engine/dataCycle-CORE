@@ -13,7 +13,7 @@ services:
   web:
     build: .
     environment:
-#    - RAILS_ENV=test
+    # - RAILS_ENV=test
     - POSTGRES_USER=postgres
     - POSTGRES_PASSWORD=
     - POSTGRES_HOST=postgres
@@ -24,11 +24,13 @@ services:
     - APP_HOST=localhost:3010
     - APP_PROTOCOL=http
     - MAILHOG_HOST=mailhog
+    - SSH_AUTH_SOCK=/ssh-agent
     command:
     - ./docker/setup.sh
     volumes:
     - 'gems:/gems'
     - '.:/var/www/app'
+    - $SSH_AUTH_SOCK:/ssh-agent
     user: root
     ports:
     - '3010:3000'

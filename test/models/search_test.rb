@@ -21,7 +21,7 @@ module DataCycleCore
       }
       data_set.set_data_hash(data_hash: data_hash)
       data_set.save
-      data_set.set_search
+      data_set.update_search(I18n.locale)
       data_set.save
 
       assert(1, DataCycleCore::Search.count)
@@ -39,10 +39,6 @@ describe DataCycleCore::Search do
     result = content.set_data_hash(data_hash: data.stringify_keys)
     raise 'InvalidData' if result[:error].present?
     content.save!
-
-    content.set_search
-    content.save!
-
     content
   end
 
@@ -81,7 +77,7 @@ describe DataCycleCore::Search do
         'Searchable Headline',
         {
           headline: 'HEADLINE 2',
-          tag: DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 2')
+          tag: DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 2', 'Nested Tag 1')
                                                  .map(&:classifications).flatten.map(&:id)
         }
       ),
@@ -129,6 +125,13 @@ describe DataCycleCore::Search do
       .with_classification_aliases(find_classification_alias_ids('Inhaltstypen', 'Searchable Headline'))
       .with_classification_aliases(find_classification_alias_ids('Tags', 'Tag 1'))
       .with_classification_aliases(find_classification_alias_ids('Tags', 'Tag 2'))
+      .count.must_equal 1
+  end
+
+  it 'filters contents based on nested classifications' do
+    DataCycleCore::Search
+      .with_classification_aliases(find_classification_alias_ids('Inhaltstypen', 'Searchable Headline'))
+      .with_classification_aliases(find_classification_alias_ids('Tags', 'Nested Tag 1'))
       .count.must_equal 1
   end
 end

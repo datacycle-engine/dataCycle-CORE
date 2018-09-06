@@ -5,8 +5,10 @@
     :content_type: entity
     :boost: 10.0
     :features:
-      :overlay: ['overlay']
-      :geocode: 'address'
+      :overlay:
+        :allowed: true
+      :geocode:
+        :allowed: true
     :properties:
       :id:
         :label: id

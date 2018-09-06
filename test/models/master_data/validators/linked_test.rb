@@ -83,6 +83,35 @@ describe DataCycleCore::MasterData::Validators::Linked do
       end
     end
 
+    it 'errors out if a wrong data type is given' do
+      template_hash = creator_hash.deep_dup
+      data_cases = [
+        3,
+        6.14,
+        Time.zone.now
+      ]
+      data_cases.each do |item_case|
+        validator = subject.new(item_case, template_hash)
+        assert_equal(1, validator.error[:error].size)
+        assert_equal(0, validator.error[:warning].size)
+      end
+    end
+
+    it 'errors out if a wrong keyword is given' do
+      template_hash = creator_hash.deep_dup
+      template_hash['validations'] = { 'maxi' => 5 }
+      validator = subject.new(SecureRandom.uuid, template_hash)
+      assert_equal(1, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
+    end
+
+    it 'errors out if an invalid uuid is given in an array' do
+      template_hash = creator_hash.deep_dup
+      validator = subject.new([SecureRandom.uuid, 5], template_hash)
+      assert_equal(1, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
+    end
+
     it 'errors out when a wrong number of linked items are given' do
       template_hash = creator_hash.deep_dup
       template_hash['validations'] = { 'min' => 2, 'max' => 3 }
