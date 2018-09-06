@@ -19,11 +19,11 @@ namespace :data_cycle_core do
 
         case args[:mode]
         when 'review'
-          cmd = "PGCLUSTER=9.6/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions' --exclude-table-data='*histories'"
+          cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '9.6')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions' --exclude-table-data='*histories'"
         when 'full'
-          cmd = "PGCLUSTER=9.6/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions'"
+          cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '9.6')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions'"
         else
-          cmd = "PGCLUSTER=9.6/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}'"
+          cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '9.6')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}'"
         end
       end
 
@@ -52,7 +52,7 @@ namespace :data_cycle_core do
             else
               full_path = "#{backup_dir}/#{args[:backup_name]}.#{dump_sfx}"
             end
-            cmd = "PGCLUSTER=9.6/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -t '#{table_name}' -f '#{full_path}'"
+            cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '9.6')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -t '#{table_name}' -f '#{full_path}'"
           end
 
           puts cmd
@@ -97,7 +97,7 @@ namespace :data_cycle_core do
             when 'p'
               cmd = "psql --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{file}'"
             else
-              cmd = "PGCLUSTER=9.6/main pg_restore -F #{fmt} -v -c -C -U --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{file}'"
+              cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '9.6')}/main pg_restore -F #{fmt} -v -c -C -U --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{file}'"
             end
           else
             puts "Too many files match the pattern '#{pattern}':"
