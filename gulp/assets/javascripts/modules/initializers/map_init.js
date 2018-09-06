@@ -26,8 +26,10 @@ var ol = {
   interaction: {
     Draw: require('ol/interaction/draw').default,
     Modify: require('ol/interaction/modify').default,
-    Snap: require('ol/interaction/snap').default
+    Snap: require('ol/interaction/snap').default,
+    MouseWheelZoom: require('ol/interaction/mousewheelzoom').default
   },
+  interactions: require('ol/interaction').default,
   proj: require('ol/proj').default
 };
 
@@ -170,7 +172,26 @@ function init_map(idx, item) {
     ]
   });
 
+  // var mouse_wheel_zoom = new ol.interaction.MouseWheelZoom();
+
+  // var oldFn = mouse_wheel_zoom.handleEvent;
+  // mouse_wheel_zoom.handleEvent = function (e) {
+  //   var type = e.type;
+  //   if (type !== "wheel") {
+  //     return true;
+  //   }
+
+  //   if (!e.originalEvent.ctrlKey) {
+  //     return true
+  //   }
+
+  //   oldFn.call(this, e);
+  // }
+
   var map = new ol.Map({
+    // interactions: ol.interactions.defaults({
+    //   mouseWheelZoom: false
+    // }).extend([mouse_wheel_zoom]),
     target: map_id,
     layers: [
       new ol.layer.Tile({
