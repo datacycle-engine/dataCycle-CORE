@@ -37,7 +37,6 @@ module DataCycleCore
       @advanced_filters = @filters.select { |f| f['c'] == 'a' }
       @selected_classifications = @default_filters.map { |c| c['v'] }.flatten.compact.uniq
       @selected_classification_aliases = DataCycleCore::ClassificationAlias
-        .select(:id, :name)
         .where(
           id: @filters
             .select { |f| f['t'] == 'classification_alias_ids' }
@@ -46,7 +45,7 @@ module DataCycleCore
             .compact
             .uniq
         )
-        .map { |c| [c.id, c.name] }.to_h
+        .map { |c| [c.id, c] }.to_h
 
       query
     end

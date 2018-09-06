@@ -32,12 +32,12 @@
           value.blank? ? nil : options_for_select(
             value.map { |c|
               [
-                c.try(:name),
-                c.id,
+                @selected_classification_aliases[c].try(:name),
+                c,
                 {
                   title: [
-                    c.primary_classification_alias.full_path,
-                    c.primary_classification_alias.description
+                    @selected_classification_aliases[c].full_path,
+                    @selected_classification_aliases[c].description
                   ].reject(&:blank?).join("\n\n")
                 }
               ]
