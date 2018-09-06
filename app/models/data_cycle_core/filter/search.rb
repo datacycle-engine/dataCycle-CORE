@@ -123,6 +123,8 @@ module DataCycleCore
           order_expression = { content_data_id: :asc }
         end
 
+        order_expression = ActiveRecord::Base.send(:sanitize_sql_for_order, order_expression)
+
         query = @query.model
           .select(:content_data_id, :content_data_type)
           .order(order_string)
