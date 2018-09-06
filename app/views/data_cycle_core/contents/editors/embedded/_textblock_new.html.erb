@@ -2,7 +2,7 @@
     <% internal_template = DataCycleCore::DataHashService.get_internal_template(definition['linked_table'], definition['template_name']) %>
     <% validation_properties = ordered_validation_properties(validation: internal_template.schema) %>
 
-    <div class="content-object-item textblock" id="<%= sanitize_to_id(key) %>_item_<%= index %>">
+    <div class="content-object-item textblock draggable_<%= sanitize_to_id(key) %>" id="<%= sanitize_to_id(key) %>_item_<%= index %>">
     <span class="embedded-header form-element validation-container">
         <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, internal_template, :edit)) %>
           <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
@@ -15,6 +15,6 @@
             <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
         <% end %>
 
-        <%= render_attribute_editor key: "#{key}[#{index}][text]", definition: validation_properties['text'], value: nil, parameters: { options: (validation_properties['text'].presence&.dig('editor', 'options') || {})}, content: internal_template %>
+        <%= render_attribute_editor key: "#{key}[#{index}][text]", definition: validation_properties['text'], value: nil, parameters: { options: (validation_properties['text'].presence&.dig('editor', 'options') || {}), parent: internal_template }, content: content %>
     </div>
 <% end %>

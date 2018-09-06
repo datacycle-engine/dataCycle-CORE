@@ -40,7 +40,25 @@
           </div>
 
           <div class="buttons clear-both">
-            <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path([:load_more_linked_objects, content], key: key.split('[').last[0...-1], complete_key: key, definition: definition, options: options, page: params.fetch(:page, 1).to_i + 1, load_more_action: :object_browser, editable: can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)), locale: I18n.locale), remote: true, id: "load_more_#{content&.id}_#{sanitize_to_id(key)}", class: 'load-more-linked-contents button', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.load_more', locale: DataCycleCore.ui_language)}..." } if objects.try(:total_pages)&.positive? && !objects&.last_page? %>
+            <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path(
+              [:load_more_linked_objects, local_assigns[:parent] || content],
+              key: key.split('[').last[0...-1],
+              complete_key: key,
+              definition: definition,
+              options: options,
+              page: params.fetch(:page, 1).to_i + 1,
+              load_more_action: :object_browser,
+              editable: can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)),
+              locale: I18n.locale,
+              content_id: content.id,
+              content_type: content.class.table_name
+            ),
+            remote: true,
+            id: "load_more_#{content&.id}_#{sanitize_to_id(key)}",
+            class: 'load-more-linked-contents button',
+            data: {
+              disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.load_more', locale: DataCycleCore.ui_language)}..."
+            } if objects.try(:total_pages)&.positive? && !objects&.last_page? %>
 
             <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
               <button class="button show-objectbrowser" id="show-object-browser-<%= sanitize_to_id(key) %>" type="button" data-open="object_browser_<%= sanitize_to_id(key) %>">
