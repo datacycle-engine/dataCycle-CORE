@@ -39,6 +39,8 @@ DataCycleCore::Engine.routes.draw do
       post :validate, on: :member
       post :validate, on: :collection
       patch :update_life_cycle_stage, on: :member
+      get :new_embedded_object, on: :member
+      get :render_embedded_object, on: :member
     end
   end
 
@@ -151,8 +153,6 @@ DataCycleCore::Engine.routes.draw do
     post :find
   end
 
-  post 'contents/new_embedded_object', to: 'contents#new_embedded_object'
-  post 'contents/render_embedded_object', to: 'contents#render_embedded_object'
   post 'contents/upload', to: 'contents#upload'
 
   resources :publications, only: :index

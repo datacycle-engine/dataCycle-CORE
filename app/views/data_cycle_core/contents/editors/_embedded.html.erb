@@ -14,13 +14,14 @@
          data-per="<%= DataCycleCore.linked_objects_page_size %>"
          data-max="<%= definition.dig('validations', 'max') || 0 %>"
          data-min="<%= definition.dig('validations', 'min') || 0 %>"
-         data-parent-id="<%= content.id %>"
-         data-parent-content-type="<%= content.class.name.demodulize.tableize %>"
+         data-content-id="<%= content.id %>"
+         data-content-type="<%= content.class.table_name %>"
+         data-url="<%= polymorphic_path(content) %>"
          data-write="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>">
 
         <% if objects.present? %>
             <% objects.each_with_index do |object, index| %>
-                <%= render_embedded_object_partial(key: key, definition: definition, parameters: { object: object, index: index, options: options, new_content: new_content ||= false }, content: object) %>
+                <%= render_embedded_object_partial(key: key, definition: definition, parameters: { object: object, index: index, options: options, new_content: new_content ||= false }, content: content) %>
             <% end %>
 
             <% value.presence&.ids&.reject {|v| objects.presence&.ids&.include?(v)}&.each_with_index do |id, index| %>
@@ -31,7 +32,24 @@
         <% end %>
 
         <div class="buttons">
-            <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path([:load_more_linked_objects, content], key: key.split('[').last[0...-1], complete_key: key, definition: definition, options: options, page: params.fetch(:page, 1).to_i + 1, load_more_action: :embedded_object, editable: can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit))), remote: true, id: "load_more_#{content&.id}_#{sanitize_to_id(key)}", class: 'load-more-linked-contents button', data: {disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.load_more', locale: DataCycleCore.ui_language)}..."} if objects.try(:total_pages)&.positive? && !objects&.last_page? %>
+            <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path(
+              [:load_more_linked_objects, local_assigns[:parent] || content],
+              key: key.split('[').last[0...-1],
+              complete_key: key,
+              definition: definition,
+              options: options,
+              page: params.fetch(:page, 1).to_i + 1,
+              load_more_action: :embedded_object,
+              editable: can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)),
+              content_id: content.id,
+              content_type: content.class.table_name
+            ),
+            remote: true,
+            id: "load_more_#{content&.id}_#{sanitize_to_id(key)}",
+            class: 'load-more-linked-contents button',
+            data: {
+              disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.load_more', locale: DataCycleCore.ui_language)}..."
+            } if objects.try(:total_pages)&.positive? && !objects&.last_page? %>
 
             <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
                 <button id="add_<%= sanitize_to_id(key) %>" type="button" class="button addContentObject" style="display: none;"><%= definition['label'] %>

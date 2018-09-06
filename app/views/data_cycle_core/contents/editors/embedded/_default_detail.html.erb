@@ -5,7 +5,7 @@
         <% validation_properties = ordered_validation_properties(validation: object.schema) %>
         <% if !validation_properties.nil? %>
 
-            <div class="content-object-item" id="<%= sanitize_to_id(key) %>_item_<%= index %>" data-id="<%= object.id %>">
+            <div class="content-object-item draggable_<%= sanitize_to_id(key) %>" id="<%= sanitize_to_id(key) %>_item_<%= index %>" data-id="<%= object.id %>">
 
                 <span class="embedded-header">
                   <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
@@ -21,9 +21,8 @@
                 <%= hidden_field_tag("#{key}[#{index}][id]", object.id) unless new_content %>
 
                 <% validation_properties.each do |o_key, o_prop| %>
-
                     <% value = object.try(o_key.to_sym) %>
-                    <%= render_attribute_editor key: "#{key}[#{index}][#{o_key}]", definition: o_prop, value: value, parameters: { options: (o_prop.dig('ui', 'edit', 'options') || {}), new_content: new_content }, content: content %>
+                    <%= render_attribute_editor key: "#{key}[#{index}][#{o_key}]", definition: o_prop, value: value, parameters: { options: (o_prop.dig('ui', 'edit', 'options') || {}), new_content: new_content, parent: object }, content: content %>
                 <% end %>
             </div>
 

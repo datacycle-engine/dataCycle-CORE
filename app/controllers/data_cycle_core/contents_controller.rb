@@ -163,22 +163,22 @@ module DataCycleCore
     end
 
     def new_embedded_object
-      @object = @objects = data_cycle_object(params[:definition]['linked_table'])
+      objects_class = data_cycle_object(params.dig(:definition, 'linked_table'))
+      @content = data_cycle_object(controller_name).find(params[:id])
 
-      return if params.dig(:parent_content_type).nil? || params.dig(:parent_id).nil?
-
-      parent_object = data_cycle_object(params[:parent_content_type]).find_by(id: params[:parent_id])
-
-      return if !can?(:edit, @object) && !can?(:edit, parent_object)
+      return unless can?(:edit, objects_class) || can?(:edit, @content)
 
       respond_to(:js)
     end
 
     # only used in split-view
     def render_embedded_object
-      @object = data_cycle_object(params[:definition]['linked_table'])
-      authorize! :edit, @object
-      @objects = @object.where(id: params[:id]).includes(:translations)
+      objects_class = data_cycle_object(params.dig(:definition, 'linked_table'))
+      authorize! :edit, objects_class
+
+      @objects = objects_class.where(id: params[:id]).includes(:translations)
+      @content = data_cycle_object(controller_name).find(params[:id])
+
       respond_to(:js)
     end
 
@@ -226,6 +226,7 @@ module DataCycleCore
     end
 
     def load_more_linked_objects
+      @content = data_cycle_object(linked_object_params[:content_type]).find(linked_object_params[:content_id]) if linked_object_params[:content_type].present?
       @object = data_cycle_object(controller_name).find(linked_object_params[:id])
       authorize! :show, @object
 
@@ -312,7 +313,7 @@ module DataCycleCore
     end
 
     def linked_object_params
-      params.permit(:id, :key, :page, :load_more_action, :locale, :load_more_type, :complete_key, :editable, definition: {}, load_more_except: [], options: {})
+      params.permit(:id, :key, :page, :load_more_action, :locale, :load_more_type, :complete_key, :editable, :content_id, :content_type, definition: {}, load_more_except: [], options: {})
     end
 
     def life_cycle_params
