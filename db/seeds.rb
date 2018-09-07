@@ -13,6 +13,10 @@ if DataCycleCore::Role.count.zero?
     rank: 10,
     name: 'admin'
   )
+  DataCycleCore::Role.create!(
+    rank: 99,
+    name: 'super_admin'
+  )
 end
 
 if DataCycleCore::User.where(given_name: 'Ad', family_name: 'Ministrator', email: 'admin@datacycle.at').count.zero?
@@ -22,7 +26,7 @@ if DataCycleCore::User.where(given_name: 'Ad', family_name: 'Ministrator', email
     email:        'admin@datacycle.at',
     admin:        true,
     password:     '3amMQf74vp7Zpfdi',
-    role_id:      DataCycleCore::Role.find_by(rank: 10)&.id
+    role_id:      DataCycleCore::Role.order('rank DESC').first.id
   )
 end
 
@@ -33,6 +37,6 @@ if !Rails.env.production? && DataCycleCore::User.where(given_name: 'Test', famil
     email:        'tester@datacycle.at',
     admin:        true,
     password:     'w9NGXs2ZLUydJF8r',
-    role_id:      DataCycleCore::Role.find_by(rank: 10)&.id
+    role_id:      DataCycleCore::Role.order('rank DESC').first.id
   )
 end
