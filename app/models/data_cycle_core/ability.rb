@@ -10,7 +10,7 @@ module DataCycleCore
       return unless user
       can :show, :all
 
-      DataCycleCore::Role.ranks_lte(user.role&.rank.to_i).each do |rank|
+      [*0..10, 99].each do |rank|
         begin
           merge DataCycleCore::Abilities.const_get("rank_#{rank}_ability".classify).new(user, session)
         rescue NameError
