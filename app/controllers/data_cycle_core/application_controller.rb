@@ -26,7 +26,7 @@ module DataCycleCore
     end
 
     def current_ability
-      @current_ability ||= ::Ability.new(current_user, session)
+      @current_ability ||= DataCycleCore::Ability.new(current_user, session)
     end
 
     def add_filter
