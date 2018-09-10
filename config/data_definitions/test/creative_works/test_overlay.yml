@@ -11,8 +11,6 @@
         :label: Titel
         :type: string
         :storage_location: translated_value
-        :validations:
-          :min: 1
       :description:
         :label: Teasertext
         :type: string
