@@ -4,9 +4,13 @@ module DataCycleCore
   module Content
     class DataHash < DataCycleCore::Content::Content
       self.abstract_class = true
+
+      DataCycleCore.features.select { |_, v| v[:enabled] }.each do |key, _value|
+        module_name = ('DataCycleCore::Feature::DataHash::' + key.to_s.classify).constantize
+        include module_name
+      end
       include CreateHistory
       include UpdateSearch
-      include Features
 
       define_model_callbacks :save_data_hash, only: :before
       define_model_callbacks :saved_data_hash, only: :after
@@ -39,6 +43,33 @@ module DataCycleCore
 
       def set_last_updated_by
         @data_hash = @data_hash.merge({ 'last_updated_by' => [@current_user.presence&.id || (@prevent_history ? try(:last_updated_by).presence&.first&.id : nil)] })
+      end
+
+      def set_data_hash_attribute(key, value, current_user, save_time = Time.zone.now)
+        @save_time = save_time
+        @current_user = current_user
+        key_hash = schema.dig('properties', key)
+        return if key_hash.nil?
+        ActiveRecord::Base.transaction do
+          storage_cases_set(key, value, key_hash)
+        end
+      end
+
+      def get_inherit_datahash(parent)
+        data_hash = get_data_hash
+
+        I18n.with_locale(parent.first_available_locale) do
+          parent_data_hash = parent.get_data_hash
+
+          DataCycleCore.inheritable_attributes.each do |attribute_key|
+            parent_data = parent_data_hash[attribute_key]
+            data_hash[attribute_key] = parent_data if parent_data.present?
+          end
+
+          data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = parent_data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] if DataCycleCore::Feature::LifeCycle.enabled?
+        end
+
+        data_hash.compact!
       end
 
       def validate(data)
