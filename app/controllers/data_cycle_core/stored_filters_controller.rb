@@ -51,7 +51,7 @@ module DataCycleCore
     def search
       authorize! :show, :stored_filter
 
-      stored_filters = DataCycleCore::StoredFilter.where('name ILIKE :q', q: "%#{params[:q]}%").limit(20)
+      stored_filters = DataCycleCore::StoredFilter.where('user_id = ? AND name ILIKE ?', current_user.id, "%#{params[:q]}%").limit(20)
 
       render json: stored_filters
     end

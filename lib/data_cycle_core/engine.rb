@@ -148,6 +148,9 @@ module DataCycleCore
       geocode: {
         enabled: false,
         attributes_keys: ['address']
+      },
+      gpx_converter: {
+        enabled: true
       }
     }
 
